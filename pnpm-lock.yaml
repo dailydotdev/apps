@@ -398,6 +398,9 @@ importers:
       '@growthbook/growthbook-react':
         specifier: ^0.17.0
         version: 0.17.0(react@18.3.1)
+      '@hookform/resolvers':
+        specifier: 5.2.2
+        version: 5.2.2(react-hook-form@7.54.2(react@18.3.1))
       '@kickass-coderz/react':
         specifier: ^0.0.4
         version: 0.0.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -449,6 +452,9 @@ importers:
       parsecurrency:
         specifier: ^1.1.1
         version: 1.1.1
+      react-hook-form:
+        specifier: 7.54.2
+        version: 7.54.2(react@18.3.1)
       react-markdown:
         specifier: ^8.0.7
         version: 8.0.7(@types/react@18.3.12)(react@18.3.1)
@@ -476,6 +482,9 @@ importers:
       webextension-polyfill:
         specifier: ^0.12.0
         version: 0.12.0
+      zod:
+        specifier: 4.1.8
+        version: 4.1.8
     devDependencies:
       '@babel/preset-env':
         specifier: ^7.27.2
@@ -820,6 +829,9 @@ importers:
       '@dailydotdev/shared':
         specifier: workspace:*
         version: link:../shared
+      '@hookform/resolvers':
+        specifier: 5.2.2
+        version: 5.2.2(react-hook-form@7.54.2(react@18.3.1))
       '@kickass-coderz/react':
         specifier: ^0.0.4
         version: 0.0.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -886,6 +898,9 @@ importers:
       react-flip-toolkit:
         specifier: ^7.1.0
         version: 7.2.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-hook-form:
+        specifier: 7.54.2
+        version: 7.54.2(react@18.3.1)
       react-intersection-observer:
         specifier: ^8.34.0
         version: 8.34.0(react@18.3.1)
@@ -898,6 +913,9 @@ importers:
       react-swipeable:
         specifier: ^7.0.1
         version: 7.0.2(react@18.3.1)
+      zod:
+        specifier: 4.1.8
+        version: 4.1.8
     devDependencies:
       '@babel/preset-typescript':
         specifier: ^7.27.1
@@ -2183,6 +2201,11 @@ packages:
     resolution: {tarball: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e}
     version: 0.27.0
     engines: {node: '>=10'}
+
+  '@hookform/resolvers@5.2.2':
+    resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
+    peerDependencies:
+      react-hook-form: ^7.55.0
 
   '@humanwhocodes/config-array@0.5.0':
     resolution: {integrity: sha512-FagtKFz74XrTl7y6HCzQpwDfXP0yhxe9lHLD1UZxjvZIcbyRz8zTFF/yYNfSfzU414eDwZ1SrO0Qvtyf+wFMQg==}
@@ -7947,6 +7970,12 @@ packages:
       react: '>= 16.x'
       react-dom: '>= 16.x'
 
+  react-hook-form@7.54.2:
+    resolution: {integrity: sha512-eHpAUgUjWbZocoQYUHposymRb4ZP6d0uwUnooL2uOybA9/3tPUvoAKqEWK1WaSiTxxOfTpffNZP7QwlnM3/gEg==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
+
   react-intersection-observer@8.34.0:
     resolution: {integrity: sha512-TYKh52Zc0Uptp5/b4N91XydfSGKubEhgZRtcg1rhTKABXijc4Sdr1uTp5lJ8TN27jwUsdXxjHXtHa0kPj704sw==}
     peerDependencies:
@@ -9506,6 +9535,9 @@ packages:
   zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
+  zod@4.1.8:
+    resolution: {integrity: sha512-5R1P+WwQqmmMIEACyzSvo4JXHY5WiAFHRMg+zBZKgKS+Q1viRa0C1hmUKtHltoIFKtIdki3pRxkmpP74jnNYHQ==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -10676,6 +10708,11 @@ snapshots:
       react: 18.3.1
 
   '@growthbook/growthbook@https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e': {}
+
+  '@hookform/resolvers@5.2.2(react-hook-form@7.54.2(react@18.3.1))':
+    dependencies:
+      '@standard-schema/utils': 0.3.0
+      react-hook-form: 7.54.2(react@18.3.1)
 
   '@humanwhocodes/config-array@0.5.0':
     dependencies:
@@ -17236,6 +17273,10 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
+  react-hook-form@7.54.2(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+
   react-intersection-observer@8.34.0(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -19094,5 +19135,7 @@ snapshots:
       readable-stream: 3.6.2
 
   zod@3.23.8: {}
+
+  zod@4.1.8: {}
 
   zwitch@2.0.4: {}

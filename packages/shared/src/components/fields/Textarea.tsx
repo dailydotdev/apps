@@ -1,6 +1,6 @@
 import classNames from 'classnames';
-import type { ReactElement } from 'react';
-import React from 'react';
+import React, { forwardRef } from 'react';
+import type { ForwardedRef, ReactElement } from 'react';
 import styles from './TextField.module.css';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 import type { BaseFieldProps, FieldClassName } from './BaseFieldContainer';
@@ -10,28 +10,31 @@ import BaseFieldContainer, {
   InnerLabel,
 } from './BaseFieldContainer';
 
-function Textarea({
-  hint,
-  inputId,
-  saveHintSpace,
-  label,
-  value,
-  valueChanged,
-  valid,
-  validityChanged,
-  className = {},
-  placeholder,
-  readOnly,
-  isLocked,
-  disabled,
-  name,
-  maxLength = 100,
-  rows,
-  fieldType = 'primary',
-  ...props
-}: BaseFieldProps<HTMLTextAreaElement> & {
-  className?: FieldClassName;
-}): ReactElement {
+function Textarea(
+  {
+    hint,
+    inputId,
+    saveHintSpace,
+    label,
+    value,
+    valueChanged,
+    valid,
+    validityChanged,
+    className = {},
+    placeholder,
+    readOnly,
+    isLocked,
+    disabled,
+    name,
+    maxLength = 100,
+    rows,
+    fieldType = 'primary',
+    ...props
+  }: BaseFieldProps<HTMLTextAreaElement> & {
+    className?: FieldClassName;
+  },
+  ref: ForwardedRef<HTMLTextAreaElement>,
+): ReactElement {
   const {
     validInput,
     focused,
@@ -103,7 +106,16 @@ function Textarea({
         })}
         name={name}
         id={inputId}
-        ref={inputRef}
+        ref={(element) => {
+          inputRef.current = element;
+
+          if (typeof ref === 'function') {
+            ref(element);
+          } else if (ref) {
+            // eslint-disable-next-line no-param-reassign
+            ref.current = element;
+          }
+        }}
         onFocus={onFocus}
         onBlur={onBlur}
         onInput={onInput}
@@ -129,4 +141,4 @@ function Textarea({
   );
 }
 
-export default Textarea;
+export default forwardRef(Textarea);

@@ -1,9 +1,17 @@
 import { gql } from 'graphql-request';
+import type z from 'zod';
 import { ORGANIZATION_SHORT_FRAGMENT } from '../organizations/graphql';
+import { gqlClient } from '../../graphql/common';
+import type { Opportunity } from './types';
+import type {
+  opportunityEditContentSchema,
+  opportunityEditInfoSchema,
+} from '../../lib/schema/opportunity';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   fragment OpportunityContentFragment on OpportunityContentBlock {
     html
+    content
   }
 `;
 
@@ -14,97 +22,106 @@ export const GCS_BLOB_FRAGMENT = gql`
   }
 `;
 
-export const OPPORTUNITY_BY_ID_QUERY = gql`
-  query OpportunityById($id: ID!) {
-    opportunityById(id: $id) {
-      id
-      type
-      title
-      tldr
-      organization {
-        ...OrganizationShortFragment
-
-        size
-        stage
-        website
-        perks
-        category
-        founded
-        location
-
-        customLinks {
-          ...Link
-        }
-        socialLinks {
-          ...Link
-        }
-        pressLinks {
-          ...Link
-        }
-      }
-      content {
-        overview {
-          ...OpportunityContentFragment
-        }
-        responsibilities {
-          ...OpportunityContentFragment
-        }
-        requirements {
-          ...OpportunityContentFragment
-        }
-        whatYoullDo {
-          ...OpportunityContentFragment
-        }
-        interviewProcess {
-          ...OpportunityContentFragment
-        }
-      }
-      keywords {
-        keyword
-      }
-      recruiters {
-        id
-        name
-        username
-        image
-        title
-        bio
-      }
-      meta {
-        roleType
-        seniorityLevel
-        teamSize
-        employmentType
-        salary {
-          min
-          max
-          period
-        }
-      }
-      location {
-        type
-        city
-        country
-        subdivision
-        continent
-      }
-      questions {
-        id
-        title
-        placeholder
-      }
-    }
-  }
-
+export const LINK_FRAGMENT = gql`
   fragment Link on OrganizationLink {
     type
     socialType
     title
     link
   }
+`;
 
+export const OPPORTUNITY_FRAGMENT = gql`
+  fragment OpportunityFragment on Opportunity {
+    id
+    type
+    title
+    tldr
+    organization {
+      ...OrganizationShortFragment
+
+      size
+      stage
+      website
+      perks
+      category
+      founded
+      location
+
+      customLinks {
+        ...Link
+      }
+      socialLinks {
+        ...Link
+      }
+      pressLinks {
+        ...Link
+      }
+    }
+    content {
+      overview {
+        ...OpportunityContentFragment
+      }
+      responsibilities {
+        ...OpportunityContentFragment
+      }
+      requirements {
+        ...OpportunityContentFragment
+      }
+      whatYoullDo {
+        ...OpportunityContentFragment
+      }
+      interviewProcess {
+        ...OpportunityContentFragment
+      }
+    }
+    keywords {
+      keyword
+    }
+    recruiters {
+      id
+      name
+      username
+      image
+      title
+      bio
+    }
+    meta {
+      roleType
+      seniorityLevel
+      teamSize
+      employmentType
+      salary {
+        min
+        max
+        period
+      }
+    }
+    location {
+      type
+      city
+      country
+      subdivision
+      continent
+    }
+    questions {
+      id
+      title
+      placeholder
+    }
+  }
   ${ORGANIZATION_SHORT_FRAGMENT}
   ${OPPORTUNITY_CONTENT_FRAGMENT}
+  ${LINK_FRAGMENT}
+`;
+
+export const OPPORTUNITY_BY_ID_QUERY = gql`
+  query OpportunityById($id: ID!) {
+    opportunityById(id: $id) {
+      ...OpportunityFragment
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
 `;
 
 export const GET_OPPORTUNITY_MATCH_QUERY = gql`
@@ -245,3 +262,53 @@ export const CLEAR_EMPLOYMENT_AGREEMENT_MUTATION = gql`
     }
   }
 `;
+export const EDIT_OPPORTUNITY_MUTATION = gql`
+  mutation EditOpportunity($id: ID!, $payload: OpportunityEditInput!) {
+    editOpportunity(id: $id, payload: $payload) {
+      ...OpportunityFragment
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const editOpportunityInfoMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditInfoSchema>;
+    }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
+        payload,
+      });
+
+      return result.editOpportunity;
+    },
+  };
+};
+
+export const editOpportunityContentMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditContentSchema>;
+    }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
+        payload,
+      });
+
+      return result.editOpportunity;
+    },
+  };
+};
