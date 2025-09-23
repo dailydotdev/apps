@@ -2,9 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { useAuthErrors } from '../hooks/useAuthErrors';
-import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
-import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useGrowthBookContext } from './GrowthBookProvider';
@@ -35,9 +32,6 @@ export const RecruiterLayout = ({
   const router = useRouter();
   const { user, isAuthReady, showLogin } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
-  useAuthErrors();
-  useAuthVerificationRecovery();
-  useNotificationParams();
 
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
@@ -66,14 +60,7 @@ export const RecruiterLayout = ({
     router.push(`${onboardingUrl}?${params.toString()}`);
   }, [shouldRedirectOnboarding, router]);
 
-  const ignoredUtmMediumForLogin = ['slack'];
-  const utmSource = router?.query?.utm_source;
-  const utmMedium = router?.query?.utm_medium;
-  const shouldShowLogin =
-    !user &&
-    isAuthReady &&
-    utmSource === 'notification' &&
-    !ignoredUtmMediumForLogin.includes(utmMedium as string);
+  const shouldShowLogin = !user && isAuthReady;
 
   useEffect(() => {
     if (!shouldShowLogin) {
@@ -81,7 +68,7 @@ export const RecruiterLayout = ({
     }
 
     showLogin({
-      trigger: AuthTriggers.FromNotification,
+      trigger: AuthTriggers.Opportunity,
       options: { isLogin: true },
     });
   }, [shouldShowLogin, showLogin]);
