@@ -12,7 +12,6 @@ import { PollOptionButtons } from '../../cards/poll/PollOptions';
 export function SquadModerationPoll({
   data,
 }: SquadModerationItemProps): ReactElement {
-  const post = data.sharedPost || data.post;
   const { title } = useTruncatedSummary(
     data?.title || data.sharedPost?.title || data.post?.title,
   );
@@ -27,7 +26,7 @@ export function SquadModerationPoll({
       >
         {title}
       </Typography>
-      <PollOptionButtons options={post.pollOptions} />
+      <PollOptionButtons options={data.pollOptions} />
     </div>
   );
 }

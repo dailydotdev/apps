@@ -26,8 +26,7 @@ import { SquadModerationDefault } from './SquadModerationDefault';
 
 const SquadModerationPreview = (props: SquadModerationItemProps) => {
   const { data } = props;
-
-  switch (data?.post?.type) {
+  switch (data?.type) {
     case PostType.Poll:
       return <SquadModerationPoll {...props} />;
     default:
