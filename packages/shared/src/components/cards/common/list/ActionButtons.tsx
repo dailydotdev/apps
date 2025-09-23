@@ -25,8 +25,6 @@ import { BookmarkButton } from '../../../buttons';
 import { Tooltip } from '../../../tooltip/Tooltip';
 import { QuaternaryButton } from '../../../buttons/QuaternaryButton';
 import PostAwardAction from '../../../post/PostAwardAction';
-import { featureCardUiColors } from '../../../../lib/featureManagement';
-import { useFeature } from '../../../GrowthBookProvider';
 
 interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
@@ -41,7 +39,6 @@ export default function ActionButtons({
   onCopyLinkClick,
   className,
 }: ActionButtonsPropsList): ReactElement {
-  const colorExp = useFeature(featureCardUiColors);
   const { onInteract, interaction, previousInteraction } = usePostActions({
     post,
   });
@@ -206,8 +203,7 @@ export default function ActionButtons({
             icon={<LinkIcon />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
-            color={colorExp ? ButtonColor.Water : ButtonColor.Cabbage}
-            buttonClassName={colorExp && 'hover:text-text-link'}
+            color={ButtonColor.Cabbage}
           />
         </Tooltip>
       </div>

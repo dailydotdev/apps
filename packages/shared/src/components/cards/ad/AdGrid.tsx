@@ -13,14 +13,11 @@ import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { featureCardUiColors } from '../../../lib/featureManagement';
-import { useFeature } from '../../GrowthBookProvider';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
-  const colorExp = useFeature(featureCardUiColors);
   const { isPlus } = usePlusSubscription();
   const { ref, refetch, isRefetching } = useAutoRotatingAds(
     ad,
@@ -35,12 +32,7 @@ export const AdGrid = forwardRef(function AdGrid(
   }, [ad, onRefresh, refetch]);
 
   return (
-    <Card
-      className={colorExp && '!bg-background-default'}
-      {...domProps}
-      data-testid="adItem"
-      ref={ref}
-    >
+    <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer className="flex-1">
         <CardTitle className="line-clamp-4 typo-title3">

@@ -28,8 +28,6 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import useInteractiveFeed from '../../../hooks/feed/useInteractiveFeed';
 import RelevancyTag from '../../tags/RelevancyTag';
 import InteractiveFeedTagOverlay from '../../post/tags/InteractiveFeedTagOverlay';
-import { useFeature } from '../../GrowthBookProvider';
-import { featureCardUiColors } from '../../../lib/featureManagement';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -71,7 +69,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
     post,
   });
   const smallCard = interactiveFeedExp && isFeedPreview;
-  const colorExp = useFeature(featureCardUiColors);
 
   if (showInteractiveFeedOverlay) {
     return <InteractiveFeedTagOverlay onClose={onClose} post={post} />;
@@ -151,7 +148,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           <CardTitle
             className={classNames({
               'typo-callout': smallCard,
-              '!text-text-quaternary': post.read && colorExp,
             })}
             lineClamp={showFeedback ? 'line-clamp-2' : undefined}
           >
