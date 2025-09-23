@@ -76,10 +76,12 @@ export const PollList = forwardRef(function PollList(
       bottomLabel: (
         <PostMetadata
           numPollVotes={post.numPollVotes}
-          isPoll
-          endsAt={post.endsAt}
           createdAt={post.createdAt}
-          isAuthor={user?.id === post.author?.id}
+          pollMetadata={{
+            endsAt: post?.endsAt,
+            isAuthor: user?.id === post.author?.id,
+            numPollVotes: post?.numPollVotes,
+          }}
         />
       ),
     };
