@@ -4,12 +4,13 @@ import { useWritePostContext } from '../../../contexts';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
 import { ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
 import { ArrowIcon } from '../../icons';
+import type { MenuItemProps } from '../../dropdown/common';
 
 const options = [
   {
@@ -46,10 +47,17 @@ const PollDurationDropdown = () => {
       : 2,
   );
 
-  const handleChange = (_: string, index: number) => {
+  const handleChange = (index: number) => {
     updateDraft({ ...draft, duration: options[index].value });
     setSelectedIndex(index);
   };
+
+  const menuItems: MenuItemProps[] = options.map((opt, idx) => {
+    return {
+      label: opt.label,
+      action: () => handleChange(idx),
+    };
+  });
 
   return (
     <div className="flex flex-col gap-2">
@@ -76,20 +84,7 @@ const PollDurationDropdown = () => {
           sideOffset={10}
           className="flex w-[var(--radix-popper-anchor-width)] flex-col gap-1 overflow-y-auto overflow-x-hidden !p-0"
         >
-          {options.map(({ label }, index) => (
-            <DropdownMenuItem
-              key={label}
-              className="hover:bg-surface-float"
-              onClick={() => handleChange(label, index)}
-            >
-              <Typography
-                type={TypographyType.Body}
-                bold={selectedIndex === index}
-              >
-                {label}
-              </Typography>
-            </DropdownMenuItem>
-          ))}
+          <DropdownMenuOptions options={menuItems} />
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

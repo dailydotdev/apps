@@ -16,6 +16,8 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 
+const MIN_VOTES_REQUIRED = 10;
+
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
   className?: string;
@@ -46,7 +48,7 @@ export default function PostMetadata({
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
-  const shouldShowVotes = numPollVotes > 10 || isAuthor;
+  const shouldShowVotes = numPollVotes > MIN_VOTES_REQUIRED || isAuthor;
   const pollHasEnded =
     isPoll && endsAt && isAfter(new Date(), new Date(endsAt));
 

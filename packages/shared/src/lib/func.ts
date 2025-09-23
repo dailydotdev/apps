@@ -300,3 +300,10 @@ export const mergeContextExtra = <TData>({
       : undefined,
   };
 };
+
+export const getPercentage = (total: number, part: number): number => {
+  if (total === 0) {
+    return 0;
+  }
+  return Math.round((part / total) * 100);
+};

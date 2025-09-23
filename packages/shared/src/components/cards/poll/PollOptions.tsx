@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { VIcon } from '../../icons';
-import { isNullOrUndefined } from '../../../lib/func';
+import { getPercentage, isNullOrUndefined } from '../../../lib/func';
 
 type PollOptionsProps = {
   className?: {
@@ -19,13 +19,6 @@ type PollOptionsProps = {
   numPollVotes: number;
   onClick: (optionId: string, text: string) => void;
   endsAt?: string;
-};
-
-const getPercentage = (numPollVotes: number, optionVotes: number): number => {
-  if (numPollVotes === 0) {
-    return 0;
-  }
-  return Math.round((optionVotes / numPollVotes) * 100);
 };
 
 const PollResults = ({
@@ -78,7 +71,7 @@ const PollResults = ({
 
           {isVotedOption && (
             <div className="ml-2 flex items-center justify-center rounded-full bg-brand-default">
-              <VIcon secondary className="h-4 w-4" />
+              <VIcon secondary className="size-4" />
             </div>
           )}
         </div>
@@ -120,7 +113,6 @@ const PollOptions = ({
   onClick,
   endsAt,
 }: PollOptionsProps) => {
-  const orderedOptions = options.sort((a, b) => a.order - b.order);
   const hasEnded = endsAt && isAfter(new Date(), new Date(endsAt));
 
   return (
@@ -132,12 +124,12 @@ const PollOptions = ({
     >
       {userVote || hasEnded ? (
         <PollResults
-          options={orderedOptions}
+          options={options}
           userVote={userVote}
           numPollVotes={numPollVotes}
         />
       ) : (
-        <PollOptionButtons options={orderedOptions} onClick={onClick} />
+        <PollOptionButtons options={options} onClick={onClick} />
       )}
     </div>
   );
