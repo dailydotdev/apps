@@ -123,7 +123,13 @@ export const PollList = forwardRef(function PollList(
         </PostCardHeader>
         <CardContent>
           <div className="mr-4 flex flex-1 flex-col">
-            <CardTitle lineClamp={undefined} className={classNames('mb-4')}>
+            <CardTitle
+              lineClamp={undefined}
+              className={classNames(
+                !!post.read && 'text-text-tertiary',
+                'mb-4',
+              )}
+            >
               {title}
             </CardTitle>
             <PollOptions
