@@ -28,12 +28,9 @@ export function PostUpvotesCommentsCount({
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
-  const hasStats = upvotes > 0 || comments > 0 || post.views > 0 || awards > 0;
   const hasAccessToCores = useHasAccessToCores();
 
-  return !hasStats ? (
-    <></>
-  ) : (
+  return (
     <div
       className="mb-5 flex flex-wrap items-center gap-x-4 !leading-7 text-text-tertiary typo-callout"
       data-testid="statsBar"
