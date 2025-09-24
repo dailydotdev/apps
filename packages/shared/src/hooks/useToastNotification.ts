@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import type { ButtonProps } from '../components/buttons/Button';
 
 type AnyFunction = (() => Promise<unknown>) | (() => unknown);
 
@@ -19,14 +20,17 @@ export interface ToastNotification {
   message: ReactNode;
   timer: number;
   subject?: ToastSubject;
-  onUndo?: AnyFunction;
-  undoCopy?: string;
+  action?: {
+    onClick: AnyFunction;
+    buttonProps?: ButtonProps<'button'>;
+    copy: string;
+  };
 }
 
 export const TOAST_NOTIF_KEY = ['toast_notif'];
 
 export type NotifyOptionalProps = Partial<
-  Pick<ToastNotification, 'timer' | 'subject' | 'onUndo' | 'undoCopy'>
+  Pick<ToastNotification, 'timer' | 'subject' | 'action'>
 >;
 
 export const useToastNotification = (): UseToastNotification => {

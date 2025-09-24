@@ -186,7 +186,19 @@ const renderPost = (
 
   client = new QueryClient();
 
-  mocks.forEach(mockGraphQL);
+  // Add default mock for SeenPostPollTooltip action
+  const defaultMocks = [
+    ...mocks,
+    {
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.SeenPostPollTooltip },
+      },
+      result: () => ({ data: { _: true } }),
+    },
+  ];
+
+  defaultMocks.forEach(mockGraphQL);
   return render(
     <TestBootProvider
       client={client}
@@ -869,7 +881,7 @@ describe('downvote flow', () => {
         return { data: { _: true } };
       },
     });
-    const dontAskAgain = await screen.findByLabelText('Undo action');
+    const dontAskAgain = await screen.findByLabelText("Don't ask again");
     fireEvent.click(dontAskAgain);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });

@@ -75,6 +75,7 @@ export enum AuthTriggers {
   Plus = 'plus',
   GiveAward = 'give award',
   Organization = 'organization',
+  Opportunity = 'opportunity',
 }
 
 export type AuthTriggersType =

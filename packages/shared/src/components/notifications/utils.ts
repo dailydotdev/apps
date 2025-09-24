@@ -88,6 +88,8 @@ export enum NotificationType {
   NewUserWelcome = 'new_user_welcome',
   InAppPurchases = 'in_app_purchases',
   PostAnalytics = 'post_analytics',
+  PollResult = 'poll_result',
+  PollResultAuthor = 'poll_result_author',
   NewOpportunityMatch = 'new_opportunity_match',
 }
 
@@ -259,7 +261,19 @@ export const FOLLOWING_KEYS = [
   NotificationType.UserPostAdded,
   NotificationType.CollectionUpdated,
   NotificationType.PostBookmarkReminder,
+  NotificationType.PollResult,
+  NotificationType.PollResultAuthor,
 ];
+
+export const FOLLOWING_EMAIL_KEYS = [
+  NotificationType.SourcePostAdded,
+  NotificationType.UserPostAdded,
+  NotificationType.CollectionUpdated,
+  NotificationType.SquadPostAdded,
+  NotificationType.PollResult,
+  NotificationType.PollResultAuthor,
+];
+
 export const ACHIEVEMENT_KEYS = [
   NotificationType.UserTopReaderBadge,
   NotificationType.DevCardUnlocked,
@@ -314,11 +328,9 @@ export const CREATOR_UPDATES_EMAIL_KEYS = [
   NotificationType.ArticlePicked,
 ];
 
-export const FOLLOWING_EMAIL_KEYS = [
-  NotificationType.SourcePostAdded,
-  NotificationType.UserPostAdded,
-  NotificationType.CollectionUpdated,
-  NotificationType.SquadPostAdded,
+export const POLL_RESULT_KEYS = [
+  NotificationType.PollResult,
+  NotificationType.PollResultAuthor,
 ];
 
 export const OPPORTUNITY_KEYS = [NotificationType.NewOpportunityMatch];
@@ -345,6 +357,7 @@ type NotificationItem =
       label: string;
       description?: string;
       group: true;
+      type?: 'switch' | 'checkbox';
     }
   | {
       id: string;
@@ -423,6 +436,12 @@ export const FOLLOWING_NOTIFICATIONS: NotificationItem[] = [
     id: NotificationType.PostBookmarkReminder,
     label: 'Read it later',
     group: false,
+  },
+  {
+    id: 'pollResult',
+    label: 'Poll Results',
+    group: true,
+    type: 'checkbox',
   },
 ];
 

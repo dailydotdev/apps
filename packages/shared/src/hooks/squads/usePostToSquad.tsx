@@ -1,8 +1,9 @@
+import React, { useCallback, useState } from 'react';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { BaseSyntheticEvent } from 'react';
-import { useCallback, useState } from 'react';
 import type {
+  CreatePollPostForm,
   CreatePostProps,
   EditPostProps,
   ExternalLinkPreview,
@@ -11,6 +12,7 @@ import type {
 } from '../../graphql/posts';
 import {
   createPost,
+  createPollPost,
   editPost,
   getExternalLinkPreview,
   PostType,
@@ -28,6 +30,9 @@ import { useRequestProtocol } from '../useRequestProtocol';
 import useSourcePostModeration from '../source/useSourcePostModeration';
 import type { Squad } from '../../graphql/sources';
 import { moderationRequired } from '../../components/squads/utils';
+import useNotificationSettings from '../notifications/useNotificationSettings';
+import { ButtonSize } from '../../components/buttons/common';
+import { BellIcon } from '../../components/icons';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
@@ -50,6 +55,7 @@ interface UsePostToSquad {
     commentary: string,
   ) => Promise<unknown>;
   onSubmitFreeformPost: (post: CreatePostProps, squad: Squad) => Promise<void>;
+  onSubmitPollPost: (post: CreatePollPostForm, squad: Squad) => Promise<void>;
   onUpdateSharePost: (
     e: BaseSyntheticEvent,
     postId: Post['id'],
@@ -75,6 +81,7 @@ export const usePostToSquad = ({
   onSourcePostModerationSuccess,
   initialPreview,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
+  const { toggleGroup, getGroupStatus } = useNotificationSettings();
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
   const client = useQueryClient();
@@ -100,6 +107,32 @@ export const usePostToSquad = ({
     mutationFn: editPost,
     onMutate,
     onSuccess: onPostSuccess,
+    onError,
+  });
+
+  const {
+    mutateAsync: createPollPostMutation,
+    isPending: isPollLoading,
+    isSuccess: isPollPostSuccess,
+  } = useMutation({
+    mutationFn: createPollPost,
+    onMutate,
+    onSuccess: (data, vars) => {
+      if (!getGroupStatus('pollResult', 'inApp')) {
+        displayToast('Enable push notification to get poll updates', {
+          action: {
+            onClick: () => toggleGroup('pollResult', true, 'inApp'),
+            copy: 'Enable',
+            buttonProps: {
+              className: 'bg-background-default text-text-primary',
+              size: ButtonSize.Small,
+              icon: <BellIcon />,
+            },
+          },
+        });
+      }
+      onPostSuccess?.(data, vars);
+    },
     onError,
   });
 
@@ -219,6 +252,7 @@ export const usePostToSquad = ({
     isLinkLoading ||
     isPostModerationLoading ||
     isEditLoading ||
+    isPollLoading ||
     isLoadingFreeform;
 
   const isUpdating =
@@ -229,6 +263,7 @@ export const usePostToSquad = ({
     isPostSuccess ||
     isLinkSuccess ||
     isFreeformPostSuccess ||
+    isPollPostSuccess ||
     isEditPostSuccess;
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
@@ -329,6 +364,32 @@ export const usePostToSquad = ({
     [onCreatePost, onCreatePostModeration],
   );
 
+  const onSubmitPollPost = useCallback<UsePostToSquad['onSubmitPollPost']>(
+    async ({ options, ...post }, squad) => {
+      const orderedOpts = options.map((text, index) => ({
+        text,
+        order: index,
+      }));
+
+      if (moderationRequired(squad)) {
+        onCreatePostModeration({
+          ...post,
+          pollOptions: orderedOpts,
+          sourceId: squad.id,
+          type: PostType.Poll,
+        });
+      } else {
+        createPollPostMutation({
+          ...post,
+          options: orderedOpts,
+          sourceId: squad.id,
+          type: PostType.Poll,
+        });
+      }
+    },
+    [createPollPostMutation, onCreatePostModeration],
+  );
+
   return {
     isLoadingPreview,
     getLinkPreview,
@@ -339,6 +400,7 @@ export const usePostToSquad = ({
     preview,
     isSuccess,
     onSubmitFreeformPost,
+    onSubmitPollPost,
     onUpdatePreview: setPreview,
   };
 };
