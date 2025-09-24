@@ -34,12 +34,7 @@ const PollResults = ({
   shouldAnimate?: boolean;
 }) => {
   const [animatedWidths, setAnimatedWidths] = useState<Record<string, number>>(
-    shouldAnimate
-      ? {}
-      : options.reduce((acc, option) => {
-          acc[option.id] = getPercentage(numPollVotes, option.numVotes || 0);
-          return acc;
-        }, {} as Record<string, number>),
+    {},
   );
 
   useEffect(() => {
