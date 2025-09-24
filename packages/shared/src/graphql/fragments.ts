@@ -274,6 +274,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     userState {
       vote
+      pollOption {
+        id
+      }
       flags {
         feedbackDismiss
       }
@@ -291,6 +294,14 @@ export const FEED_POST_INFO_FRAGMENT = gql`
         image
       }
     }
+    numPollVotes
+    pollOptions {
+      id
+      text
+      order
+      numVotes
+    }
+    endsAt
   }
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
 `;
@@ -347,6 +358,9 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
         feedbackDismiss
       }
       awarded
+      pollOption {
+        id
+      }
     }
     slug
     domain
@@ -360,6 +374,14 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
         ...FeaturedAwardFragment
       }
     }
+    pollOptions {
+      id
+      text
+      order
+      numVotes
+    }
+    numPollVotes
+    endsAt
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}

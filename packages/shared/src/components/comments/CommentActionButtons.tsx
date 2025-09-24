@@ -220,11 +220,14 @@ export default function CommentActionButtons({
         });
 
         displayToast(`🚫 ${comment.author.name} has been blocked`, {
-          onUndo: () => {
-            unblock(params);
-            client.invalidateQueries({
-              queryKey: commentQueryKey,
-            });
+          action: {
+            copy: 'Undo',
+            onClick: () => {
+              unblock(params);
+              client.invalidateQueries({
+                queryKey: commentQueryKey,
+              });
+            },
           },
         });
       },

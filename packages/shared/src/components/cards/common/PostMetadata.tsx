@@ -8,6 +8,8 @@ import { formatReadTime, TruncateText, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 import { Tooltip } from '../../tooltip/Tooltip';
+import type { PollMetadataProps } from './PollMetadata';
+import PollMetadata from './PollMetadata';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
@@ -16,6 +18,7 @@ interface PostMetadataProps
   children?: ReactNode;
   isVideoType?: boolean;
   domain?: ReactNode;
+  pollMetadata?: PollMetadataProps;
 }
 
 export default function PostMetadata({
@@ -27,6 +30,7 @@ export default function PostMetadata({
   description,
   isVideoType,
   domain,
+  pollMetadata,
 }: PostMetadataProps): ReactElement {
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
@@ -49,6 +53,7 @@ export default function PostMetadata({
           <Separator />
         )}
         {!!description && description}
+        {pollMetadata && <PollMetadata {...pollMetadata} />}
         {!!createdAt && !!description && !boostedBy && <Separator />}
         {!!createdAt && !boostedBy && (
           <DateFormat date={createdAt} type={TimeFormatType.Post} />

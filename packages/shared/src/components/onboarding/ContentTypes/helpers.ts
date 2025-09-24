@@ -1,10 +1,11 @@
 import type { AdvancedSettings } from '../../../graphql/feedSettings';
 import {
+  getAdvancedContentTypes,
   getContentCurationList,
   getContentSourceList,
-  getVideoSetting,
 } from '../../filters/helpers';
 import type { Source } from '../../../graphql/sources';
+import { TOGGLEABLE_TYPES } from '../../feeds/FeedSettings/sections/FeedSettingsContentPreferencesSection';
 
 interface GetContentTypeNotEmptyProps {
   advancedSettings: AdvancedSettings[];
@@ -20,8 +21,6 @@ export const getContentTypeNotEmpty = ({
   const contentSourceList = getContentSourceList(advancedSettings);
   const contentCurationList = getContentCurationList(advancedSettings);
 
-  const videoSetting = getVideoSetting(advancedSettings);
-
   const advancedSettingsSelected = (settings: AdvancedSettings[]) =>
     settings
       .map(({ id, defaultEnabledState }) => {
@@ -32,8 +31,11 @@ export const getContentTypeNotEmpty = ({
   const advancedSettingsCurationListSelected =
     advancedSettingsSelected(contentCurationList);
 
-  const advancedSettingsVideoSelected =
-    !!videoSetting && advancedSettingsSelected([videoSetting]);
+  const listedTypes = getAdvancedContentTypes(
+    TOGGLEABLE_TYPES,
+    advancedSettings,
+  );
+  const selectedSomeListedTypes = advancedSettingsSelected(listedTypes);
 
   const sourceListSelected = contentSourceList
     .map(({ options }) => options.source)
@@ -41,7 +43,7 @@ export const getContentTypeNotEmpty = ({
 
   return (
     advancedSettingsCurationListSelected ||
-    advancedSettingsVideoSelected ||
+    selectedSomeListedTypes ||
     sourceListSelected
   );
 };

@@ -179,24 +179,26 @@ const useBookmarkPost = ({
         return;
       }
       displayToast(`Bookmarked! Saved to ${list?.name ?? 'Quick saves'}`, {
-        undoCopy: 'Change folder',
-        onUndo: () => {
-          openModal({
-            type: LazyModal.MoveBookmark,
-            props: {
-              postId: post.id,
-              listId: list?.id,
-              onMoveBookmark: async () => {
-                logEvent(
-                  postLogEvent(
-                    LogEvent.MoveBookmarkToFolder,
-                    post,
-                    finalLogOptions,
-                  ),
-                );
+        action: {
+          copy: 'Change folder',
+          onClick: () => {
+            openModal({
+              type: LazyModal.MoveBookmark,
+              props: {
+                postId: post.id,
+                listId: list?.id,
+                onMoveBookmark: async () => {
+                  logEvent(
+                    postLogEvent(
+                      LogEvent.MoveBookmarkToFolder,
+                      post,
+                      finalLogOptions,
+                    ),
+                  );
+                },
               },
-            },
-          });
+            });
+          },
         },
       });
     },
