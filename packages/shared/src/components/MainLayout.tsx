@@ -62,7 +62,7 @@ export interface MainLayoutProps
   hideBackButton?: boolean;
 }
 
-const feeds = Object.values(SharedFeedPage);
+export const feeds = Object.values(SharedFeedPage);
 
 function MainLayoutComponent({
   children,

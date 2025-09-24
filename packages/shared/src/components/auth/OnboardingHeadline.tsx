@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { onboardingGradientClasses } from '../onboarding/common';
-import { Typography } from '../typography/Typography';
+import { Typography, TypographyTag } from '../typography/Typography';
 import ConditionalWrapper from '../ConditionalWrapper';
 
 interface ClassName {
@@ -57,10 +57,13 @@ export function OnboardingHeadline({
           onboardingGradientClasses,
           className?.title,
         )}
+        tag={TypographyTag.H2}
       >
         {title}
       </Typography>
-      <h2 className={className?.description}>{description}</h2>
+      {!!description?.length && (
+        <h3 className={className?.description}>{description}</h3>
+      )}
     </div>
   );
 }

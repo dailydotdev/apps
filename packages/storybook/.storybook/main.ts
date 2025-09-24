@@ -14,7 +14,7 @@ const config: StorybookConfig = {
     '@storybook/addon-links',
     '@storybook/addon-themes',
     '@storybook/addon-designs',
-    'msw-storybook-addon'
+    'msw-storybook-addon',
   ],
   framework: '@storybook/react-vite',
   typescript: {
@@ -53,6 +53,10 @@ const config: StorybookConfig = {
           ),
           '../lib/boot': path.resolve(__dirname, '../mock/boot.ts'),
           'next/navigation': path.resolve(__dirname, '../mock/next-router.ts'),
+          '../../../hooks/auth': path.resolve(
+            __dirname,
+            '../mock/hooks/useOnboardingActions.ts',
+          ),
         },
       },
       define: {
@@ -80,7 +84,8 @@ const config: StorybookConfig = {
         }),
       ],
       env: {
-        NEXT_PUBLIC_PADDLE_ENVIRONMENT: process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT,
+        NEXT_PUBLIC_PADDLE_ENVIRONMENT:
+          process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT,
         NEXT_PUBLIC_PADDLE_TOKEN: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
       },
     });
