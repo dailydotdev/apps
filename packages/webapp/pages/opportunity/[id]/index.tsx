@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 import type { GetStaticPathsResult, GetStaticProps } from 'next';
-import { useQuery } from '@tanstack/react-query';
+import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
@@ -82,7 +82,7 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { getLayout } from '../../../components/layouts/NoSidebarLayout';
+import { getLayout } from '../../../components/layouts/RecruiterLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -253,11 +253,7 @@ const metaMap = {
   },
 };
 
-const JobPage = ({
-  opportunity: initialData,
-}: {
-  opportunity: Opportunity;
-}): ReactElement => {
+const JobPage = (): ReactElement => {
   const { isLoggedIn, isAuthReady, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
@@ -270,10 +266,9 @@ const JobPage = ({
   const hasLoggedRef = useRef(false);
   logRef.current = logEvent;
 
-  const { data: opportunity, isPending } = useQuery({
-    ...opportunityByIdOptions({ id: id as string }),
-    initialData,
-  });
+  const { data: opportunity, isPending } = useQuery(
+    opportunityByIdOptions({ id: id as string }),
+  );
   const { data: match } = useQuery({
     ...opportunityMatchOptions({ id: id as string }),
     enabled: isLoggedIn && !!id,
@@ -302,14 +297,6 @@ const JobPage = ({
     hasLoggedRef.current = true;
   }, [id, match]);
 
-  const canEdit = useMemo(() => {
-    if (!user) {
-      return false;
-    }
-
-    return !!opportunity?.recruiters?.some((item) => item.id === user.id);
-  }, [opportunity, user]);
-
   if (!isAuthReady || isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
   }
@@ -319,7 +306,7 @@ const JobPage = ({
   }
 
   return (
-    <OpportunityEditProvider canEdit={canEdit}>
+    <>
       {!hasUploadedCV && (
         <CVOverlay
           backButton={
@@ -920,7 +907,7 @@ const JobPage = ({
           )}
         </FlexCol>
       </div>
-    </OpportunityEditProvider>
+    </>
   );
 };
 
@@ -928,22 +915,26 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: 'blocking' };
 }
 
-export const getStaticProps: GetStaticProps<{
-  opportunity: Opportunity;
-}> = async (ctx) => {
+export const getStaticProps: GetStaticProps = async (ctx) => {
   const id = ctx.params?.id;
   if (!id || typeof id !== 'string') {
     return { notFound: true };
   }
 
   try {
-    const opportunity = await opportunityByIdOptions({ id }).queryFn();
+    const queryClient = new QueryClient();
+    const opportunity = await queryClient.fetchQuery(
+      opportunityByIdOptions({ id }),
+    );
+
     if (!opportunity) {
       return { props: { opportunity: null }, revalidate: 60 };
     }
 
+    const dehydratedState = dehydrate(queryClient);
+
     return {
-      props: { opportunity },
+      props: { dehydratedState },
       revalidate: 300,
     };
   } catch (_e) {
@@ -951,9 +942,18 @@ export const getStaticProps: GetStaticProps<{
   }
 };
 
-const getPageLayout: typeof getLayout = (...page) => getLayout(...page);
+const GetPageLayout: typeof getLayout = (page, layoutProps) => {
+  const router = useRouter();
+  const { id } = router.query;
 
-JobPage.getLayout = getPageLayout;
+  return (
+    <OpportunityEditProvider opportunityId={id as string}>
+      {getLayout(page, layoutProps)}
+    </OpportunityEditProvider>
+  );
+};
+
+JobPage.getLayout = GetPageLayout;
 JobPage.layoutProps = {
   ...opportunityPageLayoutProps,
   seo,
