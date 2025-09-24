@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { isAfter } from 'date-fns';
 import type { PollOption } from '../../../graphql/posts';
@@ -19,19 +19,48 @@ type PollOptionsProps = {
   numPollVotes: number;
   onClick: (optionId: string, text: string) => void;
   endsAt?: string;
+  shouldAnimateResults?: boolean;
 };
 
 const PollResults = ({
   options,
   userVote,
   numPollVotes,
+  shouldAnimate = false,
 }: {
   options: PollOption[];
   userVote?: string;
   numPollVotes: number;
+  shouldAnimate?: boolean;
 }) => {
+  const [animatedWidths, setAnimatedWidths] = useState<Record<string, number>>(
+    {},
+  );
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    if (shouldAnimate) {
+      timer = setTimeout(() => {
+        const finalWidths = options.reduce((acc, option) => {
+          acc[option.id] = getPercentage(numPollVotes, option.numVotes || 0);
+          return acc;
+        }, {} as Record<string, number>);
+        setAnimatedWidths(finalWidths);
+      }, 100);
+    }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [shouldAnimate, options, numPollVotes]);
+
   return options.map((option) => {
     const percentage = getPercentage(numPollVotes, option.numVotes || 0);
+    const animatedPercentage =
+      animatedWidths[option.id] ?? (shouldAnimate ? 0 : percentage);
     const isVotedOption = userVote === option.id;
 
     return (
@@ -39,15 +68,15 @@ const PollResults = ({
         key={option.order}
         className="relative flex w-full flex-1 items-center overflow-hidden rounded-12 border-none p-2"
       >
-        {percentage === 0 && (
+        {animatedPercentage === 0 && (
           <div className="absolute bottom-0 left-0 top-0 w-5 rounded-12 bg-surface-float" />
         )}
         <div
-          className={`absolute bottom-0 left-0 top-0 rounded-12 transition-all duration-300 ${
+          className={`absolute bottom-0 left-0 top-0 rounded-12 transition-all duration-700 ease-out ${
             isVotedOption ? 'bg-brand-active' : 'bg-surface-float'
           }`}
           style={{
-            width: `${percentage}%`,
+            width: `${animatedPercentage}%`,
           }}
         />
         <div className="relative flex w-full items-center gap-2">
@@ -112,6 +141,7 @@ const PollOptions = ({
   numPollVotes,
   onClick,
   endsAt,
+  shouldAnimateResults = false,
 }: PollOptionsProps) => {
   const hasEnded = endsAt && isAfter(new Date(), new Date(endsAt));
 
@@ -127,6 +157,7 @@ const PollOptions = ({
           options={options}
           userVote={userVote}
           numPollVotes={numPollVotes}
+          shouldAnimate={shouldAnimateResults}
         />
       ) : (
         <PollOptionButtons options={options} onClick={onClick} />

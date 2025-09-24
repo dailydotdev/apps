@@ -44,6 +44,7 @@ function PollPostContentRaw({
   isPostPage,
 }: PostContentProps): ReactElement {
   const [justVoted, setJustVoted] = useState(false);
+  const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
   const router = useRouter();
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
@@ -82,6 +83,7 @@ function PollPostContentRaw({
     if (!isCastingVote) {
       onVote(optionId, text);
       setJustVoted(true);
+      setShouldAnimateResults(true);
     }
   };
 
@@ -209,6 +211,7 @@ function PollPostContentRaw({
                 userVote={post?.userState?.pollOption?.id}
                 numPollVotes={post.numPollVotes || 0}
                 endsAt={post?.endsAt}
+                shouldAnimateResults={shouldAnimateResults}
               />
               {justVoted && (
                 <div className="mt-2 flex items-center justify-between rounded-16 bg-action-comment-float p-3">

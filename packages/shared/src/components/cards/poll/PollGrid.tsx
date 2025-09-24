@@ -1,5 +1,5 @@
 import type { Ref } from 'react';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
   CardTextContainer,
@@ -33,9 +33,12 @@ const PollGrid = forwardRef(function PollCard(
 ) {
   const { user } = useAuthContext();
   const { onVote, isCastingVote } = usePoll({ post });
+  const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
+
   const handleVote = (optionId: string, text: string) => {
     if (!isCastingVote) {
       onVote(optionId, text);
+      setShouldAnimateResults(true);
     }
   };
   const { title } = useSmartTitle(post);
@@ -83,6 +86,7 @@ const PollGrid = forwardRef(function PollCard(
           userVote={post?.userState?.pollOption?.id}
           numPollVotes={numPollVotes || 0}
           endsAt={endsAt}
+          shouldAnimateResults={shouldAnimateResults}
         />
         <ActionButtons
           post={post}
