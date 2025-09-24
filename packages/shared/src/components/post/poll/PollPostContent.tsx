@@ -195,11 +195,12 @@ function PollPostContentRaw({
             <PostTagList post={post} />
             <div className="mb-5 mt-4">
               <PostMetadata
-                numPollVotes={post.numPollVotes}
-                isPoll
-                endsAt={post.endsAt}
+                pollMetadata={{
+                  endsAt: post?.endsAt,
+                  isAuthor: user?.id === post.author?.id,
+                  numPollVotes: post?.numPollVotes,
+                }}
                 createdAt={post.createdAt}
-                isAuthor={user?.id === post.author?.id}
                 className="mb-6"
               />
               <PollOptions
