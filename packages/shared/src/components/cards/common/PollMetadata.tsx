@@ -34,16 +34,18 @@ const PollMetadata = ({
           <Separator />
         </>
       )}
-      <>
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Footnote}
-          color={TypographyColor.StatusSuccess}
-        >
-          {shouldShowVotes ? 'Voting open' : 'New poll'}
-        </Typography>
-        <Separator />
-      </>
+      {!pollHasEnded && (
+        <>
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Footnote}
+            color={TypographyColor.StatusSuccess}
+          >
+            {shouldShowVotes ? 'Voting open' : 'New poll'}
+          </Typography>
+          <Separator />
+        </>
+      )}
       {shouldShowVotes && (
         <>
           <Typography tag={TypographyTag.Span} type={TypographyType.Footnote}>
