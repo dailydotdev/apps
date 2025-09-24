@@ -882,15 +882,15 @@ const JobPage = (): ReactElement => {
                         type={TypographyType.Callout}
                         color={TypographyColor.Primary}
                       >
-                        {user.name}
+                        {recruiter.name}
                       </Typography>
-                      {user?.title && (
+                      {recruiter?.title && (
                         <Typography
                           truncate
                           type={TypographyType.Footnote}
                           color={TypographyColor.Tertiary}
                         >
-                          {user.title}
+                          {recruiter.title}
                         </Typography>
                       )}
                     </div>
@@ -898,7 +898,7 @@ const JobPage = (): ReactElement => {
 
                   {/* Description */}
                   <ShowMoreContent
-                    content={user?.bio}
+                    content={recruiter?.bio}
                     className={{ text: '!text-text-secondary !typo-callout' }}
                   />
                 </FlexCol>
