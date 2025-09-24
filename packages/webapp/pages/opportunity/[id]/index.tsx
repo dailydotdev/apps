@@ -254,7 +254,7 @@ const metaMap = {
 };
 
 const JobPage = (): ReactElement => {
-  const { isLoggedIn, isAuthReady, user } = useAuthContext();
+  const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { checkHasCompleted, isActionsFetched } = useActions();
