@@ -1,5 +1,5 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef, useMemo } from 'react';
+import React, { forwardRef, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
@@ -42,10 +42,12 @@ export const PollList = forwardRef(function PollList(
   const { type, pinnedAt, trending } = post;
   const { user } = useAuthContext();
   const { onVote, isCastingVote } = usePoll({ post });
+  const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
 
   const handleVote = (optionId: string, text: string) => {
     if (!isCastingVote) {
       onVote(optionId, text);
+      setShouldAnimateResults(true);
     }
   };
 
@@ -81,7 +83,6 @@ export const PollList = forwardRef(function PollList(
       topLabel: post.source.name,
       bottomLabel: (
         <PostMetadata
-          numPollVotes={post.numPollVotes}
           createdAt={post.createdAt}
           pollMetadata={{
             endsAt: post?.endsAt,
@@ -144,6 +145,7 @@ export const PollList = forwardRef(function PollList(
               userVote={post?.userState?.pollOption?.id}
               numPollVotes={post.numPollVotes || 0}
               endsAt={post?.endsAt}
+              shouldAnimateResults={shouldAnimateResults}
             />
             {!isMobile && actionButtons}
           </div>
