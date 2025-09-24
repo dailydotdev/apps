@@ -75,6 +75,7 @@ const SquadEntityCard = ({
               className={{
                 button: '!btn-tertiary invisible group-hover/menu:visible',
               }}
+              showDeletion={false}
             />
           </>
         )
