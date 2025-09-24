@@ -12,6 +12,7 @@ import { useActions } from '../../../hooks';
 import { formToJson } from '../../../lib/form';
 import { PostType } from '../../../types';
 import useDebounceFn from '../../../hooks/useDebounceFn';
+import { WriteFormTab } from '../../fields/form/common';
 
 const MAX_TITLE_LENGTH = 250;
 const MAX_OPTION_LENGTH = 35;
@@ -101,7 +102,7 @@ const CreatePoll = () => {
       onSubmit={handleSubmit}
       className="gap-4"
       ref={formRef}
-      id="write-post-poll"
+      id={WriteFormTab.Poll}
     >
       <TextField
         className={{ container: 'w-full' }}
