@@ -72,6 +72,7 @@ export interface FunnelStepCommonParameters {
   backgroundType?: FunnelBackgroundVariant;
   cta?: string;
   reverse?: boolean;
+  version?: string;
 }
 
 type FunnelStepParameters<Params = Record<string, unknown>> = {
@@ -328,7 +329,6 @@ export interface FunnelStepPlusCards
   extends FunnelStepCommon<{
     headline?: string;
     explainer?: string;
-    version?: string;
     free?: Partial<PlanCard>;
     plus?: Partial<PlanCard>;
   }> {
