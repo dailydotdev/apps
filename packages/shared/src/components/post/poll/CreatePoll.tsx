@@ -97,7 +97,12 @@ const CreatePoll = () => {
   );
 
   return (
-    <WritePageMain onSubmit={handleSubmit} className="gap-4" ref={formRef}>
+    <WritePageMain
+      onSubmit={handleSubmit}
+      className="gap-4"
+      ref={formRef}
+      id="write-post-poll"
+    >
       <TextField
         className={{ container: 'w-full' }}
         inputId="title"
