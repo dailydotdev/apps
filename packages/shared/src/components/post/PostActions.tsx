@@ -32,8 +32,6 @@ import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import { Tooltip } from '../tooltip/Tooltip';
-import { useFeature } from '../GrowthBookProvider';
-import { featureCardUiColors } from '../../lib/featureManagement';
 
 interface PostActionsProps {
   post: Post;
@@ -49,7 +47,6 @@ export function PostActions({
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
-  const colorExp = useFeature(featureCardUiColors);
   const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
@@ -298,11 +295,9 @@ export function PostActions({
               variant={ButtonVariant.Tertiary}
               className={classNames(
                 'text-text-tertiary',
-                colorExp
-                  ? 'group-hover/link-btn:text-text-link'
-                  : ' group-hover/link-btn:text-accent-cabbage-default',
+                'group-hover/link-btn:text-accent-cabbage-default',
               )}
-              color={colorExp ? ButtonColor.Water : ButtonColor.Cabbage}
+              color={ButtonColor.Cabbage}
             >
               Copy
             </QuaternaryButton>
