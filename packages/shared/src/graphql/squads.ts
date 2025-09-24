@@ -17,7 +17,7 @@ import type {
   SourcePermissions,
   Squad,
 } from './sources';
-import type { Post } from './posts';
+import type { PollOption, Post } from './posts';
 import type { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
@@ -615,6 +615,7 @@ export interface SourcePostModeration extends Partial<PostRequestContent> {
   moderatorMessage?: string;
   source?: Source;
   externalLink?: string;
+  pollOptions?: PollOption[];
 }
 
 const SOURCE_POST_MODERATION_FRAGMENT = gql`
@@ -632,6 +633,10 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
     image
     createdAt
     externalLink
+    pollOptions {
+      text
+      order
+    }
     source {
       ...SourceBaseInfo
     }

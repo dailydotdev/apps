@@ -83,14 +83,18 @@ function NewCommentComponent(
     if (
       !shouldHandleCommentQuery ||
       !hasCommentQuery ||
-      post.type !== PostType.Welcome
+      (post.type !== PostType.Welcome && post.type !== PostType.Poll)
     ) {
       return;
     }
 
     const { comment, ...query } = router.query;
+    const origin =
+      post.type === PostType.Poll
+        ? Origin.PollCommentButton
+        : Origin.SquadChecklist;
 
-    onShowComment(Origin.SquadChecklist, comment as string);
+    onShowComment(origin, comment as string);
 
     router.replace({ pathname: router.pathname, query }, undefined, {
       shallow: true,

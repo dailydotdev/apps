@@ -7,7 +7,12 @@ import {
   WriteFreeFormSkeleton,
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import type { CreatePostProps } from '@dailydotdev/shared/src/graphql/posts';
+import type {
+  CreatePostPollProps,
+  CreatePostProps,
+  Post,
+} from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -42,6 +47,8 @@ import {
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
 import { useQueryClient } from '@tanstack/react-query';
+import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll';
+import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -55,7 +62,11 @@ const seo: NextSeoProps = {
 };
 
 function CreatePost(): ReactElement {
-  const { completeAction } = useActions();
+  const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
+  const hasCheckedPollTab = useMemo(
+    () => checkHasCompleted(ActionType.SeenPostPollTab),
+    [checkHasCompleted],
+  );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const client = useQueryClient();
@@ -102,28 +113,29 @@ function CreatePost(): ReactElement {
     completeAction(ActionType.SquadFirstPost);
     await push(link);
   };
-  const { onSubmitFreeformPost, isPosting, isSuccess } = usePostToSquad({
-    onPostSuccess: async (post) => {
-      const isUserSource = isSourceUserSource(post.source);
+  const { onSubmitFreeformPost, onSubmitPollPost, isPosting, isSuccess } =
+    usePostToSquad({
+      onPostSuccess: async (post) => {
+        const isUserSource = isSourceUserSource(post.source);
 
-      if (isUserSource) {
-        client.refetchQueries({
-          queryKey: ['author', user.id],
-        });
-      }
+        if (isUserSource) {
+          client.refetchQueries({
+            queryKey: ['author', user.id],
+          });
+        }
 
-      onPostSuccess(post.commentsPermalink);
-    },
-    onSourcePostModerationSuccess: async (post) => {
-      onPostSuccess(post.source.permalink);
-    },
-    onError: (data: ApiErrorResult) => {
-      if (data?.response?.errors?.[0]) {
-        displayToast(data?.response?.errors?.[0].message);
-      }
-      onAskConfirmation(true);
-    },
-  });
+        onPostSuccess(post.commentsPermalink);
+      },
+      onSourcePostModerationSuccess: async (post) => {
+        onPostSuccess(post.source.permalink);
+      },
+      onError: (data: ApiErrorResult) => {
+        if (data?.response?.errors?.[0]) {
+          displayToast(data?.response?.errors?.[0].message);
+        }
+        onAskConfirmation(true);
+      },
+    });
   const { onCreateSquad, isLoading } = useSquadCreate({
     onSuccess: (newSquad) => {
       const form = formToJson<CreatePostProps>(formRef.current);
@@ -135,6 +147,7 @@ function CreatePost(): ReactElement {
 
   const param = isRouteReady && activeSquads?.length && (query.sid as string);
   const shareParam = query.share as string;
+  const pollParam = query.poll as string;
 
   useEffect(() => {
     if (!param) {
@@ -148,31 +161,48 @@ function CreatePost(): ReactElement {
   }, [activeSquads, param]);
 
   useEffect(() => {
-    if (!shareParam) {
-      return;
+    if (shareParam) {
+      setDisplay(WriteFormTab.Share);
+    } else if (pollParam) {
+      setDisplay(WriteFormTab.Poll);
     }
+  }, [shareParam, pollParam]);
 
-    setDisplay(WriteFormTab.Share);
-  }, [shareParam]);
-
-  const onClickSubmit = async (e: FormEvent<HTMLFormElement>, params) => {
+  const onClickSubmit = async (
+    e: FormEvent<HTMLFormElement>,
+    params: CreatePostProps | CreatePostPollProps,
+    type: Post['type'],
+  ) => {
     e.preventDefault();
     if (isPosting || isSuccess || isLoading) {
       return null;
     }
 
     if (!squad) {
-      return onSubmitFreeformPost(params, generateUserSourceAsSquad(user));
+      return type === PostType.Freeform
+        ? onSubmitFreeformPost(params, generateUserSourceAsSquad(user))
+        : onSubmitPollPost(
+            params as CreatePostPollProps,
+            generateUserSourceAsSquad(user),
+          );
     }
 
     if (squads.some(({ id }) => squad.id === id)) {
-      return onSubmitFreeformPost(params, squad);
+      return type === PostType.Freeform
+        ? onSubmitFreeformPost(params, squad)
+        : onSubmitPollPost(params as CreatePostPollProps, squad);
     }
 
     await onCreateSquad(generateDefaultSquad(user.username));
 
     return null;
   };
+
+  useEffect(() => {
+    if (!hasCheckedPollTab && display === WriteFormTab.Poll) {
+      completeAction(ActionType.SeenPostPollTab);
+    }
+  }, [display, hasCheckedPollTab, completeAction]);
 
   if (!isFetched || !isAuthReady || !isRouteReady) {
     return <WriteFreeFormSkeleton />;
@@ -231,6 +261,29 @@ function CreatePost(): ReactElement {
                 onAskConfirmation(false);
               }}
             />
+          </Tab>
+          <Tab
+            label={WriteFormTab.Poll}
+            className="flex flex-col gap-4 px-5"
+            hint={
+              display !== WriteFormTab.Poll &&
+              isActionsFetched &&
+              !hasCheckedPollTab ? (
+                <Pill
+                  label="New"
+                  size={PillSize.XSmall}
+                  className="mt-0.5 bg-brand-float text-brand-default"
+                />
+              ) : undefined
+            }
+          >
+            {isMobile && <h2 className="pt-2 font-bold typo-title3">Poll</h2>}
+            <SquadsDropdown
+              list={activeSquads}
+              onSelect={setSelected}
+              selected={selected}
+            />
+            <CreatePoll />
           </Tab>
         </TabContainer>
       </WritePageContainer>

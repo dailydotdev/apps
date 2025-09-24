@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from '@tanstack/react-query';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
-import { getLayout as getNoSidebarLayout } from './NoSidebarLayout';
+import { getLayout as getRecruiterLayout } from './RecruiterLayout';
 
 export const OpportunityProtectedLayout = ({
   children,
@@ -34,11 +34,11 @@ export const OpportunityProtectedLayout = ({
   return children;
 };
 
-export const getOpportunityProtectedLayout: typeof getNoSidebarLayout = (
+export const getOpportunityProtectedLayout: typeof getRecruiterLayout = (
   page,
   ...props
 ) =>
-  getNoSidebarLayout(
+  getRecruiterLayout(
     <OpportunityProtectedLayout>{page}</OpportunityProtectedLayout>,
     ...props,
   );
