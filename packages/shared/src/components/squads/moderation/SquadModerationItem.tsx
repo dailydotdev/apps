@@ -115,6 +115,7 @@ export function SquadModerationItem(
             <SquadModerationItemContextMenu
               id={data.id}
               onDelete={context.onDelete}
+              canEdit={data?.type !== PostType.Poll}
             />
           </span>
         )}
