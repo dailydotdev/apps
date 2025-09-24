@@ -16,7 +16,6 @@ interface UseCardCover {
 
 interface UseCardCoverProps {
   post: Post;
-  isHoveringCard?: boolean;
   onShare?: (post: Post) => void;
   className?: {
     bookmark?: {

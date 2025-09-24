@@ -1,5 +1,5 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
@@ -53,7 +53,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { showFeedback } = usePostFeedback({ post });
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
-  const [isHovering, setIsHovering] = useState(false);
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -68,8 +67,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   return (
     <FeedItemContainer
       domProps={{
-        onMouseEnter: () => setIsHovering(true),
-        onMouseLeave: () => setIsHovering(false),
         ...domProps,
         style,
         className: getPostClassNames(
@@ -138,13 +135,8 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             openNewTab={openNewTab}
             post={post}
             onShare={onShare}
-            isHoveringCard={isHovering}
             className={{
-              image: classNames(
-                'px-1',
-                showFeedback && 'mb-0',
-                smallCard && ' !my-0 !h-26',
-              ),
+              image: classNames('px-1', showFeedback && 'mb-0'),
             }}
             eagerLoadImage={eagerLoadImage}
           />
