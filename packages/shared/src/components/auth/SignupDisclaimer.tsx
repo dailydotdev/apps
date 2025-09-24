@@ -24,7 +24,7 @@ function SignupDisclaimer({ className }: SignupDisclaimerProps): ReactElement {
       >
         Terms of Service
       </a>{' '}
-      and the{' '}
+      and{' '}
       <a
         href={privacyPolicy}
         target="_blank"

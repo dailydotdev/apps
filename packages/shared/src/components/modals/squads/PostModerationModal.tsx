@@ -27,6 +27,7 @@ import { useSourceModerationList } from '../../../hooks/squads/useSourceModerati
 import { ProfileImageSize } from '../../ProfilePicture';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { PostType } from '../../../types';
 
 type ActionHandler = (ids: string[], sourceId: string) => void;
 
@@ -57,6 +58,7 @@ function PostModerationModal({
     sharedPost,
     source,
     externalLink,
+    type,
   } = data;
   const onReadArticle = useReadArticle({
     origin: Origin.ArticleModal,
@@ -92,7 +94,11 @@ function PostModerationModal({
             Post preview
           </Typography>
           {!isModerator && (
-            <SquadModerationItemContextMenu id={id} onDelete={onDeleteClick} />
+            <SquadModerationItemContextMenu
+              id={id}
+              onDelete={onDeleteClick}
+              canEdit={type !== PostType.Poll}
+            />
           )}
           <ModalClose
             className="!flex"
