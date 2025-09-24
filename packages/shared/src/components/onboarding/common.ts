@@ -13,7 +13,6 @@ export enum OnboardingStep {
   PlusPayment = 'plus_payment',
   PlusSuccess = 'plus_success',
   Extension = 'extension',
-  InteractiveFeed = 'interactive_feed',
   PreviewFeed = 'preview_feed',
 }
 

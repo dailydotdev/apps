@@ -13,7 +13,6 @@ import type { PostCardProps } from '../../components/cards/common/common';
 import { ArticleGrid } from '../../components/cards/article/ArticleGrid';
 import { GrowthBookProvider } from '../../components/GrowthBookProvider';
 import { BootApp } from '../../lib/boot';
-import { InteractiveFeedProvider } from '../../contexts/InteractiveFeedContext';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -67,9 +66,7 @@ const renderComponent = () => {
           }}
         >
           <SettingsContext.Provider value={settingsContext}>
-            <InteractiveFeedProvider>
-              <ArticleGrid {...defaultProps} />
-            </InteractiveFeedProvider>
+            <ArticleGrid {...defaultProps} />
           </SettingsContext.Provider>
         </GrowthBookProvider>
       </AuthContextProvider>

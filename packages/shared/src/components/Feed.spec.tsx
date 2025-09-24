@@ -67,7 +67,6 @@ import * as hooks from '../hooks/useViewSize';
 import { ActionType } from '../graphql/actions';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
-import { InteractiveFeedProvider } from '../contexts/InteractiveFeedContext';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -230,14 +229,12 @@ const renderComponent = (
         <LazyModalElement />
         <SettingsContext.Provider value={settingsContext}>
           <Toast autoDismissNotifications={false} />
-          <InteractiveFeedProvider>
-            <Feed
-              feedQueryKey={['feed']}
-              feedName={feedName}
-              query={ANONYMOUS_FEED_QUERY}
-              variables={variables}
-            />
-          </InteractiveFeedProvider>
+          <Feed
+            feedQueryKey={['feed']}
+            feedName={feedName}
+            query={ANONYMOUS_FEED_QUERY}
+            variables={variables}
+          />
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

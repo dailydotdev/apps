@@ -7,7 +7,6 @@ import { Typography, TypographyType } from '../typography/Typography';
 import { FeedLayoutProvider } from '../../contexts/FeedContext';
 import { FEED_QUERY, RankingAlgorithm } from '../../graphql/feed';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { ONBOARDING_PREVIEW_KEY } from '../../contexts/InteractiveFeedContext';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { generateQueryKey } from '../../lib/query';
@@ -28,7 +27,6 @@ const FeedPreviewStep = ({
 
   const completeOnboarding = () => {
     onComplete();
-    localStorage.setItem(ONBOARDING_PREVIEW_KEY, '');
   };
 
   const handleComplete = () => {

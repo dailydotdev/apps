@@ -15,7 +15,6 @@ import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
-import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import Upvoted from '../pages/upvoted';
 
 beforeEach(() => {
@@ -64,9 +63,7 @@ const renderComponent = (
 
   return render(
     <TestBootProvider client={client} auth={{ user }}>
-      <InteractiveFeedProvider>
-        {Upvoted.getLayout(<Upvoted />, {}, Upvoted.layoutProps)}
-      </InteractiveFeedProvider>
+      {Upvoted.getLayout(<Upvoted />, {}, Upvoted.layoutProps)}
     </TestBootProvider>,
   );
 };
