@@ -17,11 +17,13 @@ import type { MenuItemProps } from '../../dropdown/common';
 interface SquadModerationItemContextMenuProps
   extends Pick<SourcePostModeration, 'id'> {
   onDelete: (id: string) => void;
+  canEdit?: boolean;
 }
 
 export const SquadModerationItemContextMenu = ({
   id,
   onDelete,
+  canEdit = true,
 }: SquadModerationItemContextMenuProps): ReactElement => {
   const { showPrompt } = usePrompt();
   const router = useRouter();
@@ -39,16 +41,19 @@ export const SquadModerationItemContextMenu = ({
 
   const options: MenuItemProps[] = [
     {
-      label: 'Edit post',
-      action: () => router.push(`/posts/${id}/edit?moderation=true`),
-      icon: <EditIcon aria-hidden />,
-    },
-    {
       label: 'Delete post',
       action: handleDelete,
       icon: <TrashIcon aria-hidden />,
     },
   ];
+
+  if (canEdit) {
+    options.unshift({
+      label: 'Edit post',
+      action: () => router.push(`/posts/${id}/edit?moderation=true`),
+      icon: <EditIcon aria-hidden />,
+    });
+  }
 
   return (
     <DropdownMenu>
