@@ -192,6 +192,7 @@ export default function SquadHeaderMenu({
     follow,
     unfollow,
     router,
+    showDeletion,
   ]);
 
   return (
