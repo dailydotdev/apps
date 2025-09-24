@@ -759,7 +759,11 @@ const PostOptionButtonContent = ({
         }),
     });
 
-    if (user?.id && post?.author?.id === user?.id) {
+    if (
+      post.type !== PostType.Poll &&
+      user?.id &&
+      post?.author?.id === user?.id
+    ) {
       postOptions.push({
         icon: <MenuIcon Icon={EditIcon} />,
         label: 'Edit post',
