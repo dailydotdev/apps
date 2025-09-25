@@ -50,3 +50,17 @@ export const opportunityEditContentSchema = z.object({
     })
     .partial(),
 });
+
+export const opportunityEditQuestionsSchema = z.object({
+  questions: z.array(
+    z.object({
+      title: z.string().nonempty(labels.form.required).max(240),
+      placeholder: z
+        .string()
+        .nonempty(labels.form.required)
+        .max(480)
+        .nullable()
+        .optional(),
+    }),
+  ),
+});

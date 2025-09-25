@@ -5,10 +5,13 @@ import { OpportunityEditInfoModal } from './OpportunityEditInfoModal';
 import type { OpportunityEditContentModalProps } from './OpportunityEditContentModal';
 import { OpportunityEditContentModal } from './OpportunityEditContentModal';
 import type { ModalProps } from '../../modals/common/Modal';
+import type { OpportunityEditQuestionsModalProps } from './OpportunityEditQuestionsModal';
+import { OpportunityEditQuestionsModal } from './OpportunityEditQuestionsModal';
 
 type PayloadMap = {
   info: OpportunityEditInfoModalProps;
   content: OpportunityEditContentModalProps;
+  questions: OpportunityEditQuestionsModalProps;
 };
 
 export type OpportunityEditModalProps = {
@@ -24,6 +27,8 @@ export const OpportunityEditModal = (props: OpportunityEditModalProps) => {
       return <OpportunityEditInfoModal {...rest} {...payload} />;
     case 'content':
       return <OpportunityEditContentModal {...rest} {...payload} />;
+    case 'questions':
+      return <OpportunityEditQuestionsModal {...rest} {...payload} />;
     default:
       return null;
   }
