@@ -58,6 +58,9 @@ const nextConfig: NextConfig = {
         as: '*.js',
       },
     },
+    resolveAlias: {
+      'cross-fetch': '',
+    },
   },
   ...withSerwist({
     ...withBundleAnalyzer({
