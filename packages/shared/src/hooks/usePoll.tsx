@@ -16,6 +16,7 @@ import { useToastNotification } from './useToastNotification';
 import { ButtonSize } from '../components/buttons/common';
 import { BellIcon } from '../components/icons';
 import { useAuthContext } from '../contexts/AuthContext';
+import { postLogEvent } from '../lib/feed';
 
 const usePoll = ({ post }: { post: Post }) => {
   const { user } = useAuthContext();
@@ -76,10 +77,14 @@ const usePoll = ({ post }: { post: Post }) => {
 
   const onVote = (optionId: string, optionValue: string) => {
     mutate(optionId);
-    logEvent({
-      event_name: LogEvent.VotePoll,
-      extra: JSON.stringify({ optionId, optionValue }),
-    });
+    logEvent(
+      postLogEvent(LogEvent.VotePoll, post, {
+        extra: {
+          optionId,
+          optionValue,
+        },
+      }),
+    );
   };
 
   return { onVote, isCastingVote };
