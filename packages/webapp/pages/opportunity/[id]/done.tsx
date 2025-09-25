@@ -193,6 +193,7 @@ const DonePage = (): ReactElement => {
           <CandidatePreferenceButton
             label="Optimize future matches"
             targetId={TargetId.OpportunityDonePage}
+            className="w-full tablet:w-80"
           />
         </FlexCol>
       </FlexCol>
