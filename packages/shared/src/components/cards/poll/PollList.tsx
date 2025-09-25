@@ -73,27 +73,18 @@ export const PollList = forwardRef(function PollList(
   );
 
   const metadata = useMemo(() => {
-    const pollMetadata = (
-      <PostMetadata
-        createdAt={post.createdAt}
-        pollMetadata={{
-          endsAt: post?.endsAt,
-          isAuthor: user?.id === post.author?.id,
-          numPollVotes: post?.numPollVotes,
-        }}
-      />
-    );
-
-    if (isUserSource) {
-      return {
-        topLabel: post.author.name,
-        bottomLabel: pollMetadata,
-      };
-    }
-
     return {
-      topLabel: post.source.name,
-      bottomLabel: pollMetadata,
+      topLabel: isUserSource ? post.author.name : post.source.name,
+      bottomLabel: (
+        <PostMetadata
+          createdAt={post.createdAt}
+          pollMetadata={{
+            endsAt: post?.endsAt,
+            isAuthor: user?.id === post.author?.id,
+            numPollVotes: post?.numPollVotes,
+          }}
+        />
+      ),
     };
   }, [isUserSource, post, user?.id]);
 
