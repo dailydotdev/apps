@@ -114,7 +114,7 @@ const NotifyPage = (): ReactElement => {
           </FlexCol>
           {showAlert && (
             <FlexRow className="gap-3 rounded-16 border border-border-subtlest-tertiary px-3 py-3.5">
-              <FlexCol className="gap-1 ">
+              <FlexCol className="flex-1 gap-1">
                 <Typography type={TypographyType.Body} bold>
                   Enable push notifications
                 </Typography>
@@ -130,7 +130,7 @@ const NotifyPage = (): ReactElement => {
                 data-testid="show_new_posts-switch"
                 inputId="show_new_posts-switch"
                 name="show_new_posts"
-                className="w-20"
+                className="min-w-10"
                 compact={false}
                 onToggle={() =>
                   onTogglePermission(NotificationPromptSource.NotificationsPage)
