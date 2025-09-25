@@ -24,7 +24,6 @@ import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import NotificationsPage from '../pages/notifications';
 
 jest.mock('next/router', () => ({
@@ -100,9 +99,7 @@ const renderComponent = (
           unreadCount={unreadCount}
           app={BootApp.Webapp}
         >
-          <InteractiveFeedProvider>
-            <NotificationsPage />
-          </InteractiveFeedProvider>
+          <NotificationsPage />
         </NotificationsContextProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,

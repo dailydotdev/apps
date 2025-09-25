@@ -24,7 +24,6 @@ import {
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { DeletedPostId } from '../../../lib/constants';
-import { useInteractiveFeedContext } from '../../../contexts/InteractiveFeedContext';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import type { UserShortProfile } from '../../../lib/user';
 
@@ -64,7 +63,6 @@ export const PostCardHeader = ({
   const isFeedPreview = useFeedPreviewMode();
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
   const isUserSource = isSourceUserSource(post.source);
-  const { interactiveFeedExp } = useInteractiveFeedContext();
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked && !showFeedback,
   });
@@ -91,19 +89,9 @@ export const PostCardHeader = ({
         className={classNames(
           className,
           highlightBookmarkedPost && headerHiddenClassName,
-          interactiveFeedExp && 'mx-0',
         )}
       >
-        {!isUserSource && (
-          <SourceButton
-            size={
-              isFeedPreview && interactiveFeedExp
-                ? ProfileImageSize.Small
-                : undefined
-            }
-            source={source}
-          />
-        )}
+        {!isUserSource && <SourceButton source={source} />}
         {!!post?.author && (
           <HoverCard
             align="start"

@@ -73,8 +73,6 @@ export const featurePlusButtonColors = new Feature<
   'avocado' | 'cabbage' | 'onion' | 'cheesebacon' | 'onionbacon' | ''
 >('plus_button_colors', '');
 
-export const featureInteractiveFeed = new Feature('interactive_feed', false);
-
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
 export const featureOnboardingGridVariation = new Feature(
   'onboarding_feature_grid_variation',

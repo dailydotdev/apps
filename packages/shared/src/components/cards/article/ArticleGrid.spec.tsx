@@ -11,7 +11,6 @@ import { visibleOnGroupHover } from '../common/common';
 import { PostType } from '../../../graphql/posts';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleGrid } from './ArticleGrid';
-import { InteractiveFeedProvider } from '../../../contexts/InteractiveFeedContext';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -45,9 +44,7 @@ beforeEach(() => {
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
     <TestBootProvider client={new QueryClient()}>
-      <InteractiveFeedProvider>
-        <ArticleGrid {...defaultProps} {...props} />
-      </InteractiveFeedProvider>
+      <ArticleGrid {...defaultProps} {...props} />
     </TestBootProvider>,
   );
 };

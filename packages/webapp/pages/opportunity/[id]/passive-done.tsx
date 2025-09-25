@@ -67,6 +67,7 @@ const PassiveDonePage = (): ReactElement => {
           <CandidatePreferenceButton
             label="Update job preferences"
             targetId={TargetId.OpportunityPassiveDonePage}
+            className="w-full tablet:w-80"
           />
         </FlexCol>
       </FlexCol>

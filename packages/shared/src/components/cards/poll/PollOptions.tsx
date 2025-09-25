@@ -144,15 +144,17 @@ const PollOptions = ({
   shouldAnimateResults = false,
 }: PollOptionsProps) => {
   const hasEnded = endsAt && isAfter(new Date(), new Date(endsAt));
+  const showPollResults = userVote || hasEnded;
 
   return (
     <div
       className={classNames(
         'z-1 flex h-44 w-full flex-col justify-end gap-2',
         className?.container,
+        showPollResults && 'pointer-events-none',
       )}
     >
-      {userVote || hasEnded ? (
+      {showPollResults ? (
         <PollResults
           options={options}
           userVote={userVote}

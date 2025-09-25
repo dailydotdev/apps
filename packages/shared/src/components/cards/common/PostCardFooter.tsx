@@ -23,7 +23,6 @@ export const PostCardFooter = ({
   eagerLoadImage = false,
   onShare,
   post,
-  isHoveringCard,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
 
@@ -34,7 +33,6 @@ export const PostCardFooter = ({
       <CardCover
         isVideoType={isVideoType}
         onShare={onShare}
-        isHoveringCard={isHoveringCard}
         post={post}
         imageProps={{
           alt: 'Post Cover image',

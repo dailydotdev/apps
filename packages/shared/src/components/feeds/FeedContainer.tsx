@@ -22,7 +22,6 @@ import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
-import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
 import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import {
@@ -149,7 +148,6 @@ export const FeedContainer = ({
   showBriefCard,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
-  const { interactiveFeedExp } = useInteractiveFeedContext();
   const { subject } = useToastNotification();
   const { spaciness, loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
@@ -327,7 +325,6 @@ export const FeedContainer = ({
                   space: spaciness,
                 }),
                 cardClass({ isList, numberOfCards: numCards, isHorizontal }),
-                interactiveFeedExp && '!gap-3',
               )}
               ref={feedContainerRef}
             >
