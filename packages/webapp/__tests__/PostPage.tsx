@@ -51,7 +51,6 @@ import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { VOTE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import type { Props } from '../pages/posts/[id]';
 import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
@@ -222,9 +221,7 @@ const renderPost = (
           sendBeacon: jest.fn(),
         }}
       >
-        <InteractiveFeedProvider>
-          {getMainLayout(<PostPage {...defaultProps} {...props} />)}
-        </InteractiveFeedProvider>
+        {getMainLayout(<PostPage {...defaultProps} {...props} />)}
       </LogContext.Provider>
     </TestBootProvider>,
   );

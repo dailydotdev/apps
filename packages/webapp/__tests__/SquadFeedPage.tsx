@@ -48,7 +48,6 @@ import {
   COMPLETE_ACTION_MUTATION,
 } from '@dailydotdev/shared/src/graphql/actions';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
-import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import {
   CONTENT_PREFERENCE_STATUS_QUERY,
   ContentPreferenceType,
@@ -188,13 +187,11 @@ const renderComponent = (
         unreadCount: 0,
       }}
     >
-      <InteractiveFeedProvider>
-        {SquadPage.getLayout(
-          <SquadPage handle={handle} />,
-          {},
-          SquadPage.layoutProps,
-        )}
-      </InteractiveFeedProvider>
+      {SquadPage.getLayout(
+        <SquadPage handle={handle} />,
+        {},
+        SquadPage.layoutProps,
+      )}
     </TestBootProvider>,
   );
 };

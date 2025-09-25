@@ -28,7 +28,6 @@ import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helper
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
-import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import SourcePage from '../pages/sources/[source]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -158,9 +157,7 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <InteractiveFeedProvider>
-            <SourcePage source={source} />
-          </InteractiveFeedProvider>
+          <SourcePage source={source} />
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

@@ -9,7 +9,6 @@ import { CollectionGrid } from './CollectionGrid';
 import { sharePost as collectionPost } from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import { InteractiveFeedProvider } from '../../../contexts/InteractiveFeedContext';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -53,9 +52,7 @@ beforeEach(() => {
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   return render(
     <TestBootProvider client={new QueryClient()}>
-      <InteractiveFeedProvider>
-        <CollectionGrid {...defaultProps} {...props} />
-      </InteractiveFeedProvider>
+      <CollectionGrid {...defaultProps} {...props} />
     </TestBootProvider>,
   );
 };
