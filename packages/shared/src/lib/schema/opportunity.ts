@@ -56,12 +56,7 @@ export const opportunityEditQuestionsSchema = z.object({
     z.object({
       id: z.uuid().optional(),
       title: z.string().nonempty(labels.form.required).max(240),
-      placeholder: z
-        .string()
-        .nonempty(labels.form.required)
-        .max(480)
-        .nullable()
-        .optional(),
+      placeholder: z.string().max(480).nullable().optional(),
     }),
   ),
 });
