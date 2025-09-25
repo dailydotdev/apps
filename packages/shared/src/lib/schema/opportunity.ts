@@ -54,6 +54,7 @@ export const opportunityEditContentSchema = z.object({
 export const opportunityEditQuestionsSchema = z.object({
   questions: z.array(
     z.object({
+      id: z.uuid().optional(),
       title: z.string().nonempty(labels.form.required).max(240),
       placeholder: z
         .string()

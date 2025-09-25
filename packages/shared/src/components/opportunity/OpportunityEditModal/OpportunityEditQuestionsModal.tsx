@@ -185,7 +185,7 @@ export const OpportunityEditQuestionsModal = ({
           />
         </div>
         <Button
-          className="max-w-36"
+          className="max-w-40"
           type="submit"
           variant={ButtonVariant.Subtle}
           size={ButtonSize.Small}
