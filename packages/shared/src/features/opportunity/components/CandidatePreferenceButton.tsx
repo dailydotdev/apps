@@ -13,14 +13,16 @@ import { settingsUrl } from '../../../lib/constants';
 import type { TargetId } from '../../../lib/log';
 import { LogEvent } from '../../../lib/log';
 import { anchorDefaultRel } from '../../../lib/strings';
+import type { WithClassNameProps } from '../../../components/utilities';
 
 export const CandidatePreferenceButton = ({
   label = 'Job preferences',
   targetId,
+  className,
 }: {
   label?: string;
   targetId: TargetId;
-}): ReactElement => {
+} & WithClassNameProps): ReactElement => {
   const { logEvent } = useLogContext();
   return (
     <Link href={`${settingsUrl}/job-preferences`} passHref>
@@ -29,7 +31,7 @@ export const CandidatePreferenceButton = ({
         size={ButtonSize.Large}
         variant={ButtonVariant.Subtle}
         icon={<JobIcon size={IconSize.Small} />}
-        className="w-full tablet:w-80"
+        className={className}
         rel={anchorDefaultRel}
         onClick={() => {
           logEvent({

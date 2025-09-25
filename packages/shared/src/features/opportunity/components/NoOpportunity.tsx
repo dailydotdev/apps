@@ -96,6 +96,7 @@ export const NoOpportunity = (): ReactElement => {
       <CandidatePreferenceButton
         label="Update job preferences"
         targetId={TargetId.OpportunityUnavailablePage}
+        className="w-full tablet:w-80"
       />
     </div>
   );
