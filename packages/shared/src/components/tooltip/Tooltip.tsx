@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as RadixPrimitive from '@radix-ui/react-tooltip';
-import './styles.css';
+import './styles.module.css';
 import type { ReactNode } from 'react';
 import type {
   TooltipContentProps,

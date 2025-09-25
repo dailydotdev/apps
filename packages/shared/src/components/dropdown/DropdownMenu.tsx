@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import React, { isValidElement, useState } from 'react';
 import classNames from 'classnames';
-import './style.css';
+import './style.module.css';
 import type {
   DropdownMenuContentProps as RadixDropdownMenuContentProps,
   DropdownMenuProps,

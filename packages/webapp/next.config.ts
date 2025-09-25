@@ -31,6 +31,34 @@ const withSerwist = withSerwistInit({
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: [
+          {
+            loader: '@svgr/webpack',
+            options: {
+              icon: true,
+              svgo: true,
+              replaceAttrValues: {
+                '#fff': 'currentcolor',
+                '#FFF': 'currentcolor',
+                '#FFFFFF': 'currentcolor',
+              },
+              svgProps: {
+                className: 'icon',
+              },
+            },
+          },
+        ],
+        as: '*.js',
+      },
+      '*.svg?url': {
+        loaders: ['@turbo/pack-loader-file'],
+        as: '*.js',
+      },
+    },
+  },
   ...withSerwist({
     ...withBundleAnalyzer({
       i18n: {

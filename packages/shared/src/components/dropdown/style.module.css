@@ -1,4 +1,4 @@
-[data-radix-popper-content-wrapper] {
+:global([data-radix-popper-content-wrapper]) {
   z-index: 1000!important;
 }
 
