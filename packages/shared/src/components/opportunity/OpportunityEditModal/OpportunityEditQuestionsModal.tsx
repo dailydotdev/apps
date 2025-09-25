@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ModalProps } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
@@ -25,6 +25,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
+import { SimpleTooltip } from '../../tooltips';
+import { isTesting } from '../../../lib/constants';
 
 export type OpportunityEditQuestionsModalProps = {
   id: string;
@@ -54,6 +56,7 @@ export const OpportunityEditQuestionsModal = ({
   });
 
   const {
+    control,
     register,
     handleSubmit,
     formState: { isSubmitting, isDirty, errors },
@@ -125,6 +128,9 @@ export const OpportunityEditQuestionsModal = ({
     rest.onRequestClose?.(event);
   };
 
+  const canRemoveQuestion =
+    useWatch({ control, name: 'questions' })?.length > 1;
+
   if (!opportunity) {
     return <Loader />;
   }
@@ -184,23 +190,32 @@ export const OpportunityEditQuestionsModal = ({
             hint={errors.questions?.[index]?.placeholder?.message}
           />
         </div>
-        <Button
-          className="max-w-40"
-          type="submit"
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Small}
-          onClick={() => {
-            const questionsCopy = getValues().questions;
-            questionsCopy.splice(index, 1);
-
-            setValue('questions', questionsCopy);
-
-            onSubmit();
-          }}
-          loading={isSubmitting}
+        <SimpleTooltip
+          forceLoad={!isTesting}
+          content={
+            canRemoveQuestion ? '' : 'You need to provide at least one question'
+          }
         >
-          Remove question
-        </Button>
+          <div className="max-w-40">
+            <Button
+              type="submit"
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Small}
+              onClick={() => {
+                const questionsCopy = getValues().questions;
+                questionsCopy.splice(index, 1);
+
+                setValue('questions', questionsCopy);
+
+                onSubmit();
+              }}
+              loading={isSubmitting}
+              disabled={!canRemoveQuestion}
+            >
+              Remove question
+            </Button>
+          </div>
+        </SimpleTooltip>
       </Modal.Body>
     </Modal>
   );
