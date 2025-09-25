@@ -49,6 +49,8 @@ export interface DragDropProps {
   ctaLabelMobile?: string;
   uploadIcon?: ReactNode;
   showRemove?: boolean;
+  // Whether the entire drop zone is clickable
+  fullClick?: boolean;
 }
 
 const getIcon = (state: MutationStatus) => {
@@ -154,6 +156,7 @@ export function DragDrop({
   ctaLabelMobile = 'Upload PDF',
   uploadIcon,
   showRemove,
+  fullClick = false,
 }: DragDropProps): ReactElement {
   const [filenames, setFilenames] = useState<string[]>([]);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -214,6 +217,7 @@ export function DragDrop({
         onClick={openFileInput}
         icon={<UploadIcon />}
         size={ctaSize}
+        disabled={disabled}
       >
         {ctaLabelMobile}
       </Button>
@@ -254,6 +258,7 @@ export function DragDrop({
           size={ButtonSize.Small}
           onClick={openFileInput}
           type="button"
+          disabled={disabled}
         >
           {ctaLabelDesktop}
         </Button>
@@ -274,12 +279,28 @@ export function DragDrop({
           'bg-surface-float': !isDragOver,
           'bg-surface-hover': isDragOver && isDragValid,
           'bg-surface-disabled cursor-not-allowed': disabled,
+          'hover:bg-surface-hover hover:cursor-pointer': !disabled && fullClick,
         },
         className,
       )}
+      aria-disabled={disabled}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      {...(fullClick && {
+        role: 'button',
+        tabIndex: disabled ? -1 : 0,
+        onClick: () => !disabled && openFileInput(),
+        onKeyDown: (e) => {
+          if (disabled) {
+            return;
+          }
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openFileInput();
+          }
+        },
+      })}
     >
       <div
         className={classNames(

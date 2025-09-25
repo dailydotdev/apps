@@ -95,6 +95,7 @@ export const CVOverlay = ({
           <DragDrop
             isCompactList
             showRemove
+            fullClick
             className={classNames('w-full')}
             validation={fileValidation}
             onFilesDrop={(uploadedFiles) => {
