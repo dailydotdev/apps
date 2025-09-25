@@ -326,7 +326,7 @@ const faq = [
   },
 ];
 const FAQSection = (): ReactElement => (
-  <FlexCol className="gap-10 text-center">
+  <FlexCol className="gap-10 pb-10 text-center">
     <Typography type={TypographyType.Title3} bold>
       Everything else you might want to know
     </Typography>
