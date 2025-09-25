@@ -25,7 +25,7 @@ export function WriteFooter({
   return (
     <span
       className={classNames(
-        'relative flex flex-col tablet:flex-row',
+        'relative flex flex-col flex-wrap tablet:flex-row',
         !sidebarRendered && 'justify-center',
         isPoll ? 'tablet:items-end' : 'items-center',
         className,
@@ -45,9 +45,6 @@ export function WriteFooter({
         >
           Receive updates whenever your Squad members engage with your post
         </Switch>
-      )}
-      {shouldShowCta && (
-        <div className="absolute -left-4 mt-1 h-px w-[calc(100%+2rem)] bg-border-subtlest-tertiary tablet:hidden" />
       )}
       <Button
         type="submit"
