@@ -80,14 +80,8 @@ export const PollList = forwardRef(function PollList(
   );
 
   const metadata = useMemo(() => {
-    if (isUserSource) {
-      return {
-        topLabel: post.author.name,
-      };
-    }
-
     return {
-      topLabel: post.source.name,
+      topLabel: isUserSource ? post.author.name : post.source.name,
       bottomLabel: (
         <PostMetadata
           createdAt={post.createdAt}
