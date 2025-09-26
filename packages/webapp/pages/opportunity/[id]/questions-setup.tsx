@@ -21,7 +21,6 @@ import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/oppo
 import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useIsLightTheme } from '@dailydotdev/shared/src/hooks/utils';
 import classNames from 'classnames';
 import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
 import {
@@ -52,7 +51,6 @@ const QuestionsSetupPage = (): ReactElement => {
   const {
     query: { id },
   } = useRouter();
-  const isLightTheme = useIsLightTheme();
 
   const { data: opportunity, isPending } = useQuery({
     ...opportunityByIdOptions({ id: id as string }),
@@ -94,9 +92,7 @@ const QuestionsSetupPage = (): ReactElement => {
                 <header className="flex items-center justify-between">
                   <div
                     className={classNames(
-                      'flex size-7 items-center justify-center rounded-full bg-surface-primary text-center',
-                      isLightTheme && 'text-white',
-                      !isLightTheme && 'text-black',
+                      'flex size-7 items-center justify-center rounded-full bg-surface-primary text-center text-surface-invert',
                     )}
                   >
                     <Typography bold type={TypographyType.Footnote}>
