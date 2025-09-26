@@ -49,6 +49,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll';
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
+import SpamWarning from '@dailydotdev/shared/src/components/widgets/SpamWarning';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -244,6 +245,8 @@ function CreatePost(): ReactElement {
               onSelect={setSelected}
               selected={selected}
             />
+            {/* TODO: Add condition when to show the spam warning - will depend on on above dropdown value} */}
+            <SpamWarning content="Irrelevant or spammy posts may be flagged and could lead to lost posting rights." />
             <WriteFreeformContent />
           </Tab>
           <Tab label={WriteFormTab.Share} className="flex flex-col gap-4 px-5">
@@ -255,6 +258,8 @@ function CreatePost(): ReactElement {
               onSelect={setSelected}
               selected={selected}
             />
+            {/* TODO: Add condition when to show the spam warning - will depend on on above dropdown value} */}
+            <SpamWarning content="Irrelevant or spammy posts may be flagged and could lead to lost posting rights." />
             <ShareLink
               squad={squad}
               onPostSuccess={() => {
@@ -283,6 +288,8 @@ function CreatePost(): ReactElement {
               onSelect={setSelected}
               selected={selected}
             />
+            {/* TODO: Add condition when to add the spam warning - will depend on on above dropdown value} */}
+            <SpamWarning content="Irrelevant or spammy posts may be flagged and could lead to lost posting rights." />
             <CreatePoll />
           </Tab>
         </TabContainer>

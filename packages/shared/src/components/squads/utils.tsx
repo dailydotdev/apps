@@ -72,6 +72,24 @@ export const editModerationPromptProps: PromptOptions = {
     'Your edit is now waiting for the admin’s approval. We’ll notify you once it’s been reviewed.',
 };
 
+export const postInOpenSquadWarningPromptProps: PromptOptions = {
+  title: 'Posting in an Open Squad',
+  description:
+    'Irrelevant or spammy posts may be flagged and could lead to lost posting rights.',
+  okButton: {
+    title: 'Post anyway',
+    className: 'tablet:w-full',
+  },
+  cancelButton: {
+    title: 'Cancel',
+    className: 'tablet:w-full btn-tertiaryFloat',
+  },
+  promptSize: ModalSize.XSmall,
+  className: {
+    buttons: '!flex-col !flex-col-reverse',
+  },
+};
+
 export interface SquadSettingsProps {
   handle: string;
 }

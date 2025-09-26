@@ -23,6 +23,7 @@ import SourceProfilePicture from '../../profile/SourceProfilePicture';
 import { PostType } from '../../../types';
 import { SquadModerationPoll } from './SquadModerationPoll';
 import { SquadModerationDefault } from './SquadModerationDefault';
+import SpamWarning from '../../widgets/SpamWarning';
 
 const SquadModerationPreview = (props: SquadModerationItemProps) => {
   const { data } = props;
@@ -53,6 +54,9 @@ export function SquadModerationItem(
 
   return (
     <div className="relative flex flex-col gap-4 border-b border-border-subtlest-tertiary p-6 hover:bg-surface-hover">
+      {/* TODO: Add condition when to add the spam warning - if shared in 3 more squads - connect to backend} */}
+      {/* TODO: should only moderator see this? or the user that posted as well?} */}
+      <SpamWarning content="Shared in multiple Squads - Spam alert" />
       <button
         aria-label={`Review ${title}`}
         className="absolute inset-0"
