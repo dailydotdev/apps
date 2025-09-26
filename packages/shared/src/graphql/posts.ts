@@ -817,6 +817,57 @@ export const createPost = async (
   return res.createFreeformPost;
 };
 
+export const CREATE_MULTIPLE_SOURCE_POSTS_MUTATION = gql`
+  mutation CreateMultipleSourcePosts(
+    $sourceIds: [ID!]!
+    $title: String
+    $commentary: String
+    $imageUrl: String
+    $content: String
+    $image: Upload
+    $sharedPostId: ID
+    $externalLink: String
+  ) {
+    createMultipleSourcePosts(
+      sourceIds: $sourceIds
+      title: $title
+      commentary: $commentary
+      imageUrl: $imageUrl
+      content: $content
+      image: $image
+      sharedPostId: $sharedPostId
+      externalLink: $externalLink
+    ) {
+      id
+      sourceId
+      type
+    }
+  }
+`;
+
+export interface CreateMultipleSourcePostsArgs extends CreatePostProps {
+  sourceIds: string[];
+  sharedPostId?: string;
+}
+
+export const createMultipleSourcePosts = async (
+  variables: CreateMultipleSourcePostsArgs,
+) => {
+  const res = await gqlClient.request<
+    {
+      createMultipleSourcePosts: [
+        {
+          id: string;
+          sourceId: string;
+          type: 'post' | 'moderationItem';
+        },
+      ];
+    },
+    CreateMultipleSourcePostsArgs
+  >(CREATE_MULTIPLE_SOURCE_POSTS_MUTATION, variables);
+  return res.createMultipleSourcePosts;
+};
+
 export interface VotePollResponse {
   numPollVotes: number;
   pollOptions: PollOption[];
