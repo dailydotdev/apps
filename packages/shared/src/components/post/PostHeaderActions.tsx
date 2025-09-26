@@ -15,7 +15,7 @@ import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 import { useViewSizeClient, ViewSize } from '../../hooks';
-import { BoostPostButton } from '../../features/boost/BoostPostButton';
+import { BoostPostButton } from '../../features/boost/BoostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 
@@ -38,10 +38,11 @@ export function PostHeaderActions({
   const isCollection = post?.type === PostType.Collection;
   const isInternalReadTyped = isInternalReadType(post);
   const isBoostButtonVisible = useShowBoostButton({ post });
+  const isPoll = post?.type === PostType.Poll;
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isInternalReadTyped && !!onReadArticle && (
+      {!isPoll && !isInternalReadTyped && !!onReadArticle && (
         <Tooltip
           side="bottom"
           content={readButtonText}

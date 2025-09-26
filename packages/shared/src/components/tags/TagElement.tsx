@@ -6,7 +6,6 @@ import { Button, ButtonColor } from '../buttons/Button';
 import { ButtonVariant } from '../buttons/common';
 import type { Tag } from '../../graphql/feedSettings';
 import type { OnSelectTagProps } from './common';
-import { useInteractiveFeedContext } from '../../contexts/InteractiveFeedContext';
 
 export type OnboardingTagProps = {
   tag: Tag;
@@ -22,9 +21,6 @@ export const TagElement = ({
   isHighlighted = false,
   ...attrs
 }: OnboardingTagProps): ReactElement => {
-  const { interactiveFeedExp } = useInteractiveFeedContext();
-  const selectedColor =
-    isSelected && !interactiveFeedExp ? ButtonColor.Cabbage : undefined;
   return (
     <Button
       className={classNames(
@@ -32,10 +28,9 @@ export const TagElement = ({
           'btn-tag': !isSelected,
         },
         'relative',
-        interactiveFeedExp && '!px-3',
       )}
       variant={isSelected ? ButtonVariant.Primary : ButtonVariant.Float}
-      color={selectedColor}
+      color={isSelected ? ButtonColor.Cabbage : undefined}
       onClick={() => {
         onClick({ tag });
       }}

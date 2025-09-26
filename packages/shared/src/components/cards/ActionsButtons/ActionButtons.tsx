@@ -19,8 +19,6 @@ import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { Tooltip } from '../../tooltip/Tooltip';
 import PostAwardAction from '../../post/PostAwardAction';
-import { featureCardUiColors } from '../../../lib/featureManagement';
-import { useFeature } from '../../GrowthBookProvider';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -41,7 +39,6 @@ const ActionButtons = ({
   className,
   onDownvoteClick,
 }: ActionButtonsProps): ReactElement => {
-  const colorExp = useFeature(featureCardUiColors);
   const { onInteract, interaction, previousInteraction } = usePostActions({
     post,
   });
@@ -190,8 +187,7 @@ const ActionButtons = ({
             icon={<LinkIcon size={IconSize.XSmall} />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
-            color={colorExp ? ButtonColor.Water : ButtonColor.Cabbage}
-            buttonClassName={colorExp && 'hover:text-text-link'}
+            color={ButtonColor.Cabbage}
           />
         </Tooltip>
       </div>

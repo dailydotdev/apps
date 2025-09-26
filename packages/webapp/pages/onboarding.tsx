@@ -37,11 +37,7 @@ import {
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import type { GetServerSideProps } from 'next';
 import type { DehydratedState } from '@tanstack/react-query';
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from '@tanstack/react-query';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
 import {
   FunnelBootFeatureKey,
   getFunnelBootData,
@@ -64,6 +60,7 @@ import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding'
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
@@ -84,6 +81,10 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   req,
   res,
 }) => {
+  if (isLocalhost) {
+    return { redirect: { destination: '/', permanent: false } };
+  }
+
   const { id, version } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
 
@@ -355,15 +356,12 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
 }
 
 function Page(props: PageProps) {
-  const { dehydratedState } = props;
   const { autoDismissNotifications } = useSettingsContext();
   return (
-    <HydrationBoundary state={dehydratedState}>
-      <JotaiProvider>
-        <Onboarding {...props} />
-        <Toast autoDismissNotifications={autoDismissNotifications} />
-      </JotaiProvider>
-    </HydrationBoundary>
+    <JotaiProvider>
+      <Onboarding {...props} />
+      <Toast autoDismissNotifications={autoDismissNotifications} />
+    </JotaiProvider>
   );
 }
 

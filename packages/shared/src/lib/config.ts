@@ -1,7 +1,14 @@
-export const apiUrl =
-  process.env.NEXT_PUBLIC_DOMAIN === 'localhost'
-    ? '/api'
-    : process.env.NEXT_PUBLIC_API_URL;
+export const isLocalhost = process.env.NEXT_PUBLIC_DOMAIN === 'localhost';
+
+// in gitpod, we need to call the API through the proxy rewrite to avoid CORS issues
+// but when window is undefined, it means server-side request so we need to call api directly
+const shouldCallProxyRewrite =
+  process.env.NEXT_PUBLIC_DOMAIN === 'localhost' &&
+  typeof window !== 'undefined';
+
+export const apiUrl = shouldCallProxyRewrite
+  ? '/api'
+  : process.env.NEXT_PUBLIC_API_URL;
 
 export const graphqlUrl = `${apiUrl}/graphql`;
 

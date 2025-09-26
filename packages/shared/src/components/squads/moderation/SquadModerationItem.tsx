@@ -4,11 +4,8 @@ import { useSearchParams } from 'next/navigation';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { CardImage } from '../../cards/common/Card';
-import PostTags from '../../cards/common/PostTags';
 import { SourcePostModerationStatus } from '../../../graphql/squads';
 import { SquadModerationActions } from './SquadModerationActions';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
@@ -23,6 +20,19 @@ import type { SquadModerationItemProps } from './useSourceModerationItem';
 import { useSourceModerationItem } from './useSourceModerationItem';
 import { SquadModerationItemContextMenu } from './SquadModerationItemContextMenu';
 import SourceProfilePicture from '../../profile/SourceProfilePicture';
+import { PostType } from '../../../types';
+import { SquadModerationPoll } from './SquadModerationPoll';
+import { SquadModerationDefault } from './SquadModerationDefault';
+
+const SquadModerationPreview = (props: SquadModerationItemProps) => {
+  const { data } = props;
+  switch (data?.type) {
+    case PostType.Poll:
+      return <SquadModerationPoll {...props} />;
+    default:
+      return <SquadModerationDefault {...props} />;
+  }
+};
 
 export function SquadModerationItem(
   props: SquadModerationItemProps,
@@ -31,7 +41,7 @@ export function SquadModerationItem(
   const handle = searchParams?.get('handle');
   const { context, modal, user } = useSourceModerationItem(props);
   const { data, squad, onApprove, onReject, isPending } = props;
-  const { rejectionReason, createdBy, createdAt, image, status, source } = data;
+  const { rejectionReason, createdBy, createdAt, status, source } = data;
 
   const IconComponent =
     status === SourcePostModerationStatus.Rejected ? WarningIcon : TimerIcon;
@@ -105,26 +115,12 @@ export function SquadModerationItem(
             <SquadModerationItemContextMenu
               id={data.id}
               onDelete={context.onDelete}
+              canEdit={data?.type !== PostType.Poll}
             />
           </span>
         )}
       </div>
-      <div className="flex flex-col gap-4 tablet:flex-row">
-        <div className="flex flex-1 flex-col gap-4">
-          <Typography
-            className="break-words"
-            tag={TypographyTag.H2}
-            type={TypographyType.Title3}
-            bold
-          >
-            {title}
-          </Typography>
-          <PostTags className="!mx-0 min-w-full" post={post} />
-        </div>
-        <div className="flex-1">
-          <CardImage className="mx-auto" src={image || post?.image} />
-        </div>
-      </div>
+      <SquadModerationPreview {...props} />
       {status === SourcePostModerationStatus.Rejected && !user.isModerator && (
         <AlertPointerMessage color={AlertColor.Bun}>
           Your post in {squad.name} was not approved for the following reason:

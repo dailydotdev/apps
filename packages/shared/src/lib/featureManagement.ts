@@ -4,6 +4,7 @@ import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { OnboardingGridVariation } from './featureValues';
 import { isDevelopment } from './constants';
+import { BriefingType } from '../graphql/posts';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -25,6 +26,13 @@ const feature = {
   showRoadmap: new Feature('show_roadmap', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
 };
+
+export const followingFeedVersion = new Feature('following_feed_version', 2);
+export const popularFeedVersion = new Feature('popular_feed_version', 2);
+export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
+export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
+export const latestFeedVersion = new Feature('latest_feed_version', 2);
+export const customFeedVersion = new Feature('custom_feed_version', 2);
 
 export const plusTakeoverContent = new Feature<{
   title: string;
@@ -65,15 +73,11 @@ export const featurePlusButtonColors = new Feature<
   'avocado' | 'cabbage' | 'onion' | 'cheesebacon' | 'onionbacon' | ''
 >('plus_button_colors', '');
 
-export const featureInteractiveFeed = new Feature('interactive_feed', false);
-
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
 export const featureOnboardingGridVariation = new Feature(
   'onboarding_feature_grid_variation',
   OnboardingGridVariation.Control,
 );
-
-export const featureCardUiColors = new Feature('card_ui_colors_v2', false);
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
@@ -90,9 +94,17 @@ export const briefCardFeedFeature = new Feature(
   isDevelopment,
 );
 
-export const briefUIFeature = new Feature('brief_ui', isDevelopment);
-
-export const showSquadUnreadPosts = new Feature(
-  'show_squad_unread_posts',
-  isDevelopment,
+export const briefGeneratePricing = new Feature<Record<BriefingType, number>>(
+  'brief_generate_pricing',
+  {
+    [BriefingType.Daily]: 300,
+    [BriefingType.Weekly]: 500,
+  },
 );
+
+export const briefFeedEntrypointPage = new Feature<false | number>(
+  'brief_feed_banner_page',
+  0,
+);
+
+export const briefUIFeature = new Feature('brief_ui', isDevelopment);

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import classNames from 'classnames';
 import { CardSpace } from './Card';
 import type { Post } from '../../../graphql/posts';
 import { CardCover } from './CardCover';
@@ -60,7 +61,11 @@ export const WelcomePostCardFooter = ({
 
   if (content) {
     return (
-      <p className="mt-1 line-clamp-6 break-words px-2 typo-callout">
+      <p
+        className={classNames(
+          'mt-1 line-clamp-6 break-words px-2 typo-callout',
+        )}
+      >
         {decodedText}
       </p>
     );

@@ -37,6 +37,7 @@ export enum Origin {
   SquadInvitation = 'squad invitation',
   // squads - end
   PostCommentButton = 'comment button',
+  PollCommentButton = 'poll comment button',
   StartDiscussion = 'start discussion button',
   CompanionContextMenu = 'companion context menu',
   // search - start
@@ -76,6 +77,7 @@ export enum Origin {
   StreakRecover = 'streak recover',
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
+  SquadBoost = 'squad boost',
 }
 
 export enum LogEvent {
@@ -96,6 +98,7 @@ export enum LogEvent {
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
   FeedEmpty = 'feed empty',
+  FinishFeed = 'finish feed',
   // notifications - start
   ClickNotificationIcon = 'click notification icon',
   OpenNotificationList = 'open notification list',
@@ -306,10 +309,32 @@ export enum LogEvent {
   // Start Brief
   ImpressionBrief = 'impression brief',
   ClickBrief = 'click brief',
+  StartBriefPurchase = 'start brief purchase',
+  BriefPaywall = 'brief paywall',
   // End Brief
   // CV Upload
   UploadCv = 'upload cv',
+  ClearCv = 'clear cv',
   // end CV Upload
+  VotePoll = 'vote poll',
+  ImpressionComment = 'impression comment',
+  // Opportunity
+  ImpressionOpportunityNudge = 'impression opportunity nudge',
+  ClickOpportunityNudge = 'click opportunity nudge',
+  OnboardingCandidate = 'onboarding candidate',
+  CompleteOnboardingCandidate = 'complete onboarding candidate',
+  OpportunityMatchView = 'opportunity match view',
+  RejectOpportunityMatch = 'reject opportunity match',
+  ApproveOpportunityMatch = 'approve opportunity match',
+  AnswerScreeningQuestion = 'answer screening question',
+  CompleteScreening = 'complete screening',
+  ConfirmCandidateContact = 'confirm candidate contact',
+  SelectCandidateAvailability = 'select candidate availability',
+  UpdateCandidatePreferences = 'update candidate preferences',
+  ClickCandidatePreferences = 'click candidate preferences',
+  // End Opportunity
+  UploadEmploymentAgreement = 'upload employment agreement',
+  ClearEmploymentAgreement = 'clear employment agreement',
 }
 
 export enum TargetType {
@@ -338,6 +363,7 @@ export enum TargetType {
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
+  MarketingCtaBrief = 'promotion_briefing',
   PlusEntryCard = 'plus_entry_card',
   PlusEntryForYouTab = 'plus_entry_for_you_tab',
   PlusEntryBookmarkTab = 'plus_entry_bookmark_tab',
@@ -406,6 +432,12 @@ export enum TargetId {
   NotificationSettings = 'notification settings',
   Feed = 'feed',
   CVWidget = 'cv widget',
+  Scroll = 'scroll',
+  OpportunityDonePage = 'opportunity done page',
+  OpportunityPassiveDonePage = 'opportunity passive done page',
+  OpportunityUnavailablePage = 'opportunity unavailable page',
+  OpportunityWelcomePage = 'opportunity welcome page',
+  ProfileSettingsMenu = 'profile settings menu',
 }
 
 export enum NotificationChannel {

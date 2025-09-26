@@ -15,6 +15,9 @@ import {
   ReadingStreakIcon,
   TimerIcon,
   CoreIcon,
+  AnalyticsIcon,
+  JobIcon,
+  MagicIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -23,6 +26,7 @@ import type {
   NotificationChannel,
   NotificationGroup,
 } from '../../hooks/notifications/useNotificationSettings';
+import { briefButtonBg } from '../../styles/custom';
 
 export const NotifContainer = classed(
   'div',
@@ -83,6 +87,10 @@ export enum NotificationType {
   Announcements = 'announcements',
   NewUserWelcome = 'new_user_welcome',
   InAppPurchases = 'in_app_purchases',
+  PostAnalytics = 'post_analytics',
+  PollResult = 'poll_result',
+  PollResultAuthor = 'poll_result_author',
+  NewOpportunityMatch = 'new_opportunity_match',
 }
 
 export enum NotificationIconType {
@@ -101,6 +109,8 @@ export enum NotificationIconType {
   TopReaderBadge = 'TopReaderBadge',
   Timer = 'Timer',
   Core = 'Core',
+  Analytics = 'Analytics',
+  Opportunity = 'Opportunity',
 }
 
 export const notificationIcon: Record<
@@ -122,6 +132,8 @@ export const notificationIcon: Record<
   [NotificationIconType.TopReaderBadge]: BellIcon,
   [NotificationIconType.Timer]: TimerIcon,
   [NotificationIconType.Core]: CoreIcon,
+  [NotificationIconType.Analytics]: AnalyticsIcon,
+  [NotificationIconType.Opportunity]: JobIcon,
 };
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
@@ -144,6 +156,31 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.TopReaderBadge]: 'text-brand-default',
   [NotificationIconType.Timer]: 'text-brand-default',
   [NotificationIconType.Core]: '',
+  [NotificationIconType.Analytics]: 'text-brand-default',
+  [NotificationIconType.Opportunity]: 'text-black',
+};
+
+export const notificationIconStyle: Record<
+  NotificationIconType,
+  Record<string, string>
+> = {
+  [NotificationIconType.DailyDev]: null,
+  [NotificationIconType.CommunityPicks]: null,
+  [NotificationIconType.Comment]: null,
+  [NotificationIconType.Upvote]: null,
+  [NotificationIconType.Bell]: null,
+  [NotificationIconType.View]: null,
+  [NotificationIconType.Block]: null,
+  [NotificationIconType.User]: null,
+  [NotificationIconType.Star]: null,
+  [NotificationIconType.DevCard]: null,
+  [NotificationIconType.BookmarkReminder]: null,
+  [NotificationIconType.Streak]: null,
+  [NotificationIconType.TopReaderBadge]: null,
+  [NotificationIconType.Timer]: null,
+  [NotificationIconType.Core]: null,
+  [NotificationIconType.Analytics]: null,
+  [NotificationIconType.Opportunity]: { background: briefButtonBg },
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
@@ -165,6 +202,12 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.BriefingReady]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
   };
+
+export const descriptionIcon: Partial<
+  Record<NotificationType, ComponentType<IconProps>>
+> = {
+  [NotificationType.NewOpportunityMatch]: MagicIcon,
+};
 
 export const notificationsUrl = `/notifications`;
 
@@ -218,7 +261,19 @@ export const FOLLOWING_KEYS = [
   NotificationType.UserPostAdded,
   NotificationType.CollectionUpdated,
   NotificationType.PostBookmarkReminder,
+  NotificationType.PollResult,
+  NotificationType.PollResultAuthor,
 ];
+
+export const FOLLOWING_EMAIL_KEYS = [
+  NotificationType.SourcePostAdded,
+  NotificationType.UserPostAdded,
+  NotificationType.CollectionUpdated,
+  NotificationType.SquadPostAdded,
+  NotificationType.PollResult,
+  NotificationType.PollResultAuthor,
+];
+
 export const ACHIEVEMENT_KEYS = [
   NotificationType.UserTopReaderBadge,
   NotificationType.DevCardUnlocked,
@@ -273,12 +328,12 @@ export const CREATOR_UPDATES_EMAIL_KEYS = [
   NotificationType.ArticlePicked,
 ];
 
-export const FOLLOWING_EMAIL_KEYS = [
-  NotificationType.SourcePostAdded,
-  NotificationType.UserPostAdded,
-  NotificationType.CollectionUpdated,
-  NotificationType.SquadPostAdded,
+export const POLL_RESULT_KEYS = [
+  NotificationType.PollResult,
+  NotificationType.PollResultAuthor,
 ];
+
+export const OPPORTUNITY_KEYS = [NotificationType.NewOpportunityMatch];
 
 export const NotificationContainer = classed('div', 'flex flex-col gap-6');
 
@@ -302,6 +357,7 @@ type NotificationItem =
       label: string;
       description?: string;
       group: true;
+      type?: 'switch' | 'checkbox';
     }
   | {
       id: string;
@@ -381,6 +437,12 @@ export const FOLLOWING_NOTIFICATIONS: NotificationItem[] = [
     label: 'Read it later',
     group: false,
   },
+  {
+    id: 'pollResult',
+    label: 'Poll Results',
+    group: true,
+    type: 'checkbox',
+  },
 ];
 
 export const STREAK_NOTIFICATIONS: NotificationItem[] = [
@@ -424,6 +486,12 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
     description:
       'Get notified when your squad role changes, like becoming a moderator or admin.',
     group: true,
+  },
+  {
+    id: NotificationType.PostAnalytics,
+    label: 'Post analytics',
+    description: 'Get updates about how your posts are performing.',
+    group: false,
   },
 ];
 

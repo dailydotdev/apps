@@ -1,14 +1,12 @@
 import type { FunctionComponent, ReactElement } from 'react';
 import React from 'react';
-import dynamic from 'next/dynamic';
-import type { FeedItem } from '../hooks/useFeed';
-import { isBoostedPostAd } from '../hooks/useFeed';
+import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
+import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
-import type { CommentOnData } from '../graphql/comments';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { Origin, TargetType } from '../lib/log';
@@ -38,15 +36,14 @@ import { AdPixel } from './cards/ad/common/AdPixel';
 import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
+import { SquadAdList } from './cards/ad/squad/SquadAdList';
+import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
 import { adLogEvent, feedLogExtra } from '../lib/feed';
 import { useLogContext } from '../contexts/LogContext';
-
-const CommentPopup = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "commentPopup" */ './cards/common/CommentPopup'
-    ),
-);
+import { MarketingCtaVariant } from './marketingCta/common';
+import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
+import PollGrid from './cards/poll/PollGrid';
+import { PollList } from './cards/poll/PollList';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -56,16 +53,6 @@ export type FeedItemComponentProps = {
   columns: number;
   openNewTab: boolean;
   postMenuIndex: number | undefined;
-  showCommentPopupId: string | undefined;
-  setShowCommentPopupId: (value: string | undefined) => void;
-  isSendingComment: boolean;
-  comment: (variables: {
-    post: Post;
-    content: string;
-    row: number;
-    column: number;
-    columns: number;
-  }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
@@ -115,6 +102,7 @@ const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.VideoYouTube]: ArticleGrid,
   [PostType.Collection]: CollectionGrid,
   [PostType.Brief]: BriefCard,
+  [PostType.Poll]: PollGrid,
 };
 
 const PostTypeToTagList: Record<PostType, FunctionComponent> = {
@@ -125,6 +113,7 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,
   [PostType.Brief]: BriefCard,
+  [PostType.Poll]: PollList,
 };
 
 type GetTagsProps = {
@@ -144,6 +133,7 @@ const getTags = ({
       ? PostTypeToTagList[postType] ?? ArticleList
       : PostTypeToTagCard[postType] ?? ArticleGrid,
     AdTag: useListCards ? AdList : AdGrid,
+    SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
     PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
     PlusGridTag: PlusGrid,
@@ -177,10 +167,19 @@ export const withFeedLogExtraContext = (
                   ? item.post
                   : item.ad.data?.post;
 
-              return {
-                referrer_target_id: post?.id,
-                referrer_target_type: post?.id ? TargetType.Post : undefined,
-              };
+              extraData.referrer_target_id = post?.id;
+              extraData.referrer_target_type = post?.id
+                ? TargetType.Post
+                : undefined;
+            }
+
+            if (isBoostedSquadAd(item)) {
+              const source = item.ad.data?.source;
+
+              extraData.referrer_target_id = source?.id;
+              extraData.referrer_target_type = source?.id
+                ? TargetType.Source
+                : undefined;
             }
 
             return extraData;
@@ -207,10 +206,6 @@ function FeedItemComponent({
   columns,
   openNewTab,
   postMenuIndex,
-  showCommentPopupId,
-  setShowCommentPopupId,
-  isSendingComment,
-  comment,
   user,
   feedName,
   ranking,
@@ -241,6 +236,7 @@ function FeedItemComponent({
   const {
     PostTag,
     AdTag,
+    SquadAdTag,
     PlaceholderTag,
     MarketingCtaTag,
     PlusGridTag,
@@ -248,13 +244,12 @@ function FeedItemComponent({
   } = getTags({
     isListFeedLayout: shouldUseListFeedLayout,
     shouldUseListMode,
-    postType: (item as PostItem).post?.type,
+    postType: isBoostedPostAd(item)
+      ? item.ad.data?.post?.type
+      : (item as PostItem).post?.type,
   });
 
-  const onAdAction = (
-    action: Exclude<AdActions, AdActions.Impression>,
-    ad: Ad,
-  ) => {
+  const onAdAction = (action: AdActions, ad: Ad) => {
     logEvent(
       adLogEvent(action, ad, {
         columns: virtualizedNumCards,
@@ -264,6 +259,16 @@ function FeedItemComponent({
       }),
     );
   };
+
+  if (item.type === FeedItemType.Ad && isBoostedSquadAd(item)) {
+    return (
+      <SquadAdTag
+        item={item as AdSquadItem}
+        onClickAd={() => onAdAction(AdActions.Click, item.ad)}
+        onMount={() => onAdAction(AdActions.Impression, item.ad)}
+      />
+    );
+  }
 
   if (item.type === FeedItemType.Post || isBoostedPostAd(item)) {
     const itemPost =
@@ -336,15 +341,6 @@ function FeedItemComponent({
           }
           eagerLoadImage={row === 0 && column === 0}
         >
-          {showCommentPopupId === itemPost.id && (
-            <CommentPopup
-              onClose={() => setShowCommentPopupId(null)}
-              onSubmit={(content) =>
-                comment({ post: itemPost, content, row, column, columns })
-              }
-              loading={isSendingComment}
-            />
-          )}
           {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
         </PostTag>
       </ActivePostContextProvider>
@@ -366,6 +362,10 @@ function FeedItemComponent({
     case FeedItemType.UserAcquisition:
       return <AcquisitionFormTag key="user-acquisition-card" />;
     case FeedItemType.MarketingCta:
+      if (item.marketingCta.variant === MarketingCtaVariant.BriefCard) {
+        return <MarketingCtaBriefing {...item.marketingCta} />;
+      }
+
       return (
         <MarketingCtaTag
           key="marketing-cta-card"

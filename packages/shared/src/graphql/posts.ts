@@ -17,6 +17,7 @@ import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
 import { useCanPurchaseCores } from '../hooks/useCoresFeature';
 import { useAuthContext } from '../contexts/AuthContext';
+import type { LoggedUser } from '../lib/user';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
@@ -99,6 +100,7 @@ export interface PostUserState {
   vote: UserVote;
   flags?: UserPostFlags;
   awarded?: boolean;
+  pollOption?: { id: string };
 }
 
 export interface Post {
@@ -155,6 +157,9 @@ export interface Post {
   featuredAward?: {
     award?: FeaturedAward;
   };
+  pollOptions?: PollOption[];
+  numPollVotes?: number;
+  endsAt?: string;
 }
 
 export type RelatedPost = Pick<
@@ -178,7 +183,7 @@ export interface Ad {
   impressionStatus?: number;
   tagLine?: string;
   backgroundColor?: string;
-  data?: { post?: Post };
+  data?: { post?: Post; source?: Squad };
   generationId?: string;
 }
 
@@ -330,6 +335,14 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
           ...FeaturedAwardFragment
         }
       }
+      numPollVotes
+      pollOptions {
+        id
+        text
+        order
+        numVotes
+      }
+      endsAt
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
@@ -642,9 +655,28 @@ export interface EditPostProps {
   image: File;
 }
 
-export interface CreatePostProps
+export type CreatePostProps = Pick<
+  EditPostProps,
+  'title' | 'content' | 'image'
+>;
+
+export interface CreatePostPollProps
   extends Pick<EditPostProps, 'title' | 'content' | 'image'> {
-  sourceId: string;
+  duration: number;
+  options: string[];
+}
+export interface PollOption {
+  id: string;
+  text: string;
+  order: number;
+  numVotes: number;
+}
+
+type CreatePollOption = Pick<PollOption, 'text' | 'order'>;
+
+export interface CreatePollPostForm extends Pick<EditPostProps, 'title'> {
+  options: string[];
+  duration?: number;
 }
 
 export interface CreatePostModerationProps {
@@ -657,6 +689,8 @@ export interface CreatePostModerationProps {
   imageUrl?: string;
   image?: File;
   postId?: string;
+  duration?: number;
+  pollOptions?: CreatePollOption[];
 }
 
 export interface UpdatePostModerationProps extends CreatePostModerationProps {
@@ -716,6 +750,8 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
     $imageUrl: String
     $externalLink: String
     $postId: ID
+    $duration: Int
+    $pollOptions: [PollOptionInput!]
   ) {
     createSourcePostModeration(
       sourceId: $sourceId
@@ -727,6 +763,8 @@ export const CREATE_SOURCE_POST_MODERATION_MUTATION = gql`
       imageUrl: $imageUrl
       externalLink: $externalLink
       postId: $postId
+      duration: $duration
+      pollOptions: $pollOptions
     ) {
       id
       title
@@ -777,6 +815,65 @@ export const createPost = async (
   const res = await gqlClient.request(CREATE_POST_MUTATION, variables);
 
   return res.createFreeformPost;
+};
+
+export interface VotePollResponse {
+  numPollVotes: number;
+  pollOptions: PollOption[];
+}
+
+export const VOTE_POLL_MUTATION = gql`
+  mutation VotePoll($postId: ID!, $optionId: ID!) {
+    votePoll(postId: $postId, optionId: $optionId) {
+      numPollVotes
+      pollOptions {
+        id
+        text
+        order
+        numVotes
+      }
+    }
+  }
+`;
+
+export const votePoll = async (variables: {
+  postId: string;
+  optionId: string;
+}): Promise<VotePollResponse> => {
+  const res = await gqlClient.request(VOTE_POLL_MUTATION, variables);
+
+  return res.votePoll;
+};
+
+export const CREATE_POLL_POST_MUTATION = gql`
+  mutation CreatePollPost(
+    $sourceId: ID!
+    $title: String!
+    $options: [PollOptionInput!]!
+    $duration: Int
+  ) {
+    createPollPost(
+      sourceId: $sourceId
+      title: $title
+      options: $options
+      duration: $duration
+    ) {
+      ...SharedPostInfo
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
+interface CreatePollPostProps extends Omit<CreatePollPostForm, 'options'> {
+  options: CreatePollOption[];
+}
+
+export const createPollPost = async (
+  variables: CreatePollPostProps,
+): Promise<Post> => {
+  const res = await gqlClient.request(CREATE_POLL_POST_MUTATION, variables);
+
+  return res.createPollPost;
 };
 
 export const SOURCE_POST_MODERATION_QUERY = gql`
@@ -1009,9 +1106,27 @@ export const GENERATE_BRIEFING = gql`
   mutation GenerateBriefing($type: BriefingType!) {
     generateBriefing(type: $type) {
       id: postId
+      balance {
+        amount
+      }
     }
   }
 `;
+
+export const getGenerateBriefingMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      type = BriefingType.Daily,
+    }: {
+      type: BriefingType;
+    }) => {
+      const result = await gqlClient.request<{
+        generateBriefing: Pick<Post, 'id'> & Pick<LoggedUser, 'balance'>;
+      }>(GENERATE_BRIEFING, { type });
+      return result.generateBriefing;
+    },
+  };
+};
 
 export const defautRefetchMs = 4000;
 export const briefRefetchIntervalMs = defautRefetchMs;
@@ -1033,6 +1148,8 @@ export const POST_ANALYTICS_QUERY = gql`
       awards
       upvotesRatio
       shares
+      reachAds
+      impressionsAds
     }
   }
 `;
@@ -1052,6 +1169,8 @@ export type PostAnalytics = {
   awards: number;
   upvotesRatio: number;
   shares: number;
+  reachAds: number;
+  impressionsAds: number;
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
@@ -1080,13 +1199,17 @@ export const POST_ANALYTICS_HISTORY_QUERY = gql`
           id
           date
           impressions
+          impressionsAds
         }
       }
     }
   }
 `;
 
-export type PostAnalyticsHistory = Pick<PostAnalytics, 'id' | 'impressions'> & {
+export type PostAnalyticsHistory = Pick<
+  PostAnalytics,
+  'id' | 'impressions' | 'impressionsAds'
+> & {
   date: Date;
 };
 

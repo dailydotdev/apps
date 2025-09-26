@@ -43,8 +43,15 @@ import {
   useViewSize,
   ViewSize,
 } from '../hooks';
-import { feature } from '../lib/featureManagement';
-import { isDevelopment } from '../lib/constants';
+import {
+  customFeedVersion,
+  discussedFeedVersion,
+  feature,
+  followingFeedVersion,
+  latestFeedVersion,
+  popularFeedVersion,
+  upvotedFeedVersion,
+} from '../lib/featureManagement';
 import type { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
@@ -56,6 +63,7 @@ import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
+import { isDevelopment } from '../lib/constants';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -247,6 +255,21 @@ export default function MainFeedLayout({
       },
     };
 
+    /**
+     * Various feeds can have different feed versions based on feature flag
+     */
+    const dynamicFeedVersionByFeed: Partial<
+      Record<SharedFeedPage & OtherFeedPage, number>
+    > = {
+      [SharedFeedPage.MyFeed]: getFeatureValue(feature.feedVersion),
+      [OtherFeedPage.Following]: getFeatureValue(followingFeedVersion),
+      [OtherFeedPage.Explore]: getFeatureValue(popularFeedVersion),
+      [OtherFeedPage.ExploreUpvoted]: getFeatureValue(upvotedFeedVersion),
+      [OtherFeedPage.ExploreDiscussed]: getFeatureValue(discussedFeedVersion),
+      [OtherFeedPage.ExploreLatest]: getFeatureValue(latestFeedVersion),
+      [SharedFeedPage.Custom]: getFeatureValue(customFeedVersion),
+    };
+
     // do not show feed in background on new page
     if (router.pathname === '/feeds/new') {
       return {
@@ -266,16 +289,19 @@ export default function MainFeedLayout({
       variables: {
         ...propsByFeed[feedName].variables,
         ...dynamicPropsByFeed[feedName]?.variables,
-        version: isDevelopment ? 1 : feedVersion,
+        version: isDevelopment
+          ? 1
+          : dynamicFeedVersionByFeed[feedName] || feedVersion,
       },
     };
   }, [
     feedName,
-    feedVersion,
     router.query?.slugOrId,
-    tokenRefreshed,
-    user,
     router.pathname,
+    user,
+    getFeatureValue,
+    tokenRefreshed,
+    feedVersion,
   ]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { FunnelStepEditTags } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { EditTag } from '../../../components/onboarding';
@@ -31,10 +32,14 @@ function FunnelEditTagsComponent({
 
   return (
     <FunnelStepCtaWrapper
-      cta={{ label: cta || 'Next' }}
-      disabled={isDisabled}
+      cta={{ label: cta || `Next` }}
+      aria-hidden={isDisabled}
       onClick={handleComplete}
-      containerClassName="flex w-full flex-1 flex-col items-center justify-center overflow-hidden"
+      className={classNames({
+        'opacity-0': isDisabled,
+        'pointer-events-none': isDisabled,
+      })}
+      containerClassName="flex w-full flex-1 flex-col items-center laptop:justify-center overflow-hidden"
     >
       <div className="flex w-full flex-col items-center gap-6 p-6 pt-10 tablet:max-w-md laptop:max-w-screen-laptop">
         <EditTag

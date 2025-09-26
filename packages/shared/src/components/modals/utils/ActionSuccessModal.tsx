@@ -10,6 +10,7 @@ import {
 } from '../../typography/Typography';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
+import type { ModalCloseProps } from '../common/ModalClose';
 import { ModalClose } from '../common/ModalClose';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { Image } from '../../image/Image';
@@ -21,26 +22,31 @@ interface ActionSuccessModalProps<T extends AllowedTags> extends ModalProps {
     title: string;
     description: string;
     body?: ReactNode;
-    cover: string;
+    cover?: string;
     coverDrawer?: string;
   };
+  withCloseOnTablet?: boolean;
+  modalCloseButtonProps?: ModalCloseProps;
 }
 
 export function ActionSuccessModal<T extends AllowedTags>({
   cta,
   secondaryCta,
   content,
+  withCloseOnTablet,
+  modalCloseButtonProps,
   ...props
 }: ActionSuccessModalProps<T>): React.ReactElement {
   const { title, description, body, cover, coverDrawer } = content;
   const isTablet = useViewSize(ViewSize.Tablet);
+  const image = isTablet ? cover : coverDrawer || cover;
 
   return (
     <Modal
+      size={Modal.Size.Small}
+      kind={Modal.Kind.FixedCenter}
       {...props}
       isOpen
-      kind={Modal.Kind.FixedCenter}
-      size={Modal.Size.Small}
       isDrawerOnMobile
     >
       <Modal.Body className="flex flex-col gap-3 py-1 tablet:!p-4">
@@ -52,17 +58,24 @@ export function ActionSuccessModal<T extends AllowedTags>({
             size={ButtonSize.Small}
             onClick={props.onRequestClose}
             variant={ButtonVariant.Primary}
+            {...modalCloseButtonProps}
           />
-          <div className="relative h-full max-h-56 min-h-52 w-full">
-            <Image
-              className="absolute"
-              src={isTablet ? cover : coverDrawer || cover}
-              alt="Success"
-            />
-          </div>
+          {image && (
+            <div className="relative h-full max-h-56 min-h-52 w-full">
+              <Image className="absolute" src={image} alt="Success" />
+            </div>
+          )}
         </div>
         <div className="mt-2 flex flex-col gap-2">
-          <Typography type={TypographyType.Title2} center bold>
+          <Typography
+            type={
+              props.size === Modal.Size.XSmall
+                ? TypographyType.Title3
+                : TypographyType.Title2
+            }
+            center
+            bold
+          >
             {title}
           </Typography>
           <Typography
@@ -96,14 +109,16 @@ export function ActionSuccessModal<T extends AllowedTags>({
             {secondaryCta.copy}
           </Button>
         )}
-        <Button
-          variant={ButtonVariant.Float}
-          className="hidden w-full tablet:flex"
-          type="button"
-          onClick={props.onRequestClose}
-        >
-          Close
-        </Button>
+        {withCloseOnTablet && (
+          <Button
+            variant={ButtonVariant.Float}
+            className="hidden w-full tablet:flex"
+            type="button"
+            onClick={props.onRequestClose}
+          >
+            Close
+          </Button>
+        )}
       </Modal.Body>
     </Modal>
   );

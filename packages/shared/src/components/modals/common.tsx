@@ -273,26 +273,33 @@ const ListAwardsModal = dynamic(() =>
 const AdsDashboardModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "adsDashboardModal" */ './post/boost/AdsDashboardModal'
+      /* webpackChunkName: "adsDashboardModal" */ '../../features/boost/AdsDashboardModal'
+    ),
+);
+
+const BoostSquadModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "boostSquadModal" */ '../../features/boost/BoostSquadModal'
     ),
 );
 
 const BoostPostModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "boostPostModal" */ './post/boost/BoostPostModal'
+      /* webpackChunkName: "boostPostModal" */ '../../features/boost/BoostPostModal'
     ),
 );
 
-const BoostedPostViewModal = dynamic(() =>
+const BoostedCampaignViewModal = dynamic(() =>
   import(
-    /* webpackChunkName: "boostedPostViewModal" */ './post/boost/BoostedPostViewModal'
-  ).then((mod) => mod.BoostedPostViewModal),
+    /* webpackChunkName: "boostedCampaignViewModal" */ '../../features/boost/BoostedViewModal'
+  ).then((mod) => mod.BoostedViewModal),
 );
 
 const FetchBoostedPostViewModal = dynamic(() =>
   import(
-    /* webpackChunkName: "fetchBoostedPostViewModal" */ './post/boost/BoostedPostViewModal'
+    /* webpackChunkName: "fetchBoostedViewModal" */ '../../features/boost/BoostedViewModal'
   ).then((mod) => mod.FetchBoostedViewModal),
 );
 
@@ -319,6 +326,12 @@ const SquadNotificationSettingsModal = dynamic(
     import(
       /* webpackChunkName: "squadNotificationSettingsModal" */ './SquadNotificationSettingsModal'
     ),
+);
+
+const OpportunityEditModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "opportunityEditModal" */ '../opportunity/OpportunityEditModal/OpportunityEditModal'
+  ).then((mod) => mod.OpportunityEditModal),
 );
 
 export const modals = {
@@ -368,12 +381,14 @@ export const modals = {
   [LazyModal.ListAwards]: ListAwardsModal,
   [LazyModal.AdsDashboard]: AdsDashboardModal,
   [LazyModal.BoostPost]: BoostPostModal,
-  [LazyModal.BoostedPostView]: BoostedPostViewModal,
+  [LazyModal.BoostSquad]: BoostSquadModal,
+  [LazyModal.BoostedCampaignView]: BoostedCampaignViewModal,
   [LazyModal.FetchBoostedPostView]: FetchBoostedPostViewModal,
   [LazyModal.OrganizationInviteMember]: OrganizationInviteMemberModal,
   [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
   [LazyModal.ActionSuccess]: ActionSuccessModal,
   [LazyModal.SquadNotificationSettings]: SquadNotificationSettingsModal,
+  [LazyModal.OpportunityEdit]: OpportunityEditModal,
 };
 
 type GetComponentProps<T> = T extends

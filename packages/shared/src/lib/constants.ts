@@ -31,6 +31,7 @@ export const slackIntegration = 'https://r.daily.dev/slack';
 export const statusPage = 'https://r.daily.dev/status';
 export const businessWebsiteUrl = 'https://r.daily.dev/business';
 export const appsUrl = 'https://daily.dev/apps';
+export const timezoneSettingsUrl = 'https://r.daily.dev/timezone';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isTesting =
@@ -56,6 +57,7 @@ export const plusSuccessUrl = `${plusUrl}/success`;
 export const walletUrl = `${webappUrl}wallet`;
 export const settingsUrl = `${webappUrl}settings`;
 export const briefingUrl = `${webappUrl}briefing`;
+export const opportunityUrl = `${webappUrl}opportunity`;
 
 export const authUrl =
   process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
@@ -167,4 +169,4 @@ export const webFunnelPrefix = '/helloworld';
 
 export const creatorsTermsOfService = 'https://r.daily.dev/creators-terms';
 
-export const boostPostDocsLink = 'https://r.daily.dev/boost';
+export const boostDocsLink = 'https://r.daily.dev/boost';

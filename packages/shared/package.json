@@ -102,13 +102,15 @@
   "dependencies": {
     "@growthbook/growthbook": "https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e",
     "@growthbook/growthbook-react": "^0.17.0",
+    "@hookform/resolvers": "5.2.2",
     "@kickass-coderz/react": "^0.0.4",
     "@marsidev/react-turnstile": "^1.1.0",
     "@paddle/paddle-js": "1.4.0",
-    "@radix-ui/react-dropdown-menu": "2.1.15",
-    "@radix-ui/react-hover-card": "^1.1.14",
-    "@radix-ui/react-slider": "^1.3.5",
-    "@radix-ui/react-tooltip": "^1.2.7",
+    "@radix-ui/react-dropdown-menu": "2.1.16",
+    "@radix-ui/react-hover-card": "^1.1.15",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-slider": "^1.3.6",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@tippyjs/react": "^4.2.6",
     "check-password-strength": "^2.0.10",
     "fetch-event-stream": "^0.1.5",
@@ -118,6 +120,7 @@
     "node-emoji": "^2.2.0",
     "node-fetch": "^2.6.6",
     "parsecurrency": "^1.1.1",
+    "react-hook-form": "7.54.2",
     "react-markdown": "^8.0.7",
     "react-onesignal": "^3.0.1",
     "react-syntax-highlighter": "^15.5.0",
@@ -126,7 +129,8 @@
     "tippy.js": "^6.3.7",
     "uuid": "^8.3.2",
     "web-vitals": "^3.5.0",
-    "webextension-polyfill": "^0.12.0"
+    "webextension-polyfill": "^0.12.0",
+    "zod": "4.1.8"
   },
   "sideEffects": [
     "*.css"

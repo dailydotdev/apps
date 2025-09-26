@@ -33,7 +33,6 @@ export const CURRENT_MEMBER_FRAGMENT = gql`
     flags {
       hideFeedPosts
       collapsePinnedPosts
-      hasUnreadPosts
     }
   }
 `;
@@ -165,6 +164,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     type
     description
     image
+    headerImage
     membersCount
     flags {
       totalUpvotes
@@ -190,6 +190,7 @@ export const SQUAD_BASE_FRAGMENT = `
       totalViews
       totalUpvotes
       totalAwards
+      campaignId
     }
     category {
       id
@@ -273,6 +274,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     userState {
       vote
+      pollOption {
+        id
+      }
       flags {
         feedbackDismiss
       }
@@ -290,6 +294,14 @@ export const FEED_POST_INFO_FRAGMENT = gql`
         image
       }
     }
+    numPollVotes
+    pollOptions {
+      id
+      text
+      order
+      numVotes
+    }
+    endsAt
   }
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
 `;
@@ -346,6 +358,9 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
         feedbackDismiss
       }
       awarded
+      pollOption {
+        id
+      }
     }
     slug
     domain
@@ -359,6 +374,14 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
         ...FeaturedAwardFragment
       }
     }
+    pollOptions {
+      id
+      text
+      order
+      numVotes
+    }
+    numPollVotes
+    endsAt
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}

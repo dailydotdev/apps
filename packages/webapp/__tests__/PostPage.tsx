@@ -51,7 +51,6 @@ import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { VOTE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import { InteractiveFeedProvider } from '@dailydotdev/shared/src/contexts/InteractiveFeedContext';
 import type { Props } from '../pages/posts/[id]';
 import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
@@ -187,7 +186,19 @@ const renderPost = (
 
   client = new QueryClient();
 
-  mocks.forEach(mockGraphQL);
+  // Add default mock for SeenPostPollTooltip action
+  const defaultMocks = [
+    ...mocks,
+    {
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.SeenPostPollTooltip },
+      },
+      result: () => ({ data: { _: true } }),
+    },
+  ];
+
+  defaultMocks.forEach(mockGraphQL);
   return render(
     <TestBootProvider
       client={client}
@@ -210,9 +221,7 @@ const renderPost = (
           sendBeacon: jest.fn(),
         }}
       >
-        <InteractiveFeedProvider>
-          {getMainLayout(<PostPage {...defaultProps} {...props} />)}
-        </InteractiveFeedProvider>
+        {getMainLayout(<PostPage {...defaultProps} {...props} />)}
       </LogContext.Provider>
     </TestBootProvider>,
   );
@@ -872,7 +881,7 @@ describe('downvote flow', () => {
         return { data: { _: true } };
       },
     });
-    const dontAskAgain = await screen.findByLabelText('Undo action');
+    const dontAskAgain = await screen.findByLabelText("Don't ask again");
     fireEvent.click(dontAskAgain);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });

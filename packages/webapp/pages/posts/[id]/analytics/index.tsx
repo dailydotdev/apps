@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import type { ClientError } from 'graphql-request';
@@ -25,6 +25,7 @@ import {
   DiscussIcon,
   MedalBadgeIcon,
   MergeIcon,
+  RefreshIcon,
   ReputationIcon,
   ShareIcon,
   SquadIcon,
@@ -41,7 +42,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { BoostPostButton } from '@dailydotdev/shared/src/features/boost/BoostPostButton';
+import { BoostPostButton } from '@dailydotdev/shared/src/features/boost/BoostButton';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
@@ -51,22 +52,45 @@ import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { canViewPostAnalytics } from '@dailydotdev/shared/src/lib/user';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { StaleTime } from '@dailydotdev/shared/src/lib/query';
+import {
+  getPostByIdKey,
+  StaleTime,
+  updatePostCache,
+} from '@dailydotdev/shared/src/lib/query';
 import { usePostById } from '@dailydotdev/shared/src/hooks';
 import { AnalyticsNumbersList } from '@dailydotdev/shared/src/components/analytics/AnalyticsNumbersList';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import { BoostingLabel } from '@dailydotdev/shared/src/components/post/analytics/BoostingLabel';
 import { PostShortInfo } from '@dailydotdev/shared/src/components/post/analytics/PostShortInfo';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { formatDataTileValue } from '@dailydotdev/shared/src/lib';
+import { formatDataTileValue, labels } from '@dailydotdev/shared/src/lib';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useShowBoostButton } from '@dailydotdev/shared/src/features/boost/useShowBoostButton';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  CampaignState,
+  CampaignType,
+} from '@dailydotdev/shared/src/graphql/campaigns';
+import { getAbsoluteDifferenceInDays } from '@dailydotdev/shared/src/features/boost/utils';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { stopBoostPromptOptions } from '@dailydotdev/shared/src/features/boost/BoostedViewModal';
+import { useCampaignMutation } from '@dailydotdev/shared/src/features/boost/useCampaignMutation';
+import {
+  dateFormatInTimezone,
+  DEFAULT_TIMEZONE,
+} from '@dailydotdev/shared/src/lib/timezones';
+import { utcToZonedTime } from 'date-fns-tz';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
+import { useCampaignEstimation } from '@dailydotdev/shared/src/features/boost/useCampaignEstimation';
+import { useCampaigns } from '@dailydotdev/shared/src/features/boost/useCampaigns';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -166,6 +190,9 @@ const PostAnalyticsPage = ({
   id,
   initialData,
 }: PostAnalyticsPageProps): ReactElement => {
+  const { openModal } = useLazyModal();
+  const queryClient = useQueryClient();
+  const { showPrompt } = usePrompt();
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
 
@@ -176,11 +203,20 @@ const PostAnalyticsPage = ({
       retry: false,
     },
   });
+  const isAuthor = !!user?.id && user.id === post?.author?.id;
 
   const { data: postAnalytics } = useQuery({
     ...postAnalyticsQueryOptions({ id: post?.id }),
     enabled: canViewPostAnalytics({ post, user }),
   });
+
+  // get latest campaign user created for this post
+  const campaignQuery = useCampaigns({
+    entityId: post?.id,
+    first: 1,
+    enabled: isAuthor && !!post?.id,
+  });
+  const campaign = campaignQuery.data?.pages[0]?.edges[0]?.node;
 
   const canBoost = useShowBoostButton({ post });
   const isBoosting = !!post?.flags?.campaignId;
@@ -277,6 +313,109 @@ const PostAnalyticsPage = ({
     }
   }, [isLoading, isAuthReady, post, postLink, router, user]);
 
+  const userTimezone = user?.timezone || DEFAULT_TIMEZONE;
+  const campaignCompleted = campaign?.state !== CampaignState.Active;
+
+  const campaignLengthDays = campaign
+    ? getAbsoluteDifferenceInDays(
+        utcToZonedTime(campaign.createdAt, userTimezone),
+        utcToZonedTime(campaign.endedAt, userTimezone),
+      )
+    : 0;
+
+  const campaignEndsInDays = useMemo(() => {
+    if (!campaign?.endedAt) {
+      return undefined;
+    }
+
+    if (campaignCompleted) {
+      return 0;
+    }
+
+    const now = new Date();
+    const endedAt = new Date(campaign?.endedAt);
+
+    if (now >= endedAt) {
+      return 0;
+    }
+
+    return getAbsoluteDifferenceInDays(
+      utcToZonedTime(endedAt, userTimezone),
+      utcToZonedTime(now, userTimezone),
+    );
+  }, [campaign?.endedAt, campaignCompleted, userTimezone]);
+
+  const { estimatedReach } = useCampaignEstimation({
+    type: CampaignType.Post,
+    query: {
+      budget: campaign?.flags?.budget * campaignLengthDays,
+    },
+    referenceId: post?.id,
+    enabled: !!campaign?.flags?.budget && campaignLengthDays > 0 && isAuthor,
+  });
+
+  const { onCancelBoost, isLoadingCancel } = useCampaignMutation({
+    onCancelSuccess: () => {
+      const postId = campaign.referenceId;
+
+      updatePostCache(queryClient, postId, (old) => ({
+        flags: { ...old.flags, campaignId: null },
+      }));
+
+      queryClient.setQueryData<PostData>(getPostByIdKey(postId), (old) => {
+        if (!old) {
+          return old;
+        }
+
+        return {
+          ...old,
+          post: {
+            ...old.post,
+            flags: { ...old.post.flags, campaignId: null },
+          },
+        };
+      });
+    },
+  });
+
+  const onBoostClick = async () => {
+    if (!campaignCompleted) {
+      if (!(await showPrompt(stopBoostPromptOptions))) {
+        return;
+      }
+
+      await onCancelBoost(campaign.id);
+
+      return;
+    }
+
+    openModal({
+      type: LazyModal.BoostPost,
+      props: {
+        post,
+      },
+    });
+  };
+
+  const percentage = useMemo(() => {
+    if (!campaign) {
+      return 0;
+    }
+
+    if (campaignCompleted) {
+      return 100;
+    }
+
+    const now = Date.now();
+    const startMs = new Date(campaign.createdAt).getTime();
+    const endMs = new Date(campaign.endedAt).getTime();
+
+    return Math.min(
+      100,
+      Math.max(0, ((now - startMs) / (endMs - startMs)) * 100),
+    );
+  }, [campaignCompleted, campaign]);
+
   return (
     <div className="mx-auto w-full max-w-[48rem]">
       <LayoutHeader
@@ -287,7 +426,7 @@ const PostAnalyticsPage = ({
           size={ButtonSize.Medium}
           icon={<ArrowIcon className="-rotate-90" />}
           onClick={() => {
-            router.push(postLink);
+            router.back();
           }}
         />
         <Typography
@@ -298,14 +437,16 @@ const PostAnalyticsPage = ({
         >
           Post analytics
         </Typography>
-        <BoostPostButton
-          post={post}
-          buttonProps={{
-            className: isBoosting && 'typo-footnote',
-            size: isBoosting ? ButtonSize.XSmall : ButtonSize.Small,
-          }}
-          isActive={isBoosting}
-        />
+        {isBoosting ? (
+          <BoostingLabel />
+        ) : (
+          <BoostPostButton
+            buttonProps={{
+              size: ButtonSize.Small,
+            }}
+            post={post}
+          />
+        )}
       </LayoutHeader>
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
         <SectionContainer>
@@ -323,15 +464,15 @@ const PostAnalyticsPage = ({
                 container: 'flex-1',
               }}
               subtitle={
-                // TODO post-analytics enable boosting data
-                false && (
+                !!postAnalytics?.impressionsAds && (
                   <Typography
                     type={TypographyType.Caption2}
                     bold
                     color={TypographyColor.Boost}
                     className="flex items-center gap-0.5"
                   >
-                    <ArrowIcon size={IconSize.XXSmall} /> +3,089 boosted
+                    <BoostIcon size={IconSize.XXSmall} /> +
+                    {formatDataTileValue(postAnalytics.impressionsAds)} boosted
                   </Typography>
                 )
               }
@@ -343,6 +484,19 @@ const PostAnalyticsPage = ({
               className={{
                 container: 'flex-1',
               }}
+              subtitle={
+                !!postAnalytics?.reachAds && (
+                  <Typography
+                    type={TypographyType.Caption2}
+                    bold
+                    color={TypographyColor.Boost}
+                    className="flex items-center gap-0.5"
+                  >
+                    <BoostIcon size={IconSize.XXSmall} /> +
+                    {formatDataTileValue(postAnalytics.reachAds)} boosted
+                  </Typography>
+                )
+              }
             />
           </div>
           <div className="flex items-center">
@@ -354,21 +508,16 @@ const PostAnalyticsPage = ({
                 <div className="size-2 rounded-full bg-brand-default" />{' '}
                 <Typography type={TypographyType.Footnote}>Organic</Typography>
               </div>
-              {/* TODO post-analytics enable boosting data */}
-              {false && (
-                <div className="flex items-center gap-1">
-                  <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
-                  <Typography type={TypographyType.Footnote}>
-                    Boosted
-                  </Typography>
-                </div>
-              )}
+              <div className="flex items-center gap-1">
+                <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
+                <Typography type={TypographyType.Footnote}>Boosted</Typography>
+              </div>
             </div>
           </div>
           <ImpressionsChart post={post} />
         </SectionContainer>
         <Divider className={dividerClassName} />
-        {canBoost && (
+        {canBoost && !campaign && (
           <>
             <SectionContainer>
               <SectionHeader>Boost your post</SectionHeader>
@@ -394,18 +543,20 @@ const PostAnalyticsPage = ({
             <Divider className={dividerClassName} />
           </>
         )}
-        {/* TODO post-analytics enable boosting data */}
-        {false && (
+        {!!campaign && (
           <SectionContainer>
-            <SectionHeader>Boosting in progress</SectionHeader>
+            <SectionHeader>
+              {!campaignCompleted
+                ? labels.analytics.boost.activeTitle
+                : labels.analytics.boost.completedTitle}
+            </SectionHeader>
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              Your post is actively being promoted to developers who are most
-              likely to engage based on our targeting engine. We&apos;re making
-              sure it gets prime placement where it matters most, so you can
-              focus on creating while we drive the visibility.
+              {!campaignCompleted
+                ? labels.analytics.boost.activeDescription
+                : labels.analytics.boost.completedDescription}
             </Typography>
             <div>
               <Typography
@@ -413,28 +564,43 @@ const PostAnalyticsPage = ({
                 className="mb-1.5 flex flex-row items-center"
               >
                 <CoreIcon className="mr-1" size={IconSize.Size16} />{' '}
-                {formatDataTileValue(6000)} | 6 days
+                {formatDataTileValue(campaign.flags?.budget)}
+                {campaignLengthDays > 0 &&
+                  ` | ${campaignLengthDays} day${
+                    campaignLengthDays > 1 ? 's' : ''
+                  }`}
               </Typography>
               <div className="flex flex-col gap-1">
                 <ProgressBar
-                  percentage={20}
+                  percentage={percentage}
                   shouldShowBg
-                  className={{ wrapper: 'h-2 rounded-6' }}
+                  className={{
+                    wrapper: 'h-2 rounded-6',
+                    barColor: 'bg-accent-blueCheese-default',
+                  }}
                 />
                 <span className="flex flex-row justify-between">
                   <Typography
                     type={TypographyType.Subhead}
                     color={TypographyColor.Secondary}
                   >
-                    Started{' '}
-                    <DateFormat date={new Date()} type={TimeFormatType.Post} />
+                    {campaignCompleted ? 'Completed' : 'Started '}
+                    {!campaignCompleted && (
+                      <DateFormat
+                        date={new Date(campaign.createdAt)}
+                        type={TimeFormatType.Post}
+                      />
+                    )}
                   </Typography>
-                  <Typography
-                    type={TypographyType.Subhead}
-                    color={TypographyColor.Secondary}
-                  >
-                    Ends in 7 days
-                  </Typography>
+                  {campaignEndsInDays > 0 && (
+                    <Typography
+                      type={TypographyType.Subhead}
+                      color={TypographyColor.Secondary}
+                    >
+                      Ends in {campaignEndsInDays} day
+                      {campaignEndsInDays > 1 ? 's' : ''}
+                    </Typography>
+                  )}
                 </span>
               </div>
             </div>
@@ -451,7 +617,11 @@ const PostAnalyticsPage = ({
                   bold
                   color={TypographyColor.Primary}
                 >
-                  June 23, 2025
+                  {dateFormatInTimezone(
+                    new Date(campaign?.createdAt),
+                    'MMMM dd, yyyy',
+                    userTimezone,
+                  )}
                 </Typography>
               </FlexRow>
               <FlexRow className="order-3 gap-1 laptop:order-2">
@@ -467,7 +637,7 @@ const PostAnalyticsPage = ({
                   bold
                   color={TypographyColor.Primary}
                 >
-                  {formatDataTileValue(2148)}
+                  {formatDataTileValue(campaign.flags?.spend)}
                 </Typography>
               </FlexRow>
               <FlexRow className="order-2 gap-1 laptop:order-3">
@@ -482,7 +652,11 @@ const PostAnalyticsPage = ({
                   bold
                   color={TypographyColor.Primary}
                 >
-                  June 31, 2025
+                  {dateFormatInTimezone(
+                    new Date(campaign?.endedAt),
+                    'MMMM dd, yyyy',
+                    userTimezone,
+                  )}
                 </Typography>
               </FlexRow>
               <FlexRow className="order-4 gap-1">
@@ -492,26 +666,47 @@ const PostAnalyticsPage = ({
                 >
                   Estimated daily reach:
                 </Typography>
-                <Typography
-                  type={TypographyType.Callout}
-                  bold
-                  color={TypographyColor.Primary}
-                >
-                  {formatDataTileValue(5500)} - {formatDataTileValue(15000)}
-                </Typography>
+                {!!estimatedReach && (
+                  <Typography
+                    type={TypographyType.Callout}
+                    bold
+                    color={TypographyColor.Primary}
+                  >
+                    {[estimatedReach.min, estimatedReach.max]
+                      .map((item) => formatDataTileValue(item))
+                      .join(' - ')}
+                  </Typography>
+                )}
               </FlexRow>
             </div>
             <Button
-              variant={ButtonVariant.Float}
-              className="mr-auto bg-action-downvote-float hover:bg-action-downvote-hover"
-              color={ButtonColor.Ketchup}
+              icon={campaignCompleted && <RefreshIcon />}
+              size={ButtonSize.Small}
+              variant={
+                campaignCompleted
+                  ? ButtonVariant.Secondary
+                  : ButtonVariant.Float
+              }
+              pressed
+              className={classNames(
+                'mr-auto',
+                !campaignCompleted &&
+                  'bg-action-downvote-float hover:bg-action-downvote-hover',
+                campaignCompleted && 'hover:bg-action-blueCheese-hober',
+              )}
+              color={
+                !campaignCompleted
+                  ? ButtonColor.Ketchup
+                  : ButtonColor.BlueCheese
+              }
+              onClick={onBoostClick}
+              loading={isLoadingCancel}
             >
-              Stop boost
+              {!campaignCompleted ? 'Stop boost' : 'Boost again'}
             </Button>
           </SectionContainer>
         )}
-        {/* TODO post-analytics enable boosting data */}
-        {false && <Divider className={dividerClassName} />}
+        {!!campaign && <Divider className={dividerClassName} />}
         <SectionContainer>
           <div className="flex justify-between">
             <SectionHeader>Profile activity</SectionHeader>

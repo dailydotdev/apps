@@ -22,6 +22,7 @@ import { useGetSquadAwardAdmin } from '../../hooks/useCoresFeature';
 import { AwardButton } from '../award/AwardButton';
 import type { LoggedUser } from '../../lib/user';
 import { Tooltip } from '../tooltip/Tooltip';
+import { BoostSourceButton } from '../../features/boost/BoostSourceButton';
 
 type SquadBarButtonProps<T extends AllowedTags> = Pick<
   Partial<ButtonProps<T>>,
@@ -213,6 +214,12 @@ export function SquadHeaderBar({
         />
       )}
       <SquadAwardButton squad={squad} />
+      {squad.public && (
+        <BoostSourceButton
+          squad={squad}
+          buttonProps={{ size: ButtonSize.Small }}
+        />
+      )}
       {showPendingCount && <SquadModerationButton squad={squad} />}
       <SquadSlackButton
         squad={squad}

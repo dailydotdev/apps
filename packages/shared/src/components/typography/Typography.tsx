@@ -18,6 +18,7 @@ export enum TypographyTag {
   Link = 'a',
   Button = 'button',
   Ul = 'ul',
+  Li = 'li',
   Ol = 'ol',
   Del = 'del',
 }

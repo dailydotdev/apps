@@ -13,7 +13,6 @@ import {
 } from '../../graphql/notifications';
 import { NotificationType, NotificationIconType } from './utils';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import { InteractiveFeedProvider } from '../../contexts/InteractiveFeedContext';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -77,11 +76,7 @@ jest.mock(
 
 const renderComponent = (component: ReactNode) => {
   const client = new QueryClient();
-  render(
-    <TestBootProvider client={client}>
-      <InteractiveFeedProvider>{component}</InteractiveFeedProvider>
-    </TestBootProvider>,
-  );
+  render(<TestBootProvider client={client}>{component}</TestBootProvider>);
 };
 
 describe('notification attachment', () => {

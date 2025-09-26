@@ -43,7 +43,10 @@ const MoveBookmarkModal = ({
     }
     await moveBookmarkToFolder({ postId, listId: folder?.id });
     displayToast(`✅ Moved to ${folder?.name}`, {
-      onUndo: () => handleMoveBookmark({ id: listId }),
+      action: {
+        copy: 'Undo',
+        onClick: () => handleMoveBookmark({ id: listId }),
+      },
     });
     onMoveBookmark?.(folder?.id);
     closeModal();

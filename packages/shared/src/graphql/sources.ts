@@ -34,12 +34,12 @@ export enum SourcePermissions {
   WelcomePostEdit = 'welcome_post_edit',
   ConnectSlack = 'connect_slack',
   ModeratePost = 'moderate_post',
+  BoostSquad = 'boost_squad',
 }
 
 export type SourceMemberFlag = Partial<{
   hideFeedPosts: boolean;
   collapsePinnedPosts: boolean;
-  hasUnreadPosts: boolean;
 }>;
 
 export interface SourceMember {
@@ -83,7 +83,6 @@ export interface Squad extends Source {
   referralUrl?: string;
   category?: SourceCategory;
   moderationPostCount: number;
-  hasUnreadPosts: boolean;
 }
 
 interface SourceFlags {
@@ -92,6 +91,7 @@ interface SourceFlags {
   totalViews: number;
   totalUpvotes: number;
   totalAwards: number;
+  campaignId?: string;
 }
 
 export interface Source {

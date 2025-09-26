@@ -11,7 +11,7 @@ interface PostTagsProps {
   className?: string;
 }
 
-const Chip = Classed(
+export const Chip = Classed(
   'div',
   'rounded-8 border border-border-subtlest-tertiary px-2 h-6 flex items-center justify-center typo-footnote text-text-quaternary my-2',
 );
@@ -50,7 +50,7 @@ export default function PostTags({
   return (
     <div
       className={classNames(
-        'flex min-h-px w-full min-w-0 items-center gap-2 overflow-hidden',
+        'flex min-h-px w-full min-w-0 flex-1 items-center gap-2 overflow-hidden',
         className,
       )}
       ref={elementRef}

@@ -49,11 +49,13 @@ interface SquadHeaderMenuProps {
     button?: string;
   };
   squad: Squad;
+  showDeletion?: boolean;
 }
 
 export default function SquadHeaderMenu({
   squad,
   className,
+  showDeletion = true,
 }: SquadHeaderMenuProps): ReactElement {
   const { isLoggedIn } = useAuthContext();
   const { logAndCopyLink } = useSquadInvitation({
@@ -83,7 +85,8 @@ export default function SquadHeaderMenu({
 
   const items = useMemo(() => {
     const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
-    const canDeleteSquad = verifyPermission(squad, SourcePermissions.Delete);
+    const canDeleteSquad =
+      verifyPermission(squad, SourcePermissions.Delete) && showDeletion;
 
     const list: MenuItemProps[] = [
       {
@@ -189,6 +192,7 @@ export default function SquadHeaderMenu({
     follow,
     unfollow,
     router,
+    showDeletion,
   ]);
 
   return (

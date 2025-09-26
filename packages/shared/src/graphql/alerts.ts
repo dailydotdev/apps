@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import type { Opportunity } from '../features/opportunity/types';
 
 export type Alerts = {
   filter?: boolean;
@@ -17,6 +18,8 @@ export type Alerts = {
   bootPopup?: boolean;
   showRecoverStreak?: boolean;
   showTopReader?: boolean;
+  briefBannerLastSeen?: Date;
+  opportunityId?: Opportunity['id'] | null;
 };
 
 export type AlertsUpdate = Omit<Alerts, 'changelog' | 'banner'>;
@@ -33,6 +36,7 @@ export const UPDATE_ALERTS = gql`
       lastBanner
       showStreakMilestone
       showTopReader
+      briefBannerLastSeen
     }
   }
 `;

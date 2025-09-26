@@ -17,7 +17,7 @@ import type {
   SourcePermissions,
   Squad,
 } from './sources';
-import type { Post } from './posts';
+import type { PollOption, Post } from './posts';
 import type { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
@@ -40,10 +40,12 @@ interface BaseSquadForm
 export interface SquadForm extends BaseSquadForm {
   status?: PrivacyOption;
   file?: File;
+  header?: File;
 }
 
 interface SharedSquadInput extends BaseSquadForm {
   image?: File;
+  headerImage?: File;
   isPrivate?: boolean;
 }
 
@@ -119,6 +121,7 @@ export const SOURCES_QUERY = gql`
             totalViews
             totalUpvotes
             totalAwards
+            campaignId
           }
           headerImage
           color
@@ -196,6 +199,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $handle: String!
     $description: String
     $image: Upload
+    $headerImage: Upload
     $memberPostingRole: String
     $memberInviteRole: String
     $moderationRequired: Boolean
@@ -208,6 +212,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       handle: $handle
       description: $description
       image: $image
+      headerImage: $headerImage
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
       moderationRequired: $moderationRequired
@@ -246,14 +251,6 @@ export const SQUAD_QUERY = gql`
     }
   }
   ${SQUAD_BASE_FRAGMENT}
-`;
-
-export const CLEAR_SQUAD_UNREAD_POSTS_MUTATION = gql`
-  mutation ClearSquadUnreadPosts($sourceId: ID!) {
-    clearUnreadPosts(sourceId: $sourceId) {
-      _
-    }
-  }
 `;
 
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
@@ -445,19 +442,6 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
-export const clearSquadUnreadPosts = async (
-  handle: string,
-): Promise<boolean> => {
-  const res = await gqlClient.request<{ clearUnreadPosts: { _: boolean } }>(
-    CLEAR_SQUAD_UNREAD_POSTS_MUTATION,
-    {
-      sourceId: handle.toLowerCase(),
-    },
-  );
-
-  return res.clearUnreadPosts._;
-};
-
 export async function getSquadMembers(
   id: string,
 ): Promise<BasicSourceMember[]> {
@@ -528,6 +512,7 @@ const formToInput = (form: SquadForm): SharedSquadInput => ({
   handle: form.handle,
   name: form.name,
   image: form.file,
+  headerImage: form.header,
   memberPostingRole: form.memberPostingRole,
   memberInviteRole: form.memberInviteRole,
   categoryId: form.categoryId,
@@ -630,6 +615,7 @@ export interface SourcePostModeration extends Partial<PostRequestContent> {
   moderatorMessage?: string;
   source?: Source;
   externalLink?: string;
+  pollOptions?: PollOption[];
 }
 
 const SOURCE_POST_MODERATION_FRAGMENT = gql`
@@ -647,6 +633,10 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
     image
     createdAt
     externalLink
+    pollOptions {
+      text
+      order
+    }
     source {
       ...SourceBaseInfo
     }

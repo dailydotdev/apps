@@ -71,12 +71,14 @@ export enum LazyModal {
   ListAwards = 'listAwards',
   AdsDashboard = 'adsDashboard',
   BoostPost = 'boostPost',
-  BoostedPostView = 'boostedPostView',
+  BoostSquad = 'boostSquad',
+  BoostedCampaignView = 'boostedCampaignView',
   FetchBoostedPostView = 'fetchBoostedPostView',
   OrganizationInviteMember = 'organizationInviteMember',
   OrganizationManageSeats = 'organizationManageSeats',
   ActionSuccess = 'actionSuccess',
   SquadNotificationSettings = 'squadNotificationSettings',
+  OpportunityEdit = 'opportunityEdit',
 }
 
 export type ModalTabItem = {

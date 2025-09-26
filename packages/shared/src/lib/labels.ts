@@ -124,4 +124,26 @@ export const labels = {
       },
     },
   },
+  analytics: {
+    boost: {
+      activeTitle: 'Boosting in progress',
+      completedTitle: 'Boost completed',
+      activeDescription: `Your post is actively being promoted to developers who are most likely to engage based on our targeting engine. We're making sure it gets prime placement where it matters most, so you can focus on creating while we drive the visibility.`,
+      completedDescription: `Your post just wrapped up a boost and got in front of the right developers. Want to keep the momentum going? You can boost it again anytime to stay in the spotlight.`,
+    },
+  },
+  generatingUsername: 'Generating your cool username...',
+  form: {
+    required: 'This field is required',
+    discard: {
+      title: 'Discard changes?',
+      description: 'You have unsaved changes that will be lost',
+      okButton: 'Save changes',
+      cancelButton: 'Discard',
+    },
+  },
+  opportunity: {
+    companyInfoEditNotice:
+      'You can edit company data only on the Organization page.',
+  },
 };

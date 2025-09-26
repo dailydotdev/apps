@@ -1,8 +1,26 @@
+import type { UseFormSetError } from 'react-hook-form';
+import type { GraphQLError } from './errors';
+import type { ApiResponseError, ApiZodErrorExtension } from '../graphql/common';
+import { ApiError } from '../graphql/common';
+
 export function formToJson<T>(form: HTMLFormElement, initialValue?: T): T {
   return Array.from(form.elements).reduce((acc, val: HTMLInputElement) => {
     if (val.name === '') {
       return acc;
     }
+
+    // Handle fields that end with [] as arrays.
+    if (val.name.endsWith('[]')) {
+      const fieldName = val.name.slice(0, -2); // Remove []
+      const existingArray = acc[fieldName] || [];
+
+      if (val.value && val.value.trim().length > 0) {
+        return { ...acc, [fieldName]: [...existingArray, val.value] };
+      }
+
+      return acc;
+    }
+
     if (val.type === 'checkbox') {
       return { ...acc, [val.name]: val.checked };
     }
@@ -18,3 +36,29 @@ export function formToJson<T>(form: HTMLFormElement, initialValue?: T): T {
     };
   }, initialValue);
 }
+
+export const applyZodErrorsToForm = ({
+  error: originalError,
+  setError,
+}: {
+  error: GraphQLError;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setError: UseFormSetError<any>;
+}) => {
+  if (
+    originalError.response?.errors?.[0]?.extensions?.code ===
+    ApiError.ZodValidationError
+  ) {
+    const apiError = originalError.response
+      .errors[0] as ApiResponseError<ApiZodErrorExtension>;
+
+    apiError.extensions.issues.forEach((issue) => {
+      if (issue.path?.length) {
+        setError(issue.path.join('.'), {
+          type: issue.code,
+          message: issue.message,
+        });
+      }
+    });
+  }
+};

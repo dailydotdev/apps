@@ -18,6 +18,7 @@ export const ALERT_DEFAULTS: Alerts = {
   showGenericReferral: false,
   showStreakMilestone: false,
   lastBootPopup: null,
+  briefBannerLastSeen: null,
 };
 
 export interface AlertContextData {
@@ -32,6 +33,7 @@ export interface AlertContextData {
   >;
   updateLastReferralReminder?: UseMutateAsyncFunction;
   updateLastBootPopup?: UseMutateAsyncFunction;
+  clearOpportunityAlert?: UseMutateAsyncFunction;
 }
 
 const AlertContext = React.createContext<AlertContextData>({
