@@ -6,7 +6,10 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { SourcePostModerationStatus } from '../../../graphql/squads';
+import {
+  SourcePostModerationStatus,
+  WarningReason,
+} from '../../../graphql/squads';
 import { SquadModerationActions } from './SquadModerationActions';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import PostMetadata from '../../cards/common/PostMetadata';
@@ -35,6 +38,12 @@ const SquadModerationPreview = (props: SquadModerationItemProps) => {
   }
 };
 
+const SpamWarnings = {
+  [WarningReason.MultipleSquadPost]: 'Shared in multiple Squads - Spam alert',
+  [WarningReason.DuplicatedInSameSquad]:
+    'Duplicate post in current Squad - Spam alert', // todo: this needs product input https://dailydotdev.slack.com/archives/C02AA18RD1D/p1758890951885039
+};
+
 export function SquadModerationItem(
   props: SquadModerationItemProps,
 ): ReactElement {
@@ -54,9 +63,9 @@ export function SquadModerationItem(
 
   return (
     <div className="relative flex flex-col gap-4 border-b border-border-subtlest-tertiary p-6 hover:bg-surface-hover">
-      {/* TODO: Add condition when to add the spam warning - if shared in 3 more squads - connect to backend} */}
-      {/* TODO: should only moderator see this? or the user that posted as well?} */}
-      <SpamWarning content="Shared in multiple Squads - Spam alert" />
+      {data.flags?.warningReason && user.isModerator && (
+        <SpamWarning content={SpamWarnings[data.flags?.warningReason]} />
+      )}
       <button
         aria-label={`Review ${title}`}
         className="absolute inset-0"
