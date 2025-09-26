@@ -10,6 +10,7 @@ import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { useOpportunityEditContext } from './OpportunityEditContext';
 import ProgressCircle from '../ProgressCircle';
+import { getPercentage } from '../../lib/func';
 
 export type OpportunityStepsProps = {
   className?: string;
@@ -40,7 +41,7 @@ export const OpportunitySteps = ({
         <ProgressCircle
           stroke={2}
           size={20}
-          progress={(Math.max(0, step - 1) / totalSteps) * 100}
+          progress={getPercentage(totalSteps, step - 1)}
         />
         <Typography
           className="px-2"
