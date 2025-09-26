@@ -2,15 +2,30 @@ import { useMutation } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import type { CreateMultipleSourcePostsArgs } from '../../../graphql/posts';
 import { createMultipleSourcePosts } from '../../../graphql/posts';
-import { useActions } from '../../../hooks';
+import { useActions, useToastNotification } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
-export const useMultipleSourcePost = () => {
-  const { squads = [], user } = useAuthContext();
-  const { isActionsFetched, checkHasCompleted } = useActions();
+interface UseMultipleSourcePostProps {
+  onError?: () => void;
+  onSuccess?: () => void;
+}
+
+interface UseMultipleSourcePost {
+  isPending: boolean;
+  onCreate: (args: CreateMultipleSourcePostsArgs) => Promise<void>;
+  sourceOptions: Array<{ label: string; value: string }>;
+}
+
+export const useMultipleSourcePost = ({
+  onSuccess,
+  onError,
+}: UseMultipleSourcePostProps): UseMultipleSourcePost => {
+  const { squads = [] } = useAuthContext();
+  const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   const { showPrompt } = usePrompt();
+  const { displayToast } = useToastNotification();
 
   const hasSeenOpenSquadWarning = useMemo(
     () =>
@@ -19,17 +34,22 @@ export const useMultipleSourcePost = () => {
   );
 
   const sourceOptions = useMemo(() => {
-    return {
-      squads: squads.map((squad) => ({
-        label: squad.name,
-        value: squad.id,
-      })),
-      user: user ? [{ label: user.username, value: user.id }] : [],
-    };
-  }, [squads, user]);
+    return squads.map((squad) => ({
+      label: squad.name,
+      value: squad.id,
+    }));
+  }, [squads]);
 
-  const { mutateAsync, isPending } = useMutation({
+  const { mutateAsync: requestPostCreation, isPending } = useMutation({
     mutationFn: createMultipleSourcePosts,
+    onSuccess: () => {
+      displayToast(`✅ Posts created successfully`);
+      onSuccess?.();
+    },
+    onError: () => {
+      displayToast(`❌ Failed to create posts`);
+      onError?.();
+    },
   });
 
   const onCreate = useCallback(
@@ -43,14 +63,16 @@ export const useMultipleSourcePost = () => {
           cancelButton: { title: 'Cancel' },
         });
 
+        await completeAction(ActionType.WarningPostOpenSquad);
+
         if (!confirm) {
           return;
         }
       }
 
-      await mutateAsync(args);
+      await requestPostCreation(args);
     },
-    [hasSeenOpenSquadWarning, mutateAsync, showPrompt],
+    [completeAction, hasSeenOpenSquadWarning, requestPostCreation, showPrompt],
   );
 
   return { onCreate, isPending, sourceOptions };
