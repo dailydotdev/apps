@@ -16,6 +16,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import usePoll from '../../../hooks/usePoll';
 import CardOverlay from '../common/CardOverlay';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useViewPost } from '../../../hooks/post';
 
 const PollGrid = forwardRef(function PollCard(
   {
@@ -34,11 +35,17 @@ const PollGrid = forwardRef(function PollCard(
   const { user } = useAuthContext();
   const { onVote, isCastingVote } = usePoll({ post });
   const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
+  const onSendViewPost = useViewPost();
 
   const handleVote = (optionId: string, text: string) => {
     if (!isCastingVote) {
       onVote(optionId, text);
       setShouldAnimateResults(true);
+
+      if (!post?.id || !user?.id) {
+        return;
+      }
+      onSendViewPost(post.id);
     }
   };
   const { title } = useSmartTitle(post);
