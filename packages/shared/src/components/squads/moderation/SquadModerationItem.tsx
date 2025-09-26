@@ -6,7 +6,10 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { SourcePostModerationStatus } from '../../../graphql/squads';
+import {
+  SourcePostModerationStatus,
+  WarningReason,
+} from '../../../graphql/squads';
 import { SquadModerationActions } from './SquadModerationActions';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import PostMetadata from '../../cards/common/PostMetadata';
@@ -23,6 +26,7 @@ import SourceProfilePicture from '../../profile/SourceProfilePicture';
 import { PostType } from '../../../types';
 import { SquadModerationPoll } from './SquadModerationPoll';
 import { SquadModerationDefault } from './SquadModerationDefault';
+import SpamWarning from '../../widgets/SpamWarning';
 
 const SquadModerationPreview = (props: SquadModerationItemProps) => {
   const { data } = props;
@@ -32,6 +36,12 @@ const SquadModerationPreview = (props: SquadModerationItemProps) => {
     default:
       return <SquadModerationDefault {...props} />;
   }
+};
+
+const SpamWarnings = {
+  [WarningReason.MultipleSquadPost]: 'Shared in multiple Squads - Spam alert',
+  [WarningReason.DuplicatedInSameSquad]:
+    'Duplicate post in current Squad - Spam alert', // todo: this needs product input https://dailydotdev.slack.com/archives/C02AA18RD1D/p1758890951885039
 };
 
 export function SquadModerationItem(
@@ -53,6 +63,9 @@ export function SquadModerationItem(
 
   return (
     <div className="relative flex flex-col gap-4 border-b border-border-subtlest-tertiary p-6 hover:bg-surface-hover">
+      {data.flags?.warningReason && user.isModerator && (
+        <SpamWarning content={SpamWarnings[data.flags?.warningReason]} />
+      )}
       <button
         aria-label={`Review ${title}`}
         className="absolute inset-0"
