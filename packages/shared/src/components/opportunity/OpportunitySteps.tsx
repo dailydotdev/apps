@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import type { ReactNode, ReactElement } from 'react';
 import React from 'react';
+import z from 'zod';
 import {
   Typography,
   TypographyColor,
@@ -11,6 +12,8 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { useOpportunityEditContext } from './OpportunityEditContext';
 import ProgressCircle from '../ProgressCircle';
 import { getPercentage } from '../../lib/func';
+import { usePrompt } from '../../hooks/usePrompt';
+import { labels } from '../../lib/labels';
 
 export type OpportunityStepsProps = {
   className?: string;
@@ -18,6 +21,7 @@ export type OpportunityStepsProps = {
   totalSteps: number;
   ctaText: ReactNode;
   ctaButtonProps?: ButtonProps<'button'>;
+  schema?: z.ZodType;
 };
 
 export const OpportunitySteps = ({
@@ -26,8 +30,10 @@ export const OpportunitySteps = ({
   totalSteps,
   ctaText,
   ctaButtonProps,
+  schema,
 }: OpportunityStepsProps): ReactElement => {
-  const { canEdit } = useOpportunityEditContext();
+  const { showPrompt } = usePrompt();
+  const { canEdit, onValidateOpportunity } = useOpportunityEditContext();
 
   if (!canEdit) {
     return null;
@@ -41,7 +47,7 @@ export const OpportunitySteps = ({
         <ProgressCircle
           stroke={2}
           size={20}
-          progress={getPercentage(totalSteps, step - 1)}
+          progress={getPercentage(totalSteps, step)}
         />
         <Typography
           className="px-2"
@@ -51,7 +57,38 @@ export const OpportunitySteps = ({
           Step {step} of {totalSteps}
         </Typography>
       </div>
-      <Button variant={ButtonVariant.Primary} {...ctaButtonProps}>
+      <Button
+        variant={ButtonVariant.Primary}
+        {...ctaButtonProps}
+        onClick={async (event) => {
+          if (schema) {
+            const result = onValidateOpportunity({ schema });
+
+            if (result.error) {
+              await showPrompt({
+                title: labels.opportunity.requiredMissingNotice.title,
+                description: (
+                  <div className="flex flex-col gap-4">
+                    <span>
+                      {labels.opportunity.requiredMissingNotice.description}
+                    </span>
+                    <span>{z.prettifyError(result.error)}</span>
+                  </div>
+                ),
+                okButton: {
+                  className: '!w-full',
+                  title: labels.opportunity.requiredMissingNotice.okButton,
+                },
+                cancelButton: null,
+              });
+
+              return;
+            }
+          }
+
+          ctaButtonProps?.onClick?.(event);
+        }}
+      >
         {ctaText}
       </Button>
     </div>

@@ -29,6 +29,8 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { opportunityEditStep2Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 import {
   defaultOpenGraph,
@@ -205,9 +207,15 @@ const GetPageLayout: typeof getLayout = (page, layoutProps) => {
         ...layoutProps,
         additionalButtons: (
           <OpportunitySteps
-            step={2}
+            step={1}
             totalSteps={2}
             ctaText="Approve & publish"
+            schema={opportunityEditStep2Schema}
+            ctaButtonProps={{
+              onClick: () => {
+                router.push(`${webappUrl}opportunity/${id}/approved`);
+              },
+            }}
           />
         ),
       })}
