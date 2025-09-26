@@ -105,7 +105,7 @@ const QuestionsSetupPage = (): ReactElement => {
                       openModal({
                         type: LazyModal.OpportunityEdit,
                         props: {
-                          type: 'questions',
+                          type: 'question',
                           payload: {
                             id: opportunity.id,
                             index,
@@ -143,7 +143,7 @@ const QuestionsSetupPage = (): ReactElement => {
                   openModal({
                     type: LazyModal.OpportunityEdit,
                     props: {
-                      type: 'questions',
+                      type: 'question',
                       payload: {
                         id: opportunity.id,
                         index: opportunity.questions.length,

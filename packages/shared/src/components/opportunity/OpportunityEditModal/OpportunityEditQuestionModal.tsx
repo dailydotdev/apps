@@ -28,16 +28,16 @@ import {
 import { SimpleTooltip } from '../../tooltips';
 import { isTesting } from '../../../lib/constants';
 
-export type OpportunityEditQuestionsModalProps = {
+export type OpportunityEditQuestionModalProps = {
   id: string;
   index: number;
 };
 
-export const OpportunityEditQuestionsModal = ({
+export const OpportunityEditQuestionModal = ({
   id,
   index,
   ...rest
-}: OpportunityEditQuestionsModalProps & ModalProps) => {
+}: OpportunityEditQuestionModalProps & ModalProps) => {
   const { displayToast } = useToastNotification();
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id }),
