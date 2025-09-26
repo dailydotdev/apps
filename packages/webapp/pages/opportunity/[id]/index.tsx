@@ -82,6 +82,7 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 import {
   defaultOpenGraph,
@@ -948,7 +949,12 @@ const GetPageLayout: typeof getLayout = (page, layoutProps) => {
 
   return (
     <OpportunityEditProvider opportunityId={id as string}>
-      {getLayout(page, layoutProps)}
+      {getLayout(page, {
+        ...layoutProps,
+        additionalButtons: (
+          <OpportunitySteps step={1} totalSteps={2} ctaText="Save & continue" />
+        ),
+      })}
     </OpportunityEditProvider>
   );
 };

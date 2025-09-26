@@ -42,6 +42,7 @@ export function PostShortInfo({
         PostType.Brief,
         PostType.Freeform,
         PostType.Welcome,
+        PostType.Poll,
       ].includes(post.type)
     ) {
       return `${webappUrl}posts/${post.slug || post.id}`;

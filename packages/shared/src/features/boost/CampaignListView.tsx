@@ -157,12 +157,12 @@ export function CampaignListView({
         </span>
         <CampaignStatsGrid
           className="mt-3"
-          spend={campaign.flags.spend}
-          users={campaign.flags.users}
-          impressions={campaign.flags.impressions}
+          spend={campaign.flags?.spend || 0}
+          users={campaign.flags?.users || 0}
+          impressions={campaign.flags?.impressions || 0}
           members={
             campaign.type === CampaignType.Squad
-              ? campaign.flags.newMembers || 0
+              ? campaign.flags?.newMembers || 0
               : undefined
           }
         />
@@ -175,7 +175,7 @@ export function CampaignListView({
           className="flex flex-row items-center"
         >
           <CoreIcon className="mr-1" size={IconSize.Size16} />{' '}
-          {formatDataTileValue(campaign.flags.budget)} | {date.totalDays}{' '}
+          {formatDataTileValue(campaign.flags?.budget || 0)} | {date.totalDays}{' '}
           {date.totalDays === 1 ? 'day' : 'days'}
         </Typography>
       </div>

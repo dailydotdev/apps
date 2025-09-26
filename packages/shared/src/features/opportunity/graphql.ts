@@ -6,6 +6,7 @@ import type { Opportunity } from './types';
 import type {
   opportunityEditContentSchema,
   opportunityEditInfoSchema,
+  opportunityEditQuestionsSchema,
 } from '../../lib/schema/opportunity';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
@@ -300,6 +301,27 @@ export const editOpportunityContentMutationOptions = () => {
     }: {
       id: string;
       payload: z.infer<typeof opportunityEditContentSchema>;
+    }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
+        payload,
+      });
+
+      return result.editOpportunity;
+    },
+  };
+};
+
+export const editOpportunityQuestionMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditQuestionsSchema>;
     }) => {
       const result = await gqlClient.request<{
         editOpportunity: Opportunity;
