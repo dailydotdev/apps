@@ -83,6 +83,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps';
+import { opportunityEditStep1Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 import {
   defaultOpenGraph,
@@ -952,7 +953,17 @@ const GetPageLayout: typeof getLayout = (page, layoutProps) => {
       {getLayout(page, {
         ...layoutProps,
         additionalButtons: (
-          <OpportunitySteps step={1} totalSteps={2} ctaText="Save & continue" />
+          <OpportunitySteps
+            step={0}
+            totalSteps={2}
+            ctaText="Save & continue"
+            schema={opportunityEditStep1Schema}
+            ctaButtonProps={{
+              onClick: () => {
+                router.push(`${webappUrl}opportunity/${id}/questions-setup`);
+              },
+            }}
+          />
         ),
       })}
     </OpportunityEditProvider>

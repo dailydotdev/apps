@@ -2,6 +2,8 @@ import React, { useCallback } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type z from 'zod';
+import classNames from 'classnames';
 import type { ModalProps } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
@@ -19,6 +21,8 @@ import { applyZodErrorsToForm } from '../../../lib/form';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { opportunityEditDiscardPrompt } from './common';
+import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
+import { isTesting } from '../../../lib/constants';
 
 export type OpportunityEditContentModalProps = {
   id: string;
@@ -52,17 +56,25 @@ export const OpportunityEditContentModal = ({
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting, isDirty },
+    formState: { isSubmitting, isDirty, errors },
     setError,
     setValue,
   } = useForm({
-    resolver: zodResolver(opportunityEditContentSchema),
+    resolver: zodResolver(
+      opportunityEditContentSchema.extend({
+        content: opportunityEditContentSchema.shape.content.pick({
+          [contentName]: true,
+        }),
+      }),
+    ),
     defaultValues: async () => {
       const opportunityData = await promise;
 
       return {
         content: {
-          [contentName]: opportunityData.content[contentName]?.content,
+          [contentName]: {
+            content: opportunityData.content[contentName]?.content,
+          },
         },
       };
     },
@@ -72,7 +84,7 @@ export const OpportunityEditContentModal = ({
     try {
       const result = await mutateAsync({
         id,
-        payload: data,
+        payload: data as z.infer<typeof opportunityEditContentSchema>,
       });
 
       return result;
@@ -126,6 +138,11 @@ export const OpportunityEditContentModal = ({
     return <Loader />;
   }
 
+  const isRequiredContent =
+    !opportunityEditContentSchema.shape.content.shape[
+      contentName
+    ]?.shape.content.isOptional();
+
   return (
     <Modal {...rest} isOpen onRequestClose={onRequestClose}>
       <Modal.Header className="flex justify-between" showCloseButton={false}>
@@ -153,41 +170,70 @@ export const OpportunityEditContentModal = ({
       <Modal.Body className="gap-6 p-4">
         <Controller
           control={control}
-          name={`content.${contentName}`}
-          render={({ field }) => (
-            <MarkdownInput
-              allowPreview={false}
-              textareaProps={{
-                name: field.name,
-                rows: 6,
-                maxLength: 1440,
-              }}
-              className={{
-                container: 'flex-1',
-              }}
-              initialContent={field.value}
-              enabledCommand={{ upload: false, link: false, mention: false }}
-              showMarkdownGuide={false}
-              onValueUpdate={(value) => {
-                field.onChange(value);
-              }}
-            />
-          )}
-        />
-        <Button
-          className="max-w-36"
-          type="submit"
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Small}
-          onClick={() => {
-            setValue(`content.${contentName}`, '');
+          name={`content.${contentName}.content`}
+          render={({ field }) => {
+            const hint = errors.content?.[contentName]?.content.message;
+            const valid = !errors.content?.[contentName]?.content;
 
-            onSubmit();
+            return (
+              <div className="flex flex-col gap-2">
+                <MarkdownInput
+                  allowPreview={false}
+                  textareaProps={{
+                    name: field.name,
+                    rows: 6,
+                    maxLength: 1440,
+                  }}
+                  className={{
+                    container: 'flex-1',
+                  }}
+                  initialContent={field.value}
+                  enabledCommand={{
+                    upload: false,
+                    link: false,
+                    mention: false,
+                  }}
+                  showMarkdownGuide={false}
+                  onValueUpdate={(value) => {
+                    field.onChange(value);
+                  }}
+                />
+                {!!hint && (
+                  <div
+                    role={!valid ? 'alert' : undefined}
+                    className={classNames(
+                      'flex items-center typo-caption1',
+                      !valid ? 'text-status-error' : 'text-text-quaternary',
+                    )}
+                  >
+                    {hint}
+                  </div>
+                )}
+              </div>
+            );
           }}
-          loading={isSubmitting}
+        />
+        <SimpleTooltip
+          forceLoad={!isTesting}
+          content={isRequiredContent ? 'This section is required' : ''}
         >
-          Remove section
-        </Button>
+          <div className="max-w-36">
+            <Button
+              type="submit"
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Small}
+              onClick={() => {
+                setValue(`content.${contentName}.content`, '');
+
+                onSubmit();
+              }}
+              loading={isSubmitting}
+              disabled={isRequiredContent}
+            >
+              Remove section
+            </Button>
+          </div>
+        </SimpleTooltip>
       </Modal.Body>
     </Modal>
   );
