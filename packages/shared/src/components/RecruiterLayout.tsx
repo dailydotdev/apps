@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -9,6 +9,10 @@ import { AuthTriggers } from '../lib/auth';
 import type { MainLayoutProps } from './MainLayout';
 import { NoSidebarLayout } from './NoSidebarLayout';
 import { RecruiterLayoutHeader } from './layout/RecruiterLayoutHeader';
+import { InAppNotificationElement } from './notifications/InAppNotification';
+import { PromptElement } from './modals/Prompt';
+import Toast from './notifications/Toast';
+import SettingsContext from '../contexts/SettingsContext';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -32,6 +36,7 @@ export const RecruiterLayout = ({
   const router = useRouter();
   const { user, isAuthReady, showLogin } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
+  const { autoDismissNotifications } = useContext(SettingsContext);
 
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
@@ -80,6 +85,9 @@ export const RecruiterLayout = ({
   return (
     <div className="antialiased">
       {!!canGoBack && <GoBackHeaderMobile />}
+      <InAppNotificationElement />
+      <PromptElement />
+      <Toast autoDismissNotifications={autoDismissNotifications} />
       <RecruiterLayoutHeader
         onLogoClick={onLogoClick}
         additionalButtons={additionalButtons}
