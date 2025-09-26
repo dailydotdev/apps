@@ -347,6 +347,8 @@ export const usePostToSquad = ({
         }
         return null;
       });
+
+      return null;
     },
     [
       preview,
