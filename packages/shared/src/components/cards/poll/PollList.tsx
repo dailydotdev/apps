@@ -22,6 +22,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import usePoll from '../../../hooks/usePoll';
 import PollOptions from './PollOptions';
 import PostMetadata from '../common/PostMetadata';
+import { useViewPost } from '../../../hooks/post';
 
 export const PollList = forwardRef(function PollList(
   {
@@ -43,11 +44,17 @@ export const PollList = forwardRef(function PollList(
   const { user } = useAuthContext();
   const { onVote, isCastingVote } = usePoll({ post });
   const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
+  const onSendViewPost = useViewPost();
 
   const handleVote = (optionId: string, text: string) => {
     if (!isCastingVote) {
       onVote(optionId, text);
       setShouldAnimateResults(true);
+
+      if (!post?.id || !user?.id) {
+        return;
+      }
+      onSendViewPost(post.id);
     }
   };
 
@@ -73,14 +80,8 @@ export const PollList = forwardRef(function PollList(
   );
 
   const metadata = useMemo(() => {
-    if (isUserSource) {
-      return {
-        topLabel: post.author.name,
-      };
-    }
-
     return {
-      topLabel: post.source.name,
+      topLabel: isUserSource ? post.author.name : post.source.name,
       bottomLabel: (
         <PostMetadata
           createdAt={post.createdAt}
