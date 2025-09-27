@@ -43,6 +43,7 @@ import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
 import { ACCEPTED_TYPES } from '../../../graphql/posts';
+import RecommendedEmojiTooltip from '../../tooltips/RecommendedEmojiTooltip';
 
 interface ClassName {
   container?: string;
@@ -126,7 +127,13 @@ function MarkdownInput(
     onApplyMention,
     onCloseMention,
     checkMention,
+    checkEmoji,
     mentions,
+    emojiQuery,
+    emojiData,
+    selectedEmoji,
+    onApplyEmoji,
+    onCloseEmoji,
   } = useMarkdownInput({
     postId,
     sourceId,
@@ -159,6 +166,9 @@ function MarkdownInput(
   const onInputClick: MouseEventHandler<HTMLTextAreaElement> = () => {
     if (checkMention) {
       checkMention();
+    }
+    if (checkEmoji) {
+      checkEmoji();
     }
   };
 
@@ -280,6 +290,16 @@ function MarkdownInput(
         query={query}
         onMentionClick={onApplyMention}
         onClickOutside={onCloseMention}
+        appendTo={parentSelector}
+      />
+      <RecommendedEmojiTooltip
+        elementRef={textareaRef}
+        search={emojiQuery}
+        emojiData={emojiData}
+        offset={offset}
+        selected={selectedEmoji}
+        onSelect={onApplyEmoji}
+        onClickOutside={onCloseEmoji}
         appendTo={parentSelector}
       />
       {footer ?? (
