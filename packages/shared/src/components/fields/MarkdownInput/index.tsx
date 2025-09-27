@@ -127,7 +127,13 @@ function MarkdownInput(
     onApplyMention,
     onCloseMention,
     checkMention,
+    checkEmoji,
     mentions,
+    emojiQuery,
+    emojiData,
+    selectedEmoji,
+    onApplyEmoji,
+    onCloseEmoji,
   } = useMarkdownInput({
     postId,
     sourceId,
@@ -160,6 +166,9 @@ function MarkdownInput(
   const onInputClick: MouseEventHandler<HTMLTextAreaElement> = () => {
     if (checkMention) {
       checkMention();
+    }
+    if (checkEmoji) {
+      checkEmoji();
     }
   };
 
@@ -283,9 +292,16 @@ function MarkdownInput(
         onClickOutside={onCloseMention}
         appendTo={parentSelector}
       />
-      {textareaRef?.current?.value && (
-        <RecommendedEmojiTooltip textareaRef={textareaRef} emojis={[]} />
-      )}
+      <RecommendedEmojiTooltip
+        elementRef={textareaRef}
+        search={emojiQuery}
+        emojiData={emojiData}
+        offset={offset}
+        selected={selectedEmoji}
+        onSelect={onApplyEmoji}
+        onClickOutside={onCloseEmoji}
+        appendTo={parentSelector}
+      />
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
           {!!onUploadCommand && (
