@@ -10,6 +10,7 @@ import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { SquadPostContent } from '../post/SquadPostContent';
+import { isSourceUserSource } from '../../graphql/sources';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -47,7 +48,11 @@ export default function PostModal({
     >
       <EnableNotification
         source={NotificationPromptSource.SquadPostModal}
-        label={post?.source?.handle}
+        label={
+          isSourceUserSource(post?.source)
+            ? post?.author?.username
+            : post?.source?.handle
+        }
       />
       <SquadPostContent
         position={position}
