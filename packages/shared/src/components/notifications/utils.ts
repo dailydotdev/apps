@@ -138,6 +138,7 @@ export const notificationIcon: Record<
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
   NotificationIconType.Core,
+  NotificationIconType.Opportunity,
 ];
 
 export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
