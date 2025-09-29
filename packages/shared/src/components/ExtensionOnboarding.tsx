@@ -37,7 +37,7 @@ const ExtensionOnboarding = (): ReactElement => {
         The magic awaits inside! ✨
       </p>
 
-      <Link href={onboardingUrl} passHref>
+      <Link href={`${onboardingUrl}?r=extension`} passHref>
         <Button
           tag="a"
           className="z-1 w-full max-w-[18.75rem]"
