@@ -145,5 +145,11 @@ export const labels = {
   opportunity: {
     companyInfoEditNotice:
       'You can edit company data only on the Organization page.',
+    requiredMissingNotice: {
+      title: 'Missing Required Information',
+      description:
+        'Some vital fields are empty. Please complete the required information before continuing.',
+      okButton: 'Close',
+    },
   },
 };

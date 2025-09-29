@@ -2,6 +2,7 @@ import { createContextProvider } from '@kickass-coderz/react';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import type z from 'zod';
 import { opportunityByIdOptions } from '../../features/opportunity/queries';
 import { useAuthContext } from '../../contexts/AuthContext';
 
@@ -29,6 +30,11 @@ const [OpportunityEditProvider, useOpportunityEditContext] =
 
     return {
       canEdit,
+      onValidateOpportunity: ({ schema }: { schema: z.ZodType }) => {
+        const result = schema.safeParse(opportunity);
+
+        return result;
+      },
     };
   });
 
