@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 import type { GetStaticPathsResult, GetStaticProps } from 'next';
@@ -530,7 +530,9 @@ const JobPage = (): ReactElement => {
                         }
                         size={ButtonSize.Small}
                         icon={!contentHtml ? <PlusIcon /> : undefined}
-                        onClick={() => {
+                        onClick={(event: MouseEvent) => {
+                          event.stopPropagation();
+
                           openModal({
                             type: LazyModal.OpportunityEdit,
                             props: {
@@ -552,7 +554,7 @@ const JobPage = (): ReactElement => {
                 >
                   {!!contentHtml && (
                     <div
-                      className="pb-4"
+                      className="pb-4 [&>ul]:list-inside [&>ul]:list-disc"
                       dangerouslySetInnerHTML={{
                         __html: contentHtml,
                       }}
