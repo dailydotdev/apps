@@ -366,3 +366,5 @@ export const jobsHowItWorksTwo =
   'https://media.daily.dev/image/upload/s--1iphOt2P--/f_auto/v1755256487/public/recruiting%20system-landing%20page-2';
 export const jobsHowItWorksThree =
   'https://media.daily.dev/image/upload/s--470GU2QS--/f_auto/v1755256487/public/recruiting%20system-landing%20page-3';
+export const recruiterSpamCampaign =
+  'https://media.daily.dev/image/upload/s--mFR-ciac--/f_auto/v1759242948/public/Recruiter%20-%202';
