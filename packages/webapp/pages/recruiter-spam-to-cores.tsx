@@ -48,7 +48,7 @@ const HeaderSection = (): ReactElement => {
     <FlexCol className="items-center gap-8">
       <Typography center type={TypographyType.Mega1} bold>
         Convert Recruiter
-        <br /> Spam to Cores
+        <br /> Spam to Cores 💰
       </Typography>
 
       <Image
@@ -83,27 +83,27 @@ const howItWorksItems = [
   {
     icon: MailIcon,
     number: 1,
-    title: 'Get spammed',
-    description: 'Receive a cold message from a recruiter.',
+    title: 'Check your LinkedIn DMs',
+    description: 'Got a cold message from a recruiter? Perfect - that’s your ticket.',
   },
   {
     icon: CopyIcon,
     number: 2,
-    title: 'Respond smartly',
-    description: 'Use our pre-filled reply (or write your own)',
+    title: 'Reply with our template',
+    description: 'Copy-paste the template below (or write your own, as long as it includes the link to https://recruiter.daily.dev)',
   },
   {
     icon: UploadIcon,
     number: 3,
-    title: 'Submit it',
+    title: 'Submit the evidence',
     description:
-      "Upload a screenshot + the recruiter's profile through a simple form",
+      "Upload the screenshot + recruiter profile link through this form",
     extra: true,
   },
   {
     icon: CoreIcon,
     number: 4,
-    title: 'Get rewarded',
+    title: 'Get your free Cores',
     description: (
       <>
         Once verified, you&apos;ll receive Cores directly in your account.
@@ -122,7 +122,7 @@ const HowItWorksSection = (): ReactElement => {
   return (
     <FlexCol className="gap-7">
       <Typography type={TypographyType.LargeTitle} center bold>
-        💡 How it works
+        How it works 💡
       </Typography>
       <FlexCol className="mb-12 gap-6">
         {howItWorksItems.map(
@@ -234,7 +234,7 @@ const finePrint = [
 const FinePrintSection = (): ReactElement => (
   <FlexCol className="gap-7">
     <Typography type={TypographyType.LargeTitle} center bold>
-      🛡️ Fine print
+      Fine print 🛡️
     </Typography>
     <div className="gap-6">
       <ul className="list ml-6 list-disc space-y-2">
@@ -259,7 +259,7 @@ const GetStartedSection = (): ReactElement => {
   return (
     <FlexCol className="items-center gap-6">
       <Typography center type={TypographyType.Title3} bold>
-        Ready to turn spam into rewards?
+        Stop deleting recruiter spam. Start farming it!
       </Typography>
       <Button
         tag="a"
