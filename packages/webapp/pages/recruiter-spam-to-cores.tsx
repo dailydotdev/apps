@@ -97,7 +97,7 @@ const howItWorksItems = [
     number: 3,
     title: 'Submit it',
     description:
-      "Upload a screenshot + the recruiter's profile through a simple form",
+      "Upload a screenshot + the recruiter's profile through a simple form ",
     extra: true,
   },
   {
