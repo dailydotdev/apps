@@ -19,7 +19,6 @@ const RecommendedEmojiTooltip = ({
   selected?: number;
   onSelect: (emoji: string) => void;
   onClickOutside?: () => void;
-  appendTo?: () => HTMLElement;
 }): ReactElement => {
   if (!search || !emojiData?.length) {
     return null;

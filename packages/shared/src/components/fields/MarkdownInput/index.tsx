@@ -300,7 +300,6 @@ function MarkdownInput(
         selected={selectedEmoji}
         onSelect={onApplyEmoji}
         onClickOutside={onCloseEmoji}
-        appendTo={parentSelector}
       />
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
