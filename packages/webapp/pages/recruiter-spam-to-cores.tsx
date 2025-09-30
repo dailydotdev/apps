@@ -97,7 +97,7 @@ const howItWorksItems = [
     number: 3,
     title: 'Submit it',
     description:
-      "Upload a screenshot + the recruiter's profile through a simple form ",
+      "Upload a screenshot + the recruiter's profile through a simple form",
     extra: true,
   },
   {
@@ -145,7 +145,7 @@ const HowItWorksSection = (): ReactElement => {
                     {!!extra && (
                       <a
                         href={`${formLink}#user_id=${user.id}`}
-                        className="text-text-link underline"
+                        className="ml-1 text-text-link underline"
                         target="_blank"
                         rel={anchorDefaultRel}
                       >
