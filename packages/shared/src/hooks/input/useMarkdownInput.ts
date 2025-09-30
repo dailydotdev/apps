@@ -349,22 +349,18 @@ export const useMarkdownInput = ({
     const arrowKey = e.key as ArrowKey;
 
     if (Y_AXIS_KEYS.includes(e.key as ArrowKey)) {
-      if (hasMentions) {
-        if (arrowKey === ArrowKey.Up) {
-          if (selected > 0) {
-            setSelected(selected - 1);
-          }
-        } else if (selected < mentions.length - 1) {
-          setSelected(selected + 1);
+      if (arrowKey === ArrowKey.Up) {
+        if (hasMentions) {
+          setSelected((selected - 1 + mentions.length) % mentions.length);
+        } else if (hasEmojis) {
+          setSelectedEmoji(
+            (selectedEmoji - 1 + emojiData.length) % emojiData.length,
+          );
         }
+      } else if (hasMentions) {
+        setSelected((selected + 1) % mentions.length);
       } else if (hasEmojis) {
-        if (arrowKey === ArrowKey.Up) {
-          if (selectedEmoji > 0) {
-            setSelectedEmoji(selectedEmoji - 1);
-          }
-        } else if (selectedEmoji < emojiData.length - 1) {
-          setSelectedEmoji(selectedEmoji + 1);
-        }
+        setSelectedEmoji((selectedEmoji + 1) % emojiData.length);
       }
     }
 
