@@ -18,7 +18,7 @@ import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportu
 
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
 import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
-import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps';
+import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunitySteps';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import classNames from 'classnames';
