@@ -13,7 +13,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
-import { clickbaitShieldModalImage } from '@dailydotdev/shared/src/lib/image';
+import { recruiterSpamCampaign } from '@dailydotdev/shared/src/lib/image';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
@@ -53,8 +53,8 @@ const HeaderSection = (): ReactElement => {
 
       <Image
         className="mb-5 rounded-16"
-        src={clickbaitShieldModalImage}
-        alt="Clickbait shield feature"
+        src={recruiterSpamCampaign}
+        alt="Convert Recruiter Spam to Cores"
       />
 
       <FlexCol className="items-center gap-6 text-center">
@@ -106,7 +106,7 @@ const howItWorksItems = [
     title: 'Get rewarded',
     description: (
       <>
-        Once verified, you'll receive Cores directly in your account.
+        Once verified, you&apos;ll receive Cores directly in your account.
         <br /> We review applications every 14 days.
       </>
     ),
