@@ -19,15 +19,9 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import {
-  AlertIcon,
-  BlockIcon,
-  CalendarIcon,
   CopyIcon,
   CoreIcon,
   MailIcon,
-  PinIcon,
-  ShieldIcon,
-  SquadIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { UploadIcon } from '@dailydotdev/shared/src/components/icons/Upload';
@@ -54,7 +48,7 @@ const HeaderSection = (): ReactElement => {
     <FlexCol className="items-center gap-8">
       <Typography center type={TypographyType.Mega1} bold>
         Convert Recruiter
-        <br /> Spam to <span className="text-brand-default">Cores</span>
+        <br /> Spam to Cores
       </Typography>
 
       <Image
@@ -66,7 +60,7 @@ const HeaderSection = (): ReactElement => {
       <FlexCol className="items-center gap-6 text-center">
         <Typography
           type={TypographyType.Title3}
-          color={TypographyColor.Tertiary}
+          color={TypographyColor.Primary}
         >
           Every day, developers like you get bombarded by cold recruiter
           messages that are irrelevant, pushy, or just plain AI-generated.
@@ -75,11 +69,10 @@ const HeaderSection = (): ReactElement => {
           type={TypographyType.Title3}
           color={TypographyColor.Primary}
         >
-          At <strong className="text-brand-default">daily.dev</strong>, we want
-          to flip the script. For every recruiter message you receive, you can
-          now earn <strong className="text-brand-default">300 Cores</strong>.
-          They can be used to unlock features, boost your content, or simply get
-          rewarded for staying awesome.
+          At <strong>daily.dev</strong>, we want to flip the script. For every
+          recruiter message you receive, you can now earn{' '}
+          <strong>300 Cores</strong>. They can be used to unlock features, boost
+          your content, or simply get rewarded for staying awesome.
         </Typography>
       </FlexCol>
     </FlexCol>
@@ -207,35 +200,28 @@ const HowItWorksSection = (): ReactElement => {
 
 const faq = [
   {
-    icon: ShieldIcon,
     description:
       'To ensure quality, all submissions are manually reviewed (once every 14 days).',
   },
   {
-    icon: SquadIcon,
     description: 'Only cold recruiter messages via LinkedIn are accepted.',
   },
   {
-    icon: CalendarIcon,
     description: 'Messages must be received within the last 3 months',
   },
   {
-    icon: PinIcon,
     description:
       'For now, we are only able to accept entries from developers based in the US and Europe',
   },
   {
-    icon: AlertIcon,
     description:
       'Multiple entries are allowed (up to 10) and a maximum of 3,000 Cores can be earned per user.',
   },
   {
-    icon: ShieldIcon,
     description:
       'The screenshot you upload should provide a clear view of the message + recruiter identity.',
   },
   {
-    icon: BlockIcon,
     description:
       'Developers found attempting to game the system or submit fraudulent content will be banned from future campaigns.',
   },
@@ -245,25 +231,19 @@ const FAQSection = (): ReactElement => (
     <Typography type={TypographyType.LargeTitle} center bold>
       💡 How it works
     </Typography>
-    <div className="mb-12 grid gap-6 tablet:grid-cols-2">
-      {faq.map(({ icon: Icon, description }) => (
-        <div
-          className="shadow-sm relative flex flex-col gap-6 overflow-hidden rounded-16 border border-border-subtlest-primary bg-background-subtle p-6"
-          key={description}
-        >
-          <div className="relative">
-            <div className="mb-4 inline-flex size-8 items-center justify-center rounded-16 bg-brand-float text-brand-default">
-              <Icon size={IconSize.Small} />
-            </div>
+    <div className="gap-6">
+      <ul className="list ml-6 list-disc space-y-2">
+        {faq.map(({ description }) => (
+          <li key={description}>
             <Typography
               type={TypographyType.Body}
               color={TypographyColor.Tertiary}
             >
               {description}
             </Typography>
-          </div>
-        </div>
-      ))}
+          </li>
+        ))}
+      </ul>
     </div>
   </FlexCol>
 );
@@ -313,7 +293,7 @@ const RecruiterSpamPage = (): ReactElement => {
     <ProtectedPage>
       <BackgroundImage />
       <div className="relative mx-4 mb-20 mt-10 max-w-[47.875rem] tablet:mx-auto">
-        <FlexCol className="gap-20 tablet:mx-4 laptop:mx-0">
+        <FlexCol className="gap-10 tablet:mx-4 laptop:mx-0">
           <HeaderSection />
           <Divider />
           <HowItWorksSection />
