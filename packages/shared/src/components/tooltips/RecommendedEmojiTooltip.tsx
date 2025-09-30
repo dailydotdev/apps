@@ -2,6 +2,7 @@ import type { MutableRefObject, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+import { Typography, TypographyTag } from '../typography/Typography';
 
 const RecommendedEmojiTooltip = ({
   elementRef,
@@ -58,8 +59,8 @@ const RecommendedEmojiTooltip = ({
                   selected === index && 'bg-theme-active',
                 )}
               >
-                <span className="text-xl">{emoji.emoji}</span>
-                <span className="text-text-primary">{emoji.name}</span>
+                <Typography tag={TypographyTag.Span}>{emoji.emoji}</Typography>
+                <Typography tag={TypographyTag.Span}>{emoji.name}</Typography>
               </button>
             ))}
           </TooltipPrimitive.Content>
