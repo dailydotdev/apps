@@ -148,7 +148,7 @@ const HowItWorksSection = (): ReactElement => {
                     {description}{' '}
                     {!!extra && (
                       <a
-                        href={`${formLink}#user_id=${user.id}`}
+                        href={`${formLink}#user_id=${user?.id}`}
                         className="ml-1 text-text-link underline"
                         target="_blank"
                         rel={anchorDefaultRel}
@@ -263,7 +263,7 @@ const GetStartedSection = (): ReactElement => {
       </Typography>
       <Button
         tag="a"
-        href={`${formLink}#user_id=${user.id}`}
+        href={`${formLink}#user_id=${user?.id}`}
         target="_blank"
         variant={ButtonVariant.Primary}
       >
