@@ -38,6 +38,7 @@ import SquadModNotifications from './SquadModNotifications';
 import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
 import NotificationGroupToggle from './NotificationToggle';
+import ReadingReminderNotification from './ReadingReminderNotification';
 
 const InAppNotificationsTab = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -213,6 +214,7 @@ const InAppNotificationsTab = (): ReactElement => {
               />
             ),
           )}
+          <ReadingReminderNotification />
           <NotificationSwitch
             id="achievements"
             label="Achievements"
