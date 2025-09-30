@@ -104,8 +104,12 @@ const howItWorksItems = [
     icon: CoreIcon,
     number: 4,
     title: 'Get rewarded',
-    description:
-      "Once verified, you'll receive Cores directly in your account. We review applications every 14 days.",
+    description: (
+      <>
+        Once verified, you'll receive Cores directly in your account.
+        <br /> We review applications every 14 days.
+      </>
+    ),
   },
 ];
 const HowItWorksSection = (): ReactElement => {
@@ -163,7 +167,7 @@ const HowItWorksSection = (): ReactElement => {
         <div className="mb-4 flex items-start justify-between gap-4">
           <FlexCol className="flex-1 gap-4">
             <Typography type={TypographyType.Title3} bold>
-              Pre-filled Response Template
+              Pre-filled Response template
             </Typography>
             <Typography
               type={TypographyType.Body}
@@ -199,7 +203,7 @@ const HowItWorksSection = (): ReactElement => {
   );
 };
 
-const faq = [
+const finePrint = [
   {
     description:
       'To ensure quality, all submissions are manually reviewed (once every 14 days).',
@@ -227,18 +231,18 @@ const faq = [
       'Developers found attempting to game the system or submit fraudulent content will be banned from future campaigns.',
   },
 ];
-const FAQSection = (): ReactElement => (
+const FinePrintSection = (): ReactElement => (
   <FlexCol className="gap-7">
     <Typography type={TypographyType.LargeTitle} center bold>
-      💡 How it works
+      🛡️ Fine print
     </Typography>
     <div className="gap-6">
       <ul className="list ml-6 list-disc space-y-2">
-        {faq.map(({ description }) => (
+        {finePrint.map(({ description }) => (
           <li key={description}>
             <Typography
               type={TypographyType.Body}
-              color={TypographyColor.Tertiary}
+              color={TypographyColor.Primary}
             >
               {description}
             </Typography>
@@ -257,16 +261,13 @@ const GetStartedSection = (): ReactElement => {
       <Typography center type={TypographyType.Title3} bold>
         Ready to turn spam into rewards?
       </Typography>
-      <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
-        Start earning Cores for every recruiter message you receive.
-      </Typography>
       <Button
         tag="a"
         href={`${formLink}#user_id=${user.id}`}
         target="_blank"
         variant={ButtonVariant.Primary}
       >
-        Submit your first entry
+        I want my Cores
       </Button>
     </FlexCol>
   );
@@ -299,7 +300,7 @@ const RecruiterSpamPage = (): ReactElement => {
           <Divider />
           <HowItWorksSection />
           <Divider />
-          <FAQSection />
+          <FinePrintSection />
           <Divider />
           <GetStartedSection />
         </FlexCol>
