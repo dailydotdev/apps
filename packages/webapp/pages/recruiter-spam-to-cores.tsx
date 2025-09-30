@@ -120,47 +120,48 @@ const HowItWorksSection = (): ReactElement => {
       <Typography type={TypographyType.LargeTitle} center bold>
         💡 How it works
       </Typography>
-      <div className="mb-12 grid gap-6 tablet:grid-cols-2">
+      <FlexCol className="mb-12 gap-6">
         {howItWorksItems.map(
           ({ icon: Icon, number, title, description, extra }) => (
             <div
               className="shadow-sm relative flex flex-col gap-6 overflow-hidden rounded-16 border border-border-subtlest-primary bg-background-subtle p-6"
               key={number}
             >
-              <div className="absolute right-4 top-4 text-6xl font-bold text-brand-hover">
-                {number}
-              </div>
-              <div className="relative">
-                <div className="mb-4 inline-flex size-12 items-center justify-center rounded-16 bg-brand-float text-brand-default">
-                  <Icon size={IconSize.Large} />
-                </div>
-                <Typography type={TypographyType.Body} bold className="mb-2">
-                  {title}
+              <FlexRow className="items-center gap-4">
+                <Typography type={TypographyType.Title3} bold>
+                  {number}
                 </Typography>
-                <Typography
-                  type={TypographyType.Body}
-                  color={TypographyColor.Tertiary}
-                >
-                  {description}{' '}
-                  {!!extra && (
-                    <a
-                      href={`${formLink}#user_id=${user.id}`}
-                      className="text-text-link underline"
-                      target="_blank"
-                      rel={anchorDefaultRel}
-                    >
-                      here
-                    </a>
-                  )}
-                </Typography>
-              </div>
+                <Icon size={IconSize.Large} />
+                <FlexCol className="flex-1">
+                  <Typography type={TypographyType.Body} bold className="mb-2">
+                    {title}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Body}
+                    color={TypographyColor.Tertiary}
+                    className="flex flex-wrap"
+                  >
+                    {description}{' '}
+                    {!!extra && (
+                      <a
+                        href={`${formLink}#user_id=${user.id}`}
+                        className="text-text-link underline"
+                        target="_blank"
+                        rel={anchorDefaultRel}
+                      >
+                        here
+                      </a>
+                    )}
+                  </Typography>
+                </FlexCol>
+              </FlexRow>
             </div>
           ),
         )}
-      </div>
+      </FlexCol>
       <div className="shadow-sm md:p-8 flex flex-col gap-6 rounded-16 border border-border-subtlest-primary bg-background-subtle p-6">
         <div className="mb-4 flex items-start justify-between gap-4">
-          <FlexCol className="gap-4">
+          <FlexCol className="flex-1 gap-4">
             <Typography type={TypographyType.Title3} bold>
               Pre-filled Response Template
             </Typography>
@@ -178,7 +179,7 @@ const HowItWorksSection = (): ReactElement => {
             onClick={() => copyText()}
           />
         </div>
-        <div className="rounded-14 border border-border-subtlest-primary p-4 font-mono">
+        <div className="break-words rounded-14 border border-border-subtlest-primary p-4 font-mono">
           I&apos;m currently not open to opportunities. You might find the right
           candidate on https://recruiter.daily.dev. It&apos;s worth checking
           out!
