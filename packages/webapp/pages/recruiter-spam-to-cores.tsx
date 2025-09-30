@@ -84,20 +84,22 @@ const howItWorksItems = [
     icon: MailIcon,
     number: 1,
     title: 'Check your LinkedIn DMs',
-    description: 'Got a cold message from a recruiter? Perfect - that’s your ticket.',
+    description:
+      'Got a cold message from a recruiter? Perfect - that’s your ticket.',
   },
   {
     icon: CopyIcon,
     number: 2,
     title: 'Reply with our template',
-    description: 'Copy-paste the template below (or write your own, as long as it includes the link to https://recruiter.daily.dev)',
+    description:
+      'Copy-paste the template below (or write your own, as long as it includes the link to https://recruiter.daily.dev)',
   },
   {
     icon: UploadIcon,
     number: 3,
     title: 'Submit the evidence',
     description:
-      "Upload the screenshot + recruiter profile link through this form",
+      'Upload the screenshot + recruiter profile link through this form',
     extra: true,
   },
   {
