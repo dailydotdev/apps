@@ -18,6 +18,13 @@ const ExtensionOnboarding = (): ReactElement => {
     };
   }, [setCurrentPage]);
 
+  const onboarding = (() => {
+    const base = new URL(onboardingUrl);
+    base.searchParams.append('r', 'extension');
+
+    return base.toString();
+  })();
+
   return (
     <div className="flex max-h-[100vh] min-h-[100vh] flex-col items-center justify-center overflow-hidden px-7 text-center antialiased">
       <Logo
@@ -37,7 +44,7 @@ const ExtensionOnboarding = (): ReactElement => {
         The magic awaits inside! ✨
       </p>
 
-      <Link href={onboardingUrl} passHref>
+      <Link href={onboarding} passHref>
         <Button
           tag="a"
           className="z-1 w-full max-w-[18.75rem]"
