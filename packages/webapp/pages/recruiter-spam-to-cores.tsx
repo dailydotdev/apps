@@ -92,7 +92,7 @@ const howItWorksItems = [
     number: 2,
     title: 'Reply with our template',
     description:
-      'Copy-paste the template below (or write your own, add the link to https://recruiter.daily.dev)',
+      'Copy-paste the template below (or write your own, add link to https://recruiter.daily.dev)',
   },
   {
     icon: UploadIcon,
