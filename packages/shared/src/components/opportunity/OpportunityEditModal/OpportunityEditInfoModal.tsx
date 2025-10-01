@@ -20,7 +20,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { KeywordSelection } from '../../../features/opportunity/components/KeywordSelection';
 import { labels } from '../../../lib';
 import { opportunityEditInfoSchema } from '../../../lib/schema/opportunity';
-import { editOpportunityInfoMutationOptions } from '../../../features/opportunity/graphql';
+import { editOpportunityInfoMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';

@@ -1,13 +1,5 @@
 import { gql } from 'graphql-request';
-import type z from 'zod';
 import { ORGANIZATION_SHORT_FRAGMENT } from '../organizations/graphql';
-import { gqlClient } from '../../graphql/common';
-import type { Opportunity } from './types';
-import type {
-  opportunityEditContentSchema,
-  opportunityEditInfoSchema,
-  opportunityEditQuestionsSchema,
-} from '../../lib/schema/opportunity';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   fragment OpportunityContentFragment on OpportunityContentBlock {
@@ -288,80 +280,3 @@ export const RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION = gql`
   }
   ${QUESTION_FRAGMENT}
 `;
-
-export const editOpportunityInfoMutationOptions = () => {
-  return {
-    mutationFn: async ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: z.infer<typeof opportunityEditInfoSchema>;
-    }) => {
-      const result = await gqlClient.request<{
-        editOpportunity: Opportunity;
-      }>(EDIT_OPPORTUNITY_MUTATION, {
-        id,
-        payload,
-      });
-
-      return result.editOpportunity;
-    },
-  };
-};
-
-export const editOpportunityContentMutationOptions = () => {
-  return {
-    mutationFn: async ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: z.infer<typeof opportunityEditContentSchema>;
-    }) => {
-      const result = await gqlClient.request<{
-        editOpportunity: Opportunity;
-      }>(EDIT_OPPORTUNITY_MUTATION, {
-        id,
-        payload,
-      });
-
-      return result.editOpportunity;
-    },
-  };
-};
-
-export const editOpportunityQuestionMutationOptions = () => {
-  return {
-    mutationFn: async ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: z.infer<typeof opportunityEditQuestionsSchema>;
-    }) => {
-      const result = await gqlClient.request<{
-        editOpportunity: Opportunity;
-      }>(EDIT_OPPORTUNITY_MUTATION, {
-        id,
-        payload,
-      });
-
-      return result.editOpportunity;
-    },
-  };
-};
-
-export const recommendOpportunityScreeningQuestionsOptions = () => {
-  return {
-    mutationFn: async ({ id }: { id: string }) => {
-      const result = await gqlClient.request<{
-        recommendOpportunityScreeningQuestions: Opportunity['questions'];
-      }>(RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION, {
-        id,
-      });
-
-      return result.recommendOpportunityScreeningQuestions;
-    },
-  };
-};
