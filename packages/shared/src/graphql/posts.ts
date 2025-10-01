@@ -817,8 +817,8 @@ export const createPost = async (
   return res.createFreeformPost;
 };
 
-export const CREATE_MULTIPLE_SOURCE_POSTS_MUTATION = gql`
-  mutation CreateMultipleSourcePosts(
+export const CREATE_POST_IN_MULTIPLE_SOURCES = gql`
+  mutation CreatePostInMultipleSources(
     $sourceIds: [ID!]!
     $title: String
     $commentary: String
@@ -827,8 +827,10 @@ export const CREATE_MULTIPLE_SOURCE_POSTS_MUTATION = gql`
     $image: Upload
     $sharedPostId: ID
     $externalLink: String
+    $options: [PollOptionInput!]
+    $duration: Int
   ) {
-    createMultipleSourcePosts(
+    createPostInMultipleSources(
       sourceIds: $sourceIds
       title: $title
       commentary: $commentary
@@ -837,35 +839,41 @@ export const CREATE_MULTIPLE_SOURCE_POSTS_MUTATION = gql`
       image: $image
       sharedPostId: $sharedPostId
       externalLink: $externalLink
+      options: $options
+      duration: $duration
     ) {
       id
       sourceId
       type
+      slug
     }
   }
 `;
 
-export interface CreateMultipleSourcePostsArgs extends CreatePostProps {
+export interface CreatePostInMultipleSourcesArgs
+  extends CreatePostProps,
+    Pick<CreatePollPostProps, 'options' | 'duration'> {
   sourceIds: string[];
   sharedPostId?: string;
 }
 
-export const createMultipleSourcePosts = async (
-  variables: CreateMultipleSourcePostsArgs,
+export const createPostInMultipleSources = async (
+  variables: CreatePostInMultipleSourcesArgs,
 ) => {
   const res = await gqlClient.request<
     {
-      createMultipleSourcePosts: [
+      createPostInMultipleSources: [
         {
           id: string;
           sourceId: string;
           type: 'post' | 'moderationItem';
+          slug?: string;
         },
       ];
     },
-    CreateMultipleSourcePostsArgs
-  >(CREATE_MULTIPLE_SOURCE_POSTS_MUTATION, variables);
-  return res.createMultipleSourcePosts;
+    CreatePostInMultipleSourcesArgs
+  >(CREATE_POST_IN_MULTIPLE_SOURCES, variables);
+  return res.createPostInMultipleSources;
 };
 
 export interface VotePollResponse {

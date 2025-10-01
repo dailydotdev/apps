@@ -225,7 +225,7 @@ export const MultipleSourceSelect = ({
         triggerChildren={
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <img src={triggerImage} alt="Squad" className="size-6 rounded-4" />
-            <TruncateText className="min-w-0 flex-1 text-left">
+            <TruncateText className="min-w-0 flex-1 text-left font-normal">
               {!selected.length && 'Select one or more'}
               {isUserSourceSelected && 'Everyone'}
               {isUserSourceSelected && selectedSquads.length > 0 && ', '}

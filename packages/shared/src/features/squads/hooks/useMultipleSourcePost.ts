@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
-import type { CreateMultipleSourcePostsArgs } from '../../../graphql/posts';
-import { createMultipleSourcePosts } from '../../../graphql/posts';
+import type { CreatePostInMultipleSourcesArgs } from '../../../graphql/posts';
+import { createPostInMultipleSources } from '../../../graphql/posts';
 import { useActions, useToastNotification } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { usePrompt } from '../../../hooks/usePrompt';
@@ -11,9 +11,15 @@ interface UseMultipleSourcePostProps {
   onSuccess?: () => void;
 }
 
+export type CreationInMultipleSourcesResult = ReturnType<
+  typeof createPostInMultipleSources
+>;
+
 interface UseMultipleSourcePost {
   isPending: boolean;
-  onCreate: (args: CreateMultipleSourcePostsArgs) => Promise<void>;
+  onCreate: (
+    args: CreatePostInMultipleSourcesArgs,
+  ) => Promise<null | CreationInMultipleSourcesResult>;
 }
 
 export const useMultipleSourcePost = ({
@@ -32,7 +38,7 @@ export const useMultipleSourcePost = ({
   );
 
   const { mutateAsync: requestPostCreation, isPending } = useMutation({
-    mutationFn: createMultipleSourcePosts,
+    mutationFn: createPostInMultipleSources,
     onSuccess: () => {
       displayToast(`✅ Posts created successfully`);
       onSuccess?.();
@@ -44,7 +50,9 @@ export const useMultipleSourcePost = ({
   });
 
   const onCreate = useCallback(
-    async (args: CreateMultipleSourcePostsArgs) => {
+    async (
+      args: CreatePostInMultipleSourcesArgs,
+    ): Promise<null | CreationInMultipleSourcesResult> => {
       if (!hasSeenOpenSquadWarning) {
         const confirm = await showPrompt({
           title: 'Posting in an Open Squad',
@@ -57,11 +65,11 @@ export const useMultipleSourcePost = ({
         await completeAction(ActionType.UserPostInOpenSquadWarningSeen);
 
         if (!confirm) {
-          return;
+          return null;
         }
       }
 
-      await requestPostCreation(args);
+      return await requestPostCreation(args);
     },
     [completeAction, hasSeenOpenSquadWarning, requestPostCreation, showPrompt],
   );
