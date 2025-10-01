@@ -12,17 +12,48 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
+import {
+  LogEvent,
+  NotificationCategory,
+  NotificationChannel,
+} from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 
-const ReadingReminderNotification = () => {
+const ReadingReminderToggle = () => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { getPersonalizedDigest, subscribePersonalizedDigest } =
-    usePersonalizedDigest();
+  const {
+    getPersonalizedDigest,
+    subscribePersonalizedDigest,
+    unsubscribePersonalizedDigest,
+  } = usePersonalizedDigest();
   const readingReminder = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
   );
+
+  const toggleSubscription = () => {
+    if (readingReminder) {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.ReadingReminder,
+      });
+    } else {
+      subscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.ReadingReminder,
+        sendType: SendType.Daily,
+        hour: 8,
+      });
+    }
+
+    logEvent({
+      event_name: readingReminder
+        ? LogEvent.DisableNotification
+        : LogEvent.EnableNotification,
+      extra: JSON.stringify({
+        channel: NotificationChannel.Web,
+        category: NotificationCategory.ReadingReminder,
+      }),
+    });
+  };
 
   const handleSetHour = (hour: number) => {
     logEvent({
@@ -45,10 +76,10 @@ const ReadingReminderNotification = () => {
     <div className="flex flex-col gap-2">
       <div>
         <NotificationSwitch
-          id=""
+          id="reading-reminder"
           label="What's the ideal time to send you a reading reminder?"
-          checked
-          onToggle={() => {}}
+          checked={!!readingReminder}
+          onToggle={toggleSubscription}
         />
         <Typography
           color={TypographyColor.Tertiary}
@@ -58,15 +89,17 @@ const ReadingReminderNotification = () => {
           ahead of the curve.
         </Typography>
       </div>
-      <HourDropdown
-        className={{
-          container: 'w-40',
-        }}
-        hourIndex={readingReminder?.preferredHour ?? 8}
-        setHourIndex={(hour) => handleSetHour(hour)}
-      />
+      {!!readingReminder && (
+        <HourDropdown
+          className={{
+            container: 'w-40',
+          }}
+          hourIndex={readingReminder?.preferredHour ?? 8}
+          setHourIndex={(hour) => handleSetHour(hour)}
+        />
+      )}
     </div>
   );
 };
 
-export default ReadingReminderNotification;
+export default ReadingReminderToggle;
