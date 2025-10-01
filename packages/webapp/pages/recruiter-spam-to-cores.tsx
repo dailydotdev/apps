@@ -29,13 +29,13 @@ import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../next-seo';
+import { defaultSeo } from '../next-seo';
 import { getLayout } from '../components/layouts/NoSidebarLayout';
 import ProtectedPage from '../components/ProtectedPage';
 
 const seo: NextSeoProps = {
-  title: defaultSeoTitle,
-  openGraph: { ...defaultOpenGraph },
+  title: 'daily.dev | Convert Recruiter Spam to Cores',
+  openGraph: { images: [{ url: recruiterSpamCampaign }] },
   ...defaultSeo,
   nofollow: true,
   noindex: true,
