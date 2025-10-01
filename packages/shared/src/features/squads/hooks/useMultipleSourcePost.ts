@@ -5,7 +5,6 @@ import { createMultipleSourcePosts } from '../../../graphql/posts';
 import { useActions, useToastNotification } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { usePrompt } from '../../../hooks/usePrompt';
-import { useAuthContext } from '../../../contexts/AuthContext';
 
 interface UseMultipleSourcePostProps {
   onError?: () => void;
@@ -15,14 +14,12 @@ interface UseMultipleSourcePostProps {
 interface UseMultipleSourcePost {
   isPending: boolean;
   onCreate: (args: CreateMultipleSourcePostsArgs) => Promise<void>;
-  sourceOptions: Array<{ label: string; value: string }>;
 }
 
 export const useMultipleSourcePost = ({
   onSuccess,
   onError,
 }: UseMultipleSourcePostProps): UseMultipleSourcePost => {
-  const { squads = [] } = useAuthContext();
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   const { showPrompt } = usePrompt();
   const { displayToast } = useToastNotification();
@@ -32,13 +29,6 @@ export const useMultipleSourcePost = ({
       isActionsFetched && checkHasCompleted(ActionType.WarningPostOpenSquad),
     [isActionsFetched, checkHasCompleted],
   );
-
-  const sourceOptions = useMemo(() => {
-    return squads.map((squad) => ({
-      label: squad.name,
-      value: squad.id,
-    }));
-  }, [squads]);
 
   const { mutateAsync: requestPostCreation, isPending } = useMutation({
     mutationFn: createMultipleSourcePosts,
@@ -75,5 +65,5 @@ export const useMultipleSourcePost = ({
     [completeAction, hasSeenOpenSquadWarning, requestPostCreation, showPrompt],
   );
 
-  return { onCreate, isPending, sourceOptions };
+  return { onCreate, isPending };
 };

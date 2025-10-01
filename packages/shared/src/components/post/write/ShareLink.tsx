@@ -14,7 +14,7 @@ import { WriteLinkPreview } from './WriteLinkPreview';
 import {
   generateDefaultSquad,
   generateUserSourceAsSquad,
-} from './SquadsDropdown';
+} from './MultipleSourceSelect';
 import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';

@@ -1,5 +1,5 @@
 import type { FormEvent, ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
@@ -25,7 +25,7 @@ import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLi
 import {
   generateDefaultSquad,
   generateUserSourceAsSquad,
-  SquadsDropdown,
+  MultipleSourceSelect,
 } from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
@@ -70,7 +70,7 @@ function CreatePost(): ReactElement {
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const client = useQueryClient();
-  const [selected, setSelected] = useState(-1);
+  const [selected, setSelected] = useState([]);
   const activeSquads = useMemo(() => {
     const collator = new Intl.Collator('en');
     const filtered = squads
@@ -145,28 +145,44 @@ function CreatePost(): ReactElement {
     retryWithRandomizedHandle: true,
   });
 
-  const param = isRouteReady && activeSquads?.length && (query.sid as string);
-  const shareParam = query.share as string;
-  const pollParam = query.poll as string;
+  const initialSelected = activeSquads?.length && (query.sid as string);
 
+  const isInitialized = useRef(false);
   useEffect(() => {
-    if (!param) {
+    // Only run this once after router and user are ready
+    if (!user || !isRouteReady || isInitialized.current) {
       return;
     }
 
-    const preselected = activeSquads.findIndex(({ id, handle }) =>
-      [id, handle].includes(param),
-    );
-    setSelected((value) => (value >= 0 ? value : preselected));
-  }, [activeSquads, param]);
+    isInitialized.current = true;
 
-  useEffect(() => {
-    if (shareParam) {
+    const { share: isInitialShare, poll: isInitialPoll } = query;
+    if (isInitialShare) {
       setDisplay(WriteFormTab.Share);
-    } else if (pollParam) {
+    } else if (isInitialPoll) {
       setDisplay(WriteFormTab.Poll);
     }
-  }, [shareParam, pollParam]);
+
+    if (initialSelected) {
+      // If there is a ?sid= param, we want to preselect the squad
+      const preselected = activeSquads.find(({ id, handle }) =>
+        [id, handle].includes(initialSelected),
+      );
+      setSelected((value) => {
+        return value.length && preselected ? value : [preselected.id];
+      });
+    } else if (!selected.length && user) {
+      // If there is no ?sid= param, we want to preselect the user
+      setSelected([user.id]);
+    }
+  }, [
+    initialSelected,
+    isRouteReady,
+    user,
+    activeSquads,
+    selected.length,
+    query,
+  ]);
 
   const onClickSubmit = async (
     e: FormEvent<HTMLFormElement>,
@@ -197,6 +213,8 @@ function CreatePost(): ReactElement {
 
     return null;
   };
+
+  const sourceSelectProps = { selected, setSelected, className: 'mt-6' };
 
   useEffect(() => {
     if (!hasCheckedPollTab && display === WriteFormTab.Poll) {
@@ -239,22 +257,14 @@ function CreatePost(): ReactElement {
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">New post</h2>
             )}
-            <SquadsDropdown
-              list={activeSquads}
-              onSelect={setSelected}
-              selected={selected}
-            />
+            <MultipleSourceSelect {...sourceSelectProps} />
             <WriteFreeformContent />
           </Tab>
           <Tab label={WriteFormTab.Share} className="flex flex-col gap-4 px-5">
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">Share a link</h2>
             )}
-            <SquadsDropdown
-              list={activeSquads}
-              onSelect={setSelected}
-              selected={selected}
-            />
+            <MultipleSourceSelect {...sourceSelectProps} />
             <ShareLink
               squad={squad}
               onPostSuccess={() => {
@@ -278,11 +288,7 @@ function CreatePost(): ReactElement {
             }
           >
             {isMobile && <h2 className="pt-2 font-bold typo-title3">Poll</h2>}
-            <SquadsDropdown
-              list={activeSquads}
-              onSelect={setSelected}
-              selected={selected}
-            />
+            <MultipleSourceSelect {...sourceSelectProps} />
             <CreatePoll />
           </Tab>
         </TabContainer>
