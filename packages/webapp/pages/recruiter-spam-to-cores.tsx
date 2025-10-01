@@ -13,7 +13,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
-import { recruiterSpamCampaign } from '@dailydotdev/shared/src/lib/image';
+import {
+  recruiterSpamCampaign,
+  recruiterSpamCampaignSEO,
+} from '@dailydotdev/shared/src/lib/image';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
@@ -29,13 +32,13 @@ import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../next-seo';
+import { defaultSeo } from '../next-seo';
 import { getLayout } from '../components/layouts/NoSidebarLayout';
 import ProtectedPage from '../components/ProtectedPage';
 
 const seo: NextSeoProps = {
-  title: defaultSeoTitle,
-  openGraph: { ...defaultOpenGraph },
+  title: 'daily.dev | Convert Recruiter Spam to Cores',
+  openGraph: { images: [{ url: recruiterSpamCampaignSEO }] },
   ...defaultSeo,
   nofollow: true,
   noindex: true,
