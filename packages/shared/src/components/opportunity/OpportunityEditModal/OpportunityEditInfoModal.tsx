@@ -324,7 +324,7 @@ export const OpportunityEditInfoModal = ({
         />
         <div className="flex flex-col gap-2">
           <Typography bold type={TypographyType.Caption1}>
-            Salary range*
+            Salary range
           </Typography>
           <div className="flex gap-4">
             <TextField

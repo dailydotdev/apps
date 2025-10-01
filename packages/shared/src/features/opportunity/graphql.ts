@@ -280,3 +280,11 @@ export const RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION = gql`
   }
   ${QUESTION_FRAGMENT}
 `;
+
+export const UPDATE_OPPORTUNITY_STATE_MUTATION = gql`
+  mutation UpdateOpportunityState($id: ID!, $state: ProtoEnumValue!) {
+    updateOpportunityState(id: $id, state: $state) {
+      _
+    }
+  }
+`;

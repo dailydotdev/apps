@@ -230,7 +230,7 @@ const metaMap = {
   locationType: {
     title: 'Work site',
     transformer: (value: Opportunity['location']) =>
-      locationTypeMap[value?.[0].type || LocationType.UNSPECIFIED],
+      locationTypeMap[value?.[0]?.type || LocationType.UNSPECIFIED],
   },
   seniorityLevel: {
     title: 'Seniority level',

@@ -35,7 +35,11 @@ export const OpportunityStepsInfo = (
     router.push(`${webappUrl}opportunity/${opportunityId}/questions-setup`);
   };
 
-  const { mutate: onSubmit, isPending } = useMutation({
+  const {
+    mutate: onSubmit,
+    isPending,
+    isSuccess,
+  } = useMutation({
     ...recommendOpportunityScreeningQuestionsOptions(),
     mutationFn: async ({ id }: { id: string }) => {
       if (opportunity?.questions?.length) {
@@ -72,7 +76,7 @@ export const OpportunityStepsInfo = (
       ctaText="Save & continue"
       schema={opportunityEditStep1Schema}
       ctaButtonProps={{
-        loading: isPending,
+        loading: isPending || isSuccess,
         onClick: () => {
           onSubmit({ id: opportunityId });
         },
