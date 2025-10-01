@@ -1,4 +1,5 @@
 import type { DefaultError, MutationOptions } from '@tanstack/react-query';
+import type z from 'zod';
 import { gqlClient } from '../../graphql/common';
 import {
   ACCEPT_OPPORTUNITY_MATCH,
@@ -6,16 +7,24 @@ import {
   CANDIDATE_KEYWORD_REMOVE_MUTATION,
   CLEAR_EMPLOYMENT_AGREEMENT_MUTATION,
   CLEAR_RESUME_MUTATION,
+  EDIT_OPPORTUNITY_MUTATION,
+  RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
   UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION,
 } from './graphql';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import type {
+  Opportunity,
   OpportunityScreeningAnswer,
   UserCandidatePreferences,
 } from './types';
 import type { UseUpdateQuery } from '../../hooks/useUpdateQuery';
+import type {
+  opportunityEditContentSchema,
+  opportunityEditInfoSchema,
+  opportunityEditQuestionsSchema,
+} from '../../lib/schema/opportunity';
 
 export type UpdatedCandidatePreferences = Partial<UserCandidatePreferences>;
 
@@ -175,6 +184,83 @@ export const clearEmploymentAgreementMutationOptions = (
         employmentAgreement: undefined,
       });
       successCallback?.();
+    },
+  };
+};
+
+export const editOpportunityInfoMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditInfoSchema>;
+    }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
+        payload,
+      });
+
+      return result.editOpportunity;
+    },
+  };
+};
+
+export const editOpportunityContentMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditContentSchema>;
+    }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
+        payload,
+      });
+
+      return result.editOpportunity;
+    },
+  };
+};
+
+export const editOpportunityQuestionMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditQuestionsSchema>;
+    }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
+        payload,
+      });
+
+      return result.editOpportunity;
+    },
+  };
+};
+
+export const recommendOpportunityScreeningQuestionsOptions = () => {
+  return {
+    mutationFn: async ({ id }: { id: string }) => {
+      const result = await gqlClient.request<{
+        recommendOpportunityScreeningQuestions: Opportunity['questions'];
+      }>(RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION, {
+        id,
+      });
+
+      return result.recommendOpportunityScreeningQuestions;
     },
   };
 };

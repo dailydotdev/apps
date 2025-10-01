@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import type { ReactElement } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 import type { GetStaticPathsResult, GetStaticProps } from 'next';
@@ -82,7 +82,7 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps';
+import { OpportunityStepsInfo } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunityStepsInfo';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 import {
   defaultOpenGraph,
@@ -457,7 +457,7 @@ const JobPage = (): ReactElement => {
                   : opportunity.meta[metaKey];
 
                 return (
-                  <>
+                  <Fragment key={metaKey}>
                     <Typography
                       className="laptop:[&:nth-child(4n+3)]:pl-2"
                       type={TypographyType.Footnote}
@@ -473,7 +473,7 @@ const JobPage = (): ReactElement => {
                     >
                       {transformer(value)}
                     </Typography>
-                  </>
+                  </Fragment>
                 );
               })}
             </div>
@@ -520,6 +520,7 @@ const JobPage = (): ReactElement => {
                     <div className="flex items-center">
                       <Typography>{faqItem.title}</Typography>
                       <OpportunityEditButton
+                        tag="a"
                         className="ml-auto"
                         type="text"
                         variant={
@@ -529,7 +530,10 @@ const JobPage = (): ReactElement => {
                         }
                         size={ButtonSize.Small}
                         icon={!contentHtml ? <PlusIcon /> : undefined}
-                        onClick={() => {
+                        onClick={(event: MouseEvent) => {
+                          event.preventDefault(); // prevent link click
+                          event.stopPropagation();
+
                           openModal({
                             type: LazyModal.OpportunityEdit,
                             props: {
@@ -551,7 +555,7 @@ const JobPage = (): ReactElement => {
                 >
                   {!!contentHtml && (
                     <div
-                      className="pb-4"
+                      className="pb-4 [&>ul]:list-inside [&>ul]:list-disc"
                       dangerouslySetInnerHTML={{
                         __html: contentHtml,
                       }}
@@ -945,15 +949,13 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
 
 const GetPageLayout: typeof getLayout = (page, layoutProps) => {
   const router = useRouter();
-  const { id } = router.query;
+  const opportunityId = router?.query?.id as string;
 
   return (
-    <OpportunityEditProvider opportunityId={id as string}>
+    <OpportunityEditProvider opportunityId={opportunityId}>
       {getLayout(page, {
         ...layoutProps,
-        additionalButtons: (
-          <OpportunitySteps step={1} totalSteps={2} ctaText="Save & continue" />
-        ),
+        additionalButtons: <OpportunityStepsInfo />,
       })}
     </OpportunityEditProvider>
   );

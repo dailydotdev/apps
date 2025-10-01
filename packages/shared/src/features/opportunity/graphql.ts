@@ -1,13 +1,5 @@
 import { gql } from 'graphql-request';
-import type z from 'zod';
 import { ORGANIZATION_SHORT_FRAGMENT } from '../organizations/graphql';
-import { gqlClient } from '../../graphql/common';
-import type { Opportunity } from './types';
-import type {
-  opportunityEditContentSchema,
-  opportunityEditInfoSchema,
-  opportunityEditQuestionsSchema,
-} from '../../lib/schema/opportunity';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   fragment OpportunityContentFragment on OpportunityContentBlock {
@@ -29,6 +21,14 @@ export const LINK_FRAGMENT = gql`
     socialType
     title
     link
+  }
+`;
+
+export const QUESTION_FRAGMENT = gql`
+  fragment OpportunityScreeningQuestionFragment on OpportunityScreeningQuestion {
+    id
+    title
+    placeholder
   }
 `;
 
@@ -106,14 +106,13 @@ export const OPPORTUNITY_FRAGMENT = gql`
       continent
     }
     questions {
-      id
-      title
-      placeholder
+      ...OpportunityScreeningQuestionFragment
     }
   }
   ${ORGANIZATION_SHORT_FRAGMENT}
   ${OPPORTUNITY_CONTENT_FRAGMENT}
   ${LINK_FRAGMENT}
+  ${QUESTION_FRAGMENT}
 `;
 
 export const OPPORTUNITY_BY_ID_QUERY = gql`
@@ -263,6 +262,7 @@ export const CLEAR_EMPLOYMENT_AGREEMENT_MUTATION = gql`
     }
   }
 `;
+
 export const EDIT_OPPORTUNITY_MUTATION = gql`
   mutation EditOpportunity($id: ID!, $payload: OpportunityEditInput!) {
     editOpportunity(id: $id, payload: $payload) {
@@ -272,65 +272,11 @@ export const EDIT_OPPORTUNITY_MUTATION = gql`
   ${OPPORTUNITY_FRAGMENT}
 `;
 
-export const editOpportunityInfoMutationOptions = () => {
-  return {
-    mutationFn: async ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: z.infer<typeof opportunityEditInfoSchema>;
-    }) => {
-      const result = await gqlClient.request<{
-        editOpportunity: Opportunity;
-      }>(EDIT_OPPORTUNITY_MUTATION, {
-        id,
-        payload,
-      });
-
-      return result.editOpportunity;
-    },
-  };
-};
-
-export const editOpportunityContentMutationOptions = () => {
-  return {
-    mutationFn: async ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: z.infer<typeof opportunityEditContentSchema>;
-    }) => {
-      const result = await gqlClient.request<{
-        editOpportunity: Opportunity;
-      }>(EDIT_OPPORTUNITY_MUTATION, {
-        id,
-        payload,
-      });
-
-      return result.editOpportunity;
-    },
-  };
-};
-
-export const editOpportunityQuestionMutationOptions = () => {
-  return {
-    mutationFn: async ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: z.infer<typeof opportunityEditQuestionsSchema>;
-    }) => {
-      const result = await gqlClient.request<{
-        editOpportunity: Opportunity;
-      }>(EDIT_OPPORTUNITY_MUTATION, {
-        id,
-        payload,
-      });
-
-      return result.editOpportunity;
-    },
-  };
-};
+export const RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION = gql`
+  mutation RecommendOpportunityScreeningQuestions($id: ID!) {
+    recommendOpportunityScreeningQuestions(id: $id) {
+      ...OpportunityScreeningQuestionFragment
+    }
+  }
+  ${QUESTION_FRAGMENT}
+`;

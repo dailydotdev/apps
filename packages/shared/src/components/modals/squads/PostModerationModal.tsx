@@ -28,6 +28,7 @@ import { ProfileImageSize } from '../../ProfilePicture';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { PostType } from '../../../types';
+import { PollOptionButtons } from '../../cards/poll/PollOptions';
 
 type ActionHandler = (ids: string[], sourceId: string) => void;
 
@@ -58,6 +59,7 @@ function PostModerationModal({
     sharedPost,
     source,
     externalLink,
+    pollOptions,
     type,
   } = data;
   const onReadArticle = useReadArticle({
@@ -133,6 +135,11 @@ function PostModerationModal({
           >
             <MarkdownPostImage imgSrc={image || editPost?.image} />
           </ConditionalWrapper>
+        )}
+        {!!pollOptions && (
+          <div className="flex flex-col gap-2">
+            <PollOptionButtons options={pollOptions} />
+          </div>
         )}
         {!!contentHtml?.length && (
           <Markdown className="!mt-0" content={contentHtml} />

@@ -37,26 +37,49 @@ export const opportunityEditInfoSchema = z.object({
   }),
 });
 
-export const opportunityContentSchema = z.string().max(1440);
+export const createOpportunityEditContentSchema = ({
+  optional = false,
+}: {
+  optional?: boolean;
+} = {}) => {
+  const contentSchema = z.string().max(1440);
+
+  return z.object({
+    content: z.preprocess(
+      (val) => val || '',
+      optional
+        ? contentSchema.optional()
+        : contentSchema.nonempty(labels.form.required),
+    ),
+  });
+};
 
 export const opportunityEditContentSchema = z.object({
-  content: z
-    .object({
-      overview: opportunityContentSchema,
-      responsibilities: opportunityContentSchema,
-      requirements: opportunityContentSchema,
-      whatYoullDo: opportunityContentSchema,
-      interviewProcess: opportunityContentSchema,
-    })
-    .partial(),
+  content: z.object({
+    overview: createOpportunityEditContentSchema(),
+    responsibilities: createOpportunityEditContentSchema(),
+    requirements: createOpportunityEditContentSchema(),
+    whatYoullDo: createOpportunityEditContentSchema({ optional: true }),
+    interviewProcess: createOpportunityEditContentSchema({ optional: true }),
+  }),
 });
 
 export const opportunityEditQuestionsSchema = z.object({
   questions: z.array(
     z.object({
       id: z.uuid().optional(),
-      title: z.string().nonempty(labels.form.required).max(240),
+      title: z.string().nonempty(labels.form.required).max(480),
       placeholder: z.string().max(480).nullable().optional(),
     }),
   ),
 });
+
+export const opportunityEditStep1Schema = opportunityEditInfoSchema.extend({
+  content: opportunityEditContentSchema.shape.content,
+});
+
+export const opportunityEditStep2Schema = opportunityEditQuestionsSchema.extend(
+  {
+    questions: opportunityEditQuestionsSchema.shape.questions,
+  },
+);

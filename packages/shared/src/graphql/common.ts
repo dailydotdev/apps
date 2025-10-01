@@ -89,6 +89,7 @@ export enum ApiError {
   RateLimited = 'RATE_LIMITED',
   BalanceTransactionError = 'BALANCE_TRANSACTION_ERROR',
   ZodValidationError = 'ZOD_VALIDATION_ERROR',
+  Conflict = 'CONFLICT',
 }
 
 export enum ApiErrorMessage {

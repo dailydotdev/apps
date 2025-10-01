@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useRouter } from 'next/router';
 import type { FunnelStepBrowserExtension } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -105,7 +106,10 @@ export const FunnelBrowserExtension = withShouldSkipStepGuard(
   withIsActiveGuard(BrowserExtension),
   () => {
     const { shouldShowExtensionOnboarding, isReady } = useOnboardingExtension();
-    const shouldSkip = !shouldShowExtensionOnboarding && isReady;
+    const router = useRouter();
+    const redirectedFromExtension = router?.query?.r === 'extension';
+    const shouldSkip =
+      (!shouldShowExtensionOnboarding && isReady) || redirectedFromExtension;
 
     return { shouldSkip };
   },

@@ -9,7 +9,7 @@ import { Loader } from '../../Loader';
 
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { labels } from '../../../lib';
-import { editOpportunityQuestionMutationOptions } from '../../../features/opportunity/graphql';
+import { editOpportunityQuestionMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
