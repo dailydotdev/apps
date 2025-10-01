@@ -74,29 +74,34 @@ const ReadingReminderToggle = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div>
-        <NotificationSwitch
-          id="reading-reminder"
-          label="What's the ideal time to send you a reading reminder?"
-          checked={!!readingReminder}
-          onToggle={toggleSubscription}
-        />
-        <Typography
-          color={TypographyColor.Tertiary}
-          type={TypographyType.Footnote}
-        >
-          Developers who receive daily reading reminders are more likely to stay
-          ahead of the curve.
-        </Typography>
-      </div>
+      <NotificationSwitch
+        id="reading-reminder"
+        label="Reading reminder"
+        checked={!!readingReminder}
+        onToggle={toggleSubscription}
+      />
       {!!readingReminder && (
-        <HourDropdown
-          className={{
-            container: 'w-40',
-          }}
-          hourIndex={readingReminder?.preferredHour ?? 8}
-          setHourIndex={(hour) => handleSetHour(hour)}
-        />
+        <>
+          <div className="space-y-1">
+            <Typography type={TypographyType.Callout} bold>
+              What&apos;s the ideal time to send you a reading reminder?
+            </Typography>
+            <Typography
+              color={TypographyColor.Tertiary}
+              type={TypographyType.Footnote}
+            >
+              Developers who receive daily reading reminders are more likely to
+              stay ahead of the curve.
+            </Typography>
+          </div>
+          <HourDropdown
+            className={{
+              container: 'w-40',
+            }}
+            hourIndex={readingReminder?.preferredHour ?? 8}
+            setHourIndex={(hour) => handleSetHour(hour)}
+          />
+        </>
       )}
     </div>
   );
