@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { recommendOpportunityScreeningQuestionsOptions } from '../../../features/opportunity/graphql';
+import { recommendOpportunityScreeningQuestionsOptions } from '../../../features/opportunity/mutations';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { opportunityEditStep1Schema } from '../../../lib/schema/opportunity';
