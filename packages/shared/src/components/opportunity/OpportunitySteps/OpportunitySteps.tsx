@@ -6,14 +6,14 @@ import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../typography/Typography';
-import type { ButtonProps } from '../buttons/Button';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { useOpportunityEditContext } from './OpportunityEditContext';
-import ProgressCircle from '../ProgressCircle';
-import { getPercentage } from '../../lib/func';
-import { usePrompt } from '../../hooks/usePrompt';
-import { labels } from '../../lib/labels';
+} from '../../typography/Typography';
+import type { ButtonProps } from '../../buttons/Button';
+import { Button, ButtonVariant } from '../../buttons/Button';
+import { useOpportunityEditContext } from '../OpportunityEditContext';
+import ProgressCircle from '../../ProgressCircle';
+import { getPercentage } from '../../../lib/func';
+import { usePrompt } from '../../../hooks/usePrompt';
+import { labels } from '../../../lib/labels';
 
 export type OpportunityStepsProps = {
   className?: string;

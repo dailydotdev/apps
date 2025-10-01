@@ -32,6 +32,14 @@ export const LINK_FRAGMENT = gql`
   }
 `;
 
+export const QUESTION_FRAGMENT = gql`
+  fragment OpportunityScreeningQuestionFragment on OpportunityScreeningQuestion {
+    id
+    title
+    placeholder
+  }
+`;
+
 export const OPPORTUNITY_FRAGMENT = gql`
   fragment OpportunityFragment on Opportunity {
     id
@@ -106,14 +114,13 @@ export const OPPORTUNITY_FRAGMENT = gql`
       continent
     }
     questions {
-      id
-      title
-      placeholder
+      ...OpportunityScreeningQuestionFragment
     }
   }
   ${ORGANIZATION_SHORT_FRAGMENT}
   ${OPPORTUNITY_CONTENT_FRAGMENT}
   ${LINK_FRAGMENT}
+  ${QUESTION_FRAGMENT}
 `;
 
 export const OPPORTUNITY_BY_ID_QUERY = gql`
@@ -263,6 +270,7 @@ export const CLEAR_EMPLOYMENT_AGREEMENT_MUTATION = gql`
     }
   }
 `;
+
 export const EDIT_OPPORTUNITY_MUTATION = gql`
   mutation EditOpportunity($id: ID!, $payload: OpportunityEditInput!) {
     editOpportunity(id: $id, payload: $payload) {
@@ -270,6 +278,15 @@ export const EDIT_OPPORTUNITY_MUTATION = gql`
     }
   }
   ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION = gql`
+  mutation RecommendOpportunityScreeningQuestions($id: ID!) {
+    recommendOpportunityScreeningQuestions(id: $id) {
+      ...OpportunityScreeningQuestionFragment
+    }
+  }
+  ${QUESTION_FRAGMENT}
 `;
 
 export const editOpportunityInfoMutationOptions = () => {
@@ -331,6 +348,20 @@ export const editOpportunityQuestionMutationOptions = () => {
       });
 
       return result.editOpportunity;
+    },
+  };
+};
+
+export const recommendOpportunityScreeningQuestionsOptions = () => {
+  return {
+    mutationFn: async ({ id }: { id: string }) => {
+      const result = await gqlClient.request<{
+        recommendOpportunityScreeningQuestions: Opportunity['questions'];
+      }>(RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION, {
+        id,
+      });
+
+      return result.recommendOpportunityScreeningQuestions;
     },
   };
 };

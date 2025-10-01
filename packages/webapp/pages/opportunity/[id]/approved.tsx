@@ -16,7 +16,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { briefButtonBg } from '@dailydotdev/shared/src/styles/custom';
 import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
-import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps';
+import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunitySteps';
 import { useRouter } from 'next/router';
 import {
   defaultOpenGraph,
