@@ -52,7 +52,7 @@ export enum ActionType {
   OpportunityWelcomePage = 'opportunity_welcome_page',
   OpportunityInitialView = 'opportunity_initial_view',
   UserCandidatePreferencesSaved = 'user_candidate_preferences_saved',
-  WarningPostOpenSquad = 'warning_post_open_squad',
+  UserPostInOpenSquadWarningSeen = 'user_post_in_open_squad_warning_seen',
 }
 
 export const cvActions = [
