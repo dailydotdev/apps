@@ -31,6 +31,9 @@ import type { CheckboxProps } from '../../fields/Checkbox';
 import { Checkbox } from '../../fields/Checkbox';
 import { IconSize } from '../../Icon';
 import { verifyPermission } from '../../../graphql/squads';
+import SpamWarning from '../../widgets/SpamWarning';
+import { Tooltip } from '../../tooltip/Tooltip';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 const defaultSquad = {
   image: cloudinarySquadsImageFallback,
@@ -75,30 +78,52 @@ const MAX_SQUADS_COUNT = 3;
 
 const SourceCheckbox = ({
   source,
+  disabled = false,
   ...props
 }: {
   source: Omit<Squad, 'type'> & { type: SourceType };
 } & CheckboxProps) => {
   const isUserSource = source.type === SourceType.User;
   return (
-    <Checkbox {...props} className="min-w-full flex-row-reverse gap-2 !px-0">
-      <div className="flex items-center gap-2">
-        <SourceAvatar source={source} size={ProfileImageSize.Small} />
-        <div className="flex flex-col">
-          <Typography bold type={TypographyType.Callout}>
-            {isUserSource ? 'Everyone' : source.name}
-          </Typography>
-          {!isUserSource && (
+    <ConditionalWrapper
+      condition={disabled}
+      wrapper={(content) => (
+        <Tooltip
+          content={`You can't choose more than ${MAX_SQUADS_COUNT} squads.`}
+        >
+          <div>{content}</div>
+        </Tooltip>
+      )}
+    >
+      <Checkbox
+        {...props}
+        disabled={disabled}
+        className="min-w-full flex-row-reverse gap-2 !px-0"
+      >
+        <div className="flex items-center gap-2">
+          <SourceAvatar source={source} size={ProfileImageSize.Small} />
+          <div className="flex flex-col">
             <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
+              bold
+              color={
+                disabled ? TypographyColor.Tertiary : TypographyColor.Primary
+              }
+              type={TypographyType.Callout}
             >
-              @{source.handle}
+              {isUserSource ? 'Everyone' : source.name}
             </Typography>
-          )}
+            {!isUserSource && (
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                @{source.handle}
+              </Typography>
+            )}
+          </div>
         </div>
-      </div>
-    </Checkbox>
+      </Checkbox>
+    </ConditionalWrapper>
   );
 };
 
@@ -131,26 +156,28 @@ export const MultipleSourceSelect = ({
       }, {}),
     [squads],
   );
-
-  const toggleSource = useCallback(
-    (sourceId: string) => {
-      if (selected.includes(sourceId)) {
-        setSelected(selected.filter((id) => id !== sourceId));
-        return;
-      }
-      if (selected.length >= MAX_SQUADS_COUNT) {
-        return;
-      }
-      setSelected([...selected, sourceId]);
-    },
-    [selected, setSelected],
-  );
   const selectedSquads = useMemo(
     () =>
       selected
         .filter((sourceId) => sourceId !== userSource.id)
         .map((sourceId) => squadsMapById[sourceId]),
     [selected, squadsMapById, userSource.id],
+  );
+  const toggleSource = useCallback(
+    (sourceId: string) => {
+      if (selected.includes(sourceId)) {
+        setSelected(selected.filter((id) => id !== sourceId));
+        return;
+      }
+      if (
+        userSource.id !== sourceId &&
+        selectedSquads.length >= MAX_SQUADS_COUNT
+      ) {
+        return;
+      }
+      setSelected([...selected, sourceId]);
+    },
+    [selected, selectedSquads.length, setSelected, userSource.id],
   );
 
   const isUserSourceSelected = selected.includes(userSource.id);
@@ -160,65 +187,75 @@ export const MultipleSourceSelect = ({
   const triggerImage = sourceImage || defaultSquad.image;
 
   return (
-    <PopoverFormContainer
-      className={classNames(className, 'laptop:max-w-70')}
-      onReset={() => setSelected([user?.id])}
-      submitProps={{ disabled: !selected.length }}
-      triggerChildren={
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <img src={triggerImage} alt="Squad" className="size-6 rounded-4" />
-          <TruncateText className="min-w-0 flex-1 text-left">
-            {!selected.length && 'Select one or more'}
-            {isUserSourceSelected && 'Everyone'}
-            {isUserSourceSelected && selectedSquads.length > 0 && ', '}
-            {selectedSquads.map((squad) => squad.name).join(', ')}
-          </TruncateText>
-        </div>
-      }
-    >
-      <div className="flex flex-col gap-2 ">
-        {!!selectedSquads.length && (
-          <>
-            <Label>You can choose up to 3 squads</Label>
-            <div className="my-1 flex gap-2">
-              {selectedSquads.map((squad) => (
-                <Button
-                  key={squad.id}
-                  onClick={() => toggleSource(squad.id)}
-                  aria-label={`Remove ${squad.name} from selection`}
-                  className="typo-caption1"
-                  icon={<MiniCloseIcon size={IconSize.Size16} aria-hidden />}
-                  iconPosition={ButtonIconPosition.Right}
-                  size={ButtonSize.XSmall}
-                  title={`Remove ${squad.name} from selection`}
-                  variant={ButtonVariant.Subtle}
-                >
-                  {squad?.name}
-                </Button>
-              ))}
-            </div>
-          </>
-        )}
-        <Label>Public</Label>
-        <SourceCheckbox
-          checked={isUserSourceSelected}
-          name="sources[]"
-          onChange={() => toggleSource(userSource.id)}
-          source={userSource}
-        />
-        {!!squads.length && <Label>Squads you&#39;ve joined</Label>}
-        {squads.map((squad) => (
+    <>
+      <PopoverFormContainer
+        className={classNames(className, 'laptop:max-w-70')}
+        onReset={() => setSelected([user?.id])}
+        submitProps={{ disabled: !selected.length }}
+        triggerChildren={
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <img src={triggerImage} alt="Squad" className="size-6 rounded-4" />
+            <TruncateText className="min-w-0 flex-1 text-left">
+              {!selected.length && 'Select one or more'}
+              {isUserSourceSelected && 'Everyone'}
+              {isUserSourceSelected && selectedSquads.length > 0 && ', '}
+              {selectedSquads.map((squad) => squad.name).join(', ')}
+            </TruncateText>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-2 ">
+          {!!selectedSquads.length && (
+            <>
+              <Label>You can choose up to 3 squads</Label>
+              <div className="my-1 flex gap-2">
+                {selectedSquads.map((squad) => (
+                  <Button
+                    key={squad.id}
+                    onClick={() => toggleSource(squad.id)}
+                    aria-label={`Remove ${squad.name} from selection`}
+                    className="typo-caption1"
+                    icon={<MiniCloseIcon size={IconSize.Size16} aria-hidden />}
+                    iconPosition={ButtonIconPosition.Right}
+                    size={ButtonSize.XSmall}
+                    title={`Remove ${squad.name} from selection`}
+                    variant={ButtonVariant.Subtle}
+                  >
+                    {squad?.name}
+                  </Button>
+                ))}
+              </div>
+            </>
+          )}
+          <Label>Public</Label>
           <SourceCheckbox
-            key={squad.id}
-            checked={selected.includes(squad.id)}
-            disabled={selectedSquads.length >= 3}
+            checked={isUserSourceSelected}
             name="sources[]"
-            onChange={() => toggleSource(squad.id)}
-            source={squad}
+            onChange={() => toggleSource(userSource.id)}
+            source={userSource}
           />
-        ))}
-      </div>
-    </PopoverFormContainer>
+          {!!squads.length && <Label>Squads you&#39;ve joined</Label>}
+          {squads.map((squad) => {
+            const isSelected = selected.includes(squad.id);
+            return (
+              <SourceCheckbox
+                key={squad.id}
+                checked={isSelected}
+                disabled={
+                  selectedSquads.length >= MAX_SQUADS_COUNT && !isSelected
+                }
+                name="sources[]"
+                onChange={() => toggleSource(squad.id)}
+                source={squad}
+              />
+            );
+          })}
+        </div>
+      </PopoverFormContainer>
+      {selectedSquads.length > 1 && (
+        <SpamWarning content="Irrelevant or spammy posts may be flagged and could lead to lost posting rights." />
+      )}
+    </>
   );
 };
 
