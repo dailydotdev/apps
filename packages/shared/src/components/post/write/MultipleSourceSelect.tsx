@@ -2,7 +2,7 @@ import type { PropsWithChildren } from 'react';
 import React, { useMemo, useCallback } from 'react';
 import classNames from 'classnames';
 import { SourceAvatar } from '../../profile/source';
-import { MiniCloseIcon } from '../../icons';
+import { MiniCloseIcon, ArrowIcon } from '../../icons';
 import type { Squad } from '../../../graphql/sources';
 import {
   SourceMemberRole,
@@ -34,6 +34,9 @@ import { verifyPermission } from '../../../graphql/squads';
 import SpamWarning from '../../widgets/SpamWarning';
 import { Tooltip } from '../../tooltip/Tooltip';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import { anchorDefaultRel } from '../../../lib/strings';
+import { webappUrl } from '../../../lib/constants';
+import { LazyImage } from '../../LazyImage';
 
 const defaultSquad = {
   image: cloudinarySquadsImageFallback,
@@ -74,6 +77,32 @@ const Label = ({ children }: PropsWithChildren) => (
   </Typography>
 );
 
+const CreateNewSquadLink = () => (
+  <a
+    className="flex items-center gap-2"
+    href={`${webappUrl}squads/new`}
+    rel={anchorDefaultRel}
+    target="_blank"
+  >
+    <LazyImage
+      imgSrc={defaultSquad.image}
+      imgAlt="New squad image"
+      className="size-8 rounded-full"
+      aria-hidden
+      role="presentation"
+    />
+    <Typography
+      bold
+      className="flex-1"
+      color={TypographyColor.Primary}
+      type={TypographyType.Callout}
+    >
+      Create a new squad
+    </Typography>
+    <ArrowIcon aria-hidden className="rotate-90" />
+  </a>
+);
+
 const MAX_SQUADS_COUNT = 3;
 
 const SourceCheckbox = ({
@@ -98,10 +127,11 @@ const SourceCheckbox = ({
       <Checkbox
         {...props}
         disabled={disabled}
-        className="min-w-full flex-row-reverse gap-2 !px-0"
+        className="min-w-full flex-row-reverse gap-2 !p-0"
+        checkmarkClassName="!mr-0"
       >
-        <div className="flex items-center gap-2">
-          <SourceAvatar source={source} size={ProfileImageSize.Small} />
+        <div className="flex items-center">
+          <SourceAvatar source={source} size={ProfileImageSize.Medium} />
           <div className="flex flex-col">
             <Typography
               bold
@@ -112,7 +142,7 @@ const SourceCheckbox = ({
             >
               {isUserSource ? 'Everyone' : source.name}
             </Typography>
-            {!isUserSource && (
+            {!isUserSource && source.handle && (
               <Typography
                 type={TypographyType.Footnote}
                 color={TypographyColor.Tertiary}
@@ -204,7 +234,7 @@ export const MultipleSourceSelect = ({
           </div>
         }
       >
-        <div className="flex flex-col gap-2 ">
+        <div className="flex flex-col gap-2">
           {!!selectedSquads.length && (
             <>
               <Label>You can choose up to 3 squads</Label>
@@ -250,6 +280,8 @@ export const MultipleSourceSelect = ({
               />
             );
           })}
+          {/*  OR create a new squad */}
+          <CreateNewSquadLink />
         </div>
       </PopoverFormContainer>
       {selectedSquads.length > 1 && (

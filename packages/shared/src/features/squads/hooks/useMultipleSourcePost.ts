@@ -26,7 +26,8 @@ export const useMultipleSourcePost = ({
 
   const hasSeenOpenSquadWarning = useMemo(
     () =>
-      isActionsFetched && checkHasCompleted(ActionType.WarningPostOpenSquad),
+      isActionsFetched &&
+      checkHasCompleted(ActionType.UserPostInOpenSquadWarningSeen),
     [isActionsFetched, checkHasCompleted],
   );
 
@@ -53,7 +54,7 @@ export const useMultipleSourcePost = ({
           cancelButton: { title: 'Cancel' },
         });
 
-        await completeAction(ActionType.WarningPostOpenSquad);
+        await completeAction(ActionType.UserPostInOpenSquadWarningSeen);
 
         if (!confirm) {
           return;
