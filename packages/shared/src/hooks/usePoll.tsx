@@ -36,7 +36,7 @@ const usePoll = ({ post }: { post: Post }) => {
         queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
       const currentAdsData =
         queryClient.getQueryData<InfiniteData<Ad>>(adsQueryKey);
-      console.log('ads data', currentAdsData);
+
       const updatedOptions = post.pollOptions.map((option) => {
         if (option.id === optionId) {
           return { ...option, numVotes: option.numVotes + 1 };
