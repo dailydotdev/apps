@@ -330,7 +330,7 @@ const JobPage = (): ReactElement => {
           className={{
             buttons: 'flex-1',
             container:
-              'fixed bottom-0 z-header flex h-14 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4 tablet:hidden',
+              'fixed bottom-0 z-header flex min-h-14 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4 pt-2 pb-safe-or-2 tablet:hidden',
           }}
           size={ButtonSize.Medium}
         />
