@@ -238,7 +238,7 @@ export const MultipleSourceSelect = ({
           {!!selectedSquads.length && (
             <>
               <Label>You can choose up to 3 squads</Label>
-              <div className="my-1 flex gap-2">
+              <div className="my-1 flex flex-wrap gap-2">
                 {selectedSquads.map((squad) => (
                   <Button
                     key={squad.id}

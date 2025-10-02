@@ -100,7 +100,7 @@ function CreatePost(): ReactElement {
     clearDraft();
     completeAction(ActionType.SquadFirstPost);
   };
-  const onPostSuccess = async (link: string) => {
+  const clearFormAndRedirectTo = async (link: string) => {
     clearFormOnSuccess();
     await push(link);
   };
@@ -161,11 +161,12 @@ function CreatePost(): ReactElement {
     // only one source, let's redirect to the post
     const isSingleSourcePost = selected.length === 1;
     if (isSingleSourcePost) {
-      await onPostSuccess(`${webappUrl}posts/${result[0].slug}`);
+      const { slug } = result[0];
+      await clearFormAndRedirectTo(`${webappUrl}posts/${slug}`);
     }
 
     // more than one source and at least one is not moderation
-    await onPostSuccess(`${webappUrl}${user?.username}/posts/`);
+    await clearFormAndRedirectTo(`${webappUrl}${user?.username}/posts/`);
   };
 
   const initialSelected = activeSquads?.length && (query.sid as string);
