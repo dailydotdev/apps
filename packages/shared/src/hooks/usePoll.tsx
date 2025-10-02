@@ -1,10 +1,12 @@
 import React from 'react';
 import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { FeedData, Post, VotePollResponse } from '../graphql/posts';
+import type { Ad, FeedData, Post, VotePollResponse } from '../graphql/posts';
 import { votePoll } from '../graphql/posts';
 import {
   findIndexOfPostInData,
+  RequestKey,
+  updateAdPostInCache,
   updateCachedPagePost,
   updatePostCache,
 } from '../lib/query';
@@ -56,6 +58,30 @@ const usePoll = ({ post }: { post: Post }) => {
           ...postUpdate,
         };
         updateFeed(pageIndex, index, updatedPost);
+      } else {
+        const adsQueryKey = [RequestKey.Ads, ...queryKey];
+        queryClient.setQueryData(
+          adsQueryKey,
+          (currentData: InfiniteData<Ad>) => {
+            if (!currentData || !currentData.pages?.length) {
+              return currentData;
+            }
+
+            const existingAdPost = currentData.pages.find(
+              (page) => page.data?.post?.id === post.id,
+            )?.data?.post;
+
+            if (existingAdPost) {
+              return updateAdPostInCache(
+                existingAdPost.id,
+                currentData,
+                postUpdate,
+              );
+            }
+
+            return currentData;
+          },
+        );
       }
 
       const isSubscribed = getGroupStatus('pollResult', 'inApp');
