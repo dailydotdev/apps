@@ -555,14 +555,12 @@ const JobPage = (): ReactElement => {
                 >
                   {!!contentHtml && (
                     <div
-                      className="pb-4 [&>ul]:list-inside [&>ul]:list-disc"
+                      className="[&>ul,&>ol]:list-inside pb-4 [&>ol]:list-decimal [&>ul]:list-disc"
                       dangerouslySetInnerHTML={{
                         __html: contentHtml,
                       }}
                     />
                   )}
-                  {/* TODO: this is a hack so that numeric lists are styled correctly */}
-                  <span className="hidden list-decimal" />
                 </Accordion>
               </div>
             );
