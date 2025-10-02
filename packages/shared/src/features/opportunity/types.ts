@@ -1,7 +1,11 @@
 import type { ProtoEnumValue } from '../../lib/protobuf';
 import type { PublicProfile } from '../../lib/user';
 import type { Organization } from '../organizations/types';
-import type { EmploymentType, SalaryPeriod } from './protobuf/opportunity';
+import type {
+  EmploymentType,
+  OpportunityState,
+  SalaryPeriod,
+} from './protobuf/opportunity';
 import type { CompanySize, CompanyStage } from './protobuf/organization';
 import type { CandidateStatus } from './protobuf/user-candidate-preference';
 import type { LocationType } from './protobuf/util';
@@ -74,6 +78,7 @@ export type OpportunityScreeningAnswer = {
 export type Opportunity = {
   id: string;
   type: ProtoEnumValue;
+  state: OpportunityState;
   title: string;
   tldr: string;
   organization: Organization;

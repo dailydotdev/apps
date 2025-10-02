@@ -36,6 +36,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
   fragment OpportunityFragment on Opportunity {
     id
     type
+    state
     title
     tldr
     organization {
