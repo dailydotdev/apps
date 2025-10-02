@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import type { ReactNode, ReactElement } from 'react';
 import React from 'react';
-import z from 'zod';
+import type z from 'zod';
 import {
   Typography,
   TypographyColor,
@@ -72,7 +72,13 @@ export const OpportunitySteps = ({
                     <span>
                       {labels.opportunity.requiredMissingNotice.description}
                     </span>
-                    <span>{z.prettifyError(result.error)}</span>
+                    <ul className="text-text-tertiary">
+                      {result.error.issues.map((issue) => {
+                        const path = issue.path.join('.');
+
+                        return <li key={path}>• {path}</li>;
+                      })}
+                    </ul>
                   </div>
                 ),
                 okButton: {

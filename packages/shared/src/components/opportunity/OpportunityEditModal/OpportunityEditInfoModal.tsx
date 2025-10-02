@@ -271,6 +271,7 @@ export const OpportunityEditInfoModal = ({
                   onChange={(value) => {
                     field.onChange(value);
                   }}
+                  valid={!errors.location?.[0]?.type}
                 />
               );
             }}
@@ -303,6 +304,7 @@ export const OpportunityEditInfoModal = ({
                   onChange={(value) => {
                     field.onChange(value);
                   }}
+                  valid={!errors.meta?.employmentType}
                 />
               );
             }}
@@ -365,12 +367,14 @@ export const OpportunityEditInfoModal = ({
                     className={{
                       container: 'flex-1',
                     }}
-                    selectedIndex={field.value ? field.value - 1 : 0}
+                    selectedIndex={field.value ? field.value - 1 : undefined}
                     options={options}
                     onChange={(value) => {
                       const valueIndex = options.indexOf(value);
                       field.onChange(valueIndex + 1);
                     }}
+                    valid={!errors.meta?.salary?.period}
+                    hint={errors.meta?.salary?.period?.message}
                   />
                 );
               }}
@@ -403,12 +407,14 @@ export const OpportunityEditInfoModal = ({
                   className={{
                     container: 'flex-1',
                   }}
-                  selectedIndex={field.value ? field.value - 1 : 0}
+                  selectedIndex={field.value ? field.value - 1 : undefined}
                   options={options}
                   onChange={(value) => {
                     const valueIndex = options.indexOf(value);
                     field.onChange(valueIndex + 1);
                   }}
+                  valid={!errors.meta?.seniorityLevel}
+                  hint={errors.meta?.seniorityLevel?.message}
                 />
               );
             }}
@@ -445,6 +451,8 @@ export const OpportunityEditInfoModal = ({
 
                     field.onChange(item?.value || 0);
                   }}
+                  valid={!errors.meta?.roleType}
+                  hint={errors.meta?.roleType?.message}
                 />
               );
             }}
