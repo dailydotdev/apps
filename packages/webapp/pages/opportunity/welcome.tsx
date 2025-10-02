@@ -353,13 +353,13 @@ const FAQSection = (): ReactElement => (
   </FlexCol>
 );
 
-const BackgroundImage = (): ReactElement => {
+export const BackgroundImage = (): ReactElement => {
   const { jobsWelcome } = useThemedAsset();
   return (
     <img
       src={jobsWelcome}
       alt="Jobs welcome"
-      className="fixed left-1/2 top-12 z-0 max-w-[60rem] -translate-x-1/2 transform laptop:top-14"
+      className="fixed left-1/2 top-12 -z-1 max-w-[60rem] -translate-x-1/2 transform laptop:top-14"
     />
   );
 };

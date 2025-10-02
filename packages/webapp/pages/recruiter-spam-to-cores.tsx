@@ -17,7 +17,6 @@ import {
   recruiterSpamCampaign,
   recruiterSpamCampaignSEO,
 } from '@dailydotdev/shared/src/lib/image';
-import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
@@ -35,6 +34,7 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { defaultSeo } from '../next-seo';
 import { getLayout } from '../components/layouts/NoSidebarLayout';
 import ProtectedPage from '../components/ProtectedPage';
+import { BackgroundImage } from './opportunity/welcome';
 
 const seo: NextSeoProps = {
   title: 'daily.dev | Convert Recruiter Spam to Cores',
@@ -275,17 +275,6 @@ const GetStartedSection = (): ReactElement => {
         I want my Cores
       </Button>
     </FlexCol>
-  );
-};
-
-const BackgroundImage = (): ReactElement => {
-  const { jobsWelcome } = useThemedAsset();
-  return (
-    <img
-      src={jobsWelcome}
-      alt="Jobs welcome"
-      className="fixed left-1/2 top-12 z-0 max-w-[60rem] -translate-x-1/2 transform laptop:top-14"
-    />
   );
 };
 
