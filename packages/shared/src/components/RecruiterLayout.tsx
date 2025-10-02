@@ -87,7 +87,7 @@ export const RecruiterLayout = ({
       />
       <NoSidebarLayout
         hideBackButton
-        className="laptop:gap-10 laptop:py-10 flex flex-col gap-5 py-5"
+        className="flex flex-col gap-5 py-5 laptop:gap-10 laptop:py-10"
       >
         {children}
       </NoSidebarLayout>
