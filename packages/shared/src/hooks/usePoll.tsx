@@ -87,12 +87,15 @@ const usePoll = ({ post }: { post: Post }) => {
           });
         }
       }
-      return { currentFeedData, currentAdsData };
+      return { oldPost: post, currentFeedData, currentAdsData };
     },
-    onError: (_, __, { currentFeedData, currentAdsData }) => {
-      const adsQueryKey = [RequestKey.Ads, ...queryKey];
-      queryClient.setQueryData(queryKey, currentFeedData);
-      queryClient.setQueryData(adsQueryKey, currentAdsData);
+    onError: (_, __, { oldPost, currentFeedData, currentAdsData }) => {
+      updatePostCache(queryClient, post.id, oldPost);
+      if (queryKey) {
+        const adsQueryKey = [RequestKey.Ads, ...queryKey];
+        queryClient.setQueryData(queryKey, currentFeedData);
+        queryClient.setQueryData(adsQueryKey, currentAdsData);
+      }
     },
     onSuccess: () => {
       const isSubscribed = getGroupStatus('pollResult', 'inApp');
