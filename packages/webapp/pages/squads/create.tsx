@@ -127,7 +127,7 @@ function CreatePost(): ReactElement {
           order,
         })),
       }),
-      sourceIds: selected.map((id) => id),
+      sourceIds: selected,
     });
 
     if (!result) {
@@ -165,7 +165,7 @@ function CreatePost(): ReactElement {
     await clearFormAndRedirectTo(`${webappUrl}${user?.username}/posts/`);
   };
 
-  const initialSelected = activeSquads?.length && (query.sid as string);
+  const initialSelected = !!activeSquads?.length && (query.sid as string);
   useEffect(() => {
     // Only run this once after router and user are ready
     if (!user || !isRouteReady || isInitialized.current) {
@@ -181,18 +181,26 @@ function CreatePost(): ReactElement {
       setDisplay(WriteFormTab.Poll);
     }
 
-    if (initialSelected) {
-      // If there is a ?sid= param, we want to preselect the squad
-      const preselected = activeSquads.find(({ id, handle }) =>
+    const preselectedSquad =
+      initialSelected &&
+      activeSquads.find(({ id, handle }) =>
         [id, handle].includes(initialSelected),
       );
-      setSelected((value) => {
-        return value.length && preselected ? value : [preselected.id];
-      });
-    } else if (!selected.length && user) {
-      // If there is no ?sid= param, we want to preselect the user
-      setSelected([user.id]);
-    }
+
+    setSelected((value) => {
+      // if we already have a value, don't change it
+      if (value.length) {
+        return value;
+      }
+
+      // If there is a ?sid= param, we want to preselect the squad
+      if (preselectedSquad) {
+        return [preselectedSquad.id];
+      }
+
+      // If there is no ?sid= param, we want to preselect the "Everyone" option
+      return [user.id];
+    });
   }, [
     initialSelected,
     isRouteReady,
