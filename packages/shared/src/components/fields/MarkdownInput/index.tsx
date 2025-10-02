@@ -14,6 +14,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { ImageIcon, MarkdownIcon, LinkIcon, AtIcon } from '../../icons';
 import {
   Button,
@@ -43,7 +44,14 @@ import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
 import { ACCEPTED_TYPES } from '../../../graphql/posts';
-import RecommendedEmojiTooltip from '../../tooltips/RecommendedEmojiTooltip';
+
+const RecommendedEmojiTooltip = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lazyRecommendedEmojiTooltip" */ '../../tooltips/RecommendedEmojiTooltip'
+    ),
+  { ssr: false },
+);
 
 interface ClassName {
   container?: string;
