@@ -1,14 +1,18 @@
 import { useMutation } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
-import type { CreatePostInMultipleSourcesArgs } from '../../../graphql/posts';
+import type {
+  CreatePostInMultipleSourcesArgs,
+  CreatePostInMultipleSourcesResponse,
+} from '../../../graphql/posts';
 import { createPostInMultipleSources } from '../../../graphql/posts';
 import { useActions, useToastNotification } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { usePrompt } from '../../../hooks/usePrompt';
+import type { ApiErrorResult } from '../../../graphql/common';
 
 interface UseMultipleSourcePostProps {
-  onError?: () => void;
-  onSuccess?: () => void;
+  onError?: (error: ApiErrorResult) => void;
+  onSuccess?: (data: CreatePostInMultipleSourcesResponse) => void;
 }
 
 export type CreationInMultipleSourcesResult = ReturnType<
@@ -39,14 +43,8 @@ export const useMultipleSourcePost = ({
 
   const { mutateAsync: requestPostCreation, isPending } = useMutation({
     mutationFn: createPostInMultipleSources,
-    onSuccess: () => {
-      displayToast(`✅ Posts created successfully`);
-      onSuccess?.();
-    },
-    onError: () => {
-      displayToast(`❌ Failed to create posts`);
-      onError?.();
-    },
+    onSuccess,
+    onError,
   });
 
   const onCreate = useCallback(

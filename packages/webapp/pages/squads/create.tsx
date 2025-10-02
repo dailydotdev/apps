@@ -107,7 +107,47 @@ function CreatePost(): ReactElement {
 
   const isInitialized = useRef(false);
   const sourceSelectProps = { selected, setSelected, className: 'mt-6' };
-  const { onCreate, isPending } = useMultipleSourcePost({});
+  const { onCreate, isPending } = useMultipleSourcePost({
+    onSuccess: async (result) => {
+      const postedInUserSource = selected.includes(user?.id);
+      if (postedInUserSource) {
+        client.refetchQueries({
+          queryKey: ['author', user.id],
+        });
+      }
+
+      const postLabel = result.length > 1 ? 'posts have' : 'post has';
+
+      // if every source is moderated, just show the success message
+      const isEveryItemPending = result.every(
+        (item) => item.type === 'moderationItem',
+      );
+      if (isEveryItemPending) {
+        displayToast(`✅ Your ${postLabel} been submitted for moderation`);
+        clearFormOnSuccess();
+        return;
+      }
+
+      displayToast(`✅ Your ${postLabel} been created!`);
+
+      // only one source, let's redirect to the post
+      const isSingleSourcePost = selected.length === 1;
+      if (isSingleSourcePost) {
+        const { slug } = result[0];
+        await clearFormAndRedirectTo(`${webappUrl}posts/${slug}`);
+        return;
+      }
+
+      // more than one source and at least one is not moderation
+      await clearFormAndRedirectTo(`${webappUrl}${user?.username}/posts/`);
+    },
+    onError: (data) => {
+      if (data?.response?.errors?.[0]) {
+        displayToast(data?.response?.errors?.[0].message);
+      }
+      onAskConfirmation(true);
+    },
+  });
 
   const onClickSubmit = async (
     e: FormEvent<HTMLFormElement>,
@@ -115,54 +155,22 @@ function CreatePost(): ReactElement {
   ) => {
     e.preventDefault();
 
-    if (isPending) {
+    if (isPending || !selected.length) {
       return;
     }
 
-    const result = await onCreate({
-      ...params,
-      ...(params.options?.length && {
-        options: params.options.map((text, order) => ({
+    const { options, ...args } = params;
+
+    await onCreate({
+      ...args,
+      ...(options?.length && {
+        options: options.map((text, order) => ({
           text,
           order,
         })),
       }),
       sourceIds: selected,
     });
-
-    if (!result) {
-      return;
-    }
-
-    const postedInUserSource = selected.includes(user?.id);
-    if (postedInUserSource) {
-      client.refetchQueries({
-        queryKey: ['author', user.id],
-      });
-    }
-
-    // if every source is moderated, just show the success message
-    const isEveryItemPending = result.every(
-      (item) => item.type === 'moderationItem',
-    );
-    if (isEveryItemPending) {
-      displayToast(
-        `✅ Your ${
-          result.length > 1 ? 'posts have' : 'post has'
-        } been submitted for moderation`,
-      );
-      clearFormOnSuccess();
-    }
-
-    // only one source, let's redirect to the post
-    const isSingleSourcePost = selected.length === 1;
-    if (isSingleSourcePost) {
-      const { slug } = result[0];
-      await clearFormAndRedirectTo(`${webappUrl}posts/${slug}`);
-    }
-
-    // more than one source and at least one is not moderation
-    await clearFormAndRedirectTo(`${webappUrl}${user?.username}/posts/`);
   };
 
   const initialSelected = !!activeSquads?.length && (query.sid as string);
@@ -198,7 +206,7 @@ function CreatePost(): ReactElement {
         return [preselectedSquad.id];
       }
 
-      // If there is no ?sid= param, we want to preselect the "Everyone" option
+      // Otherwise we want to preselect the "Everyone" option
       return [user.id];
     });
   }, [

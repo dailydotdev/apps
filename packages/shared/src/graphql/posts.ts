@@ -857,19 +857,19 @@ export interface CreatePostInMultipleSourcesArgs
   sharedPostId?: string;
 }
 
+export type CreatePostInMultipleSourcesResponse = Array<{
+  id: string;
+  sourceId: string;
+  type: 'post' | 'moderationItem';
+  slug?: string;
+}>;
+
 export const createPostInMultipleSources = async (
   variables: CreatePostInMultipleSourcesArgs,
 ) => {
   const res = await gqlClient.request<
     {
-      createPostInMultipleSources: [
-        {
-          id: string;
-          sourceId: string;
-          type: 'post' | 'moderationItem';
-          slug?: string;
-        },
-      ];
+      createPostInMultipleSources: CreatePostInMultipleSourcesResponse;
     },
     CreatePostInMultipleSourcesArgs
   >(CREATE_POST_IN_MULTIPLE_SOURCES, variables);
