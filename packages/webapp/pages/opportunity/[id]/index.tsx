@@ -497,7 +497,7 @@ const JobPage = (): ReactElement => {
               >
                 <div className="flex items-center gap-1">
                   <MagicIcon size={IconSize.Medium} />
-                  <Typography bold type={TypographyType.Body}>
+                  <Typography bold type={TypographyType.Body} truncate>
                     Why we think you&apos;ll like this
                   </Typography>
                 </div>
@@ -515,7 +515,7 @@ const JobPage = (): ReactElement => {
               >
                 <div className="flex items-center gap-1">
                   <MagicIcon size={IconSize.Medium} />
-                  <Typography bold type={TypographyType.Body}>
+                  <Typography bold type={TypographyType.Body} truncate>
                     {matchReasonExample?.title ??
                       'AI Personalized candidate message placeholder'}
                   </Typography>
