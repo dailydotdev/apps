@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
@@ -12,11 +12,18 @@ import { useViewSize, ViewSize } from '../hooks';
 import { PlusUser } from './PlusUser';
 import { TypographyType } from './typography/Typography';
 import type { WithClassNameProps } from './utilities';
+import type { LogoRecruiterProps } from '../svg/LogoRecruiterSvg';
 
 const DevPlusIcon = dynamic(() =>
   import(/* webpackChunkName: "devPlusIcon" */ './icons').then(
     (mod) => mod.DevPlusIcon,
   ),
+);
+
+const LogoRecruiterSvg = dynamic(() =>
+  import(
+    /* webpackChunkName: "logoRecruiterSvg" */ '../svg/LogoRecruiterSvg'
+  ).then((mod) => mod.LogoRecruiterSvg),
 );
 
 export enum LogoPosition {
@@ -122,7 +129,7 @@ export default function Logo({
           />
           {isPlus && compact && (
             <DevPlusIcon
-              className="absolute right-0 top-0 -translate-y-2/3 translate-x-2/3 text-action-plus-default"
+              className="text-action-plus-default absolute right-0 top-0 -translate-y-2/3 translate-x-2/3"
               size={IconSize.XXSmall}
             />
           )}
@@ -133,7 +140,7 @@ export default function Logo({
               container: classNames(
                 'ml-1',
                 logoClassName?.container,
-                hideTextMobile && 'hidden laptop:block',
+                hideTextMobile && 'laptop:block hidden',
               ),
               group: logoClassName?.group,
             }}
@@ -173,5 +180,28 @@ export const LogoWithPlus = ({
         }
       />
     </div>
+  );
+};
+
+export const LogoRecruiter = ({
+  className,
+  logoClassName,
+  onClick,
+}: {
+  className?: string;
+  logoClassName?: LogoRecruiterProps['className'];
+  onClick?: (e: MouseEvent) => unknown;
+}): ReactElement => {
+  return (
+    <button
+      type="button"
+      className={classNames(
+        typeof onClick !== 'function' && 'pointer-events-none',
+        className,
+      )}
+      onClick={onClick}
+    >
+      <LogoRecruiterSvg className={logoClassName} />
+    </button>
   );
 };

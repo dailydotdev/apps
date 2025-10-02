@@ -81,7 +81,7 @@ const QuestionsSetupPage = (): ReactElement => {
           hiring needs
         </Typography>
       </div>
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 laptop:flex-row">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 laptop:flex-row">
         <div className="flex h-full min-w-0 max-w-full flex-1 flex-shrink-0 flex-col gap-4 rounded-16">
           {opportunity.questions.map((question, index) => {
             return (
@@ -203,6 +203,7 @@ const GetPageLayout: typeof getLayout = (page, layoutProps) => {
     <OpportunityEditProvider opportunityId={opportunityId}>
       {getLayout(page, {
         ...layoutProps,
+        canGoBack: 'true',
         additionalButtons: <OpportunityStepsQuestions />,
       })}
     </OpportunityEditProvider>
