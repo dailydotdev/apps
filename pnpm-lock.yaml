@@ -690,6 +690,9 @@ importers:
       tailwindcss:
         specifier: ^3.4.14
         version: 3.4.16
+      tailwindcss-safe-area:
+        specifier: 0.8.0
+        version: 0.8.0(tailwindcss@3.4.16)
       ts-jest:
         specifier: ^26.5.4
         version: 26.5.6(jest@26.6.3)(typescript@5.6.3)
@@ -1070,6 +1073,9 @@ importers:
       tailwindcss:
         specifier: ^3.4.14
         version: 3.4.16
+      tailwindcss-safe-area:
+        specifier: 0.8.0
+        version: 0.8.0(tailwindcss@3.4.16)
       ts-jest:
         specifier: ^26.5.4
         version: 26.5.6(jest@26.6.3)(typescript@5.6.3)
@@ -8712,6 +8718,12 @@ packages:
   table@6.9.0:
     resolution: {integrity: sha512-9kY+CygyYM6j02t5YFHbNz2FN5QmYGv9zAjVp4lCDjlCw7amdckXlEt/bjMhUIfj4ThGRE4gCUH5+yGnNuPo5A==}
     engines: {node: '>=10.0.0'}
+
+  tailwindcss-safe-area@0.8.0:
+    resolution: {integrity: sha512-OIKZfSvinI9kZ3hduoSxqP8EfW2rXoKvHnNyTDY2zwem06IIRtLcKdMe0nF98o+Xluk5Fy7mmesr1rSXg/wkhA==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      tailwindcss: ^2.0.0 || >=3.0.0
 
   tailwindcss@3.4.16:
     resolution: {integrity: sha512-TI4Cyx7gDiZ6r44ewaJmt0o6BrMCT5aK5e0rmJ/G9Xq3w7CX/5VXl/zIPEJZFUK5VEqwByyhqNPycPlvcK4ZNw==}
@@ -18150,6 +18162,10 @@ snapshots:
       slice-ansi: 4.0.0
       string-width: 4.2.3
       strip-ansi: 6.0.1
+
+  tailwindcss-safe-area@0.8.0(tailwindcss@3.4.16):
+    dependencies:
+      tailwindcss: 3.4.16
 
   tailwindcss@3.4.16:
     dependencies:
