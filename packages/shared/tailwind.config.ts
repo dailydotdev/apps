@@ -1,5 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { type Config } from 'tailwindcss';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import safeArea from 'tailwindcss-safe-area';
 import colors from './tailwind/colors';
 import boxShadow from './tailwind/boxShadow';
 import caret from './tailwind/caret';
@@ -252,7 +254,7 @@ export default {
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [caret, typography, buttons],
+  plugins: [caret, typography, buttons, safeArea],
   corePlugins: {
     invert: false,
   },

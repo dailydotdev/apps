@@ -13,8 +13,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
-import { recruiterSpamCampaign } from '@dailydotdev/shared/src/lib/image';
-import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
+import {
+  recruiterSpamCampaign,
+  recruiterSpamCampaignSEO,
+} from '@dailydotdev/shared/src/lib/image';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
@@ -29,13 +31,14 @@ import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../next-seo';
+import { defaultSeo } from '../next-seo';
 import { getLayout } from '../components/layouts/NoSidebarLayout';
 import ProtectedPage from '../components/ProtectedPage';
+import { BackgroundImage } from './opportunity/welcome';
 
 const seo: NextSeoProps = {
-  title: defaultSeoTitle,
-  openGraph: { ...defaultOpenGraph },
+  title: 'daily.dev | Convert Recruiter Spam to Cores',
+  openGraph: { images: [{ url: recruiterSpamCampaignSEO }] },
   ...defaultSeo,
   nofollow: true,
   noindex: true,
@@ -71,8 +74,8 @@ const HeaderSection = (): ReactElement => {
         >
           At <strong>daily.dev</strong>, we want to flip the script. For every
           recruiter message you receive, you can now earn{' '}
-          <strong>300 Cores</strong>. They can be used to unlock features, boost
-          your content, or simply get rewarded for staying awesome.
+          <strong>1,000 Cores</strong>. They can be used to unlock features,
+          boost your content, or simply get rewarded for staying awesome.
         </Typography>
       </FlexCol>
     </FlexCol>
@@ -222,7 +225,7 @@ const finePrint = [
   },
   {
     description:
-      'Multiple entries are allowed (up to 10) and a maximum of 3,000 Cores can be earned per user.',
+      'Multiple entries are allowed (up to 10) and a maximum of 10,000 Cores can be earned per user.',
   },
   {
     description:
@@ -272,17 +275,6 @@ const GetStartedSection = (): ReactElement => {
         I want my Cores
       </Button>
     </FlexCol>
-  );
-};
-
-const BackgroundImage = (): ReactElement => {
-  const { jobsWelcome } = useThemedAsset();
-  return (
-    <img
-      src={jobsWelcome}
-      alt="Jobs welcome"
-      className="fixed left-1/2 top-12 z-0 max-w-[60rem] -translate-x-1/2 transform laptop:top-14"
-    />
   );
 };
 

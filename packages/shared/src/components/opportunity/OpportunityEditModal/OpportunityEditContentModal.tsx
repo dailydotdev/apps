@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,18 +11,17 @@ import { Loader } from '../../Loader';
 
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { labels } from '../../../lib';
-import { editOpportunityContentMutationOptions } from '../../../features/opportunity/graphql';
+import { editOpportunityContentMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
 import { opportunityEditContentSchema } from '../../../lib/schema/opportunity';
+import type { MarkdownRef } from '../../fields/MarkdownInput';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { applyZodErrorsToForm } from '../../../lib/form';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { opportunityEditDiscardPrompt } from './common';
-import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
-import { isTesting } from '../../../lib/constants';
 
 export type OpportunityEditContentModalProps = {
   id: string;
@@ -134,14 +133,11 @@ export const OpportunityEditContentModal = ({
     rest.onRequestClose?.(event);
   };
 
+  const markdownRef = useRef<MarkdownRef>();
+
   if (!opportunity) {
     return <Loader />;
   }
-
-  const isRequiredContent =
-    !opportunityEditContentSchema.shape.content.shape[
-      contentName
-    ]?.shape.content.isOptional();
 
   return (
     <Modal {...rest} isOpen onRequestClose={onRequestClose}>
@@ -172,12 +168,13 @@ export const OpportunityEditContentModal = ({
           control={control}
           name={`content.${contentName}.content`}
           render={({ field }) => {
-            const hint = errors.content?.[contentName]?.content.message;
+            const hint = errors.content?.[contentName]?.content?.message;
             const valid = !errors.content?.[contentName]?.content;
 
             return (
               <div className="flex flex-col gap-2">
                 <MarkdownInput
+                  ref={markdownRef}
                   allowPreview={false}
                   textareaProps={{
                     name: field.name,
@@ -213,27 +210,22 @@ export const OpportunityEditContentModal = ({
             );
           }}
         />
-        <SimpleTooltip
-          forceLoad={!isTesting}
-          content={isRequiredContent ? 'This section is required' : ''}
-        >
-          <div className="max-w-36">
-            <Button
-              type="submit"
-              variant={ButtonVariant.Subtle}
-              size={ButtonSize.Small}
-              onClick={() => {
-                setValue(`content.${contentName}.content`, '');
+        <div className="max-w-36">
+          <Button
+            type="submit"
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.Small}
+            onClick={() => {
+              markdownRef.current.setInput('');
+              setValue(`content.${contentName}.content`, '');
 
-                onSubmit();
-              }}
-              loading={isSubmitting}
-              disabled={isRequiredContent}
-            >
-              Remove section
-            </Button>
-          </div>
-        </SimpleTooltip>
+              onSubmit();
+            }}
+            loading={isSubmitting}
+          >
+            Remove section
+          </Button>
+        </div>
       </Modal.Body>
     </Modal>
   );

@@ -1,5 +1,15 @@
 import z from 'zod';
 import { labels } from '../labels';
+import { SalaryPeriod } from '../../features/opportunity/protobuf/opportunity';
+import { isNullOrUndefined } from '../func';
+
+const processSalaryValue = (val: unknown) => {
+  if (Number.isNaN(val) || isNullOrUndefined(val)) {
+    return undefined;
+  }
+
+  return val;
+};
 
 export const opportunityEditInfoSchema = z.object({
   title: z.string().nonempty(labels.form.required).max(240),
@@ -21,19 +31,44 @@ export const opportunityEditInfoSchema = z.object({
         .nonempty(labels.form.required)
         .max(240)
         .optional(),
-      type: z.coerce.number().min(1),
+      type: z.coerce.number(labels.form.required).min(1),
     }),
   ),
   meta: z.object({
-    employmentType: z.coerce.number().min(1),
-    teamSize: z.number().int().nonnegative().min(1).max(1_000_000),
-    salary: z.object({
-      min: z.number().int().nonnegative().max(100_000_000),
-      max: z.number().int().nonnegative().max(100_000_000),
-      period: z.number(),
+    employmentType: z.coerce.number().min(1, {
+      error: labels.form.required,
     }),
-    seniorityLevel: z.number(),
-    roleType: z.union([z.literal(0), z.literal(0.5), z.literal(1)]),
+    teamSize: z
+      .number(labels.form.required)
+      .int()
+      .nonnegative()
+      .min(1)
+      .max(1_000_000),
+    salary: z
+      .object({
+        min: z.preprocess(
+          processSalaryValue,
+          z.number().int().nonnegative().max(100_000_000).optional(),
+        ),
+        max: z.preprocess(
+          processSalaryValue,
+          z.number().int().nonnegative().max(100_000_000).optional(),
+        ),
+        period: z
+          .number()
+          .nullish()
+          .transform((val) => val ?? undefined)
+          .default(SalaryPeriod.UNSPECIFIED),
+      })
+      .nullish(),
+    seniorityLevel: z.number(labels.form.required),
+    roleType: z.union(
+      [0, 0.5, 1].map((item) =>
+        z.literal(item, {
+          error: labels.form.required,
+        }),
+      ),
+    ),
   }),
 });
 
@@ -44,14 +79,19 @@ export const createOpportunityEditContentSchema = ({
 } = {}) => {
   const contentSchema = z.string().max(1440);
 
-  return z.object({
-    content: z.preprocess(
-      (val) => val || '',
-      optional
-        ? contentSchema.optional()
-        : contentSchema.nonempty(labels.form.required),
-    ),
-  });
+  const schema = z.preprocess(
+    (val) => {
+      return val ?? {};
+    },
+    z.object({
+      content: z.preprocess(
+        (val) => val || '',
+        optional ? contentSchema : contentSchema.nonempty(labels.form.required),
+      ),
+    }),
+  );
+
+  return schema;
 };
 
 export const opportunityEditContentSchema = z.object({
@@ -68,7 +108,7 @@ export const opportunityEditQuestionsSchema = z.object({
   questions: z.array(
     z.object({
       id: z.uuid().optional(),
-      title: z.string().nonempty(labels.form.required).max(240),
+      title: z.string().nonempty(labels.form.required).max(480),
       placeholder: z.string().max(480).nullable().optional(),
     }),
   ),

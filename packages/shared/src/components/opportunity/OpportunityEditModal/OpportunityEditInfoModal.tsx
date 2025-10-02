@@ -20,7 +20,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { KeywordSelection } from '../../../features/opportunity/components/KeywordSelection';
 import { labels } from '../../../lib';
 import { opportunityEditInfoSchema } from '../../../lib/schema/opportunity';
-import { editOpportunityInfoMutationOptions } from '../../../features/opportunity/graphql';
+import { editOpportunityInfoMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
@@ -271,6 +271,7 @@ export const OpportunityEditInfoModal = ({
                   onChange={(value) => {
                     field.onChange(value);
                   }}
+                  valid={!errors.location?.[0]?.type}
                 />
               );
             }}
@@ -303,6 +304,7 @@ export const OpportunityEditInfoModal = ({
                   onChange={(value) => {
                     field.onChange(value);
                   }}
+                  valid={!errors.meta?.employmentType}
                 />
               );
             }}
@@ -324,7 +326,7 @@ export const OpportunityEditInfoModal = ({
         />
         <div className="flex flex-col gap-2">
           <Typography bold type={TypographyType.Caption1}>
-            Salary range*
+            Salary range
           </Typography>
           <div className="flex gap-4">
             <TextField
@@ -365,12 +367,14 @@ export const OpportunityEditInfoModal = ({
                     className={{
                       container: 'flex-1',
                     }}
-                    selectedIndex={field.value ? field.value - 1 : 0}
+                    selectedIndex={field.value ? field.value - 1 : undefined}
                     options={options}
                     onChange={(value) => {
                       const valueIndex = options.indexOf(value);
                       field.onChange(valueIndex + 1);
                     }}
+                    valid={!errors.meta?.salary?.period}
+                    hint={errors.meta?.salary?.period?.message}
                   />
                 );
               }}
@@ -403,12 +407,14 @@ export const OpportunityEditInfoModal = ({
                   className={{
                     container: 'flex-1',
                   }}
-                  selectedIndex={field.value ? field.value - 1 : 0}
+                  selectedIndex={field.value ? field.value - 1 : undefined}
                   options={options}
                   onChange={(value) => {
                     const valueIndex = options.indexOf(value);
                     field.onChange(valueIndex + 1);
                   }}
+                  valid={!errors.meta?.seniorityLevel}
+                  hint={errors.meta?.seniorityLevel?.message}
                 />
               );
             }}
@@ -445,6 +451,8 @@ export const OpportunityEditInfoModal = ({
 
                     field.onChange(item?.value || 0);
                   }}
+                  valid={!errors.meta?.roleType}
+                  hint={errors.meta?.roleType?.message}
                 />
               );
             }}

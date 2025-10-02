@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import type { MouseEvent, ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
@@ -76,14 +76,16 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { isTesting, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
-import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
+import {
+  OpportunityEditProvider,
+  useOpportunityEditContext,
+} from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps';
-import { opportunityEditStep1Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
+import { OpportunityStepsInfo } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunityStepsInfo';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 import {
   defaultOpenGraph,
@@ -231,7 +233,7 @@ const metaMap = {
   locationType: {
     title: 'Work site',
     transformer: (value: Opportunity['location']) =>
-      locationTypeMap[value?.[0].type || LocationType.UNSPECIFIED],
+      locationTypeMap[value?.[0]?.type || LocationType.UNSPECIFIED],
   },
   seniorityLevel: {
     title: 'Seniority level',
@@ -256,6 +258,7 @@ const metaMap = {
 };
 
 const JobPage = (): ReactElement => {
+  const { canEdit } = useOpportunityEditContext();
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
@@ -299,6 +302,11 @@ const JobPage = (): ReactElement => {
     hasLoggedRef.current = true;
   }, [id, match]);
 
+  const [matchReasonExample, setMatchReasonExample] = useState<{
+    title: string;
+    reasoning: string;
+  }>();
+
   if (!isAuthReady || isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
   }
@@ -331,12 +339,17 @@ const JobPage = (): ReactElement => {
           className={{
             buttons: 'flex-1',
             container:
-              'fixed bottom-0 z-header flex min-h-14 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4 tablet:hidden',
+              'fixed bottom-0 z-header flex min-h-14 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4 pt-2 pb-safe-or-2 tablet:hidden',
           }}
           size={ButtonSize.Medium}
         />
       )}
-      <div className="mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 laptop:flex-row">
+      <div
+        className={classNames(
+          'z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 tablet:pb-0 laptop:flex-row',
+          match ? 'pb-safe-offset-14' : 'pb-safe',
+        )}
+      >
         <div className="h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}
           <div className="flex min-h-14 items-center gap-4 border-b border-border-subtlest-tertiary p-3">
@@ -458,7 +471,7 @@ const JobPage = (): ReactElement => {
                   : opportunity.meta[metaKey];
 
                 return (
-                  <>
+                  <Fragment key={metaKey}>
                     <Typography
                       className="laptop:[&:nth-child(4n+3)]:pl-2"
                       type={TypographyType.Footnote}
@@ -474,13 +487,13 @@ const JobPage = (): ReactElement => {
                     >
                       {transformer(value)}
                     </Typography>
-                  </>
+                  </Fragment>
                 );
               })}
             </div>
 
             {/* Why we think */}
-            {match?.description?.reasoning && (
+            {!canEdit && !!match?.description?.reasoning && (
               <FlexCol
                 className="gap-2 rounded-16 p-4 text-black"
                 style={{
@@ -489,13 +502,49 @@ const JobPage = (): ReactElement => {
               >
                 <div className="flex items-center gap-1">
                   <MagicIcon size={IconSize.Medium} />
-                  <Typography bold type={TypographyType.Body}>
+                  <Typography bold type={TypographyType.Body} truncate>
                     Why we think you&apos;ll like this
                   </Typography>
                 </div>
                 <Typography type={TypographyType.Callout}>
                   {match?.description?.reasoning}
                 </Typography>
+              </FlexCol>
+            )}
+            {canEdit && (
+              <FlexCol
+                className="gap-2 rounded-16 p-4 text-black"
+                style={{
+                  background: briefButtonBg,
+                }}
+              >
+                <div className="flex items-center gap-1">
+                  <MagicIcon size={IconSize.Medium} />
+                  <Typography bold type={TypographyType.Body} truncate>
+                    {matchReasonExample?.title ??
+                      'AI Personalized candidate message placeholder'}
+                  </Typography>
+                </div>
+                <Typography type={TypographyType.Callout}>
+                  {matchReasonExample?.reasoning ??
+                    'daily.dev will use this space to highlight why the job is a great fit for the candidate. We automatically generate a personalized message that explains the match in a compelling way.'}
+                </Typography>
+                {!matchReasonExample && (
+                  <Button
+                    className="max-w-32 border-black text-black"
+                    variant={ButtonVariant.Secondary}
+                    size={ButtonSize.Small}
+                    onClick={() => {
+                      setMatchReasonExample({
+                        title: "Why we think you'll like this",
+                        reasoning:
+                          "We noticed you've been digging into React performance optimization and exploring payment systems lately. Your skills in TypeScript and Node.js line up directly with the core technologies this team uses. You also follow several Atlassian engineers and have shown consistent interest in project management software, which makes this role a natural fit for your trajectory.",
+                      });
+                    }}
+                  >
+                    See example
+                  </Button>
+                )}
               </FlexCol>
             )}
           </div>
@@ -521,6 +570,7 @@ const JobPage = (): ReactElement => {
                     <div className="flex items-center">
                       <Typography>{faqItem.title}</Typography>
                       <OpportunityEditButton
+                        tag="a"
                         className="ml-auto"
                         type="text"
                         variant={
@@ -531,6 +581,7 @@ const JobPage = (): ReactElement => {
                         size={ButtonSize.Small}
                         icon={!contentHtml ? <PlusIcon /> : undefined}
                         onClick={(event: MouseEvent) => {
+                          event.preventDefault(); // prevent link click
                           event.stopPropagation();
 
                           openModal({
@@ -554,14 +605,12 @@ const JobPage = (): ReactElement => {
                 >
                   {!!contentHtml && (
                     <div
-                      className="pb-4 [&>ul]:list-inside [&>ul]:list-disc"
+                      className="pb-4 text-text-secondary [&>ol]:list-inside [&>ol]:list-decimal [&>ol]:pl-7 [&>ul]:list-inside [&>ul]:list-disc [&>ul]:pl-7"
                       dangerouslySetInnerHTML={{
                         __html: contentHtml,
                       }}
                     />
                   )}
-                  {/* TODO: this is a hack so that numeric lists are styled correctly */}
-                  <span className="hidden list-decimal" />
                 </Accordion>
               </div>
             );
@@ -948,25 +997,13 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
 
 const GetPageLayout: typeof getLayout = (page, layoutProps) => {
   const router = useRouter();
-  const { id } = router.query;
+  const opportunityId = router?.query?.id as string;
 
   return (
-    <OpportunityEditProvider opportunityId={id as string}>
+    <OpportunityEditProvider opportunityId={opportunityId}>
       {getLayout(page, {
         ...layoutProps,
-        additionalButtons: (
-          <OpportunitySteps
-            step={0}
-            totalSteps={2}
-            ctaText="Save & continue"
-            schema={opportunityEditStep1Schema}
-            ctaButtonProps={{
-              onClick: () => {
-                router.push(`${webappUrl}opportunity/${id}/questions-setup`);
-              },
-            }}
-          />
-        ),
+        additionalButtons: <OpportunityStepsInfo />,
       })}
     </OpportunityEditProvider>
   );

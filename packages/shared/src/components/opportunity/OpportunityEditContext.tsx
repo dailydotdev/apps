@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type z from 'zod';
 import { opportunityByIdOptions } from '../../features/opportunity/queries';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { OpportunityState } from '../../features/opportunity/protobuf/opportunity';
 
 export type OpportunityEditContextProps = {
   children: ReactNode;
@@ -25,7 +26,15 @@ const [OpportunityEditProvider, useOpportunityEditContext] =
         return false;
       }
 
-      return !!opportunity?.recruiters?.some((item) => item.id === user.id);
+      if (!opportunity) {
+        return false;
+      }
+
+      if (opportunity.state !== OpportunityState.DRAFT) {
+        return false;
+      }
+
+      return !!opportunity.recruiters?.some((item) => item.id === user.id);
     }, [opportunity, user]);
 
     return {
