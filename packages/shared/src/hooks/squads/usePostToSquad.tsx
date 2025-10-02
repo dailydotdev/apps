@@ -29,14 +29,10 @@ import { useActions } from '../useActions';
 import { useRequestProtocol } from '../useRequestProtocol';
 import useSourcePostModeration from '../source/useSourcePostModeration';
 import type { Squad } from '../../graphql/sources';
-import {
-  moderationRequired,
-  postInOpenSquadWarningPromptProps,
-} from '../../components/squads/utils';
+import { moderationRequired } from '../../components/squads/utils';
 import useNotificationSettings from '../notifications/useNotificationSettings';
 import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
-import { usePrompt } from '../usePrompt';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
@@ -89,27 +85,9 @@ export const usePostToSquad = ({
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
   const client = useQueryClient();
+  const { completeAction } = useActions();
   const [preview, setPreview] = useState(initialPreview);
   const { requestMethod } = useRequestProtocol();
-  const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
-  const { showPrompt } = usePrompt();
-
-  const showPostInOpenSquadWarningPrompt = useCallback(async () => {
-    // TODO: show the spam prompt only if user posts to multiple sources - connect to the current squads dropdown data
-    let shouldContinue = true;
-    if (
-      isActionsFetched &&
-      !checkHasCompleted(ActionType.UserPostInOpenSquadWarningSeen)
-    ) {
-      shouldContinue = await showPrompt(postInOpenSquadWarningPromptProps);
-      await completeAction(ActionType.UserPostInOpenSquadWarningSeen);
-    }
-
-    if (!shouldContinue) {
-      return null;
-    }
-    return shouldContinue;
-  }, [showPrompt, completeAction, isActionsFetched, checkHasCompleted]);
 
   const {
     mutateAsync: onCreatePost,
@@ -296,24 +274,18 @@ export const usePostToSquad = ({
       }
 
       if (preview.id) {
-        if (moderationRequired(squad)) {
-          return onCreatePostModeration({
-            type: PostType.Share,
-            sourceId: squad.id,
-            sharedPostId: preview.id,
-            title: commentary,
-          });
-        }
-        showPostInOpenSquadWarningPrompt().then((shouldContinue) => {
-          if (shouldContinue) {
-            return onPost({
+        return moderationRequired(squad)
+          ? onCreatePostModeration({
+              type: PostType.Share,
+              sourceId: squad.id,
+              sharedPostId: preview.id,
+              title: commentary,
+            })
+          : onPost({
               id: preview.id,
               sourceId: squad.id,
               commentary,
             });
-          }
-          return null;
-        });
       }
 
       const { title, image } = preview;
@@ -324,31 +296,22 @@ export const usePostToSquad = ({
         return null;
       }
 
-      if (moderationRequired(squad)) {
-        return onCreatePostModeration({
-          externalLink: url,
-          title,
-          imageUrl: image,
-          type: PostType.Share,
-          sourceId: squad.id,
-          content: commentary,
-        });
-      }
-
-      showPostInOpenSquadWarningPrompt().then((shouldContinue) => {
-        if (shouldContinue) {
-          return onSubmitLink({
+      return moderationRequired(squad)
+        ? onCreatePostModeration({
+            externalLink: url,
+            title,
+            imageUrl: image,
+            type: PostType.Share,
+            sourceId: squad.id,
+            content: commentary,
+          })
+        : onSubmitLink({
             url,
             title,
             image,
             sourceId: squad.id,
             commentary,
           });
-        }
-        return null;
-      });
-
-      return null;
     },
     [
       preview,
@@ -357,7 +320,6 @@ export const usePostToSquad = ({
       onPost,
       isPosting,
       onCreatePostModeration,
-      showPostInOpenSquadWarningPrompt,
     ],
   );
 
@@ -395,15 +357,11 @@ export const usePostToSquad = ({
           type: PostType.Freeform,
         });
       } else {
-        showPostInOpenSquadWarningPrompt().then((shouldContinue) => {
-          if (shouldContinue) {
-            onCreatePost({ ...post, sourceId: squad.id });
-          }
-        });
+        onCreatePost({ ...post, sourceId: squad.id });
       }
       return null;
     },
-    [onCreatePost, onCreatePostModeration, showPostInOpenSquadWarningPrompt],
+    [onCreatePost, onCreatePostModeration],
   );
 
   const onSubmitPollPost = useCallback<UsePostToSquad['onSubmitPollPost']>(
@@ -421,23 +379,15 @@ export const usePostToSquad = ({
           type: PostType.Poll,
         });
       } else {
-        showPostInOpenSquadWarningPrompt().then((shouldContinue) => {
-          if (shouldContinue) {
-            createPollPostMutation({
-              ...post,
-              options: orderedOpts,
-              sourceId: squad.id,
-              type: PostType.Poll,
-            });
-          }
+        createPollPostMutation({
+          ...post,
+          options: orderedOpts,
+          sourceId: squad.id,
+          type: PostType.Poll,
         });
       }
     },
-    [
-      createPollPostMutation,
-      onCreatePostModeration,
-      showPostInOpenSquadWarningPrompt,
-    ],
+    [createPollPostMutation, onCreatePostModeration],
   );
 
   return {

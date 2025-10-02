@@ -37,7 +37,10 @@ export interface MergedWriteObject
 export interface WritePostProps {
   onSubmitForm: (
     e: FormEvent<HTMLFormElement>,
-    prop: WriteForm & Omit<CreatePostProps | CreatePostPollProps, 'id'>,
+    prop: WriteForm &
+      Omit<CreatePostProps | CreatePostPollProps, 'id'> & {
+        sharedPostId?: string;
+      },
     type: Post['type'],
   ) => void;
   isPosting: boolean;

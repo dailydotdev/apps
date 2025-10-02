@@ -7,9 +7,7 @@ import {
   WriteFreeFormSkeleton,
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import type { CreatePostInMultipleSourcesArgs } from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
 import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
@@ -23,13 +21,9 @@ import {
 } from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import {
-  isSourceUserSource,
-  SourcePermissions,
-} from '@dailydotdev/shared/src/graphql/sources';
+import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
-  usePostToSquad,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -43,6 +37,7 @@ import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll'
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import type { WriteForm } from '@dailydotdev/shared/src/contexts';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -109,29 +104,6 @@ function CreatePost(): ReactElement {
     clearFormOnSuccess();
     await push(link);
   };
-  const { onSubmitFreeformPost, onSubmitPollPost, isPosting, isSuccess } =
-    usePostToSquad({
-      onPostSuccess: async (post) => {
-        const isUserSource = isSourceUserSource(post.source);
-
-        if (isUserSource) {
-          client.refetchQueries({
-            queryKey: ['author', user.id],
-          });
-        }
-
-        onPostSuccess(post.commentsPermalink);
-      },
-      onSourcePostModerationSuccess: async (post) => {
-        onPostSuccess(post.source.permalink);
-      },
-      onError: (data: ApiErrorResult) => {
-        if (data?.response?.errors?.[0]) {
-          displayToast(data?.response?.errors?.[0].message);
-        }
-        onAskConfirmation(true);
-      },
-    });
 
   const isInitialized = useRef(false);
   const sourceSelectProps = { selected, setSelected, className: 'mt-6' };
@@ -139,8 +111,7 @@ function CreatePost(): ReactElement {
 
   const onClickSubmit = async (
     e: FormEvent<HTMLFormElement>,
-    params: Omit<CreatePostInMultipleSourcesArgs, 'options'> &
-      Record<'options', string[]>,
+    params: Omit<WriteForm, 'image'> & { image?: File },
   ) => {
     e.preventDefault();
 
@@ -165,7 +136,7 @@ function CreatePost(): ReactElement {
       return;
     }
 
-    clearDraft();
+    console.log({ result });
 
     const postedInUserSource = selected.includes(user?.id);
     if (postedInUserSource) {
@@ -174,26 +145,27 @@ function CreatePost(): ReactElement {
       });
     }
 
-    const isOnlyModerationRequired = result.every(
+    // if every source is moderated, just show the success message
+    const isEveryItemPending = result.every(
       (item) => item.type === 'moderationItem',
     );
-    if (isOnlyModerationRequired) {
+    if (isEveryItemPending) {
       displayToast(
         `✅ Your ${
           result.length > 1 ? 'posts have' : 'post has'
         } been submitted for moderation`,
       );
       clearFormOnSuccess();
-      return;
     }
 
+    // only one source, let's redirect to the post
     const isSingleSourcePost = selected.length === 1;
     if (isSingleSourcePost) {
       await onPostSuccess(`${webappUrl}posts/${result[0].slug}`);
     }
 
+    // more than one source and at least one is not moderation
     await onPostSuccess(`${webappUrl}${user?.username}/posts/`);
-    console.log({ result });
   };
 
   const initialSelected = activeSquads?.length && (query.sid as string);
@@ -247,7 +219,9 @@ function CreatePost(): ReactElement {
     return <Unauthorized />;
   }
 
-  const squad = activeSquads.find(({ id }) => id === selected[0]);
+  const squad = activeSquads.find(({ id, handle }) =>
+    [id, handle].includes(selected[0] ?? user.id),
+  );
 
   return (
     <WritePostContextProvider
@@ -285,10 +259,10 @@ function CreatePost(): ReactElement {
             )}
             <MultipleSourceSelect {...sourceSelectProps} />
             <ShareLink
-              squad={squad}
               onPostSuccess={() => {
                 onAskConfirmation(false);
               }}
+              squad={squad}
             />
           </Tab>
           <Tab

@@ -652,7 +652,7 @@ export interface EditPostProps {
   id: string;
   title: string;
   content: string;
-  image: File;
+  image?: File;
 }
 
 export type CreatePostProps = Pick<
@@ -851,7 +851,7 @@ export const CREATE_POST_IN_MULTIPLE_SOURCES = gql`
 `;
 
 export interface CreatePostInMultipleSourcesArgs
-  extends CreatePostProps,
+  extends Partial<CreatePostProps>,
     Pick<CreatePollPostProps, 'options' | 'duration'> {
   sourceIds: string[];
   sharedPostId?: string;
