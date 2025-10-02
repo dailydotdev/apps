@@ -253,10 +253,10 @@ export function Dropdown({
       )}
       {!!hint && (
         <div
-          role={!valid ? 'alert' : undefined}
+          role={valid === false ? 'alert' : undefined}
           className={classNames(
             'mt-1 flex items-center gap-1 px-2 typo-caption1',
-            !valid ? 'text-status-error' : 'text-text-quaternary',
+            valid === false ? 'text-status-error' : 'text-text-quaternary',
           )}
         >
           {hint}

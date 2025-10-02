@@ -64,7 +64,7 @@ export function Radio<T extends string = string>({
           <span
             className={classNames(
               className.label,
-              !valid && 'text-status-error',
+              valid === false && 'text-status-error',
             )}
           >
             {option.label}
