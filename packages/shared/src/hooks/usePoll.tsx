@@ -1,7 +1,7 @@
 import React from 'react';
 import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Ad, FeedData, Post, VotePollResponse } from '../graphql/posts';
+import type { Ad, FeedData, Post } from '../graphql/posts';
 import { votePoll } from '../graphql/posts';
 import {
   findIndexOfPostInData,
@@ -30,10 +30,23 @@ const usePoll = ({ post }: { post: Post }) => {
 
   const { mutate, isPending: isCastingVote } = useMutation({
     mutationFn: (optionId: string) => votePoll({ postId: post.id, optionId }),
-    onSuccess: (data: VotePollResponse, optionId: string) => {
+    onMutate: (optionId: string) => {
+      const adsQueryKey = queryKey ? [RequestKey.Ads, ...queryKey] : null;
+      const currentFeedData =
+        queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
+      const currentAdsData =
+        queryClient.getQueryData<InfiniteData<Ad>>(adsQueryKey);
+      console.log('ads data', currentAdsData);
+      const updatedOptions = post.pollOptions.map((option) => {
+        if (option.id === optionId) {
+          return { ...option, numVotes: option.numVotes + 1 };
+        }
+        return option;
+      });
+
       const postUpdate = {
-        numPollVotes: data.numPollVotes,
-        pollOptions: data.pollOptions,
+        numPollVotes: post.numPollVotes + 1,
+        pollOptions: updatedOptions,
         userState: {
           ...post.userState,
           pollOption: { id: optionId },
@@ -58,32 +71,30 @@ const usePoll = ({ post }: { post: Post }) => {
           ...postUpdate,
         };
         updateFeed(pageIndex, index, updatedPost);
-      } else {
-        const adsQueryKey = [RequestKey.Ads, ...queryKey];
-        queryClient.setQueryData(
-          adsQueryKey,
-          (currentData: InfiniteData<Ad>) => {
-            if (!currentData || !currentData.pages?.length) {
-              return currentData;
-            }
-
-            const existingAdPost = currentData.pages.find(
-              (page) => page.data?.post?.id === post.id,
-            )?.data?.post;
-
-            if (existingAdPost) {
-              return updateAdPostInCache(
-                existingAdPost.id,
-                currentData,
-                postUpdate,
-              );
-            }
-
-            return currentData;
-          },
-        );
       }
+      if (currentAdsData) {
+        const currentAdPost = currentAdsData.pages.find(
+          (page) => page.data?.post?.id === post.id,
+        )?.data?.post;
 
+        if (currentAdPost) {
+          queryClient.setQueryData(adsQueryKey, () => {
+            return updateAdPostInCache(
+              currentAdPost.id,
+              currentAdsData,
+              postUpdate,
+            );
+          });
+        }
+      }
+      return { currentFeedData, currentAdsData };
+    },
+    onError: (_, __, { currentFeedData, currentAdsData }) => {
+      const adsQueryKey = [RequestKey.Ads, ...queryKey];
+      queryClient.setQueryData(queryKey, currentFeedData);
+      queryClient.setQueryData(adsQueryKey, currentAdsData);
+    },
+    onSuccess: () => {
       const isSubscribed = getGroupStatus('pollResult', 'inApp');
       if (post?.author?.id !== user?.id && !isSubscribed) {
         displayToast('Your vote is in, get notified when the poll ends', {
