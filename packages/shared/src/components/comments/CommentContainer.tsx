@@ -23,6 +23,7 @@ import { PlusUserBadge } from '../PlusUserBadge';
 import { ProfileImageSize } from '../ProfilePicture';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { AnimatedAwardImage } from '../AnimatedAward';
+import { isSourceUserSource } from '../../graphql/sources';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -144,7 +145,9 @@ export default function CommentContainer({
             {comment.author?.companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={comment.author} />
             )}
-            <UserBadge role={role}>{getRoleName(role)}</UserBadge>
+            {!isSourceUserSource(post?.source) && (
+              <UserBadge role={role}>{getRoleName(role)}</UserBadge>
+            )}
             {comment.author.id === postAuthorId && (
               <UserBadge>Creator</UserBadge>
             )}
