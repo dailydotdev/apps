@@ -76,7 +76,10 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { isTesting, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
-import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
+import {
+  OpportunityEditProvider,
+  useOpportunityEditContext,
+} from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -255,6 +258,7 @@ const metaMap = {
 };
 
 const JobPage = (): ReactElement => {
+  const { canEdit } = useOpportunityEditContext();
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
@@ -297,6 +301,11 @@ const JobPage = (): ReactElement => {
     });
     hasLoggedRef.current = true;
   }, [id, match]);
+
+  const [matchReasonExample, setMatchReasonExample] = useState<{
+    title: string;
+    reasoning: string;
+  }>();
 
   if (!isAuthReady || isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
@@ -479,7 +488,7 @@ const JobPage = (): ReactElement => {
             </div>
 
             {/* Why we think */}
-            {match?.description?.reasoning && (
+            {!canEdit && !!match?.description?.reasoning && (
               <FlexCol
                 className="gap-2 rounded-16 p-4 text-black"
                 style={{
@@ -495,6 +504,42 @@ const JobPage = (): ReactElement => {
                 <Typography type={TypographyType.Callout}>
                   {match?.description?.reasoning}
                 </Typography>
+              </FlexCol>
+            )}
+            {canEdit && (
+              <FlexCol
+                className="gap-2 rounded-16 p-4 text-black"
+                style={{
+                  background: briefButtonBg,
+                }}
+              >
+                <div className="flex items-center gap-1">
+                  <MagicIcon size={IconSize.Medium} />
+                  <Typography bold type={TypographyType.Body}>
+                    {matchReasonExample?.title ??
+                      'AI Personalized candidate message placeholder'}
+                  </Typography>
+                </div>
+                <Typography type={TypographyType.Callout}>
+                  {matchReasonExample?.reasoning ??
+                    'daily.dev will use this space to highlight why the job is a great fit for the candidate. We automatically generate a personalized message that explains the match in a compelling way.'}
+                </Typography>
+                {!matchReasonExample && (
+                  <Button
+                    className="max-w-32 border-black text-black"
+                    variant={ButtonVariant.Secondary}
+                    size={ButtonSize.Small}
+                    onClick={() => {
+                      setMatchReasonExample({
+                        title: "Why we think you'll like this",
+                        reasoning:
+                          "We noticed you've been digging into React performance optimization and exploring payment systems lately. Your skills in TypeScript and Node.js line up directly with the core technologies this team uses. You also follow several Atlassian engineers and have shown consistent interest in project management software, which makes this role a natural fit for your trajectory.",
+                      });
+                    }}
+                  >
+                    See example
+                  </Button>
+                )}
               </FlexCol>
             )}
           </div>
