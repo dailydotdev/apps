@@ -709,7 +709,9 @@ const JobPage = (): ReactElement => {
 
             {/* Meta */}
             <SimpleTooltip
-              content={labels.opportunity.companyInfoEditNotice}
+              content={
+                canEdit ? labels.opportunity.companyInfoEditNotice : undefined
+              }
               forceLoad={!isTesting}
             >
               <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
@@ -748,7 +750,9 @@ const JobPage = (): ReactElement => {
             {/* Description */}
             {opportunity.organization.description && (
               <SimpleTooltip
-                content={labels.opportunity.companyInfoEditNotice}
+                content={
+                  canEdit ? labels.opportunity.companyInfoEditNotice : undefined
+                }
                 forceLoad={!isTesting}
               >
                 <Typography
@@ -769,7 +773,11 @@ const JobPage = (): ReactElement => {
                 </Typography>
 
                 <SimpleTooltip
-                  content={labels.opportunity.companyInfoEditNotice}
+                  content={
+                    canEdit
+                      ? labels.opportunity.companyInfoEditNotice
+                      : undefined
+                  }
                   forceLoad={!isTesting}
                 >
                   <ul className="list-disc pl-7">
