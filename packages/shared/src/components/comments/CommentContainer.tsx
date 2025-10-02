@@ -145,7 +145,7 @@ export default function CommentContainer({
             {comment.author?.companies?.length > 0 && (
               <VerifiedCompanyUserBadge user={comment.author} />
             )}
-            {!isSourceUserSource(post.source) && (
+            {!isSourceUserSource(post?.source) && (
               <UserBadge role={role}>{getRoleName(role)}</UserBadge>
             )}
             {comment.author.id === postAuthorId && (
