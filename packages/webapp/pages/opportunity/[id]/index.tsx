@@ -555,7 +555,7 @@ const JobPage = (): ReactElement => {
                 >
                   {!!contentHtml && (
                     <div
-                      className="[&>ul,&>ol]:list-inside pb-4 [&>ol]:list-inside [&>ol]:list-decimal [&>ul]:list-disc"
+                      className="pb-4 [&>ol]:list-inside [&>ol]:list-decimal [&>ul]:list-inside [&>ul]:list-disc"
                       dangerouslySetInnerHTML={{
                         __html: contentHtml,
                       }}
