@@ -168,7 +168,7 @@ export const OpportunityEditQuestionModal = ({
           fieldType="quaternary"
           valid={!errors.questions?.[index]?.title}
           hint={errors.questions?.[index]?.title?.message}
-          maxLength={240}
+          maxLength={480}
         />
         <div className="flex flex-col gap-2">
           <div>

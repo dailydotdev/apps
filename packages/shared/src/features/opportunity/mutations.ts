@@ -11,6 +11,7 @@ import {
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
+  UPDATE_OPPORTUNITY_STATE_MUTATION,
   UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION,
 } from './graphql';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
@@ -25,6 +26,7 @@ import type {
   opportunityEditInfoSchema,
   opportunityEditQuestionsSchema,
 } from '../../lib/schema/opportunity';
+import type { OpportunityState } from './protobuf/opportunity';
 
 export type UpdatedCandidatePreferences = Partial<UserCandidatePreferences>;
 
@@ -261,6 +263,31 @@ export const recommendOpportunityScreeningQuestionsOptions = () => {
       });
 
       return result.recommendOpportunityScreeningQuestions;
+    },
+  };
+};
+
+export const updateOpportunityStateOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      state,
+    }: {
+      id: string;
+      state: OpportunityState;
+    }): Promise<{
+      state: OpportunityState;
+    }> => {
+      await gqlClient.request<{
+        updateOpportunityState: EmptyResponse;
+      }>(UPDATE_OPPORTUNITY_STATE_MUTATION, {
+        id,
+        state,
+      });
+
+      return {
+        state,
+      };
     },
   };
 };

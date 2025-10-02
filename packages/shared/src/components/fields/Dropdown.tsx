@@ -51,6 +51,8 @@ export interface DropdownProps {
   openFullScreen?: boolean;
   onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
+  valid?: boolean;
+  hint?: string;
 }
 
 export function Dropdown({
@@ -70,6 +72,8 @@ export function Dropdown({
   drawerProps,
   openFullScreen,
   disabled,
+  valid,
+  hint,
   ...props
 }: DropdownProps): ReactElement {
   const id = useId();
@@ -246,6 +250,17 @@ export function Dropdown({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+      )}
+      {!!hint && (
+        <div
+          role={!valid ? 'alert' : undefined}
+          className={classNames(
+            'mt-1 flex items-center gap-1 px-2 typo-caption1',
+            !valid ? 'text-status-error' : 'text-text-quaternary',
+          )}
+        >
+          {hint}
+        </div>
       )}
     </div>
   );

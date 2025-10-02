@@ -1,10 +1,12 @@
 import type {
   ClipboardEventHandler,
+  Dispatch,
   DragEventHandler,
   FormEventHandler,
   HTMLAttributes,
   KeyboardEventHandler,
   MutableRefObject,
+  SetStateAction,
 } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -81,6 +83,7 @@ export interface UseMarkdownInput {
   callbacks: InputCallbacks;
   uploadingCount: number;
   uploadedCount: number;
+  setInput: Dispatch<SetStateAction<string>>;
 }
 
 export const defaultMarkdownCommands = {
@@ -410,6 +413,7 @@ export const useMarkdownInput = ({
       onPaste,
       ...uploadCommands,
     },
+    setInput,
   };
 };
 

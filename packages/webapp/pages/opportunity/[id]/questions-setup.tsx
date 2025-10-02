@@ -18,7 +18,7 @@ import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportu
 
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
 import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
-import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunitySteps';
+import { OpportunityStepsQuestions } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunityStepsQuestions';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import classNames from 'classnames';
@@ -29,8 +29,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { opportunityEditStep2Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 import {
   defaultOpenGraph,
@@ -199,25 +197,13 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
 
 const GetPageLayout: typeof getLayout = (page, layoutProps) => {
   const router = useRouter();
-  const { id } = router.query;
+  const opportunityId = router?.query?.id as string;
 
   return (
-    <OpportunityEditProvider opportunityId={id as string}>
+    <OpportunityEditProvider opportunityId={opportunityId}>
       {getLayout(page, {
         ...layoutProps,
-        additionalButtons: (
-          <OpportunitySteps
-            step={1}
-            totalSteps={2}
-            ctaText="Approve & publish"
-            schema={opportunityEditStep2Schema}
-            ctaButtonProps={{
-              onClick: () => {
-                router.push(`${webappUrl}opportunity/${id}/approved`);
-              },
-            }}
-          />
-        ),
+        additionalButtons: <OpportunityStepsQuestions />,
       })}
     </OpportunityEditProvider>
   );

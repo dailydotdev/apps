@@ -79,6 +79,7 @@ enum CommentTab {
 export interface MarkdownRef
   extends Pick<UseMarkdownInput, 'onMentionCommand'> {
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
+  setInput: UseMarkdownInput['setInput'];
 }
 
 function MarkdownInput(
@@ -127,6 +128,7 @@ function MarkdownInput(
     onCloseMention,
     checkMention,
     mentions,
+    setInput,
   } = useMarkdownInput({
     postId,
     sourceId,
@@ -137,7 +139,11 @@ function MarkdownInput(
     enabledCommand,
   });
 
-  useImperativeHandle(ref, () => ({ textareaRef, onMentionCommand }));
+  useImperativeHandle(ref, () => ({
+    textareaRef,
+    onMentionCommand,
+    setInput,
+  }));
 
   const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
     onUploadCommand(e.currentTarget.files);
