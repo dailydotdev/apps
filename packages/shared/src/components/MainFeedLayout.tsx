@@ -38,6 +38,7 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import {
+  useConditionalFeature,
   useFeedLayout,
   useScrollRestoration,
   useViewSize,
@@ -230,6 +231,35 @@ export default function MainFeedLayout({
     FeedPageLayoutComponent,
   } = useFeedLayout();
 
+  const { value: myFeedV } = useConditionalFeature({
+    feature: feature.feedVersion,
+    shouldEvaluate: feedName === SharedFeedPage.MyFeed,
+  });
+  const { value: followingFeedV } = useConditionalFeature({
+    feature: followingFeedVersion,
+    shouldEvaluate: feedName === OtherFeedPage.Following,
+  });
+  const { value: exploreFeedV } = useConditionalFeature({
+    feature: popularFeedVersion,
+    shouldEvaluate: feedName === OtherFeedPage.Explore,
+  });
+  const { value: exploreUpvotedFeedV } = useConditionalFeature({
+    feature: upvotedFeedVersion,
+    shouldEvaluate: feedName === OtherFeedPage.ExploreUpvoted,
+  });
+  const { value: exploreDiscussedFeedV } = useConditionalFeature({
+    feature: discussedFeedVersion,
+    shouldEvaluate: feedName === OtherFeedPage.ExploreDiscussed,
+  });
+  const { value: exploreLatestFeedV } = useConditionalFeature({
+    feature: latestFeedVersion,
+    shouldEvaluate: feedName === OtherFeedPage.ExploreLatest,
+  });
+  const { value: customFeedV } = useConditionalFeature({
+    feature: customFeedVersion,
+    shouldEvaluate: feedName === SharedFeedPage.Custom,
+  });
+
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const config = useMemo(() => {
@@ -261,13 +291,13 @@ export default function MainFeedLayout({
     const dynamicFeedVersionByFeed: Partial<
       Record<SharedFeedPage & OtherFeedPage, number>
     > = {
-      [SharedFeedPage.MyFeed]: getFeatureValue(feature.feedVersion),
-      [OtherFeedPage.Following]: getFeatureValue(followingFeedVersion),
-      [OtherFeedPage.Explore]: getFeatureValue(popularFeedVersion),
-      [OtherFeedPage.ExploreUpvoted]: getFeatureValue(upvotedFeedVersion),
-      [OtherFeedPage.ExploreDiscussed]: getFeatureValue(discussedFeedVersion),
-      [OtherFeedPage.ExploreLatest]: getFeatureValue(latestFeedVersion),
-      [SharedFeedPage.Custom]: getFeatureValue(customFeedVersion),
+      [SharedFeedPage.MyFeed]: myFeedV,
+      [OtherFeedPage.Following]: followingFeedV,
+      [OtherFeedPage.Explore]: exploreFeedV,
+      [OtherFeedPage.ExploreUpvoted]: exploreUpvotedFeedV,
+      [OtherFeedPage.ExploreDiscussed]: exploreDiscussedFeedV,
+      [OtherFeedPage.ExploreLatest]: exploreLatestFeedV,
+      [SharedFeedPage.Custom]: customFeedV,
     };
 
     // do not show feed in background on new page
@@ -299,7 +329,13 @@ export default function MainFeedLayout({
     router.query?.slugOrId,
     router.pathname,
     user,
-    getFeatureValue,
+    myFeedV,
+    followingFeedV,
+    exploreFeedV,
+    exploreUpvotedFeedV,
+    exploreDiscussedFeedV,
+    exploreLatestFeedV,
+    customFeedV,
     tokenRefreshed,
     feedVersion,
   ]);

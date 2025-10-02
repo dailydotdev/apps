@@ -20,6 +20,7 @@ export interface RadioProps<T extends string = string> {
   className?: ClassName;
   disabled?: boolean;
   reverse?: boolean;
+  valid?: boolean;
 }
 
 export function Radio<T extends string = string>({
@@ -30,6 +31,7 @@ export function Radio<T extends string = string>({
   className = {},
   disabled,
   reverse,
+  valid,
 }: RadioProps<T>): ReactElement {
   return (
     <div
@@ -59,7 +61,14 @@ export function Radio<T extends string = string>({
           afterElement={option.afterElement}
           reverse={reverse}
         >
-          <span className={className.label}>{option.label}</span>
+          <span
+            className={classNames(
+              className.label,
+              valid === false && 'text-status-error',
+            )}
+          >
+            {option.label}
+          </span>
         </RadioItem>
       ))}
     </div>

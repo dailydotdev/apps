@@ -130,7 +130,7 @@ export const CVOverlay = ({
             explicitly say yes to an opportunity.
           </Typography>
         </div>
-        <div className="flex justify-between">
+        <div className="flex flex-col justify-between gap-4 tablet:flex-row">
           {backButton}
           <Button
             variant={ButtonVariant.Primary}
