@@ -32,7 +32,7 @@ const RecommendedEmojiTooltip = ({
       <TooltipPrimitive.Root open={!!emojiData.length}>
         <TooltipPrimitive.Portal>
           <TooltipPrimitive.Content
-            className="z-tooltip w-70 rounded-16 bg-accent-pepper-subtlest max-h-64 p-0"
+            className="z-tooltip w-70 rounded-16 bg-accent-pepper-subtlest rounded-16 max-h-64 overflow-hidden p-0"
             side="top"
             align="start"
             sideOffset={5}
