@@ -60,7 +60,7 @@ export function WriteLinkPreview({
             onInput={onLinkChange}
           />
         )}
-        {preview.title && preview.image && (
+        {preview.title && (
           <WritePreviewContent className={isMinimized && '!px-3 !py-2'}>
             <div className="flex flex-1 flex-col typo-footnote">
               <span className="line-clamp-2 font-bold">{preview.title}</span>
@@ -83,11 +83,13 @@ export function WriteLinkPreview({
                   </span>
                 ))}
             </div>
-            <Image
-              className={previewImageClass}
-              src={preview.image}
-              alt={`${preview.title}`}
-            />
+            {preview.image && (
+              <Image
+                className={previewImageClass}
+                src={preview.image}
+                alt={`${preview.title}`}
+              />
+            )}
             {!isMinimized && (
               <Button
                 icon={<OpenLinkIcon />}
