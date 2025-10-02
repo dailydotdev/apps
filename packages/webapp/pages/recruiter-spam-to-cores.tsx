@@ -74,8 +74,8 @@ const HeaderSection = (): ReactElement => {
         >
           At <strong>daily.dev</strong>, we want to flip the script. For every
           recruiter message you receive, you can now earn{' '}
-          <strong>300 Cores</strong>. They can be used to unlock features, boost
-          your content, or simply get rewarded for staying awesome.
+          <strong>1,000 Cores</strong>. They can be used to unlock features,
+          boost your content, or simply get rewarded for staying awesome.
         </Typography>
       </FlexCol>
     </FlexCol>
@@ -225,7 +225,7 @@ const finePrint = [
   },
   {
     description:
-      'Multiple entries are allowed (up to 10) and a maximum of 3,000 Cores can be earned per user.',
+      'Multiple entries are allowed (up to 10) and a maximum of 10,000 Cores can be earned per user.',
   },
   {
     description:
