@@ -14,6 +14,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { ImageIcon, MarkdownIcon, LinkIcon, AtIcon } from '../../icons';
 import {
   Button,
@@ -43,6 +44,14 @@ import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
 import { ACCEPTED_TYPES } from '../../../graphql/posts';
+
+const RecommendedEmojiTooltip = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lazyRecommendedEmojiTooltip" */ '../../tooltips/RecommendedEmojiTooltip'
+    ),
+  { ssr: false },
+);
 
 interface ClassName {
   container?: string;
@@ -127,7 +136,13 @@ function MarkdownInput(
     onApplyMention,
     onCloseMention,
     checkMention,
+    checkEmoji,
     mentions,
+    emojiQuery,
+    emojiData,
+    selectedEmoji,
+    onApplyEmoji,
+    onCloseEmoji,
     setInput,
   } = useMarkdownInput({
     postId,
@@ -165,6 +180,9 @@ function MarkdownInput(
   const onInputClick: MouseEventHandler<HTMLTextAreaElement> = () => {
     if (checkMention) {
       checkMention();
+    }
+    if (checkEmoji) {
+      checkEmoji();
     }
   };
 
@@ -287,6 +305,15 @@ function MarkdownInput(
         onMentionClick={onApplyMention}
         onClickOutside={onCloseMention}
         appendTo={parentSelector}
+      />
+      <RecommendedEmojiTooltip
+        elementRef={textareaRef}
+        search={emojiQuery}
+        emojiData={emojiData}
+        offset={offset}
+        selected={selectedEmoji}
+        onSelect={onApplyEmoji}
+        onClickOutside={onCloseEmoji}
       />
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
