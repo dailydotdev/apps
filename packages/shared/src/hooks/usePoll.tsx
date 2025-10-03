@@ -87,15 +87,19 @@ const usePoll = ({ post }: { post: Post }) => {
           });
         }
       }
-      return { oldPost: post, currentFeedData, currentAdsData };
+      return { currentPost: post, currentFeedData, currentAdsData };
     },
-    onError: (_, __, { oldPost, currentFeedData, currentAdsData }) => {
-      updatePostCache(queryClient, post.id, oldPost);
+    onError: (_, __, { currentPost, currentFeedData, currentAdsData }) => {
+      updatePostCache(queryClient, post.id, currentPost);
       if (queryKey) {
         const adsQueryKey = [RequestKey.Ads, ...queryKey];
         queryClient.setQueryData(queryKey, currentFeedData);
         queryClient.setQueryData(adsQueryKey, currentAdsData);
       }
+
+      displayToast(
+        'Something went wrong while casting your vote. Please try again.',
+      );
     },
     onSuccess: () => {
       const isSubscribed = getGroupStatus('pollResult', 'inApp');
