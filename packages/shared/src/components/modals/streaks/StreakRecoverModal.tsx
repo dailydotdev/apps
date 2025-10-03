@@ -33,7 +33,7 @@ export interface StreakRecoverModalProps
 }
 
 const StreakRecoverCover = () => (
-  <div className="tablet:-mx-4 overflow-hidden" role="presentation" aria-hidden>
+  <div className="overflow-hidden tablet:-mx-4" role="presentation" aria-hidden>
     <img
       alt="Broken reading streak"
       className="h-auto w-full object-contain"
