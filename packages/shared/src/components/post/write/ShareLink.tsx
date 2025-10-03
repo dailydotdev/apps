@@ -126,17 +126,12 @@ export function ShareLink({
       return null;
     }
 
-    return onSubmitForm(
-      e,
-      {
-        title,
-        content: commentary,
-        ...(preview.id
-          ? { sharedPostId: preview.id }
-          : { externalLink, imageUrl: image }),
-      },
-      PostType.Share,
-    );
+    const content = commentary;
+    const args = preview.id
+      ? { title: commentary, content, sharedPostId: preview.id }
+      : { title, content, externalLink, imageUrl: image };
+
+    return onSubmitForm(e, args, PostType.Share);
   };
 
   return (
