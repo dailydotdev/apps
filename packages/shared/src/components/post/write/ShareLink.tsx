@@ -113,7 +113,7 @@ export function ShareLink({
     const proceedSharingLink =
       !isLinkAlreadyShared || (await showPrompt(confirmSharingAgainPrompt));
 
-    if (!proceedSharingLink || !preview.id) {
+    if (!proceedSharingLink) {
       return null;
     }
 
@@ -122,7 +122,9 @@ export function ShareLink({
       {
         title: commentary,
         content: commentary,
-        sharedPostId: preview.id,
+        ...(preview.id
+          ? { sharedPostId: preview.id }
+          : { externalLink: preview.finalUrl }),
       },
       PostType.Share,
     );
