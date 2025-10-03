@@ -25,10 +25,7 @@ import InfiniteScrolling, {
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import {
-  NotificationType,
-  notificationTypeNotClickable,
-} from '@dailydotdev/shared/src/components/notifications/utils';
+import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { useTopReaderModal } from '@dailydotdev/shared/src/hooks/modals/useTopReaderModal';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
@@ -126,7 +123,6 @@ const Notifications = (): ReactElement => {
             queryResult.data.pages.map((page) =>
               page.notifications.edges.reduce((nodes, { node }) => {
                 const { id, createdAt, readAt, type, ...props } = node;
-                const isClickable = !notificationTypeNotClickable[type];
 
                 if (
                   isSubscribed &&
@@ -141,9 +137,7 @@ const Notifications = (): ReactElement => {
                     {...props}
                     type={type}
                     isUnread={!readAt}
-                    {...(isClickable
-                      ? { onClick: () => onNotificationClick(node) }
-                      : {})}
+                    onClick={() => onNotificationClick(node)}
                     createdAt={createdAt}
                   />,
                 );
