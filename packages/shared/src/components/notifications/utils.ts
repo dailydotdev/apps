@@ -91,6 +91,7 @@ export enum NotificationType {
   PollResult = 'poll_result',
   PollResultAuthor = 'poll_result_author',
   NewOpportunityMatch = 'new_opportunity_match',
+  WarmIntro = 'warm_intro',
 }
 
 export enum NotificationIconType {
@@ -203,6 +204,12 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.BriefingReady]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
   };
+
+export const notificationTypeNotClickable: Partial<
+  Record<NotificationType, boolean>
+> = {
+  [NotificationType.WarmIntro]: true,
+};
 
 export const descriptionIcon: Partial<
   Record<NotificationType, ComponentType<IconProps>>

@@ -179,6 +179,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
     NotificationType.CollectionUpdated,
     NotificationType.ArticleUpvoteMilestone,
     NotificationType.CommentUpvoteMilestone,
+    NotificationType.WarmIntro,
   ].includes(type) ? (
     <ProfilePictureGroup total={numTotalAvatars} size={ProfileImageSize.Medium}>
       {filteredAvatars.map((avatar) => (
