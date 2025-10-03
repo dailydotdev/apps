@@ -549,7 +549,7 @@ const JobPage = (): ReactElement => {
             )}
           </div>
 
-          {faq.map((faqItem) => {
+          {faq.map((faqItem, index) => {
             const contentHtml = opportunity.content[faqItem.key]?.html;
 
             const buttonLabel = contentHtml ? 'Edit' : 'Add';
@@ -560,6 +560,7 @@ const JobPage = (): ReactElement => {
                 className={classNames(
                   'border-t border-border-subtlest-tertiary px-4',
                   !contentHtml && 'bg-surface-float',
+                  index === faq.length - 1 && 'rounded-b-14',
                 )}
               >
                 <Accordion
