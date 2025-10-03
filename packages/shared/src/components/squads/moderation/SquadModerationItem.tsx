@@ -41,7 +41,7 @@ const SquadModerationPreview = (props: SquadModerationItemProps) => {
 const SpamWarnings = {
   [WarningReason.MultipleSquadPost]: 'Shared in multiple Squads - Spam alert',
   [WarningReason.DuplicatedInSameSquad]:
-    'Duplicate post in current Squad - Spam alert', // todo: this needs product input https://dailydotdev.slack.com/archives/C02AA18RD1D/p1758890951885039
+    'Duplicate post - the same post has been previously shared in the Squad"',
 };
 
 export function SquadModerationItem(
