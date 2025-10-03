@@ -129,24 +129,26 @@ const SourceCheckbox = ({
         {...props}
         disabled={disabled}
         className="min-w-full flex-row-reverse gap-2 !p-0"
-        checkmarkClassName="!mr-0"
+        checkmarkClassName="!mr-0 ml-2"
       >
-        <div className="flex items-center">
+        <div className="flex min-w-0 flex-1 items-center">
           <SourceAvatar source={source} size={ProfileImageSize.Medium} />
-          <div className="flex flex-col">
+          <div className="flex min-w-0 flex-1 flex-col">
             <Typography
               bold
               color={
                 disabled ? TypographyColor.Tertiary : TypographyColor.Primary
               }
+              truncate
               type={TypographyType.Callout}
             >
               {isUserSource ? 'Everyone' : source.name}
             </Typography>
             {!isUserSource && source.handle && (
               <Typography
-                type={TypographyType.Footnote}
                 color={TypographyColor.Tertiary}
+                type={TypographyType.Footnote}
+                truncate
               >
                 @{source.handle}
               </Typography>
