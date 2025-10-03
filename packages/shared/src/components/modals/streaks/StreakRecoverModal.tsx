@@ -7,6 +7,7 @@ import { Modal } from '../common/Modal';
 import type { LoggedUser } from '../../../lib/user';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
@@ -145,11 +146,12 @@ export const StreakRecoverOptout = ({
     />
     <Typography
       aria-label="Never show 'reading streak recover' popup again"
-      className="cursor-pointer py-2.5 text-text-tertiary"
+      className="cursor-pointer py-2.5"
       htmlFor={`showAgain-${id}`}
       id={`showAgain-label-${id}`}
       tag={TypographyTag.Label}
       type={TypographyType.Footnote}
+      color={TypographyColor.Tertiary}
     >
       Never show this again
     </Typography>
@@ -168,13 +170,7 @@ export const StreakRecoverModal = (
     onRequestClose,
   });
 
-  if (
-    !user ||
-    !isStreaksEnabled ||
-    !recover.canRecover ||
-    recover.isLoading ||
-    recover.isDisabled
-  ) {
+  if (!user || !isStreaksEnabled || !recover.canRecover || recover.isLoading) {
     return null;
   }
 
