@@ -151,5 +151,12 @@ export const labels = {
         'Some vital fields are empty. Please complete the required information before continuing.',
       okButton: 'Close',
     },
+    approveNotice: {
+      title: 'Ready to Publish Job?',
+      description:
+        'Once approved, we will start matching this job to candidates and notify you in Slack when intros are ready.',
+      okButton: 'Approve & Publish',
+      cancelButton: 'Back to edit',
+    },
   },
 };

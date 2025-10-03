@@ -291,6 +291,9 @@ export const getCoreCurrencyImage = (value: number): string => {
 export const creditCardsImage =
   'https://media.daily.dev/image/upload/s--GG1rD-wP--/f_auto/v1743491782/public/credit';
 
+export const opportunityLiveIllustration =
+  'https://media.daily.dev/image/upload/s--W8sKt3tn--/f_auto,q_auto/v1759426186/webapp/opportunity-live-illustration';
+
 /**
  * Plus showcase video/images
  */

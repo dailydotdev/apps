@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
 import { useAuthContext } from '../contexts/AuthContext';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useGrowthBookContext } from './GrowthBookProvider';
@@ -14,23 +13,16 @@ import { PromptElement } from './modals/Prompt';
 import Toast from './notifications/Toast';
 import SettingsContext from '../contexts/SettingsContext';
 
-const GoBackHeaderMobile = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "goBackHeaderMobile" */ './post/GoBackHeaderMobile'
-    ),
-  { ssr: false },
-);
-
 export type RecruiterLayoutProps = Pick<
   MainLayoutProps,
-  'children' | 'canGoBack' | 'onLogoClick' | 'activePage' | 'additionalButtons'
->;
+  'children' | 'onLogoClick' | 'activePage'
+> & {
+  canGoBack?: boolean;
+};
 
 export const RecruiterLayout = ({
   children,
   canGoBack,
-  additionalButtons,
   onLogoClick,
 }: RecruiterLayoutProps): ReactElement => {
   const router = useRouter();
@@ -84,14 +76,10 @@ export const RecruiterLayout = ({
 
   return (
     <div className="antialiased">
-      {!!canGoBack && <GoBackHeaderMobile />}
       <InAppNotificationElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
-      <RecruiterLayoutHeader
-        onLogoClick={onLogoClick}
-        additionalButtons={additionalButtons}
-      />
+      <RecruiterLayoutHeader canGoBack={canGoBack} onLogoClick={onLogoClick} />
       <NoSidebarLayout
         hideBackButton
         className="flex flex-col gap-5 py-5 laptop:gap-10 laptop:py-10"

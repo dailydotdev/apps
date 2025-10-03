@@ -6,15 +6,34 @@ import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { OpportunityStepsProps } from './OpportunitySteps';
 import { OpportunitySteps } from './OpportunitySteps';
 import { webappUrl } from '../../../lib/constants';
-import type { ApiErrorResult } from '../../../graphql/common';
+import type {
+  ApiResponseError,
+  ApiZodErrorExtension,
+  ApiErrorResult,
+} from '../../../graphql/common';
+import { ApiError } from '../../../graphql/common';
 import { labels } from '../../../lib/labels';
 import { updateOpportunityStateOptions } from '../../../features/opportunity/mutations';
 import { opportunityEditStep2Schema } from '../../../lib/schema/opportunity';
 import { OpportunityState } from '../../../features/opportunity/protobuf/opportunity';
+import type { PromptOptions } from '../../../hooks/usePrompt';
+import { usePrompt } from '../../../hooks/usePrompt';
+
+export const opportunityEditDiscardPrompt: PromptOptions = {
+  title: labels.opportunity.approveNotice.title,
+  description: labels.opportunity.approveNotice.description,
+  okButton: {
+    title: labels.opportunity.approveNotice.okButton,
+  },
+  cancelButton: {
+    title: labels.opportunity.approveNotice.cancelButton,
+  },
+};
 
 export const OpportunityStepsQuestions = (
   props: Partial<OpportunityStepsProps>,
 ): ReactElement => {
+  const { showPrompt } = usePrompt();
   const router = useRouter();
   const opportunityId = router?.query?.id as string;
   const { displayToast } = useToastNotification();
@@ -32,7 +51,36 @@ export const OpportunityStepsQuestions = (
     onSuccess: () => {
       goToNextStep();
     },
-    onError: (error: ApiErrorResult) => {
+    onError: async (error: ApiErrorResult) => {
+      if (
+        error.response?.errors?.[0]?.extensions?.code ===
+        ApiError.ZodValidationError
+      ) {
+        const apiError = error.response
+          .errors[0] as ApiResponseError<ApiZodErrorExtension>;
+
+        await showPrompt({
+          title: labels.opportunity.requiredMissingNotice.title,
+          description: (
+            <div className="flex flex-col gap-4">
+              <span>
+                {labels.opportunity.requiredMissingNotice.description}
+              </span>
+              <ul className="text-text-tertiary">
+                {apiError.extensions.issues.map((issue) => {
+                  const path = issue.path.join('.');
+
+                  return <li key={path}>• {path}</li>;
+                })}
+              </ul>
+            </div>
+          ),
+          cancelButton: null,
+        });
+
+        return;
+      }
+
       displayToast(
         error.response?.errors?.[0]?.message || labels.error.generic,
       );
@@ -47,7 +95,13 @@ export const OpportunityStepsQuestions = (
       schema={opportunityEditStep2Schema}
       ctaButtonProps={{
         loading: isPending || isSuccess,
-        onClick: () => {
+        onClick: async () => {
+          const result = await showPrompt(opportunityEditDiscardPrompt);
+
+          if (!result) {
+            return;
+          }
+
           onSubmit({
             id: opportunityId,
             state: OpportunityState.LIVE,

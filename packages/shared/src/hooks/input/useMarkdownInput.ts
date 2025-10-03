@@ -10,6 +10,7 @@ import type {
 } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { search as emojiSearch } from 'node-emoji';
 import type { GetReplacementFn } from '../../lib/textarea';
 import {
   CursorType,
@@ -51,6 +52,7 @@ export enum MarkdownCommand {
   Upload = 'upload',
   Link = 'link',
   Mention = 'mention',
+  Emoji = 'emoji',
 }
 
 export interface UseMarkdownInputProps
@@ -71,14 +73,20 @@ type InputCallbacks = Pick<
 export interface UseMarkdownInput {
   input: string;
   query?: string;
+  emojiQuery?: string;
   offset?: number[];
   selected?: number;
+  emojiData?: Array<{ emoji: string; name: string }>;
+  selectedEmoji?: number;
   onLinkCommand?: () => Promise<unknown>;
   onMentionCommand?: () => Promise<void>;
   onUploadCommand?: (files: FileList) => void;
   onApplyMention?: (user: UserShortProfile) => Promise<void>;
+  onApplyEmoji?: (emoji: string) => Promise<void>;
   checkMention?: (position?: number[]) => void;
+  checkEmoji?: (position?: number[]) => void;
   onCloseMention?: () => void;
+  onCloseEmoji?: () => void;
   mentions?: UserShortProfile[];
   callbacks: InputCallbacks;
   uploadingCount: number;
@@ -89,6 +97,7 @@ export interface UseMarkdownInput {
 export const defaultMarkdownCommands = {
   link: true,
   mention: true,
+  emoji: true,
 };
 
 export const useMarkdownInput = ({
@@ -105,15 +114,23 @@ export const useMarkdownInput = ({
   const isLinkEnabled = enabledCommand[MarkdownCommand.Link];
   const isUploadEnabled = enabledCommand[MarkdownCommand.Upload];
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
+  const isEmojiEnabled = enabledCommand[MarkdownCommand.Emoji];
   const [command, setCommand] = useState<TextareaCommand>();
   const [input, setInput] = useState(initialContent);
   const [query, setQuery] = useState<string>(undefined);
+  const [emojiQuery, setEmojiQuery] = useState<string>(undefined);
   const [offset, setOffset] = useState([0, 0]);
   const [selected, setSelected] = useState(0);
+  const [selectedEmoji, setSelectedEmoji] = useState(0);
   const { requestMethod } = useRequestProtocol();
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
+
+  const emojiData = useMemo(
+    () => (emojiQuery ? emojiSearch(emojiQuery.toLowerCase()).slice(0, 5) : []),
+    [emojiQuery],
+  );
 
   useEffect(() => {
     if (dirtyRef.current) {
@@ -193,10 +210,29 @@ export const useMarkdownInput = ({
     setQuery(value);
   };
 
+  const updateEmojiQuery = (value: string) => {
+    if (!isEmojiEnabled || value === emojiQuery) {
+      return;
+    }
+
+    if (isNullOrUndefined(emojiQuery) && !isNullOrUndefined(value)) {
+      setOffset(getCaretOffset(textarea));
+      setSelectedEmoji(0);
+    }
+
+    setEmojiQuery(value);
+  };
+
   const onApplyMention = async (mention: UserShortProfile) => {
     const getReplacement = () => ({ replacement: `@${mention.username} ` });
     await command.replaceWord(getReplacement, onUpdate, CursorType.Adjacent);
     updateQuery(undefined);
+  };
+
+  const onApplyEmoji = async (emoji: string) => {
+    const getReplacement = () => ({ replacement: `${emoji} ` });
+    await command.replaceWord(getReplacement, onUpdate, CursorType.Adjacent);
+    updateEmojiQuery(undefined);
   };
 
   const onLinkCommand = () => command.replaceWord(getLinkReplacement, onUpdate);
@@ -236,6 +272,24 @@ export const useMarkdownInput = ({
     return updateQuery(mention);
   };
 
+  const checkEmoji = (position?: number[]) => {
+    const current = [textarea.selectionStart, textarea.selectionEnd];
+    const selection = position ?? current;
+    const [word] = getCloseWord(textarea, selection);
+    const colon = word.substring(1);
+    const isValid = word.charAt(0) === ':';
+
+    if (!isValid) {
+      return updateEmojiQuery(undefined);
+    }
+
+    if (isNullOrUndefined(emojiQuery)) {
+      return updateEmojiQuery(colon ?? '');
+    }
+
+    return updateEmojiQuery(colon);
+  };
+
   const onKeyUp: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     const pressed = e.key as ArrowKey;
 
@@ -249,6 +303,7 @@ export const useMarkdownInput = ({
 
     const { selectionStart, selectionEnd } = e.currentTarget;
     checkMention([selectionStart, selectionEnd]);
+    checkEmoji([selectionStart, selectionEnd]);
   };
 
   const onKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = async (e) => {
@@ -285,7 +340,10 @@ export const useMarkdownInput = ({
       e.key === KeyboardCommand.Enter ||
       Y_AXIS_KEYS.includes(e.key as ArrowKey);
 
-    if (!isNavigatingPopup || !mentions?.length) {
+    const hasMentions = mentions?.length > 0;
+    const hasEmojis = !!emojiQuery;
+
+    if (!isNavigatingPopup || (!hasMentions && !hasEmojis)) {
       return e.stopPropagation(); // to stop app navigation
     }
 
@@ -295,17 +353,32 @@ export const useMarkdownInput = ({
 
     if (Y_AXIS_KEYS.includes(e.key as ArrowKey)) {
       if (arrowKey === ArrowKey.Up) {
-        if (selected > 0) {
-          setSelected(selected - 1);
+        if (hasMentions) {
+          setSelected((selected - 1 + mentions.length) % mentions.length);
+        } else if (hasEmojis) {
+          setSelectedEmoji(
+            (selectedEmoji - 1 + emojiData.length) % emojiData.length,
+          );
         }
-      } else if (selected < mentions.length - 1) {
-        setSelected(selected + 1);
+      } else if (hasMentions) {
+        setSelected((selected + 1) % mentions.length);
+      } else if (hasEmojis) {
+        setSelectedEmoji((selectedEmoji + 1) % emojiData.length);
       }
     }
 
-    const mention = mentions[selected];
-    if (mention && e.key === KeyboardCommand.Enter) {
-      await onApplyMention(mention);
+    if (e.key === KeyboardCommand.Enter) {
+      if (hasMentions) {
+        const mention = mentions[selected];
+        if (mention) {
+          await onApplyMention(mention);
+        }
+      } else if (hasEmojis) {
+        const emoji = emojiData[selectedEmoji];
+        if (emoji) {
+          await onApplyEmoji(emoji.emoji);
+        }
+      }
     }
 
     return null;
@@ -320,6 +393,7 @@ export const useMarkdownInput = ({
 
     onUpdate(target.value);
     checkMention();
+    checkEmoji();
   };
 
   const verifyFile = (file: File) => {
@@ -382,6 +456,7 @@ export const useMarkdownInput = ({
   };
 
   const onCloseMention = useCallback(() => setQuery(undefined), []);
+  const onCloseEmoji = useCallback(() => setEmojiQuery(undefined), []);
   const uploadCommands = isUploadEnabled ? { onDrop, onPaste } : {};
   const uploadProps = isUploadEnabled
     ? { uploadedCount, uploadingCount: queueCount, onUploadCommand }
@@ -400,10 +475,22 @@ export const useMarkdownInput = ({
         mentions: queryMentions,
       }
     : {};
+  const emojiProps = isEmojiEnabled
+    ? {
+        emojiQuery,
+        emojiData,
+        offset,
+        selectedEmoji,
+        checkEmoji,
+        onApplyEmoji,
+        onCloseEmoji,
+      }
+    : {};
 
   return {
     ...uploadProps,
     ...mentionProps,
+    ...emojiProps,
     input,
     onLinkCommand: isLinkEnabled ? onLinkCommand : null,
     callbacks: {
