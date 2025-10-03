@@ -4,15 +4,19 @@ import React from 'react';
 import HeaderLogo from './HeaderLogo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
+import { GoBackButton } from '../post/GoBackHeaderMobile';
+import { LogoRecruiter } from '../Logo';
 
 export type RecruiterLayoutHeaderProps = {
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  canGoBack?: boolean;
 };
 
 export const RecruiterLayoutHeader = ({
   additionalButtons,
   onLogoClick,
+  canGoBack,
 }: RecruiterLayoutHeaderProps): ReactElement => {
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
@@ -25,8 +29,10 @@ export const RecruiterLayoutHeader = ({
       )}
       style={featureTheme ? featureTheme.navbar : undefined}
     >
-      <div>
+      {canGoBack && <GoBackButton />}
+      <div className="mr-auto flex items-center gap-2">
         <HeaderLogo onLogoClick={onLogoClick} />
+        <LogoRecruiter />
       </div>
       <div>{additionalButtons}</div>
     </header>
