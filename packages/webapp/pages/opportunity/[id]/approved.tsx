@@ -20,6 +20,8 @@ import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity
 import { useRouter } from 'next/router';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { opportunityLiveIllustration } from '@dailydotdev/shared/src/lib/image';
+import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
+import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -37,74 +39,79 @@ const seo: NextSeoProps = {
 };
 
 const ApprovedPage = (): ReactElement => {
+  const router = useRouter();
+
   return (
-    <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
-      <FlexCol className="flex-1 gap-6">
-        <FlexCol className="items-center gap-4">
-          <Image src={opportunityLiveIllustration} />
-          <Typography type={TypographyType.LargeTitle} bold center>
-            Your job listing is now live!
-          </Typography>
-          <Typography
-            type={TypographyType.Title3}
-            color={TypographyColor.Secondary}
-            center
-          >
-            We&apos;ll start matching your role with the most relevant
-            candidates right away. Expect tailored introductions delivered
-            directly to you — no noise, just the right talent.
-          </Typography>
-        </FlexCol>
-        <FlexCol
-          className="w-full gap-4 rounded-16 p-4 text-black"
-          style={{
-            background: briefButtonBg,
+    <>
+      <Portal
+        container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
+      >
+        <OpportunitySteps
+          step={2}
+          totalSteps={2}
+          ctaText="Back to daily.dev"
+          ctaButtonProps={{
+            onClick: () => {
+              router.push(webappUrl);
+            },
           }}
-        >
-          <header className="flex items-center gap-2">
-            <MagicIcon size={IconSize.Small} />{' '}
-            <Typography bold>What&apos;s next?</Typography>
-          </header>
-          <ul className="flex list-disc flex-col gap-1 pl-7">
-            <Typography tag={TypographyTag.Li}>
-              We&apos;ll automatically surface top candidates that meet your
-              role requirements
+        />
+      </Portal>
+      <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
+        <FlexCol className="flex-1 gap-6">
+          <FlexCol className="items-center gap-4">
+            <Image src={opportunityLiveIllustration} />
+            <Typography type={TypographyType.LargeTitle} bold center>
+              Your job listing is now live!
             </Typography>
-            <Typography tag={TypographyTag.Li}>
-              You&apos;ll get notified in Slack as soon as there&apos;s a strong
-              match
+            <Typography
+              type={TypographyType.Title3}
+              color={TypographyColor.Secondary}
+              center
+            >
+              We&apos;ll start matching your role with the most relevant
+              candidates right away. Expect tailored introductions delivered
+              directly to you — no noise, just the right talent.
             </Typography>
-            <Typography tag={TypographyTag.Li}>
-              You can update or edit your job listing anytime in your dashboard
-            </Typography>
-          </ul>
+          </FlexCol>
+          <FlexCol
+            className="w-full gap-4 rounded-16 p-4 text-black"
+            style={{
+              background: briefButtonBg,
+            }}
+          >
+            <header className="flex items-center gap-2">
+              <MagicIcon size={IconSize.Small} />{' '}
+              <Typography bold>What&apos;s next?</Typography>
+            </header>
+            <ul className="flex list-disc flex-col gap-1 pl-7">
+              <Typography tag={TypographyTag.Li}>
+                We&apos;ll automatically surface top candidates that meet your
+                role requirements
+              </Typography>
+              <Typography tag={TypographyTag.Li}>
+                You&apos;ll get notified in Slack as soon as there&apos;s a
+                strong match
+              </Typography>
+              <Typography tag={TypographyTag.Li}>
+                You can update or edit your job listing anytime in your
+                dashboard
+              </Typography>
+            </ul>
+          </FlexCol>
         </FlexCol>
-      </FlexCol>
-    </div>
+      </div>
+    </>
   );
 };
 
 const GetPageLayout: typeof getLayout = (page, layoutProps) => {
   const router = useRouter();
-  const { id } = router.query;
+  const opportunityId = router?.query?.id as string;
 
   return (
-    <OpportunityEditProvider opportunityId={id as string}>
-      {getLayout(page, {
-        ...layoutProps,
-        additionalButtons: (
-          <OpportunitySteps
-            step={2}
-            totalSteps={2}
-            ctaText="Back to daily.dev"
-            ctaButtonProps={{
-              onClick: () => {
-                router.push(webappUrl);
-              },
-            }}
-          />
-        ),
-      })}
+    <OpportunityEditProvider opportunityId={opportunityId}>
+      {getLayout(page, layoutProps)}
     </OpportunityEditProvider>
   );
 };

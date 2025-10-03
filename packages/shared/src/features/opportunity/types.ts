@@ -121,3 +121,7 @@ export type UserCandidatePreferences = {
   customKeywords?: boolean;
   keywords?: Array<UserCandidateKeyword>;
 };
+
+export const recruiterLayoutHeaderClassName = 'recruiter-layout-header';
+
+export const recruiterLayoutFooterClassName = 'recruiter-layout-footer';

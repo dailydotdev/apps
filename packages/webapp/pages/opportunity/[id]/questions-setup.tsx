@@ -29,6 +29,9 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
+import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
+import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 import {
   defaultOpenGraph,
@@ -66,6 +69,16 @@ const QuestionsSetupPage = (): ReactElement => {
 
   return (
     <>
+      <Portal
+        container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
+      >
+        <div className="hidden items-center laptop:flex">
+          <OpportunityStepsQuestions />
+        </div>
+      </Portal>
+      <OpportunityFooter>
+        <OpportunityStepsQuestions className="w-full [&>:first-child]:justify-center [&>:nth-child(2)]:flex-1" />
+      </OpportunityFooter>
       <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4">
         <MagicIcon className="text-brand-default" size={IconSize.Medium} />
         <Typography bold center type={TypographyType.LargeTitle}>
@@ -204,7 +217,6 @@ const GetPageLayout: typeof getLayout = (page, layoutProps) => {
       {getLayout(page, {
         ...layoutProps,
         canGoBack: true,
-        additionalButtons: <OpportunityStepsQuestions />,
       })}
     </OpportunityEditProvider>
   );

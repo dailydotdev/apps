@@ -12,7 +12,6 @@ import { useViewSize, ViewSize } from '../hooks';
 import { PlusUser } from './PlusUser';
 import { TypographyType } from './typography/Typography';
 import type { WithClassNameProps } from './utilities';
-import type { LogoRecruiterProps } from '../svg/LogoRecruiterSvg';
 
 const DevPlusIcon = dynamic(() =>
   import(/* webpackChunkName: "devPlusIcon" */ './icons').then(
@@ -90,6 +89,7 @@ interface LogoProps {
   };
   linkDisabled?: boolean;
   isPlus?: boolean;
+  isRecruiter?: boolean;
 }
 
 export default function Logo({
@@ -102,6 +102,7 @@ export default function Logo({
   featureTheme,
   linkDisabled,
   isPlus = false,
+  isRecruiter = false,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -149,6 +150,7 @@ export default function Logo({
             fallback={LogoText}
           />
         )}
+        {isRecruiter && !compact && <LogoRecruiterSvg />}
       </a>
     </LinkWithTooltip>
   );
@@ -180,28 +182,5 @@ export const LogoWithPlus = ({
         }
       />
     </div>
-  );
-};
-
-export const LogoRecruiter = ({
-  className,
-  logoClassName,
-  onClick,
-}: {
-  className?: string;
-  logoClassName?: LogoRecruiterProps['className'];
-  onClick?: (e: MouseEvent) => unknown;
-}): ReactElement => {
-  return (
-    <button
-      type="button"
-      className={classNames(
-        typeof onClick !== 'function' && 'pointer-events-none',
-        className,
-      )}
-      onClick={onClick}
-    >
-      <LogoRecruiterSvg className={logoClassName} />
-    </button>
   );
 };

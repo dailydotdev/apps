@@ -40,9 +40,7 @@ export const OpportunitySteps = ({
   }
 
   return (
-    <div
-      className={classNames('hidden items-center gap-4 laptop:flex', className)}
-    >
+    <div className={classNames('flex items-center gap-4', className)}>
       <div className="flex items-center">
         <ProgressCircle
           stroke={2}
