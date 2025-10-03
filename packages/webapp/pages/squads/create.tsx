@@ -137,8 +137,8 @@ function CreatePost(): ReactElement {
       // only one source, let's redirect to the post
       const isSingleSourcePost = selectedSourceIds.length === 1;
       if (isSingleSourcePost) {
-        const { slug } = result[0];
-        await clearFormAndRedirectTo(`${webappUrl}posts/${slug}`);
+        const { slug, id } = result[0];
+        await clearFormAndRedirectTo(`${webappUrl}posts/${slug || id}`);
         return;
       }
 
@@ -236,14 +236,10 @@ function CreatePost(): ReactElement {
     return <Unauthorized />;
   }
 
-  const squad = activeSquads.find(({ id, handle }) =>
-    [id, handle].includes(selectedSourceIds[0] ?? user.id),
-  );
-
   return (
     <WritePostContextProvider
       draft={draft}
-      squad={squad}
+      squad={null}
       formRef={formRef}
       isUpdatingDraft={isUpdatingDraft}
       isPosting={isPending}
@@ -279,7 +275,6 @@ function CreatePost(): ReactElement {
               onPostSuccess={() => {
                 onAskConfirmation(false);
               }}
-              squad={squad}
             />
           </Tab>
           <Tab

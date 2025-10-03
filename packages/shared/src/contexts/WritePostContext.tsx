@@ -44,7 +44,7 @@ export interface WritePostProps {
     type: Post['type'],
   ) => void;
   isPosting: boolean;
-  squad: Squad;
+  squad: Squad | null;
   post?: Post;
   moderated?: SourcePostModeration;
   fetchedPost?: MergedWriteObject;
