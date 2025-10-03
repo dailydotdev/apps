@@ -127,9 +127,7 @@ export function ShareLink({
     }
 
     const content = commentary;
-    const args = preview.id
-      ? { title: commentary, content, sharedPostId: preview.id }
-      : { title, content, externalLink, imageUrl: image };
+    const args = { title, content, externalLink, imageUrl: image };
 
     return onSubmitForm(e, args, PostType.Share);
   };
