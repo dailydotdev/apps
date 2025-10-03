@@ -11,6 +11,7 @@ import NotificationItemAvatar from './NotificationItemAvatar';
 import {
   notificationMutingCopy,
   NotificationType,
+  notificationTypeNotClickable,
   notificationTypeTheme,
 } from './utils';
 import { KeyboardCommand } from '../../lib/element';
@@ -166,6 +167,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
     description: memoizedDescription,
   } = useObjectPurify({ title, description });
   const router = useRouter();
+  const isClickable = !notificationTypeNotClickable[type];
 
   const filteredAvatars = useMemo(() => {
     return avatars?.filter((avatar) => avatar) || [];
@@ -179,6 +181,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
     NotificationType.CollectionUpdated,
     NotificationType.ArticleUpvoteMilestone,
     NotificationType.CommentUpvoteMilestone,
+    NotificationType.WarmIntro,
   ].includes(type) ? (
     <ProfilePictureGroup total={numTotalAvatars} size={ProfileImageSize.Medium}>
       {filteredAvatars.map((avatar) => (
@@ -202,6 +205,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
       .filter((avatar) => avatar) ?? []
   );
   const hasAvatar = filteredAvatars.length > 0;
+  const renderLink = onClick && isClickable;
 
   return (
     <div
@@ -210,7 +214,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         isUnread && 'bg-surface-float',
       )}
     >
-      {onClick && (
+      {renderLink && (
         <Link href={targetUrl} passHref>
           <a
             role="link"
