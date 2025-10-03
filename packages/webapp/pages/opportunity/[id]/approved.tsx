@@ -19,7 +19,7 @@ import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/oppo
 import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunitySteps';
 import { useRouter } from 'next/router';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import { fromCDN } from '@dailydotdev/shared/src/lib';
+import { opportunityLiveIllustration } from '@dailydotdev/shared/src/lib/image';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -41,7 +41,7 @@ const ApprovedPage = (): ReactElement => {
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
         <FlexCol className="items-center gap-4">
-          <Image src={fromCDN('/assets/opportunity-live-illustration.png')} />
+          <Image src={opportunityLiveIllustration} />
           <Typography type={TypographyType.LargeTitle} bold center>
             Your job listing is now live!
           </Typography>
