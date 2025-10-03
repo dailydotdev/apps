@@ -22,6 +22,7 @@ module.exports = {
   transformIgnorePatterns: ['node_modules/(?!@dailydotdev)'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
+    '^node-emoji$': 'node-emoji/lib/index.cjs',
     '\\.svg$': '<rootDir>/__mocks__/svgrMock.ts',
     '\\.css$': 'identity-obj-proxy',
     'react-markdown': '<rootDir>/__mocks__/reactMarkdownMock.tsx',
