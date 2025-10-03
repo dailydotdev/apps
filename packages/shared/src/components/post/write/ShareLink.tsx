@@ -6,7 +6,7 @@ import type { Squad } from '../../../graphql/sources';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { WriteFooter } from './WriteFooter';
 import { SubmitExternalLink } from './SubmitExternalLink';
-import { usePostToSquad } from '../../../hooks';
+import { usePostToSquad, useToastNotification } from '../../../hooks';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { WriteLinkPreview } from './WriteLinkPreview';
@@ -44,6 +44,7 @@ export function ShareLink({
 
   const { showPrompt } = usePrompt();
   const { push } = useRouter();
+  const { displayToast } = useToastNotification();
   const { onSubmitForm, isPosting: isPendingCreation } = useWritePostContext();
 
   const [commentary, setCommentary] = useState(
@@ -117,14 +118,22 @@ export function ShareLink({
       return null;
     }
 
+    const { title, image } = preview;
+    const externalLink = preview.finalUrl ?? preview.url;
+
+    if (!title) {
+      displayToast('Invalid link');
+      return null;
+    }
+
     return onSubmitForm(
       e,
       {
-        title: commentary,
+        title,
         content: commentary,
         ...(preview.id
           ? { sharedPostId: preview.id }
-          : { externalLink: preview.finalUrl }),
+          : { externalLink, imageUrl: image }),
       },
       PostType.Share,
     );
