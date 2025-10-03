@@ -4,7 +4,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { recommendOpportunityScreeningQuestionsOptions } from '../../../features/opportunity/mutations';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
-import { useToastNotification } from '../../../hooks/useToastNotification';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '../../../hooks/useToastNotification';
 import { opportunityEditStep1Schema } from '../../../lib/schema/opportunity';
 import type { OpportunityStepsProps } from './OpportunitySteps';
 import { OpportunitySteps } from './OpportunitySteps';
@@ -19,7 +22,7 @@ export const OpportunityStepsInfo = (
 ): ReactElement => {
   const router = useRouter();
   const opportunityId = router?.query?.id as string;
-  const { displayToast } = useToastNotification();
+  const { displayToast, dismissToast, subject } = useToastNotification();
 
   const [, updateOpportunity] = useUpdateQuery(
     opportunityByIdOptions({
@@ -46,6 +49,11 @@ export const OpportunityStepsInfo = (
         return opportunity.questions;
       }
 
+      displayToast('Generating screening questions...', {
+        subject: ToastSubject.OpportunityScreeningQuestions,
+        timer: 10_000,
+      });
+
       return await recommendOpportunityScreeningQuestionsOptions().mutationFn({
         id,
       });
@@ -66,6 +74,11 @@ export const OpportunityStepsInfo = (
       displayToast(
         error.response?.errors?.[0]?.message || labels.error.generic,
       );
+    },
+    onSettled: () => {
+      if (subject === ToastSubject.OpportunityScreeningQuestions) {
+        dismissToast();
+      }
     },
   });
 
