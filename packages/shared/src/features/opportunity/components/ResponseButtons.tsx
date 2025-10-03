@@ -21,7 +21,7 @@ export const ResponseButtons = ({
   size = ButtonSize.Small,
 }: {
   id: string;
-  className: { container?: string; buttons?: string };
+  className?: { container?: string; buttons?: string };
   size?: ButtonSize;
 }): ReactElement => {
   const { logEvent } = useLogContext();
@@ -65,7 +65,7 @@ export const ResponseButtons = ({
             disabled={status === OpportunityMatchStatus.CandidateAccepted}
             onClick={() => handleClick(LogEvent.ApproveOpportunityMatch)}
           >
-            I&apos;m interested
+            Interested
           </Button>
         </Link>
       )}

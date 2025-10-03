@@ -11,6 +11,7 @@ interface HeaderLogoProps extends WithClassNameProps {
   onLogoClick?: (e: React.MouseEvent) => unknown;
   position?: LogoPosition;
   compact?: boolean;
+  isRecruiter?: boolean;
 }
 
 function HeaderLogo({
@@ -18,6 +19,7 @@ function HeaderLogo({
   position,
   compact = false,
   className,
+  isRecruiter = false,
 }: HeaderLogoProps): ReactElement {
   const featureTheme = useFeatureTheme();
   const { user } = useAuthContext();
@@ -30,6 +32,7 @@ function HeaderLogo({
       featureTheme={featureTheme}
       isPlus={user?.isPlus}
       className={className}
+      isRecruiter={isRecruiter}
     />
   );
 }

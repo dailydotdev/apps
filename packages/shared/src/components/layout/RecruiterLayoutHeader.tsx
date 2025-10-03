@@ -5,7 +5,7 @@ import HeaderLogo from './HeaderLogo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { GoBackButton } from '../post/GoBackHeaderMobile';
-import { LogoRecruiter } from '../Logo';
+import { recruiterLayoutHeaderClassName } from '../../features/opportunity/types';
 
 export type RecruiterLayoutHeaderProps = {
   additionalButtons?: ReactNode;
@@ -14,7 +14,6 @@ export type RecruiterLayoutHeaderProps = {
 };
 
 export const RecruiterLayoutHeader = ({
-  additionalButtons,
   onLogoClick,
   canGoBack,
 }: RecruiterLayoutHeaderProps): ReactElement => {
@@ -31,10 +30,9 @@ export const RecruiterLayoutHeader = ({
     >
       {canGoBack && <GoBackButton />}
       <div className="mr-auto flex items-center gap-2">
-        <HeaderLogo onLogoClick={onLogoClick} />
-        <LogoRecruiter />
+        <HeaderLogo onLogoClick={onLogoClick} isRecruiter />
       </div>
-      <div>{additionalButtons}</div>
+      <div className={recruiterLayoutHeaderClassName} />
     </header>
   );
 };

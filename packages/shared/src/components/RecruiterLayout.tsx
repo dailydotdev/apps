@@ -15,7 +15,7 @@ import SettingsContext from '../contexts/SettingsContext';
 
 export type RecruiterLayoutProps = Pick<
   MainLayoutProps,
-  'children' | 'onLogoClick' | 'activePage' | 'additionalButtons'
+  'children' | 'onLogoClick' | 'activePage'
 > & {
   canGoBack?: boolean;
 };
@@ -23,7 +23,6 @@ export type RecruiterLayoutProps = Pick<
 export const RecruiterLayout = ({
   children,
   canGoBack,
-  additionalButtons,
   onLogoClick,
 }: RecruiterLayoutProps): ReactElement => {
   const router = useRouter();
@@ -80,11 +79,7 @@ export const RecruiterLayout = ({
       <InAppNotificationElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
-      <RecruiterLayoutHeader
-        canGoBack={canGoBack}
-        onLogoClick={onLogoClick}
-        additionalButtons={additionalButtons}
-      />
+      <RecruiterLayoutHeader canGoBack={canGoBack} onLogoClick={onLogoClick} />
       <NoSidebarLayout
         hideBackButton
         className="flex flex-col gap-5 py-5 laptop:gap-10 laptop:py-10"
