@@ -32,7 +32,7 @@ const RecommendedEmojiTooltip = ({
       <TooltipPrimitive.Root open={!!emojiData.length}>
         <TooltipPrimitive.Portal>
           <TooltipPrimitive.Content
-            className="z-tooltip w-70 rounded-16 bg-accent-pepper-subtlest rounded-16 max-h-64 overflow-hidden p-0"
+            className="z-tooltip max-h-64 w-70 overflow-hidden rounded-16 bg-accent-pepper-subtlest p-0"
             side="top"
             align="start"
             sideOffset={5}
@@ -55,7 +55,7 @@ const RecommendedEmojiTooltip = ({
                 onClick={() => onSelect(emoji.emoji)}
                 type="button"
                 className={classNames(
-                  'typo-callout hover:bg-surface-hover flex w-full items-center gap-2 p-2 text-left',
+                  'flex w-full items-center gap-2 p-2 text-left typo-callout hover:bg-surface-hover',
                   selected === index && 'bg-theme-active',
                 )}
               >

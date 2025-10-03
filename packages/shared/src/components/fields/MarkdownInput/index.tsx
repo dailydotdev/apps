@@ -199,7 +199,7 @@ function MarkdownInput(
   return (
     <div
       className={classNames(
-        'rounded-16 bg-surface-float relative flex flex-col',
+        'relative flex flex-col rounded-16 bg-surface-float',
         className?.container,
       )}
     >
@@ -246,7 +246,7 @@ function MarkdownInput(
           wrapper={(component) => (
             <span className="relative flex flex-col">
               <Divider
-                className="!bg-border-subtlest-tertiary absolute left-8 !h-10"
+                className="absolute left-8 !h-10 !bg-border-subtlest-tertiary"
                 vertical
               />
               {timeline}
@@ -278,7 +278,7 @@ function MarkdownInput(
                 {...callbacks}
                 ref={textareaRef}
                 className={classNames(
-                  'max-h-commentBox placeholder-text-quaternary typo-body flex flex-1 bg-transparent outline-none',
+                  'flex max-h-commentBox flex-1 bg-transparent placeholder-text-quaternary outline-none typo-body',
                   showUserAvatar ? 'm-3' : 'm-4',
                   className?.input,
                 )}
@@ -289,7 +289,7 @@ function MarkdownInput(
               />
             </span>
             {maxInputLength && (
-              <div className="text-text-tertiary typo-callout m-2 flex justify-end font-bold">
+              <div className="m-2 flex justify-end font-bold text-text-tertiary typo-callout">
                 {maxInputLength - (input?.length || 0)}
               </div>
             )}
@@ -316,7 +316,7 @@ function MarkdownInput(
         onClickOutside={onCloseEmoji}
       />
       {footer ?? (
-        <span className="border-border-subtlest-tertiary text-text-tertiary laptop:justify-end laptop:border-t flex flex-row items-center gap-3 p-3 px-4">
+        <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
           {!!onUploadCommand && (
             <Button
               size={actionButtonSizes}
@@ -324,7 +324,7 @@ function MarkdownInput(
               color={uploadingCount ? ButtonColor.Cabbage : undefined}
               className={classNames(
                 'font-normal',
-                uploadingCount && 'text-brand-default mr-auto',
+                uploadingCount && 'mr-auto text-brand-default',
               )}
               icon={icon}
               onClick={() => uploadRef?.current?.click()}
