@@ -344,7 +344,12 @@ const JobPage = (): ReactElement => {
           size={ButtonSize.Medium}
         />
       )}
-      <div className="z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 pb-14 laptop:flex-row laptop:pb-0">
+      <div
+        className={classNames(
+          'z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 tablet:pb-0 laptop:flex-row',
+          match ? 'pb-safe-offset-14' : 'pb-safe',
+        )}
+      >
         <div className="h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}
           <div className="flex min-h-14 items-center gap-4 border-b border-border-subtlest-tertiary p-3">
@@ -544,7 +549,7 @@ const JobPage = (): ReactElement => {
             )}
           </div>
 
-          {faq.map((faqItem) => {
+          {faq.map((faqItem, index) => {
             const contentHtml = opportunity.content[faqItem.key]?.html;
 
             const buttonLabel = contentHtml ? 'Edit' : 'Add';
@@ -555,6 +560,7 @@ const JobPage = (): ReactElement => {
                 className={classNames(
                   'border-t border-border-subtlest-tertiary px-4',
                   !contentHtml && 'bg-surface-float',
+                  index === faq.length - 1 && 'rounded-b-14',
                 )}
               >
                 <Accordion
