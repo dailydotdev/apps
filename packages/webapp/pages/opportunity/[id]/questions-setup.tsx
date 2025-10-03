@@ -38,7 +38,7 @@ import {
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -208,17 +208,21 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   }
 };
 
-const GetPageLayout: typeof getLayout = (page, layoutProps) => {
+const GetPageLayout: typeof getOpportunityProtectedLayout = (
+  page,
+  layoutProps,
+) => {
   const router = useRouter();
   const opportunityId = router?.query?.id as string;
 
-  return (
+  return getOpportunityProtectedLayout(
     <OpportunityEditProvider opportunityId={opportunityId}>
-      {getLayout(page, {
-        ...layoutProps,
-        canGoBack: true,
-      })}
-    </OpportunityEditProvider>
+      {page}
+    </OpportunityEditProvider>,
+    {
+      ...layoutProps,
+      canGoBack: true,
+    },
   );
 };
 

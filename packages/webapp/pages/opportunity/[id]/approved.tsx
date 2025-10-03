@@ -15,20 +15,23 @@ import { MagicIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { briefButtonBg } from '@dailydotdev/shared/src/styles/custom';
-import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
-import { OpportunitySteps } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunitySteps';
 import { useRouter } from 'next/router';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { opportunityLiveIllustration } from '@dailydotdev/shared/src/lib/image';
 import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
 import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
+import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -41,22 +44,26 @@ const seo: NextSeoProps = {
 const ApprovedPage = (): ReactElement => {
   const router = useRouter();
 
+  const buttonElement = (
+    <Button
+      className="w-full"
+      variant={ButtonVariant.Primary}
+      onClick={() => {
+        router.push(webappUrl);
+      }}
+    >
+      Back to daily.dev
+    </Button>
+  );
+
   return (
     <>
       <Portal
         container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
       >
-        <OpportunitySteps
-          step={2}
-          totalSteps={2}
-          ctaText="Back to daily.dev"
-          ctaButtonProps={{
-            onClick: () => {
-              router.push(webappUrl);
-            },
-          }}
-        />
+        <div className="hidden items-center laptop:flex">{buttonElement}</div>
       </Portal>
+      <OpportunityFooter>{buttonElement}</OpportunityFooter>
       <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
         <FlexCol className="flex-1 gap-6">
           <FlexCol className="items-center gap-4">
@@ -105,18 +112,7 @@ const ApprovedPage = (): ReactElement => {
   );
 };
 
-const GetPageLayout: typeof getLayout = (page, layoutProps) => {
-  const router = useRouter();
-  const opportunityId = router?.query?.id as string;
-
-  return (
-    <OpportunityEditProvider opportunityId={opportunityId}>
-      {getLayout(page, layoutProps)}
-    </OpportunityEditProvider>
-  );
-};
-
-ApprovedPage.getLayout = GetPageLayout;
+ApprovedPage.getLayout = getOpportunityProtectedLayout;
 ApprovedPage.layoutProps = {
   ...opportunityPageLayoutProps,
   seo,
