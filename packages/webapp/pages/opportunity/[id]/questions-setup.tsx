@@ -203,7 +203,7 @@ const GetPageLayout: typeof getLayout = (page, layoutProps) => {
     <OpportunityEditProvider opportunityId={opportunityId}>
       {getLayout(page, {
         ...layoutProps,
-        canGoBack: 'true',
+        canGoBack: true,
         additionalButtons: <OpportunityStepsQuestions />,
       })}
     </OpportunityEditProvider>
