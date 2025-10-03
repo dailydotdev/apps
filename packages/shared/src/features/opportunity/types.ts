@@ -123,5 +123,3 @@ export type UserCandidatePreferences = {
 };
 
 export const recruiterLayoutHeaderClassName = 'recruiter-layout-header';
-
-export const recruiterLayoutFooterClassName = 'recruiter-layout-footer';
