@@ -44,7 +44,6 @@ export interface UseStreakRecoverReturn {
     canRecover: boolean;
     cost: number;
     isLoading: boolean;
-    isDisabled: boolean;
     oldStreakLength: number;
     isRecoverPending: boolean;
   };
@@ -58,7 +57,7 @@ export const useStreakRecover = ({
   onAfterClose,
   onRequestClose,
 }: UseStreakRecoverProps): UseStreakRecoverReturn => {
-  const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
+  const { completeAction } = useActions();
   const [hideForever, toggleHideForever] = useToggle(false);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
@@ -199,12 +198,8 @@ export const useStreakRecover = ({
     user?.balance?.amount,
   ]);
 
-  const isDisabled =
-    !isActionsFetched ||
-    checkHasCompleted(ActionType.DisableReadingStreakRecover);
-
   useEffect(() => {
-    if (!data?.streakRecover?.canRecover || isDisabled || isLoading) {
+    if (!data?.streakRecover?.canRecover || isLoading) {
       return;
     }
 
@@ -213,7 +208,7 @@ export const useStreakRecover = ({
       target_type: TargetType.StreakRecover,
       target_id: 'restore streak',
     });
-  }, [data?.streakRecover, isDisabled, isLoading, logEvent]);
+  }, [data?.streakRecover, isLoading, logEvent]);
 
   return {
     hideForever: {
@@ -225,7 +220,6 @@ export const useStreakRecover = ({
     recover: {
       ...data?.streakRecover,
       isLoading,
-      isDisabled,
       isRecoverPending: recoverMutation.isPending,
     },
   };
