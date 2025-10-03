@@ -160,14 +160,14 @@ const SourceCheckbox = ({
 
 interface SourceMultipleSelectProps {
   className?: string;
-  selected: string[];
-  setSelected: (selected: string[]) => void;
+  selectedSourceIds: string[];
+  setSelectedSourceIds: (selected: string[]) => void;
 }
 
 export const MultipleSourceSelect = ({
   className,
-  selected,
-  setSelected,
+  selectedSourceIds,
+  setSelectedSourceIds,
 }: SourceMultipleSelectProps) => {
   const { user, squads: allSquads } = useAuthContext();
   const userSource = useMemo(() => generateUserSourceAsSquad(user), [user]);
@@ -189,15 +189,15 @@ export const MultipleSourceSelect = ({
   );
   const selectedSquads = useMemo(
     () =>
-      selected
+      selectedSourceIds
         .filter((sourceId) => sourceId !== userSource.id)
         .map((sourceId) => squadsMapById[sourceId]),
-    [selected, squadsMapById, userSource.id],
+    [selectedSourceIds, squadsMapById, userSource.id],
   );
   const toggleSource = useCallback(
     (sourceId: string) => {
-      if (selected.includes(sourceId)) {
-        setSelected(selected.filter((id) => id !== sourceId));
+      if (selectedSourceIds.includes(sourceId)) {
+        setSelectedSourceIds(selectedSourceIds.filter((id) => id !== sourceId));
         return;
       }
       if (
@@ -206,12 +206,17 @@ export const MultipleSourceSelect = ({
       ) {
         return;
       }
-      setSelected([...selected, sourceId]);
+      setSelectedSourceIds([...selectedSourceIds, sourceId]);
     },
-    [selected, selectedSquads.length, setSelected, userSource.id],
+    [
+      selectedSourceIds,
+      userSource.id,
+      selectedSquads.length,
+      setSelectedSourceIds,
+    ],
   );
 
-  const isUserSourceSelected = selected.includes(userSource.id);
+  const isUserSourceSelected = selectedSourceIds.includes(userSource.id);
   const sourceImage = isUserSourceSelected
     ? userSource.image
     : selectedSquads.at(0)?.image;
@@ -221,13 +226,13 @@ export const MultipleSourceSelect = ({
     <>
       <PopoverFormContainer
         className={classNames(className, 'laptop:max-w-70')}
-        onReset={() => setSelected([user?.id])}
-        submitProps={{ disabled: !selected.length }}
+        onReset={() => setSelectedSourceIds([user?.id])}
+        submitProps={{ disabled: !selectedSourceIds.length }}
         triggerChildren={
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <img src={triggerImage} alt="Squad" className="size-6 rounded-4" />
             <TruncateText className="min-w-0 flex-1 text-left font-normal">
-              {!selected.length && 'Select one or more'}
+              {!selectedSourceIds.length && 'Select one or more'}
               {isUserSourceSelected && 'Everyone'}
               {isUserSourceSelected && selectedSquads.length > 0 && ', '}
               {selectedSquads.map((squad) => squad.name).join(', ')}
@@ -267,7 +272,7 @@ export const MultipleSourceSelect = ({
           />
           {!!squads.length && <Label>Squads you&#39;ve joined</Label>}
           {squads.map((squad) => {
-            const isSelected = selected.includes(squad.id);
+            const isSelected = selectedSourceIds.includes(squad.id);
             return (
               <SourceCheckbox
                 key={squad.id}

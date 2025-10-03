@@ -59,7 +59,7 @@ function CreatePost(): ReactElement {
   );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([]);
   const activeSquads = useMemo(() => {
     const collator = new Intl.Collator('en');
     const filtered = squads
@@ -94,7 +94,7 @@ function CreatePost(): ReactElement {
     formRef,
     clearDraft,
     isUpdatingDraft,
-  } = useDiscardPost({ draftIdentifier: selected?.join('-') });
+  } = useDiscardPost({ draftIdentifier: selectedSourceIds?.join('-') });
   const clearFormOnSuccess = () => {
     onAskConfirmation(false);
     clearDraft();
@@ -106,10 +106,14 @@ function CreatePost(): ReactElement {
   };
 
   const isInitialized = useRef(false);
-  const sourceSelectProps = { selected, setSelected, className: 'mt-6' };
+  const sourceSelectProps = {
+    selectedSourceIds,
+    setSelectedSourceIds,
+    className: 'mt-6',
+  };
   const { onCreate, isPending } = useMultipleSourcePost({
     onSuccess: async (result) => {
-      const postedInUserSource = selected.includes(user?.id);
+      const postedInUserSource = selectedSourceIds.includes(user?.id);
       if (postedInUserSource) {
         client.refetchQueries({
           queryKey: ['author', user.id],
@@ -131,7 +135,7 @@ function CreatePost(): ReactElement {
       displayToast(`✅ Your ${postLabel} been created!`);
 
       // only one source, let's redirect to the post
-      const isSingleSourcePost = selected.length === 1;
+      const isSingleSourcePost = selectedSourceIds.length === 1;
       if (isSingleSourcePost) {
         const { slug } = result[0];
         await clearFormAndRedirectTo(`${webappUrl}posts/${slug}`);
@@ -155,7 +159,7 @@ function CreatePost(): ReactElement {
   ) => {
     e.preventDefault();
 
-    if (isPending || !selected.length) {
+    if (isPending || !selectedSourceIds.length) {
       return;
     }
 
@@ -169,7 +173,7 @@ function CreatePost(): ReactElement {
           order,
         })),
       }),
-      sourceIds: selected,
+      sourceIds: selectedSourceIds,
     });
   };
 
@@ -195,7 +199,7 @@ function CreatePost(): ReactElement {
         [id, handle].includes(initialSelected),
       );
 
-    setSelected((value) => {
+    setSelectedSourceIds((value) => {
       // if we already have a value, don't change it
       if (value.length) {
         return value;
@@ -214,7 +218,7 @@ function CreatePost(): ReactElement {
     isRouteReady,
     user,
     activeSquads,
-    selected.length,
+    selectedSourceIds.length,
     query,
   ]);
 
@@ -233,7 +237,7 @@ function CreatePost(): ReactElement {
   }
 
   const squad = activeSquads.find(({ id, handle }) =>
-    [id, handle].includes(selected[0] ?? user.id),
+    [id, handle].includes(selectedSourceIds[0] ?? user.id),
   );
 
   return (
