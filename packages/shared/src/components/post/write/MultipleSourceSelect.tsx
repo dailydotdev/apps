@@ -37,6 +37,7 @@ import ConditionalWrapper from '../../ConditionalWrapper';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { webappUrl } from '../../../lib/constants';
 import { LazyImage } from '../../LazyImage';
+import { labels } from '../../../lib';
 
 const defaultSquad = {
   image: cloudinarySquadsImageFallback,
@@ -285,7 +286,7 @@ export const MultipleSourceSelect = ({
         </div>
       </PopoverFormContainer>
       {selectedSquads.length > 1 && (
-        <SpamWarning content="Irrelevant or spammy posts may be flagged and could lead to lost posting rights." />
+        <SpamWarning content={labels.postCreation.warnings.spammyPosts} />
       )}
     </>
   );

@@ -17,7 +17,12 @@ const SpamWarning = ({ content }: SpamWarningProps) => (
     color={TypographyColor.Tertiary}
     className="flex gap-1"
   >
-    <InfoIcon secondary size={IconSize.Size16} /> {content}
+    <InfoIcon
+      className="text-status-warning"
+      secondary
+      size={IconSize.Size16}
+    />{' '}
+    {content}
   </Typography>
 );
 export default SpamWarning;

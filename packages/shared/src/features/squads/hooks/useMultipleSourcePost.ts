@@ -5,10 +5,11 @@ import type {
   CreatePostInMultipleSourcesResponse,
 } from '../../../graphql/posts';
 import { createPostInMultipleSources } from '../../../graphql/posts';
-import { useActions, useToastNotification } from '../../../hooks';
+import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { usePrompt } from '../../../hooks/usePrompt';
 import type { ApiErrorResult } from '../../../graphql/common';
+import { labels } from '../../../lib';
 
 interface UseMultipleSourcePostProps {
   onError?: (error: ApiErrorResult) => void;
@@ -32,7 +33,6 @@ export const useMultipleSourcePost = ({
 }: UseMultipleSourcePostProps): UseMultipleSourcePost => {
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   const { showPrompt } = usePrompt();
-  const { displayToast } = useToastNotification();
 
   const hasSeenOpenSquadWarning = useMemo(
     () =>
@@ -54,8 +54,7 @@ export const useMultipleSourcePost = ({
       if (!hasSeenOpenSquadWarning) {
         const confirm = await showPrompt({
           title: 'Posting in an Open Squad',
-          description:
-            'Irrelevant or spammy posts may be flagged and could lead to lost posting rights.',
+          description: labels.postCreation.warnings.spammyPosts,
           okButton: { title: 'Post anyway' },
           cancelButton: { title: 'Cancel' },
         });
