@@ -549,7 +549,7 @@ const JobPage = (): ReactElement => {
             )}
           </div>
 
-          {faq.map((faqItem) => {
+          {faq.map((faqItem, index) => {
             const contentHtml = opportunity.content[faqItem.key]?.html;
 
             const buttonLabel = contentHtml ? 'Edit' : 'Add';
@@ -560,6 +560,7 @@ const JobPage = (): ReactElement => {
                 className={classNames(
                   'border-t border-border-subtlest-tertiary px-4',
                   !contentHtml && 'bg-surface-float',
+                  index === faq.length - 1 && 'rounded-b-14',
                 )}
               >
                 <Accordion
@@ -714,7 +715,9 @@ const JobPage = (): ReactElement => {
 
             {/* Meta */}
             <SimpleTooltip
-              content={labels.opportunity.companyInfoEditNotice}
+              content={
+                canEdit ? labels.opportunity.companyInfoEditNotice : undefined
+              }
               forceLoad={!isTesting}
             >
               <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
@@ -753,7 +756,9 @@ const JobPage = (): ReactElement => {
             {/* Description */}
             {opportunity.organization.description && (
               <SimpleTooltip
-                content={labels.opportunity.companyInfoEditNotice}
+                content={
+                  canEdit ? labels.opportunity.companyInfoEditNotice : undefined
+                }
                 forceLoad={!isTesting}
               >
                 <Typography
@@ -774,7 +779,11 @@ const JobPage = (): ReactElement => {
                 </Typography>
 
                 <SimpleTooltip
-                  content={labels.opportunity.companyInfoEditNotice}
+                  content={
+                    canEdit
+                      ? labels.opportunity.companyInfoEditNotice
+                      : undefined
+                  }
                   forceLoad={!isTesting}
                 >
                   <ul className="list-disc pl-7">
