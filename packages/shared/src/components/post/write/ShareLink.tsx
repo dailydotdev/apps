@@ -2,33 +2,36 @@ import type { FormEventHandler, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '../../../graphql/sources';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { WriteFooter } from './WriteFooter';
 import { SubmitExternalLink } from './SubmitExternalLink';
-import { usePostToSquad } from '../../../hooks';
+import { usePostToSquad, useToastNotification } from '../../../hooks';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { WriteLinkPreview } from './WriteLinkPreview';
-import {
-  generateDefaultSquad,
-  generateUserSourceAsSquad,
-} from './SquadsDropdown';
-import { useSquadCreate } from '../../../hooks/squads/useSquadCreate';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import useSourcePostModeration from '../../../hooks/source/useSourcePostModeration';
 import type { SourcePostModeration } from '../../../graphql/squads';
 import { usePrompt } from '../../../hooks/usePrompt';
-import { webappUrl } from '../../../lib/constants';
+import { useWritePostContext } from '../../../contexts';
 
 interface ShareLinkProps {
-  squad: Squad;
+  squad?: Squad;
   post?: Post;
   moderated?: SourcePostModeration;
   className?: string;
   onPostSuccess: (post: Post, url: string) => void;
+  isPostingOnMySource?: boolean;
 }
+
+const confirmSharingAgainPrompt = {
+  title: 'This link has already been shared.',
+  description: 'Are you sure you want to repost it?',
+  okButton: {
+    title: 'Repost',
+    className: 'btn-primary-cabbage',
+  },
+};
 
 export function ShareLink({
   squad,
@@ -36,20 +39,24 @@ export function ShareLink({
   onPostSuccess,
   post,
   moderated,
+  isPostingOnMySource = false,
 }: ShareLinkProps): ReactElement {
   const fetchedPost = post || moderated;
-  const client = useQueryClient();
+  const isCreatingPost = !fetchedPost;
+
   const { showPrompt } = usePrompt();
+  const { push } = useRouter();
+  const { displayToast } = useToastNotification();
+  const { onSubmitForm, isPosting: isPendingCreation } = useWritePostContext();
+
   const [commentary, setCommentary] = useState(
     fetchedPost?.sharedPost ? fetchedPost?.title : fetchedPost?.content,
   );
-  const { squads, user } = useAuthContext();
   const {
     getLinkPreview,
     isLoadingPreview,
     preview,
     isPosting,
-    onSubmitPost,
     onUpdateSharePost,
     onUpdatePreview,
   } = usePostToSquad({
@@ -62,81 +69,75 @@ export function ShareLink({
         image: moderated.image,
       }),
   });
-  const { push } = useRouter();
   const { onUpdatePostModeration, isPending: isPostingModeration } =
     useSourcePostModeration({
-      onSuccess: async () => push(squad.permalink),
+      onSuccess: async () => push(squad?.permalink),
     });
 
-  const { onCreateSquad, isLoading: isCreatingSquad } = useSquadCreate({
-    onSuccess: (newSquad) => {
-      onSubmitPost(null, newSquad, commentary);
-      return push(newSquad.permalink);
-    },
-    retryWithRandomizedHandle: true,
-  });
+  const onUpdateSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+    if (!fetchedPost?.id || !squad) {
+      return null;
+    }
+
+    const isSameAsBefore = [fetchedPost?.title, moderated?.content].includes(
+      commentary,
+    );
+    if (isSameAsBefore) {
+      return push(squad.permalink);
+    }
+
+    if (moderated) {
+      return onUpdatePostModeration({
+        type: PostType.Share,
+        sourceId: squad.id,
+        id: moderated.id,
+        title: moderated.sharedPost ? commentary : preview.title,
+        content: moderated.sharedPost ? null : commentary,
+        imageUrl: moderated.sharedPost ? null : preview.image,
+        externalLink: moderated.sharedPost ? null : preview.url,
+      });
+    }
+
+    return onUpdateSharePost(e, fetchedPost.id, commentary, squad);
+  };
 
   const onSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    if (isPosting || isPostingModeration || isCreatingSquad) {
+    if (isPosting || isPostingModeration || isPendingCreation) {
       return null;
     }
 
-    if (!squad) {
-      const prompOptions = {
-        title: 'This link has already been shared.',
-        description: 'Are you sure you want to repost it?',
-        okButton: {
-          title: 'Repost',
-          className: 'btn-primary-cabbage',
-        },
-      };
-      const sharePost =
-        preview.relatedPublicPosts?.length > 0
-          ? await showPrompt(prompOptions)
-          : true;
-
-      if (!sharePost) {
-        return null;
-      }
-
-      await onSubmitPost(e, generateUserSourceAsSquad(user), commentary);
-      client.refetchQueries({
-        queryKey: ['author', user.id],
-      });
-      return push(`${webappUrl}${user.username}/posts`);
+    if (!isCreatingPost) {
+      return onUpdateSubmit(e);
     }
 
-    if (fetchedPost?.id) {
-      if (
-        commentary === fetchedPost?.title ||
-        commentary === moderated?.content
-      ) {
-        return push(squad.permalink);
-      }
+    const isLinkAlreadyShared = preview.relatedPublicPosts?.length > 0;
+    const proceedSharingLink =
+      !isPostingOnMySource ||
+      !isLinkAlreadyShared ||
+      (await showPrompt(confirmSharingAgainPrompt));
 
-      if (moderated) {
-        return onUpdatePostModeration({
-          type: PostType.Share,
-          sourceId: squad.id,
-          id: moderated.id,
-          title: moderated.sharedPost ? commentary : preview.title,
-          content: moderated.sharedPost ? null : commentary,
-          imageUrl: moderated.sharedPost ? null : preview.image,
-          externalLink: moderated.sharedPost ? null : preview.url,
-        });
-      }
-
-      return onUpdateSharePost(e, fetchedPost.id, commentary, squad);
+    if (!proceedSharingLink) {
+      return null;
     }
 
-    if (squads.some(({ id }) => squad.id === id)) {
-      await onSubmitPost(e, squad, commentary);
-      return push(squad.permalink);
+    const { title, image } = preview;
+    const externalLink = preview.finalUrl ?? preview.url;
+
+    if (!title) {
+      displayToast('Invalid link');
+      return null;
     }
 
-    return onCreateSquad(generateDefaultSquad(user.username));
+    const args = {
+      commentary,
+      content: '',
+      externalLink,
+      imageUrl: image,
+      title,
+    };
+    return onSubmitForm(e, args, PostType.Share);
   };
 
   return (
@@ -166,7 +167,9 @@ export function ShareLink({
         showMarkdownGuide={false}
         onValueUpdate={setCommentary}
       />
-      <WriteFooter isLoading={isPosting} />
+      <WriteFooter
+        isLoading={isPosting || isPostingModeration || isPendingCreation}
+      />
     </form>
   );
 }

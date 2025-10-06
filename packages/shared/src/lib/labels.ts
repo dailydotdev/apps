@@ -159,4 +159,10 @@ export const labels = {
       cancelButton: 'Back to edit',
     },
   },
+  postCreation: {
+    warnings: {
+      spammyPosts:
+        'Irrelevant or spammy posts may be flagged and could lead to lost posting rights.',
+    },
+  },
 };
