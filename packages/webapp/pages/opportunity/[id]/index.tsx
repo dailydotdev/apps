@@ -258,7 +258,7 @@ const metaMap = {
   teamSize: {
     title: 'Team size',
     transformer: (value: OpportunityMeta['teamSize']) =>
-      `${value} engineers` || 'N/A',
+      `${value || 0} engineers` || 'N/A',
   },
 };
 
