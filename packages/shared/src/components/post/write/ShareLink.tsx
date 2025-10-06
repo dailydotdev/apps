@@ -126,9 +126,13 @@ export function ShareLink({
       return null;
     }
 
-    const content = commentary;
-    const args = { title, content, externalLink, imageUrl: image };
-
+    const args = {
+      commentary,
+      content: '',
+      externalLink,
+      imageUrl: image,
+      title,
+    };
     return onSubmitForm(e, args, PostType.Share);
   };
 

@@ -40,6 +40,7 @@ export interface WritePostProps {
     prop: WriteForm &
       Omit<CreatePostProps | CreatePostPollProps, 'id'> & {
         sharedPostId?: string;
+        commentary?: string;
       },
     type: Post['type'],
   ) => void;
