@@ -121,6 +121,9 @@ beforeEach(() => {
 
   globalThis.OneSignal = {
     getRegistrationId: jest.fn().mockResolvedValue('123'),
+    Notifications: {
+      isPushSupported: jest.fn().mockReturnValue(true),
+    },
   };
 
   personalizedDigestMock = {
