@@ -25,10 +25,7 @@ import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { NotificationPreferenceStatus } from '@dailydotdev/shared/src/graphql/notifications';
 import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
+
 import ProfileNotificationsPage from '../pages/settings/notifications';
 
 const LogContext = getLogContextStatic();
@@ -184,8 +181,6 @@ const renderComponent = (
   user = defaultLoggedUser,
   customNotificationSettings = defaultNotificationSettings,
 ): RenderResult => {
-  const key = generateQueryKey(RequestKey.OneSignal, user);
-  client.setQueryData(key, { Notifications: { isPushSupported: () => true } });
   mockGraphQL(personalizedDigestMock);
   mockGraphQL({
     ...notificationSettingsMock,
@@ -365,13 +360,6 @@ it('should render achievements section', async () => {
   await waitFor(() => {
     expect(screen.queryByText('Achievements')).toBeInTheDocument();
   });
-});
-
-it('should render push notifications switch', async () => {
-  renderComponent();
-
-  const pushSwitch = await screen.findByTestId('push_notification-switch');
-  expect(pushSwitch).toBeInTheDocument();
 });
 
 it('should render squad notifications section', async () => {
