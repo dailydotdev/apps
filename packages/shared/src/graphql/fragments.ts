@@ -321,7 +321,9 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     upvoted
     commented
     bookmarked
-    views
+    analytics {
+      impressions
+    }
     numUpvotes
     numComments
     numAwards

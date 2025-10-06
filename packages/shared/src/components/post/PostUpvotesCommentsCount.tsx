@@ -35,7 +35,9 @@ export function PostUpvotesCommentsCount({
       className="mb-5 flex flex-wrap items-center gap-x-4 !leading-7 text-text-tertiary typo-callout"
       data-testid="statsBar"
     >
-      {post.views > 0 && <span>{largeNumberFormat(post.views)} Views</span>}
+      {!!post.analytics?.impressions && (
+        <span>{largeNumberFormat(post.analytics.impressions)} Impressions</span>
+      )}
       {upvotes > 0 && (
         <ClickableText onClick={() => onUpvotesClick(upvotes)}>
           {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
