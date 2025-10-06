@@ -25,6 +25,10 @@ import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { NotificationPreferenceStatus } from '@dailydotdev/shared/src/graphql/notifications';
 import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import ProfileNotificationsPage from '../pages/settings/notifications';
 
 const LogContext = getLogContextStatic();
@@ -121,9 +125,6 @@ beforeEach(() => {
 
   globalThis.OneSignal = {
     getRegistrationId: jest.fn().mockResolvedValue('123'),
-    Notifications: {
-      isPushSupported: jest.fn().mockReturnValue(true),
-    },
   };
 
   personalizedDigestMock = {
@@ -183,6 +184,8 @@ const renderComponent = (
   user = defaultLoggedUser,
   customNotificationSettings = defaultNotificationSettings,
 ): RenderResult => {
+  const key = generateQueryKey(RequestKey.OneSignal, user);
+  client.setQueryData(key, { Notifications: { isPushSupported: () => true } });
   mockGraphQL(personalizedDigestMock);
   mockGraphQL({
     ...notificationSettingsMock,
