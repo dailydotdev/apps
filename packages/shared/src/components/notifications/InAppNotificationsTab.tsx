@@ -43,7 +43,8 @@ import ReadingReminderToggle from './ReadingReminderToggle';
 const InAppNotificationsTab = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { onTogglePermission } = usePushNotificationMutation();
-  const { isSubscribed, isInitialized } = usePushNotificationContext();
+  const { isSubscribed, isInitialized, isPushSupported } =
+    usePushNotificationContext();
   const { openModal } = useLazyModal();
   const {
     notificationSettings: ns,
@@ -67,31 +68,33 @@ const InAppNotificationsTab = (): ReactElement => {
 
   return (
     <section className="flex flex-col gap-6 py-4">
-      <div className="flex flex-row justify-between gap-4 px-4">
-        <div className="flex flex-1 flex-col gap-1">
-          <Typography type={TypographyType.Body} bold>
-            Push notifications
-          </Typography>
-          <Typography
-            color={TypographyColor.Tertiary}
-            type={TypographyType.Footnote}
-          >
-            Turn this on to get real-time updates on your device. You’ll still
-            see in-app notifications even if this is off. Requires additional
-            device permissions.
-          </Typography>
+      {isPushSupported && (
+        <div className="flex flex-row justify-between gap-4 px-4">
+          <div className="flex flex-1 flex-col gap-1">
+            <Typography type={TypographyType.Body} bold>
+              Push notifications
+            </Typography>
+            <Typography
+              color={TypographyColor.Tertiary}
+              type={TypographyType.Footnote}
+            >
+              Turn this on to get real-time updates on your device. You’ll still
+              see in-app notifications even if this is off. Requires additional
+              device permissions.
+            </Typography>
+          </div>
+          <Switch
+            data-testid="push_notification-switch"
+            inputId="push_notification-switch"
+            name="push_notification"
+            className="w-20 justify-end"
+            compact={false}
+            checked={isSubscribed}
+            onToggle={onTogglePush}
+            disabled={!isInitialized}
+          />
         </div>
-        <Switch
-          data-testid="push_notification-switch"
-          inputId="push_notification-switch"
-          name="push_notification"
-          className="w-20 justify-end"
-          compact={false}
-          checked={isSubscribed}
-          onToggle={onTogglePush}
-          disabled={!isInitialized}
-        />
-      </div>
+      )}
       <div className="flex flex-row justify-between gap-4 px-4">
         <div className="flex flex-1 flex-col gap-1">
           <Typography type={TypographyType.Body} bold>
