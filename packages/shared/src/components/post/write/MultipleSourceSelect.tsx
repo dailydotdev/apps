@@ -252,14 +252,16 @@ export const MultipleSourceSelect = ({
                     key={squad.id}
                     onClick={() => toggleSource(squad.id)}
                     aria-label={`Remove ${squad.name} from selection`}
-                    className="typo-caption1"
+                    className="max-w-full typo-caption1"
                     icon={<MiniCloseIcon size={IconSize.Size16} aria-hidden />}
                     iconPosition={ButtonIconPosition.Right}
                     size={ButtonSize.XSmall}
                     title={`Remove ${squad.name} from selection`}
                     variant={ButtonVariant.Subtle}
                   >
-                    {squad?.name}
+                    <TruncateText className="flex-1">
+                      {squad?.name}
+                    </TruncateText>
                   </Button>
                 ))}
               </div>
