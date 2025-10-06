@@ -21,6 +21,7 @@ interface ShareLinkProps {
   moderated?: SourcePostModeration;
   className?: string;
   onPostSuccess: (post: Post, url: string) => void;
+  isPostingOnMySource?: boolean;
 }
 
 const confirmSharingAgainPrompt = {
@@ -38,6 +39,7 @@ export function ShareLink({
   onPostSuccess,
   post,
   moderated,
+  isPostingOnMySource = false,
 }: ShareLinkProps): ReactElement {
   const fetchedPost = post || moderated;
   const isCreatingPost = !fetchedPost;
@@ -112,7 +114,9 @@ export function ShareLink({
 
     const isLinkAlreadyShared = preview.relatedPublicPosts?.length > 0;
     const proceedSharingLink =
-      !isLinkAlreadyShared || (await showPrompt(confirmSharingAgainPrompt));
+      !isPostingOnMySource ||
+      !isLinkAlreadyShared ||
+      (await showPrompt(confirmSharingAgainPrompt));
 
     if (!proceedSharingLink) {
       return null;
