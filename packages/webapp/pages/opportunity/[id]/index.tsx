@@ -60,7 +60,10 @@ import type {
   Opportunity,
   OpportunityMeta,
 } from '@dailydotdev/shared/src/features/opportunity/types';
-import { OpportunityMatchStatus } from '@dailydotdev/shared/src/features/opportunity/types';
+import {
+  OpportunityMatchStatus,
+  recruiterLayoutHeaderClassName,
+} from '@dailydotdev/shared/src/features/opportunity/types';
 import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
 import {
   EmploymentType,
@@ -76,6 +79,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { isTesting, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
+import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
 import {
   OpportunityEditProvider,
   useOpportunityEditContext,
@@ -86,6 +90,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { OpportunityStepsInfo } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunityStepsInfo';
+import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 import {
   defaultOpenGraph,
@@ -253,7 +258,7 @@ const metaMap = {
   teamSize: {
     title: 'Team size',
     transformer: (value: OpportunityMeta['teamSize']) =>
-      `${value} engineers` || 'N/A',
+      `${value || 0} engineers` || 'N/A',
   },
 };
 
@@ -315,8 +320,23 @@ const JobPage = (): ReactElement => {
     return <NoOpportunity />;
   }
 
+  const showFooterNav = !!match || canEdit;
+
   return (
     <>
+      <Portal
+        container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
+      >
+        <div className="hidden items-center laptop:flex">
+          <ResponseButtons
+            id={opportunity.id}
+            className={{
+              container: 'ml-auto flex gap-3',
+            }}
+          />
+          <OpportunityStepsInfo />
+        </div>
+      </Portal>
       {!hasUploadedCV && (
         <CVOverlay
           backButton={
@@ -333,16 +353,20 @@ const JobPage = (): ReactElement => {
         />
       )}
       {!hasCompletedInitialView && <JobPageIntro />}
-      {!!match && (
-        <ResponseButtons
-          id={opportunity.id}
-          className={{
-            buttons: 'flex-1',
-            container:
-              'fixed bottom-0 z-header flex min-h-14 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4 pt-2 pb-safe-or-2 tablet:hidden',
-          }}
-          size={ButtonSize.Medium}
-        />
+      {showFooterNav && (
+        <OpportunityFooter>
+          {!!match && (
+            <ResponseButtons
+              id={opportunity.id}
+              className={{
+                buttons: 'flex-1',
+                container: 'flex w-full items-center gap-4',
+              }}
+              size={ButtonSize.Medium}
+            />
+          )}
+          <OpportunityStepsInfo className="w-full [&>:first-child]:justify-center [&>:nth-child(2)]:flex-1" />
+        </OpportunityFooter>
       )}
       <div
         className={classNames(
@@ -377,13 +401,6 @@ const JobPage = (): ReactElement => {
                 </Typography>
               </Typography>
             </div>
-
-            <ResponseButtons
-              id={opportunity.id}
-              className={{
-                container: 'ml-auto hidden gap-2 tablet:flex',
-              }}
-            />
           </div>
 
           {/* Content */}
@@ -549,7 +566,7 @@ const JobPage = (): ReactElement => {
             )}
           </div>
 
-          {faq.map((faqItem) => {
+          {faq.map((faqItem, index) => {
             const contentHtml = opportunity.content[faqItem.key]?.html;
 
             const buttonLabel = contentHtml ? 'Edit' : 'Add';
@@ -560,6 +577,7 @@ const JobPage = (): ReactElement => {
                 className={classNames(
                   'border-t border-border-subtlest-tertiary px-4',
                   !contentHtml && 'bg-surface-float',
+                  index === faq.length - 1 && 'rounded-b-14',
                 )}
               >
                 <Accordion
@@ -714,7 +732,9 @@ const JobPage = (): ReactElement => {
 
             {/* Meta */}
             <SimpleTooltip
-              content={labels.opportunity.companyInfoEditNotice}
+              content={
+                canEdit ? labels.opportunity.companyInfoEditNotice : undefined
+              }
               forceLoad={!isTesting}
             >
               <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
@@ -753,7 +773,9 @@ const JobPage = (): ReactElement => {
             {/* Description */}
             {opportunity.organization.description && (
               <SimpleTooltip
-                content={labels.opportunity.companyInfoEditNotice}
+                content={
+                  canEdit ? labels.opportunity.companyInfoEditNotice : undefined
+                }
                 forceLoad={!isTesting}
               >
                 <Typography
@@ -774,7 +796,11 @@ const JobPage = (): ReactElement => {
                 </Typography>
 
                 <SimpleTooltip
-                  content={labels.opportunity.companyInfoEditNotice}
+                  content={
+                    canEdit
+                      ? labels.opportunity.companyInfoEditNotice
+                      : undefined
+                  }
                   forceLoad={!isTesting}
                 >
                   <ul className="list-disc pl-7">
@@ -1001,10 +1027,7 @@ const GetPageLayout: typeof getLayout = (page, layoutProps) => {
 
   return (
     <OpportunityEditProvider opportunityId={opportunityId}>
-      {getLayout(page, {
-        ...layoutProps,
-        additionalButtons: <OpportunityStepsInfo />,
-      })}
+      {getLayout(page, layoutProps)}
     </OpportunityEditProvider>
   );
 };

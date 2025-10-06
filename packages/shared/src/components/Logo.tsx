@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
@@ -17,6 +17,12 @@ const DevPlusIcon = dynamic(() =>
   import(/* webpackChunkName: "devPlusIcon" */ './icons').then(
     (mod) => mod.DevPlusIcon,
   ),
+);
+
+const LogoRecruiterSvg = dynamic(() =>
+  import(
+    /* webpackChunkName: "logoRecruiterSvg" */ '../svg/LogoRecruiterSvg'
+  ).then((mod) => mod.LogoRecruiterSvg),
 );
 
 export enum LogoPosition {
@@ -83,6 +89,7 @@ interface LogoProps {
   };
   linkDisabled?: boolean;
   isPlus?: boolean;
+  isRecruiter?: boolean;
 }
 
 export default function Logo({
@@ -95,6 +102,7 @@ export default function Logo({
   featureTheme,
   linkDisabled,
   isPlus = false,
+  isRecruiter = false,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -142,6 +150,7 @@ export default function Logo({
             fallback={LogoText}
           />
         )}
+        {isRecruiter && !compact && <LogoRecruiterSvg />}
       </a>
     </LinkWithTooltip>
   );

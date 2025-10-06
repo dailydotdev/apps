@@ -29,13 +29,16 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
+import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
+import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -66,6 +69,16 @@ const QuestionsSetupPage = (): ReactElement => {
 
   return (
     <>
+      <Portal
+        container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
+      >
+        <div className="hidden items-center laptop:flex">
+          <OpportunityStepsQuestions />
+        </div>
+      </Portal>
+      <OpportunityFooter>
+        <OpportunityStepsQuestions className="w-full [&>:first-child]:justify-center [&>:nth-child(2)]:flex-1" />
+      </OpportunityFooter>
       <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4">
         <MagicIcon className="text-brand-default" size={IconSize.Medium} />
         <Typography bold center type={TypographyType.LargeTitle}>
@@ -81,7 +94,7 @@ const QuestionsSetupPage = (): ReactElement => {
           hiring needs
         </Typography>
       </div>
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 laptop:flex-row">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 laptop:flex-row">
         <div className="flex h-full min-w-0 max-w-full flex-1 flex-shrink-0 flex-col gap-4 rounded-16">
           {opportunity.questions.map((question, index) => {
             return (
@@ -195,17 +208,21 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   }
 };
 
-const GetPageLayout: typeof getLayout = (page, layoutProps) => {
+const GetPageLayout: typeof getOpportunityProtectedLayout = (
+  page,
+  layoutProps,
+) => {
   const router = useRouter();
   const opportunityId = router?.query?.id as string;
 
-  return (
+  return getOpportunityProtectedLayout(
     <OpportunityEditProvider opportunityId={opportunityId}>
-      {getLayout(page, {
-        ...layoutProps,
-        additionalButtons: <OpportunityStepsQuestions />,
-      })}
-    </OpportunityEditProvider>
+      {page}
+    </OpportunityEditProvider>,
+    {
+      ...layoutProps,
+      canGoBack: true,
+    },
   );
 };
 

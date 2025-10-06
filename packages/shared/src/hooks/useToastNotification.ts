@@ -14,6 +14,7 @@ interface UseToastNotification {
 export enum ToastSubject {
   Feed = 'feed',
   PostContent = 'post-content',
+  OpportunityScreeningQuestions = 'opportunity-screening-questions',
 }
 
 export interface ToastNotification {
