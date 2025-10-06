@@ -36,7 +36,10 @@ export function PostUpvotesCommentsCount({
       data-testid="statsBar"
     >
       {!!post.analytics?.impressions && (
-        <span>{largeNumberFormat(post.analytics.impressions)} Impressions</span>
+        <span>
+          {largeNumberFormat(post.analytics.impressions)} Impression
+          {post.analytics.impressions > 1 ? 's' : ''}
+        </span>
       )}
       {upvotes > 0 && (
         <ClickableText onClick={() => onUpvotesClick(upvotes)}>
