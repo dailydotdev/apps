@@ -54,24 +54,28 @@ const usePoll = ({ post }: { post: Post }) => {
       };
 
       updatePostCache(queryClient, post.id, postUpdate);
-      const updateFeed = updateCachedPagePost(queryKey, queryClient);
-      const feedData =
-        queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
 
-      const { pageIndex, index } = findIndexOfPostInData(
-        feedData,
-        post.id,
-        false,
-      );
+      if (currentFeedData) {
+        const updateFeed = updateCachedPagePost(queryKey, queryClient);
+        const feedData =
+          queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
 
-      if (pageIndex > -1 && index > -1) {
-        const currentPost = feedData.pages[pageIndex].page.edges[index].node;
-        const updatedPost = {
-          ...currentPost,
-          ...postUpdate,
-        };
-        updateFeed(pageIndex, index, updatedPost);
+        const { pageIndex, index } = findIndexOfPostInData(
+          feedData,
+          post.id,
+          false,
+        );
+
+        if (pageIndex > -1 && index > -1) {
+          const currentPost = feedData.pages[pageIndex].page.edges[index].node;
+          const updatedPost = {
+            ...currentPost,
+            ...postUpdate,
+          };
+          updateFeed(pageIndex, index, updatedPost);
+        }
       }
+
       if (currentAdsData) {
         const currentAdPost = currentAdsData.pages.find(
           (page) => page.data?.post?.id === post.id,
