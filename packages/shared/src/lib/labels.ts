@@ -152,4 +152,10 @@ export const labels = {
       okButton: 'Close',
     },
   },
+  postCreation: {
+    warnings: {
+      spammyPosts:
+        'Irrelevant or spammy posts may be flagged and could lead to lost posting rights.',
+    },
+  },
 };

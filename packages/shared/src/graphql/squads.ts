@@ -607,6 +607,11 @@ interface PostRequestContent extends PostRequestContentProps {
   createdBy: Author;
 }
 
+export enum WarningReason {
+  MultipleSquadPost = 'multiple_squad_post',
+  DuplicatedInSameSquad = 'duplicated_in_squad',
+}
+
 export interface SourcePostModeration extends Partial<PostRequestContent> {
   id: string;
   post?: Post;
@@ -616,6 +621,9 @@ export interface SourcePostModeration extends Partial<PostRequestContent> {
   source?: Source;
   externalLink?: string;
   pollOptions?: PollOption[];
+  flags?: {
+    warningReason: WarningReason;
+  };
 }
 
 const SOURCE_POST_MODERATION_FRAGMENT = gql`
@@ -636,6 +644,9 @@ const SOURCE_POST_MODERATION_FRAGMENT = gql`
     pollOptions {
       text
       order
+    }
+    flags {
+      warningReason
     }
     source {
       ...SourceBaseInfo

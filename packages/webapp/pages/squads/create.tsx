@@ -1,5 +1,5 @@
 import type { FormEvent, ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
@@ -7,14 +7,7 @@ import {
   WriteFreeFormSkeleton,
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import type {
-  CreatePostPollProps,
-  CreatePostProps,
-  Post,
-} from '@dailydotdev/shared/src/graphql/posts';
-import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
 import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
@@ -24,23 +17,16 @@ import TabContainer, {
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
 import {
   generateDefaultSquad,
-  generateUserSourceAsSquad,
-  SquadsDropdown,
+  MultipleSourceSelect,
 } from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import {
-  isSourceUserSource,
-  SourcePermissions,
-} from '@dailydotdev/shared/src/graphql/sources';
+import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
-  usePostToSquad,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
-import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   WriteFormTab,
@@ -49,6 +35,9 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll';
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
+import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import type { WriteForm } from '@dailydotdev/shared/src/contexts';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -62,6 +51,7 @@ const seo: NextSeoProps = {
 };
 
 function CreatePost(): ReactElement {
+  const client = useQueryClient();
   const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
   const hasCheckedPollTab = useMemo(
     () => checkHasCompleted(ActionType.SeenPostPollTab),
@@ -69,8 +59,7 @@ function CreatePost(): ReactElement {
   );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
-  const client = useQueryClient();
-  const [selected, setSelected] = useState(-1);
+  const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([]);
   const activeSquads = useMemo(() => {
     const collator = new Intl.Collator('en');
     const filtered = squads
@@ -94,7 +83,6 @@ function CreatePost(): ReactElement {
       },
     ];
   }, [squads, user]);
-  const squad = activeSquads?.[selected];
   const [display, setDisplay] = useState(WriteFormTab.NewPost);
   const { displayToast } = useToastNotification();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -106,97 +94,133 @@ function CreatePost(): ReactElement {
     formRef,
     clearDraft,
     isUpdatingDraft,
-  } = useDiscardPost({ draftIdentifier: squad?.id });
-  const onPostSuccess = async (link: string) => {
+  } = useDiscardPost({ draftIdentifier: selectedSourceIds?.join('-') });
+  const clearFormOnSuccess = () => {
     onAskConfirmation(false);
     clearDraft();
     completeAction(ActionType.SquadFirstPost);
+  };
+  const clearFormAndRedirectTo = async (link: string) => {
+    clearFormOnSuccess();
     await push(link);
   };
-  const { onSubmitFreeformPost, onSubmitPollPost, isPosting, isSuccess } =
-    usePostToSquad({
-      onPostSuccess: async (post) => {
-        const isUserSource = isSourceUserSource(post.source);
 
-        if (isUserSource) {
-          client.refetchQueries({
-            queryKey: ['author', user.id],
-          });
-        }
+  const isInitialized = useRef(false);
+  const sourceSelectProps = {
+    selectedSourceIds,
+    setSelectedSourceIds,
+    className: 'mt-6',
+  };
+  const { onCreate, isPending } = useMultipleSourcePost({
+    onSuccess: async (result) => {
+      const postedInUserSource = selectedSourceIds.includes(user?.id);
+      if (postedInUserSource) {
+        client.refetchQueries({
+          queryKey: ['author', user.id],
+        });
+      }
 
-        onPostSuccess(post.commentsPermalink);
-      },
-      onSourcePostModerationSuccess: async (post) => {
-        onPostSuccess(post.source.permalink);
-      },
-      onError: (data: ApiErrorResult) => {
-        if (data?.response?.errors?.[0]) {
-          displayToast(data?.response?.errors?.[0].message);
-        }
-        onAskConfirmation(true);
-      },
-    });
-  const { onCreateSquad, isLoading } = useSquadCreate({
-    onSuccess: (newSquad) => {
-      const form = formToJson<CreatePostProps>(formRef.current);
+      const postLabel = result.length > 1 ? 'posts have' : 'post has';
 
-      return onSubmitFreeformPost(form, newSquad);
+      // if every source is moderated, just show the success message
+      const isEveryItemPending = result.every(
+        (item) => item.type === 'moderationItem',
+      );
+      if (isEveryItemPending) {
+        displayToast(`✅ Your ${postLabel} been submitted for moderation`);
+        clearFormOnSuccess();
+        return;
+      }
+
+      displayToast(`✅ Your ${postLabel} been created!`);
+
+      // only one source, let's redirect to the post
+      const isSingleSourcePost = selectedSourceIds.length === 1;
+      if (isSingleSourcePost) {
+        const { slug, id } = result[0];
+        await clearFormAndRedirectTo(`${webappUrl}posts/${slug || id}`);
+        return;
+      }
+
+      // more than one source and at least one is not moderation
+      await clearFormAndRedirectTo(`${webappUrl}${user?.username}/posts/`);
     },
-    retryWithRandomizedHandle: true,
+    onError: (data) => {
+      if (data?.response?.errors?.[0]) {
+        displayToast(data?.response?.errors?.[0].message);
+      }
+      onAskConfirmation(true);
+    },
   });
-
-  const param = isRouteReady && activeSquads?.length && (query.sid as string);
-  const shareParam = query.share as string;
-  const pollParam = query.poll as string;
-
-  useEffect(() => {
-    if (!param) {
-      return;
-    }
-
-    const preselected = activeSquads.findIndex(({ id, handle }) =>
-      [id, handle].includes(param),
-    );
-    setSelected((value) => (value >= 0 ? value : preselected));
-  }, [activeSquads, param]);
-
-  useEffect(() => {
-    if (shareParam) {
-      setDisplay(WriteFormTab.Share);
-    } else if (pollParam) {
-      setDisplay(WriteFormTab.Poll);
-    }
-  }, [shareParam, pollParam]);
 
   const onClickSubmit = async (
     e: FormEvent<HTMLFormElement>,
-    params: CreatePostProps | CreatePostPollProps,
-    type: Post['type'],
+    params: Omit<WriteForm, 'image'> & { image?: File },
   ) => {
     e.preventDefault();
-    if (isPosting || isSuccess || isLoading) {
-      return null;
+
+    if (isPending || !selectedSourceIds.length) {
+      return;
     }
 
-    if (!squad) {
-      return type === PostType.Freeform
-        ? onSubmitFreeformPost(params, generateUserSourceAsSquad(user))
-        : onSubmitPollPost(
-            params as CreatePostPollProps,
-            generateUserSourceAsSquad(user),
-          );
-    }
+    const { options, ...args } = params;
 
-    if (squads.some(({ id }) => squad.id === id)) {
-      return type === PostType.Freeform
-        ? onSubmitFreeformPost(params, squad)
-        : onSubmitPollPost(params as CreatePostPollProps, squad);
-    }
-
-    await onCreateSquad(generateDefaultSquad(user.username));
-
-    return null;
+    await onCreate({
+      ...args,
+      ...(options?.length && {
+        options: options.map((text, order) => ({
+          text,
+          order,
+        })),
+      }),
+      sourceIds: selectedSourceIds,
+    });
   };
+
+  const initialSelected = !!activeSquads?.length && (query.sid as string);
+  useEffect(() => {
+    // Only run this once after router and user are ready
+    if (!user || !isRouteReady || isInitialized.current) {
+      return;
+    }
+
+    isInitialized.current = true;
+
+    const { share: isInitialShare, poll: isInitialPoll } = query;
+    if (isInitialShare) {
+      setDisplay(WriteFormTab.Share);
+    } else if (isInitialPoll) {
+      setDisplay(WriteFormTab.Poll);
+    }
+
+    const preselectedSquad =
+      initialSelected &&
+      activeSquads.find(({ id, handle }) =>
+        [id, handle].includes(initialSelected),
+      );
+
+    setSelectedSourceIds((value) => {
+      // if we already have a value, don't change it
+      if (value.length) {
+        return value;
+      }
+
+      // If there is a ?sid= param, we want to preselect the squad
+      if (preselectedSquad) {
+        return [preselectedSquad.id];
+      }
+
+      // Otherwise we want to preselect the "Everyone" option
+      return [user.id];
+    });
+  }, [
+    initialSelected,
+    isRouteReady,
+    user,
+    activeSquads,
+    selectedSourceIds.length,
+    query,
+  ]);
 
   useEffect(() => {
     if (!hasCheckedPollTab && display === WriteFormTab.Poll) {
@@ -215,10 +239,10 @@ function CreatePost(): ReactElement {
   return (
     <WritePostContextProvider
       draft={draft}
-      squad={squad}
+      squad={null}
       formRef={formRef}
       isUpdatingDraft={isUpdatingDraft}
-      isPosting={isPosting || isSuccess || isLoading}
+      isPosting={isPending}
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
       formId={WriteFormTabToFormID[display]}
@@ -239,24 +263,15 @@ function CreatePost(): ReactElement {
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">New post</h2>
             )}
-            <SquadsDropdown
-              list={activeSquads}
-              onSelect={setSelected}
-              selected={selected}
-            />
+            <MultipleSourceSelect {...sourceSelectProps} />
             <WriteFreeformContent />
           </Tab>
           <Tab label={WriteFormTab.Share} className="flex flex-col gap-4 px-5">
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">Share a link</h2>
             )}
-            <SquadsDropdown
-              list={activeSquads}
-              onSelect={setSelected}
-              selected={selected}
-            />
+            <MultipleSourceSelect {...sourceSelectProps} />
             <ShareLink
-              squad={squad}
               onPostSuccess={() => {
                 onAskConfirmation(false);
               }}
@@ -278,11 +293,7 @@ function CreatePost(): ReactElement {
             }
           >
             {isMobile && <h2 className="pt-2 font-bold typo-title3">Poll</h2>}
-            <SquadsDropdown
-              list={activeSquads}
-              onSelect={setSelected}
-              selected={selected}
-            />
+            <MultipleSourceSelect {...sourceSelectProps} />
             <CreatePoll />
           </Tab>
         </TabContainer>

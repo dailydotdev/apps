@@ -652,7 +652,7 @@ export interface EditPostProps {
   id: string;
   title: string;
   content: string;
-  image: File;
+  image?: File;
 }
 
 export type CreatePostProps = Pick<
@@ -815,6 +815,68 @@ export const createPost = async (
   const res = await gqlClient.request(CREATE_POST_MUTATION, variables);
 
   return res.createFreeformPost;
+};
+
+export const CREATE_POST_IN_MULTIPLE_SOURCES = gql`
+  mutation CreatePostInMultipleSources(
+    $sourceIds: [ID!]!
+    $title: String
+    $commentary: String
+    $imageUrl: String
+    $content: String
+    $image: Upload
+    $sharedPostId: ID
+    $externalLink: String
+    $options: [PollOptionInput!]
+    $duration: Int
+  ) {
+    createPostInMultipleSources(
+      sourceIds: $sourceIds
+      title: $title
+      commentary: $commentary
+      imageUrl: $imageUrl
+      content: $content
+      image: $image
+      sharedPostId: $sharedPostId
+      externalLink: $externalLink
+      options: $options
+      duration: $duration
+    ) {
+      id
+      sourceId
+      type
+      slug
+    }
+  }
+`;
+
+export interface CreatePostInMultipleSourcesArgs
+  extends Partial<CreatePostProps>,
+    Pick<CreatePollPostProps, 'options' | 'duration'> {
+  commentary?: string;
+  externalLink?: string;
+  imageUrl?: string;
+  sharedPostId?: string;
+  sourceIds: string[];
+}
+
+export type CreatePostInMultipleSourcesResponse = Array<{
+  id: string;
+  sourceId: string;
+  type: 'post' | 'moderationItem';
+  slug?: string;
+}>;
+
+export const createPostInMultipleSources = async (
+  variables: CreatePostInMultipleSourcesArgs,
+) => {
+  const res = await gqlClient.request<
+    {
+      createPostInMultipleSources: CreatePostInMultipleSourcesResponse;
+    },
+    CreatePostInMultipleSourcesArgs
+  >(CREATE_POST_IN_MULTIPLE_SOURCES, variables);
+  return res.createPostInMultipleSources;
 };
 
 export interface VotePollResponse {
