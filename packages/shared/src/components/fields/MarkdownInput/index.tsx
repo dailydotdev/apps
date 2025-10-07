@@ -139,6 +139,7 @@ function MarkdownInput(
     uploadedCount,
     onLinkCommand,
     onUploadCommand,
+    onGifCommand,
     onMentionCommand,
     onApplyMention,
     onCloseMention,
@@ -402,6 +403,8 @@ function MarkdownInput(
               variant: ButtonVariant.Tertiary,
               icon: <GiftIcon />,
             }}
+            onGifCommand={onGifCommand}
+            textareaRef={textareaRef}
           />
           {shouldShowSubmit && (
             <Button
