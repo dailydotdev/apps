@@ -100,6 +100,8 @@ export const defaultMarkdownCommands = {
   emoji: true,
 };
 
+const specialCharsRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/;
+
 export const useMarkdownInput = ({
   textareaRef,
   postId,
@@ -211,7 +213,11 @@ export const useMarkdownInput = ({
   };
 
   const updateEmojiQuery = (value: string) => {
-    if (!isEmojiEnabled || value === emojiQuery) {
+    if (
+      !isEmojiEnabled ||
+      value === emojiQuery ||
+      specialCharsRegex.test(value)
+    ) {
       return;
     }
 
