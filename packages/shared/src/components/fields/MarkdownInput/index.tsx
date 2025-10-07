@@ -15,7 +15,13 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { ImageIcon, MarkdownIcon, LinkIcon, AtIcon } from '../../icons';
+import {
+  ImageIcon,
+  MarkdownIcon,
+  LinkIcon,
+  AtIcon,
+  GiftIcon,
+} from '../../icons';
 import {
   Button,
   ButtonColor,
@@ -44,6 +50,7 @@ import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
 import { ACCEPTED_TYPES } from '../../../graphql/posts';
+import GifPopover from '../../popover/GifPopover';
 
 const RecommendedEmojiTooltip = dynamic(
   () =>
@@ -389,6 +396,13 @@ function MarkdownInput(
               />
             )}
           </ConditionalWrapper>
+          <GifPopover
+            buttonProps={{
+              size: actionButtonSizes,
+              variant: ButtonVariant.Tertiary,
+              icon: <GiftIcon />,
+            }}
+          />
           {shouldShowSubmit && (
             <Button
               className="ml-auto"
