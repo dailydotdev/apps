@@ -100,7 +100,7 @@ export const defaultMarkdownCommands = {
   emoji: true,
 };
 
-const specialCharsRegex = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]/;
+const specialCharsRegex = new RegExp(/[^A-Za-z0-9_.]/);
 
 export const useMarkdownInput = ({
   textareaRef,
