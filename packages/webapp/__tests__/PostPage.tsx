@@ -480,10 +480,13 @@ it('should show both stats when they are greater than zero', async () => {
   expect(el).toHaveTextContent('7 Upvotes15 Comments');
 });
 
-it('should show views when it is greater than zero', async () => {
-  renderPost({}, [createPostMock({ views: 15 }), createCommentsMock()]);
+it('should show impressions when it is greater than zero', async () => {
+  renderPost({}, [
+    createPostMock({ analytics: { impressions: 15 } }),
+    createCommentsMock(),
+  ]);
   const el = await screen.findByTestId('statsBar');
-  expect(el).toHaveTextContent('15 Views');
+  expect(el).toHaveTextContent('15 Impressions');
 });
 
 it('should not show author link when author is null', async () => {
