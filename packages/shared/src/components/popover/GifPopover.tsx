@@ -7,7 +7,8 @@ import { PopoverContent } from './Popover';
 import { Typography, TypographyType } from '../typography/Typography';
 import { TextField } from '../fields/TextField';
 import useDebounceFn from '../../hooks/useDebounceFn';
-import useGifQuery from '../../hooks/useGifQuery';
+import useGif from '../../hooks/useGif';
+import { StarIcon } from '../icons';
 
 const searchSuggestions = [
   'Nodding zoom',
@@ -47,7 +48,14 @@ const GifPopover = ({
     (value) => setQuery(value),
     300,
   );
-  const { data, isLoading, fetchNextPage, isFetchingNextPage } = useGifQuery({
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    isFetchingNextPage,
+    favorite,
+    favorites,
+  } = useGif({
     query,
     limit: '20',
   });
@@ -111,20 +119,31 @@ const GifPopover = ({
         {data?.length > 0 && !isLoading && (
           <div className="grid grid-cols-2 gap-2">
             {data.map((gif) => (
-              <button
-                className="mb-auto"
-                type="button"
-                onClick={() =>
-                  handleGifClick({ url: gif.url, title: gif.title })
-                }
-                key={gif.id}
-              >
-                <img
-                  src={gif.preview}
-                  alt={gif.title}
-                  className="h-auto w-full cursor-pointer rounded-8 object-cover"
-                />
-              </button>
+              <div className="relative" key={gif.id}>
+                <div className="z-10 absolute right-2 top-2 rounded-16 bg-background-popover">
+                  <Button
+                    icon={
+                      <StarIcon
+                        secondary={favorites?.some((f) => f.id === gif.id)}
+                      />
+                    }
+                    onClick={() => favorite(gif)}
+                  />
+                </div>
+                <button
+                  className="mb-auto"
+                  type="button"
+                  onClick={() =>
+                    handleGifClick({ url: gif.url, title: gif.title })
+                  }
+                >
+                  <img
+                    src={gif.preview}
+                    alt={gif.title}
+                    className="h-auto w-full cursor-pointer rounded-8 object-cover"
+                  />
+                </button>
+              </div>
             ))}
           </div>
         )}
