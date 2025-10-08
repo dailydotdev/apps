@@ -51,7 +51,7 @@ type SummaryCardProps = {
 
 const SummaryCard = ({ count, label }: SummaryCardProps): ReactElement => {
   return (
-    <div className="rounded-10 border-border-subtlest-tertiary flex-1 border p-2 text-center">
+    <div className="flex-1 rounded-10 border border-border-subtlest-tertiary p-2 text-center">
       <Typography
         type={TypographyType.Body}
         color={TypographyColor.Primary}
@@ -93,7 +93,7 @@ const KeywordBadge = ({ badge }: KeywordBadgeProps): ReactElement => {
           type={TypographyType.Caption1}
           color={TypographyColor.Primary}
           className={classNames(
-            'rounded-6 border-border-subtlest-tertiary hover:bg-background-popover border px-1 py-0.5 lowercase transition duration-200',
+            'rounded-6 border border-border-subtlest-tertiary px-1 py-0.5 lowercase transition duration-200 hover:bg-background-popover',
             truncateTextClassNames,
           )}
         >
@@ -169,7 +169,7 @@ export const BadgesAndAwards = ({
       )}
 
       {hasCoresAccess && awards && awards.length > 0 && (
-        <div className="laptop:grid-cols-6 mt-4 grid grid-cols-5 gap-4">
+        <div className="mt-4 grid grid-cols-5 gap-4 laptop:grid-cols-6">
           {awards.map((award) => (
             <Award key={award.id} image={award.image} amount={award.count} />
           ))}
