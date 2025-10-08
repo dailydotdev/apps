@@ -30,7 +30,6 @@ import { useActions } from '@dailydotdev/shared/src/hooks';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
-import NavBar, { tabs } from './NavBar';
 import { getTemplatedTitle } from '../utils';
 import { ProfileWidgets } from '../../../../shared/src/components/profile/ProfileWidgets';
 
@@ -119,8 +118,6 @@ export default function ProfileLayout({
     return <></>;
   }
 
-  const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
-
   return (
     <ConditionalWrapper
       condition={isUserSame && shouldShow && !hasClosedBanner}
@@ -148,7 +145,6 @@ export default function ProfileLayout({
             enableSticky
             className="laptop:hidden"
           />
-          <NavBar selectedTab={selectedTab} profile={user} />
           {children}
         </main>
         <PageWidgets className="hidden !px-0 laptop:flex">

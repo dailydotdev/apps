@@ -20,6 +20,7 @@ import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import dynamic from 'next/dynamic';
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
+import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -44,6 +45,7 @@ const Awards = dynamic(
 const ProfilePage = ({
   user: initialUser,
   noindex,
+  userStats,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const { tokenRefreshed } = useAuthContext();
@@ -82,7 +84,8 @@ const ProfilePage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
+      <div className="flex flex-col gap-6 px-4 py-6 tablet:px-0">
+        <ProfileHeader user={user} userStats={userStats} />
         <Readme user={user} />
         {hasCoresAccess && <Awards userId={user?.id} />}
         <TopReaderWidget user={user} />

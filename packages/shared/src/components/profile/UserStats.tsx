@@ -15,8 +15,6 @@ import { ButtonSize } from '../buttons/Button';
 export interface UserStatsProps {
   stats: {
     reputation: number;
-    views: number;
-    upvotes: number;
     numFollowers: number;
     numFollowing: number;
   };
@@ -68,6 +66,7 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
           />
         )}
         <div className="flex flex-row gap-2">
+          <Item stat={{ title: 'Reputation', amount: stats.reputation }} />
           <Item
             stat={{ title: 'Followers', amount: stats.numFollowers }}
             className={classNames(stats.numFollowers && 'cursor-pointer')}
@@ -104,11 +103,6 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
               });
             }}
           />
-        </div>
-        <div className="flex flex-row gap-2">
-          <Item stat={{ title: 'Reputation', amount: stats.reputation }} />
-          <Item stat={{ title: 'Views', amount: stats.views }} />
-          <Item stat={{ title: 'Upvotes', amount: stats.upvotes }} />
         </div>
       </div>
     </div>
