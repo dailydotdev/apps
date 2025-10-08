@@ -267,6 +267,12 @@ const PostAnalyticsPage = ({
       value: `${postAnalytics?.upvotesRatio ?? 0}%`,
       tooltip: 'The percentage of upvotes out of total votes.',
     },
+    // TODO post-analytics-clicks correct icon
+    {
+      icon: <AnalyticsIcon />,
+      label: 'Clicks',
+      value: postAnalytics?.clicks ?? 0,
+    },
     {
       icon: <DiscussIcon />,
       label: 'Comments',
@@ -286,12 +292,6 @@ const PostAnalyticsPage = ({
       icon: <ShareIcon />,
       label: 'Shares',
       value: postAnalytics?.shares ?? 0,
-    },
-    // TODO post-analytics-clicks correct icon
-    {
-      icon: <AnalyticsIcon />,
-      label: 'Clicks',
-      value: postAnalytics?.clicks ?? 0,
     },
   ];
 
