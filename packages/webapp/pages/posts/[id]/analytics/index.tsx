@@ -18,6 +18,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import {
   AddUserIcon,
+  AnalyticsIcon,
   ArrowIcon,
   BookmarkIcon,
   CoreFlatIcon,
@@ -271,7 +272,6 @@ const PostAnalyticsPage = ({
       label: 'Comments',
       value: postAnalytics?.comments ?? 0,
     },
-
     {
       icon: <BookmarkIcon />,
       label: 'Bookmarks',
@@ -286,6 +286,12 @@ const PostAnalyticsPage = ({
       icon: <ShareIcon />,
       label: 'Shares',
       value: postAnalytics?.shares ?? 0,
+    },
+    // TODO post-analytics-clicks correct icon
+    {
+      icon: <AnalyticsIcon />,
+      label: 'Clicks',
+      value: postAnalytics?.clicks ?? 0,
     },
   ];
 

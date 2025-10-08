@@ -1212,6 +1212,7 @@ export const POST_ANALYTICS_QUERY = gql`
       shares
       reachAds
       impressionsAds
+      clicks
     }
   }
 `;
@@ -1233,6 +1234,7 @@ export type PostAnalytics = {
   shares: number;
   reachAds: number;
   impressionsAds: number;
+  clicks: number;
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
