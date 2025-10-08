@@ -8,16 +8,19 @@ import type { FeedData } from '../../graphql/feed';
 import type { Post } from '../../graphql/posts';
 import type { WithClassNameProps } from '../utilities';
 
-export const ActivityContainer = classed('section', 'flex flex-col');
+export const ActivityContainer = classed(
+  'section',
+  'flex flex-col border border-border-subtlest-tertiary rounded-16 p-4 laptop:max-w-full max-w-[18.75rem]',
+);
 
 export const ActivitySectionTitle = classed(
   'h2',
-  'flex items-center mb-4 text-text-primary font-bold typo-body',
+  'flex items-center text-text-primary font-bold typo-callout',
 );
 
 export const ActivitySectionSubTitle = classed(
-  'span',
-  'mt-1 text-text-tertiary typo-callout font-normal',
+  'a',
+  'mt-1 text-text-link typo-caption2 font-normal',
 );
 
 export const ActivitySectionTitleStat = classed(
