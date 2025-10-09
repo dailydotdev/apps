@@ -84,7 +84,7 @@ const ProfilePage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <div className="flex flex-col gap-6 px-4 py-6 tablet:px-0">
+      <div className="flex flex-col gap-6 px-0 py-6">
         <ProfileHeader user={user} userStats={userStats} />
         <Readme user={user} />
         {hasCoresAccess && <Awards userId={user?.id} />}

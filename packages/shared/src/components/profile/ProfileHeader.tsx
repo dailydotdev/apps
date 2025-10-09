@@ -27,7 +27,7 @@ const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
         alt="Avatar"
         className="absolute left-6 top-6 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
       />
-      <div className="flex flex-col px-6 pt-16">
+      <div className="flex flex-col gap-3 px-6 pt-16">
         <div className="flex gap-1">
           <Typography type={TypographyType.Title2} bold>
             {name}

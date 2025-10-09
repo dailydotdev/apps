@@ -138,13 +138,6 @@ export default function ProfileLayout({
           <link rel="preload" as="image" href={user.image} />
         </Head>
         <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
-          <ProfileWidgets
-            user={user}
-            userStats={userStats}
-            sources={sources}
-            enableSticky
-            className="laptop:hidden"
-          />
           {children}
         </main>
         <PageWidgets className="hidden !px-0 laptop:flex">
