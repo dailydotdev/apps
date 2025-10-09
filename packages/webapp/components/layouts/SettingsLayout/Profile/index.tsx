@@ -4,7 +4,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import type { ReactElement } from 'react';
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import ControlledTextField from '@dailydotdev/shared/src/components/fields/ControlledTextField';
 import ControlledTextarea from '@dailydotdev/shared/src/components/fields/ControlledTextarea';
 import {
@@ -31,11 +31,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  useToastNotification,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMutation } from '@tanstack/react-query';
@@ -74,9 +70,29 @@ const coverId = 'cover_file';
 const ProfileIndex = ({
   ...props
 }: VerifiedCompanyBadgeSectionProps): ReactElement => {
-  const hookForm = useForm();
+  const { user, updateUser } = useContext(AuthContext);
+  const hookForm = useForm({
+    defaultValues: {
+      name: user?.name,
+      username: user?.username,
+      bio: user?.bio,
+      github: user?.github,
+      linkedin: user?.linkedin,
+      portfolio: user?.portfolio,
+      twitter: user?.twitter,
+      youtube: user?.youtube,
+      stackoverflow: user?.stackoverflow,
+      reddit: user?.reddit,
+      roadmap: user?.roadmap,
+      codepen: user?.codepen,
+      mastodon: user?.mastodon,
+      bluesky: user?.bluesky,
+      threads: user?.threads,
+      experienceLevel: user?.experienceLevel,
+      // readme: user?.readme || '',
+    },
+  });
   const router = useRouter();
-  const formRef = useRef<HTMLFormElement>();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const onSuccess = () => {
@@ -84,43 +100,17 @@ const ProfileIndex = ({
     logEvent({ event_name: LogEvent.UpdateProfile });
   };
   const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
-  const { user, updateUser } = useContext(AuthContext);
   const [coverImage, setCoverImage] = useState(user?.cover);
   const currentCoverImage = coverImage || user?.cover;
-  const isMobile = useViewSize(ViewSize.MobileL);
-
-  // const onSubmit = (e: React.MouseEvent) => {
-  //   e.preventDefault();
-  //   const values = formToJson<UpdateProfileParameters>(formRef.current);
-  //   const params = {
-  //     name: values.name,
-  //     username: values.username,
-  //     bio: values.bio,
-  //     company: values.company,
-  //     title: values.title,
-  //     twitter: values.twitter,
-  //     github: values.github,
-  //     portfolio: values.portfolio ? withHttps(values.portfolio) : null,
-  //     roadmap: values.roadmap,
-  //     threads: values.threads,
-  //     codepen: values.codepen,
-  //     reddit: values.reddit,
-  //     stackoverflow: values.stackoverflow,
-  //     youtube: values.youtube,
-  //     linkedin: values.linkedin,
-  //     mastodon: values.mastodon ? withHttps(values.mastodon) : null,
-  //     bluesky: values.bluesky,
-  //     experienceLevel: values.experienceLevel,
-  //     onUpdateSuccess: () =>
-  //       router.push(`/${values.username.toLowerCase()}`).then(() => {
-  //         router.reload();
-  //       }),
-  //   };
-  //   updateUserProfile(params);
-  // };
 
   const onSubmit = (data: FieldValues) => {
-    console.log('field values', data);
+    updateUserProfile(data, {
+      onSuccess: () => {
+        router.push(`/${data.username.toLowerCase()}`).then(() => {
+          router.reload();
+        });
+      },
+    });
   };
 
   const { mutate: uploadCoverImage } = useMutation<
