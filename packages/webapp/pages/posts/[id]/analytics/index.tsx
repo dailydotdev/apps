@@ -18,9 +18,9 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import {
   AddUserIcon,
-  AnalyticsIcon,
   ArrowIcon,
   BookmarkIcon,
+  ClickIcon,
   CoreFlatIcon,
   CoreIcon,
   DiscussIcon,
@@ -267,11 +267,12 @@ const PostAnalyticsPage = ({
       value: `${postAnalytics?.upvotesRatio ?? 0}%`,
       tooltip: 'The percentage of upvotes out of total votes.',
     },
-    // TODO post-analytics-clicks correct icon
     {
-      icon: <AnalyticsIcon />,
+      icon: <ClickIcon />,
       label: 'Clicks',
       value: postAnalytics?.clicks ?? 0,
+      tooltip:
+        'Number of clicks your post received, includes feed clicks and link opens.',
     },
     {
       icon: <DiscussIcon />,
