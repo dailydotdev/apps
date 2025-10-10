@@ -83,7 +83,7 @@ export const BadgesAndAwards = ({
       )}
 
       {hasCoresAccess && awards && awards.length > 0 && (
-        <div className="laptop:grid-cols-6 mt-4 grid grid-cols-5 gap-4">
+        <div className="mt-4 grid grid-cols-5 gap-4 laptop:grid-cols-6">
           {awards.map((award) => (
             <Award key={award.id} image={award.image} amount={award.count} />
           ))}

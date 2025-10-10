@@ -45,7 +45,7 @@ export const SummaryCard = ({
   label,
 }: SummaryCardProps): ReactElement => {
   return (
-    <div className="rounded-10 border-border-subtlest-tertiary flex-1 border p-2 text-center">
+    <div className="flex-1 rounded-10 border border-border-subtlest-tertiary p-2 text-center">
       <Typography
         type={TypographyType.Body}
         color={TypographyColor.Primary}
@@ -88,7 +88,7 @@ export const KeywordBadge = ({ badge }: KeywordBadgeProps): ReactElement => {
           type={TypographyType.Caption1}
           color={TypographyColor.Primary}
           className={classNames(
-            'rounded-6 border-border-subtlest-tertiary hover:bg-background-popover border px-1 py-0.5 lowercase transition duration-200',
+            'rounded-6 border border-border-subtlest-tertiary px-1 py-0.5 lowercase transition duration-200 hover:bg-background-popover',
             truncateTextClassNames,
           )}
         >

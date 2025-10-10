@@ -25,7 +25,7 @@ export const ReadingTagProgress = ({
 
   return (
     <Tooltip content={`${count}/${total} reading days`} side="top">
-      <div className="rounded-6 border-border-subtlest-tertiary relative flex flex-row justify-between overflow-hidden border px-2">
+      <div className="relative flex flex-row justify-between overflow-hidden rounded-6 border border-border-subtlest-tertiary px-2">
         <Link href={getTagPageLink(tag)} passHref prefetch={false}>
           <Typography
             tag={TypographyTag.Link}
@@ -46,7 +46,7 @@ export const ReadingTagProgress = ({
           {value}
         </Typography>
         <div
-          className="bg-accent-onion-default absolute bottom-0 left-0 top-0 h-auto overflow-hidden"
+          className="absolute bottom-0 left-0 top-0 h-auto overflow-hidden bg-accent-onion-default"
           style={{ width: value }}
           data-testid="tagProgress"
         />
@@ -102,23 +102,23 @@ export const ReadingTagsSection = ({
 
 // HeatmapLegend component
 export const HeatmapLegend = (): ReactElement => (
-  <div className="typo-footnote mt-4 flex items-center justify-end">
+  <div className="mt-4 flex items-center justify-end typo-footnote">
     <div className="flex items-center">
       <div className="mr-2">Less</div>
       <div
-        className="border-border-subtlest-quaternary mr-0.5 h-2 w-2 border"
+        className="mr-0.5 h-2 w-2 border border-border-subtlest-quaternary"
         style={{ borderRadius: '0.1875rem' }}
       />
       <div
-        className="bg-text-disabled mr-0.5 h-2 w-2"
+        className="mr-0.5 h-2 w-2 bg-text-disabled"
         style={{ borderRadius: '0.1875rem' }}
       />
       <div
-        className="bg-text-quaternary mr-0.5 h-2 w-2"
+        className="mr-0.5 h-2 w-2 bg-text-quaternary"
         style={{ borderRadius: '0.1875rem' }}
       />
       <div
-        className="bg-text-primary mr-0.5 h-2 w-2"
+        className="mr-0.5 h-2 w-2 bg-text-primary"
         style={{ borderRadius: '0.1875rem' }}
       />
       <div className="ml-2">More</div>

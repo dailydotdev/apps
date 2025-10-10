@@ -3,7 +3,7 @@ import nock from 'nock';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { MostReadTag } from '../../graphql/users';
-import { ReadingTagProgress } from './ReadingTagProgress';
+import { ReadingTagProgress } from './ProfileWidgets/ReadingOverviewComponents';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
 beforeEach(() => {
