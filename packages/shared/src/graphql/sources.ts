@@ -147,6 +147,12 @@ export const SOURCE_DIRECTORY_QUERY = gql`
     topVideoSources {
       ...SourceDirectoryInfo
     }
+    trendingUserSources {
+      ...SourceDirectoryInfo
+    }
+    popularUserSources {
+      ...SourceDirectoryInfo
+    }
   }
   ${SOURCE_DIRECTORY_INFO_FRAGMENT}
 `;
