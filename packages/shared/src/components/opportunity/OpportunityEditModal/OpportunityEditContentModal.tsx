@@ -179,7 +179,7 @@ export const OpportunityEditContentModal = ({
                   textareaProps={{
                     name: field.name,
                     rows: 6,
-                    maxLength: 1440,
+                    maxLength: 2000,
                   }}
                   className={{
                     container: 'flex-1',
