@@ -24,6 +24,7 @@ export * from './CardLayout';
 export * from './ChecklistA';
 export * from './ChecklistB';
 export * from './Clear';
+export * from './Click';
 export * from './CodePen';
 export * from './Coin';
 export * from './CommunityPicksIcon';
