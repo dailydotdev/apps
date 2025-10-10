@@ -1,12 +1,13 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import type { PublicProfile } from '../../../lib/user';
 import { BadgesAndAwards } from './BadgesAndAwards';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
-import { USER_TOP_READER_QUERY } from '../../../graphql/users';
-import { userProductSummaryQueryOptions, ProductType } from '../../../graphql/njord';
+import { ProductType, PRODUCTS_SUMMARY_QUERY } from '../../../graphql/njord';
+import { useTopReader } from '../../../hooks/useTopReader';
+import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
 
 // Mock the hooks
 jest.mock('../../../hooks/useTopReader', () => ({
@@ -17,8 +18,8 @@ jest.mock('../../../hooks/useCoresFeature', () => ({
   useHasAccessToCores: jest.fn(),
 }));
 
-const mockUseTopReader = require('../../../hooks/useTopReader').useTopReader;
-const mockUseHasAccessToCores = require('../../../hooks/useCoresFeature').useHasAccessToCores;
+const mockUseTopReader = useTopReader as jest.Mock;
+const mockUseHasAccessToCores = useHasAccessToCores as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -112,7 +113,7 @@ describe('BadgesAndAwards component', () => {
     expect(screen.getByText('Badges & Awards')).toBeInTheDocument();
     expect(screen.getByText('Learn more')).toBeInTheDocument();
     // Check for skeleton elements
-    expect(document.querySelectorAll('.animate-pulse')).toHaveLength(5); // 2 summary cards + 3 tag items
+    expect(screen.getAllByRole('generic')).toHaveLength(5); // 2 summary cards + 3 tag items
   });
 
   it('should render nothing when no data is available', () => {
@@ -122,7 +123,7 @@ describe('BadgesAndAwards component', () => {
     });
 
     const { container } = renderComponent();
-    expect(container.firstChild).toBeNull();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render top reader badges when available', async () => {
@@ -159,10 +160,7 @@ describe('BadgesAndAwards component', () => {
     // Mock the awards query
     mockGraphQL({
       request: {
-        query: userProductSummaryQueryOptions({
-          userId: defaultUser.id,
-          type: ProductType.Award,
-        }).query,
+        query: PRODUCTS_SUMMARY_QUERY,
         variables: {
           userId: defaultUser.id,
           type: ProductType.Award,
@@ -185,8 +183,14 @@ describe('BadgesAndAwards component', () => {
     // Check award images
     const awardImages = screen.getAllByAltText('Award');
     expect(awardImages).toHaveLength(2);
-    expect(awardImages[0]).toHaveAttribute('src', 'https://daily.dev/award1.png');
-    expect(awardImages[1]).toHaveAttribute('src', 'https://daily.dev/award2.png');
+    expect(awardImages[0]).toHaveAttribute(
+      'src',
+      'https://daily.dev/award1.png',
+    );
+    expect(awardImages[1]).toHaveAttribute(
+      'src',
+      'https://daily.dev/award2.png',
+    );
 
     // Check award counts
     expect(screen.getByText('x2')).toBeInTheDocument();
@@ -218,23 +222,25 @@ describe('BadgesAndAwards component', () => {
     // Mock the awards query to be loading
     mockGraphQL({
       request: {
-        query: userProductSummaryQueryOptions({
-          userId: defaultUser.id,
-          type: ProductType.Award,
-        }).query,
+        query: PRODUCTS_SUMMARY_QUERY,
         variables: {
           userId: defaultUser.id,
           type: ProductType.Award,
         },
       },
-      result: new Promise(() => {}), // Never resolves
+      result: {
+        data: {
+          userProductSummary: [],
+        },
+      },
     });
 
     renderComponent();
 
     expect(screen.getByText('Badges & Awards')).toBeInTheDocument();
     // Should show skeleton when any data is loading
-    expect(document.querySelectorAll('.animate-pulse')).toHaveLength(5);
+    // Should show skeleton when any data is loading
+    expect(screen.getAllByRole('generic')).toHaveLength(5);
   });
 
   it('should handle empty top readers array', () => {
@@ -244,7 +250,7 @@ describe('BadgesAndAwards component', () => {
     });
 
     const { container } = renderComponent();
-    expect(container.firstChild).toBeNull();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should handle empty awards array', async () => {
@@ -256,10 +262,7 @@ describe('BadgesAndAwards component', () => {
 
     mockGraphQL({
       request: {
-        query: userProductSummaryQueryOptions({
-          userId: defaultUser.id,
-          type: ProductType.Award,
-        }).query,
+        query: PRODUCTS_SUMMARY_QUERY,
         variables: {
           userId: defaultUser.id,
           type: ProductType.Award,
@@ -324,10 +327,7 @@ describe('BadgesAndAwards component', () => {
 
     mockGraphQL({
       request: {
-        query: userProductSummaryQueryOptions({
-          userId: defaultUser.id,
-          type: ProductType.Award,
-        }).query,
+        query: PRODUCTS_SUMMARY_QUERY,
         variables: {
           userId: defaultUser.id,
           type: ProductType.Award,
@@ -356,7 +356,10 @@ describe('BadgesAndAwards component', () => {
     renderComponent();
 
     const learnMoreLink = screen.getByText('Learn more');
-    expect(learnMoreLink).toHaveAttribute('href', 'https://daily.dev/top-reader-badges');
+    expect(learnMoreLink).toHaveAttribute(
+      'href',
+      'https://daily.dev/top-reader-badges',
+    );
     expect(learnMoreLink).toHaveAttribute('target', '_blank');
   });
 
@@ -367,6 +370,6 @@ describe('BadgesAndAwards component', () => {
     });
 
     const { container } = renderComponent();
-    expect(container.firstChild).toBeNull();
+    expect(container).toBeEmptyDOMElement();
   });
 });

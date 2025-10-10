@@ -23,6 +23,7 @@ import {
   KeywordBadge,
   BadgesAndAwardsSkeleton,
 } from './BadgesAndAwardsComponents';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 export const BadgesAndAwards = ({
   user,
@@ -54,9 +55,7 @@ export const BadgesAndAwards = ({
 
   // Handle error states
   if (awardsError) {
-    // Log error for debugging but don't break the UI
-    // eslint-disable-next-line no-console
-    console.error('Failed to load awards:', awardsError);
+    return null;
   }
 
   const totalTopReaderBadges =
@@ -74,9 +73,14 @@ export const BadgesAndAwards = ({
         bold
         className="flex items-center"
       >
-        Badges & Awards
+        Badges &amp; Awards
       </Typography>
-      <ClickableText tag="a" target="_blank" href={topReaderBadgeDocs}>
+      <ClickableText
+        tag="a"
+        target="_blank"
+        href={topReaderBadgeDocs}
+        rel={anchorDefaultRel}
+      >
         Learn more
       </ClickableText>
 
@@ -102,7 +106,7 @@ export const BadgesAndAwards = ({
 
       {hasCoresAccess && awards && awards.length > 0 && (
         <div
-          className="mt-4 grid gap-4 grid-cols-5 laptop:grid-cols-6"
+          className="mt-4 grid grid-cols-5 gap-4 laptop:grid-cols-6"
           role="list"
           aria-label="User awards"
         >

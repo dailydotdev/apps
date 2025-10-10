@@ -13,8 +13,10 @@ import Link from '../../utilities/Link';
 import { getTagPageLink } from '../../../lib';
 import { truncateTextClassNames } from '../../utilities';
 import { ActivityContainer } from '../ActivitySection';
-import { topReaderBadgeDocs } from '../../../lib/constants';
 import { ClickableText } from '../../buttons/ClickableText';
+import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { topReaderBadgeDocs } from '../../../lib/constants';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 // Skeleton component
 export const BadgesAndAwardsSkeleton = (): ReactElement => {
@@ -27,29 +29,46 @@ export const BadgesAndAwardsSkeleton = (): ReactElement => {
         bold
         className="flex items-center"
       >
-        Badges & Awards
+        Badges &amp; Awards
       </Typography>
-      <ClickableText tag="a" target="_blank" href={topReaderBadgeDocs}>
+      <ClickableText
+        tag="a"
+        target="_blank"
+        href={topReaderBadgeDocs}
+        rel={anchorDefaultRel}
+      >
         Learn more
       </ClickableText>
 
       <div className="my-3 flex gap-3">
-        <div className="flex-1 rounded-10 border border-border-subtlest-tertiary p-2 text-center">
-          <div className="h-6 w-8 animate-pulse rounded-4 bg-text-quaternary" />
-          <div className="mt-1 h-4 w-16 animate-pulse rounded-4 bg-text-quaternary" />
-        </div>
-        <div className="flex-1 rounded-10 border border-border-subtlest-tertiary p-2 text-center">
-          <div className="h-6 w-8 animate-pulse rounded-4 bg-text-quaternary" />
-          <div className="mt-1 h-4 w-16 animate-pulse rounded-4 bg-text-quaternary" />
-        </div>
+        <ElementPlaceholder className="flex flex-1 flex-col items-center rounded-10 p-2">
+          <ElementPlaceholder className="h-6 w-8 rounded-4" />
+          <ElementPlaceholder className="mt-1 h-4 w-16 rounded-4" />
+        </ElementPlaceholder>
+        <ElementPlaceholder className="flex flex-1 flex-col items-center rounded-10 p-2">
+          <ElementPlaceholder className="h-6 w-8 rounded-4" />
+          <ElementPlaceholder className="mt-1 h-4 w-16 rounded-4" />
+        </ElementPlaceholder>
       </div>
 
       <div className="flex flex-col gap-2">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="flex items-center justify-between">
-            <div className="h-6 w-20 animate-pulse rounded-4 bg-text-quaternary" />
-            <div className="h-4 w-12 animate-pulse rounded-4 bg-text-quaternary" />
-          </div>
+        <ElementPlaceholder className="flex items-center justify-between rounded-6 p-1">
+          <ElementPlaceholder className="h-6 w-20 rounded-4" />
+          <ElementPlaceholder className="h-4 w-12 rounded-4" />
+        </ElementPlaceholder>
+      </div>
+
+      {/* Awards section skeleton */}
+      <div className="mt-4 grid grid-cols-5 gap-4 laptop:grid-cols-6">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <ElementPlaceholder
+            // eslint-disable-next-line react/no-array-index-key
+            key={`skeleton-award-${index}`}
+            className="flex flex-col items-center justify-center rounded-6 p-1"
+          >
+            <ElementPlaceholder className="size-8 rounded-4" />
+            <ElementPlaceholder className="mt-1 h-4 w-6 rounded-4" />
+          </ElementPlaceholder>
         ))}
       </div>
     </ActivityContainer>
@@ -143,7 +162,6 @@ export const KeywordBadge = ({ badge }: KeywordBadgeProps): ReactElement => {
         type={TypographyType.Caption2}
         color={TypographyColor.Quaternary}
         dateTime={new Date(badge.issuedAt).toISOString()}
-        className="text-text-quaternary"
       >
         {formatDate({
           value: badge.issuedAt,

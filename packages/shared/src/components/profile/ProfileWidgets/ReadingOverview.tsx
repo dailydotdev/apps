@@ -21,36 +21,27 @@ import {
   HeatmapLegend,
   ReadingOverviewSkeleton,
 } from './ReadingOverviewComponents';
+import { anchorDefaultRel, pluralize } from '../../../lib/strings';
 
 // Utility functions
-const readHistoryToValue = (value: UserReadHistory): number => {
-  const reads = value?.reads;
-  return typeof reads === 'number' && reads >= 0 ? reads : 0;
-};
+const readHistoryToValue = (value: UserReadHistory): number => value.reads;
 
 const readHistoryToTooltip = (
   value: UserReadHistory,
   date: Date,
 ): ReactNode => {
-  if (!date || !(date instanceof Date)) {
-    return 'Invalid date';
-  }
-
   const formattedDate = date.toLocaleString('en-US', {
     month: 'short',
     day: '2-digit',
     year: 'numeric',
   });
-
-  const reads = value?.reads;
-  if (!reads || typeof reads !== 'number' || reads <= 0) {
+  if (!value?.reads) {
     return `No posts read on ${formattedDate}`;
   }
-
   return (
     <>
       <strong>
-        {reads} article{reads > 1 ? 's' : ''} read
+        {value.reads} {pluralize('article', value.reads)} read
       </strong>
       &nbsp;on {formattedDate}
     </>
@@ -58,11 +49,11 @@ const readHistoryToTooltip = (
 };
 
 export interface ReadingOverviewProps {
-  readHistory: UserReadHistory[] | null | undefined;
+  readHistory: UserReadHistory[];
   before: Date;
   after: Date;
-  streak: UserStreak | null | undefined;
-  mostReadTags: MostReadTag[] | null | undefined;
+  streak: UserStreak;
+  mostReadTags: MostReadTag[];
   isStreaksEnabled: boolean;
   isLoading?: boolean;
 }
@@ -101,7 +92,12 @@ export function ReadingOverview({
       >
         Reading Overview
       </Typography>
-      <ClickableText tag="a" target="_blank" href={migrateUserToStreaks}>
+      <ClickableText
+        tag="a"
+        target="_blank"
+        href={migrateUserToStreaks}
+        rel={anchorDefaultRel}
+      >
         Learn more
       </ClickableText>
 

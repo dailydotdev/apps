@@ -11,9 +11,11 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { SummaryCard } from './BadgesAndAwardsComponents';
-import { capitalize } from '../../../lib/strings';
+import { anchorDefaultRel, capitalize } from '../../../lib/strings';
 import { ActivityContainer } from '../ActivitySection';
 import { ClickableText } from '../../buttons/ClickableText';
+import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { migrateUserToStreaks } from '../../../lib/constants';
 
 // ReadingTagProgress component
 interface ReadingTagProgressProps {
@@ -107,22 +109,10 @@ export const HeatmapLegend = (): ReactElement => (
   <div className="mt-4 flex items-center justify-end typo-footnote">
     <div className="flex items-center">
       <div className="mr-2">Less</div>
-      <div
-        className="mr-0.5 h-2 w-2 border border-border-subtlest-quaternary"
-        style={{ borderRadius: '0.1875rem' }}
-      />
-      <div
-        className="mr-0.5 h-2 w-2 bg-text-disabled"
-        style={{ borderRadius: '0.1875rem' }}
-      />
-      <div
-        className="mr-0.5 h-2 w-2 bg-text-quaternary"
-        style={{ borderRadius: '0.1875rem' }}
-      />
-      <div
-        className="mr-0.5 h-2 w-2 bg-text-primary"
-        style={{ borderRadius: '0.1875rem' }}
-      />
+      <div className="mr-0.5 h-2 w-2 rounded-6 border border-border-subtlest-quaternary" />
+      <div className="mr-0.5 h-2 w-2 rounded-6 bg-text-disabled" />
+      <div className="mr-0.5 h-2 w-2 rounded-6 bg-text-quaternary" />
+      <div className="mr-0.5 h-2 w-2 rounded-6 bg-text-primary" />
       <div className="ml-2">More</div>
     </div>
   </div>
@@ -141,61 +131,52 @@ export const ReadingOverviewSkeleton = (): ReactElement => {
       >
         Reading Overview
       </Typography>
-      <ClickableText tag="a" target="_blank" href="">
+      <ClickableText
+        tag="a"
+        target="_blank"
+        href={migrateUserToStreaks}
+        rel={anchorDefaultRel}
+      >
         Learn more
       </ClickableText>
 
       {/* Streaks section skeleton */}
       <div className="my-3 flex gap-2">
-        <div className="flex-1 rounded-10 border border-border-subtlest-tertiary p-2 text-center">
-          <div className="h-6 w-8 animate-pulse rounded-4 bg-text-quaternary" />
-          <div className="mt-1 h-4 w-16 animate-pulse rounded-4 bg-text-quaternary" />
-        </div>
-        <div className="flex-1 rounded-10 border border-border-subtlest-tertiary p-2 text-center">
-          <div className="h-6 w-8 animate-pulse rounded-4 bg-text-quaternary" />
-          <div className="mt-1 h-4 w-16 animate-pulse rounded-4 bg-text-quaternary" />
-        </div>
+        <ElementPlaceholder className="flex flex-1 flex-col items-center rounded-10 p-2">
+          <ElementPlaceholder className="h-6 w-8 rounded-4" />
+          <ElementPlaceholder className="mt-1 h-4 w-26 rounded-4" />
+        </ElementPlaceholder>
+        <ElementPlaceholder className="flex flex-1 flex-col items-center rounded-10 p-2">
+          <ElementPlaceholder className="h-6 w-8 rounded-4" />
+          <ElementPlaceholder className="mt-1 h-4 w-26 rounded-4" />
+        </ElementPlaceholder>
       </div>
 
       {/* Tags section skeleton */}
       <div className="my-1">
-        <div className="h-5 w-32 animate-pulse rounded-4 bg-text-quaternary" />
+        <ElementPlaceholder className="h-5 w-32 rounded-4" />
       </div>
       <div className="my-3 grid max-w-full grid-cols-2 gap-2">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="relative flex flex-row justify-between overflow-hidden rounded-6 border border-border-subtlest-tertiary px-2 py-1">
-            <div className="h-4 w-16 animate-pulse rounded-4 bg-text-quaternary" />
-            <div className="h-4 w-8 animate-pulse rounded-4 bg-text-quaternary" />
-          </div>
-        ))}
+        <ElementPlaceholder className="relative flex flex-row justify-between overflow-hidden rounded-6 px-2 py-1">
+          <ElementPlaceholder className="h-4 w-16 rounded-4" />
+          <ElementPlaceholder className="h-4 w-8 rounded-4" />
+        </ElementPlaceholder>
       </div>
 
       {/* Heatmap section skeleton */}
       <div className="mb-3">
-        <div className="h-5 w-48 animate-pulse rounded-4 bg-text-quaternary" />
+        <ElementPlaceholder className="h-5 w-48 rounded-4" />
       </div>
-      
+
       {/* Calendar heatmap skeleton */}
       <div className="mb-4">
-        <div className="grid grid-cols-7 gap-1">
-          {Array.from({ length: 35 }).map((_, index) => (
-            <div
-              key={index}
-              className={`h-3 w-3 animate-pulse rounded ${
-                index % 7 === 0 ? 'bg-text-quaternary' : 
-                index % 7 === 1 ? 'bg-text-disabled' : 
-                index % 7 === 2 ? 'bg-text-quaternary' : 
-                index % 7 === 3 ? 'bg-text-primary' : 
-                'bg-text-quaternary'
-              }`}
-              style={{ borderRadius: '0.1875rem' }}
-            />
-          ))}
-        </div>
+        <ElementPlaceholder className="h-20 w-full rounded-4" />
       </div>
 
       {/* Heatmap legend skeleton */}
-      <HeatmapLegend />
+      <div className="mt-4 flex justify-end">
+        <ElementPlaceholder className="h-4 w-24 rounded-4" />
+      </div>
     </ActivityContainer>
   );
 };
