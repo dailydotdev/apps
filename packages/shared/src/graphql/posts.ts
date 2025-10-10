@@ -22,7 +22,7 @@ import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
 
-export const ACCEPTED_TYPES = 'image/png,image/jpeg';
+export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
 export const MEGABYTE = 1024 * 1024;
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
