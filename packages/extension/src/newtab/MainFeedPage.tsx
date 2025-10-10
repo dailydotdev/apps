@@ -88,7 +88,7 @@ export default function MainFeedPage({
   const onLogoClick = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
-    setFeedName('popular');
+    setFeedName('my-feed');
     setIsSearchOn(false);
     setSearchQuery(undefined);
   };
