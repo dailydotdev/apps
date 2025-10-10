@@ -748,9 +748,6 @@ importers:
       '@storybook/addon-designs':
         specifier: ^10.0.2
         version: 10.0.2(@storybook/addon-docs@9.1.10(@types/react@18.3.12)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
-      '@storybook/addon-docs':
-        specifier: ^9.1.10
-        version: 9.1.10(@types/react@18.3.12)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
       '@storybook/addon-links':
         specifier: ^9.1.10
         version: 9.1.10(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
@@ -11007,7 +11004,11 @@ snapshots:
       jest-runner: 26.6.3
       jest-runtime: 26.6.3
     transitivePeerDependencies:
+      - bufferutil
+      - canvas
       - supports-color
+      - ts-node
+      - utf-8-validate
 
   '@jest/transform@26.6.2':
     dependencies:
@@ -11113,6 +11114,7 @@ snapshots:
       '@types/mdx': 2.0.13
       '@types/react': 18.3.12
       react: 18.3.1
+    optional: true
 
   '@mrmlnc/readdir-enhanced@2.2.1':
     dependencies:
@@ -11765,6 +11767,7 @@ snapshots:
       ts-dedent: 2.2.0
     transitivePeerDependencies:
       - '@types/react'
+    optional: true
 
   '@storybook/addon-links@9.1.10(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
     dependencies:
@@ -11796,6 +11799,7 @@ snapshots:
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+    optional: true
 
   '@storybook/react-dom-shim@9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
     dependencies:
@@ -12189,7 +12193,8 @@ snapshots:
     dependencies:
       '@types/unist': 2.0.11
 
-  '@types/mdx@2.0.13': {}
+  '@types/mdx@2.0.13':
+    optional: true
 
   '@types/minimatch@5.1.2': {}
 
