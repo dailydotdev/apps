@@ -12,6 +12,8 @@ import {
 } from '../../typography/Typography';
 import { SummaryCard } from './BadgesAndAwardsComponents';
 import { capitalize } from '../../../lib/strings';
+import { ActivityContainer } from '../ActivitySection';
+import { ClickableText } from '../../buttons/ClickableText';
 
 // ReadingTagProgress component
 interface ReadingTagProgressProps {
@@ -125,3 +127,75 @@ export const HeatmapLegend = (): ReactElement => (
     </div>
   </div>
 );
+
+// ReadingOverviewSkeleton component
+export const ReadingOverviewSkeleton = (): ReactElement => {
+  return (
+    <ActivityContainer>
+      <Typography
+        tag={TypographyTag.H2}
+        type={TypographyType.Callout}
+        color={TypographyColor.Primary}
+        bold
+        className="flex items-center"
+      >
+        Reading Overview
+      </Typography>
+      <ClickableText tag="a" target="_blank" href="">
+        Learn more
+      </ClickableText>
+
+      {/* Streaks section skeleton */}
+      <div className="my-3 flex gap-2">
+        <div className="flex-1 rounded-10 border border-border-subtlest-tertiary p-2 text-center">
+          <div className="h-6 w-8 animate-pulse rounded-4 bg-text-quaternary" />
+          <div className="mt-1 h-4 w-16 animate-pulse rounded-4 bg-text-quaternary" />
+        </div>
+        <div className="flex-1 rounded-10 border border-border-subtlest-tertiary p-2 text-center">
+          <div className="h-6 w-8 animate-pulse rounded-4 bg-text-quaternary" />
+          <div className="mt-1 h-4 w-16 animate-pulse rounded-4 bg-text-quaternary" />
+        </div>
+      </div>
+
+      {/* Tags section skeleton */}
+      <div className="my-1">
+        <div className="h-5 w-32 animate-pulse rounded-4 bg-text-quaternary" />
+      </div>
+      <div className="my-3 grid max-w-full grid-cols-2 gap-2">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="relative flex flex-row justify-between overflow-hidden rounded-6 border border-border-subtlest-tertiary px-2 py-1">
+            <div className="h-4 w-16 animate-pulse rounded-4 bg-text-quaternary" />
+            <div className="h-4 w-8 animate-pulse rounded-4 bg-text-quaternary" />
+          </div>
+        ))}
+      </div>
+
+      {/* Heatmap section skeleton */}
+      <div className="mb-3">
+        <div className="h-5 w-48 animate-pulse rounded-4 bg-text-quaternary" />
+      </div>
+      
+      {/* Calendar heatmap skeleton */}
+      <div className="mb-4">
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({ length: 35 }).map((_, index) => (
+            <div
+              key={index}
+              className={`h-3 w-3 animate-pulse rounded ${
+                index % 7 === 0 ? 'bg-text-quaternary' : 
+                index % 7 === 1 ? 'bg-text-disabled' : 
+                index % 7 === 2 ? 'bg-text-quaternary' : 
+                index % 7 === 3 ? 'bg-text-primary' : 
+                'bg-text-quaternary'
+              }`}
+              style={{ borderRadius: '0.1875rem' }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Heatmap legend skeleton */}
+      <HeatmapLegend />
+    </ActivityContainer>
+  );
+};

@@ -83,6 +83,8 @@ const ProfilePage = ({
             after={after}
             streak={readingHistory?.userStreakProfile}
             mostReadTags={readingHistory?.userMostReadTags}
+            isStreaksEnabled={isStreaksEnabled}
+            isLoading={isLoading}
           />
         )}
       </div>

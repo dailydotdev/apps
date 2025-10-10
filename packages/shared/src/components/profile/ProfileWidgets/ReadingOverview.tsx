@@ -19,27 +19,38 @@ import {
   ReadingStreaksSection,
   ReadingTagsSection,
   HeatmapLegend,
+  ReadingOverviewSkeleton,
 } from './ReadingOverviewComponents';
 
 // Utility functions
-const readHistoryToValue = (value: UserReadHistory): number => value.reads;
+const readHistoryToValue = (value: UserReadHistory): number => {
+  const reads = value?.reads;
+  return typeof reads === 'number' && reads >= 0 ? reads : 0;
+};
 
 const readHistoryToTooltip = (
   value: UserReadHistory,
   date: Date,
 ): ReactNode => {
+  if (!date || !(date instanceof Date)) {
+    return 'Invalid date';
+  }
+
   const formattedDate = date.toLocaleString('en-US', {
     month: 'short',
     day: '2-digit',
     year: 'numeric',
   });
-  if (!value?.reads) {
+
+  const reads = value?.reads;
+  if (!reads || typeof reads !== 'number' || reads <= 0) {
     return `No posts read on ${formattedDate}`;
   }
+
   return (
     <>
       <strong>
-        {value.reads} article{value.reads > 1 ? 's' : ''} read
+        {reads} article{reads > 1 ? 's' : ''} read
       </strong>
       &nbsp;on {formattedDate}
     </>
@@ -47,11 +58,13 @@ const readHistoryToTooltip = (
 };
 
 export interface ReadingOverviewProps {
-  readHistory: UserReadHistory[];
+  readHistory: UserReadHistory[] | null | undefined;
   before: Date;
   after: Date;
-  streak: UserStreak;
-  mostReadTags: MostReadTag[];
+  streak: UserStreak | null | undefined;
+  mostReadTags: MostReadTag[] | null | undefined;
+  isStreaksEnabled: boolean;
+  isLoading?: boolean;
 }
 
 export function ReadingOverview({
@@ -60,11 +73,22 @@ export function ReadingOverview({
   after,
   streak,
   mostReadTags,
+  isStreaksEnabled,
+  isLoading = false,
 }: ReadingOverviewProps): ReactElement {
-  const totalReads = useMemo(
-    () => readHistory?.reduce((acc, val) => acc + val.reads, 0),
-    [readHistory],
-  );
+  const totalReads = useMemo(() => {
+    if (!readHistory || !Array.isArray(readHistory)) {
+      return 0;
+    }
+    return readHistory.reduce((acc, val) => {
+      const reads = val?.reads || 0;
+      return acc + (typeof reads === 'number' && reads >= 0 ? reads : 0);
+    }, 0);
+  }, [readHistory]);
+
+  if (isLoading) {
+    return <ReadingOverviewSkeleton />;
+  }
 
   return (
     <ActivityContainer>
@@ -81,9 +105,10 @@ export function ReadingOverview({
         Learn more
       </ClickableText>
 
-      <ReadingStreaksSection streak={streak} />
-      <ReadingTagsSection mostReadTags={mostReadTags} />
-
+      {isStreaksEnabled && streak && <ReadingStreaksSection streak={streak} />}
+      {mostReadTags && mostReadTags?.length > 0 && (
+        <ReadingTagsSection mostReadTags={mostReadTags} />
+      )}
       <Typography
         tag={TypographyTag.H3}
         type={TypographyType.Subhead}

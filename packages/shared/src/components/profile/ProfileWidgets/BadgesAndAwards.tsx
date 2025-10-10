@@ -17,7 +17,12 @@ import {
   ProductType,
 } from '../../../graphql/njord';
 import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
-import { Award, SummaryCard, KeywordBadge } from './BadgesAndAwardsComponents';
+import {
+  Award,
+  SummaryCard,
+  KeywordBadge,
+  BadgesAndAwardsSkeleton,
+} from './BadgesAndAwardsComponents';
 
 export const BadgesAndAwards = ({
   user,
@@ -31,7 +36,11 @@ export const BadgesAndAwards = ({
 
   const hasCoresAccess = useHasAccessToCores();
 
-  const { data: awards, isPending: isAwardsLoading } = useQuery({
+  const {
+    data: awards,
+    isPending: isAwardsLoading,
+    error: awardsError,
+  } = useQuery({
     ...userProductSummaryQueryOptions({
       userId: user?.id,
       type: ProductType.Award,
@@ -40,16 +49,21 @@ export const BadgesAndAwards = ({
   });
 
   if (isTopReaderLoading || isAwardsLoading) {
-    return null;
+    return <BadgesAndAwardsSkeleton />;
   }
 
-  if (!topReaders?.length && !awards?.length) {
-    return null;
+  // Handle error states
+  if (awardsError) {
+    // Log error for debugging but don't break the UI
+    // eslint-disable-next-line no-console
+    console.error('Failed to load awards:', awardsError);
   }
 
   const totalTopReaderBadges =
-    topReaders?.reduce((sum, topReader) => sum + topReader.total, 0) ?? 0;
-  const totalAwards = awards?.reduce((sum, award) => sum + award.count, 0) ?? 0;
+    topReaders?.reduce((sum, topReader) => sum + (topReader?.total || 0), 0) ??
+    0;
+  const totalAwards =
+    awards?.reduce((sum, award) => sum + (award?.count || 0), 0) ?? 0;
 
   return (
     <ActivityContainer>
@@ -75,7 +89,11 @@ export const BadgesAndAwards = ({
       </div>
 
       {topReaders && topReaders.length > 0 && (
-        <div className="flex flex-col gap-2">
+        <div
+          className="flex flex-col gap-2"
+          role="list"
+          aria-label="User badges"
+        >
           {topReaders.map((badge) => (
             <KeywordBadge key={`badge-${badge.id}`} badge={badge} />
           ))}
@@ -83,7 +101,11 @@ export const BadgesAndAwards = ({
       )}
 
       {hasCoresAccess && awards && awards.length > 0 && (
-        <div className="mt-4 grid grid-cols-5 gap-4 laptop:grid-cols-6">
+        <div
+          className="mt-4 grid gap-4 grid-cols-5 laptop:grid-cols-6"
+          role="list"
+          aria-label="User awards"
+        >
           {awards.map((award) => (
             <Award key={award.id} image={award.image} amount={award.count} />
           ))}
