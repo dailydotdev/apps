@@ -92,7 +92,8 @@ const Image = (props: ImageProps) => {
       >
         <StyledImage
           className={classNames('cursor-pointer rounded-full', className)}
-          imgSrc={image || fallbackImages.avatar}
+          imgSrc={image}
+          fallbackSrc={fallbackImages.avatar}
           imgAlt={name}
           background="var(--theme-background-subtle)"
         />
@@ -107,6 +108,7 @@ const Image = (props: ImageProps) => {
       <StyledImage
         className="rounded-12"
         imgSrc={image}
+        fallbackSrc={fallbackImages.avatar}
         imgAlt={name}
         background="var(--theme-background-subtle)"
       />
