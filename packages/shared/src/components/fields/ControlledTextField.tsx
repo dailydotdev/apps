@@ -5,11 +5,12 @@ import { TextField } from './TextField';
 
 type ControlledTextFieldProps = Pick<
   TextFieldProps,
-  'name' | 'label' | 'leftIcon' | 'placeholder'
+  'name' | 'label' | 'leftIcon' | 'placeholder' | 'hint'
 >;
 
 const ControlledTextField = ({
   name,
+  hint,
   ...restProps
 }: ControlledTextFieldProps) => {
   const { control } = useFormContext();
@@ -24,6 +25,7 @@ const ControlledTextField = ({
           {...restProps}
           {...field}
           valid={!fieldState.error}
+          hint={fieldState.error ? fieldState.error.message : hint}
         />
       )}
     />

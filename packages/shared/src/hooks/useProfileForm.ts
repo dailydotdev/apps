@@ -130,10 +130,11 @@ const useProfileForm = ({
     ResponseError,
     UpdateProfileParameters
   >({
-    mutationFn: ({ image, onUpdateSuccess, ...data }) =>
+    mutationFn: ({ image, cover, onUpdateSuccess, ...data }) =>
       gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
         data,
         upload: image,
+        coverUpload: cover,
       }),
 
     onSuccess: async (_, { image, onUpdateSuccess, ...vars }) => {

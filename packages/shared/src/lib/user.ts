@@ -104,6 +104,7 @@ export interface UserProfile {
   experienceLevel?: keyof typeof UserExperienceLevel;
   language?: string;
   defaultFeedId?: string;
+  readme?: string;
 }
 
 export interface UserShortProfile

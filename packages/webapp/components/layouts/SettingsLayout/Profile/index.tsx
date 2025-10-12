@@ -4,12 +4,11 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import type { ReactElement } from 'react';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import ControlledTextField from '@dailydotdev/shared/src/components/fields/ControlledTextField';
 import ControlledTextarea from '@dailydotdev/shared/src/components/fields/ControlledTextarea';
 import {
   AtIcon,
-  CameraIcon,
   CodePenIcon,
   GitHubIcon,
   LinkedInIcon,
@@ -25,53 +24,39 @@ import {
   YoutubeIcon,
   TerminalIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import type { ProfileFormHint } from '@dailydotdev/shared/src/hooks/useProfileForm';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useMutation } from '@tanstack/react-query';
-import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import type { ResponseError } from '@dailydotdev/shared/src/graphql/common';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import {
-  clearImage,
-  UPLOAD_COVER_MUTATION,
-  UploadPreset,
-} from '@dailydotdev/shared/src/graphql/users';
+
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { DragDrop } from '@dailydotdev/shared/src/components/fields/DragDrop';
-import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
-import {
-  fileValidation,
-  useUploadCv,
-} from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import type { FieldValues } from 'react-hook-form';
 import { FormProvider, useForm } from 'react-hook-form';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import ExperienceSelect from '@dailydotdev/shared/src/components/profile/ExperienceSelect';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
 import ControlledMarkdownInput from '@dailydotdev/shared/src/components/fields/MarkdownInput/ControlledMarkdownInput';
-import AccountContentSection from '../AccountContentSection';
+import ProfileLocation from '@dailydotdev/shared/src/components/profile/ProfileLocation';
+import ControlledAvatarUpload from '@dailydotdev/shared/src/components/profile/ControlledAvatarUpload';
+import ControlledCoverUpload from '@dailydotdev/shared/src/components/profile/ControlledCoverUpload';
+import type { UserProfile } from '@dailydotdev/shared/src/lib/user';
 import { AccountPageContainer } from '../AccountPageContainer';
 import type { VerifiedCompanyBadgeSectionProps } from './VerifiedCompanyBadge/VerifiedCompanyBadgeSection';
 
 const Section = classed('section', 'flex flex-col gap-7');
 
-const imageId = 'avatar_file';
-const coverId = 'cover_file';
-
-const ProfileIndex = ({
-  ...props
-}: VerifiedCompanyBadgeSectionProps): ReactElement => {
-  const { user, updateUser } = useContext(AuthContext);
-  const hookForm = useForm({
+const ProfileIndex = (
+  props: VerifiedCompanyBadgeSectionProps,
+): ReactElement => {
+  const { user } = useContext(AuthContext);
+  const hookForm = useForm<UserProfile>({
     defaultValues: {
       name: user?.name,
       username: user?.username,
@@ -89,7 +74,7 @@ const ProfileIndex = ({
       bluesky: user?.bluesky,
       threads: user?.threads,
       experienceLevel: user?.experienceLevel,
-      // readme: user?.readme || '',
+      readme: user?.readme || '',
     },
   });
   const router = useRouter();
@@ -99,106 +84,30 @@ const ProfileIndex = ({
     displayToast('Profile updated');
     logEvent({ event_name: LogEvent.UpdateProfile });
   };
-  const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
-  const [coverImage, setCoverImage] = useState(user?.cover);
-  const currentCoverImage = coverImage || user?.cover;
+  const { updateUserProfile, isLoading } = useProfileForm({ onSuccess });
 
-  const onSubmit = (data: FieldValues) => {
+  const onSubmit = async (data: FieldValues) => {
+    hookForm.clearErrors();
     updateUserProfile(data, {
       onSuccess: () => {
         router.push(`/${data.username.toLowerCase()}`).then(() => {
           router.reload();
         });
       },
+      onError: (error) => {
+        const errData: ProfileFormHint = JSON.parse(
+          error.response.errors[0].message,
+        );
+
+        Object.entries(errData).forEach(([key, value]) => {
+          hookForm.setError(key as keyof UserProfile, {
+            type: 'manual',
+            message: value,
+          });
+        });
+      },
     });
   };
-
-  const { mutate: uploadCoverImage } = useMutation<
-    { user: LoggedUser },
-    ResponseError,
-    { image: File }
-  >({
-    mutationFn: ({ image }) =>
-      gqlClient.request(UPLOAD_COVER_MUTATION, {
-        upload: image,
-      }),
-
-    onSuccess: async (res) => {
-      await updateUser({ ...user, cover: res.user.cover } as LoggedUser);
-      displayToast('Cover image updated');
-    },
-
-    onError: (err) => {
-      if (!err?.response?.errors?.length) {
-        return;
-      }
-      displayToast(err.response.errors[0].message);
-    },
-  });
-
-  const { mutateAsync: clearImageMutation } = useMutation({
-    mutationFn: clearImage,
-  });
-
-  const onImageInputChange = useCallback(
-    (file?: File, fileName?: string, isCover = false) => {
-      if (!file) {
-        return clearImageMutation([
-          isCover ? UploadPreset.ProfileCover : UploadPreset.Avatar,
-        ]);
-      }
-
-      if (isCover) {
-        setCoverImage(fileName);
-        uploadCoverImage({
-          image: file,
-        });
-      } else {
-        logEvent({ event_name: LogEvent.UpdateProfileImage });
-        updateUserProfile({
-          image: file,
-        });
-      }
-
-      return undefined;
-    },
-    [updateUserProfile, uploadCoverImage, clearImageMutation, logEvent],
-  );
-
-  const CoverHoverIcon = () => (
-    <span className="text-theme-label-secondary ml-26 mr-3 flex flex-wrap items-center justify-center">
-      <CameraIcon size={IconSize.Large} />
-      <span className="ml-1.5 font-bold typo-callout">Upload cover image</span>
-    </span>
-  );
-
-  const { onUpload, status, shouldShow } = useUploadCv();
-
-  const uploadSection = (
-    <AccountContentSection
-      className={{ heading: 'mt-0' }}
-      title="Your next job should apply to you"
-      description="Upload your CV so we can quietly start matching you with roles that actually fit your skills and interests. Nothing is ever shared without your permission, and we’ll only reach out when there’s something genuinely worth your time. No spam, no pressure."
-    >
-      <DragDrop
-        className="my-4 max-w-80"
-        onFilesDrop={([file]) => onUpload(file)}
-        validation={fileValidation}
-        state={status}
-      />
-      {!user?.flags?.cvUploadedAt ? (
-        <FeelingLazy />
-      ) : (
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
-        >
-          Tip: Complete your profile below to improve match quality
-        </Typography>
-      )}
-    </AccountContentSection>
-  );
-
   return (
     <FormProvider {...hookForm}>
       <form className="flex flex-1" onSubmit={hookForm.handleSubmit(onSubmit)}>
@@ -219,7 +128,18 @@ const ProfileIndex = ({
           }
         >
           <div className="flex flex-col gap-6">
-            <Section>
+            {/* Profile Images Section */}
+            <div className="relative mb-10">
+              <ControlledCoverUpload name="cover" currentImage={user?.cover} />
+              <div className="absolute bottom-0 left-6 translate-y-1/2">
+                <ControlledAvatarUpload
+                  name="image"
+                  currentImage={user?.image}
+                />
+              </div>
+            </div>
+
+            <Section className="mt-6">
               <ControlledTextField
                 name="name"
                 label="Full Name"
@@ -252,6 +172,10 @@ const ProfileIndex = ({
                   just a verification code to complete the process.
                 </Typography>
               </div>
+              <ProfileLocation
+                locationName="location"
+                typeName="locationType"
+              />
             </Section>
             <HorizontalSeparator />
             <Section>

@@ -304,6 +304,7 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       username
       permalink
       bio
+      readme
       twitter
       github
       hashnode
