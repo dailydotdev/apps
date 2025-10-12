@@ -23,6 +23,7 @@ import {
   UserIcon,
   YoutubeIcon,
   TerminalIcon,
+  PlusIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
   Typography,
@@ -47,6 +48,8 @@ import ProfileLocation from '@dailydotdev/shared/src/components/profile/ProfileL
 import ControlledAvatarUpload from '@dailydotdev/shared/src/components/profile/ControlledAvatarUpload';
 import ControlledCoverUpload from '@dailydotdev/shared/src/components/profile/ControlledCoverUpload';
 import type { UserProfile } from '@dailydotdev/shared/src/lib/user';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { AccountPageContainer } from '../AccountPageContainer';
 import type { VerifiedCompanyBadgeSectionProps } from './VerifiedCompanyBadge/VerifiedCompanyBadgeSection';
 
@@ -128,7 +131,6 @@ const ProfileIndex = (
           }
         >
           <div className="flex flex-col gap-6">
-            {/* Profile Images Section */}
             <div className="relative mb-10">
               <ControlledCoverUpload name="cover" currentImage={user?.cover} />
               <div className="absolute bottom-0 left-6 translate-y-1/2">
@@ -171,7 +173,14 @@ const ProfileIndex = (
                   your profile. We won’t require any ID or personal information,
                   just a verification code to complete the process.
                 </Typography>
+                {/* TODO: Verify this is the actual page path */}
               </div>
+              <Link href={`${webappUrl}/settings/experience`}>
+                <span className="flex cursor-pointer items-center gap-1 text-text-link">
+                  <PlusIcon />
+                  Add company badge
+                </span>
+              </Link>
               <ProfileLocation
                 locationName="location"
                 typeName="locationType"
