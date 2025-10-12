@@ -39,7 +39,7 @@ import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import type { FieldValues } from 'react-hook-form';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider } from 'react-hook-form';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import ExperienceSelect from '@dailydotdev/shared/src/components/profile/ExperienceSelect';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
@@ -50,6 +50,7 @@ import ControlledCoverUpload from '@dailydotdev/shared/src/components/profile/Co
 import type { UserProfile } from '@dailydotdev/shared/src/lib/user';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import useHookForm from '@dailydotdev/shared/src/hooks/useHookForm';
 import { AccountPageContainer } from '../AccountPageContainer';
 import type { VerifiedCompanyBadgeSectionProps } from './VerifiedCompanyBadge/VerifiedCompanyBadgeSection';
 
@@ -59,7 +60,7 @@ const ProfileIndex = (
   props: VerifiedCompanyBadgeSectionProps,
 ): ReactElement => {
   const { user } = useContext(AuthContext);
-  const hookForm = useForm<UserProfile>({
+  const { methods: hookForm } = useHookForm({
     defaultValues: {
       name: user?.name,
       username: user?.username,
