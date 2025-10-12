@@ -45,17 +45,19 @@ const ControlledAvatarUpload = ({
           className="size-full object-cover"
         />
       </div>
-      <div className="cursor:pointer absolute top-0 flex h-full w-full items-center justify-center gap-2 rounded-26 bg-accent-pepper-subtlest opacity-0 group-hover:opacity-64">
+      <div className="cursor:pointer absolute top-0 flex h-full w-full items-center justify-center gap-2 rounded-26">
         <Button
           type="button"
-          variant={ButtonVariant.Option}
+          className="bg-shadow-shadow3"
+          variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<CameraIcon size={IconSize.Medium} />}
           onClick={handleUploadClick}
         />
         <Button
           type="button"
-          variant={ButtonVariant.Option}
+          className="bg-shadow-shadow3"
+          variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<ClearIcon size={IconSize.Medium} />}
           onClick={handleRemove}

@@ -51,17 +51,19 @@ const ControlledCoverUpload = ({
           <div className="h-full w-full bg-surface-float" />
         )}
       </div>
-      <div className="absolute right-6 top-1/2 flex -translate-y-1/2 gap-2 bg-accent-pepper-subtlest opacity-0  group-hover:opacity-64">
+      <div className="absolute right-6 top-1/2 flex -translate-y-1/2 gap-2">
         <Button
           type="button"
-          variant={ButtonVariant.Option}
+          className="bg-shadow-shadow3"
+          variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<CameraIcon size={IconSize.Medium} />}
           onClick={handleUploadClick}
         />
         <Button
           type="button"
-          variant={ButtonVariant.Option}
+          className="bg-shadow-shadow3"
+          variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<ClearIcon size={IconSize.Medium} />}
           onClick={handleRemove}
