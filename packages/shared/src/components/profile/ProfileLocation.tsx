@@ -5,16 +5,12 @@ import Autocomplete from '../fields/Autocomplete';
 import type { Location } from '../../graphql/autocomplete';
 import { getAutocompleteLocations } from '../../graphql/autocomplete';
 import { Radio } from '../fields/Radio';
+import { LocationType } from '../../features/opportunity/protobuf/util';
 
 type ProfileLocationProps = {
   locationName: string;
   typeName?: string;
 };
-const typeOptions = [
-  { label: 'Remote', value: 'remote' },
-  { label: 'On-site', value: 'on-site' },
-  { label: 'Hybrid', value: 'hybrid' },
-];
 
 const LocationToString = (loc: Location) => {
   return `${loc.city}, ${loc.subdivision ? `${loc.subdivision}, ` : ''}${
@@ -40,6 +36,12 @@ const ProfileLocation = ({ locationName, typeName }: ProfileLocationProps) => {
     setValue(locationName, val);
   };
 
+  const locationTypeOptions = [
+    { label: 'Remote', value: LocationType.REMOTE },
+    { label: 'Hybrid', value: LocationType.HYBRID },
+    { label: 'On-site', value: LocationType.OFFICE },
+  ];
+
   return (
     <div className="flex flex-col gap-1">
       <Autocomplete
@@ -62,7 +64,7 @@ const ProfileLocation = ({ locationName, typeName }: ProfileLocationProps) => {
             container: '!flex-row',
           }}
           name={typeName}
-          options={typeOptions}
+          options={locationTypeOptions}
           value={typeValue}
           onChange={(newVal) => setValue(typeName, newVal)}
         />
