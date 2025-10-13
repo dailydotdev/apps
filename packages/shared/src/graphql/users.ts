@@ -115,8 +115,9 @@ export const PROFILE_V2_EXTRA_QUERY = gql`
     userStats(id: $id) {
       upvotes: numPostUpvotes
       views: numPostViews
-      numFollowers,
+      numFollowers
       numFollowing
+      reputation
     }
     ${publicSourceMemberships}
   }
@@ -135,6 +136,7 @@ export type ProfileV2 = {
     views: number;
     numFollowers: number;
     numFollowing: number;
+    reputation: number;
   };
   sources: Connection<SourceMember>;
 };
