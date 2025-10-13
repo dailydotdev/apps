@@ -36,6 +36,7 @@ import {
 } from '../typography/Typography';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { FeelingLazy } from '../../features/profile/components/FeelingLazy';
+import { ProfileSquadsWidget } from '../../features/profile/components/ProfileSquadsWidget';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -193,6 +194,10 @@ export function ProfileWidgets({
           <SquadsList memberships={sources} userId={user.id} />
         </div>
       )}
+      <ProfileSquadsWidget
+        userId={user.id}
+        squads={sources.edges.map((s) => s.node.source)}
+      />
       {isSameUser && (
         <ReferralWidget url={referralUrl} className="hidden laptop:flex" />
       )}
