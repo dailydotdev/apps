@@ -24,11 +24,10 @@ import {
   TypographyColor,
   TypographyTag,
 } from '../../../components/typography/Typography';
-import { useViewSize, ViewSize } from '../../../hooks';
-import { useSourceActionsFollow } from '../../../hooks/source/useSourceActionsFollow';
-import SourceActionsFollow, {
-  CopyType,
-} from '../../../components/sources/SourceActions/SourceActionsFollow';
+import { useViewSize, ViewSize, useToastNotification } from '../../../hooks';
+
+import { SquadActionButton } from '../../../components/squads/SquadActionButton';
+import { Origin } from '../../../lib/log';
 
 interface ProfileSquadsWidgetProps {
   userId: string;
@@ -40,9 +39,13 @@ interface SquadListItemProps {
 }
 
 const SquadListItem = ({ squad }: SquadListItemProps) => {
-  const { isFollowing, toggleFollow } = useSourceActionsFollow({
-    source: squad,
-  });
+  const { displayToast } = useToastNotification();
+  const { squads, isAuthReady } = useAuthContext();
+  const hasJoined = squads?.some((sq) => sq.id === squad.id);
+
+  if (!isAuthReady) {
+    return null;
+  }
 
   return (
     <li className="flex flex-row items-center gap-2">
@@ -80,13 +83,15 @@ const SquadListItem = ({ squad }: SquadListItemProps) => {
           {squad.membersCount !== 1 && 's'}
         </Typography>
       </div>
-      {!isFollowing && (
-        <SourceActionsFollow
-          copyType={CopyType.Squad}
-          isFetching={false}
-          isSubscribed={isFollowing}
-          onClick={() => toggleFollow()}
-          variant={ButtonVariant.Primary}
+      {!hasJoined && (
+        <SquadActionButton
+          alwaysShow
+          copy={{ join: 'Join', leave: 'Leave' }}
+          origin={Origin.Profile}
+          squad={{ ...squad, currentMember: null }}
+          onSuccess={() => {
+            displayToast(`🙌 You joined the Squad ${squad.name}`);
+          }}
         />
       )}
     </li>
@@ -105,6 +110,7 @@ export const ProfileSquadsWidget = ({
   const isMobile = useViewSize(ViewSize.MobileXL);
 
   if (!squads.length) {
+    // todo: add suggested squad list here
     return null;
   }
 
