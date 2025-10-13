@@ -51,6 +51,8 @@ import type { UserProfile } from '@dailydotdev/shared/src/lib/user';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import useHookForm from '@dailydotdev/shared/src/hooks/useHookForm';
+import { locationProfileImage } from '@dailydotdev/shared/src/lib/image';
+import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { AccountPageContainer } from '../AccountPageContainer';
 import type { VerifiedCompanyBadgeSectionProps } from './VerifiedCompanyBadge/VerifiedCompanyBadgeSection';
 
@@ -162,18 +164,27 @@ const ProfileIndex = (
             </Section>
             <HorizontalSeparator />
             <Section>
-              <div>
-                <Typography type={TypographyType.Body} bold>
-                  Verified company badge
-                </Typography>
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Secondary}
-                >
-                  Verify your work email and get a verified company badge on
-                  your profile. We won’t require any ID or personal information,
-                  just a verification code to complete the process.
-                </Typography>
+              <div className="flex justify-between gap-6">
+                <div className="flex flex-1 flex-col flex-wrap gap-1">
+                  <Typography type={TypographyType.Body} bold>
+                    Verified company badge
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Secondary}
+                  >
+                    Verify your work email and get a verified company badge on
+                    your profile. We won’t require any ID or personal
+                    information, just a verification code to complete the
+                    process.
+                  </Typography>
+                </div>
+                <Image
+                  src={locationProfileImage}
+                  alt="Location"
+                  loading="lazy"
+                  className="h-16 w-16"
+                />
                 {/* TODO: Verify this is the actual page path */}
               </div>
               <Link href={`${webappUrl}/settings/experience`}>
