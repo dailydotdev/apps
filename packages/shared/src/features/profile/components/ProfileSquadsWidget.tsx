@@ -28,6 +28,7 @@ import { useViewSize, ViewSize, useToastNotification } from '../../../hooks';
 
 import { SquadActionButton } from '../../../components/squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
+import { useToggle } from '../../../hooks/useToggle';
 
 interface ProfileSquadsWidgetProps {
   userId: string;
@@ -98,6 +99,9 @@ const SquadListItem = ({ squad }: SquadListItemProps) => {
   );
 };
 
+const MOBILE_MAX_SQUADS = 3;
+const DESKTOP_MAX_SQUADS = 5;
+
 export const ProfileSquadsWidget = ({
   userId,
   squads,
@@ -108,18 +112,21 @@ export const ProfileSquadsWidget = ({
   const heading =
     labels.profile.sources.heading[showSuggestions ? 'empty' : 'activeIn'];
   const isMobile = useViewSize(ViewSize.MobileXL);
+  const [showAll, toggleShowAll] = useToggle(false);
 
   if (!squads.length) {
     // todo: add suggested squad list here
     return null;
   }
 
-  const shortList = squads.slice(0, isMobile ? 3 : 5);
+  const maxLength = isMobile ? MOBILE_MAX_SQUADS : DESKTOP_MAX_SQUADS;
+  const hasMore = squads.length > maxLength;
+  const visibleSquads = showAll ? squads : squads.slice(0, maxLength);
 
   return (
     <WidgetCard heading={heading} variant={WidgetVariant.Minimal}>
       <ul className="flex flex-col gap-2">
-        {shortList.map((squad) => (
+        {visibleSquads.map((squad) => (
           <SquadListItem key={squad.id} squad={squad} />
         ))}
       </ul>
@@ -142,6 +149,16 @@ export const ProfileSquadsWidget = ({
           variant={ButtonVariant.Subtle}
         >
           {labels.profile.sources.viewAll}
+        </Button>
+      )}
+      {hasMore && !showSuggestions && (
+        <Button
+          className="mt-3 w-full"
+          onClick={() => toggleShowAll()}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Subtle}
+        >
+          {showAll ? 'Show less' : 'Show more Squads'}
         </Button>
       )}
     </WidgetCard>
