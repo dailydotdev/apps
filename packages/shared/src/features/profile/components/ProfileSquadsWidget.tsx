@@ -88,11 +88,12 @@ const SquadListItem = ({ squad }: SquadListItemProps) => {
         <SquadActionButton
           alwaysShow
           copy={{ join: 'Join', leave: 'Leave' }}
-          origin={Origin.Profile}
-          squad={{ ...squad, currentMember: null }}
           onSuccess={() => {
             displayToast(`🙌 You joined the Squad ${squad.name}`);
           }}
+          origin={Origin.Profile}
+          size={ButtonSize.Small}
+          squad={{ ...squad, currentMember: null }}
         />
       )}
     </li>
