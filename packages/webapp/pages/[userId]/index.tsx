@@ -19,7 +19,6 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import dynamic from 'next/dynamic';
-import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
@@ -29,12 +28,11 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import { ReadingStreaksWidget } from '../../../shared/src/components/profile/ReadingStreaksWidget';
-import { TopReaderWidget } from '../../../shared/src/components/profile/TopReaderWidget';
 
-const Awards = dynamic(
+const BadgesAndAwards = dynamic(
   () =>
-    import('@dailydotdev/shared/src/components/profile/Awards').then(
-      (mod) => mod.Awards,
+    import('@dailydotdev/shared/src/components/profile/BadgesAndAwards').then(
+      (mod) => mod.BadgesAndAwards,
     ),
   {
     ssr: false,
@@ -50,7 +48,6 @@ const ProfilePage = ({
   useJoinReferral();
   const { tokenRefreshed } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
-  const hasCoresAccess = useHasAccessToCores();
 
   const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
     useActivityTimeFilter();
@@ -87,8 +84,7 @@ const ProfilePage = ({
       <div className="flex flex-col gap-6 px-0 py-6">
         <ProfileHeader user={user} userStats={userStats} />
         <Readme user={user} />
-        {hasCoresAccess && <Awards userId={user?.id} />}
-        <TopReaderWidget user={user} />
+        <BadgesAndAwards user={user} />
         {isStreaksEnabled && readingHistory?.userStreakProfile && (
           <ReadingStreaksWidget
             streak={readingHistory?.userStreakProfile}
