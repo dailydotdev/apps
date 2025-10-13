@@ -26,6 +26,7 @@ import {
   TypographyColor,
   TypographyTag,
 } from '../../../components/typography/Typography';
+import { useViewSize, ViewSize } from '../../../hooks';
 
 interface ProfileSquadsWidgetProps {
   userId: string;
@@ -91,15 +92,18 @@ export const ProfileSquadsWidget = ({
   const showSuggestions = isSameUser && !squads?.length;
   const heading =
     labels.profile.sources.heading[showSuggestions ? 'empty' : 'activeIn'];
+  const isMobile = useViewSize(ViewSize.MobileXL);
 
   if (!squads.length) {
     return null;
   }
 
+  const shortList = squads.slice(0, isMobile ? 3 : 5);
+
   return (
     <WidgetCard heading={heading} variant={WidgetVariant.Minimal}>
       <ul className="flex flex-col gap-2">
-        {squads.map((squad) => (
+        {shortList.map((squad) => (
           <SquadListItem
             key={squad.id}
             squad={squad}
