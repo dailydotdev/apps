@@ -18,8 +18,6 @@ import { webappUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 
 import { LazyImage } from '../../../components/LazyImage';
-import { SquadActionButton } from '../../../components/squads/SquadActionButton';
-import { Origin } from '../../../lib/log';
 import {
   Typography,
   TypographyType,
@@ -27,6 +25,10 @@ import {
   TypographyTag,
 } from '../../../components/typography/Typography';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { useSourceActionsFollow } from '../../../hooks/source/useSourceActionsFollow';
+import SourceActionsFollow, {
+  CopyType,
+} from '../../../components/sources/SourceActions/SourceActionsFollow';
 
 interface ProfileSquadsWidgetProps {
   userId: string;
@@ -35,66 +37,67 @@ interface ProfileSquadsWidgetProps {
 
 interface SquadListItemProps {
   squad: Squad;
-  alwaysShowAction: boolean;
 }
 
-const SquadListItem = ({
-  squad,
-  alwaysShowAction = false,
-}: SquadListItemProps) => (
-  <li className="flex flex-row items-center gap-2">
-    <a href={squad.permalink} target="_blank" rel={anchorDefaultRel}>
-      <LazyImage
-        className="size-8 cursor-pointer rounded-full"
-        imgAlt={squad.name}
-        imgSrc={squad.image}
-      />
-    </a>
-    <div className="min-w-0 flex-1">
+const SquadListItem = ({ squad }: SquadListItemProps) => {
+  const { isFollowing, toggleFollow } = useSourceActionsFollow({
+    source: squad,
+  });
+
+  return (
+    <li className="flex flex-row items-center gap-2">
       <a href={squad.permalink} target="_blank" rel={anchorDefaultRel}>
+        <LazyImage
+          className="size-8 cursor-pointer rounded-full"
+          imgAlt={squad.name}
+          imgSrc={squad.image}
+        />
+      </a>
+      <div className="min-w-0 flex-1">
+        <a href={squad.permalink} target="_blank" rel={anchorDefaultRel}>
+          <Typography
+            bold
+            tag={TypographyTag.H5}
+            type={TypographyType.Callout}
+            truncate
+          >
+            {squad.name}
+          </Typography>
+        </a>
         <Typography
-          bold
-          tag={TypographyTag.H5}
-          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          type={TypographyType.Footnote}
           truncate
         >
-          {squad.name}
+          @{squad.handle}
         </Typography>
-      </a>
-      <Typography
-        color={TypographyColor.Tertiary}
-        type={TypographyType.Footnote}
-        truncate
-      >
-        @{squad.handle}
-      </Typography>
-      <Typography
-        color={TypographyColor.Tertiary}
-        type={TypographyType.Footnote}
-        truncate
-      >
-        {largeNumberFormat(squad.membersCount)} member
-        {squad.membersCount !== 1 && 's'}
-      </Typography>
-    </div>
-    <SquadActionButton
-      squad={squad}
-      origin={Origin.Profile}
-      copy={{
-        join: 'Join',
-        leave: 'Leave',
-      }}
-      alwaysShow={alwaysShowAction}
-    />
-  </li>
-);
+        <Typography
+          color={TypographyColor.Tertiary}
+          type={TypographyType.Footnote}
+          truncate
+        >
+          {largeNumberFormat(squad.membersCount)} member
+          {squad.membersCount !== 1 && 's'}
+        </Typography>
+      </div>
+      {!isFollowing && (
+        <SourceActionsFollow
+          copyType={CopyType.Squad}
+          isFetching={false}
+          isSubscribed={isFollowing}
+          onClick={() => toggleFollow()}
+          variant={ButtonVariant.Primary}
+        />
+      )}
+    </li>
+  );
+};
 
 export const ProfileSquadsWidget = ({
   userId,
   squads,
 }: ProfileSquadsWidgetProps) => {
-  const { user, squads: userSquads } = useAuthContext();
-  const userSquadIds = userSquads?.map((squad) => squad.id);
+  const { user } = useAuthContext();
   const isSameUser = user?.id === userId;
   const showSuggestions = isSameUser && !squads?.length;
   const heading =
@@ -111,11 +114,7 @@ export const ProfileSquadsWidget = ({
     <WidgetCard heading={heading} variant={WidgetVariant.Minimal}>
       <ul className="flex flex-col gap-2">
         {shortList.map((squad) => (
-          <SquadListItem
-            key={squad.id}
-            squad={squad}
-            alwaysShowAction={!userSquadIds?.includes(squad.id)}
-          />
+          <SquadListItem key={squad.id} squad={squad} />
         ))}
       </ul>
       {showSuggestions && (
