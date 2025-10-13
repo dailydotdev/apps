@@ -153,7 +153,7 @@ const ProfileIndex = (): ReactElement => {
             <Section className="mt-6">
               <ControlledTextField
                 name="name"
-                label="Full Name"
+                label="Name"
                 leftIcon={<UserIcon />}
               />
               <ControlledTextField

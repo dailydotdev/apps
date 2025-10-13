@@ -13,7 +13,7 @@ import Link from '../utilities/Link';
 
 type ProfileHeaderProps = {
   user: PublicProfile;
-  userStats?: UserStatsProps['stats'];
+  userStats: UserStatsProps['stats'];
 };
 
 const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {

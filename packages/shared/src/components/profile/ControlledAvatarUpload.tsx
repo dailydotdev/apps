@@ -43,6 +43,7 @@ const ControlledAvatarUpload = ({
           src={displayImage}
           alt="Profile avatar"
           className="size-full object-cover"
+          data-testid="image_avatar_file"
         />
       </div>
       <div className="cursor:pointer absolute top-0 flex h-full w-full items-center justify-center gap-2 rounded-26">

@@ -46,6 +46,7 @@ const ControlledCoverUpload = ({
             src={displayImage}
             alt="Profile cover"
             className="h-full w-full object-cover"
+            data-testid="image_cover_file"
           />
         ) : (
           <div className="h-full w-full bg-surface-float" />

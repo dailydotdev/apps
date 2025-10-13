@@ -89,6 +89,14 @@ const defaultProfile: PublicProfile = {
   readmeHtml: 'This is my readme',
 };
 
+const defaultUserStats = {
+  upvotes: 150,
+  views: 5000,
+  numFollowers: 42,
+  numFollowing: 38,
+  reputation: 20,
+};
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createReadingHistoryMock()],
   profile: Partial<PublicProfile> = {},
@@ -98,7 +106,11 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <TestBootProvider client={client} auth={{ user: null }}>
-      <ProfilePage user={{ ...defaultProfile, ...profile }} noindex />
+      <ProfilePage
+        user={{ ...defaultProfile, ...profile }}
+        userStats={defaultUserStats}
+        noindex
+      />
     </TestBootProvider>,
   );
 };
