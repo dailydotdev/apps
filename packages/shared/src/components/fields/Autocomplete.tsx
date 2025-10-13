@@ -1,5 +1,6 @@
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
 import React, { useRef, useState } from 'react';
+import classNames from 'classnames';
 import type { TextFieldProps } from './TextField';
 import { TextField } from './TextField';
 import useDebounceFn from '../../hooks/useDebounceFn';
@@ -24,9 +25,10 @@ const Autocomplete = ({
   onChange,
   onSelect,
   selectedValue,
+  defaultValue,
   ...restProps
 }: AutocompleteProps) => {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(defaultValue || '');
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const handleChange = (val: string) => {
@@ -73,12 +75,15 @@ const Autocomplete = ({
         onCloseAutoFocus={(e) => e.preventDefault()} // avoid refocus jumps
       >
         {!isLoading ? (
-          <div className="flex w-full flex-col text-left">
+          <div className="flex w-full flex-col">
             {options?.length > 0 ? (
               options.map((opt) => (
                 <button
                   type="button"
-                  className={selectedValue === opt.value ? 'font-bold' : ''}
+                  className={classNames(
+                    'text-left',
+                    selectedValue === opt.value && 'font-bold',
+                  )}
                   key={opt.value}
                   onMouseDown={(e) => {
                     e.preventDefault();

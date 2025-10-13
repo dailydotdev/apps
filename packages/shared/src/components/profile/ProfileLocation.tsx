@@ -2,23 +2,22 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import Autocomplete from '../fields/Autocomplete';
-import type { Location } from '../../graphql/autocomplete';
 import { getAutocompleteLocations } from '../../graphql/autocomplete';
 import { Radio } from '../fields/Radio';
 import { LocationType } from '../../features/opportunity/protobuf/util';
+import { locationToString } from '../../lib/utils';
 
 type ProfileLocationProps = {
   locationName: string;
   typeName?: string;
+  defaultValue?: string;
 };
 
-const LocationToString = (loc: Location) => {
-  return `${loc.city}, ${loc.subdivision ? `${loc.subdivision}, ` : ''}${
-    loc.country
-  }`;
-};
-
-const ProfileLocation = ({ locationName, typeName }: ProfileLocationProps) => {
+const ProfileLocation = ({
+  locationName,
+  typeName,
+  defaultValue,
+}: ProfileLocationProps) => {
   const { setValue, watch } = useFormContext();
   const [locQuery, setLocQuery] = React.useState('');
   const selectedLoc = watch(locationName);
@@ -45,10 +44,11 @@ const ProfileLocation = ({ locationName, typeName }: ProfileLocationProps) => {
   return (
     <div className="flex flex-col gap-1">
       <Autocomplete
+        defaultValue={defaultValue}
         label="Location"
         options={
           data?.map((loc) => ({
-            label: LocationToString(loc),
+            label: locationToString(loc),
             value: loc.id,
           })) || []
         }

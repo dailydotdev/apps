@@ -18,9 +18,10 @@ const ControlledMarkdownInput = ({
       rules={rules}
       render={({ field }) => (
         <MarkdownInput
-          {...field}
-          onValueUpdate={(value) => setValue(name, value)}
           {...props}
+          {...field}
+          initialContent={field.value}
+          onValueUpdate={(value) => setValue(name, value)}
         />
       )}
     />

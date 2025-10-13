@@ -53,6 +53,7 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import useHookForm from '@dailydotdev/shared/src/hooks/useHookForm';
 import { locationProfileImage } from '@dailydotdev/shared/src/lib/image';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
+import { locationToString } from '@dailydotdev/shared/src/lib/utils';
 import { AccountPageContainer } from '../AccountPageContainer';
 
 const Section = classed('section', 'flex flex-col gap-7');
@@ -67,6 +68,7 @@ const ProfileIndex = (): ReactElement => {
       cover: user?.cover,
       bio: user?.bio,
       github: user?.github,
+      locationId: user?.location?.id,
       linkedin: user?.linkedin,
       portfolio: user?.portfolio,
       twitter: user?.twitter,
@@ -177,10 +179,8 @@ const ProfileIndex = (): ReactElement => {
                     type={TypographyType.Callout}
                     color={TypographyColor.Secondary}
                   >
-                    Verify your work email and get a verified company badge on
-                    your profile. We won’t require any ID or personal
-                    information, just a verification code to complete the
-                    process.
+                    Add your current work location to keep your profile up to
+                    date and reflect where you&apos;re based
                   </Typography>
                 </div>
                 <Image
@@ -199,8 +199,10 @@ const ProfileIndex = (): ReactElement => {
               </Link>
               {/* TODO: Implement company badge from experience when implemented */}
               <ProfileLocation
-                locationName="location"
-                typeName="locationType"
+                locationName="locationId"
+                defaultValue={
+                  user?.location ? locationToString(user.location) : ''
+                }
               />
             </Section>
             <HorizontalSeparator />
