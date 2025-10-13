@@ -7,17 +7,19 @@ import { acceptedTypesList } from '../graphql/posts';
 interface UseControlledImageUploadProps {
   name: string;
   fileSizeLimitMB?: number;
-  currentImage?: string;
+  currentImageName: string;
   fallbackImage?: string;
+  onRemove?: () => void;
 }
 
 export const useControlledImageUpload = ({
   name,
   fileSizeLimitMB = 5,
-  currentImage,
+  currentImageName,
   fallbackImage,
 }: UseControlledImageUploadProps) => {
   const { setValue, watch } = useFormContext();
+  const currentImage = watch(currentImageName || '');
   const inputRef = useRef<HTMLInputElement>(null);
   const fileValue = watch(name);
   const [preview, setPreview] = useState<string | null>(null);
@@ -31,14 +33,12 @@ export const useControlledImageUpload = ({
         setPreview(null);
         return;
       }
-      // Store just the file in form state
       setValue(name, file);
-      // Keep preview in local state
+      setValue(currentImageName, null);
       setPreview(base64);
     },
   });
 
-  // Clean up preview URL when component unmounts or file changes
   useEffect(() => {
     return () => {
       if (preview && preview.startsWith('blob:')) {
@@ -63,12 +63,11 @@ export const useControlledImageUpload = ({
     handleFile(file);
   };
 
-  const handleUploadClick = () => {
+  const onUploadClick = () => {
     inputRef.current?.click();
   };
 
-  const handleRemove = () => {
-    // Set to null to mark for deletion
+  const onRemove = () => {
     setValue(name, null);
     setPreview(null);
     if (inputRef.current) {
@@ -76,19 +75,14 @@ export const useControlledImageUpload = ({
     }
   };
 
-  // Determine what image to display
   const getDisplayImage = (): string | null => {
-    // If there's a preview from file upload, show it
     if (preview) {
       return preview;
     }
 
-    // If file is null, user wants to delete - show fallback
     if (fileValue === null) {
       return fallbackImage || null;
     }
-
-    // Otherwise show current image or fallback
     return currentImage || fallbackImage || null;
   };
 
@@ -100,8 +94,8 @@ export const useControlledImageUpload = ({
     onFileChange,
     onDragOver,
     onDrop,
-    handleUploadClick,
-    handleRemove,
+    onUploadClick,
+    onRemove,
     acceptedTypes: acceptedTypesList.join(','),
   };
 };

@@ -7,15 +7,15 @@ import { useControlledImageUpload } from '../../hooks/useControlledImageUpload';
 
 interface ControlledCoverUploadProps {
   name: string;
-  currentImage?: string;
   fileSizeLimitMB?: number;
+  currentImageName: string;
   className?: string;
 }
 
 const ControlledCoverUpload = ({
   name,
-  currentImage,
   fileSizeLimitMB = 5,
+  currentImageName,
   className,
 }: ControlledCoverUploadProps) => {
   const {
@@ -24,13 +24,13 @@ const ControlledCoverUpload = ({
     onFileChange,
     onDragOver,
     onDrop,
-    handleUploadClick,
-    handleRemove,
+    onRemove,
+    onUploadClick,
     acceptedTypes,
   } = useControlledImageUpload({
     name,
     fileSizeLimitMB,
-    currentImage,
+    currentImageName,
     fallbackImage: undefined,
   });
 
@@ -58,7 +58,7 @@ const ControlledCoverUpload = ({
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<CameraIcon size={IconSize.Medium} />}
-          onClick={handleUploadClick}
+          onClick={onUploadClick}
         />
         <Button
           type="button"
@@ -66,7 +66,7 @@ const ControlledCoverUpload = ({
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<ClearIcon size={IconSize.Medium} />}
-          onClick={handleRemove}
+          onClick={onRemove}
         />
       </div>
       <input

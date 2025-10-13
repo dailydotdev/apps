@@ -7,13 +7,13 @@ import { useControlledImageUpload } from '../../hooks/useControlledImageUpload';
 
 interface ControlledAvatarUploadProps {
   name: string;
-  currentImage?: string;
+  currentImageName: string;
   fileSizeLimitMB?: number;
 }
 
 const ControlledAvatarUpload = ({
   name,
-  currentImage,
+  currentImageName,
   fileSizeLimitMB = 1,
 }: ControlledAvatarUploadProps) => {
   const {
@@ -22,13 +22,13 @@ const ControlledAvatarUpload = ({
     onFileChange,
     onDragOver,
     onDrop,
-    handleUploadClick,
-    handleRemove,
+    onUploadClick,
+    onRemove,
     acceptedTypes,
   } = useControlledImageUpload({
     name,
     fileSizeLimitMB,
-    currentImage,
+    currentImageName,
     fallbackImage: fallbackImages.avatar,
   });
 
@@ -52,7 +52,7 @@ const ControlledAvatarUpload = ({
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<CameraIcon size={IconSize.Medium} />}
-          onClick={handleUploadClick}
+          onClick={onUploadClick}
         />
         <Button
           type="button"
@@ -60,7 +60,7 @@ const ControlledAvatarUpload = ({
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<ClearIcon size={IconSize.Medium} />}
-          onClick={handleRemove}
+          onClick={onRemove}
         />
       </div>
       <input

@@ -54,18 +54,17 @@ import useHookForm from '@dailydotdev/shared/src/hooks/useHookForm';
 import { locationProfileImage } from '@dailydotdev/shared/src/lib/image';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { AccountPageContainer } from '../AccountPageContainer';
-import type { VerifiedCompanyBadgeSectionProps } from './VerifiedCompanyBadge/VerifiedCompanyBadgeSection';
 
 const Section = classed('section', 'flex flex-col gap-7');
 
-const ProfileIndex = (
-  props: VerifiedCompanyBadgeSectionProps,
-): ReactElement => {
+const ProfileIndex = (): ReactElement => {
   const { user } = useContext(AuthContext);
   const { methods: hookForm } = useHookForm({
     defaultValues: {
       name: user?.name,
       username: user?.username,
+      image: user?.image,
+      cover: user?.cover,
       bio: user?.bio,
       github: user?.github,
       linkedin: user?.linkedin,
@@ -135,11 +134,16 @@ const ProfileIndex = (
         >
           <div className="flex flex-col gap-6">
             <div className="relative mb-10">
-              <ControlledCoverUpload name="cover" currentImage={user?.cover} />
+              <ControlledCoverUpload
+                name="cover"
+                currentImageName="cover"
+                fileSizeLimitMB={1}
+              />
               <div className="absolute bottom-0 left-6 translate-y-1/2">
                 <ControlledAvatarUpload
                   name="image"
-                  currentImage={user?.image}
+                  currentImageName="image"
+                  fileSizeLimitMB={1}
                 />
               </div>
             </div>
@@ -193,6 +197,7 @@ const ProfileIndex = (
                   Add company badge
                 </span>
               </Link>
+              {/* TODO: Implement company badge from experience when implemented */}
               <ProfileLocation
                 locationName="location"
                 typeName="locationType"
