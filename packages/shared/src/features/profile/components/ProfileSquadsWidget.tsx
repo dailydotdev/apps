@@ -24,6 +24,7 @@ import {
   Typography,
   TypographyType,
   TypographyColor,
+  TypographyTag,
 } from '../../../components/typography/Typography';
 
 interface ProfileSquadsWidgetProps {
@@ -41,15 +42,19 @@ const SquadListItem = ({
   alwaysShowAction = false,
 }: SquadListItemProps) => (
   <li className="flex flex-row items-center gap-2">
-    <LazyImage
-      className="size-8 rounded-full"
-      imgAlt={squad.name}
-      imgSrc={squad.image}
-    />
+    <a href={squad.permalink} target="_blank" rel={anchorDefaultRel}>
+      <LazyImage
+        className="size-8 cursor-pointer rounded-full"
+        imgAlt={squad.name}
+        imgSrc={squad.image}
+      />
+    </a>
     <div>
-      <Typography bold type={TypographyType.Callout}>
-        {squad.name}
-      </Typography>
+      <a href={squad.permalink} target="_blank" rel={anchorDefaultRel}>
+        <Typography bold tag={TypographyTag.H5} type={TypographyType.Callout}>
+          {squad.name}
+        </Typography>
+      </a>
       <Typography
         color={TypographyColor.Tertiary}
         type={TypographyType.Footnote}
@@ -83,7 +88,7 @@ export const ProfileSquadsWidget = ({
   const { user, squads: userSquads } = useAuthContext();
   const userSquadIds = userSquads?.map((squad) => squad.id);
   const isSameUser = user?.id === userId;
-  const showSuggestions = isSameUser || !squads?.length;
+  const showSuggestions = isSameUser && !squads?.length;
   const heading =
     labels.profile.sources.heading[showSuggestions ? 'empty' : 'activeIn'];
 
