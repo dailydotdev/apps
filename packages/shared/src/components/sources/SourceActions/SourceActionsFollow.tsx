@@ -8,7 +8,6 @@ export enum CopyType {
   Main = 'main',
   Custom = 'custom',
   NiceGuy = 'niceGuy',
-  Squad = 'squad',
 }
 
 interface SourceActionsFollowProps {
@@ -23,7 +22,7 @@ interface SourceActionsFollowProps {
 
 const copyTypeToCopy: Record<
   CopyType,
-  Record<'follow' | 'following' | 'unfollow', string>
+  { follow: string; following: string; unfollow: string }
 > = {
   [CopyType.Main]: {
     follow: 'Follow',
@@ -39,11 +38,6 @@ const copyTypeToCopy: Record<
     follow: 'Follow back',
     following: 'Following',
     unfollow: 'Unfollow',
-  },
-  [CopyType.Squad]: {
-    follow: 'Join',
-    following: 'Joined',
-    unfollow: 'Leave',
   },
 };
 
