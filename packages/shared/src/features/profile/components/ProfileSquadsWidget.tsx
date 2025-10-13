@@ -50,21 +50,28 @@ const SquadListItem = ({
         imgSrc={squad.image}
       />
     </a>
-    <div>
+    <div className="min-w-0 flex-1">
       <a href={squad.permalink} target="_blank" rel={anchorDefaultRel}>
-        <Typography bold tag={TypographyTag.H5} type={TypographyType.Callout}>
+        <Typography
+          bold
+          tag={TypographyTag.H5}
+          type={TypographyType.Callout}
+          truncate
+        >
           {squad.name}
         </Typography>
       </a>
       <Typography
         color={TypographyColor.Tertiary}
         type={TypographyType.Footnote}
+        truncate
       >
         @{squad.handle}
       </Typography>
       <Typography
         color={TypographyColor.Tertiary}
         type={TypographyType.Footnote}
+        truncate
       >
         {largeNumberFormat(squad.membersCount)} member
         {squad.membersCount !== 1 && 's'}
