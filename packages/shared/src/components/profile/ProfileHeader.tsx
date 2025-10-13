@@ -31,7 +31,7 @@ const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
       <div className="flex flex-col gap-3 px-6">
         <Link passHref href={`${webappUrl}/settings/profile`}>
           <Button
-            className="mb-6 ml-auto mt-2 text-text-secondary"
+            className="mb-4 ml-auto mt-2 text-text-secondary"
             tag="a"
             type={ButtonVariant.Float}
             icon={<EditIcon />}

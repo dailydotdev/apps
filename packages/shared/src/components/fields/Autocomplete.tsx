@@ -63,6 +63,7 @@ const Autocomplete = ({
           onFocus={() => setIsOpen(true)}
           onBlur={handleBlur}
           value={input}
+          autoComplete="off"
         />
       </PopoverAnchor>
       <PopoverContent

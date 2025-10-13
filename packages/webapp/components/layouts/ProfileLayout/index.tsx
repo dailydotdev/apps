@@ -122,7 +122,7 @@ export default function ProfileLayout({
     <ConditionalWrapper
       condition={isUserSame && shouldShow && !hasClosedBanner}
       wrapper={(component) => (
-        <div className="flex w-full flex-col p-4">
+        <div className="flex w-full flex-col">
           <ProfileUploadBanner
             className={{ container: '!mt-0 tablet:mt-3' }}
             onClose={onCloseBanner}
