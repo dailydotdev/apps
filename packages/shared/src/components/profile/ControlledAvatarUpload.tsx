@@ -7,13 +7,13 @@ import { useControlledImageUpload } from '../../hooks/useControlledImageUpload';
 
 interface ControlledAvatarUploadProps {
   name: string;
-  currentImage?: string;
+  currentImageName: string;
   fileSizeLimitMB?: number;
 }
 
 const ControlledAvatarUpload = ({
   name,
-  currentImage,
+  currentImageName,
   fileSizeLimitMB = 1,
 }: ControlledAvatarUploadProps) => {
   const {
@@ -22,13 +22,13 @@ const ControlledAvatarUpload = ({
     onFileChange,
     onDragOver,
     onDrop,
-    handleUploadClick,
-    handleRemove,
+    onUploadClick,
+    onRemove,
     acceptedTypes,
   } = useControlledImageUpload({
     name,
     fileSizeLimitMB,
-    currentImage,
+    currentImageName,
     fallbackImage: fallbackImages.avatar,
   });
 
@@ -43,22 +43,25 @@ const ControlledAvatarUpload = ({
           src={displayImage}
           alt="Profile avatar"
           className="size-full object-cover"
+          data-testid="image_avatar_file"
         />
       </div>
-      <div className="cursor:pointer absolute top-0 flex h-full w-full items-center justify-center gap-2 rounded-26 bg-accent-pepper-subtlest opacity-0 group-hover:opacity-64">
+      <div className="cursor:pointer absolute top-0 flex h-full w-full items-center justify-center gap-2 rounded-26">
         <Button
           type="button"
-          variant={ButtonVariant.Option}
+          className="bg-shadow-shadow3"
+          variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<CameraIcon size={IconSize.Medium} />}
-          onClick={handleUploadClick}
+          onClick={onUploadClick}
         />
         <Button
           type="button"
-          variant={ButtonVariant.Option}
+          className="bg-shadow-shadow3"
+          variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<ClearIcon size={IconSize.Medium} />}
-          onClick={handleRemove}
+          onClick={onRemove}
         />
       </div>
       <input

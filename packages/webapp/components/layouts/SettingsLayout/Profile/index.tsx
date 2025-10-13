@@ -50,6 +50,9 @@ import type { UserProfile } from '@dailydotdev/shared/src/lib/user';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import useHookForm from '@dailydotdev/shared/src/hooks/useHookForm';
+import { locationProfileImage } from '@dailydotdev/shared/src/lib/image';
+import { Image } from '@dailydotdev/shared/src/components/image/Image';
+import { locationToString } from '@dailydotdev/shared/src/lib/utils';
 import { AccountPageContainer } from '../AccountPageContainer';
 
 const Section = classed('section', 'flex flex-col gap-7');
@@ -70,8 +73,11 @@ const ProfileIndex = (): ReactElement => {
     defaultValues: {
       name: user?.name,
       username: user?.username,
+      image: user?.image,
+      cover: user?.cover,
       bio: user?.bio,
       github: user?.github,
+      locationId: user?.location?.id,
       linkedin: user?.linkedin,
       portfolio: user?.portfolio,
       twitter: user?.twitter,
@@ -130,11 +136,16 @@ const ProfileIndex = (): ReactElement => {
         >
           <div className="flex flex-col gap-6">
             <div className="relative mb-10">
-              <ControlledCoverUpload name="cover" currentImage={user?.cover} />
+              <ControlledCoverUpload
+                name="cover"
+                currentImageName="cover"
+                fileSizeLimitMB={1}
+              />
               <div className="absolute bottom-0 left-6 translate-y-1/2">
                 <ControlledAvatarUpload
                   name="image"
-                  currentImage={user?.image}
+                  currentImageName="image"
+                  fileSizeLimitMB={1}
                 />
               </div>
             </div>
@@ -142,7 +153,7 @@ const ProfileIndex = (): ReactElement => {
             <Section className="mt-6">
               <ControlledTextField
                 name="name"
-                label="Full Name"
+                label="Name"
                 leftIcon={<UserIcon />}
               />
               <ControlledTextField
@@ -159,18 +170,25 @@ const ProfileIndex = (): ReactElement => {
             </Section>
             <HorizontalSeparator />
             <Section>
-              <div>
-                <Typography type={TypographyType.Body} bold>
-                  Verified company badge
-                </Typography>
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Secondary}
-                >
-                  Verify your work email and get a verified company badge on
-                  your profile. We won’t require any ID or personal information,
-                  just a verification code to complete the process.
-                </Typography>
+              <div className="flex justify-between gap-6">
+                <div className="flex flex-1 flex-col flex-wrap gap-1">
+                  <Typography type={TypographyType.Body} bold>
+                    Verified company badge
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Secondary}
+                  >
+                    Add your current work location to keep your profile up to
+                    date and reflect where you&apos;re based
+                  </Typography>
+                </div>
+                <Image
+                  src={locationProfileImage}
+                  alt="Location"
+                  loading="lazy"
+                  className="h-16 w-16"
+                />
                 {/* TODO: Verify this is the actual page path */}
               </div>
               <Link href={`${webappUrl}/settings/experience`}>
@@ -179,9 +197,12 @@ const ProfileIndex = (): ReactElement => {
                   Add company badge
                 </span>
               </Link>
+              {/* TODO: Implement company badge from experience when implemented */}
               <ProfileLocation
-                locationName="location"
-                typeName="locationType"
+                locationName="locationId"
+                defaultValue={
+                  user?.location ? locationToString(user.location) : ''
+                }
               />
             </Section>
             <HorizontalSeparator />

@@ -130,7 +130,8 @@ export const useMarkdownInput = ({
   const { displayToast } = useToastNotification();
 
   const emojiData = useMemo(
-    () => (emojiQuery ? emojiSearch(emojiQuery.toLowerCase()).slice(0, 5) : []),
+    () =>
+      emojiQuery ? emojiSearch(emojiQuery.toLowerCase()).slice(0, 20) : [],
     [emojiQuery],
   );
 

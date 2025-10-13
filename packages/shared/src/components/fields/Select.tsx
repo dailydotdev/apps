@@ -26,11 +26,7 @@ const Select = ({
   icon,
   buttonProps,
 }: SelectProps) => {
-  const {
-    control,
-    formState: { errors },
-    setValue,
-  } = useFormContext();
+  const { control, setValue } = useFormContext();
 
   const menuItems: MenuItemProps[] = options.map((opt) => {
     return {

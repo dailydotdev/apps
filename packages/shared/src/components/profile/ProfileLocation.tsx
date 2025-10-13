@@ -2,27 +2,22 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import Autocomplete from '../fields/Autocomplete';
-import type { Location } from '../../graphql/autocomplete';
 import { getAutocompleteLocations } from '../../graphql/autocomplete';
 import { Radio } from '../fields/Radio';
+import { LocationType } from '../../features/opportunity/protobuf/util';
+import { locationToString } from '../../lib/utils';
 
 type ProfileLocationProps = {
   locationName: string;
   typeName?: string;
-};
-const typeOptions = [
-  { label: 'Remote', value: 'remote' },
-  { label: 'On-site', value: 'on-site' },
-  { label: 'Hybrid', value: 'hybrid' },
-];
-
-const LocationToString = (loc: Location) => {
-  return `${loc.city}, ${loc.subdivision ? `${loc.subdivision}, ` : ''}${
-    loc.country
-  }`;
+  defaultValue?: string;
 };
 
-const ProfileLocation = ({ locationName, typeName }: ProfileLocationProps) => {
+const ProfileLocation = ({
+  locationName,
+  typeName,
+  defaultValue,
+}: ProfileLocationProps) => {
   const { setValue, watch } = useFormContext();
   const [locQuery, setLocQuery] = React.useState('');
   const selectedLoc = watch(locationName);
@@ -40,13 +35,20 @@ const ProfileLocation = ({ locationName, typeName }: ProfileLocationProps) => {
     setValue(locationName, val);
   };
 
+  const locationTypeOptions = [
+    { label: 'Remote', value: LocationType.REMOTE },
+    { label: 'Hybrid', value: LocationType.HYBRID },
+    { label: 'On-site', value: LocationType.OFFICE },
+  ];
+
   return (
     <div className="flex flex-col gap-1">
       <Autocomplete
+        defaultValue={defaultValue}
         label="Location"
         options={
           data?.map((loc) => ({
-            label: LocationToString(loc),
+            label: locationToString(loc),
             value: loc.id,
           })) || []
         }
@@ -62,7 +64,7 @@ const ProfileLocation = ({ locationName, typeName }: ProfileLocationProps) => {
             container: '!flex-row',
           }}
           name={typeName}
-          options={typeOptions}
+          options={locationTypeOptions}
           value={typeValue}
           onChange={(newVal) => setValue(typeName, newVal)}
         />
