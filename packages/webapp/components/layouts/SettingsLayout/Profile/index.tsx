@@ -121,17 +121,15 @@ const ProfileIndex = (): ReactElement => {
         <AccountPageContainer
           title="Profile"
           actions={
-            <>
-              <Button
-                type="submit"
-                className="ml-auto"
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Small}
-                disabled={isLoading}
-              >
-                Save
-              </Button>
-            </>
+            <Button
+              type="submit"
+              className="ml-auto"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              disabled={isLoading}
+            >
+              Save
+            </Button>
           }
         >
           <div className="flex flex-col gap-6">

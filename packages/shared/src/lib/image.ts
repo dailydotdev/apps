@@ -375,4 +375,4 @@ export const recruiterSpamCampaignSEO =
   'https://media.daily.dev/image/upload/s--PBa-49xs--/f_auto/v1759245831/public/Recruiter%20-%206';
 
 export const locationProfileImage =
-  'https://daily-now-res.cloudinary.com/image/upload/s--RYwMw9py--/f_auto/v1726486879/company_bdage_xwzrnh';
+  'https://media.daily.dev/image/upload/s--RYwMw9py--/f_auto/v1726486879/company_bdage_xwzrnh';

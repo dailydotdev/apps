@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 
-export type Location = {
+export type TLocation = {
   id: string;
   city: string;
   country: string;

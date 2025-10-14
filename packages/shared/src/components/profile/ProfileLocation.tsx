@@ -6,6 +6,7 @@ import { getAutocompleteLocations } from '../../graphql/autocomplete';
 import { Radio } from '../fields/Radio';
 import { LocationType } from '../../features/opportunity/protobuf/util';
 import { locationToString } from '../../lib/utils';
+import { RequestKey } from '../../lib/query';
 
 type ProfileLocationProps = {
   locationName: string;
@@ -23,7 +24,7 @@ const ProfileLocation = ({
   const selectedLoc = watch(locationName);
   const typeValue = watch(typeName || '');
   const { data, isLoading } = useQuery({
-    queryKey: ['location', locQuery],
+    queryKey: [RequestKey.Location, locQuery],
     queryFn: () => getAutocompleteLocations(locQuery),
     enabled: !!locQuery,
   });
