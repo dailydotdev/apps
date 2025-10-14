@@ -10,7 +10,7 @@ import type { TopReader } from '../components/badges/TopReaderBadge';
 import type { SubscriptionProvider, SubscriptionStatus } from './plus';
 import type { FeaturedAward, UserTransactionPublic } from '../graphql/njord';
 import type { Post } from '../graphql/posts';
-import type { Location } from '../graphql/autocomplete';
+import type { TLocation } from '../graphql/autocomplete';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -172,7 +172,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   flags?: UserFlagsPublic;
   subscriptionFlags?: UserSubscriptionFlags;
   coresRole?: CoresRole;
-  location?: Location;
+  location?: TLocation;
   balance: {
     amount: number;
   };
