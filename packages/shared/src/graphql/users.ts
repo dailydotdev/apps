@@ -135,7 +135,6 @@ export type ProfileV2 = {
     views: number;
     numFollowers: number;
     numFollowing: number;
-    reputation: number;
   };
   sources: Connection<SourceMember>;
 };
