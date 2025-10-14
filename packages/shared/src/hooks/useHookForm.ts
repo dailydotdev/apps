@@ -19,7 +19,6 @@ const useHookForm = ({
   preventNavigation = false,
   onSubmit,
 }: UseHookFormProps) => {
-  // Keep the typeof.
   const methods = useForm<typeof defaultValues>({
     defaultValues,
   });
@@ -75,6 +74,7 @@ const useHookForm = ({
 
       // Abort the navigation
       router.events.emit('routeChangeError');
+      // Throwing an actual new Error() crashes the app.
       // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw 'Route change aborted.';
     };
@@ -95,6 +95,7 @@ const useHookForm = ({
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (methods.formState.isDirty) {
         e.preventDefault();
+        // for old browsers, this is required for the dialogue to appear if they try to refresh or close tab.
         e.returnValue = '';
       }
     };

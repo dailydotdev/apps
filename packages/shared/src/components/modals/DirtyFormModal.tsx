@@ -26,10 +26,12 @@ export default function DirtyFormModal({
       onRequestClose={onRequestClose}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
-      shouldCloseOnOverlayClick={false}
+      shouldCloseOnOverlayClick
+      isDrawerOnMobile
+      drawerProps={{ displayCloseButton: false }}
     >
       <Modal.Body>
-        <div className="flex w-full flex-col gap-6 p-6 text-center">
+        <div className="flex w-full flex-col gap-6 text-center">
           <div className="flex flex-col gap-4">
             <Typography
               type={TypographyType.Title3}
@@ -45,20 +47,20 @@ export default function DirtyFormModal({
               You have unsaved changes that will be lost
             </Typography>
           </div>
-          <div className="flex w-full gap-4">
+          <div className="flex w-full items-center justify-center gap-4">
             <Button
+              className="flex-1"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Medium}
-              className="w-full"
               onClick={onDiscard}
             >
               Discard
             </Button>
             {onSave && (
               <Button
+                className="flex-1"
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Medium}
-                className="w-full"
                 onClick={onSave}
               >
                 Save changes
