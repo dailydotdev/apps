@@ -1,4 +1,5 @@
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { Image } from '../image/Image';
 import { Typography, TypographyType } from '../typography/Typography';
 import { EditIcon, PlusIcon } from '../icons';
@@ -10,8 +11,18 @@ import { Separator } from '../cards/common/common';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
-import ProfileActions from './ProfileActions';
 import { useAuthContext } from '../../contexts/AuthContext';
+
+const ProfileActions = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "profileActions" */
+      './ProfileActions'
+    ),
+  {
+    ssr: false,
+  },
+);
 
 type ProfileHeaderProps = {
   user: PublicProfile;
