@@ -10,14 +10,18 @@ import { Separator } from '../cards/common/common';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
+import ProfileActions from './ProfileActions';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 type ProfileHeaderProps = {
   user: PublicProfile;
-  userStats: UserStatsProps['stats'];
+  userStats: Omit<UserStatsProps['stats'], 'reputation'>;
 };
 
 const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
   const { name, username, bio, image, cover, isPlus } = user;
+  const { user: loggedUser } = useAuthContext();
+  const isSameUser = loggedUser?.id === user.id;
   return (
     <div className="relative w-full overflow-hidden rounded-t-16">
       <div className="h-24">
@@ -65,7 +69,11 @@ const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
               dateFormat="MMM d. yyyy"
             />
           </div>
-          <UserStats userId={user.id} stats={userStats} />
+          {!isSameUser && <ProfileActions user={user} />}
+          <UserStats
+            userId={user.id}
+            stats={{ ...userStats, reputation: user.reputation }}
+          />
         </div>
       </div>
     </div>
