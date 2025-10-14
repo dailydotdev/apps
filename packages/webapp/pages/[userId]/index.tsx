@@ -82,7 +82,10 @@ const ProfilePage = ({
     <>
       <NextSeo {...seo} />
       <div className="flex flex-col gap-6 px-0 py-6">
-        <ProfileHeader user={user} userStats={userStats} />
+        <ProfileHeader
+          user={user}
+          userStats={{ ...userStats, reputation: user?.reputation }}
+        />
         <Readme user={user} />
         <BadgesAndAwards user={user} />
         {isStreaksEnabled && readingHistory?.userStreakProfile && (

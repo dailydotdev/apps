@@ -117,7 +117,6 @@ export const PROFILE_V2_EXTRA_QUERY = gql`
       views: numPostViews
       numFollowers
       numFollowing
-      reputation
     }
     ${publicSourceMemberships}
   }
