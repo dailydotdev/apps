@@ -8,18 +8,20 @@ export interface UseDirtyFormOptions {
   preventNavigation?: boolean;
   onSave?: () => Promise<boolean> | boolean;
   onDiscard?: () => void;
+  successUrl?: string | (() => string);
 }
 
 export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
   formMethods: UseFormReturn<TFieldValues>,
   options: UseDirtyFormOptions = {},
 ) => {
-  const { preventNavigation = true, onSave, onDiscard } = options;
+  const { preventNavigation = true, onSave, onDiscard, successUrl } = options;
 
   const router = useRouter();
   const { openModal } = useLazyModal();
   const allowNavigationRef = useRef(false);
   const pendingUrlRef = useRef<string | null>(null);
+  const isModalSaveRef = useRef(false);
 
   const checkShouldPrevent = useCallback(() => {
     if (!preventNavigation) {
@@ -33,9 +35,11 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
       return;
     }
 
+    isModalSaveRef.current = true;
     const isValid = await formMethods.trigger();
 
     if (!isValid) {
+      isModalSaveRef.current = false;
       return;
     }
 
@@ -46,11 +50,14 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
       formMethods.reset(currentValues);
       allowNavigationRef.current = true;
 
+      // navigate to intercepted URL for modal saves
       if (pendingUrlRef.current) {
         router.push(pendingUrlRef.current);
         pendingUrlRef.current = null;
       }
     }
+
+    isModalSaveRef.current = false;
   }, [onSave, formMethods, router]);
 
   const handleDiscard = useCallback(() => {
@@ -94,6 +101,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
       });
 
       router.events.emit('routeChangeError');
+      // this throw is necessary to stop the route change.
       // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw 'Route change aborted.';
     };
@@ -121,6 +129,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (checkShouldPrevent()) {
         e.preventDefault();
+        // for old browsers, this is required for the dialogue to appear if they try to refresh or close tab.
         e.returnValue = '';
       }
     };
@@ -132,11 +141,42 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     };
   }, [preventNavigation, checkShouldPrevent]);
 
+  // Direct save from form (not modal)
+  const save = useCallback(async () => {
+    if (!onSave) {
+      return false;
+    }
+
+    const isValid = await formMethods.trigger();
+
+    if (!isValid) {
+      return false;
+    }
+
+    const currentValues = formMethods.getValues();
+    const saveResult = await onSave();
+
+    if (saveResult) {
+      formMethods.reset(currentValues);
+      allowNavigationRef.current = true;
+
+      // Navigate to success URL for direct saves
+      if (successUrl) {
+        const url =
+          typeof successUrl === 'function' ? successUrl() : successUrl;
+        router.push(url);
+      }
+    }
+
+    return saveResult;
+  }, [onSave, formMethods, router, successUrl]);
+
   return {
     allowNavigation: () => {
       allowNavigationRef.current = true;
     },
     isNavigationPrevented: checkShouldPrevent,
+    save,
     showDirtyFormModal: (targetUrl?: string) => {
       if (targetUrl) {
         pendingUrlRef.current = targetUrl;

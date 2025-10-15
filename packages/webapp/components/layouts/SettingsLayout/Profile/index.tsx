@@ -35,7 +35,6 @@ import type { ProfileFormHint } from '@dailydotdev/shared/src/hooks/useProfileFo
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 
-import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -59,7 +58,6 @@ const Section = classed('section', 'flex flex-col gap-7');
 
 const ProfileIndex = (): ReactElement => {
   const { user } = useContext(AuthContext);
-  const router = useRouter();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
 
@@ -94,15 +92,12 @@ const ProfileIndex = (): ReactElement => {
     },
   });
 
-  const { allowNavigation } = useDirtyForm(methods, {
+  const { save } = useDirtyForm(methods, {
     preventNavigation: true,
     onSave: async () => {
       try {
         const formData = methods.getValues();
         await updateUserProfileAsync(formData);
-
-        router.push(`/${formData.username.toLowerCase()}`);
-
         return true;
       } catch (error) {
         if (error?.response?.errors?.length) {
@@ -123,30 +118,10 @@ const ProfileIndex = (): ReactElement => {
     onDiscard: () => {
       methods.reset();
     },
+    successUrl: () => `/${methods.getValues().username?.toLowerCase()}`,
   });
 
-  const handleSubmit = methods.handleSubmit(async (data) => {
-    try {
-      await updateUserProfileAsync(data);
-      allowNavigation();
-      router.push(`/${data.username.toLowerCase()}`).then(() => {
-        router.reload();
-      });
-    } catch (error) {
-      if (error?.response?.errors?.length) {
-        const errData: ProfileFormHint = JSON.parse(
-          error.response.errors[0].message,
-        );
-
-        Object.entries(errData).forEach(([key, value]) => {
-          methods.setError(key as any, {
-            type: 'manual',
-            message: value,
-          });
-        });
-      }
-    }
-  });
+  const handleSubmit = methods.handleSubmit(() => save());
   return (
     <FormProvider {...methods}>
       <form className="flex flex-1" onSubmit={handleSubmit}>
