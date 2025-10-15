@@ -135,7 +135,6 @@ export type ProfileV2 = {
     views: number;
     numFollowers: number;
     numFollowing: number;
-    reputation: number;
   };
   sources: Connection<SourceMember>;
 };
@@ -297,8 +296,12 @@ export const HIDE_READING_HISTORY_MUTATION = gql`
 `;
 
 export const UPDATE_USER_PROFILE_MUTATION = gql`
-  mutation UpdateUserProfile($data: UpdateUserInput, $upload: Upload) {
-    updateUserProfile(data: $data, upload: $upload) {
+  mutation UpdateUserProfile(
+    $data: UpdateUserInput
+    $upload: Upload
+    $coverUpload: Upload
+  ) {
+    updateUserProfile(data: $data, upload: $upload, coverUpload: $coverUpload) {
       id
       name
       image

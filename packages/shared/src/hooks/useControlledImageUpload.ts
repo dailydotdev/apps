@@ -68,6 +68,7 @@ export const useControlledImageUpload = ({
   };
 
   const onRemove = () => {
+    setValue(currentImageName, null);
     setValue(name, null);
     setPreview(null);
     if (inputRef.current) {
