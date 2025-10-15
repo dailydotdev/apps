@@ -135,13 +135,13 @@ const ProfileIndex = (): ReactElement => {
           <div className="flex flex-col gap-6">
             <div className="relative mb-10">
               <ControlledCoverUpload
-                name="cover"
+                name="coverUpload"
                 currentImageName="cover"
                 fileSizeLimitMB={1}
               />
               <div className="absolute bottom-0 left-6 translate-y-1/2">
                 <ControlledAvatarUpload
-                  name="image"
+                  name="upload"
                   currentImageName="image"
                   fileSizeLimitMB={1}
                 />
