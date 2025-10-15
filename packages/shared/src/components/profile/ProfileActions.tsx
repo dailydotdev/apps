@@ -60,8 +60,7 @@ const ProfileActions = ({ user }: HeaderProps): ReactElement => {
         },
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user],
+    [user, openModal],
   );
 
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
