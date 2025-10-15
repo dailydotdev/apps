@@ -8,6 +8,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { useLazyModal } from '../../hooks/useLazyModal';
 
 interface DirtyFormModalProps extends LazyModalCommonProps {
   onDiscard: () => void;
@@ -20,6 +21,20 @@ export default function DirtyFormModal({
   onDiscard,
   onSave,
 }: DirtyFormModalProps): ReactElement {
+  const { closeModal } = useLazyModal();
+
+  const handleSave = () => {
+    if (onSave) {
+      onSave();
+    }
+    closeModal();
+  };
+
+  const handleDiscard = () => {
+    onDiscard();
+    closeModal();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -52,7 +67,7 @@ export default function DirtyFormModal({
               className="flex-1"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Medium}
-              onClick={onDiscard}
+              onClick={handleDiscard}
             >
               Discard
             </Button>
@@ -61,7 +76,7 @@ export default function DirtyFormModal({
                 className="flex-1"
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Medium}
-                onClick={onSave}
+                onClick={handleSave}
               >
                 Save changes
               </Button>

@@ -38,7 +38,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { FormProvider } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import ExperienceSelect from '@dailydotdev/shared/src/components/profile/ExperienceSelect';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
@@ -46,13 +46,13 @@ import ControlledMarkdownInput from '@dailydotdev/shared/src/components/fields/M
 import ProfileLocation from '@dailydotdev/shared/src/components/profile/ProfileLocation';
 import ControlledAvatarUpload from '@dailydotdev/shared/src/components/profile/ControlledAvatarUpload';
 import ControlledCoverUpload from '@dailydotdev/shared/src/components/profile/ControlledCoverUpload';
-import type { UserProfile } from '@dailydotdev/shared/src/lib/user';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import useHookForm from '@dailydotdev/shared/src/hooks/useHookForm';
+import { useDirtyForm } from '@dailydotdev/shared/src/hooks/useDirtyForm';
 import { locationProfileImage } from '@dailydotdev/shared/src/lib/image';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { locationToString } from '@dailydotdev/shared/src/lib/utils';
+import type { UserProfile } from '@dailydotdev/shared/src/lib/user';
 import { AccountPageContainer } from '../AccountPageContainer';
 
 const Section = classed('section', 'flex flex-col gap-7');
@@ -67,9 +67,9 @@ const ProfileIndex = (): ReactElement => {
     displayToast('Profile updated');
     logEvent({ event_name: LogEvent.UpdateProfile });
   };
-  const { updateUserProfile, isLoading } = useProfileForm({ onSuccess });
+  const { updateUserProfileAsync, isLoading } = useProfileForm({ onSuccess });
 
-  const { methods: hookForm, handleSubmit } = useHookForm({
+  const methods = useForm<UserProfile>({
     defaultValues: {
       name: user?.name,
       username: user?.username,
@@ -92,15 +92,20 @@ const ProfileIndex = (): ReactElement => {
       experienceLevel: user?.experienceLevel,
       readme: user?.readme || '',
     },
+  });
+
+  const { allowNavigation } = useDirtyForm(methods, {
     preventNavigation: true,
-    onSubmit: (data, methods) => {
-      updateUserProfile(data, {
-        onSuccess: () => {
-          router.push(`/${data.username.toLowerCase()}`).then(() => {
-            router.reload();
-          });
-        },
-        onError: (error) => {
+    onSave: async () => {
+      try {
+        const formData = methods.getValues();
+        await updateUserProfileAsync(formData);
+
+        router.push(`/${formData.username.toLowerCase()}`);
+
+        return true;
+      } catch (error) {
+        if (error?.response?.errors?.length) {
           const errData: ProfileFormHint = JSON.parse(
             error.response.errors[0].message,
           );
@@ -111,12 +116,39 @@ const ProfileIndex = (): ReactElement => {
               message: value,
             });
           });
-        },
-      });
+        }
+        return false;
+      }
+    },
+    onDiscard: () => {
+      methods.reset();
     },
   });
+
+  const handleSubmit = methods.handleSubmit(async (data) => {
+    try {
+      await updateUserProfileAsync(data);
+      allowNavigation();
+      router.push(`/${data.username.toLowerCase()}`).then(() => {
+        router.reload();
+      });
+    } catch (error) {
+      if (error?.response?.errors?.length) {
+        const errData: ProfileFormHint = JSON.parse(
+          error.response.errors[0].message,
+        );
+
+        Object.entries(errData).forEach(([key, value]) => {
+          methods.setError(key as any, {
+            type: 'manual',
+            message: value,
+          });
+        });
+      }
+    }
+  });
   return (
-    <FormProvider {...hookForm}>
+    <FormProvider {...methods}>
       <form className="flex flex-1" onSubmit={handleSubmit}>
         <AccountPageContainer
           title="Profile"
@@ -187,7 +219,6 @@ const ProfileIndex = (): ReactElement => {
                   loading="lazy"
                   className="h-16 w-16"
                 />
-                {/* TODO: Verify this is the actual page path */}
               </div>
               <Link href={`${webappUrl}/settings/experience`}>
                 <span className="flex cursor-pointer items-center gap-1 text-text-link">
@@ -195,7 +226,6 @@ const ProfileIndex = (): ReactElement => {
                   Add company badge
                 </span>
               </Link>
-              {/* TODO: Implement company badge from experience when implemented */}
               <ProfileLocation
                 locationName="locationId"
                 defaultValue={
