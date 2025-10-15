@@ -7,6 +7,7 @@ import { Radio } from '../fields/Radio';
 import { LocationType } from '../../features/opportunity/protobuf/util';
 import { locationToString } from '../../lib/utils';
 import { RequestKey } from '../../lib/query';
+import useDebounceFn from '../../hooks/useDebounceFn';
 
 type ProfileLocationProps = {
   locationName: string;
@@ -31,6 +32,7 @@ const ProfileLocation = ({
   const handleSearch = (query: string) => {
     setLocQuery(query);
   };
+  const [debouncedQuery] = useDebounceFn<string>((q) => handleSearch(q), 300);
 
   const handleSelect = (val: string) => {
     setValue(locationName, val);
@@ -56,7 +58,7 @@ const ProfileLocation = ({
         selectedValue={selectedLoc}
         name={locationName}
         onSelect={(val) => handleSelect(val)}
-        onChange={(val) => handleSearch(val)}
+        onChange={(val) => debouncedQuery(val)}
         isLoading={isLoading}
       />
       {typeName && (

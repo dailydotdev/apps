@@ -3,7 +3,6 @@ import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { TextFieldProps } from './TextField';
 import { TextField } from './TextField';
-import useDebounceFn from '../../hooks/useDebounceFn';
 import { PopoverContent } from '../popover/Popover';
 import { Typography } from '../typography/Typography';
 import { GenericLoaderSpinner } from '../utilities/loaders';
@@ -45,7 +44,6 @@ const Autocomplete = ({
     setIsOpen(false);
     setInput(options.find((opt) => opt.value === selectedValue)?.label || '');
   };
-  const [debouncedQuery] = useDebounceFn<string>((q) => handleChange(q), 300);
 
   return (
     <Popover open={isOpen}>
@@ -57,7 +55,7 @@ const Autocomplete = ({
           inputId={name}
           {...restProps}
           onChange={(e) => {
-            debouncedQuery(e.target.value);
+            handleChange(e.target.value);
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
