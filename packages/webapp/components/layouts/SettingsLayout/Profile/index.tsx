@@ -53,7 +53,6 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import useHookForm from '@dailydotdev/shared/src/hooks/useHookForm';
 import { locationProfileImage } from '@dailydotdev/shared/src/lib/image';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import { locationToString } from '@dailydotdev/shared/src/lib/utils';
 import { AccountPageContainer } from '../AccountPageContainer';
 
 const Section = classed('section', 'flex flex-col gap-7');
@@ -198,9 +197,7 @@ const ProfileIndex = (): ReactElement => {
               {/* TODO: Implement company badge from experience when implemented */}
               <ProfileLocation
                 locationName="locationId"
-                defaultValue={
-                  user?.location ? locationToString(user.location) : ''
-                }
+                defaultValue={user?.location}
               />
             </Section>
             <HorizontalSeparator />

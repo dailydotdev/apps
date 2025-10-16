@@ -8,14 +8,15 @@ import { Typography } from '../typography/Typography';
 import { GenericLoaderSpinner } from '../utilities/loaders';
 import { IconSize } from '../Icon';
 
-type AutocompleteProps = Omit<TextFieldProps, 'inputId'> & {
+interface AutocompleteProps
+  extends Omit<TextFieldProps, 'inputId' | 'onChange' | 'onSelect'> {
   name: string;
   onChange: (value: string) => void;
   onSelect: (value: string) => void;
   selectedValue?: string;
   options: Array<{ value: string; label: string }>;
   isLoading?: boolean;
-};
+}
 
 const Autocomplete = ({
   name,
