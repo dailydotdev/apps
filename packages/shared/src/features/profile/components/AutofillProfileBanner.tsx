@@ -73,16 +73,12 @@ export function AutofillProfileBanner({
   return (
     <div
       style={{ background: cvUploadBannerBg }}
-      className="relative mx-auto my-3 flex w-full flex-row items-center overflow-hidden rounded-10 border border-border-subtlest-tertiary p-4"
+      className="relative mx-auto my-3 flex w-full flex-col items-center justify-center overflow-hidden rounded-10 border border-border-subtlest-tertiary p-4 laptop:flex-row"
     >
       {input}
-      <div className="flex flex-1 flex-col gap-1">
+      <div className="flex flex-1 flex-col items-center gap-1 laptop:items-baseline">
         <CustomPromptIcon />
-        <Typography
-          type={TypographyType.Body}
-          bold
-          className="max-w-[15.5rem] tablet:max-w-[unset]"
-        >
+        <Typography type={TypographyType.Body} bold>
           Autofill your profile!
         </Typography>
         <Typography
@@ -110,7 +106,7 @@ export function AutofillProfileBanner({
           className="flex-row-reverse items-start justify-end"
         />
       </div>
-      <div className="w-40">
+      <div className="w-60 laptop:w-40">
         <img
           className="object-cover"
           src={autofillProfileCover}
