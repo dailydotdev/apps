@@ -6,17 +6,12 @@ import classed from '../../lib/classed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { UpgradeToPlus } from '../UpgradeToPlus';
-import { TargetId } from '../../lib/log';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { ButtonSize } from '../buttons/Button';
+import { ReputationIcon } from '../icons';
+import { IconSize } from '../Icon';
 
 export interface UserStatsProps {
   stats: {
     reputation: number;
-    views: number;
-    upvotes: number;
     numFollowers: number;
     numFollowing: number;
   };
@@ -41,12 +36,9 @@ const Item = ({
 );
 
 export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
-  const { user: loggedUser } = useAuthContext();
   const { openModal } = useLazyModal<
     LazyModal.UserFollowersModal | LazyModal.UserFollowingModal
   >();
-  const { isPlus } = usePlusSubscription();
-  const isSameUser = !!loggedUser && loggedUser?.id === userId;
 
   const defaultModalProps = {
     props: {
@@ -58,16 +50,16 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
   };
 
   return (
-    <div className="flex flex-wrap items-center text-text-tertiary typo-footnote">
+    <div className="-ml-1 flex flex-wrap items-center text-text-tertiary typo-footnote">
       <div className="flex flex-col gap-3">
-        {isSameUser && !isPlus && (
-          <UpgradeToPlus
-            className="max-w-fit laptop:hidden"
-            size={ButtonSize.Small}
-            target={TargetId.MyProfile}
-          />
-        )}
         <div className="flex flex-row gap-2">
+          <div className="flex">
+            <ReputationIcon
+              className="text-accent-onion-default"
+              size={IconSize.Small}
+            />
+            <Item stat={{ title: 'Reputation', amount: stats.reputation }} />
+          </div>
           <Item
             stat={{ title: 'Followers', amount: stats.numFollowers }}
             className={classNames(stats.numFollowers && 'cursor-pointer')}
@@ -104,11 +96,6 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
               });
             }}
           />
-        </div>
-        <div className="flex flex-row gap-2">
-          <Item stat={{ title: 'Reputation', amount: stats.reputation }} />
-          <Item stat={{ title: 'Views', amount: stats.views }} />
-          <Item stat={{ title: 'Upvotes', amount: stats.upvotes }} />
         </div>
       </div>
     </div>
