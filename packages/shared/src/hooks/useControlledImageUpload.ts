@@ -1,8 +1,11 @@
-import type { DragEvent, ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { useRef, useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useFileInput } from './utils/useFileInput';
 import { acceptedTypesList } from '../graphql/posts';
+import { useDragAndDrop } from '../features/fileUpload/hooks/useDragAndDrop';
+import type { DragDropError } from '../features/fileUpload/hooks/useFileValidation';
+import { useFileValidation } from '../features/fileUpload/hooks/useFileValidation';
 
 interface UseControlledImageUploadProps {
   name: string;
@@ -10,6 +13,7 @@ interface UseControlledImageUploadProps {
   currentImageName: string;
   fallbackImage?: string;
   onRemove?: () => void;
+  onError?: (errors: DragDropError[]) => void;
 }
 
 export const useControlledImageUpload = ({
@@ -17,6 +21,7 @@ export const useControlledImageUpload = ({
   fileSizeLimitMB = 5,
   currentImageName,
   fallbackImage,
+  onError,
 }: UseControlledImageUploadProps) => {
   const { setValue, watch } = useFormContext();
   const currentImage = watch(currentImageName || '');
@@ -39,6 +44,26 @@ export const useControlledImageUpload = ({
     },
   });
 
+  const { validateFiles } = useFileValidation({
+    acceptedTypes: acceptedTypesList,
+    maxSize: fileSizeLimitMB,
+  });
+
+  const onFiles = (files: FileList) => {
+    const { validFiles, errors } = validateFiles(files);
+
+    if (errors.length) {
+      onError(errors);
+      return;
+    }
+
+    if (validFiles.length) {
+      handleFile(validFiles[0]);
+    }
+  };
+
+  const { handleDragOver, handleDrop } = useDragAndDrop({ onFiles });
+
   useEffect(() => {
     return () => {
       if (preview && preview.startsWith('blob:')) {
@@ -49,17 +74,6 @@ export const useControlledImageUpload = ({
 
   const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    handleFile(file);
-  };
-
-  const onDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-  };
-
-  const onDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const file = event.dataTransfer.files?.[0];
     handleFile(file);
   };
 
@@ -93,8 +107,8 @@ export const useControlledImageUpload = ({
     displayImage,
     inputRef,
     onFileChange,
-    onDragOver,
-    onDrop,
+    onDragOver: handleDragOver,
+    onDrop: handleDrop,
     onUploadClick,
     onRemove,
     acceptedTypes: acceptedTypesList.join(','),
