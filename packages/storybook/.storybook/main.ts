@@ -10,7 +10,6 @@ const config: StorybookConfig = {
     '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
   addons: [
-    '@storybook/addon-docs',
     '@storybook/addon-links',
     '@storybook/addon-themes',
     '@storybook/addon-designs',

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { ProfileReadingData } from '@dailydotdev/shared/src/graphql/users';
 import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
@@ -11,13 +11,17 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
-import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
+import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import dynamic from 'next/dynamic';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
+import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
+import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
+import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -40,15 +44,22 @@ const BadgesAndAwards = dynamic(
 const ProfilePage = ({
   user: initialUser,
   noindex,
+  userStats,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const { tokenRefreshed } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
+  const { status, onUpload, shouldShow } = useUploadCv();
+  const { checkHasCompleted } = useActions();
+  const hasClosedBanner = useMemo(
+    () => checkHasCompleted(ActionType.ClosedProfileBanner),
+    [checkHasCompleted],
+  );
 
   const before = startOfTomorrow();
   const after = subMonths(subDays(before, 2), 5);
 
-  const { user } = useProfile(initialUser);
+  const { user, isUserSame } = useProfile(initialUser);
 
   const { data: readingHistory, isLoading } = useQuery<ProfileReadingData>({
     queryKey: generateQueryKey(RequestKey.ReadingStats, user),
@@ -70,10 +81,20 @@ const ProfilePage = ({
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(user, {}, noindex),
   };
+
+  const shouldShowBanner = isUserSame && shouldShow && !hasClosedBanner;
+
   return (
-    <>
+    <div className="rounded-16 border border-border-subtlest-tertiary">
       <NextSeo {...seo} />
-      <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
+      <ProfileHeader user={user} userStats={userStats} />
+      <div className="flex flex-col gap-6 p-6">
+        {shouldShowBanner && (
+          <AutofillProfileBanner
+            onUpload={onUpload}
+            isLoading={status === 'pending'}
+          />
+        )}
         <Readme user={user} />
         <BadgesAndAwards user={user} />
         {readingHistory?.userReadingRankHistory && (
@@ -88,7 +109,7 @@ const ProfilePage = ({
           />
         )}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -20,6 +20,7 @@ import {
   AddUserIcon,
   ArrowIcon,
   BookmarkIcon,
+  ClickIcon,
   CoreFlatIcon,
   CoreIcon,
   DiscussIcon,
@@ -267,11 +268,17 @@ const PostAnalyticsPage = ({
       tooltip: 'The percentage of upvotes out of total votes.',
     },
     {
+      icon: <ClickIcon />,
+      label: 'Clicks',
+      value: postAnalytics?.clicks ?? 0,
+      tooltip:
+        'Number of clicks your post received, includes feed clicks and link opens.',
+    },
+    {
       icon: <DiscussIcon />,
       label: 'Comments',
       value: postAnalytics?.comments ?? 0,
     },
-
     {
       icon: <BookmarkIcon />,
       label: 'Bookmarks',

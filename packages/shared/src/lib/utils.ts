@@ -1,4 +1,5 @@
 import { largeNumberFormat } from './numberFormat';
+import type { TLocation } from '../graphql/autocomplete';
 
 export const stringToBoolean = (value: string): boolean => {
   if (typeof value !== 'string') {
@@ -59,4 +60,12 @@ export const snapToHalf = (v: number): 0.0 | 0.5 | 1.0 => {
   }
 
   return 1.0;
+};
+
+export const locationToString = (loc: TLocation) => {
+  if (!loc) {
+    return undefined;
+  }
+
+  return [loc.city, loc.subdivision, loc.country].filter(Boolean).join(', ');
 };

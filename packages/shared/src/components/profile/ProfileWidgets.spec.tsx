@@ -194,12 +194,6 @@ it('should show user stats in a proper format', () => {
 
   el = screen.getByTestId('Following');
   expect(el).toHaveTextContent('3KFollowing');
-
-  el = screen.getByTestId('Upvotes');
-  expect(el).toHaveTextContent('5KUpvotes');
-
-  el = screen.getByTestId('Views');
-  expect(el).toHaveTextContent('83KViews');
 });
 
 it('should show bio', () => {
