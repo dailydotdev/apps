@@ -49,7 +49,7 @@ export const BadgesAndAwards = ({
     enabled: !!user?.id && hasCoresAccess,
   });
 
-  if (isTopReaderLoading || isAwardsLoading) {
+  if (isTopReaderLoading || (hasCoresAccess && isAwardsLoading)) {
     return <BadgesAndAwardsSkeleton />;
   }
 

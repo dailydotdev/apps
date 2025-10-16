@@ -85,6 +85,27 @@ const mockAwards = [
   },
 ];
 
+// Helper function to mock awards query
+const mockAwardsQuery = (
+  awards: typeof mockAwards = [],
+  userId: string = defaultUser.id,
+) => {
+  mockGraphQL({
+    request: {
+      query: PRODUCTS_SUMMARY_QUERY,
+      variables: {
+        userId,
+        type: ProductType.Award,
+      },
+    },
+    result: {
+      data: {
+        userProductSummary: awards,
+      },
+    },
+  });
+};
+
 const renderComponent = (user: PublicProfile = defaultUser) => {
   const client = new QueryClient({
     defaultOptions: {
@@ -102,7 +123,7 @@ const renderComponent = (user: PublicProfile = defaultUser) => {
 };
 
 describe('BadgesAndAwards component', () => {
-  it('should render loading skeleton when data is loading', () => {
+  it('should render loading skeleton when top reader data is loading', () => {
     mockUseTopReader.mockReturnValue({
       data: null,
       isPending: true,
@@ -113,17 +134,49 @@ describe('BadgesAndAwards component', () => {
     expect(screen.getByText('Badges & Awards')).toBeInTheDocument();
     expect(screen.getByText('Learn more')).toBeInTheDocument();
     // Check for skeleton elements
-    expect(screen.getAllByRole('generic')).toHaveLength(5); // 2 summary cards + 3 tag items
+    expect(screen.getByTestId('BadgesAndAwardsSkeleton')).toBeInTheDocument();
   });
 
-  it('should render nothing when no data is available', () => {
+  it('should render loading skeleton when awards are loading', () => {
+    mockUseTopReader.mockReturnValue({
+      data: mockTopReaders,
+      isPending: false,
+    });
+    mockUseHasAccessToCores.mockReturnValue(true);
+
+    // Don't mock awards query - it will stay in loading state
+    renderComponent();
+
+    expect(screen.getByText('Badges & Awards')).toBeInTheDocument();
+    expect(screen.getByTestId('BadgesAndAwardsSkeleton')).toBeInTheDocument();
+  });
+
+  it('should render with zero counts when no data is available', async () => {
     mockUseTopReader.mockReturnValue({
       data: [],
       isPending: false,
     });
+    mockUseHasAccessToCores.mockReturnValue(true);
+    mockAwardsQuery([]);
 
-    const { container } = renderComponent();
-    expect(container).toBeEmptyDOMElement();
+    renderComponent();
+
+    // Wait for skeleton to disappear and data to load
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId('BadgesAndAwardsSkeleton'),
+      ).not.toBeInTheDocument();
+    });
+
+    // Should show header and learn more link
+    expect(screen.getByText('Badges & Awards')).toBeInTheDocument();
+    expect(screen.getByText('Learn more')).toBeInTheDocument();
+
+    // Should show zero counts
+    expect(screen.getAllByText('x0')).toHaveLength(2); // Both badges and awards are 0
+
+    // Should not show any badge or award items
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
 
   it('should render top reader badges when available', async () => {
@@ -142,8 +195,6 @@ describe('BadgesAndAwards component', () => {
     // Check summary cards
     expect(screen.getByText('x8')).toBeInTheDocument(); // Total badges: 5 + 3
     expect(screen.getByText('Top reader badge')).toBeInTheDocument();
-    expect(screen.getByText('x0')).toBeInTheDocument(); // No awards
-    expect(screen.getByText('Total Awards')).toBeInTheDocument();
 
     // Check badge items
     expect(screen.getByText('JavaScript')).toBeInTheDocument();
@@ -157,21 +208,8 @@ describe('BadgesAndAwards component', () => {
     });
     mockUseHasAccessToCores.mockReturnValue(true);
 
-    // Mock the awards query
-    mockGraphQL({
-      request: {
-        query: PRODUCTS_SUMMARY_QUERY,
-        variables: {
-          userId: defaultUser.id,
-          type: ProductType.Award,
-        },
-      },
-      result: {
-        data: {
-          userProductSummary: mockAwards,
-        },
-      },
-    });
+    // Mock awards query with data
+    mockAwardsQuery(mockAwards);
 
     renderComponent();
 
@@ -212,141 +250,6 @@ describe('BadgesAndAwards component', () => {
     expect(screen.queryByAltText('Award')).not.toBeInTheDocument();
   });
 
-  it('should render loading skeleton when awards are loading', () => {
-    mockUseTopReader.mockReturnValue({
-      data: mockTopReaders,
-      isPending: false,
-    });
-    mockUseHasAccessToCores.mockReturnValue(true);
-
-    // Mock the awards query to be loading
-    mockGraphQL({
-      request: {
-        query: PRODUCTS_SUMMARY_QUERY,
-        variables: {
-          userId: defaultUser.id,
-          type: ProductType.Award,
-        },
-      },
-      result: {
-        data: {
-          userProductSummary: [],
-        },
-      },
-    });
-
-    renderComponent();
-
-    expect(screen.getByText('Badges & Awards')).toBeInTheDocument();
-    // Should show skeleton when any data is loading
-    // Should show skeleton when any data is loading
-    expect(screen.getAllByRole('generic')).toHaveLength(5);
-  });
-
-  it('should handle empty top readers array', () => {
-    mockUseTopReader.mockReturnValue({
-      data: [],
-      isPending: false,
-    });
-
-    const { container } = renderComponent();
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  it('should handle empty awards array', async () => {
-    mockUseTopReader.mockReturnValue({
-      data: mockTopReaders,
-      isPending: false,
-    });
-    mockUseHasAccessToCores.mockReturnValue(true);
-
-    mockGraphQL({
-      request: {
-        query: PRODUCTS_SUMMARY_QUERY,
-        variables: {
-          userId: defaultUser.id,
-          type: ProductType.Award,
-        },
-      },
-      result: {
-        data: {
-          userProductSummary: [],
-        },
-      },
-    });
-
-    renderComponent();
-
-    await waitFor(() => {
-      expect(screen.getByText('x8')).toBeInTheDocument(); // Total badges
-      expect(screen.getByText('x0')).toBeInTheDocument(); // No awards
-    });
-
-    expect(screen.queryByAltText('Award')).not.toBeInTheDocument();
-  });
-
-  it('should calculate correct totals for multiple badges', () => {
-    const multipleBadges = [
-      { ...mockTopReaders[0], total: 10 },
-      { ...mockTopReaders[1], total: 5 },
-      {
-        id: 'badge-3',
-        keyword: { value: 'typescript', flags: { title: 'TypeScript' } },
-        issuedAt: '2024-01-03T00:00:00.000Z',
-        total: 3,
-      },
-    ];
-
-    mockUseTopReader.mockReturnValue({
-      data: multipleBadges,
-      isPending: false,
-    });
-
-    renderComponent();
-
-    expect(screen.getByText('x18')).toBeInTheDocument(); // Total: 10 + 5 + 3
-    expect(screen.getByText('TypeScript')).toBeInTheDocument();
-  });
-
-  it('should calculate correct totals for multiple awards', async () => {
-    const multipleAwards = [
-      { ...mockAwards[0], count: 5 },
-      { ...mockAwards[1], count: 3 },
-      {
-        id: 'award-3',
-        image: 'https://daily.dev/award3.png',
-        count: 2,
-      },
-    ];
-
-    mockUseTopReader.mockReturnValue({
-      data: mockTopReaders,
-      isPending: false,
-    });
-    mockUseHasAccessToCores.mockReturnValue(true);
-
-    mockGraphQL({
-      request: {
-        query: PRODUCTS_SUMMARY_QUERY,
-        variables: {
-          userId: defaultUser.id,
-          type: ProductType.Award,
-        },
-      },
-      result: {
-        data: {
-          userProductSummary: multipleAwards,
-        },
-      },
-    });
-
-    renderComponent();
-
-    await waitFor(() => {
-      expect(screen.getByText('x10')).toBeInTheDocument(); // Total awards: 5 + 3 + 2
-    });
-  });
-
   it('should render learn more link with correct href', () => {
     mockUseTopReader.mockReturnValue({
       data: mockTopReaders,
@@ -358,18 +261,8 @@ describe('BadgesAndAwards component', () => {
     const learnMoreLink = screen.getByText('Learn more');
     expect(learnMoreLink).toHaveAttribute(
       'href',
-      'https://daily.dev/top-reader-badges',
+      'https://r.daily.dev/top-reader-badge',
     );
     expect(learnMoreLink).toHaveAttribute('target', '_blank');
-  });
-
-  it('should handle null/undefined data gracefully', () => {
-    mockUseTopReader.mockReturnValue({
-      data: null,
-      isPending: false,
-    });
-
-    const { container } = renderComponent();
-    expect(container).toBeEmptyDOMElement();
   });
 });

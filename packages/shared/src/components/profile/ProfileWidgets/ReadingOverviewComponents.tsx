@@ -121,7 +121,7 @@ export const HeatmapLegend = (): ReactElement => (
 // ReadingOverviewSkeleton component
 export const ReadingOverviewSkeleton = (): ReactElement => {
   return (
-    <ActivityContainer>
+    <ActivityContainer data-testid="ReadingOverviewSkeleton">
       <Typography
         tag={TypographyTag.H2}
         type={TypographyType.Callout}

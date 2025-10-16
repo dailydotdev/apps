@@ -21,7 +21,7 @@ import { anchorDefaultRel } from '../../../lib/strings';
 // Skeleton component
 export const BadgesAndAwardsSkeleton = (): ReactElement => {
   return (
-    <ActivityContainer>
+    <ActivityContainer data-testid="BadgesAndAwardsSkeleton">
       <Typography
         tag={TypographyTag.H2}
         type={TypographyType.Callout}

@@ -22,6 +22,7 @@ import {
   ReadingOverviewSkeleton,
 } from './ReadingOverviewComponents';
 import { anchorDefaultRel, pluralize } from '../../../lib/strings';
+import { largeNumberFormat } from '../../../lib';
 
 // Utility functions
 const readHistoryToValue = (value: UserReadHistory): number => value.reads;
@@ -68,7 +69,7 @@ export function ReadingOverview({
   isLoading = false,
 }: ReadingOverviewProps): ReactElement {
   const totalReads = useMemo(() => {
-    if (!readHistory || !Array.isArray(readHistory)) {
+    if (!readHistory?.length) {
       return 0;
     }
     return readHistory.reduce((acc, val) => {
@@ -112,15 +113,17 @@ export function ReadingOverview({
         className="mb-3"
       >
         Posts read in the last months
-        {totalReads >= 0 && ` (${totalReads})`}
+        {totalReads >= 0 && ` (${largeNumberFormat(totalReads)})`}
       </Typography>
-      <CalendarHeatmap
-        startDate={after}
-        endDate={before}
-        values={readHistory}
-        valueToCount={readHistoryToValue}
-        valueToTooltip={readHistoryToTooltip}
-      />
+      {Array.isArray(readHistory) && (
+        <CalendarHeatmap
+          startDate={after}
+          endDate={before}
+          values={readHistory}
+          valueToCount={readHistoryToValue}
+          valueToTooltip={readHistoryToTooltip}
+        />
+      )}
       <HeatmapLegend />
     </ActivityContainer>
   );

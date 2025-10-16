@@ -10,7 +10,7 @@ import type {
 } from '@dailydotdev/shared/src/graphql/users';
 import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient } from '@tanstack/react-query';
-import { startOfTomorrow, subDays, subYears } from 'date-fns';
+import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
@@ -43,7 +43,7 @@ const defaultTopTags: MostReadTag[] = [
 ];
 
 const before = startOfTomorrow();
-const after = subYears(subDays(before, 2), 1);
+const after = subMonths(subDays(before, 2), 5);
 
 const createReadingHistoryMock = (
   rankHistory: UserReadingRankHistory[] = [
@@ -107,9 +107,10 @@ it('should show the top reading tags of the user', async () => {
   renderComponent();
   await waitForNock();
   await screen.findByText('Top tags by reading days');
-  await Promise.all(
-    defaultTopTags.map(({ value: tag }) => screen.findByText(`#${tag}`)),
-  );
+  // Tags are rendered capitalized without the # prefix
+  await screen.findByText('Javascript');
+  await screen.findByText('Golang');
+  await screen.findByText('C#');
 });
 
 it('should show the readme of the user', async () => {
