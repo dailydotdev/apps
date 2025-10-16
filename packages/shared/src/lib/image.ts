@@ -376,3 +376,6 @@ export const recruiterSpamCampaignSEO =
 
 export const locationProfileImage =
   'https://media.daily.dev/image/upload/s--RYwMw9py--/f_auto/v1726486879/company_bdage_xwzrnh';
+
+export const autofillProfileCover =
+  'https://media.daily.dev/image/upload/s--0pMFz3kQ--/f_auto/v1757577987/public/Autofill%20your%20profile!';
