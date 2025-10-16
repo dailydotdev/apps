@@ -21,6 +21,8 @@ import { UploadIcon } from '../../../components/icons/Upload';
 import { useFileInput } from '../../fileUpload/hooks/useFileInput';
 import { useFileValidation } from '../../fileUpload/hooks/useFileValidation';
 import { useToastNotification } from '../../../hooks';
+import { webappUrl } from '../../../lib/constants';
+import Link from '../../../components/utilities/Link';
 
 interface ProfileUploadBannerProps {
   targetId?: TargetId;
@@ -97,9 +99,15 @@ export function AutofillProfileBanner({
           >
             Upload PDF
           </Button>
-          <Button size={ButtonSize.Small} variant={ButtonVariant.Subtle}>
-            Fill in manually
-          </Button>
+          <Link href={`${webappUrl}settings/profile`} passHref>
+            <Button
+              tag="a"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Subtle}
+            >
+              Fill in manually
+            </Button>
+          </Link>
         </div>
         <FeelingLazy
           copy=", CV file deleted automatically after import"
