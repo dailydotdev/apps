@@ -711,6 +711,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.80.5
         version: 5.80.6(react@18.3.1)
+      date-fns:
+        specifier: ^2.30.0
+        version: 2.30.0
       dompurify:
         specifier: ^2.5.4
         version: 2.5.7
@@ -12701,7 +12704,7 @@ snapshots:
 
   aria-query@4.2.2:
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
       '@babel/runtime-corejs3': 7.26.0
 
   aria-query@5.3.0:
@@ -13665,7 +13668,7 @@ snapshots:
 
   date-fns@2.30.0:
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
 
   debounce@1.2.1: {}
 
