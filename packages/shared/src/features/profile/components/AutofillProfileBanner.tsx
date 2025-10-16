@@ -116,7 +116,7 @@ export function AutofillProfileBanner({
       </div>
       <div className="w-60 laptop:w-40">
         <img
-          className="object-cover"
+          className="w-full object-cover"
           src={autofillProfileCover}
           alt="Illustration that demonstrates converting document to account profile"
         />
