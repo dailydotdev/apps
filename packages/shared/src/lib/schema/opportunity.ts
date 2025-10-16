@@ -77,7 +77,7 @@ export const createOpportunityEditContentSchema = ({
 }: {
   optional?: boolean;
 } = {}) => {
-  const contentSchema = z.string().max(1440);
+  const contentSchema = z.string().max(2000);
 
   const schema = z.preprocess(
     (val) => {

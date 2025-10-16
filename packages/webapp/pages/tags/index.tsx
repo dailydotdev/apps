@@ -87,7 +87,7 @@ const TagsPage = ({
 
   return (
     <PageWrapperLayout className="flex flex-col gap-4">
-      <BreadCrumbs>
+      <BreadCrumbs className="mb-2">
         <HashtagIcon size={IconSize.XSmall} secondary /> Tags
       </BreadCrumbs>
       <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">

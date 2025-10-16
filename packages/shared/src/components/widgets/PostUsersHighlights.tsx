@@ -25,6 +25,7 @@ import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { FollowButton } from '../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { PlusUserBadge } from '../PlusUserBadge';
+import { fallbackImages } from '../../lib/config';
 
 interface PostAuthorProps {
   post: Post;
@@ -92,6 +93,7 @@ const Image = (props: ImageProps) => {
         <StyledImage
           className={classNames('cursor-pointer rounded-full', className)}
           imgSrc={image}
+          fallbackSrc={fallbackImages.avatar}
           imgAlt={name}
           background="var(--theme-background-subtle)"
         />
@@ -106,6 +108,7 @@ const Image = (props: ImageProps) => {
       <StyledImage
         className="rounded-12"
         imgSrc={image}
+        fallbackSrc={fallbackImages.avatar}
         imgAlt={name}
         background="var(--theme-background-subtle)"
       />
