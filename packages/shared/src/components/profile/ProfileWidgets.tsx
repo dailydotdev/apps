@@ -6,7 +6,6 @@ import { HeroImage } from './HeroImage';
 import { UserMetadata } from './UserMetadata';
 import { UserStats } from './UserStats';
 import { SocialChips } from './SocialChips';
-import { SquadsList } from './SquadsList';
 import { useDynamicHeader } from '../../useDynamicHeader';
 import AuthContext from '../../contexts/AuthContext';
 import type { ProfileV2 } from '../../graphql/users';
@@ -186,14 +185,6 @@ export function ProfileWidgets({
         </div>
       )}
       <SocialChips links={user} />
-      {(isSameUser || sources?.edges?.length > 0) && (
-        <div className="flex flex-col gap-3">
-          <div className="px-4 text-text-tertiary typo-footnote">
-            Active in these Squads
-          </div>
-          <SquadsList memberships={sources} userId={user.id} />
-        </div>
-      )}
       <ProfileSquadsWidget
         userId={user.id}
         squads={sources.edges.map((s) => s.node.source)}

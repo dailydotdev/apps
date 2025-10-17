@@ -1,8 +1,4 @@
 import React from 'react';
-import {
-  WidgetCard,
-  WidgetVariant,
-} from '../../../components/widgets/WidgetCard';
 import type { Squad } from '../../../graphql/sources';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { labels, largeNumberFormat } from '../../../lib';
@@ -25,19 +21,52 @@ import {
   TypographyTag,
 } from '../../../components/typography/Typography';
 import { useViewSize, ViewSize, useToastNotification } from '../../../hooks';
-
 import { SquadActionButton } from '../../../components/squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
 import { useToggle } from '../../../hooks/useToggle';
+import { ActivityContainer } from '../../../components/profile/ActivitySection';
 
 interface ProfileSquadsWidgetProps {
-  userId: string;
   squads: Array<Squad>;
+  userId: string;
 }
 
 interface SquadListItemProps {
   squad: Squad;
 }
+
+const MOBILE_MAX_SQUADS = 3;
+const DESKTOP_MAX_SQUADS = 5;
+
+const useProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
+  const { squads, userId } = props;
+  const { isAuthReady, user } = useAuthContext();
+  const isMobile = useViewSize(ViewSize.MobileXL);
+  const [showAll, toggleShowAll] = useToggle(false);
+
+  const isSameUser = user?.id === userId;
+  const showSuggestions = isSameUser && !squads?.length;
+  const heading = showSuggestions
+    ? labels.profile.sources.heading.empty
+    : labels.profile.sources.heading.activeIn;
+
+  const maxLength = isMobile ? MOBILE_MAX_SQUADS : DESKTOP_MAX_SQUADS;
+  const visibleSquads = showAll ? squads : squads.slice(0, maxLength);
+  const hasShowMore = squads.length > maxLength;
+
+  if (!isAuthReady || (isSameUser && !squads.length)) {
+    return null;
+  }
+
+  return {
+    heading,
+    showMore: {
+      isVisible: hasShowMore,
+      toggle: toggleShowAll,
+    },
+    squads: visibleSquads,
+  };
+};
 
 const SquadListItem = ({ squad }: SquadListItemProps) => {
   const { displayToast } = useToastNotification();
@@ -100,38 +129,29 @@ const SquadListItem = ({ squad }: SquadListItemProps) => {
   );
 };
 
-const MOBILE_MAX_SQUADS = 3;
-const DESKTOP_MAX_SQUADS = 5;
-
-export const ProfileSquadsWidget = ({
-  userId,
-  squads,
-}: ProfileSquadsWidgetProps) => {
-  const { user } = useAuthContext();
-  const isSameUser = user?.id === userId;
-  const showSuggestions = isSameUser && !squads?.length;
-  const heading =
-    labels.profile.sources.heading[showSuggestions ? 'empty' : 'activeIn'];
-  const isMobile = useViewSize(ViewSize.MobileXL);
-  const [showAll, toggleShowAll] = useToggle(false);
+export const ProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
+  const { heading, squads, showMore } = useProfileSquadsWidget(props);
 
   if (!squads.length) {
-    // todo: add suggested squad list here
     return null;
   }
 
-  const maxLength = isMobile ? MOBILE_MAX_SQUADS : DESKTOP_MAX_SQUADS;
-  const hasMore = squads.length > maxLength;
-  const visibleSquads = showAll ? squads : squads.slice(0, maxLength);
-
   return (
-    <WidgetCard heading={heading} variant={WidgetVariant.Minimal}>
-      <ul className="flex flex-col gap-2">
-        {visibleSquads.map((squad) => (
+    <ActivityContainer>
+      <Typography
+        bold
+        color={TypographyColor.Primary}
+        tag={TypographyTag.H4}
+        type={TypographyType.Callout}
+      >
+        {heading}
+      </Typography>
+      <ul className="mt-4 flex flex-col gap-2">
+        {squads.map((squad) => (
           <SquadListItem key={squad.id} squad={squad} />
         ))}
       </ul>
-      {showSuggestions && (
+      {showMore.isVisible && (
         <Button
           className="mt-3 w-full"
           href={`${webappUrl}squads/discover`}
@@ -152,16 +172,18 @@ export const ProfileSquadsWidget = ({
           {labels.profile.sources.viewAll}
         </Button>
       )}
-      {hasMore && !showSuggestions && (
+      {showMore.isVisible && (
         <Button
           className="mt-3 w-full"
-          onClick={() => toggleShowAll()}
+          onClick={() => showMore.toggle()}
           size={ButtonSize.Small}
           variant={ButtonVariant.Subtle}
         >
-          {showAll ? 'Show less' : 'Show more Squads'}
+          {showMore.isVisible ? 'Show less' : 'Show more Squads'}
         </Button>
       )}
-    </WidgetCard>
+    </ActivityContainer>
   );
 };
+
+export default ProfileSquadsWidget;
