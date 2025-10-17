@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 import type { LoggedUser, PublicProfile } from '../../lib/user';
@@ -9,9 +9,6 @@ import { ProfileWidgets } from './ProfileWidgets';
 import type { Connection } from '../../graphql/common';
 import type { SourceMember, Squad } from '../../graphql/sources';
 import { SourceMemberRole, SourceType } from '../../graphql/sources';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import { PUBLIC_SOURCE_MEMBERSHIPS_QUERY } from '../../graphql/users';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { settingsContext } from '../../../__tests__/helpers/boot';
 import SettingsContext from '../../contexts/SettingsContext';
 import { getLogContextStatic } from '../../contexts/LogContext';
@@ -126,8 +123,10 @@ const renderComponent = (
           updateUser: jest.fn(),
           tokenRefreshed: true,
           isLoggedIn: true,
+          isAuthReady: true,
           closeLogin: jest.fn(),
           getRedirectUri: jest.fn(),
+          squads: [],
         }}
       >
         <LogContext.Provider
@@ -314,53 +313,13 @@ it('should show referral widget only if user is seeing their own profile', () =>
   expect(el).toBeInTheDocument();
 });
 
-it('should show create squad only if user is seeing their own profile', () => {
-  renderComponent();
-  let el = screen.queryByLabelText('Create a new Squad');
-  expect(el).not.toBeInTheDocument();
-
-  renderComponent(defaultLoggedUser);
-  el = screen.getByLabelText('Create a new Squad');
-  expect(el).toBeInTheDocument();
-});
-
 it('should list all user squads', async () => {
-  mockGraphQL({
-    request: {
-      query: PUBLIC_SOURCE_MEMBERSHIPS_QUERY,
-      variables: { id: defaultProfile.id },
-    },
-    result: {
-      data: {
-        sources: {
-          edges: [
-            {
-              node: {
-                role: defaultMemberships.edges[0].node.role,
-                source: {
-                  ...defaultMemberships.edges[0].node.source,
-                  currentMember: { role: SourceMemberRole.Member },
-                },
-              },
-            },
-            ...defaultMemberships.edges.slice(1),
-          ],
-        },
-      },
-    },
-  });
   renderComponent({}, defaultMemberships);
-  await waitForNock();
-  const s1 = screen.getByTestId('s1');
-  expect(s1).toBeInTheDocument();
-  expect(within(s1).queryByText('admin')).toBeInTheDocument();
-
-  const s2 = screen.getByTestId('s2');
-  expect(s2).toBeInTheDocument();
-  expect(within(s2).queryByText('admin')).not.toBeInTheDocument();
-  expect(await within(s2).findByLabelText('Join Squad')).toBeInTheDocument();
-
-  expect(within(s1).queryByLabelText('Join Squad')).not.toBeInTheDocument();
+  const squadNames = await screen.findAllByTestId('squad-list-item-name');
+  expect(squadNames.length).toBe(defaultMemberships.edges.length);
+  const [name1, name2] = squadNames;
+  expect(name1).toHaveTextContent('Squad 1');
+  expect(name2).toHaveTextContent('Squad 2');
 });
 
 it('should track link clicks', () => {

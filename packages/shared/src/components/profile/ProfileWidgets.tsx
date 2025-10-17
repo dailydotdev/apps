@@ -6,7 +6,6 @@ import { HeroImage } from './HeroImage';
 import { UserMetadata } from './UserMetadata';
 import { UserStats } from './UserStats';
 import { SocialChips } from './SocialChips';
-import { SquadsList } from './SquadsList';
 import { useDynamicHeader } from '../../useDynamicHeader';
 import AuthContext from '../../contexts/AuthContext';
 import type { ProfileV2 } from '../../graphql/users';
@@ -36,6 +35,7 @@ import {
 } from '../typography/Typography';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { FeelingLazy } from '../../features/profile/components/FeelingLazy';
+import { ProfileSquadsWidget } from '../../features/profile/components/ProfileSquadsWidget';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -72,6 +72,7 @@ export function ProfileWidgets({
   );
   const hasLoggedImpression = useRef(false);
   const shouldShowUpload = isSameUser && hasClosedBanner && shouldShow;
+  const squads = sources?.edges?.map((s) => s.node.source) ?? [];
 
   useEffect(() => {
     if (shouldShowUpload && !hasLoggedImpression.current) {
@@ -185,13 +186,8 @@ export function ProfileWidgets({
         </div>
       )}
       <SocialChips links={user} />
-      {(isSameUser || sources?.edges?.length > 0) && (
-        <div className="flex flex-col gap-3">
-          <div className="px-4 text-text-tertiary typo-footnote">
-            Active in these Squads
-          </div>
-          <SquadsList memberships={sources} userId={user.id} />
-        </div>
+      {(isSameUser || squads.length > 0) && (
+        <ProfileSquadsWidget userId={user.id} squads={squads} />
       )}
       {isSameUser && (
         <ReferralWidget url={referralUrl} className="hidden laptop:flex" />
