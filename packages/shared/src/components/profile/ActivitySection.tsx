@@ -3,10 +3,8 @@ import React, { Fragment } from 'react';
 import type { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
 import type { InfiniteData } from '@tanstack/react-query';
 import classed from '../../lib/classed';
-import { IconSize } from '../Icon';
 import type { FeedData } from '../../graphql/feed';
 import type { Post } from '../../graphql/posts';
-import type { WithClassNameProps } from '../utilities';
 
 export const ActivityContainer = classed(
   'section',
@@ -18,38 +16,10 @@ export const ActivitySectionTitle = classed(
   'flex items-center text-text-primary font-bold typo-callout',
 );
 
-export const ActivitySectionSubTitle = classed(
-  'a',
-  'mt-1 text-text-link typo-caption2 font-normal',
-);
-
 export const ActivitySectionTitleStat = classed(
   'span',
   'ml-1 text-text-secondary font-normal',
 );
-
-interface ActivitySectionHeaderProps {
-  title: string;
-  children?: ReactNode;
-  Icon?: React.ElementType;
-}
-
-export const ActivitySectionHeader = ({
-  title,
-  children,
-  Icon,
-  className,
-}: ActivitySectionHeaderProps & WithClassNameProps): ReactElement => {
-  return (
-    <ActivitySectionTitle className={className}>
-      <span className="flex align-middle">
-        {Icon && <Icon size={IconSize.Small} secondary className="mr-2" />}
-        {title}
-      </span>
-      {children}
-    </ActivitySectionTitle>
-  );
-};
 
 export const LoadMore = classed(
   'button',
