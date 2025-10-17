@@ -14,7 +14,6 @@ import {
 import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
-import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
@@ -47,7 +46,6 @@ const ProfilePage = ({
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const { tokenRefreshed } = useAuthContext();
-  const { isStreaksEnabled } = useReadingStreak();
   const hasCoresAccess = useHasAccessToCores();
 
   const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
@@ -86,7 +84,7 @@ const ProfilePage = ({
         <Readme user={user} />
         {hasCoresAccess && <Awards userId={user?.id} />}
         <TopReaderWidget user={user} />
-        {isStreaksEnabled && readingHistory?.userStreakProfile && (
+        {!!readingHistory?.userStreakProfile && (
           <ReadingStreaksWidget
             streak={readingHistory?.userStreakProfile}
             isLoading={isLoading}

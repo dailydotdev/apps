@@ -17,7 +17,7 @@ export const ToggleWeekStart = ({
     updateStreakConfig({ weekStart: parseInt(weekStart, 10) });
   };
 
-  if (isLoading) {
+  if (isLoading || !streak) {
     return null;
   }
 
