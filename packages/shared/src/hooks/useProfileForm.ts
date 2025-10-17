@@ -31,7 +31,8 @@ export interface ProfileFormHint {
 }
 
 export interface UpdateProfileParameters extends Partial<UserProfile> {
-  image?: File;
+  upload?: File;
+  coverUpload?: File;
   onUpdateSuccess?: () => void;
   flags?: UserFlagsPublic;
 }
@@ -130,13 +131,14 @@ const useProfileForm = ({
     ResponseError,
     UpdateProfileParameters
   >({
-    mutationFn: ({ image, onUpdateSuccess, ...data }) =>
+    mutationFn: ({ upload, coverUpload, onUpdateSuccess, ...data }) =>
       gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
         data,
-        upload: image,
+        upload,
+        coverUpload,
       }),
 
-    onSuccess: async (_, { image, onUpdateSuccess, ...vars }) => {
+    onSuccess: async (_, { onUpdateSuccess, ...vars }) => {
       setHint({});
       await updateUser({ ...user, ...vars });
       onUpdateSuccess?.();

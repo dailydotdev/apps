@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { LazyModal } from '../../../components/modals/common/types';
 import {
   Typography,
@@ -11,19 +12,27 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { OpenLinkIcon } from '../../../components/icons';
 import { ButtonIconPosition } from '../../../components/buttons/common';
 
-export function FeelingLazy(): ReactElement {
+interface FeelingLazyProps {
+  className?: string;
+  copy?: string;
+}
+
+export function FeelingLazy({
+  className = 'gap-1',
+  copy = 'Feeling lazy?',
+}: FeelingLazyProps): ReactElement {
   const { openModal } = useLazyModal();
 
   return (
     <Typography
       type={TypographyType.Footnote}
       color={TypographyColor.Tertiary}
-      className="hidden laptop:flex"
+      className={classNames('hidden laptop:flex', className)}
     >
-      Feeling lazy?
+      {copy}
       <button
         type="button"
-        className="ml-1 underline hover:no-underline"
+        className="underline hover:no-underline"
         onClick={() =>
           openModal({
             type: LazyModal.ActionSuccess,
