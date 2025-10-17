@@ -27,6 +27,7 @@ const withSerwist = withSerwistInit({
   exclude: [/syntax/i],
   register: false,
   maximumFileSizeToCacheInBytes: 1024 * 1024,
+  reloadOnOnline: false,
 });
 
 const nextConfig: NextConfig = {
