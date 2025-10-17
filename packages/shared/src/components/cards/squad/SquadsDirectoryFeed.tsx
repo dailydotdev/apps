@@ -122,7 +122,7 @@ export function SquadsDirectoryFeed({
     }
 
     return map;
-  }, [result.data?.pages, firstItemShouldBeAd, squadAd]);
+  }, [result, firstItemShouldBeAd, squadAd]);
 
   if (flatSources.length === 0 && isFetched) {
     return null;
