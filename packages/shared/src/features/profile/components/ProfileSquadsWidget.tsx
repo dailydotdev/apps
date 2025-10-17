@@ -25,6 +25,10 @@ import { SquadActionButton } from '../../../components/squads/SquadActionButton'
 import { Origin } from '../../../lib/log';
 import { useToggle } from '../../../hooks/useToggle';
 import { ActivityContainer } from '../../../components/profile/ActivitySection';
+import {
+  useSources,
+  getFlatteredSources,
+} from '../../../hooks/source/useSources';
 
 interface ProfileSquadsWidgetProps {
   squads: Array<Squad>;
@@ -50,13 +54,25 @@ const useProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
     ? labels.profile.sources.heading.empty
     : labels.profile.sources.heading.activeIn;
 
+  const {
+    result: { data, isPending },
+  } = useSources({
+    query: {
+      first: DESKTOP_MAX_SQUADS,
+      isPublic: true,
+      sortByMembersCount: true,
+    },
+    isEnabled: isShowingSuggestions,
+  });
+  const flatSquads = getFlatteredSources({ data }) as Squad[];
+  const list = isShowingSuggestions ? flatSquads : squads;
   const maxLength = isMobile ? MOBILE_MAX_SQUADS : DESKTOP_MAX_SQUADS;
-  const visibleSquads = showAll ? squads : squads.slice(0, maxLength);
-  const hasShowMore = squads.length > maxLength;
+  const visibleSquads = showAll ? list : list.slice(0, maxLength);
+  const hasShowMore = list.length > maxLength;
 
   return {
     heading,
-    isReady: isAuthReady,
+    isReady: isAuthReady && (!isShowingSuggestions || !isPending),
     isShowingSuggestions,
     showMore: {
       isVisible: hasShowMore,
