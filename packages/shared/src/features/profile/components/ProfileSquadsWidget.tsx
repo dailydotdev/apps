@@ -137,7 +137,7 @@ export const ProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
   }
 
   return (
-    <ActivityContainer>
+    <ActivityContainer className="mx-4">
       <Typography
         bold
         color={TypographyColor.Primary}
