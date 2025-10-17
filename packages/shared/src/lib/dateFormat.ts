@@ -6,6 +6,7 @@ import {
   isSameYear,
   subDays,
 } from 'date-fns';
+import { pluralize } from './strings';
 
 export const oneMinute = 60;
 export const oneHour = 3600;
@@ -285,3 +286,27 @@ export const formatMonthYearOnly = (date: Date): string =>
     month: 'short',
     year: 'numeric',
   });
+
+export const formatDatesDuration = (start: Date, end: Date): string => {
+  const difference =
+    new Date(end || Date.now()).getTime() - new Date(start).getTime();
+  const differenceInMonths = Math.floor(
+    difference / (1000 * 60 * 60 * 24 * 30),
+  );
+  const years = Math.floor(differenceInMonths / 12);
+  const months = differenceInMonths % 12;
+
+  if (years > 0) {
+    const yearCopy = `${years} ${pluralize('year', years)}`;
+
+    if (months === 0) {
+      return yearCopy;
+    }
+
+    return `${yearCopy} ${months} ${pluralize('month', months)}`;
+  }
+
+  return months > 0
+    ? `${months} ${pluralize('month', months)}`
+    : 'Less than a month';
+};

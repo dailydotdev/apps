@@ -21,6 +21,7 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import dynamic from 'next/dynamic';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
+import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
@@ -94,7 +95,7 @@ const ProfilePage = ({
     <div className="rounded-16 border border-border-subtlest-tertiary">
       <NextSeo {...seo} />
       <ProfileHeader user={user} userStats={userStats} />
-      <div className="flex flex-col gap-6 p-6">
+      <div className="flex flex-col gap-4 p-6">
         {shouldShowBanner && (
           <AutofillProfileBanner
             onUpload={onUpload}
@@ -124,6 +125,7 @@ const ProfilePage = ({
             />
           </>
         )}
+        <ProfileUserExperiences user={user} />
       </div>
     </div>
   );
