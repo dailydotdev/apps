@@ -115,7 +115,7 @@ export const PROFILE_V2_EXTRA_QUERY = gql`
     userStats(id: $id) {
       upvotes: numPostUpvotes
       views: numPostViews
-      numFollowers,
+      numFollowers
       numFollowing
     }
     ${publicSourceMemberships}
@@ -296,14 +296,19 @@ export const HIDE_READING_HISTORY_MUTATION = gql`
 `;
 
 export const UPDATE_USER_PROFILE_MUTATION = gql`
-  mutation UpdateUserProfile($data: UpdateUserInput, $upload: Upload) {
-    updateUserProfile(data: $data, upload: $upload) {
+  mutation UpdateUserProfile(
+    $data: UpdateUserInput
+    $upload: Upload
+    $coverUpload: Upload
+  ) {
+    updateUserProfile(data: $data, upload: $upload, coverUpload: $coverUpload) {
       id
       name
       image
       username
       permalink
       bio
+      readme
       twitter
       github
       hashnode

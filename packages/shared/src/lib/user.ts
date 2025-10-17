@@ -10,6 +10,7 @@ import type { TopReader } from '../components/badges/TopReaderBadge';
 import type { SubscriptionProvider, SubscriptionStatus } from './plus';
 import type { FeaturedAward, UserTransactionPublic } from '../graphql/njord';
 import type { Post } from '../graphql/posts';
+import type { TLocation } from '../graphql/autocomplete';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -68,6 +69,16 @@ export enum UserExperienceLevel {
   NOT_ENGINEER = `I'm not an engineer`,
 }
 
+export const ExperienceLevelOptions = [
+  { label: 'Aspiring engineer (<1 year)', value: 'LESS_THAN_1_YEAR' },
+  { label: 'Entry-level (1 year)', value: 'MORE_THAN_1_YEAR' },
+  { label: 'Mid-level (2-3 years)', value: 'MORE_THAN_2_YEARS' },
+  { label: 'Experienced (4-5 years)', value: 'MORE_THAN_4_YEARS' },
+  { label: 'Highly experienced (6-10 years)', value: 'MORE_THAN_6_YEARS' },
+  { label: `I've suffered enough (10+ years)`, value: 'MORE_THAN_10_YEARS' },
+  { label: `I'm not an engineer`, value: 'NOT_ENGINEER' },
+];
+
 export interface UserProfile {
   name: string;
   email?: string;
@@ -94,6 +105,7 @@ export interface UserProfile {
   experienceLevel?: keyof typeof UserExperienceLevel;
   language?: string;
   defaultFeedId?: string;
+  readme?: string;
 }
 
 export interface UserShortProfile
@@ -160,6 +172,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   flags?: UserFlagsPublic;
   subscriptionFlags?: UserSubscriptionFlags;
   coresRole?: CoresRole;
+  location?: TLocation;
   balance: {
     amount: number;
   };

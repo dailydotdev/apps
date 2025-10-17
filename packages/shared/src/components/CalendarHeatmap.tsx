@@ -245,7 +245,7 @@ export function CalendarHeatmap<T extends { date: string }>({
 
   return (
     <svg
-      width={width}
+      width="100%"
       viewBox={`0 0 ${width} ${height}`}
       onMouseDown={(e) => e.preventDefault()}
     >

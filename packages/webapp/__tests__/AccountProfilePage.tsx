@@ -75,15 +75,9 @@ it('should show account information', () => {
 
 it('should show about section', () => {
   renderComponent();
-  const bio = screen.getByPlaceholderText('Bio');
+  const bio = screen.getByPlaceholderText('Headline*');
   expect(bio).toBeInTheDocument();
   expect(bio).toHaveValue(defaultLoggedUser.bio);
-  const company = screen.getByPlaceholderText('Company');
-  expect(company).toBeInTheDocument();
-  expect(company).toHaveValue(defaultLoggedUser.company);
-  const title = screen.getByPlaceholderText('Job Title');
-  expect(title).toBeInTheDocument();
-  expect(title).toHaveValue(defaultLoggedUser.title);
 });
 
 it('should show profile social links', () => {
@@ -111,9 +105,7 @@ it('should show profile social links', () => {
   expect(reddit).toHaveValue(defaultLoggedUser.reddit);
   const stackoverflow = screen.getByPlaceholderText('Stack Overflow');
   expect(stackoverflow).toBeInTheDocument();
-  expect(stackoverflow).toHaveValue(
-    `stackoverflow.com/users/${defaultLoggedUser.stackoverflow}`,
-  );
+  expect(stackoverflow).toHaveValue(defaultLoggedUser.stackoverflow);
   const youtube = screen.getByPlaceholderText('YouTube');
   expect(youtube).toBeInTheDocument();
   expect(youtube).toHaveValue(defaultLoggedUser.youtube);
