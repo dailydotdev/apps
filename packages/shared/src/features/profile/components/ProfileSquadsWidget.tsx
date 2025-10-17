@@ -20,7 +20,7 @@ import {
   TypographyColor,
   TypographyTag,
 } from '../../../components/typography/Typography';
-import { useViewSize, ViewSize, useToastNotification } from '../../../hooks';
+import { useToastNotification } from '../../../hooks';
 import { SquadActionButton } from '../../../components/squads/SquadActionButton';
 import { Origin } from '../../../lib/log';
 import { useToggle } from '../../../hooks/useToggle';
@@ -39,13 +39,11 @@ interface SquadListItemProps {
   squad: Squad;
 }
 
-const MOBILE_MAX_SQUADS = 3;
-const DESKTOP_MAX_SQUADS = 5;
+const MAX_SQUAD_COUNT = 5;
 
 const useProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
   const { squads, userId } = props;
   const { isAuthReady, user } = useAuthContext();
-  const isMobile = useViewSize(ViewSize.MobileXL);
   const [showAll, toggleShowAll] = useToggle(false);
 
   const isSameUser = user?.id === userId;
@@ -58,7 +56,7 @@ const useProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
     result: { data, isPending },
   } = useSources({
     query: {
-      first: DESKTOP_MAX_SQUADS,
+      first: MAX_SQUAD_COUNT,
       isPublic: true,
       sortByMembersCount: true,
     },
@@ -66,9 +64,8 @@ const useProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
   });
   const flatSquads = getFlatteredSources({ data }) as Squad[];
   const list = isShowingSuggestions ? flatSquads : squads;
-  const maxLength = isMobile ? MOBILE_MAX_SQUADS : DESKTOP_MAX_SQUADS;
-  const visibleSquads = showAll ? list : list.slice(0, maxLength);
-  const hasShowMore = list.length > maxLength;
+  const visibleSquads = showAll ? list : list.slice(0, MAX_SQUAD_COUNT);
+  const hasShowMore = list.length > MAX_SQUAD_COUNT;
 
   return {
     heading,
