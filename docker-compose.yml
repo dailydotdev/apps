@@ -74,3 +74,5 @@ services:
       - MOCK_USER_ID=testuser
       - NJORD_ORIGIN=http://njord-transactions-server
       - FREYJA_ORIGIN=http://freya-server
+      - GONDUL_ORIGIN=http://host.docker.internal:9021
+      - BROKKR_ORIGIN=http://brokkr-grpc:50051

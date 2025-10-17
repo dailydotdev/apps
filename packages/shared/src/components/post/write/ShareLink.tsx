@@ -134,9 +134,10 @@ export function ShareLink({
       commentary,
       content: '',
       externalLink,
-      imageUrl: image,
       title,
+      ...(image && { imageUrl: image }),
     };
+
     return onSubmitForm(e, args, PostType.Share);
   };
 

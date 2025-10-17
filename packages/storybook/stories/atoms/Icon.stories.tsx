@@ -46,3 +46,81 @@ export const Individual: Story = {
     },
   }
 }
+
+export const AllIcons: Story = {
+  render: () => {
+    return (
+      <div style={{ padding: '20px' }}>
+        <h2 style={{ marginBottom: '20px' }}>Primary Icons</h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+          gap: '16px',
+          marginBottom: '40px'
+        }}>
+          {Object.entries(icons).map(([name, IconComponent]) => (
+            <div
+              key={name}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '16px',
+                border: '1px solid var(--color-pepper-90)',
+                borderRadius: '8px',
+                backgroundColor: 'var(--theme-background-subtle)',
+              }}
+            >
+              <IconComponent size={IconSize.XLarge} />
+              <span style={{
+                marginTop: '12px',
+                fontSize: '12px',
+                textAlign: 'center',
+                wordBreak: 'break-word',
+                color: 'var(--theme-label-primary)'
+              }}>
+                {(IconComponent as any).displayName || name}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <h2 style={{ marginBottom: '20px' }}>Secondary Icons</h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+          gap: '16px'
+        }}>
+          {Object.entries(icons).map(([name, IconComponent]) => (
+            <div
+              key={`${name}-secondary`}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '16px',
+                border: '1px solid var(--color-pepper-90)',
+                borderRadius: '8px',
+                backgroundColor: 'var(--theme-background-subtle)',
+              }}
+            >
+              <IconComponent size={IconSize.XLarge} secondary />
+              <span style={{
+                marginTop: '12px',
+                fontSize: '12px',
+                textAlign: 'center',
+                wordBreak: 'break-word',
+                color: 'var(--theme-label-primary)'
+              }}>
+                {(IconComponent as any).displayName || name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  },
+  parameters: {
+    layout: 'fullscreen',
+  }
+} as const;
