@@ -60,6 +60,7 @@ const useProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
     isShowingSuggestions,
     showMore: {
       isVisible: hasShowMore,
+      isActive: showAll,
       toggle: toggleShowAll,
     },
     squads: visibleSquads,
@@ -178,7 +179,7 @@ export const ProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
           size={ButtonSize.Small}
           variant={ButtonVariant.Subtle}
         >
-          {showMore.isVisible ? 'Show less' : 'Show more Squads'}
+          {showMore.isActive ? 'Show less' : 'Show more Squads'}
         </Button>
       )}
     </ActivityContainer>
