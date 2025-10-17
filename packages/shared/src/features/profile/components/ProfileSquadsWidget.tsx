@@ -45,8 +45,8 @@ const useProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
   const [showAll, toggleShowAll] = useToggle(false);
 
   const isSameUser = user?.id === userId;
-  const showSuggestions = isSameUser && !squads?.length;
-  const heading = showSuggestions
+  const isShowingSuggestions = isSameUser && !squads?.length;
+  const heading = isShowingSuggestions
     ? labels.profile.sources.heading.empty
     : labels.profile.sources.heading.activeIn;
 
@@ -54,12 +54,10 @@ const useProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
   const visibleSquads = showAll ? squads : squads.slice(0, maxLength);
   const hasShowMore = squads.length > maxLength;
 
-  if (!isAuthReady || (isSameUser && !squads.length)) {
-    return null;
-  }
-
   return {
     heading,
+    isReady: isAuthReady,
+    isShowingSuggestions,
     showMore: {
       isVisible: hasShowMore,
       toggle: toggleShowAll,
@@ -130,9 +128,10 @@ const SquadListItem = ({ squad }: SquadListItemProps) => {
 };
 
 export const ProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
-  const { heading, squads, showMore } = useProfileSquadsWidget(props);
+  const { heading, squads, showMore, isReady, isShowingSuggestions } =
+    useProfileSquadsWidget(props);
 
-  if (!squads.length) {
+  if (!squads.length || !isReady) {
     return null;
   }
 
@@ -151,7 +150,7 @@ export const ProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
           <SquadListItem key={squad.id} squad={squad} />
         ))}
       </ul>
-      {showMore.isVisible && (
+      {isShowingSuggestions && (
         <Button
           className="mt-3 w-full"
           href={`${webappUrl}squads/discover`}
