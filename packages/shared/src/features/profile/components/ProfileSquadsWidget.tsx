@@ -108,6 +108,7 @@ const SquadListItem = ({ squad }: SquadListItemProps) => {
             tag={TypographyTag.H5}
             type={TypographyType.Callout}
             truncate
+            data-testid="squad-list-item-name"
           >
             {squad.name}
           </Typography>

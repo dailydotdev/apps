@@ -72,6 +72,7 @@ export function ProfileWidgets({
   );
   const hasLoggedImpression = useRef(false);
   const shouldShowUpload = isSameUser && hasClosedBanner && shouldShow;
+  const squads = sources?.edges?.map((s) => s.node.source) ?? [];
 
   useEffect(() => {
     if (shouldShowUpload && !hasLoggedImpression.current) {
@@ -185,10 +186,9 @@ export function ProfileWidgets({
         </div>
       )}
       <SocialChips links={user} />
-      <ProfileSquadsWidget
-        userId={user.id}
-        squads={sources.edges.map((s) => s.node.source)}
-      />
+      {(isSameUser || squads.length > 0) && (
+        <ProfileSquadsWidget userId={user.id} squads={squads} />
+      )}
       {isSameUser && (
         <ReferralWidget url={referralUrl} className="hidden laptop:flex" />
       )}
