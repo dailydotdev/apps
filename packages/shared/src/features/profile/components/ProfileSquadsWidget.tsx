@@ -37,6 +37,7 @@ interface ProfileSquadsWidgetProps {
 
 interface SquadListItemProps {
   squad: Squad;
+  showJoinButton?: boolean;
 }
 
 const MAX_SQUAD_COUNT = 5;
@@ -80,10 +81,13 @@ const useProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
   };
 };
 
-const SquadListItem = ({ squad }: SquadListItemProps) => {
+const SquadListItem = ({
+  squad,
+  showJoinButton = false,
+}: SquadListItemProps) => {
   const { displayToast } = useToastNotification();
   const { squads, isAuthReady } = useAuthContext();
-  const hasJoined = squads?.some((sq) => sq.id === squad.id);
+  const hasJoined = showJoinButton && squads?.some((sq) => sq.id === squad.id);
 
   if (!isAuthReady) {
     return null;
@@ -162,7 +166,11 @@ export const ProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
       </Typography>
       <ul className="mt-4 flex flex-col gap-2">
         {squads.map((squad) => (
-          <SquadListItem key={squad.id} squad={squad} />
+          <SquadListItem
+            key={squad.id}
+            showJoinButton={isShowingSuggestions}
+            squad={squad}
+          />
         ))}
       </ul>
       {isShowingSuggestions && (
