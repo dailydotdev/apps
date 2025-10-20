@@ -17,7 +17,6 @@ import type { ClientError } from 'graphql-request';
 import type { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
-import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -27,7 +26,6 @@ import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import { ProfileWidgets } from '../../../../shared/src/components/profile/ProfileWidgets';
-import { TypographyType, TypographyTag, TypographyColor, Typography } from '@dailydotdev/shared/src/components/typography/Typography';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -109,14 +107,12 @@ export default function ProfileLayout({
   }
 
   return (
-    <div className="m-auto laptop:p-4 flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:pb-6 laptopL:pb-0 laptop:gap-4">
+    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:pb-0">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
-      <main className="relative flex flex-1 flex-col">
-        {children}
-      </main>
-      <aside className="hidden laptop:flex laptop:flex-col laptop:max-w-80">
+      <main className="relative flex flex-1 flex-col">{children}</main>
+      <aside className="hidden laptop:flex laptop:max-w-80 laptop:flex-col">
         <ProfileWidgets
           user={user}
           userStats={userStats}

@@ -49,7 +49,7 @@ export function ProfileWidgets({
   return (
     <div
       className={classNames(
-        'my-4 flex laptop:flex-col gap-2 laptop:gap-6 laptop:my-0',
+        'my-4 flex gap-2 laptop:my-0 laptop:flex-col laptop:gap-6',
         className,
       )}
     >

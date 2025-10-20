@@ -9,6 +9,13 @@ import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHea
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { ProfileWidgets } from '@dailydotdev/shared/src/components/profile/ProfileWidgets';
+import {
+  TypographyType,
+  TypographyTag,
+  TypographyColor,
+  Typography,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -16,8 +23,6 @@ import {
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
-import { ProfileWidgets } from '@dailydotdev/shared/src/components/profile/ProfileWidgets';
-import { TypographyType, TypographyTag, TypographyColor, Typography } from '@dailydotdev/shared/src/components/typography/Typography';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -68,7 +73,7 @@ const ProfilePage = ({
             user={user}
             userStats={userStats}
             sources={sources}
-            className="laptop:hidden overflow-auto no-scrollbar"
+            className="no-scrollbar overflow-auto laptop:hidden"
           />
         </div>
       </div>
