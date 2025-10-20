@@ -27,6 +27,7 @@ import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import { ProfileWidgets } from '../../../../shared/src/components/profile/ProfileWidgets';
+import { TypographyType, TypographyTag, TypographyColor, Typography } from '@dailydotdev/shared/src/components/typography/Typography';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -108,19 +109,21 @@ export default function ProfileLayout({
   }
 
   return (
-    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:pb-6 laptopL:pb-0">
+    <div className="m-auto laptop:p-4 flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:pb-6 laptopL:pb-0 laptop:gap-4">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
-      <main className="relative flex flex-1 flex-col">{children}</main>
-      <PageWidgets className="hidden !px-0 laptop:flex">
+      <main className="relative flex flex-1 flex-col">
+        {children}
+      </main>
+      <aside className="hidden laptop:flex laptop:flex-col laptop:max-w-80">
         <ProfileWidgets
           user={user}
           userStats={userStats}
           sources={sources}
           className="w-full"
         />
-      </PageWidgets>
+      </aside>
     </div>
   );
 }

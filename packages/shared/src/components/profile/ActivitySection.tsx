@@ -8,7 +8,7 @@ import type { Post } from '../../graphql/posts';
 
 export const ActivityContainer = classed(
   'section',
-  'flex flex-col border border-border-subtlest-tertiary rounded-16 p-4 laptop:max-w-full max-w-[18.75rem]',
+  'flex flex-col border border-border-subtlest-tertiary rounded-16 p-4 laptop:max-w-full max-w-[18.75rem] w-full',
 );
 
 export const ActivitySectionTitle = classed(
