@@ -10,8 +10,9 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
-import { concatStrings } from '../../../../lib/strings';
+import { anchorDefaultRel, concatStrings } from '../../../../lib/strings';
 import { currrentPill } from './common';
+import { Button } from '../../../../components/buttons/Button';
 
 interface UserExperienceItemProps {
   experience: UserExperience;
@@ -24,8 +25,17 @@ export function UserExperienceItem({
   experience,
   grouped,
 }: UserExperienceItemProps): ReactElement {
-  const { company, title, description, skills, startedAt, endedAt, verified } =
-    experience;
+  const {
+    company,
+    title,
+    description,
+    skills,
+    startedAt,
+    endedAt,
+    verified,
+    url,
+    externalReferenceId,
+  } = experience;
 
   return (
     <li key={experience.id} className="flex flex-row gap-2">
@@ -52,6 +62,14 @@ export function UserExperienceItem({
           <Typography type={TypographyType.Subhead} bold>
             {title}
             {!grouped && !endedAt && currrentPill}
+            {!!url && (
+              <Button
+                tag="a"
+                target="_blank"
+                rel={anchorDefaultRel}
+                href={url}
+              />
+            )}
           </Typography>
           <Typography
             type={TypographyType.Footnote}
@@ -81,6 +99,14 @@ export function UserExperienceItem({
               ' - ',
             )}
           </Typography>
+          {!!externalReferenceId && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {externalReferenceId}
+            </Typography>
+          )}
         </div>
         <Typography
           type={TypographyType.Subhead}
