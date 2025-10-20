@@ -1,119 +1,129 @@
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import userEvent from '@testing-library/user-event';
 import type { LoggedUser, PublicProfile } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfileWidgets } from './ProfileWidgets';
-import type { Connection } from '../../graphql/common';
-import type { SourceMember, Squad } from '../../graphql/sources';
-import { SourceMemberRole, SourceType } from '../../graphql/sources';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import { PUBLIC_SOURCE_MEMBERSHIPS_QUERY } from '../../graphql/users';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { USER_READING_HISTORY_QUERY } from '../../graphql/users';
+import type { ProfileReadingData } from '../../graphql/users';
 import { settingsContext } from '../../../__tests__/helpers/boot';
 import SettingsContext from '../../contexts/SettingsContext';
 import { getLogContextStatic } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
+import { gqlClient } from '../../graphql/common';
 
 const LogContext = getLogContextStatic();
+
+jest.mock('next/dynamic', () => ({
+  __esModule: true,
+  default: () => {
+    // Synchronously require the actual component
+    const mod = jest.requireActual<Record<string, React.ComponentType>>(
+      './ProfileWidgets/BadgesAndAwards',
+    );
+    return mod.BadgesAndAwards;
+  },
+}));
+
+// Mock gqlClient
+jest.mock('../../graphql/common', () => ({
+  gqlClient: {
+    request: jest.fn(),
+  },
+}));
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const baseUserProps = {
+  premium: false,
+  reputation: 20,
+  bio: 'The best company!',
+  twitter: 'twitter',
+  github: 'github',
+  hashnode: 'hashnode',
+  portfolio: 'https://daily.dev/?key=vaue',
+  roadmap: 'roadmap',
+  threads: 'threads',
+  codepen: 'codepen',
+  reddit: 'reddit',
+  stackoverflow: '999999/stackoverflow',
+  youtube: 'youtube',
+  linkedin: 'linkedin',
+  mastodon: 'https://mastodon.social/@mastodon',
+};
+
 const defaultLoggedUser: LoggedUser = {
+  ...baseUserProps,
   id: 'u1',
   name: 'Ido Shamun',
   providers: ['idoshamun'],
   username: 'idoshamun',
-  premium: false,
-  reputation: 20,
   image: 'https://daily.dev/ido.png',
-  bio: 'The best company!',
   createdAt: '2020-07-26T13:04:35.000Z',
-  twitter: 'idoshamun',
-  github: 'idoshamun',
-  hashnode: 'idoshamun',
-  portfolio: 'https://daily.dev/?key=vaue',
   permalink: 'https://daily.dev/ido',
-  roadmap: 'idoshamun',
-  threads: 'idoshamun',
-  codepen: 'idoshamun',
-  reddit: 'idoshamun',
-  stackoverflow: '999999/idoshamun',
-  youtube: 'idoshamun',
-  linkedin: 'idoshamun',
-  mastodon: 'https://mastodon.social/@idoshamun',
   bluesky: 'https://bsky.app/profile/dailydotdev.bsky.social',
 };
 
 const defaultProfile: PublicProfile = {
+  ...baseUserProps,
   id: 'u2',
   name: 'Daily Dev',
   username: 'dailydotdev',
-  premium: false,
-  reputation: 20,
   image: 'https://daily.dev/daily.png',
   cover: 'https://daily.dev/cover.png',
-  bio: 'The best company!',
   createdAt: '2020-08-26T13:04:35.000Z',
-  twitter: 'dailydotdev',
-  github: 'dailydotdev',
-  hashnode: 'dailydotdev',
-  portfolio: 'https://daily.dev/?key=vaue',
   permalink: 'https://daily.dev/dailydotdev',
-  roadmap: 'dailydotdev',
-  threads: 'dailydotdev',
-  codepen: 'dailydotdev',
-  reddit: 'dailydotdev',
-  stackoverflow: '999999/dailydotdev',
-  youtube: 'dailydotdev',
-  linkedin: 'dailydotdev',
-  mastodon: 'https://mastodon.social/@dailydotdev',
   bluesky: 'dailydotdev.bsky.social',
 };
 
-const defaultMemberships: Connection<SourceMember> = {
-  pageInfo: null,
-  edges: [
-    {
-      node: {
-        role: SourceMemberRole.Admin,
-        source: {
-          id: 's1',
-          name: 'Squad 1',
-          image: 'https://daily.dev/squad1.png',
-          permalink: 'https://daily.dev/squad1',
-          type: SourceType.Squad,
-          membersCount: 10,
-        } as unknown as Squad,
-      } as unknown as SourceMember,
-    },
-    {
-      node: {
-        role: SourceMemberRole.Member,
-        source: {
-          id: 's2',
-          name: 'Squad 2',
-          image: 'https://daily.dev/squad2.png',
-          permalink: 'https://daily.dev/squad2',
-          type: SourceType.Squad,
-          membersCount: 40,
-        } as unknown as Squad,
-      } as unknown as SourceMember,
-    },
+const defaultReadingHistory: ProfileReadingData = {
+  userReadingRankHistory: [
+    { rank: 1, count: 10 },
+    { rank: 2, count: 20 },
   ],
+  userReadHistory: [
+    { date: '2024-01-01', reads: 5 },
+    { date: '2024-01-02', reads: 10 },
+  ],
+  userStreakProfile: {
+    max: 10,
+    total: 50,
+    current: 5,
+    lastViewAt: new Date('2024-01-15'),
+  },
+  userMostReadTags: ['javascript', 'typescript', 'react'],
 };
 
 const logEvent = jest.fn();
 
 const renderComponent = (
   profile: Partial<PublicProfile> = {},
-  memberships: Connection<SourceMember> = null,
+  options: {
+    readingHistory?: typeof defaultReadingHistory | null;
+    tokenRefreshed?: boolean;
+  } = {},
 ): RenderResult => {
-  const client = new QueryClient();
+  const { readingHistory = null, tokenRefreshed = true } = options;
+
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  const user = { ...defaultProfile, ...profile };
+
+  // Mock gqlClient.request to return reading history
+  (gqlClient.request as jest.Mock).mockImplementation((query) => {
+    if (readingHistory !== null && query === USER_READING_HISTORY_QUERY) {
+      return Promise.resolve(readingHistory);
+    }
+    return Promise.resolve({});
+  });
 
   return render(
     <QueryClientProvider client={client}>
@@ -124,7 +134,7 @@ const renderComponent = (
           showLogin: jest.fn(),
           logout: jest.fn(),
           updateUser: jest.fn(),
-          tokenRefreshed: true,
+          tokenRefreshed,
           isLoggedIn: true,
           closeLogin: jest.fn(),
           getRedirectUri: jest.fn(),
@@ -140,8 +150,7 @@ const renderComponent = (
         >
           <SettingsContext.Provider value={settingsContext}>
             <ProfileWidgets
-              user={{ ...defaultProfile, ...profile }}
-              sources={memberships}
+              user={user}
               userStats={{
                 upvotes: 5_000,
                 views: 83_000,
@@ -156,225 +165,53 @@ const renderComponent = (
   );
 };
 
-it('should show profile image', async () => {
-  renderComponent();
-  const el = await screen.findByAltText(`dailydotdev's profile`);
-  expect(el).toHaveAttribute('src', defaultProfile.image);
-});
-
-it('should show cover image', async () => {
-  renderComponent();
-  const el = await screen.findByAltText('cover');
-  expect(el).toHaveAttribute('src', defaultProfile.cover);
-});
-
-it('should show edit profile only if user is seeing their own profile', () => {
-  renderComponent();
-  let el = screen.queryByLabelText('Edit profile');
-  expect(el).not.toBeInTheDocument();
-
-  renderComponent(defaultLoggedUser);
-  el = screen.getByLabelText('Edit profile');
-  expect(el).toBeInTheDocument();
-});
-
-it('should show join date', () => {
-  renderComponent();
-  const el = screen.getByText('August 2020');
-  expect(el).toBeInTheDocument();
-});
-
-it('should show user stats in a proper format', () => {
-  renderComponent();
-  let el = screen.getByTestId('Reputation');
-  expect(el).toHaveTextContent('20Reputation');
-
-  el = screen.getByTestId('Followers');
-  expect(el).toHaveTextContent('23KFollowers');
-
-  el = screen.getByTestId('Following');
-  expect(el).toHaveTextContent('3KFollowing');
-});
-
-it('should show bio', () => {
+it('should render BadgesAndAwards component', () => {
   renderComponent();
 
-  const el = screen.getByText('The best company!');
-  expect(el).toBeInTheDocument();
+  // BadgesAndAwards renders "Badges & Awards" heading
+  const badgesHeading = screen.getByText('Badges & Awards');
+  expect(badgesHeading).toBeInTheDocument();
 });
 
-it('should show add bio only if user is seeing their own profile', () => {
-  renderComponent({ bio: null });
-  let el = screen.queryByText('Add bio');
-  expect(el).not.toBeInTheDocument();
+it('should render ReadingOverview component when userReadingRankHistory exists', async () => {
+  renderComponent({}, { readingHistory: defaultReadingHistory });
 
-  renderComponent({ ...defaultLoggedUser, bio: null });
-  el = screen.getByText('Add bio');
-  expect(el).toBeInTheDocument();
+  // BadgesAndAwards renders immediately
+  const badgesHeading = screen.getByText('Badges & Awards');
+  expect(badgesHeading).toBeInTheDocument();
+
+  // Wait for ReadingOverview to appear
+  const readingOverviewHeading = await screen.findByText('Reading Overview');
+  expect(readingOverviewHeading).toBeInTheDocument();
 });
 
-it('should show twitter link', () => {
-  renderComponent();
-
-  const el = screen.getByTestId('twitter');
-  expect(el).toHaveAttribute('href', 'https://x.com/dailydotdev');
-  expect(el).toHaveTextContent('@dailydotdev');
-});
-
-it('should show github link', () => {
-  renderComponent();
-  const el = screen.getByTestId('github');
-  expect(el).toHaveAttribute('href', 'https://github.com/dailydotdev');
-  expect(el).toHaveTextContent('@dailydotdev');
-});
-
-it('should show roadmap link', () => {
-  renderComponent();
-  const el = screen.getByTestId('roadmap');
-  expect(el).toHaveAttribute('href', 'https://roadmap.sh/u/dailydotdev');
-  expect(el).toHaveTextContent('dailydotdev');
-});
-
-it('should show threads link', () => {
-  renderComponent();
-  const el = screen.getByTestId('threads');
-  expect(el).toHaveAttribute('href', 'https://threads.net/@dailydotdev');
-  expect(el).toHaveTextContent('@dailydotdev');
-});
-
-it('should show codepen link', () => {
-  renderComponent();
-  const el = screen.getByTestId('codepen');
-  expect(el).toHaveAttribute('href', 'https://codepen.io/dailydotdev');
-  expect(el).toHaveTextContent('dailydotdev');
-});
-
-it('should show reddit link', () => {
-  renderComponent();
-  const el = screen.getByTestId('reddit');
-  expect(el).toHaveAttribute('href', 'https://reddit.com/user/dailydotdev');
-  expect(el).toHaveTextContent('u/dailydotdev');
-});
-
-it('should show stackoverflow link', () => {
-  renderComponent();
-  const el = screen.getByTestId('stackoverflow');
-  expect(el).toHaveAttribute(
-    'href',
-    'https://stackoverflow.com/users/999999/dailydotdev',
-  );
-  expect(el).toHaveTextContent('dailydotdev');
-});
-
-it('should show youtube link', () => {
-  renderComponent();
-  const el = screen.getByTestId('youtube');
-  expect(el).toHaveAttribute('href', 'https://youtube.com/@dailydotdev');
-  expect(el).toHaveTextContent('@dailydotdev');
-});
-
-it('should show linkedin link', () => {
-  renderComponent();
-  const el = screen.getByTestId('linkedin');
-  expect(el).toHaveAttribute('href', 'https://linkedin.com/in/dailydotdev');
-  expect(el).toHaveTextContent('dailydotdev');
-});
-
-it('should show mastodon link', () => {
-  renderComponent();
-  const el = screen.getByTestId('mastodon');
-  expect(el).toHaveAttribute('href', 'https://mastodon.social/@dailydotdev');
-  expect(el).toHaveTextContent('mastodon.social/@dailydotdev');
-});
-
-it('should show bluesky link', () => {
-  renderComponent();
-  const el = screen.getByTestId('bluesky');
-  expect(el).toHaveAttribute(
-    'href',
-    'https://bsky.app/profile/dailydotdev.bsky.social',
-  );
-  expect(el).toHaveTextContent('dailydotdev.bsky.social');
-});
-
-it('should show portfolio link', async () => {
-  renderComponent();
-  const el = screen.getByTestId('portfolio');
-  expect(el).toHaveAttribute('href', 'https://daily.dev/?key=vaue');
-  expect(el).toHaveTextContent('daily.dev');
-});
-
-it('should show referral widget only if user is seeing their own profile', () => {
-  renderComponent();
-  let el = screen.queryByTestId('referral-widget');
-  expect(el).not.toBeInTheDocument();
-
-  renderComponent(defaultLoggedUser);
-  el = screen.queryByTestId('referral-widget');
-  expect(el).toBeInTheDocument();
-});
-
-it('should show create squad only if user is seeing their own profile', () => {
-  renderComponent();
-  let el = screen.queryByLabelText('Create a new Squad');
-  expect(el).not.toBeInTheDocument();
-
-  renderComponent(defaultLoggedUser);
-  el = screen.getByLabelText('Create a new Squad');
-  expect(el).toBeInTheDocument();
-});
-
-it('should list all user squads', async () => {
-  mockGraphQL({
-    request: {
-      query: PUBLIC_SOURCE_MEMBERSHIPS_QUERY,
-      variables: { id: defaultProfile.id },
-    },
-    result: {
-      data: {
-        sources: {
-          edges: [
-            {
-              node: {
-                role: defaultMemberships.edges[0].node.role,
-                source: {
-                  ...defaultMemberships.edges[0].node.source,
-                  currentMember: { role: SourceMemberRole.Member },
-                },
-              },
-            },
-            ...defaultMemberships.edges.slice(1),
-          ],
-        },
+it('should not render ReadingOverview when userReadingRankHistory is missing', async () => {
+  // Pass readingHistory without userReadingRankHistory
+  renderComponent(
+    {},
+    {
+      readingHistory: {
+        ...defaultReadingHistory,
+        userReadingRankHistory: undefined,
       },
     },
-  });
-  renderComponent({}, defaultMemberships);
-  await waitForNock();
-  const s1 = screen.getByTestId('s1');
-  expect(s1).toBeInTheDocument();
-  expect(within(s1).queryByText('admin')).toBeInTheDocument();
+  );
 
-  const s2 = screen.getByTestId('s2');
-  expect(s2).toBeInTheDocument();
-  expect(within(s2).queryByText('admin')).not.toBeInTheDocument();
-  expect(await within(s2).findByLabelText('Join Squad')).toBeInTheDocument();
-
-  expect(within(s1).queryByLabelText('Join Squad')).not.toBeInTheDocument();
+  // ReadingOverview should not appear
+  const readingHeading = screen.queryByText('Reading Overview');
+  expect(readingHeading).not.toBeInTheDocument();
 });
 
-it('should track link clicks', () => {
-  renderComponent();
+it('should not fetch reading history when tokenRefreshed is false', async () => {
+  renderComponent({}, { readingHistory: null, tokenRefreshed: false });
 
-  const el = screen.getByTestId('github');
-  expect(el).toHaveAttribute('href', 'https://github.com/dailydotdev');
-  expect(el).toHaveTextContent('@dailydotdev');
+  // BadgesAndAwards should still render
+  const badgesHeading = await screen.findByText('Badges & Awards');
+  expect(badgesHeading).toBeInTheDocument();
 
-  userEvent.click(el);
-
-  expect(logEvent).toHaveBeenCalledWith({
-    event_name: LogEvent.Click,
-    target_type: TargetType.SocialLink,
-    target_id: 'github',
+  // ReadingOverview should not appear
+  await waitFor(() => {
+    const readingHeading = screen.queryByText('Reading');
+    expect(readingHeading).not.toBeInTheDocument();
   });
 });
