@@ -26,6 +26,7 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
+import { ProfileCompletion } from '@dailydotdev/shared/src/components/profile/ProfileWidgets/ProfileCompletion';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -61,10 +62,11 @@ const ProfilePage = ({
         isSameUser={isUserSame}
         sticky={!hideSticky}
         className={classNames(
-          'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75',
+          'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75 laptop:hidden',
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
         )}
       />
+      <ProfileCompletion className="laptop:hidden"/>
       <div ref={stickyRef} />
       <ProfileHeader user={user} userStats={userStats} />
       <div className="flex flex-col gap-6 p-6">

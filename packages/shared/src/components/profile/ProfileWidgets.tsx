@@ -10,6 +10,7 @@ import { USER_READING_HISTORY_QUERY } from '../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { gqlClient } from '../../graphql/common';
 import { ReadingOverview } from './ProfileWidgets/ReadingOverview';
+import { ProfileCompletion } from './ProfileWidgets/ProfileCompletion';
 
 const BadgesAndAwards = dynamic(() =>
   import('./ProfileWidgets/BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
@@ -53,6 +54,7 @@ export function ProfileWidgets({
         className,
       )}
     >
+      <ProfileCompletion className="hidden laptop:flex" />
       <BadgesAndAwards user={user} />
       {readingHistory?.userReadingRankHistory && (
         <ReadingOverview
