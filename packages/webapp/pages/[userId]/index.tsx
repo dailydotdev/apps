@@ -66,7 +66,16 @@ const ProfilePage = ({
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
         )}
       />
-      <ProfileCompletion className="laptop:hidden"/>
+      {isUserSame && (
+        <ProfileCompletion
+          user={user}
+          onClick={() => {
+            // TODO: Navigate to profile edit page or open edit modal
+            console.log('Navigate to profile completion');
+          }}
+          className="laptop:hidden"
+        />
+      )}
       <div ref={stickyRef} />
       <ProfileHeader user={user} userStats={userStats} />
       <div className="flex flex-col gap-6 p-6">

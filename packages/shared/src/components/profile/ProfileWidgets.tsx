@@ -50,11 +50,19 @@ export function ProfileWidgets({
   return (
     <div
       className={classNames(
-        'my-4 flex gap-2 laptop:my-0 laptop:flex-col laptop:gap-6',
+        'my-4 flex gap-2 laptop:my-0 laptop:flex-col',
         className,
       )}
     >
-      <ProfileCompletion className="hidden laptop:flex" />
+      {/* TODO: Add is same user check */}
+      <ProfileCompletion
+        className="hidden laptop:flex"
+        user={user}
+        onClick={() => {
+          // TODO: Navigate to profile edit page or open edit modal
+          console.log('Navigate to profile completion');
+        }}
+      />
       <BadgesAndAwards user={user} />
       {readingHistory?.userReadingRankHistory && (
         <ReadingOverview
