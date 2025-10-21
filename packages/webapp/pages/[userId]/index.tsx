@@ -61,7 +61,7 @@ const ProfilePage = ({
         isSameUser={isUserSame}
         sticky={!hideSticky}
         className={classNames(
-          'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75',
+          'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75 laptop:hidden',
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
         )}
       />
