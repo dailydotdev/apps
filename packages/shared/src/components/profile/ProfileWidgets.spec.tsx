@@ -1,4 +1,5 @@
 import React from 'react';
+import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { LoggedUser, PublicProfile } from '../../lib/user';
@@ -134,6 +135,7 @@ const logEvent = jest.fn();
 
 const renderComponent = (
   profile: Partial<PublicProfile> = {},
+  sources?: Connection<SourceMember>,
   options: {
     readingHistory?: typeof defaultReadingHistory | null;
     tokenRefreshed?: boolean;
@@ -193,6 +195,7 @@ const renderComponent = (
                 numFollowers: 23_000,
                 numFollowing: 3_000,
               }}
+              sources={sources}
             />
           </SettingsContext.Provider>
         </LogContext.Provider>
@@ -210,7 +213,7 @@ it('should render BadgesAndAwards component', () => {
 });
 
 it('should render ReadingOverview component when userReadingRankHistory exists', async () => {
-  renderComponent({}, { readingHistory: defaultReadingHistory });
+  renderComponent({}, undefined, { readingHistory: defaultReadingHistory });
 
   // BadgesAndAwards renders immediately
   const badgesHeading = screen.getByText('Badges & Awards');
@@ -223,15 +226,12 @@ it('should render ReadingOverview component when userReadingRankHistory exists',
 
 it('should not render ReadingOverview when userReadingRankHistory is missing', async () => {
   // Pass readingHistory without userReadingRankHistory
-  renderComponent(
-    {},
-    {
-      readingHistory: {
-        ...defaultReadingHistory,
-        userReadingRankHistory: undefined,
-      },
+  renderComponent({}, undefined, {
+    readingHistory: {
+      ...defaultReadingHistory,
+      userReadingRankHistory: undefined,
     },
-  );
+  });
 
   // ReadingOverview should not appear
   const readingHeading = screen.queryByText('Reading Overview');
@@ -248,7 +248,10 @@ it('should list all user squads', async () => {
 });
 
 it('should not fetch reading history when tokenRefreshed is false', async () => {
-  renderComponent({}, { readingHistory: null, tokenRefreshed: false });
+  renderComponent({}, undefined, {
+    readingHistory: null,
+    tokenRefreshed: false,
+  });
 
   // BadgesAndAwards should still render
   const badgesHeading = await screen.findByText('Badges & Awards');
