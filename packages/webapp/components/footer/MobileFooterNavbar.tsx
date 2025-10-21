@@ -148,7 +148,7 @@ const MobileFooterNavbar = (): ReactElement => {
       className={classNames(
         'grid w-full select-none auto-cols-fr grid-flow-col items-center justify-between rounded-16',
         activeClasses,
-        'border-t border-border-subtlest-tertiary',
+        'footer-navbar border-t border-border-subtlest-tertiary',
       )}
     >
       <FooterNavBarTabs activeTab={activeTab} tabs={tabs} />

@@ -61,7 +61,6 @@ const defaultProps = {
   after: new Date('2024-01-01'),
   streak: mockStreak,
   mostReadTags: mockMostReadTags,
-  isStreaksEnabled: true,
   isLoading: false,
 };
 
@@ -107,8 +106,8 @@ describe('ReadingOverview component', () => {
     expect(screen.getByText('+40%')).toBeInTheDocument(); // react percentage
   });
 
-  it('should render streaks section when enabled and streak data is available', () => {
-    renderComponent({ isStreaksEnabled: true, streak: mockStreak });
+  it('should render streaks section when streak data is available', () => {
+    renderComponent({ streak: mockStreak });
 
     expect(screen.getByText('Longest streak 🏆')).toBeInTheDocument();
     expect(screen.getByText('Total reading days')).toBeInTheDocument();
@@ -116,15 +115,8 @@ describe('ReadingOverview component', () => {
     expect(screen.getByText('25')).toBeInTheDocument(); // total days
   });
 
-  it('should not render streaks section when disabled', () => {
-    renderComponent({ isStreaksEnabled: false });
-
-    expect(screen.queryByText('Longest streak 🏆')).not.toBeInTheDocument();
-    expect(screen.queryByText('Total reading days')).not.toBeInTheDocument();
-  });
-
   it('should not render streaks section when streak data is null', () => {
-    renderComponent({ isStreaksEnabled: true, streak: null });
+    renderComponent({ streak: null });
 
     expect(screen.queryByText('Longest streak 🏆')).not.toBeInTheDocument();
     expect(screen.queryByText('Total reading days')).not.toBeInTheDocument();
