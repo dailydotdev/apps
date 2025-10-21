@@ -34,7 +34,7 @@ const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
   const { user: loggedUser } = useAuthContext();
   const isSameUser = loggedUser?.id === user.id;
   return (
-    <div className="relative w-full overflow-hidden rounded-t-16">
+    <div className="relative w-full overflow-hidden laptop:rounded-t-16">
       <div className="h-24">
         <Image src={cover} alt="Cover" className="h-full w-full object-cover" />
       </div>

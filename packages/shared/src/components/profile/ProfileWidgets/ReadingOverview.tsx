@@ -55,7 +55,6 @@ export interface ReadingOverviewProps {
   after: Date;
   streak: UserStreak;
   mostReadTags: MostReadTag[];
-  isStreaksEnabled: boolean;
   isLoading?: boolean;
 }
 
@@ -65,7 +64,6 @@ export function ReadingOverview({
   after,
   streak,
   mostReadTags,
-  isStreaksEnabled,
   isLoading = false,
 }: ReadingOverviewProps): ReactElement {
   const totalReads = useMemo(() => {
@@ -102,7 +100,7 @@ export function ReadingOverview({
         Learn more
       </ClickableText>
 
-      {isStreaksEnabled && streak && <ReadingStreaksSection streak={streak} />}
+      {!!streak && <ReadingStreaksSection streak={streak} />}
       {mostReadTags && mostReadTags?.length > 0 && (
         <ReadingTagsSection mostReadTags={mostReadTags} />
       )}

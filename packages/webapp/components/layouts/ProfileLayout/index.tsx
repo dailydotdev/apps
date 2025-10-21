@@ -17,7 +17,6 @@ import type { ClientError } from 'graphql-request';
 import type { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
-import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -108,19 +107,19 @@ export default function ProfileLayout({
   }
 
   return (
-    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:pb-6 laptopL:pb-0">
+    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
       <main className="relative flex flex-1 flex-col">{children}</main>
-      <PageWidgets className="hidden !px-0 laptop:flex">
+      <aside className="hidden laptop:flex laptop:max-w-80 laptop:flex-col">
         <ProfileWidgets
           user={user}
           userStats={userStats}
           sources={sources}
           className="w-full"
         />
-      </PageWidgets>
+      </aside>
     </div>
   );
 }

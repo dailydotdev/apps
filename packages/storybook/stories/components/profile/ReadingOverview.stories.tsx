@@ -57,10 +57,6 @@ const meta: Meta<typeof ReadingOverview> = {
       control: 'boolean',
       description: 'Whether the component is in loading state',
     },
-    isStreaksEnabled: {
-      control: 'boolean',
-      description: 'Whether reading streaks are enabled',
-    },
   },
 };
 
@@ -110,7 +106,6 @@ export const Default: Story = {
     after: defaultAfter,
     streak: defaultStreak,
     mostReadTags: defaultMostReadTags,
-    isStreaksEnabled: true,
     isLoading: false,
   },
 };
@@ -122,7 +117,6 @@ export const Loading: Story = {
     after: defaultAfter,
     streak: defaultStreak,
     mostReadTags: [],
-    isStreaksEnabled: true,
     isLoading: true,
   },
 };
@@ -132,9 +126,8 @@ export const NoStreaks: Story = {
     readHistory: defaultReadHistory,
     before: defaultBefore,
     after: defaultAfter,
-    streak: defaultStreak,
+    streak: undefined,
     mostReadTags: defaultMostReadTags,
-    isStreaksEnabled: false,
     isLoading: false,
   },
 };
@@ -146,7 +139,6 @@ export const NoTags: Story = {
     after: defaultAfter,
     streak: defaultStreak,
     mostReadTags: [],
-    isStreaksEnabled: true,
     isLoading: false,
   },
 };
