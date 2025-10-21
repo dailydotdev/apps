@@ -107,7 +107,7 @@ export default function ProfileLayout({
   }
 
   return (
-    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:pb-0">
+    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
