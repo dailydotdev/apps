@@ -2,6 +2,7 @@ import type { FormEventHandler, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import z from 'zod';
 import type { Squad } from '../../../graphql/sources';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { WriteFooter } from './WriteFooter';
@@ -130,12 +131,13 @@ export function ShareLink({
       return null;
     }
 
+    const isImageValid = z.httpUrl().safeParse(image).success;
     const args = {
       commentary,
       content: '',
       externalLink,
       title,
-      ...(image && { imageUrl: image }),
+      ...(isImageValid && { imageUrl: image }),
     };
 
     return onSubmitForm(e, args, PostType.Share);
