@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import ProgressCircle from '../../ProgressCircle';
 import {
   Typography,
@@ -11,33 +12,56 @@ import { MoveToIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { getPercentage } from '../../../lib/func';
 import type { LoggedUser, PublicProfile } from '../../../lib/user';
+import { webappUrl } from '../../../lib/constants';
+import { useToastNotification, useActions } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
 
 export type CompletionItem = {
   label: string;
   completed: boolean;
+  redirectPath: string;
 };
 
 type ProfileCompletionProps = {
   className?: string;
   user: LoggedUser | PublicProfile;
-  onClick: () => void;
 };
 
 const getCompletionItems = (
   user: LoggedUser | PublicProfile,
 ): CompletionItem[] => {
   const hasProfileImage = !!user.image && user.image !== '';
-  const hasHeading = !!user.bio && user.bio.trim() !== '';
-  const hasExperienceLevel = !!(user as LoggedUser).experienceLevel;
-  const hasWorkExperience = !!user.companies && user.companies.length > 0;
+  const hasHeadline = !!user.bio && user.bio.trim() !== '';
+  const hasExperienceLevel = !!user.experienceLevel;
+  const hasWorkExperience = !!user.companies && user.companies.length > 0; // TODO: Update when work experience field is available
   const hasEducation = !!user.companies && user.companies.length > 0; // TODO: Update when education field is available
 
   return [
-    { label: 'Profile image', completed: hasProfileImage },
-    { label: 'Heading', completed: hasHeading },
-    { label: 'Experience level', completed: hasExperienceLevel },
-    { label: 'Work experience', completed: hasWorkExperience },
-    { label: 'Education', completed: hasEducation },
+    {
+      label: 'Profile image',
+      completed: hasProfileImage,
+      redirectPath: `${webappUrl}/settings/profile`,
+    },
+    {
+      label: 'Headline',
+      completed: hasHeadline,
+      redirectPath: `${webappUrl}/settings/profile`,
+    },
+    {
+      label: 'Experience level',
+      completed: hasExperienceLevel,
+      redirectPath: `${webappUrl}/settings/profile`,
+    },
+    {
+      label: 'Work experience',
+      completed: hasWorkExperience,
+      redirectPath: `${webappUrl}/settings/profile`, // TODO: Update to /settings/experience when available
+    },
+    {
+      label: 'Education',
+      completed: hasEducation,
+      redirectPath: `${webappUrl}/settings/profile`, // TODO: Update to /settings/experience when available
+    },
   ];
 };
 
@@ -58,8 +82,10 @@ const formatDescription = (incompleteItems: CompletionItem[]): string => {
 export const ProfileCompletion = ({
   className,
   user,
-  onClick,
 }: ProfileCompletionProps): ReactElement => {
+  const router = useRouter();
+  const { displayToast } = useToastNotification();
+  const { completeAction, checkHasCompleted } = useActions();
   const items = useMemo(() => getCompletionItems(user), [user]);
 
   const { progress, incompleteItems } = useMemo(() => {
@@ -77,9 +103,27 @@ export const ProfileCompletion = ({
     [incompleteItems],
   );
 
+  const handleClick = useCallback(() => {
+    // Find the first incomplete item in order of priority
+    const firstIncompleteItem = incompleteItems[0];
+    if (firstIncompleteItem?.redirectPath) {
+      router.push(firstIncompleteItem.redirectPath);
+    }
+  }, [incompleteItems, router]);
+
   const isCompleted = progress === 100;
-  // TODO: We might need some action here to not show it anymore?
-  if (isCompleted) {
+  const hasCompletedAction = checkHasCompleted(ActionType.ProfileCompleted);
+
+  useEffect(() => {
+    if (isCompleted && !hasCompletedAction) {
+      displayToast(
+        'Your profile has been completed successfully. All your details are now up to date 🎉',
+      );
+      completeAction(ActionType.ProfileCompleted);
+    }
+  }, [isCompleted, hasCompletedAction, displayToast, completeAction]);
+
+  if (isCompleted || hasCompletedAction) {
     return null;
   }
 
@@ -87,11 +131,11 @@ export const ProfileCompletion = ({
     <div
       role="button"
       tabIndex={0}
-      onClick={onClick}
+      onClick={handleClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          onClick();
+          handleClick();
         }
       }}
       className={classNames(

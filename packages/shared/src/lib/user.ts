@@ -57,6 +57,7 @@ export interface PublicProfile {
   contentPreference?: ContentPreference;
   isPlus?: boolean;
   plusMemberSince?: Date;
+  experienceLevel?: keyof typeof UserExperienceLevel;
 }
 
 export enum UserExperienceLevel {

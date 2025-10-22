@@ -55,14 +55,7 @@ export function ProfileWidgets({
       )}
     >
       {/* TODO: Add is same user check */}
-      <ProfileCompletion
-        className="hidden laptop:flex"
-        user={user}
-        onClick={() => {
-          // TODO: Navigate to profile edit page or open edit modal
-          console.log('Navigate to profile completion');
-        }}
-      />
+      <ProfileCompletion className="hidden laptop:flex" user={user} />
       <BadgesAndAwards user={user} />
       {readingHistory?.userReadingRankHistory && (
         <ReadingOverview

@@ -67,14 +67,7 @@ const ProfilePage = ({
         )}
       />
       {isUserSame && (
-        <ProfileCompletion
-          user={user}
-          onClick={() => {
-            // TODO: Navigate to profile edit page or open edit modal
-            console.log('Navigate to profile completion');
-          }}
-          className="laptop:hidden"
-        />
+        <ProfileCompletion user={user} className="laptop:hidden" />
       )}
       <div ref={stickyRef} />
       <ProfileHeader user={user} userStats={userStats} />
