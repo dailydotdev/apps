@@ -2,15 +2,18 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { LoggedUser, PublicProfile } from '../../lib/user';
-import AuthContext from '../../contexts/AuthContext';
+import type { LoggedUser, PublicProfile } from '../../../../lib/user';
+import AuthContext from '../../../../contexts/AuthContext';
 import { ProfileWidgets } from './ProfileWidgets';
-import { USER_READING_HISTORY_QUERY } from '../../graphql/users';
-import type { ProfileReadingData } from '../../graphql/users';
-import { settingsContext } from '../../../__tests__/helpers/boot';
-import SettingsContext from '../../contexts/SettingsContext';
-import { getLogContextStatic } from '../../contexts/LogContext';
-import { gqlClient } from '../../graphql/common';
+import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
+import type { ProfileReadingData } from '../../../../graphql/users';
+import type { Connection } from '../../../../graphql/common';
+import type { SourceMember, Squad } from '../../../../graphql/sources';
+import { SourceMemberRole, SourceType } from '../../../../graphql/sources';
+import { settingsContext } from '../../../../../__tests__/helpers/boot';
+import SettingsContext from '../../../../contexts/SettingsContext';
+import { getLogContextStatic } from '../../../../contexts/LogContext';
+import { gqlClient } from '../../../../graphql/common';
 
 const LogContext = getLogContextStatic();
 
@@ -18,15 +21,16 @@ jest.mock('next/dynamic', () => ({
   __esModule: true,
   default: () => {
     // Synchronously require the actual component
-    const mod = jest.requireActual<Record<string, React.ComponentType>>(
-      './ProfileWidgets/BadgesAndAwards',
-    );
+    const mod =
+      jest.requireActual<Record<string, React.ComponentType>>(
+        './BadgesAndAwards',
+      );
     return mod.BadgesAndAwards;
   },
 }));
 
 // Mock gqlClient
-jest.mock('../../graphql/common', () => ({
+jest.mock('../../../../graphql/common', () => ({
   gqlClient: {
     request: jest.fn(),
   },
@@ -78,6 +82,38 @@ const defaultProfile: PublicProfile = {
   bluesky: 'dailydotdev.bsky.social',
 };
 
+const defaultMemberships: Connection<SourceMember> = {
+  pageInfo: null,
+  edges: [
+    {
+      node: {
+        role: SourceMemberRole.Admin,
+        source: {
+          id: 's1',
+          name: 'Squad 1',
+          image: 'https://daily.dev/squad1.png',
+          permalink: 'https://daily.dev/squad1',
+          type: SourceType.Squad,
+          membersCount: 10,
+        } as unknown as Squad,
+      } as unknown as SourceMember,
+    },
+    {
+      node: {
+        role: SourceMemberRole.Member,
+        source: {
+          id: 's2',
+          name: 'Squad 2',
+          image: 'https://daily.dev/squad2.png',
+          permalink: 'https://daily.dev/squad2',
+          type: SourceType.Squad,
+          membersCount: 40,
+        } as unknown as Squad,
+      } as unknown as SourceMember,
+    },
+  ],
+};
+
 const defaultReadingHistory: ProfileReadingData = {
   userReadingRankHistory: [
     { rank: 1, count: 10 },
@@ -100,6 +136,7 @@ const logEvent = jest.fn();
 
 const renderComponent = (
   profile: Partial<PublicProfile> = {},
+  sources?: Connection<SourceMember>,
   options: {
     readingHistory?: typeof defaultReadingHistory | null;
     tokenRefreshed?: boolean;
@@ -136,8 +173,10 @@ const renderComponent = (
           updateUser: jest.fn(),
           tokenRefreshed,
           isLoggedIn: true,
+          isAuthReady: true,
           closeLogin: jest.fn(),
           getRedirectUri: jest.fn(),
+          squads: [],
         }}
       >
         <LogContext.Provider
@@ -157,6 +196,7 @@ const renderComponent = (
                 numFollowers: 23_000,
                 numFollowing: 3_000,
               }}
+              sources={sources}
             />
           </SettingsContext.Provider>
         </LogContext.Provider>
@@ -174,7 +214,7 @@ it('should render BadgesAndAwards component', () => {
 });
 
 it('should render ReadingOverview component when userReadingRankHistory exists', async () => {
-  renderComponent({}, { readingHistory: defaultReadingHistory });
+  renderComponent({}, undefined, { readingHistory: defaultReadingHistory });
 
   // BadgesAndAwards renders immediately
   const badgesHeading = screen.getByText('Badges & Awards');
@@ -187,23 +227,32 @@ it('should render ReadingOverview component when userReadingRankHistory exists',
 
 it('should not render ReadingOverview when userReadingRankHistory is missing', async () => {
   // Pass readingHistory without userReadingRankHistory
-  renderComponent(
-    {},
-    {
-      readingHistory: {
-        ...defaultReadingHistory,
-        userReadingRankHistory: undefined,
-      },
+  renderComponent({}, undefined, {
+    readingHistory: {
+      ...defaultReadingHistory,
+      userReadingRankHistory: undefined,
     },
-  );
+  });
 
   // ReadingOverview should not appear
   const readingHeading = screen.queryByText('Reading Overview');
   expect(readingHeading).not.toBeInTheDocument();
 });
 
+it('should list all user squads', async () => {
+  renderComponent({}, defaultMemberships);
+  const squadNames = await screen.findAllByTestId('squad-list-item-name');
+  expect(squadNames.length).toBe(defaultMemberships.edges.length);
+  const [name1, name2] = squadNames;
+  expect(name1).toHaveTextContent('Squad 1');
+  expect(name2).toHaveTextContent('Squad 2');
+});
+
 it('should not fetch reading history when tokenRefreshed is false', async () => {
-  renderComponent({}, { readingHistory: null, tokenRefreshed: false });
+  renderComponent({}, undefined, {
+    readingHistory: null,
+    tokenRefreshed: false,
+  });
 
   // BadgesAndAwards should still render
   const badgesHeading = await screen.findByText('Badges & Awards');

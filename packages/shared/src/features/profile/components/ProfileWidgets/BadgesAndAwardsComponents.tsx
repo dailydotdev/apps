@@ -6,17 +6,17 @@ import {
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
-import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
-import { Image } from '../../image/Image';
-import Link from '../../utilities/Link';
-import { getTagPageLink } from '../../../lib';
-import { truncateTextClassNames } from '../../utilities';
-import { ActivityContainer } from '../ActivitySection';
-import { ClickableText } from '../../buttons/ClickableText';
-import { ElementPlaceholder } from '../../ElementPlaceholder';
-import { topReaderBadgeDocs } from '../../../lib/constants';
-import { anchorDefaultRel } from '../../../lib/strings';
+} from '../../../../components/typography/Typography';
+import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
+import { Image } from '../../../../components/image/Image';
+import Link from '../../../../components/utilities/Link';
+import { getTagPageLink } from '../../../../lib';
+import { truncateTextClassNames } from '../../../../components/utilities';
+import { ActivityContainer } from '../../../../components/profile/ActivitySection';
+import { ClickableText } from '../../../../components/buttons/ClickableText';
+import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
+import { topReaderBadgeDocs } from '../../../../lib/constants';
+import { anchorDefaultRel } from '../../../../lib/strings';
 
 // Skeleton component
 export const BadgesAndAwardsSkeleton = (): ReactElement => {

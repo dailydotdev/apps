@@ -25,7 +25,7 @@ import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostRef
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
-import { ProfileWidgets } from '../../../../shared/src/components/profile/ProfileWidgets';
+import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),

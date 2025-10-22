@@ -5,9 +5,9 @@ import type {
   UserReadHistory,
   UserStreak,
   MostReadTag,
-} from '../../../graphql/users';
+} from '../../../../graphql/users';
 import { ReadingOverview } from './ReadingOverview';
-import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 
 beforeEach(() => {
   jest.clearAllMocks();

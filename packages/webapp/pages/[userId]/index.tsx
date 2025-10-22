@@ -9,7 +9,7 @@ import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHea
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { ProfileWidgets } from '@dailydotdev/shared/src/components/profile/ProfileWidgets';
+import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import {
   TypographyType,
   TypographyTag,
@@ -19,7 +19,7 @@ import {
 import { useDynamicHeader } from '@dailydotdev/shared/src/useDynamicHeader';
 import { Header } from '@dailydotdev/shared/src/components/profile/Header';
 import classNames from 'classnames';
-import { ProfileCompletion } from '@dailydotdev/shared/src/components/profile/ProfileWidgets/ProfileCompletion';
+import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,

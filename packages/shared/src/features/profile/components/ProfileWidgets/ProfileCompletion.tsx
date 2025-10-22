@@ -2,19 +2,19 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useCallback, useEffect } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import ProgressCircle from '../../ProgressCircle';
+import ProgressCircle from '../../../../components/ProgressCircle';
 import {
   Typography,
   TypographyType,
   TypographyColor,
-} from '../../typography/Typography';
-import { MoveToIcon } from '../../icons';
-import { IconSize } from '../../Icon';
-import { getPercentage } from '../../../lib/func';
-import type { LoggedUser, PublicProfile } from '../../../lib/user';
-import { webappUrl } from '../../../lib/constants';
-import { useToastNotification, useActions } from '../../../hooks';
-import { ActionType } from '../../../graphql/actions';
+} from '../../../../components/typography/Typography';
+import { MoveToIcon } from '../../../../components/icons';
+import { IconSize } from '../../../../components/Icon';
+import { getPercentage } from '../../../../lib/func';
+import type { LoggedUser, PublicProfile } from '../../../../lib/user';
+import { webappUrl } from '../../../../lib/constants';
+import { useToastNotification, useActions } from '../../../../hooks';
+import { ActionType } from '../../../../graphql/actions';
 
 export type CompletionItem = {
   label: string;

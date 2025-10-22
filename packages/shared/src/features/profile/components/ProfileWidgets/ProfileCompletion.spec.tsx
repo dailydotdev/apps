@@ -5,9 +5,9 @@ import type {
   LoggedUser,
   PublicProfile,
   UserExperienceLevel,
-} from '../../../lib/user';
+} from '../../../../lib/user';
 import { ProfileCompletion } from './ProfileCompletion';
-import { useToastNotification, useActions } from '../../../hooks';
+import { useToastNotification, useActions } from '../../../../hooks';
 
 // Mock next/router
 jest.mock('next/router', () => ({
@@ -15,7 +15,7 @@ jest.mock('next/router', () => ({
 }));
 
 // Mock hooks
-jest.mock('../../../hooks', () => ({
+jest.mock('../../../../hooks', () => ({
   useToastNotification: jest.fn(),
   useActions: jest.fn(),
 }));

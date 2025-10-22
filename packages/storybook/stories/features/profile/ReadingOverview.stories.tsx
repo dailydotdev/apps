@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReadingOverview } from '@dailydotdev/shared/src/components/profile/ProfileWidgets/ReadingOverview';
+import { ReadingOverview } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ReadingOverview';
 import type { UserReadHistory, UserStreak, MostReadTag } from '@dailydotdev/shared/src/graphql/users';
 import { addDays, subDays, subMonths } from 'date-fns';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { fn } from 'storybook/test';
 
 const meta: Meta<typeof ReadingOverview> = {
-  title: 'Profile/ReadingOverview',
+  title: 'Features/Profile/ReadingOverview',
   component: ReadingOverview,
   parameters: {
     layout: 'padded',

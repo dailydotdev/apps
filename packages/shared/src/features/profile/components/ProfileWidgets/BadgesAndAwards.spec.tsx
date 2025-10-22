@@ -1,20 +1,20 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import type { PublicProfile } from '../../../lib/user';
+import type { PublicProfile } from '../../../../lib/user';
 import { BadgesAndAwards } from './BadgesAndAwards';
-import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
-import { ProductType, PRODUCTS_SUMMARY_QUERY } from '../../../graphql/njord';
-import { useTopReader } from '../../../hooks/useTopReader';
-import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
+import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
+import { mockGraphQL } from '../../../../../__tests__/helpers/graphql';
+import { ProductType, PRODUCTS_SUMMARY_QUERY } from '../../../../graphql/njord';
+import { useTopReader } from '../../../../hooks/useTopReader';
+import { useHasAccessToCores } from '../../../../hooks/useCoresFeature';
 
 // Mock the hooks
-jest.mock('../../../hooks/useTopReader', () => ({
+jest.mock('../../../../hooks/useTopReader', () => ({
   useTopReader: jest.fn(),
 }));
 
-jest.mock('../../../hooks/useCoresFeature', () => ({
+jest.mock('../../../../hooks/useCoresFeature', () => ({
   useHasAccessToCores: jest.fn(),
 }));
 
