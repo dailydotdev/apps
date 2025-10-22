@@ -3,7 +3,7 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fn } from 'storybook/test';
 import { ActiveOrRecomendedSquads } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ActiveOrRecomendedSquads';
-import { ActiveOrRecomendedSquadsSkeleton } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ActiveOrRecomendedSquadsSkeleton';
+import { ActiveOrRecomendedSquadsSkeleton } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ActiveOrRecomendedSquadsComponents';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';

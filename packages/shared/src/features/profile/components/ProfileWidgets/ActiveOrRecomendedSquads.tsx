@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Squad } from '../../../../graphql/sources';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { labels, largeNumberFormat } from '../../../../lib';
+import { labels } from '../../../../lib';
 import {
   Button,
   ButtonVariant,
@@ -12,33 +12,26 @@ import { StraightArrowIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { webappUrl } from '../../../../lib/constants';
 import { anchorDefaultRel } from '../../../../lib/strings';
-
-import { LazyImage } from '../../../../components/LazyImage';
-import {
-  Typography,
-  TypographyType,
-  TypographyColor,
-  TypographyTag,
-} from '../../../../components/typography/Typography';
-import { useToastNotification } from '../../../../hooks';
-import { SquadActionButton } from '../../../../components/squads/SquadActionButton';
-import { Origin } from '../../../../lib/log';
 import { useToggle } from '../../../../hooks/useToggle';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import {
   useSources,
   getFlatteredSources,
 } from '../../../../hooks/source/useSources';
-import { ActiveOrRecomendedSquadsSkeleton } from './ActiveOrRecomendedSquadsSkeleton';
+import {
+  Typography,
+  TypographyType,
+  TypographyColor,
+  TypographyTag,
+} from '../../../../components/typography/Typography';
+import {
+  SquadListItem,
+  ActiveOrRecomendedSquadsSkeleton,
+} from './ActiveOrRecomendedSquadsComponents';
 
 interface ActiveOrRecomendedSquadsProps {
   squads: Array<Squad>;
   userId: string;
-}
-
-interface SquadListItemProps {
-  squad: Squad;
-  showJoinButton?: boolean;
 }
 
 const MAX_SQUAD_COUNT = 5;
@@ -80,71 +73,6 @@ const useActiveOrRecomendedSquads = (props: ActiveOrRecomendedSquadsProps) => {
     },
     squads: visibleSquads,
   };
-};
-
-const SquadListItem = ({
-  squad,
-  showJoinButton = false,
-}: SquadListItemProps) => {
-  const { displayToast } = useToastNotification();
-  const { squads, isAuthReady } = useAuthContext();
-  const hasSquadsInList = squads?.some((sq) => sq.id === squad.id);
-
-  if (!isAuthReady) {
-    return null;
-  }
-
-  return (
-    <li className="flex flex-row items-center gap-2">
-      <a href={squad.permalink} target="_blank" rel={anchorDefaultRel}>
-        <LazyImage
-          className="size-8 cursor-pointer rounded-full"
-          imgAlt={squad.name}
-          imgSrc={squad.image}
-        />
-      </a>
-      <div className="min-w-0 flex-1">
-        <a href={squad.permalink} target="_blank" rel={anchorDefaultRel}>
-          <Typography
-            bold
-            tag={TypographyTag.H5}
-            type={TypographyType.Callout}
-            truncate
-            data-testid="squad-list-item-name"
-          >
-            {squad.name}
-          </Typography>
-        </a>
-        <Typography
-          color={TypographyColor.Tertiary}
-          type={TypographyType.Footnote}
-          truncate
-        >
-          @{squad.handle}
-        </Typography>
-        <Typography
-          color={TypographyColor.Tertiary}
-          type={TypographyType.Footnote}
-          truncate
-        >
-          {largeNumberFormat(squad.membersCount)} member
-          {squad.membersCount !== 1 && 's'}
-        </Typography>
-      </div>
-      {showJoinButton && !hasSquadsInList && (
-        <SquadActionButton
-          alwaysShow
-          copy={{ join: 'Join', leave: 'Leave' }}
-          onSuccess={() => {
-            displayToast(`🙌 You joined the Squad ${squad.name}`);
-          }}
-          origin={Origin.Profile}
-          size={ButtonSize.Small}
-          squad={{ ...squad, currentMember: null }}
-        />
-      )}
-    </li>
-  );
 };
 
 export const ActiveOrRecomendedSquads = (
