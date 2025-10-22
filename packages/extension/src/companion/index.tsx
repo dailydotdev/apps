@@ -35,16 +35,28 @@ const renderApp = (props: CompanionData) => {
   root.render(<App {...props} />);
 };
 
+const validOrigins = ['https://www.linkedin.com'];
+
+const isValidUrl = (url: string) => {
+  try {
+    const parsedUrl = new URL(url);
+    return validOrigins.includes(parsedUrl.origin);
+  } catch {
+    return false;
+  }
+};
+
 browser.runtime.onMessage.addListener((props) => {
-  const { settings, postData } = props;
+  const { settings, postData, url } = props;
   if (!settings || settings?.optOutCompanion) {
     return;
   }
 
   const container = getCompanionWrapper();
+  const isValid = isValidUrl(url);
 
-  if (postData) {
-    renderApp(props);
+  if (postData || isValid) {
+    renderApp({ ...props, messageSuggestionsEnabled: isValid });
   } else if (container && root) {
     root.unmount();
   }

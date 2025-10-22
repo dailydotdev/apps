@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Modal from 'react-modal';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import { REQUEST_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import type {
   AccessToken,
@@ -21,8 +20,6 @@ import {
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
-import { companionRequest } from './companionRequest';
-import { companionFetch } from './companionFetch';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -95,16 +92,7 @@ export default function Companion({
     },
     [client],
   );
-  const [companionState, setCompanionState] =
-    useState<boolean>(companionExpanded);
-  useQuery({
-    queryKey: REQUEST_PROTOCOL_KEY,
-    queryFn: () => ({
-      requestMethod: companionRequest,
-      fetchMethod: companionFetch,
-      isCompanion: true,
-    }),
-  });
+  const [companionState, setCompanionState] = useState(companionExpanded);
   const [assetsLoadedDebounce] = useDebounceFn(() => setAssetsLoaded(true), 10);
   const routeChangedCallbackRef = useLogPageView();
 
