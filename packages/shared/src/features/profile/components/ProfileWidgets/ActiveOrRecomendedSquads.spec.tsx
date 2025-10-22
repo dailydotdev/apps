@@ -1,14 +1,14 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ProfileSquadsWidget } from './ProfileSquadsWidget';
-import type { Squad } from '../../../graphql/sources';
-import { SourceType } from '../../../graphql/sources';
-import AuthContext from '../../../contexts/AuthContext';
-import type { LoggedUser } from '../../../lib/user';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { labels } from '../../../lib';
-import { getLogContextStatic } from '../../../contexts/LogContext';
+import { ActiveOrRecomendedSquads } from './ActiveOrRecomendedSquads';
+import type { Squad } from '../../../../graphql/sources';
+import { SourceType } from '../../../../graphql/sources';
+import AuthContext from '../../../../contexts/AuthContext';
+import type { LoggedUser } from '../../../../lib/user';
+import { generateQueryKey, RequestKey } from '../../../../lib/query';
+import { labels } from '../../../../lib';
+import { getLogContextStatic } from '../../../../contexts/LogContext';
 
 const LogContext = getLogContextStatic();
 
@@ -178,14 +178,14 @@ const renderComponent = (
             sendBeacon: jest.fn(),
           }}
         >
-          <ProfileSquadsWidget squads={squads} userId={userId} />
+          <ActiveOrRecomendedSquads squads={squads} userId={userId} />
         </LogContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
 };
 
-describe('ProfileSquadsWidget', () => {
+describe('ActiveOrRecomendedSquads', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

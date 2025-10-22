@@ -1,37 +1,37 @@
 import React from 'react';
-import type { Squad } from '../../../graphql/sources';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { labels, largeNumberFormat } from '../../../lib';
+import type { Squad } from '../../../../graphql/sources';
+import { useAuthContext } from '../../../../contexts/AuthContext';
+import { labels, largeNumberFormat } from '../../../../lib';
 import {
   Button,
   ButtonVariant,
   ButtonSize,
   ButtonIconPosition,
-} from '../../../components/buttons/Button';
-import { StraightArrowIcon } from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
-import { webappUrl } from '../../../lib/constants';
-import { anchorDefaultRel } from '../../../lib/strings';
+} from '../../../../components/buttons/Button';
+import { StraightArrowIcon } from '../../../../components/icons';
+import { IconSize } from '../../../../components/Icon';
+import { webappUrl } from '../../../../lib/constants';
+import { anchorDefaultRel } from '../../../../lib/strings';
 
-import { LazyImage } from '../../../components/LazyImage';
+import { LazyImage } from '../../../../components/LazyImage';
 import {
   Typography,
   TypographyType,
   TypographyColor,
   TypographyTag,
-} from '../../../components/typography/Typography';
-import { useToastNotification } from '../../../hooks';
-import { SquadActionButton } from '../../../components/squads/SquadActionButton';
-import { Origin } from '../../../lib/log';
-import { useToggle } from '../../../hooks/useToggle';
-import { ActivityContainer } from '../../../components/profile/ActivitySection';
+} from '../../../../components/typography/Typography';
+import { useToastNotification } from '../../../../hooks';
+import { SquadActionButton } from '../../../../components/squads/SquadActionButton';
+import { Origin } from '../../../../lib/log';
+import { useToggle } from '../../../../hooks/useToggle';
+import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import {
   useSources,
   getFlatteredSources,
-} from '../../../hooks/source/useSources';
-import { ProfileSquadsWidgetSkeleton } from './ProfileSquadsWidgetSkeleton';
+} from '../../../../hooks/source/useSources';
+import { ActiveOrRecomendedSquadsSkeleton } from './ActiveOrRecomendedSquadsSkeleton';
 
-interface ProfileSquadsWidgetProps {
+interface ActiveOrRecomendedSquadsProps {
   squads: Array<Squad>;
   userId: string;
 }
@@ -43,7 +43,7 @@ interface SquadListItemProps {
 
 const MAX_SQUAD_COUNT = 5;
 
-const useProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
+const useActiveOrRecomendedSquads = (props: ActiveOrRecomendedSquadsProps) => {
   const { squads, userId } = props;
   const { isAuthReady, user } = useAuthContext();
   const [showAll, toggleShowAll] = useToggle(false);
@@ -147,12 +147,14 @@ const SquadListItem = ({
   );
 };
 
-export const ProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
+export const ActiveOrRecomendedSquads = (
+  props: ActiveOrRecomendedSquadsProps,
+) => {
   const { heading, squads, showMore, isReady, isShowingSuggestions } =
-    useProfileSquadsWidget(props);
+    useActiveOrRecomendedSquads(props);
 
   if (!isReady) {
-    return <ProfileSquadsWidgetSkeleton />;
+    return <ActiveOrRecomendedSquadsSkeleton />;
   }
 
   if (!squads.length) {
@@ -217,4 +219,4 @@ export const ProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
   );
 };
 
-export default ProfileSquadsWidget;
+export default ActiveOrRecomendedSquads;

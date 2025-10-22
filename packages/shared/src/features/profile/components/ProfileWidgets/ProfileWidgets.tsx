@@ -4,16 +4,16 @@ import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import dynamic from 'next/dynamic';
-import AuthContext from '../../contexts/AuthContext';
-import { ProfileSquadsWidget } from '../../features/profile/components/ProfileSquadsWidget';
-import type { ProfileReadingData, ProfileV2 } from '../../graphql/users';
-import { USER_READING_HISTORY_QUERY } from '../../graphql/users';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { gqlClient } from '../../graphql/common';
-import { ReadingOverview } from './ProfileWidgets/ReadingOverview';
+import AuthContext from '../../../../contexts/AuthContext';
+import { ActiveOrRecomendedSquads } from './ActiveOrRecomendedSquads';
+import type { ProfileReadingData, ProfileV2 } from '../../../../graphql/users';
+import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
+import { generateQueryKey, RequestKey } from '../../../../lib/query';
+import { gqlClient } from '../../../../graphql/common';
+import { ReadingOverview } from './ReadingOverview';
 
 const BadgesAndAwards = dynamic(() =>
-  import('./ProfileWidgets/BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
+  import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
 );
 
 export interface ProfileWidgetsProps extends ProfileV2 {
@@ -68,7 +68,7 @@ export function ProfileWidgets({
         />
       )}
       {(isSameUser || squads.length > 0) && (
-        <ProfileSquadsWidget userId={user.id} squads={squads} />
+        <ActiveOrRecomendedSquads userId={user.id} squads={squads} />
       )}
       <BadgesAndAwards user={user} />
     </div>

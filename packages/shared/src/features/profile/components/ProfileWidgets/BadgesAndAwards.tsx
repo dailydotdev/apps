@@ -1,29 +1,29 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ActivityContainer } from '../ActivitySection';
-import { topReaderBadgeDocs } from '../../../lib/constants';
+import { ActivityContainer } from '../../../../components/profile/ActivitySection';
+import { topReaderBadgeDocs } from '../../../../lib/constants';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
-import type { PublicProfile } from '../../../lib/user';
-import { ClickableText } from '../../buttons/ClickableText';
-import { useTopReader } from '../../../hooks/useTopReader';
+} from '../../../../components/typography/Typography';
+import type { PublicProfile } from '../../../../lib/user';
+import { ClickableText } from '../../../../components/buttons/ClickableText';
+import { useTopReader } from '../../../../hooks/useTopReader';
 import {
   userProductSummaryQueryOptions,
   ProductType,
-} from '../../../graphql/njord';
-import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
+} from '../../../../graphql/njord';
+import { useHasAccessToCores } from '../../../../hooks/useCoresFeature';
 import {
   Award,
   SummaryCard,
   KeywordBadge,
   BadgesAndAwardsSkeleton,
 } from './BadgesAndAwardsComponents';
-import { anchorDefaultRel } from '../../../lib/strings';
+import { anchorDefaultRel } from '../../../../lib/strings';
 
 export const BadgesAndAwards = ({
   user,

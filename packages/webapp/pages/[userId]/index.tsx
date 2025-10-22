@@ -9,7 +9,7 @@ import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHea
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { ProfileWidgets } from '@dailydotdev/shared/src/components/profile/ProfileWidgets';
+import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import {
   TypographyType,
   TypographyTag,

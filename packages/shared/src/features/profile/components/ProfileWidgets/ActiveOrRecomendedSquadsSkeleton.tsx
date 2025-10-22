@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
-import { ActivityContainer } from '../../../components/profile/ActivitySection';
-import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
+import { ActivityContainer } from '../../../../components/profile/ActivitySection';
+import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 
 const SquadListItemSkeleton = (): ReactElement => (
   <li className="flex flex-row items-center gap-2">
@@ -14,7 +14,7 @@ const SquadListItemSkeleton = (): ReactElement => (
   </li>
 );
 
-export const ProfileSquadsWidgetSkeleton = (): ReactElement => {
+export const ActiveOrRecomendedSquadsSkeleton = (): ReactElement => {
   return (
     <ActivityContainer>
       <div className="flex min-h-0 flex-1 flex-col">
@@ -29,4 +29,4 @@ export const ProfileSquadsWidgetSkeleton = (): ReactElement => {
   );
 };
 
-export default ProfileSquadsWidgetSkeleton;
+export default ActiveOrRecomendedSquadsSkeleton;

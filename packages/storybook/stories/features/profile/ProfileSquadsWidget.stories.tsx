@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fn } from 'storybook/test';
-import { ProfileSquadsWidget } from '@dailydotdev/shared/src/features/profile/components/ProfileSquadsWidget';
-import { ProfileSquadsWidgetSkeleton } from '@dailydotdev/shared/src/features/profile/components/ProfileSquadsWidgetSkeleton';
+import { ActiveOrRecomendedSquads } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ActiveOrRecomendedSquads';
+import { ActiveOrRecomendedSquadsSkeleton } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ActiveOrRecomendedSquadsSkeleton';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -14,9 +14,9 @@ import { generateQueryKey, RequestKey } from '@dailydotdev/shared/src/lib/query'
 
 const LogContext = getLogContextStatic();
 
-const meta: Meta<typeof ProfileSquadsWidget> = {
-  title: 'Features/Profile/ProfileSquadsWidget',
-  component: ProfileSquadsWidget,
+const meta: Meta<typeof ActiveOrRecomendedSquads> = {
+  title: 'Features/Profile/ActiveOrRecomendedSquads',
+  component: ActiveOrRecomendedSquads,
   tags: ['autodocs'],
   argTypes: {
     userId: {
@@ -89,7 +89,7 @@ const meta: Meta<typeof ProfileSquadsWidget> = {
 
 export default meta;
 
-type Story = StoryObj<typeof ProfileSquadsWidget>;
+type Story = StoryObj<typeof ActiveOrRecomendedSquads>;
 
 const createSquad = (
   id: string,
@@ -276,8 +276,8 @@ export const OtherUserNoSquads: Story = {
   },
 };
 
-export const Loading: StoryObj<typeof ProfileSquadsWidgetSkeleton> = {
-  render: () => <ProfileSquadsWidgetSkeleton />,
+export const Loading: StoryObj<typeof ActiveOrRecomendedSquadsSkeleton> = {
+  render: () => <ActiveOrRecomendedSquadsSkeleton />,
   parameters: {
     docs: {
       description: {

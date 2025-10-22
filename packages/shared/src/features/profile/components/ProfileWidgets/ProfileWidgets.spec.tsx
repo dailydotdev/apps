@@ -2,18 +2,18 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { LoggedUser, PublicProfile } from '../../lib/user';
-import AuthContext from '../../contexts/AuthContext';
+import type { LoggedUser, PublicProfile } from '../../../../lib/user';
+import AuthContext from '../../../../contexts/AuthContext';
 import { ProfileWidgets } from './ProfileWidgets';
-import { USER_READING_HISTORY_QUERY } from '../../graphql/users';
-import type { ProfileReadingData } from '../../graphql/users';
-import type { Connection } from '../../graphql/common';
-import type { SourceMember, Squad } from '../../graphql/sources';
-import { SourceMemberRole, SourceType } from '../../graphql/sources';
-import { settingsContext } from '../../../__tests__/helpers/boot';
-import SettingsContext from '../../contexts/SettingsContext';
-import { getLogContextStatic } from '../../contexts/LogContext';
-import { gqlClient } from '../../graphql/common';
+import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
+import type { ProfileReadingData } from '../../../../graphql/users';
+import type { Connection } from '../../../../graphql/common';
+import type { SourceMember, Squad } from '../../../../graphql/sources';
+import { SourceMemberRole, SourceType } from '../../../../graphql/sources';
+import { settingsContext } from '../../../../../__tests__/helpers/boot';
+import SettingsContext from '../../../../contexts/SettingsContext';
+import { getLogContextStatic } from '../../../../contexts/LogContext';
+import { gqlClient } from '../../../../graphql/common';
 
 const LogContext = getLogContextStatic();
 
@@ -21,15 +21,16 @@ jest.mock('next/dynamic', () => ({
   __esModule: true,
   default: () => {
     // Synchronously require the actual component
-    const mod = jest.requireActual<Record<string, React.ComponentType>>(
-      './ProfileWidgets/BadgesAndAwards',
-    );
+    const mod =
+      jest.requireActual<Record<string, React.ComponentType>>(
+        './BadgesAndAwards',
+      );
     return mod.BadgesAndAwards;
   },
 }));
 
 // Mock gqlClient
-jest.mock('../../graphql/common', () => ({
+jest.mock('../../../../graphql/common', () => ({
   gqlClient: {
     request: jest.fn(),
   },
