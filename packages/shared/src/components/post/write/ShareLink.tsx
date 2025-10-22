@@ -1,8 +1,8 @@
 import type { FormEventHandler, ReactElement } from 'react';
 import React, { useState } from 'react';
+import z from 'zod';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import z from 'zod';
 import type { Squad } from '../../../graphql/sources';
 import MarkdownInput from '../../fields/MarkdownInput';
 import { WriteFooter } from './WriteFooter';
