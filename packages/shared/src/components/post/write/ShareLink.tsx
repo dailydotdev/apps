@@ -131,7 +131,7 @@ export function ShareLink({
       return null;
     }
 
-    const isImageValid = z.httpUrl().safeParse(image).success;
+    const { success: isImageValid } = z.httpUrl().safeParse(image);
     const args = {
       commentary,
       content: '',
