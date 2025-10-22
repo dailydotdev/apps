@@ -21,38 +21,28 @@ export const useDomObserver = () => {
       const { cta, message } = res.userReferralRecruiter;
       // store it maybe
       // generate the ui - it must be a link to click with the message from the response and link
-      const container = document.querySelector(`.${containerClass}`);
+      const parent = document.querySelector(`.${containerClass}`);
+      const container = document.createElement('div');
+      container.style =
+        'display: flex; justify-content: center; margin-bottom: 8px;';
       const constructed = document.createElement('button');
-      constructed.style.backgroundColor = 'lightgray';
+      constructed.setAttribute(
+        'class',
+        'conversations-quick-replies__reply-button artdeco-button artdeco-button--2 artdeco-button--secondary',
+      );
+      constructed.style.marginLeft = 'auto';
+      constructed.style.marginRight = 'auto';
       constructed.innerText = cta;
       constructed.onclick = () => {
-        // we should traverse the dom to find the closest textbox - 5 parents before we start querying - for now let's use specific textbox class
-        // there is a div element with contenteditable true - class is msg-form__contenteditable
-        // const textbox = document.querySelector(
-        //   '.msg-form__contenteditable',
-        // ) as HTMLDivElement;
-        // const input = document.querySelector(
-        //   '.msg-form input',
-        // ) as HTMLInputElement;
-        // if (textbox) {
-        //   textbox.innerText = message;
-        //   textbox.setAttribute('data-artdeco-is-focused', 'true');
-        //   textbox.dispatchEvent(new Event('focus'));
-        //   textbox.dispatchEvent(
-        //     new KeyboardEvent('keypress', { key: message }),
-        //   );
-        //   input.value = message;
-        //   input.dispatchEvent(new Event('change', { bubbles: true }));
-        //   textbox.onchange(new Event('change', { bubbles: true })); // trigger change event
-        //   textbox.dispatchEvent(new Event('blur'));
-        // }
+        navigator.clipboard.writeText(message);
       };
 
-      if (!container) {
+      if (!parent) {
         return;
       }
 
       container.appendChild(constructed);
+      parent.appendChild(container);
     },
   });
 
@@ -70,7 +60,7 @@ export const useDomObserver = () => {
 
   useEffect(() => {
     const func = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 5000)); // temporary: just to load the page
+      await new Promise((resolve) => setTimeout(resolve, 3000)); // temporary: just to load the page
 
       const anchor = document.querySelector('.msg-thread__link-to-profile');
 
