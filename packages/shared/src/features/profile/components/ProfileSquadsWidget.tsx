@@ -29,6 +29,7 @@ import {
   useSources,
   getFlatteredSources,
 } from '../../../hooks/source/useSources';
+import { ProfileSquadsWidgetSkeleton } from './ProfileSquadsWidgetSkeleton';
 
 interface ProfileSquadsWidgetProps {
   squads: Array<Squad>;
@@ -87,7 +88,7 @@ const SquadListItem = ({
 }: SquadListItemProps) => {
   const { displayToast } = useToastNotification();
   const { squads, isAuthReady } = useAuthContext();
-  const hasJoined = showJoinButton && squads?.some((sq) => sq.id === squad.id);
+  const hasSquadsInList = squads?.some((sq) => sq.id === squad.id);
 
   if (!isAuthReady) {
     return null;
@@ -130,7 +131,7 @@ const SquadListItem = ({
           {squad.membersCount !== 1 && 's'}
         </Typography>
       </div>
-      {!hasJoined && (
+      {showJoinButton && !hasSquadsInList && (
         <SquadActionButton
           alwaysShow
           copy={{ join: 'Join', leave: 'Leave' }}
@@ -150,60 +151,68 @@ export const ProfileSquadsWidget = (props: ProfileSquadsWidgetProps) => {
   const { heading, squads, showMore, isReady, isShowingSuggestions } =
     useProfileSquadsWidget(props);
 
-  if (!squads.length || !isReady) {
+  if (!isReady) {
+    return <ProfileSquadsWidgetSkeleton />;
+  }
+
+  if (!squads.length) {
     return null;
   }
 
   return (
     <ActivityContainer>
-      <Typography
-        bold
-        color={TypographyColor.Primary}
-        tag={TypographyTag.H4}
-        type={TypographyType.Callout}
-      >
-        {heading}
-      </Typography>
-      <ul className="mt-4 flex flex-col gap-2">
-        {squads.map((squad) => (
-          <SquadListItem
-            key={squad.id}
-            showJoinButton={isShowingSuggestions}
-            squad={squad}
-          />
-        ))}
-      </ul>
-      {isShowingSuggestions && (
-        <Button
-          className="mt-3 w-full"
-          href={`${webappUrl}squads/discover`}
-          icon={
-            <StraightArrowIcon
-              aria-hidden
-              className="-rotate-90"
-              size={IconSize.Size16}
+      <div className="flex min-h-0 flex-1 flex-col">
+        <Typography
+          bold
+          color={TypographyColor.Primary}
+          tag={TypographyTag.H4}
+          type={TypographyType.Callout}
+        >
+          {heading}
+        </Typography>
+        <ul className="mt-4 flex flex-col gap-2">
+          {squads.map((squad) => (
+            <SquadListItem
+              key={squad.id}
+              showJoinButton={isShowingSuggestions}
+              squad={squad}
             />
-          }
-          iconPosition={ButtonIconPosition.Right}
-          rel={anchorDefaultRel}
-          size={ButtonSize.Small}
-          tag="a"
-          target="_blank"
-          variant={ButtonVariant.Subtle}
-        >
-          {labels.profile.sources.viewAll}
-        </Button>
-      )}
-      {showMore.isVisible && (
-        <Button
-          className="mt-3 w-full"
-          onClick={() => showMore.toggle()}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Subtle}
-        >
-          {showMore.isActive ? 'Show less' : 'Show all Squads'}
-        </Button>
-      )}
+          ))}
+        </ul>
+        <div className="mt-auto pt-3">
+          {isShowingSuggestions && (
+            <Button
+              className="w-full"
+              href={`${webappUrl}squads/discover`}
+              icon={
+                <StraightArrowIcon
+                  aria-hidden
+                  className="-rotate-90"
+                  size={IconSize.Size16}
+                />
+              }
+              iconPosition={ButtonIconPosition.Right}
+              rel={anchorDefaultRel}
+              size={ButtonSize.Small}
+              tag="a"
+              target="_blank"
+              variant={ButtonVariant.Subtle}
+            >
+              {labels.profile.sources.viewAll}
+            </Button>
+          )}
+          {showMore.isVisible && (
+            <Button
+              className="w-full"
+              onClick={() => showMore.toggle()}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Subtle}
+            >
+              {showMore.isActive ? 'Show less' : 'Show all Squads'}
+            </Button>
+          )}
+        </div>
+      </div>
     </ActivityContainer>
   );
 };
