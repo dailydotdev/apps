@@ -19,6 +19,7 @@ import {
 import { useDynamicHeader } from '@dailydotdev/shared/src/useDynamicHeader';
 import { Header } from '@dailydotdev/shared/src/components/profile/Header';
 import classNames from 'classnames';
+import { ProfileCompletion } from '@dailydotdev/shared/src/components/profile/ProfileWidgets/ProfileCompletion';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
@@ -26,7 +27,6 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
-import { ProfileCompletion } from '@dailydotdev/shared/src/components/profile/ProfileWidgets/ProfileCompletion';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({

@@ -146,7 +146,7 @@ export const ProfileCompletion = ({
         className,
       )}
     >
-      <div className="flex w-full gap-6">
+      <div className="flex w-full items-center gap-6">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <Typography
             type={TypographyType.Callout}
@@ -170,7 +170,7 @@ export const ProfileCompletion = ({
           </div>
         </div>
 
-        <div className="shrink-0">
+        <div className="flex shrink-0 leading-none">
           <ProgressCircle progress={progress} size={50} showPercentage />
         </div>
       </div>
