@@ -1,21 +1,21 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { UserStreak, MostReadTag } from '../../../graphql/users';
-import { largeNumberFormat, getTagPageLink } from '../../../lib';
-import Link from '../../utilities/Link';
-import { Tooltip } from '../../tooltip/Tooltip';
+import type { UserStreak, MostReadTag } from '../../../../graphql/users';
+import { largeNumberFormat, getTagPageLink } from '../../../../lib';
+import Link from '../../../../components/utilities/Link';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
+} from '../../../../components/typography/Typography';
 import { SummaryCard } from './BadgesAndAwardsComponents';
-import { anchorDefaultRel, capitalize } from '../../../lib/strings';
-import { ActivityContainer } from '../ActivitySection';
-import { ClickableText } from '../../buttons/ClickableText';
-import { ElementPlaceholder } from '../../ElementPlaceholder';
-import { migrateUserToStreaks } from '../../../lib/constants';
+import { anchorDefaultRel, capitalize } from '../../../../lib/strings';
+import { ActivityContainer } from '../../../../components/profile/ActivitySection';
+import { ClickableText } from '../../../../components/buttons/ClickableText';
+import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
+import { migrateUserToStreaks } from '../../../../lib/constants';
 
 // ReadingTagProgress component
 interface ReadingTagProgressProps {

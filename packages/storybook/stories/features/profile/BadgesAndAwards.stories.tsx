@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BadgesAndAwards } from '@dailydotdev/shared/src/components/profile/ProfileWidgets/BadgesAndAwards';
+import { BadgesAndAwards } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/BadgesAndAwards';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import type { TopReader } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
 import { ProductType } from '@dailydotdev/shared/src/graphql/njord';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { BadgesAndAwardsSkeleton } from '@dailydotdev/shared/src/components/profile/ProfileWidgets/BadgesAndAwardsComponents';
+import { BadgesAndAwardsSkeleton } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/BadgesAndAwardsComponents';
 import React from 'react';
 import { fn } from 'storybook/test';
 
 const meta: Meta<typeof BadgesAndAwards> = {
-  title: 'Profile/BadgesAndAwards',
+  title: 'Features/Profile/BadgesAndAwards',
   component: BadgesAndAwards,
   parameters: {
     layout: 'padded',

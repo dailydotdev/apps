@@ -4,25 +4,25 @@ import type {
   UserReadHistory,
   UserStreak,
   MostReadTag,
-} from '../../../graphql/users';
-import { ActivityContainer } from '../ActivitySection';
-import { CalendarHeatmap } from '../../CalendarHeatmap';
-import { migrateUserToStreaks } from '../../../lib/constants';
-import { ClickableText } from '../../buttons/ClickableText';
+} from '../../../../graphql/users';
+import { ActivityContainer } from '../../../../components/profile/ActivitySection';
+import { CalendarHeatmap } from '../../../../components/CalendarHeatmap';
+import { migrateUserToStreaks } from '../../../../lib/constants';
+import { ClickableText } from '../../../../components/buttons/ClickableText';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../../typography/Typography';
+} from '../../../../components/typography/Typography';
 import {
   ReadingStreaksSection,
   ReadingTagsSection,
   HeatmapLegend,
   ReadingOverviewSkeleton,
 } from './ReadingOverviewComponents';
-import { anchorDefaultRel, pluralize } from '../../../lib/strings';
-import { largeNumberFormat } from '../../../lib';
+import { anchorDefaultRel, pluralize } from '../../../../lib/strings';
+import { largeNumberFormat } from '../../../../lib';
 
 // Utility functions
 const readHistoryToValue = (value: UserReadHistory): number => value.reads;
