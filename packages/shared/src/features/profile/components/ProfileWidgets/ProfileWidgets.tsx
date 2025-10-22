@@ -58,8 +58,9 @@ export function ProfileWidgets({
         className,
       )}
     >
-      {/* TODO: Add is same user check */}
-      <ProfileCompletion className="hidden laptop:flex" user={user} />
+      {isSameUser && (
+        <ProfileCompletion className="hidden laptop:flex" user={user} />
+      )}
       {readingHistory?.userReadingRankHistory && (
         <ReadingOverview
           readHistory={readingHistory?.userReadHistory}
