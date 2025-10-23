@@ -57,8 +57,8 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import useHookForm from '@dailydotdev/shared/src/hooks/useHookForm';
 import { locationProfileImage } from '@dailydotdev/shared/src/lib/image';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import { AccountPageContainer } from '../AccountPageContainer';
 import { getCompletionItems } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
+import { AccountPageContainer } from '../AccountPageContainer';
 
 const Section = classed('section', 'flex flex-col gap-7');
 
