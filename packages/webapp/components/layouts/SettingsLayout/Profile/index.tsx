@@ -30,10 +30,14 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import {
+  useToastNotification,
+  useActions,
+} from '@dailydotdev/shared/src/hooks';
 import type { ProfileFormHint } from '@dailydotdev/shared/src/hooks/useProfileForm';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 
 import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -54,6 +58,7 @@ import useHookForm from '@dailydotdev/shared/src/hooks/useHookForm';
 import { locationProfileImage } from '@dailydotdev/shared/src/lib/image';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { AccountPageContainer } from '../AccountPageContainer';
+import { getCompletionItems } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
 
 const Section = classed('section', 'flex flex-col gap-7');
 
@@ -86,8 +91,24 @@ const ProfileIndex = (): ReactElement => {
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+
   const onSuccess = () => {
-    displayToast('Profile updated');
+    const formData = hookForm.getValues();
+    const completionItems = getCompletionItems(formData);
+    const isProfileComplete = completionItems.every((item) => item.completed);
+    const hasCompletedAction =
+      isActionsFetched && checkHasCompleted(ActionType.ProfileCompleted);
+
+    if (isProfileComplete && !hasCompletedAction) {
+      displayToast(
+        'Your profile has been completed successfully. All your details are now up to date 🎉',
+      );
+      completeAction(ActionType.ProfileCompleted);
+    } else {
+      displayToast('Profile updated');
+    }
+
     logEvent({ event_name: LogEvent.UpdateProfile });
   };
   const { updateUserProfile, isLoading } = useProfileForm({ onSuccess });

@@ -1,46 +1,24 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { useRouter } from 'next/router';
+import { render, screen } from '@testing-library/react';
 import type {
   LoggedUser,
   PublicProfile,
   UserExperienceLevel,
 } from '../../../../lib/user';
 import { ProfileCompletion } from './ProfileCompletion';
-import { useToastNotification, useActions } from '../../../../hooks';
-
-// Mock next/router
-jest.mock('next/router', () => ({
-  useRouter: jest.fn(),
-}));
+import { useActions } from '../../../../hooks';
 
 // Mock hooks
 jest.mock('../../../../hooks', () => ({
-  useToastNotification: jest.fn(),
   useActions: jest.fn(),
 }));
 
-const mockPush = jest.fn();
-const mockDisplayToast = jest.fn();
-const mockCompleteAction = jest.fn();
 const mockCheckHasCompleted = jest.fn();
-const mockUseRouter = useRouter as jest.Mock;
-const mockUseToastNotification = useToastNotification as jest.Mock;
 const mockUseActions = useActions as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockUseRouter.mockReturnValue({
-    push: mockPush,
-    pathname: '/',
-    query: {},
-    asPath: '/',
-  });
-  mockUseToastNotification.mockReturnValue({
-    displayToast: mockDisplayToast,
-  });
   mockUseActions.mockReturnValue({
-    completeAction: mockCompleteAction,
     checkHasCompleted: mockCheckHasCompleted,
     actions: [],
     isActionsFetched: true,
@@ -86,30 +64,6 @@ describe('ProfileCompletion', () => {
 
       render(<ProfileCompletion user={completeUser} />);
       expect(screen.queryByText('Profile Completion')).not.toBeInTheDocument();
-    });
-
-    it('should display toast when profile reaches 100% completion', () => {
-      const completeUser: LoggedUser = {
-        ...baseUser,
-        email: 'test@example.com',
-        providers: ['google'],
-      };
-
-      render(<ProfileCompletion user={completeUser} />);
-      expect(mockDisplayToast).toHaveBeenCalledWith(
-        'Your profile has been completed successfully. All your details are now up to date 🎉',
-      );
-    });
-
-    it('should complete ProfileCompleted action when profile reaches 100%', () => {
-      const completeUser: LoggedUser = {
-        ...baseUser,
-        email: 'test@example.com',
-        providers: ['google'],
-      };
-
-      render(<ProfileCompletion user={completeUser} />);
-      expect(mockCompleteAction).toHaveBeenCalledWith('profile_completed');
     });
 
     it('should not render if ProfileCompleted action was already completed', () => {
@@ -234,57 +188,53 @@ describe('ProfileCompletion', () => {
   });
 
   describe('Navigation', () => {
-    it('should redirect to profile settings when profile image is missing', () => {
+    it('should have link to profile settings when profile image is missing', () => {
       const user: PublicProfile = {
         ...baseUser,
         image: '',
       };
 
       render(<ProfileCompletion user={user} />);
-      const component = screen.getByRole('button');
-      fireEvent.click(component);
+      const component = screen.getByRole('link');
 
-      expect(mockPush).toHaveBeenCalledWith('//settings/profile');
+      expect(component).toHaveAttribute('href', '/settings/profile');
     });
 
-    it('should redirect to profile settings when headline is missing', () => {
+    it('should have link to profile settings when headline is missing', () => {
       const user: PublicProfile = {
         ...baseUser,
         bio: '',
       };
 
       render(<ProfileCompletion user={user} />);
-      const component = screen.getByRole('button');
-      fireEvent.click(component);
+      const component = screen.getByRole('link');
 
-      expect(mockPush).toHaveBeenCalledWith('//settings/profile');
+      expect(component).toHaveAttribute('href', '/settings/profile');
     });
 
-    it('should redirect to profile settings when experience level is missing', () => {
+    it('should have link to profile settings when experience level is missing', () => {
       const user: PublicProfile = {
         ...baseUser,
         experienceLevel: undefined,
       };
 
       render(<ProfileCompletion user={user} />);
-      const component = screen.getByRole('button');
-      fireEvent.click(component);
+      const component = screen.getByRole('link');
 
-      expect(mockPush).toHaveBeenCalledWith('//settings/profile');
+      expect(component).toHaveAttribute('href', '/settings/profile');
     });
 
-    it('should redirect to first incomplete item in priority order', () => {
+    it('should have link to first incomplete item in priority order', () => {
       const user: PublicProfile = {
         ...baseUser,
         companies: undefined, // Missing work experience (last priority)
       };
 
       render(<ProfileCompletion user={user} />);
-      const component = screen.getByRole('button');
-      fireEvent.click(component);
+      const component = screen.getByRole('link');
 
-      // Should redirect to work experience even though it's last in priority
-      expect(mockPush).toHaveBeenCalledWith('//settings/profile');
+      // Should link to work experience even though it's last in priority
+      expect(component).toHaveAttribute('href', '/settings/profile');
     });
   });
 });

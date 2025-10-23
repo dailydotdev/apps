@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ProfileCompletion } from '@dailydotdev/shared/src/components/profile/ProfileWidgets/ProfileCompletion';
+import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import type { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useRouter } from '../../../mock/next-router';
-import { useToastNotification } from '../../../mock/hooks/useToastNotification';
-import { useActions } from '../../../mock/hooks/useActions';
 import { fn } from 'storybook/test';
 
 const mockUser: PublicProfile = {
@@ -36,7 +33,7 @@ const mockUser: PublicProfile = {
 };
 
 const meta: Meta<typeof ProfileCompletion> = {
-  title: 'Profile/ProfileCompletion',
+  title: 'Features/Profile/ProfileCompletion',
   component: ProfileCompletion,
   parameters: {
     layout: 'padded',
@@ -73,31 +70,6 @@ const meta: Meta<typeof ProfileCompletion> = {
       );
     },
   ],
-  beforeEach: () => {
-    useRouter.mockReturnValue({
-      push: fn((url) => console.log('Navigating to:', url)),
-      replace: fn(),
-      pathname: '/johndoe',
-      query: {},
-    });
-
-    useToastNotification.mockReturnValue({
-      displayToast: fn((message: string) => {
-        console.log('Toast:', message);
-      }),
-      dismissToast: fn(),
-    });
-
-    useActions.mockReturnValue({
-      completeAction: fn((type: string) => {
-        console.log('Action completed:', type);
-        return Promise.resolve();
-      }),
-      checkHasCompleted: fn(() => false),
-      actions: [],
-      isActionsFetched: true,
-    });
-  },
 };
 
 export default meta;
