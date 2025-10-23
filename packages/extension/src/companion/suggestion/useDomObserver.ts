@@ -1,5 +1,6 @@
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { USER_REFERRAL_RECRUITER_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import { useRequestProtocol } from '@dailydotdev/shared/src/hooks/useRequestProtocol';
 import {
@@ -15,6 +16,7 @@ export const useDomObserver = () => {
   const [id, setId] = useState<string>(null);
   const { user } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.InviteRecruiter, user, id);
+  const { displayToast } = useToastNotification();
   useBackgroundRequest(queryKey, {
     enabled: !!id,
     callback: ({ res }) => {
@@ -35,6 +37,7 @@ export const useDomObserver = () => {
       constructed.innerText = cta;
       constructed.onclick = () => {
         navigator.clipboard.writeText(message);
+        displayToast('Referral message copied to clipboard!');
       };
 
       if (!parent) {
