@@ -1,0 +1,76 @@
+import type { ReactElement } from 'react';
+import React, { useContext } from 'react';
+import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
+import { startOfTomorrow, subDays, subMonths } from 'date-fns';
+import dynamic from 'next/dynamic';
+import AuthContext from '../../../../contexts/AuthContext';
+import { ActiveOrRecomendedSquads } from './ActiveOrRecomendedSquads';
+import type { ProfileReadingData, ProfileV2 } from '../../../../graphql/users';
+import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
+import { generateQueryKey, RequestKey } from '../../../../lib/query';
+import { gqlClient } from '../../../../graphql/common';
+import { ReadingOverview } from './ReadingOverview';
+
+const BadgesAndAwards = dynamic(() =>
+  import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
+);
+
+export interface ProfileWidgetsProps extends ProfileV2 {
+  className?: string;
+  enableSticky?: boolean;
+}
+
+export function ProfileWidgets({
+  user,
+  sources,
+  className,
+}: ProfileWidgetsProps): ReactElement {
+  const { user: loggedUser, tokenRefreshed } = useContext(AuthContext);
+  const isSameUser = loggedUser?.id === user.id;
+
+  const before = startOfTomorrow();
+  const after = subMonths(subDays(before, 2), 5);
+
+  const { data: readingHistory, isLoading: isReadingHistoryLoading } =
+    useQuery<ProfileReadingData>({
+      queryKey: generateQueryKey(RequestKey.ReadingStats, user),
+      queryFn: () =>
+        gqlClient.request(USER_READING_HISTORY_QUERY, {
+          id: user?.id,
+          before,
+          after,
+          version: 2,
+          limit: 6,
+        }),
+      enabled: !!user && tokenRefreshed && !!before && !!after,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
+    });
+  const squads = sources?.edges?.map((s) => s.node.source) ?? [];
+
+  return (
+    <div
+      className={classNames(
+        'my-4 flex gap-2 laptop:my-0 laptop:flex-col',
+        className,
+      )}
+    >
+      {readingHistory?.userReadingRankHistory && (
+        <ReadingOverview
+          readHistory={readingHistory?.userReadHistory}
+          before={before}
+          after={after}
+          streak={readingHistory?.userStreakProfile}
+          mostReadTags={readingHistory?.userMostReadTags}
+          isLoading={isReadingHistoryLoading}
+        />
+      )}
+      {(isSameUser || squads.length > 0) && (
+        <ActiveOrRecomendedSquads userId={user.id} squads={squads} />
+      )}
+      <BadgesAndAwards user={user} />
+    </div>
+  );
+}

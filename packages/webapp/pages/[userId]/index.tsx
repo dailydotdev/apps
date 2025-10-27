@@ -1,113 +1,99 @@
 import type { ReactElement } from 'react';
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import type { ProfileReadingData } from '@dailydotdev/shared/src/graphql/users';
-import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useActivityTimeFilter } from '@dailydotdev/shared/src/hooks/profile/useActivityTimeFilter';
-import { ReadingTagsWidget } from '@dailydotdev/shared/src/components/profile/ReadingTagsWidget';
-import { ReadingHeatmapWidget } from '@dailydotdev/shared/src/components/profile/ReadingHeatmapWidget';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
+import React, { useMemo } from 'react';
 import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
-import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
-import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
-import dynamic from 'next/dynamic';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
-import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
+import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
+import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
+import {
+  TypographyType,
+  TypographyTag,
+  TypographyColor,
+  Typography,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { useDynamicHeader } from '@dailydotdev/shared/src/useDynamicHeader';
+import { Header } from '@dailydotdev/shared/src/components/profile/Header';
+import classNames from 'classnames';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
-import { ReadingStreaksWidget } from '../../../shared/src/components/profile/ReadingStreaksWidget';
-
-const BadgesAndAwards = dynamic(
-  () =>
-    import('@dailydotdev/shared/src/components/profile/BadgesAndAwards').then(
-      (mod) => mod.BadgesAndAwards,
-    ),
-  {
-    ssr: false,
-  },
-);
+import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
   user: initialUser,
   noindex,
   userStats,
+  sources,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
-  const { tokenRefreshed } = useAuthContext();
-  const { isStreaksEnabled } = useReadingStreak();
+  const { status, onUpload, shouldShow } = useUploadCv();
+  const { checkHasCompleted } = useActions();
+  const hasClosedBanner = useMemo(
+    () => checkHasCompleted(ActionType.ClosedProfileBanner),
+    [checkHasCompleted],
+  );
 
-  const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
-    useActivityTimeFilter();
-
-  const { user } = useProfile(initialUser);
-
-  const { data: readingHistory, isLoading } = useQuery<ProfileReadingData>({
-    queryKey: generateQueryKey(
-      RequestKey.ReadingStats,
-      user,
-      selectedHistoryYear,
-    ),
-
-    queryFn: () =>
-      gqlClient.request(USER_READING_HISTORY_QUERY, {
-        id: user?.id,
-        before,
-        after,
-        version: 2,
-        limit: 6,
-      }),
-    enabled: !!user && tokenRefreshed && !!before && !!after,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
-  });
+  const { user, isUserSame } = useProfile(initialUser);
+  const { ref: stickyRef, progress: stickyProgress } =
+    useDynamicHeader<HTMLDivElement>(true);
+  const hideSticky = !stickyProgress;
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(user, {}, noindex),
   };
+
+  const shouldShowBanner = isUserSame && shouldShow && !hasClosedBanner;
+
   return (
-    <>
+    <div className="rounded-16 border border-border-subtlest-tertiary">
       <NextSeo {...seo} />
-      <div className="flex flex-col gap-6 px-0 py-6">
-        <ProfileHeader user={user} userStats={userStats} />
-        <Readme user={user} />
-        <BadgesAndAwards user={user} />
-        {isStreaksEnabled && readingHistory?.userStreakProfile && (
-          <ReadingStreaksWidget
-            streak={readingHistory?.userStreakProfile}
-            isLoading={isLoading}
+      <Header
+        user={user}
+        isSameUser={isUserSame}
+        sticky={!hideSticky}
+        className={classNames(
+          'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75 laptop:hidden',
+          !hideSticky ? 'fixed tablet:pl-20' : 'relative',
+        )}
+      />
+      <div ref={stickyRef} />
+      <ProfileHeader user={user} userStats={userStats} />
+      <div className="flex flex-col gap-6 p-6">
+        {shouldShowBanner && (
+          <AutofillProfileBanner
+            onUpload={onUpload}
+            isLoading={status === 'pending'}
           />
         )}
-        {readingHistory?.userReadingRankHistory && (
-          <>
-            <ReadingTagsWidget
-              mostReadTags={readingHistory?.userMostReadTags}
-            />
-            <ReadingHeatmapWidget
-              fullHistory={fullHistory}
-              selectedHistoryYear={selectedHistoryYear}
-              readHistory={readingHistory?.userReadHistory}
-              before={before}
-              after={after}
-              yearOptions={yearOptions}
-            />
-          </>
-        )}
+        <Readme user={user} />
+        <div>
+          <Typography
+            type={TypographyType.Body}
+            tag={TypographyTag.H1}
+            color={TypographyColor.Primary}
+            bold
+            className="laptop:hidden"
+          >
+            Highlights
+          </Typography>
+          <ProfileWidgets
+            user={user}
+            userStats={userStats}
+            sources={sources}
+            className="no-scrollbar overflow-auto laptop:hidden"
+          />
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

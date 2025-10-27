@@ -3,7 +3,7 @@ import { gqlClient } from './common';
 
 export type TLocation = {
   id: string;
-  city: string;
+  city?: string;
   country: string;
   subdivision?: string;
 };
@@ -19,7 +19,9 @@ export const AUTOCOMPLETE_LOCATION_QUERY = gql`
   }
 `;
 
-export const getAutocompleteLocations = async (query: string) => {
+export const getAutocompleteLocations = async (
+  query: string,
+): Promise<TLocation[]> => {
   const res = await gqlClient.request(AUTOCOMPLETE_LOCATION_QUERY, { query });
   return res.autocompleteLocation;
 };

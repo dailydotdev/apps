@@ -178,6 +178,7 @@ function ImageInput({
           variant={ButtonVariant.Primary}
           className="absolute -right-2 -top-2 !shadow-2"
           onClick={onClose}
+          type="button"
         />
       )}
     </div>
