@@ -107,6 +107,8 @@ export interface UserProfile {
   language?: string;
   defaultFeedId?: string;
   readme?: string;
+  image?: string;
+  locationId?: string;
 }
 
 export interface UserShortProfile
