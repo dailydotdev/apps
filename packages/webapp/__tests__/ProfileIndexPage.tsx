@@ -125,8 +125,25 @@ it('should show the top reading tags of the user', async () => {
   await screen.findByText('C#');
 });
 
-it('should show the readme of the user', async () => {
+it('should show the about me section with readme of the user', async () => {
   renderComponent();
   await waitForNock();
-  expect(await screen.findByText('This is my readme')).toBeInTheDocument();
+  const aboutMeHeadings = await screen.findAllByText('About me');
+  expect(aboutMeHeadings.length).toBeGreaterThan(0);
+  const readmeContent = await screen.findAllByText('This is my readme');
+  expect(readmeContent.length).toBeGreaterThan(0);
+});
+
+it('should show social links in about me section', async () => {
+  renderComponent();
+  await waitForNock();
+  const twitterLinks = await screen.findAllByTestId('social-link-twitter');
+  expect(twitterLinks.length).toBeGreaterThan(0);
+  expect(twitterLinks[0]).toHaveAttribute('href', 'https://x.com/dailydotdev');
+  const githubLinks = await screen.findAllByTestId('social-link-github');
+  expect(githubLinks.length).toBeGreaterThan(0);
+  expect(githubLinks[0]).toHaveAttribute(
+    'href',
+    'https://github.com/dailydotdev',
+  );
 });

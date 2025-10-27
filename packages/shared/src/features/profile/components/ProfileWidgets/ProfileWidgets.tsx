@@ -11,6 +11,8 @@ import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { gqlClient } from '../../../../graphql/common';
 import { ReadingOverview } from './ReadingOverview';
+import { ProfileCompletion } from './ProfileCompletion';
+import { Share } from './Share';
 
 const BadgesAndAwards = dynamic(() =>
   import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
@@ -57,6 +59,12 @@ export function ProfileWidgets({
         className,
       )}
     >
+      {isSameUser && (
+        <ProfileCompletion className="hidden laptop:flex" user={user} />
+      )}
+      {isSameUser && (
+        <Share permalink={user?.permalink} className="hidden laptop:flex" />
+      )}
       {readingHistory?.userReadingRankHistory && (
         <ReadingOverview
           readHistory={readingHistory?.userReadHistory}

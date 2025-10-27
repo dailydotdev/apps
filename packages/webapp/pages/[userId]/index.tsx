@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
+import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/AboutMe';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { NextSeo } from 'next-seo';
@@ -19,6 +19,8 @@ import {
 import { useDynamicHeader } from '@dailydotdev/shared/src/useDynamicHeader';
 import { Header } from '@dailydotdev/shared/src/components/profile/Header';
 import classNames from 'classnames';
+import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
+import { Share } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/Share';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
@@ -65,17 +67,24 @@ const ProfilePage = ({
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
         )}
       />
+      {isUserSame && (
+        <ProfileCompletion user={user} className="laptop:hidden" />
+      )}
       <div ref={stickyRef} />
       <ProfileHeader user={user} userStats={userStats} />
-      <div className="flex flex-col gap-6 p-6">
+      <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
         {shouldShowBanner && (
           <AutofillProfileBanner
             onUpload={onUpload}
             isLoading={status === 'pending'}
           />
         )}
-        <Readme user={user} />
-        <div>
+        {!shouldShowBanner && <div />}
+        <AboutMe user={user} />
+        {isUserSame && (
+          <Share permalink={user?.permalink} className="laptop:hidden" />
+        )}
+        <div className="py-4 laptop:hidden">
           <Typography
             type={TypographyType.Body}
             tag={TypographyTag.H1}

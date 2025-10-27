@@ -100,7 +100,7 @@ export const ActiveOrRecomendedSquads = (
         >
           {heading}
         </Typography>
-        <ul className="mt-4 flex flex-col gap-2">
+        <ul className="mt-4 flex max-h-96 flex-col gap-2 overflow-y-auto laptop:max-h-none laptop:overflow-y-visible">
           {squads.map((squad) => (
             <SquadListItem
               key={squad.id}

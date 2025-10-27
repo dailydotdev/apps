@@ -57,6 +57,7 @@ export interface PublicProfile {
   contentPreference?: ContentPreference;
   isPlus?: boolean;
   plusMemberSince?: Date;
+  experienceLevel?: keyof typeof UserExperienceLevel;
 }
 
 export enum UserExperienceLevel {
@@ -106,6 +107,8 @@ export interface UserProfile {
   language?: string;
   defaultFeedId?: string;
   readme?: string;
+  image?: string;
+  locationId?: string;
 }
 
 export interface UserShortProfile
