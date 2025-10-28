@@ -1,4 +1,3 @@
-import React from 'react';
 import { useMessagePopupObserver } from './useMessagePopupObserver';
 
 interface MessageSuggestionPopupProps {
