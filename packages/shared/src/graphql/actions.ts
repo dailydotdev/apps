@@ -53,6 +53,7 @@ export enum ActionType {
   OpportunityInitialView = 'opportunity_initial_view',
   UserCandidatePreferencesSaved = 'user_candidate_preferences_saved',
   UserPostInOpenSquadWarningSeen = 'user_post_in_open_squad_warning_seen',
+  ProfileCompleted = 'profile_completed',
 }
 
 export const cvActions = [

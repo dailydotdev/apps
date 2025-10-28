@@ -4,7 +4,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { SourceCategory } from '@dailydotdev/shared/src/graphql/source/categories';
 import { getSourceCategory } from '@dailydotdev/shared/src/graphql/source/categories';
-import { useSources } from '@dailydotdev/shared/src/hooks/source/useSources';
+import {
+  useSources,
+  getFlatteredNodes,
+} from '@dailydotdev/shared/src/hooks/source/useSources';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
@@ -46,8 +49,7 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
     },
   });
   const { isInitialLoading } = result;
-  const flatSources =
-    result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
+  const flatSources = getFlatteredNodes(result);
   const isTablet = useViewSize(ViewSize.Tablet);
 
   return (
