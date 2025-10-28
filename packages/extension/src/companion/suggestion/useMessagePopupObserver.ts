@@ -12,7 +12,7 @@ import { generateReplySuggestion } from './common';
 
 interface UseMessagePopupObserverProps {
   id: string;
-  container: HTMLElement;
+  container: HTMLElement | Document;
 }
 
 const quickRepliesClass = 'msg-s-message-list__quick-replies-container';
