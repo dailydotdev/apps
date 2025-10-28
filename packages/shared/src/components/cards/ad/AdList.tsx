@@ -15,6 +15,9 @@ import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import AdAttribution from './common/AdAttribution';
+import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
+import { apiUrl } from '../../../lib/config';
+import { CardHeader } from '../common/Card';
 
 const getLinkProps = ({
   ad,
@@ -36,6 +39,8 @@ export const AdList = forwardRef(function AdCard(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
+  const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
+  const iconSize = Math.round(24 * pixelRatio);
   const { isPlus } = usePlusSubscription();
   const { ref, refetch, isRefetching } = useAutoRotatingAds(
     ad,
@@ -60,6 +65,19 @@ export const AdList = forwardRef(function AdCard(
         <CardTitle
           className={classNames('!mt-0 mr-4 line-clamp-4 flex-1 typo-title3')}
         >
+          <CardHeader className="mx-0 !mt-0 mb-2">
+            <ProfilePicture
+              size={ProfileImageSize.Medium}
+              user={{
+                id: ad.link,
+                image: `${apiUrl}/icon?url=${encodeURIComponent(
+                  ad.link,
+                )}&size=${iconSize}`,
+                username: ad.description,
+              }}
+              nativeLazyLoading
+            />
+          </CardHeader>
           {ad.description}
           <AdAttribution
             ad={ad}

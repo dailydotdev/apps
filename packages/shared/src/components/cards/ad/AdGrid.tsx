@@ -1,7 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef, useCallback } from 'react';
 
-import { Card, CardImage, CardTextContainer, CardTitle } from '../common/Card';
+import {
+  Card,
+  CardHeader,
+  CardImage,
+  CardTextContainer,
+  CardTitle,
+} from '../common/Card';
 import AdLink from './common/AdLink';
 import AdAttribution from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
@@ -13,11 +19,15 @@ import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { apiUrl } from '../../../lib/config';
+import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
+  const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
+  const iconSize = Math.round(24 * pixelRatio);
   const { isPlus } = usePlusSubscription();
   const { ref, refetch, isRefetching } = useAutoRotatingAds(
     ad,
@@ -34,6 +44,19 @@ export const AdGrid = forwardRef(function AdGrid(
   return (
     <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
+      <CardHeader className="mx-4">
+        <ProfilePicture
+          size={ProfileImageSize.Medium}
+          user={{
+            id: ad.link,
+            image: `${apiUrl}/icon?url=${encodeURIComponent(
+              ad.link,
+            )}&size=${iconSize}`,
+            username: ad.description,
+          }}
+          nativeLazyLoading
+        />
+      </CardHeader>
       <CardTextContainer className="flex-1">
         <CardTitle className="line-clamp-4 typo-title3">
           {ad.description}
