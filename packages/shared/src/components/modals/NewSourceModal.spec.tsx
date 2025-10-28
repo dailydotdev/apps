@@ -134,6 +134,7 @@ it('should show if the source already exists in the system', async () => {
     name: 'daily.dev',
     handle: 'daily',
     image: 'https://daily.dev',
+    permalink: 'https://daily.dev/sources/daily',
   };
   mockGraphQL({
     request: {
@@ -147,9 +148,9 @@ it('should show if the source already exists in the system', async () => {
     },
   });
 
-  const exists = `${source.name} already exist`;
   userEvent.click(await screen.findByText('Submit for review'));
-  expect(await screen.findByText(exists)).toBeInTheDocument();
+  expect(await screen.findByText('already exist')).toBeInTheDocument();
+  expect(await screen.findByText(source.name)).toBeInTheDocument();
 });
 
 it('should send source request', async () => {

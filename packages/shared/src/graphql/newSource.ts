@@ -10,6 +10,7 @@ export const SOURCE_BY_FEED_QUERY = gql`
       id
       name
       image
+      permalink
     }
   }
 `;
