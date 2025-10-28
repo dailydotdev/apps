@@ -12,5 +12,5 @@ export function MessageSuggestionPopup({
 }: MessageSuggestionPopupProps) {
   useMessagePopupObserver({ id, container: bubble });
 
-  return <></>;
+  return null;
 }
