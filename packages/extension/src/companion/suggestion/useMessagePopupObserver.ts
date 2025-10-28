@@ -1,6 +1,5 @@
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { USER_REFERRAL_RECRUITER_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import { useRequestProtocol } from '@dailydotdev/shared/src/hooks/useRequestProtocol';
 import {
@@ -16,6 +15,7 @@ interface UseMessagePopupObserverProps {
 }
 
 const quickRepliesClass = 'msg-s-message-list__quick-replies-container';
+const input = '.msg-form__contenteditable';
 
 export const useMessagePopupObserver = ({
   id,
@@ -23,7 +23,6 @@ export const useMessagePopupObserver = ({
 }: UseMessagePopupObserverProps) => {
   const { user } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.InviteRecruiter, user, id);
-  const { displayToast } = useToastNotification();
 
   useBackgroundRequest(queryKey, {
     enabled: !!id,
@@ -43,7 +42,22 @@ export const useMessagePopupObserver = ({
         wrapper: container,
         onClick: () => {
           navigator.clipboard.writeText(message);
-          displayToast('Referral message copied to clipboard!');
+          const replyBox = container.querySelector(input) as HTMLElement;
+          const p = document.createElement('p');
+          p.innerText = message;
+
+          replyBox.innerText = '';
+          replyBox.appendChild(p);
+
+          const inputEvent = new InputEvent('input', {
+            bubbles: true,
+            cancelable: true,
+            inputType: 'insertText',
+            data: message,
+          });
+
+          replyBox.dispatchEvent(inputEvent);
+          replyBox.focus();
         },
       });
     },
