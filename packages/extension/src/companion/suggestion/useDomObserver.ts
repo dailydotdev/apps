@@ -10,8 +10,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import browser from 'webextension-polyfill';
+import { generateReplySuggestion } from './common';
 
-const containerClass = 'msg-s-message-list-content';
 const quickRepliesClass = 'msg-s-message-list__quick-replies-container';
 
 export const useDomObserver = () => {
@@ -32,29 +32,13 @@ export const useDomObserver = () => {
         return;
       }
 
-      const parent = document.querySelector(`.${containerClass}`);
-      const container = document.createElement('div');
-      container.style =
-        'display: flex; justify-content: center; margin-bottom: 8px;';
-      const constructed = document.createElement('button');
-      constructed.setAttribute(
-        'class',
-        'conversations-quick-replies__reply-button artdeco-button artdeco-button--2 artdeco-button--secondary',
-      );
-      constructed.style.marginLeft = 'auto';
-      constructed.style.marginRight = 'auto';
-      constructed.innerText = cta;
-      constructed.onclick = () => {
-        navigator.clipboard.writeText(message);
-        displayToast('Referral message copied to clipboard!');
-      };
-
-      if (!parent) {
-        return;
-      }
-
-      container.appendChild(constructed);
-      parent.appendChild(container);
+      generateReplySuggestion({
+        cta,
+        onClick: () => {
+          navigator.clipboard.writeText(message);
+          displayToast('Referral message copied to clipboard!');
+        },
+      });
     },
   });
 
@@ -73,6 +57,7 @@ export const useDomObserver = () => {
   const threadFinder = useRef<NodeJS.Timeout>(null);
 
   useEffect(() => {
+    // on load check if we're in a thread view
     const url = window.location.href;
 
     if (!url.includes('/messaging/thread/')) {
