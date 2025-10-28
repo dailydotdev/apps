@@ -19,6 +19,7 @@ import {
 import { useDynamicHeader } from '@dailydotdev/shared/src/useDynamicHeader';
 import { Header } from '@dailydotdev/shared/src/components/profile/Header';
 import classNames from 'classnames';
+import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
@@ -65,6 +66,9 @@ const ProfilePage = ({
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
         )}
       />
+      {isUserSame && (
+        <ProfileCompletion user={user} className="laptop:hidden" />
+      )}
       <div ref={stickyRef} />
       <ProfileHeader user={user} userStats={userStats} />
       <div className="flex flex-col gap-6 p-6">
