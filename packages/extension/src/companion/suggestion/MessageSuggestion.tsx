@@ -60,6 +60,6 @@ export function MessageSuggestion() {
   }, [observer]);
 
   return popups.map(({ id, bubble }) => (
-     <MessageSuggestionPopup key={id} id={id} bubble={bubble} />
-  ))
+    <MessageSuggestionPopup key={id} id={id} bubble={bubble} />
+  ));
 }
