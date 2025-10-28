@@ -8,9 +8,11 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import browser from 'webextension-polyfill';
 
-const containerClass = 'msg-s-message-list__quick-replies-container';
+const containerClass = 'msg-s-message-list-content';
+const quickRepliesClass = 'msg-s-message-list__quick-replies-container';
 
 export const useDomObserver = () => {
   const [id, setId] = useState<string>(null);
@@ -19,10 +21,17 @@ export const useDomObserver = () => {
   const { displayToast } = useToastNotification();
   useBackgroundRequest(queryKey, {
     enabled: !!id,
-    callback: ({ res }) => {
+    callback: async ({ res }) => {
       const { cta, message } = res.userReferralRecruiter;
-      // store it maybe
-      // generate the ui - it must be a link to click with the message from the response and link
+
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for the dom to load
+
+      const quickReplies = document.querySelector(`.${quickRepliesClass}`);
+
+      if (!quickReplies) {
+        return;
+      }
+
       const parent = document.querySelector(`.${containerClass}`);
       const container = document.createElement('div');
       container.style =
@@ -61,10 +70,16 @@ export const useDomObserver = () => {
     enabled: !!id,
   });
 
-  useEffect(() => {
-    const func = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 3000)); // temporary: just to load the page
+  const threadFinder = useRef<NodeJS.Timeout>(null);
 
+  useEffect(() => {
+    const url = window.location.href;
+
+    if (!url.includes('/messaging/thread/')) {
+      return undefined;
+    }
+
+    threadFinder.current = setInterval(() => {
       const anchor = document.querySelector('.msg-thread__link-to-profile');
 
       if (!anchor) {
@@ -72,9 +87,40 @@ export const useDomObserver = () => {
       }
 
       const href = anchor.getAttribute('href');
-      setId(href.split('/in/')[1]);
+      const uniqueId = href.split('/in/')[1];
+
+      setId(uniqueId);
+      clearInterval(threadFinder.current);
+    }, 1000);
+
+    return () => {
+      if (threadFinder.current) {
+        clearInterval(threadFinder.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleUrlUpdate = ({ url }: { url: string }) => {
+      if (!url || !url.includes('/messaging/thread/')) {
+        return;
+      }
+
+      const anchor = document.querySelector('.msg-thread__link-to-profile');
+      const href = anchor.getAttribute('href');
+      const uniqueId = href.split('/in/')[1];
+
+      if (uniqueId === id) {
+        return;
+      }
+
+      setId(uniqueId);
     };
 
-    func();
-  }, []);
+    browser.runtime.onMessage.addListener(handleUrlUpdate);
+
+    return () => {
+      browser.runtime.onMessage.removeListener(handleUrlUpdate);
+    };
+  }, [id]);
 };
