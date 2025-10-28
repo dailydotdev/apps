@@ -3,13 +3,15 @@ const containerClass = 'msg-s-message-list-content';
 interface GenerateReplySuggestionProps {
   cta: string;
   onClick: () => void;
+  wrapper?: HTMLElement | Document;
 }
 
 export const generateReplySuggestion = ({
   cta,
   onClick,
+  wrapper = document,
 }: GenerateReplySuggestionProps) => {
-  const parent = document.querySelector(`.${containerClass}`);
+  const parent = wrapper.querySelector(`.${containerClass}`);
   const container = document.createElement('div');
   container.style =
     'display: flex; justify-content: center; margin-bottom: 8px;';
