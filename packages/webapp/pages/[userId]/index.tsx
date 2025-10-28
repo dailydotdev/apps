@@ -81,7 +81,7 @@ const ProfilePage = ({
         )}
         <Readme user={user} />
         {isUserSame && (
-          <Share username={user.username} className="laptop:hidden" />
+          <Share permalink={user?.permalink} className="laptop:hidden" />
         )}
         <div>
           <Typography

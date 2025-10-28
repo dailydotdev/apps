@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import {
@@ -27,8 +27,6 @@ import {
   ShareProvider,
 } from '../../../../lib/share';
 import { useShareOrCopyLink } from '../../../../hooks/useShareOrCopyLink';
-import { useGetShortUrl } from '../../../../hooks/utils/useGetShortUrl';
-import { webappUrl } from '../../../../lib/constants';
 import { LogEvent, TargetType } from '../../../../lib/log';
 import { useLogContext } from '../../../../contexts/LogContext';
 import {
@@ -41,32 +39,13 @@ import { Divider } from '../../../../components/utilities/Divider';
 import { anchorDefaultRel } from '../../../../lib/strings';
 
 interface ShareProps {
-  username: string;
+  permalink: string;
   className?: string;
 }
 
-export const Share = ({ username, className }: ShareProps): ReactElement => {
-  const baseUrl =
-    webappUrl || (typeof window !== 'undefined' ? window.location.origin : '');
-  const profileUrl = `${baseUrl}/${username}`;
+export const Share = ({ permalink, className }: ShareProps): ReactElement => {
   const { logEvent } = useLogContext();
-  const { getShortUrl } = useGetShortUrl();
   const shareText = 'Check out my profile on daily.dev!';
-  const [shortUrl, setShortUrl] = useState<string>(profileUrl);
-
-  useEffect(() => {
-    const fetchShortUrl = async () => {
-      try {
-        const url = await getShortUrl(profileUrl);
-        setShortUrl(url);
-      } catch (err) {
-        // Fallback to original URL if shortening fails
-        setShortUrl(profileUrl);
-      }
-    };
-
-    fetchShortUrl();
-  }, [profileUrl, getShortUrl]);
 
   const getLogObject = (provider: ShareProvider) => ({
     event_name: LogEvent.ShareProfile,
@@ -75,7 +54,7 @@ export const Share = ({ username, className }: ShareProps): ReactElement => {
   });
 
   const [copying, onShareOrCopy] = useShareOrCopyLink({
-    link: profileUrl,
+    link: permalink,
     text: shareText,
     logObject: getLogObject,
   });
@@ -88,7 +67,7 @@ export const Share = ({ username, className }: ShareProps): ReactElement => {
     await navigator.share({
       title: 'My daily.dev profile',
       text: shareText,
-      url: shortUrl,
+      url: permalink,
     });
     logEvent(getLogObject(ShareProvider.Native));
   };
@@ -97,37 +76,37 @@ export const Share = ({ username, className }: ShareProps): ReactElement => {
     {
       icon: <TwitterIcon />,
       tooltip: 'Share on X',
-      href: getTwitterShareLink(shortUrl, shareText),
+      href: getTwitterShareLink(permalink, shareText),
       provider: ShareProvider.Twitter,
     },
     {
       icon: <WhatsappIcon />,
       tooltip: 'Share on WhatsApp',
-      href: getWhatsappShareLink(shortUrl),
+      href: getWhatsappShareLink(permalink),
       provider: ShareProvider.WhatsApp,
     },
     {
       icon: <FacebookIcon />,
       tooltip: 'Share on Facebook',
-      href: getFacebookShareLink(shortUrl),
+      href: getFacebookShareLink(permalink),
       provider: ShareProvider.Facebook,
     },
     {
       icon: <RedditIcon />,
       tooltip: 'Share on Reddit',
-      href: getRedditShareLink(shortUrl, shareText),
+      href: getRedditShareLink(permalink, shareText),
       provider: ShareProvider.Reddit,
     },
     {
       icon: <LinkedInIcon />,
       tooltip: 'Share on LinkedIn',
-      href: getLinkedInShareLink(shortUrl),
+      href: getLinkedInShareLink(permalink),
       provider: ShareProvider.LinkedIn,
     },
     {
       icon: <TelegramIcon />,
       tooltip: 'Share on Telegram',
-      href: getTelegramShareLink(shortUrl, shareText),
+      href: getTelegramShareLink(permalink, shareText),
       provider: ShareProvider.Telegram,
     },
   ];
@@ -153,7 +132,7 @@ export const Share = ({ username, className }: ShareProps): ReactElement => {
             color={TypographyColor.Secondary}
             truncate
           >
-            {profileUrl}
+            {permalink}
           </Typography>
         </div>
         <Tooltip content={copying ? 'Copied!' : 'Copy link'}>

@@ -63,7 +63,7 @@ export function ProfileWidgets({
         <ProfileCompletion className="hidden laptop:flex" user={user} />
       )}
       {isSameUser && (
-        <Share username={user.username} className="hidden laptop:flex" />
+        <Share permalink={user?.permalink} className="hidden laptop:flex" />
       )}
       {readingHistory?.userReadingRankHistory && (
         <ReadingOverview
