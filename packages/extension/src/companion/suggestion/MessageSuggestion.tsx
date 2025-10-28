@@ -15,7 +15,7 @@ export function MessageSuggestion() {
   const [popups, setPopups] = useState<MessagePopup[]>([]);
   const [observer] = useState(
     new MutationObserver(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1)); // wait for the dom to update
+      await new Promise((resolve) => setTimeout(resolve, 10)); // wait for the dom to update
       const bubbles = document.querySelectorAll(`.${bubbleClass}`);
       const toUpdate = [];
 
