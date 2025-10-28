@@ -59,11 +59,7 @@ export function MessageSuggestion() {
     };
   }, [observer]);
 
-  return (
-    <>
-      {popups.map(({ id, bubble }) => (
-        <MessageSuggestionPopup key={id} id={id} bubble={bubble} />
-      ))}
-    </>
-  );
+  return popups.map(({ id, bubble }) => (
+     <MessageSuggestionPopup key={id} id={id} bubble={bubble} />
+  ))
 }
