@@ -41,7 +41,6 @@ export const useMessagePopupObserver = ({
         cta,
         wrapper: container,
         onClick: () => {
-          navigator.clipboard.writeText(message);
           const replyBox = container.querySelector(input) as HTMLElement;
           const p = document.createElement('p');
           p.innerText = message;
