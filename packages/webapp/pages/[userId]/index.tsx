@@ -20,6 +20,7 @@ import { useDynamicHeader } from '@dailydotdev/shared/src/useDynamicHeader';
 import { Header } from '@dailydotdev/shared/src/components/profile/Header';
 import classNames from 'classnames';
 import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
+import { Share } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/Share';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
@@ -79,6 +80,9 @@ const ProfilePage = ({
           />
         )}
         <Readme user={user} />
+        {isUserSame && (
+          <Share permalink={user?.permalink} className="laptop:hidden" />
+        )}
         <div>
           <Typography
             type={TypographyType.Body}
