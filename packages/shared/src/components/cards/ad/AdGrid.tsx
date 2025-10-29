@@ -19,8 +19,6 @@ export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
-  const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
-  const iconSize = Math.round(24 * pixelRatio);
   const { isPlus } = usePlusSubscription();
   const { ref, refetch, isRefetching } = useAutoRotatingAds(
     ad,
