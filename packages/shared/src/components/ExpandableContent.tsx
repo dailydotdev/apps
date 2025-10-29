@@ -38,19 +38,27 @@ export function ExpandableContent({
       setShowSeeMore(contentHeight > maxHeight);
     };
 
-    // Initial check
-    checkHeight();
+    // Wait for browser to complete layout before checking height
+    // Using double RAF ensures the layout is fully calculated
+    const rafId = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        checkHeight();
+      });
+    });
 
     // Only use ResizeObserver if there are images (for async loading)
     const hasImages = element.querySelector('img') !== null;
     if (!hasImages) {
-      return undefined;
+      return () => cancelAnimationFrame(rafId);
     }
 
     const resizeObserver = new ResizeObserver(checkHeight);
     resizeObserver.observe(element);
 
-    return () => resizeObserver.disconnect();
+    return () => {
+      cancelAnimationFrame(rafId);
+      resizeObserver.disconnect();
+    };
   }, [maxHeight, children]);
 
   return (
