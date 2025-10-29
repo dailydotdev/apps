@@ -29,6 +29,7 @@ export const AdFavicon = ({ ad, className }: AdFaviconProps): ReactElement => {
   return (
     <CardHeader className={className}>
       <ProfilePicture
+        rounded="full"
         size={ProfileImageSize.Medium}
         user={{
           id: ad.link,
