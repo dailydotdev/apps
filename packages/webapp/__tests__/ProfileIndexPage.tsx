@@ -142,5 +142,8 @@ it('should show social links in about me section', async () => {
   expect(twitterLinks[0]).toHaveAttribute('href', 'https://x.com/dailydotdev');
   const githubLinks = await screen.findAllByTestId('social-link-github');
   expect(githubLinks.length).toBeGreaterThan(0);
-  expect(githubLinks[0]).toHaveAttribute('href', 'https://github.com/dailydotdev');
+  expect(githubLinks[0]).toHaveAttribute(
+    'href',
+    'https://github.com/dailydotdev',
+  );
 });
