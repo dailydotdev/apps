@@ -52,6 +52,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleSortingEnabled: () => Promise<void>;
   toggleOptOutReadingStreak: () => Promise<void>;
   toggleOptOutCompanion: () => Promise<void>;
+  toggleOptOutLinkedinButton: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
   loadedSettings: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
@@ -125,6 +126,7 @@ const defaultSettings: RemoteSettings = {
   sortingEnabled: false,
   optOutReadingStreak: false,
   optOutCompanion: false,
+  optOutLinkedinButton: false,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.OldestFirst,
   theme: remoteThemes[ThemeMode.Dark],
@@ -253,6 +255,11 @@ export const SettingsContextProvider = ({
         setSettings({
           ...settings,
           optOutCompanion: !settings.optOutCompanion,
+        }),
+      toggleOptOutLinkedinButton: () =>
+        setSettings({
+          ...settings,
+          optOutLinkedinButton: !settings.optOutLinkedinButton,
         }),
       toggleAutoDismissNotifications: () =>
         setSettings({
