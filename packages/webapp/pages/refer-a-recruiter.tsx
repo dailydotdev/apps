@@ -115,7 +115,7 @@ const howItWorksItems = [
         >
           Check out our docs
         </a>
-        .
+        &nbsp; If you&apos;ve previously enabled it, you&apos;re good to go!
       </>
     ),
   },
