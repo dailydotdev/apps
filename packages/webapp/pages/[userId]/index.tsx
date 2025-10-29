@@ -79,11 +79,12 @@ const ProfilePage = ({
             isLoading={status === 'pending'}
           />
         )}
+        {!shouldShowBanner && <div />}
         <AboutMe user={user} />
         {isUserSame && (
           <Share permalink={user?.permalink} className="laptop:hidden" />
         )}
-        <div className="py-4">
+        <div className="py-4 laptop:hidden">
           <Typography
             type={TypographyType.Body}
             tag={TypographyTag.H1}
