@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { sleep } from '@dailydotdev/shared/src/lib/func';
+import { ONE_SECOND, sleep } from '@dailydotdev/shared/src/lib/func';
 import { useThreadPageObserver } from './useThreadPageObserver';
 import { MessageSuggestionPortal } from './MessageSuggestionPortal';
 
@@ -49,7 +49,7 @@ export function MessageSuggestion() {
       const container = document.querySelector('#msg-overlay');
 
       if (!container) {
-        return 1000;
+        return ONE_SECOND;
       }
 
       observer.observe(container, { childList: true, subtree: false });
@@ -65,6 +65,7 @@ export function MessageSuggestion() {
       ))}
       {threadUserId && (
         <MessageSuggestionPortal
+          key={threadUserId}
           id={threadUserId}
           bubble={globalThis?.document}
         />
