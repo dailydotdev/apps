@@ -13,6 +13,7 @@ import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { AdFavicon } from './common/AdFavicon';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
@@ -34,6 +35,7 @@ export const AdGrid = forwardRef(function AdGrid(
   return (
     <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
+      <AdFavicon ad={ad} className="mx-4" />
       <CardTextContainer className="flex-1">
         <CardTitle className="line-clamp-4 typo-title3">
           {ad.description}

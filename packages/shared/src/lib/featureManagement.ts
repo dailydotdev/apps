@@ -113,3 +113,5 @@ export const inviteRecruiterFeature = new Feature('invite_recruiter', {
   cta: 'Earn cores, refer recruiter to daily.dev',
   message: `I'm currently not open to opportunities. You might find the right candidate on {{url}}. It's worth checking out!`,
 });
+
+export const adFavicon = new Feature('ad_favicon', isDevelopment);
