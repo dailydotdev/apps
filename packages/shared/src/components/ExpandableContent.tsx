@@ -33,7 +33,7 @@ export function ExpandableContent({
       const contentHeight = measureRef.current.scrollHeight;
       setShowSeeMore(contentHeight > maxHeight);
     }
-  }, [maxHeight]);
+  }, [maxHeight, children]);
 
   return (
     <>
