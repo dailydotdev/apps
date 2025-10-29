@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import browser from 'webextension-polyfill';
-import { useMessagePopupObserver } from './useMessagePopupObserver';
 
 export const useThreadPageObserver = () => {
   const [id, setId] = useState<string>(null);
   const threadFinder = useRef<NodeJS.Timeout>(null);
-
-  useMessagePopupObserver({ id, container: document });
 
   useEffect(() => {
     // on load check if we're in a thread view
@@ -60,4 +57,6 @@ export const useThreadPageObserver = () => {
       browser.runtime.onMessage.removeListener(handleUrlUpdate);
     };
   }, [id]);
+
+  return { id };
 };

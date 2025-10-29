@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useThreadPageObserver } from './useThreadPageObserver';
-import { MessageSuggestionPopup } from './MessageSuggestionPopup';
+import { MessageSuggestionPortal } from './MessageSuggestionPortal';
 
 const bubbleClass = 'msg-overlay-conversation-bubble';
 const titleClass = 'msg-overlay-bubble-header__title';
@@ -11,7 +11,7 @@ interface MessagePopup {
 }
 
 export function MessageSuggestion() {
-  useThreadPageObserver();
+  const { id: threadUserId } = useThreadPageObserver();
   const [popups, setPopups] = useState<MessagePopup[]>([]);
   const [observer] = useState(
     new MutationObserver(async () => {
@@ -59,7 +59,17 @@ export function MessageSuggestion() {
     };
   }, [observer]);
 
-  return popups.map(({ id, bubble }) => (
-    <MessageSuggestionPopup key={id} id={id} bubble={bubble} />
-  ));
+  return (
+    <>
+      {popups.map(({ id, bubble }) => (
+        <MessageSuggestionPortal key={id} id={id} bubble={bubble} />
+      ))}
+      {threadUserId && (
+        <MessageSuggestionPortal
+          id={threadUserId}
+          bubble={globalThis?.document}
+        />
+      )}
+    </>
+  );
 }
