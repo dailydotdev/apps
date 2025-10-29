@@ -108,3 +108,4 @@ export const briefFeedEntrypointPage = new Feature<false | number>(
 );
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
+export const adFavicon = new Feature('ad_favicon', isDevelopment);
