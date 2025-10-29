@@ -11,6 +11,7 @@ import {
 import { USER_REFERRAL_RECRUITER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { useMutation } from '@tanstack/react-query';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
+import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
 import { useGenerateSuggestionContainer } from './useGenerateSuggestionContainer';
 
 interface MessageSuggestionPortalProps {
@@ -80,9 +81,11 @@ export function MessageSuggestionPortal({
   return createPortal(
     <button
       type="button"
-      className="conversations-quick-replies__reply-button artdeco-button artdeco-button--2 artdeco-button--secondary"
+      className="artdeco-button artdeco-button--2 artdeco-button--primary"
+      style={{ fontSize: '14px' }}
       onClick={() => mutateAsync()}
     >
+      <CoreIcon style={{ width: '20px', height: '20px', marginRight: '4px' }} />
       {cta}
     </button>,
     injectedElement,
