@@ -6,8 +6,10 @@ import type { LogEvent } from '../hooks/log/useLogQueue';
 
 export type EmptyPromise = () => Promise<void>;
 
-export const nextTick = (): Promise<unknown> =>
-  new Promise((resolve) => setTimeout(resolve));
+export const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+export const nextTick = (): Promise<void> => sleep(1);
 
 export const parseOrDefault = <T = unknown>(data: string): T | string => {
   try {

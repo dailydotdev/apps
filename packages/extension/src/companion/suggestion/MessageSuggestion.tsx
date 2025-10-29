@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { sleep } from '@dailydotdev/shared/src/lib/func';
 import { useThreadPageObserver } from './useThreadPageObserver';
 import { MessageSuggestionPortal } from './MessageSuggestionPortal';
 
@@ -15,7 +17,7 @@ export function MessageSuggestion() {
   const [popups, setPopups] = useState<MessagePopup[]>([]);
   const [observer] = useState(
     new MutationObserver(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 10)); // wait for the dom to update
+      await sleep(10); // wait for the dom to update
       const bubbles = document.querySelectorAll(`.${bubbleClass}`);
       const toUpdate = [];
 
@@ -34,30 +36,27 @@ export function MessageSuggestion() {
     }),
   );
 
-  const containerFinder = useRef<NodeJS.Timeout>(null);
+  useQuery({
+    queryKey: ['msg-overlay'],
+    queryFn: () => null,
+    refetchInterval: (cache) => {
+      const retries = cache.state.dataUpdateCount;
 
-  useEffect(() => {
-    containerFinder.current = setInterval(() => {
+      if (retries >= 3) {
+        return false;
+      }
+
       const container = document.querySelector('#msg-overlay');
 
       if (!container) {
-        return;
+        return 1000;
       }
 
-      clearInterval(containerFinder.current);
       observer.observe(container, { childList: true, subtree: false });
-    }, 1000);
 
-    return () => {
-      if (containerFinder.current) {
-        clearInterval(containerFinder.current);
-      }
-
-      if (observer) {
-        observer.disconnect();
-      }
-    };
-  }, [observer]);
+      return false;
+    },
+  });
 
   return (
     <>
