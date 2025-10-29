@@ -16,7 +16,6 @@ import {
 import {
   BlueskyIcon,
   CodePenIcon,
-  CopyIcon,
   GitHubIcon,
   LinkedInIcon,
   LinkIcon,
@@ -29,12 +28,12 @@ import {
   YoutubeIcon,
 } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
-import { useCopyLink } from '../../../../hooks/useCopy';
 import { SimpleTooltip } from '../../../../components/tooltips/SimpleTooltip';
 import { ExpandableContent } from '../../../../components/ExpandableContent';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { combinedClicks } from '../../../../lib/click';
 import { LogEvent, TargetType } from '../../../../lib/log';
+import { anchorDefaultRel } from '../../../../lib/strings';
 
 export interface AboutMeProps {
   user: PublicProfile;
@@ -56,13 +55,11 @@ export function AboutMe({
 }: AboutMeProps): ReactElement | null {
   const [showAllLinks, setShowAllLinks] = useState(false);
   const readme = user?.readmeHtml;
-  const [, copyLink] = useCopyLink();
   const { logEvent } = useLogContext();
 
   // Markdown is supported only in the client due to sanitization
   const isClient = typeof window !== 'undefined';
 
-  // Memoize social links to avoid recalculating on every render
   const socialLinks = useMemo(() => {
     return [
       user.github && {
@@ -145,7 +142,10 @@ export function AboutMe({
     : socialLinks.slice(0, MAX_VISIBLE_LINKS);
   const hasMoreLinks = socialLinks.length > MAX_VISIBLE_LINKS;
 
-  if (!readme || !isClient) {
+  const shouldShowReadme = readme && isClient;
+  const shouldShowSocialLinks = socialLinks.length > 0;
+
+  if (!shouldShowReadme && !shouldShowSocialLinks) {
     return null;
   }
 
@@ -162,62 +162,50 @@ export function AboutMe({
           </Typography>
 
           <div className="flex flex-1 flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <SimpleTooltip content="Copy profile link">
-                <Button
-                  variant={ButtonVariant.Subtle}
-                  size={ButtonSize.Small}
-                  onClick={() => copyLink({ link: user.permalink })}
-                  icon={<CopyIcon size={IconSize.XSmall} />}
-                  aria-label="Copy profile link"
-                  data-testid="copy-profile-link"
-                  {...combinedClicks(() => {
-                    logEvent({
-                      event_name: LogEvent.Click,
-                      target_type: TargetType.ProfilePage,
-                      target_id: 'copy_profile_link',
-                    });
-                  })}
-                />
-              </SimpleTooltip>
-              {visibleLinks.map((link) => (
-                <SimpleTooltip key={link.id} content={link.label}>
-                  <Button
-                    variant={ButtonVariant.Subtle}
-                    size={ButtonSize.Small}
-                    tag="a"
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener"
-                    icon={link.icon}
-                    aria-label={link.label}
-                    data-testid={`social-link-${link.id}`}
-                    {...combinedClicks(() => {
-                      logEvent({
-                        event_name: LogEvent.Click,
-                        target_type: TargetType.SocialLink,
-                        target_id: link.id,
-                      });
-                    })}
-                  />
-                </SimpleTooltip>
-              ))}
-              {hasMoreLinks && !showAllLinks && (
-                <SimpleTooltip content="Show all links">
-                  <Button
-                    variant={ButtonVariant.Subtle}
-                    size={ButtonSize.Small}
-                    onClick={() => setShowAllLinks(true)}
-                    data-testid="show-all-links"
-                  >
-                    +{socialLinks.length - MAX_VISIBLE_LINKS}
-                  </Button>
-                </SimpleTooltip>
-              )}
-            </div>
-            <div>
-              <Markdown content={readme} />
-            </div>
+            {shouldShowSocialLinks && (
+              <div className="flex flex-wrap items-center gap-2">
+                {visibleLinks.map((link) => (
+                  <SimpleTooltip key={link.id} content={link.label}>
+                    <Button
+                      variant={ButtonVariant.Subtle}
+                      size={ButtonSize.Small}
+                      tag="a"
+                      href={link.url}
+                      target="_blank"
+                      rel={anchorDefaultRel}
+                      icon={link.icon}
+                      aria-label={link.label}
+                      data-testid={`social-link-${link.id}`}
+                      {...combinedClicks(() => {
+                        logEvent({
+                          event_name: LogEvent.Click,
+                          target_type: TargetType.SocialLink,
+                          target_id: link.id,
+                        });
+                      })}
+                    />
+                  </SimpleTooltip>
+                ))}
+                {hasMoreLinks && !showAllLinks && (
+                  <SimpleTooltip content="Show all links">
+                    <Button
+                      variant={ButtonVariant.Subtle}
+                      size={ButtonSize.Small}
+                      onClick={() => setShowAllLinks(true)}
+                      data-testid="show-all-links"
+                    >
+                      +{socialLinks.length - MAX_VISIBLE_LINKS}
+                    </Button>
+                  </SimpleTooltip>
+                )}
+              </div>
+            )}
+
+            {shouldShowReadme && (
+              <div>
+                <Markdown content={readme} />
+              </div>
+            )}
           </div>
         </div>
       </ExpandableContent>
