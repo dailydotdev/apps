@@ -814,8 +814,6 @@ export const USER_REFERRAL_RECRUITER_QUERY = gql`
   query UserReferralRecruiter($toReferExternalId: String!) {
     userReferralRecruiter(toReferExternalId: $toReferExternalId) {
       url
-      cta
-      message
     }
   }
 `;

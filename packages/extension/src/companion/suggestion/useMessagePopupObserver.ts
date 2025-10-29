@@ -7,6 +7,8 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useQuery } from '@tanstack/react-query';
+import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { inviteRecruiterFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { generateReplySuggestion } from './common';
 
 interface UseMessagePopupObserverProps {
@@ -21,13 +23,14 @@ export const useMessagePopupObserver = ({
   id,
   container,
 }: UseMessagePopupObserverProps) => {
+  const { growthbook } = useGrowthBookContext();
   const { user } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.InviteRecruiter, user, id);
 
   useBackgroundRequest(queryKey, {
     enabled: !!id,
     callback: async ({ res }) => {
-      const { cta, message } = res.userReferralRecruiter;
+      const { url } = res.userReferralRecruiter;
 
       await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for the dom to load
 
@@ -37,13 +40,19 @@ export const useMessagePopupObserver = ({
         return;
       }
 
+      const { cta, message } = growthbook.getFeatureValue(
+        inviteRecruiterFeature.id,
+        inviteRecruiterFeature.defaultValue,
+      );
+      const formattedMessage = message.replace('{{url}}', url);
+
       generateReplySuggestion({
         cta,
         wrapper: container,
         onClick: () => {
           const replyBox = container.querySelector(input) as HTMLElement;
           const p = document.createElement('p');
-          p.innerText = message;
+          p.innerText = formattedMessage;
 
           replyBox.innerText = '';
           replyBox.appendChild(p);
@@ -52,7 +61,7 @@ export const useMessagePopupObserver = ({
             bubbles: true,
             cancelable: true,
             inputType: 'insertText',
-            data: message,
+            data: formattedMessage,
           });
 
           replyBox.dispatchEvent(inputEvent);
