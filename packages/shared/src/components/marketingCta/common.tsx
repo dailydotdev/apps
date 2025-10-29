@@ -42,7 +42,7 @@ export interface MarketingCta {
   createdAt: Date;
   variant: MarketingCtaVariant;
   flags: MarketingCtaFlags;
-  targets: MarketingCtaTargets;
+  targets?: MarketingCtaTargets;
 }
 
 const platformToMarketingCtaTarget = (): keyof MarketingCtaTargets => {
