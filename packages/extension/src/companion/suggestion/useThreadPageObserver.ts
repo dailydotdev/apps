@@ -44,9 +44,11 @@ export const useThreadPageObserver = () => {
       }
 
       await sleep(ONE_SECOND * 2); // wait for the dom to update
+
       const anchor = document.querySelector('.msg-thread__link-to-profile');
       const href = anchor.getAttribute('href');
       const uniqueId = href.split('/in/')[1];
+
       if (uniqueId === id) {
         return;
       }
