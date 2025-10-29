@@ -26,27 +26,35 @@ export function ExpandableContent({
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSeeMore, setShowSeeMore] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (measureRef.current) {
-      const contentHeight = measureRef.current.scrollHeight;
-      setShowSeeMore(contentHeight > maxHeight);
+    const element = contentRef.current;
+    if (!element) {
+      return undefined;
     }
+
+    const checkHeight = () => {
+      const contentHeight = element.scrollHeight;
+      setShowSeeMore(contentHeight > maxHeight);
+    };
+
+    // Initial check
+    checkHeight();
+
+    // Only use ResizeObserver if there are images (for async loading)
+    const hasImages = element.querySelector('img') !== null;
+    if (!hasImages) {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(checkHeight);
+    resizeObserver.observe(element);
+
+    return () => resizeObserver.disconnect();
   }, [maxHeight, children]);
 
   return (
     <>
-      {/* Hidden div for measuring actual content height */}
-      <div
-        ref={measureRef}
-        className="pointer-events-none invisible absolute"
-        aria-hidden="true"
-      >
-        {children}
-      </div>
-
-      {/* Visible content */}
       <div
         ref={contentRef}
         className={classNames(

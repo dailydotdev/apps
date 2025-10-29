@@ -91,60 +91,49 @@ describe('AboutMe', () => {
 
     it('should render when readme is present', () => {
       renderComponent(userWithReadme);
-      expect(screen.getAllByText('About me')[0]).toBeInTheDocument();
+      expect(screen.getByText('About me')).toBeInTheDocument();
       expect(
-        screen.getAllByText(
-          'This is my awesome bio with some **markdown**!',
-        )[0],
+        screen.getByText('This is my awesome bio with some **markdown**!'),
       ).toBeInTheDocument();
     });
 
     it('should render with social links when user has them', () => {
       renderComponent(userWithSocialLinks);
-      expect(
-        screen.getAllByTestId('social-link-github')[0],
-      ).toBeInTheDocument();
-      expect(
-        screen.getAllByTestId('social-link-linkedin')[0],
-      ).toBeInTheDocument();
-      expect(
-        screen.getAllByTestId('social-link-portfolio')[0],
-      ).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-github')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-linkedin')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-portfolio')).toBeInTheDocument();
     });
   });
 
   describe('Social Links', () => {
     it('should show only first 3 social links initially', () => {
       renderComponent(userWithSocialLinks);
-      // Each link appears twice (measurement + visible), so we check the first half
       const allLinks = screen.getAllByTestId(/^social-link-/);
-      const visibleLinks = allLinks.slice(0, allLinks.length / 2);
-      expect(visibleLinks.length).toBe(3);
+      expect(allLinks.length).toBe(3);
     });
 
     it('should show "+N" button when more than 3 links', () => {
       renderComponent(userWithSocialLinks);
-      const showAllButtons = screen.getAllByTestId('show-all-links');
-      expect(showAllButtons[0]).toBeInTheDocument();
+      const showAllButton = screen.getByTestId('show-all-links');
+      expect(showAllButton).toBeInTheDocument();
       // 12 total links - 3 visible = 9 more
-      expect(showAllButtons[0]).toHaveTextContent('+9');
+      expect(showAllButton).toHaveTextContent('+9');
     });
 
     it('should show all links when "+N" button is clicked', async () => {
       renderComponent(userWithSocialLinks);
-      const showAllButton = screen.getAllByTestId('show-all-links')[0];
+      const showAllButton = screen.getByTestId('show-all-links');
       fireEvent.click(showAllButton);
 
       await waitFor(() => {
         const allLinks = screen.getAllByTestId(/^social-link-/);
-        const visibleLinks = allLinks.slice(0, allLinks.length / 2);
-        expect(visibleLinks.length).toBe(12); // All 12 social links
+        expect(allLinks.length).toBe(12); // All 12 social links
       });
     });
 
     it('should hide "+N" button after showing all links', async () => {
       renderComponent(userWithSocialLinks);
-      const showAllButton = screen.getAllByTestId('show-all-links')[0];
+      const showAllButton = screen.getByTestId('show-all-links');
       fireEvent.click(showAllButton);
 
       await waitFor(() => {
@@ -156,7 +145,7 @@ describe('AboutMe', () => {
   describe('Analytics', () => {
     it('should log click event for social links', () => {
       renderComponent(userWithSocialLinks);
-      const githubLink = screen.getAllByTestId('social-link-github')[0];
+      const githubLink = screen.getByTestId('social-link-github');
       fireEvent.click(githubLink);
 
       expect(mockLogEvent).toHaveBeenCalledWith({

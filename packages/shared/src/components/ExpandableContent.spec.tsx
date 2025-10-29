@@ -36,11 +36,9 @@ describe('ExpandableContent', () => {
 
   it('should render children content', () => {
     render(<ExpandableContent>{shortContent}</ExpandableContent>);
-    const elements = screen.getAllByText('Short content that fits');
-    // Should render twice: once hidden for measurement, once visible
-    expect(elements).toHaveLength(2);
-    // At least one should be visible
-    expect(elements[1]).toBeVisible();
+    const element = screen.getByText('Short content that fits');
+    expect(element).toBeInTheDocument();
+    expect(element).toBeVisible();
   });
 
   it('should not show "See More" button when content is short', async () => {
