@@ -22,9 +22,9 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import {
   AppIcon,
-  ChecklistBIcon,
   ClickIcon,
   CoreIcon,
+  DownloadIcon,
   MailIcon,
   TimerIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -81,7 +81,7 @@ const HeaderSection = (): ReactElement => {
 
 const howItWorksItems = [
   {
-    icon: AppIcon,
+    icon: DownloadIcon,
     number: 0,
     title: 'Install the daily.dev extension',
     description: (
@@ -100,11 +100,24 @@ const howItWorksItems = [
     ),
   },
   {
-    icon: ChecklistBIcon,
+    icon: AppIcon,
     number: 1,
-    title: 'Enable the Recruiter Referral feature',
-    description:
-      'Open the profile menu in the extension and enable the Recruiter Referral feature.',
+    title: 'Enable the companion',
+    description: (
+      <>
+        Enable the daily.dev companion to unlock recruiter referral features on
+        LinkedIn.&nbsp;
+        <a
+          href="https://docs.daily.dev/docs/key-features/the-companion#activating-the-companion"
+          className="text-text-link underline"
+          target="_blank"
+          rel={anchorDefaultRel}
+        >
+          Check out our docs
+        </a>
+        .
+      </>
+    ),
   },
   {
     icon: MailIcon,
