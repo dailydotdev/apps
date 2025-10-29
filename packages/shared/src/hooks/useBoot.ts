@@ -3,7 +3,10 @@ import { useRouter } from 'next/router';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import type { Squad } from '../graphql/sources';
 import type { Boot } from '../lib/boot';
-import { MarketingCtaVariant } from '../components/marketingCta/common';
+import {
+  isMarketingCtaTarget,
+  MarketingCtaVariant,
+} from '../components/marketingCta/common';
 import type { MarketingCta } from '../components/marketingCta/common';
 import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
 import { gqlClient } from '../graphql/common';
@@ -67,6 +70,10 @@ export const useBoot = (): UseBoot => {
       !bootData?.marketingCta ||
       bootData?.marketingCta?.variant !== variant
     ) {
+      return null;
+    }
+
+    if (isMarketingCtaTarget(bootData.marketingCta.targets) === false) {
       return null;
     }
 

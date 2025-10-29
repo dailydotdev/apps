@@ -6,6 +6,7 @@ import { CardTitle } from '../cards/common/Card';
 import classed from '../../lib/classed';
 import { anchorDefaultRel } from '../../lib/strings';
 import { Pill, PillSize } from '../Pill';
+import { isExtension, isIOSNative, isNullOrUndefined } from '../../lib/func';
 
 export type MarketingCtaFlags = {
   title: string;
@@ -30,12 +31,33 @@ export enum MarketingCtaVariant {
   BriefCard = 'brief_card',
 }
 
+interface MarketingCtaTargets {
+  webapp: boolean;
+  extension: boolean;
+  ios: boolean;
+}
+
 export interface MarketingCta {
   campaignId: string;
   createdAt: Date;
   variant: MarketingCtaVariant;
   flags: MarketingCtaFlags;
+  targets: MarketingCtaTargets;
 }
+
+const platformToMarketingCtaTarget = (): keyof MarketingCtaTargets => {
+  if (isIOSNative()) {
+    return 'ios';
+  }
+  if (isExtension) {
+    return 'extension';
+  }
+  return 'webapp';
+};
+
+export const isMarketingCtaTarget = (targets: MarketingCtaTargets): boolean =>
+  isNullOrUndefined(targets) ||
+  targets[platformToMarketingCtaTarget()] === true;
 
 type HeaderProps = Pick<MarketingCtaFlags, 'tagText' | 'tagColor'> & {
   onClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
