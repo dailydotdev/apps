@@ -20,7 +20,7 @@ import { useGenerateSuggestionContainer } from './useGenerateSuggestionContainer
 interface MessageSuggestionPortalProps {
   bubble: HTMLElement | Document;
   id: string;
-  target_id: TargetId.ThreadPage | TargetId.MessagePopup;
+  target_id: TargetId.ThreadPage | TargetId.ThreadPopup;
 }
 
 const input = '.msg-form__contenteditable';

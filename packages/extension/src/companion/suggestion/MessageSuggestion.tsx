@@ -66,7 +66,7 @@ export function MessageSuggestion() {
           key={id}
           id={id}
           bubble={bubble}
-          target_id={TargetId.MessagePopup}
+          target_id={TargetId.ThreadPopup}
         />
       ))}
       {threadUserId && (
