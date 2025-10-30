@@ -50,7 +50,7 @@ export const useGenerateSuggestionContainer = ({
       }
 
       const generated = document.createElement('div');
-      generated.style = generatedStyles;
+      generated.setAttribute('style', generatedStyles);
       parent.appendChild(generated);
 
       setInjectedElement(generated);
