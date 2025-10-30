@@ -31,6 +31,12 @@ export const opportunityEditInfoSchema = z.object({
         .nonempty(labels.form.required)
         .max(240)
         .optional(),
+      continent: z
+        .preprocess(
+          (v) => (v === '' || v === undefined ? null : v),
+          z.union([z.literal('Europe'), z.null()]),
+        )
+        .optional(),
       type: z.coerce.number(labels.form.required).min(1),
     }),
   ),
