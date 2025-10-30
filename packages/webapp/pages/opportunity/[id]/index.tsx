@@ -92,7 +92,7 @@ import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { OpportunityStepsInfo } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunityStepsInfo';
 import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
-import type { SocialMediaType } from '@dailydotdev/shared/src/features/organizations/types';
+import { SocialMediaType } from '@dailydotdev/shared/src/features/organizations/types';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 import {
   defaultOpenGraph,
@@ -135,12 +135,12 @@ const faq = [
   },
 ];
 
-const socialMediaIconMap: Record<SocialMediaType, ReactElement> = {
-  facebook: <FacebookIcon />,
-  x: <TwitterIcon />,
-  github: <GitHubIcon />,
-  crunchbase: <CrunchbaseIcon />,
-  linkedin: <LinkedInIcon />,
+const socialMediaIconMap: { [K in SocialMediaType]: ReactElement } = {
+  [SocialMediaType.Facebook]: <FacebookIcon />,
+  [SocialMediaType.X]: <TwitterIcon />,
+  [SocialMediaType.GitHub]: <GitHubIcon />,
+  [SocialMediaType.Crunchbase]: <CrunchbaseIcon />,
+  [SocialMediaType.LinkedIn]: <LinkedInIcon />,
 };
 
 const locationTypeMap = {
