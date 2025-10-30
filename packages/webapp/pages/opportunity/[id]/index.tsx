@@ -135,7 +135,9 @@ const faq = [
   },
 ];
 
-const socialMediaIconMap: { [K in SocialMediaType]: ReactElement } = {
+type SocialMediaIconMap = { [Key in SocialMediaType]: ReactElement };
+
+const socialMediaIconMap: SocialMediaIconMap = {
   [SocialMediaType.Facebook]: <FacebookIcon />,
   [SocialMediaType.X]: <TwitterIcon />,
   [SocialMediaType.GitHub]: <GitHubIcon />,
