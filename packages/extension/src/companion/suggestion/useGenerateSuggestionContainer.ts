@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import { ONE_SECOND } from '@dailydotdev/shared/src/lib/func';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 interface UseMessagePopupObserverProps {
   id: string;
@@ -23,41 +25,44 @@ export const useGenerateSuggestionContainer = ({
     null,
   );
 
-  useEffect(() => {
-    if (!id || injectedElement) {
-      return;
-    }
+  useQuery({
+    queryKey: ['suggestion-container', id],
+    queryFn: () => null,
+    refetchInterval: (cache) => {
+      const retries = cache.state.dataUpdateCount;
 
-    const func = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for the dom to load
+      if (injectedElement || retries >= 3) {
+        return false;
+      }
 
       const quickReplies = container.querySelector(`.${quickRepliesClass}`);
 
       if (!quickReplies) {
-        return;
+        return ONE_SECOND;
       }
 
       const exists = container.querySelector(`.${customClass}`);
 
       if (exists) {
-        return;
+        return false;
       }
 
       const parent = container.querySelector(`.${containerClass}`);
 
       if (!parent) {
-        return;
+        return ONE_SECOND;
       }
 
       const generated = document.createElement('div');
       generated.setAttribute('style', generatedStyles);
+      generated.setAttribute('class', customClass);
       parent.appendChild(generated);
 
       setInjectedElement(generated);
-    };
 
-    func();
-  }, [id, container, injectedElement]);
+      return false;
+    },
+  });
 
   return { injectedElement };
 };
