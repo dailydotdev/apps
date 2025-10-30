@@ -211,6 +211,15 @@ export const OpportunityEditInfoModal = ({
           <Typography bold type={TypographyType.Caption1} className="-mb-2">
             Role location*
           </Typography>
+          {!!errors.location?.[0] &&
+            errors.location?.[0]?.type === 'custom' && (
+              <Typography
+                type={TypographyType.Caption2}
+                color={TypographyColor.StatusError}
+              >
+                {errors.location?.[0]?.message}
+              </Typography>
+            )}
           <div className="grid grid-cols-2 gap-4">
             <TextField
               {...register('location.0.country')}
@@ -271,7 +280,7 @@ export const OpportunityEditInfoModal = ({
                   onChange={(value) => {
                     field.onChange(value);
                   }}
-                  valid={!errors.location?.[0]?.type}
+                  valid={typeof errors.location?.[0]?.type !== 'object'}
                 />
               );
             }}
