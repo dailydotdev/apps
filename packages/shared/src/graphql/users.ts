@@ -62,6 +62,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       createdAt
       readmeHtml
       isPlus
+      experienceLevel
       companies {
         name
         image
