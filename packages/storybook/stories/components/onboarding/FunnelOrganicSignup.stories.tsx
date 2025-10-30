@@ -103,9 +103,9 @@ export const CustomContent: Story = {
       explainer:
         'Join thousands of developers who use daily.dev to stay updated and grow their career.',
       image:
-        'https://daily-now-res.cloudinary.com/image/upload/v1671543431/onboarding/background-registration@2x.jpg',
+        'https://media.daily.dev/image/upload/v1671543431/onboarding/background-registration@2x.jpg',
       imageMobile:
-        'https://daily-now-res.cloudinary.com/image/upload/v1671543431/onboarding/background-registration.jpg',
+        'https://media.daily.dev/image/upload/v1671543431/onboarding/background-registration.jpg',
     },
   },
 };
