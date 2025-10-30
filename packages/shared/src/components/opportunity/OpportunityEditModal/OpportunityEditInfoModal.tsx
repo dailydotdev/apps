@@ -211,12 +211,18 @@ export const OpportunityEditInfoModal = ({
           <Typography bold type={TypographyType.Caption1} className="-mb-2">
             Role location*
           </Typography>
-          <div className="flex gap-4">
+          {!!errors.location?.[0] &&
+            errors.location?.[0]?.type === 'custom' && (
+              <Typography
+                type={TypographyType.Caption2}
+                color={TypographyColor.StatusError}
+              >
+                {errors.location?.[0]?.message}
+              </Typography>
+            )}
+          <div className="grid grid-cols-2 gap-4">
             <TextField
               {...register('location.0.country')}
-              className={{
-                container: 'flex-1',
-              }}
               defaultValue={opportunity.location[0]?.country}
               type="text"
               inputId="opportunityCountry"
@@ -226,9 +232,6 @@ export const OpportunityEditInfoModal = ({
             />
             <TextField
               {...register('location.0.city')}
-              className={{
-                container: 'flex-1',
-              }}
               defaultValue={opportunity.location[0]?.city}
               type="text"
               label="City"
@@ -238,15 +241,21 @@ export const OpportunityEditInfoModal = ({
             />
             <TextField
               {...register('location.0.subdivision')}
-              className={{
-                container: 'flex-1',
-              }}
               defaultValue={opportunity.location[0]?.subdivision}
               type="text"
               label="Subdivision"
               inputId="opportunitySubdivision"
               valid={!errors.location?.[0]?.subdivision}
               hint={errors.location?.[0]?.subdivision?.message}
+            />
+            <TextField
+              {...register('location.0.continent')}
+              defaultValue={opportunity.location[0]?.continent}
+              type="text"
+              label="Continent"
+              inputId="opportunityContinent"
+              valid={!errors.location?.[0]?.continent}
+              hint={errors.location?.[0]?.continent?.message}
             />
           </div>
           <Controller
@@ -271,7 +280,7 @@ export const OpportunityEditInfoModal = ({
                   onChange={(value) => {
                     field.onChange(value);
                   }}
-                  valid={!errors.location?.[0]?.type}
+                  valid={typeof errors.location?.[0]?.type !== 'object'}
                 />
               );
             }}
