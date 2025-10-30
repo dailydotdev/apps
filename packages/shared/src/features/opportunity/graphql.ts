@@ -42,6 +42,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
     organization {
       ...OrganizationShortFragment
 
+      description
       size
       stage
       website
