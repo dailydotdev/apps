@@ -216,11 +216,16 @@ const metaMap = {
         return 'N/A';
       }
 
-      const output = `${location.city ? `${location.city}` : ''}${
-        location.subdivision ? `, ${location.subdivision}` : ''
-      }${location.country ? `, ${location.country}` : ''}`;
-
-      return output || 'N/A';
+      return (
+        [
+          location.city,
+          location.subdivision,
+          location.country,
+          location.continent,
+        ]
+          .filter(Boolean)
+          .join(', ') || 'N/A'
+      );
     },
   },
   salary: {
@@ -239,6 +244,11 @@ const metaMap = {
     title: 'Work site',
     transformer: (value: Opportunity['location']) =>
       locationTypeMap[value?.[0]?.type || LocationType.UNSPECIFIED],
+  },
+  equity: {
+    title: 'Equity',
+    transformer: (value: OpportunityMeta['equity']) =>
+      value ? 'Included' : null,
   },
   seniorityLevel: {
     title: 'Seniority level',
@@ -487,6 +497,10 @@ const JobPage = (): ReactElement => {
                   ? opportunity.location
                   : opportunity.meta[metaKey];
 
+                if (value === false || value === null) {
+                  return false;
+                }
+
                 return (
                   <Fragment key={metaKey}>
                     <Typography
@@ -723,6 +737,8 @@ const JobPage = (): ReactElement => {
                             socialType.toLowerCase() as keyof typeof socialMediaIconMap
                           ]
                         }
+                        target="_blank"
+                        rel={anchorDefaultRel}
                       />
                     </Link>
                   ),
