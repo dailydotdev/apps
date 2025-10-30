@@ -58,6 +58,7 @@ export type OpportunityMeta = {
   salary?: Salary;
   seniorityLevel?: ProtoEnumValue;
   roleType?: number;
+  equity?: boolean;
 };
 
 export type Keyword = {

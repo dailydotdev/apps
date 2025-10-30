@@ -98,6 +98,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
         max
         period
       }
+      equity
     }
     location {
       type
