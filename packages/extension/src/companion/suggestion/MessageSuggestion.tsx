@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ONE_SECOND, sleep } from '@dailydotdev/shared/src/lib/func';
+import { TargetId } from '@dailydotdev/shared/src/lib/log';
 import { useThreadPageObserver } from './useThreadPageObserver';
 import { MessageSuggestionPortal } from './MessageSuggestionPortal';
 
@@ -61,13 +62,19 @@ export function MessageSuggestion() {
   return (
     <>
       {popups.map(({ id, bubble }) => (
-        <MessageSuggestionPortal key={id} id={id} bubble={bubble} />
+        <MessageSuggestionPortal
+          key={id}
+          id={id}
+          bubble={bubble}
+          target_id={TargetId.MessagePopup}
+        />
       ))}
       {threadUserId && (
         <MessageSuggestionPortal
           key={threadUserId}
           id={threadUserId}
           bubble={globalThis?.document}
+          target_id={TargetId.ThreadPage}
         />
       )}
     </>

@@ -338,6 +338,7 @@ export enum LogEvent {
 }
 
 export enum TargetType {
+  InviteRecruiter = 'invite recruiter',
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
@@ -438,6 +439,8 @@ export enum TargetId {
   OpportunityUnavailablePage = 'opportunity unavailable page',
   OpportunityWelcomePage = 'opportunity welcome page',
   ProfileSettingsMenu = 'profile settings menu',
+  ThreadPage = 'thread page',
+  MessagePopup = 'message popup',
 }
 
 export enum NotificationChannel {

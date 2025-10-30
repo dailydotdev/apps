@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { inviteRecruiterFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
@@ -12,11 +12,15 @@ import { USER_REFERRAL_RECRUITER_QUERY } from '@dailydotdev/shared/src/graphql/u
 import { useMutation } from '@tanstack/react-query';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import type { TargetId } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { useGenerateSuggestionContainer } from './useGenerateSuggestionContainer';
 
 interface MessageSuggestionPortalProps {
   bubble: HTMLElement | Document;
   id: string;
+  target_id: TargetId.ThreadPage | TargetId.MessagePopup;
 }
 
 const input = '.msg-form__contenteditable';
@@ -24,7 +28,9 @@ const input = '.msg-form__contenteditable';
 export function MessageSuggestionPortal({
   bubble,
   id,
+  target_id,
 }: MessageSuggestionPortalProps) {
+  const { logEvent } = useLogContext();
   const { injectedElement } = useGenerateSuggestionContainer({
     id,
     container: bubble,
@@ -74,16 +80,39 @@ export function MessageSuggestionPortal({
     },
   });
 
+  const shouldShow = !!injectedElement && !isLoading && !!id;
+  const isLoggedRef = React.useRef(false);
+
+  useEffect(() => {
+    if (shouldShow && !isLoggedRef.current) {
+      logEvent({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.InviteRecruiter,
+        target_id,
+      });
+      isLoggedRef.current = true;
+    }
+  }, [id, logEvent, target_id, shouldShow]);
+
   if (!injectedElement || isLoading || !id) {
     return null;
   }
+
+  const handleClick = () => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.InviteRecruiter,
+      target_id,
+    });
+    mutateAsync();
+  };
 
   return createPortal(
     <button
       type="button"
       className="artdeco-button artdeco-button--2 artdeco-button--primary"
       style={{ fontSize: '14px' }}
-      onClick={() => mutateAsync()}
+      onClick={handleClick}
     >
       <CoreIcon style={{ width: '20px', height: '20px', marginRight: '4px' }} />
       {cta}
