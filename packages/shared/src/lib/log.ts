@@ -440,7 +440,7 @@ export enum TargetId {
   OpportunityWelcomePage = 'opportunity welcome page',
   ProfileSettingsMenu = 'profile settings menu',
   ThreadPage = 'thread page',
-  MessagePopup = 'message popup',
+  ThreadPopup = 'thread popup',
 }
 
 export enum NotificationChannel {
