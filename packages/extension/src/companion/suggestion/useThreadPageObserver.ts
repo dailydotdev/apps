@@ -1,47 +1,49 @@
-import { useEffect, useRef, useState } from 'react';
+import { ONE_SECOND, sleep } from '@dailydotdev/shared/src/lib/func';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
-import { useMessagePopupObserver } from './useMessagePopupObserver';
 
 export const useThreadPageObserver = () => {
   const [id, setId] = useState<string>(null);
-  const threadFinder = useRef<NodeJS.Timeout>(null);
 
-  useMessagePopupObserver({ id, container: document });
+  useQuery({
+    queryKey: ['thread-page'],
+    queryFn: () => null,
+    refetchInterval: (cache) => {
+      const url = window.location.href;
 
-  useEffect(() => {
-    // on load check if we're in a thread view
-    const url = window.location.href;
+      if (!url.includes('/messaging/thread/')) {
+        return false;
+      }
 
-    if (!url.includes('/messaging/thread/')) {
-      return undefined;
-    }
+      const retries = cache.state.dataUpdateCount;
 
-    threadFinder.current = setInterval(() => {
+      if (retries >= 3) {
+        return false;
+      }
+
       const anchor = document.querySelector('.msg-thread__link-to-profile');
 
       if (!anchor) {
-        return;
+        return ONE_SECOND;
       }
 
       const href = anchor.getAttribute('href');
       const uniqueId = href.split('/in/')[1];
 
       setId(uniqueId);
-      clearInterval(threadFinder.current);
-    }, 1000);
 
-    return () => {
-      if (threadFinder.current) {
-        clearInterval(threadFinder.current);
-      }
-    };
-  }, []);
+      return false;
+    },
+  });
 
   useEffect(() => {
-    const handleUrlUpdate = ({ url }: { url: string }) => {
+    const handleUrlUpdate = async ({ url }: { url: string }) => {
       if (!url || !url.includes('/messaging/thread/')) {
         return;
       }
+
+      await sleep(ONE_SECOND * 2); // wait for the dom to update
 
       const anchor = document.querySelector('.msg-thread__link-to-profile');
       const href = anchor.getAttribute('href');
@@ -60,4 +62,6 @@ export const useThreadPageObserver = () => {
       browser.runtime.onMessage.removeListener(handleUrlUpdate);
     };
   }, [id]);
+
+  return { id };
 };

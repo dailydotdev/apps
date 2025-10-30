@@ -1,6 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { ONE_SECOND, sleep } from '@dailydotdev/shared/src/lib/func';
+import { TargetId } from '@dailydotdev/shared/src/lib/log';
 import { useThreadPageObserver } from './useThreadPageObserver';
-import { MessageSuggestionPopup } from './MessageSuggestionPopup';
+import { MessageSuggestionPortal } from './MessageSuggestionPortal';
 
 const bubbleClass = 'msg-overlay-conversation-bubble';
 const titleClass = 'msg-overlay-bubble-header__title';
@@ -11,11 +14,11 @@ interface MessagePopup {
 }
 
 export function MessageSuggestion() {
-  useThreadPageObserver();
+  const { id: threadUserId } = useThreadPageObserver();
   const [popups, setPopups] = useState<MessagePopup[]>([]);
   const [observer] = useState(
     new MutationObserver(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 10)); // wait for the dom to update
+      await sleep(10); // wait for the dom to update
       const bubbles = document.querySelectorAll(`.${bubbleClass}`);
       const toUpdate = [];
 
@@ -34,32 +37,46 @@ export function MessageSuggestion() {
     }),
   );
 
-  const containerFinder = useRef<NodeJS.Timeout>(null);
+  useQuery({
+    queryKey: ['msg-overlay'],
+    queryFn: () => null,
+    refetchInterval: (cache) => {
+      const retries = cache.state.dataUpdateCount;
 
-  useEffect(() => {
-    containerFinder.current = setInterval(() => {
+      if (retries >= 3) {
+        return false;
+      }
+
       const container = document.querySelector('#msg-overlay');
 
       if (!container) {
-        return;
+        return ONE_SECOND;
       }
 
-      clearInterval(containerFinder.current);
       observer.observe(container, { childList: true, subtree: false });
-    }, 1000);
 
-    return () => {
-      if (containerFinder.current) {
-        clearInterval(containerFinder.current);
-      }
+      return false;
+    },
+  });
 
-      if (observer) {
-        observer.disconnect();
-      }
-    };
-  }, [observer]);
-
-  return popups.map(({ id, bubble }) => (
-    <MessageSuggestionPopup key={id} id={id} bubble={bubble} />
-  ));
+  return (
+    <>
+      {popups.map(({ id, bubble }) => (
+        <MessageSuggestionPortal
+          key={id}
+          id={id}
+          bubble={bubble}
+          target_id={TargetId.ThreadPopup}
+        />
+      ))}
+      {threadUserId && (
+        <MessageSuggestionPortal
+          key={threadUserId}
+          id={threadUserId}
+          bubble={globalThis?.document}
+          target_id={TargetId.ThreadPage}
+        />
+      )}
+    </>
+  );
 }

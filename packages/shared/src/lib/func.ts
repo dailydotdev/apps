@@ -4,10 +4,14 @@ import type { EmptyObjectLiteral } from './kratos';
 import { BROADCAST_CHANNEL_NAME, isBrave, isTesting } from './constants';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 
+export const ONE_SECOND = 1000;
+
 export type EmptyPromise = () => Promise<void>;
 
-export const nextTick = (): Promise<unknown> =>
-  new Promise((resolve) => setTimeout(resolve));
+export const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+export const nextTick = (): Promise<void> => sleep(1);
 
 export const parseOrDefault = <T = unknown>(data: string): T | string => {
   try {
