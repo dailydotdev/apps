@@ -92,7 +92,7 @@ export function MessageSuggestionPortal({
       });
       isLoggedRef.current = true;
     }
-  }, [id, logEvent, target_id, shouldShow]);
+  }, [logEvent, target_id, shouldShow]);
 
   if (!injectedElement || isLoading || !id) {
     return null;
