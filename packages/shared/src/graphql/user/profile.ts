@@ -87,13 +87,7 @@ export interface UserExperience {
   endedAt: string | null;
   company: Company | null;
   customCompanyName: string | null;
-  // to remove start - for dev only
   subtitle?: string | null;
-  url?: string | null;
-  externalReferenceId?: string | null;
-  verified: boolean | null;
-  skills: UserSkill[];
-  // to remove end - for dev only
 }
 
 interface UserSkill {
@@ -140,79 +134,5 @@ export const getUserProfileExperiences = async (
     { userId },
   );
 
-  const dummyData = {
-    work: {
-      edges: [
-        {
-          node: {
-            id: '1',
-            type: UserExperienceType.Work,
-            title: 'Software Engineer',
-            description:
-              'Leading frontend architecture and developer experience initiatives for the Next.js ecosystem. Reduced build times by 40% through optimization strategies show more',
-            createdAt: new Date().toISOString(),
-            startedAt: new Date('2020-01-01').toISOString(),
-            endedAt: new Date('2021-01-01').toISOString(),
-            customCompanyName: 'Tech Corp',
-            company: {
-              id: 'comp1',
-              name: 'Tech Corp',
-              image: null,
-            },
-            employmentType: 1,
-            locationType: 1,
-            location: {
-              id: 'loc1',
-              city: 'San Francisco',
-              subdivision: 'CA',
-              country: 'USA',
-            },
-            skills: [{ value: 'JavaScript' }, { value: 'React' }],
-          } as UserExperienceWork,
-        },
-        {
-          node: {
-            id: '2',
-            type: UserExperienceType.Work,
-            title: 'Software Engineer',
-            description:
-              'Leading frontend architecture and developer experience initiatives for the Next.js ecosystem. Reduced build times by 40% through optimization strategies show more',
-            createdAt: new Date().toISOString(),
-            startedAt: new Date('2020-01-01').toISOString(),
-            endedAt: new Date('2021-01-01').toISOString(),
-            customCompanyName: 'Tech Corp',
-            company: {
-              id: 'comp1',
-              name: 'Tech Corp',
-              image: null,
-            },
-            employmentType: 1,
-            locationType: 1,
-            location: {
-              id: 'loc1',
-              city: 'San Francisco',
-              subdivision: 'CA',
-              country: 'USA',
-            },
-            skills: [{ value: 'JavaScript' }, { value: 'React' }],
-          } as UserExperienceWork,
-        },
-      ],
-      pageInfo: { hasNextPage: false, endCursor: null },
-    },
-    education: {
-      edges: [],
-      pageInfo: { hasNextPage: false, endCursor: null },
-    },
-    project: {
-      edges: [],
-      pageInfo: { hasNextPage: false, endCursor: null },
-    },
-    certification: {
-      edges: [],
-      pageInfo: { hasNextPage: false, endCursor: null },
-    },
-  };
-
-  return dummyData;
+  return result;
 };

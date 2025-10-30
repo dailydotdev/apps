@@ -1,7 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { UserExperience } from '../../../../graphql/user/profile';
+import type {
+  UserExperience,
+  UserExperienceCertification,
+  UserExperienceProject,
+  UserExperienceWork,
+} from '../../../../graphql/user/profile';
 import { Image, ImageType } from '../../../../components/image/Image';
 import { Pill, PillSize } from '../../../../components/Pill';
 import {
@@ -25,17 +30,11 @@ export function UserExperienceItem({
   experience,
   grouped,
 }: UserExperienceItemProps): ReactElement {
-  const {
-    company,
-    title,
-    description,
-    skills,
-    startedAt,
-    endedAt,
-    verified,
-    url,
-    externalReferenceId,
-  } = experience;
+  const { company, title, description, startedAt, endedAt, subtitle } =
+    experience;
+  const { skills, verified } = experience as UserExperienceWork;
+  const { url } = experience as UserExperienceProject;
+  const { externalReferenceId } = experience as UserExperienceCertification;
 
   return (
     <li key={experience.id} className="flex flex-row gap-2">
@@ -62,7 +61,7 @@ export function UserExperienceItem({
           <Typography type={TypographyType.Subhead} bold>
             {title}
             {!grouped && !endedAt && currrentPill}
-            {!!url && (
+            {url && (
               <Button
                 tag="a"
                 target="_blank"
@@ -71,15 +70,25 @@ export function UserExperienceItem({
               />
             )}
           </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Secondary}
-          >
-            {company?.name}
-            {!!verified && (
-              <span className="ml-1 text-text-quaternary">Verified</span>
-            )}
-          </Typography>
+          {!!subtitle && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+            >
+              {subtitle}
+            </Typography>
+          )}
+          {!grouped && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+            >
+              {company?.name}
+              {!!verified && (
+                <span className="ml-1 text-text-quaternary">Verified</span>
+              )}
+            </Typography>
+          )}
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
@@ -115,16 +124,18 @@ export function UserExperienceItem({
         >
           {description}
         </Typography>
-        <div className="flex flex-row gap-2">
-          {skills?.map((skill) => (
-            <Pill
-              key={skill.value}
-              label={skill.value}
-              size={PillSize.Small}
-              className="border border-border-subtlest-tertiary text-text-quaternary"
-            />
-          ))}
-        </div>
+        {skills?.length > 0 && (
+          <div className="flex flex-row gap-2">
+            {skills.map((skill) => (
+              <Pill
+                key={skill.value}
+                label={skill.value}
+                size={PillSize.Small}
+                className="border border-border-subtlest-tertiary text-text-quaternary"
+              />
+            ))}
+          </div>
+        )}
       </div>
     </li>
   );
