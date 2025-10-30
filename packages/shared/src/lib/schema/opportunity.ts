@@ -11,6 +11,19 @@ const processSalaryValue = (val: unknown) => {
   return val;
 };
 
+const capitalize = (s: string) => {
+  if (s == null || typeof s !== 'string') {
+    return s;
+  }
+
+  return s.trim().length === 0
+    ? ''
+    : s
+        .trim()
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
 export const opportunityEditInfoSchema = z.object({
   title: z.string().nonempty(labels.form.required).max(240),
   tldr: z.string().nonempty(labels.form.required).max(480),
@@ -29,7 +42,10 @@ export const opportunityEditInfoSchema = z.object({
         city: z.string().max(240).optional(),
         subdivision: z.string().max(240).optional(),
         continent: z
-          .union([z.literal('Europe'), z.literal(''), z.undefined()])
+          .preprocess(
+            capitalize,
+            z.union([z.literal('Europe'), z.literal(''), z.undefined()]),
+          )
           .optional(),
         type: z.coerce.number().min(1),
       })
