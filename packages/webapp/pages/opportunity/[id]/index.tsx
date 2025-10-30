@@ -723,6 +723,8 @@ const JobPage = (): ReactElement => {
                             socialType.toLowerCase() as keyof typeof socialMediaIconMap
                           ]
                         }
+                        target="_blank"
+                        rel={anchorDefaultRel}
                       />
                     </Link>
                   ),
