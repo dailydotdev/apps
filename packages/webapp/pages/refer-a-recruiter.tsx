@@ -88,7 +88,7 @@ const howItWorksItems = [
       <>
         Make sure you have the daily.dev browser extension installed.&nbsp;
         <a
-          href="https://api.daily.dev/get"
+          href="https://api.daily.dev/get-extension"
           className="text-text-link underline"
           target="_blank"
           rel={anchorDefaultRel}
