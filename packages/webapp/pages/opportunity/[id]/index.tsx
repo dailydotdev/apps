@@ -216,11 +216,16 @@ const metaMap = {
         return 'N/A';
       }
 
-      const output = `${location.city ? `${location.city}` : ''}${
-        location.subdivision ? `, ${location.subdivision}` : ''
-      }${location.country ? `, ${location.country}` : ''}`;
-
-      return output || 'N/A';
+      return (
+        [
+          location.city,
+          location.subdivision,
+          location.country,
+          location.continent,
+        ]
+          .filter(Boolean)
+          .join(', ') || 'N/A'
+      );
     },
   },
   salary: {
