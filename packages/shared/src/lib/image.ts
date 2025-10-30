@@ -374,4 +374,4 @@ export const recruiterSpamCampaign =
 export const recruiterSpamCampaignSEO =
   'https://media.daily.dev/image/upload/s--PBa-49xs--/f_auto/v1759245831/public/Recruiter%20-%206';
 export const adFaviconPlaceholder =
-  'https://media.daily.dev/image/upload/s--R6UNq9Jg--/f_auto/v1593674347/emails/referral/1592479085003_Daily_Logo';
+  'https://daily-now-res.cloudinary.com/image/upload/s--SOLIE7Bc--/f_auto/v1761801782/webapp/daily.dev_-_Boost_Icon';
