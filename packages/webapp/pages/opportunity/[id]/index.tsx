@@ -245,6 +245,11 @@ const metaMap = {
     transformer: (value: Opportunity['location']) =>
       locationTypeMap[value?.[0]?.type || LocationType.UNSPECIFIED],
   },
+  equity: {
+    title: 'Equity',
+    transformer: (value: OpportunityMeta['equity']) =>
+      value ? 'Included' : null,
+  },
   seniorityLevel: {
     title: 'Seniority level',
     transformer: (value: OpportunityMeta['seniorityLevel']) =>
@@ -491,6 +496,10 @@ const JobPage = (): ReactElement => {
                 const value = isLocation
                   ? opportunity.location
                   : opportunity.meta[metaKey];
+
+                if (value === false || value === null) {
+                  return false;
+                }
 
                 return (
                   <Fragment key={metaKey}>
