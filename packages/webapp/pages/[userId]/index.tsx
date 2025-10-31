@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/AboutMe';
+import { Activity } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/Activity';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { NextSeo } from 'next-seo';
@@ -81,6 +82,7 @@ const ProfilePage = ({
         )}
         {!shouldShowBanner && <div />}
         <AboutMe user={user} />
+        <Activity user={user} />
         {isUserSame && (
           <Share permalink={user?.permalink} className="laptop:hidden" />
         )}
