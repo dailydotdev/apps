@@ -1,5 +1,6 @@
 import type { MouseEventHandler, ReactNode, RefObject } from 'react';
 import React, { useCallback, useRef } from 'react';
+import { ButtonSize } from '../buttons/common';
 import { useScrollManagement } from './useScrollManagement';
 import { useCalculateVisibleElements } from './useCalculateVisibleElements';
 import type { HorizontalScrollTitleProps } from './HorizontalScrollHeader';
@@ -22,6 +23,8 @@ export interface UseHorizontalScrollHeaderProps {
   onClickSeeAll?: MouseEventHandler;
   linkToSeeAll?: string;
   title?: HorizontalScrollTitleProps | ReactNode;
+  className?: string;
+  buttonSize?: ButtonSize;
 }
 
 export const useHorizontalScrollHeader = <
@@ -31,6 +34,8 @@ export const useHorizontalScrollHeader = <
   onClickSeeAll,
   linkToSeeAll,
   title,
+  className,
+  buttonSize = ButtonSize.Medium,
 }: UseHorizontalScrollHeaderProps): HorizontalScrollHeaderReturn<El> => {
   const ref = useRef<El>(null);
   // Calculate the width of elements and the number of visible cards
@@ -70,6 +75,8 @@ export const useHorizontalScrollHeader = <
       onClickPrevious={onClickPrevious}
       onClickSeeAll={onClickSeeAll}
       linkToSeeAll={linkToSeeAll}
+      className={className}
+      buttonSize={buttonSize}
     />
   );
 

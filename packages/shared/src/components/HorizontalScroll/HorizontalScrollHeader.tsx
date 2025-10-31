@@ -1,8 +1,9 @@
 import type { MouseEventHandler, ReactElement, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { Button } from '../buttons/Button';
-import { ButtonVariant } from '../buttons/common';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ArrowIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -23,6 +24,8 @@ export interface HorizontalScrollHeaderProps {
   onClickSeeAll?: MouseEventHandler;
   linkToSeeAll?: string;
   canScroll: boolean;
+  className?: string;
+  buttonSize?: ButtonSize;
 }
 
 export const HorizontalScrollTitle = ({
@@ -50,13 +53,20 @@ export function HorizontalScrollHeader({
   onClickSeeAll,
   linkToSeeAll,
   canScroll,
+  className,
+  buttonSize = ButtonSize.Medium,
 }: HorizontalScrollHeaderProps): ReactElement {
   // Check if title is props object or custom ReactNode
   const isCustomTitle =
     title && typeof title === 'object' && !('copy' in title);
 
   return (
-    <div className="mx-4 mb-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
+    <div
+      className={classNames(
+        'mx-4 mb-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full',
+        className,
+      )}
+    >
       {isCustomTitle
         ? title
         : title && (
@@ -70,6 +80,7 @@ export function HorizontalScrollHeader({
             disabled={isAtStart}
             onClick={onClickPrevious}
             aria-label="Scroll left"
+            size={buttonSize}
           />
           <Button
             variant={ButtonVariant.Tertiary}
@@ -77,6 +88,7 @@ export function HorizontalScrollHeader({
             disabled={isAtEnd}
             onClick={onClickNext}
             aria-label="Scroll right"
+            size={buttonSize}
           />
           {(onClickSeeAll || linkToSeeAll) && (
             <ConditionalWrapper
