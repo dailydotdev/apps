@@ -5,7 +5,13 @@ import { HorizontalSeparator } from '../../utilities';
 import { ProfileSection } from '../ProfileSection';
 import { useDndContext } from '../../../contexts/DndContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
-import { PauseIcon, PlayIcon, ShortcutsIcon, StoryIcon } from '../../icons';
+import {
+  LinkedInIcon,
+  PauseIcon,
+  PlayIcon,
+  ShortcutsIcon,
+  StoryIcon,
+} from '../../icons';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { checkIsExtension } from '../../../lib/func';
@@ -13,7 +19,12 @@ import { checkIsExtension } from '../../../lib/func';
 export const ExtensionSection = (): ReactElement => {
   const { openModal } = useLazyModal();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
-  const { optOutCompanion, toggleOptOutCompanion } = useSettingsContext();
+  const {
+    optOutCompanion,
+    toggleOptOutCompanion,
+    optOutLinkedinButton,
+    toggleOptOutLinkedinButton,
+  } = useSettingsContext();
 
   if (!checkIsExtension()) {
     return null;
@@ -39,6 +50,13 @@ export const ExtensionSection = (): ReactElement => {
             title: `${optOutCompanion ? 'Enable' : 'Disable'} companion widget`,
             icon: () => <StoryIcon secondary={!optOutCompanion} />,
             onClick: () => toggleOptOutCompanion(),
+          },
+          {
+            title: `${
+              optOutLinkedinButton ? 'Enable' : 'Disable'
+            } Recruiter Referral`,
+            icon: () => <LinkedInIcon secondary={!optOutLinkedinButton} />,
+            onClick: () => toggleOptOutLinkedinButton(),
           },
         ]}
       />
