@@ -24,27 +24,42 @@ import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBoo
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import { REQUEST_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
 import { version } from '../../package.json';
+import { MessageSuggestion } from './suggestion/MessageSuggestion';
+import { companionRequest } from './companionRequest';
 
 structuredCloneJsonPolyfill();
 
 const queryClient = new QueryClient(defaultQueryClientConfig);
+
+queryClient.setQueryData(REQUEST_PROTOCOL_KEY, {
+  requestMethod: companionRequest,
+  fetchMethod: companionFetch,
+  isCompanion: true,
+});
+
 const router = new CustomRouter();
 
-export type CompanionData = { url: string; deviceId: string } & Pick<
-  Boot,
-  | 'postData'
-  | 'settings'
-  | 'alerts'
-  | 'user'
-  | 'visit'
-  | 'accessToken'
-  | 'squads'
-  | 'exp'
->;
+export interface CompanionData
+  extends Pick<
+    Boot,
+    | 'postData'
+    | 'settings'
+    | 'alerts'
+    | 'user'
+    | 'visit'
+    | 'accessToken'
+    | 'squads'
+    | 'exp'
+  > {
+  url: string;
+  deviceId: string;
+  messageSuggestionsEnabled?: boolean;
+}
 
 const app = BootApp.Companion;
 
@@ -59,6 +74,7 @@ export default function App({
   accessToken,
   squads,
   exp,
+  messageSuggestionsEnabled,
 }: CompanionData): ReactElement {
   useError();
   const [token, setToken] = useState(accessToken);
@@ -123,13 +139,16 @@ export default function App({
                       isNotificationsReady={false}
                       unreadCount={0}
                     >
-                      <Companion
-                        postData={postData}
-                        companionHelper={alerts?.companionHelper}
-                        companionExpanded={settings?.companionExpanded}
-                        onOptOut={() => setIsOptOutCompanion(true)}
-                        onUpdateToken={setToken}
-                      />
+                      {postData && (
+                        <Companion
+                          postData={postData}
+                          companionHelper={alerts?.companionHelper}
+                          companionExpanded={settings?.companionExpanded}
+                          onOptOut={() => setIsOptOutCompanion(true)}
+                          onUpdateToken={setToken}
+                        />
+                      )}
+                      {messageSuggestionsEnabled && <MessageSuggestion />}
                     </NotificationsContextProvider>
                     <PromptElement parentSelector={getCompanionWrapper} />
                     <Toast

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Browser } from 'webextension-polyfill';
 import type { EmptyObjectLiteral } from '../../lib/kratos';
 import { useRequestProtocol } from '../useRequestProtocol';
@@ -6,6 +6,8 @@ import { useRequestProtocol } from '../useRequestProtocol';
 export const useRawBackgroundRequest = (
   command: (params: EmptyObjectLiteral) => void,
 ): void => {
+  const commandRef = useRef(command);
+  commandRef.current = command;
   const { isCompanion } = useRequestProtocol();
   const [browser, setBrowser] = useState<Browser>();
 
@@ -27,7 +29,7 @@ export const useRawBackgroundRequest = (
         return;
       }
 
-      command({ key, ...args });
+      commandRef.current({ key, ...args });
     };
 
     browser.runtime.onMessage.addListener(handler);
@@ -35,5 +37,5 @@ export const useRawBackgroundRequest = (
     return () => {
       browser.runtime.onMessage.removeListener(handler);
     };
-  }, [command, browser]);
+  }, [browser]);
 };

@@ -41,6 +41,7 @@ export type RemoteSettings = {
   sortingEnabled: boolean;
   optOutReadingStreak: boolean;
   optOutCompanion: boolean;
+  optOutLinkedinButton: boolean;
   autoDismissNotifications: boolean;
   sortCommentsBy: SortCommentsBy;
   customLinks?: string[];

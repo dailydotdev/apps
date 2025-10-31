@@ -90,6 +90,7 @@ const defaultSettings: RemoteSettings = {
   sortingEnabled: false,
   optOutReadingStreak: true,
   optOutCompanion: true,
+  optOutLinkedinButton: false,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.NewestFirst,
   customLinks: [
