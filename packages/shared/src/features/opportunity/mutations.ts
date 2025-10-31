@@ -9,6 +9,7 @@ import {
   CLEAR_RESUME_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
+  REJECT_OPPORTUNITY_MATCH,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
   UPDATE_OPPORTUNITY_STATE_MUTATION,
@@ -82,6 +83,15 @@ export const acceptOpportunityMatchMutationOptions = (
     },
   };
 };
+
+export const rejectOpportunityMatchMutationOptions = (
+  opportunityId: string,
+): MutationOptions<EmptyResponse> => ({
+  mutationFn: async () =>
+    gqlClient.request(REJECT_OPPORTUNITY_MATCH, {
+      id: opportunityId,
+    }),
+});
 
 export const clearResumeMutationOptions = (
   [get, set]: UseUpdateQuery<UserCandidatePreferences>,
