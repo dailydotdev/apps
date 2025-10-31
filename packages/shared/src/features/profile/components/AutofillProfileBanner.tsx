@@ -75,7 +75,7 @@ export function AutofillProfileBanner({
   return (
     <div
       style={{ background: cvUploadBannerBg }}
-      className="relative mx-auto my-3 flex w-full flex-col items-center justify-center overflow-hidden rounded-10 border border-border-subtlest-tertiary p-4 laptop:flex-row"
+      className="relative mx-auto my-4 flex w-full flex-col items-center justify-center overflow-hidden rounded-10 border border-border-subtlest-tertiary p-4 laptop:flex-row"
     >
       {input}
       <div className="flex flex-1 flex-col items-center gap-1 laptop:items-baseline">
