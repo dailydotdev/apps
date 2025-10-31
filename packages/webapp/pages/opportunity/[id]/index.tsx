@@ -352,7 +352,7 @@ const JobPage = (): ReactElement => {
           <OpportunityStepsInfo />
         </div>
       </Portal>
-      {!hasUploadedCV && (
+      {!hasUploadedCV && !canEdit && (
         <CVOverlay
           backButton={
             <Link href={webappUrl} passHref>
@@ -367,7 +367,7 @@ const JobPage = (): ReactElement => {
           }
         />
       )}
-      {!hasCompletedInitialView && <JobPageIntro />}
+      {!hasCompletedInitialView && !canEdit && <JobPageIntro />}
       {showFooterNav && (
         <OpportunityFooter>
           {!!match && (
