@@ -16,6 +16,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useToastNotification } from '../../../hooks';
 import { rejectOpportunityMatchMutationOptions } from '../mutations';
+import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 
 export const ResponseButtons = ({
   id,
@@ -28,11 +29,13 @@ export const ResponseButtons = ({
 }): ReactElement => {
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
-  const { data } = useQuery(opportunityMatchOptions({ id }));
+  const opts = opportunityMatchOptions({ id });
+  const updateQuery = useUpdateQuery(opts);
+  const { data } = useQuery(opts);
   const status = data?.status;
 
   const { mutateAsync: rejectOpportunity } = useMutation({
-    ...rejectOpportunityMatchMutationOptions(id),
+    ...rejectOpportunityMatchMutationOptions(id, updateQuery),
     onError: () => {
       displayToast('Failed to reject opportunity. Please try again.');
     },
