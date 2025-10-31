@@ -20,9 +20,9 @@ import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { link } from '../../../../lib/links';
 import { useHorizontalScrollHeader } from '../../../../components/HorizontalScroll/useHorizontalScrollHeader';
 import { TypographyType, Typography } from '../../../../components/typography/Typography';
-import { ArrowIcon } from '../../../../components/icons';
 import Link from '../../../../components/utilities/Link';
 import FeedContext from '../../../../contexts/FeedContext';
+import TabList from '../../../../components/tabs/TabList';
 
 export type ActivityTab = { id: string; title: string; path: string };
 
@@ -55,35 +55,30 @@ const commentClassName = {
   },
 };
 
-const CARD_WIDTH = 272;
-const CARD_GAP = 16;
-
 export const Activity = ({ user }: ActivityProps): ReactElement => {
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedTab, setSelectedTab] = useState<string>(activityTabs[0].title);
   const { user: loggedUser } = useContext(AuthContext);
   const currentFeedSettings = useContext(FeedContext);
   const isSameUser = user && loggedUser?.id === user.id;
   const userId = user?.id;
+  
+  const selectedTabIndex = activityTabs.findIndex(tab => tab.title === selectedTab);
 
   const getUserPath = (path: string) => {
     const username = user?.username || user?.id;
     return `/${username}${path}`;
   };
 
-  // Calculate numCards based on container width
-  // Assuming parent has p-6 (24px padding) and we need to fit 272px cards with 16px gaps
   const feedContextValue = useMemo(() => {
-    // Calculate based on typical mobile/tablet widths
-    // For a container with ~600px available width: (600 + 16) / (272 + 16) ≈ 2.14 cards
-    // We'll show 2 cards to ensure good scrolling UX
-    const calculatedNumCards = 3;
+    // We'll show 3 cards to make sure enough cards show on most screens
+    const numCards = 3;
     
     return {
       ...currentFeedSettings,
       numCards: {
-        eco: calculatedNumCards,
-        roomy: calculatedNumCards,
-        cozy: calculatedNumCards,
+        eco: numCards,
+        roomy: numCards,
+        cozy: numCards,
       },
     };
   }, [currentFeedSettings]);
@@ -154,17 +149,33 @@ export const Activity = ({ user }: ActivityProps): ReactElement => {
     />
   );
 
-  const { ref, isAtStart, isAtEnd, onClickNext, onClickPrevious, isOverflowing } =
-    useHorizontalScrollHeader({
-      title: { copy: 'Activity', type: TypographyType.Body },
-    });
+  // Render custom title content (shared across all tabs)
+  const renderTitleContent = () => (
+    <div className="flex flex-col gap-3">
+      <Typography type={TypographyType.Body} bold>
+        Activity
+      </Typography>
+      <div className="pb-3">
+        <TabList
+          items={activityTabs.map(tab => ({ label: tab.title }))}
+          active={selectedTab}
+          onClick={(label) => setSelectedTab(label)}
+        />
+      </div>
+    </div>
+  );
+
+  // Use horizontal scroll header (with navigation arrows) for Posts/Upvoted
+  const { ref, header: horizontalHeader } = useHorizontalScrollHeader({
+    title: renderTitleContent(),
+  });
 
   const renderContent = () => {
-    switch (selectedTab) {
+    switch (selectedTabIndex) {
       case 0: // Posts
         return (
           <FeedContext.Provider value={feedContextValue}>
-            <div className="-mx-6 [&_.grid]:!auto-cols-[272px] [&_.grid]:gap-4 [&_.grid]:px-6">
+            <div className="[&_.grid]:!auto-cols-[17rem] [&_.grid]:gap-4">
               <Feed
                 {...postsFeedProps}
                 className="mb-4"
@@ -187,8 +198,8 @@ export const Activity = ({ user }: ActivityProps): ReactElement => {
       case 2: // Upvoted
         return (
           <FeedContext.Provider value={feedContextValue}>
-            <div className="-mx-6 [&_.grid]:!auto-cols-[272px] [&_.grid]:gap-4 [&_.grid]:px-6">
-              <Feed
+            <div className="[&_.grid]:!auto-cols-[17rem] [&_.grid]:gap-4">
+            <Feed
                 {...upvotedFeedProps}
                 className="mb-4"
                 feedContainerRef={ref}
@@ -201,52 +212,27 @@ export const Activity = ({ user }: ActivityProps): ReactElement => {
     }
   };
 
+  // Conditionally render header based on tab type
+  const renderHeader = () => {
+    // Replies tab: just show title (no horizontal scroll arrows)
+    if (selectedTabIndex === 1) {
+      return (
+        <div className="mx-4 mb-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
+          {renderTitleContent()}
+        </div>
+      );
+    }
+    
+    // Posts/Upvoted tabs: show title + horizontal scroll arrows
+    return horizontalHeader;
+  };
+
   return (
     <div className="flex flex-col gap-3 overflow-hidden pt-6">
-      <div className="flex flex-col gap-3">
-        <Typography type={TypographyType.Body} bold>
-          Activity
-        </Typography>
-        <div className="flex items-center justify-between pb-3">
-          <div className="flex gap-3">
-            {activityTabs.map((tab, index) => (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedTab(index)}
-                className={classNames(
-                  'typo-body rounded-6 px-2 py-1.5 font-bold transition-colors',
-                  selectedTab === index
-                    ? 'bg-theme-active text-text-primary'
-                    : 'text-text-tertiary hover:text-text-secondary'
-                )}
-              >
-                {tab.title}
-              </button>
-            ))}
-          </div>
-          {isOverflowing && selectedTab !== 1 && (
-            <div className="flex gap-3">
-              <Button
-                variant={ButtonVariant.Tertiary}
-                icon={<ArrowIcon className="-rotate-90" />}
-                disabled={isAtStart}
-                onClick={onClickPrevious}
-                aria-label="Scroll left"
-              />
-              <Button
-                variant={ButtonVariant.Tertiary}
-                icon={<ArrowIcon className="rotate-90" />}
-                disabled={isAtEnd}
-                onClick={onClickNext}
-                aria-label="Scroll right"
-              />
-            </div>
-          )}
-        </div>
-      </div>
+      {renderHeader()}
       {renderContent()}
-      {selectedTab !== 1 && (
-        <Link href={getUserPath(activityTabs[selectedTab].path)} passHref>
+      {selectedTabIndex !== 1 && (
+        <Link href={getUserPath(activityTabs[selectedTabIndex].path)} passHref>
           <Button
             tag="a"
             variant={ButtonVariant.Tertiary}

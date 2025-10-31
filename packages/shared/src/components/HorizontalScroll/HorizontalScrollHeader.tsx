@@ -15,7 +15,7 @@ export interface HorizontalScrollTitleProps {
 }
 
 export interface HorizontalScrollHeaderProps {
-  title: HorizontalScrollTitleProps;
+  title?: HorizontalScrollTitleProps | ReactNode;
   isAtEnd: boolean;
   isAtStart: boolean;
   onClickNext: MouseEventHandler;
@@ -51,9 +51,17 @@ export function HorizontalScrollHeader({
   linkToSeeAll,
   canScroll,
 }: HorizontalScrollHeaderProps): ReactElement {
+  // Check if title is props object or custom ReactNode
+  const isCustomTitle =
+    title && typeof title === 'object' && !('copy' in title);
+
   return (
     <div className="mx-4 mb-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full">
-      <HorizontalScrollTitle {...title} />
+      {isCustomTitle
+        ? title
+        : title && (
+            <HorizontalScrollTitle {...(title as HorizontalScrollTitleProps)} />
+          )}
       {canScroll && (
         <div className="hidden flex-row items-center gap-3 tablet:flex">
           <Button

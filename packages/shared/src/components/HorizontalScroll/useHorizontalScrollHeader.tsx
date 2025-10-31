@@ -21,7 +21,7 @@ export interface UseHorizontalScrollHeaderProps {
   onScroll?: (ref: RefObject<HTMLElement>) => void;
   onClickSeeAll?: MouseEventHandler;
   linkToSeeAll?: string;
-  title: HorizontalScrollTitleProps;
+  title?: HorizontalScrollTitleProps | ReactNode;
 }
 
 export const useHorizontalScrollHeader = <

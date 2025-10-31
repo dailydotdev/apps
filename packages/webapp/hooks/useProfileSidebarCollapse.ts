@@ -5,32 +5,44 @@ const COLLAPSE_BREAKPOINT = 1360;
 
 /**
  * Auto-collapses sidebar on profile pages when screen is below 1360px
- * Requirements:
- * 1. Resize big→small: open sidebar collapses, closed sidebar stays closed
- * 2. Manual toggle in small screen: opens as overlay without glitches
- * 3. Refresh in small screen: sidebar always collapses (even if user opened it)
- */
+**/
+
 export const useProfileSidebarCollapse = () => {
   const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } = useSettingsContext();
-  // Ref needed for resize handler to avoid stale closures
+  // Refs to avoid stale closures and unnecessary effect re-runs
   const sidebarExpandedRef = useRef(sidebarExpanded);
+  const toggleSidebarExpandedRef = useRef(toggleSidebarExpanded);
 
-  // Keep ref in sync with current sidebar state
+  // Keep refs in sync
   useEffect(() => {
     sidebarExpandedRef.current = sidebarExpanded;
-  }, [sidebarExpanded]);
+    toggleSidebarExpandedRef.current = toggleSidebarExpanded;
+  }, [sidebarExpanded, toggleSidebarExpanded]);
 
-  // Handle resize from big to small
+  // Auto-collapse on mount (runs once when settings load)
+  useEffect(() => {
+    if (!loadedSettings) return;
+
+    const isSmallScreen = window.matchMedia(`(max-width: ${COLLAPSE_BREAKPOINT - 1}px)`).matches;
+    
+    if (isSmallScreen && sidebarExpanded) {
+      toggleSidebarExpanded();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadedSettings]);
+
+  // Handle resize from big to small (runs once on mount, listener persists)
   useEffect(() => {
     const mediaQuery = window.matchMedia(`(max-width: ${COLLAPSE_BREAKPOINT - 1}px)`);
 
     const handleBreakpointChange = (e: MediaQueryListEvent) => {
+      // Use refs to access current values without re-creating listener
       if (e.matches && sidebarExpandedRef.current) {
-        toggleSidebarExpanded();
+        toggleSidebarExpandedRef.current();
       }
     };
 
     mediaQuery.addEventListener('change', handleBreakpointChange);
     return () => mediaQuery.removeEventListener('change', handleBreakpointChange);
-  }, [toggleSidebarExpanded]);
+  }, []); // Empty deps = runs once, listener stays active
 };
