@@ -209,23 +209,22 @@ export const getLastActivityDateFormat = (
 
   if (dt <= oneHour) {
     const numMinutes = Math.round(dt / oneMinute);
-    return `${numMinutes} ${numMinutes === 1 ? 'minute' : 'minutes'} ago`;
+    return `${numMinutes}m ago`;
   }
 
   if (dt <= oneDay) {
     const numHours = Math.round(dt / oneHour);
-    return `${numHours} ${numHours === 1 ? 'hour' : 'hours'} ago`;
+    return `${numHours}h ago`;
   }
 
   if (dt <= oneWeek) {
     const numDays = Math.round(dt / oneDay);
-    return `${numDays} ${numDays === 1 ? 'day' : 'days'} ago`;
+    return `${numDays}d ago`;
   }
 
   return date.toLocaleString('en-US', {
     month: 'short',
     day: '2-digit',
-    year: 'numeric',
   });
 };
 
