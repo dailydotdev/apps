@@ -217,6 +217,14 @@ export const ACCEPT_OPPORTUNITY_MATCH = gql`
   }
 `;
 
+export const REJECT_OPPORTUNITY_MATCH = gql`
+  mutation RejectOpportunityMatch($id: ID!) {
+    rejectOpportunityMatch(id: $id) {
+      _
+    }
+  }
+`;
+
 export const CLEAR_RESUME_MUTATION = gql`
   mutation ClearResume {
     clearResume {
