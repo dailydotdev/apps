@@ -110,7 +110,7 @@ export const briefFeedEntrypointPage = new Feature<false | number>(
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
 
 export const inviteRecruiterFeature = new Feature('invite_recruiter', {
-  cta: 'Earn cores, refer recruiter to daily.dev',
+  cta: 'Earn Cores - refer this recruiter!',
   message: `I'm currently not open to opportunities. You might find the right candidate on {{url}}. It's worth checking out!`,
 });
 
