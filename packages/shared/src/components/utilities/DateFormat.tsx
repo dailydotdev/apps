@@ -17,11 +17,10 @@ export const DateFormat = ({
   prefix,
 }: DateFormatProps): ReactElement => {
   const convertedDate = new Date(date);
-  const timeFormat = type;
 
   const renderDate = useMemo(
-    () => date && formatDate({ value: date, type: timeFormat }),
-    [date, timeFormat],
+    () => date && formatDate({ value: date, type }),
+    [date, type],
   );
 
   return (
