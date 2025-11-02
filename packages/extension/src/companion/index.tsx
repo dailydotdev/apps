@@ -47,13 +47,13 @@ const isValidUrl = (url: string) => {
 };
 
 browser.runtime.onMessage.addListener((props) => {
-  const { settings, postData, url } = props;
+  const { settings, postData, url } = props as CompanionData;
   if (!settings || settings?.optOutCompanion) {
     return;
   }
 
   const container = getCompanionWrapper();
-  const isValid = isValidUrl(url);
+  const isValid = !settings.optOutLinkedinButton && isValidUrl(url);
 
   if (postData || isValid) {
     renderApp({ ...props, messageSuggestionsEnabled: isValid });
