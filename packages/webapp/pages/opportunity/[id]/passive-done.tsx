@@ -48,8 +48,8 @@ const PassiveDonePage = (): ReactElement => {
             color={TypographyColor.Secondary}
             center
           >
-            You won&apos;t see any new opportunities from us unless you decide
-            to change your status. You can update your preferences anytime if
+            You won&apos;t see any new job offers from us unless you decide to
+            change your status. You can update your preferences anytime if
             things change.
           </Typography>
         </FlexCol>
