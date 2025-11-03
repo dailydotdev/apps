@@ -65,7 +65,7 @@ export const JobOpportunityButton = ({
 
   return (
     <Tooltip
-      content="A personalized job opportunity was matched to your profile. Click to review it privately"
+      content="A personalized job offer was matched to your profile. Click to review it privately"
       className="!max-w-80 text-center"
     >
       <Link href={href} passHref>
@@ -80,7 +80,7 @@ export const JobOpportunityButton = ({
           className={classNames(className, 'border-none text-black')}
           onClick={handleClick}
         >
-          One opportunity is waiting for you here
+          One job offer is waiting for you here
         </Button>
       </Link>
     </Tooltip>
