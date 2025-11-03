@@ -122,6 +122,9 @@ export const onValidateHandles = (
   }, {});
 };
 
+/**
+ * @deprecated Use useUserInfoForm instead
+ */
 const useProfileForm = ({
   onSuccess,
   onError,

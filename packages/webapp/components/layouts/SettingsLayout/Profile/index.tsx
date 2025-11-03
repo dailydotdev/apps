@@ -30,8 +30,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { FormProvider } from 'react-hook-form';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import ExperienceSelect from '@dailydotdev/shared/src/components/profile/ExperienceSelect';
@@ -52,13 +50,8 @@ const Section = classed('section', 'flex flex-col gap-7');
 
 const ProfileIndex = (): ReactElement => {
   const { user } = useContext(AuthContext);
-  const { logEvent } = useLogContext();
 
-  const { methods, save, isLoading } = useUserInfoForm({
-    onSuccess: () => {
-      logEvent({ event_name: LogEvent.UpdateProfile });
-    },
-  });
+  const { methods, save, isLoading } = useUserInfoForm();
 
   const handleSubmit = methods.handleSubmit(() => save());
   return (

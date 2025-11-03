@@ -5,7 +5,6 @@ import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 
 export interface UseDirtyFormOptions {
-  preventNavigation?: boolean;
   onSave: () => void;
   onDiscard?: () => void;
 }
@@ -14,7 +13,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
   formMethods: UseFormReturn<TFieldValues>,
   options: UseDirtyFormOptions,
 ) => {
-  const { preventNavigation = true, onSave, onDiscard } = options;
+  const { onSave, onDiscard } = options;
 
   const router = useRouter();
   const { openModal } = useLazyModal();
@@ -22,8 +21,8 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
   const pendingUrlRef = useRef<string | null>(null);
 
   const checkShouldPrevent = useCallback(() => {
-    return preventNavigation && formMethods.formState.isDirty;
-  }, [preventNavigation, formMethods.formState.isDirty]);
+    return formMethods.formState.isDirty;
+  }, [formMethods.formState.isDirty]);
 
   const handleDiscard = useCallback(() => {
     onDiscard?.();
@@ -37,10 +36,6 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
   }, [onDiscard, router]);
 
   useEffect(() => {
-    if (!preventNavigation) {
-      return undefined;
-    }
-
     const handleRouteChangeStart = (url: string) => {
       if (
         allowNavigationRef.current ||
@@ -72,20 +67,9 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
-  }, [
-    preventNavigation,
-    checkShouldPrevent,
-    router,
-    openModal,
-    handleDiscard,
-    onSave,
-  ]);
+  }, [checkShouldPrevent, router, openModal, handleDiscard, onSave]);
 
   useEffect(() => {
-    if (!preventNavigation) {
-      return undefined;
-    }
-
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (checkShouldPrevent()) {
         e.preventDefault();
@@ -99,7 +83,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [preventNavigation, checkShouldPrevent]);
+  }, [checkShouldPrevent]);
 
   const navigateToPending = useCallback(() => {
     if (pendingUrlRef.current) {

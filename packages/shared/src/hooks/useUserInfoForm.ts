@@ -13,6 +13,8 @@ import { useDirtyForm } from './useDirtyForm';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
 import { getCompletionItems } from '../features/profile/components/ProfileWidgets/ProfileCompletion';
+import { useLogContext } from '../contexts/LogContext';
+import { LogEvent } from '../lib/log';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -31,18 +33,12 @@ export interface ProfileFormHint {
   bluesky?: string;
 }
 
-export interface UpdateProfileParameters extends Partial<UserProfile> {
+export type UpdateProfileParameters = Partial<UserProfile> & {
   upload?: File;
   coverUpload?: File;
-}
+};
 
-interface UseUserInfoFormOptions {
-  onSuccess?: () => void;
-  onError?: (error: ResponseError) => void;
-  preventNavigation?: boolean;
-}
-
-interface UseUserInfoFormReturn {
+interface UseUserInfoForm {
   methods: UseFormReturn<UserProfile>;
   save: () => void;
   isLoading: boolean;
@@ -62,11 +58,8 @@ const socials = [
   'bluesky',
 ];
 
-const useUserInfoForm = ({
-  onSuccess,
-  onError,
-  preventNavigation = true,
-}: UseUserInfoFormOptions = {}): UseUserInfoFormReturn => {
+const useUserInfoForm = (): UseUserInfoForm => {
+  const { logEvent } = useLogContext();
   const { user, updateUser } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
@@ -115,7 +108,6 @@ const useUserInfoForm = ({
       const currentValues = methods.getValues();
 
       await updateUser({ ...user, ...vars });
-      methods.reset(currentValues);
 
       dirtyFormRef.current?.allowNavigation();
 
@@ -133,52 +125,46 @@ const useUserInfoForm = ({
         displayToast('Profile updated');
       }
 
-      onSuccess?.();
+      methods.reset(vars);
+      logEvent({ event_name: LogEvent.UpdateProfile });
 
       if (dirtyFormRef.current?.hasPendingNavigation()) {
         dirtyFormRef.current.navigateToPending();
       } else {
         const username = currentValues.username?.toLowerCase();
         if (username) {
-          router.push(`/${username}`);
+          router.push(`/${vars.username}`);
         }
       }
     },
 
     onError: (err) => {
       if (err?.response?.errors?.length) {
-        try {
-          const data: ProfileFormHint = JSON.parse(
-            err.response.errors[0].message,
-          );
+        const data: ProfileFormHint = JSON.parse(
+          err.response.errors[0].message,
+        );
 
-          Object.entries(data).forEach(([key, value]) => {
-            methods.setError(key as keyof UserProfile, {
-              type: 'manual',
-              message: value,
-            });
+        Object.entries(data).forEach(([key, value]) => {
+          methods.setError(key as keyof UserProfile, {
+            type: 'manual',
+            message: value,
           });
+        });
 
-          if (
-            Object.values(data).some((errorHint) =>
-              socials.some((social) => errorHint.includes(social)),
-            )
-          ) {
-            displayToast(errorMessage.profile.invalidSocialLinks);
-          }
-        } catch (parseError) {
-          displayToast('Failed to update profile');
+        if (
+          Object.values(data).some((errorHint) =>
+            socials.some((social) => errorHint.includes(social)),
+          )
+        ) {
+          displayToast(errorMessage.profile.invalidSocialLinks);
         }
       } else {
         displayToast('Failed to update profile');
       }
-
-      onError?.(err);
     },
   });
 
   const dirtyForm = useDirtyForm(methods, {
-    preventNavigation,
     onSave: () => {
       const formData = methods.getValues();
       updateUserProfile(formData);
