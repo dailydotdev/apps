@@ -30,19 +30,9 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  useToastNotification,
-  useActions,
-} from '@dailydotdev/shared/src/hooks';
-import type { ProfileFormHint } from '@dailydotdev/shared/src/hooks/useProfileForm';
-import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { FormProvider, useForm } from 'react-hook-form';
-import type { UserProfile } from '@dailydotdev/shared/src/lib/user';
+import { FormProvider } from 'react-hook-form';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import ExperienceSelect from '@dailydotdev/shared/src/components/profile/ExperienceSelect';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
@@ -52,91 +42,22 @@ import ControlledAvatarUpload from '@dailydotdev/shared/src/components/profile/C
 import ControlledCoverUpload from '@dailydotdev/shared/src/components/profile/ControlledCoverUpload';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { useDirtyForm } from '@dailydotdev/shared/src/hooks/useDirtyForm';
 import { locationProfileImage } from '@dailydotdev/shared/src/lib/image';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import { getCompletionItems } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import useUserInfoForm from '@dailydotdev/shared/src/hooks/useUserInfoForm';
 import { AccountPageContainer } from '../AccountPageContainer';
 
 const Section = classed('section', 'flex flex-col gap-7');
 
 const ProfileIndex = (): ReactElement => {
   const { user } = useContext(AuthContext);
-  const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
 
-  const methods = useForm<UserProfile>({
-    defaultValues: {
-      name: user?.name,
-      username: user?.username,
-      image: user?.image,
-      cover: user?.cover,
-      bio: user?.bio,
-      github: user?.github,
-      locationId: user?.location?.id,
-      linkedin: user?.linkedin,
-      portfolio: user?.portfolio,
-      twitter: user?.twitter,
-      youtube: user?.youtube,
-      stackoverflow: user?.stackoverflow,
-      reddit: user?.reddit,
-      roadmap: user?.roadmap,
-      codepen: user?.codepen,
-      mastodon: user?.mastodon,
-      bluesky: user?.bluesky,
-      threads: user?.threads,
-      experienceLevel: user?.experienceLevel,
-      readme: user?.readme || '',
+  const { methods, save, isLoading } = useUserInfoForm({
+    onSuccess: () => {
+      logEvent({ event_name: LogEvent.UpdateProfile });
     },
-  });
-  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
-
-  const onSuccess = () => {
-    const completionItems = getCompletionItems(user);
-    const isProfileComplete = completionItems.every((item) => item.completed);
-    const hasCompletedAction =
-      isActionsFetched && checkHasCompleted(ActionType.ProfileCompleted);
-
-    if (isProfileComplete && !hasCompletedAction) {
-      displayToast(
-        'Your profile has been completed successfully. All your details are now up to date 🎉',
-      );
-      completeAction(ActionType.ProfileCompleted);
-    } else {
-      displayToast('Profile updated');
-    }
-
-    logEvent({ event_name: LogEvent.UpdateProfile });
-  };
-  const { updateUserProfileAsync, isLoading } = useProfileForm({ onSuccess });
-
-  const { save } = useDirtyForm(methods, {
-    preventNavigation: true,
-    onSave: async () => {
-      try {
-        const formData = methods.getValues();
-        await updateUserProfileAsync(formData);
-        return true;
-      } catch (error) {
-        if (error?.response?.errors?.length) {
-          const errData: ProfileFormHint = JSON.parse(
-            error.response.errors[0].message,
-          );
-
-          Object.entries(errData).forEach(([key, value]) => {
-            methods.setError(key as any, {
-              type: 'manual',
-              message: value,
-            });
-          });
-        }
-        return false;
-      }
-    },
-    onDiscard: () => {
-      methods.reset();
-    },
-    successUrl: () => `/${methods.getValues().username?.toLowerCase()}`,
   });
 
   const handleSubmit = methods.handleSubmit(() => save());

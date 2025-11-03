@@ -6,69 +6,27 @@ import { LazyModal } from '../components/modals/common/types';
 
 export interface UseDirtyFormOptions {
   preventNavigation?: boolean;
-  /**
-   * NOTE: Use async mutation functions to prevent quirky behavior with dirty navigation checks.
-   */
-  onSave?: () => Promise<boolean> | boolean;
+  onSave: () => void;
   onDiscard?: () => void;
-  successUrl?: string | (() => string);
 }
 
 export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
   formMethods: UseFormReturn<TFieldValues>,
-  options: UseDirtyFormOptions = {},
+  options: UseDirtyFormOptions,
 ) => {
-  const { preventNavigation = true, onSave, onDiscard, successUrl } = options;
+  const { preventNavigation = true, onSave, onDiscard } = options;
 
   const router = useRouter();
   const { openModal } = useLazyModal();
   const allowNavigationRef = useRef(false);
   const pendingUrlRef = useRef<string | null>(null);
-  const isModalSaveRef = useRef(false);
 
   const checkShouldPrevent = useCallback(() => {
-    if (!preventNavigation) {
-      return false;
-    }
-    return formMethods.formState.isDirty;
+    return preventNavigation && formMethods.formState.isDirty;
   }, [preventNavigation, formMethods.formState.isDirty]);
 
-  const handleSave = useCallback(async () => {
-    if (!onSave) {
-      return;
-    }
-
-    isModalSaveRef.current = true;
-    const isValid = await formMethods.trigger();
-
-    if (!isValid) {
-      isModalSaveRef.current = false;
-      return;
-    }
-
-    const currentValues = formMethods.getValues();
-    const saveResult = await onSave();
-
-    if (saveResult) {
-      formMethods.reset(currentValues);
-      allowNavigationRef.current = true;
-
-      // navigate to intercepted URL for modal saves
-      if (pendingUrlRef.current) {
-        router.push(pendingUrlRef.current);
-        pendingUrlRef.current = null;
-      }
-    }
-
-    isModalSaveRef.current = false;
-  }, [onSave, formMethods, router]);
-
   const handleDiscard = useCallback(() => {
-    if (onDiscard) {
-      onDiscard();
-    } else {
-      formMethods.reset();
-    }
+    onDiscard?.();
 
     allowNavigationRef.current = true;
 
@@ -76,7 +34,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
       router.push(pendingUrlRef.current);
       pendingUrlRef.current = null;
     }
-  }, [onDiscard, formMethods, router]);
+  }, [onDiscard, router]);
 
   useEffect(() => {
     if (!preventNavigation) {
@@ -99,12 +57,12 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
         type: LazyModal.DirtyForm,
         props: {
           onDiscard: handleDiscard,
-          onSave: onSave ? handleSave : undefined,
+          onSave,
         },
       });
 
       router.events.emit('routeChangeError');
-      // this throw is necessary to stop the route change.
+      // This error is necessary to abort the route change, and suggested approach. We don't want throw an actual error object.
       // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw 'Route change aborted.';
     };
@@ -120,7 +78,6 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     router,
     openModal,
     handleDiscard,
-    handleSave,
     onSave,
   ]);
 
@@ -132,7 +89,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (checkShouldPrevent()) {
         e.preventDefault();
-        // for old browsers, this is required for the dialogue to appear if they try to refresh or close tab.
+        // Legacy browser support to pop the alert when navigating away.
         e.returnValue = '';
       }
     };
@@ -144,54 +101,27 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     };
   }, [preventNavigation, checkShouldPrevent]);
 
-  // Direct save from form (not modal)
-  const save = useCallback(async () => {
-    if (!onSave) {
-      return false;
+  const navigateToPending = useCallback(() => {
+    if (pendingUrlRef.current) {
+      router.push(pendingUrlRef.current);
+      pendingUrlRef.current = null;
     }
-
-    const isValid = await formMethods.trigger();
-
-    if (!isValid) {
-      return false;
-    }
-
-    const currentValues = formMethods.getValues();
-    const saveResult = await onSave();
-
-    if (saveResult) {
-      formMethods.reset(currentValues);
-      allowNavigationRef.current = true;
-
-      // Navigate to success URL for direct saves
-      if (successUrl) {
-        const url =
-          typeof successUrl === 'function' ? successUrl() : successUrl;
-        router.push(url);
-      }
-    }
-
-    return saveResult;
-  }, [onSave, formMethods, router, successUrl]);
+  }, [router]);
 
   return {
     allowNavigation: () => {
       allowNavigationRef.current = true;
     },
-    isNavigationPrevented: checkShouldPrevent,
-    save,
-    showDirtyFormModal: (targetUrl?: string) => {
-      if (targetUrl) {
-        pendingUrlRef.current = targetUrl;
-      }
-
-      openModal({
-        type: LazyModal.DirtyForm,
-        props: {
-          onDiscard: handleDiscard,
-          onSave: onSave ? handleSave : undefined,
-        },
-      });
+    blockNavigation: () => {
+      allowNavigationRef.current = false;
     },
+    resetNavigation: () => {
+      allowNavigationRef.current = false;
+      pendingUrlRef.current = null;
+    },
+    isNavigationBlocked: checkShouldPrevent,
+    hasPendingNavigation: () => pendingUrlRef.current !== null,
+    navigateToPending,
+    save: onSave,
   };
 };
