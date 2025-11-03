@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { PublicProfile } from '../../../../lib/user';
+import type { PublicProfile } from '../../../lib/user';
 import { AboutMe } from './AboutMe';
-import { getLogContextStatic } from '../../../../contexts/LogContext';
+import { getLogContextStatic } from '../../../contexts/LogContext';
 
 const LogContext = getLogContextStatic();
 

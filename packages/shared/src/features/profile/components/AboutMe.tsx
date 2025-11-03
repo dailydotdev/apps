@@ -1,18 +1,18 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
-import type { PublicProfile } from '../../../../lib/user';
-import Markdown from '../../../../components/Markdown';
+import type { PublicProfile } from '../../../lib/user';
+import Markdown from '../../../components/Markdown';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../components/buttons/Button';
 import {
   Typography,
   TypographyType,
   TypographyColor,
-} from '../../../../components/typography/Typography';
+} from '../../../components/typography/Typography';
 import {
   BlueskyIcon,
   CodePenIcon,
@@ -26,14 +26,14 @@ import {
   ThreadsIcon,
   TwitterIcon,
   YoutubeIcon,
-} from '../../../../components/icons';
-import { IconSize } from '../../../../components/Icon';
-import { SimpleTooltip } from '../../../../components/tooltips/SimpleTooltip';
-import { ExpandableContent } from '../../../../components/ExpandableContent';
-import { useLogContext } from '../../../../contexts/LogContext';
-import { combinedClicks } from '../../../../lib/click';
-import { LogEvent, TargetType } from '../../../../lib/log';
-import { anchorDefaultRel } from '../../../../lib/strings';
+} from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
+import { SimpleTooltip } from '../../../components/tooltips/SimpleTooltip';
+import { ExpandableContent } from '../../../components/ExpandableContent';
+import { useLogContext } from '../../../contexts/LogContext';
+import { combinedClicks } from '../../../lib/click';
+import { LogEvent, TargetType } from '../../../lib/log';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 export interface AboutMeProps {
   user: PublicProfile;
