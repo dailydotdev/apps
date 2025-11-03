@@ -40,6 +40,7 @@ export function MessageSuggestion() {
   useQuery({
     queryKey: ['msg-overlay'],
     queryFn: () => null,
+    staleTime: Infinity,
     refetchInterval: (cache) => {
       const retries = cache.state.dataUpdateCount;
 

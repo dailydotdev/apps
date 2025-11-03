@@ -28,6 +28,7 @@ export const useGenerateSuggestionContainer = ({
   useQuery({
     queryKey: ['suggestion-container', id],
     queryFn: () => null,
+    staleTime: Infinity,
     refetchInterval: (cache) => {
       const retries = cache.state.dataUpdateCount;
 
