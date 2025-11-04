@@ -26,6 +26,7 @@ import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
+import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarCollapse';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -79,6 +80,9 @@ export default function ProfileLayout({
   const { logEvent } = useLogContext();
   const { referrerPost } = usePostReferrerContext();
 
+  // Auto-collapse sidebar on small screens
+  useProfileSidebarCollapse();
+
   useEffect(() => {
     if (trackedView || !user) {
       return;
@@ -107,12 +111,14 @@ export default function ProfileLayout({
   }
 
   return (
-    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6">
+    <div className="profile-page m-auto flex w-full flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
-      <main className="relative flex flex-1 flex-col">{children}</main>
-      <aside className="hidden laptop:flex laptop:max-w-80 laptop:flex-col">
+      <main className="relative flex flex-1 flex-col laptop:max-w-2xl laptopL:max-w-3xl">
+        {children}
+      </main>
+      <aside className="hidden min-w-0 laptop:flex laptop:max-w-80 laptop:flex-shrink laptop:flex-col">
         <ProfileWidgets
           user={user}
           userStats={userStats}

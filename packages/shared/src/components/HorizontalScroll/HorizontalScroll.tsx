@@ -23,7 +23,12 @@ function HorizontalScrollComponent(
   const titleId = `horizontal-scroll-title-${id}`;
   const { ref, header } = useHorizontalScrollHeader({
     ...scrollProps,
-    title: { ...scrollProps?.title, id: titleId },
+    title:
+      scrollProps.title &&
+      typeof scrollProps.title === 'object' &&
+      'copy' in scrollProps.title
+        ? { ...scrollProps.title, id: titleId }
+        : scrollProps.title,
   });
 
   return (

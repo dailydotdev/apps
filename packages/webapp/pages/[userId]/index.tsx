@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/AboutMe';
+import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
+import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { NextSeo } from 'next-seo';
@@ -73,7 +74,7 @@ const ProfilePage = ({
       )}
       <div ref={stickyRef} />
       <ProfileHeader user={user} userStats={userStats} />
-      <div className="flex flex-col gap-4 divide-y divide-border-subtlest-tertiary p-6">
+      <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
         {shouldShowBanner && (
           <AutofillProfileBanner
             onUpload={onUpload}
@@ -82,6 +83,7 @@ const ProfilePage = ({
         )}
         {!shouldShowBanner && <div />}
         <AboutMe user={user} />
+        <Activity user={user} />
         {isUserSame && (
           <Share permalink={user?.permalink} className="laptop:hidden" />
         )}
