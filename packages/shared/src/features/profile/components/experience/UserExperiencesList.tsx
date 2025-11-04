@@ -47,7 +47,7 @@ export function UserExperienceList<T extends UserExperience>({
   }
 
   return (
-    <div className="flex flex-col gap-3 pt-4">
+    <div className="flex flex-col gap-3 py-4">
       <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
         {title}
       </Typography>
