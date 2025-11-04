@@ -76,7 +76,7 @@ describe('useDirtyForm', () => {
   describe('navigation prevention', () => {
     it('should not prevent navigation when form is clean', () => {
       renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
@@ -94,7 +94,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = true;
 
       renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
@@ -120,7 +120,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = true;
 
       const { result } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
@@ -163,7 +163,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = true;
 
       const { result } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
@@ -189,7 +189,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = true;
 
       renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
@@ -215,7 +215,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = true;
 
       const { result } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
@@ -243,7 +243,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = true;
 
       renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
@@ -266,7 +266,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = false;
 
       renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
@@ -287,7 +287,7 @@ describe('useDirtyForm', () => {
 
     it('should clean up event listeners on unmount', () => {
       const { unmount } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
@@ -311,7 +311,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = true;
 
       const { result } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
@@ -347,7 +347,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = true;
 
       renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
         }),
       );
@@ -369,7 +369,7 @@ describe('useDirtyForm', () => {
 
     it('should handle form state changes during lifecycle', () => {
       const { rerender } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
