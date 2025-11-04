@@ -42,6 +42,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
     organization {
       ...OrganizationShortFragment
 
+      description
       size
       stage
       website
@@ -98,6 +99,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
         max
         period
       }
+      equity
     }
     location {
       type
@@ -210,6 +212,14 @@ export const SAVE_OPPORTUNITY_SCREENING_ANSWERS = gql`
 export const ACCEPT_OPPORTUNITY_MATCH = gql`
   mutation AcceptOpportunityMatch($id: ID!) {
     acceptOpportunityMatch(id: $id) {
+      _
+    }
+  }
+`;
+
+export const REJECT_OPPORTUNITY_MATCH = gql`
+  mutation RejectOpportunityMatch($id: ID!) {
+    rejectOpportunityMatch(id: $id) {
       _
     }
   }
