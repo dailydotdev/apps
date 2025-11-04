@@ -82,7 +82,7 @@ const options = [
     title: 'Not looking right now',
     description: (
       <>
-        I&apos;m not open to opportunities right now. Step back until I say
+        I&apos;m not open to job offers right now. Step back until I say
         otherwise.
       </>
     ),
@@ -156,8 +156,8 @@ const DeclinePage = (): ReactElement => {
             center
           >
             We only reach out when it&apos;s worth it. Tell us where you stand
-            so we can match you with the right opportunities, or step back
-            entirely until you&apos;re ready.
+            so we can match you with the right job offers, or step back entirely
+            until you&apos;re ready.
           </Typography>
         </FlexCol>
         <FlexCol className="gap-2">

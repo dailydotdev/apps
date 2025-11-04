@@ -27,6 +27,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   CrunchbaseIcon,
+  FacebookIcon,
   GitHubIcon,
   LinkedInIcon,
   MagicIcon,
@@ -91,6 +92,7 @@ import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { OpportunityStepsInfo } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunityStepsInfo';
 import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
+import { SocialMediaType } from '@dailydotdev/shared/src/features/organizations/types';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 import {
   defaultOpenGraph,
@@ -133,11 +135,14 @@ const faq = [
   },
 ];
 
-const socialMediaIconMap = {
-  linkedin: <LinkedInIcon />,
-  x: <TwitterIcon />,
-  github: <GitHubIcon />,
-  crunchbase: <CrunchbaseIcon />,
+type SocialMediaIconMap = { [Key in SocialMediaType]: ReactElement };
+
+const socialMediaIconMap: SocialMediaIconMap = {
+  [SocialMediaType.Facebook]: <FacebookIcon />,
+  [SocialMediaType.X]: <TwitterIcon />,
+  [SocialMediaType.GitHub]: <GitHubIcon />,
+  [SocialMediaType.Crunchbase]: <CrunchbaseIcon />,
+  [SocialMediaType.LinkedIn]: <LinkedInIcon />,
 };
 
 const locationTypeMap = {
@@ -216,11 +221,16 @@ const metaMap = {
         return 'N/A';
       }
 
-      const output = `${location.city ? `${location.city}` : ''}${
-        location.subdivision ? `, ${location.subdivision}` : ''
-      }${location.country ? `, ${location.country}` : ''}`;
-
-      return output || 'N/A';
+      return (
+        [
+          location.city,
+          location.subdivision,
+          location.country,
+          location.continent,
+        ]
+          .filter(Boolean)
+          .join(', ') || 'N/A'
+      );
     },
   },
   salary: {
@@ -239,6 +249,11 @@ const metaMap = {
     title: 'Work site',
     transformer: (value: Opportunity['location']) =>
       locationTypeMap[value?.[0]?.type || LocationType.UNSPECIFIED],
+  },
+  equity: {
+    title: 'Equity',
+    transformer: (value: OpportunityMeta['equity']) =>
+      value ? 'Included' : null,
   },
   seniorityLevel: {
     title: 'Seniority level',
@@ -337,7 +352,7 @@ const JobPage = (): ReactElement => {
           <OpportunityStepsInfo />
         </div>
       </Portal>
-      {!hasUploadedCV && (
+      {!hasUploadedCV && !canEdit && (
         <CVOverlay
           backButton={
             <Link href={webappUrl} passHref>
@@ -352,7 +367,7 @@ const JobPage = (): ReactElement => {
           }
         />
       )}
-      {!hasCompletedInitialView && <JobPageIntro />}
+      {!hasCompletedInitialView && !canEdit && <JobPageIntro />}
       {showFooterNav && (
         <OpportunityFooter>
           {!!match && (
@@ -397,7 +412,7 @@ const JobPage = (): ReactElement => {
                   color={TypographyColor.Tertiary}
                   className="font-normal"
                 >
-                  Verified opportunity
+                  Verified job offer
                 </Typography>
               </Typography>
             </div>
@@ -486,6 +501,10 @@ const JobPage = (): ReactElement => {
                 const value = isLocation
                   ? opportunity.location
                   : opportunity.meta[metaKey];
+
+                if (value === false || value === null) {
+                  return false;
+                }
 
                 return (
                   <Fragment key={metaKey}>
@@ -723,6 +742,8 @@ const JobPage = (): ReactElement => {
                             socialType.toLowerCase() as keyof typeof socialMediaIconMap
                           ]
                         }
+                        target="_blank"
+                        rel={anchorDefaultRel}
                       />
                     </Link>
                   ),
