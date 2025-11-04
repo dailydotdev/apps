@@ -6,7 +6,6 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import type { PublicProfile } from '../../../../lib/user';
 import { getUserProfileExperiences } from '../../../../graphql/user/profile';
 import { UserExperienceList } from './UserExperiencesList';
-import { HorizontalSeparator } from '../../../../components/utilities';
 
 interface ProfileUserExperiencesProps {
   user: PublicProfile;
@@ -37,15 +36,11 @@ export function ProfileUserExperiences({
   );
 
   return (
-    <div className="flex flex-col gap-4">
-      <HorizontalSeparator />
+    <>
       <UserExperienceList experiences={list.work} title="Work Experiences" />
-      <HorizontalSeparator />
       <UserExperienceList experiences={list.education} title="Education" />
-      <HorizontalSeparator />
       <UserExperienceList experiences={list.cert} title="Certifications" />
-      <HorizontalSeparator />
       <UserExperienceList experiences={list.project} title="Projects" />
-    </div>
+    </>
   );
 }

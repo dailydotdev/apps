@@ -73,7 +73,7 @@ const ProfilePage = ({
       )}
       <div ref={stickyRef} />
       <ProfileHeader user={user} userStats={userStats} />
-      <div className="flex flex-col divide-y gap-4 divide-border-subtlest-tertiary p-6">
+      <div className="flex flex-col gap-4 divide-y divide-border-subtlest-tertiary p-6">
         {shouldShowBanner && (
           <AutofillProfileBanner
             onUpload={onUpload}
