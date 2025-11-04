@@ -8,7 +8,7 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import { UserExperienceItem } from './UserExperienceItem';
-import { formatDatesDuration } from '../../../../lib/dateFormat';
+import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { currrentPill } from './common';
 
 interface UserExperiencesGroupedListProps {
@@ -22,10 +22,11 @@ export function UserExperiencesGroupedList({
 }: UserExperiencesGroupedListProps): ReactElement {
   const [first] = experiences;
   const last = experiences[experiences.length - 1];
-  const duration = formatDatesDuration(
-    new Date(last.startedAt),
-    first.endedAt ? new Date(first.endedAt) : new Date(),
-  );
+  const duration = formatDate({
+    value: new Date(last.startedAt),
+    type: TimeFormatType.Experience,
+    now: first.endedAt ? new Date(first.endedAt) : new Date(),
+  });
 
   return (
     <>
