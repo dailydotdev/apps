@@ -7,13 +7,7 @@ import { getLogContextStatic } from '../../../contexts/LogContext';
 
 const LogContext = getLogContextStatic();
 
-const mockCopyLink = jest.fn();
 const mockLogEvent = jest.fn();
-
-// Mock useCopyLink hook
-jest.mock('../../../../hooks/useCopy', () => ({
-  useCopyLink: () => [jest.fn(), mockCopyLink],
-}));
 
 beforeEach(() => {
   jest.clearAllMocks();
