@@ -159,7 +159,7 @@ const useUserInfoForm = (): UseUserInfoForm => {
     },
   });
 
-  const dirtyForm = useDirtyForm(methods, {
+  const dirtyForm = useDirtyForm(methods.formState.isDirty, {
     onSave: () => {
       const formData = methods.getValues();
       updateUserProfile(formData);

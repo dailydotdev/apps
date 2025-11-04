@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from 'react';
-import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
@@ -9,8 +8,8 @@ export interface UseDirtyFormOptions {
   onDiscard?: () => void;
 }
 
-export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
-  formMethods: UseFormReturn<TFieldValues>,
+export const useDirtyForm = (
+  isDirty: boolean,
   options: UseDirtyFormOptions,
 ) => {
   const { onSave, onDiscard } = options;
@@ -19,10 +18,6 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
   const { openModal } = useLazyModal();
   const allowNavigationRef = useRef(false);
   const pendingUrlRef = useRef<string | null>(null);
-
-  const shouldPreventNavigation = useCallback(() => {
-    return formMethods.formState.isDirty;
-  }, [formMethods.formState.isDirty]);
 
   const handleDiscard = useCallback(() => {
     onDiscard?.();
@@ -37,11 +32,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
 
   useEffect(() => {
     const handleRouteChangeStart = (url: string) => {
-      if (
-        allowNavigationRef.current ||
-        !shouldPreventNavigation() ||
-        url === router.asPath
-      ) {
+      if (allowNavigationRef.current || !isDirty || url === router.asPath) {
         allowNavigationRef.current = false;
         return;
       }
@@ -67,11 +58,11 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
-  }, [shouldPreventNavigation, router, openModal, handleDiscard, onSave]);
+  }, [isDirty, router, openModal, handleDiscard, onSave]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (shouldPreventNavigation()) {
+      if (isDirty) {
         e.preventDefault();
         // Legacy browser support to pop the alert when navigating away.
         e.returnValue = '';
@@ -83,7 +74,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [shouldPreventNavigation]);
+  }, [isDirty]);
 
   const navigateToPending = useCallback(() => {
     if (pendingUrlRef.current) {
