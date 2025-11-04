@@ -9,6 +9,7 @@ import {
   CLEAR_RESUME_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
+  REJECT_OPPORTUNITY_MATCH,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
   UPDATE_OPPORTUNITY_STATE_MUTATION,
@@ -17,9 +18,11 @@ import {
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import type {
   Opportunity,
+  OpportunityMatch,
   OpportunityScreeningAnswer,
   UserCandidatePreferences,
 } from './types';
+import { OpportunityMatchStatus } from './types';
 import type { UseUpdateQuery } from '../../hooks/useUpdateQuery';
 import type {
   opportunityEditContentSchema,
@@ -78,6 +81,25 @@ export const acceptOpportunityMatchMutationOptions = (
     mutationFn: async () => {
       return gqlClient.request(ACCEPT_OPPORTUNITY_MATCH, {
         id: opportunityId,
+      });
+    },
+  };
+};
+
+export const rejectOpportunityMatchMutationOptions = (
+  opportunityId: string,
+  [get, set]: UseUpdateQuery<OpportunityMatch>,
+): MutationOptions<EmptyResponse> => {
+  const match = get();
+  return {
+    mutationFn: async () =>
+      gqlClient.request(REJECT_OPPORTUNITY_MATCH, {
+        id: opportunityId,
+      }),
+    onSuccess: () => {
+      set({
+        ...match,
+        status: OpportunityMatchStatus.CandidateRejected,
       });
     },
   };

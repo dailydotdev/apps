@@ -177,53 +177,53 @@ export const cloudinaryIntegrationsSlackHeaderDark =
 export const cloudinaryTopReaderBadgeBackground =
   'https://media.daily.dev/image/upload/v1730888952/webapp/topReaderBadgeBackground.svg';
 export const cloudinaryPlusBackground =
-  'https://daily-now-res.cloudinary.com/image/upload/s--yGWFYjgW--/f_auto/v1731589143/Upgrade_to_plus_4_1_rketmz';
+  'https://media.daily.dev/image/upload/s--yGWFYjgW--/f_auto/v1731589143/Upgrade_to_plus_4_1_rketmz';
 
 export const cloudinaryAuthBannerBackground =
-  'https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/f_auto/v1732012913/login-popover-dailydev_mxb7lw';
+  'https://media.daily.dev/image/upload/s--lf8LUJjq--/f_auto/v1732012913/login-popover-dailydev_mxb7lw';
 export const cloudinaryAuthBannerBackground1920w =
-  'https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1920/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
+  'https://media.daily.dev/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1920/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
 
 export const cloudinaryAuthBannerBackground1440w =
-  'https://daily-now-res.cloudinary.com/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
+  'https://media.daily.dev/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
 
 export const cloudinaryPWA =
-  'https://daily-now-res.cloudinary.com/image/upload/s--_kFKAft3--/f_auto/v1735045791/web_-_safari_j52hcx';
+  'https://media.daily.dev/image/upload/s--_kFKAft3--/f_auto/v1735045791/web_-_safari_j52hcx';
 
 export const cloudinaryMobilePWAChrome =
-  'https://daily-now-res.cloudinary.com/image/upload/s--6ajr-Fje--/f_auto/v1735045791/web_-_chrome_we4vak';
+  'https://media.daily.dev/image/upload/s--6ajr-Fje--/f_auto/v1735045791/web_-_chrome_we4vak';
 
 export const cloudinaryPWAVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/s--gN1-dqeq--/v1735029367/web_-_safari_e3wes4.mp4';
+  'https://media.daily.dev/video/upload/s--gN1-dqeq--/v1735029367/web_-_safari_e3wes4.mp4';
 
 export const cloudinaryPWAVideoChrome =
-  'https://daily-now-res.cloudinary.com/video/upload/s--RD5n9hm9--/v1735044247/web_-_chrome_xavter.mp4';
+  'https://media.daily.dev/video/upload/s--RD5n9hm9--/v1735044247/web_-_chrome_xavter.mp4';
 
 export const cloudinaryOnboardingExtension = {
   [BrowserName.Chrome]: {
     default:
-      'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown_ggmkfg',
+      'https://media.daily.dev/image/upload/s--HjgXzokn--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown_ggmkfg',
     retina:
-      'https://res.cloudinary.com/daily-now/image/upload/s--HjgXzokn--/f_auto/dailydev-extenstion-mindblown_ggmkfg',
+      'https://media.daily.dev/image/upload/s--HjgXzokn--/f_auto/dailydev-extenstion-mindblown_ggmkfg',
   },
   [BrowserName.Edge]: {
     default:
-      'https://res.cloudinary.com/daily-now/image/upload/s--kvj5ZB_s--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
+      'https://media.daily.dev/image/upload/s--kvj5ZB_s--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
     retina:
-      'https://res.cloudinary.com/daily-now/image/upload/s--kvj5ZB_s--/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
+      'https://media.daily.dev/image/upload/s--kvj5ZB_s--/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
   },
 };
 
 export const bookmarkFolderSoonImage =
-  'https://daily-now-res.cloudinary.com/image/upload/s--_jM3zDSE--/f_auto/v1733239852/daily_dev_bookmarks_folders_fsughm';
+  'https://media.daily.dev/image/upload/s--_jM3zDSE--/f_auto/v1733239852/daily_dev_bookmarks_folders_fsughm';
 
 export const clickbaitShieldModalImage =
-  'https://daily-now-res.cloudinary.com/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
+  'https://media.daily.dev/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
 
-export const cloudinaryGiftedPlusModalImage = `https://daily-now-res.cloudinary.com/image/upload/s--JNm5gqXz--/f_auto/v1733838699/daily-dev-plus-gift_qosjrm`;
+export const cloudinaryGiftedPlusModalImage = `https://media.daily.dev/image/upload/s--JNm5gqXz--/f_auto/v1733838699/daily-dev-plus-gift_qosjrm`;
 
 export const smartPromptModalImage =
-  'https://daily-now-res.cloudinary.com/image/upload/s--JVcr0aup--/f_auto/v1736060940/Streak_together_with_a_friend_glfbco';
+  'https://media.daily.dev/image/upload/s--JVcr0aup--/f_auto/v1736060940/Streak_together_with_a_friend_glfbco';
 export const smallPostImage = (url: string): string => {
   if (!url) {
     return cloudinaryPostImageCoverPlaceholder;
@@ -239,7 +239,7 @@ export const plusRedBackgroundImage =
   'https://media.daily.dev/image/upload/s--agAC5L3c--/f_auto/v1738509922/public/Plus%20bg%20Image';
 
 export const purchaseCoinsCheckoutVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/s--1p9Qw5ey--/v1741849174/videos/daily.dev_-_get_cores.mp4';
+  'https://media.daily.dev/video/upload/s--1p9Qw5ey--/v1741849174/videos/daily.dev_-_get_cores.mp4';
 
 export const purchaseCoinsCheckoutVideoPoster =
   'https://media.daily.dev/image/upload/s--A_4rXIh7--/f_auto/v1741779750/public/Giving%20cores';
@@ -300,23 +300,23 @@ export const opportunityLiveIllustration =
 export const plusShowcaseTeamImage =
   'https://media.daily.dev/image/upload/s--FM6ekBTf--/f_auto/v1741698925/public/team';
 export const plusShowcaseTeamVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/team.mp4';
+  'https://media.daily.dev/video/upload/v1741698572/videos/team.mp4';
 export const plusShowcaseCustomFeedsImage =
   'https://media.daily.dev/image/upload/s--OU22D-Xf--/f_auto/v1741690961/public/customfeed';
 export const plusShowcaseCustomFeedsVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/customfeeds.webm';
+  'https://media.daily.dev/video/upload/v1741698572/videos/customfeeds.webm';
 export const plusShowcaseSmartPrompsImage =
   'https://media.daily.dev/image/upload/s--3WScQpUE--/f_auto/v1741698925/public/smartprompts';
 export const plusShowcaseSmartPrompsVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/smartprompts.webm';
+  'https://media.daily.dev/video/upload/v1741698572/videos/smartprompts.webm';
 export const plusShowcaseShieldImage =
   'https://media.daily.dev/image/upload/s--UlKSWTvF--/f_auto/v1741698925/public/shield';
 export const plusShowcaseShieldVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/shield.webm';
+  'https://media.daily.dev/video/upload/v1741698572/videos/shield.webm';
 export const plusShowcaseBookmarkImage =
   'https://media.daily.dev/image/upload/s--PZk2a1PY--/f_auto/v1741690961/public/bookmark';
 export const plusShowcaseBookmarkVideo =
-  'https://daily-now-res.cloudinary.com/video/upload/v1741698572/videos/bookmark.webm';
+  'https://media.daily.dev/video/upload/v1741698572/videos/bookmark.webm';
 export const plusShowcaseKeywordImage =
   'https://media.daily.dev/image/upload/s--r2BZKWPk--/f_auto/v1741690961/public/Keyword filters';
 export const plusShowcaseAdFreeImage =
@@ -379,3 +379,5 @@ export const locationProfileImage =
 
 export const autofillProfileCover =
   'https://media.daily.dev/image/upload/s--0pMFz3kQ--/f_auto/v1757577987/public/Autofill%20your%20profile!';
+export const adFaviconPlaceholder =
+  'https://media.daily.dev/image/upload/s--SOLIE7Bc--/f_auto/v1761801782/webapp/daily.dev_-_Boost_Icon';

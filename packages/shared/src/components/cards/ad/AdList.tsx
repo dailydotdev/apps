@@ -15,6 +15,7 @@ import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import AdAttribution from './common/AdAttribution';
+import { AdFavicon } from './common/AdFavicon';
 
 const getLinkProps = ({
   ad,
@@ -60,6 +61,7 @@ export const AdList = forwardRef(function AdCard(
         <CardTitle
           className={classNames('!mt-0 mr-4 line-clamp-4 flex-1 typo-title3')}
         >
+          <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
           {ad.description}
           <AdAttribution
             ad={ad}

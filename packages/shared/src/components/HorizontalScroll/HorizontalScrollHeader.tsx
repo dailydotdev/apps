@@ -63,7 +63,7 @@ export function HorizontalScrollHeader({
   return (
     <div
       className={classNames(
-        'mx-4 mb-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full',
+        'mx-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full',
         className,
       )}
     >

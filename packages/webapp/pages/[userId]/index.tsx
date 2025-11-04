@@ -8,6 +8,7 @@ import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
+import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
@@ -103,6 +104,7 @@ const ProfilePage = ({
             className="no-scrollbar overflow-auto laptop:hidden"
           />
         </div>
+        <ProfileUserExperiences user={user} />
       </div>
     </div>
   );

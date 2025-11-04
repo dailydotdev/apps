@@ -24,6 +24,7 @@ export enum SocialMediaType {
   X = 'x',
   GitHub = 'github',
   Crunchbase = 'crunchbase',
+  LinkedIn = 'linkedin',
 }
 
 export type OrganizationMember = {

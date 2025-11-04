@@ -11,6 +11,19 @@ const processSalaryValue = (val: unknown) => {
   return val;
 };
 
+const capitalize = (s: string) => {
+  if (s == null || typeof s !== 'string') {
+    return s;
+  }
+
+  return s.trim().length === 0
+    ? ''
+    : s
+        .trim()
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
 export const opportunityEditInfoSchema = z.object({
   title: z.string().nonempty(labels.form.required).max(240),
   tldr: z.string().nonempty(labels.form.required).max(480),
@@ -23,16 +36,37 @@ export const opportunityEditInfoSchema = z.object({
     .min(1, labels.form.required)
     .max(100),
   location: z.array(
-    z.object({
-      country: z.string().nonempty(labels.form.required).max(240),
-      city: z.string().nonempty(labels.form.required).max(240).optional(),
-      subdivision: z
-        .string()
-        .nonempty(labels.form.required)
-        .max(240)
-        .optional(),
-      type: z.coerce.number(labels.form.required).min(1),
-    }),
+    z
+      .object({
+        country: z.string().max(240),
+        city: z.string().max(240).optional(),
+        subdivision: z.string().max(240).optional(),
+        continent: z
+          .preprocess(
+            capitalize,
+            z.union([z.literal('Europe'), z.literal(''), z.undefined()]),
+          )
+          .optional(),
+        type: z.coerce.number().min(1),
+      })
+      .superRefine((val, ctx) => {
+        const present = [
+          val.country && val.country.trim() !== '',
+          val.city && val.city.trim() !== '',
+          val.subdivision && val.subdivision.trim() !== '',
+          // continent counts only if it is "Europe" (empty string should not count)
+          val.continent === 'Europe',
+        ].some(Boolean);
+
+        if (!present) {
+          ctx.addIssue({
+            code: 'custom',
+            message:
+              'At least one of country, city, subdivision, or continent must be provided.',
+            path: [''], // form-level error
+          });
+        }
+      }),
   ),
   meta: z.object({
     employmentType: z.coerce.number().min(1, {
