@@ -194,7 +194,7 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
     }
 
     return (
-      <div className="laptop:w-full flex min-h-10 w-auto flex-row items-center justify-between">
+      <div className="flex min-h-10 w-auto flex-row items-center justify-between laptop:w-full">
         <ActivityHeader selectedTab={selectedTab} onTabClick={handleTabClick} />
       </div>
     );

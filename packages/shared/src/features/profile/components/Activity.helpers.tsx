@@ -111,7 +111,7 @@ export const renderEmptyScreen = (
       case ActivityTabIndex.Posts:
         return (
           <MyProfileEmptyScreen
-            className="tablet:px-6 items-center px-4 py-6 text-center"
+            className="items-center px-4 py-6 text-center tablet:px-6"
             text="Hardest part of being a developer? Where do we start – it's everything. Go on, share with us your best rant."
             cta="New post"
             buttonProps={{ tag: 'a', href: link.post.create }}
@@ -120,7 +120,7 @@ export const renderEmptyScreen = (
       case ActivityTabIndex.Upvoted:
         return (
           <MyProfileEmptyScreen
-            className="tablet:px-6 items-center px-4 py-6 text-center"
+            className="items-center px-4 py-6 text-center tablet:px-6"
             text="Trapped in endless meetings? Make the most of It - Find posts you love and upvote away!"
             cta="Explore posts"
             buttonProps={{ tag: 'a', href: '/' }}
@@ -129,7 +129,7 @@ export const renderEmptyScreen = (
       case ActivityTabIndex.Replies:
         return (
           <MyProfileEmptyScreen
-            className="tablet:px-6 items-center px-4 py-6 text-center"
+            className="items-center px-4 py-6 text-center tablet:px-6"
             text="All tests have passed on the first try and you have no idea why? Time for a break. Browse the feed and join a discussion!"
             cta="Explore posts"
             buttonProps={{ tag: 'a', href: '/' }}
