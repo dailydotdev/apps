@@ -46,9 +46,6 @@ interface UseProfileForm {
     ResponseError,
     UpdateProfileParameters
   >;
-  updateUserProfileAsync: (
-    params: UpdateProfileParameters,
-  ) => Promise<LoggedUser>;
 }
 
 interface UseProfileFormProps {
@@ -132,11 +129,11 @@ const useProfileForm = ({
   const { user, updateUser } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const [hint, setHint] = useState<ProfileFormHint>({});
-  const {
-    isPending: isLoading,
-    mutate: updateUserProfile,
-    mutateAsync: updateUserProfileAsync,
-  } = useMutation<LoggedUser, ResponseError, UpdateProfileParameters>({
+  const { isPending: isLoading, mutate: updateUserProfile } = useMutation<
+    LoggedUser,
+    ResponseError,
+    UpdateProfileParameters
+  >({
     mutationFn: ({ upload, coverUpload, onUpdateSuccess, ...data }) =>
       gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
         data,
@@ -176,7 +173,6 @@ const useProfileForm = ({
     isLoading,
     onUpdateHint: setHint,
     updateUserProfile,
-    updateUserProfileAsync,
   };
 };
 
