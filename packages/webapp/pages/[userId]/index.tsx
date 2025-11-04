@@ -7,6 +7,7 @@ import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
+import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
@@ -72,7 +73,7 @@ const ProfilePage = ({
       )}
       <div ref={stickyRef} />
       <ProfileHeader user={user} userStats={userStats} />
-      <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
+      <div className="flex flex-col gap-4 divide-y divide-border-subtlest-tertiary p-6">
         {shouldShowBanner && (
           <AutofillProfileBanner
             onUpload={onUpload}
@@ -101,6 +102,7 @@ const ProfilePage = ({
             className="no-scrollbar overflow-auto laptop:hidden"
           />
         </div>
+        <ProfileUserExperiences user={user} />
       </div>
     </div>
   );
