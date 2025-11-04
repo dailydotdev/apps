@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from 'react';
-import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
@@ -9,8 +8,14 @@ export interface UseDirtyFormOptions {
   onDiscard?: () => void;
 }
 
-export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
-  formMethods: UseFormReturn<TFieldValues>,
+type DirtyCheckFormMethods = {
+  formState: {
+    isDirty: boolean;
+  };
+};
+
+export const useDirtyForm = (
+  formMethods: DirtyCheckFormMethods,
   options: UseDirtyFormOptions,
 ) => {
   const { onSave, onDiscard } = options;
