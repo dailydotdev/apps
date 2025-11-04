@@ -105,8 +105,6 @@ const useUserInfoForm = (): UseUserInfoForm => {
       }),
 
     onSuccess: async (_, vars) => {
-      const currentValues = methods.getValues();
-
       await updateUser({ ...user, ...vars });
 
       dirtyFormRef.current?.allowNavigation();
@@ -131,10 +129,7 @@ const useUserInfoForm = (): UseUserInfoForm => {
       if (dirtyFormRef.current?.hasPendingNavigation()) {
         dirtyFormRef.current.navigateToPending();
       } else {
-        const username = currentValues.username?.toLowerCase();
-        if (username) {
-          router.push(`/${vars.username}`);
-        }
+        router.push(`/${vars.username}`);
       }
     },
 

@@ -20,7 +20,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
   const allowNavigationRef = useRef(false);
   const pendingUrlRef = useRef<string | null>(null);
 
-  const checkShouldPrevent = useCallback(() => {
+  const shouldPreventNavigation = useCallback(() => {
     return formMethods.formState.isDirty;
   }, [formMethods.formState.isDirty]);
 
@@ -39,7 +39,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     const handleRouteChangeStart = (url: string) => {
       if (
         allowNavigationRef.current ||
-        !checkShouldPrevent() ||
+        !shouldPreventNavigation() ||
         url === router.asPath
       ) {
         allowNavigationRef.current = false;
@@ -67,11 +67,11 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
-  }, [checkShouldPrevent, router, openModal, handleDiscard, onSave]);
+  }, [shouldPreventNavigation, router, openModal, handleDiscard, onSave]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (checkShouldPrevent()) {
+      if (shouldPreventNavigation()) {
         e.preventDefault();
         // Legacy browser support to pop the alert when navigating away.
         e.returnValue = '';
@@ -83,7 +83,7 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [checkShouldPrevent]);
+  }, [shouldPreventNavigation]);
 
   const navigateToPending = useCallback(() => {
     if (pendingUrlRef.current) {
@@ -96,14 +96,6 @@ export const useDirtyForm = <TFieldValues extends FieldValues = FieldValues>(
     allowNavigation: () => {
       allowNavigationRef.current = true;
     },
-    blockNavigation: () => {
-      allowNavigationRef.current = false;
-    },
-    resetNavigation: () => {
-      allowNavigationRef.current = false;
-      pendingUrlRef.current = null;
-    },
-    isNavigationBlocked: checkShouldPrevent,
     hasPendingNavigation: () => pendingUrlRef.current !== null,
     navigateToPending,
     save: onSave,

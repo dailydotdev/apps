@@ -22,21 +22,15 @@ describe('useDirtyForm', () => {
   let mockOnSave: jest.Mock;
   let mockOnDiscard: jest.Mock;
   let routerEventHandlers: Record<string, (url: string) => void>;
-  let originalAddEventListener: typeof window.addEventListener;
-  let originalRemoveEventListener: typeof window.removeEventListener;
   let windowEventHandlers: Map<string, EventListener>;
 
   beforeEach(() => {
     routerEventHandlers = {};
     windowEventHandlers = new Map();
 
-    originalAddEventListener = window.addEventListener;
-    originalRemoveEventListener = window.removeEventListener;
-
     window.addEventListener = jest.fn(
       (event: string, handler: EventListener) => {
         windowEventHandlers.set(event, handler);
-        originalAddEventListener(event, handler);
       },
     );
 
@@ -63,16 +57,12 @@ describe('useDirtyForm', () => {
     mockOpenModal = jest.fn();
     mocked(useLazyModal).mockReturnValue({
       openModal: mockOpenModal,
-      closeModal: jest.fn(),
-      isModalOpen: false,
-    });
+    } as ReturnType<typeof useLazyModal>);
 
     mockFormMethods = {
       formState: {
         isDirty: false,
       },
-      getValues: jest.fn(),
-      reset: jest.fn(),
     } as unknown as UseFormReturn;
 
     mockOnSave = jest.fn();
@@ -80,9 +70,7 @@ describe('useDirtyForm', () => {
   });
 
   afterEach(() => {
-    window.addEventListener = originalAddEventListener;
-    window.removeEventListener = originalRemoveEventListener;
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('navigation prevention', () => {
@@ -149,30 +137,6 @@ describe('useDirtyForm', () => {
       expect(mockOpenModal).not.toHaveBeenCalled();
       expect(mockRouter.events.emit).not.toHaveBeenCalled();
     });
-
-    it('should block navigation after blockNavigation is called', () => {
-      mockFormMethods.formState.isDirty = true;
-
-      const { result } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
-          onSave: mockOnSave,
-          onDiscard: mockOnDiscard,
-        }),
-      );
-
-      act(() => {
-        result.current.allowNavigation();
-        result.current.blockNavigation();
-      });
-
-      expect(() => {
-        act(() => {
-          routerEventHandlers.routeChangeStart('/new-path');
-        });
-      }).toThrow('Route change aborted.');
-
-      expect(mockOpenModal).toHaveBeenCalled();
-    });
   });
 
   describe('pending navigation', () => {
@@ -216,31 +180,6 @@ describe('useDirtyForm', () => {
       });
 
       expect(mockRouter.push).toHaveBeenCalledWith('/new-path');
-      expect(result.current.hasPendingNavigation()).toBe(false);
-    });
-
-    it('should clear pending URL when resetNavigation is called', () => {
-      mockFormMethods.formState.isDirty = true;
-
-      const { result } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
-          onSave: mockOnSave,
-          onDiscard: mockOnDiscard,
-        }),
-      );
-
-      expect(() => {
-        act(() => {
-          routerEventHandlers.routeChangeStart('/new-path');
-        });
-      }).toThrow('Route change aborted.');
-
-      expect(result.current.hasPendingNavigation()).toBe(true);
-
-      act(() => {
-        result.current.resetNavigation();
-      });
-
       expect(result.current.hasPendingNavigation()).toBe(false);
     });
   });
@@ -296,36 +235,6 @@ describe('useDirtyForm', () => {
 
       expect(mockRouter.push).toHaveBeenCalledWith('/new-path');
       expect(result.current.hasPendingNavigation()).toBe(false);
-    });
-
-    it('should not navigate if no pending URL after discard', () => {
-      const { result } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
-          onSave: mockOnSave,
-          onDiscard: mockOnDiscard,
-        }),
-      );
-
-      mockFormMethods.formState.isDirty = true;
-
-      expect(() => {
-        act(() => {
-          routerEventHandlers.routeChangeStart('/new-path');
-        });
-      }).toThrow('Route change aborted.');
-
-      const modalProps = mockOpenModal.mock.calls[0][0].props;
-
-      act(() => {
-        result.current.resetNavigation();
-      });
-
-      act(() => {
-        modalProps.onDiscard();
-      });
-
-      expect(mockOnDiscard).toHaveBeenCalled();
-      expect(mockRouter.push).not.toHaveBeenCalled();
     });
   });
 
@@ -394,54 +303,6 @@ describe('useDirtyForm', () => {
         'beforeunload',
         expect.any(Function),
       );
-    });
-  });
-
-  describe('hook return values', () => {
-    it('should return expected functions', () => {
-      const { result } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
-          onSave: mockOnSave,
-          onDiscard: mockOnDiscard,
-        }),
-      );
-
-      expect(result.current).toHaveProperty('allowNavigation');
-      expect(result.current).toHaveProperty('blockNavigation');
-      expect(result.current).toHaveProperty('resetNavigation');
-      expect(result.current).toHaveProperty('isNavigationBlocked');
-      expect(result.current).toHaveProperty('hasPendingNavigation');
-      expect(result.current).toHaveProperty('navigateToPending');
-      expect(result.current).toHaveProperty('save');
-
-      expect(typeof result.current.allowNavigation).toBe('function');
-      expect(typeof result.current.blockNavigation).toBe('function');
-      expect(typeof result.current.resetNavigation).toBe('function');
-      expect(typeof result.current.isNavigationBlocked).toBe('function');
-      expect(typeof result.current.hasPendingNavigation).toBe('function');
-      expect(typeof result.current.navigateToPending).toBe('function');
-      expect(result.current.save).toBe(mockOnSave);
-    });
-
-    it('should correctly report navigation blocked state', () => {
-      const { result, rerender } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
-          onSave: mockOnSave,
-          onDiscard: mockOnDiscard,
-        }),
-      );
-
-      expect(result.current.isNavigationBlocked()).toBe(false);
-
-      mockFormMethods.formState.isDirty = true;
-      rerender();
-
-      expect(result.current.isNavigationBlocked()).toBe(true);
-
-      mockFormMethods.formState.isDirty = false;
-      rerender();
-
-      expect(result.current.isNavigationBlocked()).toBe(false);
     });
   });
 
