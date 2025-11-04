@@ -9,8 +9,8 @@ export interface UseDirtyFormOptions {
   onDiscard?: () => void;
 }
 
-export const useDirtyForm = (
-  formMethods: UseFormReturn<FieldValues>,
+export const useDirtyForm = <TFieldValues extends FieldValues>(
+  formMethods: UseFormReturn<TFieldValues>,
   options: UseDirtyFormOptions,
 ) => {
   const { onSave, onDiscard } = options;
