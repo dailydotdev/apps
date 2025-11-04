@@ -109,3 +109,10 @@ export const briefFeedEntrypointPage = new Feature<false | number>(
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
 export const adFavicon = new Feature('ad_favicon', isDevelopment);
+export const boostSettingsFeature = new Feature('boost_settings', {
+  min: 3000,
+  max: 100000,
+  step: 1000,
+  default_cores: 3000,
+  default_days: 9,
+});
