@@ -57,7 +57,7 @@ const options = [
     ),
     title: 'Your profile is ready',
     description: (
-      <>You&apos;ve provided all the details we need for this job offer.</>
+      <>You&apos;ve provided all the details we need for this job match.</>
     ),
   },
   {
@@ -113,7 +113,7 @@ const DonePage = (): ReactElement => {
             color={TypographyColor.Secondary}
             center
           >
-            You&apos;ve completed everything needed for this job offer.
+            You&apos;ve completed everything needed for this job match.
             We&apos;ll take it from here.
           </Typography>
         </FlexCol>

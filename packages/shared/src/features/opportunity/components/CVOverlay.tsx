@@ -127,7 +127,7 @@ export const CVOverlay = ({
             <br />
             <br />
             Your CV stays 100% confidential and no recruiter sees it unless you
-            explicitly say yes to an job offer.
+            explicitly say yes to an job match.
           </Typography>
         </div>
         <div className="flex flex-col justify-between gap-4 tablet:flex-row">

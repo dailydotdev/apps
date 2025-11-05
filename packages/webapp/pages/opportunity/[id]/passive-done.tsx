@@ -48,7 +48,7 @@ const PassiveDonePage = (): ReactElement => {
             color={TypographyColor.Secondary}
             center
           >
-            You won&apos;t see any new job offers from us unless you decide to
+            You won&apos;t see any new job matches from us unless you decide to
             change your status. You can update your preferences anytime if
             things change.
           </Typography>

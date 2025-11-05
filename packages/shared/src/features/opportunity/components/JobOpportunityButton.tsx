@@ -13,6 +13,8 @@ import { useAlertsContext } from '../../../contexts/AlertContext';
 import { ActionType } from '../../../graphql/actions';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { useFeaturesReadyContext } from '../../../components/GrowthBookProvider';
+import { opportunityButtonCopy } from '../../../lib/featureManagement';
 
 type JobOpportunityButtonProps = {
   className?: string;
@@ -23,8 +25,10 @@ export const JobOpportunityButton = ({
 }: JobOpportunityButtonProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { alerts } = useAlertsContext();
+  const { getFeatureValue } = useFeaturesReadyContext();
   const { checkHasCompleted } = useActions();
   const { logEvent } = useLogContext();
+  const buttonCopy = getFeatureValue(opportunityButtonCopy);
   const logRef = useRef<typeof logEvent>();
   const hasLoggedRef = useRef(false);
   logRef.current = logEvent;
@@ -65,7 +69,7 @@ export const JobOpportunityButton = ({
 
   return (
     <Tooltip
-      content="A personalized job offer was matched to your profile. Click to review it privately"
+      content="A personalized job was matched to your profile. Click to review it privately"
       className="!max-w-80 text-center"
     >
       <Link href={href} passHref>
@@ -80,7 +84,7 @@ export const JobOpportunityButton = ({
           className={classNames(className, 'border-none text-black')}
           onClick={handleClick}
         >
-          One job offer is waiting for you here
+          {buttonCopy}
         </Button>
       </Link>
     </Tooltip>
