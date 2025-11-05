@@ -56,8 +56,8 @@ const PreferenceDonePage = (): ReactElement => {
             color={TypographyColor.Secondary}
             center
           >
-            We’ll only reach out when an job offer meets the conditions you’ve
-            set. No noise, no wasted time.
+            We’ll only reach out when an job meets the conditions you’ve set. No
+            noise, no wasted time.
           </Typography>
         </FlexCol>
         <FlexCol>

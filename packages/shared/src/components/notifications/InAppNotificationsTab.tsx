@@ -233,7 +233,7 @@ const InAppNotificationsTab = (): ReactElement => {
           />
           <NotificationSwitch
             id="opportunities"
-            label="Personalized job offers"
+            label="Personalized job matches"
             description={
               <>
                 Get notified only when there&apos;s a role that fits your skills

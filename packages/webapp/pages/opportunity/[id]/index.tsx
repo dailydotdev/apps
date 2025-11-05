@@ -412,7 +412,7 @@ const JobPage = (): ReactElement => {
                   color={TypographyColor.Tertiary}
                   className="font-normal"
                 >
-                  Verified job offer
+                  Verified job
                 </Typography>
               </Typography>
             </div>

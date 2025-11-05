@@ -116,3 +116,7 @@ export const boostSettingsFeature = new Feature('boost_settings', {
   default_cores: 5000,
   default_days: 7,
 });
+export const opportunityButtonCopy = new Feature(
+  'opportunity_button_copy',
+  'One job match is waiting for you',
+);

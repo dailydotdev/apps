@@ -186,7 +186,7 @@ const benefits = [
     icon: <MedalBadgeIcon />,
     title: 'No more surprises',
     description:
-      'Private by default. You review job offers quietly, choose yes or no, and nothing moves without your OK.',
+      'Private by default. You review job matches quietly, choose yes or no, and nothing moves without your OK.',
   },
   {
     icon: <JobIcon secondary />,
@@ -218,7 +218,7 @@ const BenefitSection = (): ReactElement => (
 const howItWorks = [
   {
     image: jobsHowItWorksOne,
-    title: 'Review the job offer',
+    title: 'Review the job',
     description:
       'See the role and decide if it’s worth moving forward. No pressure and no one even knows you’ve been approached.',
   },
@@ -279,9 +279,9 @@ const HowItWorksSection = (): ReactElement => (
 
 const faq = [
   {
-    title: 'How do you decide which job offers to show me?',
+    title: 'How do you decide which jobs to show me?',
     description:
-      'We look at your skills, interests, and career goals based on the information you’ve shared and your activity on the platform. From there, we identify roles that we believe could be a strong fit and worth your attention. The goal is not to flood you with options but to surface job offers that actually have the potential to move your career forward.',
+      'We look at your skills, interests, and career goals based on the information you’ve shared and your activity on the platform. From there, we identify roles that we believe could be a strong fit and worth your attention. The goal is not to flood you with options but to surface job matches that actually have the potential to move your career forward.',
   },
   {
     title: 'Will recruiters contact me directly?',
@@ -290,14 +290,14 @@ const faq = [
   },
   {
     title:
-      'What would I need to provide in order to get these kinds of job offers going forward?',
+      'What would I need to provide in order to get these kinds of job matches going forward?',
     description:
-      'The more we know about your skills, preferences, and career goals, the better we can tailor what you see. Uploading your CV and answering a few quick questions allows us to filter out irrelevant roles and focus on job offers that are genuinely worth your attention. Your CV isn’t shared with anyone until you approve an job offer and we’ve confirmed mutual interest with the recruiter.',
+      'The more we know about your skills, preferences, and career goals, the better we can tailor what you see. Uploading your CV and answering a few quick questions allows us to filter out irrelevant roles and focus on job matches that are genuinely worth your attention. Your CV isn’t shared with anyone until you approve an job offer and we’ve confirmed mutual interest with the recruiter.',
   },
   {
-    title: 'Can I set the conditions for the job offers I see?',
+    title: 'Can I set the conditions for the job matches I see?',
     description:
-      'Yes. What you’re seeing now is our best first guess based on your profile, but you can define exactly what “worth it” means to you. In your profile settings, you can set the specific conditions — role type, salary expectations, tech stack, location, and more — that we must meet before surfacing future job offers. That way, every job offer respects your time and attention.',
+      'Yes. What you’re seeing now is our best first guess based on your profile, but you can define exactly what “worth it” means to you. In your profile settings, you can set the specific conditions — role type, salary expectations, tech stack, location, and more — that we must meet before surfacing future job matches. That way, every job match respects your time and attention.',
   },
   {
     title: 'Do I have to pay for this service?',
@@ -305,19 +305,19 @@ const faq = [
       'No. This is 100% free for developers. We’re building a better, more respectful way to get hired, and that means removing the usual paywalls or fees. There’s no hidden cost for being introduced to a recruiter through our process.',
   },
   {
-    title: 'What happens after I approve an job offer?',
+    title: 'What happens after I approve an job match?',
     description:
       'We’ll ask for a few more details or quick screening answers to save time for both you and the recruiter. Then we speak directly with the recruiter to confirm they’re interested in moving forward. If both sides say yes, we make the warm introduction.',
   },
   {
     title: 'Will you share my CV or profile without my permission?',
     description:
-      'Never. Your information stays private until you explicitly approve an job offer and we’ve confirmed mutual interest. Until then, no one outside our team will know you’ve been approached.',
+      'Never. Your information stays private until you explicitly approve an job match and we’ve confirmed mutual interest. Until then, no one outside our team will know you’ve been approached.',
   },
   {
     title: 'Is this going to turn into another inbox full of recruiter spam?',
     description:
-      'Absolutely not. You’ll never get cold DMs, random connection requests, or templated outreach here. Every job offer we show you is opt-in, high-context, and matched against your conditions before it reaches you.',
+      'Absolutely not. You’ll never get cold DMs, random connection requests, or templated outreach here. Every job match we show you is opt-in, high-context, and matched against your conditions before it reaches you.',
   },
   {
     title: 'Are you going to waste my time with irrelevant roles?',
