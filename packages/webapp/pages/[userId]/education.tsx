@@ -12,10 +12,7 @@ import { ProfileExperienceDetailPage } from '../../components/layouts/ProfileLay
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
-const EducationPage = ({
-  user,
-  noindex,
-}: ProfileLayoutProps): ReactElement => {
+const EducationPage = ({ user, noindex }: ProfileLayoutProps): ReactElement => {
   const { education } = useProfileExperiences(user);
 
   return (
