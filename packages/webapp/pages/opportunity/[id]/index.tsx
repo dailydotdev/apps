@@ -343,12 +343,14 @@ const JobPage = (): ReactElement => {
         container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
       >
         <div className="hidden items-center laptop:flex">
-          <ResponseButtons
-            id={opportunity.id}
-            className={{
-              container: 'ml-auto flex gap-3',
-            }}
-          />
+          {hasUploadedCV && (
+            <ResponseButtons
+              id={opportunity.id}
+              className={{
+                container: 'ml-auto flex gap-3',
+              }}
+            />
+          )}
           <OpportunityStepsInfo />
         </div>
       </Portal>
