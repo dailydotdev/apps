@@ -7,10 +7,11 @@ import {
   Typography,
   TypographyType,
 } from '../../../../../components/typography/Typography';
-import MonthYearSelect from '../../../../../components/profile/MonthYearSelect';
+import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMonthYearSelect';
 import ProfileLocation from '../../../../../components/profile/ProfileLocation';
 import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
 import ProfileSkills from '../../ProfileSkills';
+import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 
 const UserWorkExperienceForm = () => {
   return (
@@ -26,22 +27,21 @@ const UserWorkExperienceForm = () => {
           label="Employment Type"
           placeholder="Please select"
         />
-        <ProfileCompany name="company" />
+        <ProfileCompany name="customCompanyName" />
       </div>
       <HorizontalSeparator />
+      <ControlledSwitch
+        name="currentPosition"
+        label="Current position"
+        description="Check if this is your current role"
+      />
       <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Callout} bold>
-            Current position
-          </Typography>
-        </div>
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             Start date*
           </Typography>
-          <MonthYearSelect
-            monthName="startMonth"
-            yearName="startYear"
+          <ProfileMonthYearSelect
+            name="startedAt"
             monthPlaceholder="Month"
             yearPlaceholder="Year"
           />
@@ -50,9 +50,8 @@ const UserWorkExperienceForm = () => {
           <Typography type={TypographyType.Callout} bold>
             End date*
           </Typography>
-          <MonthYearSelect
-            monthName="endMonth"
-            yearName="endYear"
+          <ProfileMonthYearSelect
+            name="endedAt"
             monthPlaceholder="Month"
             yearPlaceholder="Year"
           />
@@ -61,7 +60,7 @@ const UserWorkExperienceForm = () => {
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
-          <ProfileLocation locationName="location" typeName="locationType" />
+          <ProfileLocation locationName="locationId" typeName="locationType" />
         </div>
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>

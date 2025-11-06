@@ -3,6 +3,7 @@ import type { Connection } from '../common';
 import { gqlClient } from '../common';
 import type { TLocation } from '../autocomplete';
 import type { Company } from '../../lib/userCompany';
+import { excludeProperties } from '../../lib/utils';
 
 const USER_EXPERIENCE_FRAGMENT = gql`
   fragment UserExperienceFragment on UserExperience {
@@ -134,5 +135,98 @@ export const getUserProfileExperiences = async (
     { userId },
   );
 
+  return result;
+};
+
+const UPSERT_USER_GENERAL_EXPERIENCE = gql`
+  mutation UpsertUserGeneralExperience(
+    $input: UserGeneralExperienceInput!
+    $id: ID
+  ) {
+    upsertUserGeneralExperience(input: $input, id: $id) {
+      id
+      type
+      title
+      subtitle
+      description
+      startedAt
+      endedAt
+      company {
+        id
+        name
+      }
+      customCompanyName
+      url
+      grade
+      externalReferenceId
+      createdAt
+    }
+  }
+`;
+
+export const upsertUserGeneralExperience = async (
+  input: UserExperience,
+  id?: string,
+) => {
+  const cleanedInput = excludeProperties(input, [
+    'startedAt-year',
+    'startedAt-month',
+    'endedAt-year',
+    'endedAt-month',
+  ]);
+  const result = await gqlClient.request(UPSERT_USER_GENERAL_EXPERIENCE, {
+    input: cleanedInput,
+    id,
+  });
+  return result;
+};
+
+const UPSERT_USER_WORK_EXPERIENCE = gql`
+  mutation UpsertUserWorkExperience($input: UserExperienceWorkInput!, $id: ID) {
+    upsertUserWorkExperience(input: $input, id: $id) {
+      id
+      type
+      title
+      subtitle
+      description
+      startedAt
+      endedAt
+      company {
+        id
+        name
+      }
+      customCompanyName
+      employmentType
+      location {
+        id
+        city
+        subdivision
+        country
+      }
+      locationType
+      skills {
+        value
+      }
+      createdAt
+    }
+  }
+`;
+
+export const upsertUserWorkExperience = async (
+  input: UserExperienceWork,
+  id?: string,
+) => {
+  const cleanedInput = excludeProperties(input, [
+    'startedAt-year',
+    'startedAt-month',
+    'endedAt-year',
+    'endedAt-month',
+    'currentPosition',
+  ]);
+
+  const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {
+    input: cleanedInput,
+    id,
+  });
   return result;
 };

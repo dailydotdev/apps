@@ -69,3 +69,24 @@ export const locationToString = (loc: TLocation) => {
 
   return [loc.city, loc.subdivision, loc.country].filter(Boolean).join(', ');
 };
+
+export const excludeProperties = <
+  T,
+  K extends string | keyof T,
+  R = Omit<T, K & keyof T>,
+>(
+  obj: T,
+  properties: K[],
+): R => {
+  if (!obj) {
+    return obj as unknown as R;
+  }
+
+  const clone = structuredClone(obj);
+
+  properties.forEach((prop) => {
+    delete (clone as Record<string, unknown>)[prop as string];
+  });
+
+  return clone as unknown as R;
+};

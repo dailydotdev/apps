@@ -17,6 +17,7 @@ type SelectProps = {
   placeholder?: string;
   icon?: IconType;
   buttonProps?: ButtonProps<'button'>;
+  onSelect?: (value: string) => void;
 };
 
 const Select = ({
@@ -25,13 +26,17 @@ const Select = ({
   placeholder,
   icon,
   buttonProps,
+  onSelect,
 }: SelectProps) => {
   const { control, setValue } = useFormContext();
 
   const menuItems: MenuItemProps[] = options.map((opt) => {
     return {
       label: opt.label,
-      action: () => setValue(name, opt.value),
+      action: () => {
+        setValue(name, opt.value);
+        onSelect?.(opt.value);
+      },
     };
   });
 

@@ -21,9 +21,10 @@ type YearSelectProps = {
   name: string;
   icon?: IconType;
   placeholder?: string;
+  onSelect?: (value: string) => void;
 };
 
-const YearSelect = ({ name, icon, placeholder }: YearSelectProps) => {
+const YearSelect = ({ name, icon, placeholder, onSelect }: YearSelectProps) => {
   return (
     <Select
       icon={icon}
@@ -33,6 +34,7 @@ const YearSelect = ({ name, icon, placeholder }: YearSelectProps) => {
       buttonProps={{
         size: ButtonSize.Large,
       }}
+      onSelect={onSelect}
     />
   );
 };
