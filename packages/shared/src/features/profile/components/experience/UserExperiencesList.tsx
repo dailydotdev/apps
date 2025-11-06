@@ -11,7 +11,7 @@ import { UserExperiencesGroupedList } from './UserExperiencesGroupedList';
 
 interface UserExperienceListProps<T extends UserExperience> {
   experiences: T[];
-  title: string;
+  title?: string;
 }
 
 const groupListByCompany = <T extends UserExperience>(
@@ -48,9 +48,11 @@ export function UserExperienceList<T extends UserExperience>({
 
   return (
     <div className="flex flex-col gap-3 py-4">
-      <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
-        {title}
-      </Typography>
+      {title ? (
+        <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
+          {title}
+        </Typography>
+      ) : null}
       <ul className="flex flex-col">
         {groupedByCompany?.map(([company, list]) =>
           list.length === 1 ? (
