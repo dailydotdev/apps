@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import type { TextFieldProps } from './TextField';
 import { TextField } from './TextField';
 import { PopoverContent } from '../popover/Popover';
-import { Typography } from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 import { GenericLoaderSpinner } from '../utilities/loaders';
 import { IconSize } from '../Icon';
 
@@ -16,16 +16,19 @@ interface AutocompleteProps
   selectedValue?: string;
   options: Array<{ value: string; label: string }>;
   isLoading?: boolean;
+  resetOnBlur?: boolean;
 }
 
 const Autocomplete = ({
   name,
   isLoading,
   options,
+  label,
   onChange,
   onSelect,
   selectedValue,
   defaultValue,
+  resetOnBlur = true,
   ...restProps
 }: AutocompleteProps) => {
   const [input, setInput] = useState(defaultValue || '');
@@ -43,65 +46,73 @@ const Autocomplete = ({
   };
   const handleBlur = () => {
     setIsOpen(false);
-    setInput(options.find((opt) => opt.value === selectedValue)?.label || '');
+    if (resetOnBlur) {
+      setInput(options.find((opt) => opt.value === selectedValue)?.label || '');
+    }
   };
 
   return (
-    <Popover open={isOpen}>
-      <PopoverAnchor asChild>
-        <TextField
-          inputRef={(ref) => {
-            inputRef.current = ref;
-          }}
-          inputId={name}
-          {...restProps}
-          onChange={(e) => {
-            handleChange(e.target.value);
-            setIsOpen(true);
-          }}
-          onFocus={() => setIsOpen(true)}
-          onBlur={handleBlur}
-          value={input}
-          autoComplete="off"
-        />
-      </PopoverAnchor>
-      <PopoverContent
-        className="rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
-        side="bottom"
-        align="start"
-        avoidCollisions
-        sameWidthAsAnchor
-        onOpenAutoFocus={(e) => e.preventDefault()} // keep focus in input
-        onCloseAutoFocus={(e) => e.preventDefault()} // avoid refocus jumps
-      >
-        {!isLoading ? (
-          <div className="flex w-full flex-col">
-            {options?.length > 0 ? (
-              options.map((opt) => (
-                <button
-                  type="button"
-                  className={classNames(
-                    'text-left',
-                    selectedValue === opt.value && 'font-bold',
-                  )}
-                  key={opt.value}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleSelect(opt);
-                  }}
-                >
-                  {opt.label}
-                </button>
-              ))
-            ) : (
-              <Typography>No results</Typography>
-            )}
-          </div>
-        ) : (
-          <GenericLoaderSpinner className="mx-auto" size={IconSize.Small} />
-        )}
-      </PopoverContent>
-    </Popover>
+    <div className="flex flex-col gap-2">
+      <Typography type={TypographyType.Callout} bold>
+        {label}
+      </Typography>
+      <Popover open={isOpen}>
+        <PopoverAnchor asChild>
+          <TextField
+            label={label}
+            inputRef={(ref) => {
+              inputRef.current = ref;
+            }}
+            inputId={name}
+            {...restProps}
+            onChange={(e) => {
+              handleChange(e.target.value);
+              setIsOpen(true);
+            }}
+            onFocus={() => setIsOpen(true)}
+            onBlur={handleBlur}
+            value={input}
+            autoComplete="off"
+          />
+        </PopoverAnchor>
+        <PopoverContent
+          className="rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
+          side="bottom"
+          align="start"
+          avoidCollisions
+          sameWidthAsAnchor
+          onOpenAutoFocus={(e) => e.preventDefault()} // keep focus in input
+          onCloseAutoFocus={(e) => e.preventDefault()} // avoid refocus jumps
+        >
+          {!isLoading ? (
+            <div className="flex w-full flex-col">
+              {options?.length > 0 ? (
+                options.map((opt) => (
+                  <button
+                    type="button"
+                    className={classNames(
+                      'text-left',
+                      selectedValue === opt.value && 'font-bold',
+                    )}
+                    key={opt.value}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSelect(opt);
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))
+              ) : (
+                <Typography>No results</Typography>
+              )}
+            </div>
+          ) : (
+            <GenericLoaderSpinner className="mx-auto" size={IconSize.Small} />
+          )}
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 };
 
