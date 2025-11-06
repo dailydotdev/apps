@@ -50,6 +50,20 @@ const workProps = `
   }
 `;
 
+const USER_EXPERIENCE_BY_ID_QUERY = gql`
+  query UserExperienceById($id: ID!) {
+    userExperienceById(id: $id) {
+      ...UserExperienceFragment
+    }
+  }
+  ${USER_EXPERIENCE_FRAGMENT}
+`;
+
+export const getUserExperienceById = async (id: string) => {
+  const result = await gqlClient.request(USER_EXPERIENCE_BY_ID_QUERY, { id });
+  return result.userExperienceById;
+};
+
 const USER_PROFILE_EXPERIENCES_QUERY = gql`
   query UserExperiences($userId: ID!) {
     work: userExperiences(userId: $userId, type: work, first: 3) {

@@ -46,7 +46,7 @@ export enum UserExperienceType {
 
 type BaseUserExperience = Omit<
   UserExperience,
-  'type' | 'id' | 'createdAt' | 'company' | 'customCompanyName'
+  'id' | 'createdAt' | 'company' | 'customCompanyName'
 >;
 
 const DEFAULT_VALUES: BaseUserExperience = {
@@ -55,14 +55,12 @@ const DEFAULT_VALUES: BaseUserExperience = {
   subtitle: '',
   startedAt: null,
   endedAt: null,
+  type: UserExperienceType.Work,
 };
 
 const useUserExperienceForm = ({
-  id,
   defaultValues = DEFAULT_VALUES,
-  type = UserExperienceType.Work,
 }: {
-  id?: string;
   defaultValues?: BaseUserExperience;
   type?: UserExperienceType;
 }) => {
@@ -70,12 +68,10 @@ const useUserExperienceForm = ({
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const methods = useForm<UserExperience>({
-    defaultValues: {
-      ...defaultValues,
-      type,
-    },
+    defaultValues,
     resolver: zodResolver(userExperienceInputBaseSchema),
   });
+  const { id, type } = methods.getValues();
   const { mutate, isPending } = useMutation({
     mutationFn: (data: UserExperience | UserExperienceWork) =>
       type === UserExperienceType.Work

@@ -3,14 +3,16 @@ import React from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { FormProvider } from 'react-hook-form';
 import UserWorkExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserWorkExperienceForm';
-import useUserExperienceForm, {
-  UserExperienceType,
-} from '@dailydotdev/shared/src/hooks/useUserExperienceForm';
+import useUserExperienceForm from '@dailydotdev/shared/src/hooks/useUserExperienceForm';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profile';
+import { getUserExperienceById } from '@dailydotdev/shared/src/graphql/user/profile';
+import type { GetServerSideProps } from 'next';
+import { format, parse } from 'date-fns';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
@@ -21,12 +23,50 @@ const seo: NextSeoProps = {
   title: getTemplatedTitle('Edit experience'),
 };
 
-const Page = (): ReactElement => {
-  const existingValues = null;
+type PageProps = {
+  experience: UserExperience | null;
+};
+// Using date-fns
+const splitMonthYear = (date?: string) => {
+  if (!date) {
+    return ['', ''];
+  }
+  const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
+  const month = format(parsedDate, 'MM');
+  const year = format(parsedDate, 'yyyy');
+  return [month, year];
+};
+
+export const getServerSideProps: GetServerSideProps<PageProps> = async ({
+  query,
+}) => {
+  const { id } = query;
+  if (!id) {
+    return { props: { experience: null } };
+  }
+  const result = await getUserExperienceById(id as string);
+  console.log('******************* result', result);
+  const [startedAtMonth, startedAtYear] = splitMonthYear(result?.startedAt);
+  const [endedAtMonth, endedAtYear] = splitMonthYear(result?.endedAt);
+
+  return {
+    props: {
+      experience: result
+        ? {
+            ...result,
+            startedAtMonth,
+            startedAtYear,
+            endedAtMonth,
+            endedAtYear,
+          }
+        : null,
+    },
+  };
+};
+
+const Page = ({ experience }: PageProps): ReactElement => {
   const { methods, save, isPending } = useUserExperienceForm({
-    id: existingValues?.id,
-    defaultValues: existingValues,
-    type: UserExperienceType.Work,
+    defaultValues: experience,
   });
   return (
     <FormProvider {...methods}>

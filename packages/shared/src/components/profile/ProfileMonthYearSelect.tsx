@@ -20,8 +20,8 @@ const ProfileMonthYearSelect = ({
   monthPlaceholder = 'Month',
   yearPlaceholder = 'Year',
 }: MonthYearSelectProps) => {
-  const yearName = `${name}-year`;
-  const monthName = `${name}-month`;
+  const yearName = `${name}Year`;
+  const monthName = `${name}Month`;
   const {
     watch,
     setValue,
