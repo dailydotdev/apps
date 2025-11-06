@@ -124,6 +124,7 @@ function AccountSecurityDefault({
   const [linkProvider, setLinkProvider] = useState(null);
   const hasPassword = userProviders?.result?.includes('password');
   const { showPrompt } = usePrompt();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const manageSocialProviders = async ({
     type,
@@ -155,8 +156,10 @@ function AccountSecurityDefault({
   const deleteAccountPrompt = async () => {
     if (await showPrompt(deleteAccountPromptOptions)) {
       try {
+        setIsDeleting(true);
         await deleteAccount();
       } catch (error) {
+        setIsDeleting(false);
         displayToast(DEFAULT_ERROR);
         return;
       }
@@ -287,6 +290,7 @@ function AccountSecurityDefault({
         <AccountDangerZone
           onDelete={() => deleteAccountPrompt()}
           className="mt-6"
+          buttonLoading={isDeleting}
         />
       </AccountContentSection>
     </AccountPageContainer>
