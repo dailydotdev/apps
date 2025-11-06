@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+import type { FormEvent, MutableRefObject, ReactElement } from 'react';
 import { providerMap } from '@dailydotdev/shared/src/components/auth/common';
 import {
   Button,
@@ -7,9 +9,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LockIcon, MailIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import type { FormEvent, MutableRefObject, ReactElement } from 'react';
-import React, { useContext, useState } from 'react';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type {
   AuthSession,
   KratosProviderData,
@@ -33,6 +33,7 @@ import { capitalize } from '@dailydotdev/shared/src/lib/strings';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { DEFAULT_ERROR } from '@dailydotdev/shared/src/graphql/common';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import { useMutation } from '@tanstack/react-query';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import type { ManageSocialProvidersProps } from '../common';
@@ -118,13 +119,12 @@ function AccountSecurityDefault({
   onUpdatePassword,
   onUpdateProviders,
 }: AccountSecurityDefaultProps): ReactElement {
-  const { deleteAccount } = useContext(AuthContext);
+  const { deleteAccount } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { onUpdateSignBack } = useSignBack();
   const [linkProvider, setLinkProvider] = useState(null);
   const hasPassword = userProviders?.result?.includes('password');
   const { showPrompt } = usePrompt();
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const manageSocialProviders = async ({
     type,
@@ -153,21 +153,22 @@ function AccountSecurityDefault({
       manageSocialProviders({ type: 'unlink', provider });
     }
   };
-  const deleteAccountPrompt = async () => {
-    if (await showPrompt(deleteAccountPromptOptions)) {
-      try {
-        setIsDeleting(true);
+  const { mutate: deleteAccountPrompt, isPending: isDeleting } = useMutation({
+    mutationKey: ['deleteAccount'],
+    mutationFn: async () => {
+      if (await showPrompt(deleteAccountPromptOptions)) {
         await deleteAccount();
-      } catch (error) {
-        setIsDeleting(false);
-        displayToast(DEFAULT_ERROR);
-        return;
       }
+    },
+    onError: () => {
+      displayToast(DEFAULT_ERROR);
+    },
+    onSuccess: async () => {
       await onUpdateSignBack(null, null);
       globalThis?.localStorage.removeItem(BOOT_LOCAL_KEY);
       window.location.replace('/');
-    }
-  };
+    },
+  });
 
   useEventListener(globalThis, 'message', async (e) => {
     if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
