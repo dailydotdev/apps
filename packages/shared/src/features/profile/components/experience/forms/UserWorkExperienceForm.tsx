@@ -32,7 +32,7 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
       </div>
       <HorizontalSeparator />
       <ControlledSwitch
-        name="currentPosition"
+        name="current"
         label="Current position"
         description="Check if this is your current role"
       />

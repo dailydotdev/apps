@@ -19,23 +19,37 @@ import { labels } from '../lib/labels';
 import { applyZodErrorsToForm } from '../lib/form';
 import { useToastNotification } from './useToastNotification';
 
-export const userExperienceInputBaseSchema = z.object({
-  type: z.enum(['work', 'education', 'project', 'certification']),
-  title: z.string().min(1, 'Title is required.').max(1000),
-  description: z.string().max(5000).optional(),
-  subtitle: z.string().max(1000).optional(),
-  startedAt: z.date({ message: 'Start date is required.' }),
-  endedAt: z.date().optional(),
-  companyId: z.string().nullable().optional().default(null),
-  customCompanyName: z
-    .string()
-    .trim()
-    .normalize()
-    .max(100)
-    .nullable()
-    .optional()
-    .default(null),
-});
+export const userExperienceInputBaseSchema = z
+  .object({
+    type: z.enum(['work', 'education', 'project', 'certification']),
+    title: z.string().min(1, 'Title is required.').max(1000),
+    description: z.string().max(5000).optional(),
+    subtitle: z.string().max(1000).optional(),
+    startedAt: z.date({ message: 'Start date is required.' }),
+    endedAt: z.date().optional(),
+    current: z.boolean().default(false),
+    companyId: z.string().nullable().optional().default(null),
+    customCompanyName: z
+      .string()
+      .trim()
+      .normalize()
+      .max(100)
+      .nullable()
+      .optional()
+      .default(null),
+  })
+  .refine(
+    (data) => {
+      if (data.current === false) {
+        return data.endedAt !== undefined;
+      }
+      return true;
+    },
+    {
+      message: 'End date is required when not current.',
+      path: ['endedAt'],
+    },
+  );
 
 export enum UserExperienceType {
   Work = 'work',

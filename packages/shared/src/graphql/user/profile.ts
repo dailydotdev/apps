@@ -16,7 +16,7 @@ const excludedProperties = [
   'endedAtYear',
   'endedAtMonth',
   'company',
-  'currentPosition',
+  'current',
   'createdAt',
   'id',
   'location',
@@ -126,12 +126,12 @@ export interface UserExperience {
   id: string;
   type: UserExperienceType;
   title: string;
-  description: string | null;
+  description?: string | null;
   createdAt: string;
-  startedAt: string | null;
-  endedAt: string | null;
-  company: Company | null;
-  customCompanyName: string | null;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  company?: Company | null;
+  customCompanyName?: string | null;
   subtitle?: string | null;
 }
 

@@ -55,16 +55,11 @@ const defaultValues: DefaultValues = {
   title: '',
   description: '',
   createdAt: '',
-  startedAt: null,
-  endedAt: null,
-  company: null,
-  customCompanyName: null,
   startedAtMonth: '',
   startedAtYear: '',
   endedAtMonth: '',
   endedAtYear: '',
   skills: [],
-  location: null,
 };
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
