@@ -350,14 +350,12 @@ const DeclinePage = (): ReactElement => {
               currentStep={stepNumber}
               totalSteps={totalSteps}
               onChange={handleChange}
-              skipButton={skipButton}
             />
             <StepNavigation
               onBack={handleBack}
               onNext={handleNext}
               backLabel="← Previous"
               nextLabel={totalSteps === stepNumber ? 'Submit' : 'Next →'}
-              nextDisabled={!activeAnswer.trim()}
             />
           </>
         )}
