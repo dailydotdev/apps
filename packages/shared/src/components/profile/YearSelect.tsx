@@ -7,7 +7,7 @@ const generateYearOptions = (): { label: string; value: string }[] => {
   const currentYear = new Date().getFullYear();
   const years: { label: string; value: string }[] = [];
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 100; i += 1) {
     const year = currentYear - i;
     years.push({ label: year.toString(), value: year.toString() });
   }
