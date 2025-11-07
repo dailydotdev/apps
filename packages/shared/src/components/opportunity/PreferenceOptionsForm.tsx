@@ -134,6 +134,7 @@ export const PreferenceOptionsForm = (): ReactElement => {
           inputId="role"
           label="role"
           rows={5}
+          maxLength={400}
           placeholder="Describe your next ideal role or career goal…"
           fieldType="quaternary"
           value={preferences?.role}
