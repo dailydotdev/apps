@@ -33,7 +33,7 @@ const UserEducationForm = () => {
       </div>
       <HorizontalSeparator />
       <ControlledSwitch
-        name="currentPosition"
+        name="current"
         label="Current education"
         description="Check if you are currently enrolled in this program or pursuing this degree."
       />
