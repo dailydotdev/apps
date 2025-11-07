@@ -4,6 +4,7 @@ import type { NextSeoProps } from 'next-seo';
 import { FormProvider } from 'react-hook-form';
 import UserWorkExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserWorkExperienceForm';
 import UserEducationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserEducationForm';
+import UserCertificationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserCertificationForm';
 import {
   Button,
   ButtonSize,
@@ -134,8 +135,9 @@ const renderExperienceForm = (type?: UserExperienceType) => {
   switch (type) {
     case UserExperienceType.Education:
       return <UserEducationForm />;
-    case UserExperienceType.Project:
     case UserExperienceType.Certification:
+      return <UserCertificationForm />;
+    case UserExperienceType.Project:
     case UserExperienceType.Work:
     default:
       return <UserWorkExperienceForm />;
