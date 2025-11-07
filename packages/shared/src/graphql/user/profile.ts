@@ -5,6 +5,17 @@ import type { TLocation } from '../autocomplete';
 import type { Company } from '../../lib/userCompany';
 import { excludeProperties } from '../../lib/utils';
 
+const excludedProperties = [
+  'startedAtYear',
+  'startedAtMonth',
+  'endedAtYear',
+  'endedAtMonth',
+  'company',
+  'currentPosition',
+  'createdAt',
+  'id',
+];
+
 const USER_EXPERIENCE_FRAGMENT = gql`
   fragment UserExperienceFragment on UserExperience {
     id
@@ -59,7 +70,9 @@ const USER_EXPERIENCE_BY_ID_QUERY = gql`
   ${USER_EXPERIENCE_FRAGMENT}
 `;
 
-export const getUserExperienceById = async (id: string) => {
+export const getUserExperienceById = async (
+  id: string,
+): Promise<UserExperience | null> => {
   const result = await gqlClient.request(USER_EXPERIENCE_BY_ID_QUERY, { id });
   return result.userExperienceById;
 };
@@ -182,12 +195,7 @@ export const upsertUserGeneralExperience = async (
   input: UserExperience,
   id?: string,
 ) => {
-  const cleanedInput = excludeProperties(input, [
-    'startedAt-year',
-    'startedAt-month',
-    'endedAt-year',
-    'endedAt-month',
-  ]);
+  const cleanedInput = excludeProperties(input, excludedProperties);
   const result = await gqlClient.request(UPSERT_USER_GENERAL_EXPERIENCE, {
     input: cleanedInput,
     id,
@@ -230,13 +238,7 @@ export const upsertUserWorkExperience = async (
   input: UserExperienceWork,
   id?: string,
 ) => {
-  const cleanedInput = excludeProperties(input, [
-    'startedAt-year',
-    'startedAt-month',
-    'endedAt-year',
-    'endedAt-month',
-    'currentPosition',
-  ]);
+  const cleanedInput = excludeProperties(input, excludedProperties);
 
   const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {
     input: cleanedInput,

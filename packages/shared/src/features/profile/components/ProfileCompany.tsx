@@ -43,6 +43,7 @@ const ProfileCompany = ({ name }: ProfileCompanyProps) => {
   return (
     <Autocomplete
       name={name}
+      defaultValue={customCompanyName}
       onChange={(value) => debouncedQuery(value)}
       onSelect={(value) => handleSelect(value)}
       options={
