@@ -49,20 +49,10 @@ type BaseUserExperience = Omit<
   'id' | 'createdAt' | 'company' | 'customCompanyName'
 >;
 
-const DEFAULT_VALUES: BaseUserExperience = {
-  title: '',
-  description: '',
-  subtitle: '',
-  startedAt: null,
-  endedAt: null,
-  type: UserExperienceType.Work,
-};
-
 const useUserExperienceForm = ({
-  defaultValues = DEFAULT_VALUES,
+  defaultValues,
 }: {
-  defaultValues?: BaseUserExperience;
-  type?: UserExperienceType;
+  defaultValues: BaseUserExperience;
 }) => {
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
   const router = useRouter();
