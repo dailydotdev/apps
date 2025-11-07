@@ -14,7 +14,7 @@ import {
 import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profile';
 import { getUserExperienceById } from '@dailydotdev/shared/src/graphql/user/profile';
 import type { GetServerSideProps } from 'next';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
@@ -36,13 +36,13 @@ type PageProps = {
   experience: DefaultValues | null;
 };
 
-const splitMonthYear = (date?: string) => {
-  if (!date) {
+const splitMonthYear = (value?: string) => {
+  if (!value) {
     return ['', ''];
   }
-  const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
-  const month = format(parsedDate, 'MM');
-  const year = format(parsedDate, 'yyyy');
+  const date = new Date(value);
+  const month = format(date, 'MMMM');
+  const year = format(date, 'yyyy');
   return [month, year];
 };
 
