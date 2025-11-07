@@ -8,9 +8,8 @@ import { briefButtonBg } from '../../../styles/custom';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { opportunityUrl } from '../../../lib/constants';
 import Link from '../../../components/utilities/Link';
-import { useActions, useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { useAlertsContext } from '../../../contexts/AlertContext';
-import { ActionType } from '../../../graphql/actions';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useFeaturesReadyContext } from '../../../components/GrowthBookProvider';
@@ -26,7 +25,6 @@ export const JobOpportunityButton = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { alerts } = useAlertsContext();
   const { getFeatureValue } = useFeaturesReadyContext();
-  const { checkHasCompleted } = useActions();
   const { logEvent } = useLogContext();
   const buttonCopy = getFeatureValue(opportunityButtonCopy);
   const logRef = useRef<typeof logEvent>();
@@ -35,17 +33,8 @@ export const JobOpportunityButton = ({
 
   const { opportunityId } = alerts;
 
-  const hasSeenWelcomePage = checkHasCompleted(
-    ActionType.OpportunityWelcomePage,
-  );
-
-  const href = hasSeenWelcomePage
-    ? `${opportunityUrl}/${opportunityId}`
-    : `${opportunityUrl}/welcome`;
-
   const logExtraPayload = JSON.stringify({
     count: 1, // always 1 for now
-    onboarding: !hasSeenWelcomePage,
   });
 
   const handleClick = (): void => {
@@ -72,7 +61,7 @@ export const JobOpportunityButton = ({
       content="A personalized job was matched to your profile. Click to review it privately"
       className="!max-w-80 text-center"
     >
-      <Link href={href} passHref>
+      <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
         <Button
           tag="a"
           icon={<JobIcon />}

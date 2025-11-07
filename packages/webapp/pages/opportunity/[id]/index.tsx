@@ -29,6 +29,7 @@ import {
   CrunchbaseIcon,
   FacebookIcon,
   GitHubIcon,
+  InfoIcon,
   LinkedInIcon,
   MagicIcon,
   MoveToIcon,
@@ -54,7 +55,6 @@ import {
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { CVOverlay } from '@dailydotdev/shared/src/features/opportunity/components/CVOverlay';
 import { JobPageIntro } from '@dailydotdev/shared/src/features/opportunity/components/JobPageIntro';
 import { ResponseButtons } from '@dailydotdev/shared/src/features/opportunity/components/ResponseButtons';
 import type {
@@ -78,7 +78,10 @@ import {
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { isTesting, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  isTesting,
+  opportunityUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
 import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
 import {
@@ -302,7 +305,6 @@ const JobPage = (): ReactElement => {
   const hasCompletedInitialView = checkHasCompleted(
     ActionType.OpportunityInitialView,
   );
-  const hasUploadedCV = checkHasCompleted(ActionType.UploadedCV);
 
   const [showMore, setShowMore] = useState(false);
 
@@ -343,32 +345,15 @@ const JobPage = (): ReactElement => {
         container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
       >
         <div className="hidden items-center laptop:flex">
-          {hasUploadedCV && (
-            <ResponseButtons
-              id={opportunity.id}
-              className={{
-                container: 'ml-auto flex gap-3',
-              }}
-            />
-          )}
+          <ResponseButtons
+            id={opportunity.id}
+            className={{
+              container: 'ml-auto flex gap-3',
+            }}
+          />
           <OpportunityStepsInfo />
         </div>
       </Portal>
-      {!hasUploadedCV && !canEdit && (
-        <CVOverlay
-          backButton={
-            <Link href={webappUrl} passHref>
-              <Button
-                tag="a"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Large}
-              >
-                Back
-              </Button>
-            </Link>
-          }
-        />
-      )}
       {!hasCompletedInitialView && !canEdit && <JobPageIntro />}
       {showFooterNav && (
         <OpportunityFooter>
@@ -669,6 +654,26 @@ const JobPage = (): ReactElement => {
 
         {/* Sidebar */}
         <FlexCol className="h-full flex-1 flex-shrink-0 gap-4 laptop:max-w-80">
+          {/* How it works button */}
+          <FlexCol
+            className={classNames(
+              'mx-4 flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary tablet:mx-0',
+            )}
+          >
+            <Link href={`${opportunityUrl}/welcome`} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Medium}
+                icon={<InfoIcon />}
+                iconPosition={ButtonIconPosition.Left}
+                className="w-full"
+              >
+                How it works
+              </Button>
+            </Link>
+          </FlexCol>
+
           {/* Company Info */}
           <FlexCol
             className={classNames(

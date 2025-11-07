@@ -71,6 +71,14 @@ export type OpportunityScreeningQuestion = {
   placeholder?: string;
 };
 
+export type OpportunityFeedbackQuestion = {
+  id: string;
+  title: string;
+  order: number;
+  placeholder?: string;
+  opportunityId: string;
+};
+
 export type OpportunityScreeningAnswer = {
   questionId: OpportunityScreeningQuestion['id'];
   answer: string;
@@ -91,6 +99,7 @@ export type Opportunity = {
   location: OpportunityLocation[];
   keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
+  feedbackQuestions?: OpportunityFeedbackQuestion[];
 };
 
 export type OpportunityMatch = {

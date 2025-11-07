@@ -1,29 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
-
 import type { NextSeoProps } from 'next-seo';
-
-import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-
-import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { useRouter } from 'next/router';
-import ProgressCircle from '@dailydotdev/shared/src/components/ProgressCircle';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import {
   useActions,
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { useMutation, useQuery } from '@tanstack/react-query';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import type { OpportunityScreeningAnswer } from '@dailydotdev/shared/src/features/opportunity/types';
 import {
@@ -33,14 +18,17 @@ import {
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useCVUploadManager } from '@dailydotdev/shared/src/features/opportunity/hooks/useCVUploadManager';
+import { ScreeningQuestionStep } from '@dailydotdev/shared/src/features/opportunity/components/ScreeningQuestionStep';
+import { CVUploadStep } from '@dailydotdev/shared/src/features/opportunity/components/CVUploadStep';
+import { StepNavigation } from '@dailydotdev/shared/src/features/opportunity/components/StepNavigation';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
-import { InnerPreferencePage } from './preference';
-import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -50,6 +38,11 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
+enum AcceptStep {
+  QUESTIONS = 'questions',
+  CV = 'cv',
+}
+
 const AcceptPage = (): ReactElement => {
   const {
     query: { id },
@@ -57,9 +50,11 @@ const AcceptPage = (): ReactElement => {
     back,
   } = useRouter();
   const opportunityId = id as string;
+  const [currentStep, setCurrentStep] = useState<AcceptStep>(
+    AcceptStep.QUESTIONS,
+  );
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [activeAnswer, setActiveAnswer] = useState('');
-  const [showPreferenceForm, setShowPreferenceForm] = useState(false);
   const [answers, setAnswers] = useState<
     Record<string, OpportunityScreeningAnswer>
   >({});
@@ -67,14 +62,7 @@ const AcceptPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
 
-  const hasSetPreferences = checkHasCompleted(
-    ActionType.UserCandidatePreferencesSaved,
-  );
-
-  const { data: opportunity } = useQuery({
-    ...opportunityByIdOptions({ id: opportunityId }),
-    enabled: false,
-  });
+  const hasUploadedCV = checkHasCompleted(ActionType.UploadedCV);
 
   const { mutate: acceptOpportunity } = useMutation({
     ...acceptOpportunityMatchMutationOptions(opportunityId),
@@ -85,6 +73,17 @@ const AcceptPage = (): ReactElement => {
       displayToast('Failed to accept opportunity. Please try again.');
     },
   });
+  const {
+    file,
+    setFile,
+    handleUpload,
+    isPending: isUploadPending,
+  } = useCVUploadManager(acceptOpportunity);
+
+  const { data: opportunity } = useQuery({
+    ...opportunityByIdOptions({ id: opportunityId }),
+    enabled: false,
+  });
 
   const { mutate: saveAnswers } = useMutation({
     ...saveOpportunityScreeningAnswersMutationOptions(opportunityId),
@@ -93,10 +92,10 @@ const AcceptPage = (): ReactElement => {
         event_name: LogEvent.CompleteScreening,
         target_id: opportunityId,
       });
-      if (hasSetPreferences) {
-        acceptOpportunity();
+      if (!hasUploadedCV) {
+        setCurrentStep(AcceptStep.CV);
       } else {
-        setShowPreferenceForm(true);
+        acceptOpportunity();
       }
     },
     onError: () => {
@@ -107,6 +106,7 @@ const AcceptPage = (): ReactElement => {
   const questions = opportunity?.questions || [];
 
   const handleNext = () => {
+    // Log the screening answer
     logEvent({
       event_name: LogEvent.AnswerScreeningQuestion,
       target_id: opportunityId,
@@ -115,15 +115,25 @@ const AcceptPage = (): ReactElement => {
         question_id: questions[activeQuestion].id,
       }),
     });
+
+    // Check if this is the last screening question
     if (activeQuestion === questions.length - 1) {
       saveAnswers(Object.values(answers));
       return;
     }
+
+    // Move to next screening question
     setActiveQuestion((current) => current + 1);
     setActiveAnswer('');
   };
 
   const handleBack = () => {
+    if (currentStep === AcceptStep.CV) {
+      setCurrentStep(AcceptStep.QUESTIONS);
+      setActiveQuestion(questions.length - 1);
+      setActiveAnswer(answers[questions.length - 1]?.answer || '');
+      return;
+    }
     if (activeQuestion === 0) {
       back();
       return;
@@ -143,6 +153,17 @@ const AcceptPage = (): ReactElement => {
     }));
   };
 
+  const totalSteps = useMemo(() => {
+    return questions.length + (hasUploadedCV ? 0 : 1); // All screening questions + CV upload (if needed)
+  }, [questions.length, hasUploadedCV]);
+
+  const stepNumber = useMemo(() => {
+    if (currentStep === AcceptStep.CV) {
+      return questions.length + 1;
+    }
+    return activeQuestion + 1;
+  }, [currentStep, activeQuestion, questions.length]);
+
   useEffect(() => {
     if (!isActionsFetched) {
       return;
@@ -157,98 +178,47 @@ const AcceptPage = (): ReactElement => {
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
-        {!showPreferenceForm && (
+        {currentStep === AcceptStep.QUESTIONS && (
           <>
-            <FlexCol className="gap-4">
-              <Typography type={TypographyType.LargeTitle} bold center>
-                A few quick checks before we intro
-              </Typography>
-              <Typography
-                type={TypographyType.Title3}
-                color={TypographyColor.Secondary}
-                center
-              >
-                These help confirm the role is truly worth your time and ensure
-                the recruiter already sees you as a strong match.
-              </Typography>
-            </FlexCol>
-            <FlexCol className="gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-              <FlexRow className="items-center gap-2">
-                <ProgressCircle
-                  size={16}
-                  stroke={2}
-                  progress={(activeQuestion / questions.length) * 100}
-                />
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Secondary}
-                >
-                  Step {activeQuestion + 1} of {questions.length}
-                </Typography>
-              </FlexRow>
-              <Typography type={TypographyType.Title3}>
-                {questions[activeQuestion].title}
-              </Typography>
-              <Textarea
-                inputId="one"
-                placeholder={questions[activeQuestion].placeholder}
-                label="question[1]"
-                rows={5}
-                maxLength={500}
-                fieldType="quaternary"
-                value={activeAnswer}
-                onChange={handleChange}
-              />
-            </FlexCol>
-            <FlexRow className="justify-between">
-              <Button
-                size={ButtonSize.Large}
-                variant={ButtonVariant.Tertiary}
-                className="hidden laptop:flex"
-                onClick={handleBack}
-              >
-                {activeQuestion === 0 ? 'Back' : '← Previous question'}
-              </Button>
-              <Button
-                size={ButtonSize.Large}
-                variant={ButtonVariant.Primary}
-                className="w-full laptop:w-auto"
-                onClick={handleNext}
-                disabled={!activeAnswer.trim()}
-              >
-                {activeQuestion === questions.length - 1
-                  ? 'Submit'
-                  : 'Next question →'}
-              </Button>
-            </FlexRow>
+            <ScreeningQuestionStep
+              question={questions[activeQuestion]}
+              value={activeAnswer}
+              currentStep={stepNumber}
+              totalSteps={totalSteps}
+              onChange={handleChange}
+            />
+            <StepNavigation
+              onBack={handleBack}
+              onNext={handleNext}
+              backLabel={activeQuestion === 0 ? 'Back' : '← Previous question'}
+              nextLabel={
+                activeQuestion === totalSteps - 1 ? 'Submit' : 'Next question →'
+              }
+              nextDisabled={!activeAnswer.trim()}
+            />
           </>
         )}
 
-        {showPreferenceForm && (
+        {currentStep === AcceptStep.CV && (
           <>
-            <InnerPreferencePage
-              buttons={
-                <>
-                  <Button
-                    size={ButtonSize.Large}
-                    variant={ButtonVariant.Tertiary}
-                    className="hidden laptop:flex"
-                    onClick={() => setShowPreferenceForm(false)}
-                  >
-                    Back
-                  </Button>
-
-                  <Button
-                    size={ButtonSize.Large}
-                    variant={ButtonVariant.Primary}
-                    className="w-full laptop:w-auto"
-                    onClick={() => acceptOpportunity()}
-                    disabled={!hasSetPreferences}
-                  >
-                    Submit
-                  </Button>
-                </>
-              }
+            <CVUploadStep
+              currentStep={stepNumber}
+              totalSteps={totalSteps}
+              onFileSelect={(files) => setFile(files[0])}
+              showCVUploadInfoBox={false}
+              copy={{
+                title: 'One last step',
+                description:
+                  'We need your CV to send your full profile to the recruiter.',
+              }}
+            />
+            <StepNavigation
+              onBack={handleBack}
+              onNext={handleUpload}
+              backLabel={activeQuestion === 0 ? 'Back' : '← Previous question'}
+              nextLabel="Submit"
+              nextDisabled={!file}
+              nextLoading={isUploadPending}
             />
           </>
         )}

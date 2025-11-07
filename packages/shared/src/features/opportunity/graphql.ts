@@ -32,6 +32,14 @@ export const QUESTION_FRAGMENT = gql`
   }
 `;
 
+export const FEEDBACK_QUESTION_FRAGMENT = gql`
+  fragment OpportunityFeedbackQuestionFragment on OpportunityFeedbackQuestion {
+    id
+    title
+    placeholder
+  }
+`;
+
 export const OPPORTUNITY_FRAGMENT = gql`
   fragment OpportunityFragment on Opportunity {
     id
@@ -111,11 +119,15 @@ export const OPPORTUNITY_FRAGMENT = gql`
     questions {
       ...OpportunityScreeningQuestionFragment
     }
+    feedbackQuestions {
+      ...OpportunityFeedbackQuestionFragment
+    }
   }
   ${ORGANIZATION_SHORT_FRAGMENT}
   ${OPPORTUNITY_CONTENT_FRAGMENT}
   ${LINK_FRAGMENT}
   ${QUESTION_FRAGMENT}
+  ${FEEDBACK_QUESTION_FRAGMENT}
 `;
 
 export const OPPORTUNITY_BY_ID_QUERY = gql`
@@ -204,6 +216,17 @@ export const SAVE_OPPORTUNITY_SCREENING_ANSWERS = gql`
     $answers: [OpportunityScreeningAnswerInput!]!
   ) {
     saveOpportunityScreeningAnswers(id: $id, answers: $answers) {
+      _
+    }
+  }
+`;
+
+export const SAVE_OPPORTUNITY_FEEDBACK_ANSWERS = gql`
+  mutation SaveOpportunityFeedbackAnswers(
+    $id: ID!
+    $answers: [OpportunityScreeningAnswerInput!]!
+  ) {
+    saveOpportunityFeedbackAnswers(id: $id, answers: $answers) {
       _
     }
   }

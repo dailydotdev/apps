@@ -328,6 +328,8 @@ export enum LogEvent {
   ApproveOpportunityMatch = 'approve opportunity match',
   AnswerScreeningQuestion = 'answer screening question',
   CompleteScreening = 'complete screening',
+  AnswerFeedbackQuestion = 'answer feedback question',
+  CompleteFeedback = 'complete feedback',
   ConfirmCandidateContact = 'confirm candidate contact',
   SelectCandidateAvailability = 'select candidate availability',
   UpdateCandidatePreferences = 'update candidate preferences',
