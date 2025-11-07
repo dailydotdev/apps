@@ -12,8 +12,9 @@ import ProfileLocation from '../../../../../components/profile/ProfileLocation';
 import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
 import ProfileSkills from '../../ProfileSkills';
 import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
+import type { TLocation } from '../../../../../graphql/autocomplete';
 
-const UserWorkExperienceForm = () => {
+const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -60,7 +61,11 @@ const UserWorkExperienceForm = () => {
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
-          <ProfileLocation locationName="locationId" typeName="locationType" />
+          <ProfileLocation
+            locationName="locationId"
+            typeName="locationType"
+            defaultValue={location}
+          />
         </div>
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>

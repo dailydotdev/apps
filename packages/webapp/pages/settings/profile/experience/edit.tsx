@@ -15,6 +15,7 @@ import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profil
 import { getUserExperienceById } from '@dailydotdev/shared/src/graphql/user/profile';
 import type { GetServerSideProps } from 'next';
 import { format } from 'date-fns';
+import type { TLocation } from '@dailydotdev/shared/src/graphql/autocomplete';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
@@ -30,6 +31,8 @@ type DefaultValues = UserExperience & {
   startedAtYear: string;
   endedAtMonth: string;
   endedAtYear: string;
+  skills?: string[];
+  location?: TLocation;
 };
 
 type PageProps = {
@@ -60,6 +63,8 @@ const defaultValues: DefaultValues = {
   startedAtYear: '',
   endedAtMonth: '',
   endedAtYear: '',
+  skills: [],
+  location: null,
 };
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
@@ -88,6 +93,9 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
         startedAtYear,
         endedAtMonth,
         endedAtYear,
+        skills: result?.skills.map((skill) => skill.value),
+        location: result?.location,
+        locationId: result?.location?.id,
       },
     },
   };
@@ -119,7 +127,7 @@ const Page = ({ experience }: PageProps): ReactElement => {
             </Button>
           }
         >
-          <UserWorkExperienceForm />
+          <UserWorkExperienceForm location={experience?.location} />
         </AccountPageContainer>
       </form>
     </FormProvider>

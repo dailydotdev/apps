@@ -35,7 +35,7 @@ const ProfileMonthYearSelect = ({
 
   useEffect(() => {
     if (month && year) {
-      const date = parse(`${month}-${year}`, 'MM-yyyy', new Date());
+      const date = parse(`${month}-${year}`, 'MMMM-yyyy', new Date());
       setValue(name, date);
     }
   }, [month, year, name, setValue]);

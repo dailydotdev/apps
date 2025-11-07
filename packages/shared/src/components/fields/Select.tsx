@@ -54,8 +54,8 @@ const Select = ({
                 variant={ButtonVariant.Float}
                 {...buttonProps}
               >
-                {options.find((opt) => opt.value === field.value)?.label ||
-                  placeholder}
+                {options.find((opt) => opt.value === field.value?.toString())
+                  ?.label || placeholder}
                 <ArrowIcon className="ml-auto rotate-180" secondary />
               </Button>
             </DropdownMenuTrigger>

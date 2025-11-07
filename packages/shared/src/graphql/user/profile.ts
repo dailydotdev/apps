@@ -5,6 +5,11 @@ import type { TLocation } from '../autocomplete';
 import type { Company } from '../../lib/userCompany';
 import { excludeProperties } from '../../lib/utils';
 
+type UserGeneralExperience = UserExperience & {
+  skills?: UserSkill[];
+  location?: TLocation;
+};
+
 const excludedProperties = [
   'startedAtYear',
   'startedAtMonth',
@@ -14,6 +19,7 @@ const excludedProperties = [
   'currentPosition',
   'createdAt',
   'id',
+  'location',
 ];
 
 const USER_EXPERIENCE_FRAGMENT = gql`
@@ -26,6 +32,17 @@ const USER_EXPERIENCE_FRAGMENT = gql`
     startedAt
     endedAt
     customCompanyName
+    employmentType
+    locationType
+    location {
+      id
+      city
+      subdivision
+      country
+    }
+    skills {
+      value
+    }
     company {
       id
       name
@@ -72,7 +89,7 @@ const USER_EXPERIENCE_BY_ID_QUERY = gql`
 
 export const getUserExperienceById = async (
   id: string,
-): Promise<UserExperience | null> => {
+): Promise<UserGeneralExperience | null> => {
   const result = await gqlClient.request(USER_EXPERIENCE_BY_ID_QUERY, { id });
   return result.userExperienceById;
 };
