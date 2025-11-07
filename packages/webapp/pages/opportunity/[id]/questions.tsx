@@ -127,19 +127,37 @@ const AcceptPage = (): ReactElement => {
     setActiveAnswer('');
   };
 
+  const goToLastQuestion = () => {
+    const lastIdx = questions.length - 1;
+    setCurrentStep(AcceptStep.QUESTIONS);
+    setActiveQuestion(lastIdx);
+    setActiveAnswer(answers[lastIdx]?.answer || '');
+  };
+
+  const goToPrevQuestion = () =>
+    setActiveQuestion((q) => {
+      const prev = q - 1;
+      setActiveAnswer(answers[prev]?.answer || '');
+      return prev;
+    });
+
   const handleBack = () => {
-    if (currentStep === AcceptStep.CV) {
-      setCurrentStep(AcceptStep.QUESTIONS);
-      setActiveQuestion(questions.length - 1);
-      setActiveAnswer(answers[questions.length - 1]?.answer || '');
-      return;
+    switch (currentStep) {
+      case AcceptStep.CV:
+        goToLastQuestion();
+        break;
+
+      case AcceptStep.QUESTIONS:
+        if (activeQuestion === 0) {
+          back();
+        } else {
+          goToPrevQuestion();
+        }
+        break;
+
+      default:
+        back();
     }
-    if (activeQuestion === 0) {
-      back();
-      return;
-    }
-    setActiveQuestion((current) => current - 1);
-    setActiveAnswer(answers[activeQuestion - 1]?.answer || '');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

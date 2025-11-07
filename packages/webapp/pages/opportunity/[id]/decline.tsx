@@ -259,32 +259,44 @@ const DeclinePage = (): ReactElement => {
     }
   };
 
+  const goToLastFeedback = () => {
+    const lastIdx = feedbackQuestions.length - 1;
+    setCurrentStep(DeclineStep.REASON);
+    setActiveQuestion(lastIdx);
+    setActiveAnswer(answers[lastIdx]?.answer || '');
+  };
+
+  const goToPrevFeedback = () =>
+    setActiveQuestion((q) => {
+      const prev = q - 1;
+      setActiveAnswer(answers[prev]?.answer || '');
+      return prev;
+    });
+
   const handleBack = () => {
-    if (currentStep === DeclineStep.PREFERENCES) {
-      if (!hasUploadedCV) {
-        setCurrentStep(DeclineStep.CV);
-      } else {
-        // Go back to last feedback question
-        setCurrentStep(DeclineStep.REASON);
-        setActiveQuestion(feedbackQuestions.length - 1);
-        setActiveAnswer(answers[feedbackQuestions.length - 1]?.answer || '');
-      }
-    } else if (currentStep === DeclineStep.CV) {
-      // Go back to last feedback question
-      setCurrentStep(DeclineStep.REASON);
-      setActiveQuestion(feedbackQuestions.length - 1);
-      setActiveAnswer(answers[feedbackQuestions.length - 1]?.answer || '');
-    } else if (currentStep === DeclineStep.REASON) {
-      if (activeQuestion === 0) {
-        // First feedback question, go back to status
-        setCurrentStep(DeclineStep.STATUS);
-      } else {
-        // Go to previous feedback question
-        setActiveQuestion((current) => current - 1);
-        setActiveAnswer(answers[activeQuestion - 1]?.answer || '');
-      }
-    } else {
-      back();
+    switch (currentStep) {
+      case DeclineStep.PREFERENCES:
+        if (!hasUploadedCV) {
+          setCurrentStep(DeclineStep.CV);
+        } else {
+          goToLastFeedback();
+        }
+        break;
+
+      case DeclineStep.CV:
+        goToLastFeedback();
+        break;
+
+      case DeclineStep.REASON:
+        if (activeQuestion === 0) {
+          setCurrentStep(DeclineStep.STATUS);
+        } else {
+          goToPrevFeedback();
+        }
+        break;
+
+      default:
+        back();
     }
   };
 
