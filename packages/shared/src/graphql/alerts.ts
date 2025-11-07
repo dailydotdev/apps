@@ -1,6 +1,10 @@
 import { gql } from 'graphql-request';
 import type { Opportunity } from '../features/opportunity/types';
 
+export type AlertsFlags = {
+  hasSeenOpportunity?: boolean;
+};
+
 export type Alerts = {
   filter?: boolean;
   rankLastSeen?: Date;
@@ -20,6 +24,7 @@ export type Alerts = {
   showTopReader?: boolean;
   briefBannerLastSeen?: Date;
   opportunityId?: Opportunity['id'] | null;
+  flags?: AlertsFlags;
 };
 
 export type AlertsUpdate = Omit<Alerts, 'changelog' | 'banner'>;

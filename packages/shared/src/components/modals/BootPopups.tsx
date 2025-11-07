@@ -311,6 +311,33 @@ export const BootPopups = (): ReactElement => {
   }, [alerts.showTopReader, logEvent, updateAlerts, updateLastBootPopup]);
 
   /**
+   * Job opportunity modal
+   */
+  useEffect(() => {
+    if (!alerts?.opportunityId || alerts?.flags?.hasSeenOpportunity) {
+      return;
+    }
+
+    console.log('should add it');
+
+    addBootPopup({
+      type: LazyModal.JobOpportunity,
+      props: {
+        opportunityId: alerts.opportunityId,
+        onAfterClose: () => {
+          updateAlerts({ flags: { hasSeenOpportunity: true } });
+          updateLastBootPopup();
+        },
+      },
+    });
+  }, [
+    alerts.opportunityId,
+    alerts?.flags?.hasSeenOpportunity,
+    updateAlerts,
+    updateLastBootPopup,
+  ]);
+
+  /**
    * Actual rendering of the boot popup that's first in line
    */
   useEffect(() => {
