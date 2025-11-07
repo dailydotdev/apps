@@ -10,6 +10,7 @@ import {
   EDIT_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
   REJECT_OPPORTUNITY_MATCH,
+  SAVE_OPPORTUNITY_FEEDBACK_ANSWERS,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
   UPDATE_OPPORTUNITY_STATE_MUTATION,
@@ -67,6 +68,23 @@ export const saveOpportunityScreeningAnswersMutationOptions = (
   return {
     mutationFn: async (answers) => {
       return gqlClient.request(SAVE_OPPORTUNITY_SCREENING_ANSWERS, {
+        id: opportunityId,
+        answers,
+      });
+    },
+  };
+};
+
+export const saveOpportunityFeedbackAnswersMutationOptions = (
+  opportunityId: string,
+): MutationOptions<
+  EmptyResponse,
+  DefaultError,
+  Array<OpportunityScreeningAnswer>
+> => {
+  return {
+    mutationFn: async (answers) => {
+      return gqlClient.request(SAVE_OPPORTUNITY_FEEDBACK_ANSWERS, {
         id: opportunityId,
         answers,
       });

@@ -142,7 +142,7 @@ const HeaderSection = (): ReactElement => {
                   user={user}
                   nativeLazyLoading
                 />
-                Show me what you got →
+                Show me my job match →
               </Button>
             </Link>
           )}

@@ -1,14 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { DragDrop } from '../../../components/fields/DragDrop';
-import { fileValidation, useUploadCv } from '../../profile/hooks/useUploadCv';
+import { fileValidation } from '../../profile/hooks/useUploadCv';
 import {
   Button,
   ButtonSize,
@@ -16,12 +15,10 @@ import {
 } from '../../../components/buttons/Button';
 import { UploadIcon } from '../../../components/icons/Upload';
 import { FeelingLazy } from '../../profile/components/FeelingLazy';
-import { ShieldPlusIcon } from '../../../components/icons';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
-import { getCandidatePreferencesOptions } from '../queries';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { IconSize } from '../../../components/Icon';
+import { useCVUploadManager } from '../hooks/useCVUploadManager';
+import { CVUploadInfoBox } from './CVUploadInfoBox';
 
 export const CVOverlay = ({
   blur = true,
@@ -32,30 +29,12 @@ export const CVOverlay = ({
   backButton?: ReactNode;
   onUploadSuccess?: () => void;
 }): ReactElement => {
-  const { user } = useAuthContext();
-  const { onUpload, isPending: isUploadPending } = useUploadCv({
-    shouldOpenModal: false,
-    onUploadSuccess,
-  });
-
-  const opts = getCandidatePreferencesOptions(user?.id);
-  const [, set] = useUpdateQuery(opts);
-
-  const { data: preferences } = useQuery(opts);
-
-  const [file, setFile] = useState<File | null>(null);
-
-  const handleUpload = useCallback(async () => {
-    await onUpload(file as File);
-
-    set({
-      ...preferences,
-      cv: {
-        fileName: file.name,
-        lastModified: new Date(),
-      },
-    });
-  }, [file, onUpload, preferences, set]);
+  const {
+    file,
+    setFile,
+    handleUpload,
+    isPending: isUploadPending,
+  } = useCVUploadManager(onUploadSuccess);
 
   useEffect(() => {
     if (!blur) {
@@ -109,27 +88,7 @@ export const CVOverlay = ({
           />
           <FeelingLazy />
         </div>
-        <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4">
-          <div className="flex gap-2">
-            <ShieldPlusIcon secondary className="text-status-success" />
-            <Typography type={TypographyType.Subhead} bold>
-              Why we ask for your CV
-            </Typography>
-          </div>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            Because guessing is a waste of everyone&apos;s time. The more signal
-            we have from day one, the less noise you&apos;ll ever see here.
-            We&apos;d rather show you nothing than risk wasting your time, and
-            that starts with knowing exactly what&apos;s worth showing you.
-            <br />
-            <br />
-            Your CV stays 100% confidential and no recruiter sees it unless you
-            explicitly say yes to an job match.
-          </Typography>
-        </div>
+        <CVUploadInfoBox />
         <div className="flex flex-col justify-between gap-4 tablet:flex-row">
           {backButton}
           <Button
@@ -144,13 +103,6 @@ export const CVOverlay = ({
             Upload CV & Activate Filters
           </Button>
         </div>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          center
-        >
-          🛡️ One upload. 100% confidential. Zero bad recruiting.
-        </Typography>
       </div>
     </ConditionalWrapper>
   );
