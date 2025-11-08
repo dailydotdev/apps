@@ -1,96 +1,45 @@
 import React from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
-import { TextField } from '../../../../../components/fields/TextField';
+import ControlledTextField from '../../../../../components/fields/ControlledTextField';
 import { HorizontalSeparator } from '../../../../../components/utilities';
 import {
   Typography,
   TypographyType,
 } from '../../../../../components/typography/Typography';
-import Textarea from '../../../../../components/fields/Textarea';
-import { Switch } from '../../../../../components/fields/Switch';
-import { useId } from 'react';
+import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
+import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 
 const UserOpenSourceProjectForm = () => {
-  const { control } = useFormContext();
-  const titleId = useId();
-  const urlId = useId();
-  const descriptionId = useId();
-  const currentId = useId();
-  const startedAtMonthId = useId();
-  const startedAtYearId = useId();
-  const endedAtMonthId = useId();
-  const endedAtYearId = useId();
-
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Controller
+        <ControlledTextField
           name="title"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              inputId={titleId}
-              label="Project Name*"
-              placeholder="Ex: React, Vue.js, TensorFlow"
-            />
-          )}
+          label="Project Name*"
+          placeholder="Ex: React, Vue.js, TensorFlow"
         />
-        <Controller
+        <ControlledTextField
           name="url"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              inputId={urlId}
-              label="Repository URL"
-              placeholder="https://github.com/username/repo"
-            />
-          )}
+          label="Repository URL"
+          placeholder="https://github.com/username/repo"
         />
       </div>
       <HorizontalSeparator />
-      <Controller
-        name="current"
-        control={control}
-        render={({ field }) => (
-          <Switch
-            {...field}
-            inputId={currentId}
-            checked={field.value || false}
-            onToggle={() => field.onChange(!field.value)}
-          >
-            Active project
-          </Switch>
-        )}
-      />
+      <ControlledSwitch name="current">
+        Active project
+      </ControlledSwitch>
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             Start date*
           </Typography>
           <div className="flex gap-2">
-            <Controller
+            <ControlledTextField
               name="startedAtMonth"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputId={startedAtMonthId}
-                  placeholder="Month"
-                />
-              )}
+              placeholder="Month"
             />
-            <Controller
+            <ControlledTextField
               name="startedAtYear"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputId={startedAtYearId}
-                  placeholder="Year"
-                />
-              )}
+              placeholder="Year"
             />
           </div>
         </div>
@@ -99,27 +48,13 @@ const UserOpenSourceProjectForm = () => {
             End date*
           </Typography>
           <div className="flex gap-2">
-            <Controller
+            <ControlledTextField
               name="endedAtMonth"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputId={endedAtMonthId}
-                  placeholder="Month"
-                />
-              )}
+              placeholder="Month"
             />
-            <Controller
+            <ControlledTextField
               name="endedAtYear"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputId={endedAtYearId}
-                  placeholder="Year"
-                />
-              )}
+              placeholder="Year"
             />
           </div>
         </div>
@@ -129,17 +64,9 @@ const UserOpenSourceProjectForm = () => {
         <Typography type={TypographyType.Callout} bold>
           Description
         </Typography>
-        <Controller
+        <ControlledTextarea
           name="description"
-          control={control}
-          render={({ field }) => (
-            <Textarea
-              {...field}
-              inputId={descriptionId}
-              label="Describe your contributions, key features, and impact"
-              placeholder="Describe your contributions, key features, and impact"
-            />
-          )}
+          label="Describe your contributions, key features, and impact"
         />
       </div>
     </div>

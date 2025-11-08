@@ -1,48 +1,25 @@
 import React from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
-import { TextField } from '../../../../../components/fields/TextField';
+import ControlledTextField from '../../../../../components/fields/ControlledTextField';
 import { HorizontalSeparator } from '../../../../../components/utilities';
 import {
   Typography,
   TypographyType,
 } from '../../../../../components/typography/Typography';
-import Textarea from '../../../../../components/fields/Textarea';
-import { useId } from 'react';
+import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
 
 const UserProjectPublicationForm = () => {
-  const { control } = useFormContext();
-  const titleId = useId();
-  const urlId = useId();
-  const descriptionId = useId();
-  const publicationDateMonthId = useId();
-  const publicationDateYearId = useId();
-
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Controller
+        <ControlledTextField
           name="title"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              inputId={titleId}
-              label="Title*"
-              placeholder="Ex: Building Scalable Microservices"
-            />
-          )}
+          label="Title*"
+          placeholder="Ex: Building Scalable Microservices"
         />
-        <Controller
+        <ControlledTextField
           name="url"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              inputId={urlId}
-              label="Publication URL"
-              placeholder="https://example.com/article"
-            />
-          )}
+          label="Publication URL"
+          placeholder="https://example.com/article"
         />
       </div>
       <HorizontalSeparator />
@@ -52,27 +29,13 @@ const UserProjectPublicationForm = () => {
             Publication Date*
           </Typography>
           <div className="flex gap-2">
-            <Controller
+            <ControlledTextField
               name="startedAtMonth"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputId={publicationDateMonthId}
-                  placeholder="Month"
-                />
-              )}
+              placeholder="Month"
             />
-            <Controller
+            <ControlledTextField
               name="startedAtYear"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputId={publicationDateYearId}
-                  placeholder="Year"
-                />
-              )}
+              placeholder="Year"
             />
           </div>
         </div>
@@ -82,17 +45,9 @@ const UserProjectPublicationForm = () => {
         <Typography type={TypographyType.Callout} bold>
           Description
         </Typography>
-        <Controller
+        <ControlledTextarea
           name="description"
-          control={control}
-          render={({ field }) => (
-            <Textarea
-              {...field}
-              inputId={descriptionId}
-              label="Summary, key findings, or abstract"
-              placeholder="Summary, key findings, or abstract"
-            />
-          )}
+          label="Summary, key findings, or abstract"
         />
       </div>
     </div>

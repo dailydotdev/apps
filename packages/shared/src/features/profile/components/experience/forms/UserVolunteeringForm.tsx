@@ -1,97 +1,45 @@
 import React from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
-import { TextField } from '../../../../../components/fields/TextField';
+import ControlledTextField from '../../../../../components/fields/ControlledTextField';
 import { HorizontalSeparator } from '../../../../../components/utilities';
 import {
   Typography,
   TypographyType,
 } from '../../../../../components/typography/Typography';
-import Textarea from '../../../../../components/fields/Textarea';
-import { Switch } from '../../../../../components/fields/Switch';
-import { useId } from 'react';
+import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
+import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 
 const UserVolunteeringForm = () => {
-  const { control } = useFormContext();
-  const titleId = useId();
-  const organizationId = useId();
-  const descriptionId = useId();
-  const currentId = useId();
-  const startedAtMonthId = useId();
-  const startedAtYearId = useId();
-  const endedAtMonthId = useId();
-  const endedAtYearId = useId();
-  const locationId = useId();
-
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Controller
+        <ControlledTextField
           name="title"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              inputId={titleId}
-              label="Role*"
-              placeholder="Ex: Volunteer Developer, Community Organizer"
-            />
-          )}
+          label="Role*"
+          placeholder="Ex: Volunteer Developer, Community Organizer"
         />
-        <Controller
+        <ControlledTextField
           name="customCompanyName"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              inputId={organizationId}
-              label="Organization*"
-              placeholder="Ex: Code for America, Free Code Camp"
-            />
-          )}
+          label="Organization*"
+          placeholder="Ex: Code for America, Free Code Camp"
         />
       </div>
       <HorizontalSeparator />
-      <Controller
-        name="current"
-        control={control}
-        render={({ field }) => (
-          <Switch
-            {...field}
-            inputId={currentId}
-            checked={field.value || false}
-            onToggle={() => field.onChange(!field.value)}
-          >
-            Current position
-          </Switch>
-        )}
-      />
+      <ControlledSwitch name="current">
+        Current position
+      </ControlledSwitch>
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             Start date*
           </Typography>
           <div className="flex gap-2">
-            <Controller
+            <ControlledTextField
               name="startedAtMonth"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputId={startedAtMonthId}
-                  placeholder="Month"
-                />
-              )}
+              placeholder="Month"
             />
-            <Controller
+            <ControlledTextField
               name="startedAtYear"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputId={startedAtYearId}
-                  placeholder="Year"
-                />
-              )}
+              placeholder="Year"
             />
           </div>
         </div>
@@ -100,60 +48,31 @@ const UserVolunteeringForm = () => {
             End date*
           </Typography>
           <div className="flex gap-2">
-            <Controller
+            <ControlledTextField
               name="endedAtMonth"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputId={endedAtMonthId}
-                  placeholder="Month"
-                />
-              )}
+              placeholder="Month"
             />
-            <Controller
+            <ControlledTextField
               name="endedAtYear"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputId={endedAtYearId}
-                  placeholder="Year"
-                />
-              )}
+              placeholder="Year"
             />
           </div>
         </div>
       </div>
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">
-        <Controller
+        <ControlledTextField
           name="locationId"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              inputId={locationId}
-              label="Location"
-              placeholder="City, Country"
-            />
-          )}
+          label="Location"
+          placeholder="City, Country"
         />
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             Description
           </Typography>
-          <Controller
+          <ControlledTextarea
             name="description"
-            control={control}
-            render={({ field }) => (
-              <Textarea
-                {...field}
-                inputId={descriptionId}
-                label="Describe your role, responsibilities, and impact"
-                placeholder="Describe your role, responsibilities, and impact"
-              />
-            )}
+            label="Describe your role, responsibilities, and impact"
           />
         </div>
       </div>
