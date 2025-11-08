@@ -78,20 +78,6 @@ const getExperienceType = (
   return UserExperienceType.Work;
 };
 
-const getExperienceType = (
-  typeParam: string | string[] | undefined,
-): UserExperienceType => {
-  if (typeof typeParam === 'string') {
-    const validType = Object.values(UserExperienceType).find(
-      (t) => t === typeParam,
-    );
-    if (validType) {
-      return validType;
-    }
-  }
-  return UserExperienceType.Work;
-};
-
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   query,
 }) => {
