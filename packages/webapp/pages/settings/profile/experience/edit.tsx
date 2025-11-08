@@ -102,15 +102,15 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     props: {
       experience: {
         ...result,
-        companyId: result?.company?.id,
-        customCompanyName: result?.company.name || result?.customCompanyName,
+        companyId: result?.company?.id || '',
+        customCompanyName: result?.company?.name || result?.customCompanyName,
         startedAtMonth,
         startedAtYear,
         endedAtMonth,
         endedAtYear,
         skills: result?.skills.map((skill) => skill.value),
         location: result?.location,
-        locationId: result?.location?.id,
+        locationId: result?.location?.id || '',
       },
     },
   };

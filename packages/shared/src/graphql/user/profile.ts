@@ -212,7 +212,10 @@ export const upsertUserGeneralExperience = async (
   input: UserExperience,
   id?: string,
 ) => {
-  const cleanedInput = excludeProperties(input, excludedProperties);
+  const cleanedInput = excludeProperties(input, [
+    ...excludedProperties,
+    'skills',
+  ]);
   const result = await gqlClient.request(UPSERT_USER_GENERAL_EXPERIENCE, {
     input: cleanedInput,
     id,
