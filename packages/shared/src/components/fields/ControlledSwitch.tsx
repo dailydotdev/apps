@@ -1,18 +1,24 @@
-import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
+import React from 'react';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { Switch } from './Switch';
-import type { SwitchProps } from './Switch';
 
-type ControlledSwitchProps = Pick<
-  SwitchProps,
-  'name' | 'children' | 'className' | 'labelClassName' | 'compact' | 'defaultTypo'
-> & {
-  description?: string;
+type ControlledSwitchProps = {
+  name: string;
+  label: string;
+  description?: string | React.ReactNode;
+  disabled?: boolean;
 };
 
 const ControlledSwitch = ({
   name,
-  ...restProps
+  label,
+  description,
+  disabled,
 }: ControlledSwitchProps) => {
   const { control } = useFormContext();
 
@@ -21,13 +27,29 @@ const ControlledSwitch = ({
       control={control}
       name={name}
       render={({ field }) => (
-        <Switch
-          inputId={field.name}
-          {...restProps}
-          {...field}
-          checked={field.value || false}
-          onToggle={() => field.onChange(!field.value)}
-        />
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-row justify-between gap-3">
+            <Typography bold type={TypographyType.Body}>
+              {label}
+            </Typography>
+            <Switch
+              inputId={field.name}
+              name={field.name}
+              checked={field.value ?? false}
+              onToggle={() => field.onChange(!field.value)}
+              compact={false}
+              disabled={disabled}
+            />
+          </div>
+          {description && (
+            <Typography
+              color={TypographyColor.Tertiary}
+              type={TypographyType.Footnote}
+            >
+              {description}
+            </Typography>
+          )}
+        </div>
       )}
     />
   );

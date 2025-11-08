@@ -1,5 +1,8 @@
 import React from 'react';
 import ControlledTextField from '../../../../../components/fields/ControlledTextField';
+import ProfileCompany from '../../ProfileCompany';
+import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMonthYearSelect';
+import ProfileLocation from '../../../../../components/profile/ProfileLocation';
 import { HorizontalSeparator } from '../../../../../components/utilities';
 import {
   Typography,
@@ -7,8 +10,9 @@ import {
 } from '../../../../../components/typography/Typography';
 import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
 import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
+import type { TLocation } from '../../../../../graphql/autocomplete';
 
-const UserVolunteeringForm = () => {
+const UserVolunteeringForm = ({ location }: { location?: TLocation }) => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -17,55 +21,44 @@ const UserVolunteeringForm = () => {
           label="Role*"
           placeholder="Ex: Volunteer Developer, Community Organizer"
         />
-        <ControlledTextField
-          name="customCompanyName"
-          label="Organization*"
-          placeholder="Ex: Code for America, Free Code Camp"
-        />
+        <ProfileCompany name="customCompanyName" label="Organization*" />
       </div>
       <HorizontalSeparator />
-      <ControlledSwitch name="current">
-        Current position
-      </ControlledSwitch>
+      <ControlledSwitch
+        name="current"
+        label="Current position"
+      />
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             Start date*
           </Typography>
-          <div className="flex gap-2">
-            <ControlledTextField
-              name="startedAtMonth"
-              placeholder="Month"
-            />
-            <ControlledTextField
-              name="startedAtYear"
-              placeholder="Year"
-            />
-          </div>
+          <ProfileMonthYearSelect
+            name="startedAt"
+            monthPlaceholder="Month"
+            yearPlaceholder="Year"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             End date*
           </Typography>
-          <div className="flex gap-2">
-            <ControlledTextField
-              name="endedAtMonth"
-              placeholder="Month"
-            />
-            <ControlledTextField
-              name="endedAtYear"
-              placeholder="Year"
-            />
-          </div>
+          <ProfileMonthYearSelect
+            name="endedAt"
+            monthPlaceholder="Month"
+            yearPlaceholder="Year"
+          />
         </div>
       </div>
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">
-        <ControlledTextField
-          name="locationId"
-          label="Location"
-          placeholder="City, Country"
-        />
+        <div className="flex flex-col gap-2">
+          <ProfileLocation
+            locationName="locationId"
+            typeName="locationType"
+            defaultValue={location}
+          />
+        </div>
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             Description

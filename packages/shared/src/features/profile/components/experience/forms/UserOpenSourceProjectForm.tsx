@@ -1,5 +1,6 @@
 import React from 'react';
 import ControlledTextField from '../../../../../components/fields/ControlledTextField';
+import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMonthYearSelect';
 import { HorizontalSeparator } from '../../../../../components/utilities';
 import {
   Typography,
@@ -24,39 +25,30 @@ const UserOpenSourceProjectForm = () => {
         />
       </div>
       <HorizontalSeparator />
-      <ControlledSwitch name="current">
-        Active project
-      </ControlledSwitch>
+      <ControlledSwitch
+        name="current"
+        label="Active project"
+      />
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             Start date*
           </Typography>
-          <div className="flex gap-2">
-            <ControlledTextField
-              name="startedAtMonth"
-              placeholder="Month"
-            />
-            <ControlledTextField
-              name="startedAtYear"
-              placeholder="Year"
-            />
-          </div>
+          <ProfileMonthYearSelect
+            name="startedAt"
+            monthPlaceholder="Month"
+            yearPlaceholder="Year"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             End date*
           </Typography>
-          <div className="flex gap-2">
-            <ControlledTextField
-              name="endedAtMonth"
-              placeholder="Month"
-            />
-            <ControlledTextField
-              name="endedAtYear"
-              placeholder="Year"
-            />
-          </div>
+          <ProfileMonthYearSelect
+            name="endedAt"
+            monthPlaceholder="Month"
+            yearPlaceholder="Year"
+          />
         </div>
       </div>
       <HorizontalSeparator />

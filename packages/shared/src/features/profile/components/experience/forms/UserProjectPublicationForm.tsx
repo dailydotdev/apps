@@ -1,5 +1,6 @@
 import React from 'react';
 import ControlledTextField from '../../../../../components/fields/ControlledTextField';
+import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMonthYearSelect';
 import { HorizontalSeparator } from '../../../../../components/utilities';
 import {
   Typography,
@@ -28,16 +29,11 @@ const UserProjectPublicationForm = () => {
           <Typography type={TypographyType.Callout} bold>
             Publication Date*
           </Typography>
-          <div className="flex gap-2">
-            <ControlledTextField
-              name="startedAtMonth"
-              placeholder="Month"
-            />
-            <ControlledTextField
-              name="startedAtYear"
-              placeholder="Year"
-            />
-          </div>
+          <ProfileMonthYearSelect
+            name="startedAt"
+            monthPlaceholder="Month"
+            yearPlaceholder="Year"
+          />
         </div>
       </div>
       <HorizontalSeparator />

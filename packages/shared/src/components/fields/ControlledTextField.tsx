@@ -6,7 +6,9 @@ import { TextField } from './TextField';
 type ControlledTextFieldProps = Pick<
   TextFieldProps,
   'name' | 'label' | 'leftIcon' | 'placeholder' | 'hint'
->;
+> & {
+  label?: string;
+};
 
 const ControlledTextField = ({
   name,
