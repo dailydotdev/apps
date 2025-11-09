@@ -116,6 +116,19 @@ const USER_PROFILE_EXPERIENCES_QUERY = gql`
   ${USER_EXPERIENCE_FRAGMENT}
 `;
 
+const REMOVE_USER_EXPERIENCE = gql`
+  mutation RemoveUserExperience($id: ID!) {
+    removeUserExperience(id: $id) {
+      _
+    }
+  }
+`;
+
+export const removeUserExperience = async (id: string) => {
+  const result = await gqlClient.request(REMOVE_USER_EXPERIENCE, { id });
+  return result;
+};
+
 export enum UserExperienceType {
   Work = 'work',
   Education = 'education',
