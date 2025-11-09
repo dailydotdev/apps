@@ -45,8 +45,8 @@ export default function PostMetadata({
     >
       <TruncateText>
         {boostedBy && (
-          <Tooltip content={`Boosted by @${boostedBy.username}`}>
-            <strong>Boosted</strong>
+          <Tooltip content={`Promoted by @${boostedBy.username}`}>
+            <strong>Promoted</strong>
           </Tooltip>
         )}
         {boostedBy && (!!description || !!createdAt || showReadTime) && (

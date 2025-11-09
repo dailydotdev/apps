@@ -39,7 +39,7 @@ export default function PostMetadata({
             color={TypographyColor.Tertiary}
             bold
           >
-            Boosted by @{boostedBy.username}
+            Promoted by @{boostedBy.username}
           </Typography>
         )}
         {!!boostedBy && !!bottomLabel && <Separator />}
