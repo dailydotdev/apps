@@ -234,7 +234,7 @@ function FeedNav(): ReactElement {
         </div>
       </div>
       {hasOpportunityAlert && isMobile && (
-        <div className={classNames('mx-4', isHeaderVisible && 'pt-2')}>
+        <div className="mx-4">
           <JobOpportunityButton className="w-full" />
         </div>
       )}
