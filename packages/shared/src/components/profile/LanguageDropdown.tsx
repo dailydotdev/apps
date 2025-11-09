@@ -82,7 +82,7 @@ export const LanguageDropdown = ({
           ),
           menu: classNames(
             menuClassName,
-            'menu-primary max-h-[15.375rem] overflow-y-auto p-1',
+            'menu-primary max-h-[15.375rem] p-1',
           ), // fit 6 items
           item: classNames(itemClassName, '*:min-h-10 *:!typo-callout'),
           container: dropdownClassName,
