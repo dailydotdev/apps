@@ -41,12 +41,12 @@ export default function CookieBanner({
   };
 
   return (
-    <CookieBannerContainer className="tablet:rounded-0 rounded-10 p-4 laptop:w-64">
+    <CookieBannerContainer className="tablet:rounded-0 rounded-10 laptop:w-64 p-4">
       <div className="flex w-full flex-row items-center justify-between">
         <CookieIcon
           secondary
           size={IconSize.Small}
-          className="hidden text-text-tertiary tablet:block"
+          className="text-text-tertiary tablet:block hidden"
         />
         {!isGdprCovered && (
           <ModalClose
@@ -85,7 +85,7 @@ export default function CookieBanner({
             onClick={onAcceptAll}
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
-            className="flex-1 tablet:flex-[unset]"
+            className="tablet:flex-[unset] flex-1"
           >
             {isGdprCovered ? 'Accept all' : 'I understand'}
           </Button>
@@ -94,7 +94,7 @@ export default function CookieBanner({
               onClick={onOpenModal}
               size={ButtonSize.Small}
               variant={ButtonVariant.Float}
-              className="flex-1 tablet:flex-[unset]"
+              className="tablet:flex-[unset] flex-1"
             >
               Customize
             </Button>

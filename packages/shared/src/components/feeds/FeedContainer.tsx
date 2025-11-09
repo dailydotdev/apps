@@ -221,7 +221,7 @@ export const FeedContainer = ({
   return (
     <div
       className={classNames(
-        'relative flex w-full flex-col laptopL:mx-auto',
+        'laptopL:mx-auto relative flex w-full flex-col',
         styles.container,
         className,
       )}
@@ -258,7 +258,7 @@ export const FeedContainer = ({
           />
         </div>
       )}
-      <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
+      <div className="laptopL:mx-auto flex w-full flex-col" style={style}>
         {!inlineHeader && header}
         <div
           className={classNames(
@@ -279,7 +279,7 @@ export const FeedContainer = ({
               )}
             >
               {!!actionButtons && (
-                <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary pr-3 laptop:w-auto">
+                <span className="border-border-subtlest-tertiary laptop:w-auto mr-auto flex w-full flex-row gap-3 pr-3">
                   {actionButtons}
                 </span>
               )}
@@ -291,7 +291,7 @@ export const FeedContainer = ({
             wrapper={(child) => (
               <div
                 className={classNames(
-                  'flex flex-col rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
+                  'rounded-16 border-border-subtlest-tertiary tablet:mt-6 flex flex-col border',
                   isSearch && 'mt-6',
                   !isLaptop && '!mt-2 border-0',
                 )}

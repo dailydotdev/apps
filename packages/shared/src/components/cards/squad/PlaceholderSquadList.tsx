@@ -11,7 +11,7 @@ const Text = ({
 }: ComponentProps<typeof ElementPlaceholder>) => (
   <ElementPlaceholder
     {...attrs}
-    className={classNames('h-3.5 animate-pulse rounded-12', className)}
+    className={classNames('rounded-12 h-3.5 animate-pulse', className)}
   />
 );
 
@@ -26,7 +26,7 @@ export const PlaceholderSquadList = ({
         <Text className="mb-1 w-1/2" />
         <Text className="w-full" />
       </div>
-      <Text className="min-h-10 w-18" />
+      <Text className="w-18 min-h-10" />
     </div>
   );
 };

@@ -68,7 +68,7 @@ export const PreviewChanges = ({
   );
 
   return (
-    <div className="flex w-full flex-1 flex-col tablet:flex-row">
+    <div className="tablet:flex-row flex w-full flex-1 flex-col">
       <section className="flex h-full w-full flex-1 flex-col gap-4 p-6">
         {!isMobile && (
           <LogoWithPlus
@@ -94,7 +94,7 @@ export const PreviewChanges = ({
           Billing cycle
         </Typography>
 
-        <div className="flex h-14 items-center gap-1 rounded-10 border border-border-subtlest-tertiary px-3">
+        <div className="rounded-10 border-border-subtlest-tertiary flex h-14 items-center gap-1 border px-3">
           <Typography bold type={TypographyType.Callout}>
             {pricing.metadata.title}
           </Typography>
@@ -140,7 +140,7 @@ export const PreviewChanges = ({
         </div>
       )}
 
-      <section className="relative flex h-full w-full flex-1 flex-col gap-2 rounded-l-16 border-border-subtlest-tertiary p-6 tablet:border-l">
+      <section className="rounded-l-16 border-border-subtlest-tertiary tablet:border-l relative flex h-full w-full flex-1 flex-col gap-2 p-6">
         {!isMobile && <div className="h-12" />}
         <Typography bold type={TypographyType.Body}>
           Summary

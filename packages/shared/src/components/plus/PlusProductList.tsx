@@ -32,7 +32,7 @@ const PlusProductList = ({
   return (
     <div
       className={classNames(
-        'rounded-10 border border-border-subtlest-tertiary',
+        'rounded-10 border-border-subtlest-tertiary border',
         className,
       )}
     >
@@ -52,9 +52,9 @@ const PlusProductList = ({
           }}
           className={{
             content: classNames(
-              'min-h-12 w-full rounded-10 !p-2',
+              'rounded-10 min-h-12 w-full !p-2',
               selected === priceId
-                ? '-m-px border border-border-subtlest-primary bg-surface-float'
+                ? 'border-border-subtlest-primary bg-surface-float -m-px border'
                 : undefined,
             ),
           }}

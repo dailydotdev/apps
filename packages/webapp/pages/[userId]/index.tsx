@@ -80,7 +80,7 @@ const ProfilePage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
+      <div className="tablet:px-6 flex flex-col gap-6 px-4 py-6">
         <Readme user={user} />
         {hasCoresAccess && <Awards userId={user?.id} />}
         <TopReaderWidget user={user} />

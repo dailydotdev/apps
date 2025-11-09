@@ -38,7 +38,7 @@ function SquadDiscoveryPage(): ReactElement {
         firstItemShouldBeAd
       >
         {isMobile && isFetched && (
-          <div className="absolute inset-0 -left-4 -z-1 flex w-[calc(100%+2rem)] bg-gradient-to-t from-overlay-float-cabbage from-10% to-background-default tablet:hidden" />
+          <div className="-z-1 from-overlay-float-cabbage to-background-default tablet:hidden absolute inset-0 -left-4 flex w-[calc(100%+2rem)] bg-gradient-to-t from-10%" />
         )}
       </SquadsDirectoryFeed>
       {categories.map(({ node }) => (

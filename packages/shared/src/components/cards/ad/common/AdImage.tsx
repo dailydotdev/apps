@@ -19,7 +19,7 @@ export const AdImage = ({
   return (
     <div
       className={classNames(
-        'pointer-events-none relative my-2 overflow-hidden rounded-12',
+        'rounded-12 pointer-events-none relative my-2 overflow-hidden',
         className,
       )}
     >
@@ -37,7 +37,7 @@ export const AdImage = ({
         <ImageComponent
           alt="Ad image background"
           src={ad.image}
-          className="-z-1 w-full blur-20"
+          className="-z-1 blur-20 w-full"
           fallbackSrc={cloudinaryPostImageCoverPlaceholder}
         />
       )}

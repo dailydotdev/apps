@@ -62,13 +62,13 @@ const SourcesPage = ({
         <Button
           icon={<PlusIcon />}
           variant={isLaptop ? ButtonVariant.Secondary : ButtonVariant.Float}
-          className="mb-6 ml-4 tablet:ml-0 laptop:float-right"
+          className="tablet:ml-0 laptop:float-right mb-6 ml-4"
           onClick={() => openModal({ type: LazyModal.NewSource })}
         >
           Suggest new source
         </Button>
       </div>
-      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
+      <div className="tablet:grid-cols-2 laptopXL:grid-cols-4 grid grid-cols-1 gap-6">
         <SourceTopList
           containerProps={{ title: 'Trending sources' }}
           items={trendingSources}

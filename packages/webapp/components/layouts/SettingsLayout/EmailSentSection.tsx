@@ -28,7 +28,7 @@ function EmailSentSection({
   return (
     <AlertBanner
       className={{
-        container: classNames('mt-6 border-status-warning', className),
+        container: classNames('border-status-warning mt-6', className),
         overlay: 'bg-overlay-quaternary-bun',
       }}
     >

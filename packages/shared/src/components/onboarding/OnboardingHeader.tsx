@@ -29,7 +29,7 @@ export const OnboardingHeader = ({
       <Logo
         className={classNames(
           'w-auto',
-          !isLanding && 'px-10 py-8 laptop:w-full',
+          !isLanding && 'laptop:w-full px-10 py-8',
         )}
         data-funnel-track={FunnelTargetId.Logo}
         linkDisabled

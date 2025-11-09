@@ -97,7 +97,7 @@ export default function SharedBookmarksModal({
             />
           </div>
         )}
-        <div className="mt-4 rounded-16 border border-border-subtlest-tertiary p-6">
+        <div className="rounded-16 border-border-subtlest-tertiary mt-4 border p-6">
           <p className="text-text-tertiary typo-callout">
             Need inspiration? we prepared some tutorials explaining some best
             practices of integrating your bookmarks with other platforms.

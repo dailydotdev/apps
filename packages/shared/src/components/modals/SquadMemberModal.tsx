@@ -44,12 +44,12 @@ const InitialItem = ({ squad }: { squad: Squad }) => {
     <button
       type="button"
       disabled={copying}
-      className="flex items-center justify-start px-6 py-3 hover:bg-surface-hover"
+      className="hover:bg-surface-hover flex items-center justify-start px-6 py-3"
       onClick={() => {
         logAndCopyLink();
       }}
     >
-      <FlexCentered className="mr-4 h-12 w-12 rounded-10 bg-surface-float">
+      <FlexCentered className="rounded-10 bg-surface-float mr-4 h-12 w-12">
         <LinkIcon size={IconSize.Large} className="text-raw-salt-90" />
       </FlexCentered>
       <p className="text-raw-salt-90 typo-callout">Copy invitation link</p>
@@ -144,7 +144,7 @@ export function SquadMemberModal({
             roleFilter === SourceMemberRole.Blocked ? (
               <BlockedMembersPlaceholder />
             ) : (
-              <FlexCentered className="p-10 text-text-tertiary typo-callout">
+              <FlexCentered className="text-text-tertiary typo-callout p-10">
                 No{' '}
                 {roleFilter === SourceMemberRole.Moderator
                   ? 'moderator'

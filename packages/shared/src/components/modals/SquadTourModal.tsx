@@ -23,7 +23,7 @@ function SquadTourModal({
       onRequestClose={onModalClose}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
-      className="overflow-hidden !border-accent-cabbage-default"
+      className="!border-accent-cabbage-default overflow-hidden"
       isDrawerOnMobile
       drawerProps={{ className: { drawer: 'pb-4', close: 'mx-4' } }}
     >

@@ -47,7 +47,7 @@ function NotificationItemIcon({
 
   return (
     <span
-      className="h-fit overflow-hidden rounded-8 bg-surface-float p-1 typo-callout"
+      className="rounded-8 bg-surface-float typo-callout h-fit overflow-hidden p-1"
       style={style}
     >
       <Icon

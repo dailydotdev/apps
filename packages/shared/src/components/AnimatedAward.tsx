@@ -29,7 +29,7 @@ export const AnimatedAward = ({
   return (
     <div
       className={classNames(
-        'pointer-events-none fixed inset-0 z-max flex items-center justify-center',
+        'z-max pointer-events-none fixed inset-0 flex items-center justify-center',
         className,
       )}
     >
@@ -61,7 +61,7 @@ export const AnimatedAwardImage = ({
       <button
         type="button"
         className={classNames(
-          'flex size-7 items-center justify-center rounded-10 bg-surface-float',
+          'rounded-10 bg-surface-float flex size-7 items-center justify-center',
           className,
         )}
         onClick={() => {

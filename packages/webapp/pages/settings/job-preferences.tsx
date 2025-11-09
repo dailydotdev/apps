@@ -172,7 +172,7 @@ const JobPreferencesPage = (): ReactElement => {
                 key={key}
                 variant={ButtonVariant.Option}
                 className={classNames(
-                  '!h-auto w-auto flex-row-reverse gap-3 border border-border-subtlest-tertiary !p-3 laptop:flex-row',
+                  'border-border-subtlest-tertiary laptop:flex-row !h-auto w-auto flex-row-reverse gap-3 border !p-3',
                   {
                     'bg-brand-float border-brand-default': option === key,
                   },
@@ -185,7 +185,7 @@ const JobPreferencesPage = (): ReactElement => {
                   readOnly
                 />
                 <div className="flex flex-1">
-                  <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">
+                  <div className="rounded-10 relative top-0.5 flex size-12 items-center justify-center">
                     {icon}
                   </div>
                   <FlexCol className="flex-1 text-left">
@@ -223,7 +223,7 @@ const JobPreferencesPage = (): ReactElement => {
               truly worth your attention.{' '}
             </Typography>
           </FlexCol>
-          <div className="flex flex-1 flex-col gap-6 tablet:flex-row">
+          <div className="tablet:flex-row flex flex-1 flex-col gap-6">
             <FlexCol className="flex-1 gap-2">
               <Typography type={TypographyType.Body} bold>
                 Upload CV

@@ -172,7 +172,7 @@ const ProfileIndex = ({
   const CoverHoverIcon = () => (
     <span className="text-theme-label-secondary ml-26 mr-3 flex flex-wrap items-center justify-center">
       <CameraIcon size={IconSize.Large} />
-      <span className="ml-1.5 font-bold typo-callout">Upload cover image</span>
+      <span className="typo-callout ml-1.5 font-bold">Upload cover image</span>
     </span>
   );
 
@@ -227,7 +227,7 @@ const ProfileIndex = ({
                 className={{
                   root: 'w-full',
                   container:
-                    'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
+                    'bg-background-subtle hover:bg-accent-pepper-subtlest border-0',
                   img: 'object-cover',
                 }}
                 size="cover"
@@ -247,7 +247,7 @@ const ProfileIndex = ({
               className={{
                 img: 'object-cover',
                 container:
-                  'border-4 !border-background-default bg-background-subtle hover:bg-accent-pepper-subtlest',
+                  '!border-background-default bg-background-subtle hover:bg-accent-pepper-subtlest border-4',
               }}
               initialValue={user?.image}
               alwaysShowHover={!user?.image}
@@ -444,7 +444,7 @@ const ProfileIndex = ({
       <FormWrapper
         className={{
           container: 'relative max-w-[100vw]',
-          title: 'font-bold typo-title3',
+          title: 'typo-title3 font-bold',
         }}
         title="Edit Profile"
         form="submit-profile"

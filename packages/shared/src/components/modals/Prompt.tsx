@@ -69,7 +69,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
               onClick={onFail}
               {...cancelButton}
               className={classNames(
-                'w-full tablet:w-auto',
+                'tablet:w-auto w-full',
                 cancelButton.className,
               )}
             >
@@ -84,7 +84,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
               iconPosition={okButton.iconPosition}
               onClick={onSuccess}
               {...okButton}
-              className={classNames('w-full tablet:w-auto', okButton.className)}
+              className={classNames('tablet:w-auto w-full', okButton.className)}
             >
               {okButton?.title ?? 'Ok'}
             </Button>

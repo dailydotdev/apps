@@ -49,7 +49,7 @@ export const CollectionPillSources = ({
           {sources.map((source) => (
             <SourceAvatar
               className={classNames(
-                '-my-0.5 !mr-0 box-content border-2 border-background-default',
+                'border-background-default -my-0.5 !mr-0 box-content border-2',
                 className?.avatar,
               )}
               key={source.handle}
@@ -63,7 +63,7 @@ export const CollectionPillSources = ({
         <Pill
           label="Collection"
           className={classNames(
-            'inline-flex bg-theme-overlay-float-cabbage text-brand-default',
+            'bg-theme-overlay-float-cabbage text-brand-default inline-flex',
             hasSources && 'group-hover:hidden',
           )}
         />

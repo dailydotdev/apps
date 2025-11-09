@@ -47,7 +47,7 @@ export const AccountPageContainer = ({
     <AccountPageContent className={classNames('relative', className.container)}>
       <AccountPageHeading className={classNames('sticky', className.heading)}>
         <Button
-          className={classNames('mr-2 flex tablet:hidden', { hidden: onBack })}
+          className={classNames('tablet:hidden mr-2 flex', { hidden: onBack })}
           icon={<ArrowIcon className="-rotate-90" />}
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.XSmall}

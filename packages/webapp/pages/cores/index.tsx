@@ -155,18 +155,18 @@ const CorePageDesktop = (): ReactElement => {
 
   return (
     <>
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 bg-gradient-to-t from-theme-overlay-float-bun to-transparent pt-10">
+      <div className="from-theme-overlay-float-bun flex flex-1 flex-col items-center justify-center gap-4 bg-gradient-to-t to-transparent pt-10">
         <div className="mx-a mx-4 flex w-full max-w-[63.75rem] flex-1 gap-4">
           <PageCoreOptions />
           <BuyCoresCheckout
             className={classNames(
               !selectedProduct && 'hidden',
-              'rounded-16 border border-border-subtlest-tertiary p-6',
+              'rounded-16 border-border-subtlest-tertiary border p-6',
             )}
           />
           <div
             className={classNames(
-              'm-6 flex flex-1 overflow-hidden rounded-16',
+              'rounded-16 m-6 flex flex-1 overflow-hidden',
               selectedProduct && 'hidden',
             )}
           >

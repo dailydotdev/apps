@@ -15,7 +15,7 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
   return (
     <section
       className={classNames(
-        'mb-6 rounded-16 bg-background-subtle p-6',
+        'rounded-16 bg-background-subtle mb-6 p-6',
         styles.authorOnboarding,
       )}
     >

@@ -10,7 +10,7 @@ export function LeaderboardListContainer({
 }: LeaderboardListContainerProps): ReactElement {
   return (
     <LeaderboardCard className={className}>
-      <h3 className="mb-2 font-bold typo-title3">{title}</h3>
+      <h3 className="typo-title3 mb-2 font-bold">{title}</h3>
       <ol className="typo-body">{children}</ol>
     </LeaderboardCard>
   );

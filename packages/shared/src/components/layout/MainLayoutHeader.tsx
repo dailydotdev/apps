@@ -57,13 +57,13 @@ function MainLayoutHeader({
         <SearchPanel
           className={{
             container: classNames(
-              'left-0 top-0 z-header items-center py-3 tablet:left-16 laptop:left-0',
+              'z-header tablet:left-16 laptop:left-0 left-0 top-0 items-center py-3',
               isSearchPage
-                ? 'relative right-0 tablet:!left-0 laptop:top-0'
-                : 'hidden laptop:flex',
+                ? 'tablet:!left-0 laptop:top-0 relative right-0'
+                : 'laptop:flex hidden',
               hasBanner && 'tablet:top-18',
             ),
-            field: 'mx-2 laptop:mx-auto',
+            field: 'laptop:mx-auto mx-2',
           }}
         />
       ),
@@ -73,7 +73,7 @@ function MainLayoutHeader({
   if (loadedSettings && !isLaptop) {
     if (isSearchPage) {
       return (
-        <div className="sticky top-0 z-header w-full bg-background-default tablet:pl-16">
+        <div className="z-header bg-background-default tablet:pl-16 sticky top-0 w-full">
           <RenderSearchPanel />
           {!isSearch && <MobileExploreHeader path={feedName as string} />}
         </div>
@@ -90,9 +90,9 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'sticky top-0 z-header flex h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
+        'z-header border-border-subtlest-tertiary tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4 sticky top-0 flex h-14 flex-row content-center items-center justify-center gap-3 border-b px-4 py-3',
         hasBanner && 'laptop:top-8',
-        isSearchPage && 'mb-16 laptop:mb-0',
+        isSearchPage && 'laptop:mb-0 mb-16',
         scrollClassName,
       )}
       style={featureTheme ? featureTheme.navbar : undefined}

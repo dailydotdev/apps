@@ -200,11 +200,11 @@ export const DevCardStep2 = ({
             'flex justify-center',
             type === DevCardType.Vertical ? 'h-[32.5rem]' : 'h-[23rem]',
             type === DevCardType.Horizontal &&
-              'mobileL:scale-60 mobileXXL:scale-80 scale-50 mobileXL:scale-75 tablet:scale-100',
+              'mobileL:scale-60 mobileXXL:scale-80 mobileXL:scale-75 tablet:scale-100 scale-50',
           )}
         >
           <Tilt
-            className="relative m-4 mt-8 w-fit self-stretch overflow-hidden rounded-32"
+            className="rounded-32 relative m-4 mt-8 w-fit self-stretch overflow-hidden"
             glareEnable
             perspective={1000}
             glareMaxOpacity={0.25}
@@ -237,7 +237,7 @@ export const DevCardStep2 = ({
       </section>
 
       <section className="flex flex-col">
-        <div className="sticky top-0 flex border-b border-border-subtlest-tertiary bg-background-default">
+        <div className="border-border-subtlest-tertiary bg-background-default sticky top-0 flex border-b">
           <div className="p-2">
             <Button
               size={ButtonSize.Medium}
@@ -299,7 +299,7 @@ export const DevCardStep2 = ({
                     tag="a"
                     defaultTypo={false}
                     href={`${devCard}?utm_source=webapp&utm_medium=devcard&utm_campaign=devcardguide&utm_id=inapp`}
-                    className="!inline typo-subhead"
+                    className="typo-subhead !inline"
                     target="_blank"
                   >
                     Full tutorial{' '}
@@ -312,7 +312,7 @@ export const DevCardStep2 = ({
 
                 <Typography
                   color={TypographyColor.Tertiary}
-                  className="white-space-pre-wrap mt-4 break-words rounded-10 bg-surface-float px-4 py-2"
+                  className="white-space-pre-wrap rounded-10 bg-surface-float mt-4 break-words px-4 py-2"
                 >
                   {embedCode}
                 </Typography>
@@ -398,7 +398,7 @@ export const DevCardStep2 = ({
                               'h-10 w-10 rounded-full',
                               isLocked && 'opacity-32',
                               checkLowercaseEquality(theme, value) &&
-                                'border-4 border-accent-cabbage-default',
+                                'border-accent-cabbage-default border-4',
                             )}
                             style={{
                               background: themeToLinearGradient[value],

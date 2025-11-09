@@ -21,7 +21,7 @@ export function CookieBannerContainer({
   return (
     <div
       className={classNames(
-        'fixed bottom-0 left-0 z-max flex w-full flex-col border-t border-border-subtlest-secondary bg-accent-pepper-subtlest text-text-secondary typo-footnote laptop:bottom-6 laptop:left-[unset] laptop:right-6 laptop:items-center laptop:rounded-16 laptop:border',
+        'z-max border-border-subtlest-secondary bg-accent-pepper-subtlest text-text-secondary typo-footnote laptop:bottom-6 laptop:left-[unset] laptop:right-6 laptop:items-center laptop:rounded-16 laptop:border fixed bottom-0 left-0 flex w-full flex-col border-t',
         className,
       )}
     >

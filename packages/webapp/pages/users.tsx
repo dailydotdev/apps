@@ -53,12 +53,12 @@ const LeaderboardPage = ({
 
   return (
     <PageWrapperLayout>
-      <div className="mb-6 hidden justify-between laptop:flex">
+      <div className="laptop:flex mb-6 hidden justify-between">
         <BreadCrumbs>
           <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard
         </BreadCrumbs>
       </div>
-      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
+      <div className="tablet:grid-cols-2 laptopXL:grid-cols-3 grid grid-cols-1 gap-6">
         <UserTopList
           containerProps={{ title: 'Highest reputation' }}
           items={highestReputation}

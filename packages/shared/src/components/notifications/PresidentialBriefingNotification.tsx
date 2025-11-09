@@ -166,7 +166,7 @@ const PresidentialBriefingNotification = () => {
       />
       {!!briefDigest && isChecked && (
         <>
-          <h3 className="font-bold typo-callout">When to send</h3>
+          <h3 className="typo-callout font-bold">When to send</h3>
           <HourDropdown
             className={{
               container: 'w-40',
@@ -195,7 +195,7 @@ const PresidentialBriefingNotification = () => {
           {isChecked && isPlus && (
             <button
               type="button"
-              className="flex flex-row items-center gap-1 text-text-link typo-footnote"
+              className="text-text-link typo-footnote flex flex-row items-center gap-1"
               onClick={() => {
                 openModal({
                   type: LazyModal.SlackIntegration,

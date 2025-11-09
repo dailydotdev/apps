@@ -71,7 +71,7 @@ const PreferencePage = (): ReactElement => {
   const opportunityId = id as string;
 
   return (
-    <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
+    <div className="tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row mx-4 flex w-auto max-w-full flex-col gap-4">
       <FlexCol className="flex-1 gap-6">
         <InnerPreferencePage
           buttons={
@@ -79,7 +79,7 @@ const PreferencePage = (): ReactElement => {
               <Button
                 size={ButtonSize.Large}
                 variant={ButtonVariant.Tertiary}
-                className="hidden laptop:flex"
+                className="laptop:flex hidden"
                 onClick={() => back()}
               >
                 Back
@@ -92,7 +92,7 @@ const PreferencePage = (): ReactElement => {
                 <Button
                   size={ButtonSize.Large}
                   variant={ButtonVariant.Primary}
-                  className="w-full laptop:w-auto"
+                  className="laptop:w-auto w-full"
                   tag="a"
                   href={`${opportunityUrl}/${opportunityId}/preference-done`}
                 >

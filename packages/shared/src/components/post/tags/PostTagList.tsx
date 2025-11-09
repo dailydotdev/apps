@@ -34,7 +34,7 @@ const Chip = <T extends TypographyTag>({
 }: PropsWithChildren<TypographyProps<T>>) => (
   <Typography
     className={classNames(
-      'cursor-pointer rounded-10 border-border-subtlest-tertiary transition-colors',
+      'rounded-10 border-border-subtlest-tertiary cursor-pointer transition-colors',
       className,
     )}
     color={TypographyColor.Tertiary}
@@ -55,7 +55,7 @@ const PostTagItem = ({
     return (
       <Link href={getTagPageLink(tag)} passHref prefetch={false}>
         <Chip
-          className="border px-2 py-1 hover:bg-border-subtlest-tertiary"
+          className="hover:bg-border-subtlest-tertiary border px-2 py-1"
           role="listitem"
           tag={TypographyTag.Link}
           title={`Check all #${tag} posts`}
@@ -67,7 +67,7 @@ const PostTagItem = ({
   }
 
   return (
-    <Chip className="flex items-center bg-surface-float" role="listitem">
+    <Chip className="bg-surface-float flex items-center" role="listitem">
       <Link href={getTagPageLink(tag)} passHref>
         <a
           className="inline-block px-2 py-1"
@@ -75,7 +75,7 @@ const PostTagItem = ({
         >{`#${tag}`}</a>
       </Link>
       <span
-        className="h-3 translate-y-px rounded-2 border border-border-subtlest-tertiary"
+        className="rounded-2 border-border-subtlest-tertiary h-3 translate-y-px border"
         role="separator"
       />
       <Tooltip content={`Follow #${tag}`}>

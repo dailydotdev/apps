@@ -50,7 +50,7 @@ const PlusSuccessPage = (): ReactElement => {
         <div className="flex max-w-[28.5rem] flex-col items-center">
           <ChecklistAIcon
             size={IconSize.XXXLarge}
-            className="mb-4 text-action-plus-default"
+            className="text-action-plus-default mb-4"
           />
           <Typography
             tag={TypographyTag.H1}
@@ -68,7 +68,7 @@ const PlusSuccessPage = (): ReactElement => {
           >
             Success! Your payment is complete, you’re all set.
           </Typography>
-          <span className="flex flex-col gap-4 tablet:flex-row">
+          <span className="tablet:flex-row flex flex-col gap-4">
             <Button
               variant={ButtonVariant.Primary}
               tag="a"

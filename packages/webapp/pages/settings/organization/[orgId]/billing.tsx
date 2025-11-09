@@ -64,7 +64,7 @@ const Page = (): ReactElement => {
     <AccountPageContainer
       title="Billing"
       className={{
-        container: 'min-h-[30rem] tablet:min-h-[25rem]',
+        container: 'tablet:min-h-[25rem] min-h-[30rem]',
         section: 'flex-1 gap-6',
       }}
     >
@@ -167,7 +167,7 @@ const Page = (): ReactElement => {
         </>
       )}
 
-      <section className="mt-auto flex flex-col gap-4 tablet:flex-row">
+      <section className="tablet:flex-row mt-auto flex flex-col gap-4">
         <Button
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}

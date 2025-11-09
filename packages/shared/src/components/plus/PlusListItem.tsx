@@ -69,7 +69,7 @@ export const PlusListItem = ({
     >
       <li
         className={classNames(
-          '-mx-1 flex gap-1 rounded-6 p-1',
+          'rounded-6 -mx-1 flex gap-1 p-1',
           !!item.tooltip && 'hover:bg-surface-float',
         )}
         onMouseEnter={onHover}
@@ -117,7 +117,7 @@ export const PlusListItem = ({
             aria-hidden
             {...iconProps}
             className={classNames(
-              'mt-px text-text-secondary',
+              'text-text-secondary mt-px',
               iconProps?.className,
             )}
           />

@@ -23,7 +23,7 @@ function ServerError({
   themedImage?: boolean;
 }): ReactElement {
   return (
-    <div className="flex max-h-full w-full flex-col items-center justify-center gap-4 self-center text-center laptop:w-[21.25rem] laptop:max-w-[21.25rem]">
+    <div className="laptop:w-[21.25rem] laptop:max-w-[21.25rem] flex max-h-full w-full flex-col items-center justify-center gap-4 self-center text-center">
       {themedImage ? (
         <ThemedImage />
       ) : (

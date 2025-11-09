@@ -65,7 +65,7 @@ export const OrganizationSidebar = ({
     <ConditionalWrapper
       condition={!isMobile}
       wrapper={(children) => (
-        <aside className="ml-auto flex min-h-full flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64">
+        <aside className="rounded-16 border-border-subtlest-tertiary tablet:w-64 ml-auto flex min-h-full flex-col gap-2 self-start border p-2">
           {children}
         </aside>
       )}
@@ -75,7 +75,7 @@ export const OrganizationSidebar = ({
 
         <HorizontalSeparator />
 
-        <nav className="flex flex-col gap-2 p-4 tablet:p-0">
+        <nav className="tablet:p-0 flex flex-col gap-2 p-4">
           {Object.entries(menuItems).map(([key, menuItem], index, arr) => {
             const lastItem = index === arr.length - 1;
 

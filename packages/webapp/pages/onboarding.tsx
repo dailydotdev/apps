@@ -224,7 +224,7 @@ const useOnboardingAuth = () => {
       simplified: true,
       className: {
         container: classNames(
-          'w-full rounded-none tablet:max-w-[30rem]',
+          'tablet:max-w-[30rem] w-full rounded-none',
           auth.isAuthenticating ? 'h-full' : 'max-w-full',
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
@@ -333,7 +333,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
         )}
       >
         <OnboardingHeader />
-        <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
+        <div className="tablet:flex-row tablet:gap-10 tablet:px-6 flex w-full flex-grow flex-col flex-wrap justify-center px-4">
           <AuthOptions {...authOptionProps} />
         </div>
         <FooterLinks className="mx-auto pb-6" />

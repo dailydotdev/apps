@@ -34,7 +34,7 @@ const SearchFilterTimeButton = () => {
               className={classNames(
                 'flex',
                 time === value
-                  ? 'font-bold text-text-primary'
+                  ? 'text-text-primary font-bold'
                   : 'text-text-tertiary',
               )}
             >

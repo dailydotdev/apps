@@ -88,22 +88,22 @@ export function AISearchInvite({
   }, [redirectTo]);
 
   return (
-    <div className="relative flex h-full min-h-page flex-1 flex-col items-center justify-center overflow-hidden p-6 laptop:items-start">
+    <div className="min-h-page laptop:items-start relative flex h-full flex-1 flex-col items-center justify-center overflow-hidden p-6">
       <DailyDevLogo />
-      <div className="relative z-1 flex w-full flex-col tablet:max-w-[27.5rem] laptop:ml-3 laptopL:ml-[9.75rem]">
-        <span className="mb-6 flex flex-col items-center gap-3 tablet:mb-10 tablet:gap-4 laptop:mb-8 laptop:flex-row laptop:items-start laptop:gap-2">
+      <div className="z-1 tablet:max-w-[27.5rem] laptop:ml-3 laptopL:ml-[9.75rem] relative flex w-full flex-col">
+        <span className="tablet:mb-10 tablet:gap-4 laptop:mb-8 laptop:flex-row laptop:items-start laptop:gap-2 mb-6 flex flex-col items-center gap-3">
           <ProfileImageLink user={referringUser} />
-          <p className="text-center text-text-tertiary typo-callout laptop:text-left">
+          <p className="text-text-tertiary typo-callout laptop:text-left text-center">
             {referringUser.name}
             <br />
             invites you to try daily.dev search
           </p>
         </span>
-        <h1 className="break-words-overflow w-full text-center font-bold typo-large-title tablet:typo-mega3 laptop:text-left">
+        <h1 className="break-words-overflow typo-large-title tablet:typo-mega3 laptop:text-left w-full text-center font-bold">
           {referringUser.name.split(' ')[0]} gave you early access to daily.dev
           search!
         </h1>
-        <p className="mt-6 text-center text-text-secondary laptop:text-left">
+        <p className="text-text-secondary laptop:text-left mt-6 text-center">
           This isn’t just another search engine; it’s a search engine that’s
           both fine-tuned for developers and fully integrated into the daily.dev
           ecosystem.
@@ -122,17 +122,17 @@ export function AISearchInvite({
       <img
         src={cloudinaryReferralCampaignSearchBg}
         alt="search input depicting our new AI search feature"
-        className="absolute right-0 z-0 hidden tablet:w-1/2 laptop:block"
+        className="tablet:w-1/2 laptop:block absolute right-0 z-0 hidden"
       />
       <img
         src={cloudinaryReferralCampaignSearchBgPopupMobile}
         alt="search input depicting our new AI search feature"
-        className="hidden max-w-[27.5rem] tablet:block laptop:hidden"
+        className="tablet:block laptop:hidden hidden max-w-[27.5rem]"
       />
       <img
         src={cloudinaryReferralCampaignSearchBgMobile}
         alt="search input depicting our new AI search feature"
-        className="absolute inset-0 top-[unset] z-0 block w-full translate-y-1/2 tablet:hidden"
+        className="tablet:hidden absolute inset-0 top-[unset] z-0 block w-full translate-y-1/2"
       />
     </div>
   );

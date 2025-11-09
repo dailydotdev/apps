@@ -158,7 +158,7 @@ function FeedNav(): ReactElement {
   return (
     <div
       className={classNames(
-        'sticky top-0 z-header w-full transition-transform tablet:pl-16',
+        'z-header tablet:pl-16 sticky top-0 w-full transition-transform',
         scrollClassName,
         isHeaderVisible
           ? 'translate-y-0 duration-200'
@@ -166,7 +166,7 @@ function FeedNav(): ReactElement {
       )}
     >
       {isMobile && <MobileFeedActions />}
-      <div className="mb-4 h-[3.25rem] tablet:mb-0">
+      <div className="tablet:mb-0 mb-4 h-[3.25rem]">
         <TabContainer
           controlledActive={urlToTab[router.asPath] ?? ''}
           shouldMountInactive
@@ -186,7 +186,7 @@ function FeedNav(): ReactElement {
           renderTab={({ label }) => {
             if (label === FeedNavTab.NewFeed) {
               return (
-                <div className="flex size-6 items-center justify-center rounded-6 bg-background-subtle">
+                <div className="rounded-6 bg-background-subtle flex size-6 items-center justify-center">
                   <PlusIcon />
                 </div>
               );
@@ -229,7 +229,7 @@ function FeedNav(): ReactElement {
             <MyFeedHeading />
           </StickyNavIconWrapper>
         )}
-        <div className="absolute right-0 top-0 hidden h-[3.25rem] items-center bg-background-default tablet:flex laptop:hidden">
+        <div className="bg-background-default tablet:flex laptop:hidden absolute right-0 top-0 hidden h-[3.25rem] items-center">
           <NotificationsBell compact />
         </div>
       </div>

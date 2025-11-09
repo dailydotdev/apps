@@ -66,9 +66,9 @@ export const PollList = forwardRef(function PollList(
   const isUserSource = isSourceUserSource(post.source);
 
   const actionButtons = (
-    <Container className="pointer-events-none flex-[unset] tablet:mt-4">
+    <Container className="tablet:mt-4 pointer-events-none flex-[unset]">
       <ActionButtons
-        className="mt-4 justify-between tablet:mt-0"
+        className="tablet:mt-0 mt-4 justify-between"
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}

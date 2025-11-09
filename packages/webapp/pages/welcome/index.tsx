@@ -109,7 +109,7 @@ const DemoPage = (): ReactElement => {
     <>
       <div
         className={classNames(
-          'sticky top-0 z-header flex h-12 w-full justify-between border-b border-accent-cabbage-default px-4 py-2',
+          'z-header border-accent-cabbage-default sticky top-0 flex h-12 w-full justify-between border-b px-4 py-2',
           authGradientBg,
         )}
       >
@@ -130,10 +130,10 @@ const DemoPage = (): ReactElement => {
         }}
         className="mb-6 flex h-80 flex-col items-center justify-center gap-2 p-6"
       >
-        <h2 className="text-center font-bold text-text-primary typo-title1">
+        <h2 className="text-text-primary typo-title1 text-center font-bold">
           Where developers suffer together
         </h2>
-        <p className="text-center text-text-secondary typo-body">
+        <p className="text-text-secondary typo-body text-center">
           Personalized news feed, dev communities and search.much better than
           what&apos;s out there.
         </p>
@@ -141,7 +141,7 @@ const DemoPage = (): ReactElement => {
       {featuresReady && <Feed className={feedProps.className} {...feedProps} />}
       {showSignupFooter && (
         <div className="mb-6 flex h-80 flex-col items-center justify-center gap-6 p-6">
-          <h2 className="text-center font-bold text-text-primary typo-title1">
+          <h2 className="text-text-primary typo-title1 text-center font-bold">
             Where developers suffer together
           </h2>
           <Button

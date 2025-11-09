@@ -15,11 +15,11 @@ export const RecommendedTags = ({
   if (isLoading) {
     return (
       <div>
-        <ElementPlaceholder className="mb-3 h-4 w-1/5 rounded-12" />
+        <ElementPlaceholder className="rounded-12 mb-3 h-4 w-1/5" />
         <div className="flex gap-2">
-          <ElementPlaceholder className="h-6 w-12 rounded-8" />
-          <ElementPlaceholder className="h-6 w-12 rounded-8" />
-          <ElementPlaceholder className="h-6 w-12 rounded-8" />
+          <ElementPlaceholder className="rounded-8 h-6 w-12" />
+          <ElementPlaceholder className="rounded-8 h-6 w-12" />
+          <ElementPlaceholder className="rounded-8 h-6 w-12" />
         </div>
       </div>
     );
@@ -31,7 +31,7 @@ export const RecommendedTags = ({
 
   return (
     <div>
-      <p className="mb-3 text-text-tertiary typo-caption1">Related tags:</p>
+      <p className="text-text-tertiary typo-caption1 mb-3">Related tags:</p>
       <div className="no-scrollbar flex gap-2 overflow-x-auto">
         {tags.map((relatedTag) => (
           <TagLink key={relatedTag.name} tag={relatedTag.name} />

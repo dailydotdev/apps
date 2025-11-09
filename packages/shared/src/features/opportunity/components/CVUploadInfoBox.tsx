@@ -8,7 +8,7 @@ import {
 } from '../../../components/typography/Typography';
 
 export const CVUploadInfoBox = (): ReactElement => (
-  <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4">
+  <div className="rounded-16 border-border-subtlest-tertiary flex flex-col gap-2 border p-4">
     <div className="flex gap-2">
       <ShieldPlusIcon secondary className="text-status-success" />
       <Typography type={TypographyType.Subhead} bold>

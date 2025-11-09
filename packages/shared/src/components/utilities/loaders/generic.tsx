@@ -30,7 +30,7 @@ export const GenericLoader = ({
   label = 'Preparing...',
 }: Props): ReactElement => {
   return (
-    <div className="fixed inset-0 z-modal flex items-center justify-center bg-background-default">
+    <div className="z-modal bg-background-default fixed inset-0 flex items-center justify-center">
       <div className="flex flex-col items-center gap-5">
         <GenericLoaderSpinner size={IconSize.XLarge} className={className} />
         <div>{label}</div>

@@ -62,7 +62,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
               hasImage: !!image,
               hasHtmlContent: !!post.contentHtml,
             }),
-            'font-bold text-text-primary typo-title3',
+            'text-text-primary typo-title3 font-bold',
           )}
         >
           {post.title}

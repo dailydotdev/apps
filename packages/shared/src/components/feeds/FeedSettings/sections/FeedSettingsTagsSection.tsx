@@ -89,7 +89,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
     <div className="flex flex-col gap-6">
       <SearchField
         aria-label="Search tags"
-        className="border-none !bg-background-subtle"
+        className="!bg-background-subtle border-none"
         inputId="search-filters"
         placeholder="Search tags"
         valueChanged={onSearch}
@@ -106,7 +106,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
       >
         <ModalTabs
           className={classNames(
-            'border-b border-border-subtlest-tertiary pb-[0.70rem]',
+            'border-border-subtlest-tertiary border-b pb-[0.70rem]',
             !!searchQuery && 'hidden',
           )}
         />

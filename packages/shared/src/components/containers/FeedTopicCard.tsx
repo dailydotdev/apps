@@ -48,14 +48,14 @@ function FeedFilterCard({
       type="button"
       onClick={onClick}
       className={classNames(
-        'group relative flex aspect-square w-full min-w-[8rem] max-w-[8rem] items-center justify-center rounded-14 transition-[background] typo-callout hover:bg-accent-cabbage-default hover:shadow-2-black tablet:min-w-full',
+        'rounded-14 typo-callout hover:bg-accent-cabbage-default hover:shadow-2-black tablet:min-w-full group relative flex aspect-square w-full min-w-[8rem] max-w-[8rem] items-center justify-center transition-[background]',
         isActive ? 'bg-accent-cabbage-default' : 'bg-border-subtlest-tertiary',
       )}
     >
-      <BackgroundLayer className="invisible -z-1 opacity-64 group-hover:visible group-hover:-rotate-12" />
-      <BackgroundLayer className="invisible -z-2 opacity-24 group-hover:visible group-hover:-rotate-[24deg]" />
+      <BackgroundLayer className="-z-1 opacity-64 invisible group-hover:visible group-hover:-rotate-12" />
+      <BackgroundLayer className="-z-2 opacity-24 invisible group-hover:visible group-hover:-rotate-[24deg]" />
       <Icon isActive={isActive} />
-      <span className="z-1 w-full break-words p-1 typo-callout">
+      <span className="z-1 typo-callout w-full break-words p-1">
         {topic?.title}
       </span>
     </button>

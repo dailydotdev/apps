@@ -65,7 +65,7 @@ export const AcquisitionFormInner = ({ className }: Props): ReactElement => {
 
   return (
     <>
-      <OnboardingTitleGradient className="flex w-full flex-row items-center whitespace-nowrap pb-1 typo-body">
+      <OnboardingTitleGradient className="typo-body flex w-full flex-row items-center whitespace-nowrap pb-1">
         How did you hear about us?
         <Button
           className="ml-auto"

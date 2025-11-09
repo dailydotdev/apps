@@ -17,7 +17,7 @@ const GoBackHeaderMobile = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="-mx-4 h-12 border-b border-border-subtlest-tertiary laptop:hidden" />
+      <div className="border-border-subtlest-tertiary laptop:hidden -mx-4 h-12 border-b" />
     ),
   },
 );
@@ -44,7 +44,7 @@ export function BasePostContent({
     <>
       {isPostPage && (
         <GoBackHeaderMobile
-          className={classNames(className.header, '-mx-4 bg-background-subtle')}
+          className={classNames(className.header, 'bg-background-subtle -mx-4')}
         >
           <PostHeaderActions
             post={post}

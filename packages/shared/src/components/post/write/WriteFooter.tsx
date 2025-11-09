@@ -25,7 +25,7 @@ export function WriteFooter({
   return (
     <span
       className={classNames(
-        'relative flex flex-col flex-wrap tablet:flex-row',
+        'tablet:flex-row relative flex flex-col flex-wrap',
         !sidebarRendered && 'justify-center',
         isPoll ? 'tablet:items-end' : 'items-center',
         className,
@@ -51,7 +51,7 @@ export function WriteFooter({
         variant={ButtonVariant.Primary}
         color={ButtonColor.Cabbage}
         className={classNames(
-          'ml-auto hidden w-full tablet:mt-0 tablet:w-32 laptop:flex',
+          'tablet:mt-0 tablet:w-32 laptop:flex ml-auto hidden w-full',
           shouldShowCta && 'mt-6',
         )}
         disabled={isLoading}

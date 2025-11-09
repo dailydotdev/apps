@@ -58,7 +58,7 @@ const NoOrganizations = () => {
     <div className="flex flex-col gap-1 pt-6">
       <OrganizationIcon
         size={IconSize.XXXLarge}
-        className="self-center text-text-tertiary"
+        className="text-text-tertiary self-center"
       />
 
       <Typography bold center type={TypographyType.Title2}>
@@ -160,7 +160,7 @@ const Page = (): ReactElement => {
 
                   <ArrowIcon
                     size={IconSize.Small}
-                    className="ml-auto rotate-90 text-text-tertiary"
+                    className="text-text-tertiary ml-auto rotate-90"
                   />
                 </a>
               </Link>

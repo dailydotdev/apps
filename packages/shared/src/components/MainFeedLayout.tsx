@@ -354,7 +354,7 @@ export default function MainFeedLayout({
 
   const search = useMemo(
     () => (
-      <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
+      <LayoutHeader className={isSearchPage && 'laptop:mt-0 mt-16'}>
         {navChildren}
         {isSearchOn && searchChildren ? searchChildren : undefined}
       </LayoutHeader>
@@ -539,7 +539,7 @@ export default function MainFeedLayout({
         showDropdown={false}
         className={{
           container:
-            'sticky top-[7.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+            'z-header border-border-subtlest-tertiary bg-background-default sticky top-[7.5rem] w-full border-b',
           tabBarHeader: 'no-scrollbar overflow-x-auto',
           tabBarContainer: 'w-full',
         }}

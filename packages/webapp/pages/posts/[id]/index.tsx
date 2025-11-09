@@ -150,7 +150,7 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
   });
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
-    'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
+    'min-h-page tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0 mb-16 max-w-[69.25rem]',
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
     featureTheme && 'bg-transparent',
   );
@@ -226,9 +226,9 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
             isBannerVisible={shouldShowAuthBanner && !isLaptop}
             className={{
               container: containerClass,
-              fixedNavigation: { container: 'flex laptop:hidden' },
+              fixedNavigation: { container: 'laptop:hidden flex' },
               navigation: {
-                container: 'flex tablet:hidden',
+                container: 'tablet:hidden flex',
                 actions: 'flex-1 justify-between',
               },
             }}

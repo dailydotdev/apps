@@ -82,7 +82,7 @@ const MoveBookmarkModal = ({
         <Button
           onClick={onClickCreateNewFolder}
           icon={
-            <div className="flex  rounded-6 bg-background-subtle">
+            <div className="rounded-6  bg-background-subtle flex">
               <PlusIcon className="m-auto" />
             </div>
           }

@@ -52,7 +52,7 @@ export const SmartPromptResponse = ({
             progress={data?.chunks?.[0]?.progress}
           />
           {!!data?.chunks?.[0]?.status && (
-            <div className="mt-2 text-text-tertiary typo-callout">
+            <div className="text-text-tertiary typo-callout mt-2">
               {data?.chunks?.[0]?.status}
             </div>
           )}

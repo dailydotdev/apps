@@ -20,7 +20,7 @@ const History = (): ReactElement => {
   return (
     <ProtectedPage>
       {isLaptop && (
-        <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-border-subtlest-tertiary laptop:hidden" />
+        <div className="bg-border-subtlest-tertiary laptop:hidden absolute left-0 top-[6.75rem] flex h-px w-full" />
       )}
 
       <ResponsivePageContainer className="relative !p-0" role="main">

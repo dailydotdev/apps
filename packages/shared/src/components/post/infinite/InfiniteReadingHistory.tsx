@@ -31,7 +31,7 @@ export function InfiniteReadingHistory({
         <button
           key={`${item.post.id}-${item.timestamp}`}
           type="button"
-          className="group relative -mx-6 cursor-pointer hover:bg-surface-hover"
+          className="hover:bg-surface-hover group relative -mx-6 cursor-pointer"
           onClick={(e) => onArticleClick(e, item)}
           aria-label="Reading history item"
         >

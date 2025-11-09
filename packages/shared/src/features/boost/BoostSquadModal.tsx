@@ -192,7 +192,7 @@ export function BoostSquadModal({
         <Typography type={TypographyType.Title3} bold>
           Boost your Squad
         </Typography>
-        <div className="ml-4 flex flex-row rounded-10 bg-surface-float">
+        <div className="rounded-10 bg-surface-float ml-4 flex flex-row">
           <Button
             icon={<CoreIcon />}
             size={ButtonSize.Small}
@@ -203,7 +203,7 @@ export function BoostSquadModal({
           >
             {largeNumberFormat(user.balance.amount)}
           </Button>
-          <div className="my-1 border-l border-border-subtlest-tertiary" />
+          <div className="border-border-subtlest-tertiary my-1 border-l" />
           <Button
             icon={<PlusIcon />}
             size={ButtonSize.Small}
@@ -221,7 +221,7 @@ export function BoostSquadModal({
           Squad, so that it grows faster, stronger, and with the right people.
           <a
             href={boostDocsLink}
-            className="ml-1 text-text-link"
+            className="text-text-link ml-1"
             target="_blank"
           >
             Learn more
@@ -246,11 +246,11 @@ export function BoostSquadModal({
               </Typography>
             </div>
             <Image
-              className="ml-auto h-12 w-12 rounded-max"
+              className="rounded-max ml-auto h-12 w-12"
               src={squad.image}
             />
           </div>
-          <div className="flex flex-col items-center rounded-16 bg-surface-float p-3">
+          <div className="rounded-16 bg-surface-float flex flex-col items-center p-3">
             <Typography type={TypographyType.Title3} bold>
               {totalSpend} Cores over {totalDays} days
             </Typography>

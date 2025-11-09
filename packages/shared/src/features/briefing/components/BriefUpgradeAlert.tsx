@@ -18,14 +18,14 @@ export const BriefUpgradeAlert = ({
         background: briefCardBg,
       }}
       className={classNames(
-        'mb-4 flex w-full flex-wrap items-center justify-between gap-2 rounded-12 border border-white px-4 py-3',
+        'rounded-12 mb-4 flex w-full flex-wrap items-center justify-between gap-2 border border-white px-4 py-3',
         className,
       )}
       {...attrs}
     >
       <Typography
         type={TypographyType.Callout}
-        className="w-full flex-1 tablet:w-auto"
+        className="tablet:w-auto w-full flex-1"
       >
         Get unlimited access to every past and future presidential briefing with
         daily.dev Plus.

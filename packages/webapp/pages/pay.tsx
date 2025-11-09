@@ -35,9 +35,9 @@ const PayPage = (): ReactElement => {
   return (
     <>
       <NextSeo nofollow noindex />
-      <div className="m-auto flex h-full w-full flex-col gap-6 laptop:h-fit laptop:w-[34.875rem]">
-        <div className="flex w-full flex-1 justify-center bg-background-default">
-          <div className="mt-10 flex-1 rounded-16 border border-border-subtlest-tertiary bg-black p-6">
+      <div className="laptop:h-fit laptop:w-[34.875rem] m-auto flex h-full w-full flex-col gap-6">
+        <div className="bg-background-default flex w-full flex-1 justify-center">
+          <div className="rounded-16 border-border-subtlest-tertiary mt-10 flex-1 border bg-black p-6">
             <div className="checkout-container" />
           </div>
         </div>

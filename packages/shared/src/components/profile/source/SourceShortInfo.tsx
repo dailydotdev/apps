@@ -25,7 +25,7 @@ export function SourceShortInfo({
   return (
     <div className="flex flex-1 flex-row items-center truncate">
       <SourceAvatar source={source} size={size} />
-      <span className="flex flex-1 flex-col items-start truncate typo-callout">
+      <span className="typo-callout flex flex-1 flex-col items-start truncate">
         <Typography bold truncate tag={TypographyTag.H3} className="max-w-full">
           {source.name}
         </Typography>

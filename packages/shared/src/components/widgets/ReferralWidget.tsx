@@ -19,7 +19,7 @@ const ReferralWidget = ({
       data-testid="referral-widget"
       className={classNames('flex flex-col px-4', className)}
     >
-      <h3 className="mb-2 font-bold typo-title3">Invite friends</h3>
+      <h3 className="typo-title3 mb-2 font-bold">Invite friends</h3>
       <p className="text-text-secondary typo-callout">
         Invite other developers to discover how easy it is to stay updated with
         daily.dev
@@ -36,7 +36,7 @@ const ReferralWidget = ({
         }}
       />
       <div className="flex items-center justify-between">
-        <p className="mr-3 text-text-tertiary typo-callout">Invite via</p>
+        <p className="text-text-tertiary typo-callout mr-3">Invite via</p>
         <span className="flex gap-2">
           <ReferralSocialShareButtons
             url={url}

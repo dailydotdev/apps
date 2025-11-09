@@ -127,7 +127,7 @@ export default function ProfileLayout({
       wrapper={(component) => (
         <div className="flex w-full flex-col p-4">
           <ProfileUploadBanner
-            className={{ container: '!mt-0 tablet:mt-3' }}
+            className={{ container: 'tablet:mt-3 !mt-0' }}
             onClose={onCloseBanner}
             onUpload={onUpload}
             status={status}
@@ -136,11 +136,11 @@ export default function ProfileLayout({
         </div>
       )}
     >
-      <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
+      <div className="max-w-screen-laptop tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0 m-auto flex w-full flex-col pb-12">
         <Head>
           <link rel="preload" as="image" href={user.image} />
         </Head>
-        <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
+        <main className="tablet:border-r tablet:border-border-subtlest-tertiary relative flex flex-1 flex-col">
           <ProfileWidgets
             user={user}
             userStats={userStats}
@@ -151,7 +151,7 @@ export default function ProfileLayout({
           <NavBar selectedTab={selectedTab} profile={user} />
           {children}
         </main>
-        <PageWidgets className="hidden !px-0 laptop:flex">
+        <PageWidgets className="laptop:flex hidden !px-0">
           <ProfileWidgets
             user={user}
             userStats={userStats}

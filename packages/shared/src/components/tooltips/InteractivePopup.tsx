@@ -123,7 +123,7 @@ function InteractivePopup({
       <ConditionalWrapper
         condition={withOverlay}
         wrapper={(child) => (
-          <div className="fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion">
+          <div className="z-modal bg-overlay-quaternary-onion fixed inset-0 flex flex-col items-center">
             {child}
           </div>
         )}
@@ -131,7 +131,7 @@ function InteractivePopup({
         <div
           ref={container}
           className={classNames(
-            'fixed z-popup overflow-hidden rounded-16 bg-background-default shadow-2',
+            'z-popup rounded-16 bg-background-default shadow-2 fixed overflow-hidden',
             className,
             classes,
             !validateSidebar && 'shadow-2',
@@ -146,7 +146,7 @@ function InteractivePopup({
               <Button
                 size={buttonSize}
                 variant={buttonVariant}
-                className={classNames('absolute z-1', buttonPosition)}
+                className={classNames('z-1 absolute', buttonPosition)}
                 icon={<CloseIcon />}
                 onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
                 data-testid="close-interactive-popup"

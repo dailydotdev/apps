@@ -96,7 +96,7 @@ const PlusCard = ({
     <li
       aria-labelledby={`${id}-heading`}
       className={classNames(
-        'mx-auto w-[21rem] rounded-16 border border-border-subtlest-tertiary p-4',
+        'rounded-16 border-border-subtlest-tertiary mx-auto w-[21rem] border p-4',
         isPaidPlan && 'bg-surface-float',
       )}
     >
@@ -237,7 +237,7 @@ export const PlusComparingCards = ({
   return (
     <ul
       aria-label="Pricing plans"
-      className="mx-auto flex grid-cols-1 flex-col-reverse place-content-center items-start gap-6 tablet:grid-cols-2 laptop:grid"
+      className="tablet:grid-cols-2 laptop:grid mx-auto flex grid-cols-1 flex-col-reverse place-content-center items-start gap-6"
     >
       {productOptions.map((option) => (
         <PlusCard key={option.key} {...option} />

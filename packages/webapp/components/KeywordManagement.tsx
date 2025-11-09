@@ -103,8 +103,8 @@ export default function KeywordManagement({
   return (
     <ResponsivePageContainer>
       <NextSeo title="Pending Keywords" nofollow noindex />
-      <h1 className="m-0 font-bold typo-title2">{keyword.value}</h1>
-      <div className="my-1 flex items-center justify-between text-text-tertiary typo-callout">
+      <h1 className="typo-title2 m-0 font-bold">{keyword.value}</h1>
+      <div className="text-text-tertiary typo-callout my-1 flex items-center justify-between">
         <span>Occurrences: {keyword.occurrences}</span>
         <span>{subtitle}</span>
       </div>
@@ -112,7 +112,7 @@ export default function KeywordManagement({
         title="Keyword Posts"
         query={posts}
         emptyScreen={
-          <div className="font-bold typo-title3" data-testid="emptyPosts">
+          <div className="typo-title3 font-bold" data-testid="emptyPosts">
             No posts
           </div>
         }
@@ -127,15 +127,15 @@ export default function KeywordManagement({
               target="_blank"
               rel="noopener noreferrer"
               aria-label={post.title}
-              className="flex items-start py-3 no-underline tablet:items-center"
+              className="tablet:items-center flex items-start py-3 no-underline"
             >
               <LazyImage
                 imgSrc={smallPostImage(post.image)}
                 imgAlt="Post cover image"
-                className="h-16 w-16 rounded-16"
+                className="rounded-16 h-16 w-16"
               />
               <p
-                className="break-words-overflow multi-truncate ml-4 flex-1 self-center whitespace-pre-wrap p-0 text-text-primary typo-callout tablet:mr-6"
+                className="break-words-overflow multi-truncate text-text-primary typo-callout tablet:mr-6 ml-4 flex-1 self-center whitespace-pre-wrap p-0"
                 style={{
                   maxHeight: '3.75rem',
                   maxWidth: '19.25rem',
@@ -150,7 +150,7 @@ export default function KeywordManagement({
       />
       <div
         className={classNames(
-          'fixed bottom-0 left-0 right-0 mx-auto flex w-full items-center justify-between bg-background-default px-4 py-6',
+          'bg-background-default fixed bottom-0 left-0 right-0 mx-auto flex w-full items-center justify-between px-4 py-6',
           styles.buttons,
         )}
       >

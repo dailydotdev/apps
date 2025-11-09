@@ -63,7 +63,7 @@ export const WelcomePostCardFooter = ({
     return (
       <p
         className={classNames(
-          'mt-1 line-clamp-6 break-words px-2 typo-callout',
+          'typo-callout mt-1 line-clamp-6 break-words px-2',
         )}
       >
         {decodedText}

@@ -34,11 +34,11 @@ const ExtensionPermissionsPrompt = (): ReactElement => {
         logoClassName={{ container: 'h-logo-big' }}
       />
 
-      <OnboardingTitleGradient className="my-6 typo-mega2 tablet:typo-mega1">
+      <OnboardingTitleGradient className="typo-mega2 tablet:typo-mega1 my-6">
         Let&apos;s get started
       </OnboardingTitleGradient>
 
-      <p className="mb-9 max-w-[40rem] typo-title3 tablet:mb-16 tablet:typo-title2">
+      <p className="typo-title3 tablet:mb-16 tablet:typo-title2 mb-9 max-w-[40rem]">
         To get started, please allow us to manage data on the
         &apos;daily.dev&apos; domain. This is solely for technical purposes,
         like login and authentication. We value your privacy -- no fishy stuff

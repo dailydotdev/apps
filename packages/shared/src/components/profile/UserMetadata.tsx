@@ -37,7 +37,7 @@ export function UserMetadata({
   return (
     <div
       className={classNames(
-        'flex flex-col text-text-quaternary typo-caption2',
+        'text-text-quaternary typo-caption2 flex flex-col',
         className,
       )}
     >
@@ -45,14 +45,14 @@ export function UserMetadata({
         <h2
           className={classNames(
             truncateTextClassNames,
-            'font-bold text-text-primary typo-title3',
+            'text-text-primary typo-title3 font-bold',
           )}
         >
           {name}
         </h2>
         {reputation && (
           <ReputationUserBadge
-            className="ml-0.5 !typo-footnote"
+            className="!typo-footnote ml-0.5"
             user={{ reputation }}
             iconProps={{ size: IconSize.XSmall }}
             disableTooltip
@@ -73,7 +73,7 @@ export function UserMetadata({
       {!!company && (
         <div className="flex items-center gap-1">
           <ProfilePicture
-            className="border border-border-subtlest-secondary"
+            className="border-border-subtlest-secondary border"
             size={ProfileImageSize.Size16}
             user={{
               image: company.image,

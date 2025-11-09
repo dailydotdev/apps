@@ -19,7 +19,7 @@ interface SquadFeedStatsProps {
 
 export function SquadFeedStats({ source }: SquadFeedStatsProps): ReactElement {
   return (
-    <div className="flex flex-row flex-wrap items-center text-text-tertiary">
+    <div className="text-text-tertiary flex flex-row flex-wrap items-center">
       {source.flags.featured && (
         <Typography
           tag={TypographyTag.Span}

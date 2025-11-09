@@ -38,10 +38,10 @@ const seo: NextSeoProps = {
 
 const PreferenceDonePage = (): ReactElement => {
   return (
-    <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
+    <div className="tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row mx-4 flex w-auto max-w-full flex-col gap-4">
       <FlexCol className="flex-1 gap-6">
         <FlexCol className="items-center gap-4">
-          <div className="size-12 rounded-10 bg-action-upvote-float">
+          <div className="rounded-10 bg-action-upvote-float size-12">
             <VIcon
               size={IconSize.Size48}
               className="text-action-upvote-default"
@@ -62,7 +62,7 @@ const PreferenceDonePage = (): ReactElement => {
         </FlexCol>
         <FlexCol>
           <div
-            className="gap-2 rounded-16 px-3 py-3.5 text-black"
+            className="rounded-16 gap-2 px-3 py-3.5 text-black"
             style={{
               background: briefButtonBg,
             }}
@@ -109,7 +109,7 @@ const PreferenceDonePage = (): ReactElement => {
             <Button
               size={ButtonSize.Large}
               variant={ButtonVariant.Primary}
-              className="w-full tablet:w-80"
+              className="tablet:w-80 w-full"
               tag="a"
               rel={anchorDefaultRel}
               href={webappUrl}

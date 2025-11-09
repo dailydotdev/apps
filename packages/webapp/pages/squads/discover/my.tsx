@@ -49,7 +49,7 @@ function MySquadsPage(): ReactElement {
           <Typography
             color={TypographyColor.Tertiary}
             bold
-            className="ml-auto flex h-10 w-[4.858125rem] items-center justify-center rounded-12 bg-surface-float"
+            className="rounded-12 bg-surface-float ml-auto flex h-10 w-[4.858125rem] items-center justify-center"
           >
             {count}
           </Typography>

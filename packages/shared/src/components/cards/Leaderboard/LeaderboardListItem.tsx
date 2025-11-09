@@ -23,13 +23,13 @@ export function LeaderboardListItem({
         condition={!!href}
         wrapper={(child) => (
           <Link href={href} passHref key={href} prefetch={false}>
-            <a className="flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler">
+            <a className="rounded-8 hover:bg-accent-pepper-subtler flex w-full flex-row items-center px-2">
               {child}
             </a>
           </Link>
         )}
       >
-        <span className="inline-flex min-w-14 justify-center text-text-quaternary">
+        <span className="text-text-quaternary inline-flex min-w-14 justify-center">
           {largeNumberFormat(index)}
         </span>
         {children}

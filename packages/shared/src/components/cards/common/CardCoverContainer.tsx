@@ -16,11 +16,11 @@ export function CardCoverContainer({
   return (
     <span
       className={classNames(
-        'absolute inset-0 z-1 flex flex-col items-center justify-center',
+        'z-1 absolute inset-0 flex flex-col items-center justify-center',
         className,
       )}
     >
-      <p className="mt-5 text-center font-bold typo-callout laptopL:mt-0">
+      <p className="typo-callout laptopL:mt-0 mt-5 text-center font-bold">
         {title}
       </p>
       {children}

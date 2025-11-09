@@ -260,7 +260,7 @@ const OrganizationMembersItem = ({
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
-            className="flex items-center justify-end gap-0.5 tablet:justify-normal"
+            className="tablet:justify-normal flex items-center justify-end gap-0.5"
           >
             {seatType === OrganizationMemberSeatType.Plus ? (
               <>
@@ -279,7 +279,7 @@ const OrganizationMembersItem = ({
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
-            className="hidden items-center tablet:flex"
+            className="tablet:flex hidden items-center"
           >
             {lastActive ? (
               <DateFormat

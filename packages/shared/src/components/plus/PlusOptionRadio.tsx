@@ -47,9 +47,9 @@ export function PlusOptionRadio({
       onChange={() => onChange(priceId)}
       className={{
         content: classNames(
-          'min-h-12 rounded-10 !p-2',
+          'rounded-10 min-h-12 !p-2',
           checked
-            ? '-m-px border border-border-subtlest-primary bg-surface-float'
+            ? 'border-border-subtlest-primary bg-surface-float -m-px border'
             : undefined,
         ),
       }}

@@ -54,7 +54,7 @@ export const TopReaderWidget = ({
         </ActivitySectionSubTitle>
       </ActivitySectionHeader>
 
-      <div className="min-w-60 max-w-fit rounded-10 border border-border-subtlest-tertiary p-3">
+      <div className="rounded-10 border-border-subtlest-tertiary min-w-60 max-w-fit border p-3">
         <div className="flex">
           <MedalBadgeIcon
             secondary
@@ -93,7 +93,7 @@ export const TopReaderWidget = ({
                     type={TypographyType.Caption1}
                     color={TypographyColor.Primary}
                     className={classNames(
-                      'max-w-[32ch] rounded-6 border border-border-subtlest-tertiary px-2.5 py-0.5 transition duration-200 hover:bg-background-popover',
+                      'rounded-6 border-border-subtlest-tertiary hover:bg-background-popover max-w-[32ch] border px-2.5 py-0.5 transition duration-200',
                       truncateTextClassNames,
                     )}
                   >

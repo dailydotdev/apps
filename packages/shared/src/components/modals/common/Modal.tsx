@@ -178,14 +178,14 @@ export function Modal({
   }
 
   const modalOverlayClassName = classNames(
-    'overlay fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion',
+    'overlay z-modal bg-overlay-quaternary-onion fixed inset-0 flex flex-col items-center',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
     modalKindToOverlayClassName[kind],
     overlayClassName,
   );
   const modalClassName = classNames(
-    'modal relative flex max-w-full flex-col items-center border-border-subtlest-secondary bg-background-default antialiased shadow-2 focus:outline-none tablet:border tablet:bg-accent-pepper-subtlest',
-    'h-full w-full tablet:h-auto tablet:rounded-16',
+    'modal border-border-subtlest-secondary bg-background-default shadow-2 tablet:border tablet:bg-accent-pepper-subtlest relative flex max-w-full flex-col items-center antialiased focus:outline-none',
+    'tablet:h-auto tablet:rounded-16 h-full w-full',
     modalKindToClassName[kind],
     modalSizeToClassName[size],
     modalKindAndSizeToClassName[kind]?.[size],

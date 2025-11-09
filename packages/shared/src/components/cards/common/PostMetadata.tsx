@@ -39,14 +39,14 @@ export default function PostMetadata({
   return (
     <div
       className={classNames(
-        'flex items-center text-text-tertiary typo-footnote',
+        'text-text-tertiary typo-footnote flex items-center',
         className,
       )}
     >
       <TruncateText>
         {boostedBy && (
-          <Tooltip content={`Boosted by @${boostedBy.username}`}>
-            <strong>Boosted</strong>
+          <Tooltip content={`Ad by @${boostedBy.username}`}>
+            <strong>Ad</strong>
           </Tooltip>
         )}
         {boostedBy && (!!description || !!createdAt || showReadTime) && (

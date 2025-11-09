@@ -48,7 +48,7 @@ const ProfileSettingsMenuDesktop = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[669px] w-64 rounded-16 border border-border-subtlest-tertiary" />
+      <div className="rounded-16 border-border-subtlest-tertiary h-[669px] w-64 border" />
     ),
   },
 );
@@ -103,7 +103,7 @@ export default function SettingsLayout({
   return (
     <>
       {!isMobile && !isLaptop && (
-        <div className="hidden h-14 items-center gap-2 border-b border-border-subtlest-tertiary px-4 tablet:flex laptop:hidden">
+        <div className="border-border-subtlest-tertiary tablet:flex laptop:hidden hidden h-14 items-center gap-2 border-b px-4">
           <Link href={webappUrl} passHref>
             <Button
               tag="a"
@@ -134,7 +134,7 @@ export default function SettingsLayout({
         </div>
       )}
 
-      <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
+      <div className="tablet:p-6 mx-auto flex w-full max-w-5xl gap-4">
         {isMobile ? (
           <ProfileSettingsMenuMobile
             shouldKeepOpen

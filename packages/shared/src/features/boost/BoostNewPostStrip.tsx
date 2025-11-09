@@ -29,16 +29,16 @@ export function BoostNewPostStrip({
   return (
     <div
       className={classNames(
-        'relative flex h-10 w-full flex-row rounded-8 border border-accent-blueCheese-default p-2',
+        'rounded-8 border-accent-blueCheese-default relative flex h-10 w-full flex-row border p-2',
         className,
       )}
     >
       <Image
         src={postBoostStrip}
-        className="absolute inset-0 z-0 hidden h-full w-full tablet:flex"
+        className="tablet:flex absolute inset-0 z-0 hidden h-full w-full"
       />
-      <div className="z-1 flex w-full flex-row items-center gap-1 tablet:justify-end">
-        <TooltipArrow className="absolute -top-2 right-18 fill-accent-blueCheese-default" />
+      <div className="z-1 tablet:justify-end flex w-full flex-row items-center gap-1">
+        <TooltipArrow className="right-18 fill-accent-blueCheese-default absolute -top-2" />
         <TrendingIcon size={IconSize.Medium} />
         <Typography tag={TypographyTag.Span} type={TypographyType.Callout}>
           <span>Boost to reach</span>
@@ -46,7 +46,7 @@ export function BoostNewPostStrip({
           <span>now!</span>
         </Typography>
         <Button
-          className="ml-auto tablet:ml-1"
+          className="tablet:ml-1 ml-auto"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           icon={<ClearIcon secondary />}

@@ -65,7 +65,7 @@ const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
   };
 
   return (
-    <div className="plus-entry-gradient relative overflow-hidden rounded-b-16 p-4 pb-6">
+    <div className="plus-entry-gradient rounded-b-16 relative overflow-hidden p-4 pb-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

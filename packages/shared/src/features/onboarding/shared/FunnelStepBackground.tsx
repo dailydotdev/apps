@@ -98,18 +98,18 @@ export const FunnelStepBackground = ({
   return (
     <div
       className={classNames(
-        'relative flex flex-1 flex-col bg-background-default',
+        'bg-background-default relative flex flex-1 flex-col',
         needInvertedColors && 'invert',
       )}
     >
-      <div className="relative z-2 flex flex-1 flex-col">{children}</div>
+      <div className="z-2 relative flex flex-1 flex-col">{children}</div>
       {shouldShowBg && (
         <div
           aria-hidden
           className={classNames(
             bgClassName,
             className,
-            'absolute left-0 top-0 z-1 h-full w-full transition-colors duration-150',
+            'z-1 absolute left-0 top-0 h-full w-full transition-colors duration-150',
           )}
         />
       )}

@@ -45,7 +45,7 @@ export const VerifiedCompanyUserBadge = ({
       <div className="flex items-center justify-center gap-1">
         <ProfilePicture
           size={size}
-          className="border border-border-subtlest-secondary"
+          className="border-border-subtlest-secondary border"
           user={{
             image: companies[0].image,
             id: companies[0].name,

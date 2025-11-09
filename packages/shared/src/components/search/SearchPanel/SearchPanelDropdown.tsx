@@ -69,7 +69,7 @@ const SearchPanelDropdown = ({ query = '', anchor }: Props): ReactElement => {
   });
 
   return (
-    <div className="absolute w-full items-center overflow-y-auto rounded-b-16 border-0 border-border-subtlest-tertiary bg-background-default px-3 py-2 laptop:h-auto laptop:max-h-[30rem] laptop:border-x laptop:border-b laptop:bg-background-subtle laptop:shadow-2">
+    <div className="rounded-b-16 border-border-subtlest-tertiary bg-background-default laptop:h-auto laptop:max-h-[30rem] laptop:border-x laptop:border-b laptop:bg-background-subtle laptop:shadow-2 absolute w-full items-center overflow-y-auto border-0 px-3 py-2">
       <div className="flex flex-1 flex-col">
         <SearchPanelAction provider={SearchProviderEnum.Posts} />
         {isExtension && (
@@ -97,7 +97,7 @@ const SearchPanelDropdown = ({ query = '', anchor }: Props): ReactElement => {
             });
           }}
         >
-          <div className="flex items-center justify-center text-text-tertiary typo-subhead">
+          <div className="text-text-tertiary typo-subhead flex items-center justify-center">
             See more posts <ArrowIcon className="!size-4 rotate-90" />
           </div>
         </SearchPanelCustomAction>

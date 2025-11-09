@@ -97,7 +97,7 @@ const TopReaderBadgeModal = (
       <Modal.Body className="flex flex-col items-center justify-center gap-4 text-center">
         <ModalClose top="2" onClick={onRequestClose} />
 
-        <h1 className="font-bold typo-title1">
+        <h1 className="typo-title1 font-bold">
           You&apos;ve earned the top reader badge!
         </h1>
         <TopReaderBadge

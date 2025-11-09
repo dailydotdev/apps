@@ -21,7 +21,7 @@ type AwardProps = {
 };
 const Award = ({ image, amount }: AwardProps): ReactElement => {
   return (
-    <div className="flex size-fit flex-col items-center justify-center rounded-14 bg-surface-float p-1">
+    <div className="rounded-14 bg-surface-float flex size-fit flex-col items-center justify-center p-1">
       <Image src={image} alt="Award" className="size-20" />
       <Typography
         type={TypographyType.Footnote}
@@ -63,7 +63,7 @@ export const Awards = ({ userId }: { userId: string }): ReactElement => {
           daily.dev docs
         </ClickableText>
       </Typography>
-      <div className="no-scrollbar mt-6 flex flex-nowrap gap-2 overflow-x-scroll scroll-smooth tablet:flex-wrap tablet:overflow-x-auto">
+      <div className="no-scrollbar tablet:flex-wrap tablet:overflow-x-auto mt-6 flex flex-nowrap gap-2 overflow-x-scroll scroll-smooth">
         {awards?.map((award) => {
           return (
             <Award key={award.id} image={award.image} amount={award.count} />

@@ -227,7 +227,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
       <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
-          <h1 className="ml-2 w-fit typo-title2">{title}</h1>
+          <h1 className="typo-title2 ml-2 w-fit">{title}</h1>
         </div>
         <div className="flex flex-row gap-3">
           {tagStatus !== 'blocked' && (
@@ -295,7 +295,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
             <a
               target="_blank"
               rel={anchorDefaultRel}
-              className="mr-auto flex w-auto cursor-pointer items-center rounded-12 border border-border-subtlest-tertiary p-4"
+              className="rounded-12 border-border-subtlest-tertiary mr-auto flex w-auto cursor-pointer items-center border p-4"
             >
               <img
                 src={cloudinarySourceRoadmap}
@@ -303,7 +303,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
                 className="size-10 rounded-full"
               />
               <div className="mx-3 flex-1">
-                <p className="font-bold typo-callout">
+                <p className="typo-callout font-bold">
                   Comprehensive roadmap for {tag}
                 </p>
                 <p className="text-text-tertiary typo-footnote">
@@ -358,8 +358,8 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
-      <div className="mx-4 mb-5 flex w-auto items-center laptop:mx-0 laptop:w-full">
-        <p className="flex items-center font-bold typo-body">
+      <div className="laptop:mx-0 laptop:w-full mx-4 mb-5 flex w-auto items-center">
+        <p className="typo-body flex items-center font-bold">
           All posts about {tag}
         </p>
       </div>

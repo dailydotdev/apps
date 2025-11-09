@@ -123,7 +123,7 @@ const CollectionPostContentRaw = ({
           post={post}
         >
           <div className="mb-6 flex flex-col gap-6">
-            <CollectionsIntro className="mt-6 laptop:hidden" />
+            <CollectionsIntro className="laptop:hidden mt-6" />
             <div className="flex flex-row items-center pt-6">
               <Link href={`${webappUrl}sources/collections`} passHref>
                 <Pill
@@ -135,25 +135,25 @@ const CollectionPostContentRaw = ({
               <CollectionPostHeaderActions
                 post={post}
                 onClose={onClose}
-                className="ml-auto hidden laptop:flex"
+                className="laptop:flex ml-auto hidden"
                 contextMenuId="post-widgets-context"
               />
             </div>
             <h1
-              className="break-words font-bold typo-large-title"
+              className="typo-large-title break-words font-bold"
               data-testid="post-modal-title"
             >
               {post.title}
             </h1>
             <PostTagList post={post} />
             {!!updatedAt && (
-              <div className="flex items-center text-text-tertiary typo-footnote">
+              <div className="text-text-tertiary typo-footnote flex items-center">
                 <span>Last updated</span> <Separator />
                 <DateFormat date={updatedAt} type={TimeFormatType.Post} />
               </div>
             )}
             {image && (
-              <div className="block h-auto w-full overflow-hidden rounded-12">
+              <div className="rounded-12 block h-auto w-full overflow-hidden">
                 <LazyImage
                   imgSrc={image}
                   imgAlt="Post cover image"

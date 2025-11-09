@@ -39,7 +39,7 @@ export function DevCardFooter({
             !elementsClickable && 'pointer-events-none',
           ),
           tag: classNames(
-            '!shadow-none typo-caption1',
+            'typo-caption1 !shadow-none',
             checkLowercaseEquality(theme, DevCardTheme.Iron)
               ? 'border-white text-white'
               : 'border-raw-pepper-90 text-raw-pepper-90',
@@ -65,7 +65,7 @@ export function DevCardFooter({
       {shouldShowLogo && (
         <span
           className={classNames(
-            'absolute bottom-0 right-0 rounded-br-24 rounded-tl-24 bg-raw-pepper-90 px-4 py-3',
+            'rounded-br-24 rounded-tl-24 bg-raw-pepper-90 absolute bottom-0 right-0 px-4 py-3',
             !elementsClickable && 'pointer-events-none',
           )}
         >

@@ -18,7 +18,7 @@ function FunnelInstallPwaComponent({
       cta={{ label: cta || 'Next' }}
       onClick={() => onTransition({ type: FunnelStepTransitionType.Complete })}
     >
-      <div className="flex flex-col items-center gap-6 p-6 pt-4 mobileL:pt-10 tablet:max-w-96">
+      <div className="mobileL:pt-10 tablet:max-w-96 flex flex-col items-center gap-6 p-6 pt-4">
         <OnboardingPWA headline={headline} />
       </div>
     </FunnelStepCtaWrapper>

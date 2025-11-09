@@ -18,11 +18,11 @@ export function PrivilegedMemberItem({
     <ProfileTooltip userId={user.id} tooltip={{ placement: 'bottom' }}>
       <ProfileLink
         href={user.permalink}
-        className="flex flex-row items-center gap-2 rounded-10 border border-border-subtlest-tertiary p-2"
+        className="rounded-10 border-border-subtlest-tertiary flex flex-row items-center gap-2 border p-2"
       >
         <ProfilePicture user={user} size={ProfileImageSize.Large} />
         <div className="flex-col">
-          <span className="flex truncate text-text-tertiary typo-subhead">
+          <span className="text-text-tertiary typo-subhead flex truncate">
             {user.name}
           </span>
           <UserBadge className="w-fit" role={role}>

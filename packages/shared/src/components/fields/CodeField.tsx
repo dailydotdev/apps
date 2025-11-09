@@ -143,7 +143,7 @@ export function CodeField({
           label={null}
           maxLength={1}
           showMaxLength={false}
-          className={{ baseField: '!h-11 w-11 mobileL:!h-12 mobileL:w-12' }}
+          className={{ baseField: 'mobileL:!h-12 mobileL:w-12 !h-11 w-11' }}
           onPaste={onPaste}
           value={code[index] || ''}
           onKeyDown={(e) => onKeyDown(e, index)}

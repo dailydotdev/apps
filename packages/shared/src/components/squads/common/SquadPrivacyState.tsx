@@ -33,14 +33,14 @@ export function SquadPrivacyState({
       className={classNames(
         'pointer-events-none',
         isFeatured &&
-          'relative border-overlay-primary-cabbage bg-overlay-tertiary-cabbage',
+          'border-overlay-primary-cabbage bg-overlay-tertiary-cabbage relative',
       )}
     >
       {props.copy} Squad
       {isFeatured && (
         <>
-          <SparkleIcon className="absolute -top-2.5 right-0 animate-scale-down-pulse delay-[625ms]" />
-          <SparkleIcon className="absolute -bottom-2.5 left-0 animate-scale-down-pulse" />
+          <SparkleIcon className="animate-scale-down-pulse absolute -top-2.5 right-0 delay-[625ms]" />
+          <SparkleIcon className="animate-scale-down-pulse absolute -bottom-2.5 left-0" />
         </>
       )}
     </Button>

@@ -479,7 +479,7 @@ const PostAnalyticsPage = ({
                     className="flex items-center gap-0.5"
                   >
                     <BoostIcon size={IconSize.XXSmall} /> +
-                    {formatDataTileValue(postAnalytics.impressionsAds)} boosted
+                    {formatDataTileValue(postAnalytics.impressionsAds)} ad
                   </Typography>
                 )
               }
@@ -500,7 +500,7 @@ const PostAnalyticsPage = ({
                     className="flex items-center gap-0.5"
                   >
                     <BoostIcon size={IconSize.XXSmall} /> +
-                    {formatDataTileValue(postAnalytics.reachAds)} boosted
+                    {formatDataTileValue(postAnalytics.reachAds)} ad
                   </Typography>
                 )
               }
@@ -512,12 +512,12 @@ const PostAnalyticsPage = ({
             </Typography>
             <div className="ml-auto flex gap-2">
               <div className="flex items-center gap-1">
-                <div className="size-2 rounded-full bg-brand-default" />{' '}
+                <div className="bg-brand-default size-2 rounded-full" />{' '}
                 <Typography type={TypographyType.Footnote}>Organic</Typography>
               </div>
               <div className="flex items-center gap-1">
-                <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
-                <Typography type={TypographyType.Footnote}>Boosted</Typography>
+                <div className="bg-accent-blueCheese-default size-2 rounded-full" />{' '}
+                <Typography type={TypographyType.Footnote}>Ad</Typography>
               </div>
             </div>
           </div>
@@ -582,7 +582,7 @@ const PostAnalyticsPage = ({
                   percentage={percentage}
                   shouldShowBg
                   className={{
-                    wrapper: 'h-2 rounded-6',
+                    wrapper: 'rounded-6 h-2',
                     barColor: 'bg-accent-blueCheese-default',
                   }}
                 />
@@ -611,7 +611,7 @@ const PostAnalyticsPage = ({
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-2 laptop:grid-cols-2">
+            <div className="laptop:grid-cols-2 grid grid-cols-1 gap-2">
               <FlexRow className="order-1 gap-1">
                 <Typography
                   type={TypographyType.Callout}
@@ -631,7 +631,7 @@ const PostAnalyticsPage = ({
                   )}
                 </Typography>
               </FlexRow>
-              <FlexRow className="order-3 gap-1 laptop:order-2">
+              <FlexRow className="laptop:order-2 order-3 gap-1">
                 <Typography
                   type={TypographyType.Callout}
                   color={TypographyColor.Secondary}
@@ -647,7 +647,7 @@ const PostAnalyticsPage = ({
                   {formatDataTileValue(campaign.flags?.spend)}
                 </Typography>
               </FlexRow>
-              <FlexRow className="order-2 gap-1 laptop:order-3">
+              <FlexRow className="laptop:order-3 order-2 gap-1">
                 <Typography
                   type={TypographyType.Callout}
                   color={TypographyColor.Secondary}

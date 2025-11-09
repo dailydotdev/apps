@@ -24,7 +24,7 @@ function SidebarListItem({
   ...props
 }: SidebarListItemProps): ReactElement {
   const containerClass = classNames(
-    'flex w-full flex-row rounded-12 p-3 tablet:w-64',
+    'rounded-12 tablet:w-64 flex w-full flex-row p-3',
     isActive && 'bg-surface-float',
     className,
   );
@@ -41,7 +41,7 @@ function SidebarListItem({
       })}
       <span
         className={classNames(
-          'ml-2 typo-callout',
+          'typo-callout ml-2',
           !isActive && 'text-text-tertiary',
         )}
       >

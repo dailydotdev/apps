@@ -180,7 +180,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
             alt={`${source.name} logo`}
             className="size-10 rounded-full"
           />
-          <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
+          <h1 className="typo-title2 ml-2 w-fit">{source.name}</h1>
         </div>
         <div className="flex flex-row gap-3">
           <SourceActions source={source} />
@@ -229,8 +229,8 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
-      <div className="mx-4 mb-5 flex w-auto items-center laptop:mx-0 laptop:w-full">
-        <p className="flex items-center font-bold typo-body">
+      <div className="laptop:mx-0 laptop:w-full mx-4 mb-5 flex w-auto items-center">
+        <p className="typo-body flex items-center font-bold">
           All posts from {source.name}
         </p>
       </div>

@@ -344,7 +344,7 @@ const JobPage = (): ReactElement => {
       <Portal
         container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
       >
-        <div className="hidden items-center laptop:flex">
+        <div className="laptop:flex hidden items-center">
           <ResponseButtons
             id={opportunity.id}
             className={{
@@ -372,13 +372,13 @@ const JobPage = (): ReactElement => {
       )}
       <div
         className={classNames(
-          'z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 tablet:pb-0 laptop:flex-row',
+          'tablet:pb-0 laptop:flex-row z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4',
           match ? 'pb-safe-offset-14' : 'pb-safe',
         )}
       >
-        <div className="h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
+        <div className="rounded-16 border-border-subtlest-tertiary h-full min-w-0 max-w-full flex-1 flex-shrink-0 border">
           {/* Header */}
-          <div className="flex min-h-14 items-center gap-4 border-b border-border-subtlest-tertiary p-3">
+          <div className="border-border-subtlest-tertiary flex min-h-14 items-center gap-4 border-b p-3">
             <div className="flex items-center">
               <SourceAvatar
                 source={{
@@ -462,7 +462,7 @@ const JobPage = (): ReactElement => {
             {opportunity.keywords?.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {opportunity.keywords?.map((tag) => (
-                  <Chip key={tag.keyword} className="!my-0 !text-text-tertiary">
+                  <Chip key={tag.keyword} className="!text-text-tertiary !my-0">
                     {tag.keyword}
                   </Chip>
                 ))}
@@ -474,12 +474,12 @@ const JobPage = (): ReactElement => {
               type={TypographyType.Body}
               color={TypographyColor.Secondary}
             >
-              <span className="font-bold text-text-primary">TLDR</span>{' '}
+              <span className="text-text-primary font-bold">TLDR</span>{' '}
               {opportunity.tldr}
             </Typography>
 
             {/* Details */}
-            <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-white laptop:grid-cols-[max-content_1fr_max-content_1fr]">
+            <div className="laptop:grid-cols-[max-content_1fr_max-content_1fr] grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-white">
               {Object.keys(metaMap).map((metaKey) => {
                 const { title, transformer } = metaMap[metaKey];
                 const isLocation =
@@ -518,7 +518,7 @@ const JobPage = (): ReactElement => {
             {/* Why we think */}
             {!canEdit && !!match?.description?.reasoning && (
               <FlexCol
-                className="gap-2 rounded-16 p-4 text-black"
+                className="rounded-16 gap-2 p-4 text-black"
                 style={{
                   background: briefButtonBg,
                 }}
@@ -536,7 +536,7 @@ const JobPage = (): ReactElement => {
             )}
             {canEdit && (
               <FlexCol
-                className="gap-2 rounded-16 p-4 text-black"
+                className="rounded-16 gap-2 p-4 text-black"
                 style={{
                   background: briefButtonBg,
                 }}
@@ -581,7 +581,7 @@ const JobPage = (): ReactElement => {
               <div
                 key={faqItem.key}
                 className={classNames(
-                  'border-t border-border-subtlest-tertiary px-4',
+                  'border-border-subtlest-tertiary border-t px-4',
                   !contentHtml && 'bg-surface-float',
                   index === faq.length - 1 && 'rounded-b-14',
                 )}
@@ -629,7 +629,7 @@ const JobPage = (): ReactElement => {
                 >
                   {!!contentHtml && (
                     <div
-                      className="pb-4 text-text-secondary [&>ol]:list-inside [&>ol]:list-decimal [&>ol]:pl-7 [&>ul]:list-inside [&>ul]:list-disc [&>ul]:pl-7"
+                      className="text-text-secondary pb-4 [&>ol]:list-inside [&>ol]:list-decimal [&>ol]:pl-7 [&>ul]:list-inside [&>ul]:list-disc [&>ul]:pl-7"
                       dangerouslySetInnerHTML={{
                         __html: contentHtml,
                       }}
@@ -645,7 +645,7 @@ const JobPage = (): ReactElement => {
               id={opportunity.id}
               className={{
                 container:
-                  'hidden gap-3 border-t border-border-subtlest-tertiary p-3 laptop:flex',
+                  'border-border-subtlest-tertiary laptop:flex hidden gap-3 border-t p-3',
                 buttons: 'flex-1',
               }}
             />
@@ -653,11 +653,11 @@ const JobPage = (): ReactElement => {
         </div>
 
         {/* Sidebar */}
-        <FlexCol className="h-full flex-1 flex-shrink-0 gap-4 laptop:max-w-80">
+        <FlexCol className="laptop:max-w-80 h-full flex-1 flex-shrink-0 gap-4">
           {/* How it works button */}
           <FlexCol
             className={classNames(
-              'mx-4 flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary tablet:mx-0',
+              'rounded-16 border-border-subtlest-tertiary tablet:mx-0 mx-4 flex-1 gap-4 border',
             )}
           >
             <Link href={`${opportunityUrl}/welcome`} passHref>
@@ -677,7 +677,7 @@ const JobPage = (): ReactElement => {
           {/* Company Info */}
           <FlexCol
             className={classNames(
-              'flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary',
+              'rounded-16 border-border-subtlest-tertiary flex-1 gap-4 border',
               !hasLinks && 'pb-4',
             )}
           >
@@ -875,7 +875,7 @@ const JobPage = (): ReactElement => {
                               />
                             }
                             iconPosition={ButtonIconPosition.Right}
-                            className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
+                            className="text-text-secondary justify-between !pl-2 !pr-3 font-normal"
                           >
                             {title}
                           </Button>
@@ -912,7 +912,7 @@ const JobPage = (): ReactElement => {
                               />
                             }
                             iconPosition={ButtonIconPosition.Right}
-                            className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
+                            className="text-text-secondary justify-between !pl-2 !pr-3 font-normal"
                           >
                             <Image
                               className={classNames(
@@ -937,7 +937,7 @@ const JobPage = (): ReactElement => {
                 <Button
                   aria-controls="company-show-more"
                   aria-expanded={showMore}
-                  className="flex w-full flex-row !justify-center gap-1 rounded-none border-0 border-t border-border-subtlest-tertiary !px-4 py-2.5"
+                  className="border-border-subtlest-tertiary flex w-full flex-row !justify-center gap-1 rounded-none border-0 border-t !px-4 py-2.5"
                   type="button"
                   onClick={() => setShowMore((prev) => !prev)}
                 >
@@ -961,7 +961,7 @@ const JobPage = (): ReactElement => {
 
           {/* Recruiter Info */}
           {opportunity?.recruiters?.length > 0 && (
-            <FlexCol className="flex-1 rounded-16 border-t border-border-subtlest-tertiary laptop:border">
+            <FlexCol className="rounded-16 border-border-subtlest-tertiary laptop:border flex-1 border-t">
               {/* Header */}
               <div className="flex min-h-14 items-center justify-between px-4 py-3">
                 <Typography

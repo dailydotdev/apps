@@ -69,7 +69,7 @@ const MobileFooterNavbar = (): ReactElement => {
   const tabs: (FooterTab | ReactNode)[] = useMemo(() => {
     const centerTab = showPlusButton ? (
       <Link key="subscribe-plus" href="/plus">
-        <div className="flex flex-col items-center text-accent-avocado-default">
+        <div className="text-accent-avocado-default flex flex-col items-center">
           <DevPlusIcon size={IconSize.Medium} />
           <Typography tag={TypographyTag.Span} type={TypographyType.Caption2}>
             Upgrade
@@ -146,9 +146,9 @@ const MobileFooterNavbar = (): ReactElement => {
       spring="veryGentle"
       element="nav"
       className={classNames(
-        'grid w-full select-none auto-cols-fr grid-flow-col items-center justify-between rounded-16',
+        'rounded-16 grid w-full select-none auto-cols-fr grid-flow-col items-center justify-between',
         activeClasses,
-        'footer-navbar border-t border-border-subtlest-tertiary',
+        'footer-navbar border-border-subtlest-tertiary border-t',
       )}
     >
       <FooterNavBarTabs activeTab={activeTab} tabs={tabs} />

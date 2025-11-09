@@ -94,7 +94,7 @@ const BalanceBlock = ({
   return (
     <div
       className={classNames(
-        'flex flex-1 flex-col rounded-14 border border-border-subtlest-tertiary p-4',
+        'rounded-14 border-border-subtlest-tertiary flex flex-1 flex-col border p-4',
         className,
       )}
     >
@@ -198,9 +198,9 @@ const Wallet = (): ReactElement => {
 
   return (
     <ProtectedPage>
-      <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
-        <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
-          <header className="flex items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2">
+      <div className="max-w-screen-laptop tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0 m-auto flex w-full flex-col pb-12">
+        <main className="tablet:border-r tablet:border-border-subtlest-tertiary relative flex flex-1 flex-col">
+          <header className="border-border-subtlest-tertiary flex items-center justify-between border-b px-4 py-2">
             <Typography type={TypographyType.Title3} bold>
               Core wallet
             </Typography>
@@ -231,7 +231,7 @@ const Wallet = (): ReactElement => {
               />
               <BalanceBlock
                 Icon={
-                  <div className="size-6 rounded-10 bg-action-bookmark-float text-accent-bun-default">
+                  <div className="rounded-10 bg-action-bookmark-float text-accent-bun-default size-6">
                     <CreditCardIcon size={IconSize.Small} />
                   </div>
                 }
@@ -241,7 +241,7 @@ const Wallet = (): ReactElement => {
               />
               <BalanceBlock
                 Icon={
-                  <div className="size-6 rounded-10 bg-action-upvote-float text-accent-avocado-default">
+                  <div className="rounded-10 bg-action-upvote-float text-accent-avocado-default size-6">
                     <PlusIcon size={IconSize.Small} />
                   </div>
                 }
@@ -251,7 +251,7 @@ const Wallet = (): ReactElement => {
               />
               <BalanceBlock
                 Icon={
-                  <div className="size-6 rounded-10 bg-action-downvote-float text-accent-ketchup-default">
+                  <div className="rounded-10 bg-action-downvote-float text-accent-ketchup-default size-6">
                     <MinusIcon size={IconSize.Small} />
                   </div>
                 }
@@ -288,8 +288,8 @@ const Wallet = (): ReactElement => {
                     shouldShowBg
                     percentage={earningsProgressPercentage}
                     className={{
-                      wrapper: 'h-2 rounded-8',
-                      bar: 'h-full rounded-8',
+                      wrapper: 'rounded-8 h-2',
+                      bar: 'rounded-8 h-full',
                       barColor: 'bg-accent-bun-default',
                     }}
                   />
@@ -339,7 +339,7 @@ const Wallet = (): ReactElement => {
                       <ElementPlaceholder
                         // eslint-disable-next-line react/no-array-index-key
                         key={index}
-                        className="h-10 w-full rounded-10"
+                        className="rounded-10 h-10 w-full"
                       />
                     );
                   })}
@@ -407,7 +407,7 @@ const Wallet = (): ReactElement => {
         <PageWidgets className="flex gap-4 py-4">
           {canPurchaseCores && (
             <FeaturedCoresWidget
-              className="hidden laptop:flex"
+              className="laptop:flex hidden"
               origin={Origin.WalletPagePackage}
               onClick={onBuyCoresClick}
               amounts={[100, 300, 600]}

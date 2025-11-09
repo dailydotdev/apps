@@ -58,11 +58,11 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
   };
 
   return (
-    <div className="flex flex-wrap items-center text-text-tertiary typo-footnote">
+    <div className="text-text-tertiary typo-footnote flex flex-wrap items-center">
       <div className="flex flex-col gap-3">
         {isSameUser && !isPlus && (
           <UpgradeToPlus
-            className="max-w-fit laptop:hidden"
+            className="laptop:hidden max-w-fit"
             size={ButtonSize.Small}
             target={TargetId.MyProfile}
           />

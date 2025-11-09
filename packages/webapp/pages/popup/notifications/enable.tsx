@@ -82,12 +82,12 @@ function Enable(): React.ReactElement {
   }
 
   return (
-    <main className="flex h-screen max-h-[100%] w-screen max-w-[100%] flex-col items-center justify-center overflow-hidden bg-theme-overlay-float-cabbage px-20 text-center">
-      <h1 className="relative bg-transparent font-bold typo-mega3">
-        <div className="absolute inset-0 -z-1 size-52 -translate-y-[25%] rounded-50 bg-accent-cabbage-bolder opacity-64 blur-[3.125rem]" />
+    <main className="bg-theme-overlay-float-cabbage flex h-screen max-h-[100%] w-screen max-w-[100%] flex-col items-center justify-center overflow-hidden px-20 text-center">
+      <h1 className="typo-mega3 relative bg-transparent font-bold">
+        <div className="-z-1 rounded-50 bg-accent-cabbage-bolder opacity-64 absolute inset-0 size-52 -translate-y-[25%] blur-[3.125rem]" />
         Click allow
       </h1>
-      <p className="mt-6 text-text-secondary typo-body">
+      <p className="text-text-secondary typo-body mt-6">
         Enable web push notifications to be notified of important events such as
         replies, mentions, updates, etc.
       </p>

@@ -55,7 +55,7 @@ const HeaderSection = (): ReactElement => {
       </Typography>
 
       <Image
-        className="mb-5 rounded-16"
+        className="rounded-16 mb-5"
         src={recruiterSpamCampaign}
         alt="Convert Recruiter Spam to Cores"
       />
@@ -133,7 +133,7 @@ const HowItWorksSection = (): ReactElement => {
         {howItWorksItems.map(
           ({ icon: Icon, number, title, description, extra }) => (
             <div
-              className="shadow-sm relative flex flex-col gap-6 overflow-hidden rounded-16 border border-border-subtlest-primary bg-background-subtle p-6"
+              className="rounded-16 border-border-subtlest-primary bg-background-subtle relative flex flex-col gap-6 overflow-hidden border p-6 shadow-sm"
               key={number}
             >
               <FlexRow className="items-center gap-4">
@@ -154,7 +154,7 @@ const HowItWorksSection = (): ReactElement => {
                     {!!extra && (
                       <a
                         href={`${formLink}#user_id=${user?.id}`}
-                        className="ml-1 text-text-link underline"
+                        className="text-text-link ml-1 underline"
                         target="_blank"
                         rel={anchorDefaultRel}
                       >
@@ -168,7 +168,7 @@ const HowItWorksSection = (): ReactElement => {
           ),
         )}
       </FlexCol>
-      <div className="shadow-sm md:p-8 flex flex-col gap-6 rounded-16 border border-border-subtlest-primary bg-background-subtle p-6">
+      <div className="rounded-16 border-border-subtlest-primary bg-background-subtle flex flex-col gap-6 border p-6 shadow-sm md:p-8">
         <div className="mb-4 flex items-start justify-between gap-4">
           <FlexCol className="flex-1 gap-4">
             <Typography type={TypographyType.Title3} bold>
@@ -188,7 +188,7 @@ const HowItWorksSection = (): ReactElement => {
             onClick={() => copyText()}
           />
         </div>
-        <div className="break-words rounded-14 border border-border-subtlest-primary p-4 font-mono">
+        <div className="rounded-14 border-border-subtlest-primary break-words border p-4 font-mono">
           I&apos;m currently not open to opportunities. You might find the right
           candidate on https://recruiter.daily.dev. It&apos;s worth checking
           out!
@@ -288,8 +288,8 @@ const RecruiterSpamPage = (): ReactElement => {
   return (
     <ProtectedPage>
       <BackgroundImage />
-      <div className="relative mx-4 mb-20 mt-10 max-w-[47.875rem] tablet:mx-auto">
-        <FlexCol className="gap-10 tablet:mx-4 laptop:mx-0">
+      <div className="tablet:mx-auto relative mx-4 mb-20 mt-10 max-w-[47.875rem]">
+        <FlexCol className="tablet:mx-4 laptop:mx-0 gap-10">
           <HeaderSection />
           <Divider />
           <HowItWorksSection />

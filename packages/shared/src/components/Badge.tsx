@@ -23,7 +23,7 @@ export const Badge = ({ label, icon, variant }: BadgeProps) => {
     <div
       className={classNames(
         variantToClassName[variant],
-        'flex items-center gap-1 rounded-20 border px-3 py-2',
+        'rounded-20 flex items-center gap-1 border px-3 py-2',
       )}
     >
       {icon}

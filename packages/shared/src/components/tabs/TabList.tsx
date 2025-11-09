@@ -114,7 +114,7 @@ function TabList<T extends string = string>({
         const renderedTab = renderTab?.({ label, isActive }) ?? (
           <span
             className={classNames(
-              'flex flex-row items-center gap-1 rounded-10 px-3 py-1.5',
+              'rounded-10 flex flex-row items-center gap-1 px-3 py-1.5',
               isActive && 'bg-theme-active',
             )}
           >
@@ -135,7 +135,7 @@ function TabList<T extends string = string>({
             }}
             className={classNames(
               className.item,
-              'relative p-2 py-4 text-center font-bold typo-callout',
+              'typo-callout relative p-2 py-4 text-center font-bold',
               isActive ? '' : 'text-text-tertiary',
               isAnchor && 'cursor-pointer',
             )}
@@ -160,7 +160,7 @@ function TabList<T extends string = string>({
       {!!indicatorOffset && hasActive && (
         <div
           className={classNames(
-            'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-[left] ease-linear',
+            'rounded-4 bg-text-primary absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 transition-[left] ease-linear',
             className?.indicator,
           )}
           style={{ left: indicatorOffset }}

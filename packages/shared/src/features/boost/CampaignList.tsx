@@ -46,7 +46,7 @@ export function CampaignList({
         </Typography>
         <a
           href={boostDocsLink}
-          className="mt-3 text-text-link typo-callout"
+          className="text-text-link typo-callout mt-3"
           target="_blank"
         >
           Learn more about boosting

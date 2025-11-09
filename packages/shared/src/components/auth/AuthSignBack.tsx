@@ -54,7 +54,7 @@ export const AuthSignBack = ({
     <span className="flex flex-1 flex-col">
       <AuthHeader simplified={simplified} title="Welcome back!" />
       <AuthContainer className="items-center">
-        <p className="mb-2 text-center text-text-secondary typo-callout">
+        <p className="text-text-secondary typo-callout mb-2 text-center">
           Log in to access your account
           {isConnectedAccount ? (
             <>
@@ -73,7 +73,7 @@ export const AuthSignBack = ({
           wrapper={(component) => (
             <div className="relative" aria-hidden>
               {component}
-              <span className="absolute bottom-0 right-0 rounded-8 bg-white p-1 text-surface-invert">
+              <span className="rounded-8 text-surface-invert absolute bottom-0 right-0 bg-white p-1">
                 {providerItem.icon}
               </span>
             </div>

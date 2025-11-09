@@ -20,11 +20,11 @@ export const RelatedSources = ({
   if (isLoading) {
     return (
       <div className={classNames('mb-10 w-auto', className)}>
-        <ElementPlaceholder className="mb-3 h-10 w-1/5 rounded-12" />
+        <ElementPlaceholder className="rounded-12 mb-3 h-10 w-1/5" />
         <div className="flex gap-2">
-          <ElementPlaceholder className="w-24 rounded-16 px-4 py-3 text-center">
+          <ElementPlaceholder className="rounded-16 w-24 px-4 py-3 text-center">
             <ElementPlaceholder className="mx-auto size-10 rounded-full" />
-            <ElementPlaceholder className="mt-1.5 h-5 w-full rounded-8" />
+            <ElementPlaceholder className="rounded-8 mt-1.5 h-5 w-full" />
           </ElementPlaceholder>
         </div>
       </div>
@@ -37,7 +37,7 @@ export const RelatedSources = ({
 
   return (
     <div className={classNames('mb-10 w-auto', className)}>
-      <p className="mb-3 h-10 font-bold typo-body">{title}</p>
+      <p className="typo-body mb-3 h-10 font-bold">{title}</p>
       <div className="no-scrollbar flex gap-2 overflow-x-auto">
         {sources.map((source) => {
           return (
@@ -47,13 +47,13 @@ export const RelatedSources = ({
               key={source.id}
               prefetch={false}
             >
-              <a className="flex w-24 flex-col rounded-16 border border-border-subtlest-tertiary px-4 py-3 text-center">
+              <a className="rounded-16 border-border-subtlest-tertiary flex w-24 flex-col border px-4 py-3 text-center">
                 <img
                   src={source.image}
                   alt={`${source.name} logo`}
                   className="mx-auto size-10 rounded-full"
                 />
-                <p className="mt-1.5 truncate font-bold typo-callout">
+                <p className="typo-callout mt-1.5 truncate font-bold">
                   {source.name}
                 </p>
               </a>

@@ -11,7 +11,7 @@ function NotificationItemAttachment({
   type,
 }: NotificationAttachment): ReactElement {
   return (
-    <div className="mt-2 flex flex-row items-center rounded-16 border border-border-subtlest-tertiary p-4">
+    <div className="rounded-16 border-border-subtlest-tertiary mt-2 flex flex-row items-center border p-4">
       <div>
         <CardCover
           data-testid="postImage"
@@ -25,7 +25,7 @@ function NotificationItemAttachment({
           videoProps={{ size: IconSize.XLarge }}
         />
       </div>
-      <span className="ml-4 flex-1 break-words typo-callout">{title}</span>
+      <span className="typo-callout ml-4 flex-1 break-words">{title}</span>
     </div>
   );
 }

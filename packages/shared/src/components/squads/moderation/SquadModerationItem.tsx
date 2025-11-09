@@ -62,7 +62,7 @@ export function SquadModerationItem(
   );
 
   return (
-    <div className="relative flex flex-col gap-4 border-b border-border-subtlest-tertiary p-6 hover:bg-surface-hover">
+    <div className="border-border-subtlest-tertiary hover:bg-surface-hover relative flex flex-col gap-4 border-b p-6">
       {data.flags?.warningReason && user.isModerator && (
         <SpamWarning content={SpamWarnings[data.flags?.warningReason]} />
       )}
@@ -142,7 +142,7 @@ export function SquadModerationItem(
         </AlertPointerMessage>
       )}
       {user.isModerator && (
-        <div className="relative z-1">
+        <div className="z-1 relative">
           <SquadModerationActions
             onApprove={onApprove}
             onReject={onReject}

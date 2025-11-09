@@ -42,7 +42,7 @@ function SwitchComponent(
         className,
         'group relative flex items-center',
         disabled
-          ? 'pointer-events-none cursor-not-allowed opacity-32'
+          ? 'opacity-32 pointer-events-none cursor-not-allowed'
           : 'cursor-pointer',
         styles.switch,
       )}
@@ -67,15 +67,15 @@ function SwitchComponent(
       >
         <span
           className={classNames(
-            'absolute bottom-0 left-0 top-0 my-auto w-full bg-theme-overlay-quaternary',
-            compact ? 'h-2.5 rounded-3' : 'h-3 rounded-4',
+            'bg-theme-overlay-quaternary absolute bottom-0 left-0 top-0 my-auto w-full',
+            compact ? 'rounded-3 h-2.5' : 'rounded-4 h-3',
             styles.track,
           )}
         />
         <span
           className={classNames(
-            'absolute left-0 top-0 bg-text-tertiary',
-            compact ? 'h-4 w-4 rounded-3' : 'h-5 w-5 rounded-6',
+            'bg-text-tertiary absolute left-0 top-0',
+            compact ? 'rounded-3 h-4 w-4' : 'rounded-6 h-5 w-5',
             styles.knob,
           )}
         />
@@ -83,7 +83,7 @@ function SwitchComponent(
       {children && (
         <span
           className={classNames(
-            'ml-3 font-bold text-text-tertiary',
+            'text-text-tertiary ml-3 font-bold',
             defaultTypo && 'typo-footnote',
             styles.children,
             labelClassName,

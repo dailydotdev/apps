@@ -44,7 +44,7 @@ export function CookieConsent({
   return (
     <div
       className={classNames(
-        'flex w-full flex-col gap-2 bg-background-default px-4 py-3 text-text-secondary',
+        'bg-background-default text-text-secondary flex w-full flex-col gap-2 px-4 py-3',
         className,
       )}
     >
@@ -79,7 +79,7 @@ export function CookieConsent({
         <ClickableText
           onClick={onAcceptAll}
           defaultTypo={false}
-          className="font-bold !text-text-primary typo-subhead"
+          className="!text-text-primary typo-subhead font-bold"
         >
           {isGdprCovered ? 'Accept all' : 'I understand'}
         </ClickableText>

@@ -113,7 +113,7 @@ export function PostShortInfo({
         </div>
       </div>
       {showImage && postImage && (
-        <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-8">
+        <div className="rounded-8 h-16 w-24 flex-shrink-0 overflow-hidden">
           <LazyImage
             imgSrc={postImage}
             imgAlt="Post cover image"

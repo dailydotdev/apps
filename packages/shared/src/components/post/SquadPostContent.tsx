@@ -91,7 +91,7 @@ function SquadPostContentRaw({
   return (
     <PostContentContainer
       className={classNames(
-        'relative flex-1 flex-col laptop:flex-row laptop:pb-0',
+        'laptop:flex-row laptop:pb-0 relative flex-1 flex-col',
         className?.container,
       )}
       hasNavigation={hasNavigation}
@@ -109,7 +109,7 @@ function SquadPostContentRaw({
     >
       <div
         className={classNames(
-          'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-6 laptop:px-8 laptop:pt-6',
+          'tablet:px-6 laptop:px-8 laptop:pt-6 relative flex min-w-0 flex-1 flex-col px-4',
           className?.content,
         )}
       >
@@ -119,7 +119,7 @@ function SquadPostContentRaw({
             onboarding: classNames('mb-6', className?.onboarding),
             header: 'mb-6',
             navigation: {
-              actions: 'ml-auto laptop:hidden',
+              actions: 'laptop:hidden ml-auto',
               container: 'mb-6 pt-6',
             },
           }}
@@ -175,7 +175,7 @@ function SquadPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
+        className="border-border-subtlest-tertiary laptop:mb-0 mb-6 border-l pt-4"
         onClose={onClose}
         origin={origin}
       />

@@ -53,7 +53,7 @@ export default function CoresLayout({
 
   return (
     <main className="relative flex min-h-dvh flex-col">
-      <header className="flex h-16 w-full items-center justify-center gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 tablet:bg-transparent laptop:justify-start">
+      <header className="border-border-subtlest-tertiary bg-background-default tablet:bg-transparent laptop:justify-start flex h-16 w-full items-center justify-center gap-4 border-b px-4">
         <Button
           variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
           icon={<ArrowIcon className="-rotate-90" />}
@@ -61,7 +61,7 @@ export default function CoresLayout({
         >
           {!isMobile ? 'Back' : undefined}
         </Button>
-        <div className="relative flex flex-1 items-center justify-center laptop:justify-start">
+        <div className="laptop:justify-start relative flex flex-1 items-center justify-center">
           <Logo position={LogoPosition.Relative} />
         </div>
         {isMobile ? <BuyCreditsButton hideBuyButton /> : undefined}

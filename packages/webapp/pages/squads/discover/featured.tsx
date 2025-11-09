@@ -32,10 +32,10 @@ const seo: NextSeoProps = {
 
 const Skeleton = (): ReactElement => (
   <>
-    <FeedContainer className="!hidden tablet:!flex">
+    <FeedContainer className="tablet:!flex !hidden">
       <PlaceholderSquadGridList isFeatured />
     </FeedContainer>
-    <div className="flex flex-col gap-3 tablet:!hidden" role="list">
+    <div className="tablet:!hidden flex flex-col gap-3" role="list">
       <PlaceholderSquadListList />
     </div>
   </>

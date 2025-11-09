@@ -54,7 +54,7 @@ export default function FeedByIdsLayout({
     <FeedPageLayoutComponent>
       {children}
       <FeedPageHeader className="mb-5">
-        <h1 className="font-bold typo-callout">Feed by IDs</h1>
+        <h1 className="typo-callout font-bold">Feed by IDs</h1>
       </FeedPageHeader>
       {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPageLayoutComponent>

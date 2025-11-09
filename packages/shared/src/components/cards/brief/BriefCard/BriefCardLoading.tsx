@@ -30,7 +30,7 @@ export const BriefCardLoading = ({
     <div
       style={rootStyle}
       className={classNames(
-        'flex flex-1 flex-col items-center gap-4 rounded-16 p-4 text-center',
+        'rounded-16 flex flex-1 flex-col items-center gap-4 p-4 text-center',
         'backdrop-blur-3xl',
         className?.card,
       )}

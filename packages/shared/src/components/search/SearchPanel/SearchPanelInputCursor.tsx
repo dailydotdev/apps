@@ -32,12 +32,12 @@ export const SearchPanelInputCursor = ({
     >
       <span
         aria-hidden="true"
-        className={classNames(className?.input, 'invisible typo-body')}
+        className={classNames(className?.input, 'typo-body invisible')}
       >
         {searchPanel.query}
       </span>
       {!!purifySanitize && (
-        <div className="ml-0.5 flex items-center rounded-4 bg-overlay-quaternary-cabbage px-1">
+        <div className="rounded-4 bg-overlay-quaternary-cabbage ml-0.5 flex items-center px-1">
           <span
             className="text-text-tertiary typo-footnote"
             dangerouslySetInnerHTML={{

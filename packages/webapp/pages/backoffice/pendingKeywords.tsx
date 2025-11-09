@@ -40,7 +40,7 @@ const PendingKeywords = (): ReactElement => {
   if (!isLoadingCurrentKeyword && !currentKeyword) {
     return (
       <ResponsivePageContainer>
-        <div className="font-bold typo-title3" data-testid="empty">
+        <div className="typo-title3 font-bold" data-testid="empty">
           No more keywords! 🥳
         </div>
       </ResponsivePageContainer>

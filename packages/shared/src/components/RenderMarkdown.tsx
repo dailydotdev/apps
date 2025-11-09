@@ -187,7 +187,7 @@ const RenderMarkdown = ({
           return (
             <>
               {!inline && (
-                <div className="flex h-10 items-center justify-between bg-surface-float px-3">
+                <div className="bg-surface-float flex h-10 items-center justify-between px-3">
                   <Typography
                     type={TypographyType.Callout}
                     bold
@@ -249,7 +249,7 @@ const RenderMarkdown = ({
                 </code>
               )}
               {canExpand ? (
-                <div className="relative z-1 flex h-12 items-center justify-center bg-background-subtle">
+                <div className="z-1 bg-background-subtle relative flex h-12 items-center justify-center">
                   <Button
                     onClick={() => setIsExpanded((prev) => !prev)}
                     variant={ButtonVariant.Tertiary}

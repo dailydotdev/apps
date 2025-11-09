@@ -65,7 +65,7 @@ const NotifyPage = (): ReactElement => {
   };
 
   return (
-    <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
+    <div className="tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row mx-4 flex w-auto max-w-full flex-col gap-4">
       <FlexCol className="flex-1 gap-6">
         <FlexCol className="gap-4">
           <Typography type={TypographyType.LargeTitle} bold center>
@@ -84,7 +84,7 @@ const NotifyPage = (): ReactElement => {
           </Typography>
         </FlexCol>
         <FlexCol className="gap-2">
-          <FlexCol className="gap-1 rounded-16 border border-border-subtlest-tertiary px-3 py-3.5">
+          <FlexCol className="rounded-16 border-border-subtlest-tertiary gap-1 border px-3 py-3.5">
             <Typography type={TypographyType.Body} bold>
               Confirm your email
             </Typography>
@@ -113,7 +113,7 @@ const NotifyPage = (): ReactElement => {
             </FlexRow>
           </FlexCol>
           {showAlert && (
-            <FlexRow className="gap-3 rounded-16 border border-border-subtlest-tertiary px-3 py-3.5">
+            <FlexRow className="rounded-16 border-border-subtlest-tertiary gap-3 border px-3 py-3.5">
               <FlexCol className="flex-1 gap-1">
                 <Typography type={TypographyType.Body} bold>
                   Enable push notifications
@@ -145,7 +145,7 @@ const NotifyPage = (): ReactElement => {
               tag="a"
               size={ButtonSize.Large}
               variant={ButtonVariant.Primary}
-              className="w-full laptop:w-auto"
+              className="laptop:w-auto w-full"
               onClick={handleClick}
             >
               Continue

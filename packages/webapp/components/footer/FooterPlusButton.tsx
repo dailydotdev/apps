@@ -32,7 +32,7 @@ const ActionButton = <TagName extends AllowedTags>({
         size={ButtonSize.Large}
         variant={ButtonVariant.Float}
       />
-      <span className="font-normal text-text-tertiary typo-callout">
+      <span className="text-text-tertiary typo-callout font-normal">
         {children}
       </span>
     </div>
@@ -53,7 +53,7 @@ export function FooterPlusButton(): ReactElement {
         {...props}
         icon={<PlusIcon />}
         variant={ButtonVariant.Primary}
-        className="absolute bottom-24 right-4 z-1 ml-auto justify-self-center border border-border-subtlest-tertiary"
+        className="z-1 border-border-subtlest-tertiary absolute bottom-24 right-4 ml-auto justify-self-center border"
       />
       <RootPortal>
         <Drawer

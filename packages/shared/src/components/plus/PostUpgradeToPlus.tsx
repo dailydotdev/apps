@@ -54,7 +54,7 @@ export const PostUpgradeToPlus = ({
     <div
       className={classNames(
         className,
-        'relative flex w-full flex-col rounded-12 border border-border-subtlest-tertiary bg-action-plus-float p-3',
+        'rounded-12 border-border-subtlest-tertiary bg-action-plus-float relative flex w-full flex-col border p-3',
       )}
     >
       <div className="flex w-full items-start">

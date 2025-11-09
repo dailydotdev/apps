@@ -74,7 +74,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
     if (isPrivate) {
       return (
         <EmptyStateContainer>
-          <div className="flex size-6 items-center justify-center rounded-full bg-surface-secondary text-surface-primary">
+          <div className="bg-surface-secondary text-surface-primary flex size-6 items-center justify-center rounded-full">
             <EarthIcon size={IconSize.Size16} />
           </div>
           <Typography type={TypographyType.Footnote}>

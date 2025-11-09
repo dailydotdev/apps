@@ -13,7 +13,7 @@ function FunnelReadingReminderComponent({
   onTransition,
 }: FunnelStepReadingReminder): ReactElement | null {
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden p-6 pt-10 tablet:max-w-96">
+    <div className="tablet:max-w-96 flex w-full flex-1 flex-col items-center justify-center overflow-hidden p-6 pt-10">
       <ReadingReminder
         headline={headline}
         onClickNext={() =>

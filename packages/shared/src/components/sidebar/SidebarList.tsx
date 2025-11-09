@@ -45,29 +45,29 @@ function SidebarList({
   return (
     <div
       className={classNames(
-        'flex flex-col p-2 transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center',
-        'absolute h-full max-h-[100vh] w-full overflow-hidden bg-background-default tablet:relative tablet:w-fit',
+        'tablet:translate-x-[unset] tablet:items-center flex flex-col p-2 transition-transform ease-in-out',
+        'bg-background-default tablet:relative tablet:w-fit absolute h-full max-h-[100vh] w-full overflow-hidden',
         isOpen ? 'translate-x-0' : 'top-0 -translate-x-full',
         className,
       )}
     >
-      <span className="mb-6 flex w-full flex-row items-center border-b border-border-subtlest-tertiary p-2 px-4 tablet:hidden">
+      <span className="border-border-subtlest-tertiary tablet:hidden mb-6 flex w-full flex-row items-center border-b p-2 px-4">
         <Button
           size={ButtonSize.Small}
-          className="flex -rotate-90 tablet:hidden"
+          className="tablet:hidden flex -rotate-90"
           icon={<ArrowIcon />}
           onClick={onRequestClose}
         />
-        <span className="ml-2 font-bold typo-title3">{title}</span>
+        <span className="typo-title3 ml-2 font-bold">{title}</span>
       </span>
-      <div className="px-4 tablet:px-0">
+      <div className="tablet:px-0 px-4">
         {Object.keys(sidebarGroups).map((group) => {
           const groupItems = sidebarGroups[group];
 
           return (
             <div key={group} className="flex flex-col">
               {group !== defaultGroup && (
-                <span className="my-3 px-4 font-bold text-text-quaternary typo-callout">
+                <span className="text-text-quaternary typo-callout my-3 px-4 font-bold">
                   {group}
                 </span>
               )}

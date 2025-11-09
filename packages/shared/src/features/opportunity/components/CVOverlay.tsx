@@ -51,12 +51,12 @@ export const CVOverlay = ({
     <ConditionalWrapper
       condition={blur}
       wrapper={(children) => (
-        <div className="absolute top-10 z-1 size-full h-screen bg-blur-glass backdrop-blur-xl laptop:top-16">
+        <div className="z-1 bg-blur-glass laptop:top-16 absolute top-10 size-full h-screen backdrop-blur-xl">
           {children}
         </div>
       )}
     >
-      <div className="mx-auto mt-10 flex max-w-[42.5rem] flex-col gap-6 rounded-16 border border-border-subtlest-secondary bg-blur-baseline p-6">
+      <div className="rounded-16 border-border-subtlest-secondary bg-blur-baseline mx-auto mt-10 flex max-w-[42.5rem] flex-col gap-6 border p-6">
         <div className="flex flex-col gap-4">
           <Typography type={TypographyType.LargeTitle} bold center>
             We never want to waste your time. Ever.
@@ -81,7 +81,7 @@ export const CVOverlay = ({
               setFile(uploadedFiles[0]);
             }}
             uploadIcon={
-              <span className="flex size-8 items-center justify-center rounded-10 bg-surface-float text-text-primary">
+              <span className="rounded-10 bg-surface-float text-text-primary flex size-8 items-center justify-center">
                 <UploadIcon size={IconSize.Small} />
               </span>
             }
@@ -89,7 +89,7 @@ export const CVOverlay = ({
           <FeelingLazy />
         </div>
         <CVUploadInfoBox />
-        <div className="flex flex-col justify-between gap-4 tablet:flex-row">
+        <div className="tablet:flex-row flex flex-col justify-between gap-4">
           {backButton}
           <Button
             variant={ButtonVariant.Primary}

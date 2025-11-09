@@ -80,7 +80,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               className={{
                 content: 'w-full justify-between !pr-0',
                 container: '!gap-0',
-                label: 'font-normal text-text-secondary typo-callout',
+                label: 'text-text-secondary typo-callout font-normal',
               }}
               reverse
               offLabel="Cards"
@@ -113,7 +113,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               content: 'w-full justify-between !pr-0',
               container: '!gap-0',
               label: classNames(
-                'font-normal typo-callout',
+                'typo-callout font-normal',
                 insaneMode ? 'text-text-disabled' : 'text-text-secondary',
               ),
             }}

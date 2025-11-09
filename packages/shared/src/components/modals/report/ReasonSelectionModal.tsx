@@ -62,7 +62,7 @@ export function ReasonSelectionModal<
       <Modal.Header title={heading} />
       <Modal.Body className="py-5">
         {title && (
-          <p className="mb-6 text-text-tertiary typo-callout">{title}</p>
+          <p className="text-text-tertiary typo-callout mb-6">{title}</p>
         )}
         <Radio
           name="report_reason"
@@ -71,13 +71,13 @@ export function ReasonSelectionModal<
           onChange={setReason}
         />
 
-        <p className="mb-1 mt-6 px-2 font-bold typo-caption1">
+        <p className="typo-caption1 mb-1 mt-6 px-2 font-bold">
           Anything else you&apos;d like to add?
         </p>
         <textarea
           onInput={(event) => setNote(event.currentTarget.value)}
           onFocus={onFocus}
-          className="mb-1 h-20 w-full resize-none self-stretch rounded-10 bg-surface-float p-2 typo-body"
+          className="rounded-10 bg-surface-float typo-body mb-1 h-20 w-full resize-none self-stretch p-2"
           data-testid="report_comment"
         />
         {isMobile ? footer : null}

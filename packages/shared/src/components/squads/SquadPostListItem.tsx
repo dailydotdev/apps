@@ -23,7 +23,7 @@ export const SquadPostListItem = ({
   return (
     <article
       className={classNames(
-        'group relative flex items-start px-4 py-2 hover:bg-surface-hover',
+        'hover:bg-surface-hover group relative flex items-start px-4 py-2',
         styles.card,
       )}
     >
@@ -45,7 +45,7 @@ export const SquadPostListItem = ({
             date={post.createdAt}
           />
         )}
-        <p className="mr-6 mt-1 line-clamp-3 text-text-primary typo-callout">
+        <p className="text-text-primary typo-callout mr-6 mt-1 line-clamp-3">
           {post.title ?? post.sharedPost.title}
         </p>
       </div>
@@ -56,7 +56,7 @@ export const SquadPostListItem = ({
 const SquadPostListItemPlaceholder = (): ReactElement => (
   <article aria-busy className="relative flex flex-col px-4 py-2">
     <div className="mb-2 flex flex-1 flex-row items-center">
-      <ElementPlaceholder className="mt-1 h-10 w-10 rounded-14" />
+      <ElementPlaceholder className="rounded-14 mt-1 h-10 w-10" />
       <div className="ml-3 mr-2 flex flex-1 flex-col">
         <TextPlaceholder style={{ width: '40%' }} />
         <TextPlaceholder style={{ width: '40%' }} />

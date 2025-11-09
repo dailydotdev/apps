@@ -64,7 +64,7 @@ function PostSourceInfo({
   return (
     <span
       className={classNames(
-        'flex flex-row items-center text-text-tertiary typo-footnote',
+        'text-text-tertiary typo-footnote flex flex-row items-center',
         className,
       )}
     >
@@ -80,13 +80,13 @@ function PostSourceInfo({
             )}
             {showActionBtn && (
               <>
-                {!isUserSource && <Separator className="flex tablet:hidden" />}
+                {!isUserSource && <Separator className="tablet:hidden flex" />}
                 {source?.type !== SourceType.Squad && !isUserSource && (
                   <FollowButton
                     variant={ButtonVariant.Tertiary}
                     followedVariant={ButtonVariant.Tertiary}
                     buttonClassName={classNames(
-                      'flex min-w-min !px-0 tablet:hidden',
+                      'tablet:hidden flex min-w-min !px-0',
                       !isFollowing && 'text-text-link',
                     )}
                     entityId={source?.id}
@@ -102,7 +102,7 @@ function PostSourceInfo({
                     size={ButtonSize.XSmall}
                     className={{
                       button: classNames(
-                        'flex min-w-min !px-0 tablet:hidden',
+                        'tablet:hidden flex min-w-min !px-0',
                         !squad?.currentMember && 'text-text-link',
                       ),
                     }}
@@ -122,7 +122,7 @@ function PostSourceInfo({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
-              className="ml-auto hidden laptop:flex"
+              className="laptop:flex ml-auto hidden"
               contextMenuId="post-widgets-context"
               buttonSize={ButtonSize.Small}
             />

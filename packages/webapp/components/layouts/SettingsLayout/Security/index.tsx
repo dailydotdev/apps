@@ -208,7 +208,7 @@ function AccountSecurityDefault({
           side="bottom"
           visible={!hasPassword}
           content={
-            <div className="w-60 py-2 typo-subhead">
+            <div className="typo-subhead w-60 py-2">
               You must set a password for the account before you can change your
               email address.
             </div>

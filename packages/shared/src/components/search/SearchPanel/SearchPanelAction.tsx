@@ -52,7 +52,7 @@ export const SearchPanelAction = ({
       tabIndex={isDefaultProvider ? -1 : undefined}
       {...itemProps}
     >
-      <span className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap typo-callout">
+      <span className="typo-callout flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap">
         {searchPanel.query}{' '}
         <span className="text-text-quaternary typo-footnote">
           {providerToLabelTextMap[provider]}

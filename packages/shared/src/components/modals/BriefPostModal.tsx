@@ -53,7 +53,7 @@ export default function BriefPostModal({
         inlineActions
         className={{
           onboarding: 'mt-8',
-          navigation: { actions: 'ml-auto laptop:hidden' },
+          navigation: { actions: 'laptop:hidden ml-auto' },
           fixedNavigation: {
             container: modalSizeToClassName[Modal.Size.Large],
             actions: 'ml-auto',

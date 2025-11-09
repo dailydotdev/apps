@@ -42,7 +42,7 @@ const Search = (): ReactElement => {
       {!searchQuery && (
         <div
           className={classNames(
-            'mt-12 flex w-full max-w-[32rem] flex-col items-center gap-4 self-center px-6 laptop:mt-0',
+            'laptop:mt-0 mt-12 flex w-full max-w-[32rem] flex-col items-center gap-4 self-center px-6',
             sidebarExpanded ? '!-left-32' : '!-left-6',
           )}
         >
@@ -51,10 +51,10 @@ const Search = (): ReactElement => {
             secondary
             size={IconSize.XXXLarge}
           />
-          <h2 className="text-center font-bold text-text-primary typo-title2">
+          <h2 className="text-text-primary typo-title2 text-center font-bold">
             Ready to dive in?
           </h2>
-          <p className="text-center text-text-tertiary typo-callout">
+          <p className="text-text-tertiary typo-callout text-center">
             Start your search to explore a world of developer resources.
           </p>
         </div>

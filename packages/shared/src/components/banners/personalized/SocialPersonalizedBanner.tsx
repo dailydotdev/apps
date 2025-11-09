@@ -25,7 +25,7 @@ const SocialPersonalizedBanner = ({
       <OnboardingHeadline
         className={{
           title: classNames('typo-mega3', gradient),
-          description: classNames('mb-8 typo-title3'),
+          description: classNames('typo-title3 mb-8'),
         }}
         pretitle={`Coming from ${capitalize(site)}?`}
         {...socialCTA[site]}

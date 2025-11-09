@@ -146,7 +146,7 @@ export const BookmarkReminderModal = (
           </div>
           <div className="mt-5 flex flex-row justify-center">
             <Button
-              className="w-full responsiveModalBreakpoint:w-auto"
+              className="responsiveModalBreakpoint:w-auto w-full"
               variant={ButtonVariant.Primary}
             >
               Set reminder

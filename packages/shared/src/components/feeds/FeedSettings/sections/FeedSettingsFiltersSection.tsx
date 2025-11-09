@@ -33,7 +33,7 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
         </div>
         <Dropdown
           className={{
-            container: 'w-full tablet:max-w-70',
+            container: 'tablet:max-w-70 w-full',
           }}
           selectedIndex={Math.max(
             Object.values(FeedOrder).indexOf(data.orderBy),
@@ -92,7 +92,7 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
                 : ''
             }
             className={{
-              container: 'w-full tablet:max-w-70',
+              container: 'tablet:max-w-70 w-full',
             }}
             leftIcon={<UpvoteIcon />}
             defaultValue={feed.flags?.minUpvotes}
@@ -114,7 +114,7 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
                 : ''
             }
             className={{
-              container: 'w-full tablet:max-w-70',
+              container: 'tablet:max-w-70 w-full',
             }}
             leftIcon={<EyeIcon />}
             defaultValue={feed.flags?.minViews}

@@ -76,7 +76,7 @@ export default function NewStreakModal({
       isDrawerOnMobile
     >
       <Modal.Body className="items-center overflow-hidden !pt-0">
-        <div className="relative flex h-14 w-full items-center justify-center tablet:justify-start">
+        <div className="tablet:justify-start relative flex h-14 w-full items-center justify-center">
           <StreakReminderSwitch />
           <ModalClose onClick={onRequestClose} className="!-right-4 top-2" />
         </div>
@@ -91,13 +91,13 @@ export default function NewStreakModal({
                 : 'A large fire icon'
             }
             className={classNames(
-              'h-[10rem] text-accent-bacon-default',
+              'text-accent-bacon-default h-[10rem]',
               shouldShowSplash ? 'ml-2 w-[15rem]' : 'w-[10rem] ',
             )}
           />
-          <strong className="absolute typo-tera">{currentStreak}</strong>
+          <strong className="typo-tera absolute">{currentStreak}</strong>
           {shouldShowSplash && (
-            <span className="absolute mt-44 typo-tera">🏆</span>
+            <span className="typo-tera absolute mt-44">🏆</span>
           )}
         </span>
         <strong

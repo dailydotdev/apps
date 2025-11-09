@@ -19,7 +19,7 @@ export const FeedbackList = ({
   return (
     <div className="flex-1 space-y-4">
       <div className="relative flex justify-between">
-        <p className="font-bold typo-callout">
+        <p className="typo-callout font-bold">
           Want to see more posts like this?
         </p>
         <CloseButton
@@ -34,9 +34,9 @@ export const FeedbackList = ({
         onDownvoteClick={onDownvoteClick}
         onUpvoteClick={onUpvoteClick}
       />
-      <CardContent className="rounded-14 border border-border-subtlest-tertiary p-4">
+      <CardContent className="rounded-14 border-border-subtlest-tertiary border p-4">
         <div className="mr-2 flex-1">
-          <h2 className="mb-2 line-clamp-1 typo-body">{post.title}</h2>
+          <h2 className="typo-body mb-2 line-clamp-1">{post.title}</h2>
         </div>
 
         <CardCoverList

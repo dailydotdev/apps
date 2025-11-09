@@ -199,7 +199,7 @@ export default function SquadHeaderMenu({
     <DropdownMenu>
       <DropdownMenuTrigger tooltip={{ content: 'Squad options' }} asChild>
         <Button
-          className={classNames('order-4 tablet:order-5', className?.button)}
+          className={classNames('tablet:order-5 order-4', className?.button)}
           variant={ButtonVariant.Float}
           icon={<MenuIcon />}
           size={ButtonSize.Small}

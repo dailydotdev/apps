@@ -33,7 +33,7 @@ export function HeaderButtons({
         <LoginButton
           className={{
             container: 'gap-4',
-            button: 'hidden laptop:block',
+            button: 'laptop:block hidden',
           }}
         />
       </Container>
@@ -50,7 +50,7 @@ export function HeaderButtons({
       />
       {additionalButtons}
       <NotificationsBell />
-      <ProfileButton className="hidden laptop:flex" />
+      <ProfileButton className="laptop:flex hidden" />
     </Container>
   );
 }

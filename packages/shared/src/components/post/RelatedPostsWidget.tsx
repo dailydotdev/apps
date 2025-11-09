@@ -53,16 +53,16 @@ export const RelatedPostsWidget = ({
 
   return (
     <div className={classNames(className, 'flex flex-col', widgetClasses)}>
-      <div className="flex cursor-pointer items-center justify-between rounded-16 rounded-t-16 px-4 py-1.5 laptop:cursor-auto laptop:py-4 laptop:!pb-0">
-        <p className="font-bold text-text-quaternary typo-callout laptop:text-text-quaternary">
+      <div className="rounded-16 rounded-t-16 laptop:cursor-auto laptop:py-4 laptop:!pb-0 flex cursor-pointer items-center justify-between px-4 py-1.5">
+        <p className="text-text-quaternary typo-callout laptop:text-text-quaternary font-bold">
           {post.numCollectionSources} sources
         </p>
       </div>
-      <div className="flex flex-col pb-0 pt-2 laptop:min-h-[14rem]">
+      <div className="laptop:min-h-[14rem] flex flex-col pb-0 pt-2">
         {isLoading && (
           <article
             aria-busy
-            className="flex w-60 flex-col items-stretch px-4 py-2 laptop:w-full"
+            className="laptop:w-full flex w-60 flex-col items-stretch px-4 py-2"
           >
             <div className="mb-2 flex items-center">
               <ElementPlaceholder className="mr-2 h-6 w-6 rounded-full" />
@@ -79,7 +79,7 @@ export const RelatedPostsWidget = ({
             return (
               <article
                 key={relatedPost.id}
-                className="relative flex flex-col gap-2 px-4 py-2 hover:bg-surface-hover"
+                className="hover:bg-surface-hover relative flex flex-col gap-2 px-4 py-2"
               >
                 <CardLink
                   className="cursor-pointer"
@@ -96,11 +96,11 @@ export const RelatedPostsWidget = ({
                     createdAt={relatedPost.createdAt}
                   />
                 </div>
-                <p className="line-clamp-2 text-text-link typo-callout">
+                <p className="text-text-link typo-callout line-clamp-2">
                   {relatedPost.title}
                 </p>
                 {!!relatedPost.summary && (
-                  <p className="line-clamp-2 text-text-tertiary typo-footnote">
+                  <p className="text-text-tertiary typo-footnote line-clamp-2">
                     {relatedPost.summary}
                   </p>
                 )}

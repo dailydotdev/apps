@@ -261,14 +261,14 @@ function CreatePost(): ReactElement {
             className="flex flex-col gap-4 px-5"
           >
             {isMobile && (
-              <h2 className="pt-2 font-bold typo-title3">New post</h2>
+              <h2 className="typo-title3 pt-2 font-bold">New post</h2>
             )}
             <MultipleSourceSelect {...sourceSelectProps} />
             <WriteFreeformContent />
           </Tab>
           <Tab label={WriteFormTab.Share} className="flex flex-col gap-4 px-5">
             {isMobile && (
-              <h2 className="pt-2 font-bold typo-title3">Share a link</h2>
+              <h2 className="typo-title3 pt-2 font-bold">Share a link</h2>
             )}
             <MultipleSourceSelect {...sourceSelectProps} />
             <ShareLink
@@ -288,12 +288,12 @@ function CreatePost(): ReactElement {
                 <Pill
                   label="New"
                   size={PillSize.XSmall}
-                  className="mt-0.5 bg-brand-float text-brand-default"
+                  className="bg-brand-float text-brand-default mt-0.5"
                 />
               ) : undefined
             }
           >
-            {isMobile && <h2 className="pt-2 font-bold typo-title3">Poll</h2>}
+            {isMobile && <h2 className="typo-title3 pt-2 font-bold">Poll</h2>}
             <MultipleSourceSelect {...sourceSelectProps} />
             <CreatePoll />
           </Tab>

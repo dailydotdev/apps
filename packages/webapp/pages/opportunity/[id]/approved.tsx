@@ -61,10 +61,10 @@ const ApprovedPage = (): ReactElement => {
       <Portal
         container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
       >
-        <div className="hidden items-center laptop:flex">{buttonElement}</div>
+        <div className="laptop:flex hidden items-center">{buttonElement}</div>
       </Portal>
       <OpportunityFooter>{buttonElement}</OpportunityFooter>
-      <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
+      <div className="tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row mx-4 flex w-auto max-w-full flex-col gap-4">
         <FlexCol className="flex-1 gap-6">
           <FlexCol className="items-center gap-4">
             <Image src={opportunityLiveIllustration} />
@@ -82,7 +82,7 @@ const ApprovedPage = (): ReactElement => {
             </Typography>
           </FlexCol>
           <FlexCol
-            className="w-full gap-4 rounded-16 p-4 text-black"
+            className="rounded-16 w-full gap-4 p-4 text-black"
             style={{
               background: briefButtonBg,
             }}

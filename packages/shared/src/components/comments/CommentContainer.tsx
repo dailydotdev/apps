@@ -71,12 +71,12 @@ export default function CommentContainer({
     <article
       ref={isCommentReferenced ? commentRef : null}
       className={classNames(
-        'relative flex flex-col rounded-16 p-4 hover:bg-surface-hover focus:outline',
+        'rounded-16 hover:bg-surface-hover relative flex flex-col p-4 focus:outline',
         hasAccessToCores &&
           comment.userState?.awarded &&
           'bg-overlay-float-onion',
         isCommentReferenced
-          ? 'border border-accent-cabbage-default'
+          ? 'border-accent-cabbage-default border'
           : 'border-border-subtlest-tertiary',
         className.container,
       )}
@@ -89,7 +89,7 @@ export default function CommentContainer({
       )}
       {children}
       {showContextHeader && (
-        <header className="mb-4 line-clamp-1 text-text-tertiary typo-footnote">
+        <header className="text-text-tertiary typo-footnote mb-4 line-clamp-1">
           {comment.parent?.author ? (
             <p>
               Replied to <strong>@{comment.parent.author.username}</strong>
@@ -116,8 +116,8 @@ export default function CommentContainer({
             }}
           />
         </ProfileTooltip>
-        <div className="ml-3 flex min-w-0 flex-1 flex-col typo-callout">
-          <FlexRow className="items-center gap-1 text-text-quaternary">
+        <div className="typo-callout ml-3 flex min-w-0 flex-1 flex-col">
+          <FlexRow className="text-text-quaternary items-center gap-1">
             <CommentAuthor
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
@@ -160,7 +160,7 @@ export default function CommentContainer({
       </header>
       <div
         className={classNames(
-          'break-words-overflow z-1 mt-3 typo-body',
+          'break-words-overflow z-1 typo-body mt-3',
           className.content,
           linkToComment && 'pointer-events-none',
         )}

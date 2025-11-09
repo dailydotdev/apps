@@ -197,7 +197,7 @@ const benefits = [
 ];
 
 const BenefitSection = (): ReactElement => (
-  <div className="flex flex-col gap-4 text-center tablet:flex-row">
+  <div className="tablet:flex-row flex flex-col gap-4 text-center">
     {benefits.map(({ icon, title, description }) => (
       <FlexCol className="flex-1 items-center gap-1" key={title}>
         {icon}
@@ -240,19 +240,19 @@ const HowItWorksSection = (): ReactElement => (
     <Typography type={TypographyType.Title3} bold>
       How it works
     </Typography>
-    <div className="flex flex-col gap-4 text-left tablet:flex-row">
+    <div className="tablet:flex-row flex flex-col gap-4 text-left">
       {howItWorks.map(({ image, title, description }, index) => (
         <div
-          className="flex flex-1 flex-row gap-4 tablet:flex-col tablet:gap-1"
+          className="tablet:flex-col tablet:gap-1 flex flex-1 flex-row gap-4"
           key={title}
         >
           <div className="relative mb-3">
             <img
               src={image}
               alt={title}
-              className="h-24 w-24 rounded-16 object-cover tablet:w-full"
+              className="rounded-16 tablet:w-full h-24 w-24 object-cover"
             />
-            <div className="absolute bottom-[0.625rem] left-[0.625rem] size-[1.875rem] rounded-10 bg-surface-invert">
+            <div className="rounded-10 bg-surface-invert absolute bottom-[0.625rem] left-[0.625rem] size-[1.875rem]">
               <div className="flex size-full items-center justify-center">
                 <Typography type={TypographyType.Body} bold>
                   {index + 1}
@@ -359,7 +359,7 @@ export const BackgroundImage = (): ReactElement => {
     <img
       src={jobsWelcome}
       alt="Jobs welcome"
-      className="fixed left-1/2 top-12 -z-1 max-w-[60rem] -translate-x-1/2 transform laptop:top-14"
+      className="-z-1 laptop:top-14 fixed left-1/2 top-12 max-w-[60rem] -translate-x-1/2 transform"
     />
   );
 };
@@ -380,8 +380,8 @@ const JobsWelcomePage = (): ReactElement => {
   return (
     <>
       <BackgroundImage />
-      <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
-        <FlexCol className="gap-8 tablet:mx-4 laptop:mx-0">
+      <div className="tablet:mx-auto relative mx-4 mt-10 max-w-[47.875rem]">
+        <FlexCol className="tablet:mx-4 laptop:mx-0 gap-8">
           <HeaderSection />
           <BenefitSection />
           <HowItWorksSection />

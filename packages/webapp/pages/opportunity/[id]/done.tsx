@@ -62,7 +62,7 @@ const options = [
   },
   {
     icon: (
-      <IconWrapper className="border border-border-subtlest-tertiary">
+      <IconWrapper className="border-border-subtlest-tertiary border">
         <Typography type={TypographyType.Body} bold>
           2
         </Typography>
@@ -75,7 +75,7 @@ const options = [
   },
   {
     icon: (
-      <IconWrapper className="border border-border-subtlest-tertiary">
+      <IconWrapper className="border-border-subtlest-tertiary border">
         <Typography type={TypographyType.Body} bold>
           3
         </Typography>
@@ -95,10 +95,10 @@ const DonePage = (): ReactElement => {
   const { isSubscribed } = usePushNotificationContext();
 
   return (
-    <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
+    <div className="tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row mx-4 flex w-auto max-w-full flex-col gap-4">
       <FlexCol className="flex-1 gap-6">
         <FlexCol className="items-center gap-4">
-          <div className="size-12 rounded-10 bg-action-upvote-float">
+          <div className="rounded-10 bg-action-upvote-float size-12">
             <VIcon
               size={IconSize.Size48}
               className="text-action-upvote-default"
@@ -118,7 +118,7 @@ const DonePage = (): ReactElement => {
           </Typography>
         </FlexCol>
         <FlexCol>
-          <div className="gap-2 rounded-16 border border-border-subtlest-tertiary px-3 py-3.5">
+          <div className="rounded-16 border-border-subtlest-tertiary gap-2 border px-3 py-3.5">
             <FlexCol className="flex-1 gap-2 text-left">
               <Typography type={TypographyType.Callout}>
                 What happens next
@@ -144,11 +144,11 @@ const DonePage = (): ReactElement => {
                 ))}
               </ul>
             </FlexCol>
-            <Divider className="my-4 flex bg-border-subtlest-tertiary" />
+            <Divider className="bg-border-subtlest-tertiary my-4 flex" />
             <FlexCol className="gap-2">
               <Typography>Your contact methods</Typography>
               <FlexRow className="gap-2">
-                <FlexRow className="items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-3 py-1">
+                <FlexRow className="rounded-10 border-border-subtlest-tertiary items-center gap-2 border px-3 py-1">
                   <VIcon
                     className="text-accent-avocado-default"
                     size={IconSize.Small}
@@ -161,7 +161,7 @@ const DonePage = (): ReactElement => {
                   </Typography>
                 </FlexRow>
                 {isSubscribed && (
-                  <FlexRow className="items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-3 py-1">
+                  <FlexRow className="rounded-10 border-border-subtlest-tertiary items-center gap-2 border px-3 py-1">
                     <VIcon
                       className="text-accent-avocado-default"
                       size={IconSize.Small}
@@ -184,7 +184,7 @@ const DonePage = (): ReactElement => {
               tag="a"
               size={ButtonSize.Large}
               variant={ButtonVariant.Primary}
-              className="w-full tablet:w-80"
+              className="tablet:w-80 w-full"
               rel={anchorDefaultRel}
             >
               Back to daily.dev
@@ -193,7 +193,7 @@ const DonePage = (): ReactElement => {
           <CandidatePreferenceButton
             label="Optimize future matches"
             targetId={TargetId.OpportunityDonePage}
-            className="w-full tablet:w-80"
+            className="tablet:w-80 w-full"
           />
         </FlexCol>
       </FlexCol>

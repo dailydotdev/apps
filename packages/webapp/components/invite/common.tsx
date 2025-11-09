@@ -13,7 +13,7 @@ export interface JoinPageProps {
 
 export const DailyDevLogo = (): ReactElement => {
   return (
-    <span className="absolute left-1/2 top-8 -translate-x-1/2 laptop:left-12 laptop:translate-x-0">
+    <span className="laptop:left-12 laptop:translate-x-0 absolute left-1/2 top-8 -translate-x-1/2">
       <Logo position={LogoPosition.Relative} />
     </span>
   );

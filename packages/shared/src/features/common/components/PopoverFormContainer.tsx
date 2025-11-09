@@ -67,12 +67,12 @@ export const PopoverFormContainer = ({
         sameWidthAsAnchor
         side="bottom"
         align="start"
-        className="mt-1 rounded-16 border border-border-subtlest-tertiary bg-background-popover shadow-3"
+        className="rounded-16 border-border-subtlest-tertiary bg-background-popover shadow-3 mt-1 border"
       >
         <div className="max-h-80 flex-1 overflow-x-hidden px-4 py-3">
           {children}
         </div>
-        <div className="flex items-center justify-between border-t border-border-subtlest-tertiary px-4 py-2">
+        <div className="border-border-subtlest-tertiary flex items-center justify-between border-t px-4 py-2">
           <Button
             {...resetProps}
             onClick={() => onReset?.()}

@@ -194,7 +194,7 @@ const AcceptPage = (): ReactElement => {
   }
 
   return (
-    <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
+    <div className="tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row mx-4 flex w-auto max-w-full flex-col gap-4">
       <FlexCol className="flex-1 gap-6">
         {currentStep === AcceptStep.QUESTIONS && (
           <>

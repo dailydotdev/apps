@@ -94,7 +94,7 @@ export function CampaignListItem({
       type="button"
       onClick={onClick}
       className={classNames(
-        'flex w-full flex-row items-center gap-4 hover:bg-surface-hover',
+        'hover:bg-surface-hover flex w-full flex-row items-center gap-4',
         className,
       )}
     >

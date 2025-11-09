@@ -53,7 +53,7 @@ export default function PromotionalBanner(): ReactElement {
   return (
     <div
       className={classNames(
-        'relative z-3 flex w-full flex-col items-start py-3 pl-3 pr-12 typo-footnote tablet:pl-20 laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0',
+        'z-3 typo-footnote tablet:pl-20 laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0 relative flex w-full flex-col items-start py-3 pl-3 pr-12',
         container,
         text,
       )}
@@ -72,13 +72,13 @@ export default function PromotionalBanner(): ReactElement {
             ? ButtonColor.Cabbage
             : undefined
         }
-        className="mt-2 laptop:ml-4 laptop:mt-0"
+        className="laptop:ml-4 laptop:mt-0 mt-2"
       >
         {banner.cta}
       </Button>
       <CloseButton
         size={ButtonSize.XSmall}
-        className="absolute right-2 top-2 laptop:inset-y-0 laptop:my-auto"
+        className="laptop:inset-y-0 laptop:my-auto absolute right-2 top-2"
         onClick={dismiss}
       />
     </div>

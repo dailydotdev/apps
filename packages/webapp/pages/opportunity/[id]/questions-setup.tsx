@@ -72,7 +72,7 @@ const QuestionsSetupPage = (): ReactElement => {
       <Portal
         container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
       >
-        <div className="hidden items-center laptop:flex">
+        <div className="laptop:flex hidden items-center">
           <OpportunityStepsQuestions />
         </div>
       </Portal>
@@ -94,18 +94,18 @@ const QuestionsSetupPage = (): ReactElement => {
           hiring needs
         </Typography>
       </div>
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 laptop:flex-row">
-        <div className="flex h-full min-w-0 max-w-full flex-1 flex-shrink-0 flex-col gap-4 rounded-16">
+      <div className="laptop:flex-row mx-auto flex w-full max-w-3xl flex-col gap-4 px-4">
+        <div className="rounded-16 flex h-full min-w-0 max-w-full flex-1 flex-shrink-0 flex-col gap-4">
           {opportunity.questions.map((question, index) => {
             return (
               <article
                 key={question.id}
-                className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4"
+                className="rounded-16 border-border-subtlest-tertiary flex flex-col gap-4 border p-4"
               >
                 <header className="flex items-center justify-between">
                   <div
                     className={classNames(
-                      'flex size-7 items-center justify-center rounded-full bg-surface-primary text-center text-surface-invert',
+                      'bg-surface-primary text-surface-invert flex size-7 items-center justify-center rounded-full text-center',
                     )}
                   >
                     <Typography bold type={TypographyType.Footnote}>
@@ -145,7 +145,7 @@ const QuestionsSetupPage = (): ReactElement => {
             );
           })}
           {opportunity.questions.length < 3 && (
-            <article className="flex items-center justify-between gap-4 rounded-16 bg-surface-float p-4">
+            <article className="rounded-16 bg-surface-float flex items-center justify-between gap-4 p-4">
               <Typography color={TypographyColor.Tertiary}>
                 New questions
               </Typography>

@@ -140,7 +140,7 @@ const Page = (): ReactElement => {
     <ProtectedPage>
       <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
         <main className="relative flex flex-1 flex-col gap-6">
-          <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:border-none laptop:pb-0 laptop:pt-6">
+          <header className="border-border-subtlest-tertiary laptop:border-none laptop:pb-0 laptop:pt-6 flex items-center gap-2 border-b p-4">
             <Link href={`${webappUrl}bookmarks`}>
               <Button
                 className="laptop:hidden"
@@ -206,7 +206,7 @@ const Page = (): ReactElement => {
                       <ElementPlaceholder
                         // eslint-disable-next-line react/no-array-index-key
                         key={index}
-                        className="h-10 w-full rounded-10"
+                        className="rounded-10 h-10 w-full"
                       />
                     );
                   })}
@@ -268,7 +268,7 @@ const Page = (): ReactElement => {
                             <ElementPlaceholder
                               // eslint-disable-next-line react/no-array-index-key
                               key={`placeholder-${index}`}
-                              className="h-16 w-full rounded-16 border border-border-subtlest-tertiary bg-transparent p-2"
+                              className="rounded-16 border-border-subtlest-tertiary h-16 w-full border bg-transparent p-2"
                             />,
                           );
                         }

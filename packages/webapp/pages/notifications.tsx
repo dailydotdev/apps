@@ -109,7 +109,7 @@ const Notifications = (): ReactElement => {
       >
         <EnableNotification />
         <h2
-          className="p-6 font-bold typo-body"
+          className="typo-body p-6 font-bold"
           data-testid="notification_page-title"
         >
           Notifications

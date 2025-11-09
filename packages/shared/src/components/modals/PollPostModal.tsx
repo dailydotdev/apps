@@ -65,7 +65,7 @@ export default function PollPostModal({
         origin={Origin.ArticleModal}
         className={{
           fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
-          navigation: { actions: 'ml-auto tablet:hidden' },
+          navigation: { actions: 'tablet:hidden ml-auto' },
           onboarding: 'mb-0 mt-8',
         }}
       />

@@ -118,7 +118,7 @@ const ActionButtons = ({
             {post?.numUpvotes > 0 && (
               <InteractionCounter
                 className={classNames(
-                  'tabular-nums typo-footnote',
+                  'typo-footnote tabular-nums',
                   !post.numUpvotes && 'invisible',
                 )}
                 value={post.numUpvotes}
@@ -161,7 +161,7 @@ const ActionButtons = ({
             {post?.numComments > 0 && (
               <InteractionCounter
                 className={classNames(
-                  'tabular-nums !typo-footnote',
+                  '!typo-footnote tabular-nums',
                   !post.numComments && 'invisible',
                 )}
                 value={post.numComments}

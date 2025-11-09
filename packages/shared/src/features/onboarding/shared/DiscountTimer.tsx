@@ -99,7 +99,7 @@ export function DiscountTimer({
   return (
     <div
       className={classNames(
-        'flex flex-row items-center gap-6 bg-background-default px-4 py-2',
+        'bg-background-default flex flex-row items-center gap-6 px-4 py-2',
         'tablet:relative tablet:left-1/2 tablet:min-w-[100dvw] tablet:-translate-x-1/2 tablet:justify-center',
         !isWithSlot && 'text-text-primary',
         className,
@@ -109,7 +109,7 @@ export function DiscountTimer({
       <ConditionalWrapper
         condition={isWithSlot}
         wrapper={(content) => (
-          <div className="flex flex-1 items-center justify-between gap-2 tablet:max-w-md">
+          <div className="tablet:max-w-md flex flex-1 items-center justify-between gap-2">
             <div className="flex-1">{content}</div>
             {children}
           </div>
@@ -117,7 +117,7 @@ export function DiscountTimer({
       >
         <p
           className={classNames(
-            'min-w-0 max-w-full flex-1 tablet:max-w-70',
+            'tablet:max-w-70 min-w-0 max-w-full flex-1',
             isWithSlot ? 'typo-footnote' : 'typo-callout',
           )}
           dangerouslySetInnerHTML={{ __html: sanitizedMessage }}
@@ -128,7 +128,7 @@ export function DiscountTimer({
             'font-bold tabular-nums',
             isWithSlot
               ? 'typo-title1'
-              : 'inline-flex h-8 w-[4.75rem] items-center justify-center rounded-8 border border-status-success typo-title3',
+              : 'rounded-8 border-status-success typo-title3 inline-flex h-8 w-[4.75rem] items-center justify-center border',
           )}
           data-testid="timer-display"
         >
@@ -147,14 +147,14 @@ export function DiscountTimerReminder({
   return (
     <div
       className={classNames(
-        'flex items-center justify-center gap-2 rounded-12 bg-action-plus-float px-4 py-2 text-center text-action-plus-default typo-callout',
+        'rounded-12 bg-action-plus-float text-action-plus-default typo-callout flex items-center justify-center gap-2 px-4 py-2 text-center',
         className,
       )}
       data-testid="mini-discount-timer-container"
     >
       <TimerIcon aria-hidden />
       <span
-        className="font-bold typo-callout"
+        className="typo-callout font-bold"
         data-testid="mini-discount-timer"
       >
         {sanitizedMessage}{' '}

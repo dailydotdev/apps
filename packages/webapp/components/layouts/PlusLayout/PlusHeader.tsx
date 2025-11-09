@@ -27,12 +27,12 @@ export const PlusHeader = (): ReactElement => {
   }
 
   return (
-    <header className="flex h-16 w-full items-center justify-center gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 tablet:bg-transparent laptop:justify-start">
+    <header className="border-border-subtlest-tertiary bg-background-default tablet:bg-transparent laptop:justify-start flex h-16 w-full items-center justify-center gap-4 border-b px-4">
       <Button
         variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
         icon={<ArrowIcon className="-rotate-90" />}
         onClick={onBackClick}
-        className="absolute left-4 laptop:relative laptop:left-0"
+        className="laptop:relative laptop:left-0 absolute left-4"
       >
         {!isMobile ? 'Back' : undefined}
       </Button>

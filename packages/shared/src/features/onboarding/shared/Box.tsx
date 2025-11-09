@@ -124,7 +124,7 @@ export const BoxFaq = ({ items, className }: BoxFaqProps): ReactElement => {
       <ul className="flex flex-col gap-4">
         {items.map((item) => (
           <li key={item.question} className="flex flex-col gap-2">
-            <h4 className="font-bold typo-callout">{item.question}</h4>
+            <h4 className="typo-callout font-bold">{item.question}</h4>
             <p className="text-text-tertiary typo-callout">{item.answer}</p>
           </li>
         ))}
@@ -157,12 +157,12 @@ export const BoxReviews = ({
         {items.map((item) => (
           <li
             aria-label={`${item.authorInfo} review`}
-            className="flex flex-col gap-2 rounded-16 bg-surface-invert p-4"
+            className="rounded-16 bg-surface-invert flex flex-col gap-2 p-4"
             key={item.authorInfo}
           >
             <div className="flex items-center gap-2">
               <LazyImage
-                className="size-8 rounded-8"
+                className="rounded-8 size-8"
                 fit="cover"
                 imgAlt={item.authorInfo}
                 imgSrc={item.authorImage}

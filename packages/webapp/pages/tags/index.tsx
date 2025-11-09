@@ -90,7 +90,7 @@ const TagsPage = ({
       <BreadCrumbs className="mb-2">
         <HashtagIcon size={IconSize.XSmall} secondary /> Tags
       </BreadCrumbs>
-      <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
+      <div className="tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3 grid auto-rows-fr grid-cols-1 gap-0">
         <TagTopList
           containerProps={{ title: 'Trending tags' }}
           items={trendingTags}
@@ -110,10 +110,10 @@ const TagsPage = ({
           isLoading={isLoading}
         />
       </div>
-      <div className="flex h-10 items-center justify-between px-4 tablet:px-0">
-        <p className="font-bold typo-body">All tags</p>
+      <div className="tablet:px-0 flex h-10 items-center justify-between px-4">
+        <p className="typo-body font-bold">All tags</p>
       </div>
-      <div className="columns-[17rem] px-4 tablet:px-0">
+      <div className="tablet:px-0 columns-[17rem] px-4">
         {tagsByFirstLetter &&
           Object.entries(tagsByFirstLetter).map(([letter, value]) => {
             return (
@@ -121,7 +121,7 @@ const TagsPage = ({
                 key={letter}
                 className="mt-3 flex flex-col items-baseline gap-3 px-4 first:mt-0"
               >
-                <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout">
+                <p className="text-text-tertiary typo-callout flex h-8 items-center font-bold">
                   {letter}
                 </p>
                 {value.map((tag) => (

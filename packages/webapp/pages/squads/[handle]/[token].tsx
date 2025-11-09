@@ -228,8 +228,8 @@ const SquadReferral = ({
   }
 
   return (
-    <PageContainer className="relative items-center pt-10 tablet:pt-20">
-      <div className="squad-background-fade absolute -top-4 left-0 right-0 h-40 max-w-[100vw] rounded-26 tablet:-left-20 tablet:-right-20" />
+    <PageContainer className="tablet:pt-20 relative items-center pt-10">
+      <div className="squad-background-fade rounded-26 tablet:-left-20 tablet:-right-20 absolute -top-4 left-0 right-0 h-40 max-w-[100vw]" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
       <BodyParagraph className="mt-6">
         {source.name} is your place to stay up to date as a Squad. You and your
@@ -246,12 +246,12 @@ const SquadReferral = ({
           has invited you to <HighlightedText>{source.name}</HighlightedText>
         </BodyParagraph>
       </span>
-      <div className="my-8 flex w-full flex-col rounded-24 border border-accent-cabbage-default p-6">
-        <span className="flex flex-col items-start tablet:flex-row tablet:items-center">
+      <div className="rounded-24 border-accent-cabbage-default my-8 flex w-full flex-col border p-6">
+        <span className="tablet:flex-row tablet:items-center flex flex-col items-start">
           <div className="flex flex-1 flex-row items-start">
             <SourceButton source={source} size={ProfileImageSize.XXLarge} />
-            <div className="ml-4 mr-0 flex flex-1 flex-col tablet:mr-4">
-              <h2 className="flex flex-col font-bold typo-body">
+            <div className="tablet:mr-4 ml-4 mr-0 flex flex-1 flex-col">
+              <h2 className="typo-body flex flex-col font-bold">
                 {source.name}
               </h2>
               <BodyParagraph className="mt-2">@{source.handle}</BodyParagraph>
@@ -263,7 +263,7 @@ const SquadReferral = ({
             </div>
           </div>
           <SimpleSquadJoinButton
-            className="mt-4 w-full tablet:ml-auto tablet:mt-0 tablet:w-auto"
+            className="tablet:ml-auto tablet:mt-0 tablet:w-auto mt-4 w-full"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Large}
             onClick={onJoinClick}

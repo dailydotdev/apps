@@ -16,7 +16,7 @@ export const BreadCrumbs = ({
 }: PropsWithChildren<WithClassNameProps>): ReactElement => {
   return (
     <BreadCrumbsWrapper aria-label="breadcrumbs" className={className}>
-      <ol className="flex-1 items-center gap-0.5 laptop:flex">
+      <ol className="laptop:flex flex-1 items-center gap-0.5">
         <li className="flex flex-row items-center gap-0.5">
           <Button
             variant={ButtonVariant.Tertiary}
@@ -28,7 +28,7 @@ export const BreadCrumbs = ({
           <span aria-hidden>/</span>
         </li>
         <li
-          className="flex flex-row items-center gap-1 px-2 font-bold text-text-primary typo-callout"
+          className="text-text-primary typo-callout flex flex-row items-center gap-1 px-2 font-bold"
           aria-current="page"
         >
           {children}

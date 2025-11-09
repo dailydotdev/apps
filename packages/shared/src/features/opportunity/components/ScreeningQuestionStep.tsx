@@ -38,7 +38,7 @@ export const ScreeningQuestionStep = ({
           recruiter already sees you as a strong match.
         </Typography>
       </FlexCol>
-      <FlexCol className="gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+      <FlexCol className="rounded-16 border-border-subtlest-tertiary gap-3 border p-4">
         <ProgressStep currentStep={currentStep} totalSteps={totalSteps} />
         <Typography type={TypographyType.Title3}>{question.title}</Typography>
         <Textarea

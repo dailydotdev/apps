@@ -58,7 +58,7 @@ export function Tooltip({
         >
           <RadixPrimitive.Content
             className={classNames(
-              'TooltipContent z-tooltip max-w-full rounded-10 bg-text-primary px-3 py-1 text-surface-invert typo-subhead',
+              'TooltipContent z-tooltip rounded-10 bg-text-primary text-surface-invert typo-subhead max-w-full px-3 py-1',
               className,
             )}
             sideOffset={5}

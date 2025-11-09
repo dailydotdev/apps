@@ -29,7 +29,7 @@ export const SmartPromptModal = ({ ...props }: ModalProps): ReactElement => {
   return (
     <Modal {...props} isDrawerOnMobile>
       <Image
-        className="mb-5 rounded-16"
+        className="rounded-16 mb-5"
         src={smartPromptModalImage}
         alt="Smart Prompt feature"
       />

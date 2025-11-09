@@ -130,7 +130,7 @@ const ProcessingLoading = ({
       <Typography type={TypographyType.Title3} bold>
         {statusMessage}
       </Typography>
-      {!isError && <Loader className="hidden tablet:block" />}
+      {!isError && <Loader className="tablet:block hidden" />}
     </>
   );
 };
@@ -358,7 +358,7 @@ const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
     return (
       <ModalBody
         className={classNames(
-          'bg-gradient-to-t from-theme-overlay-float-bun to-transparent',
+          'from-theme-overlay-float-bun bg-gradient-to-t to-transparent',
         )}
       >
         <CoreOptions amountNeededCopy={amountNeededCopy} />
@@ -369,7 +369,7 @@ const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
   return (
     <ModalBody
       className={classNames(
-        'bg-gradient-to-t from-theme-overlay-float-bun to-transparent',
+        'from-theme-overlay-float-bun bg-gradient-to-t to-transparent',
         selectedProduct && '!p-0',
       )}
     >
@@ -386,7 +386,7 @@ export const CorePageCheckoutVideo = (): ReactElement => {
   return (
     <div className="relative flex h-[582px] max-h-full flex-1">
       <video
-        className="bg-blue-500 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform bg-blue-500"
         poster={purchaseCoinsCheckoutVideoPoster}
         src={purchaseCoinsCheckoutVideo}
         muted
@@ -406,7 +406,7 @@ const BuyCoreDesktop = ({ amountNeededCopy }: BuyCoresProps) => {
   return (
     <ModalBody
       className={classNames(
-        'bg-gradient-to-t from-theme-overlay-float-bun to-transparent !p-0 tablet:rounded-b-16',
+        'from-theme-overlay-float-bun tablet:rounded-b-16 bg-gradient-to-t to-transparent !p-0',
       )}
     >
       <div className="flex flex-1 flex-row">
@@ -419,7 +419,7 @@ const BuyCoreDesktop = ({ amountNeededCopy }: BuyCoresProps) => {
         />
         <div
           className={classNames(
-            'flex flex-1 overflow-hidden rounded-br-16',
+            'rounded-br-16 flex flex-1 overflow-hidden',
             selectedProduct && 'hidden',
           )}
         >
@@ -447,7 +447,7 @@ const BuyFlow = ({
     >
       <Modal.Header
         title={!isMobile ? 'Get More Cores' : undefined}
-        className="mr-auto flex-row-reverse justify-between gap-4 laptop:justify-end"
+        className="laptop:justify-end mr-auto flex-row-reverse justify-between gap-4"
         showCloseButton={!isMobile}
       >
         <BuyCreditsButton

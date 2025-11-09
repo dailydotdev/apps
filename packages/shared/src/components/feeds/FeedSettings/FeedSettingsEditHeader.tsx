@@ -109,8 +109,8 @@ export const FeedSettingsEditHeader = (): ReactElement => {
       className="justify-between !p-4"
       showCloseButton={false}
     >
-      <FeedSettingsTitle className="hidden tablet:flex" />
-      <div className="flex w-full justify-between gap-2 tablet:w-auto tablet:justify-start">
+      <FeedSettingsTitle className="tablet:flex hidden" />
+      <div className="tablet:w-auto tablet:justify-start flex w-full justify-between gap-2">
         <Button
           type="button"
           size={ButtonSize.Small}

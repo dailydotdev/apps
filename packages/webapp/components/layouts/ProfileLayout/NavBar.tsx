@@ -52,7 +52,7 @@ export default function NavBar({
   return (
     <div
       className={classNames(
-        'sticky top-12 z-3 -mt-px flex justify-around bg-background-default tablet:top-0 tablet:justify-start laptop:top-14',
+        'z-3 bg-background-default tablet:top-0 tablet:justify-start laptop:top-14 sticky top-12 -mt-px flex justify-around',
         scrollClassname,
         styles.nav,
       )}

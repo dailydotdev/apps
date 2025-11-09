@@ -99,7 +99,7 @@ const Page = ({
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center">
-      <div className="squad-background-fade absolute -top-4 left-0 right-0 h-40 max-w-[100vw] rounded-26 tablet:-left-20 tablet:-right-20" />
+      <div className="squad-background-fade rounded-26 tablet:-left-20 tablet:-right-20 absolute -top-4 left-0 right-0 h-40 max-w-[100vw]" />
       <Logo
         position={LogoPosition.Relative}
         className="mb-auto pt-10"
@@ -120,7 +120,7 @@ const Page = ({
           >
             <Link href={member.permalink} passHref>
               <a>
-                <span className="font-bold text-text-primary">
+                <span className="text-text-primary font-bold">
                   {member.name}
                 </span>{' '}
                 (@{member.username})
@@ -139,7 +139,7 @@ const Page = ({
           user management, all in one place.
         </Typography>
 
-        <div className="flex flex-col gap-4 rounded-16 border border-brand-default p-4">
+        <div className="rounded-16 border-brand-default flex flex-col gap-4 border p-4">
           <div className="flex items-center gap-4">
             <Image
               className="size-12 rounded-full object-cover"
@@ -179,7 +179,7 @@ const Page = ({
             <div className="flex items-center gap-2">
               <InfoIcon
                 size={IconSize.XSmall}
-                className="relative top-[1px] !fill-status-help text-status-help"
+                className="!fill-status-help text-status-help relative top-[1px]"
               />
               <Typography type={TypographyType.Callout}>
                 No seats left. Ask your admin to add more seats to the

@@ -118,23 +118,23 @@ export function ProfileUploadBanner({
     <div
       style={{ background: cvUploadBannerBg }}
       className={classNames(
-        'relative mx-auto my-3 flex w-full max-w-[63.75rem] flex-col overflow-hidden rounded-10 border border-border-subtlest-tertiary px-4 py-3',
+        'rounded-10 border-border-subtlest-tertiary relative mx-auto my-3 flex w-full max-w-[63.75rem] flex-col overflow-hidden border px-4 py-3',
         className?.container,
       )}
     >
       <img
         className={classNames(
-          'pointer-events-none absolute -rotate-[15] object-cover tablet:absolute tablet:bottom-0 tablet:right-0 laptop:top-0',
+          'tablet:absolute tablet:bottom-0 tablet:right-0 laptop:top-0 pointer-events-none absolute -rotate-[15] object-cover',
           className?.image,
         )}
         src={getImage()}
         alt="Animated devices, money, and a rubber duck"
       />
-      <div className="mt-56 flex w-full max-w-[26.5rem] flex-col gap-2 tablet:mt-[unset]">
+      <div className="tablet:mt-[unset] mt-56 flex w-full max-w-[26.5rem] flex-col gap-2">
         <Typography
           type={TypographyType.Title2}
           bold
-          className="max-w-[15.5rem] tablet:max-w-[unset]"
+          className="tablet:max-w-[unset] max-w-[15.5rem]"
         >
           {props.title}
         </Typography>
@@ -144,7 +144,7 @@ export function ProfileUploadBanner({
         <DragDrop
           state={status}
           isCompactList
-          className={classNames('mb-0 mt-4 laptop:mb-4')}
+          className={classNames('laptop:mb-4 mb-0 mt-4')}
           onFilesDrop={([file]) => onUpload(file)}
           validation={fileValidation}
           isCopyBold

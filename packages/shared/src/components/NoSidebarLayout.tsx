@@ -25,7 +25,7 @@ export function NoSidebarLayout({
   return (
     <div className={className}>
       {!hideBackButton && (
-        <div className="flex h-12 items-center gap-2 border-b border-border-subtlest-tertiary px-4 laptop:hidden">
+        <div className="border-border-subtlest-tertiary laptop:hidden flex h-12 items-center gap-2 border-b px-4">
           <Link href={webappUrl} passHref>
             <Button
               tag="a"

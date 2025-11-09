@@ -17,7 +17,7 @@ export function PostEngagementCounts({
 }: PostEngagementCountsProps): ReactElement {
   return (
     <p
-      className={classNames('truncate typo-footnote', className)}
+      className={classNames('typo-footnote truncate', className)}
       data-testid="post-engagements-count"
     >
       {upvotes ? `${largeNumberFormat(upvotes)} Upvotes` : ''}

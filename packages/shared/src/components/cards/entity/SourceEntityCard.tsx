@@ -86,7 +86,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
           </Typography>
         </Link>
         {description && <EntityDescription copy={description} length={100} />}
-        <div className="flex items-center gap-1 text-text-tertiary">
+        <div className="text-text-tertiary flex items-center gap-1">
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}

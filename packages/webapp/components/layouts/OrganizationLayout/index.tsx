@@ -73,7 +73,7 @@ export const OrganizationLayout = ({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
+    <div className="tablet:p-6 mx-auto flex w-full max-w-5xl gap-4">
       <ConditionalWrapper
         condition={isMobile}
         wrapper={(child) => (

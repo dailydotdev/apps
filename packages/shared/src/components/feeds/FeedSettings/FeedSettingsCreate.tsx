@@ -180,7 +180,7 @@ export const FeedSettingsCreate = (): ReactElement => {
             type="button"
           />
           <Modal.Header title="" showCloseButton={false}>
-            <div className="hidden items-center gap-4 tablet:flex">
+            <div className="tablet:flex hidden items-center gap-4">
               <Typography
                 className="tablet:typo-title3"
                 type={TypographyType.Body}
@@ -190,7 +190,7 @@ export const FeedSettingsCreate = (): ReactElement => {
               </Typography>
               <PlusUser />
             </div>
-            <div className="flex w-full items-center justify-between gap-2 tablet:hidden">
+            <div className="tablet:hidden flex w-full items-center justify-between gap-2">
               <Button
                 type="button"
                 size={ButtonSize.Small}
@@ -211,7 +211,7 @@ export const FeedSettingsCreate = (): ReactElement => {
             </div>
           </Modal.Header>
           <Modal.Body className="flex flex-col gap-4">
-            <div className="flex items-center gap-4 tablet:hidden">
+            <div className="tablet:hidden flex items-center gap-4">
               <Typography
                 className="tablet:typo-title3"
                 type={TypographyType.Body}
@@ -275,7 +275,7 @@ export const FeedSettingsCreate = (): ReactElement => {
               </ul>
             </div>
             <Button
-              className="hidden tablet:flex"
+              className="tablet:flex hidden"
               type="submit"
               size={ButtonSize.Medium}
               variant={ButtonVariant.Primary}

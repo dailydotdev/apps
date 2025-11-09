@@ -12,7 +12,7 @@ export function MarkdownUploadLabel({
 }: MarkdownInputFooterProps): ReactElement {
   if (uploadingCount === 0) {
     return (
-      <span className="hidden laptop:flex">
+      <span className="laptop:flex hidden">
         Attach images by dragging & dropping
       </span>
     );

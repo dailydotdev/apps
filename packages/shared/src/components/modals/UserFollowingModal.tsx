@@ -38,7 +38,7 @@ export function UserFollowingModal({
       }, [])}
       userListProps={{
         emptyPlaceholder: (
-          <FlexCentered className="p-10 text-text-tertiary typo-callout">
+          <FlexCentered className="text-text-tertiary typo-callout p-10">
             No following found
           </FlexCentered>
         ),

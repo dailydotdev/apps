@@ -23,7 +23,7 @@ export const RecruiterLayoutHeader = ({
   return (
     <header
       className={classNames(
-        'sticky top-0 z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
+        'z-header border-border-subtlest-tertiary tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4 sticky top-0 flex h-14 flex-row items-center justify-between gap-3 border-b px-4 py-3',
         scrollClassName,
       )}
       style={featureTheme ? featureTheme.navbar : undefined}

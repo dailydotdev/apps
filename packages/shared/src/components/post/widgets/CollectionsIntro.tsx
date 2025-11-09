@@ -22,11 +22,11 @@ export const CollectionsIntro = ({
   return (
     <span
       className={classNames(
-        'relative flex w-full flex-row rounded-10 border border-accent-cabbage-default p-3 pr-2',
+        'rounded-10 border-accent-cabbage-default relative flex w-full flex-row border p-3 pr-2',
         className,
       )}
     >
-      <div className="flex flex-1 flex-col typo-subhead">
+      <div className="typo-subhead flex flex-1 flex-col">
         <strong>Introducing collections!</strong>
         <p className="mt-2">
           Collections are posts that aggregate all the information about

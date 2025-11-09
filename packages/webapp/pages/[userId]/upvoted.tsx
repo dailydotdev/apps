@@ -44,7 +44,7 @@ const ProfileUpvotedPage = ({
     disableAds: true,
     emptyScreen: isSameUser ? (
       <MyProfileEmptyScreen
-        className="items-center px-4 py-6 text-center tablet:px-6"
+        className="tablet:px-6 items-center px-4 py-6 text-center"
         text="Trapped in endless meetings? Make the most of It - Find posts you love and upvote away!"
         cta="Explore posts"
         buttonProps={{ tag: 'a', href: '/' }}

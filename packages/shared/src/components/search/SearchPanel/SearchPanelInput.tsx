@@ -180,7 +180,7 @@ export const SearchPanelInput = ({
       >
         <BaseField
           className={classNames(
-            'relative h-12 items-center rounded-12 !bg-background-subtle !px-3 laptop:border laptop:py-1 laptop:backdrop-blur-[3.75rem]',
+            'rounded-12 !bg-background-subtle laptop:border laptop:py-1 laptop:backdrop-blur-[3.75rem] relative h-12 items-center !px-3',
             className?.field,
             { focused },
             searchPanel.isActive &&
@@ -191,7 +191,7 @@ export const SearchPanelInput = ({
           )}
           ref={fieldRef}
         >
-          <AiIcon size={IconSize.Large} className="mr-3 text-text-tertiary" />
+          <AiIcon size={IconSize.Large} className="text-text-tertiary mr-3" />
           <FieldInput
             {...inputProps}
             data-search-panel-item="true"
@@ -226,7 +226,7 @@ export const SearchPanelInput = ({
           />
           <div
             className={classNames(
-              'flex h-full items-center bg-background-subtle',
+              'bg-background-subtle flex h-full items-center',
               searchPanel.isActive && '-mr-2',
             )}
           >
@@ -247,7 +247,7 @@ export const SearchPanelInput = ({
               />
             )}
             {searchPanel.isActive && (
-              <div className="flex h-full items-center border-l border-surface-float laptop:hidden">
+              <div className="border-surface-float laptop:hidden flex h-full items-center border-l">
                 <Button
                   type="button"
                   onClick={() => {
@@ -261,7 +261,7 @@ export const SearchPanelInput = ({
               </div>
             )}
           </div>
-          <div className="z-1 hidden items-center gap-3 laptop:flex">
+          <div className="z-1 laptop:flex hidden items-center gap-3">
             {!searchPanel.isActive && (
               <KeyboadShortcutLabel keys={shortcutKeys} />
             )}

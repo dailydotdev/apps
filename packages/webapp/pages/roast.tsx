@@ -63,11 +63,11 @@ const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
         className="-mb-12 w-[21.25rem]"
       />
       <div className="flex flex-col items-center gap-8">
-        <h2 className="text-center font-bold typo-title2">
+        <h2 className="typo-title2 text-center font-bold">
           Get roasted based on your reading history
         </h2>
         <div className="flex flex-col items-center gap-4">
-          <p className="font-bold text-text-tertiary typo-body">
+          <p className="text-text-tertiary typo-body font-bold">
             Suffering level:
           </p>
           <Dropdown
@@ -102,10 +102,10 @@ const Step2 = ({ roast, error }: StepProps): ReactElement => {
   return (
     <div className="flex w-full max-w-[50rem] flex-col items-center gap-8">
       <div className="flex flex-col items-center gap-4">
-        <h2 className="text-center font-bold typo-title2	">
+        <h2 className="typo-title2 text-center font-bold	">
           Your roast is ready 🤬
         </h2>
-        <p className="text-center text-text-tertiary typo-body">
+        <p className="text-text-tertiary typo-body text-center">
           Download and share #IGotRoasted 📸
         </p>
       </div>
@@ -149,16 +149,16 @@ const Loading = (): ReactElement => {
           className="w-[21.25rem]"
         />
         <div
-          className="absolute bottom-0 left-0 right-0 top-0 flex animate-bounce items-center	justify-center typo-tera"
+          className="typo-tera absolute bottom-0 left-0 right-0 top-0 flex animate-bounce	items-center justify-center"
           style={{ animationDuration: '800ms' }}
         >
           😈
         </div>
       </div>
-      <h2 className="text-center font-bold typo-title2">
+      <h2 className="typo-title2 text-center font-bold">
         Roasting in progress... Brace yourself
       </h2>
-      <p className="mt-4 text-center text-text-tertiary typo-body">
+      <p className="text-text-tertiary typo-body mt-4 text-center">
         It takes 40 seconds to roast a developer, wanna play{' '}
         <a
           href="https://buzzwordquiz.dev/"
@@ -242,7 +242,7 @@ const RoastPage = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'page mx-auto flex min-h-page w-full flex-col items-center justify-center px-6',
+        'page min-h-page mx-auto flex w-full flex-col items-center justify-center px-6',
         step === 1 && 'laptop:flex-row laptop:gap-20',
       )}
     >

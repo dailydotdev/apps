@@ -98,7 +98,7 @@ const PricingSelection = ({
       </Button>
       <CreditCards>
         <Typography
-          className="mb-4 flex gap-1 rounded-8 bg-surface-float px-2 py-0.5"
+          className="rounded-8 bg-surface-float mb-4 flex gap-1 px-2 py-0.5"
           type={TypographyType.Callout}
           color={TypographyColor.Primary}
         >
@@ -205,7 +205,7 @@ const Pricing = ({
           title={refund.title}
           content={refund.content}
           image={{ src: refund.image, alt: 'Checkmark' }}
-          className="border-0 !bg-action-upvote-float"
+          className="!bg-action-upvote-float border-0"
           typographyClasses={{
             title: 'typo-title2 font-bold',
             content: 'typo-callout text-text-tertiary',
@@ -219,7 +219,7 @@ const Pricing = ({
             eager
             imgSrc={trust.image}
             imgAlt="Social proof image"
-            className="w-full rounded-16"
+            className="rounded-16 w-full"
             ratio="100%"
             fit="cover"
           />
@@ -235,7 +235,7 @@ const Pricing = ({
           title={refund.title}
           content={refund.content}
           image={{ src: refund.image, alt: 'Checkmark' }}
-          className="border-0 !bg-action-upvote-float"
+          className="!bg-action-upvote-float border-0"
           typographyClasses={{
             title: 'typo-title2 font-bold',
             content: 'typo-callout text-text-tertiary',

@@ -163,7 +163,7 @@ export const VerifiedCompanyBadgeSection = ({
       <div className="mt-4 flex max-w-sm flex-wrap items-center">
         <p className="text-text-tertiary typo-footnote">
           {userCompanies[0].email}{' '}
-          <span className="ml-1 text-accent-bun-default">In review</span>
+          <span className="text-accent-bun-default ml-1">In review</span>
         </p>
         <Button
           type="button"

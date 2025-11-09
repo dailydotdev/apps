@@ -23,7 +23,7 @@ const Title = ({
       {...rest}
       className={classNames(
         styles.title,
-        'multi-truncate font-bold text-text-primary typo-title3',
+        'multi-truncate text-text-primary typo-title3 font-bold',
         lineClamp,
         className,
       )}

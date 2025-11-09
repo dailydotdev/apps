@@ -107,11 +107,11 @@ export const SquadGrid = ({
         />
       </Link>
       <Image
-        className="absolute left-0 right-0 top-0 h-24 w-full rounded-t-16 bg-accent-onion-bolder object-cover"
+        className="rounded-t-16 bg-accent-onion-bolder absolute left-0 right-0 top-0 h-24 w-full object-cover"
         src={headerImage || cloudinarySquadsDirectoryCardBannerDefault}
         alt="Banner image for source"
       />
-      <div className="z-1 mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
+      <div className="z-1 rounded-t-16 bg-background-subtle mt-12 flex flex-1 flex-col p-4">
         <div className="-mt-14 mb-3 flex items-end justify-between">
           <Image
             className="size-24 rounded-full"
@@ -125,20 +125,20 @@ export const SquadGrid = ({
         </div>
         <div className="flex flex-1 flex-col justify-between">
           <div className="mb-5 flex-auto">
-            <div className="font-bold typo-title3">{name}</div>
+            <div className="typo-title3 font-bold">{name}</div>
             <Typography
               className="flex flex-row items-center"
               type={TypographyType.Callout}
               color={TypographyColor.Secondary}
             >
               {campaign && (
-                <Tooltip content={`Boosted by @${campaign.user.username}`}>
+                <Tooltip content={`Ad by @${campaign.user.username}`}>
                   <button
                     type="button"
                     disabled
-                    className="relative text-action-comment-default"
+                    className="text-action-comment-default relative"
                   >
-                    <strong>Boosted</strong>
+                    <strong>Ad</strong>
                   </button>
                 </Tooltip>
               )}
@@ -146,7 +146,7 @@ export const SquadGrid = ({
               {handle}
             </Typography>
             {description && (
-              <div className="multi-truncate mt-1 line-clamp-5 text-text-secondary">
+              <div className="multi-truncate text-text-secondary mt-1 line-clamp-5">
                 {description}
               </div>
             )}

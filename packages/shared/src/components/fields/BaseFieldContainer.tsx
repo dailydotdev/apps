@@ -173,7 +173,7 @@ function BaseFieldContainer(
       {isSecondaryField && (
         <label
           className={classNames(
-            'mb-1 px-2 font-bold typo-caption1',
+            'typo-caption1 mb-1 px-2 font-bold',
             className.outerLabel,
             getFieldLabelColor({
               readOnly,
@@ -204,7 +204,7 @@ function BaseFieldContainer(
         <div
           role={invalid ? 'alert' : undefined}
           className={classNames(
-            'mt-1 flex items-center gap-1 px-2 typo-caption1',
+            'typo-caption1 mt-1 flex items-center gap-1 px-2',
             saveHintSpace && 'h-4',
             invalid ? 'text-status-error' : 'text-text-quaternary',
             className.hint,

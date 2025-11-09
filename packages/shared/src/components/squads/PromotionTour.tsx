@@ -90,7 +90,7 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
             />
           </span>
           <Icon size={IconSize.XLarge} className="ml-3" secondary />
-          <span className="font-bold typo-title1">{capitalize(role)}</span>
+          <span className="typo-title1 font-bold">{capitalize(role)}</span>
         </FlexCentered>
       </SquadTourCard>,
     );
@@ -145,7 +145,7 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
     >
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
         <>
-          <span className="mb-3 flex w-full justify-center tablet:hidden">
+          <span className="tablet:hidden mb-3 flex w-full justify-center">
             {indicator}
           </span>
           <ModalFooter justify={Justify.Between}>

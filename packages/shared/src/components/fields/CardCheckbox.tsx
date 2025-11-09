@@ -45,7 +45,7 @@ export const CardCheckbox = ({
 }: CustomCheckboxProps): ReactElement => {
   return (
     <div
-      className="flex rounded-16 p-px"
+      className="rounded-16 flex p-px"
       style={{
         backgroundImage: `
           linear-gradient(
@@ -61,7 +61,7 @@ export const CardCheckbox = ({
       <button
         type="button"
         className={classNames(
-          'relative flex h-full w-full flex-col gap-2 rounded-16 px-3 py-4',
+          'rounded-16 relative flex h-full w-full flex-col gap-2 px-3 py-4',
           checked ? 'bg-surface-float' : 'hover:bg-surface-hover',
           className,
         )}
@@ -70,7 +70,7 @@ export const CardCheckbox = ({
       >
         <input {...inputProps} type="checkbox" hidden />
         {checked && (
-          <ChecklistAIcon className="absolute right-3 top-4 text-brand-default" />
+          <ChecklistAIcon className="text-brand-default absolute right-3 top-4" />
         )}
         <Typography bold type={TypographyType.Title3}>
           {title}

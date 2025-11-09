@@ -64,7 +64,7 @@ const PlusPaymentPage = (): ReactElement => {
   return (
     <>
       <NextSeo nofollow noindex />
-      <div className="m-auto flex h-full w-full flex-col gap-6 laptop:h-fit laptop:w-[34.875rem]">
+      <div className="laptop:h-fit laptop:w-[34.875rem] m-auto flex h-full w-full flex-col gap-6">
         {isLaptop && selectedProduct && (
           <div className="flex flex-col items-center gap-4">
             <Typography type={TypographyType.Title2} bold>
@@ -77,11 +77,11 @@ const PlusPaymentPage = (): ReactElement => {
             />
           </div>
         )}
-        <div className="flex w-full flex-1 justify-center bg-background-default">
+        <div className="bg-background-default flex w-full flex-1 justify-center">
           <PlusCheckoutContainer
             checkoutRef={checkoutRef}
             className={{
-              container: 'h-full w-full bg-background-default p-5 laptop:h-fit',
+              container: 'bg-background-default laptop:h-fit h-full w-full p-5',
               element: 'h-full',
             }}
           />

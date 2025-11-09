@@ -36,7 +36,7 @@ const seo: NextSeoProps = {
 
 const PassiveDonePage = (): ReactElement => {
   return (
-    <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
+    <div className="tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row mx-4 flex w-auto max-w-full flex-col gap-4">
       <FlexCol className="flex-1 gap-6">
         <FlexCol className="items-center gap-4">
           <PassiveIcon size={IconSize.Size48} className="text-text-secondary" />
@@ -57,7 +57,7 @@ const PassiveDonePage = (): ReactElement => {
           <Button
             size={ButtonSize.Large}
             variant={ButtonVariant.Primary}
-            className="w-full tablet:w-80"
+            className="tablet:w-80 w-full"
             tag="a"
             rel={anchorDefaultRel}
             href={webappUrl}
@@ -67,7 +67,7 @@ const PassiveDonePage = (): ReactElement => {
           <CandidatePreferenceButton
             label="Update job preferences"
             targetId={TargetId.OpportunityPassiveDonePage}
-            className="w-full tablet:w-80"
+            className="tablet:w-80 w-full"
           />
         </FlexCol>
       </FlexCol>
