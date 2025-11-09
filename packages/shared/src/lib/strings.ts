@@ -26,3 +26,10 @@ export const escapeRegexCharacters = (str: string): string => {
 
 export const pluralize = (word: string, count: number, append = 's') =>
   `${word}${count === 1 ? '' : append}`;
+
+export const concatStrings = (
+  strings: Array<string | null | undefined>,
+  separator = ', ',
+): string => {
+  return strings.filter(Boolean).join(separator);
+};

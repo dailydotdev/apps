@@ -4,7 +4,10 @@ import { useInView } from 'react-intersection-observer';
 import { useQuery } from '@tanstack/react-query';
 import type { Squad } from '../../../graphql/sources';
 import type { SourcesQueryProps } from '../../../hooks/source/useSources';
-import { useSources } from '../../../hooks/source/useSources';
+import {
+  useSources,
+  getFlatteredNodes,
+} from '../../../hooks/source/useSources';
 import HorizontalScroll from '../../HorizontalScroll/HorizontalScroll';
 import { UnfeaturedSquadGrid } from './UnfeaturedSquadGrid';
 import { SourceCardBorderColor, SquadGrid } from './SquadGrid';
@@ -106,7 +109,7 @@ export function SquadsDirectoryFeed({
   });
   const { squad: squadAd } = useSquad({ handle: ad?.data?.source?.handle });
   const flatSources = useMemo(() => {
-    const map = result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
+    const map = getFlatteredNodes(result);
 
     if (firstItemShouldBeAd && squadAd) {
       const index = map.findIndex(({ node }) => node.id === squadAd.id);
@@ -119,7 +122,7 @@ export function SquadsDirectoryFeed({
     }
 
     return map;
-  }, [result.data?.pages, firstItemShouldBeAd, squadAd]);
+  }, [result, firstItemShouldBeAd, squadAd]);
 
   if (flatSources.length === 0 && isFetched) {
     return null;

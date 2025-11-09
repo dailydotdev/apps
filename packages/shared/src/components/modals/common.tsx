@@ -334,6 +334,10 @@ const OpportunityEditModal = dynamic(() =>
   ).then((mod) => mod.OpportunityEditModal),
 );
 
+const DirtyFormModal = dynamic(
+  () => import(/* webpackChunkName: "dirtyFormModal" */ './DirtyFormModal'),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -389,6 +393,7 @@ export const modals = {
   [LazyModal.ActionSuccess]: ActionSuccessModal,
   [LazyModal.SquadNotificationSettings]: SquadNotificationSettingsModal,
   [LazyModal.OpportunityEdit]: OpportunityEditModal,
+  [LazyModal.DirtyForm]: DirtyFormModal,
 };
 
 type GetComponentProps<T> = T extends
