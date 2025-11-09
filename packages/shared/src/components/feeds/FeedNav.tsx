@@ -155,9 +155,10 @@ function FeedNav(): ReactElement {
     return null;
   }
 
-  const headerTransitionClasses = hasOpportunityAlert
-    ? '-translate-y-[7.5rem] duration-[800ms]'
-    : '-translate-y-26 duration-[800ms]';
+  const headerTransitionClasses =
+    isMobile && hasOpportunityAlert
+      ? '-translate-y-[7.5rem] duration-[800ms]'
+      : '-translate-y-26 duration-[800ms]';
 
   return (
     <div
