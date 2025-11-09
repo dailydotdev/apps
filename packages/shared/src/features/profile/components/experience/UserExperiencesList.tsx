@@ -1,6 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import type { UserExperience } from '../../../../graphql/user/profile';
+import type {
+  UserExperience,
+  UserExperienceType,
+} from '../../../../graphql/user/profile';
 import {
   Typography,
   TypographyTag,
@@ -8,10 +11,22 @@ import {
 } from '../../../../components/typography/Typography';
 import { UserExperienceItem } from './UserExperienceItem';
 import { UserExperiencesGroupedList } from './UserExperiencesGroupedList';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
+import { MoveToIcon } from '../../../../components/icons';
+import { IconSize } from '../../../../components/Icon';
+import Link from '../../../../components/utilities/Link';
 
 interface UserExperienceListProps<T extends UserExperience> {
   experiences: T[];
   title?: string;
+  userId?: string;
+  experienceType?: UserExperienceType;
+  hasNextPage?: boolean;
 }
 
 const groupListByCompany = <T extends UserExperience>(
@@ -36,6 +51,9 @@ const groupListByCompany = <T extends UserExperience>(
 export function UserExperienceList<T extends UserExperience>({
   experiences,
   title,
+  userId,
+  experienceType,
+  hasNextPage,
 }: UserExperienceListProps<T>): ReactElement {
   const groupedByCompany: [string, T[]][] = useMemo(
     () => groupListByCompany(experiences),
@@ -45,6 +63,9 @@ export function UserExperienceList<T extends UserExperience>({
   if (!experiences?.length) {
     return <></>;
   }
+
+  const showMoreUrl =
+    userId && experienceType ? `/${userId}/${experienceType}` : undefined;
 
   return (
     <div className="flex flex-col gap-3 py-4">
@@ -66,6 +87,20 @@ export function UserExperienceList<T extends UserExperience>({
           ),
         )}
       </ul>
+      {hasNextPage && showMoreUrl && (
+        <Link href={showMoreUrl} passHref>
+          <Button
+            tag="a"
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.Medium}
+            icon={<MoveToIcon size={IconSize.XSmall} />}
+            iconPosition={ButtonIconPosition.Right}
+            className="w-full"
+          >
+            Show More
+          </Button>
+        </Link>
+      )}
     </div>
   );
 }
