@@ -517,7 +517,7 @@ const PostAnalyticsPage = ({
               </div>
               <div className="flex items-center gap-1">
                 <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
-                <Typography type={TypographyType.Footnote}>Boosted</Typography>
+                <Typography type={TypographyType.Footnote}>Promoted</Typography>
               </div>
             </div>
           </div>
