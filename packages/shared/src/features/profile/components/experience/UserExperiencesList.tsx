@@ -17,7 +17,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { MoveToIcon } from '../../../../components/icons';
+import { MoveToIcon, EditIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import Link from '../../../../components/utilities/Link';
 
@@ -27,6 +27,7 @@ interface UserExperienceListProps<T extends UserExperience> {
   userId?: string;
   experienceType?: UserExperienceType;
   hasNextPage?: boolean;
+  isSameUser?: boolean;
 }
 
 const groupListByCompany = <T extends UserExperience>(
@@ -54,6 +55,7 @@ export function UserExperienceList<T extends UserExperience>({
   userId,
   experienceType,
   hasNextPage,
+  isSameUser,
 }: UserExperienceListProps<T>): ReactElement {
   const groupedByCompany: [string, T[]][] = useMemo(
     () => groupListByCompany(experiences),
@@ -70,9 +72,21 @@ export function UserExperienceList<T extends UserExperience>({
   return (
     <div className="flex flex-col gap-3 py-4">
       {title ? (
-        <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
-          {title}
-        </Typography>
+        <div className="flex flex-row items-center justify-between">
+          <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
+            {title}
+          </Typography>
+          {isSameUser && userId && experienceType && (
+            <Link href={`/${userId}/${experienceType}`} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                icon={<EditIcon />}
+              />
+            </Link>
+          )}
+        </div>
       ) : null}
       <ul className="flex flex-col">
         {groupedByCompany?.map(([company, list]) =>
