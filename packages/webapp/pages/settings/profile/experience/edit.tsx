@@ -5,6 +5,7 @@ import { FormProvider } from 'react-hook-form';
 import UserWorkExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserWorkExperienceForm';
 import UserEducationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserEducationForm';
 import UserCertificationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserCertificationForm';
+import UserProjectExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserProjectExperienceForm';
 import {
   Button,
   ButtonSize,
@@ -124,7 +125,7 @@ const renderExperienceForm = (type?: UserExperienceType) => {
     case UserExperienceType.Certification:
       return <UserCertificationForm />;
     case UserExperienceType.Project:
-    case UserExperienceType.Work:
+      return <UserProjectExperienceForm />;
     default:
       return <UserWorkExperienceForm />;
   }

@@ -37,6 +37,14 @@ export const userExperienceInputBaseSchema = z
       .nullable()
       .optional()
       .default(null),
+    url: z
+      .union([
+        z.url('Please enter a valid URL.').max(2000),
+        z.string().length(0),
+        z.null(),
+      ])
+      .optional()
+      .default(null),
   })
   .refine(
     (data) => {

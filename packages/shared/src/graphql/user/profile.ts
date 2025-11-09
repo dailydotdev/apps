@@ -34,6 +34,7 @@ const USER_EXPERIENCE_FRAGMENT = gql`
     customCompanyName
     employmentType
     locationType
+    url
     location {
       id
       city
@@ -133,6 +134,7 @@ export interface UserExperience {
   company?: Company | null;
   customCompanyName?: string | null;
   subtitle?: string | null;
+  url?: string | null;
 }
 
 interface UserSkill {
