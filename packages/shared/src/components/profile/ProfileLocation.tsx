@@ -10,6 +10,11 @@ import { locationToString } from '../../lib/utils';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useAuthContext } from '../../contexts/AuthContext';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 
 type ProfileLocationProps = {
   locationName: string;
@@ -23,7 +28,11 @@ const ProfileLocation = ({
   defaultValue,
 }: ProfileLocationProps) => {
   const { user } = useAuthContext();
-  const { setValue, watch } = useFormContext();
+  const {
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext();
   const [locQuery, setLocQuery] = React.useState('');
   const selectedLoc = watch(locationName);
   const typeValue = watch(typeName || '');
@@ -79,6 +88,14 @@ const ProfileLocation = ({
           value={typeValue}
           onChange={(newVal) => setValue(typeName, newVal)}
         />
+      )}
+      {errors[typeName] && (
+        <Typography
+          type={TypographyType.Caption2}
+          color={TypographyColor.StatusError}
+        >
+          {errors[typeName]?.message as string}
+        </Typography>
       )}
     </div>
   );

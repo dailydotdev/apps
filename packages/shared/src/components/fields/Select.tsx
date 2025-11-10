@@ -17,6 +17,7 @@ type SelectProps = {
   placeholder?: string;
   icon?: IconType;
   buttonProps?: ButtonProps<'button'>;
+  onSelect?: (value: string) => void;
 };
 
 const Select = ({
@@ -25,13 +26,17 @@ const Select = ({
   placeholder,
   icon,
   buttonProps,
+  onSelect,
 }: SelectProps) => {
   const { control, setValue } = useFormContext();
 
   const menuItems: MenuItemProps[] = options.map((opt) => {
     return {
       label: opt.label,
-      action: () => setValue(name, opt.value),
+      action: () => {
+        setValue(name, opt.value);
+        onSelect?.(opt.value);
+      },
     };
   });
 
@@ -49,8 +54,8 @@ const Select = ({
                 variant={ButtonVariant.Float}
                 {...buttonProps}
               >
-                {options.find((opt) => opt.value === field.value)?.label ||
-                  placeholder}
+                {options.find((opt) => opt.value === field.value?.toString())
+                  ?.label || placeholder}
                 <ArrowIcon className="ml-auto rotate-180" secondary />
               </Button>
             </DropdownMenuTrigger>
