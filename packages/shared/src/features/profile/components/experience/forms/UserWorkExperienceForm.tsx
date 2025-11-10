@@ -33,7 +33,10 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
           label="Employment Type"
           placeholder="Please select"
         />
-        <ProfileCompany name="customCompanyName" />
+        <ProfileCompany
+          label="Company or organization*"
+          name="customCompanyName"
+        />
       </div>
       <HorizontalSeparator />
       <ControlledSwitch

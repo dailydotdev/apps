@@ -9,9 +9,10 @@ import useDebounceFn from '../../../hooks/useDebounceFn';
 
 type ProfileCompanyProps = {
   name: string;
+  label?: string;
 };
 
-const ProfileCompany = ({ name }: ProfileCompanyProps) => {
+const ProfileCompany = ({ label, name }: ProfileCompanyProps) => {
   const { user } = useAuthContext();
   const { setValue, watch } = useFormContext();
   const customCompanyName = watch(name);
@@ -53,7 +54,7 @@ const ProfileCompany = ({ name }: ProfileCompanyProps) => {
         })) || []
       }
       selectedValue={companyId}
-      label="Company"
+      label={label || 'Company'}
       isLoading={isLoading}
       resetOnBlur={false}
     />
