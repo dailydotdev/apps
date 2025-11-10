@@ -10,6 +10,11 @@ import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMon
 import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
 
+const secondaryFieldClassName = {
+  outerLabel: '!px-0 !typo-callout',
+  baseField: '!h-12',
+};
+
 const UserVolunteeringExperienceForm = () => {
   return (
     <div className="flex flex-col gap-6">
@@ -23,6 +28,8 @@ const UserVolunteeringExperienceForm = () => {
           name="title"
           label="Role*"
           placeholder="Ex: Mentor, Fundraiser, Maintainer"
+          fieldType="secondary"
+          className={secondaryFieldClassName}
         />
       </div>
       <HorizontalSeparator />
@@ -58,4 +65,3 @@ const UserVolunteeringExperienceForm = () => {
 };
 
 export default UserVolunteeringExperienceForm;
-

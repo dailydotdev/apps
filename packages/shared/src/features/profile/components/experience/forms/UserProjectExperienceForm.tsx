@@ -34,6 +34,11 @@ const getFormCopy = (type: UserExperienceType): FormCopy => {
   };
 };
 
+const secondaryFieldClassName = {
+  outerLabel: '!px-0 !typo-callout',
+  baseField: '!h-12',
+};
+
 const UserProjectExperienceForm = () => {
   const { watch } = useFormContext();
   const type = watch('type') as UserExperienceType;
@@ -45,6 +50,8 @@ const UserProjectExperienceForm = () => {
           name="title"
           label="Title*"
           placeholder="Ex: Name of the publication or article"
+          fieldType="secondary"
+          className={secondaryFieldClassName}
         />
         <ProfileCompany
           name="customCompanyName"
@@ -74,6 +81,8 @@ const UserProjectExperienceForm = () => {
           name="url"
           label="Publication URL"
           placeholder="Ex: Validates against URL format"
+          fieldType="secondary"
+          className={secondaryFieldClassName}
         />
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
