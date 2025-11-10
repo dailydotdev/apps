@@ -3,13 +3,12 @@ import React from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { FormProvider } from 'react-hook-form';
 import UserWorkExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserWorkExperienceForm';
-import UserEducationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserEducationForm';
-import UserCertificationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserCertificationForm';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import UserEducationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserEducationForm';
 import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profile';
 import useUserExperienceForm from '@dailydotdev/shared/src/hooks/useUserExperienceForm';
 import {
@@ -19,6 +18,7 @@ import {
 import type { GetServerSideProps } from 'next';
 import { format } from 'date-fns';
 import type { TLocation } from '@dailydotdev/shared/src/graphql/autocomplete';
+import UserCertificationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserCertificationForm';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
@@ -52,7 +52,8 @@ const splitMonthYear = (value?: string) => {
   return [month, year];
 };
 
-const defaultValues: Omit<DefaultValues, 'type'> = {
+const defaultValues: DefaultValues = {
+  type: UserExperienceType.Work,
   id: '',
   title: '',
   description: '',
