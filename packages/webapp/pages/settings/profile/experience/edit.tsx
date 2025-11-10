@@ -18,6 +18,7 @@ import {
 import type { GetServerSideProps } from 'next';
 import { format } from 'date-fns';
 import type { TLocation } from '@dailydotdev/shared/src/graphql/autocomplete';
+import UserCertificationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserCertificationForm';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
@@ -121,8 +122,9 @@ const renderExperienceForm = (type?: UserExperienceType) => {
   switch (type) {
     case UserExperienceType.Education:
       return <UserEducationForm />;
-    case UserExperienceType.Project:
     case UserExperienceType.Certification:
+      return <UserCertificationForm />;
+    case UserExperienceType.Project:
     case UserExperienceType.Work:
     default:
       return <UserWorkExperienceForm />;
