@@ -3,11 +3,13 @@ import React from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { ModalClose } from './common/ModalClose';
 import { Image } from '../image/Image';
-import { opportunityLiveIllustration } from '../../lib/image';
 import Link from '../utilities/Link';
 import { opportunityUrl } from '../../lib/constants';
+import { useViewSize, ViewSize } from '../../hooks';
+import { useThemedAsset } from '../../hooks/utils';
+import { Typography, TypographyType } from '../typography/Typography';
+import { MoveToIcon } from '../icons';
 
 export interface JobOpportunityModalProps extends ModalProps {
   opportunityId: string;
@@ -18,6 +20,8 @@ export const JobOpportunityModal = ({
   onRequestClose,
   ...modalProps
 }: JobOpportunityModalProps): ReactElement => {
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const { jobOfferDesktop, jobOfferMobile } = useThemedAsset();
   const onShowNow = (event: MouseEvent) => {
     onRequestClose(event);
   };
@@ -27,68 +31,55 @@ export const JobOpportunityModal = ({
   };
 
   return (
-    <Modal
-      {...modalProps}
-      kind={Modal.Kind.FlexibleCenter}
-      size={Modal.Size.Small}
-      onRequestClose={onRequestClose}
-      isDrawerOnMobile
-    >
-      <Modal.Body className="items-center overflow-hidden !p-0">
-        <ModalClose onClick={onRequestClose} className="top-4 z-1" />
-
-        <div className="flex flex-col items-center justify-center gap-8 px-6 py-10 tablet:px-10 tablet:py-14">
-          <div className="relative flex items-center justify-center">
-            <Image
-              src={opportunityLiveIllustration}
-              alt="Job opportunity"
-              className="h-48 w-auto tablet:h-64"
-            />
-          </div>
-
-          <div className="flex flex-col items-center gap-4 text-center">
-            <h2 className="typo-mega font-bold leading-tight tablet:typo-tera">
-              <span className="from-purple-400 to-purple-600 bg-gradient-to-r bg-clip-text text-transparent">
-                YOU GOT
-              </span>
-              <br />
-              <span className="from-purple-400 to-purple-600 bg-gradient-to-r bg-clip-text text-transparent">
-                A NEW
-              </span>
-              <br />
-              <span className="from-purple-400 to-purple-600 bg-gradient-to-r bg-clip-text text-transparent">
-                JOB OFFER
-              </span>
-            </h2>
-            <p className="max-w-sm text-text-tertiary typo-body">
+    <>
+      <div className="fixed z-header size-full rounded-[63.75rem] bg-background-default blur-[6.875rem]">
+        test
+      </div>
+      <Modal
+        {...modalProps}
+        kind={Modal.Kind.FlexibleCenter}
+        size={Modal.Size.Medium}
+        onRequestClose={onRequestClose}
+        className="!border-transparent !bg-transparent !shadow-none"
+        overlayClassName="!bg-transparent"
+      >
+        <Modal.Body className="items-center overflow-hidden !p-0">
+          <div className="flex h-full flex-col items-start justify-center gap-6 px-6 py-10 tablet:items-center tablet:px-10 tablet:py-14">
+            <div className="relative flex items-center justify-center">
+              <Image
+                src={isMobile ? jobOfferMobile : jobOfferDesktop}
+                alt="Job offer for you"
+                className="h-72 w-auto tablet:h-64"
+              />
+            </div>
+            <Typography type={TypographyType.Title3}>
               We think this role deserves your attention, but your decision is
-              private. If it's a fit, we'll handle it quietly. If not, it's gone
+              private. If it’s a fit, we’ll handle it quietly. If not, it’s gone
               for good.
-            </p>
-          </div>
-
-          <div className="flex w-full max-w-sm flex-col gap-3">
-            <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
+            </Typography>
+            <div className="flex w-full flex-col gap-3">
+              <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
+                <Button
+                  tag="a"
+                  className="w-full gap-2"
+                  variant={ButtonVariant.Primary}
+                  onClick={onShowNow}
+                >
+                  Show me now <MoveToIcon />
+                </Button>
+              </Link>
               <Button
-                tag="a"
                 className="w-full"
-                variant={ButtonVariant.Primary}
-                onClick={onShowNow}
+                variant={ButtonVariant.Float}
+                onClick={onMaybeLater}
               >
-                Show me now
+                Maybe later
               </Button>
-            </Link>
-            <Button
-              className="w-full"
-              variant={ButtonVariant.Tertiary}
-              onClick={onMaybeLater}
-            >
-              Maybe later
-            </Button>
+            </div>
           </div>
-        </div>
-      </Modal.Body>
-    </Modal>
+        </Modal.Body>
+      </Modal>
+    </>
   );
 };
 

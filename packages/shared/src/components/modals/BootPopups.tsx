@@ -318,8 +318,6 @@ export const BootPopups = (): ReactElement => {
       return;
     }
 
-    console.log('should add it');
-
     addBootPopup({
       type: LazyModal.JobOpportunity,
       props: {
