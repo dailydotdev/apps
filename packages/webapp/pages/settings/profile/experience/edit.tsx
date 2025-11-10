@@ -54,7 +54,8 @@ const splitMonthYear = (value?: string) => {
   return [month, year];
 };
 
-const defaultValues: Omit<DefaultValues, 'type'> = {
+const defaultValues: DefaultValues = {
+  type: UserExperienceType.Work,
   id: '',
   title: '',
   description: '',
