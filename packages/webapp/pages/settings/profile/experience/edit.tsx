@@ -6,6 +6,7 @@ import UserWorkExperienceForm from '@dailydotdev/shared/src/features/profile/com
 import UserEducationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserEducationForm';
 import UserCertificationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserCertificationForm';
 import UserProjectExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserProjectExperienceForm';
+import UserVolunteeringExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserVolunteeringExperienceForm';
 import {
   Button,
   ButtonSize,
@@ -124,7 +125,10 @@ const renderExperienceForm = (type?: UserExperienceType) => {
       return <UserEducationForm />;
     case UserExperienceType.Certification:
       return <UserCertificationForm />;
+    case UserExperienceType.Volunteering:
+      return <UserVolunteeringExperienceForm />;
     case UserExperienceType.Project:
+    case UserExperienceType.OpenSource:
       return <UserProjectExperienceForm />;
     default:
       return <UserWorkExperienceForm />;
