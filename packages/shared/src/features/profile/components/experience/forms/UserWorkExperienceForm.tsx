@@ -22,13 +22,21 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
           name="title"
           label="Job Title*"
           placeholder="Ex: Retail Sales Manager"
+          fieldType="secondary"
+          className={{
+            outerLabel: '!px-0 !typo-callout',
+            baseField: '!h-12',
+          }}
         />
         <EmploymentTypeSelect
           name="employmentType"
           label="Employment Type"
           placeholder="Please select"
         />
-        <ProfileCompany name="customCompanyName" />
+        <ProfileCompany
+          label="Company or organization*"
+          name="customCompanyName"
+        />
       </div>
       <HorizontalSeparator />
       <ControlledSwitch
