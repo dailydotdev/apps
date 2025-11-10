@@ -22,7 +22,7 @@ function OrDivider({
     <div
       aria-hidden
       className={classNames(
-        'flex items-center justify-center typo-callout',
+        'typo-callout flex items-center justify-center',
         className?.container,
         className?.text || 'text-text-quarternary',
       )}

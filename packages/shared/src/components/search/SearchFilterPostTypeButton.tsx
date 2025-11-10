@@ -52,7 +52,7 @@ const SearchFilterPostTypeButton = () => {
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem className="!h-auto !bg-background-subtle">
+        <DropdownMenuItem className="!bg-background-subtle !h-auto">
           <div
             className="flex flex-col gap-2 px-2 py-2"
             tabIndex={-1}

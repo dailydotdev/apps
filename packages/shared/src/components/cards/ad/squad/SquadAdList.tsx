@@ -53,7 +53,7 @@ export function SquadAdList({
       </Link>
       {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
       <div className="mb-2 flex w-full flex-row gap-2">
-        <Image src={source.image} className="h-10 w-10 rounded-max" />
+        <Image src={source.image} className="rounded-max h-10 w-10" />
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Footnote}>
             {source.name}
@@ -66,7 +66,7 @@ export function SquadAdList({
               <button
                 type="button"
                 disabled
-                className="relative text-action-comment-default"
+                className="text-action-comment-default relative"
               >
                 <strong>Promoted</strong>
               </button>

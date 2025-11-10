@@ -32,14 +32,14 @@ export const ReputationPrivilegesModal = ({
       isDrawerOnMobile
     >
       <ModalClose className="top-2" onClick={onClose} />
-      <div className="flex flex-col items-center gap-10 p-0 text-center tablet:p-6">
+      <div className="tablet:p-6 flex flex-col items-center gap-10 p-0 text-center">
         <Image
           src={cloudinaryReputationPrivilegesUnlocked}
           alt="Privileges unlocked!"
         />
 
         <div className="flex flex-col gap-5">
-          <h3 className="font-bold text-text-primary typo-title1">
+          <h3 className="text-text-primary typo-title1 font-bold">
             Privileges unlocked!
           </h3>
           <p className="text-text-tertiary typo-body">

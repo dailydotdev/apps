@@ -30,15 +30,15 @@ export function SignBackButton({
       } from ${provider}`}
     >
       <ProfilePicture user={signBack} size={ProfileImageSize.Large} />
-      <div className="ml-2 flex flex-col items-start text-surface-invert">
+      <div className="text-surface-invert ml-2 flex flex-col items-start">
         {!!signBack.name && (
-          <span className="font-bold typo-callout">
+          <span className="typo-callout font-bold">
             Continue as {signBack.name.split(' ')[0]}
           </span>
         )}
         <span className="typo-footnote">{signBack.email}</span>
       </div>
-      <span className="ml-auto rounded-8 border border-border-subtlest-secondary p-1 text-surface-invert">
+      <span className="rounded-8 border-border-subtlest-secondary text-surface-invert ml-auto border p-1">
         {item.icon}
       </span>
     </button>

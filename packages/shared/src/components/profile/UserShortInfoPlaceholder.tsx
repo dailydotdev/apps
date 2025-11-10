@@ -10,10 +10,10 @@ const MAX_DISPLAY = 5;
 
 const Placeholder = () => (
   <div className="flex flex-row px-6 py-3">
-    <ElementPlaceholder className="size-12 rounded-14" />
+    <ElementPlaceholder className="rounded-14 size-12" />
     <div className="ml-4 flex max-w-full flex-1 flex-col">
-      <ElementPlaceholder className="mb-2 h-5 w-1/3 rounded-14" />
-      <ElementPlaceholder className="h-5 w-1/2 rounded-14" />
+      <ElementPlaceholder className="rounded-14 mb-2 h-5 w-1/3" />
+      <ElementPlaceholder className="rounded-14 h-5 w-1/2" />
     </div>
   </div>
 );

@@ -42,7 +42,7 @@ export function YoutubeVideoWithoutConsent({
         className="absolute inset-0 z-0 h-full w-full object-cover opacity-[0.08]"
       />
       <Background>
-        <span className="hidden flex-row items-center gap-3 tablet:flex">
+        <span className="tablet:flex hidden flex-row items-center gap-3">
           <Image
             src={source.image}
             alt={source.name}

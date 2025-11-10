@@ -46,7 +46,7 @@ export function ShareMobile({
   };
 
   return (
-    <WidgetContainer className="flex flex-col items-start gap-2 p-3 laptop:hidden">
+    <WidgetContainer className="laptop:hidden flex flex-col items-start gap-2 p-3">
       <Button
         size={ButtonSize.Small}
         onClick={onCopyPostLink}

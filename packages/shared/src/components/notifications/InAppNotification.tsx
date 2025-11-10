@@ -24,7 +24,7 @@ const Container = classed(
   classNames(
     styles.inAppNotificationContainer,
     'animate-bounce',
-    'in-app-notification slide-in fixed right-1/2 z-max h-22 w-[22.5rem] translate-x-1/2 rounded-16 border border-theme-active bg-accent-pepper-subtler laptop:right-10 laptop:translate-x-0',
+    'in-app-notification slide-in z-max h-22 rounded-16 border-theme-active bg-accent-pepper-subtler laptop:right-10 laptop:translate-x-0 fixed right-1/2 w-[22.5rem] translate-x-1/2 border',
   ),
 );
 
@@ -100,7 +100,7 @@ export function InAppNotificationElement(): ReactElement {
   return (
     <Container
       className={classNames(
-        'top-16 laptop:bottom-10 laptop:top-[unset]',
+        'laptop:bottom-10 laptop:top-[unset] top-16',
         isExit && 'exit',
       )}
       role="alert"

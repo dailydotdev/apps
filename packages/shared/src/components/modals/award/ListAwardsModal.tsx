@@ -78,7 +78,7 @@ export const ListAwardsModal = ({
       }, [])}
       userListProps={{
         emptyPlaceholder: isPending ? null : (
-          <FlexCentered className="p-10 text-text-tertiary typo-callout">
+          <FlexCentered className="text-text-tertiary typo-callout p-10">
             No awards found
           </FlexCentered>
         ),

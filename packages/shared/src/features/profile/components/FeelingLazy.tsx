@@ -18,7 +18,7 @@ export function FeelingLazy(): ReactElement {
     <Typography
       type={TypographyType.Footnote}
       color={TypographyColor.Tertiary}
-      className="hidden laptop:flex"
+      className="laptop:flex hidden"
     >
       Feeling lazy?
       <button
@@ -33,7 +33,7 @@ export function FeelingLazy(): ReactElement {
                 description: 'Here’s how to get your CV from LinkedIn:',
                 cover: exportLinkedIn,
                 body: (
-                  <ol className="flex flex-col gap-2 text-text-secondary typo-body">
+                  <ol className="text-text-secondary typo-body flex flex-col gap-2">
                     <li>1. Go to your LinkedIn profile</li>
                     <li>
                       2. Click &quot;Resources&quot; → &quot;Save to PDF&quot;

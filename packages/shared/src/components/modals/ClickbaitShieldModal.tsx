@@ -52,7 +52,7 @@ const ClickbaitShieldModal = ({
   return (
     <Modal {...props} isDrawerOnMobile>
       <Image
-        className="mb-5 rounded-16"
+        className="rounded-16 mb-5"
         src={clickbaitShieldModalImage}
         alt="Clickbait shield feature"
       />

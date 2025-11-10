@@ -65,7 +65,7 @@ export function GiftReceivedPlusModal(props: ModalProps): ReactElement {
         kind={Modal.Kind.FixedCenter}
         size={Modal.Size.Small}
       >
-        <Modal.Body className="flex flex-1 tablet:!px-4">
+        <Modal.Body className="tablet:!px-4 flex flex-1">
           <Loader />
         </Modal.Body>
       </Modal>
@@ -79,7 +79,7 @@ export function GiftReceivedPlusModal(props: ModalProps): ReactElement {
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
     >
-      <Modal.Body className="flex flex-1 tablet:!px-4">
+      <Modal.Body className="tablet:!px-4 flex flex-1">
         <div className="flex flex-1 flex-col gap-4">
           <div className="flex flex-row justify-between">
             <PlusTitle type={TypographyType.Callout} bold />

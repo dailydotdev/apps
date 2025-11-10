@@ -29,7 +29,7 @@ export const DataTile: React.FC<DataTileProps> = ({
   return (
     <div
       className={classNames(
-        'flex flex-col gap-1 rounded-14 border border-border-subtlest-tertiary p-4',
+        'rounded-14 border-border-subtlest-tertiary flex flex-col gap-1 border p-4',
         className?.container,
       )}
     >

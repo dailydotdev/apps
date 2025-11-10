@@ -61,7 +61,7 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
       }`}
       className={classNames(
         isSubscribed &&
-          'group min-w-24 hover:bg-overlay-float-ketchup hover:text-accent-ketchup-default',
+          'hover:bg-overlay-float-ketchup hover:text-accent-ketchup-default group min-w-24',
         className,
       )}
       disabled={isFetching}

@@ -85,7 +85,7 @@ export const PlusAdjustQuantity = ({
           value={itemQuantity}
           type="number"
           className={{
-            container: 'min-w-0 flex-1 tablet:max-w-60',
+            container: 'tablet:max-w-60 min-w-0 flex-1',
           }}
           focused
           onChange={({ target }) => onQuantityChange(Number(target.value))}

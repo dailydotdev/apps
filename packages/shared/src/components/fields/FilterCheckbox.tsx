@@ -16,13 +16,13 @@ export function FilterCheckbox({
   ...props
 }: FilterCheckboxProps): ReactElement {
   return (
-    <Checkbox {...props} className="!items-start !typo-callout">
+    <Checkbox {...props} className="!typo-callout !items-start">
       <div className="flex flex-col">
         <span className="mb-2">{children}</span>
         {!!description && (
           <span
             className={classNames(
-              'font-normal text-text-secondary',
+              'text-text-secondary font-normal',
               descriptionClassName,
             )}
           >

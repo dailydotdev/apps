@@ -43,7 +43,7 @@ export function OnboardingHeadline({
         {pretitle && (
           <Typography
             className={classNames(
-              'font-bold text-white typo-mega3',
+              'typo-mega3 font-bold text-white',
               className?.pretitle,
             )}
           >

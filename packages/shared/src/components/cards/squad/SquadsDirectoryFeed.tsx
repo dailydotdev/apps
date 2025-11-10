@@ -36,7 +36,7 @@ interface SquadHorizontalListProps {
 const Skeleton = ({ isFeatured }: { isFeatured?: boolean }): ReactElement => (
   <>
     <PlaceholderSquadGridList
-      className="!hidden tablet:!flex laptop:w-80"
+      className="tablet:!flex laptop:w-80 !hidden"
       isFeatured={isFeatured}
     />
     <div className="tablet:!hidden">

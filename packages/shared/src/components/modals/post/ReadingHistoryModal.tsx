@@ -47,7 +47,7 @@ export function ReadingHistoryModal({
       size={Modal.Size.Small}
     >
       <Modal.Header
-        className="flex tablet:hidden"
+        className="tablet:hidden flex"
         kind={ModalHeaderKind.Primary}
         title={`${label} a post`}
       />

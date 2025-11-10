@@ -86,9 +86,9 @@ const RadioGroupSkeleton = () => (
       <div
         key={index}
         className={classNames(
-          'flex min-h-12 items-center justify-between gap-2 rounded-10 !p-2',
+          'rounded-10 flex min-h-12 items-center justify-between gap-2 !p-2',
           index === 0 &&
-            '-m-px border border-border-subtlest-primary bg-surface-float',
+            'border-border-subtlest-primary bg-surface-float -m-px border',
         )}
       >
         <ElementPlaceholder className="h-4 w-2/3" />
@@ -250,7 +250,7 @@ export const PlusInfo = ({
       )}
       <div
         className={classNames(
-          'rounded-10 border border-border-subtlest-tertiary',
+          'rounded-10 border-border-subtlest-tertiary border',
           giftToUser ? 'min-h-[3rem]' : 'min-h-[6.125rem]',
         )}
       >

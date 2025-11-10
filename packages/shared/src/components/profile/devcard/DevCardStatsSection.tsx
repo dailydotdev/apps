@@ -20,9 +20,9 @@ export function DevCardStatsSection({
   return (
     <span className="flex flex-col">
       <strong>
-        <h2 className="text-white typo-title3">{largeNumberFormat(amount)}</h2>
+        <h2 className="typo-title3 text-white">{largeNumberFormat(amount)}</h2>
       </strong>
-      <span className="flex items-center text-raw-salt-90 typo-caption2">
+      <span className="text-raw-salt-90 typo-caption2 flex items-center">
         <Icon size={IconSize.XSmall} secondary className={iconClassName} />
         {label}
       </span>

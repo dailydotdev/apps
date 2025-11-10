@@ -102,7 +102,7 @@ export const MarketingCtaBriefing = ({
         background: briefButtonBg,
       }}
     >
-      <div className="flex items-center justify-between gap-2 text-text-primary">
+      <div className="text-text-primary flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <BriefIcon secondary size={IconSize.Large} aria-hidden />
           <Typography type={TypographyType.Footnote}>

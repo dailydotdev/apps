@@ -42,7 +42,7 @@ function SquadMemberShortList({
       <button
         type="button"
         className={classNames(
-          'flex flex-row-reverse items-center border border-border-subtlest-secondary pl-3 pr-1 hover:bg-surface-hover active:bg-theme-active',
+          'border-border-subtlest-secondary hover:bg-surface-hover active:bg-theme-active flex flex-row-reverse items-center border pl-3 pr-1',
           className,
           roundClasses[size],
         )}

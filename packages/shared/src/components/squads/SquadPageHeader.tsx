@@ -65,19 +65,19 @@ export function SquadPageHeader({
   return (
     <FlexCol
       className={classNames(
-        'relative mb-6 mt-3 min-h-20 w-full items-start border-border-subtlest-tertiary px-6 tablet:mb-12 tablet:border-b tablet:pb-16',
+        'border-border-subtlest-tertiary tablet:mb-12 tablet:border-b tablet:pb-16 relative mb-6 mt-3 min-h-20 w-full items-start px-6',
         shouldUseListMode
           ? 'laptop:!mx-auto laptop:mb-6 laptop:!max-w-[42.5rem] laptop:!px-0'
           : 'laptop:mb-12 laptopL:px-18',
       )}
     >
-      <div className="flex flex-col items-start gap-6 tablet:flex-row tablet:items-center">
-        <SquadImage className="h-16 w-16 tablet:h-24 tablet:w-24" {...squad} />
+      <div className="tablet:flex-row tablet:items-center flex flex-col items-start gap-6">
+        <SquadImage className="tablet:h-24 tablet:w-24 h-16 w-16" {...squad} />
         <FlexCol>
           <Typography tag={TypographyTag.H1} bold type={TypographyType.Title2}>
             {squad.name}
           </Typography>
-          <div className="mt-1 flex flex-row items-center text-text-quaternary typo-subhead">
+          <div className="text-text-quaternary typo-subhead mt-1 flex flex-row items-center">
             <Typography tag={TypographyTag.H2} color={TypographyColor.Tertiary}>
               @{squad.handle}
             </Typography>
@@ -101,7 +101,7 @@ export function SquadPageHeader({
               </>
             )}
           </div>
-          <div className="mt-4 flex flex-col items-start gap-2 tablet:flex-row tablet:items-center">
+          <div className="tablet:flex-row tablet:items-center mt-4 flex flex-col items-start gap-2">
             <SquadPrivacyState
               isPublic={squad?.public}
               isFeatured={squad?.flags?.featured}
@@ -166,7 +166,7 @@ export function SquadPageHeader({
         {privilegedLength > listMax && (
           <Button
             variant={ButtonVariant.Tertiary}
-            className="aspect-square border border-border-subtlest-tertiary"
+            className="border-border-subtlest-tertiary aspect-square border"
             onClick={() =>
               openModal({
                 type: LazyModal.PrivilegedMembers,
@@ -185,7 +185,7 @@ export function SquadPageHeader({
       />
       <div
         className={classNames(
-          'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptopL:px-0',
+          'bg-background-default tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptopL:px-0 relative bottom-0 flex w-full flex-col pt-8',
           allowedToPost && 'items-center justify-center',
           allowedToPost && 'laptop:max-w-[41.5rem]',
           !allowedToPost && 'laptop:max-w-[38.25rem]',
@@ -197,16 +197,16 @@ export function SquadPageHeader({
             <>
               <Divider />
               {children}
-              <FlexCentered className="relative mx-2 my-2 w-full text-text-tertiary typo-callout tablet:w-auto">
-                <span className="absolute -left-6 flex h-px w-[calc(100%+3rem)] bg-border-subtlest-tertiary tablet:hidden" />
-                <span className="z-0 bg-background-default px-4">or</span>
+              <FlexCentered className="text-text-tertiary typo-callout tablet:w-auto relative mx-2 my-2 w-full">
+                <span className="bg-border-subtlest-tertiary tablet:hidden absolute -left-6 flex h-px w-[calc(100%+3rem)]" />
+                <span className="bg-background-default z-0 px-4">or</span>
               </FlexCentered>
               <Button
                 tag="a"
                 href={`${link.post.create}?sid=${squad.handle}`}
                 variant={ButtonVariant.Primary}
                 color={ButtonColor.Cabbage}
-                className="w-full tablet:w-auto"
+                className="tablet:w-auto w-full"
               >
                 New post
               </Button>

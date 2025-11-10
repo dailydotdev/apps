@@ -52,7 +52,7 @@ const BookmarkFolderSoonModal = ({
             src={bookmarkFolderSoonImage}
             alt="Bookmark Folder coming soon"
           />
-          <div className="absolute -right-14 top-8 w-52 rotate-45 bg-action-plus-default px-2 py-1 text-white">
+          <div className="bg-action-plus-default absolute -right-14 top-8 w-52 rotate-45 px-2 py-1 text-white">
             <Typography type={TypographyType.Callout} bold>
               Coming soon
             </Typography>
@@ -70,7 +70,7 @@ const BookmarkFolderSoonModal = ({
           to find what you need.
         </Typography>
         {!isPlus && (
-          <div className="flex flex-col items-center justify-center gap-4 rounded-10 border border-border-subtlest-tertiary bg-action-plus-float p-4">
+          <div className="rounded-10 border-border-subtlest-tertiary bg-action-plus-float flex flex-col items-center justify-center gap-4 border p-4">
             <Typography
               type={TypographyType.Body}
               color={TypographyColor.Primary}

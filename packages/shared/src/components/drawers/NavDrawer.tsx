@@ -56,7 +56,7 @@ export function NavDrawer({
       }}
     >
       {header && (
-        <div className="flex h-14 items-center gap-2 border-b border-border-subtlest-tertiary px-4">
+        <div className="border-border-subtlest-tertiary flex h-14 items-center gap-2 border-b px-4">
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.XSmall}

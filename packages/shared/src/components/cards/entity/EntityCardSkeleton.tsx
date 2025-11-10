@@ -16,7 +16,7 @@ const EntityCardSkeleton = ({
   return (
     <div
       className={classNames(
-        'flex w-80 flex-col items-center rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4',
+        'rounded-16 border-border-subtlest-tertiary bg-background-popover flex w-80 flex-col items-center border p-4',
         className?.container,
       )}
       aria-busy
@@ -26,14 +26,14 @@ const EntityCardSkeleton = ({
           <ElementPlaceholder className="h-12 w-12 rounded-full" />
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <ElementPlaceholder className="h-8 w-8 rounded-8" />
-          <ElementPlaceholder className="h-8 w-8 rounded-8" />
+          <ElementPlaceholder className="rounded-8 h-8 w-8" />
+          <ElementPlaceholder className="rounded-8 h-8 w-8" />
         </div>
         <div />
       </div>
       <div className="mt-4 flex w-full flex-col gap-2">
-        <ElementPlaceholder className="h-5 w-32 rounded-8" />
-        <ElementPlaceholder className="h-4 w-24 rounded-6" />
+        <ElementPlaceholder className="rounded-8 h-5 w-32" />
+        <ElementPlaceholder className="rounded-6 h-4 w-24" />
       </div>
     </div>
   );

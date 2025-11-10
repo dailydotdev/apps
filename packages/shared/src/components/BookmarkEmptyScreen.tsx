@@ -21,21 +21,21 @@ export default function BookmarkEmptyScreen({
   iconProps = {},
 }: BookmarkEmptyScreenProps): ReactElement {
   return (
-    <main className="withNavBar inset-0 mx-auto mt-12 flex max-w-full flex-col items-center justify-center px-6 text-text-secondary">
+    <main className="withNavBar text-text-secondary inset-0 mx-auto mt-12 flex max-w-full flex-col items-center justify-center px-6">
       <BookmarkIcon
         {...iconProps}
-        className="icon m-0 text-text-disabled"
+        className="icon text-text-disabled m-0"
         size={IconSize.XXXLarge}
         secondary
       />
       <h1
-        className="my-4 text-center text-text-primary typo-title1"
+        className="text-text-primary typo-title1 my-4 text-center"
         style={{ maxWidth: '32.5rem' }}
       >
         {title}
       </h1>
       <p
-        className="mb-10 text-center text-text-tertiary"
+        className="text-text-tertiary mb-10 text-center"
         style={{ maxWidth: '32.5rem' }}
       >
         {description}

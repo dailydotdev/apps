@@ -190,7 +190,7 @@ const SlackIntegrationModal = ({
                   currentIntegration.id === 'new' ? PlusIcon : SlackIcon;
 
                 return (
-                  <span className="flex gap-2 typo-callout">
+                  <span className="typo-callout flex gap-2">
                     <ItemIcon />
                     {slackIntegrations[index].name}
                   </span>
@@ -210,7 +210,7 @@ const SlackIntegrationModal = ({
             >
               Select channel
               {!!channels?.length && (
-                <Bubble className="relative ml-1 bg-surface-float px-1">
+                <Bubble className="bg-surface-float relative ml-1 px-1">
                   {channels.length}
                 </Bubble>
               )}

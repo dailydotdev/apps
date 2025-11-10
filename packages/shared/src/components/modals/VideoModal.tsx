@@ -35,7 +35,7 @@ export default function VideoModal({
         className="aspect-video w-full border-none"
         src={src}
         title={title}
-        allow="encrypted-media;web-share"
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
         allowFullScreen
       />
     </Modal>

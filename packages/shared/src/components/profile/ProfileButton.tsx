@@ -50,7 +50,7 @@ export default function ProfileButton({
           icon={<SettingsIcon />}
         />
       ) : (
-        <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
+        <div className="rounded-12 bg-surface-float flex h-10 items-center px-1">
           {isStreaksEnabled && (
             <ReadingStreakButton
               streak={streak}
@@ -87,13 +87,13 @@ export default function ProfileButton({
             <button
               type="button"
               className={classNames(
-                'focus-outline cursor-pointer items-center gap-2 border-none p-0 font-bold text-text-primary no-underline typo-subhead',
+                'focus-outline text-text-primary typo-subhead cursor-pointer items-center gap-2 border-none p-0 font-bold no-underline',
                 className ?? 'flex',
               )}
               onClick={wrapHandler(() => onUpdate(!isOpen))}
             >
               <ReputationUserBadge
-                className="ml-1 !typo-subhead"
+                className="!typo-subhead ml-1"
                 user={user}
                 iconProps={{
                   size: IconSize.Small,

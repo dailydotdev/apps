@@ -136,7 +136,7 @@ export const SearchControlHeader = ({
         );
 
         return (
-          <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-2">
+          <div className="tablet:mb-2 tablet:p-2 flex w-full items-center justify-between">
             {wrapperChildren}
 
             <div className="flex-0">

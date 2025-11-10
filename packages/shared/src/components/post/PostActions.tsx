@@ -195,7 +195,7 @@ export function PostActions({
         </div>
       )}
     >
-      <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
+      <div className="rounded-16 border-border-subtlest-tertiary flex items-center border">
         <div
           className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
           ref={actionsRef}

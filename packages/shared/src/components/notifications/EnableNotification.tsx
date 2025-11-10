@@ -96,7 +96,7 @@ function EnableNotification({
     return (
       <span
         className={classNames(
-          'relative flex w-full flex-row items-center bg-gradient-to-r from-accent-water-default to-accent-onion-default p-3 font-bold typo-body',
+          'from-accent-water-default to-accent-onion-default typo-body relative flex w-full flex-row items-center bg-gradient-to-r p-3 font-bold',
           containerClassName[source],
         )}
       >
@@ -118,7 +118,7 @@ function EnableNotification({
   return (
     <div
       className={classNames(
-        'relative overflow-hidden border-accent-cabbage-default py-4 typo-callout',
+        'border-accent-cabbage-default typo-callout relative overflow-hidden py-4',
         classes,
         className,
       )}
@@ -134,7 +134,7 @@ function EnableNotification({
       <div className="mt-2 flex justify-between gap-2">
         <p
           className={classNames(
-            'w-full text-text-tertiary tablet:w-3/5',
+            'text-text-tertiary tablet:w-3/5 w-full',
             source === NotificationPromptSource.SourceSubscribe && 'flex-1',
           )}
         >
@@ -157,7 +157,7 @@ function EnableNotification({
           className={classNames(
             source === NotificationPromptSource.SourceSubscribe
               ? 'h-16 w-auto'
-              : 'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
+              : 'tablet:flex absolute -bottom-2 hidden w-[7.5rem]',
             acceptedJustNow ? 'right-14' : 'right-4',
           )}
           src={
@@ -193,7 +193,7 @@ function EnableNotification({
       {!showTextCloseButton && (
         <CloseButton
           size={ButtonSize.XSmall}
-          className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
+          className="laptop:right-3 laptop:top-3 absolute right-1 top-1"
           onClick={onDismiss}
         />
       )}

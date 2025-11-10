@@ -50,7 +50,7 @@ function UserList({
         {!!initialItem && initialItem}
         {users.map((user, i) => (
           <div
-            className="relative px-6 py-3 hover:bg-surface-hover"
+            className="hover:bg-surface-hover relative px-6 py-3"
             key={user.username}
           >
             <Link href={user.permalink}>

@@ -61,7 +61,7 @@ export function SquadCategoryDropdown({
           placeholder="Select category"
           className={{
             container: 'w-56',
-            button: categoryHint && 'border border-status-error',
+            button: categoryHint && 'border-status-error border',
           }}
           options={list.map(({ title }) => title)}
           selectedIndex={selected}

@@ -15,7 +15,7 @@ export function CreditCards({
   return (
     <div className={classNames('flex flex-col items-center', className)}>
       {children || (
-        <span className="mb-2 typo-footnote">
+        <span className="typo-footnote mb-2">
           Guaranteed safe & secure checkout
         </span>
       )}

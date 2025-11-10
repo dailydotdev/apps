@@ -56,29 +56,29 @@ export const BriefCardReady = ({
   return (
     <div
       className={classNames(
-        'relative flex flex-1 rounded-16 border border-white bg-transparent',
+        'rounded-16 relative flex flex-1 border border-white bg-transparent',
         className?.card,
       )}
     >
       <div
         style={rootStyle}
         className={classNames(
-          'flex flex-1 flex-col gap-2 rounded-16 px-6 py-4 text-black laptop:gap-4',
+          'rounded-16 laptop:gap-4 flex flex-1 flex-col gap-2 px-6 py-4 text-black',
           'backdrop-blur-3xl',
           'border-4 border-black',
         )}
       >
-        <div className="flex flex-1 flex-row items-center gap-2 laptop:flex-col laptop:items-start laptop:gap-4">
+        <div className="laptop:flex-col laptop:items-start laptop:gap-4 flex flex-1 flex-row items-center gap-2">
           <BriefIcon secondary size={IconSize.Size48} />
-          <div className="flex flex-1 flex-col laptop:gap-4 ">
+          <div className="laptop:gap-4 flex flex-1 flex-col ">
             <Typography className="typo-callout laptop:typo-title2" bold>
               {title}
             </Typography>
             <Typography type={TypographyType.Callout}>{post.title}</Typography>
           </div>
         </div>
-        <div className="flex flex-1 flex-col gap-2 laptop:gap-4">
-          <div className="flex flex-row gap-1 laptop:flex-col">
+        <div className="laptop:gap-4 flex flex-1 flex-col gap-2">
+          <div className="laptop:flex-col flex flex-row gap-1">
             <Typography type={TypographyType.Callout} className="w-full">
               {post.flags?.generatedAt &&
                 `Your AI agent spent ${formatDate({
@@ -100,7 +100,7 @@ export const BriefCardReady = ({
         <div className="mt-auto flex flex-col gap-3">
           {!isNullOrUndefined(post.readTime) && (
             <Pill
-              className="absolute right-4 top-4 rounded-20 border border-b-overlay-secondary-pepper px-2.5 py-2 laptop:relative laptop:right-auto laptop:top-auto"
+              className="rounded-20 border-b-overlay-secondary-pepper laptop:relative laptop:right-auto laptop:top-auto absolute right-4 top-4 border px-2.5 py-2"
               label={
                 <div className="flex items-center gap-1">
                   <TimerIcon />

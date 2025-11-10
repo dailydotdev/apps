@@ -75,7 +75,7 @@ export const ProfileSectionItem = ({
         color={typography?.color ?? TypographyColor.Tertiary}
         type={typography?.type ?? TypographyType.Subhead}
         className={classNames(
-          'flex h-10 cursor-pointer items-center gap-2 rounded-10 px-1 tablet:h-8',
+          'rounded-10 tablet:h-8 flex h-10 cursor-pointer items-center gap-2 px-1',
           (href || onClick) && 'hover:bg-surface-float',
           isActive ? 'bg-surface-active' : undefined,
           className,
@@ -93,14 +93,14 @@ export const ProfileSectionItem = ({
 
         {!isMobile && showLinkIcon && (
           <OpenLinkIcon
-            className="ml-auto text-text-quaternary"
+            className="text-text-quaternary ml-auto"
             size={IconSize.Size16}
           />
         )}
 
         {isMobile && !external && (
           <ArrowIcon
-            className="ml-auto rotate-90 text-text-quaternary"
+            className="text-text-quaternary ml-auto rotate-90"
             size={IconSize.Size16}
           />
         )}

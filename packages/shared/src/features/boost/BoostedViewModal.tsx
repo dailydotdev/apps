@@ -136,7 +136,7 @@ export function BoostedViewModal({
         {!!onBack && (
           <Button
             onClick={onBack}
-            className="hidden tablet:flex"
+            className="tablet:flex hidden"
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}
           />

@@ -236,7 +236,7 @@ export default function CommentModal({
             }}
             className={{
               container: 'flex-1 first:!border-none',
-              header: 'sticky top-0 z-2 w-full bg-background-default',
+              header: 'z-2 bg-background-default sticky top-0 w-full',
             }}
             headerRef={headerRef}
           >
@@ -252,11 +252,11 @@ export default function CommentModal({
                   postScoutId={post?.scout?.id}
                 />
                 <div
-                  className="ml-12 flex gap-2 border-l border-border-subtlest-tertiary py-3 pl-5 text-text-tertiary typo-caption1"
+                  className="border-border-subtlest-tertiary text-text-tertiary typo-caption1 ml-12 flex gap-2 border-l py-3 pl-5"
                   ref={replyRef}
                 >
                   Reply to
-                  <span className="font-bold text-text-primary">
+                  <span className="text-text-primary font-bold">
                     {comment.author?.username}
                   </span>
                 </div>

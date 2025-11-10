@@ -18,11 +18,11 @@ export function PostContentWidget({
   return (
     <div
       className={classNames(
-        'flex flex-col items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-4 py-3 laptop:flex-row laptop:gap-4',
+        'rounded-12 border-border-subtlest-tertiary laptop:flex-row laptop:gap-4 flex flex-col items-center gap-2 border px-4 py-3',
         className,
       )}
     >
-      <span className="flex flex-row items-center gap-1 font-bold text-text-tertiary typo-callout">
+      <span className="text-text-tertiary typo-callout flex flex-row items-center gap-1 font-bold">
         {icon}
         {title}
       </span>

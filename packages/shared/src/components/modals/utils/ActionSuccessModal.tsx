@@ -49,10 +49,10 @@ export function ActionSuccessModal<T extends AllowedTags>({
       isOpen
       isDrawerOnMobile
     >
-      <Modal.Body className="flex flex-col gap-3 py-1 tablet:!p-4">
-        <div className="relative flex flex-row overflow-hidden rounded-16">
+      <Modal.Body className="tablet:!p-4 flex flex-col gap-3 py-1">
+        <div className="rounded-16 relative flex flex-row overflow-hidden">
           <ModalClose
-            className="hidden tablet:flex"
+            className="tablet:flex hidden"
             right="2"
             top="2"
             size={ButtonSize.Small}
@@ -112,7 +112,7 @@ export function ActionSuccessModal<T extends AllowedTags>({
         {withCloseOnTablet && (
           <Button
             variant={ButtonVariant.Float}
-            className="hidden w-full tablet:flex"
+            className="tablet:flex hidden w-full"
             type="button"
             onClick={props.onRequestClose}
           >

@@ -69,7 +69,7 @@ export const UploadCv = ({
       <DragDrop
         state={status}
         isCompactList
-        className="my-2 w-full laptop:min-h-32"
+        className="laptop:min-h-32 my-2 w-full"
         onFilesDrop={onFilesDrop}
         validation={fileValidation}
         isCopyBold
@@ -78,7 +78,7 @@ export const UploadCv = ({
         ctaLabelMobile={ctaMobile}
       />
 
-      <div className="hidden w-full items-start gap-6 p-6 laptop:flex">
+      <div className="laptop:flex hidden w-full items-start gap-6 p-6">
         <div className="flex flex-1 flex-col gap-2">
           <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
             {linkedin.headline}
@@ -118,7 +118,7 @@ export const UploadCv = ({
         <Image
           src={linkedin.image}
           alt={linkedin.headline}
-          className="shadow-sm aspect-[343/182] w-full max-w-[21.4375rem] flex-shrink-0 self-start rounded-10 object-cover"
+          className="rounded-10 aspect-[343/182] w-full max-w-[21.4375rem] flex-shrink-0 self-start object-cover shadow-sm"
         />
       </div>
     </div>

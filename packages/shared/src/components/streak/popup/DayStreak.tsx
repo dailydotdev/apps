@@ -59,7 +59,7 @@ export function DayStreak({
           className,
           iconSizeToClassName[size],
           isStreakFreeze &&
-            'flex cursor-pointer items-center justify-center bg-text-disabled text-transparent laptop:hover:text-surface-secondary',
+            'bg-text-disabled laptop:hover:text-surface-secondary flex cursor-pointer items-center justify-center text-transparent',
         )}
         onClick={() => {
           if (isStreakFreeze) {
@@ -82,7 +82,7 @@ export function DayStreak({
       <div className="relative flex flex-col items-center gap-1">
         {shouldShowArrow && (
           <TriangleArrowIcon
-            className="absolute -top-4 text-accent-bacon-default"
+            className="text-accent-bacon-default absolute -top-4"
             size={IconSize.XXSmall}
           />
         )}

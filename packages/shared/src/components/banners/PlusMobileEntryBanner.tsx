@@ -57,11 +57,11 @@ const PlusMobileEntryBanner = ({
   return (
     <div
       className={classNames(
-        'absolute z-modal flex w-full overflow-hidden p-4',
+        'z-modal absolute flex w-full overflow-hidden p-4',
         className,
       )}
     >
-      <div className="plus-entry-gradient absolute inset-0 -z-1 h-full w-full rounded-16" />
+      <div className="plus-entry-gradient -z-1 rounded-16 absolute inset-0 h-full w-full" />
       {arrow && <PlusEntryArrow className="absolute top-1 h-[25px] w-[14px]" />}
       <div className="flex w-full flex-col gap-2">
         <div

@@ -54,7 +54,7 @@ export default function CollectionPostModal({
         inlineActions
         className={{
           onboarding: 'mt-8',
-          navigation: { actions: 'ml-auto laptop:hidden' },
+          navigation: { actions: 'laptop:hidden ml-auto' },
           fixedNavigation: {
             container: modalSizeToClassName[Modal.Size.XLarge],
             actions: 'ml-auto',

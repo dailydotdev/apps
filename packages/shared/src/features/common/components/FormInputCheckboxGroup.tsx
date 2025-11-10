@@ -89,7 +89,7 @@ const FormInputCheckbox = ({
     <Button
       aria-checked={isSelected}
       aria-label={item.label}
-      className={classNames(isVertical ? '!h-auto typo-subhead' : 'typo-body', {
+      className={classNames(isVertical ? 'typo-subhead !h-auto' : 'typo-body', {
         simplified: optionStyle === 'simplified',
       })}
       data-funnel-track={FunnelTargetId.QuizInput}

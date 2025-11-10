@@ -53,7 +53,7 @@ export function Section({
       {title && (
         <NavHeader
           className={classNames(
-            'hidden justify-between laptop:flex',
+            'laptop:flex hidden justify-between',
             sidebarExpanded ? 'px-3 opacity-100' : 'px-0 opacity-0',
           )}
         >

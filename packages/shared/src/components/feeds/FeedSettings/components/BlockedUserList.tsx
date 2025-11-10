@@ -63,7 +63,7 @@ export const BlockedUserList = ({
           entityName={user.name}
           entityType={ContentPreferenceType.User}
           status={user.contentPreference.status}
-          className="relative z-1"
+          className="z-1 relative"
         />
       )}
       userInfoProps={{

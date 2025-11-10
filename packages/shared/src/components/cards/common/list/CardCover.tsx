@@ -37,7 +37,7 @@ export function CardCoverList({
       {...props}
       imageProps={{
         ...optimizedImageProps,
-        className: classNames(imageProps.className, 'w-full mobileXL:w-60'),
+        className: classNames(imageProps.className, 'mobileXL:w-60 w-full'),
       }}
       CardImageComponent={CardImage}
       renderOverlay={({ overlay, image }) => (

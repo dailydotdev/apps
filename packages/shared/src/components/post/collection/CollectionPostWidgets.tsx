@@ -17,7 +17,7 @@ export const CollectionPostWidgets = ({
 }: PostWidgetsProps): ReactElement => {
   return (
     <PageWidgets className={className}>
-      <CollectionsIntro className="hidden laptop:flex" />
+      <CollectionsIntro className="laptop:flex hidden" />
       <RelatedPostsWidget
         post={post}
         relationType={PostRelationType.Collection}

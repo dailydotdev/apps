@@ -72,13 +72,13 @@ const PricingPlan = ({
       <RadioItem
         className={{
           wrapper: classNames(
-            'flex flex-col gap-2 rounded-16 bg-white px-2 py-3',
+            'rounded-16 flex flex-col gap-2 bg-white px-2 py-3',
             !isBestValue && 'border',
             isActive
               ? 'border-action-share-default bg-brand-float'
               : 'border-border-subtlest-secondary bg-surface-invert',
           ),
-          content: 'relative z-1 flex flex-row items-center gap-2 font-normal',
+          content: 'z-1 relative flex flex-row items-center gap-2 font-normal',
         }}
         value={priceId}
         checked={isActive}
@@ -89,7 +89,7 @@ const PricingPlan = ({
             type={TypographyType.Caption1}
             tag={TypographyTag.Span}
             className={classNames(
-              'absolute -top-3 left-3 z-3 inline-flex -translate-y-1/2 rounded-6 px-1 text-white',
+              'z-3 rounded-6 absolute -top-3 left-3 inline-flex -translate-y-1/2 px-1 text-white',
               isActive || isBestValue
                 ? badge.background || 'bg-brand-default'
                 : 'bg-surface-secondary',
@@ -156,7 +156,7 @@ const PricingPlan = ({
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className={classNames(
-                  'absolute bottom-0 left-0 top-0 z-1 h-full w-auto -translate-x-full',
+                  'z-1 absolute bottom-0 left-0 top-0 h-full w-auto -translate-x-full',
                   isActive ? 'text-brand-active' : 'text-surface-float',
                 )}
               >
@@ -167,7 +167,7 @@ const PricingPlan = ({
               </svg>
               <div
                 className={classNames(
-                  'relative z-2 flex items-center gap-1 rounded-r-8 p-1 pl-0',
+                  'z-2 rounded-r-8 relative flex items-center gap-1 p-1 pl-0',
                   isActive ? 'bg-brand-active' : 'bg-surface-float',
                 )}
               >

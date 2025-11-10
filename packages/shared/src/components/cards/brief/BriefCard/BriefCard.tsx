@@ -265,7 +265,7 @@ export const BriefCard = (props: Omit<BriefCardProps, 'post' | 'state'>) => {
     <BriefContextProvider>
       <div
         className={classNames(
-          'flex flex-1 p-2 laptop:p-0',
+          'laptop:p-0 flex flex-1 p-2',
           className?.container,
         )}
       >

@@ -334,12 +334,12 @@ export function ProfileSettingsMenuDesktop(): ReactElement {
   return (
     <aside
       className={classNames(
-        'ml-auto flex min-h-full flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64',
+        'rounded-16 border-border-subtlest-tertiary tablet:w-64 ml-auto flex min-h-full flex-col gap-2 self-start border p-2',
         featureTheme ? 'bg-transparent' : undefined,
       )}
     >
       <ProfileMenuHeader
-        className="rounded-10 px-1 hover:bg-theme-active"
+        className="rounded-10 hover:bg-theme-active px-1"
         shouldOpenProfile
         profileImageSize={ProfileImageSize.Medium}
       />

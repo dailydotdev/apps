@@ -45,7 +45,7 @@ export function CampaignListViewSquad({
       </div>
       <Image
         src={squad.image}
-        className="ml-auto h-12 w-12 rounded-max object-cover"
+        className="rounded-max ml-auto h-12 w-12 object-cover"
       />
       <Button
         icon={<OpenLinkIcon />}

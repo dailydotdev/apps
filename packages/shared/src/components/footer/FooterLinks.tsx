@@ -15,7 +15,7 @@ export const FooterLinks = ({ className }: FooterLinksProps): ReactElement => {
         <ul
           className={classNames(
             className,
-            'mb-4 flex flex-row flex-wrap justify-center gap-3 text-text-tertiary typo-caption1',
+            'text-text-tertiary typo-caption1 mb-4 flex flex-row flex-wrap justify-center gap-3',
           )}
         >
           <li>&copy; {new Date().getFullYear()} Daily Dev Ltd.</li>

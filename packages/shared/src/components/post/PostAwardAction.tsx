@@ -94,7 +94,7 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
         {post?.numAwards > 0 && (
           <InteractionCounter
             className={classNames(
-              'tabular-nums !typo-footnote',
+              '!typo-footnote tabular-nums',
               !post.numAwards && 'invisible',
             )}
             value={post.numAwards}

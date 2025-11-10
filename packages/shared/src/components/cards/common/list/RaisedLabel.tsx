@@ -46,7 +46,7 @@ export function RaisedLabel({
       >
         <div
           className={classNames(
-            'relative -top-2 flex h-4 rounded-4 px-2 font-bold uppercase text-white typo-caption2',
+            'rounded-4 typo-caption2 relative -top-2 flex h-4 px-2 font-bold uppercase text-white',
             typeToClassName[type],
           )}
         >

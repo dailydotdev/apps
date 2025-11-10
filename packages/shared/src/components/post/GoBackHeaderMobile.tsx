@@ -75,7 +75,7 @@ export function GoBackHeaderMobile({
   return (
     <span
       className={classNames(
-        'sticky top-0 z-postNavigation flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2 tablet:-mx-6 laptop:hidden',
+        'z-postNavigation border-border-subtlest-tertiary tablet:-mx-6 laptop:hidden sticky top-0 flex flex-row items-center border-b px-4 py-2',
         scrollClassName,
         className,
       )}

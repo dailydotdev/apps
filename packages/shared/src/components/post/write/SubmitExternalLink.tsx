@@ -59,8 +59,8 @@ export function SubmitExternalLink({
   return (
     <span
       className={classNames(
-        'relative flex flex-col items-center tablet:flex-row',
-        isMobile ? 'rounded-16 border border-border-subtlest-tertiary' : '',
+        'tablet:flex-row relative flex flex-col items-center',
+        isMobile ? 'rounded-16 border-border-subtlest-tertiary border' : '',
       )}
     >
       <TextField
@@ -78,10 +78,10 @@ export function SubmitExternalLink({
       {(url === undefined || isMobile) && (
         <ClickableText
           className={classNames(
-            'reading-history font-bold hover:text-text-primary',
+            'reading-history hover:text-text-primary font-bold',
             isMobile
               ? 'w-full justify-center py-4'
-              : 'absolute left-56 ml-3 hidden tablet:flex',
+              : 'tablet:flex absolute left-56 ml-3 hidden',
           )}
           inverseUnderline={!isMobile}
           onClick={() =>

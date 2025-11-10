@@ -19,13 +19,13 @@ export const CVExists = ({
 }): ReactElement => {
   const { user } = useAuthContext();
   return (
-    <div className="mx-auto mt-10 flex max-w-[42.5rem] flex-col items-center gap-6 rounded-16 border border-border-subtlest-secondary bg-blur-baseline p-6 tablet:w-full">
+    <div className="rounded-16 border-border-subtlest-secondary bg-blur-baseline tablet:w-full mx-auto mt-10 flex max-w-[42.5rem] flex-col items-center gap-6 border p-6">
       <Typography type={TypographyType.LargeTitle} bold center>
         You&apos;re all set
       </Typography>
       <VIcon
         size={IconSize.XXLarge}
-        className="self-center rounded-full border border-border-subtlest-secondary p-2"
+        className="border-border-subtlest-secondary self-center rounded-full border p-2"
       />
 
       <Typography

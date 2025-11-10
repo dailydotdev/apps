@@ -41,7 +41,7 @@ function FunnelEditTagsComponent({
       })}
       containerClassName="flex w-full flex-1 flex-col items-center laptop:justify-center overflow-hidden"
     >
-      <div className="flex w-full flex-col items-center gap-6 p-6 pt-10 tablet:max-w-md laptop:max-w-screen-laptop">
+      <div className="tablet:max-w-md laptop:max-w-screen-laptop flex w-full flex-col items-center gap-6 p-6 pt-10">
         <EditTag
           headline={headline}
           userId={user?.id ?? trackingId}

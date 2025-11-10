@@ -104,7 +104,7 @@ function BaseDrawer({
   return (
     <div
       className={classNames(
-        'fixed inset-0 z-modal transition-opacity duration-300 ease-in-out',
+        'z-modal fixed inset-0 transition-opacity duration-300 ease-in-out',
         !isFullScreen && 'bg-overlay-quaternary-onion',
         className?.overlay,
         isAnimating && 'opacity-0',
@@ -113,7 +113,7 @@ function BaseDrawer({
       <div
         {...props}
         className={classNames(
-          'drawer-padding absolute flex w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
+          'drawer-padding bg-background-default absolute flex w-full flex-col overflow-y-auto transition-transform duration-300 ease-in-out',
           isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
@@ -133,7 +133,7 @@ function BaseDrawer({
         {title && (
           <h3
             className={classNames(
-              'flex flex-row items-center border-b border-border-subtlest-tertiary p-4 font-bold typo-title3',
+              'border-border-subtlest-tertiary typo-title3 flex flex-row items-center border-b p-4 font-bold',
               className?.title,
             )}
           >
@@ -153,7 +153,7 @@ function BaseDrawer({
         {displayCloseButton && (
           <div
             className={classNames(
-              'sticky -bottom-3 bg-background-default',
+              'bg-background-default sticky -bottom-3',
               className?.close,
             )}
           >

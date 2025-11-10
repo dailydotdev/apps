@@ -199,7 +199,7 @@ export const OpportunityEditContentModal = ({
                   <div
                     role={!valid ? 'alert' : undefined}
                     className={classNames(
-                      'flex items-center typo-caption1',
+                      'typo-caption1 flex items-center',
                       !valid ? 'text-status-error' : 'text-text-quaternary',
                     )}
                   >

@@ -28,8 +28,8 @@ export const SquadDirectoryNavbar = (
     <nav
       aria-label="Squad directory navigation"
       className={classNames(
-        'relative -mx-4 border-b border-border-subtlest-tertiary px-4 laptop:border-0',
-        'flex-row flex-nowrap gap-2 laptop:flex',
+        'border-border-subtlest-tertiary laptop:border-0 relative -mx-4 border-b px-4',
+        'laptop:flex flex-row flex-nowrap gap-2',
         className,
       )}
       {...attrs}

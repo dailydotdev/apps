@@ -109,14 +109,14 @@ function ImageInput({
   const onError = () => setImage(fallbackImage);
 
   return (
-    <div className={className?.root || 'relative z-1 flex w-min'}>
+    <div className={className?.root || 'z-1 relative flex w-min'}>
       <button
         type="button"
         onClick={onClick}
         onDragOver={onDragOver}
         onDrop={onDrop}
         className={classNames(
-          'group relative flex items-center justify-center overflow-hidden border border-border-subtlest-primary',
+          'border-border-subtlest-primary group relative flex items-center justify-center overflow-hidden border',
           componentSize[size],
           className?.container,
         )}
@@ -153,7 +153,7 @@ function ImageInput({
           <span
             className={classNames(
               !alwaysShowHover && 'hidden',
-              !viewOnly && 'absolute mouse:group-hover:block',
+              !viewOnly && 'mouse:group-hover:block absolute',
             )}
           >
             {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
@@ -176,7 +176,7 @@ function ImageInput({
           title="Remove image"
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
-          className="absolute -right-2 -top-2 !shadow-2"
+          className="!shadow-2 absolute -right-2 -top-2"
           onClick={onClose}
           type="button"
         />

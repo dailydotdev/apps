@@ -86,7 +86,7 @@ export function ProfileWidgets({
 
   return (
     <div
-      className={classNames('my-4 flex flex-col gap-6 laptop:my-0', className)}
+      className={classNames('laptop:my-0 my-4 flex flex-col gap-6', className)}
     >
       <Header user={user} isSameUser={isSameUser} className="-mb-2" />
       {!hideSticky && (
@@ -94,7 +94,7 @@ export function ProfileWidgets({
           user={user}
           isSameUser={isSameUser}
           sticky
-          className="fixed left-0 top-0 z-3 w-full bg-background-default transition-transform duration-75 tablet:pl-20"
+          className="z-3 bg-background-default tablet:pl-20 fixed left-0 top-0 w-full transition-transform duration-75"
           style={{ transform: `translateY(${(stickyProgress - 1) * 100}%)` }}
         />
       )}
@@ -135,14 +135,14 @@ export function ProfileWidgets({
         )}
       </div>
       {shouldShowUpload && (
-        <div className="mx-4 flex max-w-80 flex-col gap-2 tablet:max-w-96">
+        <div className="tablet:max-w-96 mx-4 flex max-w-80 flex-col gap-2">
           <ConditionalWrapper
             condition={isTouchDevice}
             wrapper={(component) => (
               <div
                 className={classNames(
                   dragDropClasses,
-                  'flex-col gap-1 bg-surface-float p-3',
+                  'bg-surface-float flex-col gap-1 p-3',
                 )}
               >
                 <Typography bold type={TypographyType.Callout}>
@@ -173,7 +173,7 @@ export function ProfileWidgets({
                       <button
                         type="button"
                         onClick={onBrowseFile}
-                        className="underline typo-footnote hover:no-underline"
+                        className="typo-footnote underline hover:no-underline"
                       >
                         Upload PDF
                       </button>
@@ -187,14 +187,14 @@ export function ProfileWidgets({
       <SocialChips links={user} />
       {(isSameUser || sources?.edges?.length > 0) && (
         <div className="flex flex-col gap-3">
-          <div className="px-4 text-text-tertiary typo-footnote">
+          <div className="text-text-tertiary typo-footnote px-4">
             Active in these Squads
           </div>
           <SquadsList memberships={sources} userId={user.id} />
         </div>
       )}
       {isSameUser && (
-        <ReferralWidget url={referralUrl} className="hidden laptop:flex" />
+        <ReferralWidget url={referralUrl} className="laptop:flex hidden" />
       )}
     </div>
   );

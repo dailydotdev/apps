@@ -40,7 +40,7 @@ const briefingListItems: Array<PlusItem> = [
 
 export const BriefPlusAdvantagesCard = () => {
   return (
-    <ClickableCard className="flex flex-col !border-action-upvote-active !bg-action-upvote-float p-4">
+    <ClickableCard className="!border-action-upvote-active !bg-action-upvote-float flex flex-col p-4">
       <Typography type={TypographyType.Callout} bold>
         Want unlimited briefings?
       </Typography>

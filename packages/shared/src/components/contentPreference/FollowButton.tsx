@@ -114,7 +114,7 @@ export const FollowButton = ({
   ].includes(currentStatus);
 
   return (
-    <div className={classNames('relative z-1 inline-flex gap-2', className)}>
+    <div className={classNames('z-1 relative inline-flex gap-2', className)}>
       <SourceActionsFollow
         className={buttonClassName}
         isSubscribed={isFollowing}

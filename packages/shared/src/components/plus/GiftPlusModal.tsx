@@ -134,7 +134,7 @@ export function GiftPlusModalComponent({
       overlayRef={setOverlay}
       isDrawerOnMobile
     >
-      <Modal.Body className="gap-4 tablet:!p-4">
+      <Modal.Body className="tablet:!p-4 gap-4">
         <div className="flex flex-row justify-between">
           <PlusTitle type={TypographyType.Callout} bold />
           <CloseButton
@@ -158,7 +158,7 @@ export function GiftPlusModalComponent({
                   {preselected.name}
                 </Typography>
                 <ReputationUserBadge
-                  className="ml-0.5 !typo-footnote"
+                  className="!typo-footnote ml-0.5"
                   user={{ reputation: preselected.reputation }}
                   iconProps={{ size: IconSize.XSmall }}
                   disableTooltip
@@ -225,7 +225,7 @@ export function GiftPlusModalComponent({
             </div>
           )}
         </ConditionalRender>
-        <div className="flex w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2 py-3">
+        <div className="rounded-10 bg-surface-float flex w-full flex-row items-center gap-2 p-2 py-3">
           <Typography bold type={TypographyType.Callout}>
             One-year plan
           </Typography>

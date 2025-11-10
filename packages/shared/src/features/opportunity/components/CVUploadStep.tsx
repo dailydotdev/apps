@@ -52,7 +52,7 @@ export const CVUploadStep = ({
           {description}
         </Typography>
       </FlexCol>
-      <FlexCol className="gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+      <FlexCol className="rounded-16 border-border-subtlest-tertiary gap-3 border p-4">
         <ProgressStep currentStep={currentStep} totalSteps={totalSteps} />
         <div className="flex w-full flex-col gap-2">
           <DragDrop
@@ -63,7 +63,7 @@ export const CVUploadStep = ({
             validation={fileValidation}
             onFilesDrop={onFileSelect}
             uploadIcon={
-              <span className="flex size-8 items-center justify-center rounded-10 bg-surface-float text-text-primary">
+              <span className="rounded-10 bg-surface-float text-text-primary flex size-8 items-center justify-center">
                 <UploadIcon size={IconSize.Small} />
               </span>
             }

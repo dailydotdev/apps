@@ -70,7 +70,7 @@ export const CandidateStatusStep = ({
           until you&apos;re ready.
         </Typography>
       </FlexCol>
-      <FlexCol className="gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+      <FlexCol className="rounded-16 border-border-subtlest-tertiary gap-3 border p-4">
         <ProgressStep currentStep={currentStep} totalSteps={totalSteps} />
         <FlexCol className="gap-2">
           {options.map(({ value, icon, title, description }) => (
@@ -78,14 +78,14 @@ export const CandidateStatusStep = ({
               key={value}
               variant={ButtonVariant.Option}
               className={classNames(
-                '!h-auto w-auto gap-3 border border-border-subtlest-tertiary !p-3',
+                'border-border-subtlest-tertiary !h-auto w-auto gap-3 border !p-3',
                 {
                   'bg-surface-float': selectedStatus === value,
                 },
               )}
               onClick={() => onStatusSelect(value)}
             >
-              <div className="relative top-0.5 flex size-12 items-center justify-center rounded-10">
+              <div className="rounded-10 relative top-0.5 flex size-12 items-center justify-center">
                 {icon}
               </div>
               <FlexCol className="flex-1 text-left">

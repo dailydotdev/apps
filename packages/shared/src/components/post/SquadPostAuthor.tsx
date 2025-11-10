@@ -47,8 +47,8 @@ const SquadPostAuthorSkeleton = ({
     >
       <ElementPlaceholder className={getProfilePictureClasses(size)} />
       <div className="ml-4 flex flex-1 flex-col gap-1">
-        <ElementPlaceholder className="h-6 w-20 rounded-10" />
-        <ElementPlaceholder className="h-6 w-28 rounded-10" />
+        <ElementPlaceholder className="rounded-10 h-6 w-20" />
+        <ElementPlaceholder className="rounded-10 h-6 w-28" />
       </div>
     </span>
   );
@@ -111,7 +111,7 @@ function SquadPostAuthor({
       >
         <div
           className={classNames(
-            'flex gap-1 text-text-tertiary',
+            'text-text-tertiary flex gap-1',
             className?.handle,
           )}
         >

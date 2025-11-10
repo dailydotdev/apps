@@ -47,7 +47,7 @@ export const CollectionList = forwardRef(function CollectionCard(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
-        className="mt-2 justify-between tablet:mt-0"
+        className="tablet:mt-0 mt-2 justify-between"
       />
     </Container>
   );
@@ -93,9 +93,9 @@ export const CollectionList = forwardRef(function CollectionCard(
             >
               {title}
             </CardTitle>
-            <div className="flex flex-1 tablet:hidden" />
+            <div className="tablet:hidden flex flex-1" />
             <PostTags post={post} />
-            <div className="hidden flex-1 tablet:flex" />
+            <div className="tablet:flex hidden flex-1" />
             {!isMobile && actionButtons}
           </div>
 

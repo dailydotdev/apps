@@ -12,13 +12,13 @@ export const WidgetCard = (props: WidgetCardProps): ReactElement => {
   return (
     <section
       className={classNames(
-        'flex flex-col rounded-16 border border-border-subtlest-tertiary',
+        'rounded-16 border-border-subtlest-tertiary flex flex-col border',
         className,
       )}
       {...attrs}
     >
-      <header className="border-b border-b-border-subtlest-tertiary">
-        <h4 className="my-0.5 px-4 py-3 text-text-tertiary typo-body">
+      <header className="border-b-border-subtlest-tertiary border-b">
+        <h4 className="text-text-tertiary typo-body my-0.5 px-4 py-3">
           {heading}
         </h4>
       </header>

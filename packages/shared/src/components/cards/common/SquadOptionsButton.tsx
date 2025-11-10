@@ -110,7 +110,7 @@ export function SquadOptionsButton({
           variant={ButtonVariant.Tertiary}
           icon={<MenuIcon />}
           size={ButtonSize.Small}
-          className={classNames('invisible z-1 group-hover:visible', className)}
+          className={classNames('z-1 invisible group-hover:visible', className)}
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>

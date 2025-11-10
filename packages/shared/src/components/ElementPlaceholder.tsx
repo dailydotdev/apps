@@ -9,7 +9,7 @@ export const ElementPlaceholder = ({
   <div
     className={classNames(
       className,
-      'relative overflow-hidden bg-surface-float',
+      'bg-surface-float relative overflow-hidden',
     )}
     {...props}
   />

@@ -92,7 +92,7 @@ export function DevCard({
         >
           <div
             className={classNames(
-              'relative flex flex-col rounded-24 bg-cover p-2 pb-10',
+              'rounded-24 relative flex flex-col bg-cover p-2 pb-10',
               isHorizontal && 'm-2 ',
             )}
             style={{
@@ -127,7 +127,7 @@ export function DevCard({
         <div
           className={classNames(
             'relative flex flex-1 flex-col justify-center gap-3 p-4',
-            type !== DevCardType.Horizontal && 'mt-4 rounded-b-24 pt-8',
+            type !== DevCardType.Horizontal && 'rounded-b-24 mt-4 pt-8',
           )}
           style={{
             boxShadow:
@@ -140,8 +140,8 @@ export function DevCard({
                 'font-bold',
                 isIron ? 'text-white' : 'text-raw-pepper-90',
                 isHorizontal
-                  ? 'line-clamp-2 typo-mega2'
-                  : 'line-clamp-1 typo-title2',
+                  ? 'typo-mega2 line-clamp-2'
+                  : 'typo-title2 line-clamp-1',
               )}
             >
               {user.name}
@@ -189,8 +189,8 @@ export function DevCard({
               className={classNames(
                 isIron ? 'text-white' : 'text-raw-pepper-90',
                 isHorizontal
-                  ? 'line-clamp-6 typo-callout'
-                  : 'line-clamp-2 typo-caption1',
+                  ? 'typo-callout line-clamp-6'
+                  : 'typo-caption1 line-clamp-2',
               )}
             >
               {user.bio}

@@ -84,24 +84,24 @@ export function ReadingHeatmapWidget({
         valueToCount={readHistoryToValue}
         valueToTooltip={readHistoryToTooltip}
       />
-      <div className="mt-4 flex items-center justify-between typo-footnote">
+      <div className="typo-footnote mt-4 flex items-center justify-between">
         <div className="text-text-quaternary">Inspired by GitHub</div>
         <div className="flex items-center">
           <div className="mr-2">Less</div>
           <div
-            className="mr-0.5 h-2 w-2 border border-border-subtlest-quaternary"
+            className="border-border-subtlest-quaternary mr-0.5 h-2 w-2 border"
             style={{ borderRadius: '0.1875rem' }}
           />
           <div
-            className="mr-0.5 h-2 w-2 bg-text-disabled"
+            className="bg-text-disabled mr-0.5 h-2 w-2"
             style={{ borderRadius: '0.1875rem' }}
           />
           <div
-            className="mr-0.5 h-2 w-2 bg-text-quaternary"
+            className="bg-text-quaternary mr-0.5 h-2 w-2"
             style={{ borderRadius: '0.1875rem' }}
           />
           <div
-            className="mr-0.5 h-2 w-2 bg-text-primary"
+            className="bg-text-primary mr-0.5 h-2 w-2"
             style={{ borderRadius: '0.1875rem' }}
           />
           <div className="ml-2">More</div>

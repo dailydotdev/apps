@@ -70,10 +70,10 @@ const PollDurationDropdown = () => {
         Poll duration
       </Typography>
       <DropdownMenu>
-        <DropdownMenuTrigger className="w-full tablet:w-52" asChild>
+        <DropdownMenuTrigger className="tablet:w-52 w-full" asChild>
           <Button
             variant={ButtonVariant.Float}
-            className="!justify-between !px-3 !font-normal !typo-callout"
+            className="!typo-callout !justify-between !px-3 !font-normal"
           >
             {options[selectedIndex].label}
             <ArrowIcon className="ml-auto rotate-180" secondary />

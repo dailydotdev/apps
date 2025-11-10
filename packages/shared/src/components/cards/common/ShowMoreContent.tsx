@@ -50,7 +50,7 @@ export default function ShowMoreContent({
     <div className={className?.wrapper}>
       <p
         className={classNames(
-          'select-text break-words typo-markdown',
+          'typo-markdown select-text break-words',
           className?.text,
         )}
         data-testid="tldr-container"
@@ -59,7 +59,7 @@ export default function ShowMoreContent({
         {shownContent}
         {showMore.isVisible && (
           <ClickableText
-            className="inline-flex !text-text-link"
+            className="!text-text-link inline-flex"
             onClick={() => toggleTextExpanded()}
           >
             {showMore.text}

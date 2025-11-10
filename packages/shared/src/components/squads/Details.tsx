@@ -203,7 +203,7 @@ export function SquadDetails({
       title={createMode ? undefined : 'Squad settings'}
       className={{
         container: 'flex flex-1 flex-col',
-        title: 'px-4 font-bold typo-title3 tablet:px-0',
+        title: 'typo-title3 tablet:px-0 px-4 font-bold',
         header: 'border-b-0',
       }}
       copy={{
@@ -232,7 +232,7 @@ export function SquadDetails({
         {!createMode && (
           <div className="flex flex-col items-center gap-5">
             <div
-              className="mt-4 flex w-full max-w-70 flex-row items-center justify-between rounded-32 bg-surface-float bg-cover pr-4"
+              className="max-w-70 rounded-32 bg-surface-float mt-4 flex w-full flex-row items-center justify-between bg-cover pr-4"
               style={{
                 background: headerImageBase64
                   ? `url(${headerImageBase64})`
@@ -306,7 +306,7 @@ export function SquadDetails({
           />
           {!isDescriptionOpen && (
             <button
-              className="ml-4 mr-auto font-bold text-text-tertiary typo-callout"
+              className="text-text-tertiary typo-callout ml-4 mr-auto font-bold"
               type="button"
               onClick={() => {
                 setDescriptionOpen((current) => !current);
@@ -333,7 +333,7 @@ export function SquadDetails({
         </SquadSettingsSection>
         {integrationId ? (
           <SquadSettingsSection title="Integrations" className="!gap-4">
-            <div className="flex h-10 items-center gap-2 rounded-14 bg-surface-float px-2">
+            <div className="rounded-14 bg-surface-float flex h-10 items-center gap-2 px-2">
               <SlackIcon />{' '}
               <Typography type={TypographyType.Body}>
                 {initialData.name}

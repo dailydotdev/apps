@@ -41,7 +41,7 @@ export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
     <FunnelFactWrapper {...props}>
       <div
         data-testid="step-content"
-        className="flex flex-1 flex-col items-center justify-center gap-6 p-6 laptop:mb-10"
+        className="laptop:mb-10 flex flex-1 flex-col items-center justify-center gap-6 p-6"
       >
         {skip?.placement === 'top' && (
           <Button

@@ -82,7 +82,7 @@ export const RecruiterLayout = ({
       <RecruiterLayoutHeader canGoBack={canGoBack} onLogoClick={onLogoClick} />
       <NoSidebarLayout
         hideBackButton
-        className="flex flex-col gap-5 py-5 laptop:gap-10 laptop:py-10"
+        className="laptop:gap-10 laptop:py-10 flex flex-col gap-5 py-5"
       >
         {children}
       </NoSidebarLayout>

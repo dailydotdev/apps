@@ -31,7 +31,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   if (!isPlus) {
     return (
       <Tooltip
-        className="max-w-70 text-center !typo-subhead"
+        className="max-w-70 !typo-subhead text-center"
         content={
           fetchedSmartTitle ? (
             <>
@@ -48,7 +48,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         }
       >
         <Button
-          className="relative mr-2 text-accent-cheese-default"
+          className="text-accent-cheese-default relative mr-2"
           size={ButtonSize.XSmall}
           icon={
             fetchedSmartTitle ? (
@@ -94,7 +94,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
 
   return (
     <Tooltip
-      className="max-w-70 text-center !typo-subhead"
+      className="max-w-70 !typo-subhead text-center"
       content={
         shieldActive
           ? 'Click to see the original title'

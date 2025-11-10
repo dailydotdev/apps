@@ -96,9 +96,9 @@ function ButtonComponent<TagName extends AllowedTags>(
       aria-pressed={pressed}
       ref={ref}
       className={classNames(
-        `btn focus-outline inline-flex cursor-pointer select-none flex-row
-        items-center border no-underline shadow-none transition
-        duration-200 ease-in-out typo-callout`,
+        `btn focus-outline typo-callout inline-flex cursor-pointer select-none
+        flex-row items-center border no-underline shadow-none
+        transition duration-200 ease-in-out`,
         ![ButtonVariant.Option, ButtonVariant.Quiz].includes(variant) &&
           'justify-center font-bold',
         { iconOnly },

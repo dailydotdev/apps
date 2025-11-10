@@ -49,7 +49,7 @@ export function SquadModerationList({
   return (
     <div className="flex flex-col">
       {list.length > 1 && isModerator && (
-        <span className="flex w-full flex-row justify-end border-b border-border-subtlest-tertiary px-4 py-3">
+        <span className="border-border-subtlest-tertiary flex w-full flex-row justify-end border-b px-4 py-3">
           <Button
             icon={<VIcon secondary />}
             variant={ButtonVariant.Primary}

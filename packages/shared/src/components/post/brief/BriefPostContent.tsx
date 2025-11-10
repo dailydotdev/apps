@@ -111,7 +111,7 @@ const BriefPostContentRaw = ({
   const isAuthor = user?.id === post?.author?.id;
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
-    '!max-w-3xl laptop:flex-row laptop:pb-0',
+    'laptop:flex-row laptop:pb-0 !max-w-3xl',
     className?.container,
   );
 
@@ -347,10 +347,10 @@ const BriefPostContentRaw = ({
                 contextMenuId="post-widgets-context"
               />
             </BriefPostHeader>
-            <div className="-mt-3 flex flex-wrap items-center gap-3 mobileXL:flex-nowrap">
+            <div className="mobileXL:flex-nowrap -mt-3 flex flex-wrap items-center gap-3">
               {!isNullOrUndefined(post.readTime) && (
                 <Pill
-                  className="rounded-20 border border-border-subtlest-tertiary px-2.5 py-2 font-normal"
+                  className="rounded-20 border-border-subtlest-tertiary border px-2.5 py-2 font-normal"
                   label={
                     <div className="flex items-center gap-1">
                       <TimerIcon aria-hidden className="text-text-tertiary" />
@@ -382,12 +382,12 @@ const BriefPostContentRaw = ({
             </div>
             <Markdown content={contentHtml} />
             {isNotPlus && (
-              <div className="flex w-full rounded-12 border border-white bg-transparent">
+              <div className="rounded-12 flex w-full border border-white bg-transparent">
                 <div
                   style={{
                     background: briefCardBg,
                   }}
-                  className="flex w-full flex-col flex-wrap justify-between gap-3 rounded-12 border-4 border-black p-6"
+                  className="rounded-12 flex w-full flex-col flex-wrap justify-between gap-3 border-4 border-black p-6"
                 >
                   <LottieAnimation
                     className="-m-4 h-20 w-20"
@@ -430,12 +430,12 @@ const BriefPostContentRaw = ({
               </div>
             )}
             {post?.content && isPlus && (
-              <div className="flex w-full rounded-12 border border-white bg-transparent">
+              <div className="rounded-12 flex w-full border border-white bg-transparent">
                 <div
                   style={{
                     background: briefCardBg,
                   }}
-                  className="flex w-full flex-col flex-wrap justify-between gap-3 rounded-12 border-4 border-black p-6"
+                  className="rounded-12 flex w-full flex-col flex-wrap justify-between gap-3 border-4 border-black p-6"
                 >
                   <Typography type={TypographyType.Title2} bold>
                     Customize your presidential briefing

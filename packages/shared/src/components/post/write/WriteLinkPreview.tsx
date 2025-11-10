@@ -62,7 +62,7 @@ export function WriteLinkPreview({
         )}
         {preview.title && (
           <WritePreviewContent className={isMinimized && '!px-3 !py-2'}>
-            <div className="flex flex-1 flex-col typo-footnote">
+            <div className="typo-footnote flex flex-1 flex-col">
               <span className="line-clamp-2 font-bold">{preview.title}</span>
               {preview.source?.id !== 'unknown' &&
                 (isMinimized ? (
@@ -106,7 +106,7 @@ export function WriteLinkPreview({
       </WritePreviewContainer>
 
       {preview.relatedPublicPosts?.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float py-4">
+        <div className="rounded-16 border-border-subtlest-tertiary bg-surface-float flex flex-col gap-2 border py-4">
           <Typography bold type={TypographyType.Body} className="px-4">
             This link has already been shared here:
           </Typography>
@@ -114,7 +114,7 @@ export function WriteLinkPreview({
           <div
             className={classNames(
               'flex flex-col gap-2 overflow-x-hidden overflow-y-scroll px-4',
-              variant === 'modal' ? 'max-h-52 tablet:max-h-28' : 'max-h-52',
+              variant === 'modal' ? 'tablet:max-h-28 max-h-52' : 'max-h-52',
             )}
           >
             {preview.relatedPublicPosts.map((post) => {

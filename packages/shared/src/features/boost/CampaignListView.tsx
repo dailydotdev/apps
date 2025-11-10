@@ -136,7 +136,7 @@ export function CampaignListView({
         <ProgressBar
           percentage={percentage}
           shouldShowBg
-          className={{ wrapper: 'h-2 rounded-6' }}
+          className={{ wrapper: 'rounded-6 h-2' }}
         />
         <span className="flex flex-row justify-between">
           <Typography
@@ -167,7 +167,7 @@ export function CampaignListView({
           }
         />
       </div>
-      <div className="h-px w-full bg-border-subtlest-tertiary" />
+      <div className="bg-border-subtlest-tertiary h-px w-full" />
       <div className="flex flex-col gap-2">
         <Modal.Subtitle>Summary</Modal.Subtitle>
         <Typography

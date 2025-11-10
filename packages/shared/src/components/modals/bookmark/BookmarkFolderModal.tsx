@@ -38,7 +38,7 @@ const ModalTitle = () => (
     <Typography
       tag={TypographyTag.Span}
       type={TypographyType.Caption1}
-      className="flex items-center rounded-4 bg-action-plus-float px-1"
+      className="rounded-4 bg-action-plus-float flex items-center px-1"
       bold
       color={TypographyColor.Plus}
     >
@@ -96,7 +96,7 @@ const BookmarkFolderModal = ({
         <ModalHeader showCloseButton={!isMobile} className="gap-2">
           <ModalTitle />
         </ModalHeader>
-        <Modal.Body className="flex flex-col gap-5 tablet:gap-4">
+        <Modal.Body className="tablet:gap-4 flex flex-col gap-5">
           {shouldUpgrade && (
             <Typography
               type={TypographyType.Callout}
@@ -143,7 +143,7 @@ const BookmarkFolderModal = ({
             Choose an icon
           </Typography>
           <ul
-            className="flex flex-wrap gap-4 laptop:justify-evenly"
+            className="laptop:justify-evenly flex flex-wrap gap-4"
             role="radiogroup"
           >
             {emojiOptions.map((emoji) => (

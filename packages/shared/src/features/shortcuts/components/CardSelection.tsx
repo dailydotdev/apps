@@ -26,7 +26,7 @@ export function CardSelection({
   return (
     <button
       className={classNames(
-        'relative flex flex-col items-center gap-1 rounded-16 border border-border-subtlest-tertiary px-4 py-3 hover:cursor-pointer',
+        'rounded-16 border-border-subtlest-tertiary relative flex flex-col items-center gap-1 border px-4 py-3 hover:cursor-pointer',
         isActive
           ? 'border-border-subtlest-primary bg-surface-float'
           : 'border-border-subtlest-tertiary',
@@ -35,7 +35,7 @@ export function CardSelection({
       type="button"
     >
       {isActive && (
-        <VIcon className="absolute -right-3 -top-3 size-8 rounded-8 bg-text-primary text-background-default" />
+        <VIcon className="rounded-8 bg-text-primary text-background-default absolute -right-3 -top-3 size-8" />
       )}
       {icon}
 

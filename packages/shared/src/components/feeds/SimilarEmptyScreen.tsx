@@ -15,7 +15,7 @@ function SquadEmptyScreen({ post }: { post: Post }): ReactElement {
         secondary
         className="text-text-disabled"
       />
-      <p className="my-4 font-bold text-text-primary typo-title2">
+      <p className="text-text-primary typo-title2 my-4 font-bold">
         {post?.title
           ? `We couldn't find posts similar to "${post?.title}"`
           : `We couldn't find any similar posts`}

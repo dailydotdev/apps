@@ -57,7 +57,7 @@ const AwardItem = ({
   return (
     <Button
       variant={ButtonVariant.Float}
-      className="flex !h-auto flex-col items-center justify-center rounded-14 bg-surface-float !p-1"
+      className="rounded-14 bg-surface-float flex !h-auto flex-col items-center justify-center !p-1"
       onClick={(event) => {
         logAwardEvent({ awardEvent: 'PICK', extra: { award: item.value } });
 
@@ -131,12 +131,12 @@ const IntroScreen = () => {
           </Button>
         ) : null}
       </Modal.Header>
-      <Modal.Body className="gap-2 bg-gradient-to-t from-theme-overlay-to to-transparent tablet:rounded-b-16">
+      <Modal.Body className="from-theme-overlay-to tablet:rounded-b-16 gap-2 bg-gradient-to-t to-transparent">
         <div className="flex flex-col items-center justify-center gap-2 px-4">
           <Image
             src={hasAwards ? featuredAwardImage : entity.receiver.image}
             alt="Award user"
-            className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
+            className={hasAwards ? 'size-[7.5rem]' : 'rounded-18 size-16'}
           />
           <Typography
             type={TypographyType.Title3}
@@ -199,7 +199,7 @@ const IntroScreen = () => {
           </Typography>
           !
         </Typography>
-        <div className="mt-4 grid grid-cols-3 gap-2 tablet:grid-cols-4">
+        <div className="tablet:grid-cols-4 mt-4 grid grid-cols-3 gap-2">
           {awards?.edges?.map(({ node: item }) => (
             <AwardItem
               key={item.id}
@@ -320,7 +320,7 @@ const CommentScreen = () => {
           <Image
             src={hasAwards ? product.image : entity.receiver.image}
             alt="Award user"
-            className={hasAwards ? 'size-[7.5rem]' : 'size-16 rounded-18'}
+            className={hasAwards ? 'size-[7.5rem]' : 'rounded-18 size-16'}
           />
           <Typography
             type={TypographyType.Callout}

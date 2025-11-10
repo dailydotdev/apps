@@ -14,10 +14,10 @@ const Slider = ({
         className,
       )}
     >
-      <SliderPrimitive.Track className="relative h-2 flex-1 rounded-max bg-surface-disabled">
-        <SliderPrimitive.Range className="absolute h-full rounded-max bg-brand-default" />
+      <SliderPrimitive.Track className="rounded-max bg-surface-disabled relative h-2 flex-1">
+        <SliderPrimitive.Range className="rounded-max bg-brand-default absolute h-full" />
       </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb className="block h-7 w-7 rounded-max border-4 border-accent-cabbage-default bg-accent-cabbage-subtlest" />
+      <SliderPrimitive.Thumb className="rounded-max border-accent-cabbage-default bg-accent-cabbage-subtlest block h-7 w-7 border-4" />
     </SliderPrimitive.Root>
   );
 };

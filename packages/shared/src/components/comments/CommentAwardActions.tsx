@@ -115,7 +115,7 @@ export const CommentAwardActions = ({
         bold
       >
         {largeNumberFormat(comment.numAwards)}
-        <span className="hidden tablet:block">
+        <span className="tablet:block hidden">
           Award
           {comment.numAwards > 1 ? 's' : ''}
         </span>

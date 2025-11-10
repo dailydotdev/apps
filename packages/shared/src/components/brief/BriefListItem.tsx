@@ -77,11 +77,11 @@ export const BriefListItem = ({
   return (
     <article
       className={classNames(
-        'relative flex w-full items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-3',
+        'rounded-16 border-border-subtlest-tertiary relative flex w-full items-center gap-4 border p-3',
         className,
       )}
     >
-      <div className="hidden items-center mobileXL:flex">
+      <div className="mobileXL:flex hidden items-center">
         <BriefGradientIcon secondary={!isRead} size={IconSize.Size48} />
       </div>
       <div className="flex w-full flex-col gap-1">
@@ -98,7 +98,7 @@ export const BriefListItem = ({
           {!!pill && (
             <Pill
               {...pill}
-              className="invert !self-auto bg-accent-bacon-default py-0.5 text-text-primary"
+              className="bg-accent-bacon-default text-text-primary !self-auto py-0.5 invert"
             />
           )}
           {isLocked && (

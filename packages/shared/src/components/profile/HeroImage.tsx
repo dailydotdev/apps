@@ -30,14 +30,14 @@ function HeroImageComponent(
           alt="cover"
           loading="eager"
           className={classNames(
-            'absolute left-0 top-0 -z-1 size-full rounded-26 object-cover',
+            '-z-1 rounded-26 absolute left-0 top-0 size-full object-cover',
             className?.cover,
           )}
         />
       ) : (
         <div
           className={classNames(
-            'absolute left-0 top-0 -z-1 size-full rounded-26 bg-background-subtle',
+            '-z-1 rounded-26 bg-background-subtle absolute left-0 top-0 size-full',
             className?.cover,
           )}
         />
@@ -48,7 +48,7 @@ function HeroImageComponent(
         eager
         size={ProfileImageSize.XXXXLarge}
         className={classNames(
-          'border-4 border-background-default',
+          'border-background-default border-4',
           className?.profile,
         )}
       />

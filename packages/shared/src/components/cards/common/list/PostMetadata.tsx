@@ -30,9 +30,9 @@ export default function PostMetadata({
   return (
     <div className={classNames('grid items-center', className)}>
       {topLabel && (
-        <div className="truncate font-bold typo-footnote">{topLabel}</div>
+        <div className="typo-footnote truncate font-bold">{topLabel}</div>
       )}
-      <div className="flex flex-row items-center truncate text-text-tertiary typo-footnote">
+      <div className="text-text-tertiary typo-footnote flex flex-row items-center truncate">
         {boostedBy && (
           <Typography
             type={TypographyType.Footnote}

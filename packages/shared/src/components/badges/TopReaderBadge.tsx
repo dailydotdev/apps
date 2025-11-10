@@ -37,12 +37,12 @@ export const TopReaderBadge = ({
 
   return (
     <div
-      className="relative flex size-80 rounded-24 p-1 text-center text-text-primary"
+      className="rounded-24 text-text-primary relative flex size-80 p-1 text-center"
       style={{
         backgroundImage: themeToLinearGradient[DevCardTheme.Gold],
       }}
     >
-      <div className="z-1 flex max-w-full flex-1 flex-col items-center rounded-20 px-3 py-5">
+      <div className="z-1 rounded-20 flex max-w-full flex-1 flex-col items-center px-3 py-5">
         <div className="flex justify-center pb-1">
           <BadgeIcon imageUrl={image} />
         </div>
@@ -74,16 +74,16 @@ export const TopReaderBadge = ({
         </Typography>
 
         <div
-          className="relative my-5 max-w-max rounded-12 p-1"
+          className="rounded-12 relative my-5 max-w-max p-1"
           style={{
             backgroundImage: themeToLinearGradient[DevCardTheme.Gold],
           }}
         >
-          <div className="relative overflow-hidden rounded-8 px-2 py-0.5">
+          <div className="rounded-8 relative overflow-hidden px-2 py-0.5">
             <Typography
               type={TypographyType.Title2}
               bold
-              className="relative z-1 text-black"
+              className="z-1 relative text-black"
             >
               {keyword.flags?.title || keyword.value}
             </Typography>
@@ -97,14 +97,14 @@ export const TopReaderBadge = ({
         </div>
         <div className="flex">
           <LogoIcon className={{ container: 'h-logo' }} />
-          <LogoText className={{ container: 'ml-1 h-logo' }} />
+          <LogoText className={{ container: 'h-logo ml-1' }} />
         </div>
       </div>
       <div className="absolute left-0 top-0 z-0 h-full w-full p-1">
         <img
           src={cloudinaryTopReaderBadgeBackground}
           alt="Badge background"
-          className="left-0 top-0 h-full w-full rounded-20 bg-background-default"
+          className="rounded-20 bg-background-default left-0 top-0 h-full w-full"
           aria-hidden
         />
       </div>

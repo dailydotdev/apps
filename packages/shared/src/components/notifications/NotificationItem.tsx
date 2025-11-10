@@ -210,7 +210,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
   return (
     <div
       className={classNames(
-        'group relative flex flex-row border-y border-background-default py-4 pl-6 pr-4 hover:bg-surface-hover focus:bg-theme-active',
+        'border-background-default hover:bg-surface-hover focus:bg-theme-active group relative flex flex-row border-y py-4 pl-6 pr-4',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -242,7 +242,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         )}
         {createdAt && (
           <DateFormat
-            className="ml-1 text-text-quaternary typo-footnote"
+            className="text-text-quaternary typo-footnote ml-1"
             date={createdAt}
             type={TimeFormatType.LastActivity}
           />
@@ -253,7 +253,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         icon={icon}
         iconTheme={notificationTypeTheme[type]}
       />
-      <div className="ml-4 flex w-full flex-1 flex-col text-left typo-callout">
+      <div className="typo-callout ml-4 flex w-full flex-1 flex-col text-left">
         {hasAvatar && (
           <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
         )}
@@ -264,7 +264,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
           }}
         />
         {description && (
-          <span className="mt-2 flex w-4/5 flex-1 gap-2 text-text-quaternary">
+          <span className="text-text-quaternary mt-2 flex w-4/5 flex-1 gap-2">
             <NotificationItemDescriptionIcon type={type} key="icon" />
             <p
               className="flex-1 break-words"

@@ -40,7 +40,7 @@ const PanelItem = ({ suggestion, showFollow, ...rest }: PanelItemProps) => {
       loading="lazy"
       src={suggestion.image}
       alt={`${suggestion.title} logo`}
-      className="size-7 rounded-8"
+      className="rounded-8 size-7"
     />
   );
 
@@ -58,7 +58,7 @@ const PanelItem = ({ suggestion, showFollow, ...rest }: PanelItemProps) => {
       className="px-2 py-1"
     >
       <div className="flex flex-1 flex-col items-start">
-        <span className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap font-bold text-text-primary typo-subhead">
+        <span className="text-text-primary typo-subhead flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap font-bold">
           {suggestion.title}
         </span>
         <span className="text-text-quarternary typo-footnote">
@@ -122,11 +122,11 @@ export const SearchPanelUserSuggestions = ({
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <div className="relative my-2 flex items-center justify-start gap-2">
-        <hr className="w-2 border-border-subtlest-tertiary" />
-        <span className="relative inline-flex font-bold typo-footnote">
+        <hr className="border-border-subtlest-tertiary w-2" />
+        <span className="typo-footnote relative inline-flex font-bold">
           {title}
         </span>
-        <hr className="flex-1 border-border-subtlest-tertiary" />
+        <hr className="border-border-subtlest-tertiary flex-1" />
       </div>
       {suggestions?.hits?.map((suggestion) => {
         return (

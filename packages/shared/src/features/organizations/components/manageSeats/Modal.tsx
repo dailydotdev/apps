@@ -76,7 +76,7 @@ export const ManageSeatsModal = ({
       {...props}
       className={classNames(
         props.className,
-        'relative min-h-[27rem] tablet:!w-[52.5rem]',
+        'tablet:!w-[52.5rem] relative min-h-[27rem]',
         activeTab !== Display.Checkout && 'tablet:flex-col',
       )}
       isDrawerOnMobile={activeTab === Display.Checkout}

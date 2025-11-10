@@ -127,7 +127,7 @@ export function Dropdown({
       size={buttonSize}
       disabled={disabled}
       className={classNames(
-        'group flex w-full items-center px-3 font-normal text-text-tertiary typo-body hover:bg-surface-hover hover:text-text-primary',
+        'text-text-tertiary typo-body hover:bg-surface-hover hover:text-text-primary group flex w-full items-center px-3 font-normal',
         className?.button,
         iconOnly && 'items-center justify-center',
       )}
@@ -161,7 +161,7 @@ export function Dropdown({
           </span>
           <ArrowIcon
             className={classNames(
-              'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
+              'group-hover:text-text-tertiary ml-auto text-xl transition-transform',
               isVisible ? 'rotate-0' : 'rotate-180',
               styles.chevron,
               className.chevron,
@@ -255,7 +255,7 @@ export function Dropdown({
         <div
           role={valid === false ? 'alert' : undefined}
           className={classNames(
-            'mt-1 flex items-center gap-1 px-2 typo-caption1',
+            'typo-caption1 mt-1 flex items-center gap-1 px-2',
             valid === false ? 'text-status-error' : 'text-text-quaternary',
           )}
         >

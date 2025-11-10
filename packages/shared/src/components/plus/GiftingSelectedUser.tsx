@@ -27,7 +27,7 @@ export function GiftingSelectedUser({
   return (
     <div
       className={classNames(
-        'flex w-full max-w-full flex-row items-center gap-2 rounded-10 bg-surface-float p-2',
+        'rounded-10 bg-surface-float flex w-full max-w-full flex-row items-center gap-2 p-2',
         className,
       )}
     >

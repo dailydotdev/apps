@@ -60,7 +60,7 @@ export const FormInputRating = ({
               aria-posinset={index + 1}
               aria-setsize={options.length}
               className={classNames(
-                'h-16 min-w-10 flex-1 justify-center border border-border-subtlest-tertiary',
+                'border-border-subtlest-tertiary h-16 min-w-10 flex-1 justify-center border',
                 className,
               )}
               data-funnel-track={FunnelTargetId.QuizInput}

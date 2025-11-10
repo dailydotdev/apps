@@ -17,9 +17,9 @@ export function SquadSettingsSection({
 }: SettingsSectionProps): ReactElement {
   return (
     <div className={classNames('flex flex-1 flex-col gap-2', className)}>
-      <h3 className="font-bold typo-body">{title}</h3>
+      <h3 className="typo-body font-bold">{title}</h3>
       {description && (
-        <p className="mb-2 text-text-tertiary typo-callout">{description}</p>
+        <p className="text-text-tertiary typo-callout mb-2">{description}</p>
       )}
       {children}
     </div>

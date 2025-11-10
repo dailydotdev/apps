@@ -31,13 +31,13 @@ export function ProgressBar({
           <div
             // eslint-disable-next-line react/no-array-index-key
             key={index}
-            className="h-1 flex-1 rounded-50"
+            className="rounded-50 h-1 flex-1"
             data-testid="progress-bar-chapter"
           >
-            <div className="relative h-full w-full overflow-hidden rounded-50 bg-border-subtlest-tertiary">
+            <div className="rounded-50 bg-border-subtlest-tertiary relative h-full w-full overflow-hidden">
               {(isPastChapter || isCurrentChapter) && (
                 <div
-                  className="transition-width absolute inset-0 rounded-50 bg-accent-cabbage-default duration-300 ease-in-out"
+                  className="transition-width rounded-50 bg-accent-cabbage-default absolute inset-0 duration-300 ease-in-out"
                   style={{
                     width: `${isCurrentChapter ? progressPercentage : 100}%`,
                   }}

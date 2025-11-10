@@ -16,7 +16,7 @@ export function SharePostTitle({
   }
 
   if (!titleHtml) {
-    return <p className="mt-6 whitespace-pre-line typo-title3">{title}</p>;
+    return <p className="typo-title3 mt-6 whitespace-pre-line">{title}</p>;
   }
 
   return <Markdown className="mt-6" content={titleHtml} />;

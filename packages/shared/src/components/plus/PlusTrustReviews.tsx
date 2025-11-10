@@ -18,7 +18,7 @@ export const PlusTrustReviews = ({
     >
       <div
         aria-label="Rating: 4.8 out of 5"
-        className="flex gap-0.5 text-accent-cheese-default"
+        className="text-accent-cheese-default flex gap-0.5"
       >
         {Array.from({ length: 5 }, (_, i) => (
           <StarIcon secondary key={i} size={IconSize.Small} />

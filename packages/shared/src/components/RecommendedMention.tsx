@@ -30,7 +30,7 @@ export function RecommendedMention({
   return (
     <ul
       className={classNames(
-        'flex flex-col overflow-hidden rounded-16 border border-border-subtlest-secondary text-text-primary',
+        'rounded-16 border-border-subtlest-secondary text-text-primary flex flex-col overflow-hidden border',
         className,
       )}
       role="listbox"
@@ -51,7 +51,7 @@ export function RecommendedMention({
               container: classNames(
                 'cursor-pointer p-3',
                 checkIsDisabled?.(user)
-                  ? 'pointer-events-none opacity-64'
+                  ? 'opacity-64 pointer-events-none'
                   : 'cursor-pointer',
                 index === selected && 'bg-theme-active',
               ),

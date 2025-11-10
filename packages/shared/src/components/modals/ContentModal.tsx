@@ -38,7 +38,7 @@ export default function ContentModal({
       {...props}
     >
       <div className="flex w-full flex-col items-center">
-        <div className="w-full rounded-t-16 bg-surface-active">
+        <div className="rounded-t-16 bg-surface-active w-full">
           {mediaType === 'video' ? (
             <video
               className="aspect-video w-full border-none"

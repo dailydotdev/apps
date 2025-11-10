@@ -26,13 +26,13 @@ export function AuthenticationBanner({
   return (
     <BottomBannerContainer
       className={classNames(
-        'border-t border-accent-cabbage-default py-10 shadow-3',
+        'border-accent-cabbage-default shadow-3 border-t py-10',
         authGradientBg,
       )}
     >
       <div className="flex max-w-[63.75rem] flex-row  justify-center gap-10">
         <Image
-          className="absolute left-0 top-0 -z-1 h-full w-full"
+          className="-z-1 absolute left-0 top-0 h-full w-full"
           src={bg}
           srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
           sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
@@ -42,7 +42,7 @@ export function AuthenticationBanner({
             <OnboardingHeadline
               className={{
                 title: 'typo-mega3',
-                description: 'mb-8 typo-title3',
+                description: 'typo-title3 mb-8',
               }}
             />
           )}

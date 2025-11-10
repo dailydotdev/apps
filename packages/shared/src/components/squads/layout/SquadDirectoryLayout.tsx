@@ -58,17 +58,17 @@ export const SquadDirectoryLayout = (
   const isDiscover = pathname === squadCategoriesPaths.discover;
 
   return (
-    <BaseFeedPage className="relative mb-4 flex-col px-4 pt-4 laptop:px-18 laptop:pt-8">
+    <BaseFeedPage className="laptop:px-18 laptop:pt-8 relative mb-4 flex-col px-4 pt-4">
       {isDiscover && (
-        <div className="absolute inset-0 -z-1 hidden h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default to-background-default tablet:flex" />
+        <div className="-z-1 from-accent-cabbage-default to-background-default tablet:flex absolute inset-0 hidden h-[25rem] w-full bg-gradient-to-t" />
       )}
 
       <header className="flex w-full flex-col gap-2">
-        <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
+        <section className="typo-body laptop:hidden flex w-full flex-row items-center justify-between">
           <strong>Squads</strong>
           <NewSquadButton icon={<PlusIcon />} variant={ButtonVariant.Primary} />
         </section>
-        <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 laptop:gap-22">
+        <div className="laptop:gap-22 flex max-w-full flex-row flex-nowrap items-center justify-between gap-6">
           <SquadDirectoryNavbar className="min-h-14 min-w-0 flex-1">
             {Object.entries(categoryPaths ?? {}).map(([category, path]) => (
               <SquadDirectoryNavbarItem
@@ -81,7 +81,7 @@ export const SquadDirectoryLayout = (
               />
             ))}
           </SquadDirectoryNavbar>
-          <div className="hidden laptop:block">
+          <div className="laptop:block hidden">
             <NewSquadButton />
           </div>
         </div>

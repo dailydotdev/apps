@@ -56,7 +56,7 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
-      className="flex w-full max-w-64 flex-col gap-3 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+      className="!rounded-10 border-border-subtlest-tertiary !bg-accent-pepper-subtlest flex w-full max-w-64 flex-col gap-3 border p-3"
     >
       <ProfileMenuHeader />
 

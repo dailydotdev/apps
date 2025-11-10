@@ -155,7 +155,7 @@ export const OnboardingRegistrationForm = ({
           onLogin={() => onExistingEmail?.('')}
           className={{
             container:
-              'mx-auto mt-6 text-center text-text-secondary typo-callout',
+              'text-text-secondary typo-callout mx-auto mt-6 text-center',
             login: '!text-inherit',
           }}
         />

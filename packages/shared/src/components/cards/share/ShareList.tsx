@@ -56,7 +56,7 @@ export const ShareList = forwardRef(function ShareList(
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
       <ActionButtons
-        className="mt-4 justify-between tablet:mt-0"
+        className="tablet:mt-0 mt-4 justify-between"
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
@@ -77,7 +77,7 @@ export const ShareList = forwardRef(function ShareList(
     return {
       topLabel: enableSourceHeader ? (
         <Link href={post.source.permalink}>
-          <a href={post.source.permalink} className="relative z-1">
+          <a href={post.source.permalink} className="z-1 relative">
             {post.source.name}
           </a>
         </Link>
@@ -140,14 +140,14 @@ export const ShareList = forwardRef(function ShareList(
           >
             {truncatedTitle}
           </CardTitle>
-          <div className="flex flex-1 tablet:hidden" />
+          <div className="tablet:hidden flex flex-1" />
           <div className="flex items-center">
             {!post.title && post.sharedPost.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
             <PostTags post={post} />
           </div>
-          <div className="hidden flex-1 tablet:flex" />
+          <div className="tablet:flex hidden flex-1" />
           {!isMobile && actionButtons}
         </div>
 

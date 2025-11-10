@@ -41,14 +41,14 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
 
   return (
     <div className="flex w-full flex-col">
-      <div className="mr-auto mt-0 flex gap-3 tablet:mr-0 tablet:mt-2 laptop:mr-auto laptop:w-auto">
+      <div className="tablet:mr-0 tablet:mt-2 laptop:mr-auto laptop:w-auto mr-auto mt-0 flex gap-3">
         <SearchControlHeader
           algoState={[selectedAlgo, setSelectedAlgo]}
           feedName={SharedFeedPage.Custom}
         />
       </div>
       <PageContainer className="mx-auto">
-        <div className="mt-16 flex max-h-full w-full max-w-screen-tablet flex-col items-center justify-center gap-4 px-6 text-center">
+        <div className="max-w-screen-tablet mt-16 flex max-h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
           <HashtagIcon
             className={EmptyScreenIcon.className}
             style={EmptyScreenIcon.style}
@@ -58,7 +58,7 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
               <Typography
                 tag={TypographyTag.Span}
                 type={TypographyType.Caption1}
-                className="flex gap-0.5 rounded-4 bg-action-plus-float p-0.5 pr-1"
+                className="rounded-4 bg-action-plus-float flex gap-0.5 p-0.5 pr-1"
                 color={TypographyColor.Plus}
               >
                 <DevPlusIcon size={IconSize.Size16} /> Plus

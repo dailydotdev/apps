@@ -19,7 +19,7 @@ const SocialBar = ({ post, className }: SocialBarProps): ReactElement => {
   return (
     <aside
       className={classNames(
-        'flex flex-col items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary px-4 py-3 tablet:flex-row',
+        'rounded-16 border-border-subtlest-tertiary tablet:flex-row flex flex-col items-center justify-between gap-2 border px-4 py-3',
         className,
       )}
     >

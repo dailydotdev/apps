@@ -24,8 +24,8 @@ function ShareYouTubeContent({
   if (!post.sharedPost?.id) {
     return (
       <>
-        <ElementPlaceholder className="mt-6 h-6 w-2/4 rounded-10" />
-        <ElementPlaceholder className="my-5 w-full rounded-16 pt-[56.25%]" />
+        <ElementPlaceholder className="rounded-10 mt-6 h-6 w-2/4" />
+        <ElementPlaceholder className="rounded-16 my-5 w-full pt-[56.25%]" />
       </>
     );
   }
@@ -52,7 +52,7 @@ function ShareYouTubeContent({
               sharedPost={post?.sharedPost}
               source={post?.source}
               onGoToLinkProps={combinedClicks(onReadArticle)}
-              className="m-4 flex flex-wrap font-bold typo-body"
+              className="typo-body m-4 flex flex-wrap font-bold"
             >
               {post.sharedPost.title}
             </SharedPostLink>

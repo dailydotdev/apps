@@ -14,7 +14,7 @@ const Text = ({
 }: ComponentProps<typeof ElementPlaceholder>) => (
   <ElementPlaceholder
     {...attrs}
-    className={classNames('h-3.5 rounded-12', className)}
+    className={classNames('rounded-12 h-3.5', className)}
   />
 );
 
@@ -31,7 +31,7 @@ export const PlaceholderSquadGrid = ({
       {...attrs}
       aria-busy
       className={classNames(
-        'flex flex-col overflow-hidden rounded-16 border-0 bg-background-subtle p-4',
+        'rounded-16 bg-background-subtle flex flex-col overflow-hidden border-0 p-4',
         className,
       )}
     >

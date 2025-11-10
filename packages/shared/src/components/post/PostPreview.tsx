@@ -37,7 +37,7 @@ function PostPreview({
   return (
     <div
       className={classNames(
-        'flex w-full items-center gap-4 rounded-12 border border-border-subtlest-tertiary px-4 py-2',
+        'rounded-12 border-border-subtlest-tertiary flex w-full items-center gap-4 border px-4 py-2',
         className,
       )}
     >
@@ -48,7 +48,7 @@ function PostPreview({
           <ParagraphPlaceholder className="w-1/3" />
         </div>
       ) : (
-        <p className="multi-truncate line-clamp-3 flex-1 text-text-secondary typo-caption1">
+        <p className="multi-truncate text-text-secondary typo-caption1 line-clamp-3 flex-1">
           {title}
         </p>
       )}

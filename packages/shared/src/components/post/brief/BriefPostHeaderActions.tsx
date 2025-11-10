@@ -28,7 +28,7 @@ export const BriefPostHeaderActions = ({
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      <div className="hidden laptop:block">
+      <div className="laptop:block hidden">
         <Button
           icon={<LinkIcon />}
           size={ButtonSize.Medium}

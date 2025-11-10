@@ -32,7 +32,7 @@ export function PostUpvotesCommentsCount({
 
   return (
     <div
-      className="mb-5 flex flex-wrap items-center gap-x-4 !leading-7 text-text-tertiary typo-callout"
+      className="text-text-tertiary typo-callout mb-5 flex flex-wrap items-center gap-x-4 !leading-7"
       data-testid="statsBar"
     >
       {!!post.analytics?.impressions && (
@@ -84,7 +84,7 @@ export function PostUpvotesCommentsCount({
           <Button
             tag="a"
             size={ButtonSize.XSmall}
-            className="font-normal text-text-link"
+            className="text-text-link font-normal"
             icon={<AnalyticsIcon />}
           >
             Post analytics

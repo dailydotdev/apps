@@ -37,7 +37,7 @@ export const AdGrid = forwardRef(function AdGrid(
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <AdFavicon ad={ad} className="mx-4" />
       <CardTextContainer className="flex-1">
-        <CardTitle className="line-clamp-4 typo-title3">
+        <CardTitle className="typo-title3 line-clamp-4">
           {ad.description}
         </CardTitle>
         <AdAttribution ad={ad} className={{ main: 'mt-auto font-normal' }} />

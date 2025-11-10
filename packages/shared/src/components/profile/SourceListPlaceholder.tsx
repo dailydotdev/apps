@@ -12,10 +12,10 @@ const Placeholder = () => (
   <div className="flex gap-2">
     <ElementPlaceholder className="size-10 rounded-full" />
     <div className="flex max-w-full flex-1 flex-col">
-      <ElementPlaceholder className="mb-2 h-5 w-1/3 rounded-14" />
-      <ElementPlaceholder className="h-5 w-1/2 rounded-14" />
+      <ElementPlaceholder className="rounded-14 mb-2 h-5 w-1/3" />
+      <ElementPlaceholder className="rounded-14 h-5 w-1/2" />
     </div>
-    <ElementPlaceholder className="h-8 w-24 rounded-12" />
+    <ElementPlaceholder className="rounded-12 h-8 w-24" />
   </div>
 );
 

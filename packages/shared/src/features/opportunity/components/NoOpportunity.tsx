@@ -56,7 +56,7 @@ export const NoOpportunity = (): ReactElement => {
       </Typography>
 
       {showAlert && (
-        <FlexRow className="gap-3 rounded-16 border border-border-subtlest-tertiary px-3 py-3.5">
+        <FlexRow className="rounded-16 border-border-subtlest-tertiary gap-3 border px-3 py-3.5">
           <FlexCol className="flex-1 gap-1">
             <Typography type={TypographyType.Body} bold>
               Enable push notifications
@@ -96,7 +96,7 @@ export const NoOpportunity = (): ReactElement => {
       <CandidatePreferenceButton
         label="Update job preferences"
         targetId={TargetId.OpportunityUnavailablePage}
-        className="w-full tablet:w-80"
+        className="tablet:w-80 w-full"
       />
     </div>
   );

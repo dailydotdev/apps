@@ -40,12 +40,12 @@ export default function CreateMyFeedButton({
 
   return (
     <div className="mb-4 flex w-full flex-col items-center">
-      <div className="flex flex-col items-center rounded-12 border border-accent-cabbage-default p-2 shadow-2-cabbage tablet:flex-row">
-        <p className="ml-2 text-center transition-all typo-footnote tablet:text-left">
+      <div className="rounded-12 border-accent-cabbage-default shadow-2-cabbage tablet:flex-row flex flex-col items-center border p-2">
+        <p className="typo-footnote tablet:text-left ml-2 text-center transition-all">
           {explainerCopy}
         </p>
         <Button
-          className="ml-0 mt-4 tablet:ml-8 tablet:mt-0"
+          className="tablet:ml-8 tablet:mt-0 ml-0 mt-4"
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
           size={ButtonSize.Small}

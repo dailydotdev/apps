@@ -62,7 +62,7 @@ export const CustomPrompt = ({ post }: CustomPromptProps): ReactElement => {
           className="min-h-[9.5rem] w-full bg-transparent p-3"
           placeholder="Write your custom instruction to tailor the post to your needs."
         />
-        <div className="flex border-t border-t-border-subtlest-tertiary px-4 py-2">
+        <div className="border-t-border-subtlest-tertiary flex border-t px-4 py-2">
           <Button
             className="ml-auto"
             variant={ButtonVariant.Primary}
@@ -84,7 +84,7 @@ export const CustomPrompt = ({ post }: CustomPromptProps): ReactElement => {
             progress={data?.chunks?.[0]?.progress}
           />
           {!!data?.chunks?.[0]?.status && (
-            <div className="mt-2 text-text-tertiary typo-callout">
+            <div className="text-text-tertiary typo-callout mt-2">
               {data?.chunks?.[0]?.status}
             </div>
           )}

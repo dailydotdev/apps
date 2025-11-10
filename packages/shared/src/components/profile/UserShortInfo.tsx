@@ -120,12 +120,12 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       >
         <div
           className={classNames(
-            'ml-4 flex max-w-full flex-col overflow-auto typo-callout',
+            'typo-callout ml-4 flex max-w-full flex-col overflow-auto',
             className.textWrapper ?? defaultClassName.textWrapper,
           )}
         >
           <div className="flex items-center gap-1">
-            <TruncateText className="font-bold typo-callout" title={name}>
+            <TruncateText className="typo-callout font-bold" title={name}>
               {name}
             </TruncateText>
             {isPlus && <PlusUserBadge user={{ isPlus }} tooltip={false} />}
@@ -178,7 +178,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
                 : formatCoresCurrency(user.awardTransaction.value)}
             </Typography>
           </div>
-          <div className="flex size-7 items-center justify-center rounded-10 bg-surface-float">
+          <div className="rounded-10 bg-surface-float flex size-7 items-center justify-center">
             <Image
               src={user.award.image}
               alt={user.award.name}

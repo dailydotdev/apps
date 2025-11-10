@@ -66,13 +66,13 @@ const PollResults = ({
     return (
       <div
         key={option.order}
-        className="relative flex w-full flex-1 items-center overflow-hidden rounded-12 border-none p-2"
+        className="rounded-12 relative flex w-full flex-1 items-center overflow-hidden border-none p-2"
       >
         {animatedPercentage === 0 && (
-          <div className="absolute bottom-0 left-0 top-0 w-5 rounded-12 bg-surface-float" />
+          <div className="rounded-12 bg-surface-float absolute bottom-0 left-0 top-0 w-5" />
         )}
         <div
-          className={`absolute bottom-0 left-0 top-0 rounded-12 transition-all duration-700 ease-out ${
+          className={`rounded-12 absolute bottom-0 left-0 top-0 transition-all duration-700 ease-out ${
             isVotedOption ? 'bg-brand-active' : 'bg-surface-float'
           }`}
           style={{
@@ -99,7 +99,7 @@ const PollResults = ({
           </div>
 
           {isVotedOption && (
-            <div className="ml-2 flex items-center justify-center rounded-full bg-brand-default">
+            <div className="bg-brand-default ml-2 flex items-center justify-center rounded-full">
               <VIcon secondary className="size-4" />
             </div>
           )}
@@ -122,7 +122,7 @@ export const PollOptionButtons = ({
       onClick={() => onClick(option.id, option.text)}
       key={option.order}
       type="button"
-      className="flex w-full flex-1 items-center justify-center rounded-12 border border-border-subtlest-tertiary p-2 text-center text-text-secondary typo-callout hover:bg-surface-hover"
+      className="rounded-12 border-border-subtlest-tertiary text-text-secondary typo-callout hover:bg-surface-hover flex w-full flex-1 items-center justify-center border p-2 text-center"
     >
       <Typography
         type={TypographyType.Callout}

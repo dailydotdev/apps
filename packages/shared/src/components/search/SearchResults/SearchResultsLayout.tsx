@@ -83,11 +83,11 @@ export const SearchResultsLayout = (
   }
 
   return (
-    <section className="mx-auto w-full laptopL:max-w-screen-laptop">
-      <div className="flex flex-row border-border-subtlest-tertiary laptop:-mx-8 laptop:pb-0 laptopL:mx-auto laptopL:border-x">
-        <div className="flex-1 border-r border-border-subtlest-tertiary">
+    <section className="laptopL:max-w-screen-laptop mx-auto w-full">
+      <div className="border-border-subtlest-tertiary laptop:-mx-8 laptop:pb-0 laptopL:mx-auto laptopL:border-x flex flex-row">
+        <div className="border-border-subtlest-tertiary flex-1 border-r">
           <div className="flex items-center justify-between">
-            <h2 className="px-4 py-4 font-bold text-text-primary typo-body">
+            <h2 className="text-text-primary typo-body px-4 py-4 font-bold">
               Related posts
             </h2>
             <div className="mx-4 flex gap-2">
@@ -107,7 +107,7 @@ export const SearchResultsLayout = (
               }),
               isListMode
                 ? `flex flex-col`
-                : `grid w-96 grid-cols-1 px-4 laptopL:w-auto laptopL:grid-cols-2`,
+                : `laptopL:w-auto laptopL:grid-cols-2 grid w-96 grid-cols-1 px-4`,
             )}
           >
             {children}

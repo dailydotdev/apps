@@ -123,7 +123,7 @@ export const KeywordSelection = ({
           onCloseAutoFocus={(e) => e.preventDefault()} // avoid refocus jumps
           onPointerDownOutside={handlePopoverClose}
           onInteractOutside={handlePopoverClose}
-          className="rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
+          className="rounded-16 border-border-subtlest-tertiary bg-background-popover border p-4 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
         >
           <div className="flex flex-wrap gap-2">
             {autocompleteKeywords?.map(({ keyword }) => {
@@ -166,7 +166,7 @@ export const KeywordSelection = ({
         <div
           role={valid === false ? 'alert' : undefined}
           className={classNames(
-            'flex items-center gap-1 px-2 typo-caption1',
+            'typo-caption1 flex items-center gap-1 px-2',
             valid === false ? 'text-status-error' : 'text-text-quaternary',
           )}
         >

@@ -205,7 +205,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         }
         saveHintSpace
       />
-      <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
+      <span className="border-border-subtlest-tertiary text-text-secondary typo-subhead border-b pb-4">
         Your email will be used to send you product and community updates
       </span>
       <Checkbox

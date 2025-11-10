@@ -104,7 +104,7 @@ export const SearchField = forwardRef(function SearchField(
     <BaseField
       {...props}
       className={classNames(
-        'items-center !border !border-border-subtlest-tertiary !bg-background-default',
+        '!border-border-subtlest-tertiary !bg-background-default items-center !border',
         sizeClass,
         className,
         { focused },
@@ -123,7 +123,7 @@ export const SearchField = forwardRef(function SearchField(
             title="Clear query"
             onClick={onClearClick}
             icon={
-              <CloseIcon className="icon text-lg group-hover:text-text-primary" />
+              <CloseIcon className="icon group-hover:text-text-primary text-lg" />
             }
             disabled={!hasInput}
           />

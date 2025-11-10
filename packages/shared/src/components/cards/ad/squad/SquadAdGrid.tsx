@@ -54,7 +54,7 @@ export function SquadAdGrid({
       </Link>
       {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
       <div className="flex flex-row justify-between">
-        <Image src={source.image} className="h-8 w-8 rounded-max" />
+        <Image src={source.image} className="rounded-max h-8 w-8" />
         <SquadOptionsButton squad={source} />
       </div>
       <div className="flex flex-col gap-1">
@@ -69,7 +69,7 @@ export function SquadAdGrid({
             <button
               type="button"
               disabled
-              className="relative text-action-comment-default"
+              className="text-action-comment-default relative"
             >
               <strong>Promoted</strong>
             </button>

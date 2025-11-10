@@ -5,7 +5,7 @@ import { Loader } from './Loader';
 
 export function LoaderOverlay({ ...props }: LoaderProps): ReactElement {
   return (
-    <div className="absolute inset-0 flex bg-overlay-secondary-white">
+    <div className="bg-overlay-secondary-white absolute inset-0 flex">
       <Loader className="m-auto h-6 w-6" {...props} />
     </div>
   );

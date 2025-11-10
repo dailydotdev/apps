@@ -69,7 +69,7 @@ function PushNotificationModal(modalProps: ModalProps): ReactElement {
           Enable Push Notifications
         </Modal.Title>
         <Modal.Text
-          className={classNames('text-center typo-body tablet:typo-callout')}
+          className={classNames('typo-body tablet:typo-callout text-center')}
         >
           Get notified of the status of your source submissions
         </Modal.Text>
@@ -78,7 +78,7 @@ function PushNotificationModal(modalProps: ModalProps): ReactElement {
       <Button
         variant={ButtonVariant.Primary}
         onClick={enableNotifications}
-        className="m-4 mb-0 mt-5 flex tablet:hidden"
+        className="tablet:hidden m-4 mb-0 mt-5 flex"
       >
         Enable notifications
       </Button>

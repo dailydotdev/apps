@@ -94,7 +94,7 @@ export function ReadingStreakButton({
   const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
 
   if (isLoading) {
-    return <div className="h-8 w-14 rounded-12 bg-surface-float" />;
+    return <div className="rounded-12 bg-surface-float h-8 w-14" />;
   }
 
   if (!streak) {
@@ -125,7 +125,7 @@ export function ReadingStreakButton({
             <IconWrapper wrapperClassName="relative flex items-center gap-2">
               <ReadingStreakIcon secondary={hasReadToday} />
               {!isTimezoneOk && (
-                <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
+                <WarningIcon className="text-raw-cheese-40 !mr-0" secondary />
               )}
             </IconWrapper>
           }
