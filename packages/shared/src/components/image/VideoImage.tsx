@@ -16,7 +16,7 @@ export interface VideoImageProps {
 }
 
 const defaultOverlay = (
-  <span className="bg-overlay-tertiary-black rounded-12 absolute inset-y-0 left-1 right-1 h-full" />
+  <span className="absolute inset-y-0 left-1 right-1 h-full rounded-12 bg-overlay-tertiary-black" />
 );
 
 const VideoImage = ({
@@ -31,7 +31,7 @@ const VideoImage = ({
       className={classNames(
         className,
         !overlay && 'pointer-events-none',
-        'rounded-12 relative flex h-auto max-h-fit w-full items-center justify-center overflow-hidden',
+        'relative flex h-auto max-h-fit w-full items-center justify-center overflow-hidden rounded-12',
       )}
     >
       {overlay || defaultOverlay}
