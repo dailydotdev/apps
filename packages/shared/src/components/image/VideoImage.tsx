@@ -31,7 +31,7 @@ const VideoImage = ({
       className={classNames(
         className,
         !overlay && 'pointer-events-none',
-        'rounded-12 relative flex h-auto max-h-fit w-full items-center justify-center overflow-hidden',
+        'rounded-12 relative flex h-auto max-h-fit items-center justify-center overflow-hidden',
       )}
     >
       {overlay || defaultOverlay}
@@ -43,11 +43,7 @@ const VideoImage = ({
           className="absolute"
         />
       )}
-      <CardImageComponent
-        {...imageProps}
-        type={ImageType.Post}
-        className={classNames(imageProps.className, '!h-auto')}
-      />
+      <CardImageComponent {...imageProps} type={ImageType.Post} />
     </div>
   );
 };
