@@ -3,16 +3,24 @@ import { useFormContext } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import Autocomplete from '../../../components/fields/Autocomplete';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { getAutocompleteCompanies } from '../../../graphql/autocomplete';
+import {
+  AutocompleteType,
+  getAutocompleteCompanies,
+} from '../../../graphql/autocomplete';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useDebounceFn from '../../../hooks/useDebounceFn';
 
 type ProfileCompanyProps = {
   name: string;
   label?: string;
+  type?: AutocompleteType;
 };
 
-const ProfileCompany = ({ label, name }: ProfileCompanyProps) => {
+const ProfileCompany = ({
+  name,
+  label = 'Company',
+  type = AutocompleteType.Company,
+}: ProfileCompanyProps) => {
   const { user } = useAuthContext();
   const { setValue, watch } = useFormContext();
   const customCompanyName = watch(name);
@@ -24,7 +32,7 @@ const ProfileCompany = ({ label, name }: ProfileCompanyProps) => {
       'company',
       customCompanyName,
     ),
-    queryFn: () => getAutocompleteCompanies(customCompanyName),
+    queryFn: () => getAutocompleteCompanies(customCompanyName, type),
     enabled: !!customCompanyName,
   });
 
@@ -54,7 +62,7 @@ const ProfileCompany = ({ label, name }: ProfileCompanyProps) => {
         })) || []
       }
       selectedValue={companyId}
-      label={label || 'Company'}
+      label={label}
       isLoading={isLoading}
       resetOnBlur={false}
     />

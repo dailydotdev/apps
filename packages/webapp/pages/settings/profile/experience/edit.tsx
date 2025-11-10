@@ -3,16 +3,18 @@ import React from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { FormProvider } from 'react-hook-form';
 import UserWorkExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserWorkExperienceForm';
-import useUserExperienceForm, {
-  UserExperienceType,
-} from '@dailydotdev/shared/src/hooks/useUserExperienceForm';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import UserEducationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserEducationForm';
 import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profile';
-import { getUserExperienceById } from '@dailydotdev/shared/src/graphql/user/profile';
+import useUserExperienceForm from '@dailydotdev/shared/src/hooks/useUserExperienceForm';
+import {
+  getUserExperienceById,
+  UserExperienceType,
+} from '@dailydotdev/shared/src/graphql/user/profile';
 import type { GetServerSideProps } from 'next';
 import { format } from 'date-fns';
 import type { TLocation } from '@dailydotdev/shared/src/graphql/autocomplete';
@@ -62,14 +64,33 @@ const defaultValues: DefaultValues = {
   skills: [],
 };
 
+const getExperienceType = (
+  typeParam: string | string[] | undefined,
+): UserExperienceType => {
+  if (typeof typeParam === 'string') {
+    const validType = Object.values(UserExperienceType).find(
+      (t) => t === typeParam,
+    );
+    if (validType) {
+      return validType;
+    }
+  }
+  return UserExperienceType.Work;
+};
+
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   query,
 }) => {
-  const { id } = query;
+  const { id, type } = query;
+  const typeParam = getExperienceType(type);
+
   if (!id) {
     return {
       props: {
-        experience: defaultValues,
+        experience: {
+          ...defaultValues,
+          type: typeParam,
+        },
       },
     };
   }
@@ -82,18 +103,30 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     props: {
       experience: {
         ...result,
-        companyId: result?.company?.id,
-        customCompanyName: result?.company.name || result?.customCompanyName,
+        companyId: result?.company?.id || '',
+        customCompanyName: result?.company?.name || result?.customCompanyName,
         startedAtMonth,
         startedAtYear,
         endedAtMonth,
         endedAtYear,
         skills: result?.skills.map((skill) => skill.value),
         location: result?.location,
-        locationId: result?.location?.id,
+        locationId: result?.location?.id || '',
       },
     },
   };
+};
+
+const renderExperienceForm = (type?: UserExperienceType) => {
+  switch (type) {
+    case UserExperienceType.Education:
+      return <UserEducationForm />;
+    case UserExperienceType.Project:
+    case UserExperienceType.Certification:
+    case UserExperienceType.Work:
+    default:
+      return <UserWorkExperienceForm />;
+  }
 };
 
 const Page = ({ experience }: PageProps): ReactElement => {
@@ -122,7 +155,7 @@ const Page = ({ experience }: PageProps): ReactElement => {
             </Button>
           }
         >
-          <UserWorkExperienceForm location={experience?.location} />
+          {renderExperienceForm(experience?.type)}
         </AccountPageContainer>
       </form>
     </FormProvider>

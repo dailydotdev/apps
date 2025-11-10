@@ -45,12 +45,13 @@ const AUTOCOMPLETE_COMPANY_QUERY = gql`
 
 export const getAutocompleteCompanies = async (
   query: string,
+  type: AutocompleteType = AutocompleteType.Company,
   limit = 10,
 ): Promise<Company[]> => {
   const res = await gqlClient.request(AUTOCOMPLETE_COMPANY_QUERY, {
     query,
     limit,
-    type: AutocompleteType.Company,
+    type,
   });
   return res.autocompleteCompany;
 };
