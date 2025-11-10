@@ -16,7 +16,7 @@ export interface VideoImageProps {
 }
 
 const defaultOverlay = (
-  <span className="absolute h-full w-full bg-overlay-tertiary-black" />
+  <span className="absolute inset-y-0 left-1 right-1 h-full rounded-12 bg-overlay-tertiary-black" />
 );
 
 const VideoImage = ({
