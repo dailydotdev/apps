@@ -375,3 +375,11 @@ export const recruiterSpamCampaignSEO =
   'https://media.daily.dev/image/upload/s--PBa-49xs--/f_auto/v1759245831/public/Recruiter%20-%206';
 export const adFaviconPlaceholder =
   'https://media.daily.dev/image/upload/s--SOLIE7Bc--/f_auto/v1761801782/webapp/daily.dev_-_Boost_Icon';
+export const jobOfferDarkDesktop =
+  'https://media.daily.dev/image/upload/s--NfynfZap--/f_auto/v1762762600/public/new-offer-dark-web';
+export const jobOfferLightDesktop =
+  'https://media.daily.dev/image/upload/s--NfynfZap--/f_auto/v1762762601/public/new-offer-light-web';
+export const jobOfferDarkMobile =
+  'https://media.daily.dev/image/upload/s--Fucq4fUY--/f_auto/v1762762600/public/new-offer-dark-mobile';
+export const jobOfferLightMobile =
+  'https://media.daily.dev/image/upload/s--kgtQcvdc--/f_auto/v1762762601/public/new-offer-light-mobile';

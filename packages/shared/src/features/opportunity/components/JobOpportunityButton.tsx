@@ -11,7 +11,7 @@ import Link from '../../../components/utilities/Link';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { useAlertsContext } from '../../../contexts/AlertContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent } from '../../../lib/log';
+import { LogEvent, TargetId } from '../../../lib/log';
 import { useFeaturesReadyContext } from '../../../components/GrowthBookProvider';
 import { opportunityButtonCopy } from '../../../lib/featureManagement';
 
@@ -40,6 +40,7 @@ export const JobOpportunityButton = ({
   const handleClick = (): void => {
     logRef.current({
       event_name: LogEvent.ClickOpportunityNudge,
+      target_id: TargetId.HomepageButton,
       extra: logExtraPayload,
     });
   };
@@ -51,6 +52,7 @@ export const JobOpportunityButton = ({
 
     logRef.current({
       event_name: LogEvent.ImpressionOpportunityNudge,
+      target_id: TargetId.HomepageButton,
       extra: logExtraPayload,
     });
     hasLoggedRef.current = true;
