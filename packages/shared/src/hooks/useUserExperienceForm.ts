@@ -11,6 +11,7 @@ import type {
 import {
   upsertUserGeneralExperience,
   upsertUserWorkExperience,
+  UserExperienceType,
 } from '../graphql/user/profile';
 import { useDirtyForm } from './useDirtyForm';
 import { ApiError } from '../graphql/common';
@@ -21,7 +22,7 @@ import { useToastNotification } from './useToastNotification';
 
 export const userExperienceInputBaseSchema = z
   .object({
-    type: z.enum(['work', 'education', 'project', 'certification']),
+    type: z.enum(UserExperienceType),
     title: z.string().min(1, 'Title is required.').max(1000),
     description: z.string().max(5000).optional(),
     subtitle: z.string().max(1000).optional(),
@@ -37,6 +38,14 @@ export const userExperienceInputBaseSchema = z
       .nullable()
       .optional()
       .default(null),
+    url: z
+      .union([
+        z.url('Please enter a valid URL.').max(2000),
+        z.string().length(0),
+        z.null(),
+      ])
+      .optional()
+      .default(null),
   })
   .refine(
     (data) => {
@@ -50,13 +59,6 @@ export const userExperienceInputBaseSchema = z
       path: ['endedAt'],
     },
   );
-
-export enum UserExperienceType {
-  Work = 'work',
-  Education = 'education',
-  Project = 'project',
-  Certification = 'certification',
-}
 
 type BaseUserExperience = Omit<
   UserExperience,

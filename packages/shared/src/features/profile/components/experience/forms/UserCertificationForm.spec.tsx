@@ -134,10 +134,10 @@ describe('UserCertificationForm', () => {
     );
     await userEvent.type(
       credentialUrlInput,
-      'https://aws.amazon.com/verification/123456789',
+      'https://example-cert.com/verification/123456789',
     );
     expect(credentialUrlInput).toHaveValue(
-      'https://aws.amazon.com/verification/123456789',
+      'https://example-cert.com/verification/123456789',
     );
 
     // Type in description
@@ -159,7 +159,7 @@ describe('UserCertificationForm', () => {
       customCompanyName: 'Google',
       currentPosition: true,
       externalReferenceId: 'GCP-987654321',
-      url: 'https://cloud.google.com/certification/verify/987654321',
+      url: 'https://example-cloud.com/certification/verify/987654321',
       description: 'Expertise in data engineering on Google Cloud Platform',
     };
 
@@ -186,7 +186,7 @@ describe('UserCertificationForm', () => {
       'Link to verification page',
     );
     expect(credentialUrlInput).toHaveValue(
-      'https://cloud.google.com/certification/verify/987654321',
+      'https://example-cloud.com/certification/verify/987654321',
     );
 
     const descriptionTextarea = screen.getByPlaceholderText(
@@ -404,7 +404,10 @@ describe('UserCertificationForm', () => {
     const credentialUrlInput = screen.getByPlaceholderText(
       'Link to verification page',
     );
-    await userEvent.type(credentialUrlInput, 'https://aws.verify.com/12345');
+    await userEvent.type(
+      credentialUrlInput,
+      'https://example-verify.com/12345',
+    );
 
     // Toggle current certification
     const currentLabel = screen.getByText('Currently valid certification');
@@ -418,7 +421,7 @@ describe('UserCertificationForm', () => {
     // Check that other fields retained their values
     expect(certNameInput).toHaveValue('AWS DevOps Engineer');
     expect(credentialIdInput).toHaveValue('AWS-2024-12345');
-    expect(credentialUrlInput).toHaveValue('https://aws.verify.com/12345');
+    expect(credentialUrlInput).toHaveValue('https://example-verify.com/12345');
     expect(currentSwitch).toBeChecked();
 
     // Toggle back
@@ -426,7 +429,7 @@ describe('UserCertificationForm', () => {
     expect(currentSwitch).not.toBeChecked();
     expect(certNameInput).toHaveValue('AWS DevOps Engineer');
     expect(credentialIdInput).toHaveValue('AWS-2024-12345');
-    expect(credentialUrlInput).toHaveValue('https://aws.verify.com/12345');
+    expect(credentialUrlInput).toHaveValue('https://example-verify.com/12345');
   });
 
   it('should handle various URL formats in credential URL field', async () => {
@@ -443,18 +446,20 @@ describe('UserCertificationForm', () => {
     // Test with https URL
     await userEvent.type(
       credentialUrlInput,
-      'https://credly.com/badges/abc-123',
+      'https://example-badges.com/badges/abc-123',
     );
-    expect(credentialUrlInput).toHaveValue('https://credly.com/badges/abc-123');
+    expect(credentialUrlInput).toHaveValue(
+      'https://example-badges.com/badges/abc-123',
+    );
 
     // Clear and test with http URL
     await userEvent.clear(credentialUrlInput);
     await userEvent.type(
       credentialUrlInput,
-      'http://verify.certification.org/id/12345',
+      'http://example-certification.org/id/12345',
     );
     expect(credentialUrlInput).toHaveValue(
-      'http://verify.certification.org/id/12345',
+      'http://example-certification.org/id/12345',
     );
 
     // Clear and test with URL containing query parameters
