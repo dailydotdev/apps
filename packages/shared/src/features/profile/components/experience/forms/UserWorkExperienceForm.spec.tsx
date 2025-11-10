@@ -62,7 +62,7 @@ describe('UserWorkExperienceForm', () => {
     );
 
     // Check title input field is rendered
-    const titleInput = screen.getByPlaceholderText('Job Title*');
+    const titleInput = screen.getByPlaceholderText('Ex: Retail Sales Manager');
     expect(titleInput).toBeInTheDocument();
     expect(titleInput).toHaveAttribute('name', 'title');
 
@@ -105,7 +105,7 @@ describe('UserWorkExperienceForm', () => {
     );
 
     // Type in title field
-    const titleInput = screen.getByPlaceholderText('Job Title*');
+    const titleInput = screen.getByPlaceholderText('Ex: Retail Sales Manager');
     await userEvent.type(titleInput, 'Senior Software Engineer');
     expect(titleInput).toHaveValue('Senior Software Engineer');
 
@@ -152,7 +152,9 @@ describe('UserWorkExperienceForm', () => {
     );
 
     // Verify form renders with location - the ProfileLocation component should handle it
-    expect(screen.getByPlaceholderText('Job Title*')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Ex: Retail Sales Manager'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Description')).toBeInTheDocument();
   });
 
@@ -173,7 +175,7 @@ describe('UserWorkExperienceForm', () => {
     );
 
     // Check that form fields have the default values
-    const titleInput = screen.getByPlaceholderText('Job Title*');
+    const titleInput = screen.getByPlaceholderText('Ex: Retail Sales Manager');
     expect(titleInput).toHaveValue('Software Engineer');
 
     const descriptionTextarea = screen.getByPlaceholderText(
@@ -198,8 +200,10 @@ describe('UserWorkExperienceForm', () => {
       </FormWrapper>,
     );
 
-    // Check for required field indicators - the title field has * in placeholder
-    expect(screen.getByPlaceholderText('Job Title*')).toBeInTheDocument();
+    // Check for required field indicators
+    expect(
+      screen.getByPlaceholderText('Ex: Retail Sales Manager'),
+    ).toBeInTheDocument();
 
     // Check date fields have required indicators
     expect(screen.getByText('Start date*')).toBeInTheDocument();
@@ -214,7 +218,9 @@ describe('UserWorkExperienceForm', () => {
     );
 
     // Verify all main input fields are present using proper queries
-    expect(screen.getByPlaceholderText('Job Title*')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Ex: Retail Sales Manager'),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /please select/i }),
     ).toBeInTheDocument();
