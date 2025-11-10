@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { Button, ButtonVariant } from '../buttons/Button';
@@ -10,6 +10,8 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { useThemedAsset } from '../../hooks/utils';
 import { Typography, TypographyType } from '../typography/Typography';
 import { MoveToIcon } from '../icons';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetId } from '../../lib/log';
 
 export interface JobOpportunityModalProps extends ModalProps {
   opportunityId: string;
@@ -22,13 +24,36 @@ export const JobOpportunityModal = ({
 }: JobOpportunityModalProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { jobOfferDesktop, jobOfferMobile } = useThemedAsset();
-  const onShowNow = (event: MouseEvent) => {
+  const { logEvent } = useLogContext();
+  const logRef = useRef<typeof logEvent>();
+  const hasLoggedRef = useRef(false);
+  logRef.current = logEvent;
+
+  const logExtraPayload = JSON.stringify({
+    count: 1, // always 1 for now
+  });
+
+  const onClick = (event: MouseEvent) => {
+    logRef.current({
+      event_name: LogEvent.ClickOpportunityNudge,
+      target_id: TargetId.Fullscreen,
+      extra: logExtraPayload,
+    });
     onRequestClose(event);
   };
 
-  const onMaybeLater = (event: MouseEvent) => {
-    onRequestClose(event);
-  };
+  useEffect(() => {
+    if (hasLoggedRef.current) {
+      return;
+    }
+
+    logRef.current({
+      event_name: LogEvent.ImpressionOpportunityNudge,
+      target_id: TargetId.Fullscreen,
+      extra: logExtraPayload,
+    });
+    hasLoggedRef.current = true;
+  }, [logExtraPayload]);
 
   return (
     <>
@@ -42,6 +67,7 @@ export const JobOpportunityModal = ({
         onRequestClose={onRequestClose}
         className="!border-transparent !bg-transparent !shadow-none"
         overlayClassName="!bg-transparent"
+        isDrawerOnMobile
       >
         <Modal.Body className="items-center overflow-hidden !p-0">
           <div className="flex h-full flex-col items-start justify-center gap-6 px-6 py-10 tablet:items-center tablet:px-10 tablet:py-14">
@@ -63,7 +89,7 @@ export const JobOpportunityModal = ({
                   tag="a"
                   className="w-full gap-2"
                   variant={ButtonVariant.Primary}
-                  onClick={onShowNow}
+                  onClick={onClick}
                 >
                   Show me now <MoveToIcon />
                 </Button>
@@ -71,7 +97,7 @@ export const JobOpportunityModal = ({
               <Button
                 className="w-full"
                 variant={ButtonVariant.Float}
-                onClick={onMaybeLater}
+                onClick={onClick}
               >
                 Maybe later
               </Button>
