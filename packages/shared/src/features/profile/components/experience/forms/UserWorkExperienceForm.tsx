@@ -13,6 +13,7 @@ import ControlledTextarea from '../../../../../components/fields/ControlledTexta
 import ProfileSkills from '../../ProfileSkills';
 import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import type { TLocation } from '../../../../../graphql/autocomplete';
+import { profileSecondaryFieldStyles } from '../../../common';
 
 const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
   return (
@@ -23,10 +24,7 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
           label="Job Title*"
           placeholder="Ex: Retail Sales Manager"
           fieldType="secondary"
-          className={{
-            outerLabel: '!px-0 !typo-callout',
-            baseField: '!h-12',
-          }}
+          className={profileSecondaryFieldStyles}
         />
         <EmploymentTypeSelect
           name="employmentType"

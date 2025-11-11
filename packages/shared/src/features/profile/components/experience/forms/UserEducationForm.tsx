@@ -10,11 +10,7 @@ import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMon
 import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
 import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
-
-const secondaryFieldClassName = {
-  outerLabel: '!px-0 !typo-callout',
-  baseField: '!h-12',
-};
+import { profileSecondaryFieldStyles } from '../../../common';
 
 const UserEducationForm = () => {
   return (
@@ -30,14 +26,14 @@ const UserEducationForm = () => {
           label="Degree*"
           placeholder="Ex: Bachelor, Master, PhD, Diploma, Certificate"
           fieldType="secondary"
-          className={secondaryFieldClassName}
+          className={profileSecondaryFieldStyles}
         />
         <ControlledTextField
           name="title"
           label="Field of Study*"
           placeholder="Ex: Science in Computer Science"
           fieldType="secondary"
-          className={secondaryFieldClassName}
+          className={profileSecondaryFieldStyles}
         />
       </div>
       <HorizontalSeparator />
@@ -75,7 +71,7 @@ const UserEducationForm = () => {
           label="Grade"
           placeholder="Ex: 3.8/4.0, First Class Honours, 85%"
           fieldType="secondary"
-          className={secondaryFieldClassName}
+          className={profileSecondaryFieldStyles}
         />
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>

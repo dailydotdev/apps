@@ -68,6 +68,7 @@ export function UserExperienceList<T extends UserExperience>({
 
   const showMoreUrl =
     userId && experienceType ? `/${userId}/${experienceType}` : undefined;
+  const editBaseUrl = '/settings/profile/experience/edit';
 
   return (
     <div className="flex flex-col gap-3 py-4">
@@ -91,7 +92,15 @@ export function UserExperienceList<T extends UserExperience>({
       <ul className="flex flex-col">
         {groupedByCompany?.map(([company, list]) =>
           list.length === 1 ? (
-            <UserExperienceItem key={list[0].id} experience={list[0]} />
+            <UserExperienceItem
+              key={list[0].id}
+              experience={list[0]}
+              editUrl={
+                isSameUser && experienceType
+                  ? `${editBaseUrl}?id=${list[0].id}&type=${experienceType}`
+                  : undefined
+              }
+            />
           ) : (
             <UserExperiencesGroupedList
               key={company}

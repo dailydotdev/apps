@@ -20,6 +20,7 @@ import { labels } from '../lib/labels';
 import { applyZodErrorsToForm } from '../lib/form';
 import { useToastNotification } from './useToastNotification';
 import { useAuthContext } from '../contexts/AuthContext';
+import { webappUrl } from '../lib/constants';
 
 export const userExperienceInputBaseSchema = z
   .object({
@@ -87,7 +88,7 @@ const useUserExperienceForm = ({
         : upsertUserGeneralExperience(data, id),
     onSuccess: () => {
       dirtyFormRef.current?.allowNavigation();
-      router.push(`/${user.id}`);
+      router.push(`${webappUrl}settings/profile/experience/${type}`);
       methods.reset();
     },
     onError: (error: ApiErrorResult) => {

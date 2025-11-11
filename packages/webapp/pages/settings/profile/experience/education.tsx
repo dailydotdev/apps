@@ -1,0 +1,67 @@
+import type { ReactElement } from 'react';
+import React from 'react';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
+import type { NextSeoProps } from 'next-seo';
+import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profile/hooks/useUserExperiencesByType';
+import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
+import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/components/experience/UserExperiencesList';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { getTemplatedTitle } from '../../../../components/layouts/utils';
+import { defaultSeo } from '../../../../next-seo';
+import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
+import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
+
+const seo: NextSeoProps = {
+  ...defaultSeo,
+  title: getTemplatedTitle('Education'),
+};
+
+const EducationPage = (): ReactElement => {
+  const { experiences } = useUserExperiencesByType(
+    UserExperienceType.Education,
+  );
+
+  return (
+    <AccountPageContainer
+      title="Education"
+      actions={
+        <Link
+          href={`${webappUrl}/settings/profile/experience/edit?type=${UserExperienceType.Education}`}
+        >
+          <Button
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+          >
+            Add
+          </Button>
+        </Link>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        {experiences && experiences.length > 0 ? (
+          <UserExperienceList
+            experiences={experiences}
+            experienceType={UserExperienceType.Education}
+            isSameUser
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
+            <p className="text-text-secondary">No education added yet</p>
+          </div>
+        )}
+      </div>
+    </AccountPageContainer>
+  );
+};
+
+EducationPage.getLayout = getSettingsLayout;
+EducationPage.layoutProps = { seo };
+
+export default EducationPage;

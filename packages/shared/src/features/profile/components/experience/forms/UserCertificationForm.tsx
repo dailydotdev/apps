@@ -10,11 +10,7 @@ import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMon
 import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
 import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
-
-const secondaryFieldClassName = {
-  outerLabel: '!px-0 !typo-callout',
-  baseField: '!h-12',
-};
+import { profileSecondaryFieldStyles } from '../../../common';
 
 const UserCertificationForm = () => {
   return (
@@ -25,7 +21,7 @@ const UserCertificationForm = () => {
           label="Certification Name*"
           placeholder="Ex: AWS Certified Solutions Architect"
           fieldType="secondary"
-          className={secondaryFieldClassName}
+          className={profileSecondaryFieldStyles}
         />
         <ProfileCompany
           name="customCompanyName"
@@ -68,14 +64,14 @@ const UserCertificationForm = () => {
           label="Credential ID"
           placeholder="Ex: Certificate number"
           fieldType="secondary"
-          className={secondaryFieldClassName}
+          className={profileSecondaryFieldStyles}
         />
         <ControlledTextField
           name="url"
           label="Credential URL"
           placeholder="Link to verification page"
           fieldType="secondary"
-          className={secondaryFieldClassName}
+          className={profileSecondaryFieldStyles}
         />
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>

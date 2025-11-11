@@ -199,6 +199,39 @@ export const getUserProfileExperiences = async (
   return result;
 };
 
+const USER_EXPERIENCES_BY_TYPE_QUERY = gql`
+  query UserExperiencesByType(
+    $userId: ID!
+    $type: UserExperienceType!
+    $first: Int
+  ) {
+    userExperiences(userId: $userId, type: $type, first: $first) {
+      edges {
+        node {
+          ...UserExperienceFragment
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+  ${USER_EXPERIENCE_FRAGMENT}
+`;
+
+export const getUserExperiencesByType = async (
+  userId: string,
+  type: UserExperienceType,
+  first = 100,
+): Promise<Connection<UserExperience>> => {
+  const result = await gqlClient.request<{
+    userExperiences: Connection<UserExperience>;
+  }>(USER_EXPERIENCES_BY_TYPE_QUERY, { userId, type, first });
+
+  return result.userExperiences;
+};
+
 const UPSERT_USER_GENERAL_EXPERIENCE = gql`
   mutation UpsertUserGeneralExperience(
     $input: UserGeneralExperienceInput!
