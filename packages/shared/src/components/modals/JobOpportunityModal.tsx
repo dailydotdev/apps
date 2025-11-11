@@ -57,9 +57,7 @@ export const JobOpportunityModal = ({
 
   return (
     <>
-      <div className="fixed z-header size-full rounded-[63.75rem] bg-background-default blur-[6.875rem]">
-        test
-      </div>
+      <div className="fixed z-header size-full rounded-[63.75rem] bg-background-default blur-[6.875rem]" />
       <Modal
         {...modalProps}
         kind={Modal.Kind.FlexibleCenter}
