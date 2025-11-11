@@ -34,8 +34,13 @@ export const BootPopups = (): ReactElement => {
   const { openModal } = useLazyModal();
   const { user, isValidRegion } = useAuthContext();
   const { updateUserProfile } = useProfileForm();
-  const { alerts, loadedAlerts, updateAlerts, updateLastBootPopup } =
-    useContext(AlertContext);
+  const {
+    alerts,
+    loadedAlerts,
+    updateAlerts,
+    updateLastBootPopup,
+    updateHasSeenOpportunity,
+  } = useContext(AlertContext);
   const [bootPopups, setBootPopups] = useState(() => new Map());
   const [interactiveBootPopup, setInteractiveBootPopup] =
     useState<InteractivePopupProps | null>(null);
@@ -323,7 +328,7 @@ export const BootPopups = (): ReactElement => {
       props: {
         opportunityId: alerts.opportunityId,
         onAfterClose: () => {
-          updateAlerts({ flags: { hasSeenOpportunity: true } });
+          updateHasSeenOpportunity();
           updateLastBootPopup();
         },
       },
@@ -331,7 +336,7 @@ export const BootPopups = (): ReactElement => {
   }, [
     alerts.opportunityId,
     alerts?.flags?.hasSeenOpportunity,
-    updateAlerts,
+    updateHasSeenOpportunity,
     updateLastBootPopup,
   ]);
 

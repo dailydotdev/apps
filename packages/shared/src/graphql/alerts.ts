@@ -61,3 +61,11 @@ export const UPDATE_LAST_BOOT_POPUP = gql`
     }
   }
 `;
+
+export const UPDATE_HAS_SEEN_OPPORTUNITY = gql`
+  mutation UpdateHasSeenOpportunity($hasSeenOpportunity: Boolean = true) {
+    updateHasSeenOpportunity(hasSeenOpportunity: $hasSeenOpportunity) {
+      _
+    }
+  }
+`;
