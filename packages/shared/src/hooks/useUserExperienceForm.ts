@@ -19,6 +19,7 @@ import type { ApiErrorResult } from '../graphql/common';
 import { labels } from '../lib/labels';
 import { applyZodErrorsToForm } from '../lib/form';
 import { useToastNotification } from './useToastNotification';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export const userExperienceInputBaseSchema = z
   .object({
@@ -70,6 +71,7 @@ const useUserExperienceForm = ({
 }: {
   defaultValues: BaseUserExperience;
 }) => {
+  const { user } = useAuthContext();
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
   const router = useRouter();
   const { displayToast } = useToastNotification();
@@ -85,8 +87,8 @@ const useUserExperienceForm = ({
         : upsertUserGeneralExperience(data, id),
     onSuccess: () => {
       dirtyFormRef.current?.allowNavigation();
+      router.push(`/${user.id}`);
       methods.reset();
-      router.back();
     },
     onError: (error: ApiErrorResult) => {
       if (
