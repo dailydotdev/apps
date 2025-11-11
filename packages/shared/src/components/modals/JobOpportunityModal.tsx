@@ -57,9 +57,7 @@ export const JobOpportunityModal = ({
 
   return (
     <>
-      <div className="fixed z-header size-full rounded-[63.75rem] bg-background-default blur-[6.875rem]">
-        test
-      </div>
+      <div className="fixed z-header size-full rounded-[63.75rem] bg-background-default blur-[6.875rem]" />
       <Modal
         {...modalProps}
         kind={Modal.Kind.FlexibleCenter}
@@ -68,6 +66,8 @@ export const JobOpportunityModal = ({
         className="!border-transparent !bg-transparent !shadow-none"
         overlayClassName="!bg-transparent"
         isDrawerOnMobile
+        shouldCloseOnOverlayClick
+        drawerProps={{ displayCloseButton: false }}
       >
         <Modal.Body className="items-center overflow-hidden !p-0">
           <div className="flex h-full flex-col items-start justify-center gap-6 px-6 py-10 tablet:items-center tablet:px-10 tablet:py-14">
