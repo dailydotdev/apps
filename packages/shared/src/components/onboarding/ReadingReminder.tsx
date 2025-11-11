@@ -90,11 +90,11 @@ export const ReadingReminder = ({
   return (
     <>
       <div className="flex flex-col items-center gap-4">
-        <p className="text-center typo-mega1">⏰</p>
-        <h2 className="typo-bold text-center typo-large-title">
+        <p className="typo-mega1 text-center">⏰</p>
+        <h2 className="typo-bold typo-large-title text-center">
           {headline || 'When do you need that reading nudge?'}
         </h2>
-        <p className="text-center text-text-quaternary typo-callout">
+        <p className="text-text-quaternary typo-callout text-center">
           Your timezone: {userTimeZone}{' '}
           {isEditingTimezone ? (
             <TimezoneDropdown
@@ -112,7 +112,7 @@ export const ReadingReminder = ({
         </p>
       </div>
       <Radio
-        className={{ container: 'mt-4 tablet:mt-10' }}
+        className={{ container: 'tablet:mt-10 mt-4' }}
         name="reading_reminder"
         value={timeOption}
         options={ReadingReminderOptions}
@@ -126,7 +126,7 @@ export const ReadingReminder = ({
         />
       )}
       <Alert
-        className="mt-4 tablet:mt-10"
+        className="tablet:mt-10 mt-4"
         title="Consistency pays off."
         type={AlertType.Success}
       >
@@ -135,7 +135,7 @@ export const ReadingReminder = ({
           knowledgeable
         </AlertParagraph>
       </Alert>
-      <div className="mt-4 flex w-full flex-col-reverse gap-3 tablet:mt-10 tablet:w-auto tablet:flex-row tablet:gap-5">
+      <div className="tablet:mt-10 tablet:w-auto tablet:flex-row tablet:gap-5 mt-4 flex w-full flex-col-reverse gap-3">
         <Button onClick={onSkip} variant={ButtonVariant.Secondary}>
           I&apos;ll do it later
         </Button>

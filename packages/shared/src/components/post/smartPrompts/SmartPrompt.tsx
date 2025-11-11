@@ -68,7 +68,7 @@ export const SmartPrompt = ({
 
   return (
     <div
-      className="mb-6 flex flex-col gap-3 text-text-secondary"
+      className="text-text-secondary mb-6 flex flex-col gap-3"
       ref={(element) => {
         if (element) {
           setWidth(element.getBoundingClientRect().width);

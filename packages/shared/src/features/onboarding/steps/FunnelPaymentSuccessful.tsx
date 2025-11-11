@@ -42,20 +42,20 @@ export const FunnelPaymentSuccessful = ({
     <div className="relative left-1/2 flex w-full min-w-[100dvw] flex-1 -translate-x-1/2 justify-center overflow-hidden">
       {!isLightMode && (
         <LazyImage
-          className="left-0 top-0 -z-1 h-full w-full translate-y-52 scale-150 blur-3xl"
+          className="-z-1 left-0 top-0 h-full w-full translate-y-52 scale-150 blur-3xl"
           imgSrc={imageUrl}
           imgAlt="Blurred purple background"
           absolute
         />
       )}
       <div className="flex w-full flex-col gap-10">
-        <div className="grid h-12 place-items-center bg-background-default">
+        <div className="bg-background-default grid h-12 place-items-center">
           <Logo isPlus />
         </div>
         <div className="flex flex-col items-center p-6">
           <ChecklistAIcon
             size={IconSize.XXXLarge}
-            className="mb-4 text-action-plus-default"
+            className="text-action-plus-default mb-4"
           />
           <Typography
             tag={TypographyTag.H1}

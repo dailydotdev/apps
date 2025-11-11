@@ -21,7 +21,7 @@ export const SearchProgressBar = ({
           /* eslint-disable-next-line react/no-array-index-key */
           key={index}
           className={classNames(
-            'relative z-0 h-2 flex-1 overflow-hidden rounded-10',
+            'rounded-10 relative z-0 h-2 flex-1 overflow-hidden',
             index < progress || isDone
               ? 'bg-accent-cabbage-default'
               : 'bg-surface-float',
@@ -31,7 +31,7 @@ export const SearchProgressBar = ({
             <span
               className={classNames(
                 styles.animatedBar,
-                'absolute h-2 w-3/5 rounded-10',
+                'rounded-10 absolute h-2 w-3/5',
               )}
             />
           )}

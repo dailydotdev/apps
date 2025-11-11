@@ -14,7 +14,7 @@ export function ReadingTagsWidget({
   return (
     <ActivityContainer>
       <ActivitySectionHeader title="Top tags by reading days" />
-      <div className="grid max-w-[17rem] grid-cols-1 gap-3 tablet:max-w-full tablet:grid-cols-2 tablet:gap-x-10">
+      <div className="tablet:max-w-full tablet:grid-cols-2 tablet:gap-x-10 grid max-w-[17rem] grid-cols-1 gap-3">
         {mostReadTags?.map((tag) => (
           <ReadingTagProgress key={tag.value} tag={tag} />
         ))}

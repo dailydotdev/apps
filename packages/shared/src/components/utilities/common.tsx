@@ -33,7 +33,7 @@ export const pageBorders =
 const pagePaddings = 'px-4 tablet:px-8';
 const basePageClassNames = classNames(
   styles.pageContainer,
-  'relative z-1 flex w-full flex-col',
+  'z-1 relative flex w-full flex-col',
 );
 
 export const BasePageContainer = classed(
@@ -44,7 +44,7 @@ export const BasePageContainer = classed(
 
 export const pageContainerClassNames = classNames(
   basePageClassNames,
-  'items-stretch tablet:self-center laptop:min-h-page',
+  'tablet:self-center laptop:min-h-page items-stretch',
 );
 
 export const PageContainerCentered = classed(
@@ -156,7 +156,7 @@ export const TLDRText = classed(
 );
 
 export const HotLabel = (): ReactElement => (
-  <div className="rounded-4 bg-status-error px-2 py-px font-bold uppercase text-white typo-caption2">
+  <div className="rounded-4 bg-status-error typo-caption2 px-2 py-px font-bold uppercase text-white">
     Hot
   </div>
 );

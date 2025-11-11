@@ -20,7 +20,7 @@ export const OnboardingPWA = ({
   const isChrome = checkIsChromeOnly();
   return (
     <>
-      <div className="rounded-lg pointer-events-none absolute top-0 z-2 flex h-screen w-screen flex-col gap-4 p-6 opacity-0 backdrop-blur transition-all duration-200" />
+      <div className="z-2 pointer-events-none absolute top-0 flex h-screen w-screen flex-col gap-4 rounded-lg p-6 opacity-0 backdrop-blur transition-all duration-200" />
       <video
         className="absolute top-0 max-h-screen w-full"
         poster={isChrome ? cloudinaryMobilePWAChrome : cloudinaryPWA}
@@ -36,7 +36,7 @@ export const OnboardingPWA = ({
         <OnboardingTitle className="!px-0">
           {headline || 'Add daily.dev to Home Screen'}
         </OnboardingTitle>
-        <Typography className="text-center text-text-tertiary typo-body">
+        <Typography className="text-text-tertiary typo-body text-center">
           Tap “Add to Home Screen” below to get daily.dev at your fingertips,
           anytime you need it.
         </Typography>

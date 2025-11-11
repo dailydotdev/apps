@@ -28,7 +28,7 @@ export function SharedLinkContainer({
   return (
     <div
       className={classNames(
-        'flex flex-col rounded-16 border border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
+        'rounded-16 border-border-subtlest-tertiary hover:border-border-subtlest-secondary flex flex-col border',
         className,
       )}
     >

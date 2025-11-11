@@ -370,7 +370,7 @@ export default function CommentActionButtons({
           size={ButtonSize.Small}
           onClick={() => onShare(comment)}
           icon={<ShareIcon />}
-          className="mr-3 hidden mobileXL:flex"
+          className="mobileXL:flex mr-3 hidden"
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Cabbage}
         />
@@ -394,7 +394,7 @@ export default function CommentActionButtons({
                   disabled={disabled}
                   role="menuitem"
                 >
-                  <div className="flex w-full items-center gap-2 typo-callout">
+                  <div className="typo-callout flex w-full items-center gap-2">
                     {icon} {label}
                   </div>
                 </DropdownMenuItem>

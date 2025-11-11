@@ -87,7 +87,7 @@ export function CreateSharedPostModal({
       <SourceButton source={squad} size={ProfileImageSize.Small} />
       <span className="-ml-1 flex-1">
         <strong>{squad.name}</strong>
-        <span className="ml-1 text-text-tertiary">@{squad.handle}</span>
+        <span className="text-text-tertiary ml-1">@{squad.handle}</span>
       </span>
     </>
   );
@@ -158,7 +158,7 @@ export function CreateSharedPostModal({
           </Switch>
         )}
       </form>
-      <span className="flex flex-row items-center gap-2 px-4 tablet:hidden">
+      <span className="tablet:hidden flex flex-row items-center gap-2 px-4">
         {footer}
       </span>
       <Modal.Footer className="typo-caption1" justify={Justify.Start}>

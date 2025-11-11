@@ -151,7 +151,7 @@ export const ImpressionsChart = ({
             <Tooltip
               cursor={false}
               content={({ payload, label }) => (
-                <div className="TooltipContent z-tooltip max-w-full rounded-10 bg-text-primary px-3 py-1 text-surface-invert typo-subhead">
+                <div className="TooltipContent z-tooltip rounded-10 bg-text-primary text-surface-invert typo-subhead max-w-full px-3 py-1">
                   <strong>{largeNumberFormat(payload[0]?.value || 0)}</strong>{' '}
                   impressions on {label}
                 </div>

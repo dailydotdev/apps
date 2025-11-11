@@ -158,7 +158,7 @@ export function PostContentRaw({
               onReadArticle={onReadArticle}
             />
             <h1
-              className="break-words font-bold typo-large-title"
+              className="typo-large-title break-words font-bold"
               data-testid="post-modal-title"
             >
               <ArticleLink>{title}</ArticleLink>
@@ -179,7 +179,7 @@ export function PostContentRaw({
             readTime={post.readTime}
             isVideoType={isVideoType}
             className={classNames(
-              'mt-4 !typo-callout',
+              '!typo-callout mt-4',
               isVideoType ? 'mb-4' : 'mb-8',
             )}
             domain={
@@ -196,7 +196,7 @@ export function PostContentRaw({
           />
           {!isVideoType && (
             <ArticleLink
-              className="mb-10 block cursor-pointer overflow-hidden rounded-16"
+              className="rounded-16 mb-10 block cursor-pointer overflow-hidden"
               style={{ maxWidth: '25.625rem' }}
             >
               <LazyImage
@@ -213,7 +213,7 @@ export function PostContentRaw({
             <PostToc
               post={post}
               collapsible
-              className="mb-4 mt-2 flex laptop:hidden"
+              className="laptop:hidden mb-4 mt-2 flex"
             />
           )}
           {showCodeSnippets && (

@@ -39,7 +39,7 @@ function FunnelContentTypesComponent({
       containerClassName="flex w-full flex-1 flex-col items-center justify-center overflow-hidden"
       disabled={isDisabled}
     >
-      <div className="flex w-full flex-col items-center gap-6 p-6 pt-10 laptop:max-w-screen-laptop">
+      <div className="laptop:max-w-screen-laptop flex w-full flex-col items-center gap-6 p-6 pt-10">
         <ContentTypes headline={headline} />
       </div>
     </FunnelStepCtaWrapper>

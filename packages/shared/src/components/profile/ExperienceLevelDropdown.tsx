@@ -67,7 +67,7 @@ const ExperienceLevelDropdown = ({
             menuClassName,
             'menu-primary max-h-[15.375rem] overflow-y-auto p-1',
           ), // fit 6 items
-          item: classNames(itemClassName, '*:min-h-10 *:!typo-callout'),
+          item: classNames(itemClassName, '*:!typo-callout *:min-h-10'),
           container: dropdownClassName,
         }}
         selectedIndex={selectedIndex}
@@ -98,7 +98,7 @@ const ExperienceLevelDropdown = ({
         <div
           role={!valid ? 'alert' : undefined}
           className={classNames(
-            'mt-1 px-2 typo-caption1',
+            'typo-caption1 mt-1 px-2',
             !valid ? 'text-status-error' : 'text-text-quaternary',
             saveHintSpace && 'h-4',
             hintClassName,

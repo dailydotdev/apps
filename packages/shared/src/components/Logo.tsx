@@ -130,7 +130,7 @@ export default function Logo({
           />
           {isPlus && compact && (
             <DevPlusIcon
-              className="absolute right-0 top-0 -translate-y-2/3 translate-x-2/3 text-action-plus-default"
+              className="text-action-plus-default absolute right-0 top-0 -translate-y-2/3 translate-x-2/3"
               size={IconSize.XXSmall}
             />
           )}
@@ -141,7 +141,7 @@ export default function Logo({
               container: classNames(
                 'ml-1',
                 logoClassName?.container,
-                hideTextMobile && 'hidden laptop:block',
+                hideTextMobile && 'laptop:block hidden',
               ),
               group: logoClassName?.group,
             }}

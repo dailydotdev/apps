@@ -172,7 +172,7 @@ export default function BookmarkFeedLayout({
           onRequestClose={() => setShowSharedBookmarks(false)}
         />
       )}
-      <div className="relative mb-4 laptop:hidden">
+      <div className="laptop:hidden relative mb-4">
         <BookmarkSection
           isItemsButton={false}
           sidebarExpanded

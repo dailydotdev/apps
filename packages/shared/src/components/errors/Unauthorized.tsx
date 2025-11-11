@@ -24,13 +24,13 @@ function Unauthorized({
     <PageContainerCentered className="gap-4">
       <LockIcon
         secondary
-        className="self-center text-text-secondary"
+        className="text-text-secondary self-center"
         size={IconSize.XXLarge}
       />
-      <h1 className="break-words-overflow px-16 text-center font-bold typo-title1">
+      <h1 className="break-words-overflow typo-title1 px-16 text-center font-bold">
         {title}
       </h1>
-      <p className="px-10 text-center text-text-tertiary">{description}</p>
+      <p className="text-text-tertiary px-10 text-center">{description}</p>
       {children}
       <Button
         className="mt-6 w-fit"

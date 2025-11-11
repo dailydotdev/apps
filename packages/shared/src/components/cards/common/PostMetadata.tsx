@@ -39,7 +39,7 @@ export default function PostMetadata({
   return (
     <div
       className={classNames(
-        'flex items-center text-text-tertiary typo-footnote',
+        'text-text-tertiary typo-footnote flex items-center',
         className,
       )}
     >

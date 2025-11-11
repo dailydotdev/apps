@@ -106,7 +106,7 @@ export default function FurtherReading({
 
   return (
     <div className={classNames(className, 'flex flex-col gap-6')}>
-      {showToc && <PostToc post={currentPost} className="hidden laptop:flex" />}
+      {showToc && <PostToc post={currentPost} className="laptop:flex hidden" />}
       {(isLoading || similarPosts?.length > 0) && (
         <SimilarPosts
           posts={similarPosts}

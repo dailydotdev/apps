@@ -232,7 +232,7 @@ export const MultipleSourceSelect = ({
         submitProps={{ disabled: !selectedSourceIds.length }}
         triggerChildren={
           <div className="flex min-w-0 flex-1 items-center gap-2">
-            <img src={triggerImage} alt="Squad" className="size-6 rounded-4" />
+            <img src={triggerImage} alt="Squad" className="rounded-4 size-6" />
             <TruncateText className="min-w-0 flex-1 text-left font-normal">
               {!selectedSourceIds.length && 'Select one or more'}
               {isUserSourceSelected && 'Everyone'}
@@ -252,7 +252,7 @@ export const MultipleSourceSelect = ({
                     key={squad.id}
                     onClick={() => toggleSource(squad.id)}
                     aria-label={`Remove ${squad.name} from selection`}
-                    className="max-w-full typo-caption1"
+                    className="typo-caption1 max-w-full"
                     icon={<MiniCloseIcon size={IconSize.Size16} aria-hidden />}
                     iconPosition={ButtonIconPosition.Right}
                     size={ButtonSize.XSmall}

@@ -165,7 +165,7 @@ export const FeedSettingsEdit = (
     <FeedSettingsEditContext.Provider value={feedSettingsEditContext}>
       <Modal
         isOpen
-        className="h-full flex-1 overflow-auto !bg-surface-invert"
+        className="!bg-surface-invert h-full flex-1 overflow-auto"
         kind={Modal.Kind.FlexibleCenter}
         size={Modal.Size.XLarge}
         tabs={tabs}

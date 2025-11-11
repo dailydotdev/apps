@@ -33,7 +33,7 @@ export function CampaignListViewPost({
       </span>
       <Image
         src={post.sharedPost?.image ?? post.image}
-        className="h-12 w-18 rounded-12 object-cover"
+        className="w-18 rounded-12 h-12 object-cover"
       />
       <Button
         icon={<OpenLinkIcon />}

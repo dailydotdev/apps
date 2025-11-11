@@ -40,7 +40,7 @@ export const CheckoutChanges = ({
   const currency = pricing.currency.code;
 
   const checkoutButtons = (
-    <div className="mt-auto flex flex-col gap-3 tablet:ml-auto tablet:flex-row-reverse">
+    <div className="tablet:ml-auto tablet:flex-row-reverse mt-auto flex flex-col gap-3">
       <Button
         loading={isUpdatingSubscription}
         variant={ButtonVariant.Primary}
@@ -66,7 +66,7 @@ export const CheckoutChanges = ({
 
   return (
     <>
-      <div className="flex w-full flex-1 flex-col gap-4 tablet:p-6">
+      <div className="tablet:p-6 flex w-full flex-1 flex-col gap-4">
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-0.5">
             <Typography type={TypographyType.Callout}>

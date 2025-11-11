@@ -37,7 +37,7 @@ type FunnelOrganicSignupProps = FunnelStepOrganicSignup;
 const staticAuthProps = {
   className: {
     container: classNames(
-      'w-full max-w-full rounded-none tablet:max-w-[30rem]',
+      'tablet:max-w-[30rem] w-full max-w-full rounded-none',
     ),
     onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
   },
@@ -182,7 +182,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     return (
       <div
         className={classNames(
-          'relative z-3 flex flex-1 flex-col overflow-x-hidden',
+          'z-3 relative flex flex-1 flex-col overflow-x-hidden',
           {
             'justify-end pt-40': isMobileRevamp,
             'items-center': !isMobileRevamp,
@@ -193,27 +193,27 @@ export const FunnelOrganicSignup = withIsActiveGuard(
           isLanding
           className={classNames(
             isMobileRevamp &&
-              '!-my-8 !justify-center bg-gradient-to-t from-background-default to-transparent py-8',
+              'from-background-default !-my-8 !justify-center bg-gradient-to-t to-transparent py-8',
           )}
         />
         <ConditionalWrapper
           condition={isMobileRevamp}
           wrapper={(content) => (
-            <div className="relative z-1 after:absolute after:inset-0 after:top-8 after:-z-1 after:bg-background-default">
+            <div className="z-1 after:-z-1 after:bg-background-default relative after:absolute after:inset-0 after:top-8">
               {content}
             </div>
           )}
         >
           <div
             className={classNames(
-              `flex w-full flex-col flex-wrap content-center justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6`,
+              `tablet:flex-row tablet:gap-10 tablet:px-6 flex w-full flex-col flex-wrap content-center justify-center px-4`,
               wrapperMaxWidth,
               { 'mt-7.5': isEmailSignupActive, 'flex-1': !isMobileRevamp },
             )}
           >
             <div
               className={classNames(
-                'mt-5 flex flex-1 flex-col tablet:my-5 tablet:flex-grow',
+                'tablet:my-5 tablet:flex-grow mt-5 flex flex-1 flex-col',
                 !isEmailSignupActive && 'laptop:mr-8 laptop:max-w-[27.5rem]',
               )}
             >
@@ -237,7 +237,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
                           'tablet:typo-mega-1 typo-large-title',
                         ),
                         description:
-                          'mb-8 text-text-primary typo-body tablet:typo-title2',
+                          'text-text-primary typo-body tablet:typo-title2 mb-8',
                       }}
                       title={sanitizeMessage(headline, [])}
                       description={explainer}
@@ -269,7 +269,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
                 }}
               />
             </div>
-            <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
+            <div className="tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem] flex flex-1" />
           </div>
         </ConditionalWrapper>
         {!!src && (
@@ -280,7 +280,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               alt="Onboarding background"
               aria-hidden
               className={classNames(
-                'pointer-events-none absolute inset-0 -z-1 size-full object-cover transition-opacity duration-150',
+                '-z-1 pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-150',
                 { 'opacity-[.24]': isEmailSignupActive },
               )}
               fetchPriority="high"
@@ -293,8 +293,8 @@ export const FunnelOrganicSignup = withIsActiveGuard(
         {!isMobileRevamp && (
           <FooterLinks
             className={classNames(
-              'mx-auto px-2 pb-6 laptop:px-0',
-              isMobileRevamp && '!-mb-4 bg-background-default pt-4',
+              'laptop:px-0 mx-auto px-2 pb-6',
+              isMobileRevamp && 'bg-background-default !-mb-4 pt-4',
             )}
           />
         )}{' '}

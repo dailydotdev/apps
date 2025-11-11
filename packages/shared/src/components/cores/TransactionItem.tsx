@@ -35,22 +35,22 @@ const TransactionTypeToIcon: Record<
   ReactElement
 > = {
   receive: (
-    <div className="size-4 rounded-10 bg-action-upvote-float text-accent-avocado-default">
+    <div className="rounded-10 bg-action-upvote-float text-accent-avocado-default size-4">
       <PlusIcon size={IconSize.Size16} />
     </div>
   ),
   send: (
-    <div className="size-4 rounded-10 bg-action-downvote-float text-accent-ketchup-default">
+    <div className="rounded-10 bg-action-downvote-float text-accent-ketchup-default size-4">
       <MinusIcon size={IconSize.Size16} />
     </div>
   ),
   purchase: (
-    <div className="size-4 rounded-10 bg-action-bookmark-float text-accent-bun-default">
+    <div className="rounded-10 bg-action-bookmark-float text-accent-bun-default size-4">
       <CreditCardIcon size={IconSize.Size16} />
     </div>
   ),
   unknown: (
-    <div className="size-4 rounded-10 bg-action-bookmark-float text-accent-bun-default">
+    <div className="rounded-10 bg-action-bookmark-float text-accent-bun-default size-4">
       <InfoIcon size={IconSize.Size16} />
     </div>
   ),
@@ -75,21 +75,21 @@ export const TransactionItem = ({
           </Typography>
           <div className="flex flex-col flex-wrap">
             <Typography
-              className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
+              className="tablet:max-w-[360px] line-clamp-2 max-w-[200px]"
               type={TypographyType.Subhead}
               color={TypographyColor.Tertiary}
             >
               {extraLabel}
             </Typography>
-            <div className="flex flex-wrap items-center gap-1 text-text-tertiary typo-footnote tablet:gap-0">
+            <div className="text-text-tertiary typo-footnote tablet:gap-0 flex flex-wrap items-center gap-1">
               <Typography
-                className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
+                className="tablet:max-w-[360px] line-clamp-2 max-w-[200px]"
                 type={TypographyType.Footnote}
               >
                 {label}
               </Typography>
-              <div className="flex w-full items-end tablet:w-auto">
-                <Separator className="hidden tablet:inline" />
+              <div className="tablet:w-auto flex w-full items-end">
+                <Separator className="tablet:inline hidden" />
                 <DateFormat date={date} type={TimeFormatType.Transaction} />
               </div>
             </div>

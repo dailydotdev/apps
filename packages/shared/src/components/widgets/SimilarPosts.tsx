@@ -37,7 +37,7 @@ export type SimilarPostsProps = {
   };
 };
 
-const Separator = <div className="h-px bg-border-subtlest-tertiary" />;
+const Separator = <div className="bg-border-subtlest-tertiary h-px" />;
 
 type PostProps = {
   post: Post;
@@ -50,7 +50,7 @@ const textContainerClassName = 'flex flex-col ml-3 mr-2 flex-1';
 const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
   <article
     className={classNames(
-      'group relative flex items-start py-2 pl-4 pr-2 hover:bg-surface-hover',
+      'hover:bg-surface-hover group relative flex items-start py-2 pl-4 pr-2',
       styles.card,
     )}
   >
@@ -67,14 +67,14 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
     <div className={textContainerClassName}>
       <h5
         className={classNames(
-          'multi-truncate mb-0.5 text-ellipsis break-words text-text-primary typo-callout',
+          'multi-truncate text-text-primary typo-callout mb-0.5 text-ellipsis break-words',
           styles.title,
         )}
       >
         {post.title}
       </h5>
       {post.trending ? (
-        <div className="flex items-center text-text-tertiary typo-footnote">
+        <div className="text-text-tertiary typo-footnote flex items-center">
           <HotLabel />
           <div className="ml-2">{post.trending} devs read it last hour</div>
         </div>
@@ -129,11 +129,11 @@ export default function SimilarPosts({
   return (
     <section
       className={classNames(
-        'flex flex-col rounded-16 border border-border-subtlest-tertiary',
+        'rounded-16 border-border-subtlest-tertiary flex flex-col border',
         className,
       )}
     >
-      <h4 className="my-0.5 px-4 py-3 text-text-tertiary typo-body">{title}</h4>
+      <h4 className="text-text-tertiary typo-body my-0.5 px-4 py-3">{title}</h4>
       {Separator}
       {isLoading ? (
         <>

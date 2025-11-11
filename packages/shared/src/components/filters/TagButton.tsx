@@ -25,7 +25,7 @@ export const GenericTagButton = ({
   <Button
     {...props}
     size={ButtonSize.Small}
-    className={classNames('font-bold typo-callout', className)}
+    className={classNames('typo-callout font-bold', className)}
     onClick={action}
     icon={action ? icon : undefined}
     iconPosition={action ? ButtonIconPosition.Right : undefined}

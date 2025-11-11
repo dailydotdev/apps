@@ -149,7 +149,7 @@ export const PlusIOS = ({
         {!iOSSupportsPlusPurchase() && (
           <div
             className={classNames(
-              'flex flex-wrap items-center rounded-12 border border-border-subtlest-tertiary px-3 py-2 text-text-tertiary typo-callout tablet:mt-1',
+              'rounded-12 border-border-subtlest-tertiary text-text-tertiary typo-callout tablet:mt-1 flex flex-wrap items-center border px-3 py-2',
               (shouldShowPlusHeader || showModalSection) && 'mb-6',
             )}
           >

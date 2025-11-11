@@ -89,7 +89,7 @@ export const CookieConsentModal = ({
         >
           Learn more about our Cookie Policy →
         </Typography>
-        <Divider className="my-4 bg-border-subtlest-tertiary" />
+        <Divider className="bg-border-subtlest-tertiary my-4" />
         <form
           className="flex flex-col gap-4"
           id="consent_form"

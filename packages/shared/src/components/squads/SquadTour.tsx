@@ -29,7 +29,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
   if (!shouldShowCarousel) {
     const start = (
       <FooterButton
-        className="w-full tablet:ml-auto tablet:w-auto"
+        className="tablet:ml-auto tablet:w-auto w-full"
         variant={ButtonVariant.Primary}
         onClick={(e) => {
           e.stopPropagation();
@@ -49,7 +49,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
           title="Let's see what you can do with Squads!"
           className={{ container: 'h-[29.25rem]', banner: '!pt-0' }}
         />
-        <span className="flex px-4 tablet:hidden">{start}</span>
+        <span className="tablet:hidden flex px-4">{start}</span>
         <ModalFooter>
           <FooterButton
             variant={ButtonVariant.Tertiary}
@@ -105,7 +105,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
     >
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
         <>
-          <span className="mb-3 flex w-full justify-center tablet:hidden">
+          <span className="tablet:hidden mb-3 flex w-full justify-center">
             {indicator}
           </span>
           <ModalFooter justify={Justify.Between}>

@@ -171,7 +171,7 @@ export const SocialRegistrationForm = ({
       <AuthHeader simplified={simplified} title={title} />
       <AuthForm
         className={classNames(
-          'mt-6 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto px-6 pb-2 tablet:px-[3.75rem]',
+          'tablet:px-[3.75rem] mt-6 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto px-6 pb-2',
           className,
         )}
         ref={formRef}
@@ -268,7 +268,7 @@ export const SocialRegistrationForm = ({
           hint={experienceLevelHint}
           saveHintSpace
         />
-        <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
+        <span className="border-border-subtlest-tertiary text-text-secondary typo-subhead border-b pb-4">
           Your email will be used to send you product and community updates
         </span>
         <Checkbox name="optOutMarketing" className="font-normal">

@@ -211,7 +211,7 @@ export function TagSelection({
           placeholderTags.map((item) => (
             <ElementPlaceholder
               key={item}
-              className="btn btn-tag h-10 rounded-12"
+              className="btn btn-tag rounded-12 h-10"
             >
               <span className="invisible">{item}</span>
             </ElementPlaceholder>

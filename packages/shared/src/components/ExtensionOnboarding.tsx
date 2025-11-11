@@ -33,11 +33,11 @@ const ExtensionOnboarding = (): ReactElement => {
         linkDisabled
       />
 
-      <OnboardingTitleGradient className="my-6 typo-mega2 tablet:typo-mega1">
+      <OnboardingTitleGradient className="typo-mega2 tablet:typo-mega1 my-6">
         Let&apos;s jump back&nbsp;in!
       </OnboardingTitleGradient>
 
-      <p className="mb-9 max-w-[25rem] typo-title3 tablet:mb-16 tablet:typo-title2">
+      <p className="typo-title3 tablet:mb-16 tablet:typo-title2 mb-9 max-w-[25rem]">
         Please resume onboarding to unlock the entire feature suite of
         daily.dev.
         <br />

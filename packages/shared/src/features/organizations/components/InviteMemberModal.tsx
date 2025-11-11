@@ -44,7 +44,7 @@ export const InviteMemberModal = ({
         className="truncate"
         title={`Invite members to ${organization.name}`}
       />
-      <Modal.Body className="flex gap-4 tablet:justify-center">
+      <Modal.Body className="tablet:justify-center flex gap-4">
         {seats.available ? (
           <Typography
             type={TypographyType.Callout}

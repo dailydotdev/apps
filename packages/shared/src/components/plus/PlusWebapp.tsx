@@ -64,7 +64,7 @@ const PlusWebapp = (): ReactElement => {
             checkoutRef={checkoutRef}
             className={{
               container:
-                'border-top-0 h-full min-h-40 flex-1 rounded-16 border border-b-0 border-r-0 border-t-0 border-border-subtlest-tertiary bg-raw-pepper-90 pb-5 pl-10 pt-8',
+                'border-top-0 rounded-16 border-border-subtlest-tertiary bg-raw-pepper-90 h-full min-h-40 flex-1 border border-b-0 border-r-0 border-t-0 pb-5 pl-10 pt-8',
             }}
           />
         </div>

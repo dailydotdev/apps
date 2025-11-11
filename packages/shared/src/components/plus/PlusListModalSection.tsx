@@ -48,14 +48,14 @@ const PlusListModalSection = ({
         {shouldShowRefund && (
           <div
             aria-label="Refund policy"
-            className="mx-auto flex max-w-fit items-center gap-2 rounded-10 bg-surface-float p-2"
+            className="rounded-10 bg-surface-float mx-auto flex max-w-fit items-center gap-2 p-2"
           >
             <div
               aria-hidden
-              className="grid size-8 place-items-center rounded-10"
+              className="rounded-10 grid size-8 place-items-center"
             >
               <PrivacyIcon
-                className="mx-auto rounded-10 bg-action-comment-float text-accent-blueCheese-default"
+                className="rounded-10 bg-action-comment-float text-accent-blueCheese-default mx-auto"
                 secondary
                 size={IconSize.Medium}
               />

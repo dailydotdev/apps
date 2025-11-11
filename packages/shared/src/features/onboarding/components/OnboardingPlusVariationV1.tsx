@@ -111,7 +111,7 @@ export const OnboardingPlusVariationV1 = ({
         className="w-full py-10"
         onMouseEnter={() => handleItemHover(plusItem)}
       >
-        <div className="mb-6 h-50 w-full overflow-hidden rounded-10">
+        <div className="h-50 rounded-10 mb-6 w-full overflow-hidden">
           {plusItem.modalProps?.mediaType === 'video' ? (
             <video
               className="w-full border-none"
@@ -129,7 +129,7 @@ export const OnboardingPlusVariationV1 = ({
             <img
               src={plusItem.modalProps?.imageUrl}
               alt={plusItem.modalProps?.title}
-              className="h-50 w-full rounded-10"
+              className="h-50 rounded-10 w-full"
             />
           )}
         </div>
@@ -147,24 +147,24 @@ export const OnboardingPlusVariationV1 = ({
   });
 
   return (
-    <section className="mx-auto flex w-full max-w-screen-laptop flex-1 flex-col items-center justify-center gap-6 px-2 py-10 tablet:gap-10 tablet:px-10">
+    <section className="max-w-screen-laptop tablet:gap-10 tablet:px-10 mx-auto flex w-full flex-1 flex-col items-center justify-center gap-6 px-2 py-10">
       <header className="text-center">
         <Typography
           bold
           tag={TypographyTag.H1}
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
-          className="mb-4 tablet:mb-6"
+          className="tablet:mb-6 mb-4"
         >
           {headline}
         </Typography>
       </header>
 
-      <div className="flex w-full flex-col gap-10 tablet:flex-row tablet:gap-4">
+      <div className="tablet:flex-row tablet:gap-4 flex w-full flex-col gap-10">
         <div className="mx-auto flex flex-1 flex-col gap-4">
           {/* Plus Plan Card */}
           <a
             href="#"
-            className="flex flex-col rounded-16 bg-accent-bacon-default p-1 pt-0"
+            className="rounded-16 bg-accent-bacon-default flex flex-col p-1 pt-0"
             onClick={(e) => {
               e.preventDefault();
               onComplete?.();
@@ -182,7 +182,7 @@ export const OnboardingPlusVariationV1 = ({
                 Best value
               </Typography>
             </div>
-            <div className="flex h-fit flex-col gap-4 rounded-12 bg-background-default p-4">
+            <div className="rounded-12 bg-background-default flex h-fit flex-col gap-4 p-4">
               <VariationCardOption
                 selected
                 title={plus?.title || 'Plus'}
@@ -198,7 +198,7 @@ export const OnboardingPlusVariationV1 = ({
           {/* Free Plan Card */}
           <a
             href="#"
-            className="flex h-fit flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-xl"
+            className="rounded-16 border-border-subtlest-tertiary flex h-fit flex-col gap-4 border p-4 backdrop-blur-xl"
             onClick={(e) => {
               e.preventDefault();
               onSkip?.();

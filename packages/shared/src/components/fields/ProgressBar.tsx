@@ -27,7 +27,7 @@ export function ProgressBar({
       wrapper={(component) => (
         <span
           className={classNames(
-            'flex w-full overflow-hidden bg-accent-pepper-subtler',
+            'bg-accent-pepper-subtler flex w-full overflow-hidden',
             className?.wrapper,
           )}
         >

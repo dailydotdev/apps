@@ -23,7 +23,7 @@ export function DevCardTwitterCover({
       <div className="flex flex-col items-center">
         <DevCardContainer theme={devcard.theme} className="max-w-[21.25rem]">
           <div
-            className="flex w-full flex-col-reverse items-center gap-4 rounded-24 p-3"
+            className="rounded-24 flex w-full flex-col-reverse items-center gap-4 p-3"
             style={{ boxShadow: devCardBoxShadow }}
           >
             <DevCardStats
@@ -40,7 +40,7 @@ export function DevCardTwitterCover({
             />
           </div>
         </DevCardContainer>
-        <p className="font-white mt-5 flex flex-row gap-1 text-center typo-callout">
+        <p className="font-white typo-callout mt-5 flex flex-row gap-1 text-center">
           Based on my activity on <Logo />
         </p>
       </div>

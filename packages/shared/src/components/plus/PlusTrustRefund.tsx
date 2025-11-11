@@ -19,14 +19,14 @@ export const PlusTrustRefund = ({
     <div
       aria-label="Refund policy"
       className={classNames(
-        'flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2',
+        'rounded-10 bg-surface-float flex items-center gap-2 px-3 py-2',
         className,
       )}
       {...attrs}
     >
       <div
         aria-hidden
-        className="grid size-8 place-items-center rounded-10 bg-action-comment-float text-accent-blueCheese-default"
+        className="rounded-10 bg-action-comment-float text-accent-blueCheese-default grid size-8 place-items-center"
       >
         <PrivacyIcon secondary size={IconSize.Medium} />
       </div>

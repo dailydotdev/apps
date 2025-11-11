@@ -58,14 +58,14 @@ export function ModalHeader({
     <ModalHeaderOuter
       className={classNames(
         'relative h-14 items-center',
-        (modalTitle || children) && 'border-b border-border-subtlest-tertiary',
+        (modalTitle || children) && 'border-border-subtlest-tertiary border-b',
         className,
       )}
     >
       {shouldShowClose && (
         <Button
           size={ButtonSize.Small}
-          className="mr-2 flex -rotate-90 tablet:hidden"
+          className="tablet:hidden mr-2 flex -rotate-90"
           icon={<ArrowIcon />}
           onClick={(event) => {
             if (isMobile && tabs && activeView) {
@@ -90,7 +90,7 @@ export function ModalHeader({
       {shouldShowClose && (
         <ModalClose
           type="button"
-          className="hidden tablet:flex"
+          className="tablet:flex hidden"
           onClick={onRequestClose}
         />
       )}
@@ -101,11 +101,11 @@ export function ModalHeader({
 export function ModalHeaderTabs(props: ModalTabsProps): ReactElement {
   const { onRequestClose } = useContext(ModalPropsContext);
   return (
-    <ModalHeaderOuter className="h-auto flex-col items-start gap-2 border-b border-border-subtlest-tertiary tablet:h-14 tablet:flex-row tablet:items-center">
+    <ModalHeaderOuter className="border-border-subtlest-tertiary tablet:h-14 tablet:flex-row tablet:items-center h-auto flex-col items-start gap-2 border-b">
       {onRequestClose && (
         <Button
           size={ButtonSize.Small}
-          className="flex -rotate-90 tablet:hidden"
+          className="tablet:hidden flex -rotate-90"
           icon={<ArrowIcon />}
           onClick={onRequestClose}
         />

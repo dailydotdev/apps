@@ -26,7 +26,7 @@ function AuthModalHeading({
         className,
       )}
     >
-      {emoji && <span className="mr-4 typo-giga3">{emoji}</span>}
+      {emoji && <span className="typo-giga3 mr-4">{emoji}</span>}
       {children}
     </Tag>
   );

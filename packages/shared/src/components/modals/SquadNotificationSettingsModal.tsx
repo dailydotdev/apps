@@ -123,7 +123,7 @@ const SquadNotificationSettingsModal = ({
                   src={squad?.image}
                   alt="Squad avatar"
                 />
-                <div className="flex max-w-64 flex-col items-baseline gap-1 mobileL:max-w-70 tablet:max-w-96 tablet:flex-row">
+                <div className="mobileL:max-w-70 tablet:max-w-96 tablet:flex-row flex max-w-64 flex-col items-baseline gap-1">
                   <Typography truncate type={TypographyType.Callout} bold>
                     {squad.name}
                   </Typography>

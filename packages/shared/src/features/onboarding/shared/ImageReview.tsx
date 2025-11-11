@@ -22,7 +22,7 @@ export function ImageReview({
   return (
     <div
       className={classNames(
-        'flex flex-col rounded-16 border border-border-subtlest-secondary bg-surface-float',
+        'rounded-16 border-border-subtlest-secondary bg-surface-float flex flex-col border',
         className,
       )}
     >
@@ -30,7 +30,7 @@ export function ImageReview({
         eager
         imgSrc={image}
         imgAlt="Social proof image"
-        className="w-full rounded-16"
+        className="rounded-16 w-full"
         ratio="100%"
         fit="cover"
       />
@@ -38,7 +38,7 @@ export function ImageReview({
       <div className="flex flex-col items-center gap-4 p-4">
         <Stars />
 
-        <p className="text-center typo-callout">{reviewText}</p>
+        <p className="typo-callout text-center">{reviewText}</p>
 
         <div className="flex items-center gap-2">
           <LazyImage

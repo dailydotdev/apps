@@ -46,7 +46,7 @@ export function PricingPlan<T extends string = string>({
       `relative p-1 pt-8 rounded-16 overflow-hidden ${styles.bestValue}`,
     content: classNames(
       styles.label,
-      'z-1 !items-start gap-2 overflow-hidden rounded-12 border p-3',
+      'z-1 rounded-12 !items-start gap-2 overflow-hidden border p-3',
       isBestValue && 'border-0',
       checked
         ? 'border-brand-default bg-brand-float'
@@ -64,12 +64,12 @@ export function PricingPlan<T extends string = string>({
       <div className="flex flex-1 flex-col gap-2 font-normal">
         <div className="flex flex-row">
           <div className="flex flex-1 flex-col items-start gap-2">
-            <div className="font-bold text-text-primary typo-title3">
+            <div className="text-text-primary typo-title3 font-bold">
               {label}
             </div>
             {badge && (
               <div
-                className="invert flex rounded-6 bg-surface-secondary px-2 py-0.5 font-bold text-text-primary typo-caption1"
+                className="rounded-6 bg-surface-secondary text-text-primary typo-caption1 flex px-2 py-0.5 font-bold invert"
                 style={{ background: checked ? badge.background : '' }}
               >
                 {badge.text}
@@ -77,7 +77,7 @@ export function PricingPlan<T extends string = string>({
             )}
           </div>
           <div className="flex flex-1 flex-col items-end">
-            <div className="font-bold text-text-primary typo-title1">
+            <div className="text-text-primary typo-title1 font-bold">
               {price.amount}
             </div>
             <div className="text-text-tertiary typo-footnote">
@@ -86,7 +86,7 @@ export function PricingPlan<T extends string = string>({
           </div>
         </div>
         {checked && perks && (
-          <ul className="flex flex-col gap-0.5 text-text-tertiary">
+          <ul className="text-text-tertiary flex flex-col gap-0.5">
             {perks.map((item) => (
               <li key={item} className="flex flex-row items-center gap-1">
                 <VIcon size={IconSize.Size16} />

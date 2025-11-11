@@ -19,7 +19,7 @@ export function PostBlockedPanel({
   return (
     <span
       className={classNames(
-        'relative flex flex-row items-center rounded-16 border border-border-subtlest-tertiary p-4',
+        'rounded-16 border-border-subtlest-tertiary relative flex flex-row items-center border p-4',
         className,
       )}
     >

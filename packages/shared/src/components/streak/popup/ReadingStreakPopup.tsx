@@ -189,8 +189,8 @@ export function ReadingStreakPopup({
   }
 
   return (
-    <div className="flex flex-col tablet:max-w-[21.75rem]">
-      <div className="flex flex-col p-0 tablet:p-4">
+    <div className="tablet:max-w-[21.75rem] flex flex-col">
+      <div className="tablet:p-4 flex flex-col p-0">
         <div className="flex flex-row">
           <StreakSection streak={streak.current} label="Current streak" />
           <StreakSection streak={streak.max} label="Longest streak 🏆" />
@@ -203,14 +203,14 @@ export function ReadingStreakPopup({
         >
           {streaks}
         </div>
-        <div className="mt-4 flex flex-col items-center tablet:flex-row">
+        <div className="tablet:flex-row mt-4 flex flex-col items-center">
           <div
             className={classNames(
-              'flex w-full flex-row flex-wrap justify-center gap-2 font-bold text-text-tertiary tablet:w-auto tablet:flex-col tablet:items-start tablet:gap-1',
+              'text-text-tertiary tablet:w-auto tablet:flex-col tablet:items-start tablet:gap-1 flex w-full flex-row flex-wrap justify-center gap-2 font-bold',
               isMobile && 'my-4 flex-1 text-center',
             )}
           >
-            <div className="m-auto tablet:m-0">
+            <div className="tablet:m-0 m-auto">
               Total reading days: {streak.total}
             </div>
             <Tooltip
@@ -230,11 +230,11 @@ export function ReadingStreakPopup({
                 </div>
               }
             >
-              <div className="m-auto flex items-center tablet:m-0">
+              <div className="tablet:m-0 m-auto flex items-center">
                 {!isTimezoneOk && (
                   <WarningIcon className="text-raw-cheese-40" secondary />
                 )}
-                <div className="flex justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
+                <div className="!text-text-quaternary decoration-raw-pepper-10 tablet:m-0 tablet:justify-start flex justify-center font-normal underline">
                   <Link
                     onClick={async (event) => {
                       const deviceTimezone =
@@ -316,7 +316,7 @@ export function ReadingStreakPopup({
         </div>
       </div>
       {showAlert && (
-        <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
+        <div className="border-border-subtlest-tertiary mt-3 flex flex-wrap gap-4 border-t px-4 py-3">
           {!isSubscribed && (
             <>
               <div className="flex w-full flex-1 justify-between gap-3">
@@ -328,7 +328,7 @@ export function ReadingStreakPopup({
                   Get notified to keep your streak
                 </Typography>
 
-                <div className="h-12 w-22 overflow-hidden">
+                <div className="w-22 h-12 overflow-hidden">
                   <img
                     src={cloudinaryNotificationsBrowser}
                     alt="A sample browser notification"

@@ -51,7 +51,7 @@ export const Checkbox = forwardRef(function Checkbox(
   return (
     <label
       className={classNames(
-        'relative z-1 inline-flex select-none items-center p-1 pr-3 text-text-tertiary typo-footnote',
+        'z-1 text-text-tertiary typo-footnote relative inline-flex select-none items-center p-1 pr-3',
         !disabled && 'cursor-pointer',
         styles.label,
         className,
@@ -78,7 +78,7 @@ export const Checkbox = forwardRef(function Checkbox(
         aria-checked={checked}
         aria-labelledby={`label-${checkId}`}
         className={classNames(
-          'relative z-1 mr-3 flex h-5 w-5 items-center justify-center rounded-6 border-2 border-border-subtlest-primary',
+          'z-1 rounded-6 border-border-subtlest-primary relative mr-3 flex h-5 w-5 items-center justify-center border-2',
           styles.checkmark,
           checkmarkClassName,
         )}
@@ -86,7 +86,7 @@ export const Checkbox = forwardRef(function Checkbox(
       >
         <VIcon
           aria-hidden
-          className="icon h-full w-full text-text-primary opacity-0"
+          className="icon text-text-primary h-full w-full opacity-0"
           role="presentation"
           style={{ transition: 'opacity 0.1s linear' }}
         />

@@ -26,7 +26,7 @@ function FollowingFeedEmptyScreen(): ReactElement {
           Your feed is empty because you haven’t followed any Squads or Sources
           or there is not enough content. Explore more Squads and Sources
         </EmptyScreenDescription>
-        <div className="flex flex-col gap-4 tablet:flex-row">
+        <div className="tablet:flex-row flex flex-col gap-4">
           <Link href={`${webappUrl}squads`}>
             <EmptyScreenButton size={ButtonSize.Large}>
               Find Squads

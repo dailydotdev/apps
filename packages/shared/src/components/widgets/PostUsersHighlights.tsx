@@ -196,7 +196,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
         >
           <div className="flex">
             <ProfileLink
-              className={classNames('font-bold typo-callout', className?.name)}
+              className={classNames('typo-callout font-bold', className?.name)}
               href={permalink}
             >
               <TruncateText>{name}</TruncateText>
@@ -215,7 +215,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
           {handleOrUsernameOrId && (
             <ProfileLink
               className={classNames(
-                'mt-0.5 !block truncate text-text-tertiary typo-footnote',
+                'text-text-tertiary typo-footnote mt-0.5 !block truncate',
                 className?.handle,
               )}
               href={permalink}

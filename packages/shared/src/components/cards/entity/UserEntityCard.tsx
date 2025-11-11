@@ -123,7 +123,7 @@ const UserEntityCard = ({ user, className }: Props) => {
       image={image}
       type="user"
       className={{
-        image: 'size-16 rounded-20',
+        image: 'rounded-20 size-16',
         container: className?.container,
       }}
       entityName={username}
@@ -162,7 +162,7 @@ const UserEntityCard = ({ user, className }: Props) => {
           >
             {name ?? username}
             {isPlus && (
-              <DevPlusIcon className="ml-1 text-action-plus-default" />
+              <DevPlusIcon className="text-action-plus-default ml-1" />
             )}
           </Typography>
         </Link>
@@ -184,7 +184,7 @@ const UserEntityCard = ({ user, className }: Props) => {
         </div>
         <div className="flex gap-2 truncate">
           {!!user?.reputation && (
-            <div className="rounded-8 border border-border-subtlest-tertiary px-2">
+            <div className="rounded-8 border-border-subtlest-tertiary border px-2">
               <ReputationUserBadge
                 iconProps={{
                   size: IconSize.Small,

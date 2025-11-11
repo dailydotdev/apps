@@ -32,13 +32,13 @@ export function WritePreviewSkeleton({
         value={link}
       />
       <WritePreviewContent>
-        <span className="absolute left-2 top-2 text-text-quaternary typo-caption1">
+        <span className="text-text-quaternary typo-caption1 absolute left-2 top-2">
           Fetching preview, please hold...
         </span>
-        <div className="flex flex-1 flex-col typo-footnote">
+        <div className="typo-footnote flex flex-1 flex-col">
           <div className="flex-flex-col relative">
-            <ElementPlaceholder className="h-2 w-5/6 rounded-12" />
-            <ElementPlaceholder className="mt-3 h-2 w-1/2 rounded-12" />
+            <ElementPlaceholder className="rounded-12 h-2 w-5/6" />
+            <ElementPlaceholder className="rounded-12 mt-3 h-2 w-1/2" />
           </div>
         </div>
         <div className={previewImageClass} />

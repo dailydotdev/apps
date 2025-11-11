@@ -94,10 +94,10 @@ const SquadEntityCard = ({
           </Typography>
         </Link>
         {description && <EntityDescription copy={description} length={100} />}
-        <div className="flex items-center text-text-tertiary">
+        <div className="text-text-tertiary flex items-center">
           {flags?.featured && (
             <>
-              <div className="flex items-center gap-1 text-brand-default">
+              <div className="text-brand-default flex items-center gap-1">
                 <SourceIcon size={IconSize.Size16} />
                 <Typography type={TypographyType.Footnote}>Featured</Typography>
               </div>

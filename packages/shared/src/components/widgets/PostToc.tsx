@@ -17,7 +17,7 @@ export type PostTocProps = {
   collapsible?: boolean;
 };
 
-const Separator = <div className="mb-3 h-px bg-border-subtlest-tertiary" />;
+const Separator = <div className="bg-border-subtlest-tertiary mb-3 h-px" />;
 
 const generateTocLink = (post: Post, item: TocItem): string => {
   if (!item.id) {
@@ -53,7 +53,7 @@ export default function PostToc({
           rel="noopener"
           title={item.text}
           onClick={onLinkClick}
-          className="flex flex-1 truncate px-4 py-2 typo-callout hover:bg-surface-hover"
+          className="typo-callout hover:bg-surface-hover flex flex-1 truncate px-4 py-2"
         >
           <TruncateText>{item.text}</TruncateText>
         </a>
@@ -67,7 +67,7 @@ export default function PostToc({
     return (
       <details
         className={classNames(
-          'select-none flex-col overflow-hidden rounded-16',
+          'rounded-16 select-none flex-col overflow-hidden',
           styles.details,
           className,
         )}
@@ -87,7 +87,7 @@ export default function PostToc({
   return (
     <WidgetContainer
       className={classNames(
-        'flex-col overflow-hidden rounded-16 border border-border-subtlest-quaternary pb-3',
+        'rounded-16 border-border-subtlest-quaternary flex-col overflow-hidden border pb-3',
         className,
       )}
     >

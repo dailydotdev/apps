@@ -206,7 +206,7 @@ function TextFieldComponent(
         {progress && (
           <div
             className={classNames(
-              'absolute bottom-0 h-[3px] rounded-10 transition-all',
+              'rounded-10 absolute bottom-0 h-[3px] transition-all',
               progress,
             )}
           />
@@ -214,7 +214,7 @@ function TextFieldComponent(
       </div>
       {maxLength && showMaxLength && (
         <div
-          className="ml-2 font-bold typo-callout"
+          className="typo-callout ml-2 font-bold"
           style={{ color: 'var(--field-placeholder-color)' }}
         >
           {maxLength - (inputLength || 0)}

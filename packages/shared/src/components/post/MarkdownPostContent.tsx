@@ -21,7 +21,7 @@ export const MarkdownPostImage = ({
 }: Pick<LazyImageProps, 'imgSrc' | 'className'>): ReactElement => (
   <div
     className={classNames(
-      'block h-fit max-w-sm cursor-pointer overflow-hidden rounded-16',
+      'rounded-16 block h-fit max-w-sm cursor-pointer overflow-hidden',
       className,
     )}
   >
@@ -58,7 +58,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
                   ratio="52%"
                   imgSrc={post.image}
                   imgAlt="Post cover image"
-                  className="mb-10 h-auto max-h-[62.5rem] w-full rounded-12 object-cover"
+                  className="rounded-12 mb-10 h-auto max-h-[62.5rem] w-full object-cover"
                   fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                 />
               </a>
@@ -70,7 +70,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
               ratio="52%"
               videoSrc={post.flags.coverVideo}
               poster={post.image}
-              className="mb-10 h-auto max-h-[62.5rem] w-full rounded-12 object-cover"
+              className="rounded-12 mb-10 h-auto max-h-[62.5rem] w-full object-cover"
             />
           )}
         </>

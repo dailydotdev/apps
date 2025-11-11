@@ -17,19 +17,19 @@ import { useFunnelAnnualPricing } from '../hooks/useFunnelAnnualPricing';
 const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
   <div className="flex flex-col items-center">
-    <div className="mx-auto grid grid-cols-1 place-content-center items-start gap-6 tablet:grid-cols-2">
+    <div className="tablet:grid-cols-2 mx-auto grid grid-cols-1 place-content-center items-start gap-6">
       {switchSkeletonItems.map((index) => (
         <div
           key={index}
           className={classNames(
-            'mx-auto w-[21rem] max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
+            'rounded-16 border-border-subtlest-tertiary bg-surface-float mx-auto w-[21rem] max-w-full border p-4',
             index === 0 ? 'min-h-80' : 'min-h-96',
           )}
         >
-          <ElementPlaceholder className="mb-4 h-6 w-10 rounded-4" />
-          <ElementPlaceholder className="mb-1 h-8 w-10 rounded-4" />
-          <ElementPlaceholder className="h-3 w-20 rounded-4" />
-          <ElementPlaceholder className="my-4 h-10 w-full rounded-16" />
+          <ElementPlaceholder className="rounded-4 mb-4 h-6 w-10" />
+          <ElementPlaceholder className="rounded-4 mb-1 h-8 w-10" />
+          <ElementPlaceholder className="rounded-4 h-3 w-20" />
+          <ElementPlaceholder className="rounded-16 my-4 h-10 w-full" />
           <div className="flex flex-col gap-2">
             <ListItemPlaceholder padding="p-0 gap-2.5" textClassName="h-3" />
             {index === 1 && (
@@ -58,18 +58,18 @@ export const OnboardingPlusControl = ({
   const { item } = useFunnelAnnualPricing();
 
   return (
-    <section className="mx-auto flex w-full max-w-screen-laptop flex-1 flex-col justify-center gap-10 py-10 tablet:px-10">
+    <section className="max-w-screen-laptop tablet:px-10 mx-auto flex w-full flex-1 flex-col justify-center gap-10 py-10">
       <header className="text-center">
         <Typography
           bold
           tag={TypographyTag.H1}
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
-          className="mb-4 tablet:mb-6"
+          className="tablet:mb-6 mb-4"
         >
           {headline || 'Fast-track your growth'}
         </Typography>
         <Typography
-          className="mx-auto text-balance tablet:w-2/3"
+          className="tablet:w-2/3 mx-auto text-balance"
           color={TypographyColor.Secondary}
           tag={TypographyTag.H2}
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}

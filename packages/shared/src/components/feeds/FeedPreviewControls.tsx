@@ -26,8 +26,8 @@ export const FeedPreviewControls = ({
   const { logEvent } = useLogContext();
 
   return (
-    <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
-      <div className="h-px flex-1 bg-border-subtlest-tertiary" />
+    <div className="text-text-quaternary typo-callout mt-10 flex items-center justify-center gap-10">
+      <div className="bg-border-subtlest-tertiary h-px flex-1" />
       <Button
         variant={ButtonVariant.Primary}
         disabled={isDisabled}
@@ -47,7 +47,7 @@ export const FeedPreviewControls = ({
       >
         {isDisabled ? textDisabled : `${isOpen ? 'Hide' : 'Show'} feed preview`}
       </Button>
-      <div className="h-px flex-1 bg-border-subtlest-tertiary" />
+      <div className="bg-border-subtlest-tertiary h-px flex-1" />
     </div>
   );
 };

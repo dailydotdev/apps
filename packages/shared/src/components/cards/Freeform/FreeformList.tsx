@@ -141,7 +141,7 @@ export const FreeformList = forwardRef(function SharePostCard(
             </CardTitle>
 
             {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
-            <div className="hidden flex-1 tablet:flex" />
+            <div className="tablet:flex hidden flex-1" />
             {!isMobile && actionButtons}
           </div>
 

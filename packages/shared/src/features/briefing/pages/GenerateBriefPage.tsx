@@ -23,7 +23,7 @@ import { BriefPostHeader } from '../components/BriefPostHeader';
 const MockPresidentialBrief = () => (
   <div
     aria-hidden
-    className="pointer-events-none absolute left-0 right-0 top-0 z-1 flex select-none flex-col gap-4 py-4"
+    className="z-1 pointer-events-none absolute left-0 right-0 top-0 flex select-none flex-col gap-4 py-4"
   >
     <Typography className="mb-4" type={TypographyType.Title2} bold>
       Must know
@@ -66,7 +66,7 @@ export const GenerateBriefPage = () => {
   }
 
   return (
-    <div className="my-6 px-4 tablet:px-8">
+    <div className="tablet:px-8 my-6 px-4">
       {/* Header */}
       <BriefPostHeader {...headerProps} />
       {/* Unlock this Presidential Briefing */}
@@ -74,9 +74,9 @@ export const GenerateBriefPage = () => {
         <MockPresidentialBrief />
         <div
           className={`
-          relative z-2 -mx-4
-          flex flex-col gap-6 bg-gradient-to-b from-transparent
-          from-0% to-surface-invert to-40% px-4 pt-20  backdrop-blur tablet:to-95%
+          z-2 to-surface-invert tablet:to-95%
+          relative -mx-4 flex flex-col gap-6
+          bg-gradient-to-b from-transparent from-0% to-40% px-4  pt-20 backdrop-blur
           `}
         >
           <div className="mx-auto mb-6 flex flex-col gap-2 text-center">
@@ -90,7 +90,7 @@ export const GenerateBriefPage = () => {
             <Typography
               color={TypographyColor.Tertiary}
               type={TypographyType.Callout}
-              className="mx-auto mb-2 tablet:w-2/3 tablet:text-balance"
+              className="tablet:w-2/3 tablet:text-balance mx-auto mb-2"
             >
               You don’t need to keep up. Your AI agent already did. This
               briefing compresses everything that matters into just a few
@@ -112,7 +112,7 @@ export const GenerateBriefPage = () => {
             </Typography>
           </div>
           {/*  Cards */}
-          <div className="flex grid-cols-2 flex-col gap-4 tablet:grid">
+          <div className="tablet:grid flex grid-cols-2 flex-col gap-4">
             <BriefPlusAdvantagesCard />
             <BriefPayForGenerateCard />
           </div>

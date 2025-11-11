@@ -138,8 +138,8 @@ const FunnelLoading = ({
   };
 
   return (
-    <div className="relative flex flex-1 flex-col items-center justify-center gap-10 px-1 mobileL:px-6">
-      <div className="absolute inset-0 bg-accent-avocado-default opacity-16" />
+    <div className="mobileL:px-6 relative flex flex-1 flex-col items-center justify-center gap-10 px-1">
+      <div className="bg-accent-avocado-default opacity-16 absolute inset-0" />
       <div className="relative">
         <svg
           className="size-48"

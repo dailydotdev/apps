@@ -38,7 +38,7 @@ const TimezoneDropdown = ({
       icon={<Icon />}
       buttonSize={ButtonSize.Large}
       className={{
-        container: classNames('mt-6 w-70', className?.container),
+        container: classNames('w-70 mt-6', className?.container),
         menu: classNames('menu-secondary', className?.menu),
       }}
       selectedIndex={timeZoneOptions.findIndex(

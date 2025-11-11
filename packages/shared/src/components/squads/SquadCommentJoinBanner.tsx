@@ -64,12 +64,12 @@ export const SquadCommentJoinBanner = ({
   return (
     <div
       className={classNames(
-        'mx-3 mb-3 flex flex-1 flex-row items-start justify-between gap-4 rounded-16 border border-accent-cabbage-default p-4',
+        'rounded-16 border-accent-cabbage-default mx-3 mb-3 flex flex-1 flex-row items-start justify-between gap-4 border p-4',
         className,
       )}
     >
       <div className="flex flex-1 flex-col">
-        <p className="flex flex-1 text-text-tertiary typo-callout">
+        <p className="text-text-tertiary typo-callout flex flex-1">
           Join {squad.name} to see more posts like this one, contribute to
           conversation and more...
         </p>

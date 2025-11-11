@@ -56,7 +56,7 @@ export const SourceList = ({
       >
         {sources.map((source) => (
           <div
-            className="relative flex gap-2 px-6 py-3 hover:bg-surface-hover"
+            className="hover:bg-surface-hover relative flex gap-2 px-6 py-3"
             key={source.id}
           >
             <Link
@@ -123,7 +123,7 @@ export const SourceList = ({
                 entityName={`@${source.handle}`}
                 entityType={ContentPreferenceType.Source}
                 status={source.contentPreference.status}
-                className="relative z-1"
+                className="z-1 relative"
               />
             )}
             {showFollow && (
@@ -135,7 +135,7 @@ export const SourceList = ({
                 entityName={`@${source.handle}`}
                 showSubscribe={false}
                 copyType={CopyType.Custom}
-                className="relative z-1"
+                className="z-1 relative"
               />
             )}
           </div>

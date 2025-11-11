@@ -45,7 +45,7 @@ export const BuyCreditsButton = ({
   return (
     <div
       className={classNames(
-        'flex items-center rounded-10 bg-surface-float',
+        'rounded-10 bg-surface-float flex items-center',
         className,
       )}
     >
@@ -63,7 +63,7 @@ export const BuyCreditsButton = ({
       </Link>
       {renderBuyButton ? (
         <>
-          <div className="h-[1.375rem] w-px bg-border-subtlest-tertiary" />
+          <div className="bg-border-subtlest-tertiary h-[1.375rem] w-px" />
           <Button
             variant={ButtonVariant.Tertiary}
             icon={<PlusIcon />}

@@ -27,7 +27,7 @@ export type BestDiscussionsProps = {
   className?: string;
 };
 
-const Separator = <div className="h-px bg-border-subtlest-tertiary" />;
+const Separator = <div className="bg-border-subtlest-tertiary h-px" />;
 
 type PostProps = {
   post: Post;
@@ -37,7 +37,7 @@ type PostProps = {
 const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
   <article
     className={classNames(
-      'group relative flex flex-col items-start px-4 py-3 hover:bg-surface-hover',
+      'hover:bg-surface-hover group relative flex flex-col items-start px-4 py-3',
       styles.card,
     )}
   >
@@ -49,13 +49,13 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
     </Link>
     <h5
       className={classNames(
-        'multi-truncate mb-2 text-text-primary typo-callout',
+        'multi-truncate text-text-primary typo-callout mb-2',
         styles.title,
       )}
     >
       {post.title}
     </h5>
-    <div className="flex items-center text-text-tertiary typo-footnote">
+    <div className="text-text-tertiary typo-footnote flex items-center">
       <div>{post.numComments} Comments</div>
     </div>
   </article>
@@ -97,7 +97,7 @@ export default function BestDiscussions({
 
   return (
     <BestDiscussionsContainer className={className}>
-      <h4 className="my-0.5 px-4 py-3 text-text-tertiary typo-body">
+      <h4 className="text-text-tertiary typo-body my-0.5 px-4 py-3">
         Best discussions
       </h4>
       {Separator}

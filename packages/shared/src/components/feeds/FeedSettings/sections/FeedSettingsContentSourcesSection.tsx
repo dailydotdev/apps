@@ -94,7 +94,7 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
       <SearchPanelContext.Provider value={searchPanel}>
         <SearchField
           aria-label="Search sources, squads, or users"
-          className="border-none !bg-background-subtle"
+          className="!bg-background-subtle border-none"
           inputId="search-filters"
           placeholder="Search sources, squads, or users"
           valueChanged={(newValue) => {
@@ -126,7 +126,7 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
               size: ModalSize.Medium,
             }}
           >
-            <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
+            <ModalTabs className="border-border-subtlest-tertiary border-b pb-[0.70rem]" />
             <div className="flex w-full max-w-full flex-col">
               {activeView === Tabs.Sources && <FollowingSourceList />}
               {activeView === Tabs.Squads && (

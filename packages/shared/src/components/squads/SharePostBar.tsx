@@ -73,7 +73,7 @@ function SharePostBar({
     return (
       <Card
         className={classNames(
-          'flex !flex-row items-center gap-1.5 px-3 py-5 text-text-quaternary hover:border-border-subtlest-tertiary',
+          'text-text-quaternary hover:border-border-subtlest-tertiary flex !flex-row items-center gap-1.5 px-3 py-5',
           className,
         )}
       >
@@ -87,7 +87,7 @@ function SharePostBar({
     <form
       onSubmit={onSubmit}
       className={classNames(
-        'flex flex-col items-center overflow-hidden rounded-16 border p-3 pb-5 typo-callout tablet:flex-row tablet:pb-3',
+        'rounded-16 typo-callout tablet:flex-row tablet:pb-3 flex flex-col items-center overflow-hidden border p-3 pb-5',
         'border-border-subtlest-tertiary bg-surface-float focus-within:border-border-subtlest-primary hover:border-border-subtlest-primary',
         className,
       )}
@@ -107,7 +107,7 @@ function SharePostBar({
               name="share-post-bar"
               placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
               className={classNames(
-                'bg-transparent text-text-primary outline-none typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary',
+                'text-text-primary typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary bg-transparent outline-none',
                 !shouldRenderReadingHistory && '!flex-1 pr-2',
                 (!url || isMobile) && 'w-[12.5rem]',
               )}
@@ -118,7 +118,7 @@ function SharePostBar({
             />
             {shouldRenderReadingHistory && (
               <ClickableText
-                className="reading-history hidden font-bold hover:text-text-primary tablet:flex"
+                className="reading-history hover:text-text-primary tablet:flex hidden font-bold"
                 inverseUnderline
                 onClick={onOpenHistory}
                 type="button"
@@ -140,10 +140,10 @@ function SharePostBar({
         </Button>
       </span>
       {isMobile && (
-        <Divider className="mb-5 mt-3 bg-border-subtlest-tertiary" />
+        <Divider className="bg-border-subtlest-tertiary mb-5 mt-3" />
       )}
       <button
-        className="flex w-full items-center justify-center border-border-subtlest-tertiary font-bold text-text-tertiary typo-callout tablet:hidden"
+        className="border-border-subtlest-tertiary text-text-tertiary typo-callout tablet:hidden flex w-full items-center justify-center font-bold"
         type="button"
         onClick={onOpenHistory}
       >

@@ -61,7 +61,7 @@ export const ArticleList = forwardRef(function ArticleList(
   const actionButtons = (
     <Container className="pointer-events-none flex-[unset]">
       <ActionButtons
-        className="mt-4 justify-between tablet:mt-0"
+        className="tablet:mt-0 mt-4 justify-between"
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
@@ -82,7 +82,7 @@ export const ArticleList = forwardRef(function ArticleList(
     return {
       topLabel: (
         <Link href={post.source.permalink}>
-          <a href={post.source.permalink} className="relative z-1">
+          <a href={post.source.permalink} className="z-1 relative">
             {post.source.name}
           </a>
         </Link>
@@ -148,14 +148,14 @@ export const ArticleList = forwardRef(function ArticleList(
                 >
                   {truncatedTitle}
                 </CardTitle>
-                <div className="flex flex-1 tablet:hidden" />
+                <div className="tablet:hidden flex flex-1" />
                 <div className="flex items-center">
                   {post.clickbaitTitleDetected && (
                     <ClickbaitShield post={post} />
                   )}
                   <PostTags post={post} />
                 </div>
-                <div className="hidden flex-1 tablet:flex" />
+                <div className="tablet:flex hidden flex-1" />
                 {!isMobile && actionButtons}
               </div>
 

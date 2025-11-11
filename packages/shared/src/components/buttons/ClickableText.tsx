@@ -39,14 +39,14 @@ function ClickableTextComponent<Tag extends AvailableTags>(
       aria-pressed={pressed}
       ref={ref}
       className={classNames(
-        'flex cursor-pointer flex-row items-center text-text-tertiary hover:underline focus:underline',
+        'text-text-tertiary flex cursor-pointer flex-row items-center hover:underline focus:underline',
         inverseUnderline
           ? 'underline hover:no-underline focus:no-underline'
           : 'hover:underline focus:underline',
         defaultTypo && 'typo-callout',
         pressed && 'text-text-primary',
         isLink && (textClassName || '!text-text-link'),
-        disabled && 'pointer-events-none text-text-disabled hover:no-underline',
+        disabled && 'text-text-disabled pointer-events-none hover:no-underline',
         className,
       )}
     >

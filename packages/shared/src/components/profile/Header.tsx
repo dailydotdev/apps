@@ -155,7 +155,7 @@ export function Header({
               nativeLazyLoading
               size={ProfileImageSize.Medium}
             />
-            <div className="ml-2 mr-auto flex flex-col typo-footnote">
+            <div className="typo-footnote ml-2 mr-auto flex flex-col">
               <p className="font-bold">{user.name}</p>
               <p className="text-text-tertiary">
                 {largeNumberFormat(user.reputation)} Reputation
@@ -163,7 +163,7 @@ export function Header({
             </div>
           </>
         ) : (
-          <h2 className="mr-auto font-bold typo-body">Profile</h2>
+          <h2 className="typo-body mr-auto font-bold">Profile</h2>
         )}
       </>
       <div className="flex flex-row gap-2">
@@ -171,7 +171,7 @@ export function Header({
           <Link href={`${webappUrl}account/profile`}>
             <Button
               tag="a"
-              className="hidden laptop:flex"
+              className="laptop:flex hidden"
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
             >
@@ -254,7 +254,7 @@ export function Header({
       {isSameUser && (
         <>
           <Button
-            className="ml-2 laptop:hidden"
+            className="laptop:hidden ml-2"
             variant={ButtonVariant.Float}
             size={ButtonSize.Small}
             icon={<SettingsIcon />}

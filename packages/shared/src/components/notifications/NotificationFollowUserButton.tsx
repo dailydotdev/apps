@@ -50,7 +50,7 @@ export const NotificationFollowUserButton = ({
           className="mt-3"
           buttonClassName={classNames(
             !followPreference?.status &&
-              '-ml-3.5 flex min-w-min text-text-link',
+              'text-text-link -ml-3.5 flex min-w-min',
           )}
           copyType={CopyType.NiceGuy}
           origin={Origin.Notification}

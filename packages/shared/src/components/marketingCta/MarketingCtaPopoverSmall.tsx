@@ -57,7 +57,7 @@ export function MarketingCtaPopoverSmall({
     <article
       className={classNames(
         !isMobile &&
-          'relative h-full max-w-64 rounded-16 border border-accent-onion-default bg-background-subtle shadow-2',
+          'rounded-16 border-accent-onion-default bg-background-subtle shadow-2 relative h-full max-w-64 border',
       )}
     >
       {image && (
@@ -102,7 +102,7 @@ export function MarketingCtaPopoverSmall({
           size={isMobile ? ButtonSize.Medium : ButtonSize.Small}
           variant={isMobile ? ButtonVariant.Float : ButtonVariant.Primary}
           className={classNames(
-            isMobile ? 'mb-4 w-full' : 'absolute right-2 top-2 z-1',
+            isMobile ? 'mb-4 w-full' : 'z-1 absolute right-2 top-2',
           )}
           icon={!isMobile && <MiniCloseIcon />}
           onClick={onCtaDismiss}

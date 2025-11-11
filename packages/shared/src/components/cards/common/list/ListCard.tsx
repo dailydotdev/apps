@@ -20,7 +20,7 @@ const Title = ({
     <h3
       {...rest}
       className={classNames(
-        'multi-truncate font-bold text-text-primary typo-title3',
+        'multi-truncate text-text-primary typo-title3 font-bold',
         lineClamp,
         className,
       )}
@@ -44,7 +44,7 @@ export const CardImage = classed(
 export const CardSpace = classed('div', 'flex-1');
 
 const clickableCardClasses = classNames(
-  'focus-outline absolute inset-0 block h-full w-full rounded-16',
+  'focus-outline rounded-16 absolute inset-0 block h-full w-full',
 );
 
 export const CardLink = classed('a', clickableCardClasses);

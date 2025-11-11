@@ -265,7 +265,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           feed.
         </Modal.Text>
         <a
-          className="mb-2 font-bold text-text-link underline typo-callout"
+          className="text-text-link typo-callout mb-2 font-bold underline"
           target="_blank"
           rel="noopener"
           href={contentGuidelines}
@@ -329,7 +329,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           <>
             {!!feeds?.length && !existingSource && (
               <>
-                <div className="mb-6 self-start text-text-tertiary typo-callout">
+                <div className="text-text-tertiary typo-callout mb-6 self-start">
                   {feeds.length} RSS feed{feeds.length > 1 ? 's' : ''} found
                 </div>
                 <form
@@ -355,7 +355,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                 <div
                   id="new-source-field-desc"
                   className={classNames(
-                    'self-start text-status-error typo-callout',
+                    'text-status-error typo-callout self-start',
                     !showContact && 'mb-6',
                   )}
                 >

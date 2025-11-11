@@ -38,9 +38,9 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
       <>
         <div
           className={classNames(
-            'mt-6 flex flex-wrap items-center text-text-tertiary typo-callout tablet:mt-1',
+            'text-text-tertiary typo-callout tablet:mt-1 mt-6 flex flex-wrap items-center',
             !fetchedSmartTitle &&
-              'rounded-12 border border-border-subtlest-tertiary px-3 py-2',
+              'rounded-12 border-border-subtlest-tertiary border px-3 py-2',
           )}
         >
           <Button
@@ -121,7 +121,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
 
   return (
     <Tooltip
-      className="max-w-70 text-center !typo-subhead"
+      className="max-w-70 !typo-subhead text-center"
       content={
         shieldActive
           ? 'Click to see the original title'

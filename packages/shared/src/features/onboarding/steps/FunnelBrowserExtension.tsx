@@ -34,7 +34,7 @@ const BrowserExtension = ({
   const imageUrls = cloudinaryOnboardingExtension[browserName];
 
   return (
-    <div className="mt-10 flex flex-1 flex-col laptop:justify-between">
+    <div className="laptop:justify-between mt-10 flex flex-1 flex-col">
       <div className="mb-14 flex flex-col items-center gap-6 justify-self-start text-center">
         <Typography
           tag={TypographyTag.H1}
@@ -48,7 +48,7 @@ const BrowserExtension = ({
           }}
         />
         <Typography
-          className="w-2/3 text-balance text-text-tertiary typo-body"
+          className="text-text-tertiary typo-body w-2/3 text-balance"
           color={TypographyColor.Secondary}
           tag={TypographyTag.H2}
           type={TypographyType.Title3}
@@ -88,7 +88,7 @@ const BrowserExtension = ({
           Dare to skip? <strong>You might miss out</strong>.
         </Typography>
       </div>
-      <figure className="pointer-events-none mx-auto w-full laptopL:w-2/3">
+      <figure className="laptopL:w-2/3 pointer-events-none mx-auto w-full">
         <img
           alt="Amazing daily.dev extension screenshot"
           className="w-full"

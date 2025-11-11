@@ -57,17 +57,17 @@ export function RaisedLabel({
             styles.flag,
             typeToClassName[type],
             listMode
-              ? 'h-5 w-full justify-center rounded-l-4 mouse:translate-x-9'
-              : 'h-full flex-col rounded-t-4 mouse:translate-y-4',
+              ? 'rounded-l-4 mouse:translate-x-9 h-5 w-full justify-center'
+              : 'rounded-t-4 mouse:translate-y-4 h-full flex-col',
           )}
         >
-          <span className="font-bold uppercase text-white typo-caption2">
+          <span className="typo-caption2 font-bold uppercase text-white">
             {type}
           </span>
         </div>
       </ConditionalWrapper>
       {!listMode && description && (
-        <span className="ml-2 text-text-tertiary typo-footnote mouse:hidden">
+        <span className="text-text-tertiary typo-footnote mouse:hidden ml-2">
           {description}
         </span>
       )}

@@ -60,7 +60,7 @@ export const SmartPrompts = (): ReactElement => {
             wrapper={(child) => {
               return (
                 <Tooltip
-                  className="max-w-70 text-center !typo-subhead"
+                  className="max-w-70 !typo-subhead text-center"
                   content="Upgrade to Plus to unlock Smart Prompts."
                 >
                   <div className="w-fit">{child as ReactElement}</div>

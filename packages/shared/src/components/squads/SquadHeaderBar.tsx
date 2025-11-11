@@ -138,7 +138,7 @@ const SquadUserNotifications = ({
     <Tooltip side="bottom" content="Squad notifications settings">
       <Button
         data-testid="squad-notification-button"
-        className="order-3 tablet:order-4"
+        className="tablet:order-4 order-3"
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
         {...props}

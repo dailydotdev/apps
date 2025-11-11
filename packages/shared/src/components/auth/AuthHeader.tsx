@@ -28,7 +28,7 @@ function AuthHeader({
     return (
       <h2
         {...attrs}
-        className="text-center font-bold text-text-primary typo-title2"
+        className="text-text-primary typo-title2 text-center font-bold"
       >
         {title}
       </h2>

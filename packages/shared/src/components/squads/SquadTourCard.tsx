@@ -34,7 +34,7 @@ function SquadTourCard({
         className={classNames(
           'relative',
           !bannerAsBg &&
-            'h-80 items-center justify-center bg-gradient-to-l from-raw-cabbage-90 to-raw-cabbage-50',
+            'from-raw-cabbage-90 to-raw-cabbage-50 h-80 items-center justify-center bg-gradient-to-l',
         )}
       >
         {bannerAsBg ? (
@@ -64,7 +64,7 @@ function SquadTourCard({
           {title}
         </h3>
         {description && (
-          <p className="mt-2 text-text-secondary typo-body">{description}</p>
+          <p className="text-text-secondary typo-body mt-2">{description}</p>
         )}
       </FlexCol>
       {children}

@@ -35,7 +35,7 @@ export function DangerZone({
   return (
     <section
       className={classNames(
-        'relative flex flex-col overflow-hidden rounded-26 border border-status-error px-6 py-4',
+        'rounded-26 border-status-error relative flex flex-col overflow-hidden border px-6 py-4',
         className,
       )}
     >

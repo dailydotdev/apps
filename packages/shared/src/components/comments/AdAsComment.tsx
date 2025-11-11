@@ -82,7 +82,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     ad;
 
   return (
-    <div className="relative mt-6 flex flex-wrap rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
+    <div className="rounded-16 border-border-subtlest-tertiary hover:bg-surface-hover relative mt-6 flex flex-wrap border p-4 focus:outline">
       <AdLink ad={ad} onLinkClick={() => onAdAction(AdActions.Click)} />
       <ProfilePicture
         nativeLazyLoading
@@ -93,10 +93,10 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         style={{ backgroundColor: ad?.backgroundColor }}
       />
       <div className="ml-3">
-        <TruncateText className="commentAuthor flex w-fit font-bold text-text-primary typo-callout">
+        <TruncateText className="commentAuthor text-text-primary typo-callout flex w-fit font-bold">
           {company}
         </TruncateText>
-        <TruncateText className="flex w-fit text-text-quaternary typo-callout">
+        <TruncateText className="text-text-quaternary typo-callout flex w-fit">
           Promoted by {source}
         </TruncateText>
       </div>
@@ -114,7 +114,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
           />
         )}
       </div>
-      <p className="mt-3 w-full text-text-primary typo-body">
+      <p className="text-text-primary typo-body mt-3 w-full">
         <b>{tagLine}</b>
         <br />
         {description}

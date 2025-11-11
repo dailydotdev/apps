@@ -27,7 +27,7 @@ export const StepNavigation = ({
       <Button
         size={ButtonSize.Large}
         variant={ButtonVariant.Tertiary}
-        className="hidden laptop:flex"
+        className="laptop:flex hidden"
         onClick={onBack}
       >
         {backLabel}
@@ -35,7 +35,7 @@ export const StepNavigation = ({
       <Button
         size={ButtonSize.Large}
         variant={ButtonVariant.Primary}
-        className="w-full laptop:w-auto"
+        className="laptop:w-auto w-full"
         onClick={onNext}
         disabled={nextDisabled}
         loading={nextLoading}

@@ -92,7 +92,7 @@ function EmailCodeVerification({
   return (
     <AuthForm
       className={classNames(
-        'flex flex-col items-end py-8 mobileL:px-8 tablet:px-14',
+        'mobileL:px-8 tablet:px-14 flex flex-col items-end py-8',
         className,
       )}
       onSubmit={onCodeVerification}

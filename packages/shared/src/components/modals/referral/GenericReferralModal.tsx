@@ -52,8 +52,8 @@ function GenericReferralModal({
         zIndex="2"
       />
       <Modal.Body>
-        <div className="relative z-1 mb-5 flex aspect-square w-full flex-col items-center justify-end">
-          <h1 className="mb-4 font-bold typo-mega3">Invite friends</h1>
+        <div className="z-1 relative mb-5 flex aspect-square w-full flex-col items-center justify-end">
+          <h1 className="typo-mega3 mb-4 font-bold">Invite friends</h1>
           <p className="text-text-secondary typo-title3">
             And make Ido (our CTO) smile again.
           </p>
@@ -77,7 +77,7 @@ function GenericReferralModal({
           text={{ initial: 'Copy link 😀', copied: 'Copied 😉' }}
         />
         <div className="mt-7 flex items-center justify-center gap-3">
-          <p className="mr-1 text-text-tertiary typo-callout">Invite via</p>
+          <p className="text-text-tertiary typo-callout mr-1">Invite via</p>
           <ReferralSocialShareButtons
             url={url}
             targetType={TargetType.GenericReferralPopup}

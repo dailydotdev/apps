@@ -19,7 +19,7 @@ export function SquadModerationDefault({
   );
 
   return (
-    <div className="flex flex-col gap-4 tablet:flex-row">
+    <div className="tablet:flex-row flex flex-col gap-4">
       <div className="flex flex-1 flex-col gap-4">
         <Typography
           className="break-words"

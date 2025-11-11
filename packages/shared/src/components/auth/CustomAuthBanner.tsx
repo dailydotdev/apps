@@ -24,9 +24,9 @@ const CustomAuthBanner = (): ReactElement => {
       className={{
         container: classNames(
           authGradientBg,
-          'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-accent-cabbage-default px-4 py-2',
+          'z-max border-accent-cabbage-default sticky left-0 top-0 w-full justify-center gap-2 border-b px-4 py-2',
         ),
-        button: 'flex-1 tablet:max-w-[9rem]',
+        button: 'tablet:max-w-[9rem] flex-1',
       }}
     />
   );

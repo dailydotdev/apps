@@ -128,7 +128,7 @@ const SquadModerationItem = ({
       <button
         type="button"
         onClick={() => onToggleExpanded(squad.id)}
-        className="rounded--4 flex flex-row items-center justify-start gap-4 rounded-4 py-2 hover:bg-surface-float"
+        className="rounded--4 rounded-4 hover:bg-surface-float flex flex-row items-center justify-start gap-4 py-2"
       >
         <div className="flex min-h-0 min-w-0 grow basis-0 flex-row items-center justify-start gap-2">
           <Image
@@ -155,7 +155,7 @@ const SquadModerationItem = ({
         </div>
         <ArrowIcon
           className={classNames(
-            'm-auto !size-6 text-surface-secondary transition-transform',
+            'text-surface-secondary m-auto !size-6 transition-transform',
             isExpanded ? 'rotate-180' : 'rotate-90',
           )}
         />

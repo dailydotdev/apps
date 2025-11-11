@@ -95,7 +95,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
       <div
         className={classNames(
           showFeedback
-            ? 'overflow-hidden rounded-16 border !border-border-subtlest-tertiary p-2'
+            ? 'rounded-16 !border-border-subtlest-tertiary overflow-hidden border p-2'
             : 'flex flex-1 flex-col',
           showFeedback && styles.post,
           showFeedback && styles.read,

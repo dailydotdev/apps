@@ -33,7 +33,7 @@ export const ReputationUserBadge = ({
     >
       <div
         className={classNames(
-          'flex items-center font-bold text-text-primary typo-footnote',
+          'text-text-primary typo-footnote flex items-center font-bold',
           className,
         )}
       >

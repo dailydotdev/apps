@@ -26,7 +26,7 @@ export function MobileExploreHeader({
   });
 
   return (
-    <h3 className="mx-4 flex h-12 items-center justify-between font-bold typo-body">
+    <h3 className="typo-body mx-4 flex h-12 items-center justify-between font-bold">
       Explore
       {withDateRange.includes(path as OtherFeedPage) && (
         <Dropdown

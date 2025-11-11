@@ -75,7 +75,7 @@ function SquadItem({
 
   return (
     <div
-      className="relative flex w-40 items-center rounded-16 bg-surface-float p-2 first:ml-4 hover:bg-surface-hover tablet:w-auto tablet:first:ml-0"
+      className="rounded-16 bg-surface-float hover:bg-surface-hover tablet:w-auto tablet:first:ml-0 relative flex w-40 items-center p-2 first:ml-4"
       data-testid={squad.id}
     >
       <Link href={squad.permalink} prefetch={false} passHref>
@@ -89,15 +89,15 @@ function SquadItem({
             className="h-8 w-8 rounded-full"
           />
           <div className="flex flex-1 flex-col">
-            <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold typo-caption1">
+            <p className="typo-caption1 overflow-hidden text-ellipsis whitespace-nowrap font-bold">
               {squad.name}
             </p>
-            <p className="overflow-hidden text-ellipsis whitespace-nowrap text-text-quaternary typo-caption2">
+            <p className="text-text-quaternary typo-caption2 overflow-hidden text-ellipsis whitespace-nowrap">
               @{squad.handle}
             </p>
           </div>
         </div>
-        <div className="mt-1 flex h-6 items-center text-text-tertiary typo-caption2 tablet:h-auto">
+        <div className="text-text-tertiary typo-caption2 tablet:h-auto mt-1 flex h-6 items-center">
           {membership.role !== SourceMemberRole.Member && (
             <>
               <UserBadge role={membership.role}>
@@ -111,7 +111,7 @@ function SquadItem({
           </span>
           {showJoin && (
             <Button
-              className="z-1 ml-auto tablet:hidden"
+              className="z-1 tablet:hidden ml-auto"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.XSmall}
               icon={<PlusIcon />}
@@ -124,7 +124,7 @@ function SquadItem({
       </div>
       {showJoin && (
         <Button
-          className="z-1 hidden tablet:flex"
+          className="z-1 tablet:flex hidden"
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           onClick={onJoin}
@@ -180,14 +180,14 @@ export function SquadsList({
           icon={<PlusIcon />}
           aria-label="Create a new Squad"
         />
-        <div className="flex-[3] rounded-16 border border-border-subtlest-tertiary" />
-        <div className="flex-[2] rounded-l-16 border border-border-subtlest-tertiary" />
+        <div className="rounded-16 border-border-subtlest-tertiary flex-[3] border" />
+        <div className="rounded-l-16 border-border-subtlest-tertiary flex-[2] border" />
       </div>
     );
   }
 
   return (
-    <div className="no-scrollbar flex items-center gap-2 overflow-x-auto laptop:flex-col laptop:items-stretch laptop:px-4">
+    <div className="no-scrollbar laptop:flex-col laptop:items-stretch laptop:px-4 flex items-center gap-2 overflow-x-auto">
       {edges.map(({ node }) => (
         <SquadItem key={node.source.id} membership={node} loading={loading} />
       ))}

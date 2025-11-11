@@ -69,7 +69,7 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
   return (
     <div
       className={classNames(
-        'flex flex-col items-center gap-4 rounded-16 px-4 py-6 text-center',
+        'rounded-16 flex flex-col items-center gap-4 px-4 py-6 text-center',
         className,
         { invert: !isLightMode },
       )}
@@ -95,9 +95,9 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
           deliver your personalized Presidential Briefing in seconds.
         </Typography>
       </div>
-      <div className="flex flex-row items-center justify-center gap-6 text-text-primary tablet:gap-1 ">
+      <div className="text-text-primary tablet:gap-1 flex flex-row items-center justify-center gap-6 ">
         <Typography
-          className="max-w-28 tablet:max-w-none"
+          className="tablet:max-w-none max-w-28"
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
         >
@@ -105,15 +105,15 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
         </Typography>
         <MoveToIcon size={IconSize.XXSmall} />
         <Typography
-          className="max-w-28 tablet:max-w-none"
+          className="tablet:max-w-none max-w-28"
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
         >
           Reading takes 2-3 minutes
         </Typography>
-        <div className="hidden tablet:block">{time}</div>
+        <div className="tablet:block hidden">{time}</div>
       </div>
-      <div className="block tablet:hidden">{time}</div>
+      <div className="tablet:hidden block">{time}</div>
       <Button
         data-testid="brief-banner-cta"
         tag="a"

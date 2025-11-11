@@ -89,7 +89,7 @@ export const PostCodeSnippets = ({
   );
 
   return (
-    <div className={classNames(className, 'overflow-hidden rounded-12')}>
+    <div className={classNames(className, 'rounded-12 overflow-hidden')}>
       <RenderMarkdown
         isExpandable
         className="font-mono"

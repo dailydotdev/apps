@@ -29,7 +29,7 @@ const UserPersonalizedBanner = ({
       <OnboardingHeadline
         className={{
           title: 'typo-mega3',
-          description: 'mb-8 typo-title3',
+          description: 'typo-title3 mb-8',
         }}
         pretitle={user?.username}
         title="shared it, so it's probably a good one."

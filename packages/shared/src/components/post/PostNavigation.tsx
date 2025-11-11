@@ -29,7 +29,7 @@ function PostNavigation({
   return (
     <div
       className={classNames(
-        'flex w-full flex-row items-center gap-2 bg-background-subtle py-1',
+        'bg-background-subtle flex w-full flex-row items-center gap-2 py-1',
         className?.container,
       )}
       role="navigation"

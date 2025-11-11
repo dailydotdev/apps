@@ -102,8 +102,8 @@ export function WriteFreeformContent({
         size={isLaptop ? 'medium' : 'large'}
         className={{
           container:
-            '!w-full !rounded-14 border-none bg-accent-pepper-subtlest text-text-tertiary tablet:!w-[20.25rem] laptop:!w-[11.5rem]',
-          root: 'relative w-full tablet:w-min',
+            '!rounded-14 bg-accent-pepper-subtlest text-text-tertiary tablet:!w-[20.25rem] laptop:!w-[11.5rem] !w-full border-none',
+          root: 'tablet:w-min relative w-full',
         }}
         enableHover={false}
         fallbackImage={null}
@@ -120,7 +120,7 @@ export function WriteFreeformContent({
         }
       >
         <CameraIcon secondary />
-        <span className="ml-1.5 flex flex-row font-bold typo-callout">
+        <span className="typo-callout ml-1.5 flex flex-row font-bold">
           Thumbnail
         </span>
       </ImageInput>
@@ -129,8 +129,8 @@ export function WriteFreeformContent({
         offset={[0, -12]}
         message={
           <div className="flex w-64 flex-col">
-            <h3 className="font-bold typo-body">First time? 👋</h3>
-            <p className="mt-1 typo-subhead">
+            <h3 className="typo-body font-bold">First time? 👋</h3>
+            <p className="typo-subhead mt-1">
               It looks like this is your first time sharing a post with the
               Squad! This is a community we build together. Please be welcoming
               and open-minded.

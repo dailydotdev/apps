@@ -28,13 +28,13 @@ export const PlaceholderList = forwardRef(function PlaceholderCard(
         </CardSpace>
       </CardTextContainer>
       <CardSpace>
-        <CardSpace className="flex flex-col mobileXL:flex-row">
+        <CardSpace className="mobileXL:flex-row flex flex-col">
           <CardSpace className="mr-4 flex flex-1 flex-col">
             <Text className="mt-4 h-4 w-3/4" />
             <Text className="mt-2 h-4 w-1/2" />
             <CardSpace className="flex" />
           </CardSpace>
-          <ElementPlaceholder className="mt-4 h-auto max-h-[12.5rem] min-h-[10rem] w-full rounded-16 mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56" />
+          <ElementPlaceholder className="rounded-16 mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56 mt-4 h-auto max-h-[12.5rem] min-h-[10rem] w-full" />
         </CardSpace>
         <Text className="mt-4 h-10 w-56" />
       </CardSpace>

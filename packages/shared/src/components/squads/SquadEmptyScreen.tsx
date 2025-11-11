@@ -14,9 +14,9 @@ function SquadEmptyScreen(): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
-    <FlexCentered className="mt-12 min-h-[calc(100vh-565px)] w-full flex-col p-6 text-center tablet:min-h-[calc(100vh-600px)] laptop:h-full laptop:min-h-[calc(100vh-540px)]">
+    <FlexCentered className="tablet:min-h-[calc(100vh-600px)] laptop:h-full laptop:min-h-[calc(100vh-540px)] mt-12 min-h-[calc(100vh-565px)] w-full flex-col p-6 text-center">
       <Image
-        className="mb-3 tablet:mb-8"
+        className="tablet:mb-8 mb-3"
         width={isMobile ? 180 : 314}
         height={isMobile ? 91 : 152}
         src={
@@ -25,7 +25,7 @@ function SquadEmptyScreen(): ReactElement {
             : cloudinarySquadsEmptySquad
         }
       />
-      <span className="max-w-lg text-text-primary typo-body tablet:typo-title1">
+      <span className="text-text-primary typo-body tablet:typo-title1 max-w-lg">
         Get started by sharing your first post and inviting other developers you
         know and appreciate.
       </span>

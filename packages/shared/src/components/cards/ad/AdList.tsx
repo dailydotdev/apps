@@ -59,7 +59,7 @@ export const AdList = forwardRef(function AdCard(
     >
       <CardContent>
         <CardTitle
-          className={classNames('!mt-0 mr-4 line-clamp-4 flex-1 typo-title3')}
+          className={classNames('typo-title3 !mt-0 mr-4 line-clamp-4 flex-1')}
         >
           <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
           {ad.description}

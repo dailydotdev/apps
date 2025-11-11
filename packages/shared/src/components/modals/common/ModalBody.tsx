@@ -19,7 +19,7 @@ function ModalBodyComponent(
   const sectionClassName = classNames(
     'relative flex h-full max-h-full w-full shrink flex-col overflow-auto',
     kind === ModalKind.FlexibleTop && bigModals.includes(size) && 'tablet:p-8',
-    isDrawer ? 'p-0' : 'p-4 tablet:p-6',
+    isDrawer ? 'p-0' : 'tablet:p-6 p-4',
     className,
   );
   if (view && view !== activeView) {

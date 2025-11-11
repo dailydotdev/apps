@@ -21,7 +21,7 @@ export function DevCardStats({
   return (
     <span
       className={classNames(
-        'flex w-full flex-row gap-3 rounded-16 bg-raw-pepper-90 px-4 py-2 shadow-2',
+        'rounded-16 bg-raw-pepper-90 shadow-2 flex w-full flex-row gap-3 px-4 py-2',
         className,
       )}
     >

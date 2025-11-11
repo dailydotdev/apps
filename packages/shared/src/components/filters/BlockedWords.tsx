@@ -93,7 +93,7 @@ export const BlockedWords = (): ReactElement => {
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Caption1}
-          className="flex gap-0.5 rounded-4 bg-action-plus-float p-0.5 pr-1"
+          className="rounded-4 bg-action-plus-float flex gap-0.5 p-0.5 pr-1"
           color={TypographyColor.Plus}
         >
           <DevPlusIcon size={IconSize.Size16} /> Plus
@@ -144,7 +144,7 @@ export const BlockedWords = (): ReactElement => {
           <GenericTagButton
             showHashtag={false}
             key={word.referenceId}
-            className="group btn-tagBlocked"
+            className="btn-tagBlocked group"
             icon={
               <>
                 <BlockIcon className="ml-2 text-xl transition-transform group-hover:hidden" />

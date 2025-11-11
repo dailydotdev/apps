@@ -40,14 +40,14 @@ export interface CommonSharePostContentProps {
 
 const SharePostContentSkeleton = () => (
   <>
-    <ElementPlaceholder className="mt-6 h-6 w-2/4 rounded-10" />
-    <div className="mb-5 mt-8 rounded-16 border border-border-subtlest-tertiary">
-      <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
+    <ElementPlaceholder className="rounded-10 mt-6 h-6 w-2/4" />
+    <div className="rounded-16 border-border-subtlest-tertiary mb-5 mt-8 border">
+      <div className="laptop:flex-row flex max-w-full flex-col p-4 pt-5">
         <div className="flex flex-1 flex-col gap-9">
-          <ElementPlaceholder className="h-6 w-20 rounded-10" />
-          <ElementPlaceholder className="h-6 w-20 rounded-10" />
+          <ElementPlaceholder className="rounded-10 h-6 w-20" />
+          <ElementPlaceholder className="rounded-10 h-6 w-20" />
         </div>
-        <ElementPlaceholder className="ml-2 h-36 w-70 rounded-16" />
+        <ElementPlaceholder className="w-70 rounded-16 ml-2 h-36" />
       </div>
     </div>
   </>
@@ -78,7 +78,7 @@ const PrivatePost = ({
 }) => (
   <SharedLinkContainer className="mb-5 mt-8">
     <div className="flex flex-row items-center gap-1 px-5 py-4">
-      <div className="flex size-6 items-center justify-center rounded-full bg-surface-secondary">
+      <div className="bg-surface-secondary flex size-6 items-center justify-center rounded-full">
         <EarthIcon size={IconSize.Size16} />
       </div>
       <Typography
@@ -154,7 +154,7 @@ export function CommonSharePostContent({
             source={source}
             sharedPost={sharedPost}
             onGoToLinkProps={combinedClicks(openArticle)}
-            className="mb-4 mt-0 flex flex-wrap font-bold typo-body"
+            className="typo-body mb-4 mt-0 flex flex-wrap font-bold"
           >
             <TruncateText>{sharedPost.title}</TruncateText>
           </SharedPostLink>
@@ -189,7 +189,7 @@ export function CommonSharePostContent({
           source={source}
           sharedPost={sharedPost}
           onGoToLinkProps={combinedClicks(openArticle)}
-          className="mx-auto block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
+          className="w-70 rounded-16 mx-auto block h-fit cursor-pointer overflow-hidden"
         >
           <LazyImage
             imgSrc={sharedPost.image}

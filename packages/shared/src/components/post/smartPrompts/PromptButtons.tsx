@@ -95,17 +95,17 @@ export const PromptButtons = ({
   if (isLoading) {
     return (
       <div className="flex flex-wrap gap-x-1 gap-y-2">
-        <ElementPlaceholder className="h-6 w-20 rounded-8" />
-        <ElementPlaceholder className="h-6 w-26 rounded-8" />
-        <ElementPlaceholder className="h-6 w-26 rounded-8" />
-        <ElementPlaceholder className="h-6 w-26 rounded-8" />
-        <ElementPlaceholder className="h-6 w-26 rounded-8" />
+        <ElementPlaceholder className="rounded-8 h-6 w-20" />
+        <ElementPlaceholder className="w-26 rounded-8 h-6" />
+        <ElementPlaceholder className="w-26 rounded-8 h-6" />
+        <ElementPlaceholder className="w-26 rounded-8 h-6" />
+        <ElementPlaceholder className="w-26 rounded-8 h-6" />
       </div>
     );
   }
 
   return (
-    <div className="no-scrollbar flex gap-x-1 gap-y-2 overflow-x-auto tablet:flex-wrap">
+    <div className="no-scrollbar tablet:flex-wrap flex gap-x-1 gap-y-2 overflow-x-auto">
       <PromptButton
         active={activePrompt === PromptDisplay.TLDR}
         flags={{ icon: 'TLDR', color: ColorName.Cabbage }}

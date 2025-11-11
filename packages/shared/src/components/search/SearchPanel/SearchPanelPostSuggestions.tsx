@@ -41,7 +41,7 @@ const PanelItem = ({
     <SearchPanelItem {...rest} icon={<SearchIcon />} {...itemProps}>
       {!!purifySanitize && (
         <span
-          className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap typo-subhead [&>strong]:text-text-primary"
+          className="typo-subhead [&>strong]:text-text-primary flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap"
           dangerouslySetInnerHTML={{
             __html: purifySanitize(suggestion.title),
           }}
@@ -94,11 +94,11 @@ export const SearchPanelPostSuggestions = ({
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <div className="relative my-2 flex items-center justify-start gap-2">
-        <hr className="w-2 border-border-subtlest-tertiary" />
-        <span className="relative inline-flex font-bold typo-footnote">
+        <hr className="border-border-subtlest-tertiary w-2" />
+        <span className="typo-footnote relative inline-flex font-bold">
           {title}
         </span>
-        <hr className="flex-1 border-border-subtlest-tertiary" />
+        <hr className="border-border-subtlest-tertiary flex-1" />
       </div>
       {suggestions?.hits?.map((suggestion) => {
         return (

@@ -43,7 +43,7 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
     <div className="flex flex-col gap-6">
       <SearchField
         aria-label="Search sources, squads, users, or tags"
-        className="border-none !bg-background-subtle"
+        className="!bg-background-subtle border-none"
         inputId="search-filters"
         placeholder="Search sources, squads, users, or tags"
         valueChanged={onSearch}
@@ -66,7 +66,7 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
           size: ModalSize.Medium,
         }}
       >
-        <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
+        <ModalTabs className="border-border-subtlest-tertiary border-b pb-[0.70rem]" />
         <div className="flex w-full max-w-full flex-col">
           {activeView === FeedSettingsBlockingSectionTabs.Sources && (
             <BlockedSourceList searchQuery={searchQuery} />

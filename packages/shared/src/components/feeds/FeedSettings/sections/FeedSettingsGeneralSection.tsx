@@ -71,7 +71,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
           <TextField
             className={{
               container:
-                'pointer-events-none w-full text-text-quaternary tablet:max-w-70',
+                'text-text-quaternary tablet:max-w-70 pointer-events-none w-full',
             }}
             defaultValue={feed.flags?.name}
             name="name"
@@ -86,7 +86,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
         {isCustomFeed && (
           <TextField
             className={{
-              container: 'w-full tablet:max-w-70',
+              container: 'tablet:max-w-70 w-full',
             }}
             defaultValue={feed.flags?.name}
             name="name"
@@ -205,7 +205,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
       </div>
       {isCustomFeed && (
         <>
-          <Divider className="my-1 bg-border-subtlest-tertiary" />
+          <Divider className="bg-border-subtlest-tertiary my-1" />
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <Typography bold type={TypographyType.Body}>

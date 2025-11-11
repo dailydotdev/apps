@@ -45,7 +45,7 @@ export const EditTag = ({
 
   return (
     <>
-      <h2 className="text-center font-bold typo-large-title">
+      <h2 className="typo-large-title text-center font-bold">
         {headline || 'Pick tags that are relevant to you'}
       </h2>
       <TagSelection
@@ -54,7 +54,7 @@ export const EditTag = ({
           <SearchField
             aria-label="Pick tags that are relevant to you"
             autoFocus={!isMobile}
-            className="mb-10 w-full tablet:max-w-xs"
+            className="tablet:max-w-xs mb-10 w-full"
             inputId="search-filters"
             placeholder="Search javascript, php, git, etc…"
             valueChanged={onSearch}
@@ -73,12 +73,12 @@ export const EditTag = ({
       />
       {isPreviewEnabled && isPreviewVisible && (
         <FeedLayoutProvider>
-          <p className="-mb-4 mt-6 text-center text-text-secondary typo-body">
+          <p className="text-text-secondary typo-body -mb-4 mt-6 text-center">
             Change your tag selection until you&apos;re happy with your feed
             preview.
           </p>
           <Feed
-            className="relative mx-auto px-6 pt-14 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2 laptop:pt-10"
+            className="tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2 laptop:pt-10 relative mx-auto px-6 pt-14"
             feedName={OtherFeedPage.Preview}
             feedQueryKey={[RequestKey.FeedPreview, userId]}
             query={PREVIEW_FEED_QUERY}

@@ -46,8 +46,8 @@ export function RadioItem<T extends string>({
           { [styles.checked]: checked },
           disabled
             ? '!text-text-disabled'
-            : 'pointer cursor-pointer text-text-tertiary focus-within:text-text-primary hover:text-text-primary',
-          'relative flex select-none items-center pr-3 font-bold typo-footnote',
+            : 'pointer text-text-tertiary focus-within:text-text-primary hover:text-text-primary cursor-pointer',
+          'typo-footnote relative flex select-none items-center pr-3 font-bold',
           reverse ? 'flex-row-reverse' : 'flex-row',
           className?.content,
         )}
@@ -62,7 +62,7 @@ export function RadioItem<T extends string>({
         />
         <span
           className={classNames(
-            'h-8 w-8 rounded-10 p-1.5',
+            'rounded-10 h-8 w-8 p-1.5',
             reverse ? 'ml-1.5' : 'mr-1.5',
             !disabled && styles.checkmark,
           )}

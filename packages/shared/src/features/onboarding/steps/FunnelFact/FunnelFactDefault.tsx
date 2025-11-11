@@ -66,7 +66,7 @@ export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
       <div
         data-testid="step-content"
         className={classNames(
-          'flex flex-1 items-center gap-12 px-4 pt-6 laptop:mb-10',
+          'laptop:mb-10 flex flex-1 items-center gap-12 px-4 pt-6',
           isLayoutReversed
             ? 'flex-col-reverse justify-end'
             : 'flex-col justify-between',

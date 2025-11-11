@@ -27,13 +27,13 @@ export function ReviewCard({
   return (
     <div
       className={classNames(
-        'flex max-w-60 flex-col gap-1 rounded-16 bg-surface-float p-4 first:ml-6 last:mr-6 laptop:!mx-0',
+        'rounded-16 bg-surface-float laptop:!mx-0 flex max-w-60 flex-col gap-1 p-4 first:ml-6 last:mr-6',
         className,
       )}
     >
-      <h3 className="font-bold text-text-primary typo-callout">{title}</h3>
+      <h3 className="text-text-primary typo-callout font-bold">{title}</h3>
       <p className="text-text-secondary typo-footnote">{content}</p>
-      <span className="font-bold text-text-primary typo-footnote">
+      <span className="text-text-primary typo-footnote font-bold">
         {author}
       </span>
     </div>
@@ -79,7 +79,7 @@ export function Reviews({
         </Typography>
       </div>
 
-      <div className="no-scrollbar flex max-w-full gap-3 overflow-x-auto laptop:grid laptop:grid-cols-2 laptop:place-content-around">
+      <div className="no-scrollbar laptop:grid laptop:grid-cols-2 laptop:place-content-around flex max-w-full gap-3 overflow-x-auto">
         {reviews.map((review) => (
           <ReviewCard
             key={review.title}

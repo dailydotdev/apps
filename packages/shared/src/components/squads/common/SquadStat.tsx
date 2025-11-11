@@ -10,8 +10,8 @@ interface SquadStatProps {
 
 export function SquadStat({ count, label }: SquadStatProps): ReactElement {
   return (
-    <span className="flex flex-row text-text-tertiary typo-footnote">
-      <strong className="mr-1 text-text-primary typo-subhead">
+    <span className="text-text-tertiary typo-footnote flex flex-row">
+      <strong className="text-text-primary typo-subhead mr-1">
         {largeNumberFormat(count)}
       </strong>
       {label}

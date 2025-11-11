@@ -19,7 +19,7 @@ const bg: Record<ThemeMode, ReactNode> = {
   dark: DarkNodeLayout,
   light: LightNodeLayout,
   auto: (
-    <ThemeWidgetBackground className="ml-auto grid w-36 grid-cols-2 gap-4 rounded-14 pt-6">
+    <ThemeWidgetBackground className="rounded-14 ml-auto grid w-36 grid-cols-2 gap-4 pt-6">
       {LightNode}
       {DarkNode}
     </ThemeWidgetBackground>
@@ -34,7 +34,7 @@ function ThemeWidget({
   return (
     <label
       htmlFor={option.value}
-      className="relative flex h-24 w-full flex-row items-center overflow-hidden rounded-14 bg-border-subtlest-tertiary pl-4 hover:cursor-pointer"
+      className="rounded-14 bg-border-subtlest-tertiary relative flex h-24 w-full flex-row items-center overflow-hidden pl-4 hover:cursor-pointer"
     >
       <RadioItem
         {...props}
