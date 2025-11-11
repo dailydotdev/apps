@@ -50,6 +50,7 @@ const OpenSourcePage = (): ReactElement => {
             experiences={experiences}
             experienceType={UserExperienceType.OpenSource}
             isSameUser
+            showEditOnItems
           />
         ) : (
           <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">

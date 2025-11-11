@@ -28,6 +28,7 @@ interface UserExperienceListProps<T extends UserExperience> {
   experienceType?: UserExperienceType;
   hasNextPage?: boolean;
   isSameUser?: boolean;
+  showEditOnItems?: boolean;
 }
 
 const groupListByCompany = <T extends UserExperience>(
@@ -56,6 +57,7 @@ export function UserExperienceList<T extends UserExperience>({
   experienceType,
   hasNextPage,
   isSameUser,
+  showEditOnItems = false,
 }: UserExperienceListProps<T>): ReactElement {
   const groupedByCompany: [string, T[]][] = useMemo(
     () => groupListByCompany(experiences),
@@ -96,7 +98,7 @@ export function UserExperienceList<T extends UserExperience>({
               key={list[0].id}
               experience={list[0]}
               editUrl={
-                isSameUser && experienceType
+                showEditOnItems && isSameUser && experienceType
                   ? `${editBaseUrl}?id=${list[0].id}&type=${experienceType}`
                   : undefined
               }

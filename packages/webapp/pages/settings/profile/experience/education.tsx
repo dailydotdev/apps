@@ -50,6 +50,7 @@ const EducationPage = (): ReactElement => {
             experiences={experiences}
             experienceType={UserExperienceType.Education}
             isSameUser
+            showEditOnItems
           />
         ) : (
           <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
