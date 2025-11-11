@@ -103,7 +103,11 @@ export const AlertContextProvider = ({
     },
   });
 
-  const { mutateAsync: updateHasSeenOpportunity } = useMutation({
+  const { mutateAsync: updateHasSeenOpportunity } = useMutation<
+    unknown,
+    unknown,
+    boolean | void
+  >({
     mutationFn: (hasSeenOpportunity = true) =>
       gqlClient.request(UPDATE_HAS_SEEN_OPPORTUNITY, { hasSeenOpportunity }),
   });
