@@ -51,7 +51,11 @@ export const userExperienceInputBaseSchema = z
   })
   .refine(
     (data) => {
-      if (data.current === false) {
+      if (
+        data.current === false &&
+        data.type !== UserExperienceType.Project &&
+        data.type !== UserExperienceType.OpenSource
+      ) {
         return data.endedAt !== undefined;
       }
       return true;

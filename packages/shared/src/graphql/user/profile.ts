@@ -308,7 +308,7 @@ export const upsertUserWorkExperience = async (
   input: UserExperienceWork,
   id?: string,
 ) => {
-  const cleanedInput = excludeProperties(input, excludedProperties);
+  const cleanedInput = excludeProperties(input, [...excludedProperties, 'url']);
 
   const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {
     input: cleanedInput,
