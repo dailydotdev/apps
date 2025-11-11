@@ -376,10 +376,10 @@ export const recruiterSpamCampaignSEO =
 export const adFaviconPlaceholder =
   'https://media.daily.dev/image/upload/s--SOLIE7Bc--/f_auto/v1761801782/webapp/daily.dev_-_Boost_Icon';
 export const jobOfferDarkDesktop =
-  'https://media.daily.dev/image/upload/s--NfynfZap--/f_auto/v1762762600/public/new-offer-dark-web';
+  'https://media.daily.dev/image/upload/s--s5wQXzyd--/f_auto/v1762845657/public/jobmatch-web-dark';
 export const jobOfferLightDesktop =
-  'https://media.daily.dev/image/upload/s--NfynfZap--/f_auto/v1762762601/public/new-offer-light-web';
+  'https://media.daily.dev/image/upload/s--owB1BPLg--/f_auto/v1762845657/public/jobmatch-web-light';
 export const jobOfferDarkMobile =
-  'https://media.daily.dev/image/upload/s--Fucq4fUY--/f_auto/v1762762600/public/new-offer-dark-mobile';
+  'https://media.daily.dev/image/upload/s--GadTanSG--/f_auto/v1762845821/public/jobmatch-mobile-dark';
 export const jobOfferLightMobile =
-  'https://media.daily.dev/image/upload/s--kgtQcvdc--/f_auto/v1762762601/public/new-offer-light-mobile';
+  'https://media.daily.dev/image/upload/s--woqk56k5--/f_auto/v1762845946/public/jobmatch-mobile-light';

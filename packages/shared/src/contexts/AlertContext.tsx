@@ -7,6 +7,7 @@ import {
   UPDATE_ALERTS,
   UPDATE_LAST_BOOT_POPUP,
   UPDATE_LAST_REFERRAL_REMINDER,
+  UPDATE_HAS_SEEN_OPPORTUNITY,
 } from '../graphql/alerts';
 import { gqlClient } from '../graphql/common';
 
@@ -33,6 +34,7 @@ export interface AlertContextData {
   >;
   updateLastReferralReminder?: UseMutateAsyncFunction;
   updateLastBootPopup?: UseMutateAsyncFunction;
+  updateHasSeenOpportunity?: UseMutateAsyncFunction;
   clearOpportunityAlert?: UseMutateAsyncFunction;
 }
 
@@ -101,6 +103,11 @@ export const AlertContextProvider = ({
     },
   });
 
+  const { mutateAsync: updateHasSeenOpportunity } = useMutation({
+    mutationFn: (hasSeenOpportunity = true) =>
+      gqlClient.request(UPDATE_HAS_SEEN_OPPORTUNITY, { hasSeenOpportunity }),
+  });
+
   const alertContextData = useMemo<AlertContextData>(
     () => ({
       alerts,
@@ -109,6 +116,7 @@ export const AlertContextProvider = ({
       updateAlerts: updateRemoteAlerts,
       updateLastReferralReminder,
       updateLastBootPopup,
+      updateHasSeenOpportunity,
     }),
     [
       alerts,
@@ -117,6 +125,7 @@ export const AlertContextProvider = ({
       updateRemoteAlerts,
       updateLastReferralReminder,
       updateLastBootPopup,
+      updateHasSeenOpportunity,
     ],
   );
 
