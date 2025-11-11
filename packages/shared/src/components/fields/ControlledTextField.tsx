@@ -5,7 +5,13 @@ import { TextField } from './TextField';
 
 type ControlledTextFieldProps = Pick<
   TextFieldProps,
-  'name' | 'label' | 'leftIcon' | 'placeholder' | 'hint'
+  | 'name'
+  | 'label'
+  | 'leftIcon'
+  | 'placeholder'
+  | 'hint'
+  | 'fieldType'
+  | 'className'
 >;
 
 const ControlledTextField = ({

@@ -7,6 +7,7 @@ import UserEducationForm from '@dailydotdev/shared/src/features/profile/componen
 import UserCertificationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserCertificationForm';
 import UserProjectExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserProjectExperienceForm';
 import DeleteExperienceButton from '@dailydotdev/shared/src/features/profile/components/experience/DeleteExperienceButton';
+import UserVolunteeringExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserVolunteeringExperienceForm';
 import {
   Button,
   ButtonSize,
@@ -54,7 +55,8 @@ const splitMonthYear = (value?: string) => {
   return [month, year];
 };
 
-const defaultValues: Omit<DefaultValues, 'type'> = {
+const defaultValues: DefaultValues = {
+  type: UserExperienceType.Work,
   id: '',
   title: '',
   description: '',
@@ -125,7 +127,10 @@ const renderExperienceForm = (type?: UserExperienceType) => {
       return <UserEducationForm />;
     case UserExperienceType.Certification:
       return <UserCertificationForm />;
+    case UserExperienceType.Volunteering:
+      return <UserVolunteeringExperienceForm />;
     case UserExperienceType.Project:
+    case UserExperienceType.OpenSource:
       return <UserProjectExperienceForm />;
     default:
       return <UserWorkExperienceForm />;

@@ -7,7 +7,6 @@ import {
   TypographyType,
 } from '../../../../../components/typography/Typography';
 import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMonthYearSelect';
-import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
 import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
 
@@ -16,26 +15,19 @@ const secondaryFieldClassName = {
   baseField: '!h-12',
 };
 
-const UserEducationForm = () => {
+const UserVolunteeringExperienceForm = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <ProfileCompany
           name="customCompanyName"
-          label="School*"
-          type={AutocompleteType.School}
-        />
-        <ControlledTextField
-          name="subtitle"
-          label="Degree*"
-          placeholder="Ex: Bachelor, Master, PhD, Diploma, Certificate"
-          fieldType="secondary"
-          className={secondaryFieldClassName}
+          label="Organization*"
+          type={AutocompleteType.Company}
         />
         <ControlledTextField
           name="title"
-          label="Field of Study*"
-          placeholder="Ex: Science in Computer Science"
+          label="Role*"
+          placeholder="Ex: Mentor, Fundraiser, Maintainer"
           fieldType="secondary"
           className={secondaryFieldClassName}
         />
@@ -43,8 +35,8 @@ const UserEducationForm = () => {
       <HorizontalSeparator />
       <ControlledSwitch
         name="current"
-        label="Current education"
-        description="Check if you are currently enrolled in this program or pursuing this degree."
+        label="Current volunteer role"
+        description="Check if you are still actively volunteering in this position."
       />
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
@@ -68,27 +60,8 @@ const UserEducationForm = () => {
           />
         </div>
       </div>
-      <HorizontalSeparator />
-      <div className="flex flex-col gap-2">
-        <ControlledTextField
-          name="grade"
-          label="Grade"
-          placeholder="Ex: 3.8/4.0, First Class Honours, 85%"
-          fieldType="secondary"
-          className={secondaryFieldClassName}
-        />
-        <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Callout} bold>
-            Description
-          </Typography>
-          <ControlledTextarea
-            name="description"
-            label="Achievements, societies, coursework"
-          />
-        </div>
-      </div>
     </div>
   );
 };
 
-export default UserEducationForm;
+export default UserVolunteeringExperienceForm;

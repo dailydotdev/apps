@@ -11,6 +11,11 @@ import ControlledTextarea from '../../../../../components/fields/ControlledTexta
 import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
 
+const secondaryFieldClassName = {
+  outerLabel: '!px-0 !typo-callout',
+  baseField: '!h-12',
+};
+
 const UserCertificationForm = () => {
   return (
     <div className="flex flex-col gap-6">
@@ -19,6 +24,8 @@ const UserCertificationForm = () => {
           name="title"
           label="Certification Name*"
           placeholder="Ex: AWS Certified Solutions Architect"
+          fieldType="secondary"
+          className={secondaryFieldClassName}
         />
         <ProfileCompany
           name="customCompanyName"
@@ -60,11 +67,15 @@ const UserCertificationForm = () => {
           name="externalReferenceId"
           label="Credential ID"
           placeholder="Ex: Certificate number"
+          fieldType="secondary"
+          className={secondaryFieldClassName}
         />
         <ControlledTextField
           name="url"
           label="Credential URL"
           placeholder="Link to verification page"
+          fieldType="secondary"
+          className={secondaryFieldClassName}
         />
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
