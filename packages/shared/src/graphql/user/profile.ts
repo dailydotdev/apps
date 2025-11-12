@@ -20,6 +20,7 @@ const excludedProperties = [
   'createdAt',
   'id',
   'location',
+  'company',
 ];
 
 const USER_EXPERIENCE_FRAGMENT = gql`
