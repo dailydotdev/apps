@@ -21,6 +21,7 @@ import { MoveToIcon, EditIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import Link from '../../../../components/utilities/Link';
 import { useAuthContext } from '../../../../contexts/AuthContext';
+import { webappUrl } from '../../../../lib/constants';
 
 interface UserExperienceListProps<T extends UserExperience> {
   experiences: T[];
@@ -70,8 +71,14 @@ export function UserExperienceList<T extends UserExperience>({
   }
 
   const showMoreUrl =
-    userId && experienceType ? `/${userId}/${experienceType}` : undefined;
-  const editBaseUrl = '/settings/profile/experience/edit';
+    userId && experienceType
+      ? `${webappUrl}${userId}/${experienceType}`
+      : undefined;
+  const editBaseUrl = `${webappUrl}settings/profile/experience/edit`;
+  const settingsUrl =
+    isSameUser && experienceType
+      ? `${webappUrl}settings/profile/experience/${experienceType}`
+      : undefined;
 
   return (
     <div className="flex flex-col gap-3 py-4">
@@ -80,8 +87,8 @@ export function UserExperienceList<T extends UserExperience>({
           <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
             {title}
           </Typography>
-          {isSameUser && userId && experienceType && (
-            <Link href={`/${userId}/${experienceType}`} passHref>
+          {settingsUrl && (
+            <Link href={settingsUrl} passHref>
               <Button
                 tag="a"
                 variant={ButtonVariant.Tertiary}
