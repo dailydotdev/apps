@@ -7,12 +7,10 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import type { NextSeoProps } from 'next-seo';
-import { useUserExperiencesByType } from '@dailydotdev/shared/src/features/profile/hooks/useUserExperiencesByType';
 import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
-import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/components/experience/UserExperiencesList';
+import { ExperienceSettings } from '@dailydotdev/shared/src/components/profile/ExperienceSettings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { defaultSeo } from '../../../../next-seo';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
@@ -24,12 +22,6 @@ const seo: NextSeoProps = {
 };
 
 const EducationPage = (): ReactElement => {
-  const { user } = useAuthContext();
-  const { experiences } = useUserExperiencesByType(
-    UserExperienceType.Education,
-    user?.id,
-  );
-
   return (
     <AccountPageContainer
       title="Education"
@@ -47,20 +39,10 @@ const EducationPage = (): ReactElement => {
         </Link>
       }
     >
-      <div className="flex flex-col gap-4">
-        {experiences && experiences.length > 0 ? (
-          <UserExperienceList
-            experiences={experiences}
-            experienceType={UserExperienceType.Education}
-            isSameUser
-            showEditOnItems
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-            <p className="text-text-secondary">No education added yet</p>
-          </div>
-        )}
-      </div>
+      <ExperienceSettings
+        experienceType={UserExperienceType.Education}
+        emptyStateMessage="No education added yet"
+      />
     </AccountPageContainer>
   );
 };
