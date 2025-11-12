@@ -1,25 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { getUserExperiencesByType } from '../../../graphql/user/profile';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import type {
   UserExperience,
   UserExperienceType,
 } from '../../../graphql/user/profile';
-import AuthContext from '../../../contexts/AuthContext';
 
-export function useUserExperiencesByType(type: UserExperienceType) {
-  const { user } = useContext(AuthContext);
+export function useUserExperiencesByType(
+  type: UserExperienceType,
+  userId: string,
+) {
   const queryKey = generateQueryKey(
     RequestKey.UserExperience,
-    { id: user?.id },
+    { id: userId },
     type,
     'settings',
   );
 
   const query = useQuery({
     queryKey,
-    queryFn: () => getUserExperiencesByType(user?.id, type),
+    queryFn: () => getUserExperiencesByType(userId, type),
     staleTime: StaleTime.Default,
   });
 

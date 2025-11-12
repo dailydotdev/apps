@@ -12,6 +12,7 @@ import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile
 import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/components/experience/UserExperiencesList';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
 import { defaultSeo } from '../../../../next-seo';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
@@ -23,7 +24,8 @@ const seo: NextSeoProps = {
 };
 
 const ProjectsPage = (): ReactElement => {
-  const { experiences } = useUserExperiencesByType(UserExperienceType.Project);
+  const { user } = useAuthContext();
+  const { experiences } = useUserExperiencesByType(UserExperienceType.Project, user?.id);
 
   return (
     <AccountPageContainer
