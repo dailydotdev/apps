@@ -66,7 +66,7 @@ const CandidateCard = ({
     ? Math.floor(candidatePreferences.roleType * 10)
     : 0;
 
-  const cvUrl = candidatePreferences?.cv?.fileName || '#';
+  const cvUrl = candidatePreferences?.cv?.signedUrl;
   const profileUrl = `${webappUrl}${user.username}`;
 
   return (
@@ -174,7 +174,7 @@ const CandidateCard = ({
         </div>
 
         {/* Links */}
-        {cvUrl !== '#' && (
+        {cvUrl && (
           <div className="flex flex-wrap gap-3">
             <Button
               tag="a"

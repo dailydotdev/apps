@@ -138,8 +138,11 @@ export type OpportunityMatch = {
 };
 
 export type GcsBlob = {
+  blob?: string;
   fileName: string;
+  contentType?: string;
   lastModified: Date;
+  signedUrl?: string;
 };
 
 export type UserCandidateKeyword = Keyword;

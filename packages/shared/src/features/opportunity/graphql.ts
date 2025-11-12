@@ -10,8 +10,11 @@ export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
 
 export const GCS_BLOB_FRAGMENT = gql`
   fragment GCSBlob on GCSBlob {
+    blob
     fileName
+    contentType
     lastModified
+    signedUrl
   }
 `;
 
