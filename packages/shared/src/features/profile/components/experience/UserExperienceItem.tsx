@@ -38,8 +38,15 @@ export function UserExperienceItem({
   grouped,
   editUrl,
 }: UserExperienceItemProps): ReactElement {
-  const { company, title, description, startedAt, endedAt, subtitle } =
-    experience;
+  const {
+    company,
+    customCompanyName,
+    title,
+    description,
+    startedAt,
+    endedAt,
+    subtitle,
+  } = experience;
   const { skills, verified } = experience as UserExperienceWork;
   const { url } = experience as UserExperienceProject;
   const { externalReferenceId } = experience as UserExperienceCertification;
@@ -105,7 +112,7 @@ export function UserExperienceItem({
               type={TypographyType.Footnote}
               color={TypographyColor.Secondary}
             >
-              {company?.name}
+              {company?.name || customCompanyName}
               {!!verified && (
                 <span className="ml-1 text-text-quaternary">Verified</span>
               )}
