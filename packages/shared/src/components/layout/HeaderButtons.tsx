@@ -10,6 +10,7 @@ import { UpgradeToPlus } from '../UpgradeToPlus';
 import { TargetId } from '../../lib/log';
 import { ButtonVariant } from '../buttons/common';
 import { ButtonColor } from '../buttons/Button';
+import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 
 interface HeaderButtonsProps {
   additionalButtons?: ReactNode;
@@ -42,6 +43,7 @@ export function HeaderButtons({
 
   return (
     <Container>
+      <OpportunityEntryButton />
       <UpgradeToPlus
         className="whitespace-nowrap"
         color={ButtonColor.Bacon}
