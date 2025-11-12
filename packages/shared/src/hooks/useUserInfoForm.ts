@@ -1,11 +1,11 @@
 import { useContext, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import AuthContext from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
-import type { LoggedUser, UserProfile } from '../lib/user';
+import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
 import { errorMessage, gqlClient } from '../graphql/common';
@@ -15,6 +15,7 @@ import { useActions } from './useActions';
 import { getCompletionItems } from '../features/profile/components/ProfileWidgets/ProfileCompletion';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
+import { useProfile } from './profile/useProfile';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -59,8 +60,10 @@ const socials = [
 ];
 
 const useUserInfoForm = (): UseUserInfoForm => {
-  const { logEvent } = useLogContext();
+  const qc = useQueryClient();
   const { user, updateUser } = useContext(AuthContext);
+  const { userQueryKey } = useProfile(user as PublicProfile);
+  const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const router = useRouter();
@@ -105,6 +108,11 @@ const useUserInfoForm = (): UseUserInfoForm => {
       }),
 
     onSuccess: async (_, vars) => {
+      const oldProfileData = qc.getQueryData<PublicProfile>(userQueryKey);
+      qc.setQueryData(userQueryKey, {
+        ...oldProfileData,
+        ...vars,
+      });
       await updateUser({ ...user, ...vars });
 
       dirtyFormRef.current?.allowNavigation();

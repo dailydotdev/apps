@@ -29,6 +29,20 @@ jest.mock('../graphql/user/profile', () => ({
   upsertUserGeneralExperience: jest.fn(),
 }));
 
+// Mock AuthContext
+jest.mock('../contexts/AuthContext', () => ({
+  useAuthContext: jest.fn(() => ({
+    user: { id: 'test-user-id' },
+  })),
+}));
+
+// Mock useUserExperiencesByType hook
+jest.mock('../features/profile/hooks/useUserExperiencesByType', () => ({
+  useUserExperiencesByType: jest.fn(() => ({
+    queryKey: ['user-experiences', 'test-type', 'test-user-id'],
+  })),
+}));
+
 const mockRouter = {
   back: jest.fn(),
   pathname: '/profile/experience',
@@ -59,6 +73,8 @@ type BaseUserExperience = {
   subtitle?: string | null;
   current?: boolean;
   companyId?: string | null;
+  customCompanyName?: string | null;
+  url?: string | null;
 };
 
 describe('useUserExperienceForm', () => {

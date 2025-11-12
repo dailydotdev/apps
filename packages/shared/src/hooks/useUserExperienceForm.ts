@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,6 +20,8 @@ import { labels } from '../lib/labels';
 import { applyZodErrorsToForm } from '../lib/form';
 import { useToastNotification } from './useToastNotification';
 import { webappUrl } from '../lib/constants';
+import { useUserExperiencesByType } from '../features/profile/hooks/useUserExperiencesByType';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export const userExperienceInputBaseSchema = z
   .object({
@@ -28,7 +30,7 @@ export const userExperienceInputBaseSchema = z
     description: z.string().max(5000).optional(),
     subtitle: z.string().max(1000).optional(),
     startedAt: z.date({ message: 'Start date is required.' }),
-    endedAt: z.date().optional(),
+    endedAt: z.date().optional().nullable(),
     current: z.boolean().default(false),
     companyId: z.string().nullable().optional().default(null),
     customCompanyName: z
@@ -75,6 +77,12 @@ const useUserExperienceForm = ({
 }: {
   defaultValues: BaseUserExperience;
 }) => {
+  const qc = useQueryClient();
+  const { user } = useAuthContext();
+  const { queryKey: experienceQueryKey } = useUserExperiencesByType(
+    defaultValues.type,
+    user?.id,
+  );
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
   const router = useRouter();
   const { displayToast } = useToastNotification();
@@ -88,10 +96,11 @@ const useUserExperienceForm = ({
       type === UserExperienceType.Work
         ? upsertUserWorkExperience(data as UserExperienceWork, id)
         : upsertUserGeneralExperience(data, id),
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
+      methods.reset(vars);
       dirtyFormRef.current?.allowNavigation();
+      qc.invalidateQueries({ queryKey: experienceQueryKey });
       router.push(`${webappUrl}settings/profile/experience/${type}`);
-      methods.reset();
     },
     onError: (error: ApiErrorResult) => {
       if (
