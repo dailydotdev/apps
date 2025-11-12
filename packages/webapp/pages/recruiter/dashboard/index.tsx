@@ -6,24 +6,33 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getOpportunitiesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 
 type OpportunityCardProps = {
   opportunity: Opportunity;
-  onViewDetails: () => void;
 };
 
 const OpportunityCard = ({
   opportunity,
-  onViewDetails,
 }: OpportunityCardProps): ReactElement => {
-  const { title, organization } = opportunity;
+  const { title, organization, id } = opportunity;
 
   return (
-    <button
-      type="button"
-      onClick={onViewDetails}
-      className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left transition-colors hover:border-border-subtlest-secondary"
+    <Button
+      tag="a"
+      href={`${webappUrl}recruiter/opportunities/${id}`}
+      variant={ButtonVariant.Tertiary}
+      className="flex !h-auto flex-col gap-3 !rounded-16 !border !border-border-subtlest-tertiary !bg-surface-float !p-4 text-left !transition-colors hover:!border-border-subtlest-secondary"
     >
       {organization?.image && (
         <img
@@ -34,10 +43,12 @@ const OpportunityCard = ({
       )}
 
       <div className="flex flex-1 flex-col gap-1">
-        <h3 className="font-bold typo-title3">{title}</h3>
-        <p className="text-text-tertiary typo-body">
+        <Typography type={TypographyType.Title3} bold>
+          {title}
+        </Typography>
+        <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
           {organization?.name || 'Company'}
-        </p>
+        </Typography>
       </div>
 
       <div className="mt-auto flex items-center gap-2">
@@ -45,7 +56,7 @@ const OpportunityCard = ({
           Live
         </span>
       </div>
-    </button>
+    </Button>
   );
 };
 
@@ -63,6 +74,7 @@ const RecruiterDashboard = (): ReactElement => {
 
   // Check if user is a recruiter (has created at least one opportunity)
   const isRecruiter = opportunities.length > 0;
+  const hasAccess = user?.isTeamMember || isRecruiter;
 
   if (!isAuthReady) {
     return null;
@@ -76,20 +88,30 @@ const RecruiterDashboard = (): ReactElement => {
     return (
       <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
         <div className="flex flex-col items-center justify-center py-20">
-          <p className="text-text-tertiary">Loading your opportunities...</p>
+          <Typography color={TypographyColor.Tertiary}>
+            Loading your opportunities...
+          </Typography>
         </div>
       </div>
     );
+  }
+
+  // Redirect if user doesn't have access
+  if (!hasAccess && opportunitiesData) {
+    router.replace('/');
+    return null;
   }
 
   if (!isRecruiter && opportunitiesData) {
     return (
       <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <h1 className="mb-4 font-bold typo-title1">No opportunities yet</h1>
-          <p className="text-text-tertiary">
+          <Typography type={TypographyType.Title1} bold className="mb-4">
+            No opportunities yet
+          </Typography>
+          <Typography color={TypographyColor.Tertiary}>
             You haven&apos;t created any job opportunities yet.
-          </p>
+          </Typography>
         </div>
       </div>
     );
@@ -103,17 +125,19 @@ const RecruiterDashboard = (): ReactElement => {
     <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
       <div className="flex flex-col gap-8 tablet:mx-4 laptop:mx-0">
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="font-bold typo-title1">Recruiter Dashboard</h1>
-          <p className="text-text-tertiary">
-            Manage your active job opportunities and applications
-          </p>
+          <Typography type={TypographyType.Title1} bold>
+            Recruiter Dashboard
+          </Typography>
+          <Typography color={TypographyColor.Tertiary}>
+            Manage your active job applications
+          </Typography>
         </div>
 
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-bold typo-title2">
+            <Typography type={TypographyType.Title2} bold>
               Active Opportunities ({activeOpportunities.length})
-            </h2>
+            </Typography>
           </div>
 
           {activeOpportunities.length > 0 ? (
@@ -122,17 +146,14 @@ const RecruiterDashboard = (): ReactElement => {
                 <OpportunityCard
                   key={opportunity.id}
                   opportunity={opportunity}
-                  onViewDetails={() =>
-                    router.push(`/recruiter/opportunities/${opportunity.id}`)
-                  }
                 />
               ))}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center rounded-16 border border-border-subtlest-tertiary bg-surface-float py-12">
-              <p className="text-text-tertiary">
+              <Typography color={TypographyColor.Tertiary}>
                 No active opportunities at the moment
-              </p>
+              </Typography>
             </div>
           )}
         </div>

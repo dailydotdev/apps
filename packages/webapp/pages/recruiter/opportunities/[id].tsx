@@ -29,11 +29,19 @@ import {
   ProfileImageSize,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
-import { VIcon, MiniCloseIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  VIcon,
+  MiniCloseIcon,
+  LinkedInIcon,
+  DailyIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import Alert, {
   AlertType,
 } from '@dailydotdev/shared/src/components/widgets/Alert';
 import { Accordion } from '@dailydotdev/shared/src/components/accordion';
+import { getLastActivityDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 
 type CandidateCardProps = {
@@ -58,7 +66,7 @@ const CandidateCard = ({
     : 0;
 
   const cvUrl = candidatePreferences?.cv?.fileName || '#';
-  const profileUrl = `https://app.daily.dev/${user.username}`;
+  const profileUrl = `${webappUrl}${user.username}`;
 
   return (
     <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6">
@@ -71,16 +79,46 @@ const CandidateCard = ({
             nativeLazyLoading
           />
           <div className="flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-1">
-              <Typography type={TypographyType.Title3} bold>
-                {user.name}
-              </Typography>
-              <Typography
-                type={TypographyType.Body}
-                color={TypographyColor.Secondary}
-              >
-                @{user.username}
-              </Typography>
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col gap-1">
+                <Typography type={TypographyType.Title3} bold>
+                  {user.name}
+                </Typography>
+                <Typography
+                  type={TypographyType.Body}
+                  color={TypographyColor.Secondary}
+                >
+                  @{user.username}
+                </Typography>
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  Applied {getLastActivityDateFormat(match.updatedAt)}
+                </Typography>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  tag="a"
+                  href={profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant={ButtonVariant.Tertiary}
+                  icon={<DailyIcon />}
+                  aria-label="View daily.dev profile"
+                />
+                {user.linkedin && (
+                  <Button
+                    tag="a"
+                    href={`https://linkedin.com/in/${user.linkedin}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant={ButtonVariant.Tertiary}
+                    icon={<LinkedInIcon />}
+                    aria-label="View LinkedIn profile"
+                  />
+                )}
+              </div>
             </div>
             {user.bio && (
               <Typography
@@ -135,30 +173,8 @@ const CandidateCard = ({
         </div>
 
         {/* Links */}
-        <div className="flex flex-wrap gap-3">
-          <Button
-            tag="a"
-            href={profileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-          >
-            View daily.dev Profile
-          </Button>
-          {user.linkedin && (
-            <Button
-              tag="a"
-              href={`https://linkedin.com/in/${user.linkedin}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-            >
-              View LinkedIn Profile
-            </Button>
-          )}
-          {cvUrl !== '#' && (
+        {cvUrl !== '#' && (
+          <div className="flex flex-wrap gap-3">
             <Button
               tag="a"
               href={cvUrl}
@@ -169,8 +185,8 @@ const CandidateCard = ({
             >
               Download CV
             </Button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Application Rank */}
         {(applicationRank?.description || applicationRank?.warmIntro) && (
@@ -178,28 +194,19 @@ const CandidateCard = ({
             <Accordion
               title={
                 <Typography type={TypographyType.Title3} bold>
-                  Match Insights
+                  Engagement profile
                 </Typography>
               }
             >
               <div className="flex flex-col gap-4">
                 {applicationRank.description && (
-                  <div>
-                    <Typography
-                      type={TypographyType.Caption1}
-                      color={TypographyColor.Tertiary}
-                      bold
-                    >
-                      Why this candidate?
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Body}
-                      color={TypographyColor.Secondary}
-                      className="mt-1"
-                    >
-                      {applicationRank.description}
-                    </Typography>
-                  </div>
+                  <Typography
+                    type={TypographyType.Body}
+                    color={TypographyColor.Secondary}
+                    className="mt-1"
+                  >
+                    {applicationRank.description}
+                  </Typography>
                 )}
                 {applicationRank.warmIntro && (
                   <div>
@@ -266,7 +273,7 @@ const CandidateCard = ({
               className="flex-1"
               icon={<VIcon />}
             >
-              Approve Candidate
+              Approve
             </Button>
             <Button
               variant={ButtonVariant.Secondary}
@@ -281,11 +288,11 @@ const CandidateCard = ({
         )}
 
         {status === 'recruiter_accepted' && (
-          <Alert type={AlertType.Success} title="Candidate Approved" />
+          <Alert type={AlertType.Success} title="Approved" />
         )}
 
         {status === 'recruiter_rejected' && (
-          <Alert type={AlertType.Error} title="Candidate Rejected" />
+          <Alert type={AlertType.Error} title="Rejected" />
         )}
       </div>
     </div>
@@ -394,6 +401,15 @@ const OpportunityDetailPage = (): ReactElement => {
     );
   }
 
+  // Redirect if user doesn't have access (not a team member or not a recruiter for this opportunity)
+  const isRecruiterForOpportunity = opportunity.recruiters?.some(
+    (recruiter) => recruiter.id === user.id,
+  );
+  if (!user.isTeamMember && !isRecruiterForOpportunity) {
+    router.replace('/');
+    return null;
+  }
+
   // Filter candidates by status
   const pendingMatches = matches.filter(
     (m) => m.status === 'candidate_accepted',
@@ -410,22 +426,20 @@ const OpportunityDetailPage = (): ReactElement => {
   );
 
   return (
-    <div className="relative mx-4 mt-10 max-w-[64rem] tablet:mx-auto">
+    <div className="relative mx-4 mt-10 w-full max-w-[64rem] tablet:mx-auto">
       <FlexCol className="gap-8 tablet:mx-4 laptop:mx-0">
         {/* Header */}
         <FlexCol className="gap-4">
-          <button
-            type="button"
-            onClick={() => router.push('/recruiter/dashboard')}
-            className="self-start"
-          >
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Link}
-            >
-              ← Back to Dashboard
-            </Typography>
-          </button>
+          <Link href={`${webappUrl}recruiter/dashboard`}>
+            <a>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Link}
+              >
+                ← Back to dashboard
+              </Typography>
+            </a>
+          </Link>
 
           <FlexCol className="gap-2">
             <Typography type={TypographyType.Title1} bold>
@@ -497,7 +511,7 @@ const OpportunityDetailPage = (): ReactElement => {
               ))}
             </FlexCol>
           ) : (
-            <div className="flex flex-col items-center justify-center rounded-16 border border-border-subtlest-tertiary bg-surface-float py-12">
+            <div className="flex w-full flex-col items-center justify-center rounded-16 border border-border-subtlest-tertiary bg-surface-float py-12">
               <Typography color={TypographyColor.Tertiary}>
                 No candidates yet
               </Typography>
