@@ -9,11 +9,7 @@ import {
 import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMonthYearSelect';
 import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
-
-const secondaryFieldClassName = {
-  outerLabel: '!px-0 !typo-callout',
-  baseField: '!h-12',
-};
+import { profileSecondaryFieldStyles } from '../../../common';
 
 const UserVolunteeringExperienceForm = () => {
   return (
@@ -29,7 +25,7 @@ const UserVolunteeringExperienceForm = () => {
           label="Role*"
           placeholder="Ex: Mentor, Fundraiser, Maintainer"
           fieldType="secondary"
-          className={secondaryFieldClassName}
+          className={profileSecondaryFieldStyles}
         />
       </div>
       <HorizontalSeparator />

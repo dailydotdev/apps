@@ -20,6 +20,7 @@ const excludedProperties = [
   'createdAt',
   'id',
   'location',
+  'company',
 ];
 
 const USER_EXPERIENCE_FRAGMENT = gql`
@@ -116,6 +117,19 @@ const USER_PROFILE_EXPERIENCES_QUERY = gql`
   ${USER_EXPERIENCE_FRAGMENT}
 `;
 
+const REMOVE_USER_EXPERIENCE = gql`
+  mutation RemoveUserExperience($id: ID!) {
+    removeUserExperience(id: $id) {
+      _
+    }
+  }
+`;
+
+export const removeUserExperience = async (id: string) => {
+  const result = await gqlClient.request(REMOVE_USER_EXPERIENCE, { id });
+  return result;
+};
+
 export enum UserExperienceType {
   Work = 'work',
   Education = 'education',
@@ -184,6 +198,39 @@ export const getUserProfileExperiences = async (
   );
 
   return result;
+};
+
+const USER_EXPERIENCES_BY_TYPE_QUERY = gql`
+  query UserExperiencesByType(
+    $userId: ID!
+    $type: UserExperienceType!
+    $first: Int
+  ) {
+    userExperiences(userId: $userId, type: $type, first: $first) {
+      edges {
+        node {
+          ...UserExperienceFragment
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+  ${USER_EXPERIENCE_FRAGMENT}
+`;
+
+export const getUserExperiencesByType = async (
+  userId: string,
+  type: UserExperienceType,
+  first = 100,
+): Promise<Connection<UserExperience>> => {
+  const result = await gqlClient.request<{
+    userExperiences: Connection<UserExperience>;
+  }>(USER_EXPERIENCES_BY_TYPE_QUERY, { userId, type, first });
+
+  return result.userExperiences;
 };
 
 const UPSERT_USER_GENERAL_EXPERIENCE = gql`
@@ -262,7 +309,7 @@ export const upsertUserWorkExperience = async (
   input: UserExperienceWork,
   id?: string,
 ) => {
-  const cleanedInput = excludeProperties(input, excludedProperties);
+  const cleanedInput = excludeProperties(input, [...excludedProperties, 'url']);
 
   const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {
     input: cleanedInput,

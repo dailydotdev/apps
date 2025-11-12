@@ -17,18 +17,26 @@ import {
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { anchorDefaultRel, concatStrings } from '../../../../lib/strings';
 import { currrentPill } from './common';
-import { Button } from '../../../../components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
+import { EditIcon } from '../../../../components/icons';
+import Link from '../../../../components/utilities/Link';
 
 interface UserExperienceItemProps {
   experience: UserExperience;
   grouped?: {
     isLastItem?: boolean;
   };
+  editUrl?: string;
 }
 
 export function UserExperienceItem({
   experience,
   grouped,
+  editUrl,
 }: UserExperienceItemProps): ReactElement {
   const { company, title, description, startedAt, endedAt, subtitle } =
     experience;
@@ -37,7 +45,7 @@ export function UserExperienceItem({
   const { externalReferenceId } = experience as UserExperienceCertification;
 
   return (
-    <li key={experience.id} className="flex flex-row gap-2">
+    <li key={experience.id} className="relative flex flex-row gap-2">
       {grouped ? (
         <div className="relative flex w-8 justify-center overflow-hidden">
           <div className="absolute left-4 h-6 w-8 -translate-x-px rounded-bl-10 border-b-2 border-l-2 border-accent-pepper-subtle" />
@@ -46,11 +54,25 @@ export function UserExperienceItem({
           )}
         </div>
       ) : (
-        <Image
-          className="h-8 w-8 rounded-max object-cover"
-          type={ImageType.Organization}
-          src={company?.image}
-        />
+        <>
+          <Image
+            className="h-8 w-8 rounded-max object-cover"
+            type={ImageType.Organization}
+            src={company?.image}
+          />
+          {editUrl && (
+            <div className="absolute right-0 top-0">
+              <Link href={editUrl} passHref>
+                <Button
+                  tag="a"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.XSmall}
+                  icon={<EditIcon />}
+                />
+              </Link>
+            </div>
+          )}
+        </>
       )}
       <div
         className={classNames('flex flex-1 flex-col gap-2', {

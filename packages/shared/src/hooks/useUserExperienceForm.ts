@@ -19,6 +19,7 @@ import type { ApiErrorResult } from '../graphql/common';
 import { labels } from '../lib/labels';
 import { applyZodErrorsToForm } from '../lib/form';
 import { useToastNotification } from './useToastNotification';
+import { webappUrl } from '../lib/constants';
 
 export const userExperienceInputBaseSchema = z
   .object({
@@ -49,7 +50,11 @@ export const userExperienceInputBaseSchema = z
   })
   .refine(
     (data) => {
-      if (data.current === false) {
+      if (
+        data.current === false &&
+        data.type !== UserExperienceType.Project &&
+        data.type !== UserExperienceType.OpenSource
+      ) {
         return data.endedAt !== undefined;
       }
       return true;
@@ -85,8 +90,8 @@ const useUserExperienceForm = ({
         : upsertUserGeneralExperience(data, id),
     onSuccess: () => {
       dirtyFormRef.current?.allowNavigation();
+      router.push(`${webappUrl}settings/profile/experience/${type}`);
       methods.reset();
-      router.back();
     },
     onError: (error: ApiErrorResult) => {
       if (

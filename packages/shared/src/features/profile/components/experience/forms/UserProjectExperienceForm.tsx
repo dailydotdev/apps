@@ -12,6 +12,7 @@ import ControlledTextarea from '../../../../../components/fields/ControlledTexta
 import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
 import { UserExperienceType } from '../../../../../graphql/user/profile';
+import { profileSecondaryFieldStyles } from '../../../common';
 
 type FormCopy = {
   switchLabel: string;
@@ -34,11 +35,6 @@ const getFormCopy = (type: UserExperienceType): FormCopy => {
   };
 };
 
-const secondaryFieldClassName = {
-  outerLabel: '!px-0 !typo-callout',
-  baseField: '!h-12',
-};
-
 const UserProjectExperienceForm = () => {
   const { watch } = useFormContext();
   const type = watch('type') as UserExperienceType;
@@ -51,7 +47,7 @@ const UserProjectExperienceForm = () => {
           label="Title*"
           placeholder="Ex: Name of the publication or article"
           fieldType="secondary"
-          className={secondaryFieldClassName}
+          className={profileSecondaryFieldStyles}
         />
         <ProfileCompany
           name="customCompanyName"
@@ -82,7 +78,7 @@ const UserProjectExperienceForm = () => {
           label="Publication URL"
           placeholder="Ex: Validates against URL format"
           fieldType="secondary"
-          className={secondaryFieldClassName}
+          className={profileSecondaryFieldStyles}
         />
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>

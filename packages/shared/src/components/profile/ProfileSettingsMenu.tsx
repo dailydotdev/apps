@@ -29,6 +29,8 @@ import {
   OrganizationIcon,
   TrendingIcon,
   JobIcon,
+  TerminalIcon,
+  TourIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -60,6 +62,9 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../lib/log';
+import { VolunteeringIcon } from '../icons/Volunteering';
+import { GraduationIcon } from '../icons/Graduation';
+import { MedalIcon } from '../icons/Medal';
 
 type MenuItems = Record<
   string,
@@ -116,6 +121,41 @@ const useAccountPageItems = () => {
               title: 'Invite Friends',
               icon: InviteIcon,
               href: `${settingsUrl}/invite`,
+            },
+          },
+        },
+        jobPreferences: {
+          title: 'Job Preferences',
+          items: {
+            work: {
+              title: 'Work Experience',
+              icon: JobIcon,
+              href: `${settingsUrl}/profile/experience/work`,
+            },
+            education: {
+              title: 'Education',
+              icon: GraduationIcon,
+              href: `${settingsUrl}/profile/experience/education`,
+            },
+            certification: {
+              title: 'Certification',
+              icon: MedalIcon,
+              href: `${settingsUrl}/profile/experience/certification`,
+            },
+            openSource: {
+              title: 'Open Source',
+              icon: TerminalIcon,
+              href: `${settingsUrl}/profile/experience/opensource`,
+            },
+            project: {
+              title: 'Project & Publications',
+              icon: TourIcon,
+              href: `${settingsUrl}/profile/experience/project`,
+            },
+            volunteering: {
+              title: 'Volunteering',
+              icon: VolunteeringIcon,
+              href: `${settingsUrl}/profile/experience/volunteering`,
             },
           },
         },

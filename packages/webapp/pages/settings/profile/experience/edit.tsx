@@ -6,6 +6,7 @@ import UserWorkExperienceForm from '@dailydotdev/shared/src/features/profile/com
 import UserEducationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserEducationForm';
 import UserCertificationForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserCertificationForm';
 import UserProjectExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserProjectExperienceForm';
+import DeleteExperienceButton from '@dailydotdev/shared/src/features/profile/components/experience/DeleteExperienceButton';
 import UserVolunteeringExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserVolunteeringExperienceForm';
 import {
   Button,
@@ -144,7 +145,7 @@ const Page = ({ experience }: PageProps): ReactElement => {
   return (
     <FormProvider {...methods}>
       <form
-        className="flex flex-1"
+        className="flex flex-1 flex-col"
         onSubmit={methods.handleSubmit(() => save())}
       >
         <AccountPageContainer
@@ -163,6 +164,12 @@ const Page = ({ experience }: PageProps): ReactElement => {
           }
         >
           {renderExperienceForm(experience?.type)}
+          {experience?.id && (
+            <DeleteExperienceButton
+              experienceId={experience.id}
+              experienceType={experience.type}
+            />
+          )}
         </AccountPageContainer>
       </form>
     </FormProvider>
