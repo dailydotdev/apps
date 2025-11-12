@@ -33,7 +33,7 @@ const FormWrapper: React.FC<FormWrapperProps> = ({
     defaultValues: {
       title: '',
       customCompanyName: '',
-      currentPosition: false,
+      current: false,
       startedAt: null,
       endedAt: null,
       externalReferenceId: '',
@@ -157,7 +157,7 @@ describe('UserCertificationForm', () => {
     const defaultValues = {
       title: 'Google Cloud Professional Data Engineer',
       customCompanyName: 'Google',
-      currentPosition: true,
+      current: true,
       externalReferenceId: 'GCP-987654321',
       url: 'https://example-cloud.com/certification/verify/987654321',
       description: 'Expertise in data engineering on Google Cloud Platform',

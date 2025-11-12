@@ -58,6 +58,7 @@ export interface PublicProfile {
   isPlus?: boolean;
   plusMemberSince?: Date;
   experienceLevel?: keyof typeof UserExperienceLevel;
+  location?: TLocation;
 }
 
 export enum UserExperienceLevel {

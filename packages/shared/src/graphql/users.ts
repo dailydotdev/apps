@@ -63,6 +63,11 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       readmeHtml
       isPlus
       experienceLevel
+      location {
+        city
+        subdivision
+        country
+      }
       companies {
         name
         image

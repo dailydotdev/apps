@@ -15,6 +15,10 @@ export type VerifiedCompanyUserBadgeProps = {
   size?: ProfileImageSize;
   showCompanyName?: boolean;
   showVerified?: boolean;
+  companyNameTypography?: {
+    type: TypographyType;
+    color?: TypographyColor;
+  };
 };
 
 export const VerifiedCompanyUserBadge = ({
@@ -22,6 +26,7 @@ export const VerifiedCompanyUserBadge = ({
   size = ProfileImageSize.Size16,
   showCompanyName,
   showVerified,
+  companyNameTypography,
 }: VerifiedCompanyUserBadgeProps): ReactElement => {
   const { isVerified } = useUserCompaniesQuery();
   const { companies } = user;
@@ -54,8 +59,8 @@ export const VerifiedCompanyUserBadge = ({
         />
         {showCompanyName && (
           <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Secondary}
+            type={companyNameTypography.type}
+            color={companyNameTypography?.color || TypographyColor.Secondary}
           >
             {companies[0].name}
           </Typography>

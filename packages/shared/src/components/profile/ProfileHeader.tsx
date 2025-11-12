@@ -1,7 +1,11 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 import { Image } from '../image/Image';
-import { Typography, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { EditIcon, PlusIcon } from '../icons';
 import type { PublicProfile } from '../../lib/user';
 import type { UserStatsProps } from './UserStats';
@@ -12,6 +16,9 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { ProfileImageSize } from '../ProfilePicture';
+import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
+import { locationToString } from '../../lib/utils';
 
 const ProfileActions = dynamic(
   () =>
@@ -60,20 +67,38 @@ const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
         </div>
         <div className="flex flex-col gap-2">
           {bio && <Typography type={TypographyType.Body}>{bio}</Typography>}
-          {/* TODO: Implement company badge from experience when implemented. We will have to either update the VerifiedCompanyUserBadge component, or add the badge + job separately here */}
-          {/* {user?.companies?.length > 0 && (
-            <div className="flex">
+          <div className="flex items-center">
+            {user?.companies?.length > 0 && (
               <VerifiedCompanyUserBadge
-                size={ProfileImageSize.Small}
+                size={ProfileImageSize.XSmall}
                 user={user}
                 showCompanyName
-                showVerified
+                showVerified={false}
+                companyNameTypography={{
+                  type: TypographyType.Subhead,
+                }}
               />
-            </div>
-          )} */}
+            )}
+            {user?.companies?.length > 0 && user?.location && (
+              <Separator className="text-text-secondary" />
+            )}
+            {user?.location && (
+              <Typography
+                type={TypographyType.Subhead}
+                color={TypographyColor.Secondary}
+              >
+                {locationToString(user.location)}
+              </Typography>
+            )}
+          </div>
           <div className="flex items-center">
-            <Typography type={TypographyType.Subhead}>@{username}</Typography>
-            <Separator />
+            <Typography
+              type={TypographyType.Subhead}
+              color={TypographyColor.Secondary}
+            >
+              @{username}
+            </Typography>
+            <Separator className="text-text-secondary" />
             <JoinedDate
               className="text-text-secondary typo-subhead"
               date={new Date(user.createdAt)}
