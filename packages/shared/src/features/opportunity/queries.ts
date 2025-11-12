@@ -6,6 +6,7 @@ import type {
 import { keepPreviousData } from '@tanstack/react-query';
 import { RequestKey, StaleTime } from '../../lib/query';
 import { gqlClient } from '../../graphql/common';
+import type { Connection } from '../../graphql/common';
 import type {
   Keyword,
   Opportunity,
@@ -16,6 +17,8 @@ import {
   AUTOCOMPLETE_KEYWORDS_QUERY,
   GET_CANDIDATE_PREFERENCES_QUERY,
   GET_OPPORTUNITY_MATCH_QUERY,
+  GET_OPPORTUNITY_MATCHES_QUERY,
+  GET_OPPORTUNITIES_QUERY,
   OPPORTUNITY_BY_ID_QUERY,
 } from './graphql';
 
@@ -104,5 +107,54 @@ export const getKeywordAutocompleteOptions = (
     staleTime: query.length === 0 ? StaleTime.OneHour : StaleTime.Default,
     enabled: query.length === 0 || query.length >= 2,
     placeholderData: keepPreviousData,
+  };
+};
+
+export const getOpportunitiesOptions = (
+  state?: string,
+  after?: string,
+  first: number = 20,
+): UseQueryOptions<Connection<Opportunity>> => {
+  return {
+    queryKey: [RequestKey.Opportunities, state, after, first],
+    queryFn: async () => {
+      const res = await gqlClient.request<{
+        getOpportunities: Connection<Opportunity>;
+      }>(GET_OPPORTUNITIES_QUERY, {
+        state,
+        after,
+        first,
+      });
+
+      return res.getOpportunities;
+    },
+    staleTime: StaleTime.Default,
+  };
+};
+
+export const getOpportunityMatchesOptions = ({
+  opportunityId,
+  after,
+  first = 20,
+}: {
+  opportunityId: string;
+  after?: string;
+  first?: number;
+}): UseQueryOptions<Connection<OpportunityMatch>> => {
+  return {
+    queryKey: [RequestKey.OpportunityMatches, opportunityId, after, first],
+    queryFn: async () => {
+      const res = await gqlClient.request<{
+        getOpportunityMatches: Connection<OpportunityMatch>;
+      }>(GET_OPPORTUNITY_MATCHES_QUERY, {
+        opportunityId,
+        after,
+        first,
+      });
+
+      return res.getOpportunityMatches;
+    },
+    staleTime: StaleTime.Default,
+    enabled: !!opportunityId,
   };
 };

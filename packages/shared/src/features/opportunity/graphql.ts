@@ -139,6 +139,50 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
   ${OPPORTUNITY_FRAGMENT}
 `;
 
+export const OPPORTUNITY_MATCH_FRAGMENT = gql`
+  fragment OpportunityMatchFragment on OpportunityMatch {
+    status
+    description {
+      reasoning
+    }
+    userId
+    opportunityId
+    createdAt
+    updatedAt
+    user {
+      id
+      name
+      username
+      image
+      bio
+      reputation
+      linkedin
+    }
+    candidatePreferences {
+      status
+      role
+      roleType
+      cv {
+        ...GCSBlob
+      }
+    }
+    screening {
+      screening
+      answer
+    }
+    feedback {
+      screening
+      answer
+    }
+    applicationRank {
+      score
+      description
+      warmIntro
+    }
+  }
+  ${GCS_BLOB_FRAGMENT}
+`;
+
 export const GET_OPPORTUNITY_MATCH_QUERY = gql`
   query GetOpportunityMatch($id: ID!) {
     getOpportunityMatch(id: $id) {
@@ -148,6 +192,24 @@ export const GET_OPPORTUNITY_MATCH_QUERY = gql`
       }
     }
   }
+`;
+
+export const GET_OPPORTUNITY_MATCHES_QUERY = gql`
+  query GetOpportunityMatches($opportunityId: ID!, $after: String, $first: Int) {
+    getOpportunityMatches(opportunityId: $opportunityId, after: $after, first: $first) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          ...OpportunityMatchFragment
+        }
+        cursor
+      }
+    }
+  }
+  ${OPPORTUNITY_MATCH_FRAGMENT}
 `;
 
 export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
@@ -318,6 +380,51 @@ export const RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION = gql`
 export const UPDATE_OPPORTUNITY_STATE_MUTATION = gql`
   mutation UpdateOpportunityState($id: ID!, $state: ProtoEnumValue!) {
     updateOpportunityState(id: $id, state: $state) {
+      _
+    }
+  }
+`;
+
+export const GET_OPPORTUNITIES_QUERY = gql`
+  query GetOpportunities($state: ProtoEnumValue, $after: String, $first: Int) {
+    getOpportunities(state: $state, after: $after, first: $first) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          ...OpportunityFragment
+        }
+      }
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION = gql`
+  mutation RecruiterAcceptOpportunityMatch(
+    $opportunityId: ID!
+    $candidateUserId: ID!
+  ) {
+    recruiterAcceptOpportunityMatch(
+      opportunityId: $opportunityId
+      candidateUserId: $candidateUserId
+    ) {
+      _
+    }
+  }
+`;
+
+export const RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION = gql`
+  mutation RecruiterRejectOpportunityMatch(
+    $opportunityId: ID!
+    $candidateUserId: ID!
+  ) {
+    recruiterRejectOpportunityMatch(
+      opportunityId: $opportunityId
+      candidateUserId: $candidateUserId
+    ) {
       _
     }
   }

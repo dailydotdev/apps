@@ -102,11 +102,33 @@ export type Opportunity = {
   feedbackQuestions?: OpportunityFeedbackQuestion[];
 };
 
+export type OpportunityMatchDescription = {
+  reasoning: string;
+};
+
+export type ScreeningAnswer = {
+  screening: string;
+  answer: string;
+};
+
+export type ApplicationRank = {
+  score?: number;
+  description?: string;
+  warmIntro?: string;
+};
+
 export type OpportunityMatch = {
   status: OpportunityMatchStatus;
-  description?: {
-    reasoning: string;
-  };
+  description: OpportunityMatchDescription;
+  userId: string;
+  opportunityId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user: PublicProfile;
+  candidatePreferences?: UserCandidatePreferences;
+  screening: ScreeningAnswer[];
+  feedback: ScreeningAnswer[];
+  applicationRank: ApplicationRank;
 };
 
 export type GcsBlob = {
