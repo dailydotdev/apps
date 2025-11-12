@@ -113,7 +113,7 @@ export const getKeywordAutocompleteOptions = (
 export const getOpportunitiesOptions = (
   state?: string,
   after?: string,
-  first: number = 20,
+  first = 20,
 ): UseQueryOptions<Connection<Opportunity>> => {
   return {
     queryKey: [RequestKey.Opportunities, state, after, first],

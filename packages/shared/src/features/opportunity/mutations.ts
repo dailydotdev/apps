@@ -334,32 +334,34 @@ export const updateOpportunityStateOptions = () => {
   };
 };
 
-export const recruiterAcceptOpportunityMatchMutationOptions = (): MutationOptions<
-  EmptyResponse,
-  DefaultError,
-  { opportunityId: string; candidateUserId: string }
-> => {
-  return {
-    mutationFn: async ({ opportunityId, candidateUserId }) => {
-      return gqlClient.request(RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION, {
-        opportunityId,
-        candidateUserId,
-      });
-    },
+export const recruiterAcceptOpportunityMatchMutationOptions =
+  (): MutationOptions<
+    EmptyResponse,
+    DefaultError,
+    { opportunityId: string; candidateUserId: string }
+  > => {
+    return {
+      mutationFn: async ({ opportunityId, candidateUserId }) => {
+        return gqlClient.request(RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION, {
+          opportunityId,
+          candidateUserId,
+        });
+      },
+    };
   };
-};
 
-export const recruiterRejectOpportunityMatchMutationOptions = (): MutationOptions<
-  EmptyResponse,
-  DefaultError,
-  { opportunityId: string; candidateUserId: string }
-> => {
-  return {
-    mutationFn: async ({ opportunityId, candidateUserId }) => {
-      return gqlClient.request(RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION, {
-        opportunityId,
-        candidateUserId,
-      });
-    },
+export const recruiterRejectOpportunityMatchMutationOptions =
+  (): MutationOptions<
+    EmptyResponse,
+    DefaultError,
+    { opportunityId: string; candidateUserId: string }
+  > => {
+    return {
+      mutationFn: async ({ opportunityId, candidateUserId }) => {
+        return gqlClient.request(RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION, {
+          opportunityId,
+          candidateUserId,
+        });
+      },
+    };
   };
-};

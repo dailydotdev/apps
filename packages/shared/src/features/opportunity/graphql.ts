@@ -195,8 +195,16 @@ export const GET_OPPORTUNITY_MATCH_QUERY = gql`
 `;
 
 export const GET_OPPORTUNITY_MATCHES_QUERY = gql`
-  query GetOpportunityMatches($opportunityId: ID!, $after: String, $first: Int) {
-    getOpportunityMatches(opportunityId: $opportunityId, after: $after, first: $first) {
+  query GetOpportunityMatches(
+    $opportunityId: ID!
+    $after: String
+    $first: Int
+  ) {
+    getOpportunityMatches(
+      opportunityId: $opportunityId
+      after: $after
+      first: $first
+    ) {
       pageInfo {
         hasNextPage
         endCursor
