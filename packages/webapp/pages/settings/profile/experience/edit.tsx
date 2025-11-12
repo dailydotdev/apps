@@ -113,6 +113,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
         startedAtYear,
         endedAtMonth,
         endedAtYear,
+        current: !result?.endedAt,
         skills: result?.skills.map((skill) => skill.value),
         location: result?.location,
         locationId: result?.location?.id || '',
@@ -121,7 +122,10 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   };
 };
 
-const renderExperienceForm = (type?: UserExperienceType) => {
+const renderExperienceForm = (
+  type?: UserExperienceType,
+  experience?: DefaultValues,
+) => {
   switch (type) {
     case UserExperienceType.Education:
       return <UserEducationForm />;
@@ -133,7 +137,7 @@ const renderExperienceForm = (type?: UserExperienceType) => {
     case UserExperienceType.OpenSource:
       return <UserProjectExperienceForm />;
     default:
-      return <UserWorkExperienceForm />;
+      return <UserWorkExperienceForm location={experience?.location} />;
   }
 };
 
@@ -163,7 +167,7 @@ const Page = ({ experience }: PageProps): ReactElement => {
             </Button>
           }
         >
-          {renderExperienceForm(experience?.type)}
+          {renderExperienceForm(experience?.type, experience)}
           {experience?.id && (
             <DeleteExperienceButton
               experienceId={experience.id}

@@ -34,7 +34,9 @@ const DeleteExperienceButton = ({
   experienceId,
   experienceType,
 }: DeleteExperienceButtonProps): React.ReactElement => {
-  const { removeExperience, isPending } = useRemoveExperience();
+  const { removeExperience, isPending } = useRemoveExperience({
+    type: experienceType,
+  });
   const { showPrompt } = usePrompt();
 
   const buttonCopy = getCopy(experienceType);
