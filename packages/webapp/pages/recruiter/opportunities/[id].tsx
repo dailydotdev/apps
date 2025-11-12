@@ -40,6 +40,7 @@ import Alert, {
 } from '@dailydotdev/shared/src/components/widgets/Alert';
 import { Accordion } from '@dailydotdev/shared/src/components/accordion';
 import { getLastActivityDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
@@ -102,7 +103,7 @@ const CandidateCard = ({
                   tag="a"
                   href={profileUrl}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel={anchorDefaultRel}
                   variant={ButtonVariant.Tertiary}
                   icon={<DailyIcon />}
                   aria-label="View daily.dev profile"
@@ -112,7 +113,7 @@ const CandidateCard = ({
                     tag="a"
                     href={`https://linkedin.com/in/${user.linkedin}`}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel={anchorDefaultRel}
                     variant={ButtonVariant.Tertiary}
                     icon={<LinkedInIcon />}
                     aria-label="View LinkedIn profile"
@@ -179,7 +180,7 @@ const CandidateCard = ({
               tag="a"
               href={cvUrl}
               target="_blank"
-              rel="noopener noreferrer"
+              rel={anchorDefaultRel}
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
             >
