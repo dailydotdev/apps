@@ -109,12 +109,10 @@ const useUserInfoForm = (): UseUserInfoForm => {
 
     onSuccess: async (_, vars) => {
       const oldProfileData = qc.getQueryData<PublicProfile>(userQueryKey);
-      if (oldProfileData) {
-        qc.setQueryData(userQueryKey, {
-          ...oldProfileData,
-          ...vars,
-        });
-      }
+      qc.setQueryData(userQueryKey, {
+        ...oldProfileData,
+        ...vars,
+      });
       await updateUser({ ...user, ...vars });
 
       dirtyFormRef.current?.allowNavigation();
