@@ -174,10 +174,8 @@ export const OPPORTUNITY_MATCH_FRAGMENT = gql`
       screening
       answer
     }
-    applicationRank {
-      score
-      description
-      warmIntro
+    engagementProfile {
+      profileText
     }
   }
   ${GCS_BLOB_FRAGMENT}

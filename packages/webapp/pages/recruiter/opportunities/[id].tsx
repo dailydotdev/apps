@@ -58,7 +58,7 @@ const CandidateCard = ({
   onReject,
   localStatus,
 }: CandidateCardProps): ReactElement => {
-  const { user, candidatePreferences, screening, applicationRank } = match;
+  const { user, candidatePreferences, screening, engagementProfile } = match;
   const status = localStatus || match.status;
 
   // Calculate years of experience from role type (mock calculation)
@@ -189,48 +189,34 @@ const CandidateCard = ({
           </div>
         )}
 
-        {/* Application Rank */}
-        {(applicationRank?.description || applicationRank?.warmIntro) && (
-          <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-4">
-            <Accordion
-              title={
-                <Typography type={TypographyType.Title3} bold>
-                  Engagement profile
-                </Typography>
-              }
-            >
-              <div className="flex flex-col gap-4">
-                {applicationRank.description && (
-                  <Typography
-                    type={TypographyType.Body}
-                    color={TypographyColor.Secondary}
-                    className="mt-1"
-                  >
-                    {applicationRank.description}
-                  </Typography>
-                )}
-                {applicationRank.warmIntro && (
-                  <div>
-                    <Typography
-                      type={TypographyType.Caption1}
-                      color={TypographyColor.Tertiary}
-                      bold
-                    >
-                      Suggested intro
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Body}
-                      color={TypographyColor.Secondary}
-                      className="mt-1"
-                    >
-                      {applicationRank.warmIntro}
-                    </Typography>
-                  </div>
-                )}
-              </div>
-            </Accordion>
-          </div>
-        )}
+        {/* Engagement Profile */}
+        <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-4">
+          <Accordion
+            title={
+              <Typography type={TypographyType.Title3} bold>
+                Engagement profile
+              </Typography>
+            }
+          >
+            {engagementProfile?.profileText ? (
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Secondary}
+                className="mt-1"
+              >
+                {engagementProfile.profileText}
+              </Typography>
+            ) : (
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Tertiary}
+                className="mt-1"
+              >
+                No engagement profile available
+              </Typography>
+            )}
+          </Accordion>
+        </div>
 
         {/* Screening Questions */}
         {screening && screening.length > 0 && (

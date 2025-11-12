@@ -117,6 +117,11 @@ export type ApplicationRank = {
   warmIntro?: string;
 };
 
+export type EngagementProfile = {
+  profileText: string;
+  updatedAt: Date;
+};
+
 export type OpportunityMatch = {
   status: OpportunityMatchStatus;
   description: OpportunityMatchDescription;
@@ -129,6 +134,7 @@ export type OpportunityMatch = {
   screening: ScreeningAnswer[];
   feedback: ScreeningAnswer[];
   applicationRank: ApplicationRank;
+  engagementProfile?: EngagementProfile;
 };
 
 export type GcsBlob = {
