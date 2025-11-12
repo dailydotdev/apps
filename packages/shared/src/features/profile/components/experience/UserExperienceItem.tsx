@@ -17,7 +17,11 @@ import {
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { anchorDefaultRel, concatStrings } from '../../../../lib/strings';
 import { currrentPill } from './common';
-import { Button, ButtonSize, ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
 import { EditIcon } from '../../../../components/icons';
 import Link from '../../../../components/utilities/Link';
 
@@ -41,7 +45,7 @@ export function UserExperienceItem({
   const { externalReferenceId } = experience as UserExperienceCertification;
 
   return (
-    <li key={experience.id} className="flex flex-row gap-2 relative">
+    <li key={experience.id} className="relative flex flex-row gap-2">
       {grouped ? (
         <div className="relative flex w-8 justify-center overflow-hidden">
           <div className="absolute left-4 h-6 w-8 -translate-x-px rounded-bl-10 border-b-2 border-l-2 border-accent-pepper-subtle" />
@@ -58,8 +62,9 @@ export function UserExperienceItem({
           />
           {editUrl && (
             <div className="absolute right-0 top-0">
-              <Link href={editUrl}>
+              <Link href={editUrl} passHref>
                 <Button
+                  tag="a"
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.XSmall}
                   icon={<EditIcon />}

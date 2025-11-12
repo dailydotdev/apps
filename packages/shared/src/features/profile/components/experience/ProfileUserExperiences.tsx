@@ -22,7 +22,6 @@ export function ProfileUserExperiences({
       <UserExperienceList
         experiences={work}
         title="Work Experiences"
-        userId={user.id}
         experienceType={UserExperienceType.Work}
         hasNextPage={data?.work?.pageInfo?.hasNextPage}
         isSameUser={isSameUser}
@@ -30,7 +29,6 @@ export function ProfileUserExperiences({
       <UserExperienceList
         experiences={education}
         title="Education"
-        userId={user.id}
         experienceType={UserExperienceType.Education}
         hasNextPage={data?.education?.pageInfo?.hasNextPage}
         isSameUser={isSameUser}
@@ -38,7 +36,6 @@ export function ProfileUserExperiences({
       <UserExperienceList
         experiences={cert}
         title="Certifications"
-        userId={user.id}
         experienceType={UserExperienceType.Certification}
         hasNextPage={data?.certification?.pageInfo?.hasNextPage}
         isSameUser={isSameUser}
@@ -46,7 +43,6 @@ export function ProfileUserExperiences({
       <UserExperienceList
         experiences={project}
         title="Projects"
-        userId={user.id}
         experienceType={UserExperienceType.Project}
         hasNextPage={data?.project?.pageInfo?.hasNextPage}
         isSameUser={isSameUser}

@@ -20,11 +20,11 @@ import {
 import { MoveToIcon, EditIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import Link from '../../../../components/utilities/Link';
+import { useAuthContext } from '../../../../contexts/AuthContext';
 
 interface UserExperienceListProps<T extends UserExperience> {
   experiences: T[];
   title?: string;
-  userId?: string;
   experienceType?: UserExperienceType;
   hasNextPage?: boolean;
   isSameUser?: boolean;
@@ -53,12 +53,13 @@ const groupListByCompany = <T extends UserExperience>(
 export function UserExperienceList<T extends UserExperience>({
   experiences,
   title,
-  userId,
   experienceType,
   hasNextPage,
   isSameUser,
   showEditOnItems = false,
 }: UserExperienceListProps<T>): ReactElement {
+  const { user } = useAuthContext();
+  const userId = user?.id;
   const groupedByCompany: [string, T[]][] = useMemo(
     () => groupListByCompany(experiences),
     [experiences],
