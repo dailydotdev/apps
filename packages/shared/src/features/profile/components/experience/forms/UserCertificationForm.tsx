@@ -31,7 +31,7 @@ const UserCertificationForm = () => {
       </div>
       <HorizontalSeparator />
       <ControlledSwitch
-        name="currentPosition"
+        name="current"
         label="Currently valid certification"
         description="Check if this certification is still valid or active."
       />
