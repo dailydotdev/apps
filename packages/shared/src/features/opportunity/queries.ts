@@ -17,8 +17,8 @@ import {
   AUTOCOMPLETE_KEYWORDS_QUERY,
   GET_CANDIDATE_PREFERENCES_QUERY,
   GET_OPPORTUNITY_MATCH_QUERY,
-  GET_OPPORTUNITY_MATCHES_QUERY,
-  GET_OPPORTUNITIES_QUERY,
+  OPPORTUNITY_MATCHES_QUERY,
+  OPPORTUNITIES_QUERY,
   OPPORTUNITY_BY_ID_QUERY,
 } from './graphql';
 
@@ -57,12 +57,12 @@ export const opportunityMatchOptions = ({
     queryKey: [...getOpportunityByIdKey(id), 'match'],
     queryFn: async () => {
       const res = await gqlClient.request<{
-        getOpportunityMatch: OpportunityMatch;
+        opportunityMatch: OpportunityMatch;
       }>(GET_OPPORTUNITY_MATCH_QUERY, {
         id,
       });
 
-      return res.getOpportunityMatch;
+      return res.opportunityMatch;
     },
     staleTime: StaleTime.Default,
     enabled: !!id,
@@ -119,14 +119,14 @@ export const getOpportunitiesOptions = (
     queryKey: [RequestKey.Opportunities, state, after, first],
     queryFn: async () => {
       const res = await gqlClient.request<{
-        getOpportunities: Connection<Opportunity>;
-      }>(GET_OPPORTUNITIES_QUERY, {
+        opportunities: Connection<Opportunity>;
+      }>(OPPORTUNITIES_QUERY, {
         state,
         after,
         first,
       });
 
-      return res.getOpportunities;
+      return res.opportunities;
     },
     staleTime: StaleTime.Default,
   };
@@ -145,14 +145,14 @@ export const getOpportunityMatchesOptions = ({
     queryKey: [RequestKey.OpportunityMatches, opportunityId, after, first],
     queryFn: async () => {
       const res = await gqlClient.request<{
-        getOpportunityMatches: Connection<OpportunityMatch>;
-      }>(GET_OPPORTUNITY_MATCHES_QUERY, {
+        opportunityMatches: Connection<OpportunityMatch>;
+      }>(OPPORTUNITY_MATCHES_QUERY, {
         opportunityId,
         after,
         first,
       });
 
-      return res.getOpportunityMatches;
+      return res.opportunityMatches;
     },
     staleTime: StaleTime.Default,
     enabled: !!opportunityId,
