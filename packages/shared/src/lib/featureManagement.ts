@@ -108,7 +108,6 @@ export const briefFeedEntrypointPage = new Feature<false | number>(
 );
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
-export const adFavicon = new Feature('ad_favicon', isDevelopment);
 export const boostSettingsFeature = new Feature('boost_settings', {
   min: 1000,
   max: 100000,
