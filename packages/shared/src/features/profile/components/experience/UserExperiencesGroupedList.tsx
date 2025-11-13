@@ -49,8 +49,8 @@ export function UserExperiencesGroupedList({
   const duration = calculateTotalDuration(experiences);
 
   return (
-    <>
-      <li className="flex flex-row gap-2">
+    <li>
+      <div className="flex flex-row gap-2">
         <Image
           className="h-8 w-8 rounded-max object-cover"
           type={ImageType.Organization}
@@ -68,7 +68,7 @@ export function UserExperiencesGroupedList({
             {duration}
           </Typography>
         </div>
-      </li>
+      </div>
       <ul className="flex flex-col">
         {experiences.map((experience, index) => (
           <UserExperienceItem
@@ -78,6 +78,6 @@ export function UserExperiencesGroupedList({
           />
         ))}
       </ul>
-    </>
+    </li>
   );
 }
