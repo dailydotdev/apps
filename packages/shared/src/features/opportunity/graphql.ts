@@ -195,13 +195,9 @@ export const GET_OPPORTUNITY_MATCH_QUERY = gql`
   }
 `;
 
-export const GET_OPPORTUNITY_MATCHES_QUERY = gql`
-  query GetOpportunityMatches(
-    $opportunityId: ID!
-    $after: String
-    $first: Int
-  ) {
-    getOpportunityMatches(
+export const OPPORTUNITY_MATCHES_QUERY = gql`
+  query OpportunityMatches($opportunityId: ID!, $after: String, $first: Int) {
+    opportunityMatches(
       opportunityId: $opportunityId
       after: $after
       first: $first
@@ -394,9 +390,9 @@ export const UPDATE_OPPORTUNITY_STATE_MUTATION = gql`
   }
 `;
 
-export const GET_OPPORTUNITIES_QUERY = gql`
-  query GetOpportunities($state: ProtoEnumValue, $after: String, $first: Int) {
-    getOpportunities(state: $state, after: $after, first: $first) {
+export const OPPORTUNITIES_QUERY = gql`
+  query Opportunities($state: ProtoEnumValue, $after: String, $first: Int) {
+    opportunities(state: $state, after: $after, first: $first) {
       pageInfo {
         hasNextPage
         endCursor
