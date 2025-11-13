@@ -99,7 +99,7 @@ export function UserExperienceList<T extends UserExperience>({
           )}
         </div>
       ) : null}
-      <ul className="flex flex-col">
+      <ul className="flex flex-col gap-4">
         {groupedByCompany?.map(([company, list]) =>
           list.length === 1 ? (
             <UserExperienceItem
