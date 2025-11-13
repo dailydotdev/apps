@@ -88,6 +88,7 @@ const useUserExperienceForm = ({
   const { displayToast } = useToastNotification();
   const methods = useForm<UserExperience>({
     defaultValues,
+    reValidateMode: 'onSubmit',
     resolver: zodResolver(userExperienceInputBaseSchema),
   });
   const { id, type } = methods.getValues();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import Autocomplete from '../../../components/fields/Autocomplete';
@@ -9,6 +9,11 @@ import {
 } from '../../../graphql/autocomplete';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useDebounceFn from '../../../hooks/useDebounceFn';
+import {
+  Typography,
+  TypographyType,
+  TypographyColor,
+} from '../../../components/typography/Typography';
 
 type ProfileCompanyProps = {
   name: string;
@@ -22,7 +27,11 @@ const ProfileCompany = ({
   type = AutocompleteType.Company,
 }: ProfileCompanyProps) => {
   const { user } = useAuthContext();
-  const { setValue, watch } = useFormContext();
+  const {
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext();
   const customCompanyName = watch(name);
   const companyId = watch('companyId');
   const { data, isLoading } = useQuery({
@@ -37,6 +46,9 @@ const ProfileCompany = ({
   });
 
   const handleSearch = (query: string) => {
+    if (query === '') {
+      setValue('companyId', '');
+    }
     setValue(name, query);
   };
 
@@ -49,23 +61,41 @@ const ProfileCompany = ({
 
   const [debouncedQuery] = useDebounceFn<string>((q) => handleSearch(q), 300);
 
+  const selectedImage = useMemo(() => {
+    return data?.find((company) => company.id === companyId)?.image;
+    // We only wanna re-run this when a new companyId is set.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId]);
+
   return (
-    <Autocomplete
-      name={name}
-      defaultValue={customCompanyName}
-      onChange={(value) => debouncedQuery(value)}
-      onSelect={(value) => handleSelect(value)}
-      options={
-        data?.map((company) => ({
-          label: company.name,
-          value: company.id,
-        })) || []
-      }
-      selectedValue={companyId}
-      label={label}
-      isLoading={isLoading}
-      resetOnBlur={false}
-    />
+    <div className="flex flex-col gap-1">
+      <Autocomplete
+        name={name}
+        defaultValue={customCompanyName}
+        onChange={(value) => debouncedQuery(value)}
+        onSelect={(value) => handleSelect(value)}
+        options={
+          data?.map((company) => ({
+            image: company?.image,
+            label: company.name,
+            value: company.id,
+          })) || []
+        }
+        selectedValue={companyId}
+        selectedImage={selectedImage}
+        label={label}
+        isLoading={isLoading}
+        resetOnBlur={false}
+      />
+      {errors[name] && (
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.StatusError}
+        >
+          {errors[name]?.message as string}
+        </Typography>
+      )}
+    </div>
   );
 };
 
