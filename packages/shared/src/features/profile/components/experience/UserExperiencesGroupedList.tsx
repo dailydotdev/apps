@@ -8,12 +8,37 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import { UserExperienceItem } from './UserExperienceItem';
-import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { currrentPill } from './common';
+import { pluralize } from '../../../../lib/strings';
+import type { DateRange } from '../../../../lib/date';
+import { calculateTotalDurationInMonths } from '../../../../lib/date';
 
 interface UserExperiencesGroupedListProps {
   company: string;
   experiences: UserExperience[];
+}
+
+function calculateTotalDuration(experiences: UserExperience[]): string {
+  const ranges: DateRange[] = experiences.map((exp) => ({
+    start: new Date(exp.startedAt),
+    end: exp.endedAt ? new Date(exp.endedAt) : new Date(),
+  }));
+
+  const { years, months } = calculateTotalDurationInMonths(ranges);
+
+  if (years > 0) {
+    const yearCopy = `${years} ${pluralize('year', years)}`;
+
+    if (months === 0) {
+      return yearCopy;
+    }
+
+    return `${yearCopy} ${months} ${pluralize('month', months)}`;
+  }
+
+  return months > 0
+    ? `${months} ${pluralize('month', months)}`
+    : 'Less than a month';
 }
 
 export function UserExperiencesGroupedList({
@@ -21,12 +46,7 @@ export function UserExperiencesGroupedList({
   experiences,
 }: UserExperiencesGroupedListProps): ReactElement {
   const [first] = experiences;
-  const last = experiences[experiences.length - 1];
-  const duration = formatDate({
-    value: new Date(last.startedAt),
-    type: TimeFormatType.Experience,
-    now: first.endedAt ? new Date(first.endedAt) : new Date(),
-  });
+  const duration = calculateTotalDuration(experiences);
 
   return (
     <>
