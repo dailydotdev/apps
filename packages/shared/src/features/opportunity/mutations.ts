@@ -9,6 +9,8 @@ import {
   CLEAR_RESUME_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
+  RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION,
+  RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION,
   REJECT_OPPORTUNITY_MATCH,
   SAVE_OPPORTUNITY_FEEDBACK_ANSWERS,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
@@ -331,3 +333,35 @@ export const updateOpportunityStateOptions = () => {
     },
   };
 };
+
+export const recruiterAcceptOpportunityMatchMutationOptions =
+  (): MutationOptions<
+    EmptyResponse,
+    DefaultError,
+    { opportunityId: string; candidateUserId: string }
+  > => {
+    return {
+      mutationFn: async ({ opportunityId, candidateUserId }) => {
+        return gqlClient.request(RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION, {
+          opportunityId,
+          candidateUserId,
+        });
+      },
+    };
+  };
+
+export const recruiterRejectOpportunityMatchMutationOptions =
+  (): MutationOptions<
+    EmptyResponse,
+    DefaultError,
+    { opportunityId: string; candidateUserId: string }
+  > => {
+    return {
+      mutationFn: async ({ opportunityId, candidateUserId }) => {
+        return gqlClient.request(RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION, {
+          opportunityId,
+          candidateUserId,
+        });
+      },
+    };
+  };
