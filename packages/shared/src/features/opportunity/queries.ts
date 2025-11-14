@@ -57,12 +57,12 @@ export const opportunityMatchOptions = ({
     queryKey: [...getOpportunityByIdKey(id), 'match'],
     queryFn: async () => {
       const res = await gqlClient.request<{
-        opportunityMatch: OpportunityMatch;
+        getOpportunityMatch: OpportunityMatch;
       }>(GET_OPPORTUNITY_MATCH_QUERY, {
         id,
       });
 
-      return res.opportunityMatch;
+      return res.getOpportunityMatch;
     },
     staleTime: StaleTime.Default,
     enabled: !!id,
