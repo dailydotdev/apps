@@ -1,6 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { UserExperience } from '../../../../graphql/user/profile';
+import type {
+  UserExperience,
+  UserExperienceType,
+} from '../../../../graphql/user/profile';
 import { Image, ImageType } from '../../../../components/image/Image';
 import {
   Typography,
@@ -16,6 +19,10 @@ import { calculateTotalDurationInMonths } from '../../../../lib/date';
 interface UserExperiencesGroupedListProps {
   company: string;
   experiences: UserExperience[];
+  showEditOnItems?: boolean;
+  isSameUser?: boolean;
+  experienceType?: UserExperienceType;
+  editBaseUrl?: string;
 }
 
 function calculateTotalDuration(experiences: UserExperience[]): string {
@@ -44,6 +51,10 @@ function calculateTotalDuration(experiences: UserExperience[]): string {
 export function UserExperiencesGroupedList({
   company,
   experiences,
+  showEditOnItems = false,
+  isSameUser,
+  experienceType,
+  editBaseUrl,
 }: UserExperiencesGroupedListProps): ReactElement {
   const [first] = experiences;
   const duration = calculateTotalDuration(experiences);
@@ -75,6 +86,11 @@ export function UserExperiencesGroupedList({
             key={experience.id}
             experience={experience}
             grouped={{ isLastItem: index === experiences.length - 1 }}
+            editUrl={
+              showEditOnItems && isSameUser && experienceType && editBaseUrl
+                ? `${editBaseUrl}?id=${experience.id}&type=${experienceType}`
+                : undefined
+            }
           />
         ))}
       </ul>

@@ -61,25 +61,23 @@ export function UserExperienceItem({
           )}
         </div>
       ) : (
-        <>
-          <Image
-            className="h-8 w-8 rounded-max object-cover"
-            type={ImageType.Organization}
-            src={company?.image}
-          />
-          {editUrl && (
-            <div className="absolute right-0 top-0">
-              <Link href={editUrl} passHref>
-                <Button
-                  tag="a"
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.XSmall}
-                  icon={<EditIcon />}
-                />
-              </Link>
-            </div>
-          )}
-        </>
+        <Image
+          className="h-8 w-8 rounded-max object-cover"
+          type={ImageType.Organization}
+          src={company?.image}
+        />
+      )}
+      {editUrl && (
+        <div className="absolute right-0 top-0">
+          <Link href={editUrl} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<EditIcon />}
+            />
+          </Link>
+        </div>
       )}
       <div
         className={classNames('flex flex-1 flex-col gap-2', {

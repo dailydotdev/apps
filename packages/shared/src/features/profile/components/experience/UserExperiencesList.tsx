@@ -116,6 +116,10 @@ export function UserExperienceList<T extends UserExperience>({
               key={company}
               company={company}
               experiences={list}
+              showEditOnItems={showEditOnItems}
+              isSameUser={isSameUser}
+              experienceType={experienceType}
+              editBaseUrl={editBaseUrl}
             />
           ),
         )}
