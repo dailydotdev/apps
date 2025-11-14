@@ -33,27 +33,29 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
 
   return (
     <Tooltip side="bottom" content="Notifications">
-      <Link href={`${webappUrl}notifications`} passHref>
-        <Button
-          variant={isLaptop ? ButtonVariant.Float : mobileVariant}
-          className="relative w-10 justify-center"
-          tag="a"
-          iconPosition={ButtonIconPosition.Top}
-          onClick={onNavigateNotifications}
-          icon={<BellIcon secondary={atNotificationsPage} />}
-        >
-          {hasNotification && (
-            <Bubble
-              className={classNames(
-                '-right-1.5 -top-1.5 cursor-pointer px-1',
-                compact && 'right-0 top-0',
-              )}
-            >
-              {getUnreadText(unreadCount)}
-            </Bubble>
-          )}
-        </Button>
-      </Link>
+      <div>
+        <Link href={`${webappUrl}notifications`} passHref>
+          <Button
+            variant={isLaptop ? ButtonVariant.Float : mobileVariant}
+            className="relative w-10 justify-center"
+            tag="a"
+            iconPosition={ButtonIconPosition.Top}
+            onClick={onNavigateNotifications}
+            icon={<BellIcon secondary={atNotificationsPage} />}
+          >
+            {hasNotification && (
+              <Bubble
+                className={classNames(
+                  '-right-1.5 -top-1.5 cursor-pointer px-1',
+                  compact && 'right-0 top-0',
+                )}
+              >
+                {getUnreadText(unreadCount)}
+              </Bubble>
+            )}
+          </Button>
+        </Link>
+      </div>
     </Tooltip>
   );
 }

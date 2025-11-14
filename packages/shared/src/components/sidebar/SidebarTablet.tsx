@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import type { ButtonProps } from '../buttons/Button';
 import {
   Button,
-  ButtonColor,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
@@ -12,17 +11,36 @@ import {
 import { SidebarAside } from './common';
 import { LogoPosition } from '../Logo';
 import Link from '../utilities/Link';
-import { squadCategoriesPaths, webappUrl } from '../../lib/constants';
-import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
+import {
+  isTesting,
+  plusUrl,
+  squadCategoriesPaths,
+  webappUrl,
+} from '../../lib/constants';
+import {
+  AiIcon,
+  DevPlusIcon,
+  HomeIcon,
+  JobIcon,
+  SourceIcon,
+  UserIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useActiveNav from '../../hooks/useActiveNav';
 import { getFeedName } from '../../lib/feed';
 import { useAlertsContext } from '../../contexts/AlertContext';
-import { UpgradeToPlus } from '../UpgradeToPlus';
 import HeaderLogo from '../layout/HeaderLogo';
+import { useConditionalFeature, useActions } from '../../hooks';
+import { featurePlusCtaCopy } from '../../lib/featureManagement';
+import { Bubble } from '../tooltips/utils';
+import { NewOpportunityPopover } from '../opportunity/NewOpportunityPopover';
+import { SimpleTooltip } from '../tooltips';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { useLogOpportunityNudgeClick } from '../../hooks/log/useLogOpportunityNudgeClick';
 import { TargetId } from '../../lib/log';
+import { ActionType } from '../../graphql/actions';
 
 export const SidebarTablet = ({
   activePage,
@@ -48,11 +66,24 @@ export const SidebarTablet = ({
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
   });
+  const isPlus = user?.isPlus;
+  const { value: ctaCopy } = useConditionalFeature({
+    feature: featurePlusCtaCopy,
+    shouldEvaluate: !isPlus,
+  });
   const hasSquads = squads?.length > 0;
   const squadsUrl = hasSquads
     ? `${webappUrl}${squadCategoriesPaths['My Squads'].substring(1)}`
     : `${webappUrl}${squadCategoriesPaths.discover.substring(1)}`;
   const activeNav = useActiveNav(feedName);
+  const hasOpportunityAlert = !!alerts.opportunityId;
+  const { checkHasCompleted } = useActions();
+  const hasNotClickedOpportunity = !checkHasCompleted(
+    ActionType.ClickedOpportunityNavigation,
+  );
+  const logOpportunityNudgeClick = useLogOpportunityNudgeClick(
+    TargetId.Sidebar,
+  );
 
   return (
     <SidebarAside
@@ -68,14 +99,6 @@ export const SidebarTablet = ({
         onLogoClick={onLogoClick}
         className={classNames('h-10 pt-4')}
       />
-      {!user?.isPlus && (
-        <UpgradeToPlus
-          iconOnly
-          target={TargetId.Sidebar}
-          variant={ButtonVariant.Primary}
-          color={ButtonColor.Bacon}
-        />
-      )}
       <Link href={`${webappUrl}`} prefetch={false} passHref>
         <Button
           {...buttonProps}
@@ -88,6 +111,74 @@ export const SidebarTablet = ({
           Home
         </Button>
       </Link>
+
+      <ConditionalWrapper
+        condition={hasOpportunityAlert && hasNotClickedOpportunity}
+        wrapper={(component) => (
+          <SimpleTooltip
+            interactive
+            placement="right-start"
+            forceLoad={!isTesting}
+            visible
+            showArrow={false}
+            container={{
+              bgClassName: 'bg-background-popover',
+              className:
+                'border border-accent-onion-default !rounded-12 w-full',
+            }}
+            content={<NewOpportunityPopover />}
+          >
+            {component as ReactElement}
+          </SimpleTooltip>
+        )}
+      >
+        <div className="relative">
+          <Link
+            href={`${webappUrl}opportunity/${
+              hasOpportunityAlert ? alerts.opportunityId : 'welcome'
+            }`}
+            prefetch={false}
+            passHref
+          >
+            <Button
+              {...buttonProps}
+              tag="a"
+              icon={
+                <JobIcon secondary={activeNav.jobs} size={IconSize.Medium} />
+              }
+              iconPosition={ButtonIconPosition.Top}
+              variant={ButtonVariant.Option}
+              pressed={activeNav.jobs}
+              onClick={logOpportunityNudgeClick}
+            >
+              Jobs
+              {hasOpportunityAlert && (
+                <Bubble className="-right-0.5 -top-1.5 cursor-pointer !rounded-full !bg-accent-bacon-default px-1">
+                  1
+                </Bubble>
+              )}
+            </Button>
+          </Link>
+        </div>
+      </ConditionalWrapper>
+
+      {!isPlus ? (
+        <Link href={plusUrl} prefetch={false} passHref>
+          <Button
+            {...buttonProps}
+            tag="a"
+            icon={<DevPlusIcon size={IconSize.Medium} />}
+            iconPosition={ButtonIconPosition.Top}
+            variant={ButtonVariant.Option}
+            className={classNames(
+              buttonProps.className,
+              '!text-accent-avocado-default',
+            )}
+          >
+            {ctaCopy.short}
+          </Button>
+        </Link>
+      ) : undefined}
 
       <Link href={`${webappUrl}posts`} prefetch={false} passHref>
         <Button

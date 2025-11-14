@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { Button, ButtonVariant } from '../buttons/Button';
@@ -10,8 +10,9 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { useThemedAsset } from '../../hooks/utils';
 import { Typography, TypographyType } from '../typography/Typography';
 import { MoveToIcon } from '../icons';
-import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetId } from '../../lib/log';
+import { TargetId } from '../../lib/log';
+import { useLogOpportunityNudgeClick } from '../../hooks/log/useLogOpportunityNudgeClick';
+import { useLogOpportunityNudgeImpression } from '../../hooks/log/useLogOpportunityNudgeImpression';
 
 export interface JobOpportunityModalProps extends ModalProps {
   opportunityId: string;
@@ -24,36 +25,15 @@ export const JobOpportunityModal = ({
 }: JobOpportunityModalProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { jobOfferDesktop, jobOfferMobile } = useThemedAsset();
-  const { logEvent } = useLogContext();
-  const logRef = useRef<typeof logEvent>();
-  const hasLoggedRef = useRef(false);
-  logRef.current = logEvent;
-
-  const logExtraPayload = JSON.stringify({
-    count: 1, // always 1 for now
-  });
+  const logOpportunityNudgeClick = useLogOpportunityNudgeClick(
+    TargetId.Fullscreen,
+  );
+  useLogOpportunityNudgeImpression(TargetId.Fullscreen);
 
   const onClick = (event: MouseEvent) => {
-    logRef.current({
-      event_name: LogEvent.ClickOpportunityNudge,
-      target_id: TargetId.Fullscreen,
-      extra: logExtraPayload,
-    });
+    logOpportunityNudgeClick();
     onRequestClose(event);
   };
-
-  useEffect(() => {
-    if (hasLoggedRef.current) {
-      return;
-    }
-
-    logRef.current({
-      event_name: LogEvent.ImpressionOpportunityNudge,
-      target_id: TargetId.Fullscreen,
-      extra: logExtraPayload,
-    });
-    hasLoggedRef.current = true;
-  }, [logExtraPayload]);
 
   return (
     <>

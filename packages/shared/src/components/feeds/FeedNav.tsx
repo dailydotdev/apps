@@ -31,7 +31,6 @@ import { SharedFeedPage } from '../utilities';
 import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
-import { JobOpportunityButton } from '../../features/opportunity/components/JobOpportunityButton';
 import { useAlertsContext } from '../../contexts/AlertContext';
 
 enum FeedNavTab {
@@ -237,11 +236,6 @@ function FeedNav(): ReactElement {
           <NotificationsBell compact />
         </div>
       </div>
-      {hasOpportunityAlert && isMobile && (
-        <div className="mx-4 pt-2">
-          <JobOpportunityButton className="w-full" />
-        </div>
-      )}
       {isForYouTab && plusEntryForYou && (
         <PlusMobileEntryBanner
           targetType={TargetType.PlusEntryForYouTab}
