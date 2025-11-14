@@ -1035,7 +1035,12 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
     );
 
     if (!opportunity) {
-      return { props: { opportunity: null }, revalidate: 60 };
+      return {
+        redirect: {
+          destination: '/opportunity/welcome',
+          permanent: false,
+        },
+      };
     }
 
     const dehydratedState = dehydrate(queryClient);
@@ -1045,7 +1050,12 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
       revalidate: 300,
     };
   } catch (_e) {
-    return { props: { opportunity: null }, revalidate: 60 };
+    return {
+      redirect: {
+        destination: '/opportunity/welcome',
+        permanent: false,
+      },
+    };
   }
 };
 
