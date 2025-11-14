@@ -1,5 +1,4 @@
 import React from 'react';
-import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import nock from 'nock';
@@ -195,7 +194,10 @@ describe('OpportunityPage', () => {
 
       await waitFor(() => {
         const links = screen.getAllByRole('link', { name: /Not for me/i });
-        expect(links[0]).toHaveAttribute('href', '/opportunity/opp-123/decline');
+        expect(links[0]).toHaveAttribute(
+          'href',
+          '/opportunity/opp-123/decline',
+        );
       });
     });
 
@@ -204,7 +206,10 @@ describe('OpportunityPage', () => {
 
       await waitFor(() => {
         const links = screen.getAllByRole('link', { name: /Interested/i });
-        expect(links[0]).toHaveAttribute('href', '/opportunity/opp-123/questions');
+        expect(links[0]).toHaveAttribute(
+          'href',
+          '/opportunity/opp-123/questions',
+        );
       });
     });
 
