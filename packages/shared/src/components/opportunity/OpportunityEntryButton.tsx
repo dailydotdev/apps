@@ -55,7 +55,12 @@ export const OpportunityEntryButton = () => {
   return (
     <RenderTooltip content="Jobs" placement="bottom-end">
       <div>
-        <Link href={`${webappUrl}opportunity/${alerts.opportunityId}`} passHref>
+        <Link
+          href={`${webappUrl}opportunity/${
+            hasOpportunityAlert ? alerts.opportunityId : 'welcome'
+          }`}
+          passHref
+        >
           <Button
             variant={ButtonVariant.Float}
             className="relative w-10 justify-center"
