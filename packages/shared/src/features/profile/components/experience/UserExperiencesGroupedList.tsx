@@ -11,7 +11,7 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import { UserExperienceItem } from './UserExperienceItem';
-import { currrentPill } from './common';
+import { currentPill } from './common';
 import { pluralize } from '../../../../lib/strings';
 import type { DateRange } from '../../../../lib/date';
 import { calculateTotalDurationInMonths } from '../../../../lib/date';
@@ -70,7 +70,7 @@ export function UserExperiencesGroupedList({
         <div className="flex flex-1 flex-col">
           <Typography type={TypographyType.Subhead} bold>
             {company}
-            {!first.endedAt && currrentPill}
+            {!first.endedAt && currentPill}
           </Typography>
           <Typography
             type={TypographyType.Footnote}

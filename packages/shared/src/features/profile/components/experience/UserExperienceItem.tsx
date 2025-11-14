@@ -15,14 +15,14 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
-import { anchorDefaultRel, concatStrings } from '../../../../lib/strings';
-import { currrentPill } from './common';
+import { concatStrings } from '../../../../lib/strings';
+import { currentPill } from './common';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { EditIcon } from '../../../../components/icons';
+import { EditIcon, OpenLinkIcon } from '../../../../components/icons';
 import Link from '../../../../components/utilities/Link';
 
 interface UserExperienceItemProps {
@@ -85,18 +85,19 @@ export function UserExperienceItem({
         })}
       >
         <div className="flex flex-col gap-1">
-          <Typography type={TypographyType.Subhead} bold>
-            {title}
-            {!grouped && !endedAt && currrentPill}
+          <div className="flex items-center gap-1">
+            <Typography type={TypographyType.Subhead} bold>
+              {title}
+            </Typography>
+            {!grouped && !endedAt && currentPill}
             {url && (
-              <Button
-                tag="a"
-                target="_blank"
-                rel={anchorDefaultRel}
-                href={url}
-              />
+              <Link href={url} passHref>
+                <a target="_blank">
+                  <OpenLinkIcon className="size-4 text-text-secondary" />
+                </a>
+              </Link>
             )}
-          </Typography>
+          </div>
           {!!subtitle && (
             <Typography
               type={TypographyType.Footnote}
