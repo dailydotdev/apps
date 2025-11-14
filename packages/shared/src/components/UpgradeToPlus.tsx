@@ -23,44 +23,6 @@ type Props = {
   color?: ButtonColor;
 } & WithClassNameProps;
 
-const getButtonColor = (colorExperiment: string) => {
-  switch (colorExperiment) {
-    case 'avocado':
-      return {
-        color: ButtonColor.Avocado,
-        variant: ButtonVariant.Primary,
-      };
-    case 'cabbage':
-      return {
-        color: ButtonColor.Cabbage,
-        variant: ButtonVariant.Primary,
-      };
-    case 'onion':
-      return {
-        color: ButtonColor.Onion,
-        variant: ButtonVariant.Primary,
-      };
-    case 'cheesebacon':
-      return {
-        className: 'border-none text-surface-invert',
-        color: ButtonColor.Bacon,
-        style: {
-          background: `radial-gradient(49.48% 102.99% at 50% 132.84%, var(--theme-accent-cheese-default) 0%, var(--theme-accent-bacon-default) 100%)`,
-        },
-      };
-    case 'onionbacon':
-      return {
-        className: 'border-none text-white',
-        color: ButtonColor.Onion,
-        style: {
-          background: `radial-gradient(49.48% 102.99% at 50% 132.84%, var(--theme-accent-bacon-default) 0%, var(--theme-accent-onion-default) 100%)`,
-        },
-      };
-    default:
-      return {};
-  }
-};
-
 export const UpgradeToPlus = ({
   className,
   color,
