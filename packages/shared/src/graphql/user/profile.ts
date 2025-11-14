@@ -28,6 +28,8 @@ const USER_EXPERIENCE_FRAGMENT = gql`
     id
     type
     title
+    subtitle
+    grade
     description
     createdAt
     startedAt
@@ -266,6 +268,9 @@ export const upsertUserGeneralExperience = async (
   const cleanedInput = excludeProperties(input, [
     ...excludedProperties,
     'skills',
+    'locationId',
+    'locationType',
+    'employmentType',
   ]);
   const result = await gqlClient.request(UPSERT_USER_GENERAL_EXPERIENCE, {
     input: cleanedInput,

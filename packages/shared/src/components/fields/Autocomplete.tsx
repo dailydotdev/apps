@@ -7,6 +7,7 @@ import { PopoverContent } from '../popover/Popover';
 import { Typography, TypographyType } from '../typography/Typography';
 import { GenericLoaderSpinner } from '../utilities/loaders';
 import { IconSize } from '../Icon';
+import { Image } from '../image/Image';
 
 interface AutocompleteProps
   extends Omit<TextFieldProps, 'inputId' | 'onChange' | 'onSelect'> {
@@ -14,7 +15,8 @@ interface AutocompleteProps
   onChange: (value: string) => void;
   onSelect: (value: string) => void;
   selectedValue?: string;
-  options: Array<{ value: string; label: string }>;
+  selectedImage?: string;
+  options: Array<{ value: string; label: string; image?: string }>;
   isLoading?: boolean;
   resetOnBlur?: boolean;
 }
@@ -27,6 +29,7 @@ const Autocomplete = ({
   onChange,
   onSelect,
   selectedValue,
+  selectedImage,
   defaultValue,
   resetOnBlur = true,
   ...restProps
@@ -59,6 +62,15 @@ const Autocomplete = ({
       <Popover open={isOpen}>
         <PopoverAnchor asChild>
           <TextField
+            leftIcon={
+              selectedImage ? (
+                <Image
+                  className="size-6 rounded-full"
+                  src={selectedImage}
+                  alt={selectedValue}
+                />
+              ) : undefined
+            }
             label={label}
             inputRef={(ref) => {
               inputRef.current = ref;
@@ -85,13 +97,13 @@ const Autocomplete = ({
           onCloseAutoFocus={(e) => e.preventDefault()} // avoid refocus jumps
         >
           {!isLoading ? (
-            <div className="flex w-full flex-col">
+            <div className="flex w-full flex-col gap-1">
               {options?.length > 0 ? (
                 options.map((opt) => (
                   <button
                     type="button"
                     className={classNames(
-                      'text-left',
+                      'flex flex-row items-center gap-2 text-left',
                       selectedValue === opt.value && 'font-bold',
                     )}
                     key={opt.value}
@@ -100,6 +112,13 @@ const Autocomplete = ({
                       handleSelect(opt);
                     }}
                   >
+                    {opt?.image && (
+                      <Image
+                        className="size-6 rounded-full"
+                        src={opt.image}
+                        alt={opt.label}
+                      />
+                    )}
                     {opt.label}
                   </button>
                 ))

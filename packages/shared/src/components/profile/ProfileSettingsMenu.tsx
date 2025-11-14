@@ -124,8 +124,8 @@ const useAccountPageItems = () => {
             },
           },
         },
-        jobPreferences: {
-          title: 'Job Preferences',
+        career: {
+          title: 'Career',
           items: {
             work: {
               title: 'Work Experience',
