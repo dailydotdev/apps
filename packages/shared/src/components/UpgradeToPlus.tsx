@@ -13,10 +13,7 @@ import { LogEvent } from '../lib/log';
 import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import type { WithClassNameProps } from './utilities';
-import {
-  featurePlusButtonColors,
-  featurePlusCtaCopy,
-} from '../lib/featureManagement';
+import { featurePlusCtaCopy } from '../lib/featureManagement';
 
 type Props = {
   iconOnly?: boolean;
@@ -82,10 +79,6 @@ export const UpgradeToPlus = ({
     feature: featurePlusCtaCopy,
     shouldEvaluate: !isPlus,
   });
-  const { value: colorExperiment } = useConditionalFeature({
-    feature: featurePlusButtonColors,
-    shouldEvaluate: !isPlus && isLoggedIn,
-  });
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
 
   const onClick = useCallback(
@@ -112,20 +105,14 @@ export const UpgradeToPlus = ({
     <Link passHref href={plusUrl}>
       <Button
         tag="a"
-        variant={ButtonVariant.Secondary}
-        className={classNames(
-          !color &&
-            !colorExperiment &&
-            'border-action-plus-default text-action-plus-default',
-          !iconOnly && 'flex-1',
-          className,
-        )}
+        className={classNames(!iconOnly && 'flex-1', className)}
         icon={<DevPlusIcon />}
         size={size}
+        color={ButtonColor.Avocado}
+        variant={ButtonVariant.Primary}
         onClick={onClick}
         {...(variant && { variant, color })}
         {...attrs}
-        {...(colorExperiment && getButtonColor(colorExperiment))}
       >
         {iconOnly ? null : content}
       </Button>

@@ -440,8 +440,9 @@ export enum TargetId {
   OpportunityUnavailablePage = 'opportunity unavailable page',
   OpportunityWelcomePage = 'opportunity welcome page',
   ProfileSettingsMenu = 'profile settings menu',
-  HomepageButton = 'homepage button',
   Fullscreen = 'fullscreen',
+  Popover = 'popover',
+  Navigation = 'navigation',
 }
 
 export enum NotificationChannel {

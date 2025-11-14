@@ -6,10 +6,6 @@ import ProfileButton from '../profile/ProfileButton';
 import { useAuthContext } from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { UpgradeToPlus } from '../UpgradeToPlus';
-import { TargetId } from '../../lib/log';
-import { ButtonVariant } from '../buttons/common';
-import { ButtonColor } from '../buttons/Button';
 import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 
 interface HeaderButtonsProps {
@@ -44,12 +40,6 @@ export function HeaderButtons({
   return (
     <Container>
       <OpportunityEntryButton />
-      <UpgradeToPlus
-        className="whitespace-nowrap"
-        color={ButtonColor.Bacon}
-        target={TargetId.Header}
-        variant={ButtonVariant.Primary}
-      />
       {additionalButtons}
       <NotificationsBell />
       <ProfileButton className="hidden laptop:flex" />
