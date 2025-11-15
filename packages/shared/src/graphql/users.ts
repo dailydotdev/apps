@@ -336,6 +336,37 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
   }
 `;
 
+export const UPDATE_USER_INFO_MUTATION = gql`
+  mutation UpdateUserInfo($data: UpdateUserInfoInput) {
+    updateUserInfo(data: $data) {
+      id
+      name
+      image
+      username
+      permalink
+      bio
+      readme
+      twitter
+      github
+      hashnode
+      roadmap
+      threads
+      codepen
+      reddit
+      stackoverflow
+      youtube
+      linkedin
+      mastodon
+      bluesky
+      createdAt
+      infoConfirmed
+      timezone
+      experienceLevel
+      language
+    }
+  }
+`;
+
 export const UPLOAD_COVER_MUTATION = gql`
   mutation UploadCoverImage($upload: Upload!) {
     user: uploadCoverImage(image: $upload) {

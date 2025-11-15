@@ -4,7 +4,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import AuthContext from '../contexts/AuthContext';
-import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
+import { UPDATE_USER_INFO_MUTATION } from '../graphql/users';
 import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
@@ -101,7 +101,7 @@ const useUserInfoForm = (): UseUserInfoForm => {
     UpdateProfileParameters
   >({
     mutationFn: ({ upload, coverUpload, ...data }) =>
-      gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
+      gqlClient.request(UPDATE_USER_INFO_MUTATION, {
         data,
         upload,
         coverUpload,
