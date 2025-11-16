@@ -119,7 +119,8 @@ const HeaderSection = (): ReactElement => {
         </Typography>
       </FlexRow>
       <Typography center type={TypographyType.LargeTitle} bold>
-        Welcome to a new hiring experience that respects your time, privacy, and intelligence
+        Welcome to a new hiring experience that respects your time, privacy, and
+        intelligence
       </Typography>
       {user && (
         <>
