@@ -115,12 +115,12 @@ const HeaderSection = (): ReactElement => {
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
-          Careeer mode unlocked (beta)
+          Career mode unlocked (beta)
         </Typography>
       </FlexRow>
       <Typography center type={TypographyType.LargeTitle} bold>
-        Getting hired the old way
-        <br /> is officially dead
+        Welcome to a new hiring experience that respects your time, privacy, and
+        intelligence
       </Typography>
       {user && (
         <>
@@ -168,7 +168,7 @@ const HeaderSection = (): ReactElement => {
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          <strong>100% free.</strong> Your career, your rules.
+          <strong>100% private.</strong> Your career, your rules.
         </Typography>
       </FlexRow>
     </FlexCol>
@@ -178,21 +178,21 @@ const HeaderSection = (): ReactElement => {
 const benefits = [
   {
     icon: <ShieldPlusIcon secondary />,
-    title: 'No more cold outreach',
+    title: 'No recruiter spam',
     description:
-      'No cold DMs from strangers. Only real roles from real teams, surfaced when it’s actually worth your time.',
+      'No cold DMs from strangers. Only real roles from vetted teams, surfaced when there is a strong reason to talk.',
   },
   {
     icon: <MedalBadgeIcon />,
-    title: 'No more surprises',
+    title: 'Private until you say yes',
     description:
-      'Private by default. You review job matches quietly, choose yes or no, and nothing moves without your OK.',
+      'You stay invisible until you choose to engage. You quietly review matches, and nothing moves without your clear approval.',
   },
   {
     icon: <JobIcon secondary />,
-    title: 'No more irrelevant offers',
+    title: 'Signal, not noise',
     description:
-      'We connect you to with roles we believe would fit your skills, interests, and goals. If it isn’t a fit, you won’t see it.',
+      'We match you with roles based on your skills, preferences, and goals. If it is not a real fit, you will not see it.',
   },
 ];
 
@@ -218,23 +218,24 @@ const BenefitSection = (): ReactElement => (
 const howItWorks = [
   {
     image: jobsHowItWorksOne,
-    title: 'Review the job',
+    title: 'Review the job in private',
     description:
-      'See the role and decide if it’s worth moving forward. No pressure and no one even knows you’ve been approached.',
+      'You see the role, the context, and the company. You decide if it is worth your attention. No one knows you have been approached unless you say yes.',
   },
   {
     image: jobsHowItWorksTwo,
-    title: 'We’ll check mutual interest',
+    title: 'We check real mutual interest',
     description:
-      'We talk directly with the recruiter to confirm they’re genuinely interested before you invest a minute more.',
+      'We talk directly with the recruiter to confirm they are aligned with your expectations, and ready to respect your time before you invest another minute.',
   },
   {
     image: jobsHowItWorksThree,
     title: 'We make a warm intro',
     description:
-      'Only if it’s a yes on both sides do we connect you directly. Every conversation starts with intent and momentum.',
+      'Only if both sides say yes do we connect you directly. Every conversation starts with clear intent and good vibes.',
   },
 ];
+
 const HowItWorksSection = (): ReactElement => (
   <FlexCol className="gap-7 text-center">
     <Typography type={TypographyType.Title3} bold>
@@ -281,50 +282,56 @@ const faq = [
   {
     title: 'How do you decide which jobs to show me?',
     description:
-      'We look at your skills, interests, and career goals based on the information you’ve shared and your activity on the platform. From there, we identify roles that we believe could be a strong fit and worth your attention. The goal is not to flood you with options but to surface job matches that actually have the potential to move your career forward.',
+      'We look at your skills, interests, and career goals based on your profile and activity on the platform. From there, we surface roles that we believe are genuinely worth your attention. The goal is not to flood you with options but to show you matches that can actually move your career forward.',
+  },
+  {
+    title: 'How can I increase my chances of getting hired?',
+    description:
+      'The more context you share, the better we can match you. Upload your CV, complete your profile, and set your job preferences so we know your skills, your must haves, and your deal breakers. This lets us filter out noise and prioritize roles that are most likely to turn into real offers. Your CV and details stay private until you approve a match.',
   },
   {
     title: 'Will recruiters contact me directly?',
     description:
-      'No. Recruiters never get direct access to you without your approval. We first confirm there’s genuine mutual interest before making any introductions, which means you’ll never get blindsided by a cold DM or an unwanted email. You decide if and when conversations happen.',
+      'No. Recruiters never get direct access to you without your approval. We first confirm there is genuine mutual interest before making any introductions, so you do not get blindsided by cold DMs or random emails. You decide if and when conversations happen.',
   },
   {
     title:
       'What would I need to provide in order to get these kinds of job matches going forward?',
     description:
-      'The more we know about your skills, preferences, and career goals, the better we can tailor what you see. Uploading your CV and answering a few quick questions allows us to filter out irrelevant roles and focus on job matches that are genuinely worth your attention. Your CV isn’t shared with anyone until you approve an job offer and we’ve confirmed mutual interest with the recruiter.',
+      'Uploading your CV and answering a few quick questions about your experience, preferences, and goals helps us do the heavy lifting for you. It lets us filter out irrelevant roles and focus on matches that respect your time. Your CV is never shared with a recruiter until you approve a job match and we have confirmed mutual interest.',
   },
   {
     title: 'Can I set the conditions for the job matches I see?',
     description:
-      'Yes. What you’re seeing now is our best first guess based on your profile, but you can define exactly what “worth it” means to you. In your profile settings, you can set the specific conditions — role type, salary expectations, tech stack, location, and more — that we must meet before surfacing future job matches. That way, every job match respects your time and attention.',
+      'Yes. What you see at first is our best initial guess based on your profile, but you are in control. In your profile settings, you can set what “worth it” means to you, including role type, salary expectations, tech stack, location, and more. Every future job match must meet those conditions before it reaches you.',
   },
   {
-    title: 'Do I have to pay for this service?',
+    title: 'Do I have to pay for this service? (Hint: No)',
     description:
-      'No. This is 100% free for developers. We’re building a better, more respectful way to get hired, and that means removing the usual paywalls or fees. There’s no hidden cost for being introduced to a recruiter through our process.',
+      'No. This is free for developers. We are building a better, more respectful way to get hired, which means no paywalls and no hidden fees for being introduced to a recruiter.',
   },
   {
-    title: 'What happens after I approve an job match?',
+    title: 'What happens after I approve a job match?',
     description:
-      'We’ll ask for a few more details or quick screening answers to save time for both you and the recruiter. Then we speak directly with the recruiter to confirm they’re interested in moving forward. If both sides say yes, we make the warm introduction.',
+      'We may ask for a few more details or quick screening answers to save time for both you and the recruiter. Then we talk directly with the recruiter to confirm they want to move forward. If both sides say yes, we make the warm introduction.',
   },
   {
     title: 'Will you share my CV or profile without my permission?',
     description:
-      'Never. Your information stays private until you explicitly approve an job match and we’ve confirmed mutual interest. Until then, no one outside our team will know you’ve been approached.',
+      'Never. Your information stays private until you explicitly approve a job match and we have confirmed mutual interest with the recruiter. Until then, no one outside our team knows you have been approached.',
   },
   {
     title: 'Is this going to turn into another inbox full of recruiter spam?',
     description:
-      'Absolutely not. You’ll never get cold DMs, random connection requests, or templated outreach here. Every job match we show you is opt-in, high-context, and matched against your conditions before it reaches you.',
+      'No. You will not get cold DMs, random connection requests, or templated outreach here. Every job match you see is opt in, has context, and is checked against your conditions before it reaches you.',
   },
   {
     title: 'Are you going to waste my time with irrelevant roles?',
     description:
-      'No. The whole point of this system is to eliminate the irrelevant and repetitive. You’ll only see roles that meet your criteria or have a strong reason to be surfaced. This becomes a source of signal — not noise — so when you do hear from us, you know it’s worth your time.',
+      'No. The point of this system is to remove as much noise as possible. You will only see roles that meet your criteria or have a strong reason to be surfaced. When you hear from us, you know it is worth a look.',
   },
 ];
+
 const FAQSection = (): ReactElement => (
   <FlexCol className="gap-10 pb-10 text-center">
     <Typography type={TypographyType.Title3} bold>
