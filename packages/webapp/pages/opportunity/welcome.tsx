@@ -226,7 +226,7 @@ const howItWorks = [
     image: jobsHowItWorksTwo,
     title: 'We check real mutual interest',
     description:
-      'We talk directly with the recruiter to confirm they are serious, aligned with your expectations, and ready to respect your time before you invest another minute.',
+      'We talk directly with the recruiter to confirm they are aligned with your expectations, and ready to respect your time before you invest another minute.',
   },
   {
     image: jobsHowItWorksThree,
