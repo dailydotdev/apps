@@ -23,7 +23,6 @@ import {
   UserIcon,
   YoutubeIcon,
   TerminalIcon,
-  PlusIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
   Typography,
@@ -38,10 +37,6 @@ import ControlledMarkdownInput from '@dailydotdev/shared/src/components/fields/M
 import ProfileLocation from '@dailydotdev/shared/src/components/profile/ProfileLocation';
 import ControlledAvatarUpload from '@dailydotdev/shared/src/components/profile/ControlledAvatarUpload';
 import ControlledCoverUpload from '@dailydotdev/shared/src/components/profile/ControlledCoverUpload';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { locationProfileImage } from '@dailydotdev/shared/src/lib/image';
-import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useUserInfoForm from '@dailydotdev/shared/src/hooks/useUserInfoForm';
 import { AccountPageContainer } from '../AccountPageContainer';
@@ -107,32 +102,6 @@ const ProfileIndex = (): ReactElement => {
             </Section>
             <HorizontalSeparator />
             <Section>
-              <div className="flex justify-between gap-6">
-                <div className="flex flex-1 flex-col flex-wrap gap-1">
-                  <Typography type={TypographyType.Body} bold>
-                    Verified company badge
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Secondary}
-                  >
-                    Add your current work location to keep your profile up to
-                    date and reflect where you&apos;re based
-                  </Typography>
-                </div>
-                <Image
-                  src={locationProfileImage}
-                  alt="Location"
-                  loading="lazy"
-                  className="h-16 w-16"
-                />
-              </div>
-              <Link href={`${webappUrl}/settings/experience`}>
-                <span className="flex cursor-pointer items-center gap-1 text-text-link">
-                  <PlusIcon />
-                  Add company badge
-                </span>
-              </Link>
               <ProfileLocation
                 locationName="locationId"
                 defaultValue={user?.location}
