@@ -11,9 +11,9 @@ import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMon
 import ProfileLocation from '../../../../../components/profile/ProfileLocation';
 import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
 import ProfileSkills from '../../ProfileSkills';
-import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import type { TLocation } from '../../../../../graphql/autocomplete';
 import { profileSecondaryFieldStyles } from '../../../common';
+import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
 
 const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
   return (
@@ -37,8 +37,7 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
         />
       </div>
       <HorizontalSeparator />
-      <ControlledSwitch
-        name="current"
+      <CurrentExperienceSwitch
         label="Current position"
         description="Check if this is your current role"
       />

@@ -8,9 +8,9 @@ import {
 } from '../../../../../components/typography/Typography';
 import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMonthYearSelect';
 import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
-import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
 import { profileSecondaryFieldStyles } from '../../../common';
+import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
 
 const UserEducationForm = () => {
   return (
@@ -37,8 +37,7 @@ const UserEducationForm = () => {
         />
       </div>
       <HorizontalSeparator />
-      <ControlledSwitch
-        name="current"
+      <CurrentExperienceSwitch
         label="Current education"
         description="Check if you are currently enrolled in this program or pursuing this degree."
       />

@@ -28,7 +28,7 @@ export const userExperienceInputBaseSchema = z
     type: z.enum(UserExperienceType),
     title: z.string().min(1, 'Title is required.').max(1000),
     description: z.string().max(5000).optional(),
-    subtitle: z.string().max(1000).optional(),
+    subtitle: z.string().max(1000).optional().nullable(),
     startedAt: z.date({ message: 'Start date is required.' }),
     endedAt: z.date().optional().nullable(),
     current: z.boolean().default(false),

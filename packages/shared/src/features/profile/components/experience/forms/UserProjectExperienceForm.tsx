@@ -9,10 +9,10 @@ import {
 } from '../../../../../components/typography/Typography';
 import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMonthYearSelect';
 import ControlledTextarea from '../../../../../components/fields/ControlledTextarea';
-import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
 import { UserExperienceType } from '../../../../../graphql/user/profile';
 import { profileSecondaryFieldStyles } from '../../../common';
+import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
 
 type FormCopy = {
   switchLabel: string;
@@ -56,8 +56,7 @@ const UserProjectExperienceForm = () => {
         />
       </div>
       <HorizontalSeparator />
-      <ControlledSwitch
-        name="current"
+      <CurrentExperienceSwitch
         label={copy.switchLabel}
         description={copy.switchDescription}
       />

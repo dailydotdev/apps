@@ -12,6 +12,7 @@ type ControlledSwitchProps = {
   label: string;
   description?: string | React.ReactNode;
   disabled?: boolean;
+  onChange?: (value: boolean) => void;
 };
 
 const ControlledSwitch = ({
@@ -19,6 +20,7 @@ const ControlledSwitch = ({
   label,
   description,
   disabled,
+  onChange,
 }: ControlledSwitchProps) => {
   const { control } = useFormContext();
 
@@ -36,7 +38,10 @@ const ControlledSwitch = ({
               inputId={field.name}
               name={field.name}
               checked={field.value ?? false}
-              onToggle={() => field.onChange(!field.value)}
+              onToggle={() => {
+                field.onChange(!field.value);
+                onChange?.(!field.value);
+              }}
               compact={false}
               disabled={disabled}
             />

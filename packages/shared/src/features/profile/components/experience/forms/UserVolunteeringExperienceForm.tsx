@@ -7,9 +7,9 @@ import {
   TypographyType,
 } from '../../../../../components/typography/Typography';
 import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMonthYearSelect';
-import ControlledSwitch from '../../../../../components/fields/ControlledSwitch';
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
 import { profileSecondaryFieldStyles } from '../../../common';
+import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
 
 const UserVolunteeringExperienceForm = () => {
   return (
@@ -29,8 +29,7 @@ const UserVolunteeringExperienceForm = () => {
         />
       </div>
       <HorizontalSeparator />
-      <ControlledSwitch
-        name="current"
+      <CurrentExperienceSwitch
         label="Current volunteer role"
         description="Check if you are still actively volunteering in this position."
       />
