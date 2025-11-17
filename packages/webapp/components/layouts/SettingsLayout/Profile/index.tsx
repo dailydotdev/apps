@@ -90,6 +90,10 @@ const ProfileIndex = ({
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
     const values = formToJson<UpdateProfileParameters>(formRef.current);
+    const usernameForRedirect = values.username ?? user?.username;
+    const profileDestination = usernameForRedirect
+      ? `/${usernameForRedirect.toLowerCase()}`
+      : user?.permalink ?? '/';
     const params = {
       name: values.name,
       username: values.username,
@@ -110,7 +114,7 @@ const ProfileIndex = ({
       bluesky: values.bluesky,
       experienceLevel: values.experienceLevel,
       onUpdateSuccess: () =>
-        router.push(`/${values.username.toLowerCase()}`).then(() => {
+        router.push(profileDestination).then(() => {
           router.reload();
         }),
     };
