@@ -1,4 +1,4 @@
-import { useContext, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,9 +10,6 @@ import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
 import { errorMessage, gqlClient } from '../graphql/common';
 import { useDirtyForm } from './useDirtyForm';
-import { ActionType } from '../graphql/actions';
-import { useActions } from './useActions';
-import { getCompletionItems } from '../features/profile/components/ProfileWidgets/ProfileCompletion';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import { useProfile } from './profile/useProfile';
@@ -65,8 +62,18 @@ const useUserInfoForm = (): UseUserInfoForm => {
   const { userQueryKey } = useProfile(user as PublicProfile);
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const router = useRouter();
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window?.location?.search);
+    const field = searchParams?.get('field');
+    if (field) {
+      const element = document?.getElementsByName(field)[0];
+      if (element) {
+        element.focus();
+      }
+    }
+  }, []);
 
   const methods = useForm<UserProfile>({
     defaultValues: {
@@ -117,20 +124,7 @@ const useUserInfoForm = (): UseUserInfoForm => {
 
       dirtyFormRef.current?.allowNavigation();
 
-      const completionItems = getCompletionItems(user);
-      const isProfileComplete = completionItems.every((item) => item.completed);
-      const hasCompletedAction =
-        isActionsFetched && checkHasCompleted(ActionType.ProfileCompleted);
-
-      if (isProfileComplete && !hasCompletedAction) {
-        displayToast(
-          'Your profile has been completed successfully. All your details are now up to date 🎉',
-        );
-        completeAction(ActionType.ProfileCompleted);
-      } else {
-        displayToast('Profile updated');
-      }
-
+      displayToast('Profile updated');
       methods.reset(vars);
       logEvent({ event_name: LogEvent.UpdateProfile });
 

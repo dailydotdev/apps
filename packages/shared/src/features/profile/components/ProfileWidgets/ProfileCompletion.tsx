@@ -11,10 +11,14 @@ import { MoveToIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { getPercentage } from '../../../../lib/func';
 import type { LoggedUser, PublicProfile } from '../../../../lib/user';
-import { useActions } from '../../../../hooks';
-import { ActionType } from '../../../../graphql/actions';
 import Link from '../../../../components/utilities/Link';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import { webappUrl } from '../../../../lib/constants';
+import { useProfileExperiences } from '../../hooks/useProfileExperiences';
+import type {
+  UserExperienceEducation,
+  UserExperienceWork,
+} from '../../../../graphql/user/profile';
 
 export type CompletionItem = {
   label: string;
@@ -29,45 +33,41 @@ type ProfileCompletionProps = {
 
 export const getCompletionItems = (
   user: LoggedUser | PublicProfile | Record<string, unknown>,
+  work: UserExperienceWork[],
+  education: UserExperienceEducation[],
 ): CompletionItem[] => {
   const hasProfileImage = !!user.image && user.image !== '';
   const hasHeadline =
     !!user.bio && typeof user.bio === 'string' && user.bio.trim() !== '';
   const hasExperienceLevel = !!user.experienceLevel;
-  const hasWorkExperience =
-    !!user.companies &&
-    Array.isArray(user.companies) &&
-    user.companies.length > 0; // TODO: Update when work experience field is available
-  const hasEducation =
-    !!user.companies &&
-    Array.isArray(user.companies) &&
-    user.companies.length > 0; // TODO: Update when education field is available
+  const hasWorkExperience = work && work.length > 0;
+  const hasEducation = education && education.length > 0;
 
   return [
     {
       label: 'Profile image',
       completed: hasProfileImage,
-      redirectPath: '/settings/profile',
+      redirectPath: `${webappUrl}settings/profile`,
     },
     {
       label: 'Headline',
       completed: hasHeadline,
-      redirectPath: '/settings/profile',
+      redirectPath: `${webappUrl}settings/profile?field=bio`,
     },
     {
       label: 'Experience level',
       completed: hasExperienceLevel,
-      redirectPath: '/settings/profile',
+      redirectPath: `${webappUrl}settings/profile?field=experienceLevel`,
     },
     {
       label: 'Work experience',
       completed: hasWorkExperience,
-      redirectPath: '/settings/profile', // TODO: Update to /settings/experience when available
+      redirectPath: `${webappUrl}settings/profile/experience/work`,
     },
     {
       label: 'Education',
       completed: hasEducation,
-      redirectPath: '/settings/experience', // TODO: Update when education field is available
+      redirectPath: `${webappUrl}settings/profile/experience/education`,
     },
   ];
 };
@@ -90,8 +90,14 @@ export const ProfileCompletion = ({
   className,
   user,
 }: ProfileCompletionProps): ReactElement => {
-  const { checkHasCompleted, isActionsFetched } = useActions();
-  const items = useMemo(() => getCompletionItems(user), [user]);
+  const { work, education, isLoading } = useProfileExperiences(
+    user as PublicProfile,
+  );
+
+  const items = useMemo(
+    () => getCompletionItems(user, work, education),
+    [user, work, education],
+  );
 
   const { progress, incompleteItems } = useMemo(() => {
     const incomplete = items.filter((item) => !item.completed);
@@ -112,10 +118,8 @@ export const ProfileCompletion = ({
   const redirectPath = firstIncompleteItem?.redirectPath;
 
   const isCompleted = progress === 100;
-  const hasCompletedAction =
-    isActionsFetched && checkHasCompleted(ActionType.ProfileCompleted);
 
-  if (isCompleted || hasCompletedAction) {
+  if (isCompleted || isLoading) {
     return null;
   }
 
