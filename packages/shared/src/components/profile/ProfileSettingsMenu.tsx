@@ -138,7 +138,7 @@ const useAccountPageItems = () => {
               href: `${settingsUrl}/profile/experience/education`,
             },
             certification: {
-              title: 'Certification',
+              title: 'Certifications',
               icon: MedalIcon,
               href: `${settingsUrl}/profile/experience/certification`,
             },
