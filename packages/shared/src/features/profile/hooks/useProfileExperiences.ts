@@ -13,12 +13,14 @@ export function useProfileExperiences(user: PublicProfile) {
     staleTime: StaleTime.Default,
   });
 
-  const { work, education, cert, project } = useMemo(
+  const { work, education, cert, project, opensource, volunteering } = useMemo(
     () => ({
       work: query.data?.work?.edges?.map(({ node }) => node),
       education: query.data?.education?.edges?.map(({ node }) => node),
       cert: query.data?.certification?.edges?.map(({ node }) => node),
       project: query.data?.project?.edges?.map(({ node }) => node),
+      opensource: query.data?.opensource?.edges?.map(({ node }) => node),
+      volunteering: query.data?.volunteering?.edges?.map(({ node }) => node),
     }),
     [query.data],
   );
@@ -29,6 +31,8 @@ export function useProfileExperiences(user: PublicProfile) {
     education,
     cert,
     project,
+    opensource,
+    volunteering,
     queryKey, // Export for potential invalidations
   };
 }

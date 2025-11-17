@@ -13,7 +13,8 @@ interface ProfileUserExperiencesProps {
 export function ProfileUserExperiences({
   user,
 }: ProfileUserExperiencesProps): ReactElement {
-  const { work, education, cert, project, data } = useProfileExperiences(user);
+  const { work, education, cert, project, opensource, volunteering, data } =
+    useProfileExperiences(user);
   const { user: loggedUser } = useAuthContext();
   const isSameUser = loggedUser?.id === user.id;
 
@@ -45,6 +46,20 @@ export function ProfileUserExperiences({
         title="Projects"
         experienceType={UserExperienceType.Project}
         hasNextPage={data?.project?.pageInfo?.hasNextPage}
+        isSameUser={isSameUser}
+      />
+      <UserExperienceList
+        experiences={opensource}
+        title="Open Source"
+        experienceType={UserExperienceType.OpenSource}
+        hasNextPage={data?.opensource?.pageInfo?.hasNextPage}
+        isSameUser={isSameUser}
+      />
+      <UserExperienceList
+        experiences={volunteering}
+        title="Volunteering"
+        experienceType={UserExperienceType.Volunteering}
+        hasNextPage={data?.volunteering?.pageInfo?.hasNextPage}
         isSameUser={isSameUser}
       />
     </>

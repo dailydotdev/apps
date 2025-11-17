@@ -109,6 +109,12 @@ const USER_PROFILE_EXPERIENCES_QUERY = gql`
     project: userExperiences(userId: $userId, type: project, first: 3) {
       ${getExperiencesProps(`url`)}
     }
+    opensource: userExperiences(userId: $userId, type: opensource, first: 3) {
+      ${getExperiencesProps(`url`)}
+    }
+    volunteering: userExperiences(userId: $userId, type: volunteering, first: 3) {
+      ${getExperiencesProps(`url`)}
+    }
     certification: userExperiences(userId: $userId, type: certification, first: 3) {
       ${getExperiencesProps(`
         externalReferenceId
@@ -189,6 +195,8 @@ export interface UserProfileExperienceData {
   education: Connection<UserExperienceEducation>;
   project: Connection<UserExperienceProject>;
   certification: Connection<UserExperienceCertification>;
+  opensource: Connection<UserExperienceProject>;
+  volunteering: Connection<UserExperienceProject>;
 }
 
 export const getUserProfileExperiences = async (
@@ -314,7 +322,12 @@ export const upsertUserWorkExperience = async (
   input: UserExperienceWork,
   id?: string,
 ) => {
-  const cleanedInput = excludeProperties(input, [...excludedProperties, 'url']);
+  const cleanedInput = excludeProperties(input, [
+    ...excludedProperties,
+    'url',
+    'subtitle',
+    'grade',
+  ]);
 
   const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {
     input: cleanedInput,
