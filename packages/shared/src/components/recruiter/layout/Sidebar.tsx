@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { PlusIcon, SettingsIcon } from '../../icons';
+import { ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
 import HeaderLogo from '../../layout/HeaderLogo';
 import classed from '../../../lib/classed';
 import { SidebarScrollWrapper } from '../../sidebar/common';
@@ -64,7 +64,7 @@ const Tips = () => {
 const Footer = () => {
   const { user } = useAuthContext();
   return (
-    <div className="flex items-center gap-2 border-t border-b-border-subtlest-tertiary p-3">
+    <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary p-3">
       <ProfilePicture user={{ image: null }} size={ProfileImageSize.Medium} />
       <div>
         <Typography type={TypographyType.Subhead} bold>
@@ -85,7 +85,7 @@ const Footer = () => {
       />
       <Button
         variant={ButtonVariant.Tertiary}
-        icon={<SettingsIcon />}
+        icon={<ExitIcon />}
         size={ButtonSize.XSmall}
       />
     </div>
@@ -126,7 +126,7 @@ const SidebarSection = ({ title }: SidebarSectionProps) => {
 
 export const Sidebar = (): ReactElement => {
   return (
-    <aside className="flex min-h-screen w-60 flex-col border-r border-b-border-subtlest-tertiary">
+    <aside className="flex min-h-screen w-60 flex-col border-r border-border-subtlest-tertiary">
       <SidebarScrollWrapper>
         <Header />
         <CompanyBadge />

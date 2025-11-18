@@ -17,8 +17,7 @@ export const RecruiterLayout = ({
       <PromptElement />
       <main className="flex">
         <Sidebar />
-
-        <section>{children}</section>
+        <section className="flex flex-1">{children}</section>
       </main>
     </div>
   );
