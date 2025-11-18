@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   createColumnHelper,
   flexRender,
@@ -11,6 +11,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { getLastActivityDateFormat } from '../../lib/dateFormat';
+import { MiniCloseIcon } from '../icons';
 
 export type AnonymousUser = {
   id: string;
@@ -28,22 +30,6 @@ export type AnonymousUser = {
 };
 
 const columnHelper = createColumnHelper<AnonymousUser>();
-
-const getRelativeTime = (date: Date): string => {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (diffInSeconds < 60) {
-    return 'now';
-  }
-  if (diffInSeconds < 3600) {
-    return `${Math.floor(diffInSeconds / 60)} min ago`;
-  }
-  if (diffInSeconds < 86400) {
-    return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-  }
-  return `${Math.floor(diffInSeconds / 86400)} days ago`;
-};
 
 const columns = [
   columnHelper.display({
@@ -133,8 +119,8 @@ const columns = [
   columnHelper.accessor('lastActivity', {
     header: 'Last activity',
     cell: (info) => {
-      const relativeTime = getRelativeTime(info.getValue());
-      const isNow = relativeTime === 'now';
+      const relativeTime = getLastActivityDateFormat(info.getValue());
+      const isNow = relativeTime === 'Now';
 
       if (isNow) {
         return (
@@ -163,6 +149,8 @@ export type AnonymousUserTableProps = {
 export const AnonymousUserTable = ({
   data: propData,
 }: AnonymousUserTableProps) => {
+  const [showInfoBar, setShowInfoBar] = useState(true);
+
   const defaultData = useMemo<AnonymousUser[]>(
     () => [
       {
@@ -247,6 +235,31 @@ export const AnonymousUserTable = ({
             })}
           </tr>
         </thead>
+        {showInfoBar && (
+          <tbody>
+            <tr>
+              <td colSpan={table.getAllColumns().length}>
+                <div className="flex items-center justify-between border-b border-border-subtlest-tertiary bg-background-subtle px-4 py-3">
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    Chosen from daily.dev&apos;s active network using engagement
+                    and intent signals.
+                  </Typography>
+                  <button
+                    type="button"
+                    onClick={() => setShowInfoBar(false)}
+                    className="flex items-center justify-center text-text-tertiary hover:text-text-primary"
+                    aria-label="Dismiss"
+                  >
+                    <MiniCloseIcon />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        )}
         <tbody>
           {table.getRowModel().rows.map((row) => {
             const visibleCells = row.getVisibleCells();

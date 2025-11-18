@@ -20,7 +20,7 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import classNames from 'classnames';
 import { Divider } from '@dailydotdev/shared/src/components/utilities';
 import { Chip } from '@dailydotdev/shared/src/components/cards/common/PostTags';
-import { AnonymousUserTable } from '@dailydotdev/shared/src/components/recruiter';
+import { AnonymousUserTable } from '@dailydotdev/shared/src/components/recruiter/AnonymousUserTable';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
 
 const ProgressItemIcon = classed(
