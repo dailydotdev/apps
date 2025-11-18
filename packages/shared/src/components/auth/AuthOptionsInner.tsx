@@ -429,7 +429,7 @@ function AuthOptionsInner({
   };
 
   const onSocialCompletion = async (params) => {
-    updateUserProfile({ ...params, image: user?.image });
+    updateUserProfile({ ...params });
     await syncSettings();
   };
 
