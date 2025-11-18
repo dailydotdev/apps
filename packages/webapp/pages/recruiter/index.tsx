@@ -225,10 +225,144 @@ const JobInfo = () => {
   );
 };
 
+const companies = [
+  { domain: 'apple.com', name: 'Apple Inc.' },
+  { domain: 'google.com', name: 'Google' },
+  { domain: 'microsoft.com', name: 'Microsoft' },
+  { domain: 'meta.com', name: 'Meta' },
+  { domain: 'amazon.com', name: 'Amazon' },
+  { domain: 'netflix.com', name: 'Netflix' },
+];
+
+const squads = [
+  {
+    icon: 'https://media.daily.dev/image/upload/s--5UYbnNwZ--/f_auto,q_auto/v1703238590/squads/1c73f1ee-c7fb-492d-8ac2-0d1ba72dc72a',
+    name: 'DevOps',
+  },
+  {
+    icon: 'https://media.daily.dev/image/upload/s--ljDCWNBZ--/f_auto/v1731669074/squads/efbb7001-f465-4dca-a829-5e56b672f8b2',
+    name: 'Flutter Developers',
+  },
+  {
+    icon: 'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
+    name: 'WebDev',
+  },
+  {
+    icon: 'https://media.daily.dev/image/upload/s--5UYbnNwZ--/f_auto,q_auto/v1703238590/squads/1c73f1ee-c7fb-492d-8ac2-0d1ba72dc72a',
+    name: 'DevOps',
+  },
+  {
+    icon: 'https://media.daily.dev/image/upload/s--ljDCWNBZ--/f_auto/v1731669074/squads/efbb7001-f465-4dca-a829-5e56b672f8b2',
+    name: 'Flutter Developers',
+  },
+  {
+    icon: 'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
+    name: 'WebDev',
+  },
+];
+
+type CompanyItemProps = {
+  domain: string;
+  name: string;
+};
+const CompanyItem = ({ domain, name }: CompanyItemProps) => (
+  <div className="flex gap-2">
+    <img
+      src={`https://www.google.com/s2/favicons?domain=${domain}`}
+      className="size-4 rounded-2"
+      alt={name}
+    />
+    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+      {name}
+    </Typography>
+  </div>
+);
+
+type SquadItemProps = {
+  icon: string;
+  name: string;
+};
+const SquadItem = ({ icon, name }: SquadItemProps) => (
+  <div className="flex gap-2">
+    <img src={icon} className="size-4 rounded-2" alt={name} />
+    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+      {name}
+    </Typography>
+  </div>
+);
+
+const RelevantBlock = () => {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <Typography type={TypographyType.Body} bold>
+          Relevant active developer
+        </Typography>
+        <Typography
+          type={TypographyType.Title2}
+          bold
+          color={TypographyColor.Brand}
+        >
+          5,001
+        </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          30% searching for job only on daily.dev
+        </Typography>
+      </div>
+      <Divider className="bg-border-subtlest-tertiary" />
+      <Typography type={TypographyType.Footnote} bold>
+        Interesting in
+      </Typography>
+      <div className="flex flex-wrap gap-2">
+        <Chip className="!my-0 !text-text-tertiary">Frontend Developer</Chip>{' '}
+        <Chip className="!my-0 !text-text-tertiary">Next.js</Chip>
+        <Chip className="!my-0 !text-text-tertiary">PHP</Chip>
+        <Chip className="!my-0 !text-text-tertiary">cloud</Chip>
+        <Chip className="!my-0 !text-text-tertiary">security</Chip>
+      </div>
+      <Divider className="bg-border-subtlest-tertiary" />
+      <Typography type={TypographyType.Footnote} bold>
+        Developers verified work at
+      </Typography>
+      <div className="grid grid-cols-2 gap-2">
+        {companies.map((company) => (
+          <CompanyItem
+            key={company.domain}
+            domain={company.domain}
+            name={company.name}
+          />
+        ))}
+      </div>
+      <Divider className="bg-border-subtlest-tertiary" />
+      <div>
+        <Typography type={TypographyType.Footnote} bold>
+          Most active squads
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Where your matches are most active inside daily.dev.
+        </Typography>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {squads.map((squad) => (
+          <SquadItem key={squad.name} name={squad.name} icon={squad.icon} />
+        ))}
+      </div>
+      <Divider className="bg-border-subtlest-tertiary" />
+    </div>
+  );
+};
+
 const ContentSidebar = () => {
   return (
     <div className="flex w-[22.5rem] flex-col gap-4 border-r border-border-subtlest-tertiary p-4">
       <LoadingBlock />
+      <RelevantBlock />
       <JobInfo />
     </div>
   );
