@@ -6,6 +6,7 @@ import {
   CANDIDATE_KEYWORD_ADD_MUTATION,
   CANDIDATE_KEYWORD_REMOVE_MUTATION,
   CLEAR_EMPLOYMENT_AGREEMENT_MUTATION,
+  CLEAR_ORGANIZATION_IMAGE_MUTATION,
   CLEAR_RESUME_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
@@ -30,6 +31,7 @@ import type { UseUpdateQuery } from '../../hooks/useUpdateQuery';
 import type {
   opportunityEditContentSchema,
   opportunityEditInfoSchema,
+  opportunityEditOrganizationSchema,
   opportunityEditQuestionsSchema,
 } from '../../lib/schema/opportunity';
 import type { OpportunityState } from './protobuf/opportunity';
@@ -291,6 +293,42 @@ export const editOpportunityQuestionMutationOptions = () => {
       });
 
       return result.editOpportunity;
+    },
+  };
+};
+
+export const editOpportunityOrganizationMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+      organizationImage,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditOrganizationSchema>;
+      organizationImage?: File;
+    }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
+        payload,
+        organizationImage,
+      });
+
+      return result.editOpportunity;
+    },
+  };
+};
+
+export const clearOrganizationImageMutationOptions = (): MutationOptions<
+  EmptyResponse,
+  DefaultError,
+  { id: string }
+> => {
+  return {
+    mutationFn: async ({ id }: { id: string }) => {
+      return gqlClient.request(CLEAR_ORGANIZATION_IMAGE_MUTATION, { id });
     },
   };
 };

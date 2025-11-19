@@ -365,12 +365,28 @@ export const CLEAR_EMPLOYMENT_AGREEMENT_MUTATION = gql`
 `;
 
 export const EDIT_OPPORTUNITY_MUTATION = gql`
-  mutation EditOpportunity($id: ID!, $payload: OpportunityEditInput!) {
-    editOpportunity(id: $id, payload: $payload) {
+  mutation EditOpportunity(
+    $id: ID!
+    $payload: OpportunityEditInput!
+    $organizationImage: Upload
+  ) {
+    editOpportunity(
+      id: $id
+      payload: $payload
+      organizationImage: $organizationImage
+    ) {
       ...OpportunityFragment
     }
   }
   ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const CLEAR_ORGANIZATION_IMAGE_MUTATION = gql`
+  mutation ClearOrganizationImage($id: ID!) {
+    clearOrganizationImage(id: $id) {
+      _
+    }
+  }
 `;
 
 export const RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION = gql`

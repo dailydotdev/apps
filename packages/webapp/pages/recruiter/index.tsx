@@ -7,108 +7,16 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   MagicIcon,
-  MoveToIcon,
   ShieldIcon,
   VIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import {
-  Button,
-  ButtonColor,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import classed from '@dailydotdev/shared/src/lib/classed';
 import classNames from 'classnames';
 import { Divider } from '@dailydotdev/shared/src/components/utilities';
 import { Chip } from '@dailydotdev/shared/src/components/cards/common/PostTags';
 import { AnonymousUserTable } from '@dailydotdev/shared/src/components/recruiter/AnonymousUserTable';
+import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
+import { RecruiterProgress } from '@dailydotdev/shared/src/components/recruiter/Progress';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
-
-const ProgressItemIcon = classed(
-  'div',
-  'typo-caption2 rounded-8 flex items-center justify-center size-5',
-);
-
-type ProgressItemProps = {
-  icon: ReactElement;
-  title: string;
-  active?: boolean;
-  className?: string;
-};
-const ProgressItem = ({
-  icon: Icon,
-  title,
-  active,
-  className,
-}: ProgressItemProps) => {
-  return (
-    <div
-      className={classNames(
-        'flex flex-1 items-center justify-center gap-2 p-2',
-        active && 'text-brand-default',
-        className,
-      )}
-    >
-      <ProgressItemIcon
-        className={
-          active
-            ? 'bg-brand-default font-bold text-surface-invert'
-            : 'bg-surface-float text-text-tertiary'
-        }
-      >
-        {Icon}
-      </ProgressItemIcon>
-      <Typography
-        type={TypographyType.Caption2}
-        color={active ? TypographyColor.Brand : TypographyColor.Tertiary}
-      >
-        {title}
-      </Typography>
-    </div>
-  );
-};
-
-const Progress = () => (
-  <div className="flex flex-row gap-4 border-b border-border-subtlest-tertiary">
-    <ProgressItem icon={<VIcon />} title="Analyze & Match" active />
-    <ProgressItem
-      className="border-x border-border-subtlest-tertiary"
-      icon={<p>2</p>}
-      title="Prepare & Launch"
-      active
-    />
-    <ProgressItem icon={<p>2</p>} title="Connect & Hire" />
-  </div>
-);
-
-const Header = () => {
-  return (
-    <div className="flex flex-row items-center gap-2 border-b border-border-subtlest-tertiary p-4">
-      <div>
-        <Typography type={TypographyType.Title3} bold>
-          This is how your candidates will see your job
-        </Typography>
-        <Typography
-          type={TypographyType.Subhead}
-          color={TypographyColor.Tertiary}
-        >
-          Review your draft carefully and update any details as needed.
-        </Typography>
-      </div>
-      <div className="flex-1" />
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        Private matching.
-        <br />
-        No spam. 100% opt-in.
-      </Typography>
-      <Button variant={ButtonVariant.Primary} color={ButtonColor.Cabbage}>
-        Outreach Settings <MoveToIcon />
-      </Button>
-    </div>
-  );
-};
 
 type LoadingBlockItemProps = {
   icon: ReactElement;
@@ -371,8 +279,8 @@ const ContentSidebar = () => {
 function RecruiterPage(): ReactElement {
   return (
     <div className="flex flex-1 flex-col">
-      <Header />
-      <Progress />
+      <RecruiterHeader />
+      <RecruiterProgress />
       <div className="flex flex-1">
         <ContentSidebar />
         <AnonymousUserTable />

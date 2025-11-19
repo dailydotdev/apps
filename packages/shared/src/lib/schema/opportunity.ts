@@ -157,3 +157,45 @@ export const opportunityEditStep2Schema = opportunityEditQuestionsSchema.extend(
     questions: opportunityEditQuestionsSchema.shape.questions,
   },
 );
+
+export enum OrganizationLinkType {
+  Custom = 'custom',
+  Social = 'social',
+  Press = 'press',
+}
+
+export enum SocialMediaType {
+  Facebook = 'facebook',
+  X = 'x',
+  GitHub = 'github',
+  Crunchbase = 'crunchbase',
+  LinkedIn = 'linkedin',
+}
+
+export const opportunityEditOrganizationSchema = z.object({
+  organization: z.object({
+    website: z.string().url().optional().or(z.literal('')),
+    description: z.string().max(2000).optional(),
+    perks: z.array(z.string().max(240)).optional(),
+    founded: z
+      .number()
+      .int()
+      .min(1800)
+      .max(new Date().getFullYear())
+      .optional(),
+    location: z.string().max(240).optional(),
+    category: z.string().max(240).optional(),
+    size: z.number().optional(),
+    stage: z.number().optional(),
+    links: z
+      .array(
+        z.object({
+          type: z.enum(['custom', 'social', 'press']),
+          socialType: z.string().optional(),
+          title: z.string().max(240),
+          link: z.string().url(),
+        }),
+      )
+      .optional(),
+  }),
+});
