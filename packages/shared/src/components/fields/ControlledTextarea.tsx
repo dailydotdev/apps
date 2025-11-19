@@ -6,7 +6,10 @@ import type { BaseFieldProps } from './BaseFieldContainer';
 const ControlledTextarea = ({
   name,
   ...restProps
-}: Pick<BaseFieldProps<HTMLTextAreaElement>, 'name' | 'label'>) => {
+}: Pick<
+  BaseFieldProps<HTMLTextAreaElement>,
+  'name' | 'label' | 'maxLength'
+>) => {
   const { control } = useFormContext();
 
   return (
