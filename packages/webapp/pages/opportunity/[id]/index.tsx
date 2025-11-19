@@ -1002,7 +1002,6 @@ const JobPage = (): ReactElement => {
                       )}
                     </div>
                   </div>
-
                   {/* Description */}
                   <ShowMoreContent
                     content={recruiter?.bio}
@@ -1028,6 +1027,15 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
     return { notFound: true };
   }
 
+  if (id === 'null') {
+    return {
+      redirect: {
+        destination: '/opportunity/welcome',
+        permanent: false,
+      },
+    };
+  }
+
   try {
     const queryClient = new QueryClient();
     const opportunity = await queryClient.fetchQuery(
@@ -1035,12 +1043,7 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
     );
 
     if (!opportunity) {
-      return {
-        redirect: {
-          destination: '/opportunity/welcome',
-          permanent: false,
-        },
-      };
+      return { props: { opportunity: null }, revalidate: 60 };
     }
 
     const dehydratedState = dehydrate(queryClient);
@@ -1050,12 +1053,7 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
       revalidate: 300,
     };
   } catch (_e) {
-    return {
-      redirect: {
-        destination: '/opportunity/welcome',
-        permanent: false,
-      },
-    };
+    return { props: { opportunity: null }, revalidate: 60 };
   }
 };
 
