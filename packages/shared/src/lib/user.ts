@@ -109,7 +109,7 @@ export interface UserProfile {
   defaultFeedId?: string;
   readme?: string;
   image?: string;
-  locationId?: string;
+  externalLocationId?: string;
 }
 
 export interface UserShortProfile

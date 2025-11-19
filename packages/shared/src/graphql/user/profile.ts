@@ -43,6 +43,7 @@ const USER_EXPERIENCE_FRAGMENT = gql`
       city
       subdivision
       country
+      externalId
     }
     skills {
       value
@@ -76,6 +77,7 @@ const workProps = `
     city
     subdivision
     country
+    externalId
   }
   skills {
     value

@@ -7,6 +7,7 @@ export type TLocation = {
   city?: string;
   country: string;
   subdivision?: string;
+  externalId?: string;
 };
 
 export enum AutocompleteType {

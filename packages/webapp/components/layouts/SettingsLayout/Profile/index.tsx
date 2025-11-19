@@ -45,7 +45,6 @@ const Section = classed('section', 'flex flex-col gap-7');
 
 const ProfileIndex = (): ReactElement => {
   const { user } = useContext(AuthContext);
-
   const { methods, save, isLoading } = useUserInfoForm();
 
   const handleSubmit = methods.handleSubmit(() => save());
@@ -103,7 +102,7 @@ const ProfileIndex = (): ReactElement => {
             <HorizontalSeparator />
             <Section>
               <ProfileLocation
-                locationName="locationId"
+                locationName="externalLocationId"
                 defaultValue={user?.location}
               />
             </Section>

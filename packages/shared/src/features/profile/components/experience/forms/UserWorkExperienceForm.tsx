@@ -67,7 +67,7 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
           <ProfileLocation
-            locationName="locationId"
+            locationName="externalLocationId"
             typeName="locationType"
             defaultValue={location}
           />
