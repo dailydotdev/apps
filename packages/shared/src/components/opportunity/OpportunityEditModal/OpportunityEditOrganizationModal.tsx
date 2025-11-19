@@ -51,9 +51,10 @@ type LinksInputProps = {
   links: LinkItem[];
   onAdd: (link: LinkItem) => void;
   onRemove: (index: number) => void;
+  error?: string;
 };
 
-const LinksInput = ({ links, onAdd, onRemove }: LinksInputProps) => {
+const LinksInput = ({ links, onAdd, onRemove, error }: LinksInputProps) => {
   const [linkType, setLinkType] = useState<OrganizationLinkType>(
     OrganizationLinkType.Social,
   );
@@ -242,6 +243,15 @@ const LinksInput = ({ links, onAdd, onRemove }: LinksInputProps) => {
           ))}
         </div>
       )}
+
+      {error && (
+        <Typography
+          type={TypographyType.Footnote}
+          className="text-status-error"
+        >
+          {error}
+        </Typography>
+      )}
     </div>
   );
 };
@@ -419,7 +429,7 @@ export const OpportunityEditOrganizationModal = ({
       const shouldSave = await showPrompt(opportunityEditDiscardPrompt);
 
       if (shouldSave) {
-        onSubmit();
+        await onSubmit();
 
         return;
       }
@@ -547,6 +557,7 @@ export const OpportunityEditOrganizationModal = ({
                 { shouldDirty: true },
               );
             }}
+            error={errors.organization?.links?.message}
           />
         </div>
         <div className="flex flex-col gap-2">

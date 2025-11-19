@@ -191,9 +191,9 @@ export const opportunityEditOrganizationSchema = z.object({
       .array(
         z.object({
           type: z.enum(['custom', 'social', 'press']),
-          socialType: z.string().optional(),
-          title: z.string().max(240),
-          link: z.string().url(),
+          socialType: z.string().nullish(),
+          title: z.string().max(240).nullish(),
+          link: z.string(),
         }),
       )
       .optional(),
