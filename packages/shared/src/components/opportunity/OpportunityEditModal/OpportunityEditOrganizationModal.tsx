@@ -33,29 +33,31 @@ import { TagElement } from '../../feeds/FeedSettings/TagElement';
 import { FeedbackIcon, PlusIcon, MiniCloseIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import ImageInput from '../../fields/ImageInput';
+import type {
+  OrganizationLink as OrgLink,
+  OrganizationSocialLink,
+} from '../../../features/organizations/types';
+import { OrganizationLinkType } from '../../../features/organizations/types';
 
 export type OpportunityEditOrganizationModalProps = {
   id: string;
 };
 
-type OrganizationLink = {
-  type: 'custom' | 'social' | 'press';
-  socialType?: string;
-  title: string;
-  link: string;
+type LinkItem = (OrgLink | OrganizationSocialLink) & {
+  title?: string;
 };
 
 type LinksInputProps = {
-  links: OrganizationLink[];
-  onAdd: (link: OrganizationLink) => void;
+  links: LinkItem[];
+  onAdd: (link: LinkItem) => void;
   onRemove: (index: number) => void;
 };
 
 const LinksInput = ({ links, onAdd, onRemove }: LinksInputProps) => {
-  const [linkType, setLinkType] = useState<'custom' | 'social' | 'press'>(
-    'social',
+  const [linkType, setLinkType] = useState<OrganizationLinkType>(
+    OrganizationLinkType.Social,
   );
-  const [socialType, setSocialType] = useState('');
+  const [socialType, setSocialType] = useState<SocialMediaType | ''>('');
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
 
@@ -73,29 +75,27 @@ const LinksInput = ({ links, onAdd, onRemove }: LinksInputProps) => {
       return;
     }
 
-    // For social links, title and socialType are required
-    if (linkType === 'social' && !socialType) {
-      return;
-    }
+    let newLink: LinkItem;
 
-    // For non-social links, title is required
-    if (linkType !== 'social' && !title.trim()) {
-      return;
-    }
-
-    const newLink: OrganizationLink = {
-      type: linkType,
-      // For social links, use socialType as title if no custom title provided
-      title:
-        title.trim() ||
-        (linkType === 'social' && socialType
-          ? socialType.charAt(0).toUpperCase() + socialType.slice(1)
-          : ''),
-      link: url.trim(),
-    };
-
-    if (linkType === 'social' && socialType) {
-      newLink.socialType = socialType;
+    if (linkType === OrganizationLinkType.Social) {
+      if (!socialType) {
+        return;
+      }
+      newLink = {
+        type: OrganizationLinkType.Social,
+        link: url.trim(),
+        socialType,
+        title: title.trim() || undefined,
+      };
+    } else {
+      if (!title.trim()) {
+        return;
+      }
+      newLink = {
+        type: linkType,
+        link: url.trim(),
+        title: title.trim(),
+      };
     }
 
     onAdd(newLink);
@@ -122,13 +122,18 @@ const LinksInput = ({ links, onAdd, onRemove }: LinksInputProps) => {
               )}
               options={linkTypeOptions}
               onChange={(value) => {
-                setLinkType(
-                  value.toLowerCase() as 'custom' | 'social' | 'press',
-                );
+                const lowerValue = value.toLowerCase();
+                if (lowerValue === 'custom') {
+                  setLinkType(OrganizationLinkType.Custom);
+                } else if (lowerValue === 'press') {
+                  setLinkType(OrganizationLinkType.Press);
+                } else {
+                  setLinkType(OrganizationLinkType.Social);
+                }
               }}
             />
           </div>
-          {linkType === 'social' && (
+          {linkType === OrganizationLinkType.Social && (
             <div className="flex-1">
               <Typography
                 type={TypographyType.Caption1}
@@ -145,7 +150,7 @@ const LinksInput = ({ links, onAdd, onRemove }: LinksInputProps) => {
                 }
                 options={socialTypeOptions}
                 onChange={(value: string) => {
-                  setSocialType(value);
+                  setSocialType(value as SocialMediaType);
                 }}
               />
             </div>
@@ -154,9 +159,13 @@ const LinksInput = ({ links, onAdd, onRemove }: LinksInputProps) => {
         <TextField
           type="text"
           inputId="linkTitle"
-          label={linkType === 'social' ? 'Title (optional)' : 'Title'}
+          label={
+            linkType === OrganizationLinkType.Social
+              ? 'Title (optional)'
+              : 'Title'
+          }
           placeholder={
-            linkType === 'social'
+            linkType === OrganizationLinkType.Social
               ? 'Leave empty to use platform name'
               : 'e.g., Blog, Press Release'
           }
@@ -200,14 +209,14 @@ const LinksInput = ({ links, onAdd, onRemove }: LinksInputProps) => {
                 <div className="flex items-center gap-2">
                   <Typography type={TypographyType.Callout} bold>
                     {link.title ||
-                      (link.socialType
+                      ('socialType' in link
                         ? link.socialType.charAt(0).toUpperCase() +
                           link.socialType.slice(1)
                         : 'Link')}
                   </Typography>
                   <span className="rounded-6 bg-surface-float px-2 py-0.5 text-text-tertiary typo-caption2">
                     {link.type}
-                    {link.socialType && ` • ${link.socialType}`}
+                    {'socialType' in link && ` • ${link.socialType}`}
                   </span>
                 </div>
                 <Typography
@@ -353,14 +362,8 @@ export const OpportunityEditOrganizationModal = ({
           founded: opportunityData.organization.founded || undefined,
           location: opportunityData.organization.location || '',
           category: opportunityData.organization.category || '',
-          size:
-            typeof opportunityData.organization.size === 'number'
-              ? opportunityData.organization.size
-              : opportunityData.organization.size?.value || undefined,
-          stage:
-            typeof opportunityData.organization.stage === 'number'
-              ? opportunityData.organization.stage
-              : opportunityData.organization.stage?.value || undefined,
+          size: opportunityData.organization.size || undefined,
+          stage: opportunityData.organization.stage || undefined,
           links: allLinks,
         },
       };
@@ -540,9 +543,7 @@ export const OpportunityEditOrganizationModal = ({
             onRemove={(index) => {
               setValue(
                 'organization.links',
-                links.filter(
-                  (_link: OrganizationLink, i: number) => i !== index,
-                ),
+                links.filter((_link: LinkItem, i: number) => i !== index),
                 { shouldDirty: true },
               );
             }}
