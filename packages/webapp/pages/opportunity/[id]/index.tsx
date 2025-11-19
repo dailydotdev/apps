@@ -654,25 +654,26 @@ const JobPage = (): ReactElement => {
 
         {/* Sidebar */}
         <FlexCol className="h-full flex-1 flex-shrink-0 gap-4 laptop:max-w-80">
-          {/* How it works button */}
-          <FlexCol
-            className={classNames(
-              'mx-4 flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary tablet:mx-0',
-            )}
-          >
-            <Link href={`${opportunityUrl}/welcome`} passHref>
-              <Button
-                tag="a"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Medium}
-                icon={<InfoIcon />}
-                iconPosition={ButtonIconPosition.Left}
-                className="w-full"
-              >
-                How it works
-              </Button>
-            </Link>
-          </FlexCol>
+          {!canEdit && (
+            <FlexCol
+              className={classNames(
+                'mx-4 flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary tablet:mx-0',
+              )}
+            >
+              <Link href={`${opportunityUrl}/welcome`} passHref>
+                <Button
+                  tag="a"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Medium}
+                  icon={<InfoIcon />}
+                  iconPosition={ButtonIconPosition.Left}
+                  className="w-full"
+                >
+                  How it works
+                </Button>
+              </Link>
+            </FlexCol>
+          )}
 
           {/* Company Info */}
           <FlexCol
@@ -690,6 +691,20 @@ const JobPage = (): ReactElement => {
               >
                 Company
               </Typography>
+
+              <OpportunityEditButton
+                onClick={() => {
+                  openModal({
+                    type: LazyModal.OpportunityEdit,
+                    props: {
+                      type: 'organization',
+                      payload: {
+                        id: opportunity.id,
+                      },
+                    },
+                  });
+                }}
+              />
 
               {opportunity.organization.website && (
                 <Link href={opportunity.organization.website} passHref>

@@ -7,11 +7,14 @@ import { OpportunityEditContentModal } from './OpportunityEditContentModal';
 import type { ModalProps } from '../../modals/common/Modal';
 import type { OpportunityEditQuestionModalProps } from './OpportunityEditQuestionModal';
 import { OpportunityEditQuestionModal } from './OpportunityEditQuestionModal';
+import type { OpportunityEditOrganizationModalProps } from './OpportunityEditOrganizationModal';
+import { OpportunityEditOrganizationModal } from './OpportunityEditOrganizationModal';
 
 type PayloadMap = {
   info: OpportunityEditInfoModalProps;
   content: OpportunityEditContentModalProps;
   question: OpportunityEditQuestionModalProps;
+  organization: OpportunityEditOrganizationModalProps;
 };
 
 export type OpportunityEditModalProps = {
@@ -29,6 +32,8 @@ export const OpportunityEditModal = (props: OpportunityEditModalProps) => {
       return <OpportunityEditContentModal {...rest} {...payload} />;
     case 'question':
       return <OpportunityEditQuestionModal {...rest} {...payload} />;
+    case 'organization':
+      return <OpportunityEditOrganizationModal {...rest} {...payload} />;
     default:
       return null;
   }
