@@ -328,6 +328,8 @@ export enum LogEvent {
   ApproveOpportunityMatch = 'approve opportunity match',
   AnswerScreeningQuestion = 'answer screening question',
   CompleteScreening = 'complete screening',
+  AnswerFeedbackQuestion = 'answer feedback question',
+  CompleteFeedback = 'complete feedback',
   ConfirmCandidateContact = 'confirm candidate contact',
   SelectCandidateAvailability = 'select candidate availability',
   UpdateCandidatePreferences = 'update candidate preferences',
@@ -438,6 +440,9 @@ export enum TargetId {
   OpportunityUnavailablePage = 'opportunity unavailable page',
   OpportunityWelcomePage = 'opportunity welcome page',
   ProfileSettingsMenu = 'profile settings menu',
+  Fullscreen = 'fullscreen',
+  Popover = 'popover',
+  Navigation = 'navigation',
 }
 
 export enum NotificationChannel {

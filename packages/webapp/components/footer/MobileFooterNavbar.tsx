@@ -5,28 +5,25 @@ import { Flipper } from 'react-flip-toolkit';
 import {
   AiIcon,
   BellIcon,
-  BookmarkIcon,
-  DevPlusIcon,
   HomeIcon,
+  JobIcon,
   SourceIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { UseActiveNav } from '@dailydotdev/shared/src/hooks/useActiveNav';
 import useActiveNav from '@dailydotdev/shared/src/hooks/useActiveNav';
-import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
+import {
+  squadCategoriesPaths,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
-
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { useLogOpportunityNudgeClick } from '@dailydotdev/shared/src/hooks/log/useLogOpportunityNudgeClick';
+import { useAlertsContext } from '@dailydotdev/shared/src/contexts/AlertContext';
 import type { FooterTab } from './common';
 import { blurClasses } from './common';
 import { FooterNavBarTabs } from './FooterNavBarTabs';
@@ -46,6 +43,25 @@ const Notifications = ({ active }: { active: boolean }): JSX.Element => {
   );
 };
 
+const Jobs = ({
+  active,
+  hasOpportunity,
+}: {
+  active: boolean;
+  hasOpportunity: boolean;
+}): ReactElement => {
+  return (
+    <div className="relative">
+      <JobIcon secondary={active} size={IconSize.Medium} />
+      {hasOpportunity && (
+        <Bubble className="-right-1.5 -top-0.5 !min-h-4 !min-w-4 cursor-pointer !rounded-full !bg-accent-bacon-default px-1 !typo-caption2">
+          1
+        </Bubble>
+      )}
+    </div>
+  );
+};
+
 const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   home: 'Home',
   explore: 'Explore',
@@ -53,40 +69,23 @@ const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   notifications: 'Activity',
   squads: 'Squads',
   profile: 'Profile',
+  jobs: 'Jobs',
 };
 
 const MobileFooterNavbar = (): ReactElement => {
   const router = useRouter();
-  const { user, squads, isValidRegion } = useContext(AuthContext);
+  const { user, squads } = useContext(AuthContext);
+  const { alerts } = useAlertsContext();
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
   const activeNav = useActiveNav(feedName);
-  const showPlusButton = isValidRegion && !user?.isPlus;
+  const hasOpportunity = alerts?.opportunityId;
   const hasSquads = squads?.length > 0;
   const squadsUrl = hasSquads
     ? squadCategoriesPaths['My Squads']
     : squadCategoriesPaths.discover;
+  const logOpportunityNudgeClick = useLogOpportunityNudgeClick();
 
   const tabs: (FooterTab | ReactNode)[] = useMemo(() => {
-    const centerTab = showPlusButton ? (
-      <Link key="subscribe-plus" href="/plus">
-        <div className="flex flex-col items-center text-accent-avocado-default">
-          <DevPlusIcon size={IconSize.Medium} />
-          <Typography tag={TypographyTag.Span} type={TypographyType.Caption2}>
-            Upgrade
-          </Typography>
-        </div>
-      </Link>
-    ) : (
-      {
-        requiresLogin: true,
-        path: '/bookmarks',
-        title: 'Bookmarks',
-        icon: (active: boolean) => (
-          <BookmarkIcon secondary={active} size={IconSize.Medium} />
-        ),
-      }
-    );
-
     return [
       {
         requiresLogin: true,
@@ -104,7 +103,6 @@ const MobileFooterNavbar = (): ReactElement => {
           <AiIcon secondary={active} size={IconSize.Medium} />
         ),
       },
-      centerTab,
       {
         requiresLogin: true,
         path: '/notifications',
@@ -118,8 +116,16 @@ const MobileFooterNavbar = (): ReactElement => {
           <SourceIcon secondary={active} size={IconSize.Medium} />
         ),
       },
+      {
+        path: `${webappUrl}opportunity/${hasOpportunity || 'welcome'}`,
+        title: 'Jobs',
+        icon: (active: boolean) => (
+          <Jobs active={active} hasOpportunity={!!hasOpportunity} />
+        ),
+        onClick: logOpportunityNudgeClick,
+      },
     ];
-  }, [squadsUrl, showPlusButton]);
+  }, [squadsUrl, logOpportunityNudgeClick, hasOpportunity]);
 
   const activeTab = useMemo(() => {
     const activeKey = Object.keys(activeNav).find((key) => activeNav[key]);

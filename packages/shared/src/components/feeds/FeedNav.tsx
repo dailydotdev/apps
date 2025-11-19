@@ -31,7 +31,6 @@ import { SharedFeedPage } from '../utilities';
 import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
-import { JobOpportunityButton } from '../../features/opportunity/components/JobOpportunityButton';
 import { useAlertsContext } from '../../contexts/AlertContext';
 
 enum FeedNavTab {
@@ -155,14 +154,18 @@ function FeedNav(): ReactElement {
     return null;
   }
 
+  const headerTransitionClasses =
+    isMobile && hasOpportunityAlert
+      ? '-translate-y-[7.5rem] duration-[800ms]'
+      : '-translate-y-26 duration-[800ms]';
+
   return (
     <div
       className={classNames(
         'sticky top-0 z-header w-full transition-transform tablet:pl-16',
         scrollClassName,
-        isHeaderVisible
-          ? 'translate-y-0 duration-200'
-          : '-translate-y-26 duration-[800ms]',
+        isHeaderVisible && 'translate-y-0 duration-200',
+        !isHeaderVisible && headerTransitionClasses,
       )}
     >
       {isMobile && <MobileFeedActions />}
@@ -233,11 +236,6 @@ function FeedNav(): ReactElement {
           <NotificationsBell compact />
         </div>
       </div>
-      {hasOpportunityAlert && isMobile && (
-        <div className="mx-4">
-          <JobOpportunityButton className="w-full" />
-        </div>
-      )}
       {isForYouTab && plusEntryForYou && (
         <PlusMobileEntryBanner
           targetType={TargetType.PlusEntryForYouTab}

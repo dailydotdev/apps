@@ -65,7 +65,7 @@ export const SquadList = ({
         >
           {campaignId && (
             <strong>
-              Boosted <Separator />
+              Promoted <Separator />
             </strong>
           )}
           @{squad.handle}

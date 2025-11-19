@@ -6,10 +6,14 @@ import {
   CANDIDATE_KEYWORD_ADD_MUTATION,
   CANDIDATE_KEYWORD_REMOVE_MUTATION,
   CLEAR_EMPLOYMENT_AGREEMENT_MUTATION,
+  CLEAR_ORGANIZATION_IMAGE_MUTATION,
   CLEAR_RESUME_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
+  RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION,
+  RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION,
   REJECT_OPPORTUNITY_MATCH,
+  SAVE_OPPORTUNITY_FEEDBACK_ANSWERS,
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
   UPDATE_OPPORTUNITY_STATE_MUTATION,
@@ -27,6 +31,7 @@ import type { UseUpdateQuery } from '../../hooks/useUpdateQuery';
 import type {
   opportunityEditContentSchema,
   opportunityEditInfoSchema,
+  opportunityEditOrganizationSchema,
   opportunityEditQuestionsSchema,
 } from '../../lib/schema/opportunity';
 import type { OpportunityState } from './protobuf/opportunity';
@@ -67,6 +72,23 @@ export const saveOpportunityScreeningAnswersMutationOptions = (
   return {
     mutationFn: async (answers) => {
       return gqlClient.request(SAVE_OPPORTUNITY_SCREENING_ANSWERS, {
+        id: opportunityId,
+        answers,
+      });
+    },
+  };
+};
+
+export const saveOpportunityFeedbackAnswersMutationOptions = (
+  opportunityId: string,
+): MutationOptions<
+  EmptyResponse,
+  DefaultError,
+  Array<OpportunityScreeningAnswer>
+> => {
+  return {
+    mutationFn: async (answers) => {
+      return gqlClient.request(SAVE_OPPORTUNITY_FEEDBACK_ANSWERS, {
         id: opportunityId,
         answers,
       });
@@ -275,6 +297,42 @@ export const editOpportunityQuestionMutationOptions = () => {
   };
 };
 
+export const editOpportunityOrganizationMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+      organizationImage,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditOrganizationSchema>;
+      organizationImage?: File;
+    }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
+        payload,
+        organizationImage,
+      });
+
+      return result.editOpportunity;
+    },
+  };
+};
+
+export const clearOrganizationImageMutationOptions = (): MutationOptions<
+  EmptyResponse,
+  DefaultError,
+  { id: string }
+> => {
+  return {
+    mutationFn: async ({ id }: { id: string }) => {
+      return gqlClient.request(CLEAR_ORGANIZATION_IMAGE_MUTATION, { id });
+    },
+  };
+};
+
 export const recommendOpportunityScreeningQuestionsOptions = () => {
   return {
     mutationFn: async ({ id }: { id: string }) => {
@@ -313,3 +371,35 @@ export const updateOpportunityStateOptions = () => {
     },
   };
 };
+
+export const recruiterAcceptOpportunityMatchMutationOptions =
+  (): MutationOptions<
+    EmptyResponse,
+    DefaultError,
+    { opportunityId: string; candidateUserId: string }
+  > => {
+    return {
+      mutationFn: async ({ opportunityId, candidateUserId }) => {
+        return gqlClient.request(RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION, {
+          opportunityId,
+          candidateUserId,
+        });
+      },
+    };
+  };
+
+export const recruiterRejectOpportunityMatchMutationOptions =
+  (): MutationOptions<
+    EmptyResponse,
+    DefaultError,
+    { opportunityId: string; candidateUserId: string }
+  > => {
+    return {
+      mutationFn: async ({ opportunityId, candidateUserId }) => {
+        return gqlClient.request(RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION, {
+          opportunityId,
+          candidateUserId,
+        });
+      },
+    };
+  };

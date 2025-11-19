@@ -46,6 +46,10 @@ export default function ShowMoreContent({
     return `${text} `;
   }, [isTextExpanded, showMore.isVisible, content, charactersLimit]);
 
+  if (!content) {
+    return <></>;
+  }
+
   return (
     <div className={className?.wrapper}>
       <p

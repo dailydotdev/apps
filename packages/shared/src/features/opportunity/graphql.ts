@@ -10,8 +10,11 @@ export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
 
 export const GCS_BLOB_FRAGMENT = gql`
   fragment GCSBlob on GCSBlob {
+    blob
     fileName
+    contentType
     lastModified
+    signedUrl
   }
 `;
 
@@ -26,6 +29,14 @@ export const LINK_FRAGMENT = gql`
 
 export const QUESTION_FRAGMENT = gql`
   fragment OpportunityScreeningQuestionFragment on OpportunityScreeningQuestion {
+    id
+    title
+    placeholder
+  }
+`;
+
+export const FEEDBACK_QUESTION_FRAGMENT = gql`
+  fragment OpportunityFeedbackQuestionFragment on OpportunityFeedbackQuestion {
     id
     title
     placeholder
@@ -111,11 +122,15 @@ export const OPPORTUNITY_FRAGMENT = gql`
     questions {
       ...OpportunityScreeningQuestionFragment
     }
+    feedbackQuestions {
+      ...OpportunityFeedbackQuestionFragment
+    }
   }
   ${ORGANIZATION_SHORT_FRAGMENT}
   ${OPPORTUNITY_CONTENT_FRAGMENT}
   ${LINK_FRAGMENT}
   ${QUESTION_FRAGMENT}
+  ${FEEDBACK_QUESTION_FRAGMENT}
 `;
 
 export const OPPORTUNITY_BY_ID_QUERY = gql`
@@ -127,6 +142,48 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
   ${OPPORTUNITY_FRAGMENT}
 `;
 
+export const OPPORTUNITY_MATCH_FRAGMENT = gql`
+  fragment OpportunityMatchFragment on OpportunityMatch {
+    status
+    description {
+      reasoning
+    }
+    userId
+    opportunityId
+    createdAt
+    updatedAt
+    user {
+      id
+      name
+      username
+      image
+      bio
+      reputation
+      linkedin
+    }
+    candidatePreferences {
+      status
+      role
+      roleType
+      cv {
+        ...GCSBlob
+      }
+    }
+    screening {
+      screening
+      answer
+    }
+    feedback {
+      screening
+      answer
+    }
+    engagementProfile {
+      profileText
+    }
+  }
+  ${GCS_BLOB_FRAGMENT}
+`;
+
 export const GET_OPPORTUNITY_MATCH_QUERY = gql`
   query GetOpportunityMatch($id: ID!) {
     getOpportunityMatch(id: $id) {
@@ -136,6 +193,28 @@ export const GET_OPPORTUNITY_MATCH_QUERY = gql`
       }
     }
   }
+`;
+
+export const OPPORTUNITY_MATCHES_QUERY = gql`
+  query OpportunityMatches($opportunityId: ID!, $after: String, $first: Int) {
+    opportunityMatches(
+      opportunityId: $opportunityId
+      after: $after
+      first: $first
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          ...OpportunityMatchFragment
+        }
+        cursor
+      }
+    }
+  }
+  ${OPPORTUNITY_MATCH_FRAGMENT}
 `;
 
 export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
@@ -209,6 +288,17 @@ export const SAVE_OPPORTUNITY_SCREENING_ANSWERS = gql`
   }
 `;
 
+export const SAVE_OPPORTUNITY_FEEDBACK_ANSWERS = gql`
+  mutation SaveOpportunityFeedbackAnswers(
+    $id: ID!
+    $answers: [OpportunityScreeningAnswerInput!]!
+  ) {
+    saveOpportunityFeedbackAnswers(id: $id, answers: $answers) {
+      _
+    }
+  }
+`;
+
 export const ACCEPT_OPPORTUNITY_MATCH = gql`
   mutation AcceptOpportunityMatch($id: ID!) {
     acceptOpportunityMatch(id: $id) {
@@ -275,12 +365,28 @@ export const CLEAR_EMPLOYMENT_AGREEMENT_MUTATION = gql`
 `;
 
 export const EDIT_OPPORTUNITY_MUTATION = gql`
-  mutation EditOpportunity($id: ID!, $payload: OpportunityEditInput!) {
-    editOpportunity(id: $id, payload: $payload) {
+  mutation EditOpportunity(
+    $id: ID!
+    $payload: OpportunityEditInput!
+    $organizationImage: Upload
+  ) {
+    editOpportunity(
+      id: $id
+      payload: $payload
+      organizationImage: $organizationImage
+    ) {
       ...OpportunityFragment
     }
   }
   ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const CLEAR_ORGANIZATION_IMAGE_MUTATION = gql`
+  mutation ClearOrganizationImage($id: ID!) {
+    clearOrganizationImage(id: $id) {
+      _
+    }
+  }
 `;
 
 export const RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION = gql`
@@ -295,6 +401,51 @@ export const RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION = gql`
 export const UPDATE_OPPORTUNITY_STATE_MUTATION = gql`
   mutation UpdateOpportunityState($id: ID!, $state: ProtoEnumValue!) {
     updateOpportunityState(id: $id, state: $state) {
+      _
+    }
+  }
+`;
+
+export const OPPORTUNITIES_QUERY = gql`
+  query Opportunities($state: ProtoEnumValue, $after: String, $first: Int) {
+    opportunities(state: $state, after: $after, first: $first) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          ...OpportunityFragment
+        }
+      }
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION = gql`
+  mutation RecruiterAcceptOpportunityMatch(
+    $opportunityId: ID!
+    $candidateUserId: ID!
+  ) {
+    recruiterAcceptOpportunityMatch(
+      opportunityId: $opportunityId
+      candidateUserId: $candidateUserId
+    ) {
+      _
+    }
+  }
+`;
+
+export const RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION = gql`
+  mutation RecruiterRejectOpportunityMatch(
+    $opportunityId: ID!
+    $candidateUserId: ID!
+  ) {
+    recruiterRejectOpportunityMatch(
+      opportunityId: $opportunityId
+      candidateUserId: $candidateUserId
+    ) {
       _
     }
   }

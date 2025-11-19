@@ -130,7 +130,7 @@ export function BoostSourceButton({
       wrapper={(component) => (
         <Tooltip
           className="max-w-64"
-          content={`The Squad is currently being boosted by ${
+          content={`The Squad is currently being promoted by ${
             campaign.user.name
           }. You can start a new boost once this one ends on ${campaign.endedAt.toLocaleString()}`}
         >

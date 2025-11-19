@@ -381,3 +381,11 @@ export const autofillProfileCover =
   'https://media.daily.dev/image/upload/s--0pMFz3kQ--/f_auto/v1757577987/public/Autofill%20your%20profile!';
 export const adFaviconPlaceholder =
   'https://media.daily.dev/image/upload/s--SOLIE7Bc--/f_auto/v1761801782/webapp/daily.dev_-_Boost_Icon';
+export const jobOfferDarkDesktop =
+  'https://media.daily.dev/image/upload/s--s5wQXzyd--/f_auto/v1762845657/public/jobmatch-web-dark';
+export const jobOfferLightDesktop =
+  'https://media.daily.dev/image/upload/s--owB1BPLg--/f_auto/v1762845657/public/jobmatch-web-light';
+export const jobOfferDarkMobile =
+  'https://media.daily.dev/image/upload/s--GadTanSG--/f_auto/v1762845821/public/jobmatch-mobile-dark';
+export const jobOfferLightMobile =
+  'https://media.daily.dev/image/upload/s--woqk56k5--/f_auto/v1762845946/public/jobmatch-mobile-light';
