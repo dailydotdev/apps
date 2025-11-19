@@ -340,11 +340,9 @@ export const OpportunityEditOrganizationModal = ({
       const opportunityData = await promise;
 
       // Merge all link types into a single array
-      const customLinks =
-        (opportunityData.organization as any).customLinks || [];
-      const socialLinks =
-        (opportunityData.organization as any).socialLinks || [];
-      const pressLinks = (opportunityData.organization as any).pressLinks || [];
+      const customLinks = opportunityData.organization.customLinks || [];
+      const socialLinks = opportunityData.organization.socialLinks || [];
+      const pressLinks = opportunityData.organization.pressLinks || [];
       const allLinks = [...customLinks, ...socialLinks, ...pressLinks];
 
       return {
@@ -358,11 +356,11 @@ export const OpportunityEditOrganizationModal = ({
           size:
             typeof opportunityData.organization.size === 'number'
               ? opportunityData.organization.size
-              : (opportunityData.organization.size as any)?.value || undefined,
+              : opportunityData.organization.size?.value || undefined,
           stage:
             typeof opportunityData.organization.stage === 'number'
               ? opportunityData.organization.stage
-              : (opportunityData.organization.stage as any)?.value || undefined,
+              : opportunityData.organization.stage?.value || undefined,
           links: allLinks,
         },
       };
@@ -380,7 +378,7 @@ export const OpportunityEditOrganizationModal = ({
         id,
         payload: data as z.infer<typeof opportunityEditOrganizationSchema>,
         organizationImage: organizationImageFile || undefined,
-      } as any);
+      });
     } catch (originalError) {
       if (
         originalError.response?.errors?.[0]?.extensions?.code ===
@@ -623,7 +621,7 @@ export const OpportunityEditOrganizationModal = ({
                     field.onChange(valueIndex + 1);
                   }}
                   valid={!errors.organization?.size}
-                  hint={errors.organization?.size?.message}
+                  hint={errors.organization?.size?.message as string}
                 />
               );
             }}
@@ -649,7 +647,7 @@ export const OpportunityEditOrganizationModal = ({
                     field.onChange(valueIndex + 1);
                   }}
                   valid={!errors.organization?.stage}
-                  hint={errors.organization?.stage?.message}
+                  hint={errors.organization?.stage?.message as string}
                 />
               );
             }}

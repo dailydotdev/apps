@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -7,7 +8,6 @@ import {
 } from '../typography/Typography';
 import { VIcon } from '../icons';
 import classed from '../../lib/classed';
-import classNames from 'classnames';
 
 const ProgressItemIcon = classed(
   'div',
