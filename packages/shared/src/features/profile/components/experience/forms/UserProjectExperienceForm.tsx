@@ -15,23 +15,35 @@ import { profileSecondaryFieldStyles } from '../../../common';
 import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
 
 type FormCopy = {
+  titlePlaceholder: string;
   switchLabel: string;
   switchDescription: string;
+  company: string;
+  startedtLabel: string;
+  urlLabel: string;
 };
 
 const getFormCopy = (type: UserExperienceType): FormCopy => {
   if (type === UserExperienceType.OpenSource) {
     return {
+      titlePlaceholder: 'Ex: Name of the repository',
       switchLabel: 'Active open-source contribution',
       switchDescription:
         'Check if you are still actively contributing to this open-source project.',
+      company: 'Repository*',
+      startedtLabel: 'Active from',
+      urlLabel: 'Repository URL',
     };
   }
 
   return {
+    titlePlaceholder: 'Ex: Name of the publication or article',
     switchLabel: 'Ongoing project/publication',
     switchDescription:
       'Check if this project or publication is currently active or ongoing.',
+    company: 'Publisher*',
+    startedtLabel: 'Publication Date',
+    urlLabel: 'Publication URL',
   };
 };
 
@@ -45,13 +57,13 @@ const UserProjectExperienceForm = () => {
         <ControlledTextField
           name="title"
           label="Title*"
-          placeholder="Ex: Name of the publication or article"
+          placeholder={copy.titlePlaceholder}
           fieldType="secondary"
           className={profileSecondaryFieldStyles}
         />
         <ProfileCompany
           name="customCompanyName"
-          label="Publisher*"
+          label={copy.company}
           type={AutocompleteType.Company}
         />
       </div>
@@ -62,7 +74,7 @@ const UserProjectExperienceForm = () => {
       />
       <div className="flex flex-col gap-2">
         <Typography type={TypographyType.Callout} bold>
-          Publication Date*
+          {copy.startedtLabel}*
         </Typography>
         <ProfileMonthYearSelect
           name="startedAt"
@@ -74,7 +86,7 @@ const UserProjectExperienceForm = () => {
       <div className="flex flex-col gap-2">
         <ControlledTextField
           name="url"
-          label="Publication URL"
+          label={copy.urlLabel}
           placeholder="Ex: Validates against URL format"
           fieldType="secondary"
           className={profileSecondaryFieldStyles}
