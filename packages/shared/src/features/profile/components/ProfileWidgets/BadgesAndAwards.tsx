@@ -83,7 +83,7 @@ export const BadgesAndAwards = ({
 
       <div className="my-3 flex gap-3">
         <SummaryCard
-          count={`x${topReaders[0]?.total ?? 0}`}
+          count={`x${topReaders?.[0]?.total ?? 0}`}
           label="Top reader badge"
         />
         <SummaryCard count={`x${totalAwards}`} label="Total Awards" />
