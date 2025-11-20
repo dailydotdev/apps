@@ -362,6 +362,13 @@ const RecruiterJobLinkModal = dynamic(
     ),
 );
 
+const RecruiterSignInModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterSignInModal" */ './recruiter/RecruiterSignInModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -421,6 +428,7 @@ export const modals = {
   [LazyModal.RecruiterIntro]: RecruiterIntroModal,
   [LazyModal.RecruiterTrust]: RecruiterTrustModal,
   [LazyModal.RecruiterJobLink]: RecruiterJobLinkModal,
+  [LazyModal.RecruiterSignIn]: RecruiterSignInModal,
 };
 
 type GetComponentProps<T> = T extends

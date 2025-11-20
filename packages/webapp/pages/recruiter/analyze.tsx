@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Typography,
   TypographyColor,
@@ -16,6 +16,10 @@ import { Chip } from '@dailydotdev/shared/src/components/cards/common/PostTags';
 import { AnonymousUserTable } from '@dailydotdev/shared/src/components/recruiter/AnonymousUserTable';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import { RecruiterProgress } from '@dailydotdev/shared/src/components/recruiter/Progress';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useRouter } from 'next/router';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
 
 type LoadingBlockItemProps = {
@@ -277,9 +281,28 @@ const ContentSidebar = () => {
 };
 
 function RecruiterPage(): ReactElement {
+  const router = useRouter();
+  const { user } = useAuthContext();
+  const { openModal } = useLazyModal();
+
+  const handlePrepareCampaignClick = useCallback(() => {
+    if (!user) {
+      openModal({
+        type: LazyModal.RecruiterSignIn,
+      });
+    } else {
+      router.push('/recruiter/prepare');
+    }
+  }, [user, openModal, router]);
+
   return (
     <div className="flex flex-1 flex-col">
-      <RecruiterHeader />
+      <RecruiterHeader
+        headerButton={{
+          text: 'Prepare campaign',
+          onClick: handlePrepareCampaignClick,
+        }}
+      />
       <RecruiterProgress />
       <div className="flex flex-1">
         <ContentSidebar />

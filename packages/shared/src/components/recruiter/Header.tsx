@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import React from 'react';
 import {
   Typography,
@@ -7,7 +8,17 @@ import {
 import { MoveToIcon } from '../icons';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 
-export const RecruiterHeader = () => {
+export interface RecruiterHeaderButton {
+  text: string;
+  icon?: ReactNode;
+  onClick?: () => void;
+}
+
+export interface RecruiterHeaderProps {
+  headerButton?: RecruiterHeaderButton;
+}
+
+export const RecruiterHeader = ({ headerButton }: RecruiterHeaderProps) => {
   return (
     <div className="flex flex-row items-center gap-2 border-b border-border-subtlest-tertiary p-4">
       <div>
@@ -30,9 +41,15 @@ export const RecruiterHeader = () => {
         <br />
         No spam. 100% opt-in.
       </Typography>
-      <Button variant={ButtonVariant.Primary} color={ButtonColor.Cabbage}>
-        Outreach Settings <MoveToIcon />
-      </Button>
+      {headerButton && (
+        <Button
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          onClick={headerButton.onClick}
+        >
+          {headerButton.text} {headerButton.icon || <MoveToIcon />}
+        </Button>
+      )}
     </div>
   );
 };
