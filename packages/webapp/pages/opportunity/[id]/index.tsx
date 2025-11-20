@@ -219,20 +219,24 @@ const metaMap = {
   location: {
     title: 'Location',
     transformer: (value: Opportunity['location']) => {
-      const location = value?.[0];
-      if (!location) {
+      if (!value || value.length === 0) {
         return 'N/A';
       }
 
       return (
-        [
-          location.city,
-          location.subdivision,
-          location.country,
-          location.continent,
-        ]
+        value
+          .map((location) =>
+            [
+              location.city,
+              location.subdivision,
+              location.country,
+              location.continent,
+            ]
+              .filter(Boolean)
+              .join(', '),
+          )
           .filter(Boolean)
-          .join(', ') || 'N/A'
+          .join(' / ') || 'N/A'
       );
     },
   },
@@ -370,12 +374,7 @@ const JobPage = (): ReactElement => {
           <OpportunityStepsInfo className="w-full [&>:first-child]:justify-center [&>:nth-child(2)]:flex-1" />
         </OpportunityFooter>
       )}
-      <div
-        className={classNames(
-          'z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 tablet:pb-0 laptop:flex-row',
-          match ? 'pb-safe-offset-14' : 'pb-safe',
-        )}
-      >
+      <div className="z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 pb-safe-offset-14 tablet:pb-0 laptop:flex-row">
         <div className="h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}
           <div className="flex min-h-14 items-center gap-4 border-b border-border-subtlest-tertiary p-3">
@@ -732,7 +731,7 @@ const JobPage = (): ReactElement => {
                 size={ProfileImageSize.Large}
               />
 
-              <div className="flex flex-col">
+              <div className="flex flex-shrink flex-col flex-wrap">
                 <Typography
                   type={TypographyType.Body}
                   color={TypographyColor.Primary}

@@ -7,14 +7,20 @@ import type {
 } from '../../../../lib/user';
 import { ProfileCompletion } from './ProfileCompletion';
 import { useActions } from '../../../../hooks';
+import { useProfileExperiences } from '../../hooks/useProfileExperiences';
 
 // Mock hooks
 jest.mock('../../../../hooks', () => ({
   useActions: jest.fn(),
 }));
 
+jest.mock('../../hooks/useProfileExperiences', () => ({
+  useProfileExperiences: jest.fn(),
+}));
+
 const mockCheckHasCompleted = jest.fn();
 const mockUseActions = useActions as jest.Mock;
+const mockUseProfileExperiences = useProfileExperiences as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -24,6 +30,11 @@ beforeEach(() => {
     isActionsFetched: true,
   });
   mockCheckHasCompleted.mockReturnValue(false);
+  mockUseProfileExperiences.mockReturnValue({
+    work: [],
+    education: [],
+    isLoading: false,
+  });
 });
 
 const baseUser: PublicProfile = {
@@ -50,31 +61,35 @@ const baseUser: PublicProfile = {
   mastodon: 'https://mastodon.social/@testuser',
   bluesky: 'testuser.bsky.social',
   experienceLevel: 'MORE_THAN_4_YEARS' as keyof typeof UserExperienceLevel,
-  companies: [{ name: 'Test Company', image: 'https://daily.dev/company.png' }],
+  companies: [
+    {
+      id: '1',
+      name: 'Test Company',
+      image: 'https://daily.dev/company.png',
+      createdAt: new Date('2020-01-01'),
+      updatedAt: new Date('2020-01-01'),
+    },
+  ],
 };
 
 describe('ProfileCompletion', () => {
   describe('Rendering', () => {
     it('should not render when profile is 100% complete', () => {
+      mockUseProfileExperiences.mockReturnValue({
+        work: [{ id: '1' }],
+        education: [{ id: '1' }],
+        isLoading: false,
+      });
+
       const completeUser: LoggedUser = {
         ...baseUser,
+        username: baseUser.username || 'testuser',
         email: 'test@example.com',
         providers: ['google'],
+        balance: { amount: 0 },
       };
 
       render(<ProfileCompletion user={completeUser} />);
-      expect(screen.queryByText('Profile Completion')).not.toBeInTheDocument();
-    });
-
-    it('should not render if ProfileCompleted action was already completed', () => {
-      mockCheckHasCompleted.mockReturnValue(true);
-
-      const incompleteUser: PublicProfile = {
-        ...baseUser,
-        bio: '',
-      };
-
-      render(<ProfileCompletion user={incompleteUser} />);
       expect(screen.queryByText('Profile Completion')).not.toBeInTheDocument();
     });
 
@@ -105,6 +120,12 @@ describe('ProfileCompletion', () => {
     });
 
     it('should display correct description for single missing item', () => {
+      mockUseProfileExperiences.mockReturnValue({
+        work: [{ id: '1' }],
+        education: [{ id: '1' }],
+        isLoading: false,
+      });
+
       const user: PublicProfile = {
         ...baseUser,
         bio: '', // Only missing headline
@@ -115,6 +136,12 @@ describe('ProfileCompletion', () => {
     });
 
     it('should display correct description for multiple missing items', () => {
+      mockUseProfileExperiences.mockReturnValue({
+        work: [{ id: '1' }],
+        education: [{ id: '1' }],
+        isLoading: false,
+      });
+
       const user: PublicProfile = {
         ...baseUser,
         bio: '',
@@ -157,6 +184,12 @@ describe('ProfileCompletion', () => {
     });
 
     it('should detect missing headline (bio)', () => {
+      mockUseProfileExperiences.mockReturnValue({
+        work: [{ id: '1' }],
+        education: [{ id: '1' }],
+        isLoading: false,
+      });
+
       const user: PublicProfile = {
         ...baseUser,
         bio: '',
@@ -167,6 +200,12 @@ describe('ProfileCompletion', () => {
     });
 
     it('should detect missing experience level', () => {
+      mockUseProfileExperiences.mockReturnValue({
+        work: [{ id: '1' }],
+        education: [{ id: '1' }],
+        isLoading: false,
+      });
+
       const user: PublicProfile = {
         ...baseUser,
         experienceLevel: undefined,
@@ -201,6 +240,12 @@ describe('ProfileCompletion', () => {
     });
 
     it('should have link to profile settings when headline is missing', () => {
+      mockUseProfileExperiences.mockReturnValue({
+        work: [{ id: '1' }],
+        education: [{ id: '1' }],
+        isLoading: false,
+      });
+
       const user: PublicProfile = {
         ...baseUser,
         bio: '',
@@ -209,10 +254,16 @@ describe('ProfileCompletion', () => {
       render(<ProfileCompletion user={user} />);
       const component = screen.getByRole('link');
 
-      expect(component).toHaveAttribute('href', '/settings/profile');
+      expect(component).toHaveAttribute('href', '/settings/profile?field=bio');
     });
 
     it('should have link to profile settings when experience level is missing', () => {
+      mockUseProfileExperiences.mockReturnValue({
+        work: [{ id: '1' }],
+        education: [{ id: '1' }],
+        isLoading: false,
+      });
+
       const user: PublicProfile = {
         ...baseUser,
         experienceLevel: undefined,
@@ -221,7 +272,10 @@ describe('ProfileCompletion', () => {
       render(<ProfileCompletion user={user} />);
       const component = screen.getByRole('link');
 
-      expect(component).toHaveAttribute('href', '/settings/profile');
+      expect(component).toHaveAttribute(
+        'href',
+        '/settings/profile?field=experienceLevel',
+      );
     });
 
     it('should have link to first incomplete item in priority order', () => {
@@ -233,8 +287,10 @@ describe('ProfileCompletion', () => {
       render(<ProfileCompletion user={user} />);
       const component = screen.getByRole('link');
 
-      // Should link to work experience even though it's last in priority
-      expect(component).toHaveAttribute('href', '/settings/profile');
+      expect(component).toHaveAttribute(
+        'href',
+        '/settings/profile/experience/work',
+      );
     });
   });
 });

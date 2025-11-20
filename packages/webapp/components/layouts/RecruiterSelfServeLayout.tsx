@@ -5,6 +5,7 @@ import { RecruiterLayout } from '@dailydotdev/shared/src/components/recruiter/la
 
 const GetLayout = (
   page: ReactNode,
+  pageProps: Record<string, unknown>,
   layoutProps?: RecruiterSelfServeLayoutProps,
 ): ReactNode => {
   return <RecruiterLayout {...layoutProps}>{page}</RecruiterLayout>;
