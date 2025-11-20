@@ -70,7 +70,7 @@ export const ACTIVITY_QUERY_KEYS = {
   posts: (userId: string) => ['author', userId] as const,
   upvoted: (userId: string) => [OtherFeedPage.UserUpvoted, userId] as const,
   comments: (userId: string) =>
-    generateQueryKey(RequestKey.UserComments, null, userId),
+    generateQueryKey(RequestKey.UserComments, null, userId, 'activity'),
 } as const;
 
 export const getItemCount = (
