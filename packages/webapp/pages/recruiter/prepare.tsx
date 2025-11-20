@@ -13,7 +13,11 @@ function PreparePage(): ReactElement {
 
   return (
     <div className="flex flex-1 flex-col">
-      <RecruiterHeader />
+      <RecruiterHeader
+        headerButton={{
+          text: 'Outreach settings',
+        }}
+      />
       <RecruiterProgress />
       <OpportunityEditProvider opportunityId={opportunityId}>
         <div className="flex-1 bg-background-subtle pt-6">

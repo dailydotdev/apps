@@ -345,6 +345,34 @@ const JobOpportunityModal = dynamic(
     ),
 );
 
+const RecruiterIntroModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterIntroModal" */ './recruiter/RecruiterIntroModal'
+    ),
+);
+
+const RecruiterTrustModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterTrustModal" */ './recruiter/RecruiterTrustModal'
+    ),
+);
+
+const RecruiterJobLinkModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterJobLinkModal" */ './recruiter/RecruiterJobLinkModal'
+    ),
+);
+
+const RecruiterSignInModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterSignInModal" */ './recruiter/RecruiterSignInModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -402,6 +430,10 @@ export const modals = {
   [LazyModal.OpportunityEdit]: OpportunityEditModal,
   [LazyModal.DirtyForm]: DirtyFormModal,
   [LazyModal.JobOpportunity]: JobOpportunityModal,
+  [LazyModal.RecruiterIntro]: RecruiterIntroModal,
+  [LazyModal.RecruiterTrust]: RecruiterTrustModal,
+  [LazyModal.RecruiterJobLink]: RecruiterJobLinkModal,
+  [LazyModal.RecruiterSignIn]: RecruiterSignInModal,
 };
 
 type GetComponentProps<T> = T extends
