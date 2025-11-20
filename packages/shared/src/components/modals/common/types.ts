@@ -83,6 +83,7 @@ export enum LazyModal {
   RecruiterIntro = 'recruiterIntro',
   RecruiterTrust = 'recruiterTrust',
   RecruiterJobLink = 'recruiterJobLink',
+  RecruiterSignIn = 'recruiterSignIn',
 }
 
 export type ModalTabItem = {
