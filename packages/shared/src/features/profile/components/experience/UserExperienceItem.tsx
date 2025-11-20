@@ -68,7 +68,12 @@ export function UserExperienceItem({
         />
       )}
       {editUrl && (
-        <div className="absolute right-0 top-0">
+        <div
+          className={classNames(
+            'absolute right-0',
+            grouped ? 'top-2' : 'top-0',
+          )}
+        >
           <Link href={editUrl} passHref>
             <Button
               tag="a"
@@ -84,9 +89,14 @@ export function UserExperienceItem({
           'pt-3': !!grouped,
         })}
       >
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1">
-            <Typography type={TypographyType.Subhead} bold>
+        <div
+          className={classNames(
+            'flex flex-col gap-1',
+            editUrl && 'max-w-[calc(100%-32px)]',
+          )}
+        >
+          <div className="flex flex-wrap items-center gap-1">
+            <Typography truncate type={TypographyType.Subhead} bold>
               {title}
             </Typography>
             {!grouped && !endedAt && currentPill}
@@ -153,7 +163,7 @@ export function UserExperienceItem({
           {description}
         </Typography>
         {skills?.length > 0 && (
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-row flex-wrap gap-2">
             {skills.map((skill) => (
               <Pill
                 key={skill.value}
