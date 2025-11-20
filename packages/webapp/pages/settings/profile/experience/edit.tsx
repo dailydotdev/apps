@@ -22,6 +22,7 @@ import {
 import type { GetServerSideProps } from 'next';
 import { format } from 'date-fns';
 import type { TLocation } from '@dailydotdev/shared/src/graphql/autocomplete';
+import { useRouter } from 'next/router';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
@@ -30,6 +31,15 @@ import { getTemplatedTitle } from '../../../../components/layouts/utils';
 const seo: NextSeoProps = {
   ...defaultSeo,
   title: getTemplatedTitle('Edit experience'),
+};
+
+const titleCopy = {
+  [UserExperienceType.Work]: 'Work Experience',
+  [UserExperienceType.Education]: 'Education',
+  [UserExperienceType.Certification]: 'Certification',
+  [UserExperienceType.Volunteering]: 'Volunteering',
+  [UserExperienceType.Project]: 'Project',
+  [UserExperienceType.OpenSource]: 'Open Source',
 };
 
 type DefaultValues = UserExperience & {
@@ -142,6 +152,7 @@ const renderExperienceForm = (
 };
 
 const Page = ({ experience }: PageProps): ReactElement => {
+  const router = useRouter();
   const { methods, save, isPending } = useUserExperienceForm({
     defaultValues: experience,
   });
@@ -153,7 +164,10 @@ const Page = ({ experience }: PageProps): ReactElement => {
         onSubmit={methods.handleSubmit(() => save())}
       >
         <AccountPageContainer
-          title="Experience"
+          onBack={() => router.back()}
+          title={`${experience?.id ? 'Edit' : 'Add'} ${
+            titleCopy[experience.type]
+          }`}
           actions={
             <Button
               type="submit"

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import type {
   UserExperience,
@@ -24,6 +24,8 @@ import {
 } from '../../../../components/buttons/Button';
 import { EditIcon, OpenLinkIcon } from '../../../../components/icons';
 import Link from '../../../../components/utilities/Link';
+
+const MAX_SKILLS = 3;
 
 interface UserExperienceItemProps {
   experience: UserExperience;
@@ -50,6 +52,10 @@ export function UserExperienceItem({
   const { skills, verified } = experience as UserExperienceWork;
   const { url } = experience as UserExperienceProject;
   const { externalReferenceId } = experience as UserExperienceCertification;
+  const [showMoreSkills, setShowMoreSkills] = useState(false);
+  const skillList = showMoreSkills
+    ? skills
+    : skills?.slice(0, MAX_SKILLS) || [];
 
   return (
     <li key={experience.id} className="relative flex flex-row gap-2">
@@ -68,7 +74,12 @@ export function UserExperienceItem({
         />
       )}
       {editUrl && (
-        <div className="absolute right-0 top-0">
+        <div
+          className={classNames(
+            'absolute right-0',
+            grouped ? 'top-2' : 'top-0',
+          )}
+        >
           <Link href={editUrl} passHref>
             <Button
               tag="a"
@@ -84,9 +95,14 @@ export function UserExperienceItem({
           'pt-3': !!grouped,
         })}
       >
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1">
-            <Typography type={TypographyType.Subhead} bold>
+        <div
+          className={classNames(
+            'flex flex-col gap-1',
+            editUrl && 'max-w-[calc(100%-32px)]',
+          )}
+        >
+          <div className="flex flex-wrap items-center gap-1">
+            <Typography truncate type={TypographyType.Subhead} bold>
               {title}
             </Typography>
             {!grouped && !endedAt && currentPill}
@@ -152,9 +168,9 @@ export function UserExperienceItem({
         >
           {description}
         </Typography>
-        {skills?.length > 0 && (
-          <div className="flex flex-row gap-2">
-            {skills.map((skill) => (
+        {skillList?.length > 0 && (
+          <div className="flex flex-row flex-wrap gap-2">
+            {skillList.map((skill) => (
               <Pill
                 key={skill.value}
                 label={skill.value}
@@ -162,6 +178,15 @@ export function UserExperienceItem({
                 className="border border-border-subtlest-tertiary text-text-quaternary"
               />
             ))}
+            {!showMoreSkills && skills.length > MAX_SKILLS && (
+              <button type="button" onClick={() => setShowMoreSkills(true)}>
+                <Pill
+                  label={`+${skills.length - MAX_SKILLS}`}
+                  size={PillSize.Small}
+                  className="border border-border-subtlest-tertiary text-text-quaternary"
+                />
+              </button>
+            )}
           </div>
         )}
       </div>
