@@ -1,6 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React from 'react';
 import {
   Typography,
   TypographyColor,
@@ -17,8 +16,6 @@ import { Chip } from '@dailydotdev/shared/src/components/cards/common/PostTags';
 import { AnonymousUserTable } from '@dailydotdev/shared/src/components/recruiter/AnonymousUserTable';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import { RecruiterProgress } from '@dailydotdev/shared/src/components/recruiter/Progress';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
 
 type LoadingBlockItemProps = {
@@ -280,38 +277,6 @@ const ContentSidebar = () => {
 };
 
 function RecruiterPage(): ReactElement {
-  const router = useRouter();
-  const { openModal, closeModal } = useLazyModal();
-
-  // Open the intro modal when the page loads
-  useEffect(() => {
-    openModal({
-      type: LazyModal.RecruiterIntro,
-      props: {
-        onNext: () => {
-          closeModal();
-          openModal({
-            type: LazyModal.RecruiterTrust,
-            props: {
-              onNext: () => {
-                closeModal();
-                openModal({
-                  type: LazyModal.RecruiterJobLink,
-                  props: {
-                    onSubmit: () => {
-                      closeModal();
-                      router.push('/recruiter/analyze');
-                    },
-                  },
-                });
-              },
-            },
-          });
-        },
-      },
-    });
-  }, [openModal, closeModal, router]);
-
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader />
@@ -325,6 +290,5 @@ function RecruiterPage(): ReactElement {
 }
 
 RecruiterPage.getLayout = getLayout;
-RecruiterPage.layoutProps = { className: { main: 'blur-sm' } };
 
 export default RecruiterPage;

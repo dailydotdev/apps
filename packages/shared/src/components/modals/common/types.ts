@@ -80,6 +80,9 @@ export enum LazyModal {
   SquadNotificationSettings = 'squadNotificationSettings',
   OpportunityEdit = 'opportunityEdit',
   JobOpportunity = 'jobOpportunity',
+  RecruiterIntro = 'recruiterIntro',
+  RecruiterTrust = 'recruiterTrust',
+  RecruiterJobLink = 'recruiterJobLink',
 }
 
 export type ModalTabItem = {
