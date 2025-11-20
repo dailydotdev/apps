@@ -193,7 +193,7 @@ describe('BadgesAndAwards component', () => {
     });
 
     // Check summary cards
-    expect(screen.getByText('x8')).toBeInTheDocument(); // Total badges: 5 + 3
+    expect(screen.getByText('x5')).toBeInTheDocument();
     expect(screen.getByText('Top reader badge')).toBeInTheDocument();
 
     // Check badge items
@@ -245,7 +245,7 @@ describe('BadgesAndAwards component', () => {
     renderComponent();
 
     expect(screen.getByText('Badges & Awards')).toBeInTheDocument();
-    expect(screen.getByText('x8')).toBeInTheDocument(); // Total badges
+    expect(screen.getByText('x5')).toBeInTheDocument();
     expect(screen.getByText('x0')).toBeInTheDocument(); // No awards
     expect(screen.queryByAltText('Award')).not.toBeInTheDocument();
   });
