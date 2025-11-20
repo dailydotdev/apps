@@ -58,9 +58,6 @@ export const BadgesAndAwards = ({
     return null;
   }
 
-  const totalTopReaderBadges =
-    topReaders?.reduce((sum, topReader) => sum + (topReader?.total || 0), 0) ??
-    0;
   const totalAwards =
     awards?.reduce((sum, award) => sum + (award?.count || 0), 0) ?? 0;
 
@@ -86,7 +83,7 @@ export const BadgesAndAwards = ({
 
       <div className="my-3 flex gap-3">
         <SummaryCard
-          count={`x${totalTopReaderBadges}`}
+          count={`x${topReaders[0]?.total ?? 0}`}
           label="Top reader badge"
         />
         <SummaryCard count={`x${totalAwards}`} label="Total Awards" />
