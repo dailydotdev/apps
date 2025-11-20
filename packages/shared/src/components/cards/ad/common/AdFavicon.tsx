@@ -6,7 +6,7 @@ import type { Ad } from '../../../../graphql/posts';
 import { adFaviconPlaceholder } from '../../../../lib/image';
 import { apiUrl } from '../../../../lib/config';
 
-const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
+const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);
 
 type AdFaviconProps = {
