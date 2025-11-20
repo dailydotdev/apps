@@ -49,7 +49,7 @@ export const ActivityRepliesTab = ({
     queryFn: () =>
       gqlClient.request(USER_COMMENTS_QUERY, {
         userId,
-        first: 10,
+        first: 4,
       }),
   });
 
@@ -78,6 +78,8 @@ export const ActivityRepliesTab = ({
     );
   }
 
+  const replies = queryResult.data?.page?.edges?.slice(0, 3);
+
   return (
     <>
       <div className="flex min-h-10 w-auto flex-row items-center justify-between laptop:w-full">
@@ -87,7 +89,7 @@ export const ActivityRepliesTab = ({
         renderEmptyScreen(ActivityTabIndex.Replies, isSameUser, userName)
       ) : (
         <div className="w-full">
-          {queryResult.data?.page?.edges?.map(({ node }) => (
+          {replies?.map(({ node }) => (
             <MainComment
               key={node.id}
               className={{
