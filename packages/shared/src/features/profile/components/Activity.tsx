@@ -30,8 +30,12 @@ import {
   getItemCount,
   getUserPath,
   renderEmptyScreen,
-  useActivityFeedProps,
 } from './Activity.helpers';
+import { OtherFeedPage } from '../../../lib/query';
+import {
+  AUTHOR_FEED_QUERY,
+  USER_UPVOTED_FEED_QUERY,
+} from '../../../graphql/feed';
 
 type ActivityProps = {
   user: PublicProfile;
@@ -96,6 +100,214 @@ const HorizontalFeedWithContext = ({
   );
 };
 
+const PostsTab = ({
+  userId,
+  isSameUser,
+  userName,
+  user,
+  selectedTab,
+  onTabClick,
+}: {
+  userId: string;
+  isSameUser: boolean;
+  userName: string;
+  user: PublicProfile;
+  selectedTab: string;
+  onTabClick: (label: string) => void;
+}): ReactElement => {
+  const feedProps: FeedProps<unknown> = useMemo(
+    () => ({
+      feedName: OtherFeedPage.Author,
+      feedQueryKey: ACTIVITY_QUERY_KEYS.posts(userId),
+      query: AUTHOR_FEED_QUERY,
+      variables: {
+        userId,
+      },
+      disableAds: true,
+      allowFetchMore: false,
+      pageSize: 10,
+      isHorizontal: true,
+      emptyScreen: renderEmptyScreen(
+        ActivityTabIndex.Posts,
+        isSameUser,
+        userName,
+      ),
+    }),
+    [userId, isSameUser, userName],
+  );
+
+  const { data: postsData } = useQuery<FeedData>({
+    queryKey: ACTIVITY_QUERY_KEYS.posts(userId),
+    enabled: false,
+  });
+
+  const shouldShowMoreButton = useMemo(() => {
+    const itemCount = getItemCount(postsData, ActivityTabIndex.Posts);
+    return itemCount > MIN_ITEMS_FOR_SHOW_MORE;
+  }, [postsData]);
+
+  const { ref, header } = useHorizontalScrollHeader({
+    title: <ActivityHeader selectedTab={selectedTab} onTabClick={onTabClick} />,
+    className: '!items-end !m-0',
+    buttonSize: ButtonSize.Small,
+  });
+
+  return (
+    <>
+      {header}
+      <HorizontalFeedWithContext feedProps={feedProps} feedRef={ref} />
+      {shouldShowMoreButton && (
+        <Link
+          href={getUserPath(
+            user?.username,
+            user?.id,
+            activityTabs[ActivityTabIndex.Posts].path,
+          )}
+          passHref
+        >
+          <Button tag="a" variant={ButtonVariant.Subtle} className="w-full">
+            Show More
+          </Button>
+        </Link>
+      )}
+    </>
+  );
+};
+
+const UpvotedTab = ({
+  userId,
+  isSameUser,
+  userName,
+  user,
+  selectedTab,
+  onTabClick,
+}: {
+  userId: string;
+  isSameUser: boolean;
+  userName: string;
+  user: PublicProfile;
+  selectedTab: string;
+  onTabClick: (label: string) => void;
+}): ReactElement => {
+  const feedProps: FeedProps<unknown> = useMemo(
+    () => ({
+      feedName: OtherFeedPage.UserUpvoted,
+      feedQueryKey: ACTIVITY_QUERY_KEYS.upvoted(userId),
+      query: USER_UPVOTED_FEED_QUERY,
+      variables: {
+        userId,
+      },
+      disableAds: true,
+      allowFetchMore: false,
+      pageSize: 10,
+      isHorizontal: true,
+      emptyScreen: renderEmptyScreen(
+        ActivityTabIndex.Upvoted,
+        isSameUser,
+        userName,
+      ),
+    }),
+    [userId, isSameUser, userName],
+  );
+
+  const { data: upvotedData } = useQuery<FeedData>({
+    queryKey: ACTIVITY_QUERY_KEYS.upvoted(userId),
+    enabled: false,
+  });
+
+  const shouldShowMoreButton = useMemo(() => {
+    const itemCount = getItemCount(upvotedData, ActivityTabIndex.Upvoted);
+    return itemCount > MIN_ITEMS_FOR_SHOW_MORE;
+  }, [upvotedData]);
+
+  const { ref, header } = useHorizontalScrollHeader({
+    title: <ActivityHeader selectedTab={selectedTab} onTabClick={onTabClick} />,
+    className: '!items-end !m-0',
+    buttonSize: ButtonSize.Small,
+  });
+
+  return (
+    <>
+      {header}
+      <HorizontalFeedWithContext feedProps={feedProps} feedRef={ref} />
+      {shouldShowMoreButton && (
+        <Link
+          href={getUserPath(
+            user?.username,
+            user?.id,
+            activityTabs[ActivityTabIndex.Upvoted].path,
+          )}
+          passHref
+        >
+          <Button tag="a" variant={ButtonVariant.Subtle} className="w-full">
+            Show More
+          </Button>
+        </Link>
+      )}
+    </>
+  );
+};
+
+const RepliesTab = ({
+  userId,
+  isSameUser,
+  userName,
+  user,
+  selectedTab,
+  onTabClick,
+}: {
+  userId: string;
+  isSameUser: boolean;
+  userName: string;
+  user: PublicProfile;
+  selectedTab: string;
+  onTabClick: (label: string) => void;
+}): ReactElement => {
+  const { data: commentsData } = useQuery<CommentsData>({
+    queryKey: ACTIVITY_QUERY_KEYS.comments(userId),
+    enabled: false,
+  });
+
+  const shouldShowMoreButton = useMemo(() => {
+    const itemCount = getItemCount(commentsData, ActivityTabIndex.Replies);
+    return itemCount > MIN_ITEMS_FOR_SHOW_MORE;
+  }, [commentsData]);
+
+  return (
+    <>
+      <div className="flex min-h-10 w-auto flex-row items-center justify-between laptop:w-full">
+        <ActivityHeader selectedTab={selectedTab} onTabClick={onTabClick} />
+      </div>
+      <CommentFeed
+        feedQueryKey={ACTIVITY_QUERY_KEYS.comments(userId)}
+        query={USER_COMMENTS_QUERY}
+        logOrigin={Origin.Profile}
+        variables={{ userId }}
+        emptyScreen={renderEmptyScreen(
+          ActivityTabIndex.Replies,
+          isSameUser,
+          userName,
+        )}
+        commentClassName={COMMENT_CLASS_NAME}
+      />
+      {shouldShowMoreButton && (
+        <Link
+          href={getUserPath(
+            user?.username,
+            user?.id,
+            activityTabs[ActivityTabIndex.Replies].path,
+          )}
+          passHref
+        >
+          <Button tag="a" variant={ButtonVariant.Subtle} className="w-full">
+            Show More
+          </Button>
+        </Link>
+      )}
+    </>
+  );
+};
+
 export const Activity = ({ user }: ActivityProps): ReactElement | null => {
   const [selectedTab, setSelectedTab] = useState<string>(activityTabs[0].title);
   const { user: loggedUser } = useContext(AuthContext);
@@ -107,97 +319,48 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
     [selectedTab],
   );
 
-  const { postsFeedProps, upvotedFeedProps } = useActivityFeedProps(
-    userId,
-    isSameUser,
-    user?.name ?? 'User',
-  );
-
-  const { data: postsData } = useQuery<FeedData>({
-    queryKey: ACTIVITY_QUERY_KEYS.posts(userId),
-    enabled: false,
-  });
-
-  const { data: upvotedData } = useQuery<FeedData>({
-    queryKey: ACTIVITY_QUERY_KEYS.upvoted(userId),
-    enabled: false,
-  });
-
-  const { data: commentsData } = useQuery<CommentsData>({
-    queryKey: ACTIVITY_QUERY_KEYS.comments(userId),
-    enabled: false,
-  });
-
-  const shouldShowMoreButton = useMemo(() => {
-    let data: FeedData | CommentsData | undefined;
-
-    if (selectedTabIndex === ActivityTabIndex.Posts) {
-      data = postsData;
-    } else if (selectedTabIndex === ActivityTabIndex.Replies) {
-      data = commentsData;
-    } else {
-      data = upvotedData;
-    }
-
-    const itemCount = getItemCount(data, selectedTabIndex);
-    return itemCount > MIN_ITEMS_FOR_SHOW_MORE;
-  }, [selectedTabIndex, postsData, commentsData, upvotedData]);
-
   const handleTabClick = useCallback((label: string) => {
     setSelectedTab(label);
   }, []);
-
-  const { ref, header: horizontalHeader } = useHorizontalScrollHeader({
-    title: (
-      <ActivityHeader selectedTab={selectedTab} onTabClick={handleTabClick} />
-    ),
-    className: '!items-end !m-0',
-    buttonSize: ButtonSize.Small,
-  });
 
   const renderContent = () => {
     switch (selectedTabIndex) {
       case ActivityTabIndex.Posts:
         return (
-          <HorizontalFeedWithContext feedProps={postsFeedProps} feedRef={ref} />
+          <PostsTab
+            userId={userId}
+            isSameUser={isSameUser}
+            userName={user?.name ?? 'User'}
+            user={user}
+            selectedTab={selectedTab}
+            onTabClick={handleTabClick}
+          />
         );
       case ActivityTabIndex.Replies:
         return (
-          <CommentFeed
-            feedQueryKey={ACTIVITY_QUERY_KEYS.comments(userId)}
-            query={USER_COMMENTS_QUERY}
-            logOrigin={Origin.Profile}
-            variables={{ userId }}
-            emptyScreen={renderEmptyScreen(
-              ActivityTabIndex.Replies,
-              isSameUser,
-              user?.name ?? 'User',
-            )}
-            commentClassName={COMMENT_CLASS_NAME}
+          <RepliesTab
+            userId={userId}
+            isSameUser={isSameUser}
+            userName={user?.name ?? 'User'}
+            user={user}
+            selectedTab={selectedTab}
+            onTabClick={handleTabClick}
           />
         );
       case ActivityTabIndex.Upvoted:
         return (
-          <HorizontalFeedWithContext
-            feedProps={upvotedFeedProps}
-            feedRef={ref}
+          <UpvotedTab
+            userId={userId}
+            isSameUser={isSameUser}
+            userName={user?.name ?? 'User'}
+            user={user}
+            selectedTab={selectedTab}
+            onTabClick={handleTabClick}
           />
         );
       default:
         return null;
     }
-  };
-
-  const renderHeader = () => {
-    if (selectedTabIndex !== ActivityTabIndex.Replies) {
-      return horizontalHeader;
-    }
-
-    return (
-      <div className="flex min-h-10 w-auto flex-row items-center justify-between laptop:w-full">
-        <ActivityHeader selectedTab={selectedTab} onTabClick={handleTabClick} />
-      </div>
-    );
   };
 
   if (!userId) {
@@ -206,22 +369,7 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
 
   return (
     <div className="mb-4 flex flex-col gap-3 overflow-hidden pt-6">
-      {renderHeader()}
       {renderContent()}
-      {shouldShowMoreButton && (
-        <Link
-          href={getUserPath(
-            user?.username,
-            user?.id,
-            activityTabs[selectedTabIndex].path,
-          )}
-          passHref
-        >
-          <Button tag="a" variant={ButtonVariant.Subtle} className="w-full">
-            Show More
-          </Button>
-        </Link>
-      )}
     </div>
   );
 };
