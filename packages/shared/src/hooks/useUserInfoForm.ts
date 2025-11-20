@@ -1,17 +1,18 @@
-import { useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { useAuthContext } from '../contexts/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { UPDATE_USER_INFO_MUTATION } from '../graphql/users';
-import type { LoggedUser, UserProfile } from '../lib/user';
+import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
 import { errorMessage, gqlClient } from '../graphql/common';
 import { useDirtyForm } from './useDirtyForm';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
+import { useProfile } from './profile/useProfile';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -56,7 +57,9 @@ const socials = [
 ];
 
 const useUserInfoForm = (): UseUserInfoForm => {
-  const { user } = useAuthContext();
+  const qc = useQueryClient();
+  const { user, updateUser } = useContext(AuthContext);
+  const { userQueryKey } = useProfile(user as PublicProfile);
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const router = useRouter();
@@ -112,6 +115,12 @@ const useUserInfoForm = (): UseUserInfoForm => {
       }),
 
     onSuccess: async (_, vars) => {
+      const oldProfileData = qc.getQueryData<PublicProfile>(userQueryKey);
+      qc.setQueryData(userQueryKey, {
+        ...oldProfileData,
+        ...vars,
+      });
+      await updateUser({ ...user, ...vars });
       dirtyFormRef.current?.allowNavigation();
 
       displayToast('Profile updated');
@@ -121,9 +130,7 @@ const useUserInfoForm = (): UseUserInfoForm => {
       if (dirtyFormRef.current?.hasPendingNavigation()) {
         dirtyFormRef.current.navigateToPending();
       } else {
-        router.push(`/${vars.username}`).then(() => {
-          router.reload();
-        });
+        router.push(`/${vars.username}`);
       }
     },
 
