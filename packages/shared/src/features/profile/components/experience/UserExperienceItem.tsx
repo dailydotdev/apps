@@ -53,7 +53,9 @@ export function UserExperienceItem({
   const { url } = experience as UserExperienceProject;
   const { externalReferenceId } = experience as UserExperienceCertification;
   const [showMoreSkills, setShowMoreSkills] = useState(false);
-  const skillList = showMoreSkills ? skills : skills.slice(0, MAX_SKILLS);
+  const skillList = showMoreSkills
+    ? skills
+    : skills?.slice(0, MAX_SKILLS) || [];
 
   return (
     <li key={experience.id} className="relative flex flex-row gap-2">
