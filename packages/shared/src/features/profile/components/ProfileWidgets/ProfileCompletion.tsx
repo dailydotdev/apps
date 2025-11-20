@@ -150,7 +150,6 @@ export const ProfileCompletion = ({
               <Typography
                 type={TypographyType.Caption1}
                 color={TypographyColor.Secondary}
-                truncate
               >
                 {description}
               </Typography>
