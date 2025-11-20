@@ -148,7 +148,7 @@ export function UserExperienceItem({
         <Typography
           type={TypographyType.Subhead}
           color={TypographyColor.Secondary}
-          className="flex w-full max-w-full flex-1 break-words"
+          className="flex w-full max-w-full flex-1 whitespace-break-spaces break-words"
         >
           {description}
         </Typography>
