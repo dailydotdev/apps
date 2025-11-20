@@ -281,6 +281,7 @@ export const upsertUserGeneralExperience = async (
     'locationId',
     'locationType',
     'employmentType',
+    'externalLocationId',
   ]);
   const result = await gqlClient.request(UPSERT_USER_GENERAL_EXPERIENCE, {
     input: cleanedInput,
