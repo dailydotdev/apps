@@ -52,14 +52,16 @@ const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
         className="absolute left-6 top-6 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
       />
       <div className="flex flex-col gap-3 px-6">
-        <Link passHref href={`${webappUrl}/settings/profile`}>
-          <Button
-            className="mb-4 ml-auto mt-2 text-text-secondary"
-            tag="a"
-            type={ButtonVariant.Float}
-            icon={<EditIcon />}
-          />
-        </Link>
+        {isSameUser && (
+          <Link passHref href={`${webappUrl}/settings/profile`}>
+            <Button
+              className="mb-4 ml-auto mt-2 text-text-secondary"
+              tag="a"
+              type={ButtonVariant.Float}
+              icon={<EditIcon />}
+            />
+          </Link>
+        )}
         <div className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>
             {name}
