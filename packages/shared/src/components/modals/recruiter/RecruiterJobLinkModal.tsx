@@ -68,6 +68,7 @@ export const RecruiterJobLinkModal = ({
           </Typography>
 
           <TextField
+            label="job link"
             inputId="job-link"
             name="job-link"
             placeholder="https://yourcompany.com/careers/senior-engineer"
