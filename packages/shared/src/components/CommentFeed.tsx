@@ -25,8 +25,6 @@ interface CommentFeedProps<T> {
   emptyScreen?: ReactNode;
   commentClassName?: CommentClassName;
   isMainFeed?: boolean;
-  allowFetchMore?: boolean;
-  pageSize?: number;
 }
 
 export default function CommentFeed<T>({
@@ -37,8 +35,6 @@ export default function CommentFeed<T>({
   emptyScreen,
   commentClassName,
   isMainFeed,
-  allowFetchMore = true,
-  pageSize = 20,
 }: CommentFeedProps<T>): ReactElement {
   const { openShareComment } = useShareComment(logOrigin);
   const { onShowUpvoted } = useUpvoteQuery();
@@ -50,9 +46,8 @@ export default function CommentFeed<T>({
     queryFn: ({ pageParam }) =>
       gqlClient.request(query, {
         ...variables,
-        first: pageSize,
+        first: 20,
         after: pageParam,
-        allowFetchMore,
       }),
     initialPageParam: '',
     getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
