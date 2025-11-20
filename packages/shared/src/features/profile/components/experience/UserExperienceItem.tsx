@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import type {
   UserExperience,
@@ -24,6 +24,8 @@ import {
 } from '../../../../components/buttons/Button';
 import { EditIcon, OpenLinkIcon } from '../../../../components/icons';
 import Link from '../../../../components/utilities/Link';
+
+const MAX_SKILLS = 3;
 
 interface UserExperienceItemProps {
   experience: UserExperience;
@@ -50,6 +52,8 @@ export function UserExperienceItem({
   const { skills, verified } = experience as UserExperienceWork;
   const { url } = experience as UserExperienceProject;
   const { externalReferenceId } = experience as UserExperienceCertification;
+  const [showMoreSkills, setShowMoreSkills] = useState(false);
+  const skillList = showMoreSkills ? skills : skills.slice(0, MAX_SKILLS);
 
   return (
     <li key={experience.id} className="relative flex flex-row gap-2">
@@ -162,9 +166,9 @@ export function UserExperienceItem({
         >
           {description}
         </Typography>
-        {skills?.length > 0 && (
+        {skillList?.length > 0 && (
           <div className="flex flex-row flex-wrap gap-2">
-            {skills.map((skill) => (
+            {skillList.map((skill) => (
               <Pill
                 key={skill.value}
                 label={skill.value}
@@ -172,6 +176,15 @@ export function UserExperienceItem({
                 className="border border-border-subtlest-tertiary text-text-quaternary"
               />
             ))}
+            {!showMoreSkills && skills.length > MAX_SKILLS && (
+              <button type="button" onClick={() => setShowMoreSkills(true)}>
+                <Pill
+                  label={`+${skills.length - MAX_SKILLS}`}
+                  size={PillSize.Small}
+                  className="border border-border-subtlest-tertiary text-text-quaternary"
+                />
+              </button>
+            )}
           </div>
         )}
       </div>
