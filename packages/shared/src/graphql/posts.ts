@@ -185,6 +185,8 @@ export interface Ad {
   backgroundColor?: string;
   data?: { post?: Post; source?: Squad };
   generationId?: string;
+  matchingTags?: string[];
+  adDomain?: string;
 }
 
 export type ReadHistoryPost = Pick<

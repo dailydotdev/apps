@@ -14,6 +14,7 @@ import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { AdFavicon } from './common/AdFavicon';
+import PostTags from '../common/PostTags';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
@@ -40,6 +41,7 @@ export const AdGrid = forwardRef(function AdGrid(
         <CardTitle className="line-clamp-4 typo-title3">
           {ad.description}
         </CardTitle>
+        <PostTags post={{ tags: ad?.matchingTags }} />
         <AdAttribution ad={ad} className={{ main: 'mt-auto font-normal' }} />
       </CardTextContainer>
       <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />

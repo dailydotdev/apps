@@ -16,6 +16,7 @@ import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import AdAttribution from './common/AdAttribution';
 import { AdFavicon } from './common/AdFavicon';
+import PostTags from '../common/PostTags';
 
 const getLinkProps = ({
   ad,
@@ -63,6 +64,7 @@ export const AdList = forwardRef(function AdCard(
         >
           <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
           {ad.description}
+          <PostTags post={{ tags: ad?.matchingTags }} />
           <AdAttribution
             ad={ad}
             className={{ main: 'mb-2 mt-4 block font-normal' }}
