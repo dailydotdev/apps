@@ -6,7 +6,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { EditIcon, PlusIcon } from '../icons';
+import { DevPlusIcon, EditIcon } from '../icons';
 import type { PublicProfile } from '../../lib/user';
 import type { UserStatsProps } from './UserStats';
 import { UserStats } from './UserStats';
@@ -19,6 +19,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize } from '../ProfilePicture';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { locationToString } from '../../lib/utils';
+import { IconSize } from '../Icon';
 
 const ProfileActions = dynamic(
   () =>
@@ -59,11 +60,16 @@ const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
             icon={<EditIcon />}
           />
         </Link>
-        <div className="flex gap-1">
+        <div className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>
             {name}
           </Typography>
-          {isPlus && <PlusIcon />}
+          {isPlus && (
+            <DevPlusIcon
+              className="text-action-plus-default"
+              size={IconSize.Size16}
+            />
+          )}
         </div>
         <div className="flex flex-col gap-2">
           {bio && <Typography type={TypographyType.Body}>{bio}</Typography>}
