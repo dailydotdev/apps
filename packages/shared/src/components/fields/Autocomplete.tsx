@@ -1,5 +1,5 @@
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { TextFieldProps } from './TextField';
 import { TextField } from './TextField';
@@ -17,7 +17,7 @@ interface AutocompleteProps
   selectedValue?: string;
   selectedImage?: string;
   options: Array<{ value: string; label: string; image?: string }>;
-  isLoading?: boolean;
+  isLoading: boolean;
   resetOnBlur?: boolean;
 }
 
@@ -37,10 +37,20 @@ const Autocomplete = ({
   const [input, setInput] = useState(defaultValue || '');
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const hasLoaded = useRef(false);
+
+  // So that we don't show "no results" before the first request is made.
+  useEffect(() => {
+    if (!hasLoaded.current && isLoading) {
+      hasLoaded.current = true;
+    }
+  }, [isLoading]);
+
   const handleChange = (val: string) => {
     setInput(val);
     onChange(val);
   };
+
   const handleSelect = (opt: { value: string; label: string }) => {
     setInput(opt.label);
     onSelect(opt.value);
@@ -59,7 +69,7 @@ const Autocomplete = ({
       <Typography type={TypographyType.Callout} bold>
         {label}
       </Typography>
-      <Popover open={isOpen}>
+      <Popover open={isOpen && hasLoaded.current}>
         <PopoverAnchor asChild>
           <TextField
             leftIcon={
@@ -88,7 +98,7 @@ const Autocomplete = ({
           />
         </PopoverAnchor>
         <PopoverContent
-          className="rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
+          className="rounded-16 border border-border-subtlest-tertiary bg-background-popover data-[side=bottom]:mt-1 data-[side=top]:mb-1"
           side="bottom"
           align="start"
           avoidCollisions
@@ -97,14 +107,15 @@ const Autocomplete = ({
           onCloseAutoFocus={(e) => e.preventDefault()} // avoid refocus jumps
         >
           {!isLoading ? (
-            <div className="flex w-full flex-col gap-1">
+            <div className="bg-red flex w-full flex-col">
               {options?.length > 0 ? (
                 options.map((opt) => (
                   <button
                     type="button"
                     className={classNames(
-                      'flex flex-row items-center gap-2 text-left',
-                      selectedValue === opt.value && 'font-bold',
+                      'flex flex-row items-center gap-2 px-4 py-2 text-left hover:bg-surface-hover',
+                      selectedValue === opt.value &&
+                        'font-bold hover:bg-surface-hover',
                     )}
                     key={opt.value}
                     onMouseDown={(e) => {
@@ -123,7 +134,9 @@ const Autocomplete = ({
                   </button>
                 ))
               ) : (
-                <Typography>No results</Typography>
+                <div className="px-4 py-2">
+                  <Typography>No results</Typography>
+                </div>
               )}
             </div>
           ) : (
