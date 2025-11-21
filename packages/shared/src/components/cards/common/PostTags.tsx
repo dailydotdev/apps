@@ -7,7 +7,7 @@ import { useFeedTags } from '../../../hooks/feed/useFeedTags';
 import { useFeedLayout } from '../../../hooks';
 
 interface PostTagsProps {
-  post: Post;
+  post: Pick<Post, 'tags'>;
   className?: string;
 }
 

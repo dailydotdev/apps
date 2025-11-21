@@ -14,12 +14,16 @@ import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { AdFavicon } from './common/AdFavicon';
+import PostTags from '../common/PostTags';
+import { useFeature } from '../../GrowthBookProvider';
+import { adImprovementsV2Feature } from '../../../lib/featureManagement';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
+  const adImprovementsV2 = useFeature(adImprovementsV2Feature);
   const { ref, refetch, isRefetching } = useAutoRotatingAds(
     ad,
     index,
@@ -40,6 +44,12 @@ export const AdGrid = forwardRef(function AdGrid(
         <CardTitle className="line-clamp-4 typo-title3">
           {ad.description}
         </CardTitle>
+        {adImprovementsV2 ? (
+          <PostTags
+            post={{ tags: ad?.matchingTags.slice(0, 6) }}
+            className="!items-end"
+          />
+        ) : null}
         <AdAttribution ad={ad} className={{ main: 'mt-auto font-normal' }} />
       </CardTextContainer>
       <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />

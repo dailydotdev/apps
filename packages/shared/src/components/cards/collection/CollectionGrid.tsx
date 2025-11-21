@@ -8,7 +8,6 @@ import { CollectionCardHeader } from './CollectionCardHeader';
 import {
   getPostClassNames,
   FreeformCardTitle,
-  CardSpace,
   CardTextContainer,
 } from '../common/Card';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
@@ -54,7 +53,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
       />
-      <CardTextContainer className="mx-4">
+      <CardTextContainer className="mx-4 flex-1">
         <CollectionCardHeader post={post} />
         <FreeformCardTitle
           className={classNames(
@@ -68,13 +67,12 @@ export const CollectionGrid = forwardRef(function CollectionCard(
           {post.title}
         </FreeformCardTitle>
 
-        {!!post.image && <CardSpace />}
-        <PostTags post={post} />
+        <PostTags post={post} className="!items-end" />
       </CardTextContainer>
       <PostMetadata
         createdAt={post.createdAt}
         readTime={post.readTime}
-        className={classNames('mx-4 my-2', post.image ? 'mb-0' : 'mb-4')}
+        className={classNames('mx-4', post.image ? 'my-0' : 'mb-4 mt-2')}
       />
       <Container>
         <WelcomePostCardFooter
