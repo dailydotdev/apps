@@ -9,14 +9,15 @@ import { GenericLoaderSpinner } from '../utilities/loaders';
 import { IconSize } from '../Icon';
 import { Image } from '../image/Image';
 
+type AutocompleteOption = { value: string; label: string; image?: string };
+
 interface AutocompleteProps
   extends Omit<TextFieldProps, 'inputId' | 'onChange' | 'onSelect'> {
   name: string;
   onChange: (value: string) => void;
   onSelect: (value: string) => void;
   selectedValue?: string;
-  selectedImage?: string;
-  options: Array<{ value: string; label: string; image?: string }>;
+  options: Array<AutocompleteOption>;
   isLoading: boolean;
   resetOnBlur?: boolean;
 }
@@ -29,36 +30,42 @@ const Autocomplete = ({
   onChange,
   onSelect,
   selectedValue,
-  selectedImage,
   defaultValue,
   resetOnBlur = true,
   ...restProps
 }: AutocompleteProps) => {
   const [input, setInput] = useState(defaultValue || '');
-  const [isOpen, setIsOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const hasLoaded = useRef(false);
+  const [selectedOption, setSelectedOption] = useState(undefined);
 
-  // So that we don't show "no results" before the first request is made.
+  /* 
+   To prevent flickering of the selected option image as the user types.
+   We want to set the selected option only when the selected value changes or the user clears the selected value.
+  */
   useEffect(() => {
-    if (!hasLoaded.current && isLoading) {
-      hasLoaded.current = true;
+    if (!selectedValue) {
+      setSelectedOption(undefined);
+      return;
     }
-  }, [isLoading]);
+    if (selectedOption?.value !== selectedValue) {
+      setSelectedOption(options.find((opt) => opt.value === selectedValue));
+    }
+  }, [selectedValue, options, selectedOption]);
 
   const handleChange = (val: string) => {
     setInput(val);
     onChange(val);
   };
 
-  const handleSelect = (opt: { value: string; label: string }) => {
+  const handleSelect = (opt: AutocompleteOption) => {
     setInput(opt.label);
     onSelect(opt.value);
-    setIsOpen(false);
+    setIsFocused(false);
     inputRef.current?.focus();
   };
   const handleBlur = () => {
-    setIsOpen(false);
+    setIsFocused(false);
     if (resetOnBlur) {
       setInput(options.find((opt) => opt.value === selectedValue)?.label || '');
     }
@@ -69,14 +76,14 @@ const Autocomplete = ({
       <Typography type={TypographyType.Callout} bold>
         {label}
       </Typography>
-      <Popover open={isOpen && hasLoaded.current}>
+      <Popover open={isFocused && (isLoading || options.length > 0)}>
         <PopoverAnchor asChild>
           <TextField
             leftIcon={
-              selectedImage ? (
+              selectedOption?.image ? (
                 <Image
                   className="size-6 rounded-full"
-                  src={selectedImage}
+                  src={selectedOption.image}
                   alt={selectedValue}
                 />
               ) : undefined
@@ -89,9 +96,9 @@ const Autocomplete = ({
             {...restProps}
             onChange={(e) => {
               handleChange(e.target.value);
-              setIsOpen(true);
+              setIsFocused(true);
             }}
-            onFocus={() => setIsOpen(true)}
+            onFocus={() => setIsFocused(true)}
             onBlur={handleBlur}
             value={input}
             autoComplete="off"
