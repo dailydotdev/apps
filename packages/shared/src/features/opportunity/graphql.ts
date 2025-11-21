@@ -450,3 +450,25 @@ export const RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION = gql`
     }
   }
 `;
+
+export const USER_OPPORTUNITY_MATCHES_QUERY = gql`
+  query UserOpportunityMatches($after: String, $first: Int) {
+    userOpportunityMatches(after: $after, first: $first) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          ...OpportunityMatchFragment
+          opportunity {
+            ...OpportunityFragment
+          }
+        }
+        cursor
+      }
+    }
+  }
+  ${OPPORTUNITY_MATCH_FRAGMENT}
+  ${OPPORTUNITY_FRAGMENT}
+`;

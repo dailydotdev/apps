@@ -20,6 +20,7 @@ import {
   OPPORTUNITY_MATCHES_QUERY,
   OPPORTUNITIES_QUERY,
   OPPORTUNITY_BY_ID_QUERY,
+  USER_OPPORTUNITY_MATCHES_QUERY,
 } from './graphql';
 
 export const getOpportunityByIdKey = (id: string): QueryKey => [
@@ -156,5 +157,28 @@ export const getOpportunityMatchesOptions = ({
     },
     staleTime: StaleTime.Default,
     enabled: !!opportunityId,
+  };
+};
+
+export const getUserOpportunityMatchesOptions = ({
+  after,
+  first = 20,
+}: {
+  after?: string;
+  first?: number;
+} = {}): UseQueryOptions<Connection<OpportunityMatch>> => {
+  return {
+    queryKey: [RequestKey.UserOpportunityMatches, after, first],
+    queryFn: async () => {
+      const res = await gqlClient.request<{
+        userOpportunityMatches: Connection<OpportunityMatch>;
+      }>(USER_OPPORTUNITY_MATCHES_QUERY, {
+        after,
+        first,
+      });
+
+      return res.userOpportunityMatches;
+    },
+    staleTime: StaleTime.Default,
   };
 };

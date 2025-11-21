@@ -130,6 +130,7 @@ export type OpportunityMatch = {
   createdAt: Date;
   updatedAt: Date;
   user: PublicProfile;
+  opportunity?: Opportunity;
   candidatePreferences?: UserCandidatePreferences;
   screening: ScreeningAnswer[];
   feedback: ScreeningAnswer[];
