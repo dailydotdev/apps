@@ -191,10 +191,22 @@ const DeclinePage = (): ReactElement => {
         return;
       }
 
-      // Otherwise continue to first feedback question
-      setCurrentStep(DeclineStep.REASON);
-      setActiveQuestion(0);
-      setActiveAnswer('');
+      // Check if there are feedback questions
+      if (feedbackQuestions.length > 0) {
+        // Continue to first feedback question
+        setCurrentStep(DeclineStep.REASON);
+        setActiveQuestion(0);
+        setActiveAnswer('');
+      } else {
+        // No feedback questions, skip to CV or next step
+        if (!hasUploadedCV) {
+          setCurrentStep(DeclineStep.CV);
+        } else if (!hasSetPreferences) {
+          setCurrentStep(DeclineStep.PREFERENCES);
+        } else {
+          handleComplete();
+        }
+      }
     } else if (currentStep === DeclineStep.REASON) {
       // Log the feedback answer
       logEvent({
@@ -233,10 +245,22 @@ const DeclinePage = (): ReactElement => {
 
   const handleSkip = () => {
     if (currentStep === DeclineStep.STATUS) {
-      // Skip status, just go to first feedback question
-      setCurrentStep(DeclineStep.REASON);
-      setActiveQuestion(0);
-      setActiveAnswer('');
+      // Skip status - check if there are feedback questions
+      if (feedbackQuestions.length > 0) {
+        // Go to first feedback question
+        setCurrentStep(DeclineStep.REASON);
+        setActiveQuestion(0);
+        setActiveAnswer('');
+      } else {
+        // No feedback questions, skip to CV or next step
+        if (!hasUploadedCV) {
+          setCurrentStep(DeclineStep.CV);
+        } else if (!hasSetPreferences) {
+          setCurrentStep(DeclineStep.PREFERENCES);
+        } else {
+          handleComplete();
+        }
+      }
     } else if (currentStep === DeclineStep.REASON) {
       // Skip all remaining feedback questions, go to CV or Preferences or complete
       if (!hasUploadedCV) {
@@ -278,13 +302,19 @@ const DeclinePage = (): ReactElement => {
       case DeclineStep.PREFERENCES:
         if (!hasUploadedCV) {
           setCurrentStep(DeclineStep.CV);
-        } else {
+        } else if (feedbackQuestions.length > 0) {
           goToLastFeedback();
+        } else {
+          setCurrentStep(DeclineStep.STATUS);
         }
         break;
 
       case DeclineStep.CV:
-        goToLastFeedback();
+        if (feedbackQuestions.length > 0) {
+          goToLastFeedback();
+        } else {
+          setCurrentStep(DeclineStep.STATUS);
+        }
         break;
 
       case DeclineStep.REASON:
@@ -332,6 +362,8 @@ const DeclinePage = (): ReactElement => {
       I&apos;ll do this later
     </Button>
   );
+
+  console.log('step', currentStep);
 
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">

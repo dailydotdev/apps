@@ -39,14 +39,14 @@ export const opportunityEditInfoSchema = z.object({
     z
       .object({
         country: z.string().max(240),
-        city: z.string().max(240).optional(),
-        subdivision: z.string().max(240).optional(),
+        city: z.string().max(240).nullish(),
+        subdivision: z.string().max(240).nullish(),
         continent: z
           .preprocess(
             capitalize,
             z.union([z.literal('Europe'), z.literal(''), z.undefined()]),
           )
-          .optional(),
+          .nullish(),
         type: z.coerce.number().min(1),
       })
       .superRefine((val, ctx) => {
