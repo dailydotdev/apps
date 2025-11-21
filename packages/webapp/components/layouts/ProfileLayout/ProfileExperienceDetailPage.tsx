@@ -42,6 +42,10 @@ export function ProfileExperienceDetailPage({
     ),
   };
 
+  if (!experiences || experiences.length === 0) {
+    return null;
+  }
+
   return (
     <>
       <NextSeo {...seo} />
@@ -58,7 +62,11 @@ export function ProfileExperienceDetailPage({
           </Typography>
         </header>
         <div className="px-6">
-          <UserExperienceList experiences={experiences} user={user} />
+          <UserExperienceList
+            experienceType={experiences[0].type}
+            experiences={experiences}
+            user={user}
+          />
         </div>
       </div>
     </>
