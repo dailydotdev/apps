@@ -44,9 +44,11 @@ export const AdGrid = forwardRef(function AdGrid(
         <CardTitle className="line-clamp-4 typo-title3">
           {ad.description}
         </CardTitle>
-        <div className="flex-1" />
         {adImprovementsV2 ? (
-          <PostTags post={{ tags: ad?.matchingTags.slice(0, 6) }} />
+          <PostTags
+            post={{ tags: ad?.matchingTags.slice(0, 6) }}
+            className="!items-end"
+          />
         ) : null}
         <AdAttribution ad={ad} className={{ main: 'mt-auto font-normal' }} />
       </CardTextContainer>
