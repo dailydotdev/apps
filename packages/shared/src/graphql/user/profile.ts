@@ -5,6 +5,8 @@ import type { TLocation } from '../autocomplete';
 import type { Company } from '../../lib/userCompany';
 import { excludeProperties } from '../../lib/utils';
 
+export const profileExperiencesLimit = 3;
+
 type UserGeneralExperience = UserExperience & {
   skills?: UserSkill[];
   location?: TLocation;
@@ -101,26 +103,26 @@ export const getUserExperienceById = async (
 };
 
 const USER_PROFILE_EXPERIENCES_QUERY = gql`
-  query UserExperiences($userId: ID!) {
-    work: userExperiences(userId: $userId, type: work, first: 3) {
+  query UserExperiences($userId: ID!, $first: Int = 50) {
+    work: userExperiences(userId: $userId, type: work, first: $first) {
       ${getExperiencesProps(workProps)}
     }
-    education: userExperiences(userId: $userId, type: education, first: 3) {
+    education: userExperiences(userId: $userId, type: education, first: $first) {
       ${getExperiencesProps(`subtitle`)}
     }
-    project: userExperiences(userId: $userId, type: project, first: 3) {
+    project: userExperiences(userId: $userId, type: project, first: $first) {
       ${getExperiencesProps(`url`)}
     }
-    opensource: userExperiences(userId: $userId, type: opensource, first: 3) {
+    opensource: userExperiences(userId: $userId, type: opensource, first: $first) {
       ${getExperiencesProps(`url`)}
     }
-    volunteering: userExperiences(userId: $userId, type: volunteering, first: 3) {
+    volunteering: userExperiences(userId: $userId, type: volunteering, first: $first) {
       ${getExperiencesProps(`url`)}
     }
-    certification: userExperiences(userId: $userId, type: certification, first: 3) {
+    certification: userExperiences(userId: $userId, type: certification, first: $first) {
       ${getExperiencesProps(`
         externalReferenceId
-        url  
+        url
       `)}
     }
   }
@@ -203,10 +205,11 @@ export interface UserProfileExperienceData {
 
 export const getUserProfileExperiences = async (
   userId: string,
+  first?: number,
 ): Promise<UserProfileExperienceData> => {
   const result = await gqlClient.request<UserProfileExperienceData>(
     USER_PROFILE_EXPERIENCES_QUERY,
-    { userId },
+    { userId, first },
   );
 
   return result;

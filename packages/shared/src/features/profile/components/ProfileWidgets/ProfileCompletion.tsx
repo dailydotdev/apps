@@ -19,6 +19,7 @@ import type {
   UserExperienceEducation,
   UserExperienceWork,
 } from '../../../../graphql/user/profile';
+import { profileExperiencesLimit } from '../../../../graphql/user/profile';
 
 export type CompletionItem = {
   label: string;
@@ -92,6 +93,7 @@ export const ProfileCompletion = ({
 }: ProfileCompletionProps): ReactElement => {
   const { work, education, isLoading } = useProfileExperiences(
     user as PublicProfile,
+    profileExperiencesLimit,
   );
 
   const items = useMemo(

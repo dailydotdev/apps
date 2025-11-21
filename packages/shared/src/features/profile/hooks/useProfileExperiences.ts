@@ -4,12 +4,17 @@ import type { PublicProfile } from '../../../lib/user';
 import { getUserProfileExperiences } from '../../../graphql/user/profile';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 
-export function useProfileExperiences(user: PublicProfile) {
-  const queryKey = generateQueryKey(RequestKey.UserExperience, user, 'profile');
+export function useProfileExperiences(user: PublicProfile, first?: number) {
+  const queryKey = generateQueryKey(
+    RequestKey.UserExperience,
+    user,
+    'profile',
+    { first },
+  );
 
   const query = useQuery({
     queryKey,
-    queryFn: () => getUserProfileExperiences(user.id),
+    queryFn: () => getUserProfileExperiences(user.id, first),
     staleTime: StaleTime.Default,
   });
 

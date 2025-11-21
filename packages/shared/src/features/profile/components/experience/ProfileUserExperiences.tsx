@@ -2,7 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { PublicProfile } from '../../../../lib/user';
 import { useProfileExperiences } from '../../hooks/useProfileExperiences';
-import { UserExperienceType } from '../../../../graphql/user/profile';
+import {
+  profileExperiencesLimit,
+  UserExperienceType,
+} from '../../../../graphql/user/profile';
 import { UserExperienceList } from './UserExperiencesList';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 
@@ -14,7 +17,7 @@ export function ProfileUserExperiences({
   user,
 }: ProfileUserExperiencesProps): ReactElement {
   const { work, education, cert, project, opensource, volunteering, data } =
-    useProfileExperiences(user);
+    useProfileExperiences(user, profileExperiencesLimit);
   const { user: loggedUser } = useAuthContext();
   const isSameUser = loggedUser?.id === user.id;
 
