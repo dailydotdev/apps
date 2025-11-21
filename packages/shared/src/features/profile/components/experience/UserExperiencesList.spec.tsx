@@ -5,6 +5,7 @@ import { UserExperienceList } from './UserExperiencesList';
 import type { UserExperience } from '../../../../graphql/user/profile';
 import { UserExperienceType } from '../../../../graphql/user/profile';
 import { useAuthContext } from '../../../../contexts/AuthContext';
+import type { PublicProfile } from '../../../../lib/user';
 
 // Mock the AuthContext
 jest.mock('../../../../contexts/AuthContext', () => ({
@@ -50,6 +51,18 @@ jest.mock('../../../../lib/constants', () => ({
 
 const queryClient = new QueryClient();
 
+const createUser = (overrides?: Partial<PublicProfile>): PublicProfile => ({
+  id: 'user123',
+  name: 'Test User',
+  username: 'testuser',
+  image: 'https://example.com/avatar.png',
+  reputation: 100,
+  permalink: 'https://app.daily.dev/testuser',
+  createdAt: '2020-01-01',
+  premium: false,
+  ...overrides,
+});
+
 const createExperience = (
   overrides?: Partial<UserExperience>,
 ): UserExperience => ({
@@ -88,35 +101,44 @@ describe('UserExperiencesList', () => {
 
   describe('Basic rendering', () => {
     it('should render empty fragment when no experiences provided', () => {
+      const user = createUser();
       renderComponent({
         experiences: [],
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       expect(screen.queryByText('Work Experience')).not.toBeInTheDocument();
     });
 
     it('should render title when provided', () => {
+      const user = createUser();
       const experience = createExperience();
       renderComponent({
         experiences: [experience],
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
+        user,
       });
 
       expect(screen.getByText('Work Experience')).toBeInTheDocument();
     });
 
     it('should not render title when not provided', () => {
+      const user = createUser();
       const experience = createExperience();
       renderComponent({
         experiences: [experience],
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       expect(screen.queryByRole('heading')).not.toBeInTheDocument();
     });
 
     it('should render single experience without grouping', () => {
+      const user = createUser();
       const experience = createExperience({
         title: 'Senior Developer',
         company: {
@@ -131,6 +153,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences: [experience],
         title: 'Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       expect(screen.getByText('Senior Developer')).toBeInTheDocument();
@@ -139,6 +163,7 @@ describe('UserExperiencesList', () => {
 
   describe('Grouping experiences by company', () => {
     it('should group multiple experiences from the same company', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -157,6 +182,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       expect(screen.getByText('Tech Company')).toBeInTheDocument();
@@ -165,6 +192,7 @@ describe('UserExperiencesList', () => {
     });
 
     it('should display experiences from different companies separately', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -193,6 +221,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       expect(screen.getByText('Position at Company A')).toBeInTheDocument();
@@ -200,6 +230,7 @@ describe('UserExperiencesList', () => {
     });
 
     it('should handle custom company names correctly', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -218,6 +249,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       expect(screen.getByText('Self-Employed')).toBeInTheDocument();
@@ -226,6 +259,7 @@ describe('UserExperiencesList', () => {
     });
 
     it('should show company.name when both company and customCompanyName exist', () => {
+      const user = createUser();
       const experience = createExperience({
         company: {
           id: 'comp1',
@@ -240,6 +274,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences: [experience],
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       // The implementation shows company.name when it exists, regardless of customCompanyName
@@ -250,6 +286,7 @@ describe('UserExperiencesList', () => {
 
   describe('Duration calculation for grouped experiences', () => {
     it('should calculate correct total duration for non-overlapping experiences', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -266,6 +303,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       // Should show 2 years total (not 3 years from 2020 to 2023)
@@ -273,6 +312,7 @@ describe('UserExperiencesList', () => {
     });
 
     it('should handle overlapping experiences correctly', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -289,6 +329,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       // Total should be 3 years (Jan 2020 to Jan 2023), not 4 years
@@ -296,6 +338,7 @@ describe('UserExperiencesList', () => {
     });
 
     it('should handle current position (no end date) correctly', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -312,6 +355,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       // Should display some duration (will vary based on current date)
@@ -321,6 +366,7 @@ describe('UserExperiencesList', () => {
     });
 
     it('should handle experiences with gaps correctly', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -342,6 +388,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       // Should show 3 years total (excluding gaps)
@@ -349,6 +397,7 @@ describe('UserExperiencesList', () => {
     });
 
     it('should show months for experiences less than a year', () => {
+      const user = createUser();
       // Need multiple experiences at the same company to trigger grouped view with duration
       const experiences = [
         createExperience({
@@ -366,6 +415,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       // Total: 6 months
@@ -373,6 +424,7 @@ describe('UserExperiencesList', () => {
     });
 
     it('should show years and months for mixed durations', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -389,6 +441,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       // Total: 1 year 9 months
@@ -398,12 +452,13 @@ describe('UserExperiencesList', () => {
 
   describe('UI interactions and navigation', () => {
     it('should render edit button when user owns the profile', () => {
+      const user = createUser();
       const experience = createExperience();
       renderComponent({
         experiences: [experience],
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
-        isSameUser: true,
+        user,
       });
 
       // The edit button is rendered as a link/button with href
@@ -418,12 +473,13 @@ describe('UserExperiencesList', () => {
     });
 
     it('should not render edit button when user does not own the profile', () => {
+      const user = createUser({ id: 'otheruser', username: 'otheruser' });
       const experience = createExperience();
       renderComponent({
         experiences: [experience],
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
-        isSameUser: false,
+        user,
       });
 
       expect(
@@ -432,29 +488,33 @@ describe('UserExperiencesList', () => {
     });
 
     it('should render "Show More" button when hasNextPage is true', () => {
+      const user = createUser();
       const experience = createExperience();
       renderComponent({
         experiences: [experience],
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
         hasNextPage: true,
+        user,
       });
 
       const showMoreButton = screen.getByRole('link', { name: /show more/i });
       expect(showMoreButton).toBeInTheDocument();
       expect(showMoreButton).toHaveAttribute(
         'href',
-        'https://app.daily.dev/user123/work',
+        'https://app.daily.dev/testuser/work',
       );
     });
 
     it('should not render "Show More" button when hasNextPage is false', () => {
+      const user = createUser();
       const experience = createExperience();
       renderComponent({
         experiences: [experience],
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
         hasNextPage: false,
+        user,
       });
 
       expect(
@@ -463,31 +523,33 @@ describe('UserExperiencesList', () => {
     });
 
     it('should render edit links on individual items when showEditOnItems is true', () => {
+      const user = createUser();
       const experience = createExperience();
       renderComponent({
         experiences: [experience],
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
-        isSameUser: true,
         showEditOnItems: true,
+        user,
       });
 
       // The edit URL should be generated for the individual item
       const editLinks = screen.getAllByRole('link');
       const itemEditLink = editLinks.find((link) =>
-        link.getAttribute('href')?.includes('edit?id=exp1'),
+        link.getAttribute('href')?.includes('edit?id=exp1&type=work'),
       );
       expect(itemEditLink).toBeDefined();
     });
 
     it('should not render edit links on items when showEditOnItems is false', () => {
+      const user = createUser();
       const experience = createExperience();
       renderComponent({
         experiences: [experience],
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
-        isSameUser: true,
         showEditOnItems: false,
+        user,
       });
 
       const editLinks = screen.getAllByRole('link');
@@ -500,6 +562,7 @@ describe('UserExperiencesList', () => {
 
   describe('Edge cases', () => {
     it('should handle experiences with only custom company names (no company object)', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -511,12 +574,15 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       expect(screen.getByText('Freelance')).toBeInTheDocument();
     });
 
     it('should handle multiple experiences at different companies', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -556,6 +622,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       expect(screen.getByText('Role A')).toBeInTheDocument();
@@ -564,6 +632,7 @@ describe('UserExperiencesList', () => {
     });
 
     it('should handle very short experiences correctly', () => {
+      const user = createUser();
       // Need multiple experiences at the same company to trigger grouped view with duration
       const experiences = [
         createExperience({
@@ -581,6 +650,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       // Total: 14 days (less than 30 days), should show "Less than a month"
@@ -588,6 +659,7 @@ describe('UserExperiencesList', () => {
     });
 
     it('should handle concurrent positions at same company correctly', () => {
+      const user = createUser();
       const experiences = [
         createExperience({
           id: 'exp1',
@@ -606,6 +678,8 @@ describe('UserExperiencesList', () => {
       renderComponent({
         experiences,
         title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
       });
 
       // Should not double-count overlapping time
@@ -623,20 +697,20 @@ describe('UserExperiencesList', () => {
         isLoggedIn: false,
       } as ReturnType<typeof useAuthContext>);
 
+      const user = createUser();
       const experience = createExperience();
       renderComponent({
         experiences: [experience],
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
         hasNextPage: true,
+        user,
       });
 
-      expect(
-        screen.queryByRole('link', { name: /show more/i }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Show More')).not.toBeInTheDocument();
     });
 
-    it('should use correct user ID in Show More URL', () => {
+    it('should use correct username in Show More URL', () => {
       const mockUseAuthContext = useAuthContext as jest.MockedFunction<
         typeof useAuthContext
       >;
@@ -645,18 +719,20 @@ describe('UserExperiencesList', () => {
         isLoggedIn: true,
       } as ReturnType<typeof useAuthContext>);
 
+      const user = createUser({ id: 'customUserId', username: 'customuser' });
       const experience = createExperience();
       renderComponent({
         experiences: [experience],
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
         hasNextPage: true,
+        user,
       });
 
       const showMoreButton = screen.getByRole('link', { name: /show more/i });
       expect(showMoreButton).toHaveAttribute(
         'href',
-        'https://app.daily.dev/customUserId/work',
+        'https://app.daily.dev/customuser/work',
       );
     });
   });

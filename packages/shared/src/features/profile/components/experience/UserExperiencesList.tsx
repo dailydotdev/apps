@@ -22,13 +22,14 @@ import { IconSize } from '../../../../components/Icon';
 import Link from '../../../../components/utilities/Link';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { webappUrl } from '../../../../lib/constants';
+import type { PublicProfile } from '../../../../lib/user';
 
 interface UserExperienceListProps<T extends UserExperience> {
   experiences: T[];
   title?: string;
-  experienceType?: UserExperienceType;
+  experienceType: UserExperienceType;
   hasNextPage?: boolean;
-  isSameUser?: boolean;
+  user?: PublicProfile;
   showEditOnItems?: boolean;
 }
 
@@ -56,29 +57,23 @@ export function UserExperienceList<T extends UserExperience>({
   title,
   experienceType,
   hasNextPage,
-  isSameUser,
   showEditOnItems = false,
+  user,
 }: UserExperienceListProps<T>): ReactElement {
-  const { user } = useAuthContext();
-  const userId = user?.id;
+  const { user: loggedUser } = useAuthContext();
+  const isSameUser = user?.id === loggedUser?.id;
   const groupedByCompany: [string, T[]][] = useMemo(
     () => groupListByCompany(experiences),
     [experiences],
   );
 
-  if (!experiences?.length) {
-    return <></>;
+  if (!user || !experiences?.length) {
+    return null;
   }
 
-  const showMoreUrl =
-    userId && experienceType
-      ? `${webappUrl}${userId}/${experienceType}`
-      : undefined;
+  const showMoreUrl = `${webappUrl}${user.username}/${experienceType}`;
   const editBaseUrl = `${webappUrl}settings/profile/experience/edit`;
-  const settingsUrl =
-    isSameUser && experienceType
-      ? `${webappUrl}settings/profile/experience/${experienceType}`
-      : undefined;
+  const settingsUrl = `${webappUrl}settings/profile/experience/${experienceType}`;
 
   return (
     <div className="flex flex-col gap-3 py-4">
@@ -87,7 +82,7 @@ export function UserExperienceList<T extends UserExperience>({
           <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
             {title}
           </Typography>
-          {settingsUrl && (
+          {settingsUrl && isSameUser && (
             <Link href={settingsUrl} passHref>
               <Button
                 tag="a"
@@ -106,7 +101,7 @@ export function UserExperienceList<T extends UserExperience>({
               key={list[0].id}
               experience={list[0]}
               editUrl={
-                showEditOnItems && isSameUser && experienceType
+                showEditOnItems
                   ? `${editBaseUrl}?id=${list[0].id}&type=${experienceType}`
                   : undefined
               }
@@ -124,7 +119,7 @@ export function UserExperienceList<T extends UserExperience>({
           ),
         )}
       </ul>
-      {hasNextPage && showMoreUrl && (
+      {hasNextPage && showMoreUrl && loggedUser && (
         <Link href={showMoreUrl} passHref>
           <Button
             tag="a"

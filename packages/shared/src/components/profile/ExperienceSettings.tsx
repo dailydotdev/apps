@@ -4,6 +4,7 @@ import { useUserExperiencesByType } from '../../features/profile/hooks/useUserEx
 import type { UserExperienceType } from '../../graphql/user/profile';
 import { UserExperienceList } from '../../features/profile/components/experience/UserExperiencesList';
 import { useAuthContext } from '../../contexts/AuthContext';
+import type { PublicProfile } from '../../lib/user';
 
 type ExperienceSettingsProps = {
   experienceType: UserExperienceType;
@@ -23,7 +24,7 @@ export const ExperienceSettings = ({
         <UserExperienceList
           experiences={experiences}
           experienceType={experienceType}
-          isSameUser
+          user={user as PublicProfile}
           showEditOnItems
         />
       ) : (
