@@ -72,7 +72,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
       <PostMetadata
         createdAt={post.createdAt}
         readTime={post.readTime}
-        className={classNames('mx-4 my-2', post.image ? 'mb-0' : 'mb-4')}
+        className={classNames('mx-4', post.image ? 'my-0' : 'mb-4 mt-2')}
       />
       <Container>
         <WelcomePostCardFooter
