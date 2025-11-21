@@ -70,6 +70,7 @@ export enum LazyModal {
   CustomLinks = 'customLinks',
   ListAwards = 'listAwards',
   AdsDashboard = 'adsDashboard',
+  DirtyForm = 'dirtyForm',
   BoostPost = 'boostPost',
   BoostSquad = 'boostSquad',
   BoostedCampaignView = 'boostedCampaignView',

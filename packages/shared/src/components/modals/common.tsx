@@ -334,6 +334,10 @@ const OpportunityEditModal = dynamic(() =>
   ).then((mod) => mod.OpportunityEditModal),
 );
 
+const DirtyFormModal = dynamic(
+  () => import(/* webpackChunkName: "dirtyFormModal" */ './DirtyFormModal'),
+);
+
 const JobOpportunityModal = dynamic(
   () =>
     import(
@@ -424,6 +428,7 @@ export const modals = {
   [LazyModal.ActionSuccess]: ActionSuccessModal,
   [LazyModal.SquadNotificationSettings]: SquadNotificationSettingsModal,
   [LazyModal.OpportunityEdit]: OpportunityEditModal,
+  [LazyModal.DirtyForm]: DirtyFormModal,
   [LazyModal.JobOpportunity]: JobOpportunityModal,
   [LazyModal.RecruiterIntro]: RecruiterIntroModal,
   [LazyModal.RecruiterTrust]: RecruiterTrustModal,

@@ -12,6 +12,11 @@ import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/P
 import CommentFeed from '@dailydotdev/shared/src/components/CommentFeed';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
+import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
+import {
+  Typography,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getStaticPaths as getProfileStaticPaths,
@@ -69,6 +74,11 @@ const ProfileCommentsPage = ({
   return (
     <>
       <NextSeo {...seo} />
+      <GoBackHeaderMobile>
+        <Typography bold type={TypographyType.Body}>
+          Replies
+        </Typography>
+      </GoBackHeaderMobile>
       <CommentFeed
         feedQueryKey={generateQueryKey(RequestKey.UserComments, null, userId)}
         query={USER_COMMENTS_QUERY}

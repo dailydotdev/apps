@@ -31,3 +31,20 @@
 .break-words-overflow {
   overflow-wrap: break-word;
 }
+
+/* Sidebar overlay mode on profile pages below 1360px */
+@media (max-width: 1359px) and (min-width: 1020px) {
+  /* Make sidebar overlay on top of content when expanded */
+  body:has(.profile-page) nav[role="navigation"] {
+    position: fixed !important;
+    z-index: 100 !important;
+    height: 100vh !important;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  /* Remove sidebar padding from main content */
+  body:has(.profile-page) main {
+    padding-left: 0 !important;
+    margin-left: 20px;
+  }
+}

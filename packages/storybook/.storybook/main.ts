@@ -56,6 +56,14 @@ const config: StorybookConfig = {
             __dirname,
             '../mock/hooks/useOnboardingActions.ts',
           ),
+          '@dailydotdev/shared/src/hooks/useToastNotification': path.resolve(
+            __dirname,
+            '../mock/hooks/useToastNotification.ts',
+          ),
+          '@dailydotdev/shared/src/hooks/useActions': path.resolve(
+            __dirname,
+            '../mock/hooks/useActions.ts',
+          ),
         },
       },
       define: {

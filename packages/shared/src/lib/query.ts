@@ -219,6 +219,9 @@ export enum RequestKey {
   OpportunityMatches = 'opportunity_matches',
   UserCandidatePreferences = 'user_candidate_preferences',
   KeywordAutocomplete = 'keyword_autocomplete',
+  Location = 'location',
+  Autocomplete = 'autocomplete',
+  UserExperience = 'user_experience',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

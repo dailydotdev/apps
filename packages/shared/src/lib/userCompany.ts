@@ -12,3 +12,8 @@ export interface UserCompany {
   company?: Company;
   email: string;
 }
+
+export enum CompanyType {
+  Company = 'company',
+  School = 'school',
+}

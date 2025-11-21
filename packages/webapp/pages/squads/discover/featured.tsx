@@ -9,7 +9,10 @@ import { FeedContainer, SquadGrid } from '@dailydotdev/shared/src/components';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import type { SourcesQueryData } from '@dailydotdev/shared/src/hooks/source/useSources';
-import { useSources } from '@dailydotdev/shared/src/hooks/source/useSources';
+import {
+  useSources,
+  getFlatteredNodes,
+} from '@dailydotdev/shared/src/hooks/source/useSources';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
 import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
@@ -46,8 +49,7 @@ const SquadsPage = (): ReactElement => {
     query: { featured: true, isPublic: true, sortByMembersCount: true },
   });
   const { isInitialLoading } = result;
-  const flatSquads =
-    result.data?.pages.flatMap((page) => page.sources.edges) ?? [];
+  const flatSquads = getFlatteredNodes(result);
   const isTablet = useViewSize(ViewSize.Tablet);
 
   return (
