@@ -58,7 +58,7 @@ export function ProfileExperienceDetailPage({
           </Typography>
         </header>
         <div className="px-6">
-          <UserExperienceList experiences={experiences} />
+          <UserExperienceList experiences={experiences} user={user} />
         </div>
       </div>
     </>
