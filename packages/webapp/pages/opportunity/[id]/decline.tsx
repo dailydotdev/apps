@@ -197,15 +197,13 @@ const DeclinePage = (): ReactElement => {
         setCurrentStep(DeclineStep.REASON);
         setActiveQuestion(0);
         setActiveAnswer('');
+      } else if (!hasUploadedCV) {
+        // No feedback questions, skip to CV
+        setCurrentStep(DeclineStep.CV);
+      } else if (!hasSetPreferences) {
+        setCurrentStep(DeclineStep.PREFERENCES);
       } else {
-        // No feedback questions, skip to CV or next step
-        if (!hasUploadedCV) {
-          setCurrentStep(DeclineStep.CV);
-        } else if (!hasSetPreferences) {
-          setCurrentStep(DeclineStep.PREFERENCES);
-        } else {
-          handleComplete();
-        }
+        handleComplete();
       }
     } else if (currentStep === DeclineStep.REASON) {
       // Log the feedback answer
@@ -251,15 +249,13 @@ const DeclinePage = (): ReactElement => {
         setCurrentStep(DeclineStep.REASON);
         setActiveQuestion(0);
         setActiveAnswer('');
+      } else if (!hasUploadedCV) {
+        // No feedback questions, skip to CV
+        setCurrentStep(DeclineStep.CV);
+      } else if (!hasSetPreferences) {
+        setCurrentStep(DeclineStep.PREFERENCES);
       } else {
-        // No feedback questions, skip to CV or next step
-        if (!hasUploadedCV) {
-          setCurrentStep(DeclineStep.CV);
-        } else if (!hasSetPreferences) {
-          setCurrentStep(DeclineStep.PREFERENCES);
-        } else {
-          handleComplete();
-        }
+        handleComplete();
       }
     } else if (currentStep === DeclineStep.REASON) {
       // Skip all remaining feedback questions, go to CV or Preferences or complete
@@ -362,8 +358,6 @@ const DeclinePage = (): ReactElement => {
       I&apos;ll do this later
     </Button>
   );
-
-  console.log('step', currentStep);
 
   return (
     <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
