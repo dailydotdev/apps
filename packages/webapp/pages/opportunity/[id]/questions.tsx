@@ -50,9 +50,7 @@ const AcceptPage = (): ReactElement => {
     back,
   } = useRouter();
   const opportunityId = id as string;
-  const [currentStep, setCurrentStep] = useState<AcceptStep>(
-    AcceptStep.QUESTIONS,
-  );
+  const [currentStep, setCurrentStep] = useState<AcceptStep | null>(null);
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [activeAnswer, setActiveAnswer] = useState('');
   const [answers, setAnswers] = useState<
@@ -144,7 +142,13 @@ const AcceptPage = (): ReactElement => {
   const handleBack = () => {
     switch (currentStep) {
       case AcceptStep.CV:
-        goToLastQuestion();
+        // If there are questions, go back to the last question
+        if (questions.length > 0) {
+          goToLastQuestion();
+        } else {
+          // No questions, go back to previous page
+          back();
+        }
         break;
 
       case AcceptStep.QUESTIONS:
@@ -189,7 +193,35 @@ const AcceptPage = (): ReactElement => {
     completeAction(ActionType.OpportunityInitialView);
   }, [completeAction, isActionsFetched]);
 
-  if (!opportunity) {
+  // Initialize the correct step based on questions and CV status
+  useEffect(() => {
+    if (!opportunity || !isActionsFetched || currentStep !== null) {
+      return;
+    }
+
+    // If there are questions, start with questions step
+    if (questions.length > 0) {
+      setCurrentStep(AcceptStep.QUESTIONS);
+      return;
+    }
+
+    // No questions - check if CV is needed
+    if (!hasUploadedCV) {
+      setCurrentStep(AcceptStep.CV);
+    } else {
+      // No questions and CV already uploaded - directly accept
+      acceptOpportunity();
+    }
+  }, [
+    opportunity,
+    questions.length,
+    hasUploadedCV,
+    isActionsFetched,
+    currentStep,
+    acceptOpportunity,
+  ]);
+
+  if (!opportunity || currentStep === null) {
     return null;
   }
 
