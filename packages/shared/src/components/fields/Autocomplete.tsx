@@ -114,7 +114,7 @@ const Autocomplete = ({
           onCloseAutoFocus={(e) => e.preventDefault()} // avoid refocus jumps
         >
           {!isLoading ? (
-            <div className="bg-red flex w-full flex-col">
+            <div className="flex w-full flex-col">
               {options?.length > 0 ? (
                 options.map((opt) => (
                   <button
