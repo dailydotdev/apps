@@ -106,3 +106,5 @@ export const boostSettingsFeature = new Feature('boost_settings', {
   default_cores: 5000,
   default_days: 7,
 });
+
+export const adImprovementsV2Feature = new Feature('ad_improvements_v2', false);
