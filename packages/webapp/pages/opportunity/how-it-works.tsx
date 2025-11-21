@@ -25,11 +25,8 @@ import { Accordion } from '@dailydotdev/shared/src/components/accordion';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
-import { settingsUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { useAlertsContext } from '@dailydotdev/shared/src/contexts/AlertContext';
-import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { getCandidatePreferencesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
@@ -45,33 +42,13 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
-const jobPreferenceUrl = `${settingsUrl}/job-preferences`;
-
 const HeaderSection = (): ReactElement => {
-  const { push } = useRouter();
-  const { user } = useAuthContext();
-  const { alerts } = useAlertsContext();
   const { logEvent } = useLogContext();
   const logRef = useRef<typeof logEvent>();
   const hasLoggedRef = useRef(false);
   logRef.current = logEvent;
 
   const { isActionsFetched, completeAction } = useActions();
-  const { opportunityId } = alerts;
-
-  const { data: preferences } = useQuery(
-    getCandidatePreferencesOptions(user?.id),
-  );
-
-  const onUploadSuccess = () => {
-    push(jobPreferenceUrl);
-  };
-
-  const handleClick = (): void => {
-    logRef.current({
-      event_name: LogEvent.CompleteOnboardingCandidate,
-    });
-  };
 
   useEffect(() => {
     if (hasLoggedRef.current) {
