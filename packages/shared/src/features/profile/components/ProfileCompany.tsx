@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import Autocomplete from '../../../components/fields/Autocomplete';
@@ -61,12 +61,6 @@ const ProfileCompany = ({
 
   const [debouncedQuery] = useDebounceFn<string>((q) => handleSearch(q), 300);
 
-  const selectedImage = useMemo(() => {
-    return data?.find((company) => company.id === companyId)?.image;
-    // We only wanna re-run this when a new companyId is set.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId]);
-
   return (
     <div className="flex flex-col gap-1">
       <Autocomplete
@@ -82,7 +76,6 @@ const ProfileCompany = ({
           })) || []
         }
         selectedValue={companyId}
-        selectedImage={selectedImage}
         label={label}
         isLoading={isLoading}
         resetOnBlur={false}
