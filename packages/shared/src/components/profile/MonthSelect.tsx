@@ -5,18 +5,18 @@ import { ButtonSize } from '../buttons/Button';
 import type { IconType } from '../buttons/Button';
 
 export const MONTHS = [
-  { label: 'January', value: 'January' },
-  { label: 'February', value: 'February' },
-  { label: 'March', value: 'March' },
-  { label: 'April', value: 'April' },
-  { label: 'May', value: 'May' },
-  { label: 'June', value: 'June' },
-  { label: 'July', value: 'July' },
-  { label: 'August', value: 'August' },
-  { label: 'September', value: 'September' },
-  { label: 'October', value: 'October' },
-  { label: 'November', value: 'November' },
-  { label: 'December', value: 'December' },
+  { label: 'January', value: '0' },
+  { label: 'February', value: '1' },
+  { label: 'March', value: '2' },
+  { label: 'April', value: '3' },
+  { label: 'May', value: '4' },
+  { label: 'June', value: '5' },
+  { label: 'July', value: '6' },
+  { label: 'August', value: '7' },
+  { label: 'September', value: '8' },
+  { label: 'October', value: '9' },
+  { label: 'November', value: '10' },
+  { label: 'December', value: '11' },
 ];
 
 type MonthSelectProps = {

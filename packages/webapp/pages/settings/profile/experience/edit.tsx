@@ -20,7 +20,6 @@ import {
   UserExperienceType,
 } from '@dailydotdev/shared/src/graphql/user/profile';
 import type { GetServerSideProps } from 'next';
-import { format } from 'date-fns';
 import type { TLocation } from '@dailydotdev/shared/src/graphql/autocomplete';
 import { useRouter } from 'next/router';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
@@ -60,8 +59,8 @@ const splitMonthYear = (value?: string) => {
     return ['', ''];
   }
   const date = new Date(value);
-  const month = format(date, 'MMMM');
-  const year = format(date, 'yyyy');
+  const month = date.getMonth().toString();
+  const year = date.getFullYear().toString();
   return [month, year];
 };
 
