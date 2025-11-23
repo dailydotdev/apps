@@ -256,13 +256,15 @@ describe('UserWorkExperienceForm', () => {
 
     // Initially not checked
     expect(currentSwitch).not.toBeChecked();
+    // End date field should be present when current is false
+    expect(screen.getByText(/End date\*/)).toBeInTheDocument();
 
     // When toggled to current
     await userEvent.click(currentSwitch);
     expect(currentSwitch).toBeChecked();
 
-    // End date fields should still be present
-    expect(screen.getByText(/End date\*/)).toBeInTheDocument();
+    // End date field should not be present when current is true
+    expect(screen.queryByText(/End date\*/)).not.toBeInTheDocument();
   });
 
   it('should show character count for description field', async () => {

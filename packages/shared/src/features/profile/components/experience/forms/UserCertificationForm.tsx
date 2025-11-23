@@ -49,18 +49,18 @@ const UserCertificationForm = () => {
             yearPlaceholder="Year"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Callout} bold>
-            Expiration Date
-          </Typography>
-          {!current && (
+        {!current && (
+          <div className="flex flex-col gap-2">
+            <Typography type={TypographyType.Callout} bold>
+              Expiration Date
+            </Typography>
             <ProfileMonthYearSelect
               name="endedAt"
               monthPlaceholder="Month"
               yearPlaceholder="Year"
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">

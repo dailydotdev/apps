@@ -193,8 +193,8 @@ describe('UserVolunteeringExperienceForm', () => {
     await userEvent.click(currentSwitch);
     expect(currentSwitch).toBeChecked();
 
-    // End date fields should still be present
-    expect(screen.getByText(/End date\*/)).toBeInTheDocument();
+    // End date field should not be present when current is true
+    expect(screen.queryByText(/End date\*/)).not.toBeInTheDocument();
   });
 
   it('should show month and year dropdowns for date fields', () => {
@@ -204,12 +204,14 @@ describe('UserVolunteeringExperienceForm', () => {
       </FormWrapper>,
     );
 
-    // Check for month and year placeholders in start date and end date
-    const monthPlaceholders = screen.getAllByText('Month');
-    const yearPlaceholders = screen.getAllByText('Year');
+    // Check for "January" placeholder in start date (startedAt)
+    expect(screen.getByText('January')).toBeInTheDocument();
 
-    // We should have 2 sets (start date and end date)
-    expect(monthPlaceholders).toHaveLength(2);
+    // Check for "Month" placeholder in end date (endedAt) when current is false
+    expect(screen.getByText('Month')).toBeInTheDocument();
+
+    // Check for year placeholders (should have 2 - one for start date and one for end date)
+    const yearPlaceholders = screen.getAllByText('Year');
     expect(yearPlaceholders).toHaveLength(2);
   });
 

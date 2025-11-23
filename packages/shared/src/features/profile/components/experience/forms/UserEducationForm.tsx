@@ -56,18 +56,18 @@ const UserEducationForm = () => {
             yearPlaceholder="Year"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Callout} bold>
-            End date*
-          </Typography>
-          {!current && (
+        {!current && (
+          <div className="flex flex-col gap-2">
+            <Typography type={TypographyType.Callout} bold>
+              End date*
+            </Typography>
             <ProfileMonthYearSelect
               name="endedAt"
               monthPlaceholder="Month"
               yearPlaceholder="Year"
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">
