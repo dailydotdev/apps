@@ -37,6 +37,7 @@ const FormWrapper: React.FC<FormWrapperProps> = ({
       customCompanyName: '',
       current: false,
       startedAt: null,
+      endedAt: null,
       url: '',
       description: '',
       ...defaultValues,
@@ -86,6 +87,9 @@ describe('UserProjectExperienceForm', () => {
 
     // Check date field exists (look for the label)
     expect(screen.getByText('Publication Date*')).toBeInTheDocument();
+
+    // Check end date field exists when current is false
+    expect(screen.getByText('End date*')).toBeInTheDocument();
   });
 
   it('should handle user interaction with form fields', async () => {
@@ -187,6 +191,9 @@ describe('UserProjectExperienceForm', () => {
       // eslint-disable-next-line testing-library/no-node-access
       ?.querySelector('input[type="checkbox"]') as HTMLInputElement;
     expect(currentSwitch).toBeChecked();
+
+    // End date field should not be present when current is true
+    expect(screen.queryByText('End date*')).not.toBeInTheDocument();
   });
 
   it('should display different switch labels for OpenSource type', () => {
@@ -210,6 +217,12 @@ describe('UserProjectExperienceForm', () => {
     expect(
       screen.queryByText('Ongoing project/publication'),
     ).not.toBeInTheDocument();
+
+    // Check for OpenSource-specific start date label
+    expect(screen.getByText('Active from*')).toBeInTheDocument();
+
+    // End date field should be present when current is false
+    expect(screen.getByText('End date*')).toBeInTheDocument();
   });
 
   it('should display all required field indicators', () => {
@@ -229,6 +242,9 @@ describe('UserProjectExperienceForm', () => {
     // Check that Publication URL is not required (no asterisk)
     expect(screen.getByText('Publication URL')).toBeInTheDocument();
     expect(screen.queryByText('Publication URL*')).not.toBeInTheDocument();
+
+    // Check end date has required indicator when current is false
+    expect(screen.getByText('End date*')).toBeInTheDocument();
   });
 
   it('should render all form sections with proper structure', () => {
@@ -259,6 +275,7 @@ describe('UserProjectExperienceForm', () => {
     expect(screen.getByText('Title*')).toBeInTheDocument();
     expect(screen.getByText('Publisher*')).toBeInTheDocument();
     expect(screen.getByText('Publication URL')).toBeInTheDocument();
+    expect(screen.getByText('End date*')).toBeInTheDocument();
   });
 
   it('should handle current project toggle', async () => {
@@ -279,9 +296,15 @@ describe('UserProjectExperienceForm', () => {
     // Initially not checked
     expect(currentSwitch).not.toBeChecked();
 
+    // End date field should be present when current is false
+    expect(screen.getByText('End date*')).toBeInTheDocument();
+
     // When toggled to current
     await userEvent.click(currentSwitch);
     expect(currentSwitch).toBeChecked();
+
+    // End date field should not be present when current is true
+    expect(screen.queryByText('End date*')).not.toBeInTheDocument();
   });
 
   it('should show month and year dropdowns for publication date', () => {
@@ -294,8 +317,12 @@ describe('UserProjectExperienceForm', () => {
     // Check for "January" placeholder in publication date (startedAt)
     expect(screen.getByText('January')).toBeInTheDocument();
 
-    // Check for year placeholder
-    expect(screen.getByText('Year')).toBeInTheDocument();
+    // Check for "Month" placeholder in end date (endedAt) when current is false
+    expect(screen.getByText('Month')).toBeInTheDocument();
+
+    // Check for year placeholders (should have 2 - one for start date and one for end date)
+    const yearPlaceholders = screen.getAllByText('Year');
+    expect(yearPlaceholders).toHaveLength(2);
   });
 
   it('should validate project-specific fields', async () => {
@@ -389,5 +416,68 @@ describe('UserProjectExperienceForm', () => {
     expect(urlInput).toHaveValue(
       'https://blog.example.com/post?id=123&category=tech',
     );
+  });
+
+  it('should show end date field when current is false for OpenSource type', () => {
+    render(
+      <FormWrapper
+        defaultValues={{
+          type: UserExperienceType.OpenSource,
+          current: false,
+        }}
+      >
+        <UserProjectExperienceForm />
+      </FormWrapper>,
+    );
+
+    // End date field should be present when current is false
+    expect(screen.getByText('End date*')).toBeInTheDocument();
+    expect(screen.getByText('Month')).toBeInTheDocument();
+  });
+
+  it('should hide end date field when current is true for OpenSource type', () => {
+    render(
+      <FormWrapper
+        defaultValues={{
+          type: UserExperienceType.OpenSource,
+          current: true,
+        }}
+      >
+        <UserProjectExperienceForm />
+      </FormWrapper>,
+    );
+
+    // End date field should not be present when current is true
+    expect(screen.queryByText('End date*')).not.toBeInTheDocument();
+    expect(screen.queryByText('Month')).not.toBeInTheDocument();
+  });
+
+  it('should toggle end date field visibility when switching current status', async () => {
+    render(
+      <FormWrapper defaultValues={{ type: UserExperienceType.OpenSource }}>
+        <UserProjectExperienceForm />
+      </FormWrapper>,
+    );
+
+    // Initially current is false, so end date should be visible
+    expect(screen.getByText('End date*')).toBeInTheDocument();
+
+    // Find and toggle the current switch
+    const currentLabel = screen.getByText('Active open-source contribution');
+    const currentSwitch = currentLabel
+      // eslint-disable-next-line testing-library/no-node-access
+      .closest('.flex-row')
+      // eslint-disable-next-line testing-library/no-node-access
+      ?.querySelector('input[type="checkbox"]') as HTMLInputElement;
+
+    // Toggle to current (true)
+    await userEvent.click(currentSwitch);
+    expect(currentSwitch).toBeChecked();
+    expect(screen.queryByText('End date*')).not.toBeInTheDocument();
+
+    // Toggle back to not current (false)
+    await userEvent.click(currentSwitch);
+    expect(currentSwitch).not.toBeChecked();
+    expect(screen.getByText('End date*')).toBeInTheDocument();
   });
 });
