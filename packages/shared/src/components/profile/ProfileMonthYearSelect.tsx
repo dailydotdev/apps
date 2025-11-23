@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { parse } from 'date-fns';
 import MonthSelect from './MonthSelect';
 import YearSelect from './YearSelect';
 import {
@@ -29,16 +28,27 @@ const ProfileMonthYearSelect = ({
   } = useFormContext();
   const month = watch(monthName);
   const year = watch(yearName);
+  const current = watch('current');
+
   const handleSelect = (value: string, inputName: string) => {
     setValue(inputName, value);
   };
 
   useEffect(() => {
-    if (month && year) {
-      const date = parse(`${month}-${year}`, 'MMMM-yyyy', new Date());
+    if (year) {
+      const monthToUse = month || 0;
+      const date = new Date(Date.UTC(year, monthToUse, 1, 12, 0, 0, 0));
       setValue(name, date);
     }
   }, [month, year, name, setValue]);
+
+  useEffect(() => {
+    if (current) {
+      setValue('endedAt', null);
+      setValue('endedAtMonth', '');
+      setValue('endedAtYear', '');
+    }
+  }, [current, setValue]);
 
   return (
     <div>

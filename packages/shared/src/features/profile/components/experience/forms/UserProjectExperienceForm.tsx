@@ -78,7 +78,7 @@ const UserProjectExperienceForm = () => {
         </Typography>
         <ProfileMonthYearSelect
           name="startedAt"
-          monthPlaceholder="Month"
+          monthPlaceholder="January"
           yearPlaceholder="Year"
         />
       </div>

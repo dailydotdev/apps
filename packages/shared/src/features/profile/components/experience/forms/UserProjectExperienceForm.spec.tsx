@@ -291,13 +291,11 @@ describe('UserProjectExperienceForm', () => {
       </FormWrapper>,
     );
 
-    // Check for month and year placeholders in publication date
-    const monthPlaceholder = screen.getByText('Month');
-    const yearPlaceholder = screen.getByText('Year');
+    // Check for "January" placeholder in publication date (startedAt)
+    expect(screen.getByText('January')).toBeInTheDocument();
 
-    // We should have 1 set (publication date)
-    expect(monthPlaceholder).toBeInTheDocument();
-    expect(yearPlaceholder).toBeInTheDocument();
+    // Check for year placeholder
+    expect(screen.getByText('Year')).toBeInTheDocument();
   });
 
   it('should validate project-specific fields', async () => {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useFormContext } from 'react-hook-form';
 import ControlledTextField from '../../../../../components/fields/ControlledTextField';
 import ProfileCompany from '../../ProfileCompany';
 import { HorizontalSeparator } from '../../../../../components/utilities';
@@ -13,6 +14,9 @@ import { profileSecondaryFieldStyles } from '../../../common';
 import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
 
 const UserEducationForm = () => {
+  const { watch } = useFormContext();
+  const current = watch('current');
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -48,20 +52,22 @@ const UserEducationForm = () => {
           </Typography>
           <ProfileMonthYearSelect
             name="startedAt"
-            monthPlaceholder="Month"
+            monthPlaceholder="January"
             yearPlaceholder="Year"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Callout} bold>
-            End date*
-          </Typography>
-          <ProfileMonthYearSelect
-            name="endedAt"
-            monthPlaceholder="Month"
-            yearPlaceholder="Year"
-          />
-        </div>
+        {!current && (
+          <div className="flex flex-col gap-2">
+            <Typography type={TypographyType.Callout} bold>
+              End date*
+            </Typography>
+            <ProfileMonthYearSelect
+              name="endedAt"
+              monthPlaceholder="Month"
+              yearPlaceholder="Year"
+            />
+          </div>
+        )}
       </div>
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">

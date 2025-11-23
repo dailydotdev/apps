@@ -291,8 +291,8 @@ describe('UserCertificationForm', () => {
     await userEvent.click(currentSwitch);
     expect(currentSwitch).toBeChecked();
 
-    // Expiration date fields should still be present
-    expect(screen.getByText('Expiration Date')).toBeInTheDocument();
+    // Expiration date field should not be present when current is true
+    expect(screen.queryByText('Expiration Date')).not.toBeInTheDocument();
   });
 
   it('should show month and year dropdowns for date fields', () => {
@@ -302,12 +302,14 @@ describe('UserCertificationForm', () => {
       </FormWrapper>,
     );
 
-    // Check for month and year placeholders in issue date and expiration date
-    const monthPlaceholders = screen.getAllByText('Month');
-    const yearPlaceholders = screen.getAllByText('Year');
+    // Check for "January" placeholder in issue date (startedAt)
+    expect(screen.getByText('January')).toBeInTheDocument();
 
-    // We should have 2 sets (issue date and expiration date)
-    expect(monthPlaceholders).toHaveLength(2);
+    // Check for "Month" placeholder in expiration date (endedAt) when current is false
+    expect(screen.getByText('Month')).toBeInTheDocument();
+
+    // Check for year placeholders (should have 2 - one for issue date and one for expiration date)
+    const yearPlaceholders = screen.getAllByText('Year');
     expect(yearPlaceholders).toHaveLength(2);
   });
 
