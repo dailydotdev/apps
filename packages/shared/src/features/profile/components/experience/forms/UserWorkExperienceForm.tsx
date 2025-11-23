@@ -1,4 +1,5 @@
 import React from 'react';
+import { useFormContext } from 'react-hook-form';
 import ControlledTextField from '../../../../../components/fields/ControlledTextField';
 import EmploymentTypeSelect from '../../../../../components/profile/EmploymentTypeSelect';
 import ProfileCompany from '../../ProfileCompany';
@@ -16,6 +17,9 @@ import { profileSecondaryFieldStyles } from '../../../common';
 import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
 
 const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
+  const { watch } = useFormContext();
+  const current = watch('current');
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -48,7 +52,7 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
           </Typography>
           <ProfileMonthYearSelect
             name="startedAt"
-            monthPlaceholder="Month"
+            monthPlaceholder="January"
             yearPlaceholder="Year"
           />
         </div>
@@ -56,15 +60,17 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
           <Typography type={TypographyType.Callout} bold>
             End date*
           </Typography>
-          <ProfileMonthYearSelect
-            name="endedAt"
-            monthPlaceholder="Month"
-            yearPlaceholder="Year"
-          />
+          {!current && (
+            <ProfileMonthYearSelect
+              name="endedAt"
+              monthPlaceholder="Month"
+              yearPlaceholder="Year"
+            />
+          )}
         </div>
       </div>
       <HorizontalSeparator />
-      <div className="flex flex-col gap-2">
+      <div className=" flex flex-col gap-2">
         <div className="flex flex-col gap-2">
           <ProfileLocation
             locationName="externalLocationId"

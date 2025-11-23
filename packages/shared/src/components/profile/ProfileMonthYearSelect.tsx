@@ -28,6 +28,8 @@ const ProfileMonthYearSelect = ({
   } = useFormContext();
   const month = watch(monthName);
   const year = watch(yearName);
+  const current = watch('current');
+
   const handleSelect = (value: string, inputName: string) => {
     setValue(inputName, value);
   };
@@ -39,6 +41,14 @@ const ProfileMonthYearSelect = ({
       setValue(name, date);
     }
   }, [month, year, name, setValue]);
+
+  useEffect(() => {
+    if (current) {
+      setValue('endedAt', null);
+      setValue('endedAtMonth', '');
+      setValue('endedAtYear', '');
+    }
+  }, [current, setValue]);
 
   return (
     <div>

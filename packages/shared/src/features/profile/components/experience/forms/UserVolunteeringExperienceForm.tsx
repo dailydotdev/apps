@@ -1,4 +1,5 @@
 import React from 'react';
+import { useFormContext } from 'react-hook-form';
 import ControlledTextField from '../../../../../components/fields/ControlledTextField';
 import ProfileCompany from '../../ProfileCompany';
 import { HorizontalSeparator } from '../../../../../components/utilities';
@@ -12,6 +13,9 @@ import { profileSecondaryFieldStyles } from '../../../common';
 import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
 
 const UserVolunteeringExperienceForm = () => {
+  const { watch } = useFormContext();
+  const current = watch('current');
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -40,7 +44,7 @@ const UserVolunteeringExperienceForm = () => {
           </Typography>
           <ProfileMonthYearSelect
             name="startedAt"
-            monthPlaceholder="Month"
+            monthPlaceholder="January"
             yearPlaceholder="Year"
           />
         </div>
@@ -48,11 +52,13 @@ const UserVolunteeringExperienceForm = () => {
           <Typography type={TypographyType.Callout} bold>
             End date*
           </Typography>
-          <ProfileMonthYearSelect
-            name="endedAt"
-            monthPlaceholder="Month"
-            yearPlaceholder="Year"
-          />
+          {!current && (
+            <ProfileMonthYearSelect
+              name="endedAt"
+              monthPlaceholder="Month"
+              yearPlaceholder="Year"
+            />
+          )}
         </div>
       </div>
     </div>
