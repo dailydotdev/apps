@@ -4,11 +4,11 @@ import type { UseFormReturn } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import AuthContext from '../contexts/AuthContext';
-import { UPDATE_USER_INFO_MUTATION } from '../graphql/users';
+import { mutateUserInfo } from '../graphql/users';
 import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
-import { errorMessage, gqlClient } from '../graphql/common';
+import { errorMessage } from '../graphql/common';
 import { useDirtyForm } from './useDirtyForm';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
@@ -108,29 +108,25 @@ const useUserInfoForm = (): UseUserInfoForm => {
     UpdateProfileParameters
   >({
     mutationFn: ({ upload, coverUpload, ...data }) =>
-      gqlClient.request(UPDATE_USER_INFO_MUTATION, {
-        data,
-        upload,
-        coverUpload,
-      }),
+      mutateUserInfo(data, upload, coverUpload),
 
-    onSuccess: async (_, vars) => {
+    onSuccess: async (res) => {
       const oldProfileData = qc.getQueryData<PublicProfile>(userQueryKey);
       qc.setQueryData(userQueryKey, {
         ...oldProfileData,
-        ...vars,
+        ...res,
       });
-      await updateUser({ ...user, ...vars });
+      await updateUser({ ...user, ...res });
       dirtyFormRef.current?.allowNavigation();
 
       displayToast('Profile updated');
-      methods.reset(vars);
+      methods.reset(res);
       logEvent({ event_name: LogEvent.UpdateProfile });
 
       if (dirtyFormRef.current?.hasPendingNavigation()) {
         dirtyFormRef.current.navigateToPending();
       } else {
-        router.push(`/${vars.username}`);
+        router.push(`/${res.username}`);
       }
     },
 

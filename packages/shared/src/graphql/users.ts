@@ -6,7 +6,7 @@ import {
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
-import type { PublicProfile, UserShortProfile } from '../lib/user';
+import type { PublicProfile, UserProfile, UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
 import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
@@ -366,6 +366,20 @@ export const UPDATE_USER_INFO_MUTATION = gql`
     }
   }
 `;
+
+export const mutateUserInfo = async (
+  data: Partial<UserProfile>,
+  upload: File,
+  coverUpload: File,
+) => {
+  const res = await gqlClient.request(UPDATE_USER_INFO_MUTATION, {
+    data,
+    upload,
+    coverUpload,
+  });
+
+  return res.updateUserInfo;
+};
 
 export const UPLOAD_COVER_MUTATION = gql`
   mutation UploadCoverImage($upload: Upload!) {
