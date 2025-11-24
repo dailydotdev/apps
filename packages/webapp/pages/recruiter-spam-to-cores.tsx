@@ -34,7 +34,6 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { defaultSeo } from '../next-seo';
 import { getLayout } from '../components/layouts/NoSidebarLayout';
 import ProtectedPage from '../components/ProtectedPage';
-import { BackgroundImage } from './opportunity/welcome';
 
 const seo: NextSeoProps = {
   title: 'daily.dev | Convert Recruiter Spam to Cores',
@@ -279,15 +278,8 @@ const GetStartedSection = (): ReactElement => {
 };
 
 const RecruiterSpamPage = (): ReactElement => {
-  const { isAuthReady } = useAuthContext();
-
-  if (!isAuthReady) {
-    return <BackgroundImage />;
-  }
-
   return (
     <ProtectedPage>
-      <BackgroundImage />
       <div className="relative mx-4 mb-20 mt-10 max-w-[47.875rem] tablet:mx-auto">
         <FlexCol className="gap-10 tablet:mx-4 laptop:mx-0">
           <HeaderSection />

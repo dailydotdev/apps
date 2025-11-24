@@ -117,7 +117,7 @@ const MobileFooterNavbar = (): ReactElement => {
         ),
       },
       {
-        path: `${webappUrl}opportunity/${hasOpportunity || 'welcome'}`,
+        path: `${webappUrl}jobs/${hasOpportunity || ''}`,
         title: 'Jobs',
         icon: (active: boolean) => (
           <Jobs active={active} hasOpportunity={!!hasOpportunity} />

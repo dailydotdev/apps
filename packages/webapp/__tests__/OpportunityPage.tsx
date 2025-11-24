@@ -20,7 +20,7 @@ import { EmploymentType } from '@dailydotdev/shared/src/features/opportunity/pro
 import { SocialMediaType } from '@dailydotdev/shared/src/features/organizations/types';
 import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { COMPLETED_USER_ACTIONS } from '@dailydotdev/shared/src/graphql/actions';
-import JobPage from '../pages/opportunity/[id]';
+import JobPage from '../pages/jobs/[id]';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),

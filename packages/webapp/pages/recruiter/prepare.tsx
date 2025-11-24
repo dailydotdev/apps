@@ -5,7 +5,7 @@ import { RecruiterProgress } from '@dailydotdev/shared/src/components/recruiter/
 import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { useRouter } from 'next/router';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
-import JobPage from '../opportunity/[id]/index';
+import JobPage from '../jobs/[id]/index';
 
 function PreparePage(): ReactElement {
   const router = useRouter();
