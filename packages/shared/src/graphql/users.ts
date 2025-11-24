@@ -342,6 +342,7 @@ export const UPDATE_USER_INFO_MUTATION = gql`
       id
       name
       image
+      cover
       username
       permalink
       bio
