@@ -149,12 +149,15 @@ export const ProfileCompletion = ({
                 size={IconSize.XSmall}
                 className="shrink-0 text-text-secondary"
               />
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Secondary}
-              >
-                {description}
-              </Typography>
+              <div className="min-w-0 max-w-full flex-1">
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Secondary}
+                  className="w-full break-words"
+                >
+                  {description}
+                </Typography>
+              </div>
             </div>
           </div>
 
