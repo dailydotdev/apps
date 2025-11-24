@@ -16,14 +16,14 @@ import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { AdFavicon } from './common/AdFavicon';
 import PostTags from '../common/PostTags';
 import { useFeature } from '../../GrowthBookProvider';
-import { adImprovementsV2Feature } from '../../../lib/featureManagement';
+import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 
 export const AdGrid = forwardRef(function AdGrid(
   { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
   inViewRef: InViewRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
-  const adImprovementsV2 = useFeature(adImprovementsV2Feature);
+  const adImprovementsV3 = useFeature(adImprovementsV3Feature);
   const { ref, refetch, isRefetching } = useAutoRotatingAds(
     ad,
     index,
@@ -44,7 +44,7 @@ export const AdGrid = forwardRef(function AdGrid(
         <CardTitle className="line-clamp-4 typo-title3">
           {ad.description}
         </CardTitle>
-        {adImprovementsV2 && ad?.matchingTags?.length > 0 ? (
+        {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
           <PostTags
             post={{ tags: ad.matchingTags.slice(0, 6) }}
             className="!items-end"
