@@ -1,46 +1,50 @@
 import React from 'react';
 import type { ReactElement } from 'react';
-import { JobIcon } from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { CandidatePreferenceButton } from './CandidatePreferenceButton';
+import { opportunityBriefcaseDone } from '../../../lib/image';
+import { briefButtonBg } from '../../../styles/custom';
 import { TargetId } from '../../../lib/log';
+import { CandidatePreferenceButton } from './CandidatePreferenceButton';
 
 export const OpportunityAllSet = (): ReactElement => {
   return (
-    <div className="mx-auto flex max-w-xl flex-col items-center gap-6 px-4 py-10">
-      <JobIcon
-        secondary
-        size={IconSize.XLarge}
-        className="text-text-secondary"
-      />
-
-      <Typography
-        type={TypographyType.Title1}
-        color={TypographyColor.Primary}
-        bold
-        center
-      >
-        You&apos;re all set!
-      </Typography>
-
-      <Typography
-        center
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-      >
-        We’ll surface the most relevant opportunities right here as they become
-        available, so you won’t miss anything important.
-      </Typography>
-
+    <div className="flex flex-col gap-6 rounded-16 border-border-subtlest-secondary px-4 py-6 laptop:border">
+      <div className="flex flex-col flex-wrap items-center gap-4 laptop:flex-row-reverse">
+        <img
+          src={opportunityBriefcaseDone}
+          className="max-w-36"
+          alt="daily.dev jobs"
+        />
+        <div className="flex flex-1 flex-wrap gap-2">
+          <Typography
+            center
+            type={TypographyType.Title1}
+            bold
+            style={{
+              background: briefButtonBg,
+            }}
+            className="!bg-clip-text text-transparent"
+          >
+            You are all set!
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Primary}
+            className="flex-shrink"
+          >
+            We’ll surface the most relevant opportunities right here as they
+            become available, so you won’t miss anything important.
+          </Typography>
+        </div>
+      </div>
       <CandidatePreferenceButton
         label="Update job preferences"
         targetId={TargetId.OpportunityWelcomePage}
-        className="w-full tablet:w-80"
+        className="w-full"
       />
     </div>
   );

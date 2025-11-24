@@ -9,7 +9,7 @@ import JobPage from '../opportunity/[id]/index';
 
 function PreparePage(): ReactElement {
   const router = useRouter();
-  const opportunityId = (router?.query?.id as string) || 'mock-opportunity-id';
+  const opportunityId = (router?.query?.id as string) || 'mock-jobs-id';
 
   return (
     <div className="flex flex-1 flex-col">

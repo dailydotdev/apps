@@ -52,7 +52,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     OtherFeedPage.ExploreDiscussed,
   ];
   const isProfileActive = router.pathname?.includes('/[userId]');
-  const isJobsActive = router.pathname?.startsWith('/opportunity');
+  const isJobsActive = router.pathname?.startsWith('/jobs');
   const isExploreActive = explorePages.includes(activeFeed);
   const bookmarksPages: AllFeedPages[] = [
     OtherFeedPage.Bookmarks,

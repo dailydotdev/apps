@@ -1,6 +1,7 @@
-import React from 'react';
 import type { ReactElement } from 'react';
-import { FlexCol } from '../../../components/utilities';
+import React from 'react';
+import classNames from 'classnames';
+import { DateFormat, FlexCol } from '../../../components/utilities';
 import {
   Typography,
   TypographyColor,
@@ -12,7 +13,6 @@ import Link from '../../../components/utilities/Link';
 import { opportunityUrl } from '../../../lib/constants';
 import type { OpportunityMatch } from '../types';
 import { OpportunityMatchStatus } from '../types';
-import { getPlusMemberDateFormat } from '../../../lib/dateFormat';
 
 interface OpportunityMatchListProps {
   matches: OpportunityMatch[];
@@ -41,6 +41,18 @@ const matchStatusColors: Record<OpportunityMatchStatus, string> = {
     'bg-surface-float text-text-tertiary',
 };
 
+const AlertIcon = (
+  <span className="flex size-2 rounded-full bg-action-upvote-default" />
+);
+const matchStatusAlert: Record<OpportunityMatchStatus, ReactElement | null> = {
+  [OpportunityMatchStatus.Pending]: AlertIcon,
+  [OpportunityMatchStatus.CandidateAccepted]: AlertIcon,
+  [OpportunityMatchStatus.CandidateRejected]: null,
+  [OpportunityMatchStatus.CandidateTimeOut]: null,
+  [OpportunityMatchStatus.RecruiterAccepted]: null,
+  [OpportunityMatchStatus.RecruiterRejected]: null,
+};
+
 export const OpportunityMatchList = ({
   matches,
   title,
@@ -50,11 +62,15 @@ export const OpportunityMatchList = ({
   }
 
   return (
-    <FlexCol className="gap-4">
-      <Typography type={TypographyType.Title3} bold>
+    <FlexCol className="gap-2 rounded-16 border-border-subtlest-secondary laptop:border laptop:px-4 laptop:py-6">
+      <Typography
+        type={TypographyType.Subhead}
+        bold
+        color={TypographyColor.Quaternary}
+      >
         {title}
       </Typography>
-      <FlexCol className="gap-3">
+      <FlexCol className="gap-4">
         {matches.map((match) => {
           const { opportunity } = match;
           if (!opportunity) {
@@ -67,7 +83,7 @@ export const OpportunityMatchList = ({
               href={`${opportunityUrl}/${opportunity.id}`}
               passHref
             >
-              <a className="flex items-center gap-3 p-4">
+              <a className="flex items-center gap-3 p-2">
                 <SourceAvatar
                   source={{
                     image: opportunity.organization.image,
@@ -89,15 +105,17 @@ export const OpportunityMatchList = ({
                     color={TypographyColor.Tertiary}
                   >
                     {opportunity.organization.name} •{' '}
-                    {getPlusMemberDateFormat(match.createdAt)}
+                    <DateFormat date={match.createdAt} />
                   </Typography>
-                  <span
-                    className={`mr-auto whitespace-nowrap rounded-8 px-2 py-0.5 text-xs ${
-                      matchStatusColors[match.status]
-                    }`}
+                  <div
+                    className={classNames(
+                      'mr-auto flex items-center gap-2 whitespace-nowrap rounded-8 px-2 py-0.5 text-xs',
+                      matchStatusColors[match.status],
+                    )}
                   >
+                    {matchStatusAlert[match.status]}
                     {matchStatusLabels[match.status]}
-                  </span>
+                  </div>
                 </FlexCol>
               </a>
             </Link>
