@@ -7,6 +7,7 @@ import type {
   UserExperienceProject,
   UserExperienceWork,
 } from '../../../../graphql/user/profile';
+import { UserExperienceType } from '../../../../graphql/user/profile';
 import { Image, ImageType } from '../../../../components/image/Image';
 import { Pill, PillSize } from '../../../../components/Pill';
 import {
@@ -57,6 +58,15 @@ export function UserExperienceItem({
     ? skills
     : skills?.slice(0, MAX_SKILLS) || [];
 
+  const shouldSwapCopies =
+    experience.type === UserExperienceType.Education && !grouped;
+  const primaryCopy = shouldSwapCopies
+    ? company?.name || customCompanyName
+    : title;
+  const secondaryCopy = shouldSwapCopies
+    ? title
+    : company?.name || customCompanyName;
+
   return (
     <li key={experience.id} className="relative flex flex-row gap-2">
       {grouped ? (
@@ -103,7 +113,7 @@ export function UserExperienceItem({
         >
           <div className="flex flex-wrap items-center gap-1">
             <Typography truncate type={TypographyType.Subhead} bold>
-              {title}
+              {primaryCopy}
             </Typography>
             {!grouped && !endedAt && currentPill}
             {url && (
@@ -127,7 +137,7 @@ export function UserExperienceItem({
               type={TypographyType.Footnote}
               color={TypographyColor.Secondary}
             >
-              {company?.name || customCompanyName}
+              {secondaryCopy}
               {!!verified && (
                 <span className="ml-1 text-text-quaternary">Verified</span>
               )}

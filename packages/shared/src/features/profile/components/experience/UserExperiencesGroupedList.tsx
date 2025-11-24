@@ -68,10 +68,12 @@ export function UserExperiencesGroupedList({
           src={first.company?.image}
         />
         <div className="flex flex-1 flex-col">
-          <Typography type={TypographyType.Subhead} bold>
-            {company}
+          <div className="flex flex-wrap items-center gap-1">
+            <Typography type={TypographyType.Subhead} bold>
+              {company}
+            </Typography>
             {!first.endedAt && currentPill}
-          </Typography>
+          </div>
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Secondary}
