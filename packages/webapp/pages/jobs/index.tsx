@@ -63,7 +63,7 @@ const JobsPage = (): ReactElement => {
     return (
       <>
         <OpportunityHeader />
-        <FlexCol className="mx-auto max-w-xl items-center gap-8 px-4 py-6 tablet:px-0 laptop:max-w-4xl">
+        <FlexCol className="mx-auto max-w-xl items-center gap-8 px-4 py-6 laptop:max-w-4xl">
           {!sidebarRendered && (
             <img
               src={opportunityBriefcase}

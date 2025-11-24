@@ -19,7 +19,7 @@ export const OpportunityAllSet = (): ReactElement => {
           className="max-w-36"
           alt="daily.dev jobs"
         />
-        <div className="flex flex-1 flex-wrap gap-2">
+        <div className="flex flex-1 flex-wrap justify-center gap-2 text-center laptop:justify-start laptop:text-left">
           <Typography
             center
             type={TypographyType.Title1}
