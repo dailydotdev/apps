@@ -12,8 +12,9 @@ import { OpportunityFAQ } from '@dailydotdev/shared/src/features/opportunity/com
 import { OpportunityBenefits } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityBenefits';
 import { OpportunityHowItWorks } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityHowItWorks';
 import { IntroHeader } from '@dailydotdev/shared/src/features/opportunity/components/IntroHeader';
-import { getLayout } from '../../components/layouts/NoSidebarLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
+import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../../components/layouts/MainLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -23,7 +24,7 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
-const JobsWelcomePage = (): ReactElement => {
+const JobsHowItWorksPage = (): ReactElement => {
   const { user, isAuthReady } = useAuthContext();
 
   const { isPending } = useQuery(getCandidatePreferencesOptions(user?.id));
@@ -44,7 +45,10 @@ const JobsWelcomePage = (): ReactElement => {
   );
 };
 
-JobsWelcomePage.getLayout = getLayout;
-JobsWelcomePage.layoutProps = { screenCentered: true, seo };
+const geOpportunityLayout: typeof getLayout = (...props) =>
+  getFooterNavBarLayout(getLayout(...props));
 
-export default JobsWelcomePage;
+JobsHowItWorksPage.getLayout = geOpportunityLayout;
+JobsHowItWorksPage.layoutProps = { screenCentered: false, seo };
+
+export default JobsHowItWorksPage;
