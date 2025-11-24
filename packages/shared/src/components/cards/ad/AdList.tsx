@@ -18,7 +18,7 @@ import AdAttribution from './common/AdAttribution';
 import { AdFavicon } from './common/AdFavicon';
 import PostTags from '../common/PostTags';
 import { useFeature } from '../../GrowthBookProvider';
-import { adImprovementsV2Feature } from '../../../lib/featureManagement';
+import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 
 const getLinkProps = ({
   ad,
@@ -41,7 +41,7 @@ export const AdList = forwardRef(function AdCard(
   inViewRef: InViewRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
-  const adImprovementsV2 = useFeature(adImprovementsV2Feature);
+  const adImprovementsV3 = useFeature(adImprovementsV3Feature);
   const { ref, refetch, isRefetching } = useAutoRotatingAds(
     ad,
     index,
@@ -67,7 +67,7 @@ export const AdList = forwardRef(function AdCard(
         >
           <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
           {ad.description}
-          {adImprovementsV2 && ad?.matchingTags?.length > 0 ? (
+          {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
             <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
           ) : null}
           <AdAttribution
