@@ -44,9 +44,9 @@ export const AdGrid = forwardRef(function AdGrid(
         <CardTitle className="line-clamp-4 typo-title3">
           {ad.description}
         </CardTitle>
-        {adImprovementsV2 ? (
+        {adImprovementsV2 && ad?.matchingTags?.length > 0 ? (
           <PostTags
-            post={{ tags: ad?.matchingTags.slice(0, 6) }}
+            post={{ tags: ad.matchingTags.slice(0, 6) }}
             className="!items-end"
           />
         ) : null}
