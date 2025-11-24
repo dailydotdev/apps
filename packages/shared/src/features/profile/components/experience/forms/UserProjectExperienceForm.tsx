@@ -50,6 +50,7 @@ const getFormCopy = (type: UserExperienceType): FormCopy => {
 const UserProjectExperienceForm = () => {
   const { watch } = useFormContext();
   const type = watch('type') as UserExperienceType;
+  const current = watch('current');
   const copy = useMemo(() => getFormCopy(type), [type]);
   return (
     <div className="flex flex-col gap-6">
@@ -73,14 +74,28 @@ const UserProjectExperienceForm = () => {
         description={copy.switchDescription}
       />
       <div className="flex flex-col gap-2">
-        <Typography type={TypographyType.Callout} bold>
-          {copy.startedtLabel}*
-        </Typography>
-        <ProfileMonthYearSelect
-          name="startedAt"
-          monthPlaceholder="January"
-          yearPlaceholder="Year"
-        />
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Callout} bold>
+            {copy.startedtLabel}*
+          </Typography>
+          <ProfileMonthYearSelect
+            name="startedAt"
+            monthPlaceholder="January"
+            yearPlaceholder="Year"
+          />
+        </div>
+        {!current && (
+          <div className="flex flex-col gap-2">
+            <Typography type={TypographyType.Callout} bold>
+              End date*
+            </Typography>
+            <ProfileMonthYearSelect
+              name="endedAt"
+              monthPlaceholder="Month"
+              yearPlaceholder="Year"
+            />
+          </div>
+        )}
       </div>
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">
