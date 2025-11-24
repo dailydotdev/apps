@@ -67,8 +67,8 @@ export const AdList = forwardRef(function AdCard(
         >
           <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
           {ad.description}
-          {adImprovementsV2 ? (
-            <PostTags post={{ tags: ad?.matchingTags.slice(0, 6) }} />
+          {adImprovementsV2 && ad?.matchingTags?.length > 0 ? (
+            <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
           ) : null}
           <AdAttribution
             ad={ad}

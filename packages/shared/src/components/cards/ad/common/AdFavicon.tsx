@@ -18,7 +18,7 @@ type AdFaviconProps = {
 export const AdFavicon = ({ ad, className }: AdFaviconProps): ReactElement => {
   const adImprovementsV2 = useFeature(adImprovementsV2Feature);
   const imageLink =
-    adImprovementsV2 && ad.adDomain
+    adImprovementsV2 && ad?.adDomain
       ? `${apiUrl}/icon?url=${encodeURIComponent(ad.adDomain)}&size=${iconSize}`
       : adFaviconPlaceholder;
   return (
