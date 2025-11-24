@@ -1,5 +1,6 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import { Image } from '../image/Image';
 import {
   Typography,
@@ -20,6 +21,7 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
+import { fallbackImages } from '../../lib/config';
 
 const ProfileActions = dynamic(
   () =>
@@ -43,25 +45,28 @@ const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
   const isSameUser = loggedUser?.id === user.id;
   return (
     <div className="relative w-full overflow-hidden laptop:rounded-t-16">
-      <div className="h-24">
+      <div className="h-36">
         <Image src={cover} alt="Cover" className="h-full w-full object-cover" />
       </div>
       <Image
         src={image}
+        fallbackSrc={fallbackImages.avatar}
         alt="Avatar"
-        className="absolute left-6 top-6 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
+        className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
       />
       <div className="flex flex-col gap-3 px-6">
-        {isSameUser && (
-          <Link passHref href={`${webappUrl}/settings/profile`}>
-            <Button
-              className="mb-4 ml-auto mt-2 text-text-secondary"
-              tag="a"
-              type={ButtonVariant.Float}
-              icon={<EditIcon />}
-            />
-          </Link>
-        )}
+        <Link passHref href={`${webappUrl}/settings/profile`}>
+          <Button
+            className={classNames(
+              'mb-4 ml-auto mt-2 text-text-secondary',
+              !isSameUser && 'invisible',
+            )}
+            tag="a"
+            disabled={!isSameUser}
+            type={ButtonVariant.Float}
+            icon={<EditIcon />}
+          />
+        </Link>
         <div className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>
             {name}
