@@ -1,39 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useState, useMemo, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import type { PublicProfile } from '../../../lib/user';
 import AuthContext from '../../../contexts/AuthContext';
 import { ActivityTabIndex, activityTabs } from './Activity.helpers';
-
-const ActivityPostsTab = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "activityPostsTab" */ './ActivityPostsTab'
-    ).then((mod) => mod.ActivityPostsTab),
-  {
-    ssr: false,
-  },
-);
-
-const ActivityUpvotedTab = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "activityUpvotedTab" */ './ActivityUpvotedTab'
-    ).then((mod) => mod.ActivityUpvotedTab),
-  {
-    ssr: false,
-  },
-);
-
-const ActivityRepliesTab = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "activityRepliesTab" */ './ActivityRepliesTab'
-    ).then((mod) => mod.ActivityRepliesTab),
-  {
-    ssr: false,
-  },
-);
+import { ActivityPostsTab } from './ActivityPostsTab';
+import { ActivityUpvotedTab } from './ActivityUpvotedTab';
+import { ActivityRepliesTab } from './ActivityRepliesTab';
 
 type ActivityProps = {
   user: PublicProfile;
