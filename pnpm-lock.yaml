@@ -391,11 +391,11 @@ importers:
   packages/shared:
     dependencies:
       '@growthbook/growthbook':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 0.26.0
+        version: 0.26.0
       '@growthbook/growthbook-react':
-        specifier: ^1.0.0
-        version: 1.6.2(react@18.3.1)
+        specifier: ^0.17.0
+        version: 0.17.0(react@18.3.1)
       '@hookform/resolvers':
         specifier: 5.2.2
         version: 5.2.2(react-hook-form@7.54.2(react@18.3.1))
@@ -2199,18 +2199,18 @@ packages:
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
 
-  '@growthbook/growthbook-react@1.6.2':
-    resolution: {integrity: sha512-96Bo2Jwd4NBn/kBLN4ceF299PhTw8fQltRykD32hu2xMW8/LXhB8swxbPshGK+Xfa2gjgt24kpZ5oSvaVLLT7w==}
+  '@growthbook/growthbook-react@0.17.0':
+    resolution: {integrity: sha512-od+bSg3RD9AXfi/TWFDSzRaB6RuJLkUX5eFOZz8u8wL8yDbgd5RF9cwu4lQIF9/tyG1WLu4qipV+SM2v5s4BcQ==}
     engines: {node: '>=10'}
     peerDependencies:
-      react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+      react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
 
-  '@growthbook/growthbook@1.0.0':
-    resolution: {integrity: sha512-qfVhZcubsGjJI8oNjZp5g69N7c+NMxWl3WS05Sa93V6qNjE9Uz2PZqj7Qj+6iTEOZ1ignmEsIBJEKfdlpa9INg==}
+  '@growthbook/growthbook@0.26.0':
+    resolution: {integrity: sha512-Y5TOOxm8j1UEirj2AA2VQTrvJK5UGFmo6jJQLGUbNN3CSIjr+4qwb2s5dtiyNGX5Qzq/BV2/SB9G/mC+Lpc5sg==}
     engines: {node: '>=10'}
 
-  '@growthbook/growthbook@1.6.2':
-    resolution: {integrity: sha512-x3sK6Lff4BVusIzcdBeHZqA3B4kLs3kM/pJ7vvLTJwb6N/+Yn99EF1yc0XU6cfDVqFq6uFkvIFhMwDWUaKD73g==}
+  '@growthbook/growthbook@0.27.0':
+    resolution: {integrity: sha512-gt/DWXfgyudY3gXAUjzKm9kMjVfCzfRc8d0nQQiXCP523ow23jThrmBzkRKCN+zxYVxUKcHjP9yjU9EKJqP4Fw==}
     engines: {node: '>=10'}
 
   '@hookform/resolvers@5.2.2':
@@ -5127,8 +5127,8 @@ packages:
   dom-converter@0.2.0:
     resolution: {integrity: sha512-gd3ypIPfOMr9h5jIKq8E3sHOTCjeirnl0WK5ZdS1AW0Odt0b1PaWaHdJ4Qk4klv+YB9aJBS7mESXjFoDQPu6DA==}
 
-  dom-mutator@0.6.0:
-    resolution: {integrity: sha512-iCt9o0aYfXMUkz/43ZOAUFQYotjGB+GNbYJiJdz4TgXkyToXbbRy5S6FbTp72lRBtfpUMwEc1KmpFEU4CZeoNg==}
+  dom-mutator@0.5.0:
+    resolution: {integrity: sha512-bbeX8HWE8JGzraFgbVBX4ws2g3heZFuTtrleQBuN7huy+7n2n7etSuVnot3/1z3jdY2MiwuvoS4Ep1UT2rrGBw==}
     engines: {node: '>=10'}
 
   dom-serializer@0.2.2:
@@ -10760,18 +10760,18 @@ snapshots:
 
   '@gar/promisify@1.1.3': {}
 
-  '@growthbook/growthbook-react@1.6.2(react@18.3.1)':
+  '@growthbook/growthbook-react@0.17.0(react@18.3.1)':
     dependencies:
-      '@growthbook/growthbook': 1.6.2
+      '@growthbook/growthbook': 0.27.0
       react: 18.3.1
 
-  '@growthbook/growthbook@1.0.0':
+  '@growthbook/growthbook@0.26.0':
     dependencies:
-      dom-mutator: 0.6.0
+      dom-mutator: 0.5.0
 
-  '@growthbook/growthbook@1.6.2':
+  '@growthbook/growthbook@0.27.0':
     dependencies:
-      dom-mutator: 0.6.0
+      dom-mutator: 0.5.0
 
   '@hookform/resolvers@5.2.2(react-hook-form@7.54.2(react@18.3.1))':
     dependencies:
@@ -13941,7 +13941,7 @@ snapshots:
     dependencies:
       utila: 0.4.0
 
-  dom-mutator@0.6.0: {}
+  dom-mutator@0.5.0: {}
 
   dom-serializer@0.2.2:
     dependencies:
@@ -15592,7 +15592,11 @@ snapshots:
       pretty-format: 26.6.2
       throat: 5.0.0
     transitivePeerDependencies:
+      - bufferutil
+      - canvas
       - supports-color
+      - ts-node
+      - utf-8-validate
 
   jest-junit@12.3.0:
     dependencies:
