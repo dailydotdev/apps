@@ -13,6 +13,7 @@ import { useActiveFeedNameContext } from '../../contexts';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import FeedNav from '../feeds/FeedNav';
 import { MobileExploreHeader } from '../header/MobileExploreHeader';
+import useActiveNav from '../../hooks/useActiveNav';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -50,6 +51,8 @@ function MainLayoutHeader({
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
+  const { profile } = useActiveNav(feedName);
+  const isMobileProfile = profile && !isLaptop;
 
   const RenderSearchPanel = useCallback(
     () =>
@@ -69,6 +72,10 @@ function MainLayoutHeader({
       ),
     [loadedSettings, isSearchPage, hasBanner],
   );
+
+  if (isMobileProfile) {
+    return null;
+  }
 
   if (loadedSettings && !isLaptop) {
     if (isSearchPage) {
