@@ -370,12 +370,15 @@ const JobPage = (): ReactElement => {
         <div className="h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}
           <div className="flex min-h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary p-3">
-            <Button
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              onClick={back}
-              icon={<MoveToIcon className="rotate-180" />}
-            />
+            {!canEdit && (
+              <Button
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                onClick={back}
+                icon={<MoveToIcon className="rotate-180" />}
+              />
+            )}
+
             {!!match && (
               <ResponseButtons
                 id={opportunity.id}
@@ -1011,6 +1014,21 @@ const JobPage = (): ReactElement => {
                         </Typography>
                       )}
                     </div>
+                    <OpportunityEditButton
+                      noChildren
+                      onClick={() => {
+                        openModal({
+                          type: LazyModal.OpportunityEdit,
+                          props: {
+                            type: 'recruiter',
+                            payload: {
+                              id: opportunity.id,
+                              recruiterId: recruiter.id,
+                            },
+                          },
+                        });
+                      }}
+                    />
                   </div>
                   {/* Description */}
                   <ShowMoreContent
@@ -1040,7 +1058,7 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   if (id === 'null') {
     return {
       redirect: {
-        destination: '/jobs/welcome',
+        destination: '/jobs',
         permanent: false,
       },
     };

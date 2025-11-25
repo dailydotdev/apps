@@ -9,12 +9,15 @@ import type { OpportunityEditQuestionModalProps } from './OpportunityEditQuestio
 import { OpportunityEditQuestionModal } from './OpportunityEditQuestionModal';
 import type { OpportunityEditOrganizationModalProps } from './OpportunityEditOrganizationModal';
 import { OpportunityEditOrganizationModal } from './OpportunityEditOrganizationModal';
+import type { OpportunityEditRecruiterModalProps } from './OpportunityEditRecruiterModal';
+import { OpportunityEditRecruiterModal } from './OpportunityEditRecruiterModal';
 
 type PayloadMap = {
   info: OpportunityEditInfoModalProps;
   content: OpportunityEditContentModalProps;
   question: OpportunityEditQuestionModalProps;
   organization: OpportunityEditOrganizationModalProps;
+  recruiter: OpportunityEditRecruiterModalProps;
 };
 
 export type OpportunityEditModalProps = {
@@ -34,6 +37,8 @@ export const OpportunityEditModal = (props: OpportunityEditModalProps) => {
       return <OpportunityEditQuestionModal {...rest} {...payload} />;
     case 'organization':
       return <OpportunityEditOrganizationModal {...rest} {...payload} />;
+    case 'recruiter':
+      return <OpportunityEditRecruiterModal {...rest} {...payload} />;
     default:
       return null;
   }

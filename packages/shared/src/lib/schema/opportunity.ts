@@ -199,3 +199,11 @@ export const opportunityEditOrganizationSchema = z.object({
       .optional(),
   }),
 });
+
+export const opportunityEditRecruiterSchema = z.object({
+  recruiter: z.object({
+    userId: z.string(),
+    title: z.string().max(240).optional(),
+    bio: z.string().max(2000).optional(),
+  }),
+});
