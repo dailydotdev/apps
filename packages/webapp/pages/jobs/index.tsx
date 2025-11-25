@@ -61,7 +61,7 @@ const JobsPage = (): ReactElement => {
 
   if (!hasUploadedCV) {
     return (
-      <>
+      <div className="mx-auto w-full border-border-subtlest-tertiary laptop:max-w-[48rem] laptop:border-x">
         <OpportunityHeader />
         <FlexCol className="mx-auto max-w-xl items-center gap-8 px-4 py-6 laptop:max-w-4xl">
           {!sidebarRendered && (
@@ -81,12 +81,12 @@ const JobsPage = (): ReactElement => {
             </>
           )}
         </FlexCol>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="mx-auto w-full border-border-subtlest-tertiary laptop:max-w-[48rem] laptop:border-x">
       <OpportunityHeader />
       <div className="mx-auto flex w-full flex-1 flex-col justify-center px-4 py-6 laptop:max-w-4xl">
         <div className="flex flex-col gap-8">
@@ -107,7 +107,7 @@ const JobsPage = (): ReactElement => {
           {sidebarRendered && <OpportunityFAQ />}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
