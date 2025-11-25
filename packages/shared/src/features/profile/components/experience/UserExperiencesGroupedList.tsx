@@ -19,11 +19,11 @@ import { LazyModal } from '../../../../components/modals/common/types';
 import { IconSize } from '../../../../components/Icon';
 import { JobIcon } from '../../../../components/icons';
 import { VerifiedBadge } from './VerifiedBadge';
-import { useUserCompaniesQuery } from '../../../../hooks/userCompany';
 
 interface UserExperiencesGroupedListProps {
   company: string;
   experiences: UserExperience[];
+  isExperienceVerified?: boolean;
   showEditOnItems?: boolean;
   isSameUser?: boolean;
   experienceType?: UserExperienceType;
@@ -56,6 +56,7 @@ function calculateTotalDuration(experiences: UserExperience[]): string {
 export function UserExperiencesGroupedList({
   company,
   experiences,
+  isExperienceVerified = false,
   showEditOnItems = false,
   isSameUser,
   experienceType,
@@ -64,26 +65,13 @@ export function UserExperiencesGroupedList({
   const [first] = experiences;
   const duration = calculateTotalDuration(experiences);
   const { openModal } = useLazyModal();
-  const { userCompanies } = useUserCompaniesQuery();
-
-  const verifiedCompanies =
-    userCompanies
-      ?.filter((uc) => uc.company)
-      .map((uc) => uc.company)
-      .filter((c): c is NonNullable<typeof c> => !!c) || [];
 
   const isCurrent = !first.endedAt;
   const isWorkExperience = experienceType === UserExperienceType.Work;
-  const isCompanyVerified =
-    isWorkExperience &&
-    first.company &&
-    verifiedCompanies.some(
-      (vc) => vc.id === first.company?.id || vc.name === first.company?.name,
-    );
 
   const shouldShowVerifyButton =
-    isWorkExperience && isCurrent && !isCompanyVerified;
-  const shouldShowVerifiedBadge = isWorkExperience && isCompanyVerified;
+    isWorkExperience && isCurrent && !isExperienceVerified;
+  const shouldShowVerifiedBadge = isWorkExperience && isExperienceVerified;
 
   return (
     <li>
@@ -134,6 +122,7 @@ export function UserExperiencesGroupedList({
             key={experience.id}
             experience={experience}
             grouped={{ isLastItem: index === experiences.length - 1 }}
+            isExperienceVerified={isExperienceVerified}
             editUrl={
               showEditOnItems && isSameUser && experienceType && editBaseUrl
                 ? `${editBaseUrl}?id=${experience.id}&type=${experienceType}`

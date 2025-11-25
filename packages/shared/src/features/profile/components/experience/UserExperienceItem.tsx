@@ -28,7 +28,6 @@ import Link from '../../../../components/utilities/Link';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
 import { IconSize } from '../../../../components/Icon';
-import { useUserCompaniesQuery } from '../../../../hooks/userCompany';
 import { VerifiedBadge } from './VerifiedBadge';
 
 const MAX_SKILLS = 3;
@@ -39,12 +38,14 @@ interface UserExperienceItemProps {
     isLastItem?: boolean;
   };
   editUrl?: string;
+  isExperienceVerified?: boolean;
 }
 
 export function UserExperienceItem({
   experience,
   grouped,
   editUrl,
+  isExperienceVerified = false,
 }: UserExperienceItemProps): ReactElement {
   const {
     company,
@@ -63,28 +64,14 @@ export function UserExperienceItem({
     ? skills
     : skills?.slice(0, MAX_SKILLS) || [];
   const { openModal } = useLazyModal();
-  const { userCompanies } = useUserCompaniesQuery();
-
-  const verifiedCompanies =
-    userCompanies
-      ?.filter((uc) => uc.company)
-      .map((uc) => uc.company)
-      .filter((c): c is NonNullable<typeof c> => !!c) || [];
 
   const isWorkExperience = experience.type === UserExperienceType.Work;
   const isCurrent = !endedAt;
 
-  const isCompanyVerified =
-    isWorkExperience &&
-    company &&
-    verifiedCompanies.some(
-      (vc) => vc.id === company.id || vc.name === company.name,
-    );
-
   const shouldShowVerifyButton =
-    isWorkExperience && isCurrent && !isCompanyVerified && !grouped;
+    isWorkExperience && isCurrent && !isExperienceVerified && !grouped;
   const shouldShowVerifiedBadge =
-    isWorkExperience && isCompanyVerified && !grouped;
+    isWorkExperience && isExperienceVerified && !grouped;
   const shouldSwapCopies =
     experience.type === UserExperienceType.Education && !grouped;
   const primaryCopy = shouldSwapCopies
