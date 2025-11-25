@@ -70,6 +70,7 @@ export enum LazyModal {
   CustomLinks = 'customLinks',
   ListAwards = 'listAwards',
   AdsDashboard = 'adsDashboard',
+  DirtyForm = 'dirtyForm',
   BoostPost = 'boostPost',
   BoostSquad = 'boostSquad',
   BoostedCampaignView = 'boostedCampaignView',
@@ -84,6 +85,7 @@ export enum LazyModal {
   RecruiterTrust = 'recruiterTrust',
   RecruiterJobLink = 'recruiterJobLink',
   RecruiterSignIn = 'recruiterSignIn',
+  VerifyExperience = 'verifyExperience',
 }
 
 export type ModalTabItem = {
