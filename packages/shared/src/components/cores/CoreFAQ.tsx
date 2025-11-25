@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { useId } from 'react';
 import {
   Typography,
@@ -6,38 +6,15 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { Accordion } from '../accordion';
+import { RadixAccordion } from '../accordion';
 import { anchorDefaultRel } from '../../lib/strings';
 import { feedback } from '../../lib/constants';
 import { coresFAQItems } from './common';
 
-interface FAQ {
-  question: string;
-  answer: ReactNode;
-}
-
-const FAQItem = ({ item }: { item: FAQ }): ReactElement => (
-  <div className="rounded-10 bg-surface-float px-6 py-4">
-    <Accordion
-      title={
-        <Typography
-          bold
-          color={TypographyColor.Primary}
-          tag={TypographyTag.Span}
-        >
-          {item.question}
-        </Typography>
-      }
-    >
-      <div className="text-text-tertiary typo-callout">{item.answer}</div>
-    </Accordion>
-  </div>
-);
-
 export const CoreFAQ = (): ReactElement => {
   const id = useId();
   const titleId = `${id}-title`;
-  const items = coresFAQItems;
+
   return (
     <section aria-labelledby={titleId} className="my-10">
       <Typography
@@ -49,11 +26,10 @@ export const CoreFAQ = (): ReactElement => {
       >
         Frequently asked questions
       </Typography>
-      <div className="mx-auto flex max-w-3xl flex-col gap-4">
-        {items.map((item) => (
-          <FAQItem key={item.question} item={item} />
-        ))}
+      <div className="w-xl mx-auto flex max-w-full flex-1 flex-col gap-4">
+        <RadixAccordion items={coresFAQItems} />
       </div>
+      items
       <Typography
         className="mt-10 text-center"
         color={TypographyColor.Tertiary}
