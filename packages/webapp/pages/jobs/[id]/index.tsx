@@ -1044,7 +1044,7 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   if (id === 'null') {
     return {
       redirect: {
-        destination: '/opportunity/welcome',
+        destination: '/jobs/welcome',
         permanent: false,
       },
     };

@@ -35,7 +35,7 @@ export const OpportunityStepsInfo = (
   );
 
   const goToNextStep = () => {
-    router.push(`${webappUrl}opportunity/${opportunityId}/questions-setup`);
+    router.push(`${webappUrl}jobs/${opportunityId}/questions-setup`);
   };
 
   const {

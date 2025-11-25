@@ -52,7 +52,7 @@ export const RecruiterLayout = ({
       params.append(key, value as string);
     });
 
-    params.delete('id'); // remove opportunity id param
+    params.delete('id'); // remove jobs id param
 
     router.push(`${onboardingUrl}?${params.toString()}`);
   }, [shouldRedirectOnboarding, router]);

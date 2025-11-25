@@ -134,8 +134,8 @@ export const SidebarTablet = ({
       >
         <div className="relative">
           <Link
-            href={`${webappUrl}opportunity/${
-              hasOpportunityAlert ? alerts.opportunityId : 'welcome'
+            href={`${webappUrl}jobs/${
+              hasOpportunityAlert ? alerts.opportunityId : ''
             }`}
             prefetch={false}
             passHref
