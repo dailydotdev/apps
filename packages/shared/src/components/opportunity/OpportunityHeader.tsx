@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { Typography, TypographyType } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
@@ -10,12 +9,6 @@ import { FilterIcon } from '../icons';
 const jobPreferenceUrl = `${settingsUrl}job-preferences`;
 const howItWorksUrl = `${webappUrl}opportunity/how-it-works`;
 export const OpportunityHeader = (): ReactElement => {
-  const { sidebarRendered } = useSidebarRendered();
-
-  if (sidebarRendered) {
-    return <></>;
-  }
-
   return (
     <div className="flex items-center justify-between border-b border-border-subtlest-tertiary px-5 py-3">
       <Typography type={TypographyType.Title3} bold>
