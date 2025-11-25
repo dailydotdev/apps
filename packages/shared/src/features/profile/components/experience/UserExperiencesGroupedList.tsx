@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type {
-  UserExperience,
-  UserExperienceType,
-} from '../../../../graphql/user/profile';
+import classNames from 'classnames';
+import type { UserExperience } from '../../../../graphql/user/profile';
+import { UserExperienceType } from '../../../../graphql/user/profile';
 import { Image, ImageType } from '../../../../components/image/Image';
 import {
   Typography,
@@ -15,10 +14,16 @@ import { currentPill } from './common';
 import { pluralize } from '../../../../lib/strings';
 import type { DateRange } from '../../../../lib/date';
 import { calculateTotalDurationInMonths } from '../../../../lib/date';
+import { useLazyModal } from '../../../../hooks/useLazyModal';
+import { LazyModal } from '../../../../components/modals/common/types';
+import { IconSize } from '../../../../components/Icon';
+import { JobIcon } from '../../../../components/icons';
+import { VerifiedBadge } from './VerifiedBadge';
 
 interface UserExperiencesGroupedListProps {
   company: string;
   experiences: UserExperience[];
+  isExperienceVerified?: boolean;
   showEditOnItems?: boolean;
   isSameUser?: boolean;
   experienceType?: UserExperienceType;
@@ -51,6 +56,7 @@ function calculateTotalDuration(experiences: UserExperience[]): string {
 export function UserExperiencesGroupedList({
   company,
   experiences,
+  isExperienceVerified = false,
   showEditOnItems = false,
   isSameUser,
   experienceType,
@@ -58,6 +64,14 @@ export function UserExperiencesGroupedList({
 }: UserExperiencesGroupedListProps): ReactElement {
   const [first] = experiences;
   const duration = calculateTotalDuration(experiences);
+  const { openModal } = useLazyModal();
+
+  const isCurrent = !first.endedAt;
+  const isWorkExperience = experienceType === UserExperienceType.Work;
+
+  const shouldShowVerifyButton =
+    isWorkExperience && isCurrent && !isExperienceVerified;
+  const shouldShowVerifiedBadge = isWorkExperience && isExperienceVerified;
 
   return (
     <li>
@@ -72,7 +86,27 @@ export function UserExperiencesGroupedList({
             <Typography type={TypographyType.Subhead} bold>
               {company}
             </Typography>
-            {!first.endedAt && currentPill}
+            {isCurrent && currentPill}
+            {shouldShowVerifyButton && (
+              <button
+                type="button"
+                className={classNames(
+                  'my-auto flex cursor-pointer items-center gap-1 rounded-4 px-1.5 py-[1px]',
+                  'bg-overlay-float-water text-text-link',
+                  'hover:bg-accent-water-flat',
+                  'typo-caption2',
+                )}
+                onClick={() =>
+                  openModal({
+                    type: LazyModal.VerifyExperience,
+                  })
+                }
+              >
+                <JobIcon size={IconSize.Size16} className="text-text-link" />
+                <span>Verify company</span>
+              </button>
+            )}
+            {shouldShowVerifiedBadge && <VerifiedBadge />}
           </div>
           <Typography
             type={TypographyType.Footnote}
@@ -88,6 +122,7 @@ export function UserExperiencesGroupedList({
             key={experience.id}
             experience={experience}
             grouped={{ isLastItem: index === experiences.length - 1 }}
+            isExperienceVerified={isExperienceVerified}
             editUrl={
               showEditOnItems && isSameUser && experienceType && editBaseUrl
                 ? `${editBaseUrl}?id=${experience.id}&type=${experienceType}`

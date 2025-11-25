@@ -23,8 +23,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { EditIcon, OpenLinkIcon } from '../../../../components/icons';
+import { EditIcon, JobIcon, OpenLinkIcon } from '../../../../components/icons';
 import Link from '../../../../components/utilities/Link';
+import { useLazyModal } from '../../../../hooks/useLazyModal';
+import { LazyModal } from '../../../../components/modals/common/types';
+import { IconSize } from '../../../../components/Icon';
+import { VerifiedBadge } from './VerifiedBadge';
 
 const MAX_SKILLS = 3;
 
@@ -34,12 +38,14 @@ interface UserExperienceItemProps {
     isLastItem?: boolean;
   };
   editUrl?: string;
+  isExperienceVerified?: boolean;
 }
 
 export function UserExperienceItem({
   experience,
   grouped,
   editUrl,
+  isExperienceVerified = false,
 }: UserExperienceItemProps): ReactElement {
   const {
     company,
@@ -57,7 +63,15 @@ export function UserExperienceItem({
   const skillList = showMoreSkills
     ? skills
     : skills?.slice(0, MAX_SKILLS) || [];
+  const { openModal } = useLazyModal();
 
+  const isWorkExperience = experience.type === UserExperienceType.Work;
+  const isCurrent = !endedAt;
+
+  const shouldShowVerifyButton =
+    isWorkExperience && isCurrent && !isExperienceVerified && !grouped;
+  const shouldShowVerifiedBadge =
+    isWorkExperience && isExperienceVerified && !grouped;
   const shouldSwapCopies =
     experience.type === UserExperienceType.Education && !grouped;
   const primaryCopy = shouldSwapCopies
@@ -116,6 +130,26 @@ export function UserExperienceItem({
               {primaryCopy}
             </Typography>
             {!grouped && !endedAt && currentPill}
+            {shouldShowVerifyButton && (
+              <button
+                type="button"
+                className={classNames(
+                  'my-auto flex cursor-pointer items-center gap-1 rounded-4 px-1.5 py-[1px]',
+                  'bg-overlay-float-water text-text-link',
+                  'hover:bg-accent-water-flat',
+                  'typo-caption2',
+                )}
+                onClick={() =>
+                  openModal({
+                    type: LazyModal.VerifyExperience,
+                  })
+                }
+              >
+                <JobIcon size={IconSize.Size16} className="text-text-link" />
+                <span>Verify company</span>
+              </button>
+            )}
+            {shouldShowVerifiedBadge && <VerifiedBadge />}
             {url && (
               <Link href={url} passHref>
                 <a target="_blank">
