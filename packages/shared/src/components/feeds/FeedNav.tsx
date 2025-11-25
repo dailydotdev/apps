@@ -150,7 +150,11 @@ function FeedNav(): ReactElement {
     });
   });
   const shouldRenderNav = home || (isMobile && bookmarks);
-  if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
+  if (
+    !shouldRenderNav ||
+    router?.pathname?.startsWith('/posts/[id]') ||
+    router?.pathname?.startsWith('/[userId]')
+  ) {
     return null;
   }
 
