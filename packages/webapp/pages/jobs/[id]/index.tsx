@@ -61,10 +61,7 @@ import type {
   Opportunity,
   OpportunityMeta,
 } from '@dailydotdev/shared/src/features/opportunity/types';
-import {
-  OpportunityMatchStatus,
-  recruiterLayoutHeaderClassName,
-} from '@dailydotdev/shared/src/features/opportunity/types';
+import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
 import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
 import {
   EmploymentType,
@@ -291,6 +288,7 @@ const JobPage = (): ReactElement => {
   const { openModal } = useLazyModal();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
+    back,
     query: { id },
   } = useRouter();
 
@@ -349,12 +347,6 @@ const JobPage = (): ReactElement => {
         container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
       >
         <div className="hidden items-center laptop:flex">
-          <ResponseButtons
-            id={opportunity.id}
-            className={{
-              container: 'ml-auto flex gap-3',
-            }}
-          />
           <OpportunityStepsInfo />
         </div>
       </Portal>
@@ -377,7 +369,40 @@ const JobPage = (): ReactElement => {
       <div className="z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 pb-safe-offset-14 tablet:pb-0 laptop:flex-row">
         <div className="h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
           {/* Header */}
-          <div className="flex min-h-14 items-center gap-4 border-b border-border-subtlest-tertiary p-3">
+          <div className="flex min-h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary p-3">
+            <Button
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              onClick={back}
+              icon={<MoveToIcon className="rotate-180" />}
+            />
+            {!!match && (
+              <ResponseButtons
+                id={opportunity.id}
+                className={{
+                  container: 'hidden items-center gap-4 laptop:flex',
+                }}
+                size={ButtonSize.Medium}
+              />
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="relative flex flex-col gap-4 px-8 py-6">
+            <OpportunityEditButton
+              className="absolute right-4 top-4"
+              onClick={() => {
+                openModal({
+                  type: LazyModal.OpportunityEdit,
+                  props: {
+                    type: 'info',
+                    payload: {
+                      id: opportunity.id,
+                    },
+                  },
+                });
+              }}
+            />
             <div className="flex items-center">
               <SourceAvatar
                 source={{
@@ -402,24 +427,6 @@ const JobPage = (): ReactElement => {
                 </Typography>
               </Typography>
             </div>
-          </div>
-
-          {/* Content */}
-          <div className="relative flex flex-col gap-4 px-8 py-6">
-            <OpportunityEditButton
-              className="absolute right-4 top-4"
-              onClick={() => {
-                openModal({
-                  type: LazyModal.OpportunityEdit,
-                  props: {
-                    type: 'info',
-                    payload: {
-                      id: opportunity.id,
-                    },
-                  },
-                });
-              }}
-            />
             {/* Recruiter */}
             {!!opportunity.recruiters?.[0] && (
               <div className="flex items-center gap-2">
@@ -638,17 +645,6 @@ const JobPage = (): ReactElement => {
               </div>
             );
           })}
-
-          {match?.status === OpportunityMatchStatus.Pending && (
-            <ResponseButtons
-              id={opportunity.id}
-              className={{
-                container:
-                  'hidden gap-3 border-t border-border-subtlest-tertiary p-3 laptop:flex',
-                buttons: 'flex-1',
-              }}
-            />
-          )}
         </div>
 
         {/* Sidebar */}
