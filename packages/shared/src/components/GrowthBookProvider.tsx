@@ -117,6 +117,7 @@ export const GrowthBookProvider = ({
   useEffect(() => {
     callback.current = async (experiment, result) => {
       const variationId = result.variationId.toString();
+      console.log('variation', variationId);
       const key = btoa(`${experiment.key}:${variationId}`);
       if (experimentation?.e?.includes(key)) {
         return;
