@@ -15,8 +15,10 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../../../components/typography/Typography';
-import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
-import { concatStrings } from '../../../../lib/strings';
+import { Separator } from '../../../../components/cards/common/common';
+import { LocationType } from '../../../opportunity/protobuf/util';
+import { formatDateRange } from '../../../../lib/dateFormat';
+import { locationToString } from '../../../../lib/utils';
 import { currentPill } from './common';
 import {
   Button,
@@ -29,8 +31,22 @@ import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
 import { IconSize } from '../../../../components/Icon';
 import { VerifiedBadge } from './VerifiedBadge';
+import type { TLocation } from '../../../../graphql/autocomplete';
 
 const MAX_SKILLS = 3;
+
+const getDisplayLocation = (
+  grouped: boolean | undefined,
+  locationType: number | null | undefined,
+  location: TLocation | null,
+): string | null => {
+  if (!grouped && locationType && location) {
+    return locationType === LocationType.REMOTE
+      ? 'Remote'
+      : locationToString(location);
+  }
+  return null;
+};
 
 interface UserExperienceItemProps {
   experience: UserExperience;
@@ -56,7 +72,8 @@ export function UserExperienceItem({
     endedAt,
     subtitle,
   } = experience;
-  const { skills, verified } = experience as UserExperienceWork;
+  const { skills, verified, location, locationType } =
+    experience as UserExperienceWork;
   const { url } = experience as UserExperienceProject;
   const { externalReferenceId } = experience as UserExperienceCertification;
   const [showMoreSkills, setShowMoreSkills] = useState(false);
@@ -80,6 +97,9 @@ export function UserExperienceItem({
   const secondaryCopy = shouldSwapCopies
     ? title
     : company?.name || customCompanyName;
+
+  const dateRange = formatDateRange(startedAt, endedAt);
+  const loc = getDisplayLocation(!!grouped, locationType, location);
 
   return (
     <li key={experience.id} className="relative flex flex-row gap-2">
@@ -177,25 +197,25 @@ export function UserExperienceItem({
               )}
             </Typography>
           )}
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {concatStrings(
-              [
-                formatDate({
-                  value: startedAt,
-                  type: TimeFormatType.TopReaderBadge,
-                }),
-                !!endedAt &&
-                  formatDate({
-                    value: endedAt,
-                    type: TimeFormatType.TopReaderBadge,
-                  }),
-              ],
-              ' - ',
+          <div className="flex items-center">
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {dateRange}
+            </Typography>
+            {loc && (
+              <>
+                <Separator className="text-text-tertiary" />
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {loc}
+                </Typography>
+              </>
             )}
-          </Typography>
+          </div>
           {!!externalReferenceId && (
             <Typography
               type={TypographyType.Footnote}

@@ -313,3 +313,20 @@ export const formatMonthYearOnly = (date: Date): string =>
     month: 'short',
     year: 'numeric',
   });
+
+export const formatDateRange = (
+  startDate: Date | number | string | null | undefined,
+  endDate?: Date | number | string | null | undefined,
+): string => {
+  const parts: string[] = [];
+
+  if (startDate) {
+    parts.push(format(new Date(startDate), 'MMM yyyy'));
+  }
+
+  if (endDate) {
+    parts.push(format(new Date(endDate), 'MMM yyyy'));
+  }
+
+  return parts.join(' - ');
+};
