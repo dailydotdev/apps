@@ -61,10 +61,7 @@ import type {
   Opportunity,
   OpportunityMeta,
 } from '@dailydotdev/shared/src/features/opportunity/types';
-import {
-  OpportunityMatchStatus,
-  recruiterLayoutHeaderClassName,
-} from '@dailydotdev/shared/src/features/opportunity/types';
+import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
 import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
 import {
   EmploymentType,
@@ -383,7 +380,7 @@ const JobPage = (): ReactElement => {
               <ResponseButtons
                 id={opportunity.id}
                 className={{
-                  container: 'flex items-center gap-4 hidden laptop:flex',
+                  container: 'hidden items-center gap-4 laptop:flex',
                 }}
                 size={ButtonSize.Medium}
               />
