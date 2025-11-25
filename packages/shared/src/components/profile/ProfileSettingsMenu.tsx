@@ -148,7 +148,7 @@ const useAccountPageItems = () => {
               href: `${settingsUrl}/profile/experience/opensource`,
             },
             project: {
-              title: 'Project & Publications',
+              title: 'Projects & Publications',
               icon: TourIcon,
               href: `${settingsUrl}/profile/experience/project`,
             },
