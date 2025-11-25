@@ -373,6 +373,13 @@ const RecruiterSignInModal = dynamic(
     ),
 );
 
+const VerifyExperienceModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "verifyExperienceModal" */ './VerifyExperienceModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -434,6 +441,7 @@ export const modals = {
   [LazyModal.RecruiterTrust]: RecruiterTrustModal,
   [LazyModal.RecruiterJobLink]: RecruiterJobLinkModal,
   [LazyModal.RecruiterSignIn]: RecruiterSignInModal,
+  [LazyModal.VerifyExperience]: VerifyExperienceModal,
 };
 
 type GetComponentProps<T> = T extends

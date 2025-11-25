@@ -5,6 +5,6 @@ export const currentPill = (
   <Pill
     label="Current"
     size={PillSize.XSmall}
-    className="border border-border-subtlest-tertiary text-text-secondary"
+    className="my-auto border border-border-subtlest-tertiary text-text-secondary"
   />
 );
