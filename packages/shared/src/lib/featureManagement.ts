@@ -107,4 +107,4 @@ export const boostSettingsFeature = new Feature('boost_settings', {
   default_days: 7,
 });
 
-export const adImprovementsV2Feature = new Feature('ad_improvements_v2', false);
+export const adImprovementsV3Feature = new Feature('ad_improvements_v3', false);
