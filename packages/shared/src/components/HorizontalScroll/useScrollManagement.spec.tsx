@@ -5,7 +5,7 @@ import useDebounceFn from '../../hooks/useDebounceFn';
 jest.mock('../../hooks/useDebounceFn');
 
 describe('useScrollManagement', () => {
-  let mockRef: { current: HTMLElement | null };
+  let mockElement: HTMLElement;
   let onScrollMock: jest.Mock;
   let mockResizeObserver: jest.Mock;
   let mockObserve: jest.Mock;
@@ -27,19 +27,17 @@ describe('useScrollManagement', () => {
 
     onScrollMock = jest.fn();
 
-    mockRef = {
-      current: document.createElement('div'),
-    };
+    mockElement = document.createElement('div');
 
-    Object.defineProperty(mockRef.current, 'scrollWidth', {
+    Object.defineProperty(mockElement, 'scrollWidth', {
       value: 1000,
       configurable: true,
     });
-    Object.defineProperty(mockRef.current, 'clientWidth', {
+    Object.defineProperty(mockElement, 'clientWidth', {
       value: 500,
       configurable: true,
     });
-    Object.defineProperty(mockRef.current, 'scrollLeft', {
+    Object.defineProperty(mockElement, 'scrollLeft', {
       value: 0,
       writable: true,
     });
@@ -53,13 +51,11 @@ describe('useScrollManagement', () => {
 
   it('should set isAtStart to true when scrolled to the start', () => {
     const { result } = renderHook(() =>
-      useScrollManagement(mockRef, onScrollMock),
+      useScrollManagement(mockElement, onScrollMock),
     );
 
-    if (mockRef.current) {
-      mockRef.current.scrollLeft = 0;
-      mockRef.current.dispatchEvent(new Event('scroll'));
-    }
+    mockElement.scrollLeft = 0;
+    mockElement.dispatchEvent(new Event('scroll'));
 
     expect(result.current.isAtStart).toBe(true);
     expect(result.current.isAtEnd).toBe(false);
@@ -67,15 +63,13 @@ describe('useScrollManagement', () => {
 
   it('should set isAtEnd to true when scrolled to the end', () => {
     const { result } = renderHook(() =>
-      useScrollManagement(mockRef, onScrollMock),
+      useScrollManagement(mockElement, onScrollMock),
     );
 
     act(() => {
-      if (mockRef.current) {
-        // Simulate scrolling to the end
-        mockRef.current.scrollLeft = 500;
-        mockRef.current.dispatchEvent(new Event('scroll'));
-      }
+      // Simulate scrolling to the end
+      mockElement.scrollLeft = 500;
+      mockElement.dispatchEvent(new Event('scroll'));
     });
 
     expect(result.current.isAtEnd).toBe(true);
@@ -83,24 +77,20 @@ describe('useScrollManagement', () => {
   });
 
   it('should call onScroll when scrolled', () => {
-    renderHook(() => useScrollManagement(mockRef, onScrollMock));
+    renderHook(() => useScrollManagement(mockElement, onScrollMock));
 
-    if (mockRef.current) {
-      mockRef.current.dispatchEvent(new Event('scroll'));
-    }
+    mockElement.dispatchEvent(new Event('scroll'));
 
-    expect(onScrollMock).toHaveBeenCalledWith(mockRef);
+    expect(onScrollMock).toHaveBeenCalledWith(mockElement);
   });
 
   it('should debounce the scroll event', () => {
     const debouncedFunction = jest.fn();
     (useDebounceFn as jest.Mock).mockImplementation(() => [debouncedFunction]);
 
-    renderHook(() => useScrollManagement(mockRef, onScrollMock));
+    renderHook(() => useScrollManagement(mockElement, onScrollMock));
 
-    if (mockRef.current) {
-      mockRef.current.dispatchEvent(new Event('scroll'));
-    }
+    mockElement.dispatchEvent(new Event('scroll'));
 
     expect(debouncedFunction).toHaveBeenCalled();
   });
