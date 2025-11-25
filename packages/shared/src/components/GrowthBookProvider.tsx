@@ -99,10 +99,7 @@ export const GrowthBookProvider = ({
     () =>
       new GrowthBook({
         enableDevMode: !isProduction || isGBDevMode,
-        trackingCallback: (...args) => {
-          console.log('tracking callback loaded');
-          return callback.current?.(...args);
-        },
+        trackingCallback: (...args) => callback.current?.(...args),
       }),
   );
 
@@ -204,10 +201,8 @@ export const GrowthBookProvider = ({
 export const useFeatureIsOn = (feature?: Feature<JSONValue>): boolean =>
   feature ? gbUseFeatureIsOn(feature.id) : false;
 
-export const useFeature: GetFeatureValue = (feature) => {
-  console.log('use feature loaded');
-  return useFeatureValue(feature.id, feature.defaultValue);
-};
+export const useFeature: GetFeatureValue = (feature) =>
+  useFeatureValue(feature.id, feature.defaultValue);
 
 export const useGrowthBookContext = (): GrowthBookContextValue =>
   useContext(GrowthBookContext);
