@@ -68,7 +68,7 @@ const AcceptPage = (): ReactElement => {
       await push(`${opportunityUrl}/${opportunityId}/notify`);
     },
     onError: () => {
-      displayToast('Failed to accept opportunity. Please try again.');
+      displayToast('Failed to accept jobs. Please try again.');
     },
   });
   const {

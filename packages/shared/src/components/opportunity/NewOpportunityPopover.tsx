@@ -34,7 +34,7 @@ export const NewOpportunityPopover = (): ReactElement => {
         >
           Your next big move is here!
         </Typography>
-        <Link href={`${webappUrl}opportunity/${alerts.opportunityId}`} passHref>
+        <Link href={`${webappUrl}jobs/${alerts.opportunityId}`} passHref>
           <Button
             size={ButtonSize.XSmall}
             onClick={logOpportunityNudgeClick}
@@ -52,7 +52,7 @@ export const NewOpportunityPopover = (): ReactElement => {
           Hey {user.name}, We&#39;ve found a new opportunity that aligns with
           your experience and what you’ve been exploring lately.
         </Typography>
-        <Link href={`${webappUrl}opportunity/${alerts.opportunityId}`} passHref>
+        <Link href={`${webappUrl}jobs/${alerts.opportunityId}`} passHref>
           <Button
             tag="a"
             variant={ButtonVariant.Primary}

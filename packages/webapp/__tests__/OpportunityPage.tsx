@@ -20,14 +20,14 @@ import { EmploymentType } from '@dailydotdev/shared/src/features/opportunity/pro
 import { SocialMediaType } from '@dailydotdev/shared/src/features/organizations/types';
 import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { COMPLETED_USER_ACTIONS } from '@dailydotdev/shared/src/graphql/actions';
-import JobPage from '../pages/opportunity/[id]';
+import JobPage from '../pages/jobs/[id]';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
 const mockOpportunity: Opportunity = {
-  id: 'test-opportunity-id',
+  id: 'test-jobs-id',
   title: 'Senior Software Engineer',
   keywords: ['react', 'typescript', 'node.js'].map((keyword) => ({ keyword })),
   employmentType: EmploymentType.FULL_TIME,
@@ -84,9 +84,9 @@ beforeEach(() => {
     () =>
       ({
         isFallback: false,
-        pathname: '/opportunity/[id]',
+        pathname: '/jobs/[id]',
         isReady: true,
-        query: { id: 'test-opportunity-id' },
+        query: { id: 'test-jobs-id' },
         push: jest.fn(),
       } as unknown as NextRouter),
   );
@@ -97,7 +97,7 @@ const createOpportunityMock = (
 ): MockedGraphQLResponse => ({
   request: {
     query: OPPORTUNITY_BY_ID_QUERY,
-    variables: { id: 'test-opportunity-id' },
+    variables: { id: 'test-jobs-id' },
   },
   result: {
     data: {
@@ -111,7 +111,7 @@ const createOpportunityMatchMock = (
 ): MockedGraphQLResponse => ({
   request: {
     query: GET_OPPORTUNITY_MATCH_QUERY,
-    variables: { id: 'test-opportunity-id' },
+    variables: { id: 'test-jobs-id' },
   },
   result: {
     data: {
@@ -145,10 +145,10 @@ const renderOpportunityPage = (
     },
   });
 
-  // Pre-populate the cache with opportunity data
+  // Pre-populate the cache with jobs data
   const opportunity = { ...mockOpportunity, ...opportunityData };
-  queryClient.setQueryData(['opportunity', 'test-opportunity-id'], opportunity);
-  queryClient.setQueryData(['opportunity', 'test-opportunity-id', 'match'], {
+  queryClient.setQueryData(['opportunity', 'test-jobs-id'], opportunity);
+  queryClient.setQueryData(['opportunity', 'test-jobs-id', 'match'], {
     status: matchStatus,
   });
 
@@ -193,7 +193,7 @@ describe('OpportunityPage', () => {
         expect(notForMeButtons.length).toBeGreaterThanOrEqual(1);
         expect(notForMeButtons[0]).toHaveAttribute(
           'href',
-          '/opportunity/test-opportunity-id/decline',
+          '/jobs/test-jobs-id/decline',
         );
       });
     });
@@ -208,7 +208,7 @@ describe('OpportunityPage', () => {
         expect(interestedButtons.length).toBeGreaterThanOrEqual(1);
         expect(interestedButtons[0]).toHaveAttribute(
           'href',
-          '/opportunity/test-opportunity-id/questions',
+          '/jobs/test-jobs-id/questions',
         );
       });
     });
@@ -249,16 +249,13 @@ describe('OpportunityPage', () => {
           name: /how it works/i,
         });
         expect(howItWorksButton).toBeInTheDocument();
-        expect(howItWorksButton).toHaveAttribute(
-          'href',
-          '/opportunity/welcome',
-        );
+        expect(howItWorksButton).toHaveAttribute('href', '/jobs/welcome');
       });
     });
   });
 
   describe('Page content', () => {
-    it('should render opportunity title', async () => {
+    it('should render jobs title', async () => {
       renderOpportunityPage();
 
       await waitFor(() => {

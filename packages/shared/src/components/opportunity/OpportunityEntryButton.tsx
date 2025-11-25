@@ -56,8 +56,8 @@ export const OpportunityEntryButton = () => {
     <RenderTooltip content="Jobs" placement="bottom-end">
       <div>
         <Link
-          href={`${webappUrl}opportunity/${
-            hasOpportunityAlert ? alerts.opportunityId : 'welcome'
+          href={`${webappUrl}jobs/${
+            hasOpportunityAlert ? alerts.opportunityId : ''
           }`}
           passHref
         >

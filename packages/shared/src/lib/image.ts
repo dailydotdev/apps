@@ -389,3 +389,7 @@ export const jobOfferDarkMobile =
   'https://media.daily.dev/image/upload/s--GadTanSG--/f_auto/v1762845821/public/jobmatch-mobile-dark';
 export const jobOfferLightMobile =
   'https://media.daily.dev/image/upload/s--woqk56k5--/f_auto/v1762845946/public/jobmatch-mobile-light';
+export const opportunityBriefcase =
+  'https://media.daily.dev/image/upload/s--6n-4BFXP--/f_auto/v1763884475/public/dailydev.hire';
+export const opportunityBriefcaseDone =
+  'https://media.daily.dev/image/upload/s--rWk2SCPQ--/f_auto/v1763884475/public/dailydev.hire.allset';
