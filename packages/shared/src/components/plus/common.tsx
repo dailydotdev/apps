@@ -1,11 +1,15 @@
 import React from 'react';
 import { feedback } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
-import type { FAQItem } from '../../types';
 
 export interface CommonPlusPageProps {
   shouldShowPlusHeader?: boolean;
 }
+
+type FAQItem = {
+  question: string;
+  answer: React.ReactNode;
+};
 
 export const plusFAQItems: FAQItem[] = [
   {
