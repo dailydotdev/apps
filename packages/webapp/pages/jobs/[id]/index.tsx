@@ -1015,7 +1015,6 @@ const JobPage = (): ReactElement => {
                       )}
                     </div>
                     <OpportunityEditButton
-                      noChildren
                       onClick={() => {
                         openModal({
                           type: LazyModal.OpportunityEdit,
