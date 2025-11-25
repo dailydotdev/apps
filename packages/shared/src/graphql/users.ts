@@ -6,7 +6,7 @@ import {
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
-import type { PublicProfile, UserShortProfile } from '../lib/user';
+import type { PublicProfile, UserProfile, UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
 import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
@@ -62,6 +62,12 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       createdAt
       readmeHtml
       isPlus
+      experienceLevel
+      location {
+        city
+        subdivision
+        country
+      }
       companies {
         name
         image
@@ -115,7 +121,7 @@ export const PROFILE_V2_EXTRA_QUERY = gql`
     userStats(id: $id) {
       upvotes: numPostUpvotes
       views: numPostViews
-      numFollowers,
+      numFollowers
       numFollowing
     }
     ${publicSourceMemberships}
@@ -304,6 +310,7 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       username
       permalink
       bio
+      readme
       twitter
       github
       hashnode
@@ -324,6 +331,56 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
     }
   }
 `;
+
+export const UPDATE_USER_INFO_MUTATION = gql`
+  mutation UpdateUserInfo(
+    $data: UpdateUserInfoInput
+    $upload: Upload
+    $coverUpload: Upload
+  ) {
+    updateUserInfo(data: $data, upload: $upload, coverUpload: $coverUpload) {
+      id
+      name
+      image
+      cover
+      username
+      permalink
+      bio
+      readme
+      twitter
+      github
+      hashnode
+      roadmap
+      threads
+      codepen
+      reddit
+      stackoverflow
+      youtube
+      linkedin
+      mastodon
+      bluesky
+      createdAt
+      infoConfirmed
+      timezone
+      experienceLevel
+      language
+    }
+  }
+`;
+
+export const mutateUserInfo = async (
+  data: Partial<UserProfile>,
+  upload: File,
+  coverUpload: File,
+) => {
+  const res = await gqlClient.request(UPDATE_USER_INFO_MUTATION, {
+    data,
+    upload,
+    coverUpload,
+  });
+
+  return res.updateUserInfo;
+};
 
 export const UPLOAD_COVER_MUTATION = gql`
   mutation UploadCoverImage($upload: Upload!) {

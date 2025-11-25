@@ -165,4 +165,13 @@ export const labels = {
         'Irrelevant or spammy posts may be flagged and could lead to lost posting rights.',
     },
   },
+  profile: {
+    sources: {
+      heading: {
+        empty: 'Recommended Squads',
+        activeIn: 'Active in these Squads',
+      },
+      viewAll: 'Explore all Squads',
+    },
+  },
 };
