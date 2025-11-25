@@ -391,10 +391,10 @@ importers:
   packages/shared:
     dependencies:
       '@growthbook/growthbook':
-        specifier: ^1.6.1
-        version: 1.6.2
+        specifier: 1.0.0
+        version: 1.0.0
       '@growthbook/growthbook-react':
-        specifier: ^1.6.2
+        specifier: ^1.0.0
         version: 1.6.2(react@18.3.1)
       '@hookform/resolvers':
         specifier: 5.2.2
@@ -2204,6 +2204,10 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
+
+  '@growthbook/growthbook@1.0.0':
+    resolution: {integrity: sha512-qfVhZcubsGjJI8oNjZp5g69N7c+NMxWl3WS05Sa93V6qNjE9Uz2PZqj7Qj+6iTEOZ1ignmEsIBJEKfdlpa9INg==}
+    engines: {node: '>=10'}
 
   '@growthbook/growthbook@1.6.2':
     resolution: {integrity: sha512-x3sK6Lff4BVusIzcdBeHZqA3B4kLs3kM/pJ7vvLTJwb6N/+Yn99EF1yc0XU6cfDVqFq6uFkvIFhMwDWUaKD73g==}
@@ -10760,6 +10764,10 @@ snapshots:
     dependencies:
       '@growthbook/growthbook': 1.6.2
       react: 18.3.1
+
+  '@growthbook/growthbook@1.0.0':
+    dependencies:
+      dom-mutator: 0.6.0
 
   '@growthbook/growthbook@1.6.2':
     dependencies:
