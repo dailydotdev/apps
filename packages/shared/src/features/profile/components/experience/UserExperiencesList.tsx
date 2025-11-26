@@ -57,7 +57,6 @@ export function UserExperienceList<T extends UserExperience>({
   experiences,
   title,
   experienceType,
-  hasNextPage,
   showEditOnItems = false,
   user,
 }: UserExperienceListProps<T>): ReactElement {
@@ -127,8 +126,7 @@ export function UserExperienceList<T extends UserExperience>({
           );
         })}
       </ul>
-      {hasNextPage &&
-        experiences.length > 0 &&
+      {experiences.length > 0 &&
         experiences.length > profileExperiencesLimit && (
           <Link href={showMoreUrl} passHref>
             <Button

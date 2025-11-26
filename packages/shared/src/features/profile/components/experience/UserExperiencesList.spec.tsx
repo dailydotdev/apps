@@ -489,9 +489,14 @@ describe('UserExperiencesList', () => {
 
     it('should render "Show More" button when hasNextPage is true', () => {
       const user = createUser();
-      const experience = createExperience();
+      const experiences = [
+        createExperience({ id: 'exp1' }),
+        createExperience({ id: 'exp2' }),
+        createExperience({ id: 'exp3' }),
+        createExperience({ id: 'exp4' }),
+      ];
       renderComponent({
-        experiences: [experience],
+        experiences,
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
         hasNextPage: true,
@@ -720,9 +725,14 @@ describe('UserExperiencesList', () => {
       } as ReturnType<typeof useAuthContext>);
 
       const user = createUser({ id: 'customUserId', username: 'customuser' });
-      const experience = createExperience();
+      const experiences = [
+        createExperience({ id: 'exp1' }),
+        createExperience({ id: 'exp2' }),
+        createExperience({ id: 'exp3' }),
+        createExperience({ id: 'exp4' }),
+      ];
       renderComponent({
-        experiences: [experience],
+        experiences,
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
         hasNextPage: true,
