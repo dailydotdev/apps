@@ -31,7 +31,7 @@ interface UserExperiencesGroupedListProps {
   experiences: UserExperience[];
   isExperienceVerified?: boolean;
   showEditOnItems?: boolean;
-  isSameUser?: boolean;
+  isSameUser: boolean;
   experienceType?: UserExperienceType;
   editBaseUrl?: string;
 }
@@ -83,7 +83,7 @@ export function UserExperiencesGroupedList({
   const locationType = workExperience?.locationType || null;
 
   const shouldShowVerifyButton =
-    isWorkExperience && isCurrent && !isExperienceVerified;
+    isSameUser && isWorkExperience && isCurrent && !isExperienceVerified;
   const shouldShowVerifiedBadge = isWorkExperience && isExperienceVerified;
 
   return (
@@ -151,6 +151,7 @@ export function UserExperiencesGroupedList({
             experience={experience}
             grouped={{ isLastItem: index === experiences.length - 1 }}
             isExperienceVerified={isExperienceVerified}
+            isSameUser={isSameUser}
             editUrl={
               showEditOnItems && isSameUser && experienceType && editBaseUrl
                 ? `${editBaseUrl}?id=${experience.id}&type=${experienceType}`
