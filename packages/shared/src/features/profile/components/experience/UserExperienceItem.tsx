@@ -55,12 +55,14 @@ interface UserExperienceItemProps {
   };
   editUrl?: string;
   isExperienceVerified?: boolean;
+  isSameUser: boolean;
 }
 
 export function UserExperienceItem({
   experience,
   grouped,
   editUrl,
+  isSameUser,
   isExperienceVerified = false,
 }: UserExperienceItemProps): ReactElement {
   const {
@@ -72,8 +74,7 @@ export function UserExperienceItem({
     endedAt,
     subtitle,
   } = experience;
-  const { skills, verified, location, locationType } =
-    experience as UserExperienceWork;
+  const { skills, location, locationType } = experience as UserExperienceWork;
   const { url } = experience as UserExperienceProject;
   const { externalReferenceId } = experience as UserExperienceCertification;
   const [showMoreSkills, setShowMoreSkills] = useState(false);
@@ -86,7 +87,12 @@ export function UserExperienceItem({
   const isCurrent = !endedAt;
 
   const shouldShowVerifyButton =
-    isWorkExperience && isCurrent && !isExperienceVerified && !grouped;
+    isSameUser &&
+    isWorkExperience &&
+    isCurrent &&
+    !isExperienceVerified &&
+    !grouped;
+
   const shouldShowVerifiedBadge =
     isWorkExperience && isExperienceVerified && !grouped;
   const shouldSwapCopies =
@@ -197,9 +203,6 @@ export function UserExperienceItem({
               color={TypographyColor.Secondary}
             >
               {secondaryCopy}
-              {!!verified && (
-                <span className="ml-1 text-text-quaternary">Verified</span>
-              )}
             </Typography>
           )}
           <div className="flex items-center">
