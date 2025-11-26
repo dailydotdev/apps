@@ -65,16 +65,14 @@ export function ProfileWidgets({
       {isSameUser && (
         <Share permalink={user?.permalink} className="hidden laptop:flex" />
       )}
-      {readingHistory?.userReadingRankHistory && (
-        <ReadingOverview
-          readHistory={readingHistory?.userReadHistory}
-          before={before}
-          after={after}
-          streak={readingHistory?.userStreakProfile}
-          mostReadTags={readingHistory?.userMostReadTags}
-          isLoading={isReadingHistoryLoading}
-        />
-      )}
+      <ReadingOverview
+        readHistory={readingHistory?.userReadHistory}
+        before={before}
+        after={after}
+        streak={readingHistory?.userStreakProfile}
+        mostReadTags={readingHistory?.userMostReadTags}
+        isLoading={isReadingHistoryLoading}
+      />
       {(isSameUser || squads.length > 0) && (
         <ActiveOrRecomendedSquads userId={user.id} squads={squads} />
       )}

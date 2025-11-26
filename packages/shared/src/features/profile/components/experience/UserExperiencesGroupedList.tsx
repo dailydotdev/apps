@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { UserExperience } from '../../../../graphql/user/profile';
+import type {
+  UserExperience,
+  UserExperienceWork,
+} from '../../../../graphql/user/profile';
 import { UserExperienceType } from '../../../../graphql/user/profile';
 import { Image, ImageType } from '../../../../components/image/Image';
 import {
@@ -11,9 +14,12 @@ import {
 } from '../../../../components/typography/Typography';
 import { UserExperienceItem } from './UserExperienceItem';
 import { currentPill } from './common';
+import { Separator } from '../../../../components/cards/common/common';
+import { LocationType } from '../../../opportunity/protobuf/util';
 import { pluralize } from '../../../../lib/strings';
 import type { DateRange } from '../../../../lib/date';
 import { calculateTotalDurationInMonths } from '../../../../lib/date';
+import { locationToString } from '../../../../lib/utils';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
 import { IconSize } from '../../../../components/Icon';
@@ -69,6 +75,13 @@ export function UserExperiencesGroupedList({
   const isCurrent = !first.endedAt;
   const isWorkExperience = experienceType === UserExperienceType.Work;
 
+  const experienceForLocation = isWorkExperience
+    ? experiences.find((exp) => !exp.endedAt) || first
+    : null;
+  const workExperience = experienceForLocation as UserExperienceWork | null;
+  const location = workExperience?.location || null;
+  const locationType = workExperience?.locationType || null;
+
   const shouldShowVerifyButton =
     isWorkExperience && isCurrent && !isExperienceVerified;
   const shouldShowVerifiedBadge = isWorkExperience && isExperienceVerified;
@@ -108,12 +121,27 @@ export function UserExperiencesGroupedList({
             )}
             {shouldShowVerifiedBadge && <VerifiedBadge />}
           </div>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Secondary}
-          >
-            {duration}
-          </Typography>
+          <div className="flex items-center">
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+            >
+              {duration}
+            </Typography>
+            {isWorkExperience && locationType && location && (
+              <>
+                <Separator className="text-text-secondary" />
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Secondary}
+                >
+                  {locationType === LocationType.REMOTE
+                    ? 'Remote'
+                    : locationToString(location)}
+                </Typography>
+              </>
+            )}
+          </div>
         </div>
       </div>
       <ul className="flex flex-col">
