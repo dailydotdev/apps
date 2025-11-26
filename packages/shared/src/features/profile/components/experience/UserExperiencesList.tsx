@@ -126,6 +126,7 @@ export function UserExperienceList<T extends UserExperience>({
               key={list[0].id}
               experience={list[0]}
               isExperienceVerified={experienceVerified}
+              isSameUser={isSameUser}
               editUrl={
                 showEditOnItems
                   ? `${editBaseUrl}?id=${list[0].id}&type=${experienceType}`

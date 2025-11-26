@@ -39,12 +39,14 @@ interface UserExperienceItemProps {
   };
   editUrl?: string;
   isExperienceVerified?: boolean;
+  isSameUser: boolean;
 }
 
 export function UserExperienceItem({
   experience,
   grouped,
   editUrl,
+  isSameUser,
   isExperienceVerified = false,
 }: UserExperienceItemProps): ReactElement {
   const {
@@ -69,7 +71,12 @@ export function UserExperienceItem({
   const isCurrent = !endedAt;
 
   const shouldShowVerifyButton =
-    isWorkExperience && isCurrent && !isExperienceVerified && !grouped;
+    isSameUser &&
+    isWorkExperience &&
+    isCurrent &&
+    !isExperienceVerified &&
+    !grouped;
+
   const shouldShowVerifiedBadge =
     isWorkExperience && isExperienceVerified && !grouped;
   const shouldSwapCopies =
