@@ -40,12 +40,13 @@ const getDisplayLocation = (
   locationType: number | null | undefined,
   location: TLocation | null,
 ): string | null => {
-  if (!grouped && locationType && location) {
-    return locationType === LocationType.REMOTE
-      ? 'Remote'
-      : locationToString(location);
+  if (grouped || !location) {
+    return null;
   }
-  return null;
+  if (locationType === LocationType.REMOTE) {
+    return 'Remote';
+  }
+  return locationToString(location);
 };
 
 interface UserExperienceItemProps {
