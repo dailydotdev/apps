@@ -4,6 +4,7 @@ import type {
   UserExperience,
   UserExperienceType,
 } from '../../../../graphql/user/profile';
+import { profileExperiencesLimit } from '../../../../graphql/user/profile';
 import {
   Typography,
   TypographyTag,
@@ -126,20 +127,22 @@ export function UserExperienceList<T extends UserExperience>({
           );
         })}
       </ul>
-      {hasNextPage && showMoreUrl && loggedUser && (
-        <Link href={showMoreUrl} passHref>
-          <Button
-            tag="a"
-            variant={ButtonVariant.Subtle}
-            size={ButtonSize.Medium}
-            icon={<MoveToIcon size={IconSize.XSmall} />}
-            iconPosition={ButtonIconPosition.Right}
-            className="w-full"
-          >
-            Show More
-          </Button>
-        </Link>
-      )}
+      {hasNextPage &&
+        experiences.length > 0 &&
+        experiences.length > profileExperiencesLimit && (
+          <Link href={showMoreUrl} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Medium}
+              icon={<MoveToIcon size={IconSize.XSmall} />}
+              iconPosition={ButtonIconPosition.Right}
+              className="w-full"
+            >
+              Show More
+            </Button>
+          </Link>
+        )}
     </div>
   );
 }
