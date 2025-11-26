@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { LoggedUser, PublicProfile } from '../../../../lib/user';
 import AuthContext from '../../../../contexts/AuthContext';
 import { ProfileWidgets } from './ProfileWidgets';
-import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
 import type { ProfileReadingData } from '../../../../graphql/users';
 import type { Connection } from '../../../../graphql/common';
 import type { SourceMember, Squad } from '../../../../graphql/sources';
@@ -155,9 +154,25 @@ const renderComponent = (
   const user = { ...defaultProfile, ...profile };
 
   // Mock gqlClient.request to return reading history
-  (gqlClient.request as jest.Mock).mockImplementation((query) => {
-    if (readingHistory !== null && query === USER_READING_HISTORY_QUERY) {
-      return Promise.resolve(readingHistory);
+  (gqlClient.request as jest.Mock).mockImplementation((query, variables) => {
+    // Check if this is the reading history query by checking if it has the expected variables
+    // The reading history query has id, before, after, version, and limit
+    if (
+      variables?.id &&
+      variables?.before &&
+      variables?.after &&
+      variables?.version === 2
+    ) {
+      if (readingHistory !== null) {
+        return Promise.resolve(readingHistory);
+      }
+      // Return empty structure when readingHistory is null
+      return Promise.resolve({
+        userReadingRankHistory: undefined,
+        userReadHistory: undefined,
+        userStreakProfile: undefined,
+        userMostReadTags: undefined,
+      });
     }
     return Promise.resolve({});
   });
@@ -213,30 +228,34 @@ it('should render BadgesAndAwards component', () => {
   expect(badgesHeading).toBeInTheDocument();
 });
 
-it('should render ReadingOverview component when userReadingRankHistory exists', async () => {
+it('should render ReadingOverview component when userReadHistory exists', async () => {
   renderComponent({}, undefined, { readingHistory: defaultReadingHistory });
 
   // BadgesAndAwards renders immediately
   const badgesHeading = screen.getByText('Badges & Awards');
   expect(badgesHeading).toBeInTheDocument();
 
-  // Wait for ReadingOverview to appear
-  const readingOverviewHeading = await screen.findByText('Reading Overview');
-  expect(readingOverviewHeading).toBeInTheDocument();
+  // Wait for ReadingOverview to appear (it's always rendered now)
+  await waitFor(() => {
+    const readingOverviewHeading = screen.getByText('Reading Overview');
+    expect(readingOverviewHeading).toBeInTheDocument();
+  });
 });
 
-it('should not render ReadingOverview when userReadingRankHistory is missing', async () => {
-  // Pass readingHistory without userReadingRankHistory
+it('should render ReadingOverview even when userReadHistory is missing', async () => {
+  // Pass readingHistory without userReadHistory
   renderComponent({}, undefined, {
     readingHistory: {
       ...defaultReadingHistory,
-      userReadingRankHistory: undefined,
+      userReadHistory: undefined,
     },
   });
 
-  // ReadingOverview should not appear
-  const readingHeading = screen.queryByText('Reading Overview');
-  expect(readingHeading).not.toBeInTheDocument();
+  // ReadingOverview is always rendered now, even without data
+  await waitFor(() => {
+    const readingHeading = screen.getByText('Reading Overview');
+    expect(readingHeading).toBeInTheDocument();
+  });
 });
 
 it('should list all user squads', async () => {

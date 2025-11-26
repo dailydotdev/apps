@@ -11,7 +11,7 @@ export const VerifiedBadge = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'my-auto rounded-6 px-1.5 py-[1px]',
+        'my-auto rounded-4 px-1.5 py-[1px]',
         'bg-accent-avocado-flat',
       )}
     >
