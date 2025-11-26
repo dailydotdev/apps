@@ -287,6 +287,7 @@ export const upsertUserGeneralExperience = async (
     'locationType',
     'employmentType',
     'externalLocationId',
+    'verified',
   ]);
   const result = await gqlClient.request(UPSERT_USER_GENERAL_EXPERIENCE, {
     input: cleanedInput,
@@ -335,6 +336,7 @@ export const upsertUserWorkExperience = async (
     'url',
     'subtitle',
     'grade',
+    'verified',
   ]);
 
   const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {
