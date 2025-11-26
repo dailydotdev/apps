@@ -6,7 +6,7 @@ import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { FilterIcon } from '../icons';
 
-const jobPreferenceUrl = `${settingsUrl}job-preferences`;
+const jobPreferenceUrl = `${settingsUrl}/job-preferences`;
 const howItWorksUrl = `${webappUrl}opportunity/how-it-works`;
 export const OpportunityHeader = (): ReactElement => {
   return (
