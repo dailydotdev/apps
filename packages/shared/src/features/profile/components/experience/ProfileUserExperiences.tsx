@@ -2,10 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { PublicProfile } from '../../../../lib/user';
 import { useProfileExperiences } from '../../hooks/useProfileExperiences';
-import {
-  profileExperiencesLimit,
-  UserExperienceType,
-} from '../../../../graphql/user/profile';
+import { UserExperienceType } from '../../../../graphql/user/profile';
 import { UserExperienceList } from './UserExperiencesList';
 
 interface ProfileUserExperiencesProps {
@@ -16,7 +13,7 @@ export function ProfileUserExperiences({
   user,
 }: ProfileUserExperiencesProps): ReactElement {
   const { work, education, cert, project, opensource, volunteering, data } =
-    useProfileExperiences(user, profileExperiencesLimit);
+    useProfileExperiences(user, 4);
 
   return (
     <>
