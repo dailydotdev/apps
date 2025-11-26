@@ -179,9 +179,6 @@ export function UserExperienceItem({
               color={TypographyColor.Secondary}
             >
               {secondaryCopy}
-              {!!verified && (
-                <span className="ml-1 text-text-quaternary">Verified</span>
-              )}
             </Typography>
           )}
           <Typography

@@ -23,8 +23,6 @@ import Link from '../../../../components/utilities/Link';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { webappUrl } from '../../../../lib/constants';
 import type { PublicProfile } from '../../../../lib/user';
-import { useUserCompaniesQuery } from '../../../../hooks/userCompany';
-import type { Company } from '../../../../lib/userCompany';
 
 interface UserExperienceListProps<T extends UserExperience> {
   experiences: T[];
@@ -54,18 +52,6 @@ const groupListByCompany = <T extends UserExperience>(
   return Object.entries(grouped);
 };
 
-const isExperienceVerified = (
-  company: Company | null | undefined,
-  verifiedCompanies: Company[],
-): boolean => {
-  if (!company) {
-    return false;
-  }
-  return verifiedCompanies.some(
-    (vc) => vc.id === company.id || vc.name === company.name,
-  );
-};
-
 export function UserExperienceList<T extends UserExperience>({
   experiences,
   title,
@@ -76,10 +62,6 @@ export function UserExperienceList<T extends UserExperience>({
 }: UserExperienceListProps<T>): ReactElement {
   const { user: loggedUser } = useAuthContext();
   const isSameUser = user?.id === loggedUser?.id;
-  const { userCompanies } = useUserCompaniesQuery();
-
-  const verifiedCompanies =
-    userCompanies?.flatMap((uc) => (uc.company ? [uc.company] : [])) || [];
 
   const groupedByCompany: [string, T[]][] = useMemo(
     () => groupListByCompany(experiences),
@@ -116,10 +98,7 @@ export function UserExperienceList<T extends UserExperience>({
       <ul className="flex flex-col gap-4">
         {groupedByCompany?.map(([company, list]) => {
           const firstExperience = list[0];
-          const experienceVerified = isExperienceVerified(
-            firstExperience.company,
-            verifiedCompanies,
-          );
+          const experienceVerified = !!firstExperience.verified;
 
           return list.length === 1 ? (
             <UserExperienceItem
