@@ -7,7 +7,7 @@ import { settingsUrl, webappUrl } from '../../lib/constants';
 import { FilterIcon } from '../icons';
 
 const jobPreferenceUrl = `${settingsUrl}/job-preferences`;
-const howItWorksUrl = `${webappUrl}opportunity/how-it-works`;
+const howItWorksUrl = `${webappUrl}jobs/how-it-works`;
 export const OpportunityHeader = (): ReactElement => {
   return (
     <div className="flex items-center justify-between border-b border-border-subtlest-tertiary px-5 py-3">
