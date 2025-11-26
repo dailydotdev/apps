@@ -15,7 +15,7 @@ export const OpportunityHeader = (): ReactElement => {
         Jobs
       </Typography>
       <div className="flex gap-2">
-        <Link href={howItWorksUrl}>
+        <Link href={howItWorksUrl} passHref>
           <Button
             tag="a"
             variant={ButtonVariant.Subtle}
@@ -24,7 +24,7 @@ export const OpportunityHeader = (): ReactElement => {
             How it works
           </Button>
         </Link>
-        <Link href={jobPreferenceUrl}>
+        <Link href={jobPreferenceUrl} passHref>
           <Button
             tag="a"
             variant={ButtonVariant.Subtle}
