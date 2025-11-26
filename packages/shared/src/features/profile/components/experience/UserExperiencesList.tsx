@@ -57,6 +57,7 @@ export function UserExperienceList<T extends UserExperience>({
   experiences,
   title,
   experienceType,
+  hasNextPage,
   showEditOnItems = false,
   user,
 }: UserExperienceListProps<T>): ReactElement {
@@ -126,21 +127,20 @@ export function UserExperienceList<T extends UserExperience>({
           );
         })}
       </ul>
-      {experiences.length > 0 &&
-        experiences.length > profileExperiencesLimit && (
-          <Link href={showMoreUrl} passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Subtle}
-              size={ButtonSize.Medium}
-              icon={<MoveToIcon size={IconSize.XSmall} />}
-              iconPosition={ButtonIconPosition.Right}
-              className="w-full"
-            >
-              Show More
-            </Button>
-          </Link>
-        )}
+      {hasNextPage && experiences.length > profileExperiencesLimit && (
+        <Link href={showMoreUrl} passHref>
+          <Button
+            tag="a"
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.Medium}
+            icon={<MoveToIcon size={IconSize.XSmall} />}
+            iconPosition={ButtonIconPosition.Right}
+            className="w-full"
+          >
+            Show More
+          </Button>
+        </Link>
+      )}
     </div>
   );
 }
