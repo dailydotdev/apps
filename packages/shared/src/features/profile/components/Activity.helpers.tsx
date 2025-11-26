@@ -63,7 +63,7 @@ export const COMMENT_CLASS_NAME = {
 
 export const MIN_ITEMS_FOR_SHOW_MORE = 3;
 export const HORIZONTAL_FEED_CLASSES =
-  '[&_.grid]:!auto-cols-[17rem] [&_.grid]:gap-4';
+  '[&_.grid]:!auto-cols-[17rem] tablet:[&_.grid]:!auto-cols-[20rem] [&_.grid]:gap-4';
 export const TAB_ITEMS = activityTabs.map((tab) => ({ label: tab.title }));
 
 export const ACTIVITY_QUERY_KEYS = {
