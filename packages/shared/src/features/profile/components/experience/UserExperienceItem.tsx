@@ -58,7 +58,7 @@ export function UserExperienceItem({
     endedAt,
     subtitle,
   } = experience;
-  const { skills, verified } = experience as UserExperienceWork;
+  const { skills } = experience as UserExperienceWork;
   const { url } = experience as UserExperienceProject;
   const { externalReferenceId } = experience as UserExperienceCertification;
   const [showMoreSkills, setShowMoreSkills] = useState(false);
