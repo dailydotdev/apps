@@ -79,7 +79,8 @@ export function UserExperiencesGroupedList({
     ? experiences.find((exp) => !exp.endedAt) || first
     : null;
   const workExperience = experienceForLocation as UserExperienceWork | null;
-  const location = workExperience?.location || null;
+  const location =
+    workExperience?.location || workExperience?.customLocation || null;
   const locationType = workExperience?.locationType || null;
 
   const shouldShowVerifyButton =

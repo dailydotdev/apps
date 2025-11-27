@@ -23,6 +23,7 @@ const excludedProperties = [
   'id',
   'location',
   'company',
+  'customLocation',
 ];
 
 const USER_EXPERIENCE_FRAGMENT = gql`
@@ -55,6 +56,11 @@ const USER_EXPERIENCE_FRAGMENT = gql`
       id
       name
       image
+    }
+    customLocation {
+      city
+      subdivision
+      country
     }
   }
 `;
@@ -165,6 +171,7 @@ export interface UserExperience {
   subtitle?: string | null;
   url?: string | null;
   verified?: boolean | null;
+  customLocation?: Partial<Pick<TLocation, 'city' | 'subdivision' | 'country'>>;
 }
 
 interface UserSkill {
