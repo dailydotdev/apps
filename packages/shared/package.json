@@ -101,12 +101,13 @@
     "typescript": "5.6.3"
   },
   "dependencies": {
-    "@growthbook/growthbook": "https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?e354fcf41b2b3f67590294a0e2cdfb56044d7a1e",
+    "@growthbook/growthbook": "0.26.0",
     "@growthbook/growthbook-react": "^0.17.0",
     "@hookform/resolvers": "5.2.2",
     "@kickass-coderz/react": "^0.0.4",
     "@marsidev/react-turnstile": "^1.1.0",
     "@paddle/paddle-js": "1.4.0",
+    "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-dropdown-menu": "2.1.16",
     "@radix-ui/react-hover-card": "^1.1.15",
     "@radix-ui/react-popover": "^1.1.15",

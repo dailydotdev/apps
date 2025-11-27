@@ -6,7 +6,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { FlexCol } from '../../../components/utilities';
-import { Accordion } from '../../../components/accordion';
+import { RadixAccordion } from '../../../components/accordion';
 
 const faq = [
   {
@@ -64,7 +64,7 @@ const faq = [
 
 export const OpportunityFAQ = (): ReactElement => {
   return (
-    <FlexCol className="gap-10 pb-10 text-center">
+    <FlexCol className="w-full gap-10 pb-10 text-center">
       <Typography
         type={TypographyType.Title3}
         bold
@@ -72,30 +72,7 @@ export const OpportunityFAQ = (): ReactElement => {
       >
         Everything else you might want to know
       </Typography>
-      <FlexCol className="gap-2">
-        {faq.map(({ title, description }) => (
-          <div
-            key={title}
-            className="rounded-10 bg-surface-float px-6 py-3 text-left"
-          >
-            <Accordion
-              title={
-                <Typography color={TypographyColor.Tertiary}>
-                  {title}
-                </Typography>
-              }
-              className={{ button: '!h-auto' }}
-            >
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Tertiary}
-              >
-                {description}
-              </Typography>
-            </Accordion>
-          </div>
-        ))}
-      </FlexCol>
+      <RadixAccordion items={faq} />
     </FlexCol>
   );
 };
