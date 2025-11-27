@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { PublicProfile } from '../../../lib/user';
 import { AboutMe } from './AboutMe';
@@ -39,7 +39,7 @@ const userWithSocialLinks: PublicProfile = {
   ...userWithReadme,
   twitter: 'testuser',
   github: 'testuser',
-  linkedin: 'https://linkedin.com/in/testuser',
+  linkedin: 'testuser',
   portfolio: 'https://testuser.com',
   youtube: 'testuser',
   stackoverflow: '123456/testuser',
@@ -100,39 +100,28 @@ describe('AboutMe', () => {
   });
 
   describe('Social Links', () => {
-    it('should show only first 3 social links initially', () => {
+    it('should show all social links', () => {
       renderComponent(userWithSocialLinks);
       const allLinks = screen.getAllByTestId(/^social-link-/);
-      expect(allLinks.length).toBe(3);
+      expect(allLinks.length).toBe(12);
     });
 
-    it('should show "+N" button when more than 3 links', () => {
+    it('should render all social link types', () => {
       renderComponent(userWithSocialLinks);
-      const showAllButton = screen.getByTestId('show-all-links');
-      expect(showAllButton).toBeInTheDocument();
-      // 12 total links - 3 visible = 9 more
-      expect(showAllButton).toHaveTextContent('+9');
-    });
-
-    it('should show all links when "+N" button is clicked', async () => {
-      renderComponent(userWithSocialLinks);
-      const showAllButton = screen.getByTestId('show-all-links');
-      fireEvent.click(showAllButton);
-
-      await waitFor(() => {
-        const allLinks = screen.getAllByTestId(/^social-link-/);
-        expect(allLinks.length).toBe(12); // All 12 social links
-      });
-    });
-
-    it('should hide "+N" button after showing all links', async () => {
-      renderComponent(userWithSocialLinks);
-      const showAllButton = screen.getByTestId('show-all-links');
-      fireEvent.click(showAllButton);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('show-all-links')).not.toBeInTheDocument();
-      });
+      expect(screen.getByTestId('social-link-github')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-linkedin')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-portfolio')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-twitter')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-youtube')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('social-link-stackoverflow'),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-reddit')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-roadmap')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-codepen')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-mastodon')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-bluesky')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-threads')).toBeInTheDocument();
     });
   });
 
