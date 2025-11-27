@@ -65,7 +65,7 @@ const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
         className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
       />
       <div className="flex flex-col gap-3 px-6">
-        <Link passHref href={`${webappUrl}/settings/profile`}>
+        <Link passHref href={`${webappUrl}settings/profile`}>
           <Button
             className={classNames(
               'mb-4 ml-auto mt-2 text-text-secondary',

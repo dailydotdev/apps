@@ -27,7 +27,7 @@ const EducationPage = (): ReactElement => {
       title="Education"
       actions={
         <Link
-          href={`${webappUrl}/settings/profile/experience/edit?type=${UserExperienceType.Education}`}
+          href={`${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.Education}`}
         >
           <Button
             variant={ButtonVariant.Subtle}

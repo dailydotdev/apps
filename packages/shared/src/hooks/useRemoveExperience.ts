@@ -20,7 +20,7 @@ const useRemoveExperience = ({ type }: { type: UserExperienceType }) => {
   const { mutate, isPending } = useMutation({
     mutationFn: (id: string) => removeUserExperience(id),
     onSuccess: () => {
-      router.push(`${webappUrl}/settings/profile/experience/${type}`);
+      router.push(`${webappUrl}settings/profile/experience/${type}`);
       qc.invalidateQueries({ queryKey: experienceQueryKey });
     },
     onError: () => {
