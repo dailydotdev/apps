@@ -26,6 +26,7 @@ const indexToEmoji = (index: number): string => {
 
 export function UserTopList({
   items,
+  concatScore = true,
   ...props
 }: CommonLeaderboardProps<UserLeaderboard[]>): ReactElement {
   return (
@@ -35,6 +36,7 @@ export function UserTopList({
           key={item.user.id}
           index={item.score}
           href={item.user.permalink}
+          concatScore={concatScore}
         >
           <span className="min-w-8 pl-1">{indexToEmoji(i)}</span>
           <UserHighlight
