@@ -81,7 +81,7 @@ const getJoinRedirectUrl = ({
   if (postId) {
     searchParams.delete('post');
 
-    return getPathnameWithQuery(`${webappUrl}/posts/${postId}`, searchParams);
+    return getPathnameWithQuery(`${webappUrl}posts/${postId}`, searchParams);
   }
 
   return getPathnameWithQuery(pathname, searchParams);

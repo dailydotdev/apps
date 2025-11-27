@@ -51,7 +51,7 @@ export function ProfileExperienceDetailPage({
       <NextSeo {...seo} />
       <div className="rounded-16 border border-border-subtlest-tertiary">
         <header className="flex h-14 items-center gap-1 border-b border-border-subtlest-tertiary px-4">
-          <Link href={`${webappUrl}/${user.username}`} passHref>
+          <Link href={`${webappUrl}${user.username}`} passHref>
             <Button
               size={ButtonSize.Small}
               icon={<MoveToIcon className="rotate-180" />}

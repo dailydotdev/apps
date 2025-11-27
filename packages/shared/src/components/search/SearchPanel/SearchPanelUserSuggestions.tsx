@@ -112,7 +112,7 @@ export const SearchPanelUserSuggestions = ({
       }),
     });
 
-    router.push(`${webappUrl}/${user}`);
+    router.push(`${webappUrl}${user}`);
   };
 
   if (!suggestions?.hits?.length) {

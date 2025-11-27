@@ -26,7 +26,7 @@ function Page() {
 
   useEffect(() => {
     if (isAuthReady && user?.isPlus) {
-      router.push(`${webappUrl}/briefing`);
+      router.push(`${webappUrl}briefing`);
     }
   }, [user?.isPlus, router, isAuthReady]);
 
