@@ -9,6 +9,7 @@ interface LeaderboardListItemProps {
   index: number;
   children: ReactNode;
   className?: string;
+  concatScore?: boolean;
 }
 
 export function LeaderboardListItem({
@@ -16,6 +17,7 @@ export function LeaderboardListItem({
   href,
   children,
   className,
+  concatScore = true,
 }: LeaderboardListItemProps): ReactElement {
   return (
     <li className={className}>
@@ -30,7 +32,7 @@ export function LeaderboardListItem({
         )}
       >
         <span className="inline-flex min-w-14 justify-center text-text-quaternary">
-          {largeNumberFormat(index)}
+          {concatScore ? largeNumberFormat(index) : index}
         </span>
         {children}
       </ConditionalWrapper>
