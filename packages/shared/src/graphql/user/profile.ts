@@ -23,6 +23,7 @@ const excludedProperties = [
   'id',
   'location',
   'company',
+  'customLocation',
 ];
 
 const USER_EXPERIENCE_FRAGMENT = gql`
@@ -39,6 +40,7 @@ const USER_EXPERIENCE_FRAGMENT = gql`
     customCompanyName
     employmentType
     locationType
+    verified
     url
     location {
       id
@@ -54,6 +56,11 @@ const USER_EXPERIENCE_FRAGMENT = gql`
       id
       name
       image
+    }
+    customLocation {
+      city
+      subdivision
+      country
     }
   }
 `;
@@ -163,6 +170,8 @@ export interface UserExperience {
   customCompanyName?: string | null;
   subtitle?: string | null;
   url?: string | null;
+  verified?: boolean | null;
+  customLocation?: Partial<Pick<TLocation, 'city' | 'subdivision' | 'country'>>;
 }
 
 interface UserSkill {
@@ -285,6 +294,7 @@ export const upsertUserGeneralExperience = async (
     'locationType',
     'employmentType',
     'externalLocationId',
+    'verified',
   ]);
   const result = await gqlClient.request(UPSERT_USER_GENERAL_EXPERIENCE, {
     input: cleanedInput,
@@ -333,6 +343,7 @@ export const upsertUserWorkExperience = async (
     'url',
     'subtitle',
     'grade',
+    'verified',
   ]);
 
   const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {

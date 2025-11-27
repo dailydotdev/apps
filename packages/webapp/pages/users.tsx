@@ -68,6 +68,7 @@ const LeaderboardPage = ({
           containerProps={{ title: 'Longest streak' }}
           items={longestStreak}
           isLoading={isLoading}
+          concatScore={false}
         />
         <UserTopList
           containerProps={{ title: 'Highest post views' }}

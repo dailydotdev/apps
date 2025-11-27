@@ -25,6 +25,11 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import type {
+  UserExperience,
+  UserProfileExperienceData,
+} from '../../graphql/user/profile';
+import type { Connection } from '../../graphql/common';
 
 interface VerifyExperienceModalProps extends ModalProps {
   workEmail?: string;
@@ -78,6 +83,66 @@ function VerifyExperienceModal({
         (currentUserCompanies) => {
           const companies = currentUserCompanies || [];
           return [...companies, verifiedCompany];
+        },
+      );
+
+      // Update both Profile and Settings experiences
+      queryClient.setQueriesData<
+        UserProfileExperienceData | Connection<UserExperience>
+      >(
+        {
+          queryKey: generateQueryKey(RequestKey.UserExperience, user),
+        },
+        (currentData) => {
+          if (!currentData) {
+            return currentData;
+          }
+
+          if ('work' in currentData) {
+            const updatedWorkEdges = currentData.work.edges.map((edge) => {
+              if (
+                edge.node.company?.id === verifiedCompany.company?.id ||
+                edge.node.company?.name === verifiedCompany.company?.name
+              ) {
+                return {
+                  ...edge,
+                  node: { ...edge.node, verified: true },
+                };
+              }
+              return edge;
+            });
+
+            return {
+              ...currentData,
+              work: {
+                ...currentData.work,
+                edges: updatedWorkEdges,
+              },
+            } as UserProfileExperienceData;
+          }
+
+          if ('edges' in currentData) {
+            const updatedEdges = currentData.edges.map((edge) => {
+              const node = edge.node as UserExperience;
+              if (
+                node.company?.id === verifiedCompany.company?.id ||
+                node.company?.name === verifiedCompany.company?.name
+              ) {
+                return {
+                  ...edge,
+                  node: { ...node, verified: true },
+                };
+              }
+              return edge;
+            });
+
+            return {
+              ...currentData,
+              edges: updatedEdges,
+            } as Connection<UserExperience>;
+          }
+
+          return currentData;
         },
       );
 

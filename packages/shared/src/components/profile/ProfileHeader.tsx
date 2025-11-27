@@ -23,6 +23,15 @@ import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 
+import { ElementPlaceholder } from '../ElementPlaceholder';
+
+const ProfileActionsSkeleton = () => (
+  <div className="flex h-12 items-center gap-2">
+    <ElementPlaceholder className="h-12 w-18 rounded-16" />
+    <ElementPlaceholder className="h-12 w-18 rounded-16" />
+  </div>
+);
+
 const ProfileActions = dynamic(
   () =>
     import(
@@ -31,6 +40,7 @@ const ProfileActions = dynamic(
     ),
   {
     ssr: false,
+    loading: ProfileActionsSkeleton,
   },
 );
 

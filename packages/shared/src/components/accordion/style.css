@@ -1,0 +1,53 @@
+.AccordionRoot {
+@apply flex flex-col gap-2 w-full flex-1;
+}
+
+.AccordionHeader {
+  @apply flex;
+}
+
+.AccordionItem {
+  @apply rounded-10 bg-surface-float px-6 py-3 text-left w-full;
+}
+
+.AccordionTrigger {
+ @apply flex flex-1 items-center justify-between typo-callout font-bold text-text-tertiary;
+}
+
+.AccordionContent {
+  @apply typo-callout text-text-tertiary overflow-hidden;
+}
+
+.AccordionContent[data-state="open"] {
+  animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
+}
+.AccordionContent[data-state="closed"] {
+  animation: slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1);
+}
+.AccordionChevron {
+  transition: transform 300ms cubic-bezier(0.87, 0, 0.13, 1);
+}
+.AccordionTrigger[data-state="open"] > .AccordionChevron {
+  transform: rotate(180deg);
+}
+.AccordionContentText {
+  @apply mt-3;
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
