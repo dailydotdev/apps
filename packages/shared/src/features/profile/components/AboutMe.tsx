@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import { type ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { PublicProfile } from '../../../lib/user';
 import Markdown from '../../../components/Markdown';
@@ -40,8 +40,6 @@ export interface AboutMeProps {
   className?: string;
 }
 
-const MAX_VISIBLE_LINKS = 3;
-
 interface SocialLink {
   id: string;
   url: string;
@@ -53,7 +51,6 @@ export function AboutMe({
   user,
   className,
 }: AboutMeProps): ReactElement | null {
-  const [showAllLinks, setShowAllLinks] = useState(false);
   const readme = user?.readmeHtml;
   const { logEvent } = useLogContext();
 
@@ -137,11 +134,6 @@ export function AboutMe({
     ].filter(Boolean) as SocialLink[];
   }, [user]);
 
-  const visibleLinks = showAllLinks
-    ? socialLinks
-    : socialLinks.slice(0, MAX_VISIBLE_LINKS);
-  const hasMoreLinks = socialLinks.length > MAX_VISIBLE_LINKS;
-
   const shouldShowReadme = readme && isClient;
   const shouldShowSocialLinks = socialLinks.length > 0;
 
@@ -164,7 +156,7 @@ export function AboutMe({
           <div className="flex flex-1 flex-col gap-4">
             {shouldShowSocialLinks && (
               <div className="flex flex-wrap items-center gap-2">
-                {visibleLinks.map((link) => (
+                {socialLinks.map((link) => (
                   <SimpleTooltip key={link.id} content={link.label}>
                     <Button
                       variant={ButtonVariant.Subtle}
@@ -186,18 +178,6 @@ export function AboutMe({
                     />
                   </SimpleTooltip>
                 ))}
-                {hasMoreLinks && !showAllLinks && (
-                  <SimpleTooltip content="Show all links">
-                    <Button
-                      variant={ButtonVariant.Subtle}
-                      size={ButtonSize.Small}
-                      onClick={() => setShowAllLinks(true)}
-                      data-testid="show-all-links"
-                    >
-                      +{socialLinks.length - MAX_VISIBLE_LINKS}
-                    </Button>
-                  </SimpleTooltip>
-                )}
               </div>
             )}
 
