@@ -38,7 +38,7 @@ const MAX_SKILLS = 3;
 const getDisplayLocation = (
   grouped: boolean | undefined,
   locationType: number | null | undefined,
-  location: TLocation | null,
+  location: Partial<TLocation> | null,
 ): string | null => {
   if (grouped || !location) {
     return null;
@@ -75,7 +75,8 @@ export function UserExperienceItem({
     endedAt,
     subtitle,
   } = experience;
-  const { skills, location, locationType } = experience as UserExperienceWork;
+  const { skills, location, locationType, customLocation } =
+    experience as UserExperienceWork;
   const { url } = experience as UserExperienceProject;
   const { externalReferenceId } = experience as UserExperienceCertification;
   const [showMoreSkills, setShowMoreSkills] = useState(false);
@@ -106,7 +107,11 @@ export function UserExperienceItem({
     : company?.name || customCompanyName;
 
   const dateRange = formatDateRange(startedAt, endedAt);
-  const loc = getDisplayLocation(!!grouped, locationType, location);
+  const loc = getDisplayLocation(
+    !!grouped,
+    locationType,
+    location || customLocation,
+  );
 
   return (
     <li key={experience.id} className="relative flex flex-row gap-2">

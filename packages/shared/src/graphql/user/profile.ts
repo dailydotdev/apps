@@ -56,6 +56,11 @@ const USER_EXPERIENCE_FRAGMENT = gql`
       name
       image
     }
+    customLocation {
+      city
+      subdivision
+      country
+    }
   }
 `;
 
@@ -165,6 +170,7 @@ export interface UserExperience {
   subtitle?: string | null;
   url?: string | null;
   verified?: boolean | null;
+  customLocation?: Partial<Pick<TLocation, 'city' | 'subdivision' | 'country'>>;
 }
 
 interface UserSkill {
@@ -287,7 +293,6 @@ export const upsertUserGeneralExperience = async (
     'locationType',
     'employmentType',
     'externalLocationId',
-    'verified',
   ]);
   const result = await gqlClient.request(UPSERT_USER_GENERAL_EXPERIENCE, {
     input: cleanedInput,
@@ -336,7 +341,6 @@ export const upsertUserWorkExperience = async (
     'url',
     'subtitle',
     'grade',
-    'verified',
   ]);
 
   const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {

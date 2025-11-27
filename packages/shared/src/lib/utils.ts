@@ -62,7 +62,7 @@ export const snapToHalf = (v: number): 0.0 | 0.5 | 1.0 => {
   return 1.0;
 };
 
-export const locationToString = (loc: TLocation) => {
+export const locationToString = (loc: Partial<TLocation>) => {
   if (!loc) {
     return undefined;
   }
