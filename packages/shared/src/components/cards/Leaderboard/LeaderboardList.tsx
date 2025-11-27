@@ -14,6 +14,7 @@ export interface LeaderboardListProps {
   containerProps: Omit<LeaderboardListContainerProps, 'children'>;
   isLoading: boolean;
   children: ReactNode;
+  concatScore?: boolean;
 }
 
 const PlaceholderList = classed(
