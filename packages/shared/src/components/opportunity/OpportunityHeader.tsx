@@ -6,8 +6,8 @@ import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { FilterIcon } from '../icons';
 
-const jobPreferenceUrl = `${settingsUrl}job-preferences`;
-const howItWorksUrl = `${webappUrl}opportunity/how-it-works`;
+const jobPreferenceUrl = `${settingsUrl}/job-preferences`;
+const howItWorksUrl = `${webappUrl}jobs/how-it-works`;
 export const OpportunityHeader = (): ReactElement => {
   return (
     <div className="flex items-center justify-between border-b border-border-subtlest-tertiary px-5 py-3">
@@ -15,7 +15,7 @@ export const OpportunityHeader = (): ReactElement => {
         Jobs
       </Typography>
       <div className="flex gap-2">
-        <Link href={howItWorksUrl}>
+        <Link href={howItWorksUrl} passHref>
           <Button
             tag="a"
             variant={ButtonVariant.Subtle}
@@ -24,7 +24,7 @@ export const OpportunityHeader = (): ReactElement => {
             How it works
           </Button>
         </Link>
-        <Link href={jobPreferenceUrl}>
+        <Link href={jobPreferenceUrl} passHref>
           <Button
             tag="a"
             variant={ButtonVariant.Subtle}

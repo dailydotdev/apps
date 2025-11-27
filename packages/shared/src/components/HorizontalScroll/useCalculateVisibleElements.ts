@@ -1,11 +1,6 @@
-import type { MutableRefObject } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useToggle } from '../../hooks/useToggle';
 import { useEventListener } from '../../hooks';
-
-interface UseCalculateVisibleElementsProps<El extends HTMLElement> {
-  ref: MutableRefObject<El | null>;
-}
 
 interface UseCalculateVisibleElements {
   calculateVisibleCards: () => void;
@@ -14,40 +9,38 @@ interface UseCalculateVisibleElements {
   scrollableElementWidth: number;
 }
 
-export const useCalculateVisibleElements = <El extends HTMLElement>({
-  ref,
-}: UseCalculateVisibleElementsProps<El>): UseCalculateVisibleElements => {
+export const useCalculateVisibleElements = <El extends HTMLElement>(
+  element: El | null,
+): UseCalculateVisibleElements => {
   const [isOverflowing, setIsOverflowing] = useToggle(false);
   const [elementsCount, setElementsCount] = useState<number>(0);
   const [scrollableElementWidth, setScrollableElementWidth] =
     useState<number>(0);
 
   const calculateVisibleCards = useCallback(() => {
-    const currentRef = ref.current;
     if (
-      !currentRef ||
-      !currentRef.firstElementChild ||
-      !(currentRef.firstElementChild instanceof HTMLElement)
+      !element ||
+      !element.firstElementChild ||
+      !(element.firstElementChild instanceof HTMLElement)
     ) {
       return;
     }
 
-    const element = currentRef.firstElementChild as HTMLElement;
-    const elementStyle = getComputedStyle(element);
-    const containerStyle = getComputedStyle(currentRef);
+    const firstChild = element.firstElementChild as HTMLElement;
+    const elementStyle = getComputedStyle(firstChild);
+    const containerStyle = getComputedStyle(element);
 
-    const elementWidth = element.offsetWidth;
+    const elementWidth = firstChild.offsetWidth;
     const elementMarginRight = parseFloat(elementStyle.marginRight || '0');
     const elementMarginLeft = parseFloat(elementStyle.marginLeft || '0');
     const containerGap = parseFloat(containerStyle.gap || '0');
     const elementWidthWithMarginsAndGap =
       elementWidth + elementMarginRight + elementMarginLeft + containerGap;
 
-    const mainContainerWidth = currentRef.offsetWidth;
+    const mainContainerWidth = element.offsetWidth;
 
     requestAnimationFrame(() => {
-      const isOverflowingContent =
-        currentRef.scrollWidth > currentRef.clientWidth;
+      const isOverflowingContent = element.scrollWidth > element.clientWidth;
 
       setIsOverflowing(isOverflowingContent);
       setScrollableElementWidth(elementWidthWithMarginsAndGap);
@@ -55,12 +48,11 @@ export const useCalculateVisibleElements = <El extends HTMLElement>({
         Math.floor(mainContainerWidth / elementWidthWithMarginsAndGap),
       );
     });
-  }, [ref, setIsOverflowing]);
+  }, [element, setIsOverflowing]);
 
   // Use ResizeObserver to detect any changes to the scrollable container or its children
   useEffect(() => {
-    const currentRef = ref.current;
-    if (!currentRef) {
+    if (!element) {
       return undefined;
     }
 
@@ -68,12 +60,12 @@ export const useCalculateVisibleElements = <El extends HTMLElement>({
       calculateVisibleCards();
     });
 
-    resizeObserver.observe(currentRef);
+    resizeObserver.observe(element);
 
     return () => {
       resizeObserver.disconnect();
     };
-  }, [ref, calculateVisibleCards]);
+  }, [element, calculateVisibleCards]);
 
   // Recalculate number of cards on mount
   useEffect(() => {

@@ -1,4 +1,4 @@
-import type { ReactElement, RefObject } from 'react';
+import type { ReactElement, Ref } from 'react';
 import React, { useContext, useMemo } from 'react';
 import type { FeedProps } from '../../../components/Feed';
 import Feed from '../../../components/Feed';
@@ -10,7 +10,7 @@ export const HorizontalFeedWithContext = ({
   feedRef,
 }: {
   feedProps: FeedProps<unknown>;
-  feedRef: RefObject<HTMLElement>;
+  feedRef: Ref<HTMLDivElement>;
 }): ReactElement => {
   const currentFeedSettings = useContext(FeedContext);
 
@@ -32,7 +32,7 @@ export const HorizontalFeedWithContext = ({
       <Feed
         {...feedProps}
         className={HORIZONTAL_FEED_CLASSES}
-        feedContainerRef={feedRef as RefObject<HTMLDivElement>}
+        feedContainerRef={feedRef}
       />
     </FeedContext.Provider>
   );

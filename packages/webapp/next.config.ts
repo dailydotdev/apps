@@ -237,6 +237,11 @@ const nextConfig: NextConfig = {
             destination: '/jobs',
             permanent: true,
           },
+          {
+            source: '/jobs/welcome',
+            destination: '/jobs',
+            permanent: true,
+          },
         ];
       },
       headers: async () => {

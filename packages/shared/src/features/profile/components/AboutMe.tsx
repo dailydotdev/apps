@@ -70,7 +70,7 @@ export function AboutMe({
       },
       user.linkedin && {
         id: 'linkedin',
-        url: user.linkedin,
+        url: `https://linkedin.com/in/${user.linkedin}`,
         icon: <LinkedInIcon size={IconSize.XSmall} />,
         label: 'LinkedIn',
       },

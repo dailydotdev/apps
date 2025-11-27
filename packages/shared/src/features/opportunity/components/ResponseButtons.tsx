@@ -2,8 +2,10 @@ import React from 'react';
 import type { ReactElement } from 'react';
 
 import { useMutation, useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
@@ -75,10 +77,11 @@ export const ResponseButtons = ({
         <Link href={`${opportunityUrl}/${id}/questions`} passHref>
           <Button
             tag="a"
-            className={className?.buttons}
+            className={classNames(className?.buttons, '!text-white')}
             size={size}
             icon={<VIcon />}
             variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             disabled={status === OpportunityMatchStatus.CandidateAccepted}
             onClick={() => handleClick(LogEvent.ApproveOpportunityMatch)}
           >

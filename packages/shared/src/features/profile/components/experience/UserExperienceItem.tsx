@@ -15,8 +15,10 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../../../components/typography/Typography';
-import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
-import { concatStrings } from '../../../../lib/strings';
+import { Separator } from '../../../../components/cards/common/common';
+import { LocationType } from '../../../opportunity/protobuf/util';
+import { formatDateRange } from '../../../../lib/dateFormat';
+import { locationToString } from '../../../../lib/utils';
 import { currentPill } from './common';
 import {
   Button,
@@ -29,8 +31,23 @@ import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
 import { IconSize } from '../../../../components/Icon';
 import { VerifiedBadge } from './VerifiedBadge';
+import type { TLocation } from '../../../../graphql/autocomplete';
 
 const MAX_SKILLS = 3;
+
+const getDisplayLocation = (
+  grouped: boolean | undefined,
+  locationType: number | null | undefined,
+  location: TLocation | null,
+): string | null => {
+  if (grouped || !location) {
+    return null;
+  }
+  if (locationType === LocationType.REMOTE) {
+    return 'Remote';
+  }
+  return locationToString(location);
+};
 
 interface UserExperienceItemProps {
   experience: UserExperience;
@@ -39,12 +56,14 @@ interface UserExperienceItemProps {
   };
   editUrl?: string;
   isExperienceVerified?: boolean;
+  isSameUser: boolean;
 }
 
 export function UserExperienceItem({
   experience,
   grouped,
   editUrl,
+  isSameUser,
   isExperienceVerified = false,
 }: UserExperienceItemProps): ReactElement {
   const {
@@ -56,7 +75,7 @@ export function UserExperienceItem({
     endedAt,
     subtitle,
   } = experience;
-  const { skills, verified } = experience as UserExperienceWork;
+  const { skills, location, locationType } = experience as UserExperienceWork;
   const { url } = experience as UserExperienceProject;
   const { externalReferenceId } = experience as UserExperienceCertification;
   const [showMoreSkills, setShowMoreSkills] = useState(false);
@@ -69,7 +88,12 @@ export function UserExperienceItem({
   const isCurrent = !endedAt;
 
   const shouldShowVerifyButton =
-    isWorkExperience && isCurrent && !isExperienceVerified && !grouped;
+    isSameUser &&
+    isWorkExperience &&
+    isCurrent &&
+    !isExperienceVerified &&
+    !grouped;
+
   const shouldShowVerifiedBadge =
     isWorkExperience && isExperienceVerified && !grouped;
   const shouldSwapCopies =
@@ -80,6 +104,9 @@ export function UserExperienceItem({
   const secondaryCopy = shouldSwapCopies
     ? title
     : company?.name || customCompanyName;
+
+  const dateRange = formatDateRange(startedAt, endedAt);
+  const loc = getDisplayLocation(!!grouped, locationType, location);
 
   return (
     <li key={experience.id} className="relative flex flex-row gap-2">
@@ -126,7 +153,12 @@ export function UserExperienceItem({
           )}
         >
           <div className="flex flex-wrap items-center gap-1">
-            <Typography truncate type={TypographyType.Subhead} bold>
+            <Typography
+              className="whitespace-break-spaces"
+              truncate
+              type={TypographyType.Subhead}
+              bold
+            >
               {primaryCopy}
             </Typography>
             {!grouped && !endedAt && currentPill}
@@ -172,30 +204,27 @@ export function UserExperienceItem({
               color={TypographyColor.Secondary}
             >
               {secondaryCopy}
-              {!!verified && (
-                <span className="ml-1 text-text-quaternary">Verified</span>
-              )}
             </Typography>
           )}
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {concatStrings(
-              [
-                formatDate({
-                  value: startedAt,
-                  type: TimeFormatType.TopReaderBadge,
-                }),
-                !!endedAt &&
-                  formatDate({
-                    value: endedAt,
-                    type: TimeFormatType.TopReaderBadge,
-                  }),
-              ],
-              ' - ',
+          <div className="flex items-center">
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {dateRange}
+            </Typography>
+            {loc && (
+              <>
+                <Separator className="text-text-tertiary" />
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {loc}
+                </Typography>
+              </>
             )}
-          </Typography>
+          </div>
           {!!externalReferenceId && (
             <Typography
               type={TypographyType.Footnote}

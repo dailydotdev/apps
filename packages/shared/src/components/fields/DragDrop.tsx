@@ -194,6 +194,7 @@ export function DragDrop({
   const {
     isDragOver,
     isDragValid,
+    handleDragEnter,
     handleDragOver,
     handleDragLeave,
     handleDrop,
@@ -284,6 +285,7 @@ export function DragDrop({
         className,
       )}
       aria-disabled={disabled}
+      onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
