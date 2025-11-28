@@ -27,7 +27,7 @@ const CertificationsPage = (): ReactElement => {
       title="Certifications"
       actions={
         <Link
-          href={`${webappUrl}/settings/profile/experience/edit?type=${UserExperienceType.Certification}`}
+          href={`${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.Certification}`}
         >
           <Button
             variant={ButtonVariant.Subtle}

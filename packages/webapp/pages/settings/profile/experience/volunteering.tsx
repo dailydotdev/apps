@@ -27,7 +27,7 @@ const VolunteeringPage = (): ReactElement => {
       title="Volunteering"
       actions={
         <Link
-          href={`${webappUrl}/settings/profile/experience/edit?type=${UserExperienceType.Volunteering}`}
+          href={`${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.Volunteering}`}
         >
           <Button
             variant={ButtonVariant.Subtle}
