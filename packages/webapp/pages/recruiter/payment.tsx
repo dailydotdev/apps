@@ -15,6 +15,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
@@ -39,24 +40,18 @@ const RecruiterPaymentPage = (): ReactElement => {
 
   return (
     <div className="flex min-h-screen flex-col laptop:flex-row">
-      {/* Left Section - Light Blue Background */}
       <div className="flex flex-1 flex-col items-end bg-background-subtle p-10 px-20">
         <div className="flex w-full max-w-[30rem] gap-1">
-          {/* Back Button */}
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<MoveToIcon className="rotate-180" />}
             onClick={handleBack}
-            className="mb-8"
           />
           <div className="flex flex-1 flex-col">
-            {/* Logo */}
-            <div className="mb-10">
+            <div className="mb-10 flex h-8">
               <HeaderLogo isRecruiter />
             </div>
-
-            {/* Subscription Details */}
             <div className="flex flex-col gap-6">
               <Typography
                 type={TypographyType.Body}
@@ -80,23 +75,40 @@ const RecruiterPaymentPage = (): ReactElement => {
                   </Typography>
                 </div>
 
-                <Typography
-                  type={TypographyType.Body}
-                  color={TypographyColor.Secondary}
-                >
-                  Platform plan
-                </Typography>
-
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  Billed monthly based on usage
-                </Typography>
+                <FlexCol className="gap-1">
+                  <div className="flex items-center justify-between">
+                    <Typography
+                      type={TypographyType.Body}
+                      color={TypographyColor.Secondary}
+                      bold
+                    >
+                      Platform plan
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Body}
+                      color={TypographyColor.Secondary}
+                      bold
+                    >
+                      Price varies
+                    </Typography>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
+                    >
+                      Billed monthly based on usage
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
+                    >
+                      $149.00 per unit
+                    </Typography>
+                  </div>
+                </FlexCol>
               </div>
-
-              {/* Pricing Breakdown */}
-              <div className="mt-8 flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-6">
+              <div className="mt-4 flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-6">
                 <div className="flex items-center justify-between">
                   <Typography
                     type={TypographyType.Body}
@@ -134,8 +146,6 @@ const RecruiterPaymentPage = (): ReactElement => {
           </div>
         </div>
       </div>
-
-      {/* Right Section - White Background with Paddle Checkout */}
       <div className="flex flex-1 flex-col bg-white p-10 px-20">
         <div className="w-full max-w-[30rem]">
           <div ref={checkoutRef} className="checkout-container h-full w-full" />

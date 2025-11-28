@@ -65,7 +65,6 @@ const PricingPlan = ({
         container,
       )}
     >
-      {/* Header */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex gap-2">
@@ -93,11 +92,9 @@ const PricingPlan = ({
           {description}
         </Typography>
       </div>
-
-      {/* Price */}
       <div className="flex flex-col gap-1">
-        <div className="flex flex-row">
-          <Typography type={TypographyType.LargeTitle} bold>
+        <div className="flex flex-row gap-2">
+          <Typography type={TypographyType.Mega1} bold>
             {price}
           </Typography>
           <Typography
@@ -114,8 +111,6 @@ const PricingPlan = ({
           {billingInfo}
         </Typography>
       </div>
-
-      {/* CTA Button */}
       <Button
         variant={ctaVariant}
         size={ButtonSize.Large}
@@ -125,8 +120,6 @@ const PricingPlan = ({
       >
         {ctaText}
       </Button>
-
-      {/* Features List */}
       <div className="flex flex-col gap-1 border-t border-border-subtlest-tertiary pt-6">
         {features.map((feature) => (
           <div key={feature.text}>
@@ -165,7 +158,6 @@ const RecruiterPlans = (): ReactElement => {
 
   const handleSalesClick = () => {
     // TODO: Add contact sales URL or open modal
-    window.open('https://daily.dev/contact-sales', '_blank');
   };
 
   const starterFeatures: PricingFeature[] = [
@@ -173,23 +165,53 @@ const RecruiterPlans = (): ReactElement => {
       text: 'Reach up to 100 developers / day',
       info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     },
-    { text: 'Unlimited recruiter seats' },
-    { text: 'Access to high-intent developer profiles' },
-    { text: 'Real-time matching notifications' },
-    { text: 'Basic analytics dashboard' },
+    {
+      text: 'Unlimited recruiter seats',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    },
+    {
+      text: 'Access to high-intent developer profiles',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    },
+    {
+      text: 'Real-time matching notifications',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    },
+    {
+      text: 'Basic analytics dashboard',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    },
   ];
 
   const boostFeatures: PricingFeature[] = [
-    { text: 'Reach up to 300 developers / day' },
-    { text: 'Unlimited recruiter seats' },
-    { text: 'Access to high-intent developer profiles' },
-    { text: 'Real-time matching notifications' },
-    { text: 'Advanced analytics & insights' },
-    { text: 'Priority support' },
+    {
+      text: 'Reach up to 300 developers / day',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    },
+    {
+      text: 'Unlimited recruiter seats',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    },
+    {
+      text: 'Access to high-intent developer profiles',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    },
+    {
+      text: 'Real-time matching notifications',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    },
+    {
+      text: 'Advanced analytics & insights',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    },
+    {
+      text: 'Priority support',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    },
   ];
 
   return (
-    <div className="mx-auto flex w-full max-w-[48rem] flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-[48rem] flex-col gap-8 px-4 tablet:px-0">
       <Typography type={TypographyType.Title1} bold center>
         Predictable pricing built for teams who hate hidden fees
       </Typography>
