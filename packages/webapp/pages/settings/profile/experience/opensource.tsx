@@ -27,7 +27,7 @@ const OpenSourcePage = (): ReactElement => {
       title="Open source"
       actions={
         <Link
-          href={`${webappUrl}/settings/profile/experience/edit?type=${UserExperienceType.OpenSource}`}
+          href={`${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.OpenSource}`}
         >
           <Button
             variant={ButtonVariant.Subtle}

@@ -27,7 +27,7 @@ const ProjectsPage = (): ReactElement => {
       title="Projects & Publications"
       actions={
         <Link
-          href={`${webappUrl}/settings/profile/experience/edit?type=${UserExperienceType.Project}`}
+          href={`${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.Project}`}
         >
           <Button
             variant={ButtonVariant.Subtle}
