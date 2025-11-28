@@ -33,6 +33,7 @@ import type {
   opportunityEditInfoSchema,
   opportunityEditOrganizationSchema,
   opportunityEditQuestionsSchema,
+  opportunityEditRecruiterSchema,
 } from '../../lib/schema/opportunity';
 import type { OpportunityState } from './protobuf/opportunity';
 
@@ -329,6 +330,27 @@ export const clearOrganizationImageMutationOptions = (): MutationOptions<
   return {
     mutationFn: async ({ id }: { id: string }) => {
       return gqlClient.request(CLEAR_ORGANIZATION_IMAGE_MUTATION, { id });
+    },
+  };
+};
+
+export const editOpportunityRecruiterMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof opportunityEditRecruiterSchema>;
+    }) => {
+      const result = await gqlClient.request<{
+        editOpportunity: Opportunity;
+      }>(EDIT_OPPORTUNITY_MUTATION, {
+        id,
+        payload,
+      });
+
+      return result.editOpportunity;
     },
   };
 };
