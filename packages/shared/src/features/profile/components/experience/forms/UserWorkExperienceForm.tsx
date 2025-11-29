@@ -85,7 +85,7 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
           <ControlledTextarea
             name="description"
             label="List your major duties and successes, highlighting specific projects"
-            maxLength={1000}
+            maxLength={5000}
           />
         </div>
         <ProfileSkills name="skills" />

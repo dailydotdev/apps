@@ -366,7 +366,7 @@ describe('UserProjectExperienceForm', () => {
       'Summary of the work, focus area',
     );
 
-    // Textarea has a 100 character limit
+    // Textarea has a 5000 character limit
     const description =
       'Developed a high-performance web application using React and Node.js for real-time data.';
 
@@ -374,14 +374,14 @@ describe('UserProjectExperienceForm', () => {
     expect(descriptionTextarea).toHaveValue(description);
 
     // Test that it respects the character limit
-    expect(descriptionTextarea).toHaveAttribute('maxlength', '100');
+    expect(descriptionTextarea).toHaveAttribute('maxlength', '5000');
 
     // Clear and type a longer text that will be truncated
     await userEvent.clear(descriptionTextarea);
-    const longText = 'a'.repeat(150); // 150 characters
+    const longText = 'a'.repeat(5100); // 5100 characters
     await userEvent.type(descriptionTextarea, longText);
-    // Should only contain 100 characters
-    expect(descriptionTextarea.value).toHaveLength(100);
+    // Should only contain 5000 characters
+    expect(descriptionTextarea.value).toHaveLength(5000);
   });
 
   it('should handle various URL formats in publication URL field', async () => {
