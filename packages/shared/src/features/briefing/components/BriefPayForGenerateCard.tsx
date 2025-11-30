@@ -99,7 +99,7 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
       await queryClient.refetchQueries({
         queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing'),
       });
-      await router.push(`${webappUrl}/briefing`);
+      await router.push(`${webappUrl}briefing`);
     },
   });
 

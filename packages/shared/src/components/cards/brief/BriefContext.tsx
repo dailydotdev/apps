@@ -17,7 +17,7 @@ const [BriefContextProvider, useBriefContext] = createContextProvider(
     const { user } = useAuthContext();
 
     const [brief, setBrief] = usePersistentState<BriefContext['brief']>(
-      `brief_card_${user.id}_v2`,
+      `brief_card_${user.id}_v3`,
       undefined,
     );
 

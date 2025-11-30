@@ -27,7 +27,7 @@ const WorkExperiencePage = (): ReactElement => {
       title="Work Experience"
       actions={
         <Link
-          href={`${webappUrl}/settings/profile/experience/edit?type=${UserExperienceType.Work}`}
+          href={`${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.Work}`}
         >
           <Button
             variant={ButtonVariant.Subtle}
