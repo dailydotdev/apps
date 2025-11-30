@@ -136,12 +136,7 @@ export const TipCard = ({
             className="text-text-tertiary hover:text-text-tertiary"
             onClick={onSkip}
           >
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Tertiary}
-            >
-              Skip
-            </Typography>
+            <Typography type={TypographyType.Caption2}>Skip</Typography>
           </ClickableText>
         </div>
       </div>
