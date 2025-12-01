@@ -104,6 +104,9 @@ export const opportunityEditInfoSchema = z.object({
       ),
     ),
   }),
+  organization: z.object({
+    name: z.string().nonempty().max(60),
+  }),
 });
 
 export const createOpportunityEditContentSchema = ({
@@ -207,3 +210,10 @@ export const opportunityEditRecruiterSchema = z.object({
     bio: z.string().max(2000).optional(),
   }),
 });
+
+export const opportunityCreateOrganizationSchema =
+  opportunityEditOrganizationSchema.extend({
+    organization: opportunityEditOrganizationSchema.shape.organization.extend({
+      name: z.string().nonempty().max(60),
+    }),
+  });
