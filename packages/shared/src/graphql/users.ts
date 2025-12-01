@@ -363,6 +363,7 @@ export const UPDATE_USER_INFO_MUTATION = gql`
       infoConfirmed
       timezone
       experienceLevel
+      hideExperience
       language
     }
   }

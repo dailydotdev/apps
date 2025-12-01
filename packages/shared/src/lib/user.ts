@@ -105,6 +105,7 @@ export interface UserProfile {
   timezone?: string;
   cover?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
+  hideExperience?: boolean;
   language?: string;
   defaultFeedId?: string;
   readme?: string;
