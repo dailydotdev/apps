@@ -39,6 +39,7 @@ import ControlledAvatarUpload from '@dailydotdev/shared/src/components/profile/C
 import ControlledCoverUpload from '@dailydotdev/shared/src/components/profile/ControlledCoverUpload';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useUserInfoForm from '@dailydotdev/shared/src/hooks/useUserInfoForm';
+import ControlledSwitch from '@dailydotdev/shared/src/components/fields/ControlledSwitch';
 import { AccountPageContainer } from '../AccountPageContainer';
 
 const Section = classed('section', 'flex flex-col gap-7');
@@ -97,6 +98,11 @@ const ProfileIndex = (): ReactElement => {
                 icon={<TerminalIcon />}
                 name="experienceLevel"
                 placeholder="Experience Level"
+              />
+              <ControlledSwitch
+                name="hideExperience"
+                label="Show experience"
+                description="Toggle wether your experience should be visible on your profile"
               />
             </Section>
             <HorizontalSeparator />
