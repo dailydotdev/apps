@@ -10,10 +10,8 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
 import HeaderLogo from '../../layout/HeaderLogo';
-import classed from '../../../lib/classed';
 import { SidebarScrollWrapper } from '../../sidebar/common';
-
-const Card = classed('div', 'rounded-8 bg-background-subtle');
+import { Tips } from '../Tips';
 
 const Header = () => (
   <div className="p-4">
@@ -41,25 +39,6 @@ export const CompanyBadge = () => (
     </div>
   </div>
 );
-
-const Tips = () => {
-  return (
-    <div className="p-3">
-      <Card className="px-3 py-2">
-        <Typography type={TypographyType.Footnote} bold>
-          Recruiting tip
-        </Typography>
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Tertiary}
-          className="mt-1"
-        >
-          Let candidates know the salary range
-        </Typography>
-      </Card>
-    </div>
-  );
-};
 
 const Footer = () => {
   const { user } = useAuthContext();
