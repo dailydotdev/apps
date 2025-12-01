@@ -96,6 +96,7 @@ const useUserInfoForm = (): UseUserInfoForm => {
       bluesky: user?.bluesky,
       threads: user?.threads,
       experienceLevel: user?.experienceLevel,
+      hideExperience: user?.hideExperience,
       readme: user?.readme || '',
     },
   });
