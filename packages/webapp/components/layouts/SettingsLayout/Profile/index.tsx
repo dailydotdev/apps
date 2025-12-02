@@ -101,8 +101,8 @@ const ProfileIndex = (): ReactElement => {
               />
               <ControlledSwitch
                 name="hideExperience"
-                label="Show experience"
-                description="Toggle wether your experience should be visible on your profile"
+                label="Hide experience"
+                description="Toggle whether your experience should be visible on your profile"
               />
             </Section>
             <HorizontalSeparator />
