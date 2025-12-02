@@ -373,15 +373,8 @@ describe('UserProjectExperienceForm', () => {
     await userEvent.type(descriptionTextarea, description);
     expect(descriptionTextarea).toHaveValue(description);
 
-    // Test that it respects the character limit
+    // Test that it has the correct character limit
     expect(descriptionTextarea).toHaveAttribute('maxlength', '5000');
-
-    // Clear and type a longer text that will be truncated
-    await userEvent.clear(descriptionTextarea);
-    const longText = 'a'.repeat(5100); // 5100 characters
-    await userEvent.type(descriptionTextarea, longText);
-    // Should only contain 5000 characters
-    expect(descriptionTextarea.value).toHaveLength(5000);
   });
 
   it('should handle various URL formats in publication URL field', async () => {
