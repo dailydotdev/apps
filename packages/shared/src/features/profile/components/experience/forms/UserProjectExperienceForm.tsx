@@ -113,6 +113,7 @@ const UserProjectExperienceForm = () => {
           <ControlledTextarea
             name="description"
             label="Summary of the work, focus area"
+            maxLength={5000}
           />
         </div>
       </div>
