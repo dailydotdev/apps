@@ -16,6 +16,7 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import { Separator } from '../../../../components/cards/common/common';
+import ShowMoreContent from '../../../../components/cards/common/ShowMoreContent';
 import { LocationType } from '../../../opportunity/protobuf/util';
 import { formatDateRange } from '../../../../lib/dateFormat';
 import { locationToString } from '../../../../lib/utils';
@@ -239,13 +240,17 @@ export function UserExperienceItem({
             </Typography>
           )}
         </div>
-        <Typography
-          type={TypographyType.Subhead}
-          color={TypographyColor.Secondary}
-          className="flex w-full max-w-full flex-1 whitespace-break-spaces break-words"
-        >
-          {description}
-        </Typography>
+        {description && (
+          <ShowMoreContent
+            ending="ellipsis"
+            content={description}
+            charactersLimit={160}
+            className={{
+              wrapper: 'w-full min-w-0 max-w-full flex-1',
+              text: 'whitespace-break-spaces break-words text-text-secondary typo-subhead',
+            }}
+          />
+        )}
         {skillList?.length > 0 && (
           <div className="flex flex-row flex-wrap gap-2">
             {skillList.map((skill) => (
