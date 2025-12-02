@@ -406,30 +406,32 @@ const JobPage = (): ReactElement => {
                 });
               }}
             />
-            <div className="flex items-center">
-              <SourceAvatar
-                source={{
-                  image: opportunity.organization.image,
-                  handle: opportunity.organization.name,
-                }}
-                size={ProfileImageSize.Medium}
-              />
+            {!!opportunity.organization && (
+              <div className="flex items-center">
+                <SourceAvatar
+                  source={{
+                    image: opportunity.organization.image,
+                    handle: opportunity.organization.name,
+                  }}
+                  size={ProfileImageSize.Medium}
+                />
 
-              <Typography
-                bold
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-              >
-                {opportunity.organization.name}{' '}
                 <Typography
-                  tag={TypographyTag.Span}
-                  color={TypographyColor.Tertiary}
-                  className="font-normal"
+                  bold
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Primary}
                 >
-                  Verified job
+                  {opportunity.organization.name}{' '}
+                  <Typography
+                    tag={TypographyTag.Span}
+                    color={TypographyColor.Tertiary}
+                    className="font-normal"
+                  >
+                    Verified job
+                  </Typography>
                 </Typography>
-              </Typography>
-            </div>
+              </div>
+            )}
             {/* Recruiter */}
             {!!opportunity.recruiters?.[0] && (
               <div className="flex items-center gap-2">
@@ -704,7 +706,7 @@ const JobPage = (): ReactElement => {
                 }}
               />
 
-              {opportunity.organization.website && (
+              {!!opportunity.organization?.website && (
                 <Link href={opportunity.organization.website} passHref>
                   <Button
                     tag="a"
@@ -721,34 +723,36 @@ const JobPage = (): ReactElement => {
               )}
             </div>
             {/* Company information */}
-            <div className="flex px-4">
-              <SourceAvatar
-                source={{
-                  image: opportunity.organization.image,
-                  handle: opportunity.organization.name,
-                }}
-                size={ProfileImageSize.Large}
-              />
+            {!!opportunity.organization && (
+              <div className="flex px-4">
+                <SourceAvatar
+                  source={{
+                    image: opportunity.organization.image,
+                    handle: opportunity.organization.name,
+                  }}
+                  size={ProfileImageSize.Large}
+                />
 
-              <div className="flex flex-shrink flex-col flex-wrap">
-                <Typography
-                  type={TypographyType.Body}
-                  color={TypographyColor.Primary}
-                >
-                  {opportunity.organization.name}
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  {companyStageMap[opportunity.organization.stage]} •{' '}
-                  {opportunity.organization.category}
-                </Typography>
+                <div className="flex flex-shrink flex-col flex-wrap">
+                  <Typography
+                    type={TypographyType.Body}
+                    color={TypographyColor.Primary}
+                  >
+                    {opportunity.organization.name}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    {companyStageMap[opportunity.organization.stage]} •{' '}
+                    {opportunity.organization.category}
+                  </Typography>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* SoMe Links */}
-            {opportunity.organization.socialLinks?.length > 0 && (
+            {opportunity.organization?.socialLinks?.length > 0 && (
               <div className="flex gap-2 px-4">
                 {opportunity.organization.socialLinks.map(
                   ({ link, socialType }) => (
@@ -786,7 +790,7 @@ const JobPage = (): ReactElement => {
                   Founded
                 </Typography>
                 <Typography type={TypographyType.Footnote} bold>
-                  {opportunity.organization.founded}
+                  {opportunity.organization?.founded || 'N/A'}
                 </Typography>
 
                 <Typography
@@ -796,7 +800,7 @@ const JobPage = (): ReactElement => {
                   HQ
                 </Typography>
                 <Typography type={TypographyType.Footnote} bold>
-                  {opportunity.organization.location}
+                  {opportunity.organization?.location || 'N/A'}
                 </Typography>
 
                 <Typography
@@ -806,13 +810,13 @@ const JobPage = (): ReactElement => {
                   Employees
                 </Typography>
                 <Typography type={TypographyType.Footnote} bold>
-                  {companySizeMap[opportunity.organization.size]}
+                  {companySizeMap[opportunity.organization?.size] || 'N/A'}
                 </Typography>
               </div>
             </SimpleTooltip>
 
             {/* Description */}
-            {opportunity.organization.description && (
+            {!!opportunity.organization?.description && (
               <SimpleTooltip
                 content={
                   canEdit ? labels.opportunity.companyInfoEditNotice : undefined
@@ -830,7 +834,7 @@ const JobPage = (): ReactElement => {
             )}
 
             {/* Perks & Benefits */}
-            {opportunity.organization.perks && (
+            {opportunity.organization?.perks?.length > 0 && (
               <div className="flex flex-col gap-2 px-4">
                 <Typography bold type={TypographyType.Callout}>
                   Perks & Benefits

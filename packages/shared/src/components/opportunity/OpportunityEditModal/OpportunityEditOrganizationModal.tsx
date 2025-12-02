@@ -14,6 +14,7 @@ import Textarea from '../../fields/Textarea';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { labels } from '../../../lib';
 import {
+  opportunityCreateOrganizationSchema,
   opportunityEditOrganizationSchema,
   SocialMediaType,
 } from '../../../lib/schema/opportunity';
@@ -345,6 +346,12 @@ export const OpportunityEditOrganizationModal = ({
     ...clearOrganizationImageMutationOptions(),
   });
 
+  // if there was no organization we use create schema to require name
+  const editSchema =
+    opportunity && !opportunity.organization
+      ? opportunityCreateOrganizationSchema
+      : opportunityEditOrganizationSchema;
+
   const {
     register,
     control,
@@ -354,26 +361,27 @@ export const OpportunityEditOrganizationModal = ({
     setValue,
     watch,
   } = useForm({
-    resolver: zodResolver(opportunityEditOrganizationSchema),
+    resolver: zodResolver(editSchema),
     defaultValues: async () => {
       const opportunityData = await promise;
 
       // Merge all link types into a single array
-      const customLinks = opportunityData.organization.customLinks || [];
-      const socialLinks = opportunityData.organization.socialLinks || [];
-      const pressLinks = opportunityData.organization.pressLinks || [];
+      const customLinks = opportunityData.organization?.customLinks || [];
+      const socialLinks = opportunityData.organization?.socialLinks || [];
+      const pressLinks = opportunityData.organization?.pressLinks || [];
       const allLinks = [...customLinks, ...socialLinks, ...pressLinks];
 
       return {
         organization: {
-          website: opportunityData.organization.website || '',
-          description: opportunityData.organization.description || '',
-          perks: opportunityData.organization.perks || [],
-          founded: opportunityData.organization.founded || undefined,
-          location: opportunityData.organization.location || '',
-          category: opportunityData.organization.category || '',
-          size: opportunityData.organization.size || undefined,
-          stage: opportunityData.organization.stage || undefined,
+          name: opportunityData.organization?.name || '',
+          website: opportunityData.organization?.website || '',
+          description: opportunityData.organization?.description || '',
+          perks: opportunityData.organization?.perks || [],
+          founded: opportunityData.organization?.founded || undefined,
+          location: opportunityData.organization?.location || '',
+          category: opportunityData.organization?.category || '',
+          size: opportunityData.organization?.size || undefined,
+          stage: opportunityData.organization?.stage || undefined,
           links: allLinks,
         },
       };
@@ -389,7 +397,7 @@ export const OpportunityEditOrganizationModal = ({
 
       await mutateAsync({
         id,
-        payload: data as z.infer<typeof opportunityEditOrganizationSchema>,
+        payload: data as z.infer<typeof editSchema>,
         organizationImage: organizationImageFile || undefined,
       });
     } catch (originalError) {
@@ -521,6 +529,17 @@ export const OpportunityEditOrganizationModal = ({
             fileSizeLimitMB={5}
           />
         </div>
+        {editSchema === opportunityCreateOrganizationSchema && (
+          <TextField
+            {...register('organization.name')}
+            type="text"
+            inputId="organizationName"
+            label="Company name"
+            fieldType="secondary"
+            valid={!errors.organization?.name}
+            hint={errors.organization?.name?.message}
+          />
+        )}
         <TextField
           {...register('organization.website')}
           type="url"

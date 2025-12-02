@@ -84,13 +84,15 @@ export const OpportunityMatchList = ({
               passHref
             >
               <a className="flex items-center gap-3 p-2">
-                <SourceAvatar
-                  source={{
-                    image: opportunity.organization.image,
-                    handle: opportunity.organization.name,
-                  }}
-                  size={ProfileImageSize.Large}
-                />
+                {!!opportunity.organization && (
+                  <SourceAvatar
+                    source={{
+                      image: opportunity.organization.image,
+                      handle: opportunity.organization.name,
+                    }}
+                    size={ProfileImageSize.Large}
+                  />
+                )}
                 <FlexCol className="min-w-0 flex-1 gap-1">
                   <Typography
                     type={TypographyType.Body}
@@ -104,7 +106,7 @@ export const OpportunityMatchList = ({
                     type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
                   >
-                    {opportunity.organization.name} •{' '}
+                    {opportunity.organization?.name || 'N/A'} •{' '}
                     <DateFormat date={match.createdAt} />
                   </Typography>
                   <div

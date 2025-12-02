@@ -90,7 +90,7 @@ export type Opportunity = {
   state: OpportunityState;
   title: string;
   tldr: string;
-  organization: Organization;
+  organization?: Organization;
   content: {
     overview: OpportunityContentBlock;
   };
