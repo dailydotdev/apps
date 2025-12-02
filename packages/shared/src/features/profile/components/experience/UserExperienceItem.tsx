@@ -242,7 +242,7 @@ export function UserExperienceItem({
         </div>
         {description && (
           <ShowMoreContent
-            ending="punctuation"
+            ending="ellipsis"
             content={description}
             charactersLimit={160}
             className={{
