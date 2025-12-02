@@ -36,10 +36,18 @@ const RadixAccordionHeader = ({ children }: { children: ReactNode }) => {
 
 type RadixAccordionProps = {
   items: { title: string; description: string | ReactNode }[];
+  className?: string;
 };
-export const RadixAccordion = ({ items }: RadixAccordionProps) => {
+export const RadixAccordion = ({
+  items,
+  className = 'bg-surface-float',
+}: RadixAccordionProps) => {
   return (
-    <AccordionRoot className="AccordionRoot" type="single" collapsible>
+    <AccordionRoot
+      className={classNames('AccordionRoot', className)}
+      type="single"
+      collapsible
+    >
       {items?.map((item) => (
         <AccordionItem
           className="AccordionItem"

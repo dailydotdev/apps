@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import z from 'zod';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -13,6 +14,8 @@ import { MagicIcon, ShieldIcon } from '../../icons';
 import { webappUrl } from '../../../lib/constants';
 import Link from '../../utilities/Link';
 
+const jobLinkSchema = z.string().url('Please enter a valid URL');
+
 export interface RecruiterJobLinkModalProps extends ModalProps {
   onSubmit: (jobLink: string) => void;
 }
@@ -23,10 +26,34 @@ export const RecruiterJobLinkModal = ({
   ...modalProps
 }: RecruiterJobLinkModalProps): ReactElement => {
   const [jobLink, setJobLink] = useState('');
+  const [error, setError] = useState<string>('');
+
+  const validateJobLink = (value: string) => {
+    if (!value.trim()) {
+      setError('');
+      return false;
+    }
+
+    const result = jobLinkSchema.safeParse(value.trim());
+    if (!result.success) {
+      setError(result.error[0]?.message || 'Invalid URL');
+      return false;
+    }
+
+    setError('');
+    return true;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setJobLink(value);
+    validateJobLink(value);
+  };
 
   const handleSubmit = () => {
-    if (jobLink.trim()) {
-      onSubmit(jobLink.trim());
+    const trimmedLink = jobLink.trim();
+    if (trimmedLink && validateJobLink(trimmedLink)) {
+      onSubmit(trimmedLink);
     }
   };
 
@@ -73,7 +100,10 @@ export const RecruiterJobLinkModal = ({
             name="job-link"
             placeholder="https://yourcompany.com/careers/senior-engineer"
             value={jobLink}
-            onChange={(e) => setJobLink(e.target.value)}
+            onChange={handleChange}
+            valid={!error && jobLink.trim().length > 0}
+            hint={error}
+            saveHintSpace
           />
 
           <Link passHref href={`${webappUrl}`}>
@@ -86,7 +116,7 @@ export const RecruiterJobLinkModal = ({
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
             onClick={handleSubmit}
-            disabled={!jobLink.trim()}
+            disabled={!jobLink.trim() || !!error}
             className="w-full gap-2 tablet:w-auto"
           >
             <MagicIcon /> Find my matches
