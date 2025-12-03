@@ -103,7 +103,7 @@ function RecruiterMatchesPage(): ReactElement {
           <div className="flex gap-8 p-6">
             <div className="flex flex-1 flex-col gap-6">
               <MatchProfile profile={currentMatch.profile} />
-              <MatchInsights reasons={currentMatch.insights} />
+              <MatchInsights />
             </div>
             <div className="flex flex-1 flex-col gap-6">
               <ScreeningQuestions questions={currentMatch.screeningQuestions} />
