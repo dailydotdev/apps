@@ -8,13 +8,7 @@ import {
 import { FlexCol } from '../utilities';
 import { ChecklistBIcon } from '../icons';
 
-export interface MatchInsightsProps {
-  reasons: string[];
-}
-
-export const MatchInsights = ({
-  reasons,
-}: MatchInsightsProps): ReactElement => {
+export const MatchInsights = (): ReactElement => {
   return (
     <FlexCol className="gap-4 rounded-16 bg-action-upvote-float p-4">
       <div className="flex items-center gap-2">
