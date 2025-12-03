@@ -744,8 +744,10 @@ const JobPage = (): ReactElement => {
                     type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
                   >
-                    {companyStageMap[opportunity.organization.stage]} •{' '}
-                    {opportunity.organization.category}
+                    {companyStageMap[opportunity.organization.stage]}
+                    {opportunity.organization?.category
+                      ? `• ${opportunity.organization.category}`
+                      : null}
                   </Typography>
                 </div>
               </div>
