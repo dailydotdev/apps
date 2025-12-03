@@ -1,5 +1,7 @@
 import { gql } from 'graphql-request';
 import { ORGANIZATION_SHORT_FRAGMENT } from '../organizations/graphql';
+import { gqlClient } from '../../graphql/common';
+import type { Opportunity } from './types';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   fragment OpportunityContentFragment on OpportunityContentBlock {
@@ -472,3 +474,29 @@ export const USER_OPPORTUNITY_MATCHES_QUERY = gql`
   ${OPPORTUNITY_MATCH_FRAGMENT}
   ${OPPORTUNITY_FRAGMENT}
 `;
+
+export const PARSE_OPPORTUNITY_MUTATION = gql`
+  mutation ParseOpportunity($payload: ParseOpportunityInput!) {
+    parseOpportunity(payload: $payload) {
+      ...OpportunityFragment
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const parseOpportunityMutationOptions = () => {
+  return {
+    mutationFn: async ({ file, url }: { file?: File; url?: string }) => {
+      const result = await gqlClient.request<{
+        parseOpportunity: Opportunity;
+      }>(PARSE_OPPORTUNITY_MUTATION, {
+        payload: {
+          file,
+          url,
+        },
+      });
+
+      return result.parseOpportunity;
+    },
+  };
+};
