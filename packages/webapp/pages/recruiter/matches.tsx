@@ -2,18 +2,14 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { ConnectHeader } from '@dailydotdev/shared/src/components/recruiter/ConnectHeader';
 import { ConnectProgress } from '@dailydotdev/shared/src/components/recruiter/ConnectProgress';
-import type {
-  MatchProfileDetails,
-  ScreeningQuestion,
-  EngagementProfileData,
-} from '@dailydotdev/shared/src/components/recruiter';
-import {
-  EngagementProfile,
-  MatchProfile,
-  MatchInsights,
-  ScreeningQuestions,
-  MatchReviewHeader,
-} from '@dailydotdev/shared/src/components/recruiter';
+import type { ScreeningQuestion } from '@dailydotdev/shared/src/components/recruiter/ScreeningQuestions';
+import { ScreeningQuestions } from '@dailydotdev/shared/src/components/recruiter/ScreeningQuestions';
+import type { EngagementProfileData } from '@dailydotdev/shared/src/components/recruiter/EngagementProfile';
+import { EngagementProfile } from '@dailydotdev/shared/src/components/recruiter/EngagementProfile';
+import { MatchReviewHeader } from '@dailydotdev/shared/src/components/recruiter/MatchReviewHeader';
+import type { MatchProfileDetails } from '@dailydotdev/shared/src/components/recruiter/MatchProfile';
+import { MatchProfile } from '@dailydotdev/shared/src/components/recruiter/MatchProfile';
+import { MatchInsights } from '@dailydotdev/shared/src/components/recruiter/MatchInsights';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
 
 // Mock data - replace with actual data from API
