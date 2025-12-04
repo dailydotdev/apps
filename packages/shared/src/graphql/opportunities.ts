@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { gqlClient } from './common';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -10,6 +10,7 @@ import type {
   OpportunityContentInput,
   OpportunityPreviewInput,
 } from '../lib/schema/opportunity';
+import { disabledRefetch } from '../lib/func';
 
 // Re-export types for convenience
 export type {
@@ -28,44 +29,32 @@ export interface OpportunityPreviewResponse {
 
 // GraphQL Mutation
 export const OPPORTUNITY_PREVIEW = gql`
-  mutation OpportunityPreview($opportunity: OpportunityPreviewInput!) {
-    opportunityPreview(opportunity: $opportunity) {
+  mutation OpportunityPreview {
+    opportunityPreview {
       userIds
       totalCount
     }
   }
 `;
 
-// Query Function
-export const getOpportunityPreview = async (
-  opportunity: OpportunityPreviewInput,
-): Promise<OpportunityPreviewResponse> => {
-  const result = await gqlClient.request(OPPORTUNITY_PREVIEW, {
-    opportunity,
-  });
+// Mutation Function
+export const getOpportunityPreview =
+  async (): Promise<OpportunityPreviewResponse> => {
+    const result = await gqlClient.request(OPPORTUNITY_PREVIEW);
 
-  return result.opportunityPreview;
-};
+    return result.opportunityPreview;
+  };
 
-// React Hook (for automatic queries)
-export const useOpportunityPreview = (opportunity: OpportunityPreviewInput) => {
+// React Query Hook
+export const useOpportunityPreview = () => {
   const { user } = useAuthContext();
 
   return useQuery({
-    queryKey: generateQueryKey(
-      RequestKey.OpportunityPreview,
-      user,
-      opportunity,
-    ),
-    queryFn: () => getOpportunityPreview(opportunity),
-    enabled: !!user && !!opportunity.title && !!opportunity.tldr,
-  });
-};
-
-// Mutation Hook (for manual triggering)
-export const useOpportunityPreviewMutation = () => {
-  return useMutation({
-    mutationFn: (opportunity: OpportunityPreviewInput) =>
-      getOpportunityPreview(opportunity),
+    queryKey: generateQueryKey(RequestKey.OpportunityPreview, user),
+    queryFn: () => getOpportunityPreview(),
+    enabled: !!user,
+    ...disabledRefetch,
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 };

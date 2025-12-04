@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import {
   Typography,
   TypographyColor,
@@ -20,9 +20,8 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useRouter } from 'next/router';
-import type { OpportunityPreviewInput } from '@dailydotdev/shared/src/lib/schema/opportunity';
+import { useOpportunityPreview } from '@dailydotdev/shared/src/graphql/opportunities';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
-import { useOpportunityPreviewMutation } from '../../../shared/src/graphql/opportunities';
 
 type LoadingBlockItemProps = {
   icon: ReactElement;
@@ -287,36 +286,7 @@ function RecruiterPage(): ReactElement {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
 
-  // Mock opportunity data - replace with actual data from form/state
-  // TODO: Replace with actual data from form/state
-  const opportunityData: OpportunityPreviewInput = useMemo(
-    () => ({
-      title: 'Senior Frontend Developer',
-      tldr: 'Looking for an experienced frontend developer to join our team',
-      keywords: ['JavaScript', 'Next.js', 'React', 'TypeScript'],
-      location: [
-        {
-          country: 'United States',
-          city: 'Cupertino',
-          subdivision: 'California',
-          type: 1,
-        },
-      ],
-      meta: {
-        seniorityLevel: 3, // Senior
-        employmentType: 1, // Full-time
-        teamSize: 50,
-        roleType: 1, // Frontend
-      },
-    }),
-    [],
-  );
-
-  const { mutate: fetchOpportunityPreview } = useOpportunityPreviewMutation();
-
-  useEffect(() => {
-    fetchOpportunityPreview(opportunityData);
-  }, [opportunityData, fetchOpportunityPreview]);
+  useOpportunityPreview();
 
   const handlePrepareCampaignClick = useCallback(() => {
     if (!user) {
