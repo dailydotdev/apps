@@ -13,7 +13,7 @@ import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { TextField } from '../../fields/TextField';
 import { MagicIcon, ShieldIcon } from '../../icons';
 import { DragDrop } from '../../fields/DragDrop';
-import { parseOpportunityMutationOptions } from '../../../features/opportunity/graphql';
+import { parseOpportunityMutationOptions } from '../../../features/opportunity/mutations';
 import { useToastNotification } from '../../../hooks';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { labels } from '../../../lib';
