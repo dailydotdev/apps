@@ -11,6 +11,7 @@ import type {
   OpportunityPreviewInput,
 } from '../lib/schema/opportunity';
 import { disabledRefetch } from '../lib/func';
+import type { AnonymousUser } from '../components/recruiter/AnonymousUserTable';
 
 // Re-export types for convenience
 export type {
@@ -21,9 +22,12 @@ export type {
   OpportunityPreviewInput,
 };
 
-// Response Types
 export interface OpportunityPreviewResponse {
-  userIds: string[];
+  users: {
+    edges: Array<{
+      node: AnonymousUser;
+    }>;
+  };
   totalCount: number;
 }
 
@@ -31,7 +35,27 @@ export interface OpportunityPreviewResponse {
 export const OPPORTUNITY_PREVIEW = gql`
   mutation OpportunityPreview {
     opportunityPreview {
-      userIds
+      users {
+        edges {
+          node {
+            id
+            profileImage
+            anonId
+            description
+            openToWork
+            seniority
+            location
+            company {
+              name
+              favicon
+            }
+            lastActivity
+            topTags
+            recentlyRead
+            activeSquads
+          }
+        }
+      }
       totalCount
     }
   }
