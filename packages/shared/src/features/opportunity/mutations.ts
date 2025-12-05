@@ -35,9 +35,9 @@ import type {
   opportunityEditInfoSchema,
   opportunityEditOrganizationSchema,
   opportunityEditQuestionsSchema,
-  opportunityEditRecruiterSchema,
 } from '../../lib/schema/opportunity';
 import type { OpportunityState } from './protobuf/opportunity';
+import type { opportunityEditRecruiterSchema } from '../../components/opportunity/OpportunityEditModal/OpportunityEditRecruiterModal';
 
 export type UpdatedCandidatePreferences = Partial<UserCandidatePreferences>;
 
