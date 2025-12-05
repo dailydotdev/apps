@@ -440,9 +440,13 @@ export const REMOVE_USER_COMPANY_MUTATION = gql`
 `;
 
 // Regex taken from https://github.com/dailydotdev/daily-api/blob/234b0be53fea85954403cef5a2326fc50ce498fd/src/common/object.ts#L41
-export const handleRegex = new RegExp(/^@?[a-z0-9](\w){2,38}$/i);
+// Updated to support Unicode word characters (including accented characters)
+export const handleRegex = new RegExp(
+  /^@?[\p{L}\p{N}]([\p{L}\p{N}_]){2,38}$/iu,
+);
 // Regex taken from https://github.com/dailydotdev/daily-api/blob/234b0be53fea85954403cef5a2326fc50ce498fd/src/common/object.ts#L40
-export const socialHandleRegex = new RegExp(/^@?([\w-]){1,39}$/i);
+// Updated to support Unicode word characters (including accented characters)
+export const socialHandleRegex = new RegExp(/^@?([\p{L}\p{N}_-]){1,39}$/iu);
 
 export const REFERRAL_CAMPAIGN_QUERY = gql`
   query ReferralCampaign($referralOrigin: String!) {
