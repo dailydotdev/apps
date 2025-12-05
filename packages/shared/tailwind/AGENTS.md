@@ -174,3 +174,17 @@ className="bg-surface-float"
 4. Use the semantic token in components
 
 Keep tokens minimal - prefer using existing ones.
+
+## Custom Styles & Gradients
+
+If you absolutely need custom styles or gradients that don't fit the token system, add them to `src/styles/custom.ts`. This centralizes non-standard styles so they can be identified and potentially migrated to proper tokens later.
+
+```typescript
+// src/styles/custom.ts - use sparingly
+export const customGradients = {
+  // Document why this gradient is needed
+  featureHighlight: 'linear-gradient(...)',
+};
+```
+
+**Prefer design tokens over custom styles whenever possible.**

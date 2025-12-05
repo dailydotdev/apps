@@ -26,12 +26,11 @@ This is a pnpm monorepo containing the daily.dev application suite:
 
 ## Technology Stack
 
-- **Node.js v22.11** (see `.nvmrc`)
-- **pnpm 9.14.4** for package management
+- **Node.js v22.11** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
+- **pnpm 9.14.4** for package management (see `package.json` `packageManager` property)
 - **TypeScript** across all packages
-- **React 18.3.1** with Next.js 15 for webapp
+- **React 18.3.1** with Next.js 15 for webapp (Pages Router, NOT App Router/Server Components)
 - **TanStack Query v5** for server state and data fetching
-- **Jotai** for local state management
 - **GraphQL** with graphql-request for API communication
 - **Tailwind CSS** with custom design system
 - **Jest** for testing
@@ -141,7 +140,7 @@ pnpm --filter <package> test      # Run tests
 pnpm --filter <package> lint      # Run linter
 pnpm --filter <package> lint:fix  # Fix lint issues
 
-# Building
+# Building for production
 pnpm --filter webapp build        # Build webapp
 pnpm --filter extension build:chrome # Build Chrome extension
 ```
@@ -173,7 +172,7 @@ Is it used by both webapp AND extension?
 |----------|----------|
 | Server data (API responses) | TanStack Query |
 | Global app state (user, settings) | React Context |
-| Local/UI state | Jotai atoms or useState |
+| Local/UI state | useState |
 | Form state | react-hook-form + Zod validation |
 
 **Note**: TanStack Query v5 uses `isPending` for mutations (not `isLoading`).
@@ -206,21 +205,12 @@ const { value, isLoading } = useConditionalFeature({
 });
 ```
 
-## Local Development with Backend
-
-```bash
-docker-compose up -d  # Starts PostgreSQL, Redis, daily-api
-```
-
-The webapp proxies API requests to localhost:5000 when `NEXT_PUBLIC_DOMAIN=localhost`.
-
 ## Key Configuration Files
 
 - `pnpm-workspace.yaml` - Monorepo workspace packages
 - `packages/webapp/next.config.ts` - Next.js configuration
 - `packages/shared/tailwind.config.ts` - Base Tailwind configuration
 - `packages/extension/webpack.config.js` - Extension build configuration
-- `docker-compose.yml` - Local development environment
 
 ## Package-Specific Guides
 
@@ -236,3 +226,4 @@ Each package has its own AGENTS.md with detailed guidance:
 - SVG imports are converted to React components via `@svgr/webpack`
 - Tailwind utilities preferred over CSS-in-JS
 - GraphQL schema changes require manual TypeScript type updates
+- **Avoid index/barrel exports** - they easily cause dependency cycles; prefer direct file imports
