@@ -11,8 +11,6 @@ import type {
   OpportunityPreviewInput,
 } from '../lib/schema/opportunity';
 import { disabledRefetch } from '../lib/func';
-import type { AnonymousUser } from '../components/recruiter/AnonymousUserTable';
-
 // Re-export types for convenience
 export type {
   LocationInput,
@@ -22,18 +20,72 @@ export type {
   OpportunityPreviewInput,
 };
 
+export interface OpportunityPreviewCompany {
+  name: string;
+  favicon?: string;
+}
+
+export interface TopReaderBadge {
+  /** The keyword/tag name */
+  tag: string;
+  /** When the badge was issued */
+  issuedAt: Date;
+}
+
+export interface OpportunityPreviewUser {
+  /** Real user ID */
+  id: string;
+  /** User profile image */
+  profileImage?: string;
+  /** Anonymized ID (e.g., anon #1002) */
+  anonId: string;
+  /** User description/bio */
+  description?: string;
+  /** Whether the user is open to work */
+  openToWork: boolean;
+  /** User seniority level */
+  seniority?: string;
+  /** User location (from preferences or geo flags) */
+  location?: string;
+  /** Active company from experience */
+  company?: OpportunityPreviewCompany;
+  /** Last activity timestamp */
+  lastActivity?: Date;
+  /** Top tags for the user */
+  topTags?: string[];
+  /** Top reader badge with tag and issue date */
+  recentlyRead?: TopReaderBadge;
+  /** Active squad IDs */
+  activeSquads?: string[];
+}
+
+export interface OpportunityPreviewEdge {
+  node: OpportunityPreviewUser;
+  cursor: string;
+}
+
+export interface PageInfo {
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  startCursor?: string;
+  endCursor?: string;
+}
+
+export interface OpportunityPreviewConnection {
+  edges: OpportunityPreviewEdge[];
+  pageInfo: PageInfo;
+}
+
 export interface OpportunityPreviewResponse {
-  users: {
-    edges: Array<{
-      node: AnonymousUser;
-    }>;
-  };
+  /** Paginated list of matching users */
+  users: OpportunityPreviewConnection;
+  /** Total count of matching users */
   totalCount: number;
 }
 
-// GraphQL Mutation
+// GraphQL Query
 export const OPPORTUNITY_PREVIEW = gql`
-  mutation OpportunityPreview {
+  query OpportunityPreview {
     opportunityPreview {
       users {
         edges {
@@ -51,9 +103,19 @@ export const OPPORTUNITY_PREVIEW = gql`
             }
             lastActivity
             topTags
-            recentlyRead
+            recentlyRead {
+              tag
+              issuedAt
+            }
             activeSquads
           }
+          cursor
+        }
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          startCursor
+          endCursor
         }
       }
       totalCount
@@ -61,7 +123,7 @@ export const OPPORTUNITY_PREVIEW = gql`
   }
 `;
 
-// Mutation Function
+// Query Function
 export const getOpportunityPreview =
   async (): Promise<OpportunityPreviewResponse> => {
     const result = await gqlClient.request(OPPORTUNITY_PREVIEW);

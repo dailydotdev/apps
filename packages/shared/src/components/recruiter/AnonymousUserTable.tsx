@@ -16,26 +16,9 @@ import { getLastActivityDateFormat } from '../../lib/dateFormat';
 import { MiniCloseIcon } from '../icons';
 import { Chip } from '../cards/common/PostTags';
 import { useOpportunityPreviewContext } from '../../contexts/OpportunityPreviewContext';
+import type { OpportunityPreviewUser } from '../../graphql/opportunities';
 
-export type AnonymousUser = {
-  id: string;
-  profileImage?: string;
-  anonId: string;
-  description?: string;
-  openToWork: boolean;
-  seniority?: string;
-  location?: string;
-  company?: {
-    name: string;
-    favicon?: string;
-  };
-  lastActivity?: Date;
-  topTags?: string[];
-  recentlyRead?: string[];
-  activeSquads?: string[];
-};
-
-const columnHelper = createColumnHelper<AnonymousUser>();
+const columnHelper = createColumnHelper<OpportunityPreviewUser>();
 
 const columns = [
   columnHelper.display({
@@ -217,7 +200,7 @@ export const AnonymousUserTable = () => {
   };
 
   // Extract users from context data
-  const tableData = useMemo<AnonymousUser[]>(() => {
+  const tableData = useMemo<OpportunityPreviewUser[]>(() => {
     if (!contextData?.users?.edges) {
       return [];
     }
