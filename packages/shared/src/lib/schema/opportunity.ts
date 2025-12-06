@@ -209,3 +209,45 @@ export const opportunityCreateOrganizationSchema =
       name: z.string().nonempty().max(60),
     }),
   });
+
+// TypeScript types for GraphQL inputs
+export interface LocationInput {
+  country: string;
+  city?: string;
+  subdivision?: string;
+  type?: number;
+}
+
+export interface SalaryInput {
+  min?: number;
+  max?: number;
+  period?: number;
+  currency?: string;
+}
+
+export interface OpportunityMetaInput {
+  salary?: SalaryInput;
+  employmentType?: number;
+  teamSize?: number;
+  seniorityLevel?: number;
+  roleType?: number;
+}
+
+export interface OpportunityContentInput {
+  overview?: string;
+  responsibilities?: string;
+  requirements?: string;
+  whatYoullDo?: string;
+  interviewProcess?: string;
+}
+
+export interface OpportunityPreviewInput {
+  title: string;
+  tldr: string;
+  content?: OpportunityContentInput;
+  meta?: OpportunityMetaInput;
+  location?: LocationInput[];
+  state?: number;
+  type?: number;
+  keywords?: string[];
+}
