@@ -103,6 +103,20 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
   }
 `;
 
+export interface OpportunityPreviewCompany {
+  name: string;
+  favicon?: string;
+}
+
+export interface TopReaderBadge {
+  /** The keyword/tag name */
+  keyword: {
+    value: string;
+  };
+  /** When the badge was issued */
+  issuedAt: Date;
+}
+
 export interface OpportunityPreviewUser {
   /** Real user ID */
   id: string;
