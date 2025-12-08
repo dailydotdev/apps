@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { useQuery } from '@tanstack/react-query';
 import type { Connection } from './common';
 import type {
   OpportunityMatchDescription,
@@ -8,17 +9,10 @@ import type {
   OpportunityLocation,
 } from '../features/opportunity/types';
 import type { PublicProfile } from '../lib/user';
-import { useQuery } from '@tanstack/react-query';
 import { gqlClient } from './common';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
-import type {
-  LocationInput,
-  SalaryInput,
-  OpportunityMetaInput,
-  OpportunityContentInput,
-  OpportunityPreviewInput,
-} from '../lib/schema/opportunity';
+
 import { disabledRefetch } from '../lib/func';
 
 export type OpportunityMatchUser = Pick<
@@ -136,22 +130,7 @@ export interface OpportunityPreviewUser {
   activeSquads?: string[];
 }
 
-export interface OpportunityPreviewEdge {
-  node: OpportunityPreviewUser;
-  cursor: string;
-}
-
-export interface PageInfo {
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  startCursor?: string;
-  endCursor?: string;
-}
-
-export interface OpportunityPreviewResponse {
-  edges: OpportunityPreviewEdge[];
-  pageInfo: PageInfo & { totalCount: number };
-}
+export type OpportunityPreviewResponse = Connection<OpportunityPreviewUser>;
 
 // GraphQL Query
 export const OPPORTUNITY_PREVIEW = gql`
