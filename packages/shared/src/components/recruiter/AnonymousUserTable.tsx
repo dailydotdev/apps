@@ -6,6 +6,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import classNames from 'classnames';
+import { format } from 'date-fns';
 import {
   Typography,
   TypographyColor,
@@ -331,13 +332,9 @@ export const AnonymousUserTable = () => {
                           <ChipSection
                             label="Recently read"
                             items={user.recentlyRead?.map((badge) => {
-                              const date = new Date(badge.issuedAt);
-                              const formattedDate = date.toLocaleDateString(
-                                'en-US',
-                                {
-                                  month: 'short',
-                                  year: 'numeric',
-                                },
+                              const formattedDate = format(
+                                new Date(badge.issuedAt),
+                                'MMM yyyy',
                               );
                               return `${badge.keyword.value} - ${formattedDate}`;
                             })}
