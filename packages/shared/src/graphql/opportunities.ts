@@ -78,6 +78,12 @@ export interface OpportunityPreviewResponse {
   pageInfo: PageInfo & { totalCount: number };
 }
 
+export interface OpportunityPreviewDetails {
+  tags: string[];
+  companies: OpportunityPreviewCompany[];
+  squads: string[];
+}
+
 // GraphQL Query
 export const OPPORTUNITY_PREVIEW = gql`
   query OpportunityPreview {
@@ -134,6 +140,43 @@ export const useOpportunityPreview = () => {
     queryKey: generateQueryKey(RequestKey.OpportunityPreview, user),
     queryFn: () => getOpportunityPreview(),
     enabled: !!user,
+    ...disabledRefetch,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+};
+
+// GraphQL Query for Preview Details
+export const OPPORTUNITY_PREVIEW_DETAILS = gql`
+  query OpportunityPreviewDetails {
+    opportunityPreviewDetails {
+      tags
+      companies {
+        name
+        favicon
+      }
+      squads
+    }
+  }
+`;
+
+// Query Function
+export const getOpportunityPreviewDetails =
+  async (): Promise<OpportunityPreviewDetails> => {
+    const result = await gqlClient.request(OPPORTUNITY_PREVIEW_DETAILS);
+
+    return result.opportunityPreviewDetails;
+  };
+
+// React Query Hook - Only fires if opportunityPreview succeeded
+export const useOpportunityPreviewDetails = () => {
+  const { user } = useAuthContext();
+  const { isSuccess: previewSuccess } = useOpportunityPreview();
+
+  return useQuery({
+    queryKey: generateQueryKey(RequestKey.OpportunityPreviewDetails, user),
+    queryFn: () => getOpportunityPreviewDetails(),
+    enabled: !!user && previewSuccess,
     ...disabledRefetch,
     staleTime: Infinity,
     gcTime: Infinity,

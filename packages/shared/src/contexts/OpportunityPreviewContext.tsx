@@ -1,11 +1,15 @@
 import { createContextProvider } from '@kickass-coderz/react';
-import { useOpportunityPreview } from '../graphql/opportunities';
+import {
+  useOpportunityPreview,
+  useOpportunityPreviewDetails,
+} from '../graphql/opportunities';
 
 const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
   createContextProvider(() => {
     const { data } = useOpportunityPreview();
+    const { data: detailsData } = useOpportunityPreviewDetails();
 
-    return { ...data };
+    return { ...data, ...detailsData };
   });
 
 export { OpportunityPreviewProvider, useOpportunityPreviewContext };
