@@ -444,6 +444,21 @@ const PostOptionButtonContent = ({
       label: 'Hide',
       action: onHidePost,
     },
+    !isBriefPost && {
+      icon: <MenuIcon Icon={FlagIcon} />,
+      label: 'Report',
+      action: async () =>
+        openModal({
+          type: LazyModal.ReportPost,
+          props: {
+            index: postIndex,
+            post,
+            onReported: onReportedPost,
+            origin: Origin.PostContextMenu,
+            isAd: !!boostedBy,
+          },
+        }),
+    },
     isBriefPost && {
       icon: <MenuIcon Icon={SettingsIcon} />,
       label: 'Settings',
@@ -741,22 +756,6 @@ const PostOptionButtonContent = ({
           action: () => onBlockTag(tag),
         });
       }
-    });
-
-    postOptions.push({
-      icon: <MenuIcon Icon={FlagIcon} />,
-      label: 'Report',
-      action: async () =>
-        openModal({
-          type: LazyModal.ReportPost,
-          props: {
-            index: postIndex,
-            post,
-            onReported: onReportedPost,
-            origin: Origin.PostContextMenu,
-            isAd: !!boostedBy,
-          },
-        }),
     });
 
     if (
