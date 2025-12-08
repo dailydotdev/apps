@@ -327,4 +327,8 @@ function RecruiterPage(): ReactElement {
 RecruiterPage.getLayout = getLayout;
 RecruiterPage.layoutProps = { className: { main: 'blur-sm' } };
 
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default RecruiterPage;

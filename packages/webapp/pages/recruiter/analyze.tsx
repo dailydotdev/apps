@@ -323,4 +323,8 @@ function RecruiterPage(): ReactElement {
 
 RecruiterPage.getLayout = getLayout;
 
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default RecruiterPage;
