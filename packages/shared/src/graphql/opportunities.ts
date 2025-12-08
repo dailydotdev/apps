@@ -1,4 +1,13 @@
 import { gql } from 'graphql-request';
+import type { Connection } from './common';
+import type {
+  OpportunityMatchDescription,
+  ScreeningAnswer,
+  EngagementProfile,
+  ApplicationRank,
+  OpportunityLocation,
+} from '../features/opportunity/types';
+import type { PublicProfile } from '../lib/user';
 import { useQuery } from '@tanstack/react-query';
 import { gqlClient } from './common';
 import { generateQueryKey, RequestKey } from '../lib/query';
@@ -11,28 +20,94 @@ import type {
   OpportunityPreviewInput,
 } from '../lib/schema/opportunity';
 import { disabledRefetch } from '../lib/func';
-// Re-export types for convenience
-export type {
-  LocationInput,
-  SalaryInput,
-  OpportunityMetaInput,
-  OpportunityContentInput,
-  OpportunityPreviewInput,
-};
 
-export interface OpportunityPreviewCompany {
-  name: string;
-  favicon?: string;
+export type OpportunityMatchUser = Pick<
+  PublicProfile,
+  'id' | 'name' | 'image' | 'permalink' | 'reputation'
+>;
+
+export type OpportunityMatchLocation = Pick<
+  OpportunityLocation,
+  'city' | 'country'
+>;
+
+export interface OpportunityCandidatePreferences {
+  role: string | null;
+  location: OpportunityMatchLocation[];
 }
 
-export interface TopReaderBadge {
-  /** The keyword/tag name */
-  keyword: {
-    value: string;
-  };
-  /** When the badge was issued */
-  issuedAt: Date;
+export interface OpportunityMatch {
+  userId: string;
+  opportunityId: string;
+  status: string;
+  description: OpportunityMatchDescription;
+  screening: ScreeningAnswer[];
+  engagementProfile: Pick<EngagementProfile, 'profileText'> | null;
+  applicationRank: Pick<ApplicationRank, 'score' | 'description'>;
+  user: OpportunityMatchUser;
+  candidatePreferences: OpportunityCandidatePreferences | null;
 }
+
+export interface OpportunityMatchesData {
+  opportunityMatches: Connection<OpportunityMatch>;
+}
+
+export const OPPORTUNITY_MATCHES_QUERY = gql`
+  query OpportunityMatches(
+    $opportunityId: ID!
+    $status: OpportunityMatchStatus
+    $after: String
+    $first: Int
+  ) {
+    opportunityMatches(
+      opportunityId: $opportunityId
+      status: $status
+      after: $after
+      first: $first
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+        totalCount
+      }
+      edges {
+        node {
+          userId
+          opportunityId
+          status
+          description {
+            reasoning
+          }
+          screening {
+            screening
+            answer
+          }
+          engagementProfile {
+            profileText
+          }
+          user {
+            id
+            name
+            image
+            permalink
+            reputation
+          }
+          candidatePreferences {
+            role
+            location {
+              city
+              country
+            }
+          }
+          applicationRank {
+            score
+            description
+          }
+        }
+      }
+    }
+  }
+`;
 
 export interface OpportunityPreviewUser {
   /** Real user ID */

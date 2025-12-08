@@ -6,13 +6,16 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { FlexCol, FlexRow } from '../utilities';
-import { LinkIcon } from '../icons';
+import { LinkIcon, ReputationIcon } from '../icons';
+import { IconSize } from '../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { largeNumberFormat } from '../../lib';
 
 export interface MatchProfileDetails {
   name: string;
   profileImage: string;
   profileLink: string;
+  reputation?: number;
   seniority: string;
   location: string;
   openToWork: boolean;
@@ -66,20 +69,24 @@ export const MatchProfile = ({ profile }: MatchProfileProps): ReactElement => {
       </FlexRow>
 
       <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
+        <ProfileDetailRow
+          label="Reputation"
+          value={
+            <FlexRow className="items-center gap-1">
+              <ReputationIcon
+                className="text-accent-onion-default"
+                size={IconSize.XSmall}
+              />
+              <span>{largeNumberFormat(profile.reputation)}</span>
+            </FlexRow>
+          }
+        />
         <ProfileDetailRow label="Seniority" value={profile.seniority} />
         <ProfileDetailRow label="Location" value={profile.location} />
         <ProfileDetailRow
-          label="Open to work"
+          label="Job status"
           value={
-            <span
-              className={
-                profile.openToWork
-                  ? 'text-action-upvote-default'
-                  : 'text-text-tertiary'
-              }
-            >
-              {profile.openToWork ? 'Yes' : 'No'}
-            </span>
+            profile.openToWork ? 'Open to new roles' : 'Not looking right now'
           }
         />
         <ProfileDetailRow
