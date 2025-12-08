@@ -6,6 +6,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import classNames from 'classnames';
+import { format } from 'date-fns';
 import {
   Typography,
   TypographyColor,
@@ -15,26 +16,10 @@ import {
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
 import { MiniCloseIcon } from '../icons';
 import { Chip } from '../cards/common/PostTags';
+import { useOpportunityPreviewContext } from '../../contexts/OpportunityPreviewContext';
+import type { OpportunityPreviewUser } from '../../graphql/opportunities';
 
-export type AnonymousUser = {
-  id: string;
-  profileImage: string;
-  anonId: string;
-  description: string;
-  openToWork: boolean;
-  seniority: string;
-  location: string;
-  company: {
-    name: string;
-    favicon?: string;
-  };
-  lastActivity: Date;
-  topTags?: string[];
-  recentlyRead?: string[];
-  activeSquads?: string[];
-};
-
-const columnHelper = createColumnHelper<AnonymousUser>();
+const columnHelper = createColumnHelper<OpportunityPreviewUser>();
 
 const columns = [
   columnHelper.display({
@@ -44,11 +29,13 @@ const columns = [
       const user = info.row.original;
       return (
         <div className="relative size-10 flex-shrink-0 overflow-hidden rounded-12">
-          <img
-            src={user.profileImage}
-            alt={user.anonId}
-            className="size-full object-cover blur-sm"
-          />
+          {user.profileImage && (
+            <img
+              src={user.profileImage}
+              alt={user.anonId}
+              className="size-full object-cover blur-sm"
+            />
+          )}
         </div>
       );
     },
@@ -83,7 +70,7 @@ const columns = [
         type={TypographyType.Footnote}
         color={TypographyColor.Tertiary}
       >
-        {info.getValue()}
+        {info.getValue() || '-'}
       </Typography>
     ),
   }),
@@ -94,7 +81,7 @@ const columns = [
         type={TypographyType.Footnote}
         color={TypographyColor.Tertiary}
       >
-        {info.getValue()}
+        {info.getValue() || '-'}
       </Typography>
     ),
   }),
@@ -102,6 +89,16 @@ const columns = [
     header: 'Company',
     cell: (info) => {
       const company = info.getValue();
+      if (!company) {
+        return (
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            -
+          </Typography>
+        );
+      }
       return (
         <div className="flex items-center gap-2">
           {company.favicon && (
@@ -124,7 +121,19 @@ const columns = [
   columnHelper.accessor('lastActivity', {
     header: 'Last activity',
     cell: (info) => {
-      const relativeTime = getLastActivityDateFormat(info.getValue());
+      const value = info.getValue();
+      if (!value) {
+        return (
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            -
+          </Typography>
+        );
+      }
+
+      const relativeTime = getLastActivityDateFormat(value);
       const isNow = relativeTime === 'Now';
 
       if (isNow) {
@@ -146,10 +155,6 @@ const columns = [
     },
   }),
 ];
-
-export type AnonymousUserTableProps = {
-  data?: AnonymousUser[];
-};
 
 const ChipSection = ({ label, items }: { label: string; items: string[] }) => {
   if (!items || items.length === 0) {
@@ -177,9 +182,8 @@ const ChipSection = ({ label, items }: { label: string; items: string[] }) => {
   );
 };
 
-export const AnonymousUserTable = ({
-  data: propData,
-}: AnonymousUserTableProps) => {
+export const AnonymousUserTable = () => {
+  const contextData = useOpportunityPreviewContext();
   const [showInfoBar, setShowInfoBar] = useState(true);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
@@ -196,78 +200,16 @@ export const AnonymousUserTable = ({
     });
   };
 
-  const defaultData = useMemo<AnonymousUser[]>(
-    () => [
-      {
-        id: '1',
-        profileImage: 'https://i.pravatar.cc/150?img=1',
-        anonId: 'Anon #1002',
-        description:
-          'A web developer with a strong focus on modern web technologies, performance optimization, and efficient development workflows. They are particularly interested in JavaScript/TypeScript runtimes (Bun), front-end frameworks (React, Vue.js, TanStack Start, Docusaurus, Astro), and UI component libraries (Reka UI), prioritizing accessibility and customization. Their curiosity extends to alternative programming languages like SmallJS and the critical analysis of web architecture, including HTML and the DOM. On the backend, they follow Node.js application servers (Watt 3) and are interested in Rust-based runtimes.',
-        openToWork: true,
-        seniority: 'Senior',
-        location: 'San Francisco, CA',
-        company: {
-          name: 'TechCorp',
-          favicon: 'https://www.google.com/s2/favicons?domain=techcrunch.com',
-        },
-        lastActivity: new Date(),
-        topTags: ['JavaScript', 'React', 'TypeScript', 'Node.js', 'Bun'],
-        recentlyRead: [
-          'Modern Web Development',
-          'Performance Optimization',
-          'Accessibility Best Practices',
-        ],
-        activeSquads: ['Frontend Developers', 'TypeScript Community', 'React'],
-      },
-      {
-        id: '2',
-        profileImage: 'https://i.pravatar.cc/150?img=5',
-        anonId: 'Anon #1045',
-        description:
-          'An experienced full-stack engineer passionate about building scalable applications and exploring cutting-edge technologies. They have deep expertise in cloud infrastructure, microservices architecture, and DevOps practices. Their interests span across backend systems (Go, Python, Rust), container orchestration (Kubernetes, Docker), and serverless architectures. They actively contribute to open-source projects and enjoy mentoring junior developers.',
-        openToWork: true,
-        seniority: 'Mid-level',
-        location: 'New York, NY',
-        company: {
-          name: 'StartupXYZ',
-          favicon: 'https://www.google.com/s2/favicons?domain=github.com',
-        },
-        lastActivity: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
-        topTags: ['Go', 'Kubernetes', 'Python', 'AWS', 'Docker'],
-        recentlyRead: [
-          'Microservices Architecture',
-          'Cloud Native Development',
-          'DevOps',
-        ],
-        activeSquads: ['Backend Engineering', 'Cloud Native', 'DevOps'],
-      },
-      {
-        id: '3',
-        profileImage: 'https://i.pravatar.cc/150?img=8',
-        anonId: 'Anon #1078',
-        description:
-          'A creative frontend specialist with a keen eye for design and user experience. They excel at building beautiful, accessible, and performant user interfaces using modern frameworks and design systems. Their expertise includes advanced CSS techniques, animation libraries, and responsive design patterns. They are passionate about creating inclusive web experiences and staying current with the latest design trends and best practices.',
-        openToWork: false,
-        seniority: 'Senior',
-        location: 'Austin, TX',
-        company: {
-          name: 'DesignHub',
-          favicon: 'https://www.google.com/s2/favicons?domain=figma.com',
-        },
-        lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
-        topTags: ['CSS', 'UI/UX', 'Figma', 'Animation', 'Accessibility'],
-        recentlyRead: ['Design Systems', 'CSS Architecture', 'Web Animations'],
-        activeSquads: ['UI/UX Designers', 'Frontend', 'Design Systems'],
-      },
-    ],
-    [],
-  );
-
-  const data = propData ?? defaultData;
+  // Extract users from context data
+  const tableData = useMemo<OpportunityPreviewUser[]>(() => {
+    if (!contextData?.edges) {
+      return [];
+    }
+    return contextData.edges.map((edge) => edge.node);
+  }, [contextData]);
 
   const table = useReactTable({
-    data,
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -374,20 +316,28 @@ export const AnonymousUserTable = ({
                     className="border-b border-border-subtlest-tertiary px-4 pb-3 pt-1"
                   >
                     <div className="flex flex-col gap-2">
-                      <Typography
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                        className={classNames(!isExpanded && 'line-clamp-1')}
-                      >
-                        {user.description}
-                      </Typography>
+                      {user.description && (
+                        <Typography
+                          type={TypographyType.Footnote}
+                          color={TypographyColor.Tertiary}
+                          className={classNames(!isExpanded && 'line-clamp-1')}
+                        >
+                          {user.description}
+                        </Typography>
+                      )}
 
                       {isExpanded && (
                         <>
                           <ChipSection label="Top tags" items={user.topTags} />
                           <ChipSection
                             label="Recently read"
-                            items={user.recentlyRead}
+                            items={user.recentlyRead?.map((badge) => {
+                              const formattedDate = format(
+                                new Date(badge.issuedAt),
+                                'MMM yyyy',
+                              );
+                              return `${badge.keyword.value} - ${formattedDate}`;
+                            })}
                           />
                           <ChipSection
                             label="Active squads"

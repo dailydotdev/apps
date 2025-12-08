@@ -20,6 +20,10 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useRouter } from 'next/router';
+import {
+  OpportunityPreviewProvider,
+  useOpportunityPreviewContext,
+} from '@dailydotdev/shared/src/contexts/OpportunityPreviewContext';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
 
 type LoadingBlockItemProps = {
@@ -204,6 +208,9 @@ const SquadItem = ({ icon, name }: SquadItemProps) => (
 );
 
 const RelevantBlock = () => {
+  const data = useOpportunityPreviewContext();
+  const totalCount = data?.pageInfo?.totalCount ?? 0;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
@@ -215,7 +222,7 @@ const RelevantBlock = () => {
           bold
           color={TypographyColor.Brand}
         >
-          5,001
+          {totalCount.toLocaleString()}
         </Typography>
         <Typography
           type={TypographyType.Callout}
@@ -296,22 +303,28 @@ function RecruiterPage(): ReactElement {
   }, [user, openModal, router]);
 
   return (
-    <div className="flex flex-1 flex-col">
-      <RecruiterHeader
-        headerButton={{
-          text: 'Prepare campaign',
-          onClick: handlePrepareCampaignClick,
-        }}
-      />
-      <RecruiterProgress />
-      <div className="flex flex-1">
-        <ContentSidebar />
-        <AnonymousUserTable />
+    <OpportunityPreviewProvider>
+      <div className="flex flex-1 flex-col">
+        <RecruiterHeader
+          headerButton={{
+            text: 'Prepare campaign',
+            onClick: handlePrepareCampaignClick,
+          }}
+        />
+        <RecruiterProgress />
+        <div className="flex flex-1">
+          <ContentSidebar />
+          <AnonymousUserTable />
+        </div>
       </div>
-    </div>
+    </OpportunityPreviewProvider>
   );
 }
 
 RecruiterPage.getLayout = getLayout;
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default RecruiterPage;
