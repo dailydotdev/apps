@@ -108,7 +108,9 @@ export default function ActionButtons({
       >
         <Tooltip
           content={
-            post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
+            post?.userState?.vote === UserVote.Up
+              ? 'Remove upvote'
+              : 'More like this'
           }
         >
           <QuaternaryButton
@@ -141,7 +143,7 @@ export default function ActionButtons({
           content={
             post?.userState?.vote === UserVote.Down
               ? 'Remove downvote'
-              : 'Downvote'
+              : 'Less like this'
           }
         >
           <QuaternaryButton

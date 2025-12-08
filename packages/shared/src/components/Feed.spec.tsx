@@ -317,7 +317,7 @@ describe('Feed logged in', () => {
       },
       completeActionMock({ action: ActionType.VotePost }),
     ]);
-    const [el] = await screen.findAllByLabelText('Upvote');
+    const [el] = await screen.findAllByLabelText('More like this');
     el.click();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
@@ -432,7 +432,7 @@ describe('Feed logged in', () => {
       }),
     ]);
     await waitFor(async () => {
-      const [el] = await screen.findAllByLabelText('Upvote');
+      const [el] = await screen.findAllByLabelText('More like this');
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       expect(await findByText(el.parentElement, '5')).toBeInTheDocument();
     });
@@ -444,7 +444,7 @@ describe('Feed logged in', () => {
       },
     });
     await waitFor(async () => {
-      const [el] = await screen.findAllByLabelText('Upvote');
+      const [el] = await screen.findAllByLabelText('More like this');
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       expect(await findByText(el.parentElement, '6')).toBeInTheDocument();
     });
@@ -1098,7 +1098,7 @@ describe('Feed annonymous', () => {
       ],
       null,
     );
-    const [el] = await screen.findAllByLabelText('Upvote');
+    const [el] = await screen.findAllByLabelText('More like this');
     el.click();
     expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Upvote });
   });

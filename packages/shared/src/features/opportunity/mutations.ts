@@ -1,5 +1,6 @@
 import type { DefaultError, MutationOptions } from '@tanstack/react-query';
 import type z from 'zod';
+import { gql } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
 import {
   ACCEPT_OPPORTUNITY_MATCH,
@@ -9,6 +10,7 @@ import {
   CLEAR_ORGANIZATION_IMAGE_MUTATION,
   CLEAR_RESUME_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
+  OPPORTUNITY_FRAGMENT,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
   RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION,
   RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION,
@@ -33,9 +35,9 @@ import type {
   opportunityEditInfoSchema,
   opportunityEditOrganizationSchema,
   opportunityEditQuestionsSchema,
-  opportunityEditRecruiterSchema,
 } from '../../lib/schema/opportunity';
 import type { OpportunityState } from './protobuf/opportunity';
+import type { opportunityEditRecruiterSchema } from '../../components/opportunity/OpportunityEditModal/OpportunityEditRecruiterModal';
 
 export type UpdatedCandidatePreferences = Partial<UserCandidatePreferences>;
 
@@ -425,3 +427,29 @@ export const recruiterRejectOpportunityMatchMutationOptions =
       },
     };
   };
+
+const PARSE_OPPORTUNITY_MUTATION = gql`
+  mutation ParseOpportunity($payload: ParseOpportunityInput!) {
+    parseOpportunity(payload: $payload) {
+      ...OpportunityFragment
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const parseOpportunityMutationOptions = () => {
+  return {
+    mutationFn: async ({ file, url }: { file?: File; url?: string }) => {
+      const result = await gqlClient.request<{
+        parseOpportunity: Opportunity;
+      }>(PARSE_OPPORTUNITY_MUTATION, {
+        payload: {
+          file,
+          url,
+        },
+      });
+
+      return result.parseOpportunity;
+    },
+  };
+};

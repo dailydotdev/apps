@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import z from 'zod';
+import { useMutation } from '@tanstack/react-query';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -11,14 +12,27 @@ import {
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { TextField } from '../../fields/TextField';
 import { MagicIcon, ShieldIcon } from '../../icons';
-import { webappUrl } from '../../../lib/constants';
-import Link from '../../utilities/Link';
+import { DragDrop } from '../../fields/DragDrop';
+import { parseOpportunityMutationOptions } from '../../../features/opportunity/mutations';
+import { useToastNotification } from '../../../hooks';
+import type { ApiErrorResult } from '../../../graphql/common';
+import { labels } from '../../../lib';
+import type { Opportunity } from '../../../features/opportunity/types';
 
 const jobLinkSchema = z.string().url('Please enter a valid URL');
 
 export interface RecruiterJobLinkModalProps extends ModalProps {
-  onSubmit: (jobLink: string) => void;
+  onSubmit: (opportunity: Opportunity) => void;
 }
+
+const fileValidation = {
+  acceptedTypes: [
+    'application/pdf',
+    'application/docx', // docx file
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx file
+  ],
+  acceptedExtensions: ['pdf', 'docx'],
+};
 
 export const RecruiterJobLinkModal = ({
   onSubmit,
@@ -27,6 +41,8 @@ export const RecruiterJobLinkModal = ({
 }: RecruiterJobLinkModalProps): ReactElement => {
   const [jobLink, setJobLink] = useState('');
   const [error, setError] = useState<string>('');
+  const [file, setFile] = useState<File | null>(null);
+  const { displayToast } = useToastNotification();
 
   const validateJobLink = (value: string) => {
     if (!value.trim()) {
@@ -50,12 +66,39 @@ export const RecruiterJobLinkModal = ({
     validateJobLink(value);
   };
 
-  const handleSubmit = () => {
-    const trimmedLink = jobLink.trim();
-    if (trimmedLink && validateJobLink(trimmedLink)) {
-      onSubmit(trimmedLink);
-    }
-  };
+  const { mutateAsync: parseOpportunity } = useMutation(
+    parseOpportunityMutationOptions(),
+  );
+
+  const {
+    mutate: handleSubmit,
+    status,
+    isPending,
+  } = useMutation({
+    mutationFn: async () => {
+      if (jobLink) {
+        const trimmedLink = jobLink.trim();
+
+        if (trimmedLink && validateJobLink(trimmedLink)) {
+          return parseOpportunity({ url: trimmedLink });
+        }
+      }
+
+      if (file) {
+        return parseOpportunity({ file });
+      }
+
+      throw new Error('No job link or file provided');
+    },
+    onError: (mutationError: ApiErrorResult) => {
+      displayToast(
+        mutationError?.response?.errors?.[0]?.message || labels.error.generic,
+      );
+    },
+    onSuccess: (opportunity) => {
+      onSubmit(opportunity);
+    },
+  });
 
   return (
     <Modal
@@ -90,12 +133,8 @@ export const RecruiterJobLinkModal = ({
         </Typography>
 
         <div className="flex w-full flex-col gap-4">
-          <Typography type={TypographyType.Body} bold center>
-            Drop your job link
-          </Typography>
-
           <TextField
-            label="job link"
+            label="Paste your job link"
             inputId="job-link"
             name="job-link"
             placeholder="https://yourcompany.com/careers/senior-engineer"
@@ -103,20 +142,34 @@ export const RecruiterJobLinkModal = ({
             onChange={handleChange}
             valid={!error && jobLink.trim().length > 0}
             hint={error}
-            saveHintSpace
           />
 
-          <Link passHref href={`${webappUrl}`}>
-            <a className="mb-8 text-center text-text-secondary underline typo-callout">
-              Or upload PDF
-            </a>
-          </Link>
+          <div className="text-center text-text-secondary typo-callout">
+            Or upload
+          </div>
+
+          <DragDrop
+            state={status}
+            isCompactList
+            className="w-full laptop:min-h-20"
+            onFilesDrop={(files) => {
+              setFile(files[0]);
+            }}
+            validation={fileValidation}
+            isCopyBold
+            dragDropDescription="Drop PDF or Word here or"
+            ctaLabelDesktop="Select file"
+            ctaLabelMobile="Select file"
+          />
 
           <Button
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
-            onClick={handleSubmit}
-            disabled={!jobLink.trim() || !!error}
+            onClick={() => {
+              handleSubmit();
+            }}
+            disabled={(!jobLink.trim() && !file) || !!error}
+            loading={isPending}
             className="w-full gap-2 tablet:w-auto"
           >
             <MagicIcon /> Find my matches
