@@ -27,7 +27,9 @@ export interface OpportunityPreviewCompany {
 
 export interface TopReaderBadge {
   /** The keyword/tag name */
-  tag: string;
+  keyword: {
+    value: string;
+  };
   /** When the badge was issued */
   issuedAt: Date;
 }
@@ -53,8 +55,8 @@ export interface OpportunityPreviewUser {
   lastActivity?: Date;
   /** Top tags for the user */
   topTags?: string[];
-  /** Top reader badge with tag and issue date */
-  recentlyRead?: TopReaderBadge;
+  /** Top reader badges with tag and issue date */
+  recentlyRead?: TopReaderBadge[];
   /** Active squad IDs */
   activeSquads?: string[];
 }
@@ -71,54 +73,47 @@ export interface PageInfo {
   endCursor?: string;
 }
 
-export interface OpportunityPreviewConnection {
-  edges: OpportunityPreviewEdge[];
-  pageInfo: PageInfo;
-}
-
 export interface OpportunityPreviewResponse {
-  /** Paginated list of matching users */
-  users: OpportunityPreviewConnection;
-  /** Total count of matching users */
-  totalCount: number;
+  edges: OpportunityPreviewEdge[];
+  pageInfo: PageInfo & { totalCount: number };
 }
 
 // GraphQL Query
 export const OPPORTUNITY_PREVIEW = gql`
   query OpportunityPreview {
     opportunityPreview {
-      users {
-        edges {
-          node {
-            id
-            profileImage
-            anonId
-            description
-            openToWork
-            seniority
-            location
-            company {
-              name
-              favicon
-            }
-            lastActivity
-            topTags
-            recentlyRead {
-              tag
-              issuedAt
-            }
-            activeSquads
+      edges {
+        node {
+          id
+          profileImage
+          anonId
+          description
+          openToWork
+          seniority
+          location
+          company {
+            name
+            favicon
           }
-          cursor
+          lastActivity
+          topTags
+          recentlyRead {
+            keyword {
+              value
+            }
+            issuedAt
+          }
+          activeSquads
         }
-        pageInfo {
-          hasNextPage
-          hasPreviousPage
-          startCursor
-          endCursor
-        }
+        cursor
       }
-      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+        totalCount
+      }
     }
   }
 `;

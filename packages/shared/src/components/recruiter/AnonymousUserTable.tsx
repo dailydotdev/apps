@@ -201,10 +201,10 @@ export const AnonymousUserTable = () => {
 
   // Extract users from context data
   const tableData = useMemo<OpportunityPreviewUser[]>(() => {
-    if (!contextData?.users?.edges) {
+    if (!contextData?.edges) {
       return [];
     }
-    return contextData.users.edges.map((edge) => edge.node);
+    return contextData.edges.map((edge) => edge.node);
   }, [contextData]);
 
   const table = useReactTable({
@@ -330,7 +330,17 @@ export const AnonymousUserTable = () => {
                           <ChipSection label="Top tags" items={user.topTags} />
                           <ChipSection
                             label="Recently read"
-                            items={user.recentlyRead}
+                            items={user.recentlyRead?.map((badge) => {
+                              const date = new Date(badge.issuedAt);
+                              const formattedDate = date.toLocaleDateString(
+                                'en-US',
+                                {
+                                  month: 'short',
+                                  year: 'numeric',
+                                },
+                              );
+                              return `${badge.keyword.value} - ${formattedDate}`;
+                            })}
                           />
                           <ChipSection
                             label="Active squads"

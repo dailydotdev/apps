@@ -209,7 +209,7 @@ const SquadItem = ({ icon, name }: SquadItemProps) => (
 
 const RelevantBlock = () => {
   const data = useOpportunityPreviewContext();
-  const totalCount = data?.totalCount ?? 0;
+  const totalCount = data?.pageInfo?.totalCount ?? 0;
 
   return (
     <div className="flex flex-col gap-4">
