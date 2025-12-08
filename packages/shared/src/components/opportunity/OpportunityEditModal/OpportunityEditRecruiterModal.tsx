@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type z from 'zod';
+import z from 'zod';
 import type { ModalProps } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { TextField } from '../../fields/TextField';
@@ -11,7 +11,6 @@ import { Loader } from '../../Loader';
 import Textarea from '../../fields/Textarea';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { labels } from '../../../lib';
-import { opportunityEditRecruiterSchema } from '../../../lib/schema/opportunity';
 import { editOpportunityRecruiterMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
@@ -20,6 +19,15 @@ import { applyZodErrorsToForm } from '../../../lib/form';
 import { opportunityEditDiscardPrompt } from './common';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
+
+// This is exported from here because extension fails to build when it is imported from lib/schema/opportunity.ts
+export const opportunityEditRecruiterSchema = z.object({
+  recruiter: z.object({
+    userId: z.string(),
+    title: z.string().max(240).optional(),
+    bio: z.string().max(2000).optional(),
+  }),
+});
 
 export type OpportunityEditRecruiterModalProps = {
   id: string;

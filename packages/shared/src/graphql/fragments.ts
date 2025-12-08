@@ -458,7 +458,7 @@ export const CUSTOM_FEED_FRAGMENT = gql`
   }
 `;
 
-export const LEADERBOARD_FRAMENT = gql`
+export const LEADERBOARD_FRAGMENT = gql`
   fragment LeaderboardFragment on Leaderboard {
     score
     user {

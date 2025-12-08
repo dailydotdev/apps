@@ -203,14 +203,6 @@ export const opportunityEditOrganizationSchema = z.object({
   }),
 });
 
-export const opportunityEditRecruiterSchema = z.object({
-  recruiter: z.object({
-    userId: z.string(),
-    title: z.string().max(240).optional(),
-    bio: z.string().max(2000).optional(),
-  }),
-});
-
 export const opportunityCreateOrganizationSchema =
   opportunityEditOrganizationSchema.extend({
     organization: opportunityEditOrganizationSchema.shape.organization.extend({

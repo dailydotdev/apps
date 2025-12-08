@@ -3,6 +3,7 @@ import classed from '../../../lib/classed';
 
 export interface LeaderboardListContainerProps {
   title: string;
+  titleHref?: string;
   children: ReactNode;
   className?: string;
 }
