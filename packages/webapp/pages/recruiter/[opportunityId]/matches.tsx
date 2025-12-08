@@ -76,28 +76,27 @@ function RecruiterMatchesPage(): ReactElement {
   const { requestMethod } = useRequestProtocol();
   const queryClient = useQueryClient();
 
-  const { data, isLoading } =
-    useInfiniteQuery({  
-      queryKey: generateQueryKey(RequestKey.OpportunityMatches, null, {
-        opportunityId,
-      }),
-      queryFn: async ({ pageParam }) => {
-        const result = await requestMethod<OpportunityMatchesData>(
-          OPPORTUNITY_MATCHES_QUERY,
-          {
-            opportunityId,
-            status: 'candidate_accepted',
-            first: 1,
-            after: pageParam,
-          },
-        );
-        return result.opportunityMatches;
-      },
-      initialPageParam: '',
-      enabled: !!opportunityId,
-      getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
-      staleTime: StaleTime.Default,
-    });
+  const { data, isLoading } = useInfiniteQuery({
+    queryKey: generateQueryKey(RequestKey.OpportunityMatches, null, {
+      opportunityId,
+    }),
+    queryFn: async ({ pageParam }) => {
+      const result = await requestMethod<OpportunityMatchesData>(
+        OPPORTUNITY_MATCHES_QUERY,
+        {
+          opportunityId,
+          status: 'candidate_accepted',
+          first: 1,
+          after: pageParam,
+        },
+      );
+      return result.opportunityMatches;
+    },
+    initialPageParam: '',
+    enabled: !!opportunityId,
+    getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
+    staleTime: StaleTime.Default,
+  });
 
   const allMatches =
     data?.pages.flatMap((page) => page.edges.map((edge) => edge.node)) || [];
@@ -188,9 +187,7 @@ function RecruiterMatchesPage(): ReactElement {
             onReject={handleReject}
             onApprove={handleApprove}
             disabled={
-              isLoading ||
-              acceptMutation.isPending ||
-              rejectMutation.isPending
+              isLoading || acceptMutation.isPending || rejectMutation.isPending
             }
           />
           <div className="flex gap-8 p-6">
