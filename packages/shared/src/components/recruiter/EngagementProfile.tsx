@@ -9,11 +9,12 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Chip } from '../cards/common/PostTags';
+import type { Squad } from '../../graphql/sources';
 
 export interface EngagementProfileData {
   topTags: string[];
   recentlyRead: string[];
-  activeSquads: string[];
+  activeSquads: Squad[];
   lastActive?: string;
   profileSummary?: string;
 }
@@ -54,7 +55,9 @@ export const EngagementProfile = ({
             Active squad
           </Typography>
           {engagement.activeSquads.length > 0 &&
-            engagement.activeSquads.map((t) => <Chip key={t}>#{t}</Chip>)}
+            engagement.activeSquads.map((t) => (
+              <Chip key={t.handle}>#{t.handle}</Chip>
+            ))}
         </FlexRow>
       </FlexCol>
     </FlexRow>

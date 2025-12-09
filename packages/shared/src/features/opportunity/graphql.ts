@@ -497,7 +497,10 @@ export const OPPORTUNITY_PREVIEW = gql`
             }
             issuedAt
           }
-          activeSquads
+          activeSquads {
+            handle
+            image
+          }
         }
         cursor
       }
@@ -513,7 +516,10 @@ export const OPPORTUNITY_PREVIEW = gql`
           name
           favicon
         }
-        squads
+        squads {
+          handle
+          image
+        }
         totalCount
       }
     }

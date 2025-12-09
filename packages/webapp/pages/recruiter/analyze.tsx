@@ -226,17 +226,17 @@ const RelevantBlock = () => {
       </div>
       <div className="grid grid-cols-2 gap-2">
         {squads.map((squad) => (
-          <div className="flex gap-2" key={squad}>
+          <div className="flex gap-2" key={squad.handle}>
             <img
               src={cloudinarySquadsImageFallback}
               className="size-4 rounded-full"
-              alt={squad}
+              alt={squad.image}
             />
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              {squad}
+              {squad.handle}
             </Typography>
           </div>
         ))}

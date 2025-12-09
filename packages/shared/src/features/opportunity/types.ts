@@ -10,6 +10,7 @@ import type { CompanySize, CompanyStage } from './protobuf/organization';
 import type { CandidateStatus } from './protobuf/user-candidate-preference';
 import type { LocationType } from './protobuf/util';
 import type { Connection } from '../../graphql/common';
+import type { Squad } from '../../graphql/sources';
 
 export enum OpportunityMatchStatus {
   Pending = 'pending',
@@ -219,13 +220,13 @@ export interface OpportunityPreviewUser {
   /** Top reader badges with tag and issue date */
   recentlyRead?: TopReaderBadge[];
   /** Active squad IDs */
-  activeSquads?: string[];
+  activeSquads?: Squad[];
 }
 
 export interface OpportunityPreviewResult {
   tags: string[];
   companies: OpportunityPreviewCompany[];
-  squads: string[];
+  squads: Squad[];
   totalCount?: number;
 }
 
