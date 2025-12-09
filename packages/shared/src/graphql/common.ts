@@ -15,6 +15,7 @@ export interface PageInfo {
   endCursor?: ConnectionCursor | null;
   hasPreviousPage?: boolean | null;
   hasNextPage?: boolean | null;
+  totalCount?: number | null;
 }
 
 export interface Connection<T> {
