@@ -23,15 +23,15 @@ import {
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
 import { useRequestProtocol } from '@dailydotdev/shared/src/hooks/useRequestProtocol';
-import type {
-  OpportunityMatch,
-  OpportunityMatchesData,
-} from '@dailydotdev/shared/src/graphql/opportunities';
-import { OPPORTUNITY_MATCHES_QUERY } from '@dailydotdev/shared/src/graphql/opportunities';
+import { OPPORTUNITY_MATCHES_QUERY } from '@dailydotdev/shared/src/features/opportunity/graphql';
 import {
   recruiterAcceptOpportunityMatchMutationOptions,
   recruiterRejectOpportunityMatchMutationOptions,
 } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import type {
+  OpportunityMatch,
+  OpportunityMatchesData,
+} from '@dailydotdev/shared/src/features/opportunity/types';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const mapMatchToProfile = (match: OpportunityMatch): MatchProfileDetails => {

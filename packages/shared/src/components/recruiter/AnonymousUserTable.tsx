@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import {
   createColumnHelper,
@@ -16,8 +17,9 @@ import {
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
 import { MiniCloseIcon } from '../icons';
 import { Chip } from '../cards/common/PostTags';
-import { useOpportunityPreviewContext } from '../../contexts/OpportunityPreviewContext';
-import type { OpportunityPreviewUser } from '../../graphql/opportunities';
+import { useOpportunityPreviewContext } from '../../features/opportunity/context/OpportunityPreviewContext';
+import type { OpportunityPreviewUser } from '../../features/opportunity/types';
+import { cloudinarySquadsImageFallback } from '../../lib/image';
 
 const columnHelper = createColumnHelper<OpportunityPreviewUser>();
 
@@ -156,7 +158,13 @@ const columns = [
   }),
 ];
 
-const ChipSection = ({ label, items }: { label: string; items: string[] }) => {
+const ChipSection = ({
+  label,
+  items,
+}: {
+  label: string;
+  items: ReactElement[];
+}) => {
   if (!items || items.length === 0) {
     return null;
   }
@@ -171,9 +179,10 @@ const ChipSection = ({ label, items }: { label: string; items: string[] }) => {
       >
         {label}
       </Typography>
-      <div className="flex flex-wrap gap-2">
-        {items.map((item) => (
-          <Chip key={item} className="!my-0">
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {items.map((item, index) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <Chip key={`chip-${index}`} className="!my-0 !h-auto py-1">
             {item}
           </Chip>
         ))}
@@ -328,7 +337,12 @@ export const AnonymousUserTable = () => {
 
                       {isExpanded && (
                         <>
-                          <ChipSection label="Top tags" items={user.topTags} />
+                          <ChipSection
+                            label="Top tags"
+                            items={user.topTags.map((tag) => (
+                              <div key={tag}>#{tag}</div>
+                            ))}
+                          />
                           <ChipSection
                             label="Recently read"
                             items={user.recentlyRead?.map((badge) => {
@@ -336,12 +350,30 @@ export const AnonymousUserTable = () => {
                                 new Date(badge.issuedAt),
                                 'MMM yyyy',
                               );
-                              return `${badge.keyword.value} - ${formattedDate}`;
+                              return (
+                                <div
+                                  key={badge.keyword.value}
+                                >{`${badge.keyword.value} - ${formattedDate}`}</div>
+                              );
                             })}
                           />
                           <ChipSection
                             label="Active squads"
-                            items={user.activeSquads}
+                            items={user.activeSquads.map((squad) => (
+                              <div className="flex gap-2" key={squad.handle}>
+                                <img
+                                  src={cloudinarySquadsImageFallback}
+                                  className="size-4 rounded-full"
+                                  alt={squad.image}
+                                />
+                                <Typography
+                                  type={TypographyType.Footnote}
+                                  color={TypographyColor.Tertiary}
+                                >
+                                  {squad.handle}
+                                </Typography>
+                              </div>
+                            ))}
                           />
                         </>
                       )}

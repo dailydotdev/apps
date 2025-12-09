@@ -217,6 +217,7 @@ export enum RequestKey {
   Opportunity = 'opportunity',
   Opportunities = 'opportunities',
   OpportunityPreview = 'opportunity_preview',
+  OpportunityPreviewDetails = 'opportunity_preview_details',
   OpportunityMatches = 'opportunity_matches',
   UserOpportunityMatches = 'user_opportunity_matches',
   UserCandidatePreferences = 'user_candidate_preferences',

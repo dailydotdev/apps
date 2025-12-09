@@ -18,11 +18,12 @@ import type {
   OpportunityPreviewSquad,
 } from '../../graphql/opportunities';
 import { Image, ImageType } from '../image/Image';
+import type { Squad } from '../../graphql/sources';
 
 export interface EngagementProfileData {
   topTags: string[];
   recentlyRead: TopReaderBadge[];
-  activeSquads: OpportunityPreviewSquad[];
+  activeSquads: Squad[];
   lastActive?: string;
   profileSummary?: string;
 }
