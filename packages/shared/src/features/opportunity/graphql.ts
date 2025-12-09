@@ -196,25 +196,82 @@ export const GET_OPPORTUNITY_MATCH_QUERY = gql`
 `;
 
 export const OPPORTUNITY_MATCHES_QUERY = gql`
-  query OpportunityMatches($opportunityId: ID!, $after: String, $first: Int) {
+  query OpportunityMatches(
+    $opportunityId: ID!
+    $status: OpportunityMatchStatus
+    $after: String
+    $first: Int
+  ) {
     opportunityMatches(
       opportunityId: $opportunityId
+      status: $status
       after: $after
       first: $first
     ) {
       pageInfo {
         hasNextPage
         endCursor
+        totalCount
       }
       edges {
         node {
-          ...OpportunityMatchFragment
+          userId
+          opportunityId
+          status
+          description {
+            reasoning
+          }
+          screening {
+            screening
+            answer
+          }
+          engagementProfile {
+            profileText
+          }
+          user {
+            id
+            name
+            image
+            permalink
+            reputation
+          }
+          candidatePreferences {
+            role
+            location {
+              city
+              country
+            }
+          }
+          applicationRank {
+            score
+            description
+          }
+          previewUser {
+            seniority
+            location
+            company {
+              name
+              favicon
+            }
+            openToWork
+            topTags
+            recentlyRead {
+              keyword {
+                value
+              }
+              issuedAt
+            }
+            activeSquads {
+              id
+              name
+              image
+            }
+            lastActivity
+          }
         }
-        cursor
       }
     }
   }
-  ${OPPORTUNITY_MATCH_FRAGMENT}
 `;
 
 export const GET_CANDIDATE_PREFERENCES_QUERY = gql`

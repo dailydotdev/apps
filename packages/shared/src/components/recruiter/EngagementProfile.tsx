@@ -13,10 +13,7 @@ import { MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
 import { formatKeyword } from '../../lib/strings';
-import type {
-  TopReaderBadge,
-  OpportunityPreviewSquad,
-} from '../../graphql/opportunities';
+import type { TopReaderBadge } from '../../graphql/opportunities';
 import { Image, ImageType } from '../image/Image';
 import type { Squad } from '../../graphql/sources';
 

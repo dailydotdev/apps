@@ -138,6 +138,7 @@ export type OpportunityMatch = {
   feedback: ScreeningAnswer[];
   applicationRank: ApplicationRank;
   engagementProfile?: EngagementProfile;
+  previewUser: OpportunityPreviewUser | null;
 };
 
 export type GcsBlob = {
