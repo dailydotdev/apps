@@ -11,6 +11,7 @@ import type { CandidateStatus } from './protobuf/user-candidate-preference';
 import type { LocationType } from './protobuf/util';
 import type { Connection } from '../../graphql/common';
 import type { Squad } from '../../graphql/sources';
+import type { TopReader } from '../../components/badges/TopReaderBadge';
 
 export enum OpportunityMatchStatus {
   Pending = 'pending',
@@ -138,6 +139,7 @@ export type OpportunityMatch = {
   feedback: ScreeningAnswer[];
   applicationRank: ApplicationRank;
   engagementProfile?: EngagementProfile;
+  previewUser: OpportunityPreviewUser | null;
 };
 
 export type GcsBlob = {
@@ -187,15 +189,6 @@ export interface OpportunityPreviewCompany {
   favicon?: string;
 }
 
-export interface TopReaderBadge {
-  /** The keyword/tag name */
-  keyword: {
-    value: string;
-  };
-  /** When the badge was issued */
-  issuedAt: Date;
-}
-
 export interface OpportunityPreviewUser {
   /** Real user ID */
   id: string;
@@ -218,7 +211,7 @@ export interface OpportunityPreviewUser {
   /** Top tags for the user */
   topTags?: string[];
   /** Top reader badges with tag and issue date */
-  recentlyRead?: TopReaderBadge[];
+  recentlyRead?: TopReader[];
   /** Active squad IDs */
   activeSquads?: Squad[];
 }

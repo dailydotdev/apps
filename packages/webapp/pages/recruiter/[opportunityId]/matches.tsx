@@ -35,27 +35,16 @@ import type {
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const mapMatchToProfile = (match: OpportunityMatch): MatchProfileDetails => {
-  const locationParts: string[] = [];
-  const firstLocation = match.candidatePreferences?.location?.[0];
-  if (firstLocation?.city) {
-    locationParts.push(firstLocation.city);
-  }
-  if (firstLocation?.country) {
-    locationParts.push(firstLocation.country);
-  }
-
   return {
     name: match.user.name,
     profileImage: match.user.image,
     profileLink: match.user.permalink,
     reputation: match.user.reputation,
-    seniority: match.candidatePreferences?.role || 'Not specified',
-    location:
-      locationParts.length > 0 ? locationParts.join(', ') : 'Not specified',
-    openToWork: true,
-    company: {
-      name: 'Not specified',
-    },
+    seniority: match.previewUser?.seniority || 'Not specified',
+    location: match.previewUser?.location || 'Not specified',
+    openToWork: match.previewUser?.openToWork ?? true,
+    company: match.previewUser?.company || { name: 'Not specified' },
+    lastActivity: match.previewUser?.lastActivity,
   };
 };
 
@@ -63,9 +52,9 @@ const mapMatchToEngagement = (
   match: OpportunityMatch,
 ): EngagementProfileData => {
   return {
-    topTags: [],
-    recentlyRead: [],
-    activeSquads: [],
+    topTags: match.previewUser?.topTags ?? [],
+    recentlyRead: match.previewUser?.recentlyRead ?? [],
+    activeSquads: match.previewUser?.activeSquads ?? [],
     profileSummary: match.engagementProfile?.profileText || '',
   };
 };
