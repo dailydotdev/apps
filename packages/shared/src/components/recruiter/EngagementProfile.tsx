@@ -9,11 +9,20 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Chip } from '../cards/common/PostTags';
+import { MedalBadgeIcon } from '../icons';
+import { IconSize } from '../Icon';
+import { formatMonthYearOnly } from '../../lib/dateFormat';
+import { formatKeyword } from '../../lib/strings';
+import type {
+  TopReaderBadge,
+  OpportunityPreviewSquad,
+} from '../../graphql/opportunities';
+import { Image, ImageType } from '../image/Image';
 
 export interface EngagementProfileData {
   topTags: string[];
-  recentlyRead: string[];
-  activeSquads: string[];
+  recentlyRead: TopReaderBadge[];
+  activeSquads: OpportunityPreviewSquad[];
   lastActive?: string;
   profileSummary?: string;
 }
@@ -35,26 +44,58 @@ export const EngagementProfile = ({
         Something here
       </Typography>
       <FlexCol className="flex-1">
-        <FlexRow className="items-center gap-2">
+        <FlexRow className="my-2 items-center gap-2">
           <Typography type={TypographyType.Footnote} bold>
             Top tags
           </Typography>
           {engagement.topTags.length > 0 &&
-            engagement.topTags.map((t) => <Chip key={t}>#{t}</Chip>)}
+            engagement.topTags.map((t) => (
+              <Chip style={{ marginTop: 0, marginBottom: 0 }} key={t}>
+                #{t}
+              </Chip>
+            ))}
         </FlexRow>
-        <FlexRow className="items-center gap-2">
+        <FlexRow className="my-2 flex-wrap items-center gap-2">
           <Typography type={TypographyType.Footnote} bold>
-            Recently read
+            Top reader badges
           </Typography>
           {engagement.recentlyRead.length > 0 &&
-            engagement.recentlyRead.map((t) => <Chip key={t}>#{t}</Chip>)}
+            engagement.recentlyRead.map((badge) => (
+              <Chip
+                key={badge.keyword.value}
+                className="gap-1.5"
+                style={{ marginTop: 0, marginBottom: 0 }}
+              >
+                <MedalBadgeIcon size={IconSize.XSmall} secondary />
+                <span>{formatKeyword(badge.keyword.value)}</span>
+                <span className="text-text-quaternary">·</span>
+                <span className="text-text-quaternary">
+                  {formatMonthYearOnly(badge.issuedAt)}
+                </span>
+              </Chip>
+            ))}
         </FlexRow>
-        <FlexRow className="items-center gap-2">
+        <FlexRow className="my-2 items-center gap-2">
           <Typography type={TypographyType.Footnote} bold>
             Active squad
           </Typography>
           {engagement.activeSquads.length > 0 &&
-            engagement.activeSquads.map((t) => <Chip key={t}>#{t}</Chip>)}
+            engagement.activeSquads.map((squad) => (
+              <Chip
+                key={squad.id}
+                className="gap-1.5"
+                style={{ marginTop: 0, marginBottom: 0 }}
+              >
+                <Image
+                  src={squad.image}
+                  alt={squad.name}
+                  type={ImageType.Squad}
+                  className="h-4 w-4 rounded-full object-cover"
+                  loading="lazy"
+                />
+                <span>{squad.name}</span>
+              </Chip>
+            ))}
         </FlexRow>
       </FlexCol>
     </FlexRow>

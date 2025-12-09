@@ -10,6 +10,7 @@ import { LinkIcon, ReputationIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { largeNumberFormat } from '../../lib';
+import { getLastActivityDateFormat } from '../../lib/dateFormat';
 
 export interface MatchProfileDetails {
   name: string;
@@ -23,8 +24,8 @@ export interface MatchProfileDetails {
     name: string;
     favicon?: string;
   };
-  yearsOfExperience?: string;
   skills?: string[];
+  lastActivity?: Date | string | number;
 }
 
 export interface MatchProfileProps {
@@ -82,13 +83,6 @@ export const MatchProfile = ({ profile }: MatchProfileProps): ReactElement => {
           }
         />
         <ProfileDetailRow label="Seniority" value={profile.seniority} />
-        <ProfileDetailRow label="Location" value={profile.location} />
-        <ProfileDetailRow
-          label="Job status"
-          value={
-            profile.openToWork ? 'Open to new roles' : 'Not looking right now'
-          }
-        />
         <ProfileDetailRow
           label="Company"
           value={
@@ -104,10 +98,17 @@ export const MatchProfile = ({ profile }: MatchProfileProps): ReactElement => {
             </FlexRow>
           }
         />
-        {profile.yearsOfExperience && (
+        <ProfileDetailRow label="Location" value={profile.location} />
+        <ProfileDetailRow
+          label="Job status"
+          value={
+            profile.openToWork ? 'Open to new roles' : 'Not looking right now'
+          }
+        />
+        {profile.lastActivity && (
           <ProfileDetailRow
-            label="Experience"
-            value={profile.yearsOfExperience}
+            label="Last activity"
+            value={getLastActivityDateFormat(profile.lastActivity)}
           />
         )}
       </div>

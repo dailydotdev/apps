@@ -40,6 +40,7 @@ export interface OpportunityMatch {
   applicationRank: Pick<ApplicationRank, 'score' | 'description'>;
   user: OpportunityMatchUser;
   candidatePreferences: OpportunityCandidatePreferences | null;
+  previewUser: OpportunityPreviewUser | null;
 }
 
 export interface OpportunityMatchesData {
@@ -97,6 +98,28 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
             score
             description
           }
+          previewUser {
+            seniority
+            location
+            company {
+              name
+              favicon
+            }
+            openToWork
+            topTags
+            recentlyRead {
+              keyword {
+                value
+              }
+              issuedAt
+            }
+            activeSquads {
+              id
+              name
+              image
+            }
+            lastActivity
+          }
         }
       }
     }
@@ -115,6 +138,12 @@ export interface TopReaderBadge {
   };
   /** When the badge was issued */
   issuedAt: Date;
+}
+
+export interface OpportunityPreviewSquad {
+  id: string;
+  name: string;
+  image?: string;
 }
 
 export interface OpportunityPreviewUser {
@@ -140,8 +169,8 @@ export interface OpportunityPreviewUser {
   topTags?: string[];
   /** Top reader badges with tag and issue date */
   recentlyRead?: TopReaderBadge[];
-  /** Active squad IDs */
-  activeSquads?: string[];
+  /** Active squads */
+  activeSquads?: OpportunityPreviewSquad[];
 }
 
 export type OpportunityPreviewResponse = Connection<OpportunityPreviewUser>;
@@ -171,7 +200,11 @@ export const OPPORTUNITY_PREVIEW = gql`
             }
             issuedAt
           }
-          activeSquads
+          activeSquads {
+            id
+            name
+            image
+          }
         }
         cursor
       }

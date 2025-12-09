@@ -7,6 +7,22 @@ export const removeLinkTargetElement = (link: string): string => {
 export const capitalize = (value: string): string =>
   (value && value[0].toUpperCase() + value.slice(1)) || '';
 
+/**
+ * Formats a keyword/tag value to be human-readable by removing hyphens
+ * and capitalizing each word. For example: "machine-learning" -> "Machine Learning"
+ * @param value - The keyword/tag value to format
+ * @returns The formatted string
+ */
+export const formatKeyword = (value: string): string => {
+  if (!value) {
+    return '';
+  }
+  return value
+    .split('-')
+    .map((word) => capitalize(word))
+    .join(' ');
+};
+
 export const anchorDefaultRel = 'noopener noreferrer';
 
 export const checkLowercaseEquality = (
