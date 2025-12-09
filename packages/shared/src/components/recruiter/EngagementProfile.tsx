@@ -48,7 +48,7 @@ export const EngagementProfile = ({
           </Typography>
           {engagement.topTags.length > 0 &&
             engagement.topTags.map((t) => (
-              <Chip style={{ marginTop: 0, marginBottom: 0 }} key={t}>
+              <Chip className="!my-0" key={t}>
                 #{t}
               </Chip>
             ))}
@@ -61,8 +61,7 @@ export const EngagementProfile = ({
             engagement.recentlyRead.map((badge) => (
               <Chip
                 key={badge.keyword.value}
-                className="gap-1.5"
-                style={{ marginTop: 0, marginBottom: 0 }}
+                className="gap-1.5 !my-0"
               >
                 <MedalBadgeIcon size={IconSize.XSmall} secondary />
                 <span>{formatKeyword(badge.keyword.value)}</span>
@@ -81,8 +80,7 @@ export const EngagementProfile = ({
             engagement.activeSquads.map((squad) => (
               <Chip
                 key={squad.id}
-                className="gap-1.5"
-                style={{ marginTop: 0, marginBottom: 0 }}
+                className="gap-1.5 !my-0"
               >
                 <Image
                   src={squad.image}
