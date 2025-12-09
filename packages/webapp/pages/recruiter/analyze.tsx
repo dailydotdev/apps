@@ -23,7 +23,7 @@ import { useRouter } from 'next/router';
 import {
   OpportunityPreviewProvider,
   useOpportunityPreviewContext,
-} from '@dailydotdev/shared/src/contexts/OpportunityPreviewContext';
+} from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { cloudinarySquadsImageFallback } from '@dailydotdev/shared/src/lib/image';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
@@ -163,10 +163,10 @@ const CompanyItem = ({ favicon, name }: CompanyItemProps) => (
 
 const RelevantBlock = () => {
   const data = useOpportunityPreviewContext();
-  const totalCount = data?.pageInfo?.totalCount ?? 0;
-  const tags = data?.tags ?? [];
-  const companies = data?.companies ?? [];
-  const squads = data?.squads ?? [];
+  const totalCount = data?.result?.totalCount ?? 0;
+  const tags = data?.result?.tags ?? [];
+  const companies = data?.result?.companies ?? [];
+  const squads = data?.result?.squads ?? [];
 
   return (
     <div className="flex flex-col gap-4">
@@ -226,9 +226,9 @@ const RelevantBlock = () => {
       </div>
       <div className="grid grid-cols-2 gap-2">
         {squads.map((squad) => (
-          <div className="flex gap-2">
+          <div className="flex gap-2" key={squad}>
             <img
-              src={squad?.icon || cloudinarySquadsImageFallback}
+              src={cloudinarySquadsImageFallback}
               className="size-4 rounded-full"
               alt={squad}
             />

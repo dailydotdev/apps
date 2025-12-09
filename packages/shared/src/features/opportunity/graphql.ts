@@ -472,3 +472,50 @@ export const USER_OPPORTUNITY_MATCHES_QUERY = gql`
   ${OPPORTUNITY_MATCH_FRAGMENT}
   ${OPPORTUNITY_FRAGMENT}
 `;
+
+export const OPPORTUNITY_PREVIEW = gql`
+  query OpportunityPreview {
+    opportunityPreview {
+      edges {
+        node {
+          id
+          profileImage
+          anonId
+          description
+          openToWork
+          seniority
+          location
+          company {
+            name
+            favicon
+          }
+          lastActivity
+          topTags
+          recentlyRead {
+            keyword {
+              value
+            }
+            issuedAt
+          }
+          activeSquads
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      result {
+        tags
+        companies {
+          name
+          favicon
+        }
+        squads
+        totalCount
+      }
+    }
+  }
+`;

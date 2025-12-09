@@ -16,8 +16,8 @@ import {
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
 import { MiniCloseIcon } from '../icons';
 import { Chip } from '../cards/common/PostTags';
-import { useOpportunityPreviewContext } from '../../contexts/OpportunityPreviewContext';
-import type { OpportunityPreviewUser } from '../../graphql/opportunities';
+import { useOpportunityPreviewContext } from '../../features/opportunity/context/OpportunityPreviewContext';
+import type { OpportunityPreviewUser } from '../../features/opportunity/types';
 
 const columnHelper = createColumnHelper<OpportunityPreviewUser>();
 

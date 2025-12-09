@@ -9,6 +9,7 @@ import type {
 import type { CompanySize, CompanyStage } from './protobuf/organization';
 import type { CandidateStatus } from './protobuf/user-candidate-preference';
 import type { LocationType } from './protobuf/util';
+import type { Connection } from '../../graphql/common';
 
 export enum OpportunityMatchStatus {
   Pending = 'pending',
@@ -165,3 +166,72 @@ export type UserCandidatePreferences = {
 };
 
 export const recruiterLayoutHeaderClassName = 'recruiter-layout-header';
+
+export type OpportunityMatchLocation = Pick<
+  OpportunityLocation,
+  'city' | 'country'
+>;
+
+export interface OpportunityCandidatePreferences {
+  role: string | null;
+  location: OpportunityMatchLocation[];
+}
+
+export interface OpportunityMatchesData {
+  opportunityMatches: Connection<OpportunityMatch>;
+}
+
+export interface OpportunityPreviewCompany {
+  name: string;
+  favicon?: string;
+}
+
+export interface TopReaderBadge {
+  /** The keyword/tag name */
+  keyword: {
+    value: string;
+  };
+  /** When the badge was issued */
+  issuedAt: Date;
+}
+
+export interface OpportunityPreviewUser {
+  /** Real user ID */
+  id: string;
+  /** User profile image */
+  profileImage?: string;
+  /** Anonymized ID (e.g., anon #1002) */
+  anonId: string;
+  /** User description/bio */
+  description?: string;
+  /** Whether the user is open to work */
+  openToWork: boolean;
+  /** User seniority level */
+  seniority?: string;
+  /** User location (from preferences or geo flags) */
+  location?: string;
+  /** Active company from experience */
+  company?: OpportunityPreviewCompany;
+  /** Last activity timestamp */
+  lastActivity?: Date;
+  /** Top tags for the user */
+  topTags?: string[];
+  /** Top reader badges with tag and issue date */
+  recentlyRead?: TopReaderBadge[];
+  /** Active squad IDs */
+  activeSquads?: string[];
+}
+
+export interface OpportunityPreviewResult {
+  tags: string[];
+  companies: OpportunityPreviewCompany[];
+  squads: string[];
+  totalCount?: number;
+}
+
+export interface OpportunityPreviewConnection
+  extends Connection<OpportunityPreviewUser> {
+  result?: OpportunityPreviewResult;
+}
+
+export type OpportunityPreviewResponse = OpportunityPreviewConnection;
