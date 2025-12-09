@@ -59,10 +59,7 @@ export const EngagementProfile = ({
           </Typography>
           {engagement.recentlyRead.length > 0 &&
             engagement.recentlyRead.map((badge) => (
-              <Chip
-                key={badge.keyword.value}
-                className="gap-1.5 !my-0"
-              >
+              <Chip key={badge.keyword.value} className="!my-0 gap-1.5">
                 <MedalBadgeIcon size={IconSize.XSmall} secondary />
                 <span>{formatKeyword(badge.keyword.value)}</span>
                 <span className="text-text-quaternary">·</span>
@@ -78,10 +75,7 @@ export const EngagementProfile = ({
           </Typography>
           {engagement.activeSquads.length > 0 &&
             engagement.activeSquads.map((squad) => (
-              <Chip
-                key={squad.id}
-                className="gap-1.5 !my-0"
-              >
+              <Chip key={squad.id} className="!my-0 gap-1.5">
                 <Image
                   src={squad.image}
                   alt={squad.name}
