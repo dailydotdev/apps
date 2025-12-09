@@ -26,6 +26,10 @@ import { formatCoresCurrency } from '../../lib/utils';
 import { Image } from '../image/Image';
 import { ButtonVariant } from '../buttons/Button';
 
+const getProfileUrl = (username: string): string => {
+  return `https://app.daily.dev/${username}`;
+};
+
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
   : Tag extends React.ComponentType<infer Props>
@@ -97,15 +101,37 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     visible: disableTooltip ? false : undefined,
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if ((event.key === 'Enter' || event.key === ' ') && !onClick) {
+      event.preventDefault();
+      // Navigate to full profile page instead of showing popup
+      window.open(getProfileUrl(username), '_blank');
+    }
+  };
+
+  // Add proper keyboard accessibility
+  const accessibilityProps =
+    tag === 'a'
+      ? {}
+      : {
+          tabIndex: 0,
+          role: 'button' as const,
+          'aria-label': `View ${name}'s profile`,
+          onKeyDown: handleKeyDown,
+        };
+
+  const elementProps = {
+    ref,
+    ...props,
+    className: classNames(
+      'flex flex-row',
+      className.container ?? defaultClassName.container,
+    ),
+    ...accessibilityProps,
+  };
+
   return (
-    <Element
-      ref={ref}
-      {...props}
-      className={classNames(
-        'flex flex-row',
-        className.container ?? defaultClassName.container,
-      )}
-    >
+    <Element {...elementProps}>
       <ProfileTooltip
         userId={user?.id}
         tooltip={tooltipProps}
