@@ -13,13 +13,13 @@ import { MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
 import { formatKeyword } from '../../lib/strings';
-import type { TopReaderBadge } from '../../graphql/opportunities';
 import { Image, ImageType } from '../image/Image';
 import type { Squad } from '../../graphql/sources';
+import type { TopReader } from '../badges/TopReaderBadge';
 
 export interface EngagementProfileData {
   topTags: string[];
-  recentlyRead: TopReaderBadge[];
+  recentlyRead: TopReader[];
   activeSquads: Squad[];
   lastActive?: string;
   profileSummary?: string;
@@ -68,7 +68,7 @@ export const EngagementProfile = ({
                 <span>{formatKeyword(badge.keyword.value)}</span>
                 <span className="text-text-quaternary">·</span>
                 <span className="text-text-quaternary">
-                  {formatMonthYearOnly(badge.issuedAt)}
+                  {formatMonthYearOnly(new Date(badge.issuedAt))}
                 </span>
               </Chip>
             ))}
