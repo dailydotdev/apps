@@ -221,6 +221,7 @@ export interface OpportunityPreviewResult {
   companies: OpportunityPreviewCompany[];
   squads: Squad[];
   totalCount?: number;
+  opportunityId?: string;
 }
 
 export interface OpportunityPreviewConnection

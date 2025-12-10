@@ -1,11 +1,18 @@
 import { createContextProvider } from '@kickass-coderz/react';
-import { useOpportunityPreview } from '../queries';
+import { useQuery } from '@tanstack/react-query';
+import { useOpportunityPreview, opportunityByIdOptions } from '../queries';
 
 const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
   createContextProvider(() => {
     const { data } = useOpportunityPreview();
+    const opportunityId = data?.result?.opportunityId;
 
-    return { ...data };
+    const { data: opportunity } = useQuery({
+      ...opportunityByIdOptions({ id: opportunityId || '' }),
+      enabled: !!opportunityId,
+    });
+
+    return { ...data, opportunity };
   });
 
 export { OpportunityPreviewProvider, useOpportunityPreviewContext };
