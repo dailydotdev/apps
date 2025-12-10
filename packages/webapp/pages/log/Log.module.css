@@ -404,6 +404,7 @@
   font-weight: 700;
   color: var(--fest-white);
   opacity: 0.9;
+  text-transform: uppercase;
 }
 
 .bannerMain {

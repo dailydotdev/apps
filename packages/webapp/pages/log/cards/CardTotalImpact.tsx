@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
@@ -11,45 +11,10 @@ interface CardProps {
   isActive: boolean;
 }
 
-// Confetti particle component
-function Confetti({ delay }: { delay: number }): ReactElement {
-  const colors = ['#ff6b35', '#f7c948', '#e637bf', '#c6f135'];
-  const randomColor = colors[Math.floor(Math.random() * colors.length)];
-  const randomX = Math.random() * 100;
-  const randomRotation = Math.random() * 360;
-
-  return (
-    <motion.div
-      style={{
-        position: 'absolute',
-        left: `${randomX}%`,
-        top: '-5%',
-        width: '8px',
-        height: '8px',
-        background: randomColor,
-        borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-      }}
-      initial={{ y: 0, rotate: 0, opacity: 1 }}
-      animate={{
-        y: '120vh',
-        rotate: randomRotation + 720,
-        opacity: [1, 1, 0],
-      }}
-      transition={{
-        duration: 3 + Math.random() * 2,
-        delay: delay + Math.random() * 0.5,
-        ease: 'easeIn',
-      }}
-    />
-  );
-}
-
 export default function CardTotalImpact({
   data,
   isActive,
 }: CardProps): ReactElement {
-  const [showConfetti, setShowConfetti] = useState(false);
-
   const animatedPosts = useAnimatedNumber(data.totalPosts, {
     delay: 500,
     duration: 2000,
@@ -64,38 +29,8 @@ export default function CardTotalImpact({
     enabled: isActive,
   });
 
-  // Trigger confetti when number animation completes
-  useEffect(() => {
-    if (isActive) {
-      const timer = setTimeout(() => setShowConfetti(true), 2500);
-      return () => clearTimeout(timer);
-    }
-    setShowConfetti(false);
-    return () => {
-      // Cleanup when inactive
-    };
-  }, [isActive]);
-
   return (
     <>
-      {/* Confetti explosion */}
-      {showConfetti && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            pointerEvents: 'none',
-            zIndex: 50,
-          }}
-        >
-          {Array.from({ length: 30 }, (_, i) => {
-            const delay = i * 0.05;
-            return <Confetti key={`confetti-${delay}`} delay={delay} />;
-          })}
-        </div>
-      )}
-
       {/* Main headline with staggered reveal */}
       <div className={styles.headlineStack}>
         <motion.div
@@ -119,7 +54,6 @@ export default function CardTotalImpact({
         >
           <motion.span
             className={styles.headlineBig}
-            animate={showConfetti ? { scale: [1, 1.05, 1] } : {}}
             transition={{ duration: 0.3 }}
           >
             {animatedPosts.toLocaleString()}
@@ -195,7 +129,7 @@ export default function CardTotalImpact({
       >
         <div className={styles.bannerBg} />
         <div className={styles.bannerContent}>
-          <span className={styles.bannerPre}>TOP</span>
+          <span className={styles.bannerPre}>Top</span>
           <motion.span
             className={styles.bannerMain}
             initial={{ scale: 0 }}
@@ -204,13 +138,13 @@ export default function CardTotalImpact({
           >
             {data.totalImpactPercentile}%
           </motion.span>
-          <span className={styles.bannerPost}>OF DEVS</span>
+          <span className={styles.bannerPost}>of devs</span>
         </div>
       </motion.div>
 
       {/* Share button */}
       <ShareStatButton
-        delay={2.5}
+        delay={3}
         isActive={isActive}
         statText={`I read ${data.totalPosts.toLocaleString()} posts on daily.dev this year — that's ${data.totalReadingTime} hours of learning! 📚\n\nTOP ${data.totalImpactPercentile}% of developers`}
       />
