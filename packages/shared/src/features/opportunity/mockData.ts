@@ -1,6 +1,7 @@
 import type { Opportunity } from './types';
 import type { OpportunityPreviewContextType } from './context/OpportunityPreviewContext';
 import { SeniorityLevel } from './protobuf/opportunity';
+import { SourceMemberRole, SourceType } from '../../graphql/sources';
 
 export const mockOpportunity: Opportunity = {
   id: '89f3daff-d6bb-4652-8f9c-b9f7254c9af1',
@@ -11,8 +12,7 @@ export const mockOpportunity: Opportunity = {
   organization: {
     id: 'org-1',
     name: 'Daily.dev',
-    handle: 'dailydotdev',
-    permalink: 'https://daily.dev',
+    website: 'https://daily.dev',
     image: 'https://daily.dev/favicon.ico',
   },
   content: {
@@ -83,10 +83,19 @@ export const mockAnonymousUserTableData: OpportunityPreviewContextType = {
         lastActivity: new Date(Date.now() - 1000 * 60 * 5),
         topTags: ['react', 'typescript', 'javascript', 'nextjs'],
         recentlyRead: [
-          { keyword: { value: 'React' }, issuedAt: new Date('2024-11-01') },
+          {
+            keyword: { value: 'React' },
+            issuedAt: new Date('2024-11-01'),
+            id: 'topreader1',
+            total: 1,
+            user: null,
+          },
           {
             keyword: { value: 'TypeScript' },
             issuedAt: new Date('2024-10-01'),
+            id: 'topreader2',
+            total: 1,
+            user: null,
           },
         ],
         activeSquads: [
@@ -94,11 +103,33 @@ export const mockAnonymousUserTableData: OpportunityPreviewContextType = {
             handle: 'webdev',
             image:
               'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
+            active: false,
+            permalink: '',
+            public: false,
+            type: SourceType.Squad,
+            membersCount: 0,
+            description: '',
+            memberPostingRole: SourceMemberRole.Member,
+            memberInviteRole: SourceMemberRole.Member,
+            moderationRequired: false,
+            moderationPostCount: 0,
+            name: '',
           },
           {
             handle: 'javascript',
             image:
               'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
+            active: false,
+            permalink: '',
+            public: false,
+            type: SourceType.Squad,
+            membersCount: 0,
+            description: '',
+            memberPostingRole: SourceMemberRole.Member,
+            memberInviteRole: SourceMemberRole.Member,
+            moderationRequired: false,
+            moderationPostCount: 0,
+            name: '',
           },
         ],
       },
@@ -121,14 +152,37 @@ export const mockAnonymousUserTableData: OpportunityPreviewContextType = {
         lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 2),
         topTags: ['nodejs', 'react', 'mongodb', 'aws'],
         recentlyRead: [
-          { keyword: { value: 'Node.js' }, issuedAt: new Date('2024-11-15') },
-          { keyword: { value: 'AWS' }, issuedAt: new Date('2024-09-01') },
+          {
+            keyword: { value: 'Node.js' },
+            issuedAt: new Date('2024-11-15'),
+            id: 'topreader4',
+            total: 1,
+            user: null,
+          },
+          {
+            keyword: { value: 'AWS' },
+            issuedAt: new Date('2024-09-01'),
+            id: 'topreader5',
+            total: 1,
+            user: null,
+          },
         ],
         activeSquads: [
           {
             handle: 'backend',
             image:
               'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
+            active: false,
+            permalink: '',
+            public: false,
+            type: SourceType.Squad,
+            membersCount: 0,
+            description: '',
+            memberPostingRole: SourceMemberRole.Member,
+            memberInviteRole: SourceMemberRole.Member,
+            moderationRequired: false,
+            moderationPostCount: 0,
+            name: '',
           },
         ],
       },
@@ -151,18 +205,46 @@ export const mockAnonymousUserTableData: OpportunityPreviewContextType = {
         lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 24),
         topTags: ['vue', 'react', 'css', 'accessibility'],
         recentlyRead: [
-          { keyword: { value: 'Vue' }, issuedAt: new Date('2024-10-15') },
+          {
+            keyword: { value: 'Vue' },
+            issuedAt: new Date('2024-10-15'),
+            id: 'topreader6',
+            total: 1,
+            user: null,
+          },
         ],
         activeSquads: [
           {
             handle: 'frontend',
             image:
               'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
+            active: false,
+            permalink: '',
+            public: false,
+            type: SourceType.Squad,
+            membersCount: 0,
+            description: '',
+            memberPostingRole: SourceMemberRole.Member,
+            memberInviteRole: SourceMemberRole.Member,
+            moderationRequired: false,
+            moderationPostCount: 0,
+            name: '',
           },
           {
             handle: 'css',
             image:
               'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
+            active: false,
+            permalink: '',
+            public: false,
+            type: SourceType.Squad,
+            membersCount: 0,
+            description: '',
+            memberPostingRole: SourceMemberRole.Member,
+            memberInviteRole: SourceMemberRole.Member,
+            moderationRequired: false,
+            moderationPostCount: 0,
+            name: '',
           },
         ],
       },
@@ -205,6 +287,17 @@ export const mockAnonymousUserTableData: OpportunityPreviewContextType = {
         handle: 'publicsquad',
         image:
           'https://media.daily.dev/image/upload/s--iK6zGJCz--/f_auto,t_logo/v1698841319/logos/collections.jpg',
+        active: false,
+        permalink: '',
+        public: false,
+        type: SourceType.Squad,
+        membersCount: 0,
+        description: '',
+        memberPostingRole: SourceMemberRole.Member,
+        memberInviteRole: SourceMemberRole.Member,
+        moderationRequired: false,
+        moderationPostCount: 0,
+        name: '',
       },
     ],
     totalCount: 5001,
