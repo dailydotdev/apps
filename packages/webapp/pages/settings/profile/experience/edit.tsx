@@ -22,6 +22,7 @@ import {
 import type { GetServerSideProps } from 'next';
 import type { TLocation } from '@dailydotdev/shared/src/graphql/autocomplete';
 import { useRouter } from 'next/router';
+import { getCookiesAndHeadersFromRequest } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
@@ -93,6 +94,7 @@ const getExperienceType = (
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   query,
+  req,
 }) => {
   const { id, type } = query;
   const typeParam = getExperienceType(type);
@@ -108,24 +110,35 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     };
   }
 
-  const result = await getUserExperienceById(id as string);
-  const [startedAtMonth, startedAtYear] = splitMonthYear(result?.startedAt);
-  const [endedAtMonth, endedAtYear] = splitMonthYear(result?.endedAt);
+  const { cookies } = getCookiesAndHeadersFromRequest(req);
+  const result = await getUserExperienceById(id as string, { Cookie: cookies });
+
+  if (!result) {
+    return {
+      redirect: {
+        destination: `/settings/profile/experience/${typeParam}`,
+        permanent: false,
+      },
+    };
+  }
+
+  const [startedAtMonth, startedAtYear] = splitMonthYear(result.startedAt);
+  const [endedAtMonth, endedAtYear] = splitMonthYear(result.endedAt);
 
   return {
     props: {
       experience: {
         ...result,
-        companyId: result?.company?.id || '',
-        customCompanyName: result?.company?.name || result?.customCompanyName,
+        companyId: result.company?.id || '',
+        customCompanyName: result.company?.name || result.customCompanyName,
         startedAtMonth,
         startedAtYear,
         endedAtMonth,
         endedAtYear,
-        current: !result?.endedAt,
-        skills: result?.skills.map((skill) => skill.value),
-        location: result?.location,
-        externalLocationId: result?.location?.externalId || '',
+        current: !result.endedAt,
+        skills: result.skills?.map((skill) => skill.value),
+        location: result.location,
+        externalLocationId: result.location?.externalId || '',
       },
     },
   };
