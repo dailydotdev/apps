@@ -6,9 +6,13 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useRouter } from 'next/router';
-import { OpportunityPreviewProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
+import {
+  OpportunityPreviewProvider,
+  useOpportunityPreviewContext,
+} from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { ContentSidebar } from '@dailydotdev/shared/src/features/opportunity/components/analyze/ContentSidebar';
 import { UserTableWrapper } from '@dailydotdev/shared/src/features/opportunity/components/analyze/UserTableWrapper';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const RecruiterPageContent = () => {
@@ -16,6 +20,7 @@ const RecruiterPageContent = () => {
   const { openModal } = useLazyModal();
   const router = useRouter();
   const [loadingStep, setLoadingStep] = useState(0);
+  const { opportunity } = useOpportunityPreviewContext();
 
   useEffect(() => {
     // Always run the full loading animation sequence
@@ -30,14 +35,24 @@ const RecruiterPageContent = () => {
   }, []);
 
   const handlePrepareCampaignClick = useCallback(() => {
+    if (!opportunity) {
+      return;
+    }
+
+    if (!opportunity.paid) {
+      router.push(`${webappUrl}recruiter/${opportunity.id}/payment`);
+
+      return;
+    }
+
     if (!user) {
       openModal({
         type: LazyModal.RecruiterSignIn,
       });
     } else {
-      router.push('/recruiter/prepare');
+      router.push(`${webappUrl}recruiter/${opportunity.id}/prepare`);
     }
-  }, [user, openModal, router]);
+  }, [user, openModal, router, opportunity]);
 
   return (
     <div className="flex flex-1 flex-col">

@@ -1,8 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import { usePaymentContext } from '@dailydotdev/shared/src/contexts/payment/context';
-import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/payment';
+import { RecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/RecruiterPaymentContext';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
 import {
@@ -16,23 +15,22 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { useRecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/types';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
   const checkoutRef = useRef<HTMLDivElement>(null);
-  const { isPaddleReady, openCheckout } = usePaymentContext();
+  const { openCheckout, selectedProduct } = useRecruiterPaymentContext();
 
   useEffect(() => {
-    if (!isPaddleReady) {
+    if (!selectedProduct) {
       return;
     }
 
-    // Initialize Paddle checkout with recruiter pricing
-    // TODO: Replace with actual price ID for recruiter subscription
     openCheckout({
-      priceId: 'your-recruiter-price-id',
+      priceId: selectedProduct.id,
     });
-  }, [isPaddleReady, openCheckout]);
+  }, [selectedProduct, openCheckout]);
 
   const handleBack = () => {
     router.back();
@@ -158,7 +156,7 @@ const RecruiterPaymentPage = (): ReactElement => {
 RecruiterPaymentPage.getLayout = function getLayout(
   page: ReactNode,
 ): ReactNode {
-  return <PaymentContextProvider>{page}</PaymentContextProvider>;
+  return <RecruiterPaymentContext>{page}</RecruiterPaymentContext>;
 };
 
 export default RecruiterPaymentPage;

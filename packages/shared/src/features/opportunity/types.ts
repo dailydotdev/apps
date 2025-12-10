@@ -103,6 +103,7 @@ export type Opportunity = {
   keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
   feedbackQuestions?: OpportunityFeedbackQuestion[];
+  paid: boolean;
 };
 
 export type OpportunityMatchDescription = {

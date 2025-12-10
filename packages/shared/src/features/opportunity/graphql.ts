@@ -1,5 +1,8 @@
 import { gql } from 'graphql-request';
 import { ORGANIZATION_SHORT_FRAGMENT } from '../organizations/graphql';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import type { LoggedUser } from '../../lib/user';
+import { fetchPricingPreview, PurchaseType } from '../../graphql/paddle';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   fragment OpportunityContentFragment on OpportunityContentBlock {
@@ -125,6 +128,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
     feedbackQuestions {
       ...OpportunityFeedbackQuestionFragment
     }
+    paid
   }
   ${ORGANIZATION_SHORT_FRAGMENT}
   ${OPPORTUNITY_CONTENT_FRAGMENT}
@@ -583,3 +587,24 @@ export const OPPORTUNITY_PREVIEW = gql`
     }
   }
 `;
+
+export const recruiterPricesQueryOptions = ({
+  isLoggedIn,
+  user,
+}: {
+  isLoggedIn: boolean;
+  user: LoggedUser;
+}) => {
+  return {
+    queryKey: generateQueryKey(
+      RequestKey.PricePreview,
+      user,
+      PurchaseType.Recruiter,
+    ),
+    queryFn: async () => {
+      return fetchPricingPreview(PurchaseType.Recruiter);
+    },
+    enabled: isLoggedIn,
+    staleTime: StaleTime.Default,
+  };
+};

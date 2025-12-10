@@ -150,7 +150,7 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.WarningCheckout,
               extra: JSON.stringify({
-                transaction_id: event?.data.transaction_id,
+                transaction_id: event?.data?.transaction_id,
               }),
             });
             break;
@@ -159,7 +159,7 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.ErrorCheckout,
               extra: JSON.stringify({
-                transaction_id: event?.data.transaction_id,
+                transaction_id: event?.data?.transaction_id,
               }),
             });
             break;
@@ -168,7 +168,7 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.ErrorPayment,
               extra: JSON.stringify({
-                transaction_id: event?.data.transaction_id,
+                transaction_id: event?.data?.transaction_id,
               }),
             });
             break;
