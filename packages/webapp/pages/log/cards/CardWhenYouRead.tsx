@@ -166,7 +166,7 @@ export default function CardWhenYouRead({
 
       {/* Share button */}
       <ShareStatButton
-        delay={2.6}
+        delay={2}
         isActive={isActive}
         statText={`My golden hour is ${formatHour(peakHour)}\n\n${PATTERN_SENTENCES[
           data.readingPattern
