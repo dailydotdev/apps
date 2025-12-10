@@ -391,6 +391,7 @@ export enum TargetType {
   // CV
   CvBanner = 'cv banner',
   Post = 'post',
+  Recruiter = 'recruiter',
 }
 
 export enum TargetId {
@@ -501,4 +502,5 @@ export const purchaseTypeToTargetType: Record<PurchaseType, TargetType> = {
   cores: TargetType.Credits,
   plus: TargetType.Plus,
   organization: TargetType.Plus,
+  recruiter: TargetType.Recruiter,
 };
