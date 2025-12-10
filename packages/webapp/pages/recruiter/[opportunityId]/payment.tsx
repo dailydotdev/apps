@@ -16,21 +16,31 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { useRecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/types';
+import {
+  OpportunityPreviewProvider,
+  useOpportunityPreviewContext,
+} from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
   const checkoutRef = useRef<HTMLDivElement>(null);
   const { openCheckout, selectedProduct } = useRecruiterPaymentContext();
+  const { opportunity } = useOpportunityPreviewContext();
 
   useEffect(() => {
+    if (!opportunity) {
+      return;
+    }
+
     if (!selectedProduct) {
       return;
     }
 
     openCheckout({
       priceId: selectedProduct.id,
+      customData: { opportunity_id: opportunity.id },
     });
-  }, [selectedProduct, openCheckout]);
+  }, [selectedProduct, openCheckout, opportunity]);
 
   const handleBack = () => {
     router.back();
@@ -156,7 +166,11 @@ const RecruiterPaymentPage = (): ReactElement => {
 RecruiterPaymentPage.getLayout = function getLayout(
   page: ReactNode,
 ): ReactNode {
-  return <RecruiterPaymentContext>{page}</RecruiterPaymentContext>;
+  return (
+    <OpportunityPreviewProvider>
+      <RecruiterPaymentContext>{page}</RecruiterPaymentContext>
+    </OpportunityPreviewProvider>
+  );
 };
 
 export default RecruiterPaymentPage;
