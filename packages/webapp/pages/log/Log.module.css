@@ -1,0 +1,942 @@
+/* Log 2025 - Festival Theme Design System */
+/* Maximalist, celebratory, bold poster aesthetic */
+
+/* ========================================
+   CSS VARIABLES - Design Tokens
+   ======================================== */
+
+.logContainer {
+  --fest-bg: #1a0a2e;
+  --fest-bg-dark: #120820;
+  --fest-primary: #ff6b35;
+  --fest-secondary: #f7c948;
+  --fest-accent: #e637bf;
+  --fest-lime: #c6f135;
+  --fest-white: #ffffff;
+  --fest-cream: #fff8e7;
+  --fest-white-70: rgba(255, 255, 255, 0.7);
+  --fest-white-50: rgba(255, 255, 255, 0.5);
+  --fest-white-30: rgba(255, 255, 255, 0.3);
+
+  /* Archetype colors */
+  --arch-night-owl: #4d9dff;
+  --arch-scholar: #f7c948;
+  --arch-pulse: #00d4ff;
+  --arch-opinionist: #e637bf;
+  --arch-collector: #a855f7;
+  --arch-streak: #ff6b35;
+
+  font-family: 'Space Mono', monospace;
+  position: fixed;
+  inset: 0;
+  background: var(--fest-bg);
+  overflow: hidden;
+  color: var(--fest-white);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ========================================
+   BACKGROUND EFFECTS
+   ======================================== */
+
+.backgroundBurst {
+  position: absolute;
+  inset: -50%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    var(--fest-bg) 0deg 10deg,
+    rgba(230, 55, 191, 0.08) 10deg 20deg
+  );
+  animation: burstRotate 120s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes burstRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Decorative stars */
+.decorations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.star {
+  position: absolute;
+  animation: starFloat 4s ease-in-out infinite;
+}
+
+@keyframes starFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(10deg); }
+}
+
+.star1 { top: 12%; left: 8%; color: var(--fest-secondary); font-size: 1.75rem; animation-delay: 0s; }
+.star2 { top: 22%; right: 12%; color: var(--fest-lime); font-size: 1.25rem; animation-delay: 0.5s; }
+.star3 { bottom: 28%; left: 6%; color: var(--fest-accent); font-size: 1.5rem; animation-delay: 1s; }
+.star4 { bottom: 18%; right: 10%; color: var(--fest-primary); font-size: 1.75rem; animation-delay: 1.5s; }
+.star5 { top: 45%; left: 4%; color: var(--fest-lime); font-size: 1rem; animation-delay: 2s; }
+.star6 { top: 55%; right: 5%; color: var(--fest-secondary); font-size: 1.25rem; animation-delay: 2.5s; }
+
+/* ========================================
+   CARD CONTAINER & NAVIGATION
+   ======================================== */
+
+.cardsWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+
+.card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.card.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.card.exiting {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.cardInner {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ========================================
+   HEADER - Logo & Progress
+   ======================================== */
+
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.logoBadge {
+  background: var(--fest-white);
+  padding: 0.5rem 0.875rem;
+  border-radius: 4px;
+  transform: rotate(-2deg);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+  height: 16px;
+  width: auto;
+  display: block;
+  filter: brightness(0);
+}
+
+.progressDots {
+  display: flex;
+  gap: 6px;
+  padding-top: 0.25rem;
+}
+
+.progressDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fest-white-30);
+  transition: all 0.3s ease;
+}
+
+.progressDot.active {
+  background: var(--fest-lime);
+  box-shadow: 0 0 8px var(--fest-lime);
+}
+
+.progressDot.completed {
+  background: var(--fest-white-70);
+}
+
+/* ========================================
+   CARD INDICATOR
+   ======================================== */
+
+.cardIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  animation: fadeSlideDown 0.6s ease-out 0.2s both;
+}
+
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cardNum {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--fest-lime);
+}
+
+.cardSep {
+  color: var(--fest-white);
+  opacity: 0.3;
+}
+
+.cardLabel {
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--fest-white);
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+/* ========================================
+   TYPOGRAPHY - Headlines
+   ======================================== */
+
+.headlineStack {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.headlineRow {
+  animation: headlineReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.headlineRow:nth-child(1) { animation-delay: 0.3s; }
+.headlineRow:nth-child(2) { animation-delay: 0.5s; }
+.headlineRow:nth-child(3) { animation-delay: 0.7s; }
+.headlineRow:nth-child(4) { animation-delay: 0.9s; }
+
+@keyframes headlineReveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px) rotate(-2deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+.headlineSmall {
+  font-size: 0.9rem;
+  letter-spacing: 0.25em;
+  color: var(--fest-secondary);
+  text-transform: uppercase;
+  display: block;
+}
+
+.headlineBig {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 5.5rem;
+  line-height: 0.9;
+  color: var(--fest-white);
+  text-shadow:
+    4px 4px 0 var(--fest-primary),
+    8px 8px 0 var(--fest-accent);
+  display: block;
+}
+
+.headlineMedium {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 2.25rem;
+  letter-spacing: 0.08em;
+  color: var(--fest-lime);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  display: block;
+}
+
+.headlineAccent {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 1.5rem;
+  color: var(--fest-secondary);
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Smaller variant for secondary stats */
+.headlineBigSmall {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 3.5rem;
+  line-height: 0.95;
+  color: var(--fest-white);
+  text-shadow:
+    3px 3px 0 var(--fest-primary),
+    6px 6px 0 var(--fest-accent);
+}
+
+/* ========================================
+   DIVIDER
+   ======================================== */
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  animation: fadeIn 0.6s ease-out 0.9s both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dividerLine {
+  width: 32px;
+  height: 3px;
+  background: var(--fest-secondary);
+}
+
+.dividerIcon {
+  color: var(--fest-accent);
+  font-size: 0.75rem;
+  animation: iconSpin 3s linear infinite;
+}
+
+@keyframes iconSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   STAT BADGES
+   ======================================== */
+
+.statsBadges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  animation: badgesReveal 0.8s ease-out 1.1s both;
+}
+
+@keyframes badgesReveal {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.badge {
+  background: var(--fest-white);
+  color: var(--fest-bg);
+  padding: 0.625rem 1rem;
+  text-align: center;
+  box-shadow: 3px 3px 0 var(--fest-primary);
+}
+
+.badge:nth-child(odd) {
+  transform: rotate(-1deg);
+}
+
+.badge:nth-child(even) {
+  transform: rotate(1deg);
+  box-shadow: 3px 3px 0 var(--fest-accent);
+}
+
+.badge:nth-child(3n) {
+  box-shadow: 3px 3px 0 var(--fest-lime);
+}
+
+.badgeValue {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 1.25rem;
+  display: block;
+  line-height: 1.1;
+}
+
+.badgeLabel {
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  text-transform: uppercase;
+  margin-top: 0.125rem;
+}
+
+/* Large badge variant */
+.badgeLarge {
+  padding: 1rem 1.5rem;
+}
+
+.badgeLarge .badgeValue {
+  font-size: 1.75rem;
+}
+
+.badgeLarge .badgeLabel {
+  font-size: 0.6rem;
+}
+
+/* ========================================
+   CELEBRATION BANNER
+   ======================================== */
+
+.celebrationBanner {
+  position: relative;
+  width: 100%;
+  padding: 0.875rem;
+  margin: 1rem 0;
+  animation: bannerReveal 0.8s ease-out 1.3s both;
+}
+
+@keyframes bannerReveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bannerBg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--fest-primary), var(--fest-accent), var(--fest-secondary));
+  transform: skewY(-2deg);
+}
+
+.bannerContent {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bannerPre,
+.bannerPost {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--fest-white);
+  opacity: 0.9;
+}
+
+.bannerMain {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 2rem;
+  color: var(--fest-white);
+}
+
+/* ========================================
+   HEATMAP (Card 2)
+   ======================================== */
+
+.heatmapContainer {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin: 1rem 0;
+  animation: fadeIn 0.8s ease-out 1s both;
+}
+
+.heatmapGrid {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 2px;
+}
+
+.heatmapCell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: var(--fest-white-30);
+  transition: background 0.3s ease;
+}
+
+.heatmapCell.level1 { background: rgba(198, 241, 53, 0.3); }
+.heatmapCell.level2 { background: rgba(198, 241, 53, 0.5); }
+.heatmapCell.level3 { background: rgba(198, 241, 53, 0.7); }
+.heatmapCell.level4 { background: var(--fest-lime); }
+
+.heatmapLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.5rem;
+  color: var(--fest-white-50);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ========================================
+   TOPIC TIMELINE (Card 3)
+   ======================================== */
+
+.timelineContainer {
+  width: 100%;
+  margin: 1rem 0;
+  animation: fadeIn 0.8s ease-out 0.8s both;
+}
+
+.timelinePath {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.timelineItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  opacity: 0;
+  animation: timelineReveal 0.4s ease-out forwards;
+}
+
+@keyframes timelineReveal {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.timelineMonth {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--fest-white-50);
+  width: 2rem;
+  text-transform: uppercase;
+}
+
+.timelineDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fest-lime);
+  box-shadow: 0 0 8px var(--fest-lime);
+  flex-shrink: 0;
+}
+
+.timelineDot.pivot {
+  width: 14px;
+  height: 14px;
+  background: var(--fest-accent);
+  box-shadow: 0 0 12px var(--fest-accent);
+}
+
+.timelineTopic {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 0.9rem;
+  color: var(--fest-white);
+}
+
+.timelineTopic.pivot {
+  color: var(--fest-accent);
+  font-size: 1rem;
+}
+
+.timelineLine {
+  width: 2px;
+  height: 100%;
+  background: var(--fest-white-30);
+  margin-left: 2.375rem;
+}
+
+/* ========================================
+   PODIUM (Card 4)
+   ======================================== */
+
+.podiumContainer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  animation: badgesReveal 0.8s ease-out 0.8s both;
+}
+
+.podiumItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.podiumBar {
+  width: 80px;
+  background: var(--fest-white);
+  color: var(--fest-bg);
+  padding: 0.75rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.podiumItem:nth-child(1) .podiumBar {
+  height: 100px;
+  box-shadow: 3px 3px 0 var(--fest-secondary);
+}
+
+.podiumItem:nth-child(2) .podiumBar {
+  height: 140px;
+  box-shadow: 3px 3px 0 var(--fest-primary);
+}
+
+.podiumItem:nth-child(3) .podiumBar {
+  height: 80px;
+  box-shadow: 3px 3px 0 var(--fest-accent);
+}
+
+.podiumRank {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.podiumName {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+}
+
+.podiumCount {
+  font-size: 0.5rem;
+  opacity: 0.7;
+  margin-top: 0.125rem;
+}
+
+/* ========================================
+   RECORDS LIST (Card 7)
+   ======================================== */
+
+.recordsList {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.recordItem {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: recordReveal 0.6s ease-out both;
+  border-left: 3px solid var(--fest-lime);
+}
+
+.recordItem:nth-child(2) {
+  border-left-color: var(--fest-primary);
+  animation-delay: 0.2s;
+}
+
+.recordItem:nth-child(3) {
+  border-left-color: var(--fest-accent);
+  animation-delay: 0.4s;
+}
+
+@keyframes recordReveal {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.recordLabel {
+  font-size: 0.65rem;
+  color: var(--fest-white-70);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.recordValue {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 1.1rem;
+  color: var(--fest-white);
+  margin-top: 0.25rem;
+}
+
+.recordBadge {
+  background: var(--fest-lime);
+  color: var(--fest-bg);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.55rem;
+  font-weight: 700;
+}
+
+/* ========================================
+   ARCHETYPE REVEAL (Card 8)
+   ======================================== */
+
+.archetypeReveal {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.archetypeBuildUp {
+  margin-bottom: 2rem;
+}
+
+.buildUpLine {
+  font-size: 0.85rem;
+  color: var(--fest-white-70);
+  margin-bottom: 0.75rem;
+  opacity: 0;
+  animation: buildUpReveal 0.6s ease-out forwards;
+}
+
+@keyframes buildUpReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.archetypeEmoji {
+  font-size: 5rem;
+  display: block;
+  margin-bottom: 1rem;
+  animation: emojiPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes emojiPop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.archetypeName {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 3rem;
+  color: var(--fest-white);
+  text-shadow:
+    4px 4px 0 var(--fest-primary),
+    8px 8px 0 var(--fest-accent);
+  margin-bottom: 0.75rem;
+  animation: headlineReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.archetypeDescription {
+  font-size: 1rem;
+  color: var(--fest-white-70);
+  font-style: italic;
+  max-width: 280px;
+  margin: 0 auto;
+  animation: fadeIn 0.8s ease-out 0.6s both;
+}
+
+/* ========================================
+   SHARE CARD (Card 9)
+   ======================================== */
+
+.shareCard {
+  width: 100%;
+  text-align: center;
+}
+
+.shareHeader {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 2rem;
+  color: var(--fest-lime);
+  margin-bottom: 1.5rem;
+  animation: headlineReveal 0.8s ease-out 0.3s both;
+}
+
+.sharePreview {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--fest-white-30);
+  animation: fadeIn 0.8s ease-out 0.5s both;
+}
+
+.shareArchetype {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 1.5rem;
+  color: var(--fest-white);
+  margin-bottom: 1rem;
+}
+
+.shareStats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.shareStat {
+  text-align: center;
+}
+
+.shareStatValue {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 1.25rem;
+  color: var(--fest-lime);
+}
+
+.shareStatLabel {
+  font-size: 0.55rem;
+  color: var(--fest-white-50);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.shareButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  animation: badgesReveal 0.8s ease-out 0.8s both;
+}
+
+.shareButton {
+  background: var(--fest-white);
+  color: var(--fest-bg);
+  padding: 0.875rem 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 3px 3px 0 var(--fest-primary);
+}
+
+.shareButton:nth-child(2) {
+  box-shadow: 3px 3px 0 var(--fest-accent);
+}
+
+.shareButton:nth-child(3) {
+  box-shadow: 3px 3px 0 var(--fest-lime);
+}
+
+.shareButton:nth-child(4) {
+  box-shadow: 3px 3px 0 var(--fest-secondary);
+}
+
+.shareButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--fest-primary);
+}
+
+.socialProof {
+  margin-top: 1.5rem;
+  font-size: 0.7rem;
+  color: var(--fest-white-50);
+  animation: fadeIn 0.8s ease-out 1s both;
+}
+
+.socialProof strong {
+  color: var(--fest-secondary);
+}
+
+/* ========================================
+   NAVIGATION PROMPT
+   ======================================== */
+
+.navPrompt {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 100;
+  animation: fadeIn 0.6s ease-out 2s both;
+}
+
+.navPrompt span {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--fest-white);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+.navArrow {
+  font-size: 1rem;
+  color: var(--fest-lime);
+  animation: arrowBounce 1s ease-in-out infinite;
+}
+
+@keyframes arrowBounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .backgroundBurst,
+  .star,
+  .dividerIcon,
+  .navArrow {
+    animation: none;
+  }
+
+  .headlineRow,
+  .cardIndicator,
+  .statsBadges,
+  .celebrationBanner,
+  .divider,
+  .buildUpLine,
+  .archetypeEmoji,
+  .archetypeName,
+  .shareHeader,
+  .sharePreview,
+  .shareButtons,
+  .navPrompt {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 380px) {
+  .headlineBig {
+    font-size: 4.5rem;
+  }
+
+  .headlineMedium {
+    font-size: 1.75rem;
+  }
+
+  .headlineBigSmall {
+    font-size: 2.75rem;
+  }
+
+  .archetypeName {
+    font-size: 2.25rem;
+  }
+
+  .podiumBar {
+    width: 65px;
+  }
+}
