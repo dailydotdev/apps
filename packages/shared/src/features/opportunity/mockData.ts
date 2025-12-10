@@ -61,6 +61,7 @@ export const mockOpportunity: Opportunity = {
     { keyword: 'JavaScript' },
     { keyword: 'Tailwind CSS' },
   ],
+  paid: false,
 };
 
 export const mockAnonymousUserTableData: OpportunityPreviewContextType = {
