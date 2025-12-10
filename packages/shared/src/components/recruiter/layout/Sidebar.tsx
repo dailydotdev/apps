@@ -105,7 +105,7 @@ const SidebarSection = ({ title }: SidebarSectionProps) => {
 
 export const Sidebar = (): ReactElement => {
   return (
-    <aside className="flex min-h-screen w-60 flex-col border-r border-border-subtlest-tertiary">
+    <aside className="sticky top-0 flex h-screen w-60 flex-col border-r border-border-subtlest-tertiary">
       <SidebarScrollWrapper>
         <Header />
         <CompanyBadge />

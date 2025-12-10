@@ -7,7 +7,6 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useRouter } from 'next/router';
 import { OpportunityPreviewProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { ContentSidebar } from '@dailydotdev/shared/src/features/opportunity/components/analyze/ContentSidebar';
 import { UserTableWrapper } from '@dailydotdev/shared/src/features/opportunity/components/analyze/UserTableWrapper';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
@@ -50,7 +49,7 @@ const RecruiterPageContent = () => {
       />
       <RecruiterProgress />
       <div className="flex flex-1">
-        <ContentSidebar loadingStep={loadingStep} apiUrl={apiUrl} />
+        <ContentSidebar loadingStep={loadingStep} />
         <UserTableWrapper loadingStep={loadingStep} />
       </div>
     </div>
