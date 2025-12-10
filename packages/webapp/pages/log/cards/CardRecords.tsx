@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import cardStyles from './Cards.module.css';
+import ShareStatButton from './ShareStatButton';
 
 interface CardProps {
   data: LogData;
@@ -20,7 +21,7 @@ const RECORD_ICONS: Record<string, string> = {
 
 const RECORD_COLORS = ['#ff6b35', '#e637bf', '#4d9dff'];
 
-export default function CardRecords({ data }: CardProps): ReactElement {
+export default function CardRecords({ data, isActive }: CardProps): ReactElement {
   return (
     <>
       {/* Trophy header */}
@@ -96,12 +97,19 @@ export default function CardRecords({ data }: CardProps): ReactElement {
         ))}
       </div>
 
+      {/* Share button */}
+      <ShareStatButton
+        delay={1.8}
+        isActive={isActive}
+        statText={`My 2025 records on daily.dev 🏆\n\n${data.records.map((r) => `${RECORD_ICONS[r.type] || '🎯'} ${r.label}: ${r.value}${r.percentile ? ` (TOP ${r.percentile}%)` : ''}`).join('\n')}`}
+      />
+
       {/* Teaser for next card */}
       <motion.div
         className={cardStyles.nextTeaser}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
+        transition={{ delay: 2.0 }}
       >
         <span>Now for the big reveal...</span>
         <motion.span

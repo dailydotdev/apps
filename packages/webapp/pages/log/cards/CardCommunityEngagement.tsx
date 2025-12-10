@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import cardStyles from './Cards.module.css';
+import ShareStatButton from './ShareStatButton';
 
 interface CardProps {
   data: LogData;
@@ -200,6 +201,13 @@ export default function CardCommunityEngagement({
           </div>
         </motion.div>
       )}
+
+      {/* Share button */}
+      <ShareStatButton
+        delay={2.1}
+        isActive={isActive}
+        statText={`Spreading the love on daily.dev 💜\n\n👍 ${data.upvotesGiven} upvotes given\n💬 ${data.commentsWritten} comments\n🔖 ${data.postsBookmarked} bookmarked${bestStat ? `\n\nTOP ${bestStat.value}% ${bestStat.label.toLowerCase()}!` : ''}`}
+      />
     </>
   );
 }

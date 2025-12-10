@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import styles from '../Log.module.css';
+import ShareStatButton from './ShareStatButton';
 
 interface CardProps {
   data: LogData;
@@ -206,6 +207,13 @@ export default function CardTotalImpact({
           <span className={styles.bannerPost}>OF DEVS</span>
         </div>
       </motion.div>
+
+      {/* Share button */}
+      <ShareStatButton
+        delay={2.5}
+        isActive={isActive}
+        statText={`I read ${data.totalPosts.toLocaleString()} posts on daily.dev this year — that's ${data.totalReadingTime} hours of learning! 📚\n\nTOP ${data.totalImpactPercentile}% of developers`}
+      />
     </>
   );
 }

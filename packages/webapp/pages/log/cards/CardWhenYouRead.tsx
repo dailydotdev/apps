@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
+import ShareStatButton from './ShareStatButton';
 
 interface CardProps {
   data: LogData;
@@ -37,7 +38,10 @@ function formatHour(hour: number): string {
   return `${hour - 12} PM`;
 }
 
-export default function CardWhenYouRead({ data }: CardProps): ReactElement {
+export default function CardWhenYouRead({
+  data,
+  isActive,
+}: CardProps): ReactElement {
   // Parse hour for clock visualization - round to nearest hour
   const [hourStr] = data.peakHour.split(':');
   const [, minStr] = data.peakHour.split(':');
@@ -201,6 +205,13 @@ export default function CardWhenYouRead({ data }: CardProps): ReactElement {
           </div>
         </div>
       </motion.div>
+
+      {/* Share button */}
+      <ShareStatButton
+        delay={2.6}
+        isActive={isActive}
+        statText={`My brain peaks at ${data.peakHour} ${PATTERN_EMOJIS[data.readingPattern]}\n\nI'm a ${PATTERN_LABELS[data.readingPattern]} — TOP ${data.patternPercentile}% on daily.dev!`}
+      />
     </>
   );
 }

@@ -5,6 +5,7 @@ import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
+import ShareStatButton from './ShareStatButton';
 
 interface CardProps {
   data: LogData;
@@ -201,6 +202,13 @@ export default function CardTopicEvolution({
           <span className={styles.bannerPost}>OF DEVS</span>
         </div>
       </motion.div>
+
+      {/* Share button */}
+      <ShareStatButton
+        delay={2.1}
+        isActive={isActive}
+        statText={`I explored ${data.uniqueTopics} different topics on daily.dev this year! 🚀\n\nMy big pivot: #${data.topicJourney.find((t) => t.month === data.pivotMonth)?.topic || 'tech'}\n\nMore curious than ${100 - data.evolutionPercentile}% of developers`}
+      />
     </>
   );
 }

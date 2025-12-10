@@ -5,6 +5,7 @@ import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
+import ShareStatButton from './ShareStatButton';
 
 interface CardProps {
   data: LogData;
@@ -158,6 +159,13 @@ export default function CardFavoriteSources({
           <span className={styles.bannerPost}>EXPLORER</span>
         </div>
       </motion.div>
+
+      {/* Share button */}
+      <ShareStatButton
+        delay={2.3}
+        isActive={isActive}
+        statText={`My holy trinity on daily.dev:\n🥇 ${data.topSources[0].name}\n🥈 ${data.topSources[1].name}\n🥉 ${data.topSources[2].name}\n\nI discovered ${data.uniqueSources} sources — TOP ${data.sourcePercentile}% explorer!`}
+      />
     </>
   );
 }

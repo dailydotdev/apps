@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { LogData } from '../types';
 import { ARCHETYPES } from '../types';
 import cardStyles from './Cards.module.css';
+import ShareStatButton from './ShareStatButton';
 
 interface CardProps {
   data: LogData;
@@ -227,6 +228,13 @@ export default function CardArchetypeReveal({
                 <span className={cardStyles.archetypeStatIcon}>⚡</span>
                 <span>{data.archetypeStat}</span>
               </motion.div>
+
+              {/* Share button */}
+              <ShareStatButton
+                delay={1.7}
+                isActive={phase === 'reveal'}
+                statText={`I'm a ${archetype.name.toUpperCase()} ${archetype.emoji} on daily.dev!\n\n"${archetype.description}"\n\n⚡ ${data.archetypeStat}\n\nWhat's your developer archetype?`}
+              />
             </motion.div>
           )}
         </AnimatePresence>
