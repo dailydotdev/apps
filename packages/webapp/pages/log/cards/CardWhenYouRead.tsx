@@ -1,7 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import styles from '../Log.module.css';
+import cardStyles from './Cards.module.css';
 
 interface CardProps {
   data: LogData;
@@ -12,13 +14,18 @@ interface CardProps {
 }
 
 const PATTERN_LABELS: Record<LogData['readingPattern'], string> = {
-  night: 'LATE-NIGHT READERS',
-  early: 'EARLY RISERS',
-  weekend: 'WEEKEND WARRIORS',
-  consistent: 'DAILY CONSISTENCY',
+  night: 'NIGHT OWL',
+  early: 'EARLY BIRD',
+  weekend: 'WEEKEND WARRIOR',
+  consistent: 'CONSISTENCY KING',
 };
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const PATTERN_EMOJIS: Record<LogData['readingPattern'], string> = {
+  night: '🦉',
+  early: '🌅',
+  weekend: '🎮',
+  consistent: '👑',
+};
 
 export default function CardWhenYouRead({
   data,
@@ -26,79 +33,147 @@ export default function CardWhenYouRead({
   cardLabel,
   isActive,
 }: CardProps): ReactElement {
-  // Get level for heatmap cell (0-4)
-  const getLevel = (value: number): string => {
-    if (value === 0) return '';
-    if (value <= 2) return styles.level1;
-    if (value <= 4) return styles.level2;
-    if (value <= 6) return styles.level3;
-    return styles.level4;
-  };
+  // Parse hour for clock visualization
+  const [hourStr] = data.peakHour.split(':');
+  const hour = parseInt(hourStr, 10);
+  const hourAngle = (hour % 12) * 30 - 90; // Clock angle
 
   return (
     <>
       {/* Card indicator */}
-      <div className={styles.cardIndicator}>
+      <motion.div 
+        className={styles.cardIndicator}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
         <span className={styles.cardNum}>
           {String(cardNumber).padStart(2, '0')}
         </span>
         <span className={styles.cardSep}>—</span>
         <span className={styles.cardLabel}>{cardLabel}</span>
-      </div>
+      </motion.div>
 
-      {/* Main headline */}
-      <div className={styles.headlineStack}>
-        <div className={styles.headlineRow}>
-          <span className={styles.headlineSmall}>Your brain was hungriest at</span>
+      {/* Clock visualization */}
+      <motion.div 
+        className={cardStyles.clockContainer}
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ delay: 0.3, type: 'spring', stiffness: 100 }}
+      >
+        <div className={cardStyles.clockFace}>
+          {/* Hour markers */}
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              className={cardStyles.clockMarker}
+              style={{ transform: `rotate(${i * 30}deg)` }}
+            />
+          ))}
+          {/* Hour hand */}
+          <motion.div 
+            className={cardStyles.clockHand}
+            initial={{ rotate: -90 }}
+            animate={{ rotate: hourAngle }}
+            transition={{ delay: 0.8, duration: 1, type: 'spring' }}
+          />
+          {/* Center dot */}
+          <div className={cardStyles.clockCenter} />
+          {/* Time display */}
+          <motion.div 
+            className={cardStyles.clockTime}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2 }}
+          >
+            {data.peakHour}
+          </motion.div>
         </div>
-        <div className={styles.headlineRow}>
-          <span className={styles.headlineBig}>{data.peakHour}</span>
-        </div>
-      </div>
+      </motion.div>
 
-      {/* Secondary stat */}
-      <div className={styles.statsBadges}>
-        <div className={`${styles.badge} ${styles.badgeLarge}`}>
-          <span className={styles.badgeValue}>{data.peakDay}</span>
-          <span className={styles.badgeLabel}>Power Day</span>
-        </div>
-      </div>
+      {/* Headline */}
+      <motion.div 
+        className={styles.headlineStack}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <span className={styles.headlineSmall}>Your brain peaks at</span>
+      </motion.div>
 
-      {/* Heatmap */}
-      <div className={styles.heatmapContainer}>
-        {DAYS.map((day, dayIndex) => (
-          <div key={day} className={styles.heatmapGrid}>
-            {data.activityHeatmap[dayIndex]?.map((value, hourIndex) => (
-              <div
+      {/* Power day badge */}
+      <motion.div 
+        className={cardStyles.powerDayBadge}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1, type: 'spring', stiffness: 200 }}
+      >
+        <span className={cardStyles.powerDayEmoji}>⚡</span>
+        <div>
+          <span className={cardStyles.powerDayLabel}>POWER DAY</span>
+          <span className={cardStyles.powerDayValue}>{data.peakDay}</span>
+        </div>
+      </motion.div>
+
+      {/* Animated heatmap */}
+      <motion.div 
+        className={cardStyles.heatmapWrapper}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+      >
+        <div className={cardStyles.heatmapTitle}>Activity Heat Map</div>
+        <div className={cardStyles.heatmapGrid}>
+          {data.activityHeatmap.map((day, dayIndex) =>
+            day.map((value, hourIndex) => (
+              <motion.div
                 key={`${dayIndex}-${hourIndex}`}
-                className={`${styles.heatmapCell} ${getLevel(value)}`}
-                style={{
-                  animationDelay: isActive
-                    ? `${0.8 + (dayIndex * 24 + hourIndex) * 0.005}s`
-                    : '0s',
+                className={cardStyles.heatmapCell}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ 
+                  opacity: 1, 
+                  scale: 1,
+                  backgroundColor: value === 0 
+                    ? 'rgba(255,255,255,0.1)' 
+                    : `rgba(198, 241, 53, ${Math.min(value / 10, 1)})`
+                }}
+                transition={{ 
+                  delay: 1.3 + (dayIndex * 24 + hourIndex) * 0.003,
+                  duration: 0.2
                 }}
               />
-            ))}
-          </div>
-        ))}
-        <div className={styles.heatmapLabels}>
+            ))
+          )}
+        </div>
+        <div className={cardStyles.heatmapLabels}>
           <span>12am</span>
-          <span>6am</span>
           <span>12pm</span>
-          <span>6pm</span>
           <span>12am</span>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Competitive stat banner */}
-      <div className={styles.celebrationBanner}>
-        <div className={styles.bannerBg} />
-        <div className={styles.bannerContent}>
-          <span className={styles.bannerPre}>TOP</span>
-          <span className={styles.bannerMain}>{data.patternPercentile}%</span>
-          <span className={styles.bannerPost}>{PATTERN_LABELS[data.readingPattern]}</span>
+      {/* Pattern reveal banner */}
+      <motion.div 
+        className={cardStyles.patternBanner}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.8, type: 'spring' }}
+      >
+        <motion.span 
+          className={cardStyles.patternEmoji}
+          animate={{ 
+            rotate: [0, -10, 10, -10, 0],
+            scale: [1, 1.2, 1]
+          }}
+          transition={{ delay: 2, duration: 0.5 }}
+        >
+          {PATTERN_EMOJIS[data.readingPattern]}
+        </motion.span>
+        <div className={cardStyles.patternText}>
+          <span className={cardStyles.patternLabel}>TOP {data.patternPercentile}%</span>
+          <span className={cardStyles.patternName}>{PATTERN_LABELS[data.readingPattern]}</span>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 }

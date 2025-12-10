@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 /**
  * Hook for animating numbers from 0 to target value
@@ -58,8 +58,6 @@ export function useCardNavigation(totalCards: number) {
   const [currentCard, setCurrentCard] = useState(0);
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
   const [isAnimating, setIsAnimating] = useState(false);
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
 
   const goToCard = useCallback(
     (index: number, dir?: 'next' | 'prev') => {
@@ -86,28 +84,6 @@ export function useCardNavigation(totalCards: number) {
       goToCard(currentCard - 1, 'prev');
     }
   }, [currentCard, goToCard]);
-
-  // Touch handlers for swipe navigation
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    const diff = touchStartX.current - touchEndX.current;
-    const threshold = 50;
-
-    if (Math.abs(diff) > threshold) {
-      if (diff > 0) {
-        goNext();
-      } else {
-        goPrev();
-      }
-    }
-  }, [goNext, goPrev]);
 
   // Tap to advance
   const handleTap = useCallback(
@@ -150,9 +126,6 @@ export function useCardNavigation(totalCards: number) {
     goToCard,
     goNext,
     goPrev,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
     handleTap,
   };
 }

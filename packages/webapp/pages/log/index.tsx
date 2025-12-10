@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import Head from 'next/head';
+import { motion, AnimatePresence } from 'framer-motion';
+import ParallaxTilt from 'react-parallax-tilt';
 import { MOCK_LOG_DATA } from './types';
 import type { LogData } from './types';
 import { useCardNavigation } from './hooks';
@@ -20,6 +22,34 @@ import CardShare from './cards/CardShare';
 interface LogPageProps {
   data?: LogData;
 }
+
+const swipeConfidenceThreshold = 10000;
+const swipePower = (offset: number, velocity: number) => {
+  return Math.abs(offset) * velocity;
+};
+
+const cardVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? '100%' : '-100%',
+    opacity: 0,
+    rotate: direction > 0 ? 5 : -5,
+    scale: 0.8,
+  }),
+  center: {
+    zIndex: 1,
+    x: 0,
+    opacity: 1,
+    rotate: 0,
+    scale: 1,
+  },
+  exit: (direction: number) => ({
+    zIndex: 0,
+    x: direction < 0 ? '100%' : '-100%',
+    opacity: 0,
+    rotate: direction < 0 ? 5 : -5,
+    scale: 0.8,
+  }),
+};
 
 export default function LogPage({ data = MOCK_LOG_DATA }: LogPageProps): ReactElement {
   // Build card list (conditionally include contributions)
@@ -49,15 +79,21 @@ export default function LogPage({ data = MOCK_LOG_DATA }: LogPageProps): ReactEl
     return baseCards;
   }, [data.hasContributions]);
 
+  // We only need basic state from the hook now, gestures are handled by Framer Motion
   const {
     currentCard,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
+    direction,
+    goNext,
+    goPrev,
     handleTap,
   } = useCardNavigation(cards.length);
 
   const isLastCard = currentCard === cards.length - 1;
+  const CardComponent = cards[currentCard].component;
+  const currentCardData = cards[currentCard];
+
+  // Determine direction value for variants
+  const directionValue = direction === 'next' ? 1 : -1;
 
   return (
     <>
@@ -75,32 +111,53 @@ export default function LogPage({ data = MOCK_LOG_DATA }: LogPageProps): ReactEl
 
       <div
         className={styles.logContainer}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         onClick={handleTap}
       >
         {/* Background effects */}
         <div className={styles.backgroundBurst} />
 
-        {/* Decorative stars */}
+        {/* Decorative stars - Animated with Framer Motion for smoothness */}
         <div className={styles.decorations}>
-          <div className={`${styles.star} ${styles.star1}`}>✦</div>
-          <div className={`${styles.star} ${styles.star2}`}>★</div>
-          <div className={`${styles.star} ${styles.star3}`}>✴</div>
-          <div className={`${styles.star} ${styles.star4}`}>✦</div>
-          <div className={`${styles.star} ${styles.star5}`}>★</div>
-          <div className={`${styles.star} ${styles.star6}`}>✴</div>
+          {[
+            { className: styles.star1, char: '✦', delay: 0 },
+            { className: styles.star2, char: '★', delay: 0.5 },
+            { className: styles.star3, char: '✴', delay: 1 },
+            { className: styles.star4, char: '✦', delay: 1.5 },
+            { className: styles.star5, char: '★', delay: 2 },
+            { className: styles.star6, char: '✴', delay: 2.5 },
+          ].map((star, i) => (
+            <motion.div
+              key={i}
+              className={`${styles.star} ${star.className}`}
+              animate={{
+                y: [0, -15, 0],
+                rotate: [0, 10, -5, 0],
+              }}
+              transition={{
+                duration: 4 + i * 0.5, // Vary duration
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: star.delay,
+              }}
+            >
+              {star.char}
+            </motion.div>
+          ))}
         </div>
 
         {/* Header with logo and progress */}
         <header className={styles.header}>
-          <div className={styles.logoBadge}>
+          <motion.div 
+            className={styles.logoBadge}
+            initial={{ y: -50, rotate: -10 }}
+            animate={{ y: 0, rotate: -2 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          >
             <img src="/assets/icon-light.svg" alt="daily.dev" className={styles.logo} />
-          </div>
+          </motion.div>
           <div className={styles.progressDots}>
             {cards.map((card, index) => (
-              <div
+              <motion.div
                 key={card.id}
                 className={`${styles.progressDot} ${
                   index === currentCard
@@ -109,42 +166,81 @@ export default function LogPage({ data = MOCK_LOG_DATA }: LogPageProps): ReactEl
                       ? styles.completed
                       : ''
                 }`}
+                animate={{
+                  scale: index === currentCard ? 1.5 : 1,
+                  opacity: index <= currentCard ? 1 : 0.3
+                }}
               />
             ))}
           </div>
         </header>
 
-        {/* Cards */}
+        {/* Cards with AnimatePresence */}
         <div className={styles.cardsWrapper}>
-          {cards.map((card, index) => {
-            const CardComponent = card.component;
-            const isActive = index === currentCard;
+          <AnimatePresence initial={false} custom={directionValue} mode="popLayout">
+            <motion.div
+              key={currentCard}
+              custom={directionValue}
+              variants={cardVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.2 },
+                rotate: { duration: 0.4 },
+                scale: { duration: 0.4 }
+              }}
+              className={styles.card}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={1}
+              onDragEnd={(e, { offset, velocity }) => {
+                const swipe = swipePower(offset.x, velocity.x);
 
-            return (
-              <div
-                key={card.id}
-                className={`${styles.card} ${isActive ? styles.active : ''}`}
+                if (swipe < -swipeConfidenceThreshold) {
+                  goNext();
+                } else if (swipe > swipeConfidenceThreshold) {
+                  goPrev();
+                }
+              }}
+            >
+              <ParallaxTilt
+                tiltMaxAngleX={5}
+                tiltMaxAngleY={5}
+                scale={1}
+                transitionSpeed={2000}
+                className={styles.cardInner}
               >
-                <div className={styles.cardInner}>
-                  <CardComponent
-                    data={data}
-                    cardNumber={index + 1}
-                    totalCards={cards.length}
-                    cardLabel={card.label}
-                    isActive={isActive}
-                  />
-                </div>
-              </div>
-            );
-          })}
+                <CardComponent
+                  data={data}
+                  cardNumber={currentCard + 1}
+                  totalCards={cards.length}
+                  cardLabel={currentCardData.label}
+                  isActive={true} // Always active when mounted in AnimatePresence
+                />
+              </ParallaxTilt>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Navigation prompt */}
         {!isLastCard && (
-          <div className={styles.navPrompt}>
+          <motion.div 
+            className={styles.navPrompt}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2, duration: 0.5 }}
+          >
             <span>Swipe</span>
-            <div className={styles.navArrow}>→</div>
-          </div>
+            <motion.div 
+              className={styles.navArrow}
+              animate={{ x: [0, 5, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+            >
+              →
+            </motion.div>
+          </motion.div>
         )}
       </div>
     </>

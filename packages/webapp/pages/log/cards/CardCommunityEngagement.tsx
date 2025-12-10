@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import styles from '../Log.module.css';
+import cardStyles from './Cards.module.css';
 
 interface CardProps {
   data: LogData;
@@ -12,87 +14,175 @@ interface CardProps {
   isActive: boolean;
 }
 
+// Floating heart component
+function FloatingHeart({ delay, x }: { delay: number; x: number }): ReactElement {
+  return (
+    <motion.div
+      style={{
+        position: 'absolute',
+        left: `${x}%`,
+        bottom: '20%',
+        fontSize: '1.5rem',
+        pointerEvents: 'none',
+      }}
+      initial={{ y: 0, opacity: 0, scale: 0 }}
+      animate={{ 
+        y: -200, 
+        opacity: [0, 1, 1, 0], 
+        scale: [0, 1.2, 1, 0.8],
+        x: [0, Math.random() * 40 - 20]
+      }}
+      transition={{ 
+        duration: 2, 
+        delay,
+        ease: 'easeOut'
+      }}
+    >
+      💜
+    </motion.div>
+  );
+}
+
 export default function CardCommunityEngagement({
   data,
   cardNumber,
   cardLabel,
   isActive,
 }: CardProps): ReactElement {
+  const [showHearts, setShowHearts] = useState(false);
+  
   const animatedUpvotes = useAnimatedNumber(data.upvotesGiven, {
     delay: 500,
     enabled: isActive,
   });
   const animatedComments = useAnimatedNumber(data.commentsWritten, {
-    delay: 700,
+    delay: 800,
     enabled: isActive,
   });
   const animatedBookmarks = useAnimatedNumber(data.postsBookmarked, {
-    delay: 900,
+    delay: 1100,
     enabled: isActive,
   });
 
-  // Find the best percentile to show
+  // Find the best percentile
   const bestStat = [
-    { label: 'UPVOTERS', value: data.upvotePercentile },
-    { label: 'COMMENTERS', value: data.commentPercentile },
-    { label: 'CURATORS', value: data.bookmarkPercentile },
+    { label: 'UPVOTERS', value: data.upvotePercentile, emoji: '💜' },
+    { label: 'COMMENTERS', value: data.commentPercentile, emoji: '💬' },
+    { label: 'CURATORS', value: data.bookmarkPercentile, emoji: '📚' },
   ]
     .filter((s) => s.value !== undefined && s.value <= 50)
     .sort((a, b) => (a.value || 100) - (b.value || 100))[0];
 
+  useEffect(() => {
+    if (isActive) {
+      const timer = setTimeout(() => setShowHearts(true), 1000);
+      return () => clearTimeout(timer);
+    }
+    setShowHearts(false);
+  }, [isActive]);
+
   return (
     <>
+      {/* Floating hearts */}
+      {showHearts && (
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+          {[...Array(12)].map((_, i) => (
+            <FloatingHeart key={i} delay={i * 0.15} x={20 + Math.random() * 60} />
+          ))}
+        </div>
+      )}
+
       {/* Card indicator */}
-      <div className={styles.cardIndicator}>
+      <motion.div 
+        className={styles.cardIndicator}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
         <span className={styles.cardNum}>
           {String(cardNumber).padStart(2, '0')}
         </span>
         <span className={styles.cardSep}>—</span>
         <span className={styles.cardLabel}>{cardLabel}</span>
-      </div>
+      </motion.div>
 
-      {/* Main headline */}
-      <div className={styles.headlineStack}>
-        <div className={styles.headlineRow}>
-          <span className={styles.headlineSmall}>You spread the love</span>
+      {/* Main stat - Upvotes with heart burst */}
+      <motion.div 
+        className={cardStyles.loveContainer}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <motion.div 
+          className={cardStyles.loveEmoji}
+          animate={showHearts ? { 
+            scale: [1, 1.3, 1],
+            rotate: [0, -10, 10, 0]
+          } : {}}
+          transition={{ duration: 0.5 }}
+        >
+          💜
+        </motion.div>
+        <div className={cardStyles.loveStats}>
+          <motion.span 
+            className={cardStyles.loveNumber}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {animatedUpvotes}
+          </motion.span>
+          <span className={cardStyles.loveLabel}>upvotes given</span>
         </div>
-        <div className={styles.headlineRow}>
-          <span className={styles.headlineBigSmall}>{animatedUpvotes}</span>
-        </div>
-        <div className={styles.headlineRow}>
-          <span className={styles.headlineMedium}>UPVOTES</span>
-        </div>
-      </div>
+      </motion.div>
 
-      {/* Divider */}
-      <div className={styles.divider}>
-        <div className={styles.dividerLine} />
-        <div className={styles.dividerIcon}>◆</div>
-        <div className={styles.dividerLine} />
-      </div>
+      {/* Subtitle */}
+      <motion.p 
+        className={cardStyles.loveSubtitle}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+      >
+        spreading the love across the community
+      </motion.p>
 
-      {/* Secondary stats */}
-      <div className={styles.statsBadges}>
-        <div className={styles.badge}>
-          <span className={styles.badgeValue}>{animatedComments}</span>
-          <span className={styles.badgeLabel}>Comments</span>
-        </div>
-        <div className={styles.badge}>
-          <span className={styles.badgeValue}>{animatedBookmarks}</span>
-          <span className={styles.badgeLabel}>Bookmarked</span>
-        </div>
-      </div>
+      {/* Secondary stats as icons */}
+      <motion.div 
+        className={cardStyles.engagementGrid}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+      >
+        <motion.div 
+          className={cardStyles.engagementItem}
+          whileHover={{ scale: 1.1 }}
+        >
+          <span className={cardStyles.engagementEmoji}>💬</span>
+          <span className={cardStyles.engagementValue}>{animatedComments}</span>
+          <span className={cardStyles.engagementLabel}>comments</span>
+        </motion.div>
+        <motion.div 
+          className={cardStyles.engagementItem}
+          whileHover={{ scale: 1.1 }}
+        >
+          <span className={cardStyles.engagementEmoji}>🔖</span>
+          <span className={cardStyles.engagementValue}>{animatedBookmarks}</span>
+          <span className={cardStyles.engagementLabel}>bookmarked</span>
+        </motion.div>
+      </motion.div>
 
-      {/* Competitive stat banner */}
+      {/* Best stat banner */}
       {bestStat && (
-        <div className={styles.celebrationBanner}>
-          <div className={styles.bannerBg} />
-          <div className={styles.bannerContent}>
-            <span className={styles.bannerPre}>TOP</span>
-            <span className={styles.bannerMain}>{bestStat.value}%</span>
-            <span className={styles.bannerPost}>{bestStat.label}</span>
+        <motion.div 
+          className={cardStyles.communityBanner}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.3, type: 'spring' }}
+        >
+          <span className={cardStyles.communityBannerEmoji}>{bestStat.emoji}</span>
+          <div>
+            <span className={cardStyles.communityBannerTop}>TOP {bestStat.value}%</span>
+            <span className={cardStyles.communityBannerLabel}>{bestStat.label}</span>
           </div>
-        </div>
+        </motion.div>
       )}
     </>
   );

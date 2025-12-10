@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import styles from '../Log.module.css';
+import cardStyles from './Cards.module.css';
 
 interface CardProps {
   data: LogData;
@@ -23,79 +25,119 @@ export default function CardContributions({
     enabled: isActive,
   });
   const animatedViews = useAnimatedNumber(data.totalViews || 0, {
-    delay: 700,
+    delay: 800,
     enabled: isActive,
   });
   const animatedComments = useAnimatedNumber(data.commentsReceived || 0, {
-    delay: 900,
+    delay: 1000,
     enabled: isActive,
   });
   const animatedRep = useAnimatedNumber(data.reputationEarned || 0, {
-    delay: 1100,
+    delay: 1200,
     enabled: isActive,
   });
 
   return (
     <>
+      {/* Spotlight effect */}
+      <motion.div 
+        className={cardStyles.spotlight}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2, duration: 0.8 }}
+      />
+
       {/* Card indicator */}
-      <div className={styles.cardIndicator}>
+      <motion.div 
+        className={styles.cardIndicator}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
         <span className={styles.cardNum}>
           {String(cardNumber).padStart(2, '0')}
         </span>
         <span className={styles.cardSep}>—</span>
         <span className={styles.cardLabel}>{cardLabel}</span>
-      </div>
+      </motion.div>
 
-      {/* Main headline */}
-      <div className={styles.headlineStack}>
-        <div className={styles.headlineRow}>
-          <span className={styles.headlineSmall}>You created</span>
-        </div>
-        <div className={styles.headlineRow}>
-          <span className={styles.headlineBig}>{animatedPosts}</span>
-        </div>
-        <div className={styles.headlineRow}>
-          <span className={styles.headlineMedium}>POSTS</span>
-        </div>
-      </div>
+      {/* Creator spotlight header */}
+      <motion.div 
+        className={cardStyles.creatorHeader}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <span className={cardStyles.creatorStar}>⭐</span>
+        <span className={cardStyles.creatorTitle}>CREATOR SPOTLIGHT</span>
+        <span className={cardStyles.creatorStar}>⭐</span>
+      </motion.div>
 
-      {/* Divider */}
-      <div className={styles.divider}>
-        <div className={styles.dividerLine} />
-        <div className={styles.dividerIcon}>◆</div>
-        <div className={styles.dividerLine} />
-      </div>
+      {/* Main stat */}
+      <motion.div 
+        className={cardStyles.creatorMain}
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
+      >
+        <span className={cardStyles.creatorNumber}>{animatedPosts}</span>
+        <span className={cardStyles.creatorLabel}>POSTS CREATED</span>
+      </motion.div>
 
-      {/* Stats grid */}
-      <div className={styles.statsBadges}>
-        <div className={styles.badge}>
-          <span className={styles.badgeValue}>
-            {animatedViews.toLocaleString()}
-          </span>
-          <span className={styles.badgeLabel}>Views</span>
-        </div>
-        <div className={styles.badge}>
-          <span className={styles.badgeValue}>{animatedComments}</span>
-          <span className={styles.badgeLabel}>Comments</span>
-        </div>
-        <div className={styles.badge}>
-          <span className={styles.badgeValue}>
-            {animatedRep.toLocaleString()}
-          </span>
-          <span className={styles.badgeLabel}>Reputation</span>
-        </div>
-      </div>
+      {/* Impact metrics */}
+      <motion.div 
+        className={cardStyles.impactGrid}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+      >
+        <motion.div 
+          className={cardStyles.impactItem}
+          initial={{ x: -30, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.9 }}
+        >
+          <span className={cardStyles.impactIcon}>👁️</span>
+          <span className={cardStyles.impactValue}>{animatedViews.toLocaleString()}</span>
+          <span className={cardStyles.impactLabel}>views</span>
+        </motion.div>
+        
+        <motion.div 
+          className={cardStyles.impactItem}
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 1.0 }}
+        >
+          <span className={cardStyles.impactIcon}>💬</span>
+          <span className={cardStyles.impactValue}>{animatedComments}</span>
+          <span className={cardStyles.impactLabel}>comments</span>
+        </motion.div>
+        
+        <motion.div 
+          className={cardStyles.impactItem}
+          initial={{ x: 30, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 1.1 }}
+        >
+          <span className={cardStyles.impactIcon}>⚡</span>
+          <span className={cardStyles.impactValue}>{animatedRep.toLocaleString()}</span>
+          <span className={cardStyles.impactLabel}>reputation</span>
+        </motion.div>
+      </motion.div>
 
-      {/* Competitive stat banner */}
+      {/* Creator ranking */}
       {data.creatorPercentile && (
-        <div className={styles.celebrationBanner}>
-          <div className={styles.bannerBg} />
-          <div className={styles.bannerContent}>
-            <span className={styles.bannerPre}>TOP</span>
-            <span className={styles.bannerMain}>{data.creatorPercentile}%</span>
-            <span className={styles.bannerPost}>CONTENT CREATOR</span>
+        <motion.div 
+          className={cardStyles.creatorRank}
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.4, type: 'spring', stiffness: 200 }}
+        >
+          <span className={cardStyles.creatorRankBadge}>🏆</span>
+          <div>
+            <span className={cardStyles.creatorRankTop}>TOP {data.creatorPercentile}%</span>
+            <span className={cardStyles.creatorRankLabel}>CONTENT CREATOR</span>
           </div>
-        </div>
+        </motion.div>
       )}
     </>
   );

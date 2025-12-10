@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import { ARCHETYPES } from '../types';
 import styles from '../Log.module.css';
+import cardStyles from './Cards.module.css';
 
 interface CardProps {
   data: LogData;
@@ -17,12 +19,13 @@ export default function CardShare({
   cardNumber,
   cardLabel,
 }: CardProps): ReactElement {
+  const [copied, setCopied] = useState(false);
   const archetype = ARCHETYPES[data.archetype];
 
   const shareText = `I'm a ${archetype.name.toUpperCase()} ${archetype.emoji} on daily.dev
 
 📚 ${data.totalPosts.toLocaleString()} posts read
-🔥 ${data.records.find((r) => r.type === 'streak')?.value || 'Epic'} streak
+🔥 ${data.records.find((r) => r.type === 'streak')?.value || 'Epic streak'}
 ⚡ ${data.archetypeStat}
 
 What's your developer archetype?
@@ -48,13 +51,14 @@ What's your developer archetype?
         case 'copy':
           try {
             await navigator.clipboard.writeText(shareText);
-            // Could add toast notification here
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
           } catch {
-            // Fallback for older browsers
+            // Fallback
           }
           break;
         case 'download':
-          // TODO: Implement image generation and download
+          // TODO: Implement image generation
           break;
       }
     },
@@ -64,82 +68,119 @@ What's your developer archetype?
   return (
     <>
       {/* Card indicator */}
-      <div className={styles.cardIndicator}>
+      <motion.div 
+        className={styles.cardIndicator}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
         <span className={styles.cardNum}>
           {String(cardNumber).padStart(2, '0')}
         </span>
         <span className={styles.cardSep}>—</span>
         <span className={styles.cardLabel}>{cardLabel}</span>
-      </div>
+      </motion.div>
 
-      <div className={styles.shareCard}>
-        <h2 className={styles.shareHeader}>Time to flex.</h2>
+      <div className={cardStyles.shareContainer}>
+        {/* Header */}
+        <motion.h2 
+          className={cardStyles.shareTitle}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          Time to flex 💪
+        </motion.h2>
 
-        {/* Preview card */}
-        <div className={styles.sharePreview}>
-          <div className={styles.shareArchetype}>
-            {archetype.emoji} {archetype.name.toUpperCase()}
+        {/* Phone frame mockup */}
+        <motion.div 
+          className={cardStyles.phoneFrame}
+          initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
+          animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+          transition={{ delay: 0.4, type: 'spring', stiffness: 100 }}
+        >
+          <div className={cardStyles.phoneNotch} />
+          <div className={cardStyles.phoneScreen}>
+            {/* Mini preview of share content */}
+            <div className={cardStyles.previewContent}>
+              <span className={cardStyles.previewLogo}>daily.dev</span>
+              <span className={cardStyles.previewEmoji}>{archetype.emoji}</span>
+              <span className={cardStyles.previewArchetype}>{archetype.name}</span>
+              <div className={cardStyles.previewStats}>
+                <span>📚 {data.totalPosts}</span>
+                <span>🔥 {data.records.find((r) => r.type === 'streak')?.value || '—'}</span>
+              </div>
+            </div>
           </div>
-
-          <div className={styles.shareStats}>
-            <div className={styles.shareStat}>
-              <div className={styles.shareStatValue}>
-                {data.totalPosts.toLocaleString()}
-              </div>
-              <div className={styles.shareStatLabel}>Posts</div>
-            </div>
-            <div className={styles.shareStat}>
-              <div className={styles.shareStatValue}>
-                {data.records.find((r) => r.type === 'streak')?.value || '—'}
-              </div>
-              <div className={styles.shareStatLabel}>Streak</div>
-            </div>
-            <div className={styles.shareStat}>
-              <div className={styles.shareStatValue}>
-                #{data.globalRank.toLocaleString()}
-              </div>
-              <div className={styles.shareStatLabel}>Rank</div>
-            </div>
-          </div>
-        </div>
+        </motion.div>
 
         {/* Share buttons */}
-        <div className={styles.shareButtons}>
-          <button
-            type="button"
-            className={styles.shareButton}
+        <motion.div 
+          className={cardStyles.shareButtons}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          <motion.button
+            className={`${cardStyles.shareButton} ${cardStyles.shareLinkedIn}`}
             onClick={() => handleShare('linkedin')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            LinkedIn
-          </button>
-          <button
-            type="button"
-            className={styles.shareButton}
+            <span>LinkedIn</span>
+          </motion.button>
+          <motion.button
+            className={`${cardStyles.shareButton} ${cardStyles.shareTwitter}`}
             onClick={() => handleShare('twitter')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Twitter/X
-          </button>
-          <button
-            type="button"
-            className={styles.shareButton}
+            <span>Twitter/X</span>
+          </motion.button>
+          <motion.button
+            className={`${cardStyles.shareButton} ${cardStyles.shareCopy}`}
             onClick={() => handleShare('copy')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Copy Link
-          </button>
-          <button
-            type="button"
-            className={styles.shareButton}
+            <span>{copied ? '✓ Copied!' : 'Copy'}</span>
+          </motion.button>
+          <motion.button
+            className={`${cardStyles.shareButton} ${cardStyles.shareDownload}`}
             onClick={() => handleShare('download')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Download
-          </button>
-        </div>
+            <span>Download</span>
+          </motion.button>
+        </motion.div>
 
         {/* Social proof */}
-        <p className={styles.socialProof}>
-          <strong>{data.shareCount.toLocaleString()}</strong> developers have
-          shared their Log
-        </p>
+        <motion.div 
+          className={cardStyles.socialProof}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+        >
+          <motion.span 
+            className={cardStyles.socialProofNumber}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 1.2, type: 'spring' }}
+          >
+            {data.shareCount.toLocaleString()}
+          </motion.span>
+          <span>developers have shared their Log</span>
+        </motion.div>
+
+        {/* Restart hint */}
+        <motion.div 
+          className={cardStyles.restartHint}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+        >
+          <span>Swipe back to revisit your journey</span>
+        </motion.div>
       </div>
     </>
   );

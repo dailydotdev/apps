@@ -1,7 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import styles from '../Log.module.css';
+import cardStyles from './Cards.module.css';
 
 interface CardProps {
   data: LogData;
@@ -10,6 +12,17 @@ interface CardProps {
   cardLabel: string;
   isActive: boolean;
 }
+
+const RECORD_ICONS: Record<string, string> = {
+  streak: '🔥',
+  binge: '📚',
+  lateNight: '🌙',
+  earlyMorning: '🌅',
+  consistency: '📅',
+  marathon: '🏃',
+};
+
+const RECORD_COLORS = ['#ff6b35', '#e637bf', '#4d9dff'];
 
 export default function CardRecords({
   data,
@@ -20,51 +33,94 @@ export default function CardRecords({
   return (
     <>
       {/* Card indicator */}
-      <div className={styles.cardIndicator}>
+      <motion.div 
+        className={styles.cardIndicator}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
         <span className={styles.cardNum}>
           {String(cardNumber).padStart(2, '0')}
         </span>
         <span className={styles.cardSep}>—</span>
         <span className={styles.cardLabel}>{cardLabel}</span>
-      </div>
+      </motion.div>
 
-      {/* Main headline */}
-      <div className={styles.headlineStack}>
-        <div className={styles.headlineRow}>
-          <span className={styles.headlineSmall}>Your 2025</span>
-        </div>
-        <div className={styles.headlineRow}>
-          <span className={styles.headlineMedium}>PERSONAL BESTS</span>
-        </div>
-      </div>
+      {/* Trophy header */}
+      <motion.div 
+        className={cardStyles.trophyHeader}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+      >
+        <motion.span 
+          className={cardStyles.trophyEmoji}
+          animate={{ 
+            rotate: [0, -10, 10, -10, 0],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
+          🏆
+        </motion.span>
+        <span className={cardStyles.trophyTitle}>PERSONAL BESTS</span>
+      </motion.div>
 
-      {/* Records list */}
-      <div className={styles.recordsList}>
+      {/* Records as trophy cards */}
+      <div className={cardStyles.recordsGrid}>
         {data.records.map((record, index) => (
-          <div
+          <motion.div
             key={record.type}
-            className={styles.recordItem}
-            style={{
-              animationDelay: isActive ? `${0.6 + index * 0.2}s` : '0s',
-            }}
+            className={cardStyles.recordCard}
+            style={{ borderColor: RECORD_COLORS[index] }}
+            initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50, rotate: index % 2 === 0 ? -5 : 5 }}
+            animate={{ opacity: 1, x: 0, rotate: 0 }}
+            transition={{ delay: 0.4 + index * 0.2, type: 'spring', stiffness: 100 }}
+            whileHover={{ scale: 1.05, rotate: index % 2 === 0 ? 2 : -2 }}
           >
-            <div>
-              <div className={styles.recordLabel}>{record.label}</div>
-              <div className={styles.recordValue}>{record.value}</div>
+            <motion.span 
+              className={cardStyles.recordIcon}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.6 + index * 0.2, type: 'spring', stiffness: 300 }}
+            >
+              {RECORD_ICONS[record.type] || '🎯'}
+            </motion.span>
+            
+            <div className={cardStyles.recordContent}>
+              <span className={cardStyles.recordLabel}>{record.label}</span>
+              <span className={cardStyles.recordValue}>{record.value}</span>
             </div>
+            
             {record.percentile && (
-              <div className={styles.recordBadge}>TOP {record.percentile}%</div>
+              <motion.span 
+                className={cardStyles.recordBadge}
+                style={{ background: RECORD_COLORS[index] }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.8 + index * 0.2, type: 'spring' }}
+              >
+                TOP {record.percentile}%
+              </motion.span>
             )}
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Divider */}
-      <div className={styles.divider}>
-        <div className={styles.dividerLine} />
-        <div className={styles.dividerIcon}>◆</div>
-        <div className={styles.dividerLine} />
-      </div>
+      {/* Teaser for next card */}
+      <motion.div 
+        className={cardStyles.nextTeaser}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
+      >
+        <span>Now for the big reveal...</span>
+        <motion.span
+          animate={{ x: [0, 5, 0] }}
+          transition={{ repeat: Infinity, duration: 1 }}
+        >
+          →
+        </motion.span>
+      </motion.div>
     </>
   );
 }

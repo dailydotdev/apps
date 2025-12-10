@@ -106,21 +106,7 @@
   padding-bottom: 5rem;
   overflow-y: auto;
   overflow-x: hidden;
-  opacity: 0;
-  transform: translateX(100%);
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
-}
-
-.card.active {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
-}
-
-.card.exiting {
-  opacity: 0;
-  transform: translateX(-100%);
+  /* Framer Motion handles opacity/transform */
 }
 
 .cardInner {
@@ -129,6 +115,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  perspective: 1000px; /* Enable 3D space for children */
 }
 
 /* ========================================
