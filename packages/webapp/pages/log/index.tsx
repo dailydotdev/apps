@@ -3,7 +3,7 @@ import React, { useMemo, useEffect } from 'react';
 import Head from 'next/head';
 import { motion, AnimatePresence } from 'framer-motion';
 import ParallaxTilt from 'react-parallax-tilt';
-import { MOCK_LOG_DATA } from './types';
+import { MOCK_LOG_DATA, ARCHETYPES } from './types';
 import type { LogData } from './types';
 import { useCardNavigation } from './hooks';
 import styles from './Log.module.css';
@@ -18,6 +18,134 @@ import CardContributions from './cards/CardContributions';
 import CardRecords from './cards/CardRecords';
 import CardArchetypeReveal from './cards/CardArchetypeReveal';
 import CardShare from './cards/CardShare';
+
+// Per-card theme configurations for subtle variety
+interface CardTheme {
+  bgColor: string;
+  burstColor: string;
+  decorations: { char: string; color: string }[];
+}
+
+const CARD_THEMES: Record<string, CardTheme> = {
+  'total-impact': {
+    bgColor: '#1a0a2e',
+    burstColor: 'rgba(230, 55, 191, 0.08)',
+    decorations: [
+      { char: '✦', color: '#f7c948' },
+      { char: '★', color: '#c6f135' },
+      { char: '✴', color: '#e637bf' },
+      { char: '✦', color: '#ff6b35' },
+      { char: '★', color: '#c6f135' },
+      { char: '✴', color: '#f7c948' },
+    ],
+  },
+  'when-you-read': {
+    bgColor: '#0f0a2e',
+    burstColor: 'rgba(77, 157, 255, 0.08)',
+    decorations: [
+      { char: '✧', color: '#4d9dff' },
+      { char: '★', color: '#a0c4ff' },
+      { char: '◇', color: '#c6f135' },
+      { char: '✦', color: '#4d9dff' },
+      { char: '✧', color: '#ffffff' },
+      { char: '★', color: '#a0c4ff' },
+    ],
+  },
+  'topic-evolution': {
+    bgColor: '#0a1a2a',
+    burstColor: 'rgba(198, 241, 53, 0.06)',
+    decorations: [
+      { char: '◆', color: '#c6f135' },
+      { char: '▸', color: '#00d4ff' },
+      { char: '✦', color: '#c6f135' },
+      { char: '◆', color: '#00d4ff' },
+      { char: '▸', color: '#c6f135' },
+      { char: '✴', color: '#f7c948' },
+    ],
+  },
+  'favorite-sources': {
+    bgColor: '#1a0a1e',
+    burstColor: 'rgba(255, 107, 53, 0.08)',
+    decorations: [
+      { char: '♦', color: '#ff6b35' },
+      { char: '★', color: '#f7c948' },
+      { char: '✦', color: '#ff6b35' },
+      { char: '♦', color: '#f7c948' },
+      { char: '✴', color: '#e637bf' },
+      { char: '★', color: '#ff6b35' },
+    ],
+  },
+  community: {
+    bgColor: '#1a0a3a',
+    burstColor: 'rgba(168, 85, 247, 0.08)',
+    decorations: [
+      { char: '✦', color: '#a855f7' },
+      { char: '◇', color: '#e637bf' },
+      { char: '★', color: '#a855f7' },
+      { char: '✴', color: '#e637bf' },
+      { char: '✦', color: '#c6f135' },
+      { char: '◇', color: '#a855f7' },
+    ],
+  },
+  contributions: {
+    bgColor: '#1e0a1a',
+    burstColor: 'rgba(255, 107, 53, 0.1)',
+    decorations: [
+      { char: '✴', color: '#ff6b35' },
+      { char: '★', color: '#f7c948' },
+      { char: '✦', color: '#ff6b35' },
+      { char: '✴', color: '#c6f135' },
+      { char: '★', color: '#ff6b35' },
+      { char: '✦', color: '#f7c948' },
+    ],
+  },
+  records: {
+    bgColor: '#1a0a20',
+    burstColor: 'rgba(247, 201, 72, 0.08)',
+    decorations: [
+      { char: '★', color: '#f7c948' },
+      { char: '✦', color: '#ff6b35' },
+      { char: '◆', color: '#f7c948' },
+      { char: '★', color: '#c6f135' },
+      { char: '✴', color: '#f7c948' },
+      { char: '✦', color: '#ff6b35' },
+    ],
+  },
+  archetype: {
+    bgColor: '#1a0a2e', // Will be overridden dynamically
+    burstColor: 'rgba(230, 55, 191, 0.1)',
+    decorations: [
+      { char: '✦', color: '#f7c948' },
+      { char: '★', color: '#c6f135' },
+      { char: '✴', color: '#e637bf' },
+      { char: '✦', color: '#ff6b35' },
+      { char: '★', color: '#c6f135' },
+      { char: '✴', color: '#f7c948' },
+    ],
+  },
+  share: {
+    bgColor: '#1a0a2e',
+    burstColor: 'rgba(198, 241, 53, 0.08)',
+    decorations: [
+      { char: '✧', color: '#c6f135' },
+      { char: '★', color: '#f7c948' },
+      { char: '✦', color: '#e637bf' },
+      { char: '✧', color: '#ff6b35' },
+      { char: '★', color: '#c6f135' },
+      { char: '✴', color: '#f7c948' },
+    ],
+  },
+};
+
+// Star positions (consistent across cards)
+const STAR_POSITIONS = [
+  { top: '12%', left: '8%', size: '1.75rem', delay: 0 },
+  { top: '22%', right: '12%', size: '1.25rem', delay: 0.5 },
+  { bottom: '28%', left: '6%', size: '1.5rem', delay: 1 },
+  { bottom: '18%', right: '10%', size: '1.75rem', delay: 1.5 },
+  { top: '45%', left: '4%', size: '1rem', delay: 2 },
+  { top: '55%', right: '5%', size: '1.25rem', delay: 2.5 },
+];
 
 interface LogPageProps {
   data?: LogData;
@@ -51,15 +179,17 @@ const cardVariants = {
   }),
 };
 
-export default function LogPage({ data = MOCK_LOG_DATA }: LogPageProps): ReactElement {
+export default function LogPage({
+  data = MOCK_LOG_DATA,
+}: LogPageProps): ReactElement {
   // Prevent horizontal scrollbar on the page
   useEffect(() => {
     const originalHtmlOverflow = document.documentElement.style.overflow;
     const originalBodyOverflow = document.body.style.overflow;
-    
+
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
-    
+
     return () => {
       document.documentElement.style.overflow = originalHtmlOverflow;
       document.body.style.overflow = originalBodyOverflow;
@@ -69,129 +199,199 @@ export default function LogPage({ data = MOCK_LOG_DATA }: LogPageProps): ReactEl
   // Build card list (conditionally include contributions)
   const cards = useMemo(() => {
     const baseCards = [
-      { id: 'total-impact', label: 'TOTAL IMPACT', component: CardTotalImpact },
-      { id: 'when-you-read', label: 'WHEN YOU READ', component: CardWhenYouRead },
-      { id: 'topic-evolution', label: 'TOPIC EVOLUTION', component: CardTopicEvolution },
-      { id: 'favorite-sources', label: 'FAVORITE SOURCES', component: CardFavoriteSources },
-      { id: 'community', label: 'COMMUNITY', component: CardCommunityEngagement },
+      { id: 'total-impact', component: CardTotalImpact },
+      { id: 'when-you-read', component: CardWhenYouRead },
+      { id: 'topic-evolution', component: CardTopicEvolution },
+      { id: 'favorite-sources', component: CardFavoriteSources },
+      { id: 'community', component: CardCommunityEngagement },
     ];
 
     if (data.hasContributions) {
       baseCards.push({
         id: 'contributions',
-        label: 'YOUR CONTRIBUTIONS',
         component: CardContributions,
       });
     }
 
     baseCards.push(
-      { id: 'records', label: 'YOUR RECORDS', component: CardRecords },
-      { id: 'archetype', label: 'YOUR ARCHETYPE', component: CardArchetypeReveal },
-      { id: 'share', label: 'SHARE', component: CardShare },
+      { id: 'records', component: CardRecords },
+      { id: 'archetype', component: CardArchetypeReveal },
+      { id: 'share', component: CardShare },
     );
 
     return baseCards;
   }, [data.hasContributions]);
 
   // We only need basic state from the hook now, gestures are handled by Framer Motion
-  const {
-    currentCard,
-    direction,
-    goNext,
-    goPrev,
-    handleTap,
-  } = useCardNavigation(cards.length);
+  const { currentCard, direction, goNext, goPrev, handleTap } =
+    useCardNavigation(cards.length);
 
   const isLastCard = currentCard === cards.length - 1;
   const CardComponent = cards[currentCard].component;
-  const currentCardData = cards[currentCard];
 
   // Determine direction value for variants
   const directionValue = direction === 'next' ? 1 : -1;
+
+  // Get current card's theme (with archetype-specific override)
+  const currentCardId = cards[currentCard].id;
+  const currentTheme = useMemo(() => {
+    const baseTheme = CARD_THEMES[currentCardId] || CARD_THEMES['total-impact'];
+
+    // Special handling for archetype card - tint based on user's archetype
+    if (currentCardId === 'archetype') {
+      const archetypeColor = ARCHETYPES[data.archetype].color;
+      return {
+        ...baseTheme,
+        burstColor: `${archetypeColor}15`, // 15 = ~8% opacity in hex
+        decorations: baseTheme.decorations.map((d, i) => ({
+          ...d,
+          color: i % 2 === 0 ? archetypeColor : d.color,
+        })),
+      };
+    }
+
+    return baseTheme;
+  }, [currentCardId, data.archetype]);
 
   return (
     <>
       <Head>
         <title>Your 2025 Log | daily.dev</title>
         <meta name="description" content="Your year in review on daily.dev" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Space+Mono:wght@400;700&display=swap"
           rel="stylesheet"
         />
       </Head>
 
-      <div
+      <motion.div
         className={styles.logContainer}
         onClick={handleTap}
+        animate={{
+          backgroundColor: currentTheme.bgColor,
+        }}
+        transition={{
+          duration: 0.6,
+          ease: 'easeInOut',
+        }}
       >
-        {/* Background effects */}
-        <div className={styles.backgroundBurst} />
+        {/* Background effects - animated burst color */}
+        <motion.div
+          className={styles.backgroundBurst}
+          animate={{
+            background: `repeating-conic-gradient(
+              from 0deg at 50% 50%,
+              ${currentTheme.bgColor} 0deg 10deg,
+              ${currentTheme.burstColor} 10deg 20deg
+            )`,
+          }}
+          transition={{
+            duration: 0.8,
+            ease: 'easeInOut',
+          }}
+        />
 
-        {/* Decorative stars - Animated with Framer Motion for smoothness */}
+        {/* Decorative stars - Animated with per-card theming */}
         <div className={styles.decorations}>
-          {[
-            { className: styles.star1, char: '✦', delay: 0 },
-            { className: styles.star2, char: '★', delay: 0.5 },
-            { className: styles.star3, char: '✴', delay: 1 },
-            { className: styles.star4, char: '✦', delay: 1.5 },
-            { className: styles.star5, char: '★', delay: 2 },
-            { className: styles.star6, char: '✴', delay: 2.5 },
-          ].map((star, i) => (
-            <motion.div
-              key={i}
-              className={`${styles.star} ${star.className}`}
-              animate={{
-                y: [0, -15, 0],
-                rotate: [0, 10, -5, 0],
-              }}
-              transition={{
-                duration: 4 + i * 0.5, // Vary duration
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: star.delay,
-              }}
-            >
-              {star.char}
-            </motion.div>
-          ))}
+          {STAR_POSITIONS.map((pos, i) => {
+            const decoration = currentTheme.decorations[i];
+            const positionKey = `${pos.top || ''}-${pos.bottom || ''}-${
+              pos.left || ''
+            }-${pos.right || ''}-${pos.size}`;
+            return (
+              <motion.div
+                key={`star-${positionKey}`}
+                className={styles.star}
+                style={{
+                  top: pos.top,
+                  left: pos.left,
+                  right: pos.right,
+                  bottom: pos.bottom,
+                  fontSize: pos.size,
+                }}
+                animate={{
+                  y: [0, -15, 0],
+                  rotate: [0, 10, -5, 0],
+                  color: decoration.color,
+                }}
+                transition={{
+                  y: {
+                    duration: 4 + i * 0.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                    delay: pos.delay,
+                  },
+                  rotate: {
+                    duration: 4 + i * 0.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                    delay: pos.delay,
+                  },
+                  color: {
+                    duration: 0.5,
+                    ease: 'easeInOut',
+                  },
+                }}
+              >
+                {decoration.char}
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Header with logo and progress */}
         <header className={styles.header}>
-          <motion.div 
+          <motion.div
             className={styles.logoBadge}
             initial={{ y: -50, rotate: -10 }}
             animate={{ y: 0, rotate: -2 }}
-            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
           >
-            <img src="/assets/icon-light.svg" alt="daily.dev" className={styles.logo} />
+            <img
+              src="/assets/icon-light.svg"
+              alt="daily.dev"
+              className={styles.logo}
+            />
           </motion.div>
           <div className={styles.progressDots}>
-            {cards.map((card, index) => (
-              <motion.div
-                key={card.id}
-                className={`${styles.progressDot} ${
-                  index === currentCard
-                    ? styles.active
-                    : index < currentCard
-                      ? styles.completed
-                      : ''
-                }`}
-                animate={{
-                  scale: index === currentCard ? 1.5 : 1,
-                  opacity: index <= currentCard ? 1 : 0.3
-                }}
-              />
-            ))}
+            {cards.map((card, index) => {
+              let className = styles.progressDot;
+              if (index === currentCard) {
+                className += ` ${styles.active}`;
+              } else if (index < currentCard) {
+                className += ` ${styles.completed}`;
+              }
+              return (
+                <motion.div
+                  key={card.id}
+                  className={className}
+                  animate={{
+                    scale: index === currentCard ? 1.5 : 1,
+                    opacity: index <= currentCard ? 1 : 0.3,
+                  }}
+                />
+              );
+            })}
           </div>
         </header>
 
         {/* Cards with AnimatePresence */}
         <div className={styles.cardsWrapper}>
-          <AnimatePresence initial={false} custom={directionValue} mode="popLayout">
+          <AnimatePresence
+            initial={false}
+            custom={directionValue}
+            mode="popLayout"
+          >
             <motion.div
               key={currentCard}
               custom={directionValue}
@@ -200,10 +400,10 @@ export default function LogPage({ data = MOCK_LOG_DATA }: LogPageProps): ReactEl
               animate="center"
               exit="exit"
               transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
+                x: { type: 'spring', stiffness: 300, damping: 30 },
                 opacity: { duration: 0.2 },
                 rotate: { duration: 0.4 },
-                scale: { duration: 0.4 }
+                scale: { duration: 0.4 },
               }}
               className={styles.card}
               drag="x"
@@ -228,10 +428,7 @@ export default function LogPage({ data = MOCK_LOG_DATA }: LogPageProps): ReactEl
               >
                 <CardComponent
                   data={data}
-                  cardNumber={currentCard + 1}
-                  totalCards={cards.length}
-                  cardLabel={currentCardData.label}
-                  isActive={true} // Always active when mounted in AnimatePresence
+                  isActive // Always active when mounted in AnimatePresence
                 />
               </ParallaxTilt>
             </motion.div>
@@ -240,23 +437,27 @@ export default function LogPage({ data = MOCK_LOG_DATA }: LogPageProps): ReactEl
 
         {/* Navigation prompt */}
         {!isLastCard && (
-          <motion.div 
+          <motion.div
             className={styles.navPrompt}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2, duration: 0.5 }}
           >
             <span>Swipe</span>
-            <motion.div 
+            <motion.div
               className={styles.navArrow}
               animate={{ x: [0, 5, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.5,
+                ease: 'easeInOut',
+              }}
             >
               →
             </motion.div>
           </motion.div>
         )}
-      </div>
+      </motion.div>
     </>
   );
 }

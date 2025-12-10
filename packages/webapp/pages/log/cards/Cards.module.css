@@ -95,7 +95,8 @@
   display: block;
 }
 
-.heatmapWrapper {
+/* Hour Distribution Chart */
+.hourDistWrapper {
   width: 100%;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
@@ -103,35 +104,85 @@
   margin: 0.5rem 0;
 }
 
-.heatmapTitle {
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--fest-white-50, rgba(255,255,255,0.5));
-  margin-bottom: 0.75rem;
-}
-
-.heatmapGrid {
-  display: grid;
-  grid-template-columns: repeat(24, 1fr);
+.hourDistBars {
+  display: flex;
+  align-items: flex-end;
   gap: 2px;
-  margin-bottom: 2px;
+  height: 48px;
 }
 
-.heatmapCell {
-  aspect-ratio: 1;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.1);
+.hourDistBar {
+  flex: 1;
+  background: var(--fest-white-30, rgba(255,255,255,0.3));
+  border-radius: 2px 2px 0 0;
+  transform-origin: bottom;
+  min-height: 2px;
+  height: 100%;
 }
 
-.heatmapLabels {
+.hourDistBarPeak {
+  background: var(--fest-lime, #c6f135);
+  box-shadow: 0 0 8px var(--fest-lime, #c6f135);
+}
+
+.hourDistLabels {
   display: flex;
   justify-content: space-between;
   font-size: 0.5rem;
   color: var(--fest-white-30, rgba(255,255,255,0.3));
   margin-top: 0.5rem;
+  padding: 0 2px;
 }
 
+/* Combined Stats Row (Power Day + Pattern) */
+.whenStatsRow {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: linear-gradient(135deg, var(--fest-primary, #ff6b35), var(--fest-accent, #e637bf));
+  border-radius: 8px;
+  padding: 0.625rem 0.75rem;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.whenStatItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.whenStatEmoji {
+  font-size: 1.5rem;
+}
+
+.whenStatContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.whenStatLabel {
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+
+.whenStatValue {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.whenStatDivider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.3);
+  margin: 0 0.5rem;
+  align-self: stretch;
+}
+
+/* Legacy - kept for potential reuse */
 .patternBanner {
   display: flex;
   align-items: center;
@@ -909,9 +960,26 @@
     bottom: -25px;
   }
 
-  .heatmapWrapper {
+  .hourDistWrapper {
     padding: 0.5rem;
     margin: 0.25rem 0;
+  }
+
+  .hourDistBars {
+    height: 40px;
+  }
+
+  .whenStatsRow {
+    padding: 0.5rem 0.625rem;
+    margin-top: 0.375rem;
+  }
+
+  .whenStatEmoji {
+    font-size: 1.25rem;
+  }
+
+  .whenStatValue {
+    font-size: 0.75rem;
   }
 
   .patternBanner {
@@ -1029,6 +1097,26 @@
 
   .clockTime {
     font-size: 1.25rem;
+  }
+
+  .hourDistBars {
+    height: 36px;
+  }
+
+  .whenStatsRow {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.625rem;
+  }
+
+  .whenStatDivider {
+    width: 100%;
+    height: 1px;
+    margin: 0;
+  }
+
+  .whenStatItem {
+    justify-content: center;
   }
 
   .topicBubble {

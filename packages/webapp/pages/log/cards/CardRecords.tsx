@@ -2,14 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { LogData } from '../types';
-import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
 
 interface CardProps {
   data: LogData;
-  cardNumber: number;
-  totalCards: number;
-  cardLabel: string;
   isActive: boolean;
 }
 
@@ -24,39 +20,21 @@ const RECORD_ICONS: Record<string, string> = {
 
 const RECORD_COLORS = ['#ff6b35', '#e637bf', '#4d9dff'];
 
-export default function CardRecords({
-  data,
-  cardNumber,
-  cardLabel,
-  isActive,
-}: CardProps): ReactElement {
+export default function CardRecords({ data }: CardProps): ReactElement {
   return (
     <>
-      {/* Card indicator */}
-      <motion.div 
-        className={styles.cardIndicator}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <span className={styles.cardNum}>
-          {String(cardNumber).padStart(2, '0')}
-        </span>
-        <span className={styles.cardSep}>—</span>
-        <span className={styles.cardLabel}>{cardLabel}</span>
-      </motion.div>
-
       {/* Trophy header */}
-      <motion.div 
+      <motion.div
         className={cardStyles.trophyHeader}
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
       >
-        <motion.span 
+        <motion.span
           className={cardStyles.trophyEmoji}
-          animate={{ 
+          animate={{
             rotate: [0, -10, 10, -10, 0],
-            scale: [1, 1.1, 1]
+            scale: [1, 1.1, 1],
           }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
@@ -72,27 +50,39 @@ export default function CardRecords({
             key={record.type}
             className={cardStyles.recordCard}
             style={{ borderColor: RECORD_COLORS[index] }}
-            initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50, rotate: index % 2 === 0 ? -5 : 5 }}
+            initial={{
+              opacity: 0,
+              x: index % 2 === 0 ? -50 : 50,
+              rotate: index % 2 === 0 ? -5 : 5,
+            }}
             animate={{ opacity: 1, x: 0, rotate: 0 }}
-            transition={{ delay: 0.4 + index * 0.2, type: 'spring', stiffness: 100 }}
+            transition={{
+              delay: 0.4 + index * 0.2,
+              type: 'spring',
+              stiffness: 100,
+            }}
             whileHover={{ scale: 1.05, rotate: index % 2 === 0 ? 2 : -2 }}
           >
-            <motion.span 
+            <motion.span
               className={cardStyles.recordIcon}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.6 + index * 0.2, type: 'spring', stiffness: 300 }}
+              transition={{
+                delay: 0.6 + index * 0.2,
+                type: 'spring',
+                stiffness: 300,
+              }}
             >
               {RECORD_ICONS[record.type] || '🎯'}
             </motion.span>
-            
+
             <div className={cardStyles.recordContent}>
               <span className={cardStyles.recordLabel}>{record.label}</span>
               <span className={cardStyles.recordValue}>{record.value}</span>
             </div>
-            
+
             {record.percentile && (
-              <motion.span 
+              <motion.span
                 className={cardStyles.recordBadge}
                 style={{ background: RECORD_COLORS[index] }}
                 initial={{ scale: 0 }}
@@ -107,7 +97,7 @@ export default function CardRecords({
       </div>
 
       {/* Teaser for next card */}
-      <motion.div 
+      <motion.div
         className={cardStyles.nextTeaser}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

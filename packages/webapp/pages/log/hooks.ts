@@ -19,7 +19,9 @@ export function useAnimatedNumber(
     if (!enabled) {
       setCurrentValue(0);
       setStarted(false);
-      return;
+      return () => {
+        // Cleanup when disabled
+      };
     }
 
     const timeout = setTimeout(() => setStarted(true), delay);
@@ -27,7 +29,11 @@ export function useAnimatedNumber(
   }, [delay, enabled]);
 
   useEffect(() => {
-    if (!started || !enabled) return;
+    if (!started || !enabled) {
+      return () => {
+        // Cleanup when not started or disabled
+      };
+    }
 
     const startTime = Date.now();
     let rafId: number;
@@ -36,7 +42,7 @@ export function useAnimatedNumber(
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
       // Ease out cubic for satisfying deceleration
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased = 1 - (1 - progress) ** 3;
       setCurrentValue(Math.floor(eased * targetValue));
 
       if (progress < 1) {
@@ -61,7 +67,9 @@ export function useCardNavigation(totalCards: number) {
 
   const goToCard = useCallback(
     (index: number, dir?: 'next' | 'prev') => {
-      if (isAnimating || index < 0 || index >= totalCards) return;
+      if (isAnimating || index < 0 || index >= totalCards) {
+        return;
+      }
 
       setIsAnimating(true);
       setDirection(dir || (index > currentCard ? 'next' : 'prev'));
@@ -135,11 +143,8 @@ export function useCardNavigation(totalCards: number) {
  */
 export function useStaggeredAnimation(
   itemCount: number,
-  baseDelay: number = 0,
-  stagger: number = 100,
+  baseDelay = 0,
+  stagger = 100,
 ): number[] {
-  return Array.from(
-    { length: itemCount },
-    (_, i) => baseDelay + i * stagger,
-  );
+  return Array.from({ length: itemCount }, (_, i) => baseDelay + i * stagger);
 }

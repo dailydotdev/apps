@@ -3,26 +3,20 @@ import React, { useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import { ARCHETYPES } from '../types';
-import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
 
 interface CardProps {
   data: LogData;
-  cardNumber: number;
-  totalCards: number;
-  cardLabel: string;
   isActive: boolean;
 }
 
-export default function CardShare({
-  data,
-  cardNumber,
-  cardLabel,
-}: CardProps): ReactElement {
+export default function CardShare({ data }: CardProps): ReactElement {
   const [copied, setCopied] = useState(false);
   const archetype = ARCHETYPES[data.archetype];
 
-  const shareText = `I'm a ${archetype.name.toUpperCase()} ${archetype.emoji} on daily.dev
+  const shareText = `I'm a ${archetype.name.toUpperCase()} ${
+    archetype.emoji
+  } on daily.dev
 
 📚 ${data.totalPosts.toLocaleString()} posts read
 🔥 ${data.records.find((r) => r.type === 'streak')?.value || 'Epic streak'}
@@ -38,13 +32,17 @@ What's your developer archetype?
       switch (platform) {
         case 'twitter':
           window.open(
-            `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
+            `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+              shareText,
+            )}`,
             '_blank',
           );
           break;
         case 'linkedin':
           window.open(
-            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+              url,
+            )}`,
             '_blank',
           );
           break;
@@ -60,6 +58,9 @@ What's your developer archetype?
         case 'download':
           // TODO: Implement image generation
           break;
+        default:
+          // No action for unknown platform
+          break;
       }
     },
     [shareText],
@@ -67,22 +68,9 @@ What's your developer archetype?
 
   return (
     <>
-      {/* Card indicator */}
-      <motion.div 
-        className={styles.cardIndicator}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <span className={styles.cardNum}>
-          {String(cardNumber).padStart(2, '0')}
-        </span>
-        <span className={styles.cardSep}>—</span>
-        <span className={styles.cardLabel}>{cardLabel}</span>
-      </motion.div>
-
       <div className={cardStyles.shareContainer}>
         {/* Header */}
-        <motion.h2 
+        <motion.h2
           className={cardStyles.shareTitle}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -92,7 +80,7 @@ What's your developer archetype?
         </motion.h2>
 
         {/* Phone frame mockup */}
-        <motion.div 
+        <motion.div
           className={cardStyles.phoneFrame}
           initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
           animate={{ opacity: 1, scale: 1, rotateY: 0 }}
@@ -104,17 +92,22 @@ What's your developer archetype?
             <div className={cardStyles.previewContent}>
               <span className={cardStyles.previewLogo}>daily.dev</span>
               <span className={cardStyles.previewEmoji}>{archetype.emoji}</span>
-              <span className={cardStyles.previewArchetype}>{archetype.name}</span>
+              <span className={cardStyles.previewArchetype}>
+                {archetype.name}
+              </span>
               <div className={cardStyles.previewStats}>
                 <span>📚 {data.totalPosts}</span>
-                <span>🔥 {data.records.find((r) => r.type === 'streak')?.value || '—'}</span>
+                <span>
+                  🔥{' '}
+                  {data.records.find((r) => r.type === 'streak')?.value || '—'}
+                </span>
               </div>
             </div>
           </div>
         </motion.div>
 
         {/* Share buttons */}
-        <motion.div 
+        <motion.div
           className={cardStyles.shareButtons}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -155,13 +148,13 @@ What's your developer archetype?
         </motion.div>
 
         {/* Social proof */}
-        <motion.div 
+        <motion.div
           className={cardStyles.socialProof}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
         >
-          <motion.span 
+          <motion.span
             className={cardStyles.socialProofNumber}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -173,7 +166,7 @@ What's your developer archetype?
         </motion.div>
 
         {/* Restart hint */}
-        <motion.div 
+        <motion.div
           className={cardStyles.restartHint}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

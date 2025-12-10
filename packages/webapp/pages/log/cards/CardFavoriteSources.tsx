@@ -8,9 +8,6 @@ import cardStyles from './Cards.module.css';
 
 interface CardProps {
   data: LogData;
-  cardNumber: number;
-  totalCards: number;
-  cardLabel: string;
   isActive: boolean;
 }
 
@@ -20,19 +17,21 @@ const PODIUM_DELAYS = [0.6, 0.3, 0.9]; // 1st place reveals last for drama
 
 export default function CardFavoriteSources({
   data,
-  cardNumber,
-  cardLabel,
   isActive,
 }: CardProps): ReactElement {
   const [showMedals, setShowMedals] = useState(false);
-  
+
   const animatedSources = useAnimatedNumber(data.uniqueSources, {
     delay: 1500,
     enabled: isActive,
   });
 
   // Podium order: 2nd, 1st, 3rd
-  const podiumOrder = [data.topSources[1], data.topSources[0], data.topSources[2]];
+  const podiumOrder = [
+    data.topSources[1],
+    data.topSources[0],
+    data.topSources[2],
+  ];
 
   useEffect(() => {
     if (isActive) {
@@ -40,25 +39,15 @@ export default function CardFavoriteSources({
       return () => clearTimeout(timer);
     }
     setShowMedals(false);
+    return () => {
+      // Cleanup when inactive
+    };
   }, [isActive]);
 
   return (
     <>
-      {/* Card indicator */}
-      <motion.div 
-        className={styles.cardIndicator}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <span className={styles.cardNum}>
-          {String(cardNumber).padStart(2, '0')}
-        </span>
-        <span className={styles.cardSep}>—</span>
-        <span className={styles.cardLabel}>{cardLabel}</span>
-      </motion.div>
-
       {/* Header */}
-      <motion.div 
+      <motion.div
         className={styles.headlineStack}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -70,35 +59,42 @@ export default function CardFavoriteSources({
       {/* Podium */}
       <div className={cardStyles.podiumStage}>
         {podiumOrder.map((source, index) => {
-          const rank = index === 1 ? 1 : index === 0 ? 2 : 3;
+          let rank: number;
+          if (index === 1) {
+            rank = 1;
+          } else if (index === 0) {
+            rank = 2;
+          } else {
+            rank = 3;
+          }
           const height = PODIUM_HEIGHTS[index];
           const delay = PODIUM_DELAYS[index];
-          
+
           return (
-            <motion.div 
-              key={source.name} 
+            <motion.div
+              key={source.name}
               className={cardStyles.podiumColumn}
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay, type: 'spring', stiffness: 100 }}
             >
               {/* Medal with bounce */}
-              <motion.div 
+              <motion.div
                 className={cardStyles.podiumMedal}
                 initial={{ scale: 0, rotate: -180 }}
                 animate={showMedals ? { scale: 1, rotate: 0 } : { scale: 0 }}
-                transition={{ 
-                  delay: delay + 0.3, 
-                  type: 'spring', 
+                transition={{
+                  delay: delay + 0.3,
+                  type: 'spring',
                   stiffness: 200,
-                  damping: 10
+                  damping: 10,
                 }}
               >
                 {PODIUM_MEDALS[index]}
               </motion.div>
-              
+
               {/* Source name */}
-              <motion.div 
+              <motion.div
                 className={cardStyles.podiumSource}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -106,21 +102,28 @@ export default function CardFavoriteSources({
               >
                 {source.name}
               </motion.div>
-              
+
               {/* Bar */}
-              <motion.div 
+              <motion.div
                 className={cardStyles.podiumBar}
-                style={{ 
+                style={{
                   height: 0,
-                  background: index === 1 
-                    ? 'linear-gradient(180deg, #f7c948 0%, #ff6b35 100%)' 
-                    : '#fff'
+                  background:
+                    index === 1
+                      ? 'linear-gradient(180deg, #f7c948 0%, #ff6b35 100%)'
+                      : '#fff',
                 }}
                 animate={{ height }}
-                transition={{ delay: delay + 0.1, duration: 0.5, ease: 'easeOut' }}
+                transition={{
+                  delay: delay + 0.1,
+                  duration: 0.5,
+                  ease: 'easeOut',
+                }}
               >
                 <span className={cardStyles.podiumRank}>{rank}</span>
-                <span className={cardStyles.podiumCount}>{source.postsRead} posts</span>
+                <span className={cardStyles.podiumCount}>
+                  {source.postsRead} posts
+                </span>
               </motion.div>
             </motion.div>
           );
@@ -128,7 +131,7 @@ export default function CardFavoriteSources({
       </div>
 
       {/* Discovery stat */}
-      <motion.div 
+      <motion.div
         className={cardStyles.discoveryBadge}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -142,7 +145,7 @@ export default function CardFavoriteSources({
       </motion.div>
 
       {/* Banner */}
-      <motion.div 
+      <motion.div
         className={styles.celebrationBanner}
         initial={{ opacity: 0, x: 100 }}
         animate={{ opacity: 1, x: 0 }}

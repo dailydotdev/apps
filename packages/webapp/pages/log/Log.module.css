@@ -47,11 +47,7 @@
 .backgroundBurst {
   position: absolute;
   inset: -50%;
-  background: repeating-conic-gradient(
-    from 0deg at 50% 50%,
-    var(--fest-bg) 0deg 10deg,
-    rgba(230, 55, 191, 0.08) 10deg 20deg
-  );
+  /* Background set dynamically via Framer Motion for per-card theming */
   animation: burstRotate 120s linear infinite;
   pointer-events: none;
 }
@@ -74,20 +70,9 @@
 
 .star {
   position: absolute;
-  animation: starFloat 4s ease-in-out infinite;
+  /* Position, size, and color set dynamically via Framer Motion */
+  /* Animation handled by Framer Motion for smooth per-card transitions */
 }
-
-@keyframes starFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(10deg); }
-}
-
-.star1 { top: 12%; left: 8%; color: var(--fest-secondary); font-size: 1.75rem; animation-delay: 0s; }
-.star2 { top: 22%; right: 12%; color: var(--fest-lime); font-size: 1.25rem; animation-delay: 0.5s; }
-.star3 { bottom: 28%; left: 6%; color: var(--fest-accent); font-size: 1.5rem; animation-delay: 1s; }
-.star4 { bottom: 18%; right: 10%; color: var(--fest-primary); font-size: 1.75rem; animation-delay: 1.5s; }
-.star5 { top: 45%; left: 4%; color: var(--fest-lime); font-size: 1rem; animation-delay: 2s; }
-.star6 { top: 55%; right: 5%; color: var(--fest-secondary); font-size: 1.25rem; animation-delay: 2.5s; }
 
 /* ========================================
    CARD CONTAINER & NAVIGATION
@@ -121,10 +106,13 @@
 
 .cardInner {
   width: 100%;
-  max-width: min(380px, calc(100vw - 2rem));
+  max-width: min(420px, calc(100vw - 2rem));
+  height: 100%;
+  max-height: calc(100vh - 7rem);
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   perspective: 1000px; /* Enable 3D space for children */
   box-sizing: border-box;
 }
@@ -188,42 +176,6 @@
 
 .progressDot.completed {
   background: var(--fest-white-70);
-}
-
-/* ========================================
-   CARD INDICATOR
-   ======================================== */
-
-.cardIndicator {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  animation: fadeSlideDown 0.6s ease-out 0.2s both;
-}
-
-@keyframes fadeSlideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.cardNum {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--fest-lime);
-}
-
-.cardSep {
-  color: var(--fest-white);
-  opacity: 0.3;
-}
-
-.cardLabel {
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
-  color: var(--fest-white);
-  opacity: 0.7;
-  text-transform: uppercase;
 }
 
 /* ========================================
@@ -982,10 +934,6 @@
   .card {
     padding-top: 3.5rem;
     padding-bottom: 2.5rem;
-  }
-
-  .cardIndicator {
-    margin-bottom: 0.5rem;
   }
 
   .headlineStack {

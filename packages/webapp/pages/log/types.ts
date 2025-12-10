@@ -73,7 +73,13 @@ export interface SourceStat {
 }
 
 export interface ReadingRecord {
-  type: 'streak' | 'binge' | 'lateNight' | 'earlyMorning' | 'consistency' | 'marathon';
+  type:
+    | 'streak'
+    | 'binge'
+    | 'lateNight'
+    | 'earlyMorning'
+    | 'consistency'
+    | 'marathon';
   label: string;
   value: string;
   percentile?: number;

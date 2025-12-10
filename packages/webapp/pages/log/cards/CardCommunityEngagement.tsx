@@ -3,19 +3,21 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
-import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
 
 interface CardProps {
   data: LogData;
-  cardNumber: number;
-  totalCards: number;
-  cardLabel: string;
   isActive: boolean;
 }
 
 // Floating heart component
-function FloatingHeart({ delay, x }: { delay: number; x: number }): ReactElement {
+function FloatingHeart({
+  delay,
+  x,
+}: {
+  delay: number;
+  x: number;
+}): ReactElement {
   return (
     <motion.div
       style={{
@@ -26,16 +28,16 @@ function FloatingHeart({ delay, x }: { delay: number; x: number }): ReactElement
         pointerEvents: 'none',
       }}
       initial={{ y: 0, opacity: 0, scale: 0 }}
-      animate={{ 
-        y: -200, 
-        opacity: [0, 1, 1, 0], 
+      animate={{
+        y: -200,
+        opacity: [0, 1, 1, 0],
         scale: [0, 1.2, 1, 0.8],
-        x: [0, Math.random() * 40 - 20]
+        x: [0, Math.random() * 40 - 20],
       }}
-      transition={{ 
-        duration: 2, 
+      transition={{
+        duration: 2,
         delay,
-        ease: 'easeOut'
+        ease: 'easeOut',
       }}
     >
       💜
@@ -45,12 +47,10 @@ function FloatingHeart({ delay, x }: { delay: number; x: number }): ReactElement
 
 export default function CardCommunityEngagement({
   data,
-  cardNumber,
-  cardLabel,
   isActive,
 }: CardProps): ReactElement {
   const [showHearts, setShowHearts] = useState(false);
-  
+
   const animatedUpvotes = useAnimatedNumber(data.upvotesGiven, {
     delay: 500,
     enabled: isActive,
@@ -79,51 +79,59 @@ export default function CardCommunityEngagement({
       return () => clearTimeout(timer);
     }
     setShowHearts(false);
+    return () => {
+      // Cleanup when inactive
+    };
   }, [isActive]);
 
   return (
     <>
       {/* Floating hearts */}
       {showHearts && (
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-          {[...Array(12)].map((_, i) => (
-            <FloatingHeart key={i} delay={i * 0.15} x={20 + Math.random() * 60} />
-          ))}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+            pointerEvents: 'none',
+          }}
+        >
+          {[...Array(12)].map((_, i) => {
+            const x = 20 + Math.random() * 60;
+            return (
+              <FloatingHeart
+                key={`heart-${x}-${i * 0.15}`}
+                delay={i * 0.15}
+                x={x}
+              />
+            );
+          })}
         </div>
       )}
 
-      {/* Card indicator */}
-      <motion.div 
-        className={styles.cardIndicator}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <span className={styles.cardNum}>
-          {String(cardNumber).padStart(2, '0')}
-        </span>
-        <span className={styles.cardSep}>—</span>
-        <span className={styles.cardLabel}>{cardLabel}</span>
-      </motion.div>
-
       {/* Main stat - Upvotes with heart burst */}
-      <motion.div 
+      <motion.div
         className={cardStyles.loveContainer}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <motion.div 
+        <motion.div
           className={cardStyles.loveEmoji}
-          animate={showHearts ? { 
-            scale: [1, 1.3, 1],
-            rotate: [0, -10, 10, 0]
-          } : {}}
+          animate={
+            showHearts
+              ? {
+                  scale: [1, 1.3, 1],
+                  rotate: [0, -10, 10, 0],
+                }
+              : {}
+          }
           transition={{ duration: 0.5 }}
         >
           💜
         </motion.div>
         <div className={cardStyles.loveStats}>
-          <motion.span 
+          <motion.span
             className={cardStyles.loveNumber}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -135,7 +143,7 @@ export default function CardCommunityEngagement({
       </motion.div>
 
       {/* Subtitle */}
-      <motion.p 
+      <motion.p
         className={cardStyles.loveSubtitle}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -145,13 +153,13 @@ export default function CardCommunityEngagement({
       </motion.p>
 
       {/* Secondary stats as icons */}
-      <motion.div 
+      <motion.div
         className={cardStyles.engagementGrid}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
       >
-        <motion.div 
+        <motion.div
           className={cardStyles.engagementItem}
           whileHover={{ scale: 1.1 }}
         >
@@ -159,28 +167,36 @@ export default function CardCommunityEngagement({
           <span className={cardStyles.engagementValue}>{animatedComments}</span>
           <span className={cardStyles.engagementLabel}>comments</span>
         </motion.div>
-        <motion.div 
+        <motion.div
           className={cardStyles.engagementItem}
           whileHover={{ scale: 1.1 }}
         >
           <span className={cardStyles.engagementEmoji}>🔖</span>
-          <span className={cardStyles.engagementValue}>{animatedBookmarks}</span>
+          <span className={cardStyles.engagementValue}>
+            {animatedBookmarks}
+          </span>
           <span className={cardStyles.engagementLabel}>bookmarked</span>
         </motion.div>
       </motion.div>
 
       {/* Best stat banner */}
       {bestStat && (
-        <motion.div 
+        <motion.div
           className={cardStyles.communityBanner}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.3, type: 'spring' }}
         >
-          <span className={cardStyles.communityBannerEmoji}>{bestStat.emoji}</span>
+          <span className={cardStyles.communityBannerEmoji}>
+            {bestStat.emoji}
+          </span>
           <div>
-            <span className={cardStyles.communityBannerTop}>TOP {bestStat.value}%</span>
-            <span className={cardStyles.communityBannerLabel}>{bestStat.label}</span>
+            <span className={cardStyles.communityBannerTop}>
+              TOP {bestStat.value}%
+            </span>
+            <span className={cardStyles.communityBannerLabel}>
+              {bestStat.label}
+            </span>
           </div>
         </motion.div>
       )}

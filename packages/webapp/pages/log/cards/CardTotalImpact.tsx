@@ -7,9 +7,6 @@ import styles from '../Log.module.css';
 
 interface CardProps {
   data: LogData;
-  cardNumber: number;
-  totalCards: number;
-  cardLabel: string;
   isActive: boolean;
 }
 
@@ -19,7 +16,7 @@ function Confetti({ delay }: { delay: number }): ReactElement {
   const randomColor = colors[Math.floor(Math.random() * colors.length)];
   const randomX = Math.random() * 100;
   const randomRotation = Math.random() * 360;
-  
+
   return (
     <motion.div
       style={{
@@ -48,13 +45,10 @@ function Confetti({ delay }: { delay: number }): ReactElement {
 
 export default function CardTotalImpact({
   data,
-  cardNumber,
-  totalCards,
-  cardLabel,
   isActive,
 }: CardProps): ReactElement {
   const [showConfetti, setShowConfetti] = useState(false);
-  
+
   const animatedPosts = useAnimatedNumber(data.totalPosts, {
     delay: 500,
     duration: 2000,
@@ -76,36 +70,34 @@ export default function CardTotalImpact({
       return () => clearTimeout(timer);
     }
     setShowConfetti(false);
+    return () => {
+      // Cleanup when inactive
+    };
   }, [isActive]);
 
   return (
     <>
       {/* Confetti explosion */}
       {showConfetti && (
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 50 }}>
-          {[...Array(30)].map((_, i) => (
-            <Confetti key={i} delay={i * 0.05} />
-          ))}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+            pointerEvents: 'none',
+            zIndex: 50,
+          }}
+        >
+          {Array.from({ length: 30 }, (_, i) => {
+            const delay = i * 0.05;
+            return <Confetti key={`confetti-${delay}`} delay={delay} />;
+          })}
         </div>
       )}
 
-      {/* Card indicator */}
-      <motion.div 
-        className={styles.cardIndicator}
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <span className={styles.cardNum}>
-          {String(cardNumber).padStart(2, '0')}
-        </span>
-        <span className={styles.cardSep}>—</span>
-        <span className={styles.cardLabel}>{cardLabel}</span>
-      </motion.div>
-
       {/* Main headline with staggered reveal */}
       <div className={styles.headlineStack}>
-        <motion.div 
+        <motion.div
           className={styles.headlineRow}
           initial={{ opacity: 0, y: 30, rotate: -3 }}
           animate={{ opacity: 1, y: 0, rotate: 0 }}
@@ -113,13 +105,18 @@ export default function CardTotalImpact({
         >
           <span className={styles.headlineSmall}>You read</span>
         </motion.div>
-        <motion.div 
+        <motion.div
           className={styles.headlineRow}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, type: 'spring', stiffness: 200, damping: 15 }}
+          transition={{
+            delay: 0.5,
+            type: 'spring',
+            stiffness: 200,
+            damping: 15,
+          }}
         >
-          <motion.span 
+          <motion.span
             className={styles.headlineBig}
             animate={showConfetti ? { scale: [1, 1.05, 1] } : {}}
             transition={{ duration: 0.3 }}
@@ -127,7 +124,7 @@ export default function CardTotalImpact({
             {animatedPosts.toLocaleString()}
           </motion.span>
         </motion.div>
-        <motion.div 
+        <motion.div
           className={styles.headlineRow}
           initial={{ opacity: 0, y: 30, rotate: 3 }}
           animate={{ opacity: 1, y: 0, rotate: 0 }}
@@ -135,7 +132,7 @@ export default function CardTotalImpact({
         >
           <span className={styles.headlineMedium}>POSTS</span>
         </motion.div>
-        <motion.div 
+        <motion.div
           className={styles.headlineRow}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -146,14 +143,14 @@ export default function CardTotalImpact({
       </div>
 
       {/* Divider */}
-      <motion.div 
+      <motion.div
         className={styles.divider}
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ delay: 1.1, duration: 0.5 }}
       >
         <div className={styles.dividerLine} />
-        <motion.div 
+        <motion.div
           className={styles.dividerIcon}
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
@@ -164,13 +161,13 @@ export default function CardTotalImpact({
       </motion.div>
 
       {/* Secondary stats with bounce in */}
-      <motion.div 
+      <motion.div
         className={styles.statsBadges}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2 }}
       >
-        <motion.div 
+        <motion.div
           className={styles.badge}
           whileHover={{ scale: 1.05, rotate: -2 }}
           whileTap={{ scale: 0.95 }}
@@ -178,7 +175,7 @@ export default function CardTotalImpact({
           <span className={styles.badgeValue}>{animatedTime}h</span>
           <span className={styles.badgeLabel}>Reading</span>
         </motion.div>
-        <motion.div 
+        <motion.div
           className={styles.badge}
           whileHover={{ scale: 1.05, rotate: 2 }}
           whileTap={{ scale: 0.95 }}
@@ -189,7 +186,7 @@ export default function CardTotalImpact({
       </motion.div>
 
       {/* Competitive stat banner with slide in */}
-      <motion.div 
+      <motion.div
         className={styles.celebrationBanner}
         initial={{ opacity: 0, x: -100, rotate: -5 }}
         animate={{ opacity: 1, x: 0, rotate: 0 }}
@@ -198,7 +195,7 @@ export default function CardTotalImpact({
         <div className={styles.bannerBg} />
         <div className={styles.bannerContent}>
           <span className={styles.bannerPre}>TOP</span>
-          <motion.span 
+          <motion.span
             className={styles.bannerMain}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
