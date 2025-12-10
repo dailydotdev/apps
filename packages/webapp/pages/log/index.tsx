@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import Head from 'next/head';
 import { motion, AnimatePresence } from 'framer-motion';
 import ParallaxTilt from 'react-parallax-tilt';
@@ -52,6 +52,20 @@ const cardVariants = {
 };
 
 export default function LogPage({ data = MOCK_LOG_DATA }: LogPageProps): ReactElement {
+  // Prevent horizontal scrollbar on the page
+  useEffect(() => {
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    const originalBodyOverflow = document.body.style.overflow;
+    
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      document.documentElement.style.overflow = originalHtmlOverflow;
+      document.body.style.overflow = originalBodyOverflow;
+    };
+  }, []);
+
   // Build card list (conditionally include contributions)
   const cards = useMemo(() => {
     const baseCards = [

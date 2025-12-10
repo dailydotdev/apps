@@ -29,12 +29,15 @@
   font-family: 'Space Mono', monospace;
   position: fixed;
   inset: 0;
+  width: 100%;
+  max-width: 100vw;
   background: var(--fest-bg);
   overflow: hidden;
   color: var(--fest-white);
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ========================================
@@ -65,6 +68,8 @@
   pointer-events: none;
   overflow: hidden;
   z-index: 1;
+  width: 100%;
+  max-width: 100%;
 }
 
 .star {
@@ -91,31 +96,37 @@
 .cardsWrapper {
   position: relative;
   width: 100%;
+  max-width: 100%;
   height: 100%;
   z-index: 10;
+  overflow: hidden;
 }
 
 .card {
   position: absolute;
   inset: 0;
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem;
-  padding-top: 5rem;
-  padding-bottom: 5rem;
-  overflow-y: auto;
-  overflow-x: hidden;
+  justify-content: center;
+  padding: 1rem;
+  padding-top: 4rem;
+  padding-bottom: 3rem;
+  overflow: hidden;
+  box-sizing: border-box;
   /* Framer Motion handles opacity/transform */
 }
 
 .cardInner {
   width: 100%;
-  max-width: 380px;
+  max-width: min(380px, calc(100vw - 2rem));
   display: flex;
   flex-direction: column;
   align-items: center;
   perspective: 1000px; /* Enable 3D space for children */
+  box-sizing: border-box;
 }
 
 /* ========================================
@@ -128,10 +139,12 @@
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 1.25rem 1.5rem;
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .logoBadge {
@@ -151,8 +164,12 @@
 
 .progressDots {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   padding-top: 0.25rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  max-width: 50%;
+  justify-content: flex-end;
 }
 
 .progressDot {
@@ -161,6 +178,7 @@
   border-radius: 50%;
   background: var(--fest-white-30);
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .progressDot.active {
@@ -180,7 +198,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
   animation: fadeSlideDown 0.6s ease-out 0.2s both;
 }
 
@@ -214,7 +232,10 @@
 
 .headlineStack {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .headlineRow {
@@ -326,9 +347,11 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
   animation: badgesReveal 0.8s ease-out 1.1s both;
+  width: 100%;
+  max-width: 100%;
 }
 
 @keyframes badgesReveal {
@@ -392,9 +415,12 @@
 .celebrationBanner {
   position: relative;
   width: 100%;
+  max-width: 100%;
   padding: 0.875rem;
   margin: 1rem 0;
   animation: bannerReveal 0.8s ease-out 1.3s both;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 @keyframes bannerReveal {
@@ -416,6 +442,8 @@
   justify-content: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  max-width: 100%;
+  word-break: break-word;
 }
 
 .bannerPre,
@@ -438,11 +466,14 @@
 
 .heatmapContainer {
   width: 100%;
+  max-width: 100%;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   margin: 1rem 0;
   animation: fadeIn 0.8s ease-out 1s both;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .heatmapGrid {
@@ -479,8 +510,11 @@
 
 .timelineContainer {
   width: 100%;
+  max-width: 100%;
   margin: 1rem 0;
   animation: fadeIn 0.8s ease-out 0.8s both;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .timelinePath {
@@ -492,10 +526,11 @@
 .timelineItem {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   padding: 0.5rem 0;
   opacity: 0;
   animation: timelineReveal 0.4s ease-out forwards;
+  max-width: 100%;
 }
 
 @keyframes timelineReveal {
@@ -529,8 +564,13 @@
 
 .timelineTopic {
   font-family: 'Dela Gothic One', cursive;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--fest-white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .timelineTopic.pivot {
@@ -556,6 +596,9 @@
   gap: 0.5rem;
   margin: 1.5rem 0;
   animation: badgesReveal 0.8s ease-out 0.8s both;
+  width: 100%;
+  max-width: 100%;
+  flex-wrap: wrap;
 }
 
 .podiumItem {
@@ -566,14 +609,15 @@
 }
 
 .podiumBar {
-  width: 80px;
+  width: clamp(60px, 20vw, 80px);
   background: var(--fest-white);
   color: var(--fest-bg);
-  padding: 0.75rem 0.5rem;
+  padding: 0.5rem 0.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
+  overflow: hidden;
 }
 
 .podiumItem:nth-child(1) .podiumBar {
@@ -598,11 +642,15 @@
 }
 
 .podiumName {
-  font-size: 0.55rem;
+  font-size: 0.5rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   margin-top: 0.25rem;
   text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .podiumCount {
@@ -617,20 +665,24 @@
 
 .recordsList {
   width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   margin: 1rem 0;
+  box-sizing: border-box;
 }
 
 .recordItem {
   background: rgba(255, 255, 255, 0.05);
-  padding: 1rem;
+  padding: 0.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   animation: recordReveal 0.6s ease-out both;
   border-left: 3px solid var(--fest-lime);
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .recordItem:nth-child(2) {
@@ -657,9 +709,12 @@
 
 .recordValue {
   font-family: 'Dela Gothic One', cursive;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--fest-white);
   margin-top: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .recordBadge {
@@ -676,7 +731,10 @@
 
 .archetypeReveal {
   text-align: center;
-  margin: 2rem 0;
+  margin: 1.5rem 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .archetypeBuildUp {
@@ -721,12 +779,13 @@
 }
 
 .archetypeDescription {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--fest-white-70);
   font-style: italic;
-  max-width: 280px;
+  max-width: min(280px, 100%);
   margin: 0 auto;
   animation: fadeIn 0.8s ease-out 0.6s both;
+  word-break: break-word;
 }
 
 /* ========================================
@@ -735,7 +794,9 @@
 
 .shareCard {
   width: 100%;
+  max-width: 100%;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .shareHeader {
@@ -748,11 +809,14 @@
 
 .sharePreview {
   background: rgba(255, 255, 255, 0.05);
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
   border: 1px solid var(--fest-white-30);
   animation: fadeIn 0.8s ease-out 0.5s both;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .shareArchetype {
@@ -765,8 +829,9 @@
 .shareStats {
   display: flex;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 1rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .shareStat {
@@ -788,24 +853,30 @@
 
 .shareButtons {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
   animation: badgesReveal 0.8s ease-out 0.8s both;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .shareButton {
   background: var(--fest-white);
   color: var(--fest-bg);
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 0.75rem;
   font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   border: none;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 3px 3px 0 var(--fest-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .shareButton:nth-child(2) {
@@ -842,7 +913,7 @@
 
 .navPrompt {
   position: absolute;
-  bottom: 1.5rem;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -850,6 +921,7 @@
   gap: 0.5rem;
   z-index: 100;
   animation: fadeIn 0.6s ease-out 2s both;
+  white-space: nowrap;
 }
 
 .navPrompt span {
@@ -906,24 +978,110 @@
    RESPONSIVE
    ======================================== */
 
-@media (max-width: 380px) {
+@media (max-height: 700px) {
+  .card {
+    padding-top: 3.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .cardIndicator {
+    margin-bottom: 0.5rem;
+  }
+
+  .headlineStack {
+    margin-bottom: 0.5rem;
+  }
+
+  .headlineSmall {
+    font-size: 0.75rem;
+  }
+
+  .celebrationBanner {
+    padding: 0.625rem;
+    margin: 0.5rem 0;
+  }
+
+  .bannerMain {
+    font-size: 1.5rem;
+  }
+
+  .navPrompt {
+    bottom: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
   .headlineBig {
-    font-size: 4.5rem;
+    font-size: clamp(3.5rem, 15vw, 5.5rem);
   }
 
   .headlineMedium {
-    font-size: 1.75rem;
+    font-size: clamp(1.5rem, 6vw, 2.25rem);
   }
 
   .headlineBigSmall {
-    font-size: 2.75rem;
+    font-size: clamp(2.5rem, 10vw, 3.5rem);
   }
 
   .archetypeName {
-    font-size: 2.25rem;
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  .bannerMain {
+    font-size: clamp(1.25rem, 5vw, 2rem);
+  }
+
+  .shareHeader {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
+  .shareArchetype {
+    font-size: clamp(1rem, 4vw, 1.5rem);
+  }
+}
+
+@media (max-width: 380px) {
+  .headlineBig {
+    font-size: 3.5rem;
+  }
+
+  .headlineMedium {
+    font-size: 1.5rem;
+  }
+
+  .headlineBigSmall {
+    font-size: 2.5rem;
+  }
+
+  .archetypeName {
+    font-size: 2rem;
   }
 
   .podiumBar {
-    width: 65px;
+    width: 60px;
+  }
+
+  .podiumItem:nth-child(1) .podiumBar {
+    height: 80px;
+  }
+
+  .podiumItem:nth-child(2) .podiumBar {
+    height: 110px;
+  }
+
+  .podiumItem:nth-child(3) .podiumBar {
+    height: 60px;
+  }
+
+  .badge {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .badgeValue {
+    font-size: 1rem;
+  }
+
+  .shareButtons {
+    grid-template-columns: 1fr;
   }
 }

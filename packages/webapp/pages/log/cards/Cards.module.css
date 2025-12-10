@@ -6,12 +6,12 @@
 
 .clockContainer {
   position: relative;
-  margin: 1rem 0 1.5rem;
+  margin: 0.5rem 0 1rem;
 }
 
 .clockFace {
-  width: 180px;
-  height: 180px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.05);
   border: 3px solid var(--fest-secondary, #f7c948);
@@ -24,11 +24,11 @@
 .clockMarker {
   position: absolute;
   width: 2px;
-  height: 8px;
+  height: 6px;
   background: var(--fest-white-50, rgba(255,255,255,0.5));
-  top: 8px;
+  top: 6px;
   left: 50%;
-  transform-origin: center 82px;
+  transform-origin: center 64px;
 }
 
 .clockMarker:nth-child(3n) {
@@ -38,8 +38,8 @@
 
 .clockHand {
   position: absolute;
-  width: 50px;
-  height: 4px;
+  width: 40px;
+  height: 3px;
   background: var(--fest-lime, #c6f135);
   border-radius: 2px;
   top: 50%;
@@ -59,9 +59,9 @@
 
 .clockTime {
   position: absolute;
-  bottom: -40px;
+  bottom: -30px;
   font-family: 'Dela Gothic One', cursive;
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: var(--fest-white, #fff);
   text-shadow: 2px 2px 0 var(--fest-primary, #ff6b35);
 }
@@ -69,11 +69,11 @@
 .powerDayBadge {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   background: var(--fest-white, #fff);
   color: var(--fest-bg, #1a0a2e);
-  padding: 0.75rem 1.25rem;
-  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0;
   transform: rotate(-1deg);
   box-shadow: 3px 3px 0 var(--fest-accent, #e637bf);
 }
@@ -99,8 +99,8 @@
   width: 100%;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
 }
 
 .heatmapTitle {
@@ -135,10 +135,10 @@
 .patternBanner {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   background: linear-gradient(135deg, var(--fest-primary, #ff6b35), var(--fest-accent, #e637bf));
-  padding: 1rem 1.5rem;
-  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
   border-radius: 8px;
 }
 
@@ -269,8 +269,8 @@
   align-items: flex-end;
   justify-content: center;
   gap: 0.5rem;
-  margin: 2rem 0;
-  min-height: 200px;
+  margin: 1rem 0;
+  min-height: 160px;
 }
 
 .podiumColumn {
@@ -320,11 +320,11 @@
 .discoveryBadge {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   background: rgba(255, 255, 255, 0.1);
-  padding: 0.75rem 1.25rem;
+  padding: 0.5rem 1rem;
   border-radius: 50px;
-  margin: 1rem 0;
+  margin: 0.5rem 0;
 }
 
 .discoveryEmoji {
@@ -333,7 +333,7 @@
 
 .discoveryValue {
   font-family: 'Dela Gothic One', cursive;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--fest-lime, #c6f135);
   display: block;
 }
@@ -353,12 +353,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 1rem 0;
+  margin: 0.5rem 0;
 }
 
 .loveEmoji {
-  font-size: 4rem;
-  margin-bottom: 0.5rem;
+  font-size: 3rem;
+  margin-bottom: 0.25rem;
 }
 
 .loveStats {
@@ -367,9 +367,9 @@
 
 .loveNumber {
   font-family: 'Dela Gothic One', cursive;
-  font-size: 4rem;
+  font-size: 3rem;
   color: var(--fest-white, #fff);
-  text-shadow: 3px 3px 0 var(--fest-accent, #e637bf);
+  text-shadow: 2px 2px 0 var(--fest-accent, #e637bf);
   display: block;
   line-height: 1;
 }
@@ -391,15 +391,15 @@
 
 .engagementGrid {
   display: flex;
-  gap: 1.5rem;
-  margin: 1rem 0;
+  gap: 1rem;
+  margin: 0.75rem 0;
 }
 
 .engagementItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
+  padding: 0.75rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
 }
@@ -425,11 +425,11 @@
 .communityBanner {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   background: var(--fest-white, #fff);
   color: var(--fest-bg, #1a0a2e);
-  padding: 1rem 1.5rem;
-  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
   transform: rotate(1deg);
   box-shadow: 3px 3px 0 var(--fest-accent, #e637bf);
 }
@@ -754,31 +754,31 @@
 
 .shareTitle {
   font-family: 'Dela Gothic One', cursive;
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: var(--fest-lime, #c6f135);
-  margin: 0 0 1.5rem;
+  margin: 0 0 0.75rem;
 }
 
 .phoneFrame {
-  width: 180px;
-  height: 320px;
+  width: 140px;
+  height: 240px;
   background: #000;
-  border-radius: 24px;
-  padding: 8px;
+  border-radius: 20px;
+  padding: 6px;
   position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  margin-bottom: 1.5rem;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+  margin-bottom: 1rem;
 }
 
 .phoneNotch {
   position: absolute;
-  top: 12px;
+  top: 8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 60px;
-  height: 20px;
+  width: 50px;
+  height: 16px;
   background: #000;
-  border-radius: 10px;
+  border-radius: 8px;
   z-index: 2;
 }
 
@@ -786,7 +786,7 @@
   width: 100%;
   height: 100%;
   background: var(--fest-bg, #1a0a2e);
-  border-radius: 18px;
+  border-radius: 14px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -808,7 +808,7 @@
 }
 
 .previewEmoji {
-  font-size: 2.5rem;
+  font-size: 2rem;
 }
 
 .previewArchetype {
@@ -865,23 +865,23 @@
 }
 
 .socialProof {
-  margin-top: 1.5rem;
+  margin-top: 0.75rem;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--fest-white-50, rgba(255,255,255,0.5));
 }
 
 .socialProofNumber {
   font-family: 'Dela Gothic One', cursive;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--fest-secondary, #f7c948);
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.125rem;
 }
 
 .restartHint {
-  margin-top: 1.5rem;
-  font-size: 0.7rem;
+  margin-top: 0.75rem;
+  font-size: 0.65rem;
   color: var(--fest-white-30, rgba(255,255,255,0.3));
   font-style: italic;
 }
@@ -890,26 +890,149 @@
    RESPONSIVE ADJUSTMENTS
    ======================================== */
 
-@media (max-width: 380px) {
+@media (max-height: 700px) {
   .clockFace {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
   }
 
   .clockMarker {
-    transform-origin: center 67px;
+    transform-origin: center 54px;
   }
 
   .clockHand {
-    width: 40px;
+    width: 35px;
   }
 
   .clockTime {
+    font-size: 1.25rem;
+    bottom: -25px;
+  }
+
+  .heatmapWrapper {
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+  }
+
+  .patternBanner {
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .patternEmoji {
+    font-size: 2rem;
+  }
+
+  .patternName {
+    font-size: 1rem;
+  }
+
+  .podiumStage {
+    margin: 0.5rem 0;
+    min-height: 130px;
+  }
+
+  .podiumMedal {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .loveEmoji {
+    font-size: 2.5rem;
+  }
+
+  .loveNumber {
+    font-size: 2.5rem;
+  }
+
+  .engagementGrid {
+    gap: 0.75rem;
+    margin: 0.5rem 0;
+  }
+
+  .engagementItem {
+    padding: 0.5rem;
+  }
+
+  .engagementValue {
+    font-size: 1.25rem;
+  }
+
+  .communityBanner {
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .phoneFrame {
+    width: 120px;
+    height: 200px;
+    border-radius: 16px;
+    padding: 4px;
+    margin-bottom: 0.75rem;
+  }
+
+  .phoneNotch {
+    width: 40px;
+    height: 12px;
+    top: 6px;
+  }
+
+  .phoneScreen {
+    border-radius: 12px;
+  }
+
+  .previewEmoji {
     font-size: 1.5rem;
   }
 
+  .previewArchetype {
+    font-size: 0.75rem;
+  }
+
+  .shareButtons {
+    gap: 0.5rem;
+    max-width: 240px;
+  }
+
+  .shareButton {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.55rem;
+  }
+
+  .socialProof {
+    margin-top: 0.5rem;
+  }
+
+  .socialProofNumber {
+    font-size: 1rem;
+  }
+
+  .restartHint {
+    margin-top: 0.5rem;
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .clockFace {
+    width: 120px;
+    height: 120px;
+  }
+
+  .clockMarker {
+    transform-origin: center 54px;
+  }
+
+  .clockHand {
+    width: 35px;
+  }
+
+  .clockTime {
+    font-size: 1.25rem;
+  }
+
   .topicBubble {
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1.25rem;
   }
 
   .topicName {
@@ -917,15 +1040,15 @@
   }
 
   .podiumBar {
-    width: 65px;
+    width: 60px;
   }
 
   .loveNumber {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 
   .creatorNumber {
-    font-size: 4.5rem;
+    font-size: 4rem;
   }
 
   .archetypeEmoji {
@@ -933,11 +1056,15 @@
   }
 
   .archetypeName {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .phoneFrame {
-    width: 150px;
-    height: 270px;
+    width: 120px;
+    height: 200px;
+  }
+
+  .shareButtons {
+    max-width: 220px;
   }
 }
