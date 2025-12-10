@@ -26,7 +26,7 @@ const columnHelper = createColumnHelper<OpportunityPreviewUser>();
 const columns = [
   columnHelper.display({
     id: 'profileImage',
-    header: 'Preview 20',
+    header: 'Preview',
     cell: (info) => {
       const user = info.row.original;
       return (

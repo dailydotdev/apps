@@ -68,6 +68,7 @@ import {
   SalaryPeriod,
   SeniorityLevel,
 } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
+import { seniorityLevelMap } from '@dailydotdev/shared/src/features/opportunity/common';
 import {
   CompanySize,
   CompanyStage,
@@ -163,19 +164,6 @@ const employmentTypeMap = {
   [EmploymentType.PART_TIME]: 'Part-time',
   [EmploymentType.CONTRACT]: 'Contract',
   [EmploymentType.INTERNSHIP]: 'Internship',
-};
-
-const seniorityLevelMap = {
-  [SeniorityLevel.UNSPECIFIED]: 'N/A',
-  [SeniorityLevel.INTERN]: 'Intern',
-  [SeniorityLevel.JUNIOR]: 'Junior',
-  [SeniorityLevel.MID]: 'Mid',
-  [SeniorityLevel.SENIOR]: 'Senior',
-  [SeniorityLevel.LEAD]: 'Lead',
-  [SeniorityLevel.MANAGER]: 'Manager',
-  [SeniorityLevel.DIRECTOR]: 'Director',
-  [SeniorityLevel.VP]: 'VP',
-  [SeniorityLevel.C_LEVEL]: 'C-Level',
 };
 
 const salaryPeriodMap = {

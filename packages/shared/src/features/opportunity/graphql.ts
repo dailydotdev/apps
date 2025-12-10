@@ -578,6 +578,7 @@ export const OPPORTUNITY_PREVIEW = gql`
           image
         }
         totalCount
+        opportunityId
       }
     }
   }
