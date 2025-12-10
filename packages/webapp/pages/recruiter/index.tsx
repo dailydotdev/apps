@@ -9,6 +9,7 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { OpportunityPreviewProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { mockAnonymousUserTableData } from '@dailydotdev/shared/src/features/opportunity/mockData';
 import { ContentSidebar } from '@dailydotdev/shared/src/features/opportunity/components/analyze/ContentSidebar';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterPage(): ReactElement {
@@ -30,9 +31,9 @@ function RecruiterPage(): ReactElement {
                 openModal({
                   type: LazyModal.RecruiterJobLink,
                   props: {
-                    onSubmit: () => {
+                    onSubmit: (opportunity) => {
                       closeModal();
-                      router.push('/recruiter/analyze');
+                      router.push(`${webappUrl}${opportunity.id}/analyze`);
                     },
                   },
                 });

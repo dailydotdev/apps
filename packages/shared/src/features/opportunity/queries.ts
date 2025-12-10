@@ -4,7 +4,7 @@ import type {
   UseQueryOptions,
 } from '@tanstack/react-query';
 import { keepPreviousData } from '@tanstack/react-query';
-import { RequestKey, StaleTime } from '../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { gqlClient } from '../../graphql/common';
 import type { Connection } from '../../graphql/common';
 import type {
@@ -24,6 +24,8 @@ import {
   USER_OPPORTUNITY_MATCHES_QUERY,
   OPPORTUNITY_PREVIEW,
 } from './graphql';
+import type { LoggedUser } from '../../lib/user';
+import { disabledRefetch } from '../../lib/func';
 
 export const getOpportunityByIdKey = (id: string): QueryKey => [
   RequestKey.Opportunity,
@@ -186,9 +188,35 @@ export const getUserOpportunityMatchesOptions = ({
 };
 
 // Query Function
-export const getOpportunityPreview =
-  async (): Promise<OpportunityPreviewResponse> => {
-    const result = await gqlClient.request(OPPORTUNITY_PREVIEW);
+export const getOpportunityPreview = async ({
+  opportunityId,
+}): Promise<OpportunityPreviewResponse> => {
+  const result = await gqlClient.request<{
+    opportunityPreview: OpportunityPreviewResponse;
+  }>(OPPORTUNITY_PREVIEW, {
+    opportunityId,
+  });
 
-    return result.opportunityPreview;
+  return result.opportunityPreview;
+};
+
+export const opportunityPreviewQueryOptions = ({
+  opportunityId,
+  user,
+  enabled = true,
+}: {
+  opportunityId?: string;
+  user?: LoggedUser;
+  enabled?: boolean;
+}) => {
+  return {
+    queryKey: generateQueryKey(RequestKey.OpportunityPreview, user, {
+      opportunityId,
+    }),
+    queryFn: () => getOpportunityPreview({ opportunityId }),
+    enabled: !!user && !!enabled,
+    ...disabledRefetch,
+    staleTime: Infinity,
+    gcTime: Infinity,
   };
+};

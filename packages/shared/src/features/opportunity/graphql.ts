@@ -531,8 +531,8 @@ export const USER_OPPORTUNITY_MATCHES_QUERY = gql`
 `;
 
 export const OPPORTUNITY_PREVIEW = gql`
-  query OpportunityPreview {
-    opportunityPreview {
+  query OpportunityPreview($opportunityId: ID) {
+    opportunityPreview(opportunityId: $opportunityId) {
       edges {
         node {
           id
