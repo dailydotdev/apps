@@ -270,15 +270,16 @@ const metaMap = {
 };
 
 const JobPage = (): ReactElement => {
-  const { canEdit } = useOpportunityEditContext();
+  const { canEdit, opportunityId } = useOpportunityEditContext();
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
     back,
-    query: { id },
+    query: { id: routerId },
   } = useRouter();
+  const id = routerId || opportunityId;
 
   const logRef = useRef<typeof logEvent>();
   const hasLoggedRef = useRef(false);
@@ -289,7 +290,7 @@ const JobPage = (): ReactElement => {
   );
   const { data: match } = useQuery({
     ...opportunityMatchOptions({ id: id as string }),
-    enabled: isLoggedIn && !!id,
+    enabled: isLoggedIn && !!id && !canEdit && !isPending,
   });
 
   const hasCompletedInitialView = checkHasCompleted(

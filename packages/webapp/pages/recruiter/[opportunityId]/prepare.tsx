@@ -4,13 +4,10 @@ import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/He
 import { RecruiterProgress } from '@dailydotdev/shared/src/components/recruiter/Progress';
 import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { useRouter } from 'next/router';
-import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
-import JobPage from '../jobs/[id]/index';
+import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
+import JobPage from '../../jobs/[id]';
 
 function PreparePage(): ReactElement {
-  const router = useRouter();
-  const opportunityId = (router?.query?.id as string) || 'mock-jobs-id';
-
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
@@ -19,21 +16,19 @@ function PreparePage(): ReactElement {
         }}
       />
       <RecruiterProgress />
-      <OpportunityEditProvider opportunityId={opportunityId}>
-        <div className="flex-1 bg-background-subtle pt-6">
-          <JobPage />
-        </div>
-      </OpportunityEditProvider>
+      <div className="flex-1 bg-background-subtle pt-6">
+        <JobPage />
+      </div>
     </div>
   );
 }
 
 const GetPageLayout: typeof getLayout = (page, layoutProps) => {
   const router = useRouter();
-  const opportunityId = router?.query?.id as string;
+  const { opportunityId } = router.query;
 
   return (
-    <OpportunityEditProvider opportunityId={opportunityId}>
+    <OpportunityEditProvider opportunityId={opportunityId as string}>
       {getLayout(page, layoutProps)}
     </OpportunityEditProvider>
   );
