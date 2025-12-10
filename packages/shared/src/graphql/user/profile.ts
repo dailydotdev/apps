@@ -104,8 +104,13 @@ const USER_EXPERIENCE_BY_ID_QUERY = gql`
 
 export const getUserExperienceById = async (
   id: string,
+  requestHeaders?: HeadersInit,
 ): Promise<UserGeneralExperience | null> => {
-  const result = await gqlClient.request(USER_EXPERIENCE_BY_ID_QUERY, { id });
+  const result = await gqlClient.request(
+    USER_EXPERIENCE_BY_ID_QUERY,
+    { id },
+    requestHeaders,
+  );
   return result.userExperienceById;
 };
 
