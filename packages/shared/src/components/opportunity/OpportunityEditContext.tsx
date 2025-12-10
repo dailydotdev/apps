@@ -48,6 +48,7 @@ const [OpportunityEditProvider, useOpportunityEditContext] =
 
         return result;
       },
+      opportunityId,
     };
   });
 
