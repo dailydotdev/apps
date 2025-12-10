@@ -190,6 +190,18 @@
   overflow: hidden;
 }
 
+@media (min-height: 750px) {
+  .headlineStack {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (min-height: 850px) {
+  .headlineStack {
+    margin-bottom: 1.25rem;
+  }
+}
+
 .headlineRow {
   animation: headlineReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -216,6 +228,20 @@
   color: var(--fest-secondary);
   text-transform: uppercase;
   display: block;
+}
+
+@media (min-height: 750px) {
+  .headlineSmall {
+    font-size: 1rem;
+    letter-spacing: 0.28em;
+  }
+}
+
+@media (min-height: 850px) {
+  .headlineSmall {
+    font-size: 1.1rem;
+    letter-spacing: 0.3em;
+  }
 }
 
 .headlineBig {

@@ -11,18 +11,10 @@ interface CardProps {
   isActive: boolean;
 }
 
-const PATTERN_LABELS: Record<LogData['readingPattern'], string> = {
-  night: 'NIGHT OWL',
-  early: 'EARLY BIRD',
-  weekend: 'WEEKEND WARRIOR',
-  consistent: 'CONSISTENCY KING',
-};
-
-const PATTERN_EMOJIS: Record<LogData['readingPattern'], string> = {
-  night: '🦉',
-  early: '🌅',
-  weekend: '🎮',
-  consistent: '👑',
+const PATTERN_SENTENCES: Record<LogData['readingPattern'], string> = {
+  night: 'Only {percentile}% of devs read this late',
+  early: 'Only {percentile}% of devs start this early',
+  afternoon: 'Only {percentile}% read during peak hours',
 };
 
 function formatHour(hour: number): string {
@@ -42,14 +34,6 @@ export default function CardWhenYouRead({
   data,
   isActive,
 }: CardProps): ReactElement {
-  // Parse hour for clock visualization - round to nearest hour
-  const [hourStr] = data.peakHour.split(':');
-  const [, minStr] = data.peakHour.split(':');
-  const rawHour = parseInt(hourStr, 10);
-  const minutes = parseInt(minStr, 10) || 0;
-  const hour = minutes >= 30 ? (rawHour + 1) % 24 : rawHour;
-  const hourAngle = (hour % 12) * 30 - 90; // Clock angle
-
   // Aggregate heatmap data to get hour distribution (sum across all days)
   const hourDistribution = useMemo(() => {
     const distribution = Array(24).fill(0);
@@ -63,7 +47,7 @@ export default function CardWhenYouRead({
   }, [data.activityHeatmap]);
 
   // Find the peak hour from distribution
-  const peakDistributionHour = useMemo(() => {
+  const peakHour = useMemo(() => {
     let maxIdx = 0;
     let maxVal = 0;
     hourDistribution.forEach((val, idx) => {
@@ -74,6 +58,9 @@ export default function CardWhenYouRead({
     });
     return maxIdx;
   }, [hourDistribution]);
+
+  // Calculate clock angle from peak hour
+  const hourAngle = (peakHour % 12) * 30 - 90;
 
   return (
     <>
@@ -112,7 +99,7 @@ export default function CardWhenYouRead({
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
           >
-            {formatHour(hour)}
+            {formatHour(peakHour)}
           </motion.div>
         </div>
       </motion.div>
@@ -124,7 +111,7 @@ export default function CardWhenYouRead({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <span className={styles.headlineSmall}>Your brain peaks at</span>
+        <span className={styles.headlineSmall}>Your golden hour</span>
       </motion.div>
 
       {/* Hour distribution bar chart */}
@@ -141,7 +128,7 @@ export default function CardWhenYouRead({
               <motion.div
                 key={`hour-${hourNumber}-${value}`}
                 className={`${cardStyles.hourDistBar} ${
-                  hourNumber === peakDistributionHour
+                  hourNumber === peakHour
                     ? cardStyles.hourDistBarPeak
                     : ''
                 }`}
@@ -164,53 +151,29 @@ export default function CardWhenYouRead({
         </div>
       </motion.div>
 
-      {/* Combined stats row: Power day + Pattern */}
+      {/* Pattern stat */}
       <motion.div
         className={cardStyles.whenStatsRow}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.4 }}
       >
-        {/* Power day */}
-        <div className={cardStyles.whenStatItem}>
-          <span className={cardStyles.whenStatEmoji}>⚡</span>
-          <div className={cardStyles.whenStatContent}>
-            <span className={cardStyles.whenStatLabel}>POWER DAY</span>
-            <span className={cardStyles.whenStatValue}>{data.peakDay}</span>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className={cardStyles.whenStatDivider} />
-
-        {/* Pattern */}
-        <div className={cardStyles.whenStatItem}>
-          <motion.span
-            className={cardStyles.whenStatEmoji}
-            animate={{
-              rotate: [0, -10, 10, -10, 0],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{ delay: 1.8, duration: 0.5 }}
-          >
-            {PATTERN_EMOJIS[data.readingPattern]}
-          </motion.span>
-          <div className={cardStyles.whenStatContent}>
-            <span className={cardStyles.whenStatLabel}>
-              TOP {data.patternPercentile}%
-            </span>
-            <span className={cardStyles.whenStatValue}>
-              {PATTERN_LABELS[data.readingPattern]}
-            </span>
-          </div>
-        </div>
+        {PATTERN_SENTENCES[data.readingPattern].replace(
+          '{percentile}',
+          String(data.patternPercentile),
+        )}
       </motion.div>
 
       {/* Share button */}
       <ShareStatButton
         delay={2.6}
         isActive={isActive}
-        statText={`My brain peaks at ${data.peakHour} ${PATTERN_EMOJIS[data.readingPattern]}\n\nI'm a ${PATTERN_LABELS[data.readingPattern]} — TOP ${data.patternPercentile}% on daily.dev!`}
+        statText={`My golden hour is ${formatHour(peakHour)}\n\n${PATTERN_SENTENCES[
+          data.readingPattern
+        ].replace(
+          '{percentile}',
+          String(data.patternPercentile),
+        )} on daily.dev!`}
       />
     </>
   );

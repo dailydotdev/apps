@@ -6,7 +6,21 @@
 
 .clockContainer {
   position: relative;
-  margin: 0.5rem 0 1rem;
+  margin: -1rem 0 2rem;
+  flex-shrink: 0;
+}
+
+/* Expand clock on taller screens */
+@media (min-height: 750px) {
+  .clockContainer {
+    margin: -1.5rem 0 2.5rem;
+  }
+}
+
+@media (min-height: 850px) {
+  .clockContainer {
+    margin: -2rem 0 3rem;
+  }
 }
 
 .clockFace {
@@ -100,15 +114,41 @@
   width: 100%;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  padding: 0.75rem;
-  margin: 0.5rem 0;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+@media (min-height: 750px) {
+  .hourDistWrapper {
+    padding: 1.25rem;
+    margin: 1.25rem 0;
+  }
+}
+
+@media (min-height: 850px) {
+  .hourDistWrapper {
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
 }
 
 .hourDistBars {
   display: flex;
   align-items: flex-end;
   gap: 2px;
-  height: 48px;
+  height: 56px;
+}
+
+@media (min-height: 750px) {
+  .hourDistBars {
+    height: 64px;
+  }
+}
+
+@media (min-height: 850px) {
+  .hourDistBars {
+    height: 80px;
+  }
 }
 
 .hourDistBar {
@@ -123,27 +163,70 @@
 .hourDistBarPeak {
   background: var(--fest-lime, #c6f135);
   box-shadow: 0 0 8px var(--fest-lime, #c6f135);
+  animation: peakGlow 4s linear infinite;
+}
+
+@keyframes peakGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--fest-lime, #c6f135);
+  }
+  50% {
+    box-shadow: 0 0 16px var(--fest-lime, #c6f135), 0 0 24px rgba(198, 241, 53, 0.4);
+  }
 }
 
 .hourDistLabels {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   font-size: 0.5rem;
   color: var(--fest-white-30, rgba(255,255,255,0.3));
   margin-top: 0.5rem;
-  padding: 0 2px;
+}
+
+@media (min-height: 750px) {
+  .hourDistLabels {
+    font-size: 0.55rem;
+    margin-top: 0.625rem;
+  }
+}
+
+@media (min-height: 850px) {
+  .hourDistLabels {
+    font-size: 0.6rem;
+    margin-top: 0.75rem;
+  }
 }
 
 /* Combined Stats Row (Power Day + Pattern) */
 .whenStatsRow {
   display: flex;
-  align-items: stretch;
+  justify-content: center;
   gap: 0;
   background: linear-gradient(135deg, var(--fest-primary, #ff6b35), var(--fest-accent, #e637bf));
   border-radius: 8px;
-  padding: 0.625rem 0.75rem;
-  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
   width: 100%;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+@media (min-height: 750px) {
+  .whenStatsRow {
+    padding: 0.875rem 1.25rem;
+    margin-top: 1.25rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-height: 850px) {
+  .whenStatsRow {
+    padding: 1rem 1.5rem;
+    margin-top: 1.5rem;
+    border-radius: 10px;
+    font-size: 1rem;
+  }
 }
 
 .whenStatItem {
@@ -157,22 +240,16 @@
   font-size: 1.5rem;
 }
 
-.whenStatContent {
-  display: flex;
-  flex-direction: column;
+@media (min-height: 750px) {
+  .whenStatEmoji {
+    font-size: 1.75rem;
+  }
 }
 
-.whenStatLabel {
-  font-size: 0.5rem;
-  letter-spacing: 0.08em;
-  opacity: 0.85;
-  text-transform: uppercase;
-}
-
-.whenStatValue {
-  font-family: 'Dela Gothic One', cursive;
-  font-size: 0.85rem;
-  line-height: 1.2;
+@media (min-height: 850px) {
+  .whenStatEmoji {
+    font-size: 2rem;
+  }
 }
 
 .whenStatDivider {
@@ -211,6 +288,47 @@
 .patternName {
   font-family: 'Dela Gothic One', cursive;
   font-size: 1.25rem;
+}
+
+/* Larger clock on taller screens */
+@media (min-height: 750px) {
+  .clockFace {
+    width: 160px;
+    height: 160px;
+  }
+
+  .clockMarker {
+    transform-origin: center 74px;
+  }
+
+  .clockHand {
+    width: 48px;
+  }
+
+  .clockTime {
+    font-size: 1.625rem;
+    bottom: -38px;
+  }
+}
+
+@media (min-height: 850px) {
+  .clockFace {
+    width: 180px;
+    height: 180px;
+  }
+
+  .clockMarker {
+    transform-origin: center 84px;
+  }
+
+  .clockHand {
+    width: 55px;
+  }
+
+  .clockTime {
+    font-size: 1.75rem;
+    bottom: -42px;
+  }
 }
 
 /* ========================================
@@ -1248,10 +1366,6 @@
     width: 100%;
     height: 1px;
     margin: 0;
-  }
-
-  .whenStatItem {
-    justify-content: center;
   }
 
   .topicBubble {

@@ -93,9 +93,8 @@ export interface LogData {
   totalImpactPercentile: number;
 
   // Card 2: When You Read
-  peakHour: string; // e.g., "23:47"
   peakDay: string; // e.g., "Thursday"
-  readingPattern: 'night' | 'early' | 'weekend' | 'consistent';
+  readingPattern: 'night' | 'early' | 'afternoon';
   patternPercentile: number;
   activityHeatmap: number[][]; // 7 days x 24 hours
 
@@ -152,7 +151,6 @@ export const MOCK_LOG_DATA: LogData = {
   totalImpactPercentile: 91,
 
   // Card 2
-  peakHour: '23:47',
   peakDay: 'Thursday',
   readingPattern: 'night',
   patternPercentile: 8,
