@@ -1,11 +1,13 @@
 import { createContextProvider } from '@kickass-coderz/react';
 import { useQuery } from '@tanstack/react-query';
 import type { PropsWithChildren } from 'react';
-import { getOpportunityPreview, opportunityByIdOptions } from '../queries';
+import { useRouter } from 'next/router';
+import {
+  opportunityByIdOptions,
+  opportunityPreviewQueryOptions,
+} from '../queries';
 import type { Opportunity, OpportunityPreviewConnection } from '../types';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { disabledRefetch } from '../../../lib/func';
 
 export type OpportunityPreviewContextType = OpportunityPreviewConnection & {
   opportunity?: Opportunity;
@@ -18,15 +20,18 @@ type UseOpportunityPreviewProps = PropsWithChildren & {
 const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
   createContextProvider(({ mockData }: UseOpportunityPreviewProps = {}) => {
     const { user } = useAuthContext();
+    const router = useRouter();
+    const opportunityIdParam = router?.query?.opportunityId as
+      | string
+      | undefined;
 
-    const { data } = useQuery({
-      queryKey: generateQueryKey(RequestKey.OpportunityPreview, user),
-      queryFn: () => getOpportunityPreview(),
-      enabled: !!user && !mockData,
-      ...disabledRefetch,
-      staleTime: Infinity,
-      gcTime: Infinity,
-    });
+    const { data } = useQuery(
+      opportunityPreviewQueryOptions({
+        opportunityId: opportunityIdParam,
+        user: user || undefined,
+        enabled: !mockData,
+      }),
+    );
 
     const opportunityId = data?.result?.opportunityId;
 

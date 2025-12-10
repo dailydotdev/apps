@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { OpportunityPreviewProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { ContentSidebar } from '@dailydotdev/shared/src/features/opportunity/components/analyze/ContentSidebar';
 import { UserTableWrapper } from '@dailydotdev/shared/src/features/opportunity/components/analyze/UserTableWrapper';
-import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
+import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const RecruiterPageContent = () => {
   const { user } = useAuthContext();
