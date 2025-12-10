@@ -9,16 +9,16 @@ import { Chip } from '../../../../components/cards/common/PostTags';
 import { Loader } from '../../../../components/Loader';
 import { useOpportunityPreviewContext } from '../../context/OpportunityPreviewContext';
 import { cloudinarySquadsImageFallback } from '../../../../lib/image';
+import { apiUrl } from '../../../../lib/config';
 
 const iconSize = 24;
 
 type CompanyItemProps = {
   favicon?: string;
   name: string;
-  apiUrl: string;
 };
 
-const CompanyItem = ({ favicon, name, apiUrl }: CompanyItemProps) => (
+const CompanyItem = ({ favicon, name }: CompanyItemProps) => (
   <div className="flex gap-2">
     <img
       src={`${apiUrl}/icon?url=${encodeURIComponent(favicon)}&size=${iconSize}`}
@@ -33,10 +33,9 @@ const CompanyItem = ({ favicon, name, apiUrl }: CompanyItemProps) => (
 
 type RelevantBlockProps = {
   loadingStep: number;
-  apiUrl: string;
 };
 
-export const RelevantBlock = ({ loadingStep, apiUrl }: RelevantBlockProps) => {
+export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
   const data = useOpportunityPreviewContext();
   const totalCount = data?.result?.totalCount ?? 0;
   const tags = data?.result?.tags ?? [];
@@ -126,7 +125,6 @@ export const RelevantBlock = ({ loadingStep, apiUrl }: RelevantBlockProps) => {
             key={company.name}
             favicon={company.favicon}
             name={company.name}
-            apiUrl={apiUrl}
           />
         ))}
       </div>
