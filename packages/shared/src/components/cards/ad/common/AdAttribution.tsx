@@ -37,7 +37,7 @@ export default function AdAttribution({
 
         if (isSpan) {
           // eslint-disable-next-line react/no-array-index-key
-          return <span key={index}>{content}</span>;
+          return <span key={`scramble-${index}`}>{content}</span>;
         }
         return content;
       }),
