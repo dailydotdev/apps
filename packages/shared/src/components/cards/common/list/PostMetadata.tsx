@@ -27,7 +27,9 @@ export default function PostMetadata({
   bottomLabel,
 }: PostMetadataProps): ReactElement {
   const { boostedBy } = useFeedCardContext();
-  const promotedText = useScrambler(`Promoted by @${boostedBy.username}`);
+  const promotedText = useScrambler(
+    boostedBy ? `Promoted by @${boostedBy.username}` : null,
+  );
 
   return (
     <div className={classNames('grid items-center', className)}>
