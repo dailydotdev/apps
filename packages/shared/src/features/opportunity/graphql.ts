@@ -275,6 +275,8 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
       }
     }
   }
+
+  ${GCS_BLOB_FRAGMENT}
 `;
 
 export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
