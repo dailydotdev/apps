@@ -1,6 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import {
+  UpvoteIcon,
+  DiscussIcon,
+  BookmarkIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import cardStyles from './Cards.module.css';
@@ -11,37 +17,44 @@ interface CardProps {
   isActive: boolean;
 }
 
-// Floating heart component
-function FloatingHeart({
+// Mixed floating icons component
+function FloatingIcon({
   delay,
   x,
+  type,
 }: {
   delay: number;
   x: number;
+  type: 'upvote' | 'comment' | 'bookmark';
 }): ReactElement {
+  const icons = {
+    upvote: <UpvoteIcon secondary size={IconSize.Small} className="text-action-upvote-default" />,
+    comment: <DiscussIcon secondary size={IconSize.Small} className="text-action-comment-default" />,
+    bookmark: <BookmarkIcon secondary size={IconSize.Small} className="text-action-bookmark-default" />,
+  };
+
   return (
     <motion.div
       style={{
         position: 'absolute',
         left: `${x}%`,
-        bottom: '20%',
-        fontSize: '1.5rem',
+        bottom: '15%',
         pointerEvents: 'none',
       }}
       initial={{ y: 0, opacity: 0, scale: 0 }}
       animate={{
-        y: -200,
+        y: -180,
         opacity: [0, 1, 1, 0],
         scale: [0, 1.2, 1, 0.8],
-        x: [0, Math.random() * 40 - 20],
+        x: [0, Math.random() * 30 - 15],
       }}
       transition={{
-        duration: 2,
+        duration: 2.2,
         delay,
         ease: 'easeOut',
       }}
     >
-      💜
+      {icons[type]}
     </motion.div>
   );
 }
@@ -50,10 +63,17 @@ export default function CardCommunityEngagement({
   data,
   isActive,
 }: CardProps): ReactElement {
-  const [showHearts, setShowHearts] = useState(false);
+  const [showParticles, setShowParticles] = useState(false);
 
+  // Total engagement actions
+  const totalEngagement = data.upvotesGiven + data.commentsWritten + data.postsBookmarked;
+
+  const animatedTotal = useAnimatedNumber(totalEngagement, {
+    delay: 300,
+    enabled: isActive,
+  });
   const animatedUpvotes = useAnimatedNumber(data.upvotesGiven, {
-    delay: 500,
+    delay: 600,
     enabled: isActive,
   });
   const animatedComments = useAnimatedNumber(data.commentsWritten, {
@@ -61,34 +81,56 @@ export default function CardCommunityEngagement({
     enabled: isActive,
   });
   const animatedBookmarks = useAnimatedNumber(data.postsBookmarked, {
-    delay: 1100,
+    delay: 1000,
     enabled: isActive,
   });
 
-  // Find the best percentile
-  const bestStat = [
-    { label: 'UPVOTERS', value: data.upvotePercentile, emoji: '💜' },
-    { label: 'COMMENTERS', value: data.commentPercentile, emoji: '💬' },
-    { label: 'CURATORS', value: data.bookmarkPercentile, emoji: '📚' },
-  ]
-    .filter((s) => s.value !== undefined && s.value <= 50)
-    .sort((a, b) => (a.value || 100) - (b.value || 100))[0];
+  // All stats for percentile display
+  const allStats = useMemo(() => [
+    {
+      label: 'UPVOTERS',
+      value: data.upvotePercentile,
+      icon: <UpvoteIcon secondary size={IconSize.Large} className="text-action-upvote-default" />,
+    },
+    {
+      label: 'COMMENTERS',
+      value: data.commentPercentile,
+      icon: <DiscussIcon secondary size={IconSize.Large} className="text-action-comment-default" />,
+    },
+    {
+      label: 'CURATORS',
+      value: data.bookmarkPercentile,
+      icon: <BookmarkIcon secondary size={IconSize.Large} className="text-action-bookmark-default" />,
+    },
+  ].filter((s) => s.value !== undefined && s.value <= 50)
+   .sort((a, b) => (a.value || 100) - (b.value || 100)), [data]);
+
+  const bestStat = allStats[0];
+
+  // Generate mixed floating icons
+  const floatingIcons = useMemo(() => {
+    const types: Array<'upvote' | 'comment' | 'bookmark'> = ['upvote', 'comment', 'bookmark'];
+    return [...Array(15)].map((_, i) => ({
+      x: 15 + Math.random() * 70,
+      delay: i * 0.12,
+      type: types[i % 3],
+      key: `icon-${i}`,
+    }));
+  }, []);
 
   useEffect(() => {
     if (isActive) {
-      const timer = setTimeout(() => setShowHearts(true), 1000);
+      const timer = setTimeout(() => setShowParticles(true), 800);
       return () => clearTimeout(timer);
     }
-    setShowHearts(false);
-    return () => {
-      // Cleanup when inactive
-    };
+    setShowParticles(false);
+    return () => {};
   }, [isActive]);
 
   return (
     <>
-      {/* Floating hearts */}
-      {showHearts && (
+      {/* Mixed floating icons */}
+      {showParticles && (
         <div
           style={{
             position: 'absolute',
@@ -97,50 +139,37 @@ export default function CardCommunityEngagement({
             pointerEvents: 'none',
           }}
         >
-          {[...Array(12)].map((_, i) => {
-            const x = 20 + Math.random() * 60;
-            return (
-              <FloatingHeart
-                key={`heart-${x}-${i * 0.15}`}
-                delay={i * 0.15}
-                x={x}
-              />
-            );
-          })}
+          {floatingIcons.map(({ x, delay, type, key }) => (
+            <FloatingIcon key={key} delay={delay} x={x} type={type} />
+          ))}
         </div>
       )}
 
-      {/* Main stat - Upvotes with heart burst */}
+      {/* Total engagement header */}
       <motion.div
-        className={cardStyles.loveContainer}
+        className={cardStyles.engagementHeader}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <span className={cardStyles.engagementHeaderText}>COMMUNITY PULSE</span>
+      </motion.div>
+
+      {/* Main stat - Total engagement */}
+      <motion.div
+        className={cardStyles.totalEngagementContainer}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <motion.div
-          className={cardStyles.loveEmoji}
-          animate={
-            showHearts
-              ? {
-                  scale: [1, 1.3, 1],
-                  rotate: [0, -10, 10, 0],
-                }
-              : {}
-          }
-          transition={{ duration: 0.5 }}
+        <motion.span
+          className={cardStyles.totalEngagementNumber}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
         >
-          💜
-        </motion.div>
-        <div className={cardStyles.loveStats}>
-          <motion.span
-            className={cardStyles.loveNumber}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            {animatedUpvotes}
-          </motion.span>
-          <span className={cardStyles.loveLabel}>upvotes given</span>
-        </div>
+          {animatedTotal}
+        </motion.span>
+        <span className={cardStyles.totalEngagementLabel}>interactions</span>
       </motion.div>
 
       {/* Subtitle */}
@@ -148,35 +177,49 @@ export default function CardCommunityEngagement({
         className={cardStyles.loveSubtitle}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.5 }}
       >
-        spreading the love across the community
+        every action builds the community
       </motion.p>
 
-      {/* Secondary stats as icons */}
+      {/* Three equal engagement pillars */}
       <motion.div
-        className={cardStyles.engagementGrid}
+        className={cardStyles.engagementPillars}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
+        transition={{ delay: 0.7 }}
       >
         <motion.div
-          className={cardStyles.engagementItem}
-          whileHover={{ scale: 1.1 }}
+          className={cardStyles.engagementPillar}
+          whileHover={{ scale: 1.05 }}
         >
-          <span className={cardStyles.engagementEmoji}>💬</span>
-          <span className={cardStyles.engagementValue}>{animatedComments}</span>
-          <span className={cardStyles.engagementLabel}>comments</span>
-        </motion.div>
-        <motion.div
-          className={cardStyles.engagementItem}
-          whileHover={{ scale: 1.1 }}
-        >
-          <span className={cardStyles.engagementEmoji}>🔖</span>
-          <span className={cardStyles.engagementValue}>
-            {animatedBookmarks}
+          <span className={cardStyles.pillarIcon}>
+            <UpvoteIcon secondary size={IconSize.Medium} className="text-action-upvote-default" />
           </span>
-          <span className={cardStyles.engagementLabel}>bookmarked</span>
+          <span className={cardStyles.pillarValue}>{animatedUpvotes}</span>
+          <span className={cardStyles.pillarLabel}>upvotes</span>
+        </motion.div>
+
+        <motion.div
+          className={cardStyles.engagementPillar}
+          whileHover={{ scale: 1.05 }}
+        >
+          <span className={cardStyles.pillarIcon}>
+            <DiscussIcon secondary size={IconSize.Medium} className="text-action-comment-default" />
+          </span>
+          <span className={cardStyles.pillarValue}>{animatedComments}</span>
+          <span className={cardStyles.pillarLabel}>comments</span>
+        </motion.div>
+
+        <motion.div
+          className={cardStyles.engagementPillar}
+          whileHover={{ scale: 1.05 }}
+        >
+          <span className={cardStyles.pillarIcon}>
+            <BookmarkIcon secondary size={IconSize.Medium} className="text-action-bookmark-default" />
+          </span>
+          <span className={cardStyles.pillarValue}>{animatedBookmarks}</span>
+          <span className={cardStyles.pillarLabel}>saved</span>
         </motion.div>
       </motion.div>
 
@@ -186,10 +229,10 @@ export default function CardCommunityEngagement({
           className={cardStyles.communityBanner}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.3, type: 'spring' }}
+          transition={{ delay: 1.2, type: 'spring' }}
         >
           <span className={cardStyles.communityBannerEmoji}>
-            {bestStat.emoji}
+            {bestStat.icon}
           </span>
           <div>
             <span className={cardStyles.communityBannerTop}>
@@ -204,13 +247,9 @@ export default function CardCommunityEngagement({
 
       {/* Share button */}
       <ShareStatButton
-        delay={2.1}
+        delay={1.8}
         isActive={isActive}
-        statText={`Spreading the love on daily.dev 💜\n\n👍 ${
-          data.upvotesGiven
-        } upvotes given\n💬 ${data.commentsWritten} comments\n🔖 ${
-          data.postsBookmarked
-        } bookmarked${
+        statText={`My community pulse on daily.dev 💜\n\n🎯 ${totalEngagement} total interactions\n👍 ${data.upvotesGiven} upvotes\n💬 ${data.commentsWritten} comments\n🔖 ${data.postsBookmarked} saved${
           bestStat
             ? `\n\nTOP ${bestStat.value}% ${bestStat.label.toLowerCase()}!`
             : ''
