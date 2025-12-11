@@ -218,6 +218,8 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
           userId
           opportunityId
           status
+          createdAt
+          updatedAt
           description {
             reasoning
           }
