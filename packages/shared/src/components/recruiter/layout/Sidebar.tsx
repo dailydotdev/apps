@@ -194,7 +194,7 @@ export const Sidebar = (): ReactElement => {
         });
       }
 
-      const orgGroup = grouped.get(orgName)!;
+      const orgGroup = grouped ? grouped.get(orgName) : 'No name';
 
       // Categorize by state
       if (opportunity.state === OpportunityState.DRAFT) {
