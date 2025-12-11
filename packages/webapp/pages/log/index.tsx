@@ -202,7 +202,11 @@ export default function LogPage({
     const baseCards: CardConfig[] = [
       { id: 'total-impact', component: CardTotalImpact },
       { id: 'when-you-read', component: CardWhenYouRead },
-      { id: 'topic-evolution', component: CardTopicEvolution },
+      {
+        id: 'topic-evolution',
+        component: CardTopicEvolution,
+        subcards: data.topicJourney.length - 1, // One subcard per month
+      },
       { id: 'favorite-sources', component: CardFavoriteSources },
       { id: 'community', component: CardCommunityEngagement },
     ];
@@ -221,7 +225,7 @@ export default function LogPage({
     );
 
     return baseCards;
-  }, [data.hasContributions]);
+  }, [data.hasContributions, data.topicJourney?.length]);
 
   // Navigation with subcard support - only swipe triggers transitions
   const { currentCard, currentSubcard, direction, goNext, goPrev } =
@@ -229,6 +233,7 @@ export default function LogPage({
 
   const currentCardConfig = cards[currentCard];
   const maxSubcard = currentCardConfig?.subcards || 0;
+  const hasSubcards = maxSubcard > 0;
   const isLastCard =
     currentCard === cards.length - 1 && currentSubcard === maxSubcard;
   const CardComponent = currentCardConfig.component;
@@ -396,7 +401,7 @@ export default function LogPage({
             mode="popLayout"
           >
             <motion.div
-              key={`${currentCard}-${currentSubcard}`}
+              key={currentCard}
               custom={directionValue}
               variants={cardVariants}
               initial="enter"
@@ -411,7 +416,7 @@ export default function LogPage({
               className={styles.card}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={1}
+              dragElastic={hasSubcards ? 0 : 1}
               onDragEnd={(e, { offset, velocity }) => {
                 const swipe = swipePower(offset.x, velocity.x);
 

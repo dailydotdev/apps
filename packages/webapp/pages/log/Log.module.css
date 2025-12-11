@@ -326,7 +326,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   animation: badgesReveal 0.8s ease-out 1.1s both;
   width: 100%;
   max-width: 100%;

@@ -63,7 +63,9 @@ export const ARCHETYPES: Record<Archetype, ArchetypeInfo> = {
 
 export interface TopicMonth {
   month: string;
-  topic: string;
+  topics: [string, string, string]; // Top 3 tags for the month (can have empty strings if fewer than 3)
+  comment?: string; // Optional comment to display for this month (e.g., "🔥 THE PIVOT MONTH")
+  inactive?: boolean; // True if user had no activity this month
 }
 
 export interface SourceStat {
@@ -100,8 +102,6 @@ export interface LogData {
 
   // Card 3: Topic Evolution
   topicJourney: TopicMonth[];
-  pivotMonth: string;
-  pivotTopic: string;
   uniqueTopics: number;
   evolutionPercentile: number;
 
@@ -164,21 +164,27 @@ export const MOCK_LOG_DATA: LogData = {
 
   // Card 3
   topicJourney: [
-    { month: 'Jan', topic: 'Python' },
-    { month: 'Feb', topic: 'Python' },
-    { month: 'Mar', topic: 'FastAPI' },
-    { month: 'Apr', topic: 'FastAPI' },
-    { month: 'May', topic: 'Docker' },
-    { month: 'Jun', topic: 'System Design' },
-    { month: 'Jul', topic: 'Kubernetes' },
-    { month: 'Aug', topic: 'Kubernetes' },
-    { month: 'Sep', topic: 'Go' },
-    { month: 'Oct', topic: 'Rust' },
-    { month: 'Nov', topic: 'Rust' },
-    { month: 'Dec', topic: 'Rust' },
+    { month: 'Jan', topics: ['Python', 'Django', 'REST APIs'] },
+    { month: 'Feb', topics: ['Python', 'Machine Learning', 'Pandas'] },
+    {
+      month: 'Mar',
+      topics: ['FastAPI', 'Python', 'PostgreSQL'],
+      inactive: true,
+    },
+    { month: 'Apr', topics: ['FastAPI', 'Docker', 'CI/CD'] },
+    { month: 'May', topics: ['Docker', 'Kubernetes', 'DevOps'] },
+    { month: 'Jun', topics: ['System Design', 'Microservices', 'AWS'] },
+    {
+      month: 'Jul',
+      topics: ['Kubernetes', 'Helm', 'GitOps'],
+      comment: '🔥 THE PIVOT MONTH',
+    },
+    { month: 'Aug', topics: ['Kubernetes', 'Service Mesh', 'Istio'] },
+    { month: 'Sep', topics: ['Go', 'Concurrency', 'gRPC'] },
+    { month: 'Oct', topics: ['Rust', 'WebAssembly', 'Performance'] },
+    { month: 'Nov', topics: ['Rust', 'Async', 'Tokio'] },
+    { month: 'Dec', topics: ['Rust', 'Systems', 'Memory Safety'] },
   ],
-  pivotMonth: 'July',
-  pivotTopic: 'Kubernetes',
   uniqueTopics: 47,
   evolutionPercentile: 23,
 
