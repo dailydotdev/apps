@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
-import { RecruiterProgress } from '@dailydotdev/shared/src/components/recruiter/Progress';
+import {
+  RecruiterProgress,
+  RecruiterProgressStep,
+} from '@dailydotdev/shared/src/components/recruiter/Progress';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -56,7 +59,7 @@ const RecruiterPageContent = () => {
           onClick: handlePrepareCampaignClick,
         }}
       />
-      <RecruiterProgress />
+      <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
       <div className="flex flex-1">
         <ContentSidebar loadingStep={loadingStep} />
         <UserTableWrapper loadingStep={loadingStep} />

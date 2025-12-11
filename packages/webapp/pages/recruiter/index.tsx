@@ -3,7 +3,10 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { AnonymousUserTable } from '@dailydotdev/shared/src/components/recruiter/AnonymousUserTable';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
-import { RecruiterProgress } from '@dailydotdev/shared/src/components/recruiter/Progress';
+import {
+  RecruiterProgress,
+  RecruiterProgressStep,
+} from '@dailydotdev/shared/src/components/recruiter/Progress';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { OpportunityPreviewProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
@@ -51,7 +54,7 @@ function RecruiterPage(): ReactElement {
     <OpportunityPreviewProvider mockData={mockAnonymousUserTableData}>
       <div className="flex flex-1 flex-col">
         <RecruiterHeader />
-        <RecruiterProgress />
+        <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
         <div className="flex flex-1">
           <ContentSidebar loadingStep={4} />
           <AnonymousUserTable />

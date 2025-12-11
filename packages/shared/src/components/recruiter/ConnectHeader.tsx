@@ -1,5 +1,6 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -13,18 +14,45 @@ import { BoostIcon } from '../icons/Boost';
 import Link from '../utilities/Link';
 import { useOpportunityContext } from '../../features/opportunity/context/OpportunityContext';
 
-const Item = ({ children }) => {
+type ItemProps = {
+  children: ReactNode;
+  href: string;
+  active?: boolean;
+};
+
+const Item = ({ children, href, active }: ItemProps) => {
   return (
-    <Link href="#">
-      <div className="flex cursor-pointer items-center gap-2 border-b border-transparent px-3 py-2 hover:border-b-brand-default">
+    <Link href={href}>
+      <div
+        className={classNames(
+          'flex cursor-pointer items-center gap-2 border-b-2 px-3 py-2',
+          active
+            ? 'border-b-accent-cabbage-default font-bold'
+            : 'border-transparent hover:border-b-brand-default',
+        )}
+      >
         {children}
       </div>
     </Link>
   );
 };
 
-export const ConnectHeader = (): ReactElement => {
+type ConnectHeaderProps = {
+  activeTab?: 'review' | 'intros';
+};
+
+export const ConnectHeader = ({
+  activeTab,
+}: ConnectHeaderProps = {}): ReactElement => {
   const { opportunity } = useOpportunityContext();
+
+  const opportunityId = opportunity?.id;
+  const forReviewHref = opportunityId
+    ? `/recruiter/${opportunityId}/matches`
+    : '#';
+  const introsHref = opportunityId
+    ? `/recruiter/${opportunityId}/matches/intros`
+    : '#';
 
   return (
     <FlexCol>
@@ -69,8 +97,12 @@ export const ConnectHeader = (): ReactElement => {
         </FlexRow>
       </FlexRow>
       <FlexRow className="border-b border-border-subtlest-tertiary px-4">
-        <Item>For Review</Item>
-        <Item>Intros</Item>
+        <Item href={forReviewHref} active={activeTab === 'review'}>
+          For Review
+        </Item>
+        <Item href={introsHref} active={activeTab === 'intros'}>
+          Intros
+        </Item>
       </FlexRow>
     </FlexCol>
   );

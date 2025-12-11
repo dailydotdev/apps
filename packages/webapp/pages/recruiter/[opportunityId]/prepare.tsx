@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
-import { RecruiterProgress } from '@dailydotdev/shared/src/components/recruiter/Progress';
+import {
+  RecruiterProgress,
+  RecruiterProgressStep,
+} from '@dailydotdev/shared/src/components/recruiter/Progress';
 import {
   OpportunityEditProvider,
   useOpportunityEditContext,
@@ -25,7 +28,7 @@ function PreparePage(): ReactElement {
           },
         }}
       />
-      <RecruiterProgress />
+      <RecruiterProgress activeStep={RecruiterProgressStep.PrepareAndLaunch} />
       <div className="flex-1 bg-background-subtle pt-6">
         <JobPage />
       </div>

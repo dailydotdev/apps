@@ -28,11 +28,6 @@ export const ConnectProgress = (): ReactElement => {
   });
   const steps: ProgressStep[] = [
     {
-      label: 'Matched',
-      count: stats?.matched ?? 0,
-      info: 'Developers who match your job requirements based on their skills, experience, and preferences',
-    },
-    {
       label: 'Reached',
       count: stats?.reached ?? 0,
       info: 'Candidates who have been notified about your opportunity and received the job details',
