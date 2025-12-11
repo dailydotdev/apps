@@ -38,7 +38,9 @@ export default function PostMetadata({
   const { boostedBy } = useFeedCardContext();
 
   const promotedText = useScrambler('Promoted');
-  const promotedByTooltip = useScrambler(`Promoted by @${boostedBy.username}`);
+  const promotedByTooltip = useScrambler(
+    boostedBy ? `Promoted by @${boostedBy.username}` : null,
+  );
 
   return (
     <div
