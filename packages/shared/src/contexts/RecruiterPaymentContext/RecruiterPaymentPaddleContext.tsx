@@ -52,7 +52,7 @@ export const RecruiterPaymentPaddleContextProvider = ({
   const { paddle, openCheckout } = usePaddlePayment({
     successCallback: () => {
       router.push(
-        `${webappUrl}recruiter/${router.query.opportunityId}/prepare`,
+        `${webappUrl}recruiter/${router.query.opportunityId}/matches`,
       );
     },
     priceType: PurchaseType.Recruiter,
