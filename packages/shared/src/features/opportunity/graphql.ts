@@ -483,12 +483,18 @@ export const OPPORTUNITIES_QUERY = gql`
       }
       edges {
         node {
-          ...OpportunityFragment
+          id
+          type
+          state
+          title
+          organization {
+            ...OrganizationShortFragment
+          }
         }
       }
     }
   }
-  ${OPPORTUNITY_FRAGMENT}
+  ${ORGANIZATION_SHORT_FRAGMENT}
 `;
 
 export const RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION = gql`
