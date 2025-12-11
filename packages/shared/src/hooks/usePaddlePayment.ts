@@ -150,7 +150,7 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.WarningCheckout,
               extra: JSON.stringify({
-                transaction_id: event?.data.transaction_id,
+                transaction_id: event?.data?.transaction_id,
               }),
             });
             break;
@@ -159,7 +159,7 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.ErrorCheckout,
               extra: JSON.stringify({
-                transaction_id: event?.data.transaction_id,
+                transaction_id: event?.data?.transaction_id,
               }),
             });
             break;
@@ -168,7 +168,7 @@ export const usePaddlePayment = ({
               target_type: targetType,
               event_name: LogEvent.ErrorPayment,
               extra: JSON.stringify({
-                transaction_id: event?.data.transaction_id,
+                transaction_id: event?.data?.transaction_id,
               }),
             });
             break;
@@ -201,12 +201,13 @@ export const usePaddlePayment = ({
   }, [router, disabledEvents, targetType, isOrganization, isPlusPlan]);
 
   const openCheckout = useCallback(
-    ({
+    <TCustomData>({
       priceId,
       giftToUserId,
       discountId,
       quantity = 1,
-    }: OpenCheckoutProps) => {
+      customData: customDataProp,
+    }: OpenCheckoutProps<TCustomData>) => {
       const items: CheckoutLineItem[] = [{ priceId, quantity }];
       const customer: CheckoutCustomer = {
         ...(user?.email
@@ -222,6 +223,7 @@ export const usePaddlePayment = ({
       };
 
       const customData = {
+        ...customDataProp,
         user_id: giftToUserId ?? user?.id,
         tracking_id: trackingId,
         ...(!!giftToUserId && { gifter_id: user?.id }),
