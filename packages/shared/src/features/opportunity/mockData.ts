@@ -2,6 +2,7 @@ import type { Opportunity } from './types';
 import type { OpportunityPreviewContextType } from './context/OpportunityPreviewContext';
 import { SeniorityLevel } from './protobuf/opportunity';
 import { SourceMemberRole, SourceType } from '../../graphql/sources';
+import { SubscriptionStatus } from '../../lib/plus';
 
 export const mockOpportunity: Opportunity = {
   id: '89f3daff-d6bb-4652-8f9c-b9f7254c9af1',
@@ -61,7 +62,7 @@ export const mockOpportunity: Opportunity = {
     { keyword: 'JavaScript' },
     { keyword: 'Tailwind CSS' },
   ],
-  paid: false,
+  subscriptionStatus: SubscriptionStatus.None,
 };
 
 export const mockAnonymousUserTableData: OpportunityPreviewContextType = {

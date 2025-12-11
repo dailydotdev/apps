@@ -13,6 +13,7 @@ import {
 import { ContentSidebar } from '@dailydotdev/shared/src/features/opportunity/components/analyze/ContentSidebar';
 import { UserTableWrapper } from '@dailydotdev/shared/src/features/opportunity/components/analyze/UserTableWrapper';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { SubscriptionStatus } from '@dailydotdev/shared/src/lib/plus';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const RecruiterPageContent = () => {
@@ -39,7 +40,7 @@ const RecruiterPageContent = () => {
       return;
     }
 
-    if (!opportunity.paid) {
+    if (opportunity.subscriptionStatus !== SubscriptionStatus.Active) {
       router.push(`${webappUrl}recruiter/${opportunity.id}/payment`);
 
       return;

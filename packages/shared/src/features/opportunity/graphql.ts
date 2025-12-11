@@ -128,7 +128,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
     feedbackQuestions {
       ...OpportunityFeedbackQuestionFragment
     }
-    paid
+    subscriptionStatus
   }
   ${ORGANIZATION_SHORT_FRAGMENT}
   ${OPPORTUNITY_CONTENT_FRAGMENT}

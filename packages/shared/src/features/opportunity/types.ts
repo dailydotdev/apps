@@ -12,6 +12,7 @@ import type { LocationType } from './protobuf/util';
 import type { Connection } from '../../graphql/common';
 import type { Squad } from '../../graphql/sources';
 import type { TopReader } from '../../components/badges/TopReaderBadge';
+import type { SubscriptionStatus } from '../../lib/plus';
 
 export enum OpportunityMatchStatus {
   Pending = 'pending',
@@ -103,7 +104,7 @@ export type Opportunity = {
   keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
   feedbackQuestions?: OpportunityFeedbackQuestion[];
-  paid: boolean;
+  subscriptionStatus: SubscriptionStatus;
 };
 
 export type OpportunityMatchDescription = {
