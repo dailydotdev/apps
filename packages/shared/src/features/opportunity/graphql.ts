@@ -222,6 +222,8 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
           userId
           opportunityId
           status
+          createdAt
+          updatedAt
           description {
             reasoning
           }
@@ -235,15 +237,18 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
           user {
             id
             name
+            username
             image
-            permalink
+            bio
             reputation
+            linkedin
           }
           candidatePreferences {
+            status
             role
-            location {
-              city
-              country
+            roleType
+            cv {
+              ...GCSBlob
             }
           }
           applicationRank {
@@ -276,6 +281,8 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
       }
     }
   }
+
+  ${GCS_BLOB_FRAGMENT}
 `;
 
 export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
