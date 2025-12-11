@@ -1524,80 +1524,171 @@
 }
 
 /* ========================================
-   CARD 7: RECORDS - Trophy Theme
+   CARD 7: RECORDS - Greatest Hits Album Theme
    ======================================== */
 
-.trophyHeader {
+/* Album-style stacked header */
+.albumHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.albumLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  color: var(--fest-secondary, #f7c948);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.albumTitle {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 2.25rem;
+  line-height: 0.95;
+  color: var(--fest-white, #fff);
+  text-shadow:
+    3px 3px 0 var(--fest-primary, #ff6b35),
+    6px 6px 0 var(--fest-accent, #e637bf);
+  letter-spacing: 0.02em;
+}
+
+.albumYear {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--fest-white-50, rgba(255, 255, 255, 0.5));
+  margin-top: 0.5rem;
+}
+
+/* Track listing container */
+.trackList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* Individual track row */
+.track {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 2rem;
-}
-
-.trophyEmoji {
-  font-size: 2.5rem;
-}
-
-.trophyTitle {
-  font-family: 'Dela Gothic One', cursive;
-  font-size: 1.5rem;
-  color: var(--fest-secondary, #f7c948);
-}
-
-.recordsGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-}
-
-.recordCard {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 1rem;
-  border-left: 4px solid;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--fest-white-10, rgba(255, 255, 255, 0.1));
   position: relative;
 }
 
-.recordIcon {
-  font-size: 2rem;
+.track:last-child {
+  border-bottom: none;
 }
 
-.recordContent {
-  flex: 1;
-}
-
-.recordLabel {
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  color: var(--fest-white-50, rgba(255,255,255,0.5));
-  text-transform: uppercase;
-  display: block;
-}
-
-.recordValue {
+/* Big track number */
+.trackNumber {
   font-family: 'Dela Gothic One', cursive;
-  font-size: 1.1rem;
-  color: var(--fest-white, #fff);
+  font-size: 1.75rem;
+  color: var(--fest-accent, #e637bf);
+  min-width: 2.5rem;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 }
 
-.recordBadge {
-  font-size: 0.55rem;
-  font-weight: 700;
-  padding: 0.25rem 0.5rem;
-  color: var(--fest-bg, #1a0a2e);
+/* Track info section */
+.trackInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
 }
 
-.nextTeaser {
+.trackTitleRow {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 2rem;
-  font-size: 0.8rem;
-  color: var(--fest-white-50, rgba(255,255,255,0.5));
-  font-style: italic;
+}
+
+.trackEmoji {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* Value as the "song title" - prominent */
+.trackTitle {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 1.1rem;
+  color: var(--fest-white, #fff);
+  line-height: 1.2;
+}
+
+/* Label as the "artist" - secondary */
+.trackArtist {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--fest-white-50, rgba(255, 255, 255, 0.5));
+  text-transform: uppercase;
+}
+
+/* Chart position badge - like a vinyl sticker */
+.chartBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--fest-lime, #c6f135);
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 2px 2px 0 var(--fest-primary, #ff6b35);
+}
+
+.chartBadgeTop {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.45rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--fest-bg, #1a0a2e);
+  line-height: 1;
+}
+
+.chartBadgeValue {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 0.85rem;
+  color: var(--fest-bg, #1a0a2e);
+  line-height: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 380px) {
+  .albumTitle {
+    font-size: 1.85rem;
+    text-shadow:
+      2px 2px 0 var(--fest-primary, #ff6b35),
+      4px 4px 0 var(--fest-accent, #e637bf);
+  }
+
+  .trackNumber {
+    font-size: 1.5rem;
+    min-width: 2rem;
+  }
+
+  .trackTitle {
+    font-size: 0.95rem;
+  }
+
+  .chartBadge {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .chartBadgeValue {
+    font-size: 0.75rem;
+  }
 }
 
 /* ========================================

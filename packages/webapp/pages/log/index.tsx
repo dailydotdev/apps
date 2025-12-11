@@ -100,15 +100,15 @@ const CARD_THEMES: Record<string, CardTheme> = {
     ],
   },
   records: {
-    bgColor: '#1a0a20',
-    burstColor: 'rgba(247, 201, 72, 0.08)',
+    bgColor: '#0d0a1a',
+    burstColor: 'rgba(230, 55, 191, 0.06)',
     decorations: [
+      { char: '★', color: '#e637bf' },
+      { char: '✦', color: '#c6f135' },
+      { char: '◆', color: '#e637bf' },
       { char: '★', color: '#f7c948' },
-      { char: '✦', color: '#ff6b35' },
-      { char: '◆', color: '#f7c948' },
-      { char: '★', color: '#c6f135' },
-      { char: '✴', color: '#f7c948' },
-      { char: '✦', color: '#ff6b35' },
+      { char: '✴', color: '#c6f135' },
+      { char: '✦', color: '#e637bf' },
     ],
   },
   archetype: {

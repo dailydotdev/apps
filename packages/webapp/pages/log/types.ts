@@ -74,14 +74,95 @@ export interface SourceStat {
   logoUrl: string;
 }
 
+// Record types based on Card 7: Your 2025 Records from AGENTS.md
+export enum RecordType {
+  // Time-based records
+  YEAR_ACTIVE = 'yearActive', // Active X% of the year (days/365)
+  STREAK = 'streak', // Longest streak
+  CONSISTENT_DAY = 'consistentDay', // Most consistent day ("Read every Tuesday for 8 months")
+
+  // Intensity records
+  BINGE_DAY = 'bingeDay', // Most posts in single day
+  LONGEST_SESSION = 'longestSession', // Longest reading session
+  TOPIC_MARATHON = 'topicMarathon', // Topic marathon ("34 posts about System Design in one week")
+
+  // Time-of-day records
+  LATE_NIGHT = 'lateNight', // Latest night read ("3:47 AM")
+  EARLY_MORNING = 'earlyMorning', // Earliest morning read ("5:12 AM")
+
+  // Growth records
+  GROWTH_MONTH = 'growthMonth', // Fastest growing month ("March was 3x your average")
+  IMPROVED_TOPIC = 'improvedTopic', // Most improved topic
+}
+
+export interface RecordInfo {
+  type: RecordType;
+  emoji: string;
+  defaultLabel: string;
+}
+
+export const RECORDS: Record<RecordType, RecordInfo> = {
+  // Time-based records
+  [RecordType.YEAR_ACTIVE]: {
+    type: RecordType.YEAR_ACTIVE,
+    emoji: '📅',
+    defaultLabel: 'Active This Year',
+  },
+  [RecordType.STREAK]: {
+    type: RecordType.STREAK,
+    emoji: '🔥',
+    defaultLabel: 'Longest Streak',
+  },
+  [RecordType.CONSISTENT_DAY]: {
+    type: RecordType.CONSISTENT_DAY,
+    emoji: '🎯',
+    defaultLabel: 'Most Consistent Day',
+  },
+
+  // Intensity records
+  [RecordType.BINGE_DAY]: {
+    type: RecordType.BINGE_DAY,
+    emoji: '📚',
+    defaultLabel: 'Biggest Binge',
+  },
+  [RecordType.LONGEST_SESSION]: {
+    type: RecordType.LONGEST_SESSION,
+    emoji: '🏃',
+    defaultLabel: 'Longest Session',
+  },
+  [RecordType.TOPIC_MARATHON]: {
+    type: RecordType.TOPIC_MARATHON,
+    emoji: '🎢',
+    defaultLabel: 'Topic Marathon',
+  },
+
+  // Time-of-day records
+  [RecordType.LATE_NIGHT]: {
+    type: RecordType.LATE_NIGHT,
+    emoji: '🌙',
+    defaultLabel: 'Latest Night Read',
+  },
+  [RecordType.EARLY_MORNING]: {
+    type: RecordType.EARLY_MORNING,
+    emoji: '🌅',
+    defaultLabel: 'Earliest Morning Read',
+  },
+
+  // Growth records
+  [RecordType.GROWTH_MONTH]: {
+    type: RecordType.GROWTH_MONTH,
+    emoji: '📈',
+    defaultLabel: 'Fastest Growing Month',
+  },
+  [RecordType.IMPROVED_TOPIC]: {
+    type: RecordType.IMPROVED_TOPIC,
+    emoji: '🚀',
+    defaultLabel: 'Most Improved Topic',
+  },
+};
+
 export interface ReadingRecord {
-  type:
-    | 'streak'
-    | 'binge'
-    | 'lateNight'
-    | 'earlyMorning'
-    | 'consistency'
-    | 'marathon';
+  type: RecordType;
   label: string;
   value: string;
   percentile?: number;
@@ -233,19 +314,19 @@ export const MOCK_LOG_DATA: LogData = {
   // Card 7
   records: [
     {
-      type: 'streak',
+      type: RecordType.STREAK,
       label: 'Longest Streak',
       value: '47 days',
       percentile: 6,
     },
     {
-      type: 'binge',
+      type: RecordType.BINGE_DAY,
       label: 'Biggest Binge',
       value: '34 posts on Mar 12',
       percentile: 3,
     },
     {
-      type: 'lateNight',
+      type: RecordType.LATE_NIGHT,
       label: 'Latest Night Read',
       value: '3:47 AM',
     },

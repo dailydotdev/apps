@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { LogData } from '../types';
+import { RECORDS } from '../types';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 
@@ -10,65 +11,43 @@ interface CardProps {
   isActive: boolean;
 }
 
-const RECORD_ICONS: Record<string, string> = {
-  streak: '🔥',
-  binge: '📚',
-  lateNight: '🌙',
-  earlyMorning: '🌅',
-  consistency: '📅',
-  marathon: '🏃',
-};
-
-const RECORD_COLORS = ['#ff6b35', '#e637bf', '#4d9dff'];
-
 export default function CardRecords({
   data,
   isActive,
 }: CardProps): ReactElement {
   return (
     <>
-      {/* Trophy header */}
+      {/* Album-style header */}
       <motion.div
-        className={cardStyles.trophyHeader}
-        initial={{ opacity: 0, scale: 0 }}
+        className={cardStyles.albumHeader}
+        initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+        transition={{ delay: 0.2, type: 'spring', stiffness: 150 }}
       >
-        <motion.span
-          className={cardStyles.trophyEmoji}
-          animate={{
-            rotate: [0, -10, 10, -10, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          🏆
-        </motion.span>
-        <span className={cardStyles.trophyTitle}>PERSONAL BESTS</span>
+        <span className={cardStyles.albumLabel}>YOUR</span>
+        <span className={cardStyles.albumTitle}>GREATEST</span>
+        <span className={cardStyles.albumTitle}>HITS</span>
+        <span className={cardStyles.albumYear}>— 2025 —</span>
       </motion.div>
 
-      {/* Records as trophy cards */}
-      <div className={cardStyles.recordsGrid}>
+      {/* Track listing */}
+      <div className={cardStyles.trackList}>
         {data.records.map((record, index) => (
           <motion.div
             key={record.type}
-            className={cardStyles.recordCard}
-            style={{ borderColor: RECORD_COLORS[index] }}
-            initial={{
-              opacity: 0,
-              x: index % 2 === 0 ? -50 : 50,
-              rotate: index % 2 === 0 ? -5 : 5,
-            }}
-            animate={{ opacity: 1, x: 0, rotate: 0 }}
+            className={cardStyles.track}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{
-              delay: 0.4 + index * 0.2,
+              delay: 0.5 + index * 0.2,
               type: 'spring',
-              stiffness: 100,
+              stiffness: 120,
+              damping: 14,
             }}
-            whileHover={{ scale: 1.05, rotate: index % 2 === 0 ? 2 : -2 }}
           >
+            {/* Track number */}
             <motion.span
-              className={cardStyles.recordIcon}
+              className={cardStyles.trackNumber}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{
@@ -77,24 +56,37 @@ export default function CardRecords({
                 stiffness: 300,
               }}
             >
-              {RECORD_ICONS[record.type] || '🎯'}
+              {String(index + 1).padStart(2, '0')}
             </motion.span>
 
-            <div className={cardStyles.recordContent}>
-              <span className={cardStyles.recordLabel}>{record.label}</span>
-              <span className={cardStyles.recordValue}>{record.value}</span>
+            {/* Track info */}
+            <div className={cardStyles.trackInfo}>
+              <div className={cardStyles.trackTitleRow}>
+                <span className={cardStyles.trackEmoji}>
+                  {RECORDS[record.type]?.emoji || '🎯'}
+                </span>
+                <span className={cardStyles.trackTitle}>{record.value}</span>
+              </div>
+              <span className={cardStyles.trackArtist}>{record.label}</span>
             </div>
 
+            {/* Chart position badge */}
             {record.percentile && (
-              <motion.span
-                className={cardStyles.recordBadge}
-                style={{ background: RECORD_COLORS[index] }}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.8 + index * 0.2, type: 'spring' }}
+              <motion.div
+                className={cardStyles.chartBadge}
+                initial={{ scale: 0, rotate: -10 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{
+                  delay: 0.8 + index * 0.2,
+                  type: 'spring',
+                  stiffness: 200,
+                }}
               >
-                TOP {record.percentile}%
-              </motion.span>
+                <span className={cardStyles.chartBadgeTop}>TOP</span>
+                <span className={cardStyles.chartBadgeValue}>
+                  {record.percentile}%
+                </span>
+              </motion.div>
             )}
           </motion.div>
         ))}
@@ -102,33 +94,17 @@ export default function CardRecords({
 
       {/* Share button */}
       <ShareStatButton
-        delay={1.8}
+        delay={1.4}
         isActive={isActive}
-        statText={`My 2025 records on daily.dev 🏆\n\n${data.records
+        statText={`My 2025 Greatest Hits on daily.dev 🎵\n\n${data.records
           .map(
-            (r) =>
-              `${RECORD_ICONS[r.type] || '🎯'} ${r.label}: ${r.value}${
+            (r, i) =>
+              `${String(i + 1).padStart(2, '0')}. ${RECORDS[r.type]?.emoji || '🎯'} ${r.label}: ${r.value}${
                 r.percentile ? ` (TOP ${r.percentile}%)` : ''
               }`,
           )
           .join('\n')}`}
       />
-
-      {/* Teaser for next card */}
-      <motion.div
-        className={cardStyles.nextTeaser}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2.0 }}
-      >
-        <span>Now for the big reveal...</span>
-        <motion.span
-          animate={{ x: [0, 5, 0] }}
-          transition={{ repeat: Infinity, duration: 1 }}
-        >
-          →
-        </motion.span>
-      </motion.div>
     </>
   );
 }
