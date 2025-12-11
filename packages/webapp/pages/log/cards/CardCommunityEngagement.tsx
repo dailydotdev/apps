@@ -206,7 +206,15 @@ export default function CardCommunityEngagement({
       <ShareStatButton
         delay={2.1}
         isActive={isActive}
-        statText={`Spreading the love on daily.dev 💜\n\n👍 ${data.upvotesGiven} upvotes given\n💬 ${data.commentsWritten} comments\n🔖 ${data.postsBookmarked} bookmarked${bestStat ? `\n\nTOP ${bestStat.value}% ${bestStat.label.toLowerCase()}!` : ''}`}
+        statText={`Spreading the love on daily.dev 💜\n\n👍 ${
+          data.upvotesGiven
+        } upvotes given\n💬 ${data.commentsWritten} comments\n🔖 ${
+          data.postsBookmarked
+        } bookmarked${
+          bestStat
+            ? `\n\nTOP ${bestStat.value}% ${bestStat.label.toLowerCase()}!`
+            : ''
+        }`}
       />
     </>
   );

@@ -233,7 +233,11 @@ export default function CardArchetypeReveal({
               <ShareStatButton
                 delay={1.7}
                 isActive={phase === 'reveal'}
-                statText={`I'm a ${archetype.name.toUpperCase()} ${archetype.emoji} on daily.dev!\n\n"${archetype.description}"\n\n⚡ ${data.archetypeStat}\n\nWhat's your developer archetype?`}
+                statText={`I'm a ${archetype.name.toUpperCase()} ${
+                  archetype.emoji
+                } on daily.dev!\n\n"${archetype.description}"\n\n⚡ ${
+                  data.archetypeStat
+                }\n\nWhat's your developer archetype?`}
               />
             </motion.div>
           )}

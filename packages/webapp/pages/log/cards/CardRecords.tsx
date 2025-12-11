@@ -21,7 +21,10 @@ const RECORD_ICONS: Record<string, string> = {
 
 const RECORD_COLORS = ['#ff6b35', '#e637bf', '#4d9dff'];
 
-export default function CardRecords({ data, isActive }: CardProps): ReactElement {
+export default function CardRecords({
+  data,
+  isActive,
+}: CardProps): ReactElement {
   return (
     <>
       {/* Trophy header */}
@@ -101,7 +104,14 @@ export default function CardRecords({ data, isActive }: CardProps): ReactElement
       <ShareStatButton
         delay={1.8}
         isActive={isActive}
-        statText={`My 2025 records on daily.dev 🏆\n\n${data.records.map((r) => `${RECORD_ICONS[r.type] || '🎯'} ${r.label}: ${r.value}${r.percentile ? ` (TOP ${r.percentile}%)` : ''}`).join('\n')}`}
+        statText={`My 2025 records on daily.dev 🏆\n\n${data.records
+          .map(
+            (r) =>
+              `${RECORD_ICONS[r.type] || '🎯'} ${r.label}: ${r.value}${
+                r.percentile ? ` (TOP ${r.percentile}%)` : ''
+              }`,
+          )
+          .join('\n')}`}
       />
 
       {/* Teaser for next card */}

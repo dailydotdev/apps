@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useEffect } from 'react';
 import Head from 'next/head';
 import { motion, AnimatePresence } from 'framer-motion';
-import ParallaxTilt from 'react-parallax-tilt';
 import { MOCK_LOG_DATA, ARCHETYPES } from './types';
 import type { LogData } from './types';
 import { useCardNavigation } from './hooks';
+import type { CardConfig } from './hooks';
 import styles from './Log.module.css';
 
 // Card components
@@ -197,8 +197,9 @@ export default function LogPage({
   }, []);
 
   // Build card list (conditionally include contributions)
-  const cards = useMemo(() => {
-    const baseCards = [
+  // Cards can have optional subcards for multi-step content within a single card
+  const cards: CardConfig[] = useMemo(() => {
+    const baseCards: CardConfig[] = [
       { id: 'total-impact', component: CardTotalImpact },
       { id: 'when-you-read', component: CardWhenYouRead },
       { id: 'topic-evolution', component: CardTopicEvolution },
@@ -222,12 +223,15 @@ export default function LogPage({
     return baseCards;
   }, [data.hasContributions]);
 
-  // We only need basic state from the hook now, gestures are handled by Framer Motion
-  const { currentCard, direction, goNext, goPrev, handleTap } =
-    useCardNavigation(cards.length);
+  // Navigation with subcard support - only swipe triggers transitions
+  const { currentCard, currentSubcard, direction, goNext, goPrev } =
+    useCardNavigation(cards);
 
-  const isLastCard = currentCard === cards.length - 1;
-  const CardComponent = cards[currentCard].component;
+  const currentCardConfig = cards[currentCard];
+  const maxSubcard = currentCardConfig?.subcards || 0;
+  const isLastCard =
+    currentCard === cards.length - 1 && currentSubcard === maxSubcard;
+  const CardComponent = currentCardConfig.component;
 
   // Determine direction value for variants
   const directionValue = direction === 'next' ? 1 : -1;
@@ -276,7 +280,6 @@ export default function LogPage({
 
       <motion.div
         className={styles.logContainer}
-        onClick={handleTap}
         animate={{
           backgroundColor: currentTheme.bgColor,
         }}
@@ -393,7 +396,7 @@ export default function LogPage({
             mode="popLayout"
           >
             <motion.div
-              key={currentCard}
+              key={`${currentCard}-${currentSubcard}`}
               custom={directionValue}
               variants={cardVariants}
               initial="enter"
@@ -419,18 +422,7 @@ export default function LogPage({
                 }
               }}
             >
-              <ParallaxTilt
-                tiltMaxAngleX={5}
-                tiltMaxAngleY={5}
-                scale={1}
-                transitionSpeed={2000}
-                className={styles.cardInner}
-              >
-                <CardComponent
-                  data={data}
-                  isActive // Always active when mounted in AnimatePresence
-                />
-              </ParallaxTilt>
+              <CardComponent data={data} isActive subcard={currentSubcard} />
             </motion.div>
           </AnimatePresence>
         </div>

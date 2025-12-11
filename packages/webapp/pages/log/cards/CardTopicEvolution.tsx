@@ -207,7 +207,14 @@ export default function CardTopicEvolution({
       <ShareStatButton
         delay={2.1}
         isActive={isActive}
-        statText={`I explored ${data.uniqueTopics} different topics on daily.dev this year! 🚀\n\nMy big pivot: #${data.topicJourney.find((t) => t.month === data.pivotMonth)?.topic || 'tech'}\n\nMore curious than ${100 - data.evolutionPercentile}% of developers`}
+        statText={`I explored ${
+          data.uniqueTopics
+        } different topics on daily.dev this year! 🚀\n\nMy big pivot: #${
+          data.topicJourney.find((t) => t.month === data.pivotMonth)?.topic ||
+          'tech'
+        }\n\nMore curious than ${
+          100 - data.evolutionPercentile
+        }% of developers`}
       />
     </>
   );

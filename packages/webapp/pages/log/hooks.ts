@@ -57,59 +57,81 @@ export function useAnimatedNumber(
   return currentValue;
 }
 
+export interface CardConfig {
+  id: string;
+  component: React.ComponentType<{
+    data: unknown;
+    isActive: boolean;
+    subcard?: number;
+  }>;
+  subcards?: number; // Number of subcards (0 or undefined = no subcards)
+}
+
 /**
- * Hook for managing card navigation with swipe and tap support
+ * Hook for managing card navigation with swipe support and subcards
+ * Subcards allow transitioning through multiple views within a single card
  */
-export function useCardNavigation(totalCards: number) {
+export function useCardNavigation(cards: CardConfig[]) {
   const [currentCard, setCurrentCard] = useState(0);
+  const [currentSubcard, setCurrentSubcard] = useState(0);
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const goToCard = useCallback(
-    (index: number, dir?: 'next' | 'prev') => {
-      if (isAnimating || index < 0 || index >= totalCards) {
-        return;
-      }
-
-      setIsAnimating(true);
-      setDirection(dir || (index > currentCard ? 'next' : 'prev'));
-      setCurrentCard(index);
-
-      // Reset animation lock after transition
-      setTimeout(() => setIsAnimating(false), 500);
-    },
-    [currentCard, isAnimating, totalCards],
-  );
+  const totalCards = cards.length;
 
   const goNext = useCallback(() => {
-    if (currentCard < totalCards - 1) {
-      goToCard(currentCard + 1, 'next');
+    if (isAnimating) {
+      return;
     }
-  }, [currentCard, totalCards, goToCard]);
+
+    const currentCardConfig = cards[currentCard];
+    const maxSubcard = currentCardConfig?.subcards || 0;
+
+    // If there are more subcards, go to next subcard
+    if (currentSubcard < maxSubcard) {
+      setIsAnimating(true);
+      setDirection('next');
+      setCurrentSubcard(currentSubcard + 1);
+      setTimeout(() => setIsAnimating(false), 500);
+      return;
+    }
+
+    // Otherwise, go to next card (reset subcard to 0)
+    if (currentCard < totalCards - 1) {
+      setIsAnimating(true);
+      setDirection('next');
+      setCurrentCard(currentCard + 1);
+      setCurrentSubcard(0);
+      setTimeout(() => setIsAnimating(false), 500);
+    }
+  }, [cards, currentCard, currentSubcard, isAnimating, totalCards]);
 
   const goPrev = useCallback(() => {
-    if (currentCard > 0) {
-      goToCard(currentCard - 1, 'prev');
+    if (isAnimating) {
+      return;
     }
-  }, [currentCard, goToCard]);
 
-  // Tap to advance
-  const handleTap = useCallback(
-    (e: React.MouseEvent) => {
-      // Don't advance if clicking on interactive elements
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'BUTTON' ||
-        target.tagName === 'A' ||
-        target.closest('button') ||
-        target.closest('a')
-      ) {
-        return;
-      }
-      goNext();
-    },
-    [goNext],
-  );
+    // If there are previous subcards, go to previous subcard
+    if (currentSubcard > 0) {
+      setIsAnimating(true);
+      setDirection('prev');
+      setCurrentSubcard(currentSubcard - 1);
+      setTimeout(() => setIsAnimating(false), 500);
+      return;
+    }
+
+    // Otherwise, go to previous card (at its last subcard)
+    if (currentCard > 0) {
+      setIsAnimating(true);
+      setDirection('prev');
+      const prevCardIndex = currentCard - 1;
+      const prevCardConfig = cards[prevCardIndex];
+      const prevCardMaxSubcard = prevCardConfig?.subcards || 0;
+      setCurrentCard(prevCardIndex);
+      setCurrentSubcard(prevCardMaxSubcard);
+      setTimeout(() => setIsAnimating(false), 500);
+    }
+  }, [cards, currentCard, currentSubcard, isAnimating]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -129,12 +151,11 @@ export function useCardNavigation(totalCards: number) {
 
   return {
     currentCard,
+    currentSubcard,
     direction,
     isAnimating,
-    goToCard,
     goNext,
     goPrev,
-    handleTap,
   };
 }
 

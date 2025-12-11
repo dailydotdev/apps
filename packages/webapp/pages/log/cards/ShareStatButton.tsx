@@ -28,7 +28,7 @@ export default function ShareStatButton({
     if (!isActive) {
       setShowButton(false);
       setShowOptions(false);
-      return;
+      return () => {};
     }
 
     const timer = setTimeout(() => {
@@ -45,13 +45,17 @@ export default function ShareStatButton({
       switch (platform) {
         case 'twitter':
           window.open(
-            `https://twitter.com/intent/tweet?text=${encodeURIComponent(fullText)}`,
+            `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+              fullText,
+            )}`,
             '_blank',
           );
           break;
         case 'linkedin':
           window.open(
-            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+              shareUrl,
+            )}`,
             '_blank',
           );
           break;

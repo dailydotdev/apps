@@ -132,7 +132,19 @@ export default function CardContributions({
       <ShareStatButton
         delay={2.2}
         isActive={isActive}
-        statText={`Creator spotlight on daily.dev ⭐\n\n📝 ${data.postsCreated} posts created\n👁️ ${(data.totalViews || 0).toLocaleString()} views\n💬 ${data.commentsReceived} comments received\n⚡ ${(data.reputationEarned || 0).toLocaleString()} reputation${data.creatorPercentile ? `\n\nTOP ${data.creatorPercentile}% content creator!` : ''}`}
+        statText={`Creator spotlight on daily.dev ⭐\n\n📝 ${
+          data.postsCreated
+        } posts created\n👁️ ${(
+          data.totalViews || 0
+        ).toLocaleString()} views\n💬 ${
+          data.commentsReceived
+        } comments received\n⚡ ${(
+          data.reputationEarned || 0
+        ).toLocaleString()} reputation${
+          data.creatorPercentile
+            ? `\n\nTOP ${data.creatorPercentile}% content creator!`
+            : ''
+        }`}
       />
     </>
   );

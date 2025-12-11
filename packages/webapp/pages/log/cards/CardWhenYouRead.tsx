@@ -128,9 +128,7 @@ export default function CardWhenYouRead({
               <motion.div
                 key={`hour-${hourNumber}-${value}`}
                 className={`${cardStyles.hourDistBar} ${
-                  hourNumber === peakHour
-                    ? cardStyles.hourDistBarPeak
-                    : ''
+                  hourNumber === peakHour ? cardStyles.hourDistBarPeak : ''
                 }`}
                 initial={{ scaleY: 0 }}
                 animate={{ scaleY: value || 0.05 }}
@@ -168,9 +166,9 @@ export default function CardWhenYouRead({
       <ShareStatButton
         delay={2}
         isActive={isActive}
-        statText={`My golden hour is ${formatHour(peakHour)}\n\n${PATTERN_SENTENCES[
-          data.readingPattern
-        ].replace(
+        statText={`My golden hour is ${formatHour(
+          peakHour,
+        )}\n\n${PATTERN_SENTENCES[data.readingPattern].replace(
           '{percentile}',
           String(data.patternPercentile),
         )} on daily.dev!`}

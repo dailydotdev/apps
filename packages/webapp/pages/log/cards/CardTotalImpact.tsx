@@ -146,7 +146,11 @@ export default function CardTotalImpact({
       <ShareStatButton
         delay={3}
         isActive={isActive}
-        statText={`I read ${data.totalPosts.toLocaleString()} posts on daily.dev this year — that's ${data.totalReadingTime} hours of learning! 📚\n\nTOP ${data.totalImpactPercentile}% of developers`}
+        statText={`I read ${data.totalPosts.toLocaleString()} posts on daily.dev this year — that's ${
+          data.totalReadingTime
+        } hours of learning! 📚\n\nTOP ${
+          data.totalImpactPercentile
+        }% of developers`}
       />
     </>
   );
