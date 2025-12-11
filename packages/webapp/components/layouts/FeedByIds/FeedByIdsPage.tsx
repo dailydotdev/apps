@@ -14,7 +14,7 @@ export default function FeedByIdsPage({
   const { user, tokenRefreshed } = useContext(AuthContext);
 
   useEffect(() => {
-    if (tokenRefreshed && (!user || !user?.isTeamMember)) {
+    if (tokenRefreshed && !user) {
       router.replace('/');
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
