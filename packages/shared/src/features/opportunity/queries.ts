@@ -12,6 +12,7 @@ import type {
   Opportunity,
   OpportunityMatch,
   OpportunityPreviewResponse,
+  OpportunityStats,
   UserCandidatePreferences,
 } from './types';
 import {
@@ -23,6 +24,7 @@ import {
   OPPORTUNITY_BY_ID_QUERY,
   USER_OPPORTUNITY_MATCHES_QUERY,
   OPPORTUNITY_PREVIEW,
+  OPPORTUNITY_STATS_QUERY,
 } from './graphql';
 import type { LoggedUser } from '../../lib/user';
 import { disabledRefetch } from '../../lib/func';
@@ -218,5 +220,26 @@ export const opportunityPreviewQueryOptions = ({
     ...disabledRefetch,
     staleTime: Infinity,
     gcTime: Infinity,
+  };
+};
+
+export const opportunityStatsOptions = ({
+  opportunityId,
+}: {
+  opportunityId: string;
+}): UseQueryOptions<OpportunityStats> => {
+  return {
+    queryKey: [RequestKey.OpportunityStats, opportunityId],
+    queryFn: async () => {
+      const res = await gqlClient.request<{
+        opportunityStats: OpportunityStats;
+      }>(OPPORTUNITY_STATS_QUERY, {
+        opportunityId,
+      });
+
+      return res.opportunityStats;
+    },
+    staleTime: StaleTime.Default,
+    enabled: !!opportunityId,
   };
 };

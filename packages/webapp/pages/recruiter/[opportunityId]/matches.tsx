@@ -32,6 +32,7 @@ import type {
   OpportunityMatch,
   OpportunityMatchesData,
 } from '@dailydotdev/shared/src/features/opportunity/types';
+import { OpportunityProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityContext';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const mapMatchToProfile = (match: OpportunityMatch): MatchProfileDetails => {
@@ -134,25 +135,29 @@ function RecruiterMatchesPage(): ReactElement {
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 flex-col">
-        <ConnectHeader />
-        <ConnectProgress />
-        <div className="flex flex-1 items-center justify-center">
-          <Loader />
+      <OpportunityProvider opportunityId={opportunityId as string}>
+        <div className="flex flex-1 flex-col">
+          <ConnectHeader />
+          <ConnectProgress />
+          <div className="flex flex-1 items-center justify-center">
+            <Loader />
+          </div>
         </div>
-      </div>
+      </OpportunityProvider>
     );
   }
 
   if (!currentMatch) {
     return (
-      <div className="flex flex-1 flex-col">
-        <ConnectHeader />
-        <ConnectProgress />
-        <div className="flex flex-1 items-center justify-center p-6">
-          <p className="text-text-tertiary">No matches found</p>
+      <OpportunityProvider opportunityId={opportunityId as string}>
+        <div className="flex flex-1 flex-col">
+          <ConnectHeader />
+          <ConnectProgress />
+          <div className="flex flex-1 items-center justify-center p-6">
+            <p className="text-text-tertiary">No matches found</p>
+          </div>
         </div>
-      </div>
+      </OpportunityProvider>
     );
   }
 
@@ -164,34 +169,38 @@ function RecruiterMatchesPage(): ReactElement {
   }));
 
   return (
-    <div className="flex flex-1 flex-col">
-      <ConnectHeader />
-      <ConnectProgress />
-      <div className="flex flex-1 flex-col bg-background-subtle p-6">
-        <div className="flex max-w-full flex-shrink flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-invert">
-          <MatchReviewHeader
-            currentMatch={currentMatchIndex + 1}
-            totalMatches={totalMatches}
-            name={profile.name}
-            onReject={handleReject}
-            onApprove={handleApprove}
-            disabled={
-              isLoading || acceptMutation.isPending || rejectMutation.isPending
-            }
-          />
-          <div className="flex gap-8 p-6">
-            <div className="flex flex-1 flex-col gap-6">
-              <MatchProfile profile={profile} />
-              <MatchInsights applicationRank={currentMatch.applicationRank} />
+    <OpportunityProvider opportunityId={opportunityId as string}>
+      <div className="flex flex-1 flex-col">
+        <ConnectHeader />
+        <ConnectProgress />
+        <div className="flex flex-1 flex-col bg-background-subtle p-6">
+          <div className="flex max-w-full flex-shrink flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-invert">
+            <MatchReviewHeader
+              currentMatch={currentMatchIndex + 1}
+              totalMatches={totalMatches}
+              name={profile.name}
+              onReject={handleReject}
+              onApprove={handleApprove}
+              disabled={
+                isLoading ||
+                acceptMutation.isPending ||
+                rejectMutation.isPending
+              }
+            />
+            <div className="flex gap-8 p-6">
+              <div className="flex flex-1 flex-col gap-6">
+                <MatchProfile profile={profile} />
+                <MatchInsights applicationRank={currentMatch.applicationRank} />
+              </div>
+              <div className="flex flex-1 flex-col gap-6">
+                <ScreeningQuestions questions={screeningQuestions} />
+              </div>
             </div>
-            <div className="flex flex-1 flex-col gap-6">
-              <ScreeningQuestions questions={screeningQuestions} />
-            </div>
+            <EngagementProfile engagement={engagement} />
           </div>
-          <EngagementProfile engagement={engagement} />
         </div>
       </div>
-    </div>
+    </OpportunityProvider>
   );
 }
 

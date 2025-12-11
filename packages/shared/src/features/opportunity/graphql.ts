@@ -595,6 +595,19 @@ export const OPPORTUNITY_PREVIEW = gql`
   }
 `;
 
+export const OPPORTUNITY_STATS_QUERY = gql`
+  query OpportunityStats($opportunityId: ID!) {
+    opportunityStats(opportunityId: $opportunityId) {
+      matched
+      reached
+      considered
+      decided
+      forReview
+      introduced
+    }
+  }
+`;
+
 export const recruiterPricesQueryOptions = ({
   isLoggedIn,
   user,
