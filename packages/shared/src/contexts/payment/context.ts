@@ -2,15 +2,17 @@ import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import { createContext, useContext } from 'react';
 import type { ProductPricingPreview, PurchaseType } from '../../graphql/paddle';
 
-export interface OpenCheckoutProps {
+export interface OpenCheckoutProps<TCustomData = Record<string, unknown>> {
   priceId: string;
   giftToUserId?: string;
-  customData?: Record<string, unknown>;
+  customData?: TCustomData;
   discountId?: string;
   quantity?: number;
 }
 
-export type OpenCheckoutFn = (props: OpenCheckoutProps) => void;
+export type OpenCheckoutFn<TCustomData = Record<string, unknown>> = (
+  props: OpenCheckoutProps<TCustomData>,
+) => void;
 
 export interface PaymentContextData {
   openCheckout?: OpenCheckoutFn;
