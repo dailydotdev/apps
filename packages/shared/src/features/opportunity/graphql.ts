@@ -231,15 +231,18 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
           user {
             id
             name
+            username
             image
-            permalink
+            bio
             reputation
+            linkedin
           }
           candidatePreferences {
+            status
             role
-            location {
-              city
-              country
+            roleType
+            cv {
+              ...GCSBlob
             }
           }
           applicationRank {
