@@ -337,10 +337,9 @@
 
 /* Topic evolution card title */
 .topicEvolutionTitle {
-  font-family: 'Dela Gothic One', cursive;
   font-size: 1.1rem;
   letter-spacing: 0.03em;
-  text-transform: capitalize;
+  text-transform: uppercase;
   background: linear-gradient(90deg, #ff6b35, #f7c948, #c6f135);
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -701,6 +700,10 @@
 }
 
 .podiumSource {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.05em;

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Image, ImageType } from '@dailydotdev/shared/src/components/image/Image';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import styles from '../Log.module.css';
@@ -54,7 +55,7 @@ export default function CardFavoriteSources({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <span className={styles.headlineSmall}>Your holy trinity</span>
+        <span className={styles.headlineSmall}>Your favorite trio</span>
       </motion.div>
 
       {/* Podium */}
@@ -94,13 +95,19 @@ export default function CardFavoriteSources({
                 {PODIUM_MEDALS[index]}
               </motion.div>
 
-              {/* Source name */}
+              {/* Source icon + name */}
               <motion.div
                 className={cardStyles.podiumSource}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: delay + 0.2 }}
               >
+                <Image
+                  src={source.logoUrl}
+                  alt={source.name}
+                  className="size-8 rounded-full object-cover"
+                  type={ImageType.Squad}
+                />
                 {source.name}
               </motion.div>
 
@@ -141,7 +148,7 @@ export default function CardFavoriteSources({
         <span className={cardStyles.discoveryEmoji}>🔍</span>
         <div>
           <span className={cardStyles.discoveryValue}>{animatedSources}</span>
-          <span className={cardStyles.discoveryLabel}>sources discovered</span>
+          <span className={cardStyles.discoveryLabel}>sources read</span>
         </div>
       </motion.div>
 
@@ -162,9 +169,9 @@ export default function CardFavoriteSources({
 
       {/* Share button */}
       <ShareStatButton
-        delay={2.3}
+        delay={2}
         isActive={isActive}
-        statText={`My holy trinity on daily.dev:\n🥇 ${data.topSources[0].name}\n🥈 ${data.topSources[1].name}\n🥉 ${data.topSources[2].name}\n\nI discovered ${data.uniqueSources} sources — TOP ${data.sourcePercentile}% explorer!`}
+        statText={`My winning trio on daily.dev:\n🥇 ${data.topSources[0].name}\n🥈 ${data.topSources[1].name}\n🥉 ${data.topSources[2].name}\n\nI discovered ${data.uniqueSources} sources — TOP ${data.sourcePercentile}% explorer!`}
       />
     </>
   );
