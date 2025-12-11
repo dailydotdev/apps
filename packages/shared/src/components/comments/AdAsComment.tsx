@@ -19,6 +19,7 @@ import { ButtonVariant } from '../buttons/common';
 import { MiniCloseIcon } from '../icons';
 import type { Ad } from '../../graphql/posts';
 import { ImpressionStatus } from '../../hooks/feed/useLogImpression';
+import { useScrambler } from '../../hooks/useScrambler';
 
 interface AdAsCommentProps {
   postId: string;
@@ -55,6 +56,8 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     },
     [logEvent, ad],
   );
+
+  const promotedText = useScrambler(!ad ? null : `Promoted by ${ad.source}`);
 
   const onRefreshClick = useCallback(async () => {
     onAdAction(AdActions.Refresh);
@@ -97,7 +100,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
           {company}
         </TruncateText>
         <TruncateText className="flex w-fit text-text-quaternary typo-callout">
-          Promoted by {source}
+          {promotedText}
         </TruncateText>
       </div>
       <div className="z-1 ml-auto flex gap-1">

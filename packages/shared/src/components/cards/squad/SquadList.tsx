@@ -16,6 +16,7 @@ import { Image, ImageType } from '../../image/Image';
 import { ButtonVariant } from '../../buttons/common';
 import type { Ad } from '../../../graphql/posts';
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
+import { useScrambler } from '../../../hooks/useScrambler';
 
 interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
@@ -34,6 +35,7 @@ export const SquadList = ({
   const { image, name, permalink } = squad;
   const campaignId = ad?.data?.source?.flags?.campaignId;
   const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
+  const promotedText = useScrambler('Promoted');
 
   return (
     <div
@@ -65,7 +67,7 @@ export const SquadList = ({
         >
           {campaignId && (
             <strong>
-              Promoted <Separator />
+              {promotedText} <Separator />
             </strong>
           )}
           @{squad.handle}

@@ -1,7 +1,8 @@
+import React from 'react';
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Ad } from '../../../../graphql/posts';
+import { useScrambler } from '../../../../hooks/useScrambler';
 
 interface AdClassName {
   main?: string;
@@ -24,25 +25,7 @@ export default function AdAttribution({
   );
 
   const text = ad.referralLink ? `Promoted by ${ad.source}` : 'Promoted';
-
-  const promotedText = useMemo(
-    () =>
-      text.split('').map((char, index) => {
-        // 50% chance to wrap in a span (fragmentation)
-        const isSpan = Math.random() > 0.5;
-        // 50% chance to append a zero-width space
-        const hasZws = Math.random() > 0.5;
-
-        const content = hasZws ? `${char}\u200B` : char;
-
-        if (isSpan) {
-          // eslint-disable-next-line react/no-array-index-key
-          return <span key={`scramble-${index}`}>{content}</span>;
-        }
-        return content;
-      }),
-    [text],
-  );
+  const promotedText = useScrambler(text);
 
   if (ad.referralLink) {
     return (
