@@ -161,6 +161,14 @@ const SidebarSection = ({
   );
 };
 
+const STATE_KEYS: Record<OpportunityState, keyof StateGroup | null> = {
+  [OpportunityState.DRAFT]: 'draft',
+  [OpportunityState.IN_REVIEW]: 'active',
+  [OpportunityState.LIVE]: 'active',
+  [OpportunityState.CLOSED]: 'paused',
+  [OpportunityState.UNSPECIFIED]: null,
+};
+
 export const Sidebar = (): ReactElement => {
   // Fetch all opportunities
   const { data: opportunitiesData } = useQuery(getOpportunitiesOptions());
@@ -194,15 +202,13 @@ export const Sidebar = (): ReactElement => {
         });
       }
 
-      const orgGroup = grouped && grouped.get(orgName);
-
-      // Categorize by state
-      if (opportunity.state === OpportunityState.DRAFT) {
-        orgGroup.opportunitiesByState.draft.push(opportunity);
-      } else if (opportunity.state === OpportunityState.LIVE) {
-        orgGroup.opportunitiesByState.active.push(opportunity);
-      } else if (opportunity.state === OpportunityState.CLOSED) {
-        orgGroup.opportunitiesByState.paused.push(opportunity);
+      const orgGroup = grouped.get(orgName);
+      if (orgGroup) {
+        // Categorize by state
+        const key = STATE_KEYS[opportunity.state];
+        if (key) {
+          orgGroup.opportunitiesByState[key].push(opportunity);
+        }
       }
     });
 
