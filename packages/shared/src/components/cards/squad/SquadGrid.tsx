@@ -88,7 +88,7 @@ export const SquadGrid = ({
   const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
-    `Promoted by @${campaign.user.username}`,
+    campaign ? `Promoted by @${campaign.user.username}` : null,
   );
 
   return (
