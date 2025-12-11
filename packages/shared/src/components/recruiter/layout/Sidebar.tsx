@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
@@ -12,6 +13,10 @@ import { ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
 import HeaderLogo from '../../layout/HeaderLogo';
 import { SidebarScrollWrapper } from '../../sidebar/common';
 import { Tips } from '../Tips';
+import { getOpportunitiesOptions } from '../../../features/opportunity/queries';
+import type { Opportunity } from '../../../features/opportunity/types';
+import { OpportunityState } from '../../../features/opportunity/protobuf/opportunity';
+import { webappUrl } from '../../../lib/constants';
 
 const Header = () => (
   <div className="p-4">
@@ -19,22 +24,21 @@ const Header = () => (
   </div>
 );
 
-export const CompanyBadge = () => (
-  <div className="flex items-center gap-2 p-3">
+type CompanyBadgeProps = {
+  name: string;
+  image?: string | null;
+};
+
+export const CompanyBadge = ({ name, image }: CompanyBadgeProps) => (
+  <div className="flex items-center gap-2 px-3 py-2">
     <ProfilePicture
-      user={{ image: null }}
+      user={{ image }}
       rounded="full"
       size={ProfileImageSize.Medium}
     />
-    <div>
-      <Typography type={TypographyType.Subhead} bold>
-        ASP.NET
-      </Typography>
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        @asp.net
+    <div className="flex-1 overflow-hidden">
+      <Typography type={TypographyType.Subhead} bold className="truncate">
+        {name}
       </Typography>
     </div>
   </div>
@@ -71,10 +75,38 @@ const Footer = () => {
   );
 };
 
-type SidebarSectionProps = {
-  title: string;
+type StateGroup = {
+  draft: Opportunity[];
+  active: Opportunity[];
+  paused: Opportunity[];
 };
-const SidebarSection = ({ title }: SidebarSectionProps) => {
+
+type SidebarSectionProps = {
+  orgName: string;
+  orgImage?: string | null;
+  opportunitiesByState: StateGroup;
+};
+
+const getStateName = (state: keyof StateGroup): string => {
+  const stateNames = {
+    draft: 'Draft',
+    active: 'Active',
+    paused: 'Paused',
+  };
+  return stateNames[state];
+};
+
+const StateSubsection = ({
+  stateName,
+  opportunities,
+}: {
+  stateName: string;
+  opportunities: Opportunity[];
+}) => {
+  if (opportunities.length === 0) {
+    return null;
+  }
+
   return (
     <div className="px-2">
       <Typography
@@ -83,35 +115,109 @@ const SidebarSection = ({ title }: SidebarSectionProps) => {
         color={TypographyColor.Quaternary}
         className="px-4 py-1"
       >
-        {title}
+        {stateName}
       </Typography>
-      <Button
-        variant={ButtonVariant.Option}
-        className="w-full"
-        size={ButtonSize.Small}
-      >
-        Senior Frontend Developer
-      </Button>
-      <Button
-        variant={ButtonVariant.Option}
-        className="w-full"
-        size={ButtonSize.Small}
-      >
-        Full stack developer
-      </Button>
+      {opportunities.map((opportunity) => (
+        <Button
+          key={opportunity.id}
+          tag="a"
+          href={`${webappUrl}recruiter/${opportunity.id}/analyze`}
+          variant={ButtonVariant.Option}
+          className="w-full"
+          size={ButtonSize.Small}
+        >
+          {opportunity.title}
+        </Button>
+      ))}
+    </div>
+  );
+};
+
+const SidebarSection = ({
+  orgName,
+  orgImage,
+  opportunitiesByState,
+}: SidebarSectionProps) => {
+  const totalOpportunities =
+    opportunitiesByState.draft.length +
+    opportunitiesByState.active.length +
+    opportunitiesByState.paused.length;
+
+  if (totalOpportunities === 0) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <CompanyBadge name={orgName} image={orgImage} />
+      {(['draft', 'active', 'paused'] as const).map((state) => (
+        <StateSubsection
+          key={state}
+          stateName={getStateName(state)}
+          opportunities={opportunitiesByState[state]}
+        />
+      ))}
     </div>
   );
 };
 
 export const Sidebar = (): ReactElement => {
+  // Fetch all opportunities
+  const { data: opportunitiesData } = useQuery(getOpportunitiesOptions());
+
+  // Group opportunities by organization and state
+  const opportunitiesByOrg = useMemo(() => {
+    const opportunities =
+      opportunitiesData?.edges.map((edge) => edge.node) || [];
+    const grouped = new Map<
+      string,
+      {
+        name: string;
+        image?: string | null;
+        opportunitiesByState: StateGroup;
+      }
+    >();
+
+    opportunities.forEach((opportunity) => {
+      const orgName = opportunity.organization?.name || 'No Organization';
+      const orgImage = opportunity.organization?.image;
+
+      if (!grouped.has(orgName)) {
+        grouped.set(orgName, {
+          name: orgName,
+          image: orgImage,
+          opportunitiesByState: {
+            draft: [],
+            active: [],
+            paused: [],
+          },
+        });
+      }
+
+      const orgGroup = grouped.get(orgName)!;
+
+      // Categorize by state
+      if (opportunity.state === OpportunityState.DRAFT) {
+        orgGroup.opportunitiesByState.draft.push(opportunity);
+      } else if (opportunity.state === OpportunityState.LIVE) {
+        orgGroup.opportunitiesByState.active.push(opportunity);
+      } else if (opportunity.state === OpportunityState.CLOSED) {
+        orgGroup.opportunitiesByState.paused.push(opportunity);
+      }
+    });
+
+    return grouped;
+  }, [opportunitiesData]);
+
   return (
     <aside className="sticky top-0 flex h-screen w-60 flex-col border-r border-border-subtlest-tertiary">
       <SidebarScrollWrapper>
         <Header />
-        <CompanyBadge />
         <nav className="flex flex-col gap-2">
           <div className="px-2">
             <Button
+              tag="a"
+              href={`${webappUrl}recruiter`}
               variant={ButtonVariant.Option}
               className="w-full px-2"
               size={ButtonSize.Small}
@@ -119,8 +225,14 @@ export const Sidebar = (): ReactElement => {
               <PlusIcon /> New job
             </Button>
           </div>
-          <SidebarSection title="Active" />
-          <SidebarSection title="Paused" />
+          {Array.from(opportunitiesByOrg.values()).map((org) => (
+            <SidebarSection
+              key={org.name}
+              orgName={org.name}
+              orgImage={org.image}
+              opportunitiesByState={org.opportunitiesByState}
+            />
+          ))}
         </nav>
         <div className="flex-1" />
         <Tips />
