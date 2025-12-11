@@ -7,6 +7,7 @@ import {
   BookmarkIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import cardStyles from './Cards.module.css';
@@ -28,9 +29,27 @@ function FloatingIcon({
   type: 'upvote' | 'comment' | 'bookmark';
 }): ReactElement {
   const icons = {
-    upvote: <UpvoteIcon secondary size={IconSize.Small} className="text-action-upvote-default" />,
-    comment: <DiscussIcon secondary size={IconSize.Small} className="text-action-comment-default" />,
-    bookmark: <BookmarkIcon secondary size={IconSize.Small} className="text-action-bookmark-default" />,
+    upvote: (
+      <UpvoteIcon
+        secondary
+        size={IconSize.Small}
+        className="text-action-upvote-default"
+      />
+    ),
+    comment: (
+      <DiscussIcon
+        secondary
+        size={IconSize.Small}
+        className="text-action-comment-default"
+      />
+    ),
+    bookmark: (
+      <BookmarkIcon
+        secondary
+        size={IconSize.Small}
+        className="text-action-bookmark-default"
+      />
+    ),
   };
 
   return (
@@ -66,7 +85,8 @@ export default function CardCommunityEngagement({
   const [showParticles, setShowParticles] = useState(false);
 
   // Total engagement actions
-  const totalEngagement = data.upvotesGiven + data.commentsWritten + data.postsBookmarked;
+  const totalEngagement =
+    data.upvotesGiven + data.commentsWritten + data.postsBookmarked;
 
   const animatedTotal = useAnimatedNumber(totalEngagement, {
     delay: 300,
@@ -86,30 +106,57 @@ export default function CardCommunityEngagement({
   });
 
   // All stats for percentile display
-  const allStats = useMemo(() => [
-    {
-      label: 'UPVOTERS',
-      value: data.upvotePercentile,
-      icon: <UpvoteIcon secondary size={IconSize.Large} className="text-action-upvote-default" />,
-    },
-    {
-      label: 'COMMENTERS',
-      value: data.commentPercentile,
-      icon: <DiscussIcon secondary size={IconSize.Large} className="text-action-comment-default" />,
-    },
-    {
-      label: 'CURATORS',
-      value: data.bookmarkPercentile,
-      icon: <BookmarkIcon secondary size={IconSize.Large} className="text-action-bookmark-default" />,
-    },
-  ].filter((s) => s.value !== undefined && s.value <= 50)
-   .sort((a, b) => (a.value || 100) - (b.value || 100)), [data]);
+  const allStats = useMemo(
+    () =>
+      [
+        {
+          label: 'UPVOTERS',
+          value: data.upvotePercentile,
+          icon: (
+            <UpvoteIcon
+              secondary
+              size={IconSize.Large}
+              className="text-action-upvote-default"
+            />
+          ),
+        },
+        {
+          label: 'COMMENTERS',
+          value: data.commentPercentile,
+          icon: (
+            <DiscussIcon
+              secondary
+              size={IconSize.Large}
+              className="text-action-comment-default"
+            />
+          ),
+        },
+        {
+          label: 'CURATORS',
+          value: data.bookmarkPercentile,
+          icon: (
+            <BookmarkIcon
+              secondary
+              size={IconSize.Large}
+              className="text-action-bookmark-default"
+            />
+          ),
+        },
+      ]
+        .filter((s) => s.value !== undefined && s.value <= 50)
+        .sort((a, b) => (a.value || 100) - (b.value || 100)),
+    [data],
+  );
 
   const bestStat = allStats[0];
 
   // Generate mixed floating icons
   const floatingIcons = useMemo(() => {
-    const types: Array<'upvote' | 'comment' | 'bookmark'> = ['upvote', 'comment', 'bookmark'];
+    const types: Array<'upvote' | 'comment' | 'bookmark'> = [
+      'upvote',
+      'comment',
+      'bookmark',
+    ];
     return [...Array(15)].map((_, i) => ({
       x: 15 + Math.random() * 70,
       delay: i * 0.12,
@@ -167,7 +214,7 @@ export default function CardCommunityEngagement({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          {animatedTotal}
+          {largeNumberFormat(animatedTotal)}
         </motion.span>
         <span className={cardStyles.totalEngagementLabel}>interactions</span>
       </motion.div>
@@ -194,9 +241,15 @@ export default function CardCommunityEngagement({
           whileHover={{ scale: 1.05 }}
         >
           <span className={cardStyles.pillarIcon}>
-            <UpvoteIcon secondary size={IconSize.Medium} className="text-action-upvote-default" />
+            <UpvoteIcon
+              secondary
+              size={IconSize.Medium}
+              className="text-action-upvote-default"
+            />
           </span>
-          <span className={cardStyles.pillarValue}>{animatedUpvotes}</span>
+          <span className={cardStyles.pillarValue}>
+            {largeNumberFormat(animatedUpvotes)}
+          </span>
           <span className={cardStyles.pillarLabel}>upvotes</span>
         </motion.div>
 
@@ -205,9 +258,15 @@ export default function CardCommunityEngagement({
           whileHover={{ scale: 1.05 }}
         >
           <span className={cardStyles.pillarIcon}>
-            <DiscussIcon secondary size={IconSize.Medium} className="text-action-comment-default" />
+            <DiscussIcon
+              secondary
+              size={IconSize.Medium}
+              className="text-action-comment-default"
+            />
           </span>
-          <span className={cardStyles.pillarValue}>{animatedComments}</span>
+          <span className={cardStyles.pillarValue}>
+            {largeNumberFormat(animatedComments)}
+          </span>
           <span className={cardStyles.pillarLabel}>comments</span>
         </motion.div>
 
@@ -216,9 +275,15 @@ export default function CardCommunityEngagement({
           whileHover={{ scale: 1.05 }}
         >
           <span className={cardStyles.pillarIcon}>
-            <BookmarkIcon secondary size={IconSize.Medium} className="text-action-bookmark-default" />
+            <BookmarkIcon
+              secondary
+              size={IconSize.Medium}
+              className="text-action-bookmark-default"
+            />
           </span>
-          <span className={cardStyles.pillarValue}>{animatedBookmarks}</span>
+          <span className={cardStyles.pillarValue}>
+            {largeNumberFormat(animatedBookmarks)}
+          </span>
           <span className={cardStyles.pillarLabel}>saved</span>
         </motion.div>
       </motion.div>
@@ -249,7 +314,13 @@ export default function CardCommunityEngagement({
       <ShareStatButton
         delay={1.8}
         isActive={isActive}
-        statText={`My community pulse on daily.dev 💜\n\n🎯 ${totalEngagement} total interactions\n👍 ${data.upvotesGiven} upvotes\n💬 ${data.commentsWritten} comments\n🔖 ${data.postsBookmarked} saved${
+        statText={`My community pulse on daily.dev 💜\n\n🎯 ${largeNumberFormat(
+          totalEngagement,
+        )} total interactions\n👍 ${largeNumberFormat(
+          data.upvotesGiven,
+        )} upvotes\n💬 ${largeNumberFormat(
+          data.commentsWritten,
+        )} comments\n🔖 ${largeNumberFormat(data.postsBookmarked)} saved${
           bestStat
             ? `\n\nTOP ${bestStat.value}% ${bestStat.label.toLowerCase()}!`
             : ''

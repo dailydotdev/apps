@@ -193,17 +193,20 @@ export const MOCK_LOG_DATA: LogData = {
     {
       name: 'dev.to',
       postsRead: 127,
-      logoUrl: 'https://daily-now-res.cloudinary.com/image/upload/t_logo,f_auto/v1/logos/devto',
+      logoUrl:
+        'https://daily-now-res.cloudinary.com/image/upload/t_logo,f_auto/v1/logos/devto',
     },
     {
       name: 'Hacker News',
       postsRead: 98,
-      logoUrl: 'https://daily-now-res.cloudinary.com/image/upload/t_logo,f_auto/v1/logos/hn',
+      logoUrl:
+        'https://daily-now-res.cloudinary.com/image/upload/t_logo,f_auto/v1/logos/hn',
     },
     {
       name: 'Pragmatic Engineer',
       postsRead: 64,
-      logoUrl: 'https://daily-now-res.cloudinary.com/image/upload/t_logo,f_auto/v1/logos/pragmaticengineer',
+      logoUrl:
+        'https://daily-now-res.cloudinary.com/image/upload/t_logo,f_auto/v1/logos/pragmaticengineer',
     },
   ],
   uniqueSources: 89,

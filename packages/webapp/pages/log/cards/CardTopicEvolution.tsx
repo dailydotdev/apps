@@ -152,7 +152,9 @@ export default function CardTopicEvolution({
                   isActiveMonth ? cardStyles.monthCarouselItemActive : ''
                 } ${isPast ? cardStyles.monthCarouselItemPast : ''} ${
                   isAdjacent ? cardStyles.monthCarouselItemAdjacent : ''
-                } ${isMonthInactive ? cardStyles.monthCarouselItemInactive : ''}`}
+                } ${
+                  isMonthInactive ? cardStyles.monthCarouselItemInactive : ''
+                }`}
               >
                 <span className={cardStyles.monthCarouselLabel}>
                   {item.month}
@@ -304,11 +306,15 @@ export default function CardTopicEvolution({
                 ?.topics[0]
             : null;
 
-          const baseText = `I explored ${data.uniqueTopics} different topics on daily.dev${
+          const baseText = `I explored ${
+            data.uniqueTopics
+          } different topics on daily.dev${
             isPartialYear ? ` in ${activeMonthsCount} months` : ' this year'
           }! 🚀`;
 
-          const pivotText = pivotTopic ? `\n\nMy big pivot: #${pivotTopic}` : '';
+          const pivotText = pivotTopic
+            ? `\n\nMy big pivot: #${pivotTopic}`
+            : '';
 
           return `${baseText}${pivotText}\n\nMore curious than ${
             100 - data.evolutionPercentile

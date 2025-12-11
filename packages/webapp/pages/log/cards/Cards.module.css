@@ -1022,119 +1022,505 @@
 }
 
 /* ========================================
-   CARD 6: CONTRIBUTIONS - Spotlight Theme
+   CARD 6: CONTRIBUTIONS - Spotlight Stage Theme
    ======================================== */
 
-.spotlight {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
-  height: 300px;
-  background: radial-gradient(ellipse at center top, rgba(247, 201, 72, 0.2) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.creatorHeader {
+/* Creator badge at top */
+.creatorBadge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  background: var(--fest-white, #fff);
+  color: var(--fest-bg, #1a0a2e);
+  padding: 0.5rem 1rem;
+  transform: rotate(-2deg);
+  box-shadow: 
+    3px 3px 0 var(--fest-primary, #ff6b35),
+    6px 6px 0 var(--fest-accent, #e637bf);
+  margin-bottom: 1rem;
 }
 
-.creatorStar {
-  font-size: 1.25rem;
+.creatorBadgeIcon {
+  color: var(--fest-accent, #e637bf);
 }
 
-.creatorTitle {
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: var(--fest-secondary, #f7c948);
-}
-
-.creatorMain {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.creatorNumber {
-  font-family: 'Dela Gothic One', cursive;
-  font-size: 6rem;
-  color: var(--fest-white, #fff);
-  text-shadow: 4px 4px 0 var(--fest-secondary, #f7c948);
-  display: block;
-  line-height: 0.9;
-}
-
-.creatorLabel {
-  font-size: 1rem;
+.creatorBadgeText {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
   letter-spacing: 0.15em;
-  color: var(--fest-lime, #c6f135);
-  margin-top: 0.5rem;
+  text-transform: uppercase;
 }
 
-.impactGrid {
+/* Central spotlight container */
+.spotlightContainer {
+  position: relative;
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
+  margin: 0.5rem 0;
 }
 
-.impactItem {
+.spotlightRing {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 4px solid var(--fest-secondary, #f7c948);
+  opacity: 0.3;
+  animation: spotlightPulse 2s ease-in-out infinite;
+}
+
+@keyframes spotlightPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+}
+
+.spotlightInner {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 107, 53, 0.15) 0%,
+    rgba(230, 55, 191, 0.15) 50%,
+    rgba(247, 201, 72, 0.15) 100%
+  );
+  border: 3px solid var(--fest-white, #fff);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  min-width: 80px;
+  justify-content: center;
+  box-shadow: 
+    0 0 30px rgba(247, 201, 72, 0.3),
+    inset 0 0 30px rgba(255, 255, 255, 0.1);
 }
 
-.impactIcon {
-  font-size: 1.25rem;
+.spotlightNumber {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 4.5rem;
+  line-height: 0.9;
+  color: var(--fest-white, #fff);
+  text-shadow:
+    3px 3px 0 var(--fest-primary, #ff6b35),
+    6px 6px 0 var(--fest-accent, #e637bf);
 }
 
-.impactValue {
+.spotlightLabel {
   font-family: 'Dela Gothic One', cursive;
   font-size: 1.25rem;
-  color: var(--fest-white, #fff);
-}
-
-.impactLabel {
-  font-size: 0.5rem;
-  color: var(--fest-white-50, rgba(255,255,255,0.5));
-  text-transform: uppercase;
+  color: var(--fest-lime, #c6f135);
   letter-spacing: 0.1em;
+  margin-top: -0.25rem;
 }
 
-.creatorRank {
+.spotlightSubLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--fest-white-50, rgba(255,255,255,0.5));
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Result indicator - connects hero metric to secondary metrics */
+.resultIndicator {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, var(--fest-secondary, #f7c948), var(--fest-primary, #ff6b35));
-  padding: 1rem 1.5rem;
-  margin-top: 1.5rem;
-  border-radius: 8px;
+  width: 100%;
+  max-width: 260px;
+  margin: 0.75rem 0;
 }
 
-.creatorRankBadge {
-  font-size: 2rem;
+.resultLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--fest-secondary, #f7c948),
+    transparent
+  );
 }
 
-.creatorRankTop {
-  font-family: 'Dela Gothic One', cursive;
-  font-size: 1.5rem;
-  color: var(--fest-bg, #1a0a2e);
-  display: block;
-}
-
-.creatorRankLabel {
+.resultText {
+  font-family: 'Space Mono', monospace;
   font-size: 0.6rem;
-  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--fest-white-50, rgba(255,255,255,0.5));
+  white-space: nowrap;
+}
+
+/* Ticket stubs container - festival ticket aesthetic */
+.ticketStubsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: 100%;
+  max-width: 260px;
+  margin-bottom: 0.5rem;
+}
+
+.ticketStub {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 0.875rem;
+  padding-left: 1.25rem;
+  background: var(--fest-white, #fff);
   color: var(--fest-bg, #1a0a2e);
-  opacity: 0.8;
+  overflow: hidden;
+}
+
+/* Perforation holes on left side */
+.ticketStubPerforation {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 4px,
+    var(--fest-bg, #1a0a2e) 4px,
+    var(--fest-bg, #1a0a2e) 8px
+  );
+}
+
+/* Torn edge on right side */
+.ticketStubTear {
+  position: absolute;
+  right: -4px;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  background: linear-gradient(
+    to right,
+    var(--fest-white, #fff) 0%,
+    var(--fest-white, #fff) 50%,
+    transparent 50%
+  );
+  mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0 L4,5 L0,10 L4,15 L0,20 L4,25 L0,30 L4,35 L0,40 L4,45 L0,50 L4,55 L0,60 L4,65 L0,70 L4,75 L0,80 L4,85 L0,90 L4,95 L0,100 L8,100 L8,0 Z' fill='white'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0 L4,5 L0,10 L4,15 L0,20 L4,25 L0,30 L4,35 L0,40 L4,45 L0,50 L4,55 L0,60 L4,65 L0,70 L4,75 L0,80 L4,85 L0,90 L4,95 L0,100 L8,100 L8,0 Z' fill='white'/%3E%3C/svg%3E");
+  mask-size: 8px 100%;
+  -webkit-mask-size: 8px 100%;
+}
+
+.ticketStubContent {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  z-index: 1;
+}
+
+.ticketStubIcon {
+  flex-shrink: 0;
+}
+
+.ticketStubValue {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 1.35rem;
+  line-height: 1;
+  flex: 1;
+}
+
+.ticketStubLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+/* Views ticket - blue accent */
+.ticketStubViews {
+  box-shadow: 4px 4px 0 #4d9dff;
+}
+
+.ticketStubViews .ticketStubIcon {
+  color: #4d9dff;
+}
+
+/* Comments ticket - teal accent */
+.ticketStubComments {
+  box-shadow: 4px 4px 0 #2CDCE6;
+}
+
+.ticketStubComments .ticketStubIcon {
+  color: #2CDCE6;
+}
+
+/* Reputation ticket - gold accent */
+.ticketStubRep {
+  box-shadow: 4px 4px 0 #7147ED;
+}
+
+.ticketStubRep .ticketStubIcon {
+  color: #7147ED;
+}
+
+/* Responsive adjustments for contributions spotlight */
+@media (min-height: 750px) {
+  .creatorBadge {
+    padding: 0.625rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .creatorBadgeText {
+    font-size: 0.7rem;
+  }
+
+  .spotlightContainer {
+    margin: 1rem 0;
+  }
+
+  .spotlightRing {
+    width: 220px;
+    height: 220px;
+  }
+
+  .spotlightInner {
+    width: 200px;
+    height: 200px;
+  }
+
+  .spotlightNumber {
+    font-size: 5rem;
+  }
+
+  .spotlightLabel {
+    font-size: 1.4rem;
+  }
+
+  .resultIndicator {
+    max-width: 280px;
+    margin: 1rem 0;
+  }
+
+  .ticketStubsContainer {
+    gap: 0.75rem;
+    max-width: 280px;
+    margin-bottom: 1rem;
+  }
+
+  .ticketStub {
+    padding: 0.75rem 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .ticketStubValue {
+    font-size: 1.5rem;
+  }
+
+  .ticketStubLabel {
+    font-size: 0.6rem;
+  }
+}
+
+@media (min-height: 850px) {
+  .creatorBadge {
+    padding: 0.75rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .creatorBadgeText {
+    font-size: 0.75rem;
+  }
+
+  .spotlightContainer {
+    margin: 1.5rem 0;
+  }
+
+  .spotlightRing {
+    width: 250px;
+    height: 250px;
+    border-width: 5px;
+  }
+
+  .spotlightInner {
+    width: 220px;
+    height: 220px;
+    border-width: 4px;
+  }
+
+  .spotlightNumber {
+    font-size: 5.5rem;
+    text-shadow:
+      4px 4px 0 var(--fest-primary, #ff6b35),
+      8px 8px 0 var(--fest-accent, #e637bf);
+  }
+
+  .spotlightLabel {
+    font-size: 1.5rem;
+  }
+
+  .spotlightSubLabel {
+    font-size: 0.65rem;
+  }
+
+  .resultIndicator {
+    max-width: 300px;
+    margin: 1.25rem 0;
+  }
+
+  .ticketStubsContainer {
+    gap: 0.875rem;
+    max-width: 300px;
+    margin-bottom: 1.5rem;
+  }
+
+  .ticketStub {
+    padding: 0.875rem 1.125rem;
+    padding-left: 1.75rem;
+  }
+
+  .ticketStubValue {
+    font-size: 1.75rem;
+  }
+
+  .ticketStubLabel {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .creatorBadge {
+    padding: 0.375rem 0.75rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 
+      2px 2px 0 var(--fest-primary, #ff6b35),
+      4px 4px 0 var(--fest-accent, #e637bf);
+  }
+
+  .creatorBadgeText {
+    font-size: 0.55rem;
+  }
+
+  .spotlightContainer {
+    margin: 0.25rem 0;
+  }
+
+  .spotlightRing {
+    width: 150px;
+    height: 150px;
+    border-width: 3px;
+  }
+
+  .spotlightInner {
+    width: 140px;
+    height: 140px;
+    border-width: 2px;
+  }
+
+  .spotlightNumber {
+    font-size: 3.5rem;
+    text-shadow:
+      2px 2px 0 var(--fest-primary, #ff6b35),
+      4px 4px 0 var(--fest-accent, #e637bf);
+  }
+
+  .spotlightLabel {
+    font-size: 1rem;
+  }
+
+  .spotlightSubLabel {
+    font-size: 0.5rem;
+  }
+
+  .resultIndicator {
+    max-width: 240px;
+    margin: 0.5rem 0;
+    gap: 0.5rem;
+  }
+
+  .resultText {
+    font-size: 0.5rem;
+  }
+
+  .ticketStubsContainer {
+    gap: 0.5rem;
+    max-width: 240px;
+    margin-bottom: 0.5rem;
+  }
+
+  .ticketStub {
+    padding: 0.5rem 0.75rem;
+    padding-left: 1rem;
+  }
+
+  .ticketStubValue {
+    font-size: 1.1rem;
+  }
+
+  .ticketStubLabel {
+    font-size: 0.5rem;
+  }
+
+  .ticketStubViews,
+  .ticketStubComments,
+  .ticketStubRep {
+    box-shadow: 3px 3px 0 currentColor;
+  }
+}
+
+@media (max-width: 380px) {
+  .creatorBadge {
+    padding: 0.375rem 0.625rem;
+  }
+
+  .creatorBadgeText {
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  .spotlightRing {
+    width: 140px;
+    height: 140px;
+  }
+
+  .spotlightInner {
+    width: 130px;
+    height: 130px;
+  }
+
+  .spotlightNumber {
+    font-size: 3rem;
+  }
+
+  .spotlightLabel {
+    font-size: 0.9rem;
+  }
+
+  .ticketStubsContainer {
+    max-width: 220px;
+  }
+
+  .ticketStub {
+    padding: 0.5rem 0.625rem;
+    padding-left: 0.875rem;
+  }
+
+  .ticketStubPerforation {
+    width: 8px;
+  }
+
+  .ticketStubValue {
+    font-size: 1rem;
+  }
+
+  .ticketStubLabel {
+    font-size: 0.45rem;
+  }
 }
 
 /* ========================================

@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Image, ImageType } from '@dailydotdev/shared/src/components/image/Image';
+import {
+  Image,
+  ImageType,
+} from '@dailydotdev/shared/src/components/image/Image';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import styles from '../Log.module.css';
