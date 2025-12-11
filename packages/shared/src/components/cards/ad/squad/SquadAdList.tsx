@@ -21,6 +21,7 @@ import { SquadOptionsButton } from '../../common/SquadOptionsButton';
 import { SquadAdStat } from './SquadAdStat';
 import { SquadFeedStats } from './SquadFeedStats';
 import { SquadAdAction } from './SquadAdAction';
+import { useScrambler } from '../../../../hooks/useScrambler';
 
 export function SquadAdList({
   item,
@@ -33,6 +34,10 @@ export function SquadAdList({
       item,
     });
   const { ref, inView } = useInView({ triggerOnce: true });
+  const promotedText = useScrambler('Promoted');
+  const promotedByTooltip = useScrambler(
+    `Promoted by @${campaign?.user?.username}`,
+  );
 
   useEffect(() => {
     if (!inView) {
@@ -62,13 +67,13 @@ export function SquadAdList({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            <Tooltip content={`Promoted by @${campaign?.user?.username}`}>
+            <Tooltip content={promotedByTooltip}>
               <button
                 type="button"
                 disabled
                 className="relative text-action-comment-default"
               >
-                <strong>Promoted</strong>
+                <strong>{promotedText}</strong>
               </button>
             </Tooltip>
             <Separator />@{source.handle}

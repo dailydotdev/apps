@@ -10,6 +10,7 @@ import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { PollMetadataProps } from './PollMetadata';
 import PollMetadata from './PollMetadata';
+import { useScrambler } from '../../../hooks/useScrambler';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
@@ -36,6 +37,9 @@ export default function PostMetadata({
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
 
+  const promotedText = useScrambler('Promoted');
+  const promotedByTooltip = useScrambler(`Promoted by @${boostedBy.username}`);
+
   return (
     <div
       className={classNames(
@@ -45,8 +49,8 @@ export default function PostMetadata({
     >
       <TruncateText>
         {boostedBy && (
-          <Tooltip content={`Promoted by @${boostedBy.username}`}>
-            <strong>Promoted</strong>
+          <Tooltip content={promotedByTooltip}>
+            <strong>{promotedText}</strong>
           </Tooltip>
         )}
         {boostedBy && (!!description || !!createdAt || showReadTime) && (
