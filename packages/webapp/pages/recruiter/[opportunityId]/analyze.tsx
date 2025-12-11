@@ -9,12 +9,14 @@ import { useRouter } from 'next/router';
 import { OpportunityPreviewProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { ContentSidebar } from '@dailydotdev/shared/src/features/opportunity/components/analyze/ContentSidebar';
 import { UserTableWrapper } from '@dailydotdev/shared/src/features/opportunity/components/analyze/UserTableWrapper';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const RecruiterPageContent = () => {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const router = useRouter();
+  const { opportunityId } = router.query;
   const [loadingStep, setLoadingStep] = useState(0);
 
   useEffect(() => {
@@ -35,9 +37,9 @@ const RecruiterPageContent = () => {
         type: LazyModal.RecruiterSignIn,
       });
     } else {
-      router.push('/recruiter/prepare');
+      router.push(`${webappUrl}recruiter/${opportunityId}/prepare`);
     }
-  }, [user, openModal, router]);
+  }, [user, openModal, router, opportunityId]);
 
   return (
     <div className="flex flex-1 flex-col">

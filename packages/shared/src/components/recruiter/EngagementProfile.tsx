@@ -39,7 +39,7 @@ export const EngagementProfile = ({
         className="flex-1"
         color={TypographyColor.Secondary}
       >
-        Something here
+        {engagement.profileSummary}
       </Typography>
       <FlexCol className="flex-1">
         <FlexRow className="my-2 items-center gap-2">

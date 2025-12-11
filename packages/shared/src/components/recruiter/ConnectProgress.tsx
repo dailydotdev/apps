@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import {
   Typography,
   TypographyColor,
@@ -9,6 +11,7 @@ import { ArrowIcon, InfoIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { FlexCol, FlexRow } from '../utilities';
 import { Tooltip } from '../tooltip/Tooltip';
+import { opportunityStatsOptions } from '../../features/opportunity/queries';
 
 interface ProgressStep {
   label: string;
@@ -16,16 +19,46 @@ interface ProgressStep {
   info: string;
 }
 
-const steps: ProgressStep[] = [
-  { label: 'Matched', count: 12000, info: 'Some information about this step' },
-  { label: 'Reached', count: 0, info: 'Some information about this step' },
-  { label: 'Considered', count: 0, info: 'Some information about this step' },
-  { label: 'Decided', count: 0, info: 'Some information about this step' },
-  { label: 'For review', count: 0, info: 'Some information about this step' },
-  { label: 'Introduced', count: 0, info: 'Some information about this step' },
-];
-
 export const ConnectProgress = (): ReactElement => {
+  const router = useRouter();
+  const { opportunityId } = router.query;
+  const { data: stats } = useQuery({
+    ...opportunityStatsOptions({ opportunityId: opportunityId as string }),
+    enabled: !!opportunityId,
+  });
+  const steps: ProgressStep[] = [
+    {
+      label: 'Matched',
+      count: stats?.matched ?? 0,
+      info: 'Developers who match your job requirements based on their skills, experience, and preferences',
+    },
+    {
+      label: 'Reached',
+      count: stats?.reached ?? 0,
+      info: 'Candidates who have been notified about your opportunity and received the job details',
+    },
+    {
+      label: 'Considered',
+      count: stats?.considered ?? 0,
+      info: 'Developers actively reviewing your opportunity and deciding whether to apply',
+    },
+    {
+      label: 'Decided',
+      count: stats?.decided ?? 0,
+      info: 'Candidates who have made a decision to either apply or pass on this opportunity',
+    },
+    {
+      label: 'For review',
+      count: stats?.forReview ?? 0,
+      info: 'Applications ready for your review - these candidates have expressed interest and completed screening questions',
+    },
+    {
+      label: 'Introduced',
+      count: stats?.introduced ?? 0,
+      info: 'Candidates you have moved forward and introduced to your hiring team',
+    },
+  ];
+
   return (
     <FlexRow className="items-center p-4">
       {steps.map((step, index) => (

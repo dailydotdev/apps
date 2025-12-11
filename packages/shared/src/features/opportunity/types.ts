@@ -230,3 +230,12 @@ export interface OpportunityPreviewConnection
 }
 
 export type OpportunityPreviewResponse = OpportunityPreviewConnection;
+
+export type OpportunityStats = {
+  matched: number;
+  reached: number;
+  considered: number;
+  decided: number;
+  forReview: number;
+  introduced: number;
+};

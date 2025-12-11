@@ -4,15 +4,19 @@ import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/He
 import { RecruiterProgress } from '@dailydotdev/shared/src/components/recruiter/Progress';
 import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { useRouter } from 'next/router';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 import JobPage from '../../jobs/[id]';
 
 function PreparePage(): ReactElement {
+  const router = useRouter();
+
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
         headerButton={{
           text: 'Outreach settings',
+          onClick: () => router.push(`${webappUrl}recruiter/payment`),
         }}
       />
       <RecruiterProgress />
