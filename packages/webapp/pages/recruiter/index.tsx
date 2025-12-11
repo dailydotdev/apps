@@ -33,7 +33,9 @@ function RecruiterPage(): ReactElement {
                   props: {
                     onSubmit: (opportunity) => {
                       closeModal();
-                      router.push(`${webappUrl}${opportunity.id}/analyze`);
+                      router.push(
+                        `${webappUrl}recruiter/${opportunity.id}/analyze`,
+                      );
                     },
                   },
                 });
