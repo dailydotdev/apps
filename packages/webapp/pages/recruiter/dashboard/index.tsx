@@ -66,7 +66,7 @@ const RecruiterDashboard = (): ReactElement => {
 
   // Fetch all opportunities (defaults to LIVE state)
   const { data: opportunitiesData, isLoading } = useQuery(
-    getOpportunitiesOptions(),
+    getOpportunitiesOptions(2),
   );
 
   // Extract opportunities from connection edges
