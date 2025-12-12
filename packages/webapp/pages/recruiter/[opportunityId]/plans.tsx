@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
 import {
-  Button,
   ButtonColor,
+  Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -17,7 +17,14 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 import classNames from 'classnames';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
-import { getLayout } from '../../components/layouts/RecruiterLayout';
+import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/graphql';
+import { useQuery } from '@tanstack/react-query';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { formatCurrency } from '@dailydotdev/shared/src/lib/utils';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
+import { getLayout } from '../../../components/layouts/RecruiterLayout';
 
 type PricingFeature = {
   text: string;
@@ -145,70 +152,97 @@ const PricingPlan = ({
   );
 };
 
+type AdditionalCopy = {
+  icon: string;
+  features: PricingFeature[];
+  badge?: string;
+  description: string;
+  ctaText: string;
+  ctaColor?: ButtonColor;
+  className?: PricingPlanProps['className'];
+};
+
 const RecruiterPlans = (): ReactElement => {
   const router = useRouter();
 
-  const handleStarterClick = () => {
-    router.push('/recruiter/payment?plan=starter');
-  };
-
-  const handleBoostClick = () => {
-    router.push('/recruiter/payment?plan=boost');
-  };
-
-  const handleSalesClick = () => {
-    // TODO: Add contact sales URL or open modal
-  };
-
-  const starterFeatures: PricingFeature[] = [
+  const additionalCopy: AdditionalCopy[] = [
     {
-      text: 'Reach up to 100 developers / day',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      icon: '🪴',
+      features: [
+        {
+          text: 'Reach up to 100 developers / day',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+        {
+          text: 'Unlimited recruiter seats',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+        {
+          text: 'Access to high-intent developer profiles',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+        {
+          text: 'Real-time matching notifications',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+        {
+          text: 'Basic analytics dashboard',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+      ],
+      description:
+        'Start reaching high-intent developers and see how trust-first sourcing changes your hiring experience.',
+      ctaText: 'Get started',
     },
     {
-      text: 'Unlimited recruiter seats',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-    {
-      text: 'Access to high-intent developer profiles',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-    {
-      text: 'Real-time matching notifications',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-    {
-      text: 'Basic analytics dashboard',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      icon: '🚀',
+      features: [
+        {
+          text: 'Reach up to 300 developers / day',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+        {
+          text: 'Unlimited recruiter seats',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+        {
+          text: 'Access to high-intent developer profiles',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+        {
+          text: 'Real-time matching notifications',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+        {
+          text: 'Advanced analytics & insights',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+        {
+          text: 'Priority support',
+          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+      ],
+      badge: 'best value',
+      description:
+        'Increase your daily reach and accelerate introductions with higher matching volume.',
+      ctaText: 'Get started',
+      ctaColor: ButtonColor.Cabbage,
+      className: {
+        container: 'bg-brand-float',
+      },
     },
   ];
 
-  const boostFeatures: PricingFeature[] = [
-    {
-      text: 'Reach up to 300 developers / day',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-    {
-      text: 'Unlimited recruiter seats',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-    {
-      text: 'Access to high-intent developer profiles',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-    {
-      text: 'Real-time matching notifications',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-    {
-      text: 'Advanced analytics & insights',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-    {
-      text: 'Priority support',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    },
-  ];
+  const { user, isLoggedIn } = useAuthContext();
+
+  const { data: prices, isPending } = useQuery(
+    recruiterPricesQueryOptions({
+      user,
+      isLoggedIn,
+    }),
+  );
+
+  const opportunityId = router.query.opportunityId as string;
 
   return (
     <div className="mx-auto flex w-full max-w-[48rem] flex-col gap-8 px-4 tablet:px-0">
@@ -217,33 +251,43 @@ const RecruiterPlans = (): ReactElement => {
       </Typography>
 
       <div className="flex flex-col gap-4 laptop:flex-row">
-        <PricingPlan
-          emoji="🪴"
-          title="Starter"
-          description="Start reaching high-intent developers and see how trust-first sourcing changes your hiring experience."
-          price="$350"
-          priceType="/mo"
-          billingInfo="Billed monthly per role"
-          features={starterFeatures}
-          ctaText="Get started"
-          onCtaClick={handleStarterClick}
-        />
-        <PricingPlan
-          emoji="🚀"
-          title="Boost"
-          badge="best value"
-          description="Increase your daily reach and accelerate introductions with higher matching volume."
-          price="$700"
-          priceType="/mo"
-          billingInfo="Billed monthly per role"
-          features={boostFeatures}
-          ctaText="Get started"
-          ctaColor={ButtonColor.Cabbage}
-          onCtaClick={handleBoostClick}
-          className={{
-            container: 'bg-brand-float',
-          }}
-        />
+        {isPending && !prices && (
+          <div className="flex min-h-[31rem] flex-1 flex-col items-center justify-center gap-6 rounded-16 border border-border-subtlest-tertiary p-6">
+            <Loader />
+          </div>
+        )}
+        {prices?.map((price, index) => {
+          const additionalCopyItem = additionalCopy[index];
+
+          return (
+            <PricingPlan
+              key={price.priceId}
+              emoji={additionalCopyItem.icon}
+              title={price.metadata.title}
+              badge={additionalCopyItem.badge}
+              description={additionalCopyItem.description}
+              price={formatCurrency(price.price.monthly.amount, {
+                minimumFractionDigits: 0,
+              })}
+              priceType="/mo"
+              billingInfo="Billed monthly per role"
+              features={additionalCopyItem.features}
+              ctaText={additionalCopyItem.ctaText}
+              ctaColor={additionalCopyItem.ctaColor}
+              onCtaClick={() => {
+                router.push(
+                  getPathnameWithQuery(
+                    `/recruiter/${opportunityId}/payment`,
+                    new URLSearchParams({
+                      pid: price.priceId,
+                    }),
+                  ),
+                );
+              }}
+              className={additionalCopyItem.className}
+            />
+          );
+        })}
       </div>
 
       <div className="bg-surface-subtle flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-6 laptop:flex-row laptop:items-center laptop:justify-between">
@@ -260,10 +304,13 @@ const RecruiterPlans = (): ReactElement => {
           </Typography>
         </div>
         <Button
+          tag="a"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Medium}
-          onClick={handleSalesClick}
+          href="https://recruiter.daily.dev/schedule"
           className="laptop:w-auto"
+          target="_blank"
+          rel={anchorDefaultRel}
         >
           Talk to sales
         </Button>

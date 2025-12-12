@@ -24,7 +24,7 @@ function PreparePage(): ReactElement {
         headerButton={{
           text: 'Outreach settings',
           onClick: () => {
-            router.push(`${webappUrl}recruiter/${opportunityId}/payment`);
+            router.push(`${webappUrl}recruiter/${opportunityId}/plans`);
           },
         }}
       />
