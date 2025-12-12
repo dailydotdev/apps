@@ -35,6 +35,8 @@ export const RecruiterPaymentPaddleContextProvider = ({
     }),
   );
 
+  const priceIdQuery = router?.query?.pid as string | undefined;
+
   useEffect(() => {
     if (!prices?.length) {
       return;
@@ -44,10 +46,13 @@ export const RecruiterPaymentPaddleContextProvider = ({
       return;
     }
 
+    const matchedProduct =
+      prices.find((item) => item.priceId === priceIdQuery) || prices[0];
+
     setSelectedProduct({
-      id: prices[0].priceId,
+      id: matchedProduct.priceId,
     });
-  }, [prices, selectedProduct]);
+  }, [prices, selectedProduct, priceIdQuery]);
 
   const { paddle, openCheckout } = usePaddlePayment({
     successCallback: () => {

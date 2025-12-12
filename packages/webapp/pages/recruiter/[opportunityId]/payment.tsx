@@ -12,6 +12,7 @@ import {
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
@@ -20,6 +21,10 @@ import {
   OpportunityPreviewProvider,
   useOpportunityPreviewContext,
 } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/graphql';
+import { useQuery } from '@tanstack/react-query';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
@@ -46,6 +51,21 @@ const RecruiterPaymentPage = (): ReactElement => {
     router.back();
   };
 
+  const { user, isLoggedIn } = useAuthContext();
+
+  const { data: selectedPrice } = useQuery({
+    ...recruiterPricesQueryOptions({
+      user,
+      isLoggedIn,
+    }),
+    select: (prices) => {
+      return (
+        prices.find((price) => price.priceId === selectedProduct?.id) ||
+        prices?.[0]
+      );
+    },
+  });
+
   return (
     <div className="flex min-h-screen flex-col laptop:flex-row">
       <div className="flex flex-1 flex-col items-end bg-background-subtle p-10 px-20">
@@ -65,57 +85,68 @@ const RecruiterPaymentPage = (): ReactElement => {
                 type={TypographyType.Body}
                 color={TypographyColor.Secondary}
               >
-                Subscription to daily.dev Recruiter
+                Subscription to daily.dev Recruiter{' '}
+                {selectedPrice?.metadata.title ? (
+                  <Typography
+                    tag={TypographyTag.Span}
+                    bold
+                  >{`- ${selectedPrice.metadata.title}`}</Typography>
+                ) : (
+                  ''
+                )}
               </Typography>
 
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Typography type={TypographyType.LargeTitle} bold>
-                    $149.00
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Body}
-                    color={TypographyColor.Tertiary}
-                  >
-                    per
-                    <br />
-                    month
-                  </Typography>
-                </div>
+              {!selectedPrice && <Loader />}
+              {!!selectedPrice && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-2">
+                    <Typography type={TypographyType.LargeTitle} bold>
+                      {selectedPrice.price.monthly.formatted}
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Body}
+                      color={TypographyColor.Tertiary}
+                    >
+                      per
+                      <br />
+                      month
+                    </Typography>
+                  </div>
 
-                <FlexCol className="gap-1">
-                  <div className="flex items-center justify-between">
-                    <Typography
-                      type={TypographyType.Body}
-                      color={TypographyColor.Secondary}
-                      bold
-                    >
-                      Platform plan
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Body}
-                      color={TypographyColor.Secondary}
-                      bold
-                    >
-                      Price varies
-                    </Typography>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                    >
-                      Billed monthly based on usage
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                    >
-                      $149.00 per unit
-                    </Typography>
-                  </div>
-                </FlexCol>
-              </div>
+                  <FlexCol className="gap-1">
+                    <div className="flex items-center justify-between">
+                      <Typography
+                        type={TypographyType.Body}
+                        color={TypographyColor.Secondary}
+                        bold
+                      >
+                        Platform plan
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Body}
+                        color={TypographyColor.Secondary}
+                        bold
+                      >
+                        Price varies
+                      </Typography>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                      >
+                        Billed monthly based on usage
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                      >
+                        {selectedPrice.price.monthly.formatted} per job
+                      </Typography>
+                    </div>
+                  </FlexCol>
+                </div>
+              )}
               <div className="mt-4 flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-6">
                 <div className="flex items-center justify-between">
                   <Typography
@@ -125,7 +156,9 @@ const RecruiterPaymentPage = (): ReactElement => {
                     Subtotal
                   </Typography>
                   <Typography type={TypographyType.Body} bold>
-                    $149.00
+                    {selectedPrice
+                      ? selectedPrice.price.monthly.formatted
+                      : 'X.XX'}
                   </Typography>
                 </div>
 
@@ -146,7 +179,9 @@ const RecruiterPaymentPage = (): ReactElement => {
                     Total due today
                   </Typography>
                   <Typography type={TypographyType.Title3} bold>
-                    $149.00
+                    {selectedPrice
+                      ? selectedPrice.price.monthly.formatted
+                      : 'X.XX'}
                   </Typography>
                 </div>
               </div>
