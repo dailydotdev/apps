@@ -745,16 +745,16 @@ importers:
         version: link:../prettier-config
       '@storybook/addon-designs':
         specifier: ^10.0.2
-        version: 10.0.2(@storybook/addon-docs@9.1.10(@types/react@18.3.12)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
+        version: 10.0.2(@storybook/addon-docs@9.1.10(@types/react@18.3.12)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
       '@storybook/addon-links':
         specifier: ^9.1.10
-        version: 9.1.10(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
+        version: 9.1.10(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
       '@storybook/addon-themes':
         specifier: ^9.1.10
-        version: 9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
+        version: 9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
       '@storybook/react-vite':
         specifier: ^9.1.10
-        version: 9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.28.0)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+        version: 9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.53.3)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
       '@svgr/plugin-jsx':
         specifier: ^5.5.0
         version: 5.5.0
@@ -778,7 +778,7 @@ importers:
         version: 2.5.1
       eslint-plugin-storybook:
         specifier: ^9.1.10
-        version: 9.1.10(eslint@7.32.0)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3)
+        version: 9.1.10(eslint@7.32.0)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3)
       msw:
         specifier: ^2.3.5
         version: 2.6.6(@types/node@22.10.1)(typescript@5.6.3)
@@ -814,16 +814,16 @@ importers:
         version: 7.0.1(postcss@8.4.49)
       storybook:
         specifier: ^9.1.10
-        version: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+        version: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
       vite:
-        specifier: ^5.4.10
-        version: 5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
+        specifier: ^5.4.21
+        version: 5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
       vite-plugin-svgr:
         specifier: ^4.2.0
-        version: 4.3.0(rollup@4.28.0)(typescript@5.6.3)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+        version: 4.3.0(rollup@4.53.3)(typescript@5.6.3)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
 
   packages/webapp:
     dependencies:
@@ -2496,8 +2496,8 @@ packages:
       react: ^17.0.2 || ^18.0.0 || ^19.0
       react-dom: ^17.0.2 || ^18.0.0 || ^19.0
 
-  '@mdx-js/react@3.1.0':
-    resolution: {integrity: sha512-QjHtSaoameoalGnKDT3FoIl4+9RwyTmo9ZJGBdLOks/YOiWHoRDI3PUwEzOE7kEmGcV3AFcp9K6dYu9rEuKLAQ==}
+  '@mdx-js/react@3.1.1':
+    resolution: {integrity: sha512-f++rKLQgUVYDAtECQ6fn/is15GkEH9+nZPM3MS0RcxVqoTfawHvDlSCH7JbMhAM6uJ32v3eXLvLmLvjGu7PTQw==}
     peerDependencies:
       '@types/react': '>=16'
       react: '>=16'
@@ -3090,93 +3090,113 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/rollup-android-arm-eabi@4.28.0':
-    resolution: {integrity: sha512-wLJuPLT6grGZsy34g4N1yRfYeouklTgPhH1gWXCYspenKYD0s3cR99ZevOGw5BexMNywkbV3UkjADisozBmpPQ==}
+  '@rollup/rollup-android-arm-eabi@4.53.3':
+    resolution: {integrity: sha512-mRSi+4cBjrRLoaal2PnqH82Wqyb+d3HsPUN/W+WslCXsZsyHa9ZeQQX/pQsZaVIWDkPcpV6jJ+3KLbTbgnwv8w==}
     cpu: [arm]
     os: [android]
 
-  '@rollup/rollup-android-arm64@4.28.0':
-    resolution: {integrity: sha512-eiNkznlo0dLmVG/6wf+Ifi/v78G4d4QxRhuUl+s8EWZpDewgk7PX3ZyECUXU0Zq/Ca+8nU8cQpNC4Xgn2gFNDA==}
+  '@rollup/rollup-android-arm64@4.53.3':
+    resolution: {integrity: sha512-CbDGaMpdE9sh7sCmTrTUyllhrg65t6SwhjlMJsLr+J8YjFuPmCEjbBSx4Z/e4SmDyH3aB5hGaJUP2ltV/vcs4w==}
     cpu: [arm64]
     os: [android]
 
-  '@rollup/rollup-darwin-arm64@4.28.0':
-    resolution: {integrity: sha512-lmKx9yHsppblnLQZOGxdO66gT77bvdBtr/0P+TPOseowE7D9AJoBw8ZDULRasXRWf1Z86/gcOdpBrV6VDUY36Q==}
+  '@rollup/rollup-darwin-arm64@4.53.3':
+    resolution: {integrity: sha512-Nr7SlQeqIBpOV6BHHGZgYBuSdanCXuw09hon14MGOLGmXAFYjx1wNvquVPmpZnl0tLjg25dEdr4IQ6GgyToCUA==}
     cpu: [arm64]
     os: [darwin]
 
-  '@rollup/rollup-darwin-x64@4.28.0':
-    resolution: {integrity: sha512-8hxgfReVs7k9Js1uAIhS6zq3I+wKQETInnWQtgzt8JfGx51R1N6DRVy3F4o0lQwumbErRz52YqwjfvuwRxGv1w==}
+  '@rollup/rollup-darwin-x64@4.53.3':
+    resolution: {integrity: sha512-DZ8N4CSNfl965CmPktJ8oBnfYr3F8dTTNBQkRlffnUarJ2ohudQD17sZBa097J8xhQ26AwhHJ5mvUyQW8ddTsQ==}
     cpu: [x64]
     os: [darwin]
 
-  '@rollup/rollup-freebsd-arm64@4.28.0':
-    resolution: {integrity: sha512-lA1zZB3bFx5oxu9fYud4+g1mt+lYXCoch0M0V/xhqLoGatbzVse0wlSQ1UYOWKpuSu3gyN4qEc0Dxf/DII1bhQ==}
+  '@rollup/rollup-freebsd-arm64@4.53.3':
+    resolution: {integrity: sha512-yMTrCrK92aGyi7GuDNtGn2sNW+Gdb4vErx4t3Gv/Tr+1zRb8ax4z8GWVRfr3Jw8zJWvpGHNpss3vVlbF58DZ4w==}
     cpu: [arm64]
     os: [freebsd]
 
-  '@rollup/rollup-freebsd-x64@4.28.0':
-    resolution: {integrity: sha512-aI2plavbUDjCQB/sRbeUZWX9qp12GfYkYSJOrdYTL/C5D53bsE2/nBPuoiJKoWp5SN78v2Vr8ZPnB+/VbQ2pFA==}
+  '@rollup/rollup-freebsd-x64@4.53.3':
+    resolution: {integrity: sha512-lMfF8X7QhdQzseM6XaX0vbno2m3hlyZFhwcndRMw8fbAGUGL3WFMBdK0hbUBIUYcEcMhVLr1SIamDeuLBnXS+Q==}
     cpu: [x64]
     os: [freebsd]
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.28.0':
-    resolution: {integrity: sha512-WXveUPKtfqtaNvpf0iOb0M6xC64GzUX/OowbqfiCSXTdi/jLlOmH0Ba94/OkiY2yTGTwteo4/dsHRfh5bDCZ+w==}
+  '@rollup/rollup-linux-arm-gnueabihf@4.53.3':
+    resolution: {integrity: sha512-k9oD15soC/Ln6d2Wv/JOFPzZXIAIFLp6B+i14KhxAfnq76ajt0EhYc5YPeX6W1xJkAdItcVT+JhKl1QZh44/qw==}
     cpu: [arm]
     os: [linux]
 
-  '@rollup/rollup-linux-arm-musleabihf@4.28.0':
-    resolution: {integrity: sha512-yLc3O2NtOQR67lI79zsSc7lk31xjwcaocvdD1twL64PK1yNaIqCeWI9L5B4MFPAVGEVjH5k1oWSGuYX1Wutxpg==}
+  '@rollup/rollup-linux-arm-musleabihf@4.53.3':
+    resolution: {integrity: sha512-vTNlKq+N6CK/8UktsrFuc+/7NlEYVxgaEgRXVUVK258Z5ymho29skzW1sutgYjqNnquGwVUObAaxae8rZ6YMhg==}
     cpu: [arm]
     os: [linux]
 
-  '@rollup/rollup-linux-arm64-gnu@4.28.0':
-    resolution: {integrity: sha512-+P9G9hjEpHucHRXqesY+3X9hD2wh0iNnJXX/QhS/J5vTdG6VhNYMxJ2rJkQOxRUd17u5mbMLHM7yWGZdAASfcg==}
+  '@rollup/rollup-linux-arm64-gnu@4.53.3':
+    resolution: {integrity: sha512-RGrFLWgMhSxRs/EWJMIFM1O5Mzuz3Xy3/mnxJp/5cVhZ2XoCAxJnmNsEyeMJtpK+wu0FJFWz+QF4mjCA7AUQ3w==}
     cpu: [arm64]
     os: [linux]
 
-  '@rollup/rollup-linux-arm64-musl@4.28.0':
-    resolution: {integrity: sha512-1xsm2rCKSTpKzi5/ypT5wfc+4bOGa/9yI/eaOLW0oMs7qpC542APWhl4A37AENGZ6St6GBMWhCCMM6tXgTIplw==}
+  '@rollup/rollup-linux-arm64-musl@4.53.3':
+    resolution: {integrity: sha512-kASyvfBEWYPEwe0Qv4nfu6pNkITLTb32p4yTgzFCocHnJLAHs+9LjUu9ONIhvfT/5lv4YS5muBHyuV84epBo/A==}
     cpu: [arm64]
     os: [linux]
 
-  '@rollup/rollup-linux-powerpc64le-gnu@4.28.0':
-    resolution: {integrity: sha512-zgWxMq8neVQeXL+ouSf6S7DoNeo6EPgi1eeqHXVKQxqPy1B2NvTbaOUWPn/7CfMKL7xvhV0/+fq/Z/J69g1WAQ==}
+  '@rollup/rollup-linux-loong64-gnu@4.53.3':
+    resolution: {integrity: sha512-JiuKcp2teLJwQ7vkJ95EwESWkNRFJD7TQgYmCnrPtlu50b4XvT5MOmurWNrCj3IFdyjBQ5p9vnrX4JM6I8OE7g==}
+    cpu: [loong64]
+    os: [linux]
+
+  '@rollup/rollup-linux-ppc64-gnu@4.53.3':
+    resolution: {integrity: sha512-EoGSa8nd6d3T7zLuqdojxC20oBfNT8nexBbB/rkxgKj5T5vhpAQKKnD+h3UkoMuTyXkP5jTjK/ccNRmQrPNDuw==}
     cpu: [ppc64]
     os: [linux]
 
-  '@rollup/rollup-linux-riscv64-gnu@4.28.0':
-    resolution: {integrity: sha512-VEdVYacLniRxbRJLNtzwGt5vwS0ycYshofI7cWAfj7Vg5asqj+pt+Q6x4n+AONSZW/kVm+5nklde0qs2EUwU2g==}
+  '@rollup/rollup-linux-riscv64-gnu@4.53.3':
+    resolution: {integrity: sha512-4s+Wped2IHXHPnAEbIB0YWBv7SDohqxobiiPA1FIWZpX+w9o2i4LezzH/NkFUl8LRci/8udci6cLq+jJQlh+0g==}
     cpu: [riscv64]
     os: [linux]
 
-  '@rollup/rollup-linux-s390x-gnu@4.28.0':
-    resolution: {integrity: sha512-LQlP5t2hcDJh8HV8RELD9/xlYtEzJkm/aWGsauvdO2ulfl3QYRjqrKW+mGAIWP5kdNCBheqqqYIGElSRCaXfpw==}
+  '@rollup/rollup-linux-riscv64-musl@4.53.3':
+    resolution: {integrity: sha512-68k2g7+0vs2u9CxDt5ktXTngsxOQkSEV/xBbwlqYcUrAVh6P9EgMZvFsnHy4SEiUl46Xf0IObWVbMvPrr2gw8A==}
+    cpu: [riscv64]
+    os: [linux]
+
+  '@rollup/rollup-linux-s390x-gnu@4.53.3':
+    resolution: {integrity: sha512-VYsFMpULAz87ZW6BVYw3I6sWesGpsP9OPcyKe8ofdg9LHxSbRMd7zrVrr5xi/3kMZtpWL/wC+UIJWJYVX5uTKg==}
     cpu: [s390x]
     os: [linux]
 
-  '@rollup/rollup-linux-x64-gnu@4.28.0':
-    resolution: {integrity: sha512-Nl4KIzteVEKE9BdAvYoTkW19pa7LR/RBrT6F1dJCV/3pbjwDcaOq+edkP0LXuJ9kflW/xOK414X78r+K84+msw==}
+  '@rollup/rollup-linux-x64-gnu@4.53.3':
+    resolution: {integrity: sha512-3EhFi1FU6YL8HTUJZ51imGJWEX//ajQPfqWLI3BQq4TlvHy4X0MOr5q3D2Zof/ka0d5FNdPwZXm3Yyib/UEd+w==}
     cpu: [x64]
     os: [linux]
 
-  '@rollup/rollup-linux-x64-musl@4.28.0':
-    resolution: {integrity: sha512-eKpJr4vBDOi4goT75MvW+0dXcNUqisK4jvibY9vDdlgLx+yekxSm55StsHbxUsRxSTt3JEQvlr3cGDkzcSP8bw==}
+  '@rollup/rollup-linux-x64-musl@4.53.3':
+    resolution: {integrity: sha512-eoROhjcc6HbZCJr+tvVT8X4fW3/5g/WkGvvmwz/88sDtSJzO7r/blvoBDgISDiCjDRZmHpwud7h+6Q9JxFwq1Q==}
     cpu: [x64]
     os: [linux]
 
-  '@rollup/rollup-win32-arm64-msvc@4.28.0':
-    resolution: {integrity: sha512-Vi+WR62xWGsE/Oj+mD0FNAPY2MEox3cfyG0zLpotZdehPFXwz6lypkGs5y38Jd/NVSbOD02aVad6q6QYF7i8Bg==}
+  '@rollup/rollup-openharmony-arm64@4.53.3':
+    resolution: {integrity: sha512-OueLAWgrNSPGAdUdIjSWXw+u/02BRTcnfw9PN41D2vq/JSEPnJnVuBgw18VkN8wcd4fjUs+jFHVM4t9+kBSNLw==}
+    cpu: [arm64]
+    os: [openharmony]
+
+  '@rollup/rollup-win32-arm64-msvc@4.53.3':
+    resolution: {integrity: sha512-GOFuKpsxR/whszbF/bzydebLiXIHSgsEUp6M0JI8dWvi+fFa1TD6YQa4aSZHtpmh2/uAlj/Dy+nmby3TJ3pkTw==}
     cpu: [arm64]
     os: [win32]
 
-  '@rollup/rollup-win32-ia32-msvc@4.28.0':
-    resolution: {integrity: sha512-kN/Vpip8emMLn/eOza+4JwqDZBL6MPNpkdaEsgUtW1NYN3DZvZqSQrbKzJcTL6hd8YNmFTn7XGWMwccOcJBL0A==}
+  '@rollup/rollup-win32-ia32-msvc@4.53.3':
+    resolution: {integrity: sha512-iah+THLcBJdpfZ1TstDFbKNznlzoxa8fmnFYK4V67HvmuNYkVdAywJSoteUszvBQ9/HqN2+9AZghbajMsFT+oA==}
     cpu: [ia32]
     os: [win32]
 
-  '@rollup/rollup-win32-x64-msvc@4.28.0':
-    resolution: {integrity: sha512-Bvno2/aZT6usSa7lRDL2+hMjVAGjuqaymF1ApZm31JXzniR/hvr14jpU+/z4X6Gt5BPlzosscyJZGUvguXIqeQ==}
+  '@rollup/rollup-win32-x64-gnu@4.53.3':
+    resolution: {integrity: sha512-J9QDiOIZlZLdcot5NXEepDkstocktoVjkaKUtqzgzpt2yWjGlbYiKyp05rWwk4nypbYUNoFAztEgixoLaSETkg==}
+    cpu: [x64]
+    os: [win32]
+
+  '@rollup/rollup-win32-x64-msvc@4.53.3':
+    resolution: {integrity: sha512-UhTd8u31dXadv0MopwGgNOBpUVROFKWVQgAg5N1ESyCz8AuBcMqm4AuTjrwgQKGDfoFuz02EuMRHQIw/frmYKQ==}
     cpu: [x64]
     os: [win32]
 
@@ -3615,6 +3635,9 @@ packages:
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
+
+  '@types/estree@1.0.8':
+    resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
   '@types/glob@7.2.0':
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
@@ -8337,8 +8360,8 @@ packages:
     deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
-  rollup@4.28.0:
-    resolution: {integrity: sha512-G9GOrmgWHBma4YfCcX8PjH0qhXSdH8B4HDE2o4/jaxj93S4DPCIDoLcXz99eWMji4hB29UFCEd7B2gwGJDR9cQ==}
+  rollup@4.53.3:
+    resolution: {integrity: sha512-w8GmOxZfBmKknvdXU1sdM9NHcoQejwF/4mNgj2JuEEdRaHwwF12K7e9eXn1nLZ07ad+du76mkVsyeb2rKGllsA==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
@@ -9274,8 +9297,8 @@ packages:
     peerDependencies:
       vite: '>=2.6.0'
 
-  vite@5.4.11:
-    resolution: {integrity: sha512-c7jFQRklXua0mTzneGW9QVyxFjUgwcihC4bXEtujIo2ouWCe1Ajt/amn2PCxYnhYfd5k09JX3SB7OYWFKYqj8Q==}
+  vite@5.4.21:
+    resolution: {integrity: sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -11043,11 +11066,7 @@ snapshots:
       jest-runner: 26.6.3
       jest-runtime: 26.6.3
     transitivePeerDependencies:
-      - bufferutil
-      - canvas
       - supports-color
-      - ts-node
-      - utf-8-validate
 
   '@jest/transform@26.6.2':
     dependencies:
@@ -11086,12 +11105,12 @@ snapshots:
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
-  '@joshwooding/vite-plugin-react-docgen-typescript@0.6.1(typescript@5.6.3)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))':
+  '@joshwooding/vite-plugin-react-docgen-typescript@0.6.1(typescript@5.6.3)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))':
     dependencies:
       glob: 10.4.5
       magic-string: 0.30.14
       react-docgen-typescript: 2.2.2(typescript@5.6.3)
-      vite: 5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
+      vite: 5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
     optionalDependencies:
       typescript: 5.6.3
 
@@ -11148,7 +11167,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@mdx-js/react@3.1.0(@types/react@18.3.12)(react@18.3.1)':
+  '@mdx-js/react@3.1.1(@types/react@18.3.12)(react@18.3.1)':
     dependencies:
       '@types/mdx': 2.0.13
       '@types/react': 18.3.12
@@ -11695,66 +11714,78 @@ snapshots:
       estree-walker: 2.0.2
       picomatch: 2.3.1
 
-  '@rollup/pluginutils@5.1.3(rollup@4.28.0)':
+  '@rollup/pluginutils@5.1.3(rollup@4.53.3)':
     dependencies:
       '@types/estree': 1.0.6
       estree-walker: 2.0.2
       picomatch: 4.0.2
     optionalDependencies:
-      rollup: 4.28.0
+      rollup: 4.53.3
 
-  '@rollup/rollup-android-arm-eabi@4.28.0':
+  '@rollup/rollup-android-arm-eabi@4.53.3':
     optional: true
 
-  '@rollup/rollup-android-arm64@4.28.0':
+  '@rollup/rollup-android-arm64@4.53.3':
     optional: true
 
-  '@rollup/rollup-darwin-arm64@4.28.0':
+  '@rollup/rollup-darwin-arm64@4.53.3':
     optional: true
 
-  '@rollup/rollup-darwin-x64@4.28.0':
+  '@rollup/rollup-darwin-x64@4.53.3':
     optional: true
 
-  '@rollup/rollup-freebsd-arm64@4.28.0':
+  '@rollup/rollup-freebsd-arm64@4.53.3':
     optional: true
 
-  '@rollup/rollup-freebsd-x64@4.28.0':
+  '@rollup/rollup-freebsd-x64@4.53.3':
     optional: true
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.28.0':
+  '@rollup/rollup-linux-arm-gnueabihf@4.53.3':
     optional: true
 
-  '@rollup/rollup-linux-arm-musleabihf@4.28.0':
+  '@rollup/rollup-linux-arm-musleabihf@4.53.3':
     optional: true
 
-  '@rollup/rollup-linux-arm64-gnu@4.28.0':
+  '@rollup/rollup-linux-arm64-gnu@4.53.3':
     optional: true
 
-  '@rollup/rollup-linux-arm64-musl@4.28.0':
+  '@rollup/rollup-linux-arm64-musl@4.53.3':
     optional: true
 
-  '@rollup/rollup-linux-powerpc64le-gnu@4.28.0':
+  '@rollup/rollup-linux-loong64-gnu@4.53.3':
     optional: true
 
-  '@rollup/rollup-linux-riscv64-gnu@4.28.0':
+  '@rollup/rollup-linux-ppc64-gnu@4.53.3':
     optional: true
 
-  '@rollup/rollup-linux-s390x-gnu@4.28.0':
+  '@rollup/rollup-linux-riscv64-gnu@4.53.3':
     optional: true
 
-  '@rollup/rollup-linux-x64-gnu@4.28.0':
+  '@rollup/rollup-linux-riscv64-musl@4.53.3':
     optional: true
 
-  '@rollup/rollup-linux-x64-musl@4.28.0':
+  '@rollup/rollup-linux-s390x-gnu@4.53.3':
     optional: true
 
-  '@rollup/rollup-win32-arm64-msvc@4.28.0':
+  '@rollup/rollup-linux-x64-gnu@4.53.3':
     optional: true
 
-  '@rollup/rollup-win32-ia32-msvc@4.28.0':
+  '@rollup/rollup-linux-x64-musl@4.53.3':
     optional: true
 
-  '@rollup/rollup-win32-x64-msvc@4.28.0':
+  '@rollup/rollup-openharmony-arm64@4.53.3':
+    optional: true
+
+  '@rollup/rollup-win32-arm64-msvc@4.53.3':
+    optional: true
+
+  '@rollup/rollup-win32-ia32-msvc@4.53.3':
+    optional: true
+
+  '@rollup/rollup-win32-x64-gnu@4.53.3':
+    optional: true
+
+  '@rollup/rollup-win32-x64-msvc@4.53.3':
     optional: true
 
   '@rtsao/scc@1.1.0': {}
@@ -11818,51 +11849,51 @@ snapshots:
 
   '@standard-schema/utils@0.3.0': {}
 
-  '@storybook/addon-designs@10.0.2(@storybook/addon-docs@9.1.10(@types/react@18.3.12)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
+  '@storybook/addon-designs@10.0.2(@storybook/addon-docs@9.1.10(@types/react@18.3.12)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
     dependencies:
       '@figspec/react': 1.0.3(react@18.3.1)
-      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
     optionalDependencies:
-      '@storybook/addon-docs': 9.1.10(@types/react@18.3.12)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
+      '@storybook/addon-docs': 9.1.10(@types/react@18.3.12)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@storybook/addon-docs@9.1.10(@types/react@18.3.12)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
+  '@storybook/addon-docs@9.1.10(@types/react@18.3.12)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
     dependencies:
-      '@mdx-js/react': 3.1.0(@types/react@18.3.12)(react@18.3.1)
-      '@storybook/csf-plugin': 9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
+      '@mdx-js/react': 3.1.1(@types/react@18.3.12)(react@18.3.1)
+      '@storybook/csf-plugin': 9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
       '@storybook/icons': 1.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@storybook/react-dom-shim': 9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
+      '@storybook/react-dom-shim': 9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
       ts-dedent: 2.2.0
     transitivePeerDependencies:
       - '@types/react'
     optional: true
 
-  '@storybook/addon-links@9.1.10(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
+  '@storybook/addon-links@9.1.10(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
     dependencies:
       '@storybook/global': 5.0.0
-      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
     optionalDependencies:
       react: 18.3.1
 
-  '@storybook/addon-themes@9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
+  '@storybook/addon-themes@9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
     dependencies:
-      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
       ts-dedent: 2.2.0
 
-  '@storybook/builder-vite@9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))':
+  '@storybook/builder-vite@9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))':
     dependencies:
-      '@storybook/csf-plugin': 9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
-      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      '@storybook/csf-plugin': 9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
+      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
       ts-dedent: 2.2.0
-      vite: 5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
+      vite: 5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
 
-  '@storybook/csf-plugin@9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
+  '@storybook/csf-plugin@9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
     dependencies:
-      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
       unplugin: 1.16.0
 
   '@storybook/global@5.0.0': {}
@@ -11873,39 +11904,39 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
     optional: true
 
-  '@storybook/react-dom-shim@9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
+  '@storybook/react-dom-shim@9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))':
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
 
-  '@storybook/react-vite@9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.28.0)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))':
+  '@storybook/react-vite@9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.53.3)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))':
     dependencies:
-      '@joshwooding/vite-plugin-react-docgen-typescript': 0.6.1(typescript@5.6.3)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
-      '@rollup/pluginutils': 5.1.3(rollup@4.28.0)
-      '@storybook/builder-vite': 9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
-      '@storybook/react': 9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3)
+      '@joshwooding/vite-plugin-react-docgen-typescript': 0.6.1(typescript@5.6.3)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      '@rollup/pluginutils': 5.1.3(rollup@4.53.3)
+      '@storybook/builder-vite': 9.1.10(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      '@storybook/react': 9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3)
       find-up: 7.0.0
       magic-string: 0.30.14
       react: 18.3.1
       react-docgen: 8.0.0
       react-dom: 18.3.1(react@18.3.1)
       resolve: 1.22.10
-      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
       tsconfig-paths: 4.2.0
-      vite: 5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
+      vite: 5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
     transitivePeerDependencies:
       - rollup
       - supports-color
       - typescript
 
-  '@storybook/react@9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3)':
+  '@storybook/react@9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3)':
     dependencies:
       '@storybook/global': 5.0.0
-      '@storybook/react-dom-shim': 9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
+      '@storybook/react-dom-shim': 9.1.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
     optionalDependencies:
       typescript: 5.6.3
 
@@ -12228,6 +12259,8 @@ snapshots:
       '@types/json-schema': 7.0.15
 
   '@types/estree@1.0.6': {}
+
+  '@types/estree@1.0.8': {}
 
   '@types/glob@7.2.0':
     dependencies:
@@ -12558,14 +12591,14 @@ snapshots:
       chai: 5.2.0
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.4(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))':
+  '@vitest/mocker@3.2.4(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
       magic-string: 0.30.19
     optionalDependencies:
       msw: 2.6.6(@types/node@22.10.1)(typescript@5.6.3)
-      vite: 5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
+      vite: 5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -14382,11 +14415,11 @@ snapshots:
       eslint: 7.32.0
       minimatch: 9.0.5
 
-  eslint-plugin-storybook@9.1.10(eslint@7.32.0)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3):
+  eslint-plugin-storybook@9.1.10(eslint@7.32.0)(storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)))(typescript@5.6.3):
     dependencies:
       '@typescript-eslint/utils': 8.17.0(eslint@7.32.0)(typescript@5.6.3)
       eslint: 7.32.0
-      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      storybook: 9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -14511,7 +14544,7 @@ snapshots:
 
   estree-walker@3.0.3:
     dependencies:
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.8
 
   esutils@2.0.3: {}
 
@@ -17766,28 +17799,32 @@ snapshots:
     dependencies:
       glob: 7.2.3
 
-  rollup@4.28.0:
+  rollup@4.53.3:
     dependencies:
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.8
     optionalDependencies:
-      '@rollup/rollup-android-arm-eabi': 4.28.0
-      '@rollup/rollup-android-arm64': 4.28.0
-      '@rollup/rollup-darwin-arm64': 4.28.0
-      '@rollup/rollup-darwin-x64': 4.28.0
-      '@rollup/rollup-freebsd-arm64': 4.28.0
-      '@rollup/rollup-freebsd-x64': 4.28.0
-      '@rollup/rollup-linux-arm-gnueabihf': 4.28.0
-      '@rollup/rollup-linux-arm-musleabihf': 4.28.0
-      '@rollup/rollup-linux-arm64-gnu': 4.28.0
-      '@rollup/rollup-linux-arm64-musl': 4.28.0
-      '@rollup/rollup-linux-powerpc64le-gnu': 4.28.0
-      '@rollup/rollup-linux-riscv64-gnu': 4.28.0
-      '@rollup/rollup-linux-s390x-gnu': 4.28.0
-      '@rollup/rollup-linux-x64-gnu': 4.28.0
-      '@rollup/rollup-linux-x64-musl': 4.28.0
-      '@rollup/rollup-win32-arm64-msvc': 4.28.0
-      '@rollup/rollup-win32-ia32-msvc': 4.28.0
-      '@rollup/rollup-win32-x64-msvc': 4.28.0
+      '@rollup/rollup-android-arm-eabi': 4.53.3
+      '@rollup/rollup-android-arm64': 4.53.3
+      '@rollup/rollup-darwin-arm64': 4.53.3
+      '@rollup/rollup-darwin-x64': 4.53.3
+      '@rollup/rollup-freebsd-arm64': 4.53.3
+      '@rollup/rollup-freebsd-x64': 4.53.3
+      '@rollup/rollup-linux-arm-gnueabihf': 4.53.3
+      '@rollup/rollup-linux-arm-musleabihf': 4.53.3
+      '@rollup/rollup-linux-arm64-gnu': 4.53.3
+      '@rollup/rollup-linux-arm64-musl': 4.53.3
+      '@rollup/rollup-linux-loong64-gnu': 4.53.3
+      '@rollup/rollup-linux-ppc64-gnu': 4.53.3
+      '@rollup/rollup-linux-riscv64-gnu': 4.53.3
+      '@rollup/rollup-linux-riscv64-musl': 4.53.3
+      '@rollup/rollup-linux-s390x-gnu': 4.53.3
+      '@rollup/rollup-linux-x64-gnu': 4.53.3
+      '@rollup/rollup-linux-x64-musl': 4.53.3
+      '@rollup/rollup-openharmony-arm64': 4.53.3
+      '@rollup/rollup-win32-arm64-msvc': 4.53.3
+      '@rollup/rollup-win32-ia32-msvc': 4.53.3
+      '@rollup/rollup-win32-x64-gnu': 4.53.3
+      '@rollup/rollup-win32-x64-msvc': 4.53.3
       fsevents: 2.3.3
 
   rsvp@4.8.5: {}
@@ -18132,13 +18169,13 @@ snapshots:
 
   statuses@2.0.1: {}
 
-  storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)):
+  storybook@9.1.10(@testing-library/dom@10.4.0)(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(prettier@2.8.8)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)):
     dependencies:
       '@storybook/global': 5.0.0
       '@testing-library/jest-dom': 6.6.3
       '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.0)
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
+      '@vitest/mocker': 3.2.4(msw@2.6.6(@types/node@22.10.1)(typescript@5.6.3))(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0))
       '@vitest/spy': 3.2.4
       better-opn: 3.0.2
       esbuild: 0.24.0
@@ -18897,22 +18934,22 @@ snapshots:
       d3-time: 3.1.0
       d3-timer: 3.0.1
 
-  vite-plugin-svgr@4.3.0(rollup@4.28.0)(typescript@5.6.3)(vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)):
+  vite-plugin-svgr@4.3.0(rollup@4.53.3)(typescript@5.6.3)(vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)):
     dependencies:
-      '@rollup/pluginutils': 5.1.3(rollup@4.28.0)
+      '@rollup/pluginutils': 5.1.3(rollup@4.53.3)
       '@svgr/core': 8.1.0(typescript@5.6.3)
       '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@5.6.3))
-      vite: 5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
+      vite: 5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0)
     transitivePeerDependencies:
       - rollup
       - supports-color
       - typescript
 
-  vite@5.4.11(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0):
+  vite@5.4.21(@types/node@22.10.1)(sass@1.82.0)(sugarss@4.0.1(postcss@8.4.49))(terser@5.36.0):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.49
-      rollup: 4.28.0
+      rollup: 4.53.3
     optionalDependencies:
       '@types/node': 22.10.1
       fsevents: 2.3.3
