@@ -12,15 +12,15 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
 import HeaderLogo from '../../layout/HeaderLogo';
 import { SidebarScrollWrapper } from '../../sidebar/common';
-import { Tips } from '../Tips';
 import { getOpportunitiesOptions } from '../../../features/opportunity/queries';
 import type { Opportunity } from '../../../features/opportunity/types';
 import { OpportunityState } from '../../../features/opportunity/protobuf/opportunity';
-import { webappUrl } from '../../../lib/constants';
+import { settingsUrl, webappUrl } from '../../../lib/constants';
+import { LogoutReason } from '../../../lib/user';
 
 const Header = () => (
   <div className="p-4">
-    <HeaderLogo isRecruiter />
+    <HeaderLogo isRecruiter href={`${webappUrl}recruiter/dashboard`} />
   </div>
 );
 
@@ -45,7 +45,7 @@ export const CompanyBadge = ({ name, image }: CompanyBadgeProps) => (
 );
 
 const Footer = () => {
-  const { user } = useAuthContext();
+  const { user, logout } = useAuthContext();
   return (
     <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary p-3">
       <ProfilePicture user={{ image: null }} size={ProfileImageSize.Medium} />
@@ -65,11 +65,14 @@ const Footer = () => {
         variant={ButtonVariant.Tertiary}
         icon={<SettingsIcon />}
         size={ButtonSize.XSmall}
+        href={`${settingsUrl}/profile`}
+        tag="a"
       />
       <Button
         variant={ButtonVariant.Tertiary}
         icon={<ExitIcon />}
         size={ButtonSize.XSmall}
+        onClick={() => logout(LogoutReason.ManualLogout)}
       />
     </div>
   );
@@ -241,7 +244,6 @@ export const Sidebar = (): ReactElement => {
           ))}
         </nav>
         <div className="flex-1" />
-        <Tips />
         <Footer />
       </SidebarScrollWrapper>
     </aside>

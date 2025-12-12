@@ -129,6 +129,9 @@ export const OPPORTUNITY_FRAGMENT = gql`
       ...OpportunityFeedbackQuestionFragment
     }
     subscriptionStatus
+    flags {
+      batchSize
+    }
   }
   ${ORGANIZATION_SHORT_FRAGMENT}
   ${OPPORTUNITY_CONTENT_FRAGMENT}

@@ -12,6 +12,7 @@ interface HeaderLogoProps extends WithClassNameProps {
   position?: LogoPosition;
   compact?: boolean;
   isRecruiter?: boolean;
+  href?: string;
 }
 
 function HeaderLogo({
@@ -20,6 +21,7 @@ function HeaderLogo({
   compact = false,
   className,
   isRecruiter = false,
+  href,
 }: HeaderLogoProps): ReactElement {
   const featureTheme = useFeatureTheme();
   const { user } = useAuthContext();
@@ -33,6 +35,7 @@ function HeaderLogo({
       isPlus={user?.isPlus}
       className={className}
       isRecruiter={isRecruiter}
+      href={href}
     />
   );
 }
