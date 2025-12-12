@@ -249,7 +249,7 @@ describe('OpportunityPage', () => {
           name: /how it works/i,
         });
         expect(howItWorksButton).toBeInTheDocument();
-        expect(howItWorksButton).toHaveAttribute('href', '/jobs/welcome');
+        expect(howItWorksButton).toHaveAttribute('href', '/jobs/how-it-works');
       });
     });
   });
