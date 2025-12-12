@@ -649,7 +649,7 @@ const JobPage = (): ReactElement => {
                 'mx-4 flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary tablet:mx-0',
               )}
             >
-              <Link href={`${opportunityUrl}/welcome`} passHref>
+              <Link href={`${opportunityUrl}/how-it-works`} passHref>
                 <Button
                   tag="a"
                   variant={ButtonVariant.Tertiary}
