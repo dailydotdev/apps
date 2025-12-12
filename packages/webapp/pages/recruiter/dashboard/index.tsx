@@ -1,6 +1,7 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getOpportunitiesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
@@ -15,33 +16,21 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
-
-const PageWrapper = ({ children }: { children: ReactNode }): ReactElement => {
-  return (
-    <div className="flex flex-1 flex-col">
-      <div className="flex flex-1 justify-center bg-background-subtle p-6">
-        <div className="w-full max-w-[47.875rem]">{children}</div>
-      </div>
-    </div>
-  );
-};
+import { getLayout } from '../../../components/layouts/RecruiterLayout';
 
 type OpportunityCardProps = {
   opportunity: Opportunity;
-  isDraft?: boolean;
 };
 
 const OpportunityCard = ({
   opportunity,
-  isDraft = false,
 }: OpportunityCardProps): ReactElement => {
   const { title, organization, id } = opportunity;
 
   return (
     <Button
       tag="a"
-      href={`${webappUrl}recruiter/${id}/${isDraft ? 'prepare' : 'matches'}`}
+      href={`${webappUrl}recruiter/opportunities/${id}`}
       variant={ButtonVariant.Tertiary}
       className="flex !h-auto flex-col gap-3 !rounded-16 !border !border-border-subtlest-tertiary !bg-surface-float !p-4 text-left !transition-colors hover:!border-border-subtlest-secondary"
     >
@@ -63,24 +52,21 @@ const OpportunityCard = ({
       </div>
 
       <div className="mt-auto flex items-center gap-2">
-        <span
-          className={`rounded-8 px-2 py-1 text-text-primary typo-caption1 ${
-            isDraft ? 'bg-accent-bacon-default' : 'bg-accent-cabbage-default'
-          }`}
-        >
-          {isDraft ? 'Draft' : 'Live'}
+        <span className="rounded-8 bg-accent-cabbage-default px-2 py-1 text-text-primary typo-caption1">
+          Live
         </span>
       </div>
     </Button>
   );
 };
 
-function RecruiterDashboardPage(): ReactElement {
+const RecruiterDashboard = (): ReactElement => {
+  const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
 
   // Fetch all opportunities (defaults to LIVE state)
   const { data: opportunitiesData, isLoading } = useQuery(
-    getOpportunitiesOptions(),
+    getOpportunitiesOptions('2'),
   );
 
   // Extract opportunities from connection edges
@@ -88,26 +74,37 @@ function RecruiterDashboardPage(): ReactElement {
 
   // Check if user is a recruiter (has created at least one opportunity)
   const isRecruiter = opportunities.length > 0;
+  const hasAccess = user?.isTeamMember || isRecruiter;
 
-  if (!isAuthReady || !user) {
+  if (!isAuthReady) {
+    return null;
+  }
+
+  if (!user) {
     return null;
   }
 
   if (isLoading) {
     return (
-      <PageWrapper>
+      <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
         <div className="flex flex-col items-center justify-center py-20">
           <Typography color={TypographyColor.Tertiary}>
             Loading your opportunities...
           </Typography>
         </div>
-      </PageWrapper>
+      </div>
     );
+  }
+
+  // Redirect if user doesn't have access
+  if (!hasAccess && opportunitiesData) {
+    router.replace('/');
+    return null;
   }
 
   if (!isRecruiter && opportunitiesData) {
     return (
-      <PageWrapper>
+      <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Typography type={TypographyType.Title1} bold className="mb-4">
             No opportunities yet
@@ -116,7 +113,7 @@ function RecruiterDashboardPage(): ReactElement {
             You haven&apos;t created any job opportunities yet.
           </Typography>
         </div>
-      </PageWrapper>
+      </div>
     );
   }
 
@@ -124,19 +121,15 @@ function RecruiterDashboardPage(): ReactElement {
     (opp) => opp.state === OpportunityState.LIVE,
   );
 
-  const draftOpportunities = opportunities.filter(
-    (opp) => opp.state === OpportunityState.DRAFT,
-  );
-
   return (
-    <PageWrapper>
-      <div className="flex flex-col gap-8">
+    <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
+      <div className="flex flex-col gap-8 tablet:mx-4 laptop:mx-0">
         <div className="flex flex-col gap-2 text-center">
           <Typography type={TypographyType.Title1} bold>
             Recruiter Dashboard
           </Typography>
           <Typography color={TypographyColor.Tertiary}>
-            Manage your job applications
+            Manage your active job applications
           </Typography>
         </div>
 
@@ -164,35 +157,11 @@ function RecruiterDashboardPage(): ReactElement {
             </div>
           )}
         </div>
-
-        {draftOpportunities.length > 0 && (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <Typography type={TypographyType.Title2} bold>
-                Draft Opportunities ({draftOpportunities.length})
-              </Typography>
-            </div>
-
-            <div className="grid gap-4 tablet:grid-cols-2 laptop:grid-cols-3">
-              {draftOpportunities.map((opportunity) => (
-                <OpportunityCard
-                  key={opportunity.id}
-                  opportunity={opportunity}
-                  isDraft
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
-    </PageWrapper>
+    </div>
   );
-}
+};
 
-RecruiterDashboardPage.getLayout = getLayout;
+RecruiterDashboard.getLayout = getLayout;
 
-export async function getServerSideProps() {
-  return { props: {} };
-}
-
-export default RecruiterDashboardPage;
+export default RecruiterDashboard;
