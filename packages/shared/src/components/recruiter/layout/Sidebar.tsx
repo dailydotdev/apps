@@ -120,18 +120,22 @@ const StateSubsection = ({
       >
         {stateName}
       </Typography>
-      {opportunities.map((opportunity) => (
-        <Button
-          key={opportunity.id}
-          tag="a"
-          href={`${webappUrl}recruiter/${opportunity.id}/analyze`}
-          variant={ButtonVariant.Option}
-          className="w-full"
-          size={ButtonSize.Small}
-        >
-          {opportunity.title}
-        </Button>
-      ))}
+      {opportunities.map((opportunity) => {
+        const isDraft = opportunity.state === OpportunityState.DRAFT;
+        const path = isDraft ? 'analyze' : 'matches';
+        return (
+          <Button
+            key={opportunity.id}
+            tag="a"
+            href={`${webappUrl}recruiter/${opportunity.id}/${path}`}
+            variant={ButtonVariant.Option}
+            className="w-full"
+            size={ButtonSize.Small}
+          >
+            {opportunity.title}
+          </Button>
+        );
+      })}
     </div>
   );
 };
