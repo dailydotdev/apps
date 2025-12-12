@@ -37,6 +37,8 @@ interface SourcesPageProps {
   trendingSources: Source[];
   popularSources: Source[];
   topVideoSources: Source[];
+  trendingUserSources: Source[];
+  popularUserSources: Source[];
 }
 
 const SourcesPage = ({
@@ -44,6 +46,8 @@ const SourcesPage = ({
   trendingSources,
   popularSources,
   topVideoSources,
+  trendingUserSources,
+  popularUserSources,
 }: SourcesPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
   const { openModal } = useLazyModal();
@@ -89,6 +93,16 @@ const SourcesPage = ({
           items={topVideoSources}
           isLoading={isLoading}
         />
+        <SourceTopList
+          containerProps={{ title: 'Trending user sources' }}
+          items={trendingUserSources}
+          isLoading={isLoading}
+        />
+        <SourceTopList
+          containerProps={{ title: 'Popular user sources' }}
+          items={popularUserSources}
+          isLoading={isLoading}
+        />
       </div>
     </PageWrapperLayout>
   );
@@ -118,6 +132,8 @@ export async function getStaticProps(): Promise<
         trendingSources: res.trendingSources,
         popularSources: res.popularSources,
         topVideoSources: res.topVideoSources,
+        trendingUserSources: res.trendingUserSources,
+        popularUserSources: res.popularUserSources,
       },
       revalidate: 60,
     };
@@ -134,6 +150,8 @@ export async function getStaticProps(): Promise<
           trendingSources: [],
           popularSources: [],
           topVideoSources: [],
+          trendingUserSources: [],
+          popularUserSources: [],
         },
         revalidate: 60,
       };
