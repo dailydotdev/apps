@@ -6,13 +6,15 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { EyeIcon, ReputationLightningIcon, SettingsIcon } from '../icons';
+import { EyeIcon, ReputationLightningIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { FlexCol, FlexRow } from '../utilities';
 import { BoostIcon } from '../icons/Boost';
 import Link from '../utilities/Link';
 import { useOpportunityContext } from '../../features/opportunity/context/OpportunityContext';
+import { boostOpportunityLink, opportunityUrl } from '../../lib/constants';
+import { anchorDefaultRel } from '../../lib/strings';
 
 type ItemProps = {
   children: ReactNode;
@@ -46,6 +48,7 @@ export const ConnectHeader = ({
 }: ConnectHeaderProps = {}): ReactElement => {
   const { opportunity } = useOpportunityContext();
 
+  const flags = opportunity?.flags || {};
   const opportunityId = opportunity?.id;
   const forReviewHref = opportunityId
     ? `/recruiter/${opportunityId}/matches`
@@ -71,7 +74,8 @@ export const ConnectHeader = ({
               secondary
               size={IconSize.XSmall}
             />{' '}
-            <strong>Autopilot ON:</strong> We will reach out to 500 per day
+            <strong>Autopilot ON:</strong> We will reach out to{' '}
+            {flags?.batchSize || 50} per day
           </Typography>
         </div>
         <FlexRow className="gap-2">
@@ -79,6 +83,10 @@ export const ConnectHeader = ({
             variant={ButtonVariant.Subtle}
             icon={<EyeIcon />}
             size={ButtonSize.Small}
+            href={`${opportunityUrl}/${opportunityId || ''}`}
+            tag="a"
+            target="_blank"
+            rel={anchorDefaultRel}
           >
             Job page
           </Button>
@@ -86,14 +94,13 @@ export const ConnectHeader = ({
             variant={ButtonVariant.Primary}
             icon={<BoostIcon />}
             size={ButtonSize.Small}
+            href={boostOpportunityLink}
+            tag="a"
+            target="_blank"
+            rel={anchorDefaultRel}
           >
             Boost
           </Button>
-          <Button
-            icon={<SettingsIcon />}
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-          />
         </FlexRow>
       </FlexRow>
       <FlexRow className="border-b border-border-subtlest-tertiary px-4">

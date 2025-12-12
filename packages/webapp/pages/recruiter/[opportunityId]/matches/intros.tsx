@@ -7,6 +7,11 @@ import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { MatchCard } from '@dailydotdev/shared/src/features/opportunity/components/MatchCard';
 import { useOpportunityMatches } from '@dailydotdev/shared/src/features/opportunity/hooks/useOpportunityMatches';
 import { OpportunityProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityContext';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import { getLayout } from '../../../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterMatchesPage(): ReactElement {
@@ -25,22 +30,8 @@ function RecruiterMatchesPage(): ReactElement {
         <div className="flex flex-1 flex-col">
           <ConnectHeader activeTab="intros" />
           <ConnectProgress />
-          <div className="flex flex-1 items-center justify-center">
+          <div className="flex flex-1 items-center justify-center bg-background-subtle">
             <Loader />
-          </div>
-        </div>
-      </OpportunityProvider>
-    );
-  }
-
-  if (!allMatches.length) {
-    return (
-      <OpportunityProvider opportunityId={opportunityId as string}>
-        <div className="flex flex-1 flex-col">
-          <ConnectHeader activeTab="intros" />
-          <ConnectProgress />
-          <div className="flex flex-1 items-center justify-center p-6">
-            <p className="text-text-tertiary">No matches found</p>
           </div>
         </div>
       </OpportunityProvider>
@@ -55,14 +46,31 @@ function RecruiterMatchesPage(): ReactElement {
         <ConnectHeader activeTab="intros" />
         <ConnectProgress />
         <div className="flex flex-1 flex-col gap-6 bg-background-subtle p-6">
-          {allMatches.map((match, index) => (
-            <MatchCard
-              key={match.userId}
-              match={match}
-              currentMatch={index + 1}
-              totalMatches={totalMatches}
-            />
-          ))}
+          {!allMatches.length ? (
+            <div className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center gap-6 p-6">
+              <Typography type={TypographyType.Mega3} bold center>
+                No intros so far
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Tertiary}
+                center
+              >
+                As soon as you made your first match they will show up here.
+              </Typography>
+            </div>
+          ) : (
+            <>
+              {allMatches.map((match, index) => (
+                <MatchCard
+                  key={match.userId}
+                  match={match}
+                  currentMatch={index + 1}
+                  totalMatches={totalMatches}
+                />
+              ))}
+            </>
+          )}
         </div>
       </div>
     </OpportunityProvider>

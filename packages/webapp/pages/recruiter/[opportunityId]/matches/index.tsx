@@ -16,6 +16,15 @@ import {
 import { MatchCard } from '@dailydotdev/shared/src/features/opportunity/components/MatchCard';
 import { useOpportunityMatches } from '@dailydotdev/shared/src/features/opportunity/hooks/useOpportunityMatches';
 import { OpportunityProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityContext';
+import classNames from 'classnames';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { GenericLoaderSpinner } from '@dailydotdev/shared/src/components/utilities/loaders';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+
 import { getLayout } from '../../../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterMatchesPage(): ReactElement {
@@ -78,22 +87,8 @@ function RecruiterMatchesPage(): ReactElement {
         <div className="flex flex-1 flex-col">
           <ConnectHeader activeTab="review" />
           <ConnectProgress />
-          <div className="flex flex-1 items-center justify-center">
+          <div className="flex flex-1 items-center justify-center bg-background-subtle">
             <Loader />
-          </div>
-        </div>
-      </OpportunityProvider>
-    );
-  }
-
-  if (!currentMatch) {
-    return (
-      <OpportunityProvider opportunityId={opportunityId as string}>
-        <div className="flex flex-1 flex-col">
-          <ConnectHeader activeTab="review" />
-          <ConnectProgress />
-          <div className="flex flex-1 items-center justify-center p-6">
-            <p className="text-text-tertiary">No matches found</p>
           </div>
         </div>
       </OpportunityProvider>
@@ -105,17 +100,54 @@ function RecruiterMatchesPage(): ReactElement {
       <div className="flex flex-1 flex-col">
         <ConnectHeader activeTab="review" />
         <ConnectProgress />
-        <div className="flex flex-1 flex-col bg-background-subtle p-6">
-          <MatchCard
-            match={currentMatch}
-            currentMatch={currentMatchIndex + 1}
-            totalMatches={totalMatches}
-            onReject={handleReject}
-            onApprove={handleApprove}
-            disabled={
-              isLoading || acceptMutation.isPending || rejectMutation.isPending
-            }
-          />
+        <div
+          className={classNames(
+            'flex flex-1 flex-col bg-background-subtle',
+            currentMatch ? 'p-6' : '',
+          )}
+        >
+          {currentMatch ? (
+            <MatchCard
+              match={currentMatch}
+              currentMatch={currentMatchIndex + 1}
+              totalMatches={totalMatches}
+              onReject={handleReject}
+              onApprove={handleApprove}
+              disabled={
+                isLoading ||
+                acceptMutation.isPending ||
+                rejectMutation.isPending
+              }
+            />
+          ) : (
+            <>
+              <div className="flex items-center justify-center gap-2 border-b border-border-subtlest-tertiary bg-brand-float px-4 py-3">
+                <GenericLoaderSpinner size={IconSize.XSmall} />
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Brand}
+                >
+                  Your next promising candidates will land here. As soon as
+                  someone shows real potential, they’ll move into this step for
+                  review.
+                </Typography>
+              </div>
+              <div className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center gap-6 p-6">
+                <Typography type={TypographyType.Mega3} bold center>
+                  We are reaching out to devs and we&#39;ll find who&#39;s ready
+                  to say yes.
+                </Typography>
+                <Typography
+                  type={TypographyType.Body}
+                  color={TypographyColor.Tertiary}
+                  center
+                >
+                  We’re already talking to the right developers for you — all
+                  opt-in, all high-intent.
+                </Typography>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </OpportunityProvider>

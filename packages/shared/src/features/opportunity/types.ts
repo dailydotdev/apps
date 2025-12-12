@@ -88,6 +88,10 @@ export type OpportunityScreeningAnswer = {
   answer: string;
 };
 
+type OpportunityFlagsPublic = {
+  batchSize?: number;
+};
+
 export type Opportunity = {
   id: string;
   type: ProtoEnumValue;
@@ -105,6 +109,7 @@ export type Opportunity = {
   questions?: OpportunityScreeningQuestion[];
   feedbackQuestions?: OpportunityFeedbackQuestion[];
   subscriptionStatus: SubscriptionStatus;
+  flags?: OpportunityFlagsPublic;
 };
 
 export type OpportunityMatchDescription = {
