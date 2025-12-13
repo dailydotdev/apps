@@ -1692,23 +1692,288 @@
 }
 
 /* ========================================
-   CARD 8: ARCHETYPE REVEAL - Dramatic Theme
+   CARD 8: ARCHETYPE REVEAL - Epic Climax Theme
    ======================================== */
 
 .archetypeContainer {
-  min-height: 350px;
+  min-height: 400px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   width: 100%;
+  position: relative;
+  overflow: visible;
+  padding-bottom: 2rem;
 }
 
+/* Build-up phase */
 .buildupContainer {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 0.75rem;
 }
 
+.archetypeBuildupLine {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--fest-white-70, rgba(255,255,255,0.7));
+  letter-spacing: 0.01em;
+}
+
+.archetypeBuildupIcon {
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
+/* Pause phase */
+.pauseContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.archetypePauseDots {
+  display: flex;
+  gap: 1rem;
+  font-size: 4rem;
+  color: var(--fest-accent, #e637bf);
+  text-shadow: 0 0 20px var(--fest-accent, #e637bf);
+}
+
+/* WHO ARE YOU? dramatic moment */
+.whoAreYouContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.whoAreYouText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1;
+}
+
+.whoAreYouSmall {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.25rem;
+  letter-spacing: 0.5em;
+  color: var(--fest-secondary, #f7c948);
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.whoAreYouLarge {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 5rem;
+  color: var(--fest-white, #fff);
+  text-shadow:
+    4px 4px 0 var(--fest-primary, #ff6b35),
+    8px 8px 0 var(--fest-accent, #e637bf);
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+/* THE REVEAL - Main container */
+.archetypeRevealContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 100%;
+  padding: 0 1rem;
+  gap: 0.75rem;
+}
+
+/* Ambient glow effect */
+.archetypeGlow {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Particle explosion center */
+.particleCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Sparkles container */
+.sparklesContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  height: 280px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Archetype image wrapper */
+.archetypeImageWrapper {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  z-index: 10;
+}
+
+.archetypeImageGlowRing {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 3px solid;
+  opacity: 0.6;
+  animation: glowRingPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowRingPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+.archetypeImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.3));
+}
+
+/* Archetype name badge */
+.archetypeNameBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  z-index: 10;
+}
+
+.archetypeNameLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  color: var(--fest-secondary, #f7c948);
+  text-transform: uppercase;
+}
+
+.archetypeNameText {
+  font-family: 'Dela Gothic One', cursive;
+  font-size: 2.75rem;
+  line-height: 1;
+  text-shadow:
+    3px 3px 0 var(--fest-primary, #ff6b35),
+    6px 6px 0 var(--fest-accent, #e637bf);
+  animation: archetypeNameGlow 3s ease-in-out infinite;
+}
+
+@keyframes archetypeNameGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px var(--archetype-color, #fff));
+  }
+  50% {
+    filter: drop-shadow(0 0 25px var(--archetype-color, #fff));
+  }
+}
+
+/* Description */
+.archetypeRevealDescription {
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem;
+  color: var(--fest-white-70, rgba(255,255,255,0.7));
+  font-style: italic;
+  max-width: 300px;
+  margin: 0;
+  line-height: 1.5;
+  z-index: 10;
+}
+
+/* Stat badge - festival ticket stub style */
+.archetypeStatBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--fest-white, #fff);
+  color: var(--fest-bg, #1a0a2e);
+  transform: rotate(-1deg);
+  box-shadow: 
+    4px 4px 0 var(--fest-primary, #ff6b35),
+    8px 8px 0 var(--fest-accent, #e637bf);
+  z-index: 10;
+  max-width: 280px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dashed ticket stub edge */
+.archetypeStatBadge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--fest-secondary, #f7c948) 0px,
+    var(--fest-secondary, #f7c948) 8px,
+    transparent 8px,
+    transparent 12px
+  );
+}
+
+/* Decorative star accents */
+.archetypeStatBadge::after {
+  content: '✦';
+  position: absolute;
+  bottom: 4px;
+  right: 8px;
+  font-size: 0.75rem;
+  color: var(--fest-accent, #e637bf);
+  opacity: 0.6;
+}
+
+.archetypeStatBadgeText {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--fest-bg, #1a0a2e);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  word-break: break-word;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Legacy styles (kept for compatibility) */
 .buildupLine {
   display: flex;
   align-items: center;
@@ -1719,12 +1984,6 @@
 
 .buildupEmoji {
   font-size: 1.25rem;
-}
-
-.pauseContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .pauseDots {
@@ -1740,14 +1999,6 @@
   align-items: center;
   text-align: center;
   position: relative;
-}
-
-.particleCenter {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
 }
 
 .archetypeEmoji {
@@ -1787,6 +2038,246 @@
 
 .archetypeStatIcon {
   font-size: 1rem;
+}
+
+/* Responsive - Archetype Reveal */
+@media (min-height: 750px) {
+  .archetypeContainer {
+    min-height: 450px;
+    padding-bottom: 4rem;
+  }
+
+  .buildupContainer {
+    gap: 1.125rem;
+  }
+
+  .archetypeBuildupLine {
+    font-size: 0.875rem;
+    gap: 0.875rem;
+  }
+
+  .archetypeBuildupIcon {
+    font-size: 1.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .whoAreYouSmall {
+    font-size: 1.5rem;
+  }
+
+  .whoAreYouLarge {
+    font-size: 6rem;
+  }
+
+  .archetypeImageWrapper {
+    width: 200px;
+    height: 200px;
+  }
+
+  .archetypeRevealDescription {
+    font-size: 1.05rem;
+    max-width: 320px;
+  }
+
+  .archetypeStatBadge {
+    padding: 0.875rem 1.5rem;
+    max-width: 300px;
+    box-shadow: 
+      5px 5px 0 var(--fest-primary, #ff6b35),
+      10px 10px 0 var(--fest-accent, #e637bf);
+  }
+
+  .archetypeStatBadgeText {
+    font-size: 0.75rem;
+  }
+}
+
+@media (min-height: 850px) {
+  .archetypeContainer {
+    min-height: 500px;
+    padding-bottom: 5rem;
+  }
+
+  .archetypeRevealContainer {
+    gap: 1rem;
+  }
+
+  .buildupContainer {
+    gap: 1.25rem;
+    padding: 1rem;
+  }
+
+  .archetypeBuildupLine {
+    font-size: 0.95rem;
+    gap: 1rem;
+  }
+
+  .archetypeBuildupIcon {
+    font-size: 1.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .whoAreYouLarge {
+    font-size: 7rem;
+    text-shadow:
+      5px 5px 0 var(--fest-primary, #ff6b35),
+      10px 10px 0 var(--fest-accent, #e637bf);
+  }
+
+  .archetypeImageWrapper {
+    width: 220px;
+    height: 220px;
+  }
+
+  .archetypeImageGlowRing {
+    inset: -10px;
+    border-width: 4px;
+  }
+
+  .archetypeNameText {
+    text-shadow:
+      4px 4px 0 var(--fest-primary, #ff6b35),
+      8px 8px 0 var(--fest-accent, #e637bf);
+  }
+
+  .archetypeRevealDescription {
+    font-size: 1.1rem;
+    max-width: 340px;
+  }
+
+  .archetypeStatBadge {
+    padding: 1rem 1.5rem;
+    max-width: 320px;
+    box-shadow: 
+      5px 5px 0 var(--fest-primary, #ff6b35),
+      10px 10px 0 var(--fest-accent, #e637bf);
+  }
+
+  .archetypeStatBadgeText {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .archetypeContainer {
+    min-height: 320px;
+  }
+
+  .buildupContainer {
+    gap: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .archetypeBuildupLine {
+    font-size: 0.7rem;
+    gap: 0.5rem;
+  }
+
+  .archetypeBuildupIcon {
+    font-size: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .archetypePauseDots {
+    font-size: 3rem;
+    gap: 0.75rem;
+  }
+
+  .whoAreYouSmall {
+    font-size: 1rem;
+  }
+
+  .whoAreYouLarge {
+    font-size: 4rem;
+    text-shadow:
+      3px 3px 0 var(--fest-primary, #ff6b35),
+      6px 6px 0 var(--fest-accent, #e637bf);
+  }
+
+  .archetypeRevealContainer {
+    gap: 0.5rem;
+  }
+
+  .archetypeImageWrapper {
+    width: 140px;
+    height: 140px;
+  }
+
+  .archetypeImageGlowRing {
+    inset: -6px;
+    border-width: 2px;
+  }
+
+  .archetypeNameLabel {
+    font-size: 0.6rem;
+  }
+
+  .archetypeNameText {
+    font-size: 2rem;
+    text-shadow:
+      2px 2px 0 var(--fest-primary, #ff6b35),
+      4px 4px 0 var(--fest-accent, #e637bf);
+  }
+
+  .archetypeRevealDescription {
+    font-size: 0.85rem;
+    max-width: 260px;
+  }
+
+  .archetypeStatBadge {
+    padding: 0.5rem 0.875rem;
+    max-width: 240px;
+    box-shadow: 
+      3px 3px 0 var(--fest-primary, #ff6b35),
+      6px 6px 0 var(--fest-accent, #e637bf);
+  }
+
+  .archetypeStatBadgeText {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .archetypeBuildupLine {
+    font-size: 0.65rem;
+  }
+
+  .archetypeBuildupIcon {
+    font-size: 0.9rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .whoAreYouLarge {
+    font-size: 3.5rem;
+  }
+
+  .archetypeImageWrapper {
+    width: 130px;
+    height: 130px;
+  }
+
+  .archetypeNameText {
+    font-size: 1.75rem;
+  }
+
+  .archetypeRevealDescription {
+    font-size: 0.8rem;
+    max-width: 240px;
+  }
+
+  .archetypeStatBadge {
+    box-shadow: 
+      3px 3px 0 var(--fest-primary, #ff6b35),
+      6px 6px 0 var(--fest-accent, #e637bf);
+  }
+
+  .archetypeStatBadgeText {
+    font-size: 0.6rem;
+  }
 }
 
 /* ========================================

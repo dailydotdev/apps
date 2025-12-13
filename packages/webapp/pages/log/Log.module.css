@@ -106,7 +106,7 @@
 
 .cardInner {
   width: 100%;
-  max-width: min(420px, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
   height: 100%;
   max-height: calc(100vh - 7rem);
   display: flex;
@@ -115,6 +115,13 @@
   justify-content: center;
   perspective: 1000px; /* Enable 3D space for children */
   box-sizing: border-box;
+}
+
+/* Limit content width on larger screens */
+@media (min-width: 640px) {
+  .cardInner {
+    max-width: 480px;
+  }
 }
 
 /* ========================================

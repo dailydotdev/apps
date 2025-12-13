@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { LogData } from '../types';
+import type { LogData, Archetype } from '../types';
 import { ARCHETYPES } from '../types';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
@@ -11,47 +11,124 @@ interface CardProps {
   isActive: boolean;
 }
 
+// Archetype image URLs
+const ARCHETYPE_IMAGES: Record<Archetype, string> = {
+  STREAK_WARRIOR:
+    'https://media.daily.dev/image/upload/s--zSQmukzL--/f_auto,q_auto/v1765654630/public/streak_warrior',
+  SCHOLAR:
+    'https://media.daily.dev/image/upload/s--mWY4TZG1--/f_auto,q_auto/v1765654630/public/scholar',
+  PULSE_READER:
+    'https://media.daily.dev/image/upload/s--XWfonwhE--/f_auto,q_auto/v1765654630/public/pulse_reader',
+  OPINIONIST:
+    'https://media.daily.dev/image/upload/s--pHpHjYtG--/f_auto,q_auto/v1765654579/public/opinionist',
+  NIGHT_OWL:
+    'https://media.daily.dev/image/upload/s--mqo5Vxvk--/f_auto,q_auto/v1765654579/public/night_owl',
+  COLLECTOR:
+    'https://media.daily.dev/image/upload/s--fMLnVbfw--/f_auto,q_auto/v1765654555/public/collector',
+};
+
 const BUILD_UP_LINES = [
-  { text: "We've analyzed your patterns...", emoji: '🔍' },
-  { text: "We've tracked your journey...", emoji: '📊' },
-  { text: "We've decoded your style...", emoji: '🧬' },
-  { text: 'And now we know WHO you are...', emoji: '✨' },
+  { text: "We've seen how you read...", icon: '👁️' },
+  { text: 'We know when you read...', icon: '🕐' },
+  { text: "We've tracked what you love...", icon: '💜' },
+  { text: 'Now let us reveal...', icon: '✨' },
 ];
 
-// Particle explosion component
-function Particle({
+// ============================================
+// TIMING CONFIGURATION (adjust these to tune the experience)
+// ============================================
+const TIMING = {
+  // Build-up phase
+  buildupInitialDelay: 400, // ms before first line appears
+  buildupLineInterval: 900, // ms between each line
+  // Derived: total buildup = 400 + (4 * 900) = 4000ms (4s)
+
+  // "WHO ARE YOU?" phase
+  whoAreYouDuration: 1400, // ms to show this text
+
+  // Get total buildup time (for calculating subsequent phases)
+  get buildupTotal() {
+    return (
+      this.buildupInitialDelay +
+      BUILD_UP_LINES.length * this.buildupLineInterval
+    );
+  },
+};
+
+// Enhanced particle with trails
+function GlowParticle({
   delay,
   angle,
+  color,
 }: {
   delay: number;
   angle: number;
+  color: string;
 }): ReactElement {
-  const distance = 150 + Math.random() * 100;
+  const distance = 180 + Math.random() * 120;
   const x = Math.cos(angle) * distance;
   const y = Math.sin(angle) * distance;
-  const colors = ['#ff6b35', '#f7c948', '#e637bf', '#c6f135', '#4d9dff'];
-  const color = colors[Math.floor(Math.random() * colors.length)];
+  const size = 4 + Math.random() * 8;
 
   return (
     <motion.div
       style={{
         position: 'absolute',
-        width: 8 + Math.random() * 8,
-        height: 8 + Math.random() * 8,
+        width: size,
+        height: size,
         background: color,
-        borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+        borderRadius: '50%',
+        boxShadow: `0 0 ${size * 2}px ${color}, 0 0 ${size * 4}px ${color}`,
       }}
       initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}
       animate={{
         x,
         y,
-        scale: [0, 1.5, 0],
-        opacity: [1, 1, 0],
+        scale: [0, 1.5, 0.5, 0],
+        opacity: [1, 1, 0.8, 0],
       }}
       transition={{
-        duration: 1 + Math.random() * 0.5,
+        duration: 1.5 + Math.random() * 0.5,
         delay,
         ease: 'easeOut',
+      }}
+    />
+  );
+}
+
+// Sparkle effect for the reveal
+function Sparkle({
+  x,
+  y,
+  delay,
+  color,
+}: {
+  x: number;
+  y: number;
+  delay: number;
+  color: string;
+}): ReactElement {
+  return (
+    <motion.div
+      style={{
+        position: 'absolute',
+        left: x,
+        top: y,
+        width: 4,
+        height: 4,
+        background: color,
+        borderRadius: '50%',
+      }}
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{
+        scale: [0, 1.5, 0],
+        opacity: [0, 1, 0],
+      }}
+      transition={{
+        duration: 0.8,
+        delay,
+        repeat: Infinity,
+        repeatDelay: 2 + Math.random() * 2,
       }}
     />
   );
@@ -61,10 +138,47 @@ export default function CardArchetypeReveal({
   data,
   isActive,
 }: CardProps): ReactElement {
-  const [phase, setPhase] = useState<'buildup' | 'pause' | 'reveal'>('buildup');
+  const [phase, setPhase] = useState<'buildup' | 'whoAreYou' | 'reveal'>(
+    'buildup',
+  );
   const [buildUpIndex, setBuildUpIndex] = useState(-1);
   const [showParticles, setShowParticles] = useState(false);
+  const [, setImageLoaded] = useState(false);
   const archetype = ARCHETYPES[data.archetype];
+  const archetypeImage = ARCHETYPE_IMAGES[data.archetype];
+
+  // Preload the image
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setImageLoaded(true);
+    img.src = archetypeImage;
+  }, [archetypeImage]);
+
+  // Generate particles with archetype colors
+  const particles = useMemo(() => {
+    const colors = [
+      archetype.color,
+      '#ff6b35',
+      '#f7c948',
+      '#e637bf',
+      '#c6f135',
+    ];
+    return [...Array(36)].map((_, i) => ({
+      angle: (i / 36) * Math.PI * 2,
+      delay: i * 0.015,
+      color: colors[i % colors.length],
+    }));
+  }, [archetype.color]);
+
+  // Generate sparkles
+  const sparkles = useMemo(() => {
+    return [...Array(12)].map((_, i) => ({
+      x: Math.random() * 280 - 140,
+      y: Math.random() * 280 - 140,
+      delay: i * 0.1,
+      color: i % 2 === 0 ? archetype.color : '#fff',
+    }));
+  }, [archetype.color]);
 
   useEffect(() => {
     if (!isActive) {
@@ -76,24 +190,27 @@ export default function CardArchetypeReveal({
       };
     }
 
-    // Build up sequence
     const timers: NodeJS.Timeout[] = [];
 
+    // Build up sequence
     BUILD_UP_LINES.forEach((_, index) => {
-      timers.push(setTimeout(() => setBuildUpIndex(index), 600 + index * 1200));
+      timers.push(
+        setTimeout(
+          () => setBuildUpIndex(index),
+          TIMING.buildupInitialDelay + index * TIMING.buildupLineInterval,
+        ),
+      );
     });
 
-    // Pause phase
-    timers.push(
-      setTimeout(() => setPhase('pause'), 600 + BUILD_UP_LINES.length * 1200),
-    );
+    // "WHO ARE YOU?" dramatic moment (after buildup completes)
+    timers.push(setTimeout(() => setPhase('whoAreYou'), TIMING.buildupTotal));
 
-    // Reveal phase
+    // THE REVEAL
     timers.push(
       setTimeout(() => {
         setPhase('reveal');
         setShowParticles(true);
-      }, 600 + BUILD_UP_LINES.length * 1200 + 1500),
+      }, TIMING.buildupTotal + TIMING.whoAreYouDuration),
     );
 
     return () => timers.forEach(clearTimeout);
@@ -108,141 +225,210 @@ export default function CardArchetypeReveal({
             <motion.div
               key="buildup"
               className={cardStyles.buildupContainer}
-              exit={{ opacity: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.4 }}
             >
               {BUILD_UP_LINES.map((line, index) => (
                 <motion.div
-                  key={`${line.emoji}-${line.text}`}
-                  className={cardStyles.buildupLine}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={buildUpIndex >= index ? { opacity: 1, x: 0 } : {}}
-                  transition={{ duration: 0.4 }}
+                  key={`${line.icon}-${line.text}`}
+                  className={cardStyles.archetypeBuildupLine}
+                  initial={{ opacity: 0, x: -30, filter: 'blur(4px)' }}
+                  animate={
+                    buildUpIndex >= index
+                      ? { opacity: 1, x: 0, filter: 'blur(0px)' }
+                      : {}
+                  }
+                  transition={{
+                    duration: 0.6,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
                 >
-                  <span className={cardStyles.buildupEmoji}>{line.emoji}</span>
+                  <motion.span
+                    className={cardStyles.archetypeBuildupIcon}
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={
+                      buildUpIndex >= index ? { scale: 1, rotate: 0 } : {}
+                    }
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.2,
+                      type: 'spring',
+                      stiffness: 200,
+                    }}
+                  >
+                    {line.icon}
+                  </motion.span>
                   <span>{line.text}</span>
                 </motion.div>
               ))}
             </motion.div>
           )}
 
-          {/* Pause - dramatic dots */}
-          {phase === 'pause' && (
+          {/* WHO ARE YOU? dramatic moment */}
+          {phase === 'whoAreYou' && (
             <motion.div
-              key="pause"
-              className={cardStyles.pauseContainer}
+              key="whoAreYou"
+              className={cardStyles.whoAreYouContainer}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, scale: 2 }}
+              exit={{ opacity: 0, scale: 3, filter: 'blur(20px)' }}
+              transition={{ duration: 0.5 }}
             >
-              <div className={cardStyles.pauseDots}>
-                {[0, 1, 2].map((i) => (
-                  <motion.span
-                    key={i}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.3 }}
-                  >
-                    •
-                  </motion.span>
-                ))}
-              </div>
+              <motion.div
+                className={cardStyles.whoAreYouText}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 150,
+                  damping: 12,
+                }}
+              >
+                <span className={cardStyles.whoAreYouSmall}>WHO</span>
+                <span className={cardStyles.whoAreYouLarge}>ARE</span>
+                <span className={cardStyles.whoAreYouSmall}>YOU?</span>
+              </motion.div>
             </motion.div>
           )}
 
-          {/* THE REVEAL */}
+          {/* THE GRAND REVEAL */}
           {phase === 'reveal' && (
             <motion.div
               key="reveal"
-              className={cardStyles.revealContainer}
+              className={cardStyles.archetypeRevealContainer}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
+              {/* Ambient glow background */}
+              <motion.div
+                className={cardStyles.archetypeGlow}
+                style={{ background: archetype.color }}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 0.15, scale: 2 }}
+                transition={{ duration: 1.5, ease: 'easeOut' }}
+              />
+
               {/* Particle explosion */}
               {showParticles && (
                 <div className={cardStyles.particleCenter}>
-                  {[...Array(24)].map((_, i) => {
-                    const angle = (i / 24) * Math.PI * 2;
-                    return (
-                      <Particle
-                        key={`particle-${angle}-${i * 0.02}`}
-                        delay={i * 0.02}
-                        angle={angle}
-                      />
-                    );
-                  })}
+                  {particles.map((p) => (
+                    <GlowParticle
+                      key={`particle-${p.angle}-${p.delay}`}
+                      delay={p.delay}
+                      angle={p.angle}
+                      color={p.color}
+                    />
+                  ))}
                 </div>
               )}
 
-              {/* Emoji with dramatic entrance */}
+              {/* Sparkles around the image */}
+              <div className={cardStyles.sparklesContainer}>
+                {sparkles.map((s) => (
+                  <Sparkle
+                    key={`sparkle-${s.x}-${s.y}`}
+                    x={s.x}
+                    y={s.y}
+                    delay={1 + s.delay}
+                    color={s.color}
+                  />
+                ))}
+              </div>
+
+              {/* Main archetype image with dramatic entrance */}
               <motion.div
-                className={cardStyles.archetypeEmoji}
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
+                className={cardStyles.archetypeImageWrapper}
+                initial={{ scale: 0, rotate: -20, opacity: 0 }}
+                animate={{ scale: 1, rotate: 0, opacity: 1 }}
                 transition={{
                   type: 'spring',
-                  stiffness: 200,
-                  damping: 10,
+                  stiffness: 180,
+                  damping: 12,
                   delay: 0.1,
                 }}
               >
-                {archetype.emoji}
+                <motion.div
+                  className={cardStyles.archetypeImageGlowRing}
+                  style={{ borderColor: archetype.color }}
+                  initial={{ scale: 1.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                />
+                <motion.img
+                  src={archetypeImage}
+                  alt={archetype.name}
+                  className={cardStyles.archetypeImage}
+                  initial={{ filter: 'brightness(2) saturate(0)' }}
+                  animate={{ filter: 'brightness(1) saturate(1)' }}
+                  transition={{ duration: 0.8, delay: 0.3 }}
+                />
               </motion.div>
 
-              {/* Name with screen shake effect via CSS */}
+              {/* Archetype name with screen shake effect */}
               <motion.div
-                className={cardStyles.archetypeName}
-                style={{ color: archetype.color }}
-                initial={{ opacity: 0, y: 50, scale: 0.5 }}
+                className={cardStyles.archetypeNameBadge}
+                style={
+                  {
+                    '--archetype-color': archetype.color,
+                  } as React.CSSProperties
+                }
+                initial={{ opacity: 0, y: 60, scale: 0.3 }}
                 animate={{
                   opacity: 1,
                   y: 0,
                   scale: 1,
                 }}
                 transition={{
-                  delay: 0.3,
+                  delay: 0.4,
                   type: 'spring',
-                  stiffness: 150,
-                  damping: 12,
+                  stiffness: 120,
+                  damping: 10,
                 }}
               >
-                {archetype.name.toUpperCase()}
+                <span
+                  className={cardStyles.archetypeNameText}
+                  style={{ color: archetype.color }}
+                >
+                  {archetype.name.toUpperCase()}
+                </span>
               </motion.div>
 
-              {/* Description */}
+              {/* Description with fade */}
               <motion.p
-                className={cardStyles.archetypeDescription}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
+                className={cardStyles.archetypeRevealDescription}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8, duration: 0.6 }}
               >
                 &quot;{archetype.description}&quot;
               </motion.p>
 
-              {/* Stat */}
+              {/* Stat badge */}
               <motion.div
-                className={cardStyles.archetypeStat}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 }}
+                className={cardStyles.archetypeStatBadge}
+                initial={{ opacity: 0, scale: 0.8, rotate: -3 }}
+                animate={{ opacity: 1, scale: 1, rotate: -1 }}
+                transition={{ delay: 1.1, duration: 0.5, type: 'spring' }}
               >
-                <span className={cardStyles.archetypeStatIcon}>⚡</span>
-                <span>{data.archetypeStat}</span>
+                <span className={cardStyles.archetypeStatBadgeText}>
+                  {data.archetypeStat}
+                </span>
               </motion.div>
-
-              {/* Share button */}
-              <ShareStatButton
-                delay={1.7}
-                isActive={phase === 'reveal'}
-                statText={`I'm a ${archetype.name.toUpperCase()} ${
-                  archetype.emoji
-                } on daily.dev!\n\n"${archetype.description}"\n\n⚡ ${
-                  data.archetypeStat
-                }\n\nWhat's your developer archetype?`}
-              />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Share button - positioned outside reveal container for proper absolute positioning */}
+      <ShareStatButton
+        delay={1.8}
+        isActive={phase === 'reveal'}
+        statText={`I'm ${
+          ['A', 'E', 'I', 'O', 'U'].includes(archetype.name[0]) ? 'an' : 'a'
+        } ${archetype.name.toUpperCase()} on daily.dev!\n\n"${
+          archetype.description
+        }"\n\n⚡ ${data.archetypeStat}\n\nWhat's your developer archetype?`}
+      />
     </>
   );
 }

@@ -10,7 +10,6 @@ export type Archetype =
 
 export interface ArchetypeInfo {
   id: Archetype;
-  emoji: string;
   name: string;
   description: string;
   color: string;
@@ -19,42 +18,36 @@ export interface ArchetypeInfo {
 export const ARCHETYPES: Record<Archetype, ArchetypeInfo> = {
   NIGHT_OWL: {
     id: 'NIGHT_OWL',
-    emoji: '🦉',
     name: 'Night Owl',
     description: 'While others sleep, you level up.',
     color: '#4d9dff',
   },
   SCHOLAR: {
     id: 'SCHOLAR',
-    emoji: '📚',
     name: 'Scholar',
     description: "You don't skim. You study.",
     color: '#f7c948',
   },
   PULSE_READER: {
     id: 'PULSE_READER',
-    emoji: '⚡',
     name: 'Pulse Reader',
     description: 'First to know. Always.',
     color: '#00d4ff',
   },
   OPINIONIST: {
     id: 'OPINIONIST',
-    emoji: '🎤',
     name: 'Opinionist',
     description: 'Hot takes need witnesses.',
     color: '#e637bf',
   },
   COLLECTOR: {
     id: 'COLLECTOR',
-    emoji: '🗃️',
     name: 'Collector',
-    description: 'Bookmarks: ∞. Read later: TBD.',
+    description: 'Every rabbit hole mapped. Every gem saved.',
     color: '#a855f7',
   },
   STREAK_WARRIOR: {
     id: 'STREAK_WARRIOR',
-    emoji: '🔥',
     name: 'Streak Warrior',
     description: 'Rain or shine. You show up.',
     color: '#ff6b35',

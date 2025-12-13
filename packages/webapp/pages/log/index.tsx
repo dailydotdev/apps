@@ -427,7 +427,9 @@ export default function LogPage({
                 }
               }}
             >
-              <CardComponent data={data} isActive subcard={currentSubcard} />
+              <div className={styles.cardInner}>
+                <CardComponent data={data} isActive subcard={currentSubcard} />
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>
