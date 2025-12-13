@@ -1,6 +1,10 @@
 import { gql } from 'graphql-request';
 import type { Opportunity } from '../features/opportunity/types';
 
+export type AlertsFlags = {
+  hasSeenOpportunity?: boolean;
+};
+
 export type Alerts = {
   filter?: boolean;
   rankLastSeen?: Date;
@@ -20,6 +24,7 @@ export type Alerts = {
   showTopReader?: boolean;
   briefBannerLastSeen?: Date;
   opportunityId?: Opportunity['id'] | null;
+  flags?: AlertsFlags;
 };
 
 export type AlertsUpdate = Omit<Alerts, 'changelog' | 'banner'>;
@@ -52,6 +57,14 @@ export const UPDATE_LAST_REFERRAL_REMINDER = gql`
 export const UPDATE_LAST_BOOT_POPUP = gql`
   mutation UpdateLastBootPopup {
     updateLastBootPopup {
+      _
+    }
+  }
+`;
+
+export const UPDATE_HAS_SEEN_OPPORTUNITY = gql`
+  mutation UpdateHasSeenOpportunity($hasSeenOpportunity: Boolean = true) {
+    updateHasSeenOpportunity(hasSeenOpportunity: $hasSeenOpportunity) {
       _
     }
   }

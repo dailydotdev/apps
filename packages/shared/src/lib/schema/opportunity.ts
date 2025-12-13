@@ -11,6 +11,19 @@ const processSalaryValue = (val: unknown) => {
   return val;
 };
 
+const capitalize = (s: string) => {
+  if (s == null || typeof s !== 'string') {
+    return s;
+  }
+
+  return s.trim().length === 0
+    ? ''
+    : s
+        .trim()
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
 export const opportunityEditInfoSchema = z.object({
   title: z.string().nonempty(labels.form.required).max(240),
   tldr: z.string().nonempty(labels.form.required).max(480),
@@ -23,16 +36,37 @@ export const opportunityEditInfoSchema = z.object({
     .min(1, labels.form.required)
     .max(100),
   location: z.array(
-    z.object({
-      country: z.string().nonempty(labels.form.required).max(240),
-      city: z.string().nonempty(labels.form.required).max(240).optional(),
-      subdivision: z
-        .string()
-        .nonempty(labels.form.required)
-        .max(240)
-        .optional(),
-      type: z.coerce.number(labels.form.required).min(1),
-    }),
+    z
+      .object({
+        country: z.string().max(240),
+        city: z.string().max(240).nullish(),
+        subdivision: z.string().max(240).nullish(),
+        continent: z
+          .preprocess(
+            capitalize,
+            z.union([z.literal('Europe'), z.literal(''), z.undefined()]),
+          )
+          .nullish(),
+        type: z.coerce.number().min(1),
+      })
+      .superRefine((val, ctx) => {
+        const present = [
+          val.country && val.country.trim() !== '',
+          val.city && val.city.trim() !== '',
+          val.subdivision && val.subdivision.trim() !== '',
+          // continent counts only if it is "Europe" (empty string should not count)
+          val.continent === 'Europe',
+        ].some(Boolean);
+
+        if (!present) {
+          ctx.addIssue({
+            code: 'custom',
+            message:
+              'At least one of country, city, subdivision, or continent must be provided.',
+            path: [''], // form-level error
+          });
+        }
+      }),
   ),
   meta: z.object({
     employmentType: z.coerce.number().min(1, {
@@ -70,6 +104,9 @@ export const opportunityEditInfoSchema = z.object({
       ),
     ),
   }),
+  organization: z.object({
+    name: z.string().nonempty().max(60),
+  }),
 });
 
 export const createOpportunityEditContentSchema = ({
@@ -77,7 +114,7 @@ export const createOpportunityEditContentSchema = ({
 }: {
   optional?: boolean;
 } = {}) => {
-  const contentSchema = z.string().max(1440);
+  const contentSchema = z.string().max(2000);
 
   const schema = z.preprocess(
     (val) => {
@@ -123,3 +160,94 @@ export const opportunityEditStep2Schema = opportunityEditQuestionsSchema.extend(
     questions: opportunityEditQuestionsSchema.shape.questions,
   },
 );
+
+export enum OrganizationLinkType {
+  Custom = 'custom',
+  Social = 'social',
+  Press = 'press',
+}
+
+export enum SocialMediaType {
+  Facebook = 'facebook',
+  X = 'x',
+  GitHub = 'github',
+  Crunchbase = 'crunchbase',
+  LinkedIn = 'linkedin',
+}
+
+export const opportunityEditOrganizationSchema = z.object({
+  organization: z.object({
+    website: z.string().url().optional().or(z.literal('')),
+    description: z.string().max(2000).optional(),
+    perks: z.array(z.string().max(240)).optional(),
+    founded: z
+      .number()
+      .int()
+      .min(1800)
+      .max(new Date().getFullYear())
+      .optional(),
+    location: z.string().max(240).optional(),
+    category: z.string().max(240).optional(),
+    size: z.number().optional(),
+    stage: z.number().optional(),
+    links: z
+      .array(
+        z.object({
+          type: z.enum(['custom', 'social', 'press']),
+          socialType: z.string().nullish(),
+          title: z.string().max(240).nullish(),
+          link: z.string(),
+        }),
+      )
+      .optional(),
+  }),
+});
+
+export const opportunityCreateOrganizationSchema =
+  opportunityEditOrganizationSchema.extend({
+    organization: opportunityEditOrganizationSchema.shape.organization.extend({
+      name: z.string().nonempty().max(60),
+    }),
+  });
+
+// TypeScript types for GraphQL inputs
+export interface LocationInput {
+  country: string;
+  city?: string;
+  subdivision?: string;
+  type?: number;
+}
+
+export interface SalaryInput {
+  min?: number;
+  max?: number;
+  period?: number;
+  currency?: string;
+}
+
+export interface OpportunityMetaInput {
+  salary?: SalaryInput;
+  employmentType?: number;
+  teamSize?: number;
+  seniorityLevel?: number;
+  roleType?: number;
+}
+
+export interface OpportunityContentInput {
+  overview?: string;
+  responsibilities?: string;
+  requirements?: string;
+  whatYoullDo?: string;
+  interviewProcess?: string;
+}
+
+export interface OpportunityPreviewInput {
+  title: string;
+  tldr: string;
+  content?: OpportunityContentInput;
+  meta?: OpportunityMetaInput;
+  location?: LocationInput[];
+  state?: number;
+  type?: number;
+  keywords?: string[];
+}

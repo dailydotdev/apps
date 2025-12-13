@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { ModalProps } from '../modals/common/Modal';
 import { Modal } from '../modals/common/Modal';
-import { ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { CardCover } from '../cards/common/CardCover';
 import type { MarketingCta } from './common';
 import { CTAButton, Description, Header, Title } from './common';
@@ -10,6 +10,7 @@ import { useBoot } from '../../hooks';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { promotion } from '../modals/generic';
+import { MiniCloseIcon } from '../icons';
 
 export interface MarketingCtaModalProps extends ModalProps {
   marketingCta: MarketingCta;
@@ -55,8 +56,8 @@ export const MarketingCtaModal = ({
         onModalClose(event, LogEvent.MarketingCtaDismiss)
       }
     >
-      <div className="p-6 !pt-4">
-        {tagColor && tagText && (
+      <div className="relative p-6 !pt-4">
+        {tagColor && tagText ? (
           <Header
             onClose={(event) =>
               onModalClose(event, LogEvent.MarketingCtaDismiss)
@@ -64,6 +65,17 @@ export const MarketingCtaModal = ({
             tagColor={tagColor}
             tagText={tagText}
             buttonSize={ButtonSize.Medium}
+          />
+        ) : (
+          <Button
+            className="absolute right-2 top-2"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            icon={<MiniCloseIcon />}
+            aria-label="Close post"
+            onClick={(event) =>
+              onModalClose(event, LogEvent.MarketingCtaDismiss)
+            }
           />
         )}
         <Title className="!typo-large-title">{title}</Title>

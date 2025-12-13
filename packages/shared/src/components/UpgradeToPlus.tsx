@@ -13,10 +13,7 @@ import { LogEvent } from '../lib/log';
 import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import type { WithClassNameProps } from './utilities';
-import {
-  featurePlusButtonColors,
-  featurePlusCtaCopy,
-} from '../lib/featureManagement';
+import { featurePlusCtaCopy } from '../lib/featureManagement';
 
 type Props = {
   iconOnly?: boolean;
@@ -25,44 +22,6 @@ type Props = {
   variant?: ButtonVariant;
   color?: ButtonColor;
 } & WithClassNameProps;
-
-const getButtonColor = (colorExperiment: string) => {
-  switch (colorExperiment) {
-    case 'avocado':
-      return {
-        color: ButtonColor.Avocado,
-        variant: ButtonVariant.Primary,
-      };
-    case 'cabbage':
-      return {
-        color: ButtonColor.Cabbage,
-        variant: ButtonVariant.Primary,
-      };
-    case 'onion':
-      return {
-        color: ButtonColor.Onion,
-        variant: ButtonVariant.Primary,
-      };
-    case 'cheesebacon':
-      return {
-        className: 'border-none text-surface-invert',
-        color: ButtonColor.Bacon,
-        style: {
-          background: `radial-gradient(49.48% 102.99% at 50% 132.84%, var(--theme-accent-cheese-default) 0%, var(--theme-accent-bacon-default) 100%)`,
-        },
-      };
-    case 'onionbacon':
-      return {
-        className: 'border-none text-white',
-        color: ButtonColor.Onion,
-        style: {
-          background: `radial-gradient(49.48% 102.99% at 50% 132.84%, var(--theme-accent-bacon-default) 0%, var(--theme-accent-onion-default) 100%)`,
-        },
-      };
-    default:
-      return {};
-  }
-};
 
 export const UpgradeToPlus = ({
   className,
@@ -81,10 +40,6 @@ export const UpgradeToPlus = ({
   const { value: ctaCopy } = useConditionalFeature({
     feature: featurePlusCtaCopy,
     shouldEvaluate: !isPlus,
-  });
-  const { value: colorExperiment } = useConditionalFeature({
-    feature: featurePlusButtonColors,
-    shouldEvaluate: !isPlus && isLoggedIn,
   });
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
 
@@ -112,20 +67,14 @@ export const UpgradeToPlus = ({
     <Link passHref href={plusUrl}>
       <Button
         tag="a"
-        variant={ButtonVariant.Secondary}
-        className={classNames(
-          !color &&
-            !colorExperiment &&
-            'border-action-plus-default text-action-plus-default',
-          !iconOnly && 'flex-1',
-          className,
-        )}
+        className={classNames(!iconOnly && 'flex-1', className)}
         icon={<DevPlusIcon />}
         size={size}
+        color={ButtonColor.Avocado}
+        variant={ButtonVariant.Primary}
         onClick={onClick}
         {...(variant && { variant, color })}
         {...attrs}
-        {...(colorExperiment && getButtonColor(colorExperiment))}
       >
         {iconOnly ? null : content}
       </Button>

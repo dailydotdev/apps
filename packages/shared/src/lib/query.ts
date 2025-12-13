@@ -215,9 +215,18 @@ export enum RequestKey {
   CheckLocation = 'check_location',
   GenerateBrief = 'generate_brief',
   Opportunity = 'opportunity',
+  Opportunities = 'opportunities',
+  OpportunityPreview = 'opportunity_preview',
+  OpportunityPreviewDetails = 'opportunity_preview_details',
+  OpportunityMatches = 'opportunity_matches',
+  UserOpportunityMatches = 'user_opportunity_matches',
+  OpportunityStats = 'opportunity_stats',
   UserCandidatePreferences = 'user_candidate_preferences',
   KeywordAutocomplete = 'keyword_autocomplete',
   Gif = 'gif',
+  Location = 'location',
+  Autocomplete = 'autocomplete',
+  UserExperience = 'user_experience',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

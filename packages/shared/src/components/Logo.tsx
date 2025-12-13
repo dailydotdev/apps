@@ -90,6 +90,7 @@ interface LogoProps {
   linkDisabled?: boolean;
   isPlus?: boolean;
   isRecruiter?: boolean;
+  href?: string;
 }
 
 export default function Logo({
@@ -103,10 +104,11 @@ export default function Logo({
   linkDisabled,
   isPlus = false,
   isRecruiter = false,
+  href = webappUrl,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
-      href={webappUrl}
+      href={href}
       passHref
       prefetch={false}
       tooltip={{ placement: 'right', content: 'Home' }}
@@ -119,7 +121,7 @@ export default function Logo({
           className,
           linkDisabled && 'pointer-events-none',
         )}
-        href={webappUrl}
+        href={href}
         onClick={onLogoClick}
       >
         <div className="relative">

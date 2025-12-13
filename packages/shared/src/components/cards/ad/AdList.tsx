@@ -15,6 +15,10 @@ import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
 import AdAttribution from './common/AdAttribution';
+import { AdFavicon } from './common/AdFavicon';
+import PostTags from '../common/PostTags';
+import { useFeature } from '../../GrowthBookProvider';
+import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 
 const getLinkProps = ({
   ad,
@@ -37,6 +41,7 @@ export const AdList = forwardRef(function AdCard(
   inViewRef: InViewRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
+  const adImprovementsV3 = useFeature(adImprovementsV3Feature);
   const { ref, refetch, isRefetching } = useAutoRotatingAds(
     ad,
     index,
@@ -60,7 +65,11 @@ export const AdList = forwardRef(function AdCard(
         <CardTitle
           className={classNames('!mt-0 mr-4 line-clamp-4 flex-1 typo-title3')}
         >
+          <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
           {ad.description}
+          {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
+            <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
+          ) : null}
           <AdAttribution
             ad={ad}
             className={{ main: 'mb-2 mt-4 block font-normal' }}

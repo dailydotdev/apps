@@ -1,5 +1,11 @@
-import type { MouseEventHandler, ReactNode, RefObject } from 'react';
-import React, { useCallback, useRef } from 'react';
+import type {
+  Dispatch,
+  MouseEventHandler,
+  ReactNode,
+  SetStateAction,
+} from 'react';
+import React, { useCallback, useState } from 'react';
+import { ButtonSize } from '../buttons/common';
 import { useScrollManagement } from './useScrollManagement';
 import { useCalculateVisibleElements } from './useCalculateVisibleElements';
 import type { HorizontalScrollTitleProps } from './HorizontalScrollHeader';
@@ -14,14 +20,16 @@ interface HorizontalScrollHeaderReturn<
   isOverflowing: boolean;
   onClickNext: MouseEventHandler;
   onClickPrevious: MouseEventHandler;
-  ref: React.RefObject<El>;
+  ref: Dispatch<SetStateAction<El | null>>;
 }
 
 export interface UseHorizontalScrollHeaderProps {
-  onScroll?: (ref: RefObject<HTMLElement>) => void;
+  onScroll?: (element: HTMLElement) => void;
   onClickSeeAll?: MouseEventHandler;
   linkToSeeAll?: string;
-  title: HorizontalScrollTitleProps;
+  title?: HorizontalScrollTitleProps | ReactNode;
+  className?: string;
+  buttonSize?: ButtonSize;
 }
 
 export const useHorizontalScrollHeader = <
@@ -31,34 +39,36 @@ export const useHorizontalScrollHeader = <
   onClickSeeAll,
   linkToSeeAll,
   title,
+  className,
+  buttonSize = ButtonSize.Medium,
 }: UseHorizontalScrollHeaderProps): HorizontalScrollHeaderReturn<El> => {
-  const ref = useRef<El>(null);
+  const [element, setElement] = useState<El | null>(null);
   // Calculate the width of elements and the number of visible cards
   const {
     scrollableElementWidth,
     isOverflowing,
     elementsCount: numCards,
-  } = useCalculateVisibleElements({ ref });
+  } = useCalculateVisibleElements(element);
 
-  const { isAtStart, isAtEnd } = useScrollManagement(ref, onScroll);
+  const { isAtStart, isAtEnd } = useScrollManagement(element, onScroll);
 
   const onClickNext = useCallback(() => {
-    if (ref.current) {
-      onScroll?.(ref);
-      ref.current.scrollLeft += numCards * scrollableElementWidth;
+    if (element) {
+      onScroll?.(element);
+      element.scrollLeft += numCards * scrollableElementWidth;
     }
-  }, [numCards, scrollableElementWidth, onScroll]);
+  }, [element, numCards, scrollableElementWidth, onScroll]);
 
   const onClickPrevious = useCallback(() => {
-    if (ref.current) {
-      onScroll?.(ref);
+    if (element) {
+      onScroll?.(element);
 
-      ref.current.scrollLeft = Math.max(
+      element.scrollLeft = Math.max(
         0,
-        ref.current.scrollLeft - numCards * scrollableElementWidth,
+        element.scrollLeft - numCards * scrollableElementWidth,
       );
     }
-  }, [numCards, scrollableElementWidth, onScroll]);
+  }, [element, numCards, scrollableElementWidth, onScroll]);
 
   const header = (
     <HorizontalScrollHeader
@@ -70,12 +80,14 @@ export const useHorizontalScrollHeader = <
       onClickPrevious={onClickPrevious}
       onClickSeeAll={onClickSeeAll}
       linkToSeeAll={linkToSeeAll}
+      className={className}
+      buttonSize={buttonSize}
     />
   );
 
   return {
     header,
-    ref,
+    ref: setElement,
     isAtStart,
     isAtEnd,
     onClickNext,

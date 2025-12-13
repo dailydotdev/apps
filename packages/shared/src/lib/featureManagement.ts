@@ -2,7 +2,6 @@ import type { JSONValue } from '@growthbook/growthbook';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
-import { OnboardingGridVariation } from './featureValues';
 import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
 
@@ -44,7 +43,7 @@ export const plusTakeoverContent = new Feature<{
 }>('plus_takeover_content', null);
 
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
-  full: 'Upgrade to Plus',
+  full: 'Level Up with Plus',
   short: 'Upgrade',
 });
 
@@ -69,15 +68,7 @@ export const featureValidLanguages = new Feature('valid_languages', {
   ko: 'Korean',
 });
 
-export const featurePlusButtonColors = new Feature<
-  'avocado' | 'cabbage' | 'onion' | 'cheesebacon' | 'onionbacon' | ''
->('plus_button_colors', '');
-
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
-export const featureOnboardingGridVariation = new Feature(
-  'onboarding_feature_grid_variation',
-  OnboardingGridVariation.Control,
-);
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
@@ -108,3 +99,12 @@ export const briefFeedEntrypointPage = new Feature<false | number>(
 );
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
+export const boostSettingsFeature = new Feature('boost_settings', {
+  min: 1000,
+  max: 100000,
+  step: 1000,
+  default_cores: 5000,
+  default_days: 7,
+});
+
+export const adImprovementsV3Feature = new Feature('ad_improvements_v3', false);

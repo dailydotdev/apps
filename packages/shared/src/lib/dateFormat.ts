@@ -6,11 +6,13 @@ import {
   isSameYear,
   subDays,
 } from 'date-fns';
+import { pluralize } from './strings';
 
 export const oneMinute = 60;
 export const oneHour = 3600;
 export const oneDay = 86400;
 const oneWeek = 7 * oneDay;
+const oneMonth = 30 * oneDay;
 export const oneYear = oneDay * 365;
 
 export const publishTimeRelativeShort = (
@@ -76,6 +78,7 @@ export enum TimeFormatType {
   Transaction = 'transaction',
   LastActivity = 'lastActivity',
   LiveTimer = 'liveTimer',
+  Experience = 'experience',
 }
 
 export function postDateFormat(
@@ -209,24 +212,45 @@ export const getLastActivityDateFormat = (
 
   if (dt <= oneHour) {
     const numMinutes = Math.round(dt / oneMinute);
-    return `${numMinutes} ${numMinutes === 1 ? 'minute' : 'minutes'} ago`;
+    return `${numMinutes}m ago`;
   }
 
   if (dt <= oneDay) {
     const numHours = Math.round(dt / oneHour);
-    return `${numHours} ${numHours === 1 ? 'hour' : 'hours'} ago`;
+    return `${numHours}h ago`;
   }
 
   if (dt <= oneWeek) {
     const numDays = Math.round(dt / oneDay);
-    return `${numDays} ${numDays === 1 ? 'day' : 'days'} ago`;
+    return `${numDays}d ago`;
   }
 
   return date.toLocaleString('en-US', {
     month: 'short',
     day: '2-digit',
-    year: 'numeric',
   });
+};
+
+const publishExperienceTime = (start: Date, end: Date): string => {
+  const difference =
+    new Date(end || Date.now()).getTime() - new Date(start).getTime();
+  const differenceInMonths = Math.floor(difference / oneMonth);
+  const years = Math.floor(differenceInMonths / 12);
+  const months = differenceInMonths % 12;
+
+  if (years > 0) {
+    const yearCopy = `${years} ${pluralize('year', years)}`;
+
+    if (months === 0) {
+      return yearCopy;
+    }
+
+    return `${yearCopy} ${months} ${pluralize('month', months)}`;
+  }
+
+  return months > 0
+    ? `${months} ${pluralize('month', months)}`
+    : 'Less than a month';
 };
 
 export const getTodayTz = (timeZone: string, now = new Date()): Date => {
@@ -277,6 +301,10 @@ export const formatDate = ({ value, type, now }: FormatDateProps): string => {
     return publishTimeLiveTimer(date, now);
   }
 
+  if (type === TimeFormatType.Experience) {
+    return publishExperienceTime(date, now);
+  }
+
   return postDateFormat(date);
 };
 
@@ -285,3 +313,20 @@ export const formatMonthYearOnly = (date: Date): string =>
     month: 'short',
     year: 'numeric',
   });
+
+export const formatDateRange = (
+  startDate: Date | number | string | null | undefined,
+  endDate?: Date | number | string | null | undefined,
+): string => {
+  const parts: string[] = [];
+
+  if (startDate) {
+    parts.push(format(new Date(startDate), 'MMM yyyy'));
+  }
+
+  if (endDate) {
+    parts.push(format(new Date(endDate), 'MMM yyyy'));
+  }
+
+  return parts.join(' - ');
+};

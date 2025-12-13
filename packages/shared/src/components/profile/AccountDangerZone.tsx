@@ -9,6 +9,8 @@ interface AccountDangerZoneProps {
   onDelete: () => void;
   className?: string;
   children?: ReactNode;
+  buttonDisabled?: boolean;
+  buttonLoading?: boolean;
 }
 
 const Important = () => (
@@ -48,6 +50,8 @@ const ImportantActiveAppleSubscription = () => {
 function AccountDangerZone({
   onDelete,
   className,
+  buttonDisabled = false,
+  buttonLoading = false,
 }: AccountDangerZoneProps): ReactElement {
   const { isPlus, status, plusProvider } = usePlusSubscription();
 
@@ -70,7 +74,8 @@ function AccountDangerZone({
       important={
         disableDeletion ? <ImportantActiveAppleSubscription /> : <Important />
       }
-      buttonDisabled={disableDeletion}
+      buttonDisabled={disableDeletion || buttonDisabled}
+      buttonLoading={buttonLoading}
     />
   );
 }

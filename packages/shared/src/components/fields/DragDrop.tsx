@@ -152,8 +152,8 @@ export function DragDrop({
   renderCta,
   isCopyBold,
   dragDropDescription = 'Drag & Drop your CV or',
-  ctaLabelDesktop = 'Upload PDF',
-  ctaLabelMobile = 'Upload PDF',
+  ctaLabelDesktop = 'Upload CV',
+  ctaLabelMobile = 'Upload CV',
   uploadIcon,
   showRemove,
   fullClick = false,
@@ -194,6 +194,7 @@ export function DragDrop({
   const {
     isDragOver,
     isDragValid,
+    handleDragEnter,
     handleDragOver,
     handleDragLeave,
     handleDrop,
@@ -284,6 +285,7 @@ export function DragDrop({
         className,
       )}
       aria-disabled={disabled}
+      onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}

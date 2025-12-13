@@ -109,11 +109,35 @@ const MAX_SQUADS_COUNT = 3;
 const SourceCheckbox = ({
   source,
   disabled = false,
+  onRowClick,
+  onChange,
   ...props
 }: {
   source: Omit<Squad, 'type'> & { type: SourceType };
+  onRowClick?: () => void;
 } & CheckboxProps) => {
   const isUserSource = source.type === SourceType.User;
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e);
+  };
+
+  const handleContentClick = (e: React.MouseEvent) => {
+    if (!disabled && onRowClick) {
+      e.preventDefault();
+      e.stopPropagation();
+      onRowClick();
+    }
+  };
+
+  const handleContentKeyDown = (e: React.KeyboardEvent) => {
+    if (!disabled && onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      e.stopPropagation();
+      onRowClick();
+    }
+  };
+
   return (
     <ConditionalWrapper
       condition={disabled}
@@ -125,37 +149,46 @@ const SourceCheckbox = ({
         </Tooltip>
       )}
     >
-      <Checkbox
-        {...props}
-        disabled={disabled}
-        className="min-w-full flex-row-reverse gap-2 !p-0"
-        checkmarkClassName="!mr-0 ml-2"
-      >
-        <div className="flex min-w-0 flex-1 items-center">
-          <SourceAvatar source={source} size={ProfileImageSize.Medium} />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <Typography
-              bold
-              color={
-                disabled ? TypographyColor.Tertiary : TypographyColor.Primary
-              }
-              truncate
-              type={TypographyType.Callout}
-            >
-              {isUserSource ? 'Everyone' : source.name}
-            </Typography>
-            {!isUserSource && source.handle && (
+      <div className="relative flex min-w-full items-center">
+        <Checkbox
+          {...props}
+          disabled={disabled}
+          className="min-w-full flex-row-reverse gap-2 !p-0"
+          checkmarkClassName="!mr-0 ml-2 pointer-events-auto"
+          onChange={handleCheckboxChange}
+        >
+          <div
+            onClick={handleContentClick}
+            onKeyDown={handleContentKeyDown}
+            role="button"
+            tabIndex={disabled ? -1 : 0}
+            className="pointer-events-auto flex min-w-0 flex-1 items-center"
+          >
+            <SourceAvatar source={source} size={ProfileImageSize.Medium} />
+            <div className="flex min-w-0 flex-1 flex-col">
               <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
+                bold
+                color={
+                  disabled ? TypographyColor.Tertiary : TypographyColor.Primary
+                }
                 truncate
+                type={TypographyType.Callout}
               >
-                @{source.handle}
+                {isUserSource ? 'Everyone' : source.name}
               </Typography>
-            )}
+              {!isUserSource && source.handle && (
+                <Typography
+                  color={TypographyColor.Tertiary}
+                  type={TypographyType.Footnote}
+                  truncate
+                >
+                  @{source.handle}
+                </Typography>
+              )}
+            </div>
           </div>
-        </div>
-      </Checkbox>
+        </Checkbox>
+      </div>
     </ConditionalWrapper>
   );
 };
@@ -218,6 +251,13 @@ export const MultipleSourceSelect = ({
     ],
   );
 
+  const selectSingleSource = useCallback(
+    (sourceId: string) => {
+      setSelectedSourceIds([sourceId]);
+    },
+    [setSelectedSourceIds],
+  );
+
   const isUserSourceSelected = selectedSourceIds.includes(userSource.id);
   const sourceImage = isUserSourceSelected
     ? userSource.image
@@ -243,7 +283,7 @@ export const MultipleSourceSelect = ({
         }
       >
         <div className="flex flex-col gap-2">
-          {!!selectedSquads.length && (
+          {selectedSourceIds?.length > 1 && !!selectedSquads?.length && (
             <>
               <Label>You can choose up to 3 squads</Label>
               <div className="my-1 flex flex-wrap gap-2">
@@ -272,6 +312,7 @@ export const MultipleSourceSelect = ({
             checked={isUserSourceSelected}
             name="sources[]"
             onChange={() => toggleSource(userSource.id)}
+            onRowClick={() => selectSingleSource(userSource.id)}
             source={userSource}
           />
           {!!squads.length && <Label>Squads you&#39;ve joined</Label>}
@@ -286,6 +327,7 @@ export const MultipleSourceSelect = ({
                 }
                 name="sources[]"
                 onChange={() => toggleSource(squad.id)}
+                onRowClick={() => selectSingleSource(squad.id)}
                 source={squad}
               />
             );

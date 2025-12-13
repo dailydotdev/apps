@@ -11,6 +11,7 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../../typography/Typography';
+import { useScrambler } from '../../../../hooks/useScrambler';
 
 export interface PostMetadataProps {
   className?: string;
@@ -26,6 +27,9 @@ export default function PostMetadata({
   bottomLabel,
 }: PostMetadataProps): ReactElement {
   const { boostedBy } = useFeedCardContext();
+  const promotedText = useScrambler(
+    boostedBy ? `Promoted by @${boostedBy.username}` : null,
+  );
 
   return (
     <div className={classNames('grid items-center', className)}>
@@ -39,7 +43,7 @@ export default function PostMetadata({
             color={TypographyColor.Tertiary}
             bold
           >
-            Boosted by @{boostedBy.username}
+            {promotedText}
           </Typography>
         )}
         {!!boostedBy && !!bottomLabel && <Separator />}

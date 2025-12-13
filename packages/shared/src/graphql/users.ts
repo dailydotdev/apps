@@ -6,7 +6,7 @@ import {
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
-import type { PublicProfile, UserShortProfile } from '../lib/user';
+import type { PublicProfile, UserProfile, UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
 import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
@@ -62,6 +62,12 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       createdAt
       readmeHtml
       isPlus
+      experienceLevel
+      location {
+        city
+        subdivision
+        country
+      }
       companies {
         name
         image
@@ -115,7 +121,7 @@ export const PROFILE_V2_EXTRA_QUERY = gql`
     userStats(id: $id) {
       upvotes: numPostUpvotes
       views: numPostViews
-      numFollowers,
+      numFollowers
       numFollowing
     }
     ${publicSourceMemberships}
@@ -304,6 +310,7 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       username
       permalink
       bio
+      readme
       twitter
       github
       hashnode
@@ -324,6 +331,57 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
     }
   }
 `;
+
+export const UPDATE_USER_INFO_MUTATION = gql`
+  mutation UpdateUserInfo(
+    $data: UpdateUserInfoInput
+    $upload: Upload
+    $coverUpload: Upload
+  ) {
+    updateUserInfo(data: $data, upload: $upload, coverUpload: $coverUpload) {
+      id
+      name
+      image
+      cover
+      username
+      permalink
+      bio
+      readme
+      twitter
+      github
+      hashnode
+      roadmap
+      threads
+      codepen
+      reddit
+      stackoverflow
+      youtube
+      linkedin
+      mastodon
+      bluesky
+      createdAt
+      infoConfirmed
+      timezone
+      experienceLevel
+      hideExperience
+      language
+    }
+  }
+`;
+
+export const mutateUserInfo = async (
+  data: Partial<UserProfile>,
+  upload: File,
+  coverUpload: File,
+) => {
+  const res = await gqlClient.request(UPDATE_USER_INFO_MUTATION, {
+    data,
+    upload,
+    coverUpload,
+  });
+
+  return res.updateUserInfo;
+};
 
 export const UPLOAD_COVER_MUTATION = gql`
   mutation UploadCoverImage($upload: Upload!) {
@@ -382,9 +440,13 @@ export const REMOVE_USER_COMPANY_MUTATION = gql`
 `;
 
 // Regex taken from https://github.com/dailydotdev/daily-api/blob/234b0be53fea85954403cef5a2326fc50ce498fd/src/common/object.ts#L41
-export const handleRegex = new RegExp(/^@?[a-z0-9](\w){2,38}$/i);
+// Updated to support Unicode word characters (including accented characters)
+export const handleRegex = new RegExp(
+  /^@?[\p{L}\p{N}]([\p{L}\p{N}_]){2,38}$/iu,
+);
 // Regex taken from https://github.com/dailydotdev/daily-api/blob/234b0be53fea85954403cef5a2326fc50ce498fd/src/common/object.ts#L40
-export const socialHandleRegex = new RegExp(/^@?([\w-]){1,39}$/i);
+// Updated to support Unicode word characters (including accented characters)
+export const socialHandleRegex = new RegExp(/^@?([\p{L}\p{N}_-]){1,39}$/iu);
 
 export const REFERRAL_CAMPAIGN_QUERY = gql`
   query ReferralCampaign($referralOrigin: String!) {

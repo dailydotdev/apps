@@ -1,7 +1,8 @@
-import type { ReactElement } from 'react';
 import React from 'react';
+import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import type { Ad } from '../../../../graphql/posts';
+import { useScrambler } from '../../../../hooks/useScrambler';
 
 interface AdClassName {
   main?: string;
@@ -22,6 +23,10 @@ export default function AdAttribution({
     className?.typo ?? 'typo-footnote',
     className?.main,
   );
+
+  const text = ad.referralLink ? `Promoted by ${ad.source}` : 'Promoted';
+  const promotedText = useScrambler(text);
+
   if (ad.referralLink) {
     return (
       <a
@@ -29,11 +34,16 @@ export default function AdAttribution({
         target="_blank"
         rel="noopener"
         className={elementClass}
+        suppressHydrationWarning
       >
-        Promoted by {ad.source}
+        {promotedText}
       </a>
     );
   }
 
-  return <div className={elementClass}>Promoted</div>;
+  return (
+    <div className={elementClass} suppressHydrationWarning>
+      {promotedText}
+    </div>
+  );
 }

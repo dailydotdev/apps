@@ -3,12 +3,14 @@ import React from 'react';
 import { largeNumberFormat } from '../../../lib';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import Link from '../../utilities/Link';
+import { Tooltip } from '../../tooltip/Tooltip';
 
 interface LeaderboardListItemProps {
   href?: string;
   index: number;
   children: ReactNode;
   className?: string;
+  concatScore?: boolean;
 }
 
 export function LeaderboardListItem({
@@ -16,7 +18,13 @@ export function LeaderboardListItem({
   href,
   children,
   className,
+  concatScore = true,
 }: LeaderboardListItemProps): ReactElement {
+  const formattedNumber = concatScore ? largeNumberFormat(index) : index;
+  const shouldShowTooltip =
+    concatScore && typeof index === 'number' && index >= 1000;
+  const actualNumber = index.toLocaleString();
+
   return (
     <li className={className}>
       <ConditionalWrapper
@@ -29,9 +37,11 @@ export function LeaderboardListItem({
           </Link>
         )}
       >
-        <span className="inline-flex min-w-14 justify-center text-text-quaternary">
-          {largeNumberFormat(index)}
-        </span>
+        <Tooltip content={actualNumber} visible={shouldShowTooltip}>
+          <span className="inline-flex min-w-14 justify-center text-text-quaternary">
+            {formattedNumber}
+          </span>
+        </Tooltip>
         {children}
       </ConditionalWrapper>
     </li>

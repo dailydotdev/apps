@@ -3,7 +3,10 @@ import React from 'react';
 import type { GetStaticPropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { LEADERBOARD_QUERY } from '@dailydotdev/shared/src/graphql/leaderboard';
+import {
+  LEADERBOARD_QUERY,
+  LeaderboardType,
+} from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
@@ -60,37 +63,59 @@ const LeaderboardPage = ({
       </div>
       <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
         <UserTopList
-          containerProps={{ title: 'Highest reputation' }}
+          containerProps={{
+            title: 'Highest reputation',
+            titleHref: `/users/${LeaderboardType.HighestReputation}`,
+          }}
           items={highestReputation}
           isLoading={isLoading}
         />
         <UserTopList
-          containerProps={{ title: 'Longest streak' }}
+          containerProps={{
+            title: 'Longest streak',
+            titleHref: `/users/${LeaderboardType.LongestStreak}`,
+          }}
           items={longestStreak}
           isLoading={isLoading}
+          concatScore={false}
         />
         <UserTopList
-          containerProps={{ title: 'Highest post views' }}
+          containerProps={{
+            title: 'Highest post views',
+            titleHref: `/users/${LeaderboardType.HighestPostViews}`,
+          }}
           items={highestPostViews}
           isLoading={isLoading}
         />
         <UserTopList
-          containerProps={{ title: 'Most upvoted' }}
+          containerProps={{
+            title: 'Most upvoted',
+            titleHref: `/users/${LeaderboardType.MostUpvoted}`,
+          }}
           items={mostUpvoted}
           isLoading={isLoading}
         />
         <UserTopList
-          containerProps={{ title: 'Most referrals' }}
+          containerProps={{
+            title: 'Most referrals',
+            titleHref: `/users/${LeaderboardType.MostReferrals}`,
+          }}
           items={mostReferrals}
           isLoading={isLoading}
         />
         <UserTopList
-          containerProps={{ title: 'Most reading days' }}
+          containerProps={{
+            title: 'Most reading days',
+            titleHref: `/users/${LeaderboardType.MostReadingDays}`,
+          }}
           items={mostReadingDays}
           isLoading={isLoading}
         />
         <CompanyTopList
-          containerProps={{ title: 'Most verified employees' }}
+          containerProps={{
+            title: 'Most verified employees',
+            titleHref: `/users/${LeaderboardType.MostVerifiedUsers}`,
+          }}
           items={mostVerifiedUsers}
           isLoading={isLoading}
         />

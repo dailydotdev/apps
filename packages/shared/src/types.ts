@@ -17,8 +17,8 @@ export type LogStartBuyingCreditsProps = {
 };
 
 export type FAQItem = {
-  question: string;
-  answer: React.ReactNode;
+  title: string;
+  description: React.ReactNode;
 };
 
 export enum PostType {

@@ -27,6 +27,7 @@ const withSerwist = withSerwistInit({
   exclude: [/syntax/i],
   register: false,
   maximumFileSizeToCacheInBytes: 1024 * 1024,
+  reloadOnOnline: false,
 });
 
 const nextConfig: NextConfig = {
@@ -225,6 +226,21 @@ const nextConfig: NextConfig = {
             source: '/sources/briefing',
             destination: '/briefing',
             permanent: false,
+          },
+          {
+            source: '/opportunity/:path*',
+            destination: '/jobs/:path*',
+            permanent: true,
+          },
+          {
+            source: '/jobs/welcome',
+            destination: '/jobs',
+            permanent: true,
+          },
+          {
+            source: '/jobs/welcome',
+            destination: '/jobs',
+            permanent: true,
           },
         ];
       },

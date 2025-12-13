@@ -1,4 +1,5 @@
 import { largeNumberFormat } from './numberFormat';
+import type { TLocation } from '../graphql/autocomplete';
 
 export const stringToBoolean = (value: string): boolean => {
   if (typeof value !== 'string') {
@@ -59,4 +60,33 @@ export const snapToHalf = (v: number): 0.0 | 0.5 | 1.0 => {
   }
 
   return 1.0;
+};
+
+export const locationToString = (loc: Partial<TLocation>) => {
+  if (!loc) {
+    return undefined;
+  }
+
+  return [loc.city, loc.subdivision, loc.country].filter(Boolean).join(', ');
+};
+
+export const excludeProperties = <
+  T,
+  K extends string | keyof T,
+  R = Omit<T, K & keyof T>,
+>(
+  obj: T,
+  properties: K[],
+): R => {
+  if (!obj) {
+    return obj as unknown as R;
+  }
+
+  const clone = structuredClone(obj);
+
+  properties.forEach((prop) => {
+    delete (clone as Record<string, unknown>)[prop as string];
+  });
+
+  return clone as unknown as R;
 };

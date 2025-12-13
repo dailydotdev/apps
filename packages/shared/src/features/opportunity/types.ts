@@ -9,6 +9,10 @@ import type {
 import type { CompanySize, CompanyStage } from './protobuf/organization';
 import type { CandidateStatus } from './protobuf/user-candidate-preference';
 import type { LocationType } from './protobuf/util';
+import type { Connection } from '../../graphql/common';
+import type { Squad } from '../../graphql/sources';
+import type { TopReader } from '../../components/badges/TopReaderBadge';
+import type { SubscriptionStatus } from '../../lib/plus';
 
 export enum OpportunityMatchStatus {
   Pending = 'pending',
@@ -58,6 +62,7 @@ export type OpportunityMeta = {
   salary?: Salary;
   seniorityLevel?: ProtoEnumValue;
   roleType?: number;
+  equity?: boolean;
 };
 
 export type Keyword = {
@@ -70,9 +75,21 @@ export type OpportunityScreeningQuestion = {
   placeholder?: string;
 };
 
+export type OpportunityFeedbackQuestion = {
+  id: string;
+  title: string;
+  order: number;
+  placeholder?: string;
+  opportunityId: string;
+};
+
 export type OpportunityScreeningAnswer = {
   questionId: OpportunityScreeningQuestion['id'];
   answer: string;
+};
+
+type OpportunityFlagsPublic = {
+  batchSize?: number;
 };
 
 export type Opportunity = {
@@ -81,7 +98,7 @@ export type Opportunity = {
   state: OpportunityState;
   title: string;
   tldr: string;
-  organization: Organization;
+  organization?: Organization;
   content: {
     overview: OpportunityContentBlock;
   };
@@ -90,18 +107,54 @@ export type Opportunity = {
   location: OpportunityLocation[];
   keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
+  feedbackQuestions?: OpportunityFeedbackQuestion[];
+  subscriptionStatus: SubscriptionStatus;
+  flags?: OpportunityFlagsPublic;
+};
+
+export type OpportunityMatchDescription = {
+  reasoning: string;
+};
+
+export type ScreeningAnswer = {
+  screening: string;
+  answer: string;
+};
+
+export type ApplicationRank = {
+  score?: number;
+  description?: string;
+  warmIntro?: string;
+};
+
+export type EngagementProfile = {
+  profileText: string;
+  updatedAt: Date;
 };
 
 export type OpportunityMatch = {
   status: OpportunityMatchStatus;
-  description?: {
-    reasoning: string;
-  };
+  description: OpportunityMatchDescription;
+  userId: string;
+  opportunityId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user: PublicProfile;
+  opportunity?: Opportunity;
+  candidatePreferences?: UserCandidatePreferences;
+  screening: ScreeningAnswer[];
+  feedback: ScreeningAnswer[];
+  applicationRank: ApplicationRank;
+  engagementProfile?: EngagementProfile;
+  previewUser: OpportunityPreviewUser | null;
 };
 
 export type GcsBlob = {
+  blob?: string;
   fileName: string;
+  contentType?: string;
   lastModified: Date;
+  signedUrl?: string;
 };
 
 export type UserCandidateKeyword = Keyword;
@@ -123,3 +176,73 @@ export type UserCandidatePreferences = {
 };
 
 export const recruiterLayoutHeaderClassName = 'recruiter-layout-header';
+
+export type OpportunityMatchLocation = Pick<
+  OpportunityLocation,
+  'city' | 'country'
+>;
+
+export interface OpportunityCandidatePreferences {
+  role: string | null;
+  location: OpportunityMatchLocation[];
+}
+
+export interface OpportunityMatchesData {
+  opportunityMatches: Connection<OpportunityMatch>;
+}
+
+export interface OpportunityPreviewCompany {
+  name: string;
+  favicon?: string;
+}
+
+export interface OpportunityPreviewUser {
+  /** Real user ID */
+  id: string;
+  /** User profile image */
+  profileImage?: string;
+  /** Anonymized ID (e.g., anon #1002) */
+  anonId: string;
+  /** User description/bio */
+  description?: string;
+  /** Whether the user is open to work */
+  openToWork: boolean;
+  /** User seniority level */
+  seniority?: string;
+  /** User location (from preferences or geo flags) */
+  location?: string;
+  /** Active company from experience */
+  company?: OpportunityPreviewCompany;
+  /** Last activity timestamp */
+  lastActivity?: Date;
+  /** Top tags for the user */
+  topTags?: string[];
+  /** Top reader badges with tag and issue date */
+  recentlyRead?: TopReader[];
+  /** Active squad IDs */
+  activeSquads?: Squad[];
+}
+
+export interface OpportunityPreviewResult {
+  tags: string[];
+  companies: OpportunityPreviewCompany[];
+  squads: Squad[];
+  totalCount?: number;
+  opportunityId?: string;
+}
+
+export interface OpportunityPreviewConnection
+  extends Connection<OpportunityPreviewUser> {
+  result?: OpportunityPreviewResult;
+}
+
+export type OpportunityPreviewResponse = OpportunityPreviewConnection;
+
+export type OpportunityStats = {
+  matched: number;
+  reached: number;
+  considered: number;
+  decided: number;
+  forReview: number;
+  introduced: number;
+};

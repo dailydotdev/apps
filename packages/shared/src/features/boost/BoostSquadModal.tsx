@@ -30,15 +30,13 @@ import { boostSuccessCover } from '../../lib/image';
 import { boostDocsLink, walletUrl } from '../../lib/constants';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { Loader } from '../../components/Loader';
-import {
-  CampaignType,
-  DEFAULT_CORES_PER_DAY,
-  DEFAULT_DURATION_DAYS,
-} from '../../graphql/campaigns';
+import { CampaignType } from '../../graphql/campaigns';
 import { useCampaignEstimation } from './useCampaignEstimation';
 import type { Squad } from '../../graphql/sources';
 import { Separator } from '../../components/cards/common/common';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
+import { boostSettingsFeature } from '../../lib/featureManagement';
 
 const Slider = dynamic(
   () => import('../../components/fields/Slider').then((mod) => mod.Slider),
@@ -63,10 +61,14 @@ export function BoostSquadModal({
 }: BoostSquadModalProps): ReactElement {
   const { user } = useAuthContext();
   const client = useQueryClient();
+  const { getFeatureValue } = useFeaturesReadyContext();
   const { openModal } = useLazyModal();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
-  const [coresPerDay, setCoresPerDay] = React.useState(DEFAULT_CORES_PER_DAY);
-  const [totalDays, setTotalDays] = React.useState(DEFAULT_DURATION_DAYS);
+  const boostSettings = getFeatureValue(boostSettingsFeature);
+  const [coresPerDay, setCoresPerDay] = React.useState(
+    boostSettings.default_cores,
+  );
+  const [totalDays, setTotalDays] = React.useState(boostSettings.default_days);
   const [estimate, setEstimate] = useState({ coresPerDay, totalDays });
   const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = coresPerDay * totalDays;
@@ -291,9 +293,9 @@ export function BoostSquadModal({
           </span>
           <Slider
             className="mt-2 w-full"
-            min={1000}
-            max={100000}
-            step={1000}
+            min={boostSettings.min}
+            max={boostSettings.max}
+            step={boostSettings.step}
             defaultValue={[coresPerDay]}
             onValueChange={([value]) => {
               updateEstimate((state) => ({ ...state, coresPerDay: value }));

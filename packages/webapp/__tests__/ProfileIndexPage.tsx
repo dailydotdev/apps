@@ -10,7 +10,7 @@ import type {
 } from '@dailydotdev/shared/src/graphql/users';
 import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient } from '@tanstack/react-query';
-import { startOfTomorrow, subDays, subYears } from 'date-fns';
+import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
@@ -43,7 +43,7 @@ const defaultTopTags: MostReadTag[] = [
 ];
 
 const before = startOfTomorrow();
-const after = subYears(subDays(before, 2), 1);
+const after = subMonths(subDays(before, 2), 5);
 
 const createReadingHistoryMock = (
   rankHistory: UserReadingRankHistory[] = [
@@ -89,6 +89,14 @@ const defaultProfile: PublicProfile = {
   readmeHtml: 'This is my readme',
 };
 
+const defaultUserStats = {
+  upvotes: 150,
+  views: 5000,
+  numFollowers: 42,
+  numFollowing: 38,
+  reputation: 20,
+};
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createReadingHistoryMock()],
   profile: Partial<PublicProfile> = {},
@@ -98,7 +106,11 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <TestBootProvider client={client} auth={{ user: null }}>
-      <ProfilePage user={{ ...defaultProfile, ...profile }} noindex />
+      <ProfilePage
+        user={{ ...defaultProfile, ...profile }}
+        userStats={defaultUserStats}
+        noindex
+      />
     </TestBootProvider>,
   );
 };
@@ -107,13 +119,31 @@ it('should show the top reading tags of the user', async () => {
   renderComponent();
   await waitForNock();
   await screen.findByText('Top tags by reading days');
-  await Promise.all(
-    defaultTopTags.map(({ value: tag }) => screen.findByText(`#${tag}`)),
-  );
+  // Tags are rendered capitalized without the # prefix
+  await screen.findByText('Javascript');
+  await screen.findByText('Golang');
+  await screen.findByText('C#');
 });
 
-it('should show the readme of the user', async () => {
+it('should show the about me section with readme of the user', async () => {
   renderComponent();
   await waitForNock();
-  expect(await screen.findByText('This is my readme')).toBeInTheDocument();
+  const aboutMeHeadings = await screen.findAllByText('About me');
+  expect(aboutMeHeadings.length).toBeGreaterThan(0);
+  const readmeContent = await screen.findAllByText('This is my readme');
+  expect(readmeContent.length).toBeGreaterThan(0);
+});
+
+it('should show social links in about me section', async () => {
+  renderComponent();
+  await waitForNock();
+  const twitterLinks = await screen.findAllByTestId('social-link-twitter');
+  expect(twitterLinks.length).toBeGreaterThan(0);
+  expect(twitterLinks[0]).toHaveAttribute('href', 'https://x.com/dailydotdev');
+  const githubLinks = await screen.findAllByTestId('social-link-github');
+  expect(githubLinks.length).toBeGreaterThan(0);
+  expect(githubLinks[0]).toHaveAttribute(
+    'href',
+    'https://github.com/dailydotdev',
+  );
 });

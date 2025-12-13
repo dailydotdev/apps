@@ -80,7 +80,7 @@ it('should call on watch video link click on component middle mouse up', async (
 
 it('should call on upvote click on upvote button click', async () => {
   renderComponent();
-  const el = await screen.findByLabelText('Upvote');
+  const el = await screen.findByLabelText('More like this');
   el.click();
   await waitFor(() => expect(defaultProps.onUpvoteClick).toBeCalledWith(post));
 });

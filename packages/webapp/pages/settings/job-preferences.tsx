@@ -233,9 +233,8 @@ const JobPreferencesPage = (): ReactElement => {
                 color={TypographyColor.Tertiary}
               >
                 Your CV helps us understand your skills, experience, and career
-                path so we can match you to opportunities that actually make
-                sense. Never shared unless you explicitly say yes to an
-                opportunity.
+                path so we can match you to job that actually make sense. Never
+                shared unless you explicitly say yes to an job.
               </Typography>
 
               {preferences?.cv?.fileName && (

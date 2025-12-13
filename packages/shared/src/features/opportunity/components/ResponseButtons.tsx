@@ -1,9 +1,11 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
@@ -14,6 +16,9 @@ import { opportunityMatchOptions } from '../queries';
 import { OpportunityMatchStatus } from '../types';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { useToastNotification } from '../../../hooks';
+import { rejectOpportunityMatchMutationOptions } from '../mutations';
+import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 
 export const ResponseButtons = ({
   id,
@@ -24,11 +29,25 @@ export const ResponseButtons = ({
   className?: { container?: string; buttons?: string };
   size?: ButtonSize;
 }): ReactElement => {
+  const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
-  const { data } = useQuery(opportunityMatchOptions({ id }));
+  const opts = opportunityMatchOptions({ id });
+  const updateQuery = useUpdateQuery(opts);
+  const { data } = useQuery(opts);
   const status = data?.status;
 
-  const handleClick = (event_name: LogEvent): void => {
+  const { mutateAsync: rejectOpportunity } = useMutation({
+    ...rejectOpportunityMatchMutationOptions(id, updateQuery),
+    onError: () => {
+      displayToast('Failed to reject opportunity. Please try again.');
+    },
+  });
+
+  const handleClick = async (event_name: LogEvent): Promise<void> => {
+    if (event_name === LogEvent.RejectOpportunityMatch) {
+      await rejectOpportunity();
+    }
+
     logEvent({
       event_name,
       target_id: id,
@@ -58,10 +77,11 @@ export const ResponseButtons = ({
         <Link href={`${opportunityUrl}/${id}/questions`} passHref>
           <Button
             tag="a"
-            className={className?.buttons}
+            className={classNames(className?.buttons, '!text-white')}
             size={size}
             icon={<VIcon />}
             variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             disabled={status === OpportunityMatchStatus.CandidateAccepted}
             onClick={() => handleClick(LogEvent.ApproveOpportunityMatch)}
           >

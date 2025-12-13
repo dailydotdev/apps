@@ -34,6 +34,10 @@ const [OpportunityEditProvider, useOpportunityEditContext] =
         return false;
       }
 
+      if (user?.isTeamMember) {
+        return true;
+      }
+
       return !!opportunity.recruiters?.some((item) => item.id === user.id);
     }, [opportunity, user]);
 
@@ -44,6 +48,7 @@ const [OpportunityEditProvider, useOpportunityEditContext] =
 
         return result;
       },
+      opportunityId,
     };
   });
 

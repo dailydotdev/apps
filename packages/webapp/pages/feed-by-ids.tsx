@@ -8,7 +8,7 @@ import {
 } from '../components/layouts/FeedByIds/FeedByIdsPage';
 
 const seo: NextSeoProps = {
-  title: 'Feed by ids on daily.dev',
+  title: 'Posts on daily.dev',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };

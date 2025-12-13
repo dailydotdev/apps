@@ -58,6 +58,8 @@ export function PostActions({
   });
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
+  const isUpvoteActive = post?.userState?.vote === UserVote.Up;
+  const isDownvoteActive = post?.userState?.vote === UserVote.Down;
 
   const { toggleBookmark } = useBookmarkPost();
 
@@ -200,30 +202,32 @@ export function PostActions({
           className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
           ref={actionsRef}
         >
-          <QuaternaryButton
-            id="upvote-post-btn"
-            pressed={post?.userState?.vote === UserVote.Up}
-            onClick={onToggleUpvote}
-            icon={
-              <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
-            }
-            aria-label="Upvote"
-            variant={ButtonVariant.Tertiary}
-            color={ButtonColor.Avocado}
-          />
-          <QuaternaryButton
-            id="downvote-post-btn"
-            pressed={post?.userState?.vote === UserVote.Down}
-            onClick={onToggleDownvote}
-            icon={
-              <DownvoteIcon
-                secondary={post?.userState?.vote === UserVote.Down}
-              />
-            }
-            aria-label="Downvote"
-            variant={ButtonVariant.Tertiary}
-            color={ButtonColor.Ketchup}
-          />
+          <Tooltip
+            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+          >
+            <QuaternaryButton
+              id="upvote-post-btn"
+              pressed={isUpvoteActive}
+              onClick={onToggleUpvote}
+              icon={<UpvoteIcon secondary={isUpvoteActive} />}
+              aria-label="Upvote"
+              variant={ButtonVariant.Tertiary}
+              color={ButtonColor.Avocado}
+            />
+          </Tooltip>
+          <Tooltip
+            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+          >
+            <QuaternaryButton
+              id="downvote-post-btn"
+              pressed={isDownvoteActive}
+              onClick={onToggleDownvote}
+              icon={<DownvoteIcon secondary={isDownvoteActive} />}
+              aria-label="Downvote"
+              variant={ButtonVariant.Tertiary}
+              color={ButtonColor.Ketchup}
+            />
+          </Tooltip>
           <QuaternaryButton
             id="comment-post-btn"
             pressed={post.commented}

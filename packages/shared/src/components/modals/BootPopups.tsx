@@ -34,8 +34,13 @@ export const BootPopups = (): ReactElement => {
   const { openModal } = useLazyModal();
   const { user, isValidRegion } = useAuthContext();
   const { updateUserProfile } = useProfileForm();
-  const { alerts, loadedAlerts, updateAlerts, updateLastBootPopup } =
-    useContext(AlertContext);
+  const {
+    alerts,
+    loadedAlerts,
+    updateAlerts,
+    updateLastBootPopup,
+    updateHasSeenOpportunity,
+  } = useContext(AlertContext);
   const [bootPopups, setBootPopups] = useState(() => new Map());
   const [interactiveBootPopup, setInteractiveBootPopup] =
     useState<InteractivePopupProps | null>(null);
@@ -309,6 +314,31 @@ export const BootPopups = (): ReactElement => {
       },
     });
   }, [alerts.showTopReader, logEvent, updateAlerts, updateLastBootPopup]);
+
+  /**
+   * Job opportunity modal
+   */
+  useEffect(() => {
+    if (!alerts?.opportunityId || alerts?.flags?.hasSeenOpportunity) {
+      return;
+    }
+
+    addBootPopup({
+      type: LazyModal.JobOpportunity,
+      props: {
+        opportunityId: alerts.opportunityId,
+        onAfterClose: () => {
+          updateHasSeenOpportunity();
+          updateLastBootPopup();
+        },
+      },
+    });
+  }, [
+    alerts.opportunityId,
+    alerts?.flags?.hasSeenOpportunity,
+    updateHasSeenOpportunity,
+    updateLastBootPopup,
+  ]);
 
   /**
    * Actual rendering of the boot popup that's first in line

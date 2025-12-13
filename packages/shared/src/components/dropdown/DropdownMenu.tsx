@@ -111,7 +111,9 @@ export const DropdownMenuContent = React.forwardRef<
         className={classNames('DropdownMenuContent overflow-hidden', className)}
         align={align}
       >
-        <div className="max-h-70 overflow-y-auto bg-inherit">{children}</div>
+        <div className="DropdownMenuScrollable max-h-72 overflow-y-auto bg-inherit">
+          {children}
+        </div>
       </DropdownMenuContentRoot>
     </DropdownMenuPortal>
   );

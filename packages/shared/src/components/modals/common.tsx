@@ -334,6 +334,65 @@ const OpportunityEditModal = dynamic(() =>
   ).then((mod) => mod.OpportunityEditModal),
 );
 
+const OpportunityEditRecruiterModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "opportunityEditRecruiterModal" */ '../opportunity/OpportunityEditModal/OpportunityEditRecruiterModal'
+  ).then((mod) => mod.OpportunityEditRecruiterModal),
+);
+
+const DirtyFormModal = dynamic(
+  () => import(/* webpackChunkName: "dirtyFormModal" */ './DirtyFormModal'),
+);
+
+const JobOpportunityModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "jobOpportunityModal" */ './JobOpportunityModal'
+    ),
+);
+
+const RecruiterIntroModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterIntroModal" */ './recruiter/RecruiterIntroModal'
+    ),
+);
+
+const RecruiterTrustModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterTrustModal" */ './recruiter/RecruiterTrustModal'
+    ),
+);
+
+const RecruiterJobLinkModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterJobLinkModal" */ './recruiter/RecruiterJobLinkModal'
+    ),
+);
+
+const RecruiterSignInModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterSignInModal" */ './recruiter/RecruiterSignInModal'
+    ),
+);
+
+const VerifyExperienceModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "verifyExperienceModal" */ './VerifyExperienceModal'
+    ),
+);
+
+const SlackChannelConfirmationModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "slackChannelConfirmationModal" */ './recruiter/SlackChannelConfirmationModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -389,6 +448,15 @@ export const modals = {
   [LazyModal.ActionSuccess]: ActionSuccessModal,
   [LazyModal.SquadNotificationSettings]: SquadNotificationSettingsModal,
   [LazyModal.OpportunityEdit]: OpportunityEditModal,
+  [LazyModal.OpportunityEditRecruiter]: OpportunityEditRecruiterModal,
+  [LazyModal.DirtyForm]: DirtyFormModal,
+  [LazyModal.JobOpportunity]: JobOpportunityModal,
+  [LazyModal.RecruiterIntro]: RecruiterIntroModal,
+  [LazyModal.RecruiterTrust]: RecruiterTrustModal,
+  [LazyModal.RecruiterJobLink]: RecruiterJobLinkModal,
+  [LazyModal.RecruiterSignIn]: RecruiterSignInModal,
+  [LazyModal.VerifyExperience]: VerifyExperienceModal,
+  [LazyModal.SlackChannelConfirmation]: SlackChannelConfirmationModal,
 };
 
 type GetComponentProps<T> = T extends

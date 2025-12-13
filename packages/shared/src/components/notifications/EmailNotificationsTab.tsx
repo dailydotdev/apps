@@ -136,7 +136,7 @@ const EmailNotificationsTab = (): ReactElement => {
           />
           <NotificationSwitch
             id="opportunities"
-            label="Personalized job opportunities"
+            label="Personalized job matches"
             description={
               <>
                 Get notified only when there&apos;s a role that fits your skills

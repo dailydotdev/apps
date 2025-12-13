@@ -184,6 +184,10 @@ export function ReadingStreakPopup({
     }
   }, [completeAction, streak]);
 
+  if (!streak) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col tablet:max-w-[21.75rem]">
       <div className="flex flex-col p-0 tablet:p-4">

@@ -42,3 +42,54 @@ export const isOlderThan = (seconds: number, date: Date) => {
   const currentDate = getTodayTz('UTC', new Date());
   return date.getTime() < currentDate.getTime() - seconds;
 };
+
+export interface DateRange {
+  start: Date;
+  end: Date;
+}
+
+export function mergeOverlappingRanges(ranges: DateRange[]): DateRange[] {
+  if (ranges.length === 0) {
+    return [];
+  }
+
+  const sorted = [...ranges].sort(
+    (a, b) => a.start.getTime() - b.start.getTime(),
+  );
+
+  const merged: DateRange[] = [sorted[0]];
+
+  for (let i = 1; i < sorted.length; i += 1) {
+    const current = sorted[i];
+    const lastMerged = merged[merged.length - 1];
+
+    if (current.start.getTime() <= lastMerged.end.getTime()) {
+      lastMerged.end = new Date(
+        Math.max(lastMerged.end.getTime(), current.end.getTime()),
+      );
+    } else {
+      merged.push(current);
+    }
+  }
+
+  return merged;
+}
+
+export function calculateTotalDurationInMonths(ranges: DateRange[]): {
+  years: number;
+  months: number;
+  totalMonths: number;
+} {
+  const mergedRanges = mergeOverlappingRanges(ranges);
+
+  const totalMs = mergedRanges.reduce(
+    (sum, range) => sum + (range.end.getTime() - range.start.getTime()),
+    0,
+  );
+
+  const totalMonths = Math.floor(totalMs / (30 * 24 * 60 * 60 * 1000));
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+
+  return { years, months, totalMonths };
+}

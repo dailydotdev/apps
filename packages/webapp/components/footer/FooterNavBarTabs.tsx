@@ -33,6 +33,15 @@ const Tab = ({ tab, isActive }: TabProps) => {
             'flex flex-col items-center justify-center',
             !isActive && 'text-text-tertiary',
           )}
+          onClick={tab.onClick}
+          role="link"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if ((e.key === 'Enter' || e.key === ' ') && tab.onClick) {
+              e.preventDefault();
+              tab.onClick();
+            }
+          }}
         >
           {tab.icon(isActive)}
           <span className="typo-caption2">{tab.title}</span>

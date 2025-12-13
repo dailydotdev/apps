@@ -18,6 +18,10 @@ import {
   boostNewPostBannerLight,
   jobsWelcomeDarkMode,
   jobsWelcomeLightMode,
+  jobOfferLightDesktop,
+  jobOfferDarkDesktop,
+  jobOfferDarkMobile,
+  jobOfferLightMobile,
 } from '../../lib/image';
 
 interface UseAsset {
@@ -30,6 +34,8 @@ interface UseAsset {
   slackIntegrationHeader: string;
   gardrError: string;
   jobsWelcome: string;
+  jobOfferDesktop: string;
+  jobOfferMobile: string;
 }
 
 export const useIsLightTheme = (): boolean => {
@@ -70,5 +76,7 @@ export const useThemedAsset = (): UseAsset => {
       ? cloudinaryGenericErrorLight
       : cloudinaryGenericErrorDark,
     jobsWelcome: isLight ? jobsWelcomeLightMode : jobsWelcomeDarkMode,
+    jobOfferDesktop: isLight ? jobOfferLightDesktop : jobOfferDarkDesktop,
+    jobOfferMobile: isLight ? jobOfferLightMobile : jobOfferDarkMobile,
   };
 };

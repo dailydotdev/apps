@@ -25,6 +25,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
+import { useScrambler } from '../../../hooks/useScrambler';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -85,6 +86,10 @@ export const SquadGrid = ({
   });
   const borderColor = border || color || SourceCardBorderColor.Avocado;
   const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
+  const promotedText = useScrambler('Promoted');
+  const promotedByTooltip = useScrambler(
+    campaign ? `Promoted by @${campaign.user.username}` : null,
+  );
 
   return (
     <Card
@@ -132,13 +137,13 @@ export const SquadGrid = ({
               color={TypographyColor.Secondary}
             >
               {campaign && (
-                <Tooltip content={`Boosted by @${campaign.user.username}`}>
+                <Tooltip content={promotedByTooltip}>
                   <button
                     type="button"
                     disabled
                     className="relative text-action-comment-default"
                   >
-                    <strong>Boosted</strong>
+                    <strong>{promotedText}</strong>
                   </button>
                 </Tooltip>
               )}

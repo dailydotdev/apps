@@ -39,7 +39,7 @@ export const OpportunityStepsQuestions = (
   const { displayToast } = useToastNotification();
 
   const goToNextStep = () => {
-    router.push(`${webappUrl}opportunity/${opportunityId}/approved`);
+    router.push(`${webappUrl}jobs/${opportunityId}/approved`);
   };
 
   const {

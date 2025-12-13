@@ -34,6 +34,7 @@ import { ReputationAlert } from './ReputationAlert';
 import { RequestKey } from '../../lib/query';
 import { ProfileImageSize } from '../ProfilePicture';
 import { gqlClient } from '../../graphql/common';
+import Link from '../utilities/Link';
 
 interface RSS {
   url: string;
@@ -307,14 +308,19 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             className="mt-4"
             type={AlertType.Error}
             title={
-              <>
-                {existingSource.name} already exist{' '}
+              <span className="flex flex-1 items-center">
+                <span className="mr-auto flex gap-1">
+                  <Link href={existingSource.permalink} passHref>
+                    <a className="text-text-link">{existingSource.name}</a>
+                  </Link>
+                  already exist
+                </span>
                 <SourceProfilePicture
-                  className="ml-auto"
+                  isLink
                   source={existingSource}
                   size={ProfileImageSize.Small}
                 />
-              </>
+              </span>
             }
           />
         )}
