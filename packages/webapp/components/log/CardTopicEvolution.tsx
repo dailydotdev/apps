@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { LogData } from '../../../types/log';
-import { useAnimatedNumber } from '../../../hooks/log';
-import styles from '../Log.module.css';
+import type { LogData } from '../../types/log';
+import { useAnimatedNumber } from '../../hooks/log';
+import styles from './Log.module.css';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';

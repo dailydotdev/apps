@@ -6,18 +6,18 @@ import { MOCK_LOG_DATA, ARCHETYPES } from '../../types/log';
 import type { LogData } from '../../types/log';
 import { useCardNavigation } from '../../hooks/log';
 import type { CardConfig } from '../../hooks/log';
-import styles from './Log.module.css';
+import styles from '../../components/log/Log.module.css';
 
 // Card components
-import CardTotalImpact from './cards/CardTotalImpact';
-import CardWhenYouRead from './cards/CardWhenYouRead';
-import CardTopicEvolution from './cards/CardTopicEvolution';
-import CardFavoriteSources from './cards/CardFavoriteSources';
-import CardCommunityEngagement from './cards/CardCommunityEngagement';
-import CardContributions from './cards/CardContributions';
-import CardRecords from './cards/CardRecords';
-import CardArchetypeReveal from './cards/CardArchetypeReveal';
-import CardShare from './cards/CardShare';
+import CardTotalImpact from '../../components/log/CardTotalImpact';
+import CardWhenYouRead from '../../components/log/CardWhenYouRead';
+import CardTopicEvolution from '../../components/log/CardTopicEvolution';
+import CardFavoriteSources from '../../components/log/CardFavoriteSources';
+import CardCommunityEngagement from '../../components/log/CardCommunityEngagement';
+import CardContributions from '../../components/log/CardContributions';
+import CardRecords from '../../components/log/CardRecords';
+import CardArchetypeReveal from '../../components/log/CardArchetypeReveal';
+import CardShare from '../../components/log/CardShare';
 
 // Per-card theme configurations for subtle variety
 interface CardTheme {

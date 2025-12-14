@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { MotionProps } from 'framer-motion';
 import { motion } from 'framer-motion';
-import styles from '../Log.module.css';
+import styles from './Log.module.css';
 
 interface TopPercentileBannerProps {
   preText: ReactNode;

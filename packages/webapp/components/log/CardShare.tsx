@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
-import type { LogData } from '../../../types/log';
-import { ARCHETYPES } from '../../../types/log';
+import type { LogData } from '../../types/log';
+import { ARCHETYPES } from '../../types/log';
 import cardStyles from './Cards.module.css';
 
 interface CardProps {

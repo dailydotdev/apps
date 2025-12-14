@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import type { LogData } from '../../../types/log';
-import styles from '../Log.module.css';
+import type { LogData } from '../../types/log';
+import styles from './Log.module.css';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
