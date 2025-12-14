@@ -8,6 +8,11 @@ import { TextField } from '../fields/TextField';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import useGif from '../../hooks/useGif';
 import { StarIcon } from '../icons';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 
 const searchSuggestions = [
   'Nodding zoom',
@@ -106,9 +111,9 @@ const GifPopover = ({
         side="top"
         align="start"
         avoidCollisions
-        className="h-[25rem] w-[31.25rem] overflow-y-scroll rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
+        className="flex h-[25rem] w-screen flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 data-[side=bottom]:mt-1 data-[side=top]:mb-1 tablet:w-[31.25rem]"
       >
-        <div className="mb-2">
+        <div className="mb-2 shrink-0">
           <TextField
             value={query}
             onChange={(e) => debounceQuery(e.target.value)}
@@ -121,38 +126,54 @@ const GifPopover = ({
             }
           />
         </div>
-        {gifsToDisplay?.length > 0 && !isLoadingGifs && (
-          <div className="grid grid-cols-2 gap-2">
-            {gifsToDisplay.map((gif) => (
-              <div className="relative" key={gif.id}>
-                <div className="z-10 absolute right-2 top-2 rounded-16 bg-background-popover">
-                  <Button
-                    icon={
-                      <StarIcon
-                        secondary={favorites?.some((f) => f.id === gif.id)}
-                      />
+        <div className="min-h-0 min-w-0 max-w-full flex-1 overflow-x-hidden overflow-y-scroll">
+          {!isLoadingGifs && gifsToDisplay?.length > 0 && (
+            <div className="grid min-w-0 max-w-full grid-cols-2 gap-2">
+              {gifsToDisplay.map((gif) => (
+                <div className="relative" key={gif.id}>
+                  <div className="z-10 absolute right-2 top-2 rounded-16 bg-overlay-primary-pepper">
+                    <Button
+                      icon={
+                        <StarIcon
+                          secondary={favorites?.some((f) => f.id === gif.id)}
+                          className="text-accent-cheese-bolder"
+                        />
+                      }
+                      onClick={() => favorite(gif)}
+                    />
+                  </div>
+                  <button
+                    className="mb-auto"
+                    type="button"
+                    onClick={() =>
+                      handleGifClick({ url: gif.url, title: gif.title })
                     }
-                    onClick={() => favorite(gif)}
-                  />
+                  >
+                    <img
+                      src={gif.preview}
+                      alt={gif.title}
+                      className="h-auto min-h-32 w-full cursor-pointer rounded-8 object-cover"
+                    />
+                  </button>
                 </div>
-                <button
-                  className="mb-auto"
-                  type="button"
-                  onClick={() =>
-                    handleGifClick({ url: gif.url, title: gif.title })
-                  }
-                >
-                  <img
-                    src={gif.preview}
-                    alt={gif.title}
-                    className="h-auto min-h-32 w-full cursor-pointer rounded-8 object-cover"
-                  />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        <div ref={scrollRef} />
+              ))}
+            </div>
+          )}
+          {!isLoadingGifs && (!gifsToDisplay || gifsToDisplay.length === 0) && (
+            <div className="flex h-full w-full min-w-0 items-center justify-center px-4">
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Tertiary}
+                className="w-full min-w-0 whitespace-normal break-words text-center"
+              >
+                {showingFavorites
+                  ? 'You have no favorites yet. Add some, and they will appear here!'
+                  : 'no results matching your search 😞'}
+              </Typography>
+            </div>
+          )}
+          <div ref={scrollRef} />
+        </div>
       </PopoverContent>
     </Popover>
   );
