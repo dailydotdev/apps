@@ -4,7 +4,6 @@ import { useInView } from 'react-intersection-observer';
 import type { ButtonProps } from '../buttons/Button';
 import { Button } from '../buttons/Button';
 import { PopoverContent } from './Popover';
-import { Typography, TypographyType } from '../typography/Typography';
 import { TextField } from '../fields/TextField';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import useGif from '../../hooks/useGif';
@@ -46,7 +45,7 @@ const GifPopover = ({
   ]);
   const [debounceQuery] = useDebounceFn<string>(
     (value) => setQuery(value),
-    300,
+    500,
   );
   const {
     data,
@@ -55,6 +54,7 @@ const GifPopover = ({
     isFetchingNextPage,
     favorite,
     favorites,
+    isFetchingFavorites,
   } = useGif({
     query,
     limit: '20',
@@ -64,8 +64,13 @@ const GifPopover = ({
     if (inView && data?.length > 0 && !isFetchingNextPage && query) {
       fetchNextPage();
     }
+    // No need to update on query change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, isLoading, isFetchingNextPage, fetchNextPage]);
+
+  const showingFavorites = !query;
+  const gifsToDisplay = showingFavorites ? favorites : data;
+  const isLoadingGifs = showingFavorites ? isFetchingFavorites : isLoading;
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen && textareaRef?.current) {
@@ -79,9 +84,12 @@ const GifPopover = ({
 
   const handleGifClick = async (gif: { url: string; title: string }) => {
     if (textareaRef?.current) {
-      textareaRef.current.focus();
-      textareaRef.current.selectionStart = savedSelection[0];
-      textareaRef.current.selectionEnd = savedSelection[1];
+      const [selectionStart, selectionEnd] = savedSelection;
+      const currentTextarea = textareaRef.current;
+
+      currentTextarea.focus();
+      currentTextarea.selectionStart = selectionStart;
+      currentTextarea.selectionEnd = selectionEnd;
     }
 
     await onGifCommand?.(gif.url, gif.title);
@@ -113,12 +121,9 @@ const GifPopover = ({
             }
           />
         </div>
-        {!query && (
-          <Typography type={TypographyType.Callout}>Search Tenor</Typography>
-        )}
-        {data?.length > 0 && !isLoading && (
+        {gifsToDisplay?.length > 0 && !isLoadingGifs && (
           <div className="grid grid-cols-2 gap-2">
-            {data.map((gif) => (
+            {gifsToDisplay.map((gif) => (
               <div className="relative" key={gif.id}>
                 <div className="z-10 absolute right-2 top-2 rounded-16 bg-background-popover">
                   <Button
@@ -140,7 +145,7 @@ const GifPopover = ({
                   <img
                     src={gif.preview}
                     alt={gif.title}
-                    className="h-auto w-full cursor-pointer rounded-8 object-cover"
+                    className="h-auto min-h-32 w-full cursor-pointer rounded-8 object-cover"
                   />
                 </button>
               </div>
