@@ -67,7 +67,7 @@ export const MatchProfile = ({ profile }: MatchProfileProps): ReactElement => {
               target="_blank"
               rel={anchorDefaultRel}
             >
-              Show Profile
+              Show CV
             </Button>
           )}
         </FlexRow>
