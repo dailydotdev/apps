@@ -11,9 +11,9 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
-import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
+import TopPercentileBanner from './TopPercentileBanner';
 
 interface CardProps {
   data: LogData;
@@ -229,26 +229,16 @@ export default function CardContributions({
 
       {/* Creator ranking banner */}
       {data.creatorPercentile && (
-        <motion.div
-          className={styles.celebrationBanner}
-          initial={{ opacity: 0, y: 30, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: 2.0, type: 'spring', stiffness: 100 }}
-        >
-          <div className={styles.bannerBg} />
-          <div className={styles.bannerContent}>
-            <span className={styles.bannerPre}>TOP</span>
-            <motion.span
-              className={styles.bannerMain}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 2.2, type: 'spring', stiffness: 200 }}
-            >
-              {data.creatorPercentile}%
-            </motion.span>
-            <span className={styles.bannerPost}>CREATOR</span>
-          </div>
-        </motion.div>
+        <TopPercentileBanner
+          preText="TOP"
+          mainText={`${data.creatorPercentile}%`}
+          postText="CREATOR"
+          delay={2.0}
+          motionProps={{
+            initial: { opacity: 0, y: 30, scale: 0.9 },
+            animate: { opacity: 1, y: 0, scale: 1 },
+          }}
+        />
       )}
 
       {/* Share button */}

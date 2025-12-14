@@ -5,6 +5,7 @@ import type { LogData } from '../types';
 import { useAnimatedNumber } from '../hooks';
 import styles from '../Log.module.css';
 import ShareStatButton from './ShareStatButton';
+import TopPercentileBanner from './TopPercentileBanner';
 
 interface CardProps {
   data: LogData;
@@ -121,26 +122,12 @@ export default function CardTotalImpact({
       </motion.div>
 
       {/* Competitive stat banner with slide in */}
-      <motion.div
-        className={styles.celebrationBanner}
-        initial={{ opacity: 0, x: -100, rotate: -5 }}
-        animate={{ opacity: 1, x: 0, rotate: 0 }}
-        transition={{ delay: 1.5, type: 'spring', stiffness: 100 }}
-      >
-        <div className={styles.bannerBg} />
-        <div className={styles.bannerContent}>
-          <span className={styles.bannerPre}>Top</span>
-          <motion.span
-            className={styles.bannerMain}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1.7, type: 'spring', stiffness: 200 }}
-          >
-            {data.totalImpactPercentile}%
-          </motion.span>
-          <span className={styles.bannerPost}>of devs</span>
-        </div>
-      </motion.div>
+      <TopPercentileBanner
+        preText="Top"
+        mainText={`${data.totalImpactPercentile}%`}
+        postText="of devs"
+        delay={1.5}
+      />
 
       {/* Share button */}
       <ShareStatButton

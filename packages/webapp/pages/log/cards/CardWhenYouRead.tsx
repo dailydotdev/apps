@@ -5,16 +5,32 @@ import type { LogData } from '../types';
 import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
+import TopPercentileBanner from './TopPercentileBanner';
 
 interface CardProps {
   data: LogData;
   isActive: boolean;
 }
 
-const PATTERN_SENTENCES: Record<LogData['readingPattern'], string> = {
-  night: 'Only {percentile}% of devs read this late',
-  early: 'Only {percentile}% of devs start this early',
-  afternoon: 'Only {percentile}% read during peak hours',
+const PATTERN_BANNER_TEXT: Record<
+  LogData['readingPattern'],
+  { preText: string; postText: string; shareText: string }
+> = {
+  night: {
+    preText: 'ONLY',
+    postText: 'READ THIS LATE',
+    shareText: 'Only {percentile}% of devs read this late',
+  },
+  early: {
+    preText: 'ONLY',
+    postText: 'START THIS EARLY',
+    shareText: 'Only {percentile}% of devs start this early',
+  },
+  afternoon: {
+    preText: 'ONLY',
+    postText: 'AT PEAK HOURS',
+    shareText: 'Only {percentile}% read during peak hours',
+  },
 };
 
 function formatHour(hour: number): string {
@@ -150,17 +166,12 @@ export default function CardWhenYouRead({
       </motion.div>
 
       {/* Pattern stat */}
-      <motion.div
-        className={cardStyles.whenStatsRow}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.4 }}
-      >
-        {PATTERN_SENTENCES[data.readingPattern].replace(
-          '{percentile}',
-          String(data.patternPercentile),
-        )}
-      </motion.div>
+      <TopPercentileBanner
+        preText={PATTERN_BANNER_TEXT[data.readingPattern].preText}
+        mainText={`${data.patternPercentile}%`}
+        postText={PATTERN_BANNER_TEXT[data.readingPattern].postText}
+        delay={1.4}
+      />
 
       {/* Share button */}
       <ShareStatButton
@@ -168,7 +179,7 @@ export default function CardWhenYouRead({
         isActive={isActive}
         statText={`My golden hour is ${formatHour(
           peakHour,
-        )}\n\n${PATTERN_SENTENCES[data.readingPattern].replace(
+        )}\n\n${PATTERN_BANNER_TEXT[data.readingPattern].shareText.replace(
           '{percentile}',
           String(data.patternPercentile),
         )} on daily.dev!`}

@@ -6,6 +6,7 @@ import { useAnimatedNumber } from '../hooks';
 import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
+import TopPercentileBanner from './TopPercentileBanner';
 
 const MEDAL_EMOJIS = ['🥇', '🥈', '🥉'];
 
@@ -276,25 +277,20 @@ export default function CardTopicEvolution({
       </div>
 
       {/* Banner - reserve space always, animate visibility on last month */}
-      <motion.div
-        className={styles.celebrationBanner}
-        initial={false}
-        animate={{
-          opacity: isLastMonth ? 1 : 0,
-          scaleX: isLastMonth ? 1 : 0,
+      <TopPercentileBanner
+        preText="MORE CURIOUS THAN"
+        mainText={`${100 - data.evolutionPercentile}%`}
+        postText="OF DEVS"
+        delay={isLastMonth ? 0.5 : 0}
+        motionProps={{
+          initial: false,
+          animate: {
+            opacity: isLastMonth ? 1 : 0,
+            scaleX: isLastMonth ? 1 : 0,
+          },
+          style: { visibility: isLastMonth ? 'visible' : 'hidden' },
         }}
-        transition={{ delay: isLastMonth ? 0.5 : 0 }}
-        style={{ visibility: isLastMonth ? 'visible' : 'hidden' }}
-      >
-        <div className={styles.bannerBg} />
-        <div className={styles.bannerContent}>
-          <span className={styles.bannerPre}>MORE CURIOUS THAN</span>
-          <span className={styles.bannerMain}>
-            {100 - data.evolutionPercentile}%
-          </span>
-          <span className={styles.bannerPost}>OF DEVS</span>
-        </div>
-      </motion.div>
+      />
 
       {/* Share button - absolutely positioned, only active on last month */}
       <ShareStatButton

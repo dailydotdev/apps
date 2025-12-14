@@ -10,6 +10,7 @@ import { useAnimatedNumber } from '../hooks';
 import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
+import TopPercentileBanner from './TopPercentileBanner';
 
 interface CardProps {
   data: LogData;
@@ -156,19 +157,16 @@ export default function CardFavoriteSources({
       </motion.div>
 
       {/* Banner */}
-      <motion.div
-        className={styles.celebrationBanner}
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1.5, type: 'spring' }}
-      >
-        <div className={styles.bannerBg} />
-        <div className={styles.bannerContent}>
-          <span className={styles.bannerPre}>TOP</span>
-          <span className={styles.bannerMain}>{data.sourcePercentile}%</span>
-          <span className={styles.bannerPost}>EXPLORER</span>
-        </div>
-      </motion.div>
+      <TopPercentileBanner
+        preText="TOP"
+        mainText={`${data.sourcePercentile}%`}
+        postText="EXPLORER"
+        delay={1.5}
+        motionProps={{
+          initial: { opacity: 0, x: 100 },
+          animate: { opacity: 1, x: 0 },
+        }}
+      />
 
       {/* Share button */}
       <ShareStatButton
