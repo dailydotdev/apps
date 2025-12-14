@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { LogData } from '../types';
-import { ARCHETYPES } from '../types';
+import type { LogData } from '../../../types/log';
+import { ARCHETYPES } from '../../../types/log';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 

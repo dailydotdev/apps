@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useEffect } from 'react';
 import Head from 'next/head';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MOCK_LOG_DATA, ARCHETYPES } from './types';
-import type { LogData } from './types';
-import { useCardNavigation } from './hooks';
-import type { CardConfig } from './hooks';
+import { MOCK_LOG_DATA, ARCHETYPES } from '../../types/log';
+import type { LogData } from '../../types/log';
+import { useCardNavigation } from '../../hooks/log';
+import type { CardConfig } from '../../hooks/log';
 import styles from './Log.module.css';
 
 // Card components

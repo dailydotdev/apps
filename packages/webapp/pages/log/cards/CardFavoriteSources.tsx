@@ -5,8 +5,8 @@ import {
   Image,
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
-import type { LogData } from '../types';
-import { useAnimatedNumber } from '../hooks';
+import type { LogData } from '../../../types/log';
+import { useAnimatedNumber } from '../../../hooks/log';
 import styles from '../Log.module.css';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';

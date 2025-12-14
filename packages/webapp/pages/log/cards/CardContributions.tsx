@@ -9,8 +9,8 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import type { LogData } from '../types';
-import { useAnimatedNumber } from '../hooks';
+import type { LogData } from '../../../types/log';
+import { useAnimatedNumber } from '../../../hooks/log';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
