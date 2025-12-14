@@ -10,47 +10,67 @@ export type Archetype =
 
 export interface ArchetypeInfo {
   id: Archetype;
+  emoji: string;
   name: string;
   description: string;
   color: string;
+  imageUrl: string;
 }
 
 export const ARCHETYPES: Record<Archetype, ArchetypeInfo> = {
   NIGHT_OWL: {
     id: 'NIGHT_OWL',
+    emoji: '🦉',
     name: 'Night Owl',
     description: 'While others sleep, you level up.',
     color: '#4d9dff',
+    imageUrl:
+      'https://media.daily.dev/image/upload/s--mqo5Vxvk--/f_auto,q_auto/v1765654579/public/night_owl',
   },
   SCHOLAR: {
     id: 'SCHOLAR',
+    emoji: '📚',
     name: 'Scholar',
     description: "You don't skim. You study.",
     color: '#f7c948',
+    imageUrl:
+      'https://media.daily.dev/image/upload/s--mWY4TZG1--/f_auto,q_auto/v1765654630/public/scholar',
   },
   PULSE_READER: {
     id: 'PULSE_READER',
+    emoji: '⚡️',
     name: 'Pulse Reader',
     description: 'First to know. Always.',
     color: '#00d4ff',
+    imageUrl:
+      'https://media.daily.dev/image/upload/s--XWfonwhE--/f_auto,q_auto/v1765654630/public/pulse_reader',
   },
   OPINIONIST: {
     id: 'OPINIONIST',
+    emoji: '🎤',
     name: 'Opinionist',
     description: 'Hot takes need witnesses.',
     color: '#e637bf',
+    imageUrl:
+      'https://media.daily.dev/image/upload/s--pHpHjYtG--/f_auto,q_auto/v1765654579/public/opinionist',
   },
   COLLECTOR: {
     id: 'COLLECTOR',
+    emoji: '🗃️',
     name: 'Collector',
-    description: 'Every rabbit hole mapped. Every gem saved.',
+    description: 'Bookmarks: ∞. Read later: TBD.',
     color: '#a855f7',
+    imageUrl:
+      'https://media.daily.dev/image/upload/s--fMLnVbfw--/f_auto,q_auto/v1765654555/public/collector',
   },
   STREAK_WARRIOR: {
     id: 'STREAK_WARRIOR',
+    emoji: '🔥',
     name: 'Streak Warrior',
     description: 'Rain or shine. You show up.',
     color: '#ff6b35',
+    imageUrl:
+      'https://media.daily.dev/image/upload/s--zSQmukzL--/f_auto,q_auto/v1765654630/public/streak_warrior',
   },
 };
 
@@ -326,7 +346,7 @@ export const MOCK_LOG_DATA: LogData = {
   ],
 
   // Card 8
-  archetype: 'NIGHT_OWL',
+  archetype: 'COLLECTOR',
   archetypeStat: 'Only 12% of developers read as late as you',
   archetypePercentile: 12,
 

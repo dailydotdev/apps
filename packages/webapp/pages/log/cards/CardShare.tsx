@@ -13,20 +13,21 @@ interface CardProps {
 export default function CardShare({ data }: CardProps): ReactElement {
   const [copied, setCopied] = useState(false);
   const archetype = ARCHETYPES[data.archetype];
+  const streakRecord = data.records.find((r) => r.type === 'streak');
 
   const shareText = `I'm a ${archetype.name.toUpperCase()} ${
     archetype.emoji
   } on daily.dev
 
 📚 ${data.totalPosts.toLocaleString()} posts read
-🔥 ${data.records.find((r) => r.type === 'streak')?.value || 'Epic streak'}
+🔥 ${streakRecord?.value || 'Epic streak'}
 ⚡ ${data.archetypeStat}
 
 What's your developer archetype?
 → app.daily.dev/log`;
 
   const handleShare = useCallback(
-    async (platform: 'twitter' | 'linkedin' | 'copy' | 'download') => {
+    async (platform: 'twitter' | 'linkedin' | 'copy') => {
       const url = 'https://app.daily.dev/log';
 
       switch (platform) {
@@ -55,11 +56,7 @@ What's your developer archetype?
             // Fallback
           }
           break;
-        case 'download':
-          // TODO: Implement image generation
-          break;
         default:
-          // No action for unknown platform
           break;
       }
     },
@@ -68,110 +65,148 @@ What's your developer archetype?
 
   return (
     <>
-      <div className={cardStyles.shareContainer}>
+      <div className={cardStyles.shareWrapContainer}>
         {/* Header */}
-        <motion.h2
-          className={cardStyles.shareTitle}
+        <motion.div
+          className={cardStyles.shareWrapHeader}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
         >
-          Time to flex 💪
-        </motion.h2>
+          <span className={cardStyles.shareWrapLabel}>THAT&apos;S</span>
+          <span className={cardStyles.shareWrapTitle}>A WRAP</span>
+          <span className={cardStyles.shareWrapYear}>— 2025 —</span>
+        </motion.div>
 
-        {/* Phone frame mockup */}
+        {/* Archetype Display - Gentle, organic layout */}
         <motion.div
-          className={cardStyles.phoneFrame}
-          initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
-          animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-          transition={{ delay: 0.4, type: 'spring', stiffness: 100 }}
+          className={cardStyles.shareArchetypeContainer}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <div className={cardStyles.phoneNotch} />
-          <div className={cardStyles.phoneScreen}>
-            {/* Mini preview of share content */}
-            <div className={cardStyles.previewContent}>
-              <span className={cardStyles.previewLogo}>daily.dev</span>
-              <span className={cardStyles.previewEmoji}>{archetype.emoji}</span>
-              <span className={cardStyles.previewArchetype}>
-                {archetype.name}
+          {/* Archetype image with soft glow */}
+          <motion.div
+            className={cardStyles.shareArchetypeImageWrap}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.7, type: 'spring', stiffness: 150 }}
+          >
+            <img
+              src={archetype.imageUrl}
+              alt={archetype.name}
+              className={cardStyles.shareArchetypeImage}
+            />
+          </motion.div>
+
+          {/* Archetype name */}
+          <motion.div
+            className={cardStyles.shareArchetypeName}
+            style={{ color: archetype.color }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9 }}
+          >
+            {archetype.name.toUpperCase()}
+          </motion.div>
+
+          {/* Stats - Gentle, flowing layout */}
+          <motion.div
+            className={cardStyles.shareStatsFlow}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.1 }}
+          >
+            <div className={cardStyles.shareStatItem}>
+              <span className={cardStyles.shareStatValue}>
+                {data.totalPosts.toLocaleString()}
               </span>
-              <div className={cardStyles.previewStats}>
-                <span>📚 {data.totalPosts}</span>
-                <span>
-                  🔥{' '}
-                  {data.records.find((r) => r.type === 'streak')?.value || '—'}
-                </span>
-              </div>
+              <span className={cardStyles.shareStatLabel}>posts</span>
             </div>
-          </div>
+            <span className={cardStyles.shareStatDot}>•</span>
+            <div className={cardStyles.shareStatItem}>
+              <span className={cardStyles.shareStatValue}>
+                {streakRecord?.value || '—'}
+              </span>
+              <span className={cardStyles.shareStatLabel}>streak</span>
+            </div>
+            <span className={cardStyles.shareStatDot}>•</span>
+            <div className={cardStyles.shareStatItem}>
+              <span className={cardStyles.shareStatValue}>
+                {data.daysActive}
+              </span>
+              <span className={cardStyles.shareStatLabel}>days</span>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Thank you message */}
+        <motion.div
+          className={cardStyles.shareThankYou}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.3 }}
+        >
+          <p className={cardStyles.shareThankYouText}>
+            Thanks for an incredible 2025.
+          </p>
+          <p className={cardStyles.shareThankYouSubtext}>
+            Can&apos;t wait to see what you&apos;ll read in 2026 🚀
+          </p>
         </motion.div>
 
         {/* Share buttons */}
         <motion.div
-          className={cardStyles.shareButtons}
+          className={cardStyles.shareWrapButtons}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 1.5 }}
         >
           <motion.button
-            className={`${cardStyles.shareButton} ${cardStyles.shareLinkedIn}`}
-            onClick={() => handleShare('linkedin')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className={`${cardStyles.shareWrapButton} ${cardStyles.shareWrapButtonPrimary}`}
+            onClick={() => handleShare('twitter')}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
+            <span className={cardStyles.shareWrapButtonIcon}>𝕏</span>
+            <span>Share on X</span>
+          </motion.button>
+          <motion.button
+            className={`${cardStyles.shareWrapButton} ${cardStyles.shareWrapButtonLinkedIn}`}
+            onClick={() => handleShare('linkedin')}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <span className={cardStyles.shareWrapButtonIcon}>in</span>
             <span>LinkedIn</span>
           </motion.button>
           <motion.button
-            className={`${cardStyles.shareButton} ${cardStyles.shareTwitter}`}
-            onClick={() => handleShare('twitter')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span>Twitter/X</span>
-          </motion.button>
-          <motion.button
-            className={`${cardStyles.shareButton} ${cardStyles.shareCopy}`}
+            className={`${cardStyles.shareWrapButton} ${cardStyles.shareWrapButtonCopy}`}
             onClick={() => handleShare('copy')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
-            <span>{copied ? '✓ Copied!' : 'Copy'}</span>
-          </motion.button>
-          <motion.button
-            className={`${cardStyles.shareButton} ${cardStyles.shareDownload}`}
-            onClick={() => handleShare('download')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span>Download</span>
+            <span className={cardStyles.shareWrapButtonIcon}>
+              {copied ? '✓' : '📋'}
+            </span>
+            <span>{copied ? 'Copied!' : 'Copy'}</span>
           </motion.button>
         </motion.div>
 
-        {/* Social proof */}
+        {/* Swipe back hint */}
         <motion.div
-          className={cardStyles.socialProof}
+          className={cardStyles.shareSwipeHint}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
+          transition={{ delay: 2 }}
         >
           <motion.span
-            className={cardStyles.socialProofNumber}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1.2, type: 'spring' }}
+            className={cardStyles.shareSwipeArrow}
+            animate={{ x: [-3, 3, -3] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
           >
-            {data.shareCount.toLocaleString()}
+            ←
           </motion.span>
-          <span>developers have shared their Log</span>
-        </motion.div>
-
-        {/* Restart hint */}
-        <motion.div
-          className={cardStyles.restartHint}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-        >
           <span>Swipe back to revisit your journey</span>
         </motion.div>
       </div>

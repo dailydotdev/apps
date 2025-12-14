@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { LogData, Archetype } from '../types';
+import type { LogData } from '../types';
 import { ARCHETYPES } from '../types';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
@@ -10,22 +10,6 @@ interface CardProps {
   data: LogData;
   isActive: boolean;
 }
-
-// Archetype image URLs
-const ARCHETYPE_IMAGES: Record<Archetype, string> = {
-  STREAK_WARRIOR:
-    'https://media.daily.dev/image/upload/s--zSQmukzL--/f_auto,q_auto/v1765654630/public/streak_warrior',
-  SCHOLAR:
-    'https://media.daily.dev/image/upload/s--mWY4TZG1--/f_auto,q_auto/v1765654630/public/scholar',
-  PULSE_READER:
-    'https://media.daily.dev/image/upload/s--XWfonwhE--/f_auto,q_auto/v1765654630/public/pulse_reader',
-  OPINIONIST:
-    'https://media.daily.dev/image/upload/s--pHpHjYtG--/f_auto,q_auto/v1765654579/public/opinionist',
-  NIGHT_OWL:
-    'https://media.daily.dev/image/upload/s--mqo5Vxvk--/f_auto,q_auto/v1765654579/public/night_owl',
-  COLLECTOR:
-    'https://media.daily.dev/image/upload/s--fMLnVbfw--/f_auto,q_auto/v1765654555/public/collector',
-};
 
 const BUILD_UP_LINES = [
   { text: "We've seen how you read...", icon: '👁️' },
@@ -145,14 +129,13 @@ export default function CardArchetypeReveal({
   const [showParticles, setShowParticles] = useState(false);
   const [, setImageLoaded] = useState(false);
   const archetype = ARCHETYPES[data.archetype];
-  const archetypeImage = ARCHETYPE_IMAGES[data.archetype];
 
   // Preload the image
   useEffect(() => {
     const img = new Image();
     img.onload = () => setImageLoaded(true);
-    img.src = archetypeImage;
-  }, [archetypeImage]);
+    img.src = archetype.imageUrl;
+  }, [archetype.imageUrl]);
 
   // Generate particles with archetype colors
   const particles = useMemo(() => {
@@ -355,7 +338,7 @@ export default function CardArchetypeReveal({
                   transition={{ duration: 0.8, delay: 0.2 }}
                 />
                 <motion.img
-                  src={archetypeImage}
+                  src={archetype.imageUrl}
                   alt={archetype.name}
                   className={cardStyles.archetypeImage}
                   initial={{ filter: 'brightness(2) saturate(0)' }}
