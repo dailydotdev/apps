@@ -297,22 +297,13 @@ export default function CardTopicEvolution({
         delay={0.8}
         isActive={isActive && isLastMonth}
         statText={(() => {
-          const pivotTopic = data.pivotMonth
-            ? data.topicJourney.find((t) => t.month === data.pivotMonth)
-                ?.topics[0]
-            : null;
-
           const baseText = `I explored ${
             data.uniqueTopics
           } different topics on daily.dev${
             isPartialYear ? ` in ${activeMonthsCount} months` : ' this year'
           }! 🚀`;
 
-          const pivotText = pivotTopic
-            ? `\n\nMy big pivot: #${pivotTopic}`
-            : '';
-
-          return `${baseText}${pivotText}\n\nMore curious than ${
+          return `${baseText}\n\nMore curious than ${
             100 - data.evolutionPercentile
           }% of developers`;
         })()}
