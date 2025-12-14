@@ -359,18 +359,11 @@ export default function LogPage({
 
         {/* Header with logo and progress */}
         <header className={styles.header}>
-          <motion.div
-            className={styles.logoBadge}
-            initial={{ y: -50, rotate: -10 }}
-            animate={{ y: 0, rotate: -2 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-          >
-            <img
-              src="/assets/icon-light.svg"
-              alt="daily.dev"
-              className={styles.logo}
-            />
-          </motion.div>
+          <img
+            src="/assets/icon-light.svg"
+            alt="daily.dev"
+            className={styles.logo}
+          />
           <div className={styles.progressDots}>
             {cards.map((card, index) => {
               let className = styles.progressDot;

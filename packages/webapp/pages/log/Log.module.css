@@ -134,27 +134,18 @@
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   box-sizing: border-box;
   max-width: 100%;
 }
 
-.logoBadge {
-  background: var(--fest-white);
-  padding: 0.5rem 0.875rem;
-  border-radius: 4px;
-  transform: rotate(-2deg);
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-}
-
 .logo {
-  height: 16px;
-  width: auto;
+  width: 40px;
+  height: 40px;
   display: block;
-  filter: brightness(0);
 }
 
 .progressDots {
