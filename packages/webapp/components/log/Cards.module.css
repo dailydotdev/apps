@@ -355,8 +355,8 @@
   50% { background-position: 100% 50%; }
 }
 
-/* Month carousel wrapper */
-.monthCarouselWrapper {
+/* Quarter carousel wrapper */
+.quarterCarouselWrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -364,10 +364,11 @@
   margin-bottom: 1.25rem;
 }
 
-/* Scrollable month carousel */
-.monthCarousel {
+/* Scrollable quarter carousel */
+.quarterCarousel {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.25rem;
   width: 100%;
   overflow-x: auto;
@@ -391,12 +392,12 @@
   );
 }
 
-.monthCarousel::-webkit-scrollbar {
+.quarterCarousel::-webkit-scrollbar {
   display: none;
 }
 
-/* Individual month item */
-.monthCarouselItem {
+/* Individual quarter item */
+.quarterCarouselItem {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -408,7 +409,7 @@
   cursor: default;
 }
 
-.monthCarouselLabel {
+.quarterCarouselLabel {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--fest-white-30, rgba(255,255,255,0.3));
@@ -418,37 +419,37 @@
   z-index: 1;
 }
 
-/* Adjacent months (prev/next) */
-.monthCarouselItemAdjacent .monthCarouselLabel {
+/* Adjacent quarters (prev/next) */
+.quarterCarouselItemAdjacent .quarterCarouselLabel {
   color: var(--fest-white-50, rgba(255,255,255,0.5));
 }
 
-/* Past months */
-.monthCarouselItemPast .monthCarouselLabel {
+/* Past quarters */
+.quarterCarouselItemPast .quarterCarouselLabel {
   color: var(--fest-white-50, rgba(255,255,255,0.5));
 }
 
-/* Active month */
-.monthCarouselItemActive .monthCarouselLabel {
+/* Active quarter */
+.quarterCarouselItemActive .quarterCarouselLabel {
   font-weight: 700;
   font-size: 1.25rem;
   color: var(--fest-white, #FFFFFF);
   text-shadow: 1px 1px 0 var(--fest-primary, #FF8E3B);
 }
 
-/* Inactive month (no activity) */
-.monthCarouselItemInactive .monthCarouselLabel {
+/* Inactive quarter (no activity) */
+.quarterCarouselItemInactive .quarterCarouselLabel {
   color: var(--fest-white-20, rgba(255,255,255,0.2));
   font-style: italic;
 }
 
-.monthCarouselItemInactive.monthCarouselItemActive .monthCarouselLabel {
+.quarterCarouselItemInactive.quarterCarouselItemActive .quarterCarouselLabel {
   color: var(--fest-white-50, rgba(255,255,255,0.5));
   text-shadow: none;
 }
 
 /* Animated selection indicator */
-.monthCarouselIndicator {
+.quarterCarouselIndicator {
   position: absolute;
   inset: 0;
   background: rgba(255, 255, 255, 0.1);
@@ -531,8 +532,8 @@
   margin: 0.5rem 0;
 }
 
-/* Inactive month message */
-.inactiveMonthMessage {
+/* Inactive quarter message */
+.inactiveQuarterMessage {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -544,12 +545,12 @@
   border: 1px dashed var(--fest-white-30, rgba(255,255,255,0.3));
 }
 
-.inactiveMonthEmoji {
+.inactiveQuarterEmoji {
   font-size: 2.5rem;
   opacity: 0.7;
 }
 
-.inactiveMonthText {
+.inactiveQuarterText {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   color: var(--fest-white-50, rgba(255,255,255,0.5));
@@ -559,20 +560,20 @@
 
 /* Responsive adjustments for topic evolution */
 @media (min-height: 750px) {
-  .monthCarouselWrapper {
+  .quarterCarouselWrapper {
     margin-bottom: 1.5rem;
   }
 
-  .monthCarouselItem {
+  .quarterCarouselItem {
     padding: 0.625rem 0.875rem;
     min-width: 56px;
   }
 
-  .monthCarouselLabel {
+  .quarterCarouselLabel {
     font-size: 0.75rem;
   }
 
-  .monthCarouselItemActive .monthCarouselLabel {
+  .quarterCarouselItemActive .quarterCarouselLabel {
     font-size: 1.4rem;
   }
 
@@ -594,16 +595,16 @@
 }
 
 @media (min-height: 850px) {
-  .monthCarouselWrapper {
+  .quarterCarouselWrapper {
     margin-bottom: 1.75rem;
   }
 
-  .monthCarouselItem {
+  .quarterCarouselItem {
     padding: 0.75rem 1rem;
     min-width: 60px;
   }
 
-  .monthCarouselItemActive .monthCarouselLabel {
+  .quarterCarouselItemActive .quarterCarouselLabel {
     font-size: 1.5rem;
   }
 
@@ -627,20 +628,20 @@
 }
 
 @media (max-height: 700px) {
-  .monthCarouselWrapper {
+  .quarterCarouselWrapper {
     margin-bottom: 1rem;
   }
 
-  .monthCarouselItem {
+  .quarterCarouselItem {
     padding: 0.375rem 0.5rem;
     min-width: 44px;
   }
 
-  .monthCarouselLabel {
+  .quarterCarouselLabel {
     font-size: 0.6rem;
   }
 
-  .monthCarouselItemActive .monthCarouselLabel {
+  .quarterCarouselItemActive .quarterCarouselLabel {
     font-size: 1rem;
   }
 
@@ -666,11 +667,11 @@
     font-size: 0.6rem;
   }
 
-  .inactiveMonthEmoji {
+  .inactiveQuarterEmoji {
     font-size: 2rem;
   }
 
-  .inactiveMonthText {
+  .inactiveQuarterText {
     font-size: 0.75rem;
   }
 }

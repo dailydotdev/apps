@@ -222,7 +222,7 @@ export default function LogPage({
       {
         id: 'topic-evolution',
         component: CardTopicEvolution,
-        subcards: data.topicJourney.length - 1, // One subcard per month
+        subcards: data.topicJourney.length - 1, // One subcard per quarter
       },
       { id: 'favorite-sources', component: CardFavoriteSources },
       { id: 'community', component: CardCommunityEngagement },

@@ -74,11 +74,11 @@ export const ARCHETYPES: Record<Archetype, ArchetypeInfo> = {
   },
 };
 
-export interface TopicMonth {
-  month: string;
-  topics: [string, string, string]; // Top 3 tags for the month (can have empty strings if fewer than 3)
-  comment?: string; // Optional comment to display for this month (e.g., "🔥 THE PIVOT MONTH")
-  inactive?: boolean; // True if user had no activity this month
+export interface TopicQuarter {
+  quarter: string;
+  topics: [string, string, string]; // Top 3 tags for the quarter (can have empty strings if fewer than 3)
+  comment?: string; // Optional comment to display for this quarter (e.g., "🔥 THE PIVOT QUARTER")
+  inactive?: boolean; // True if user had no activity this quarter
 }
 
 export interface SourceStat {
@@ -195,7 +195,7 @@ export interface LogData {
   activityHeatmap: number[][]; // 7 days x 24 hours
 
   // Card 3: Topic Evolution
-  topicJourney: TopicMonth[];
+  topicJourney: TopicQuarter[];
   uniqueTopics: number;
   evolutionPercentile: number;
 
@@ -258,26 +258,14 @@ export const MOCK_LOG_DATA: LogData = {
 
   // Card 3
   topicJourney: [
-    { month: 'Jan', topics: ['Python', 'Django', 'REST APIs'] },
-    { month: 'Feb', topics: ['Python', 'Machine Learning', 'Pandas'] },
+    { quarter: 'Q1', topics: ['Python', 'Django', 'REST APIs'] },
     {
-      month: 'Mar',
-      topics: ['FastAPI', 'Python', 'PostgreSQL'],
-      inactive: true,
+      quarter: 'Q2',
+      topics: ['Docker', 'Kubernetes', 'DevOps'],
+      comment: '🔥 THE PIVOT QUARTER',
     },
-    { month: 'Apr', topics: ['FastAPI', 'Docker', 'CI/CD'] },
-    { month: 'May', topics: ['Docker', 'Kubernetes', 'DevOps'] },
-    { month: 'Jun', topics: ['System Design', 'Microservices', 'AWS'] },
-    {
-      month: 'Jul',
-      topics: ['Kubernetes', 'Helm', 'GitOps'],
-      comment: '🔥 THE PIVOT MONTH',
-    },
-    { month: 'Aug', topics: ['Kubernetes', 'Service Mesh', 'Istio'] },
-    { month: 'Sep', topics: ['Go', 'Concurrency', 'gRPC'] },
-    { month: 'Oct', topics: ['Rust', 'WebAssembly', 'Performance'] },
-    { month: 'Nov', topics: ['Rust', 'Async', 'Tokio'] },
-    { month: 'Dec', topics: ['Rust', 'Systems', 'Memory Safety'] },
+    { quarter: 'Q3', topics: ['Go', 'Concurrency', 'gRPC'] },
+    { quarter: 'Q4', topics: ['Rust', 'Systems', 'Memory Safety'] },
   ],
   uniqueTopics: 47,
   evolutionPercentile: 23,

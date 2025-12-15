@@ -10,26 +10,16 @@ import TopPercentileBanner from './TopPercentileBanner';
 
 const MEDAL_EMOJIS = ['🥇', '🥈', '🥉'];
 
-// Seasonal color palettes - each month has its own vibe
-const SEASONAL_PALETTES: Record<string, [string, string, string]> = {
-  // Winter - icy blues and cool purples
-  Jan: ['#64B5F6', '#90CAF9', '#CE93D8'],
-  Feb: ['#7E57C2', '#B39DDB', '#80DEEA'],
-  // Spring - fresh greens and soft pinks
-  Mar: ['#81C784', '#A5D6A7', '#F48FB1'],
-  Apr: ['#AED581', '#C5E1A5', '#CE93D8'],
-  // Early Summer - warm yellows and bright greens
-  May: ['#FFD54F', '#FFF176', '#81C784'],
-  Jun: ['#FFCA28', '#FFE082', '#AED581'],
-  // Peak Summer - hot oranges and reds
-  Jul: ['#FF7043', '#FFAB91', '#FFD54F'],
-  Aug: ['#FF5722', '#FF8A65', '#FFC107'],
-  // Fall - amber, rust, warm earth tones
-  Sep: ['#FFAB40', '#FFD180', '#A1887F'],
-  Oct: ['#FF8A65', '#FFAB91', '#BCAAA4'],
-  // Late Fall/Winter - deep festive colors
-  Nov: ['#BA68C8', '#CE93D8', '#FFAB40'],
-  Dec: ['#E91E63', '#F48FB1', '#FFD54F'],
+// Quarterly color palettes - each quarter has its own vibe
+const QUARTERLY_PALETTES: Record<string, [string, string, string]> = {
+  // Q1 - Winter/early spring - icy blues and purples
+  Q1: ['#64B5F6', '#90CAF9', '#CE93D8'],
+  // Q2 - Spring/early summer - fresh greens and yellows
+  Q2: ['#81C784', '#AED581', '#FFD54F'],
+  // Q3 - Summer/early fall - warm oranges and reds
+  Q3: ['#FF7043', '#FFAB91', '#FFD54F'],
+  // Q4 - Fall/winter - amber and festive colors
+  Q4: ['#E91E63', '#F48FB1', '#FFAB40'],
 };
 
 // Fallback colors (original)
@@ -39,8 +29,8 @@ const DEFAULT_COLORS: [string, string, string] = [
   '#c6f135',
 ];
 
-function getSeasonalColors(month: string): [string, string, string] {
-  return SEASONAL_PALETTES[month] || DEFAULT_COLORS;
+function getQuarterlyColors(quarter: string): [string, string, string] {
+  return QUARTERLY_PALETTES[quarter] || DEFAULT_COLORS;
 }
 
 function JigglingMedal({ emoji }: { emoji: string }): ReactElement {
@@ -98,26 +88,28 @@ export default function CardTopicEvolution({
   isActive,
   subcard = 0,
 }: CardProps): ReactElement {
-  const currentMonth = data.topicJourney[subcard];
-  const isLastMonth = subcard === data.topicJourney.length - 1;
-  const isInactiveMonth = currentMonth?.inactive === true;
-  const seasonalColors = getSeasonalColors(currentMonth?.month || '');
+  const currentQuarter = data.topicJourney[subcard];
+  const isLastQuarter = subcard === data.topicJourney.length - 1;
+  const isInactiveQuarter = currentQuarter?.inactive === true;
+  const quarterlyColors = getQuarterlyColors(currentQuarter?.quarter || '');
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Count active months for context
-  const activeMonthsCount = data.topicJourney.filter((m) => !m.inactive).length;
-  const isPartialYear = activeMonthsCount < 12;
+  // Count active quarters for context
+  const activeQuartersCount = data.topicJourney.filter(
+    (q) => !q.inactive,
+  ).length;
+  const isPartialYear = activeQuartersCount < 4;
 
   const animatedTopics = useAnimatedNumber(data.uniqueTopics, {
     delay: 300,
-    enabled: isActive && isLastMonth,
+    enabled: isActive && isLastQuarter,
   });
 
-  // Scroll to center the active month
+  // Scroll to center the active quarter
   useEffect(() => {
     if (carouselRef.current) {
       const activeItem = carouselRef.current.querySelector(
-        `.${cardStyles.monthCarouselItemActive}`,
+        `.${cardStyles.quarterCarouselItemActive}`,
       ) as HTMLElement;
       if (activeItem) {
         const container = carouselRef.current;
@@ -137,33 +129,35 @@ export default function CardTopicEvolution({
         How your interests shifted
       </span>
 
-      {/* Month carousel - static container, selection moves */}
-      <div className={cardStyles.monthCarouselWrapper}>
-        <div className={cardStyles.monthCarousel} ref={carouselRef}>
+      {/* Quarter carousel - static container, selection moves */}
+      <div className={cardStyles.quarterCarouselWrapper}>
+        <div className={cardStyles.quarterCarousel} ref={carouselRef}>
           {data.topicJourney.map((item, index) => {
-            const isActiveMonth = index === subcard;
+            const isActiveQuarter = index === subcard;
             const isPast = index < subcard;
             const isAdjacent = Math.abs(index - subcard) === 1;
-            const isMonthInactive = item.inactive === true;
+            const isQuarterInactive = item.inactive === true;
 
             return (
               <div
-                key={item.month}
-                className={`${cardStyles.monthCarouselItem} ${
-                  isActiveMonth ? cardStyles.monthCarouselItemActive : ''
-                } ${isPast ? cardStyles.monthCarouselItemPast : ''} ${
-                  isAdjacent ? cardStyles.monthCarouselItemAdjacent : ''
+                key={item.quarter}
+                className={`${cardStyles.quarterCarouselItem} ${
+                  isActiveQuarter ? cardStyles.quarterCarouselItemActive : ''
+                } ${isPast ? cardStyles.quarterCarouselItemPast : ''} ${
+                  isAdjacent ? cardStyles.quarterCarouselItemAdjacent : ''
                 } ${
-                  isMonthInactive ? cardStyles.monthCarouselItemInactive : ''
+                  isQuarterInactive
+                    ? cardStyles.quarterCarouselItemInactive
+                    : ''
                 }`}
               >
-                <span className={cardStyles.monthCarouselLabel}>
-                  {item.month}
+                <span className={cardStyles.quarterCarouselLabel}>
+                  {item.quarter}
                 </span>
-                {isActiveMonth && (
+                {isActiveQuarter && (
                   <motion.div
-                    className={cardStyles.monthCarouselIndicator}
-                    layoutId="monthIndicator"
+                    className={cardStyles.quarterCarouselIndicator}
+                    layoutId="quarterIndicator"
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -175,7 +169,7 @@ export default function CardTopicEvolution({
 
       {/* Content that transitions on subcard change - split-flap airport display style */}
       <div className={cardStyles.topicContentWrapper}>
-        {/* Top 3 tags for this month - stacked grid to prevent layout shift */}
+        {/* Top 3 tags for this quarter - stacked grid to prevent layout shift */}
         <div
           className={cardStyles.topTagsContainer}
           style={{ position: 'relative', display: 'grid' }}
@@ -185,7 +179,7 @@ export default function CardTopicEvolution({
             className={cardStyles.topTagsList}
             style={{
               gridArea: '1 / 1',
-              visibility: isInactiveMonth ? 'hidden' : 'visible',
+              visibility: isInactiveQuarter ? 'hidden' : 'visible',
             }}
           >
             {[0, 1, 2].map((index) => (
@@ -195,7 +189,7 @@ export default function CardTopicEvolution({
                     key={`${subcard}-${index}`}
                     className={cardStyles.topTagItem}
                     style={{
-                      background: seasonalColors[index],
+                      background: quarterlyColors[index],
                       rotate: `${TAG_ROTATIONS[index]}deg`,
                     }}
                     initial={{ rotateX: -90, opacity: 0 }}
@@ -209,7 +203,7 @@ export default function CardTopicEvolution({
                   >
                     <JigglingMedal emoji={MEDAL_EMOJIS[index]} />
                     <span className={cardStyles.topTagName}>
-                      {currentMonth?.topics[index] || ''}
+                      {currentQuarter?.topics[index] || ''}
                     </span>
                   </motion.div>
                 </AnimatePresence>
@@ -217,17 +211,17 @@ export default function CardTopicEvolution({
             ))}
           </div>
 
-          {/* Inactive month overlay - stacked on same grid cell */}
-          {isInactiveMonth && (
+          {/* Inactive quarter overlay - stacked on same grid cell */}
+          {isInactiveQuarter && (
             <motion.div
-              className={cardStyles.inactiveMonthMessage}
+              className={cardStyles.inactiveQuarterMessage}
               style={{ gridArea: '1 / 1', placeSelf: 'center' }}
               initial={{ rotateX: -90, opacity: 0 }}
               animate={{ rotateX: 0, opacity: 1 }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             >
-              <span className={cardStyles.inactiveMonthEmoji}>😴</span>
-              <span className={cardStyles.inactiveMonthText}>
+              <span className={cardStyles.inactiveQuarterEmoji}>😴</span>
+              <span className={cardStyles.inactiveQuarterText}>
                 Taking a break
               </span>
             </motion.div>
@@ -248,7 +242,7 @@ export default function CardTopicEvolution({
             <span className={styles.badgeLabel}>Topics Explored This Year</span>
           </div>
           {/* Actual visible content stacked on same grid cell */}
-          {currentMonth?.comment && (
+          {currentQuarter?.comment && (
             <motion.div
               className={cardStyles.pivotBadge}
               style={{ gridArea: '1 / 1', placeSelf: 'center' }}
@@ -256,10 +250,10 @@ export default function CardTopicEvolution({
               animate={{ rotateX: 0, opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             >
-              {currentMonth.comment}
+              {currentQuarter.comment}
             </motion.div>
           )}
-          {isLastMonth && (
+          {isLastQuarter && (
             <motion.div
               className={styles.badge}
               style={{ gridArea: '1 / 1', placeSelf: 'center' }}
@@ -276,31 +270,31 @@ export default function CardTopicEvolution({
         </div>
       </div>
 
-      {/* Banner - reserve space always, animate visibility on last month */}
+      {/* Banner - reserve space always, animate visibility on last quarter */}
       <TopPercentileBanner
         preText="MORE CURIOUS THAN"
         mainText={`${100 - data.evolutionPercentile}%`}
         postText="OF DEVS"
-        delay={isLastMonth ? 0.5 : 0}
+        delay={isLastQuarter ? 0.5 : 0}
         motionProps={{
           initial: false,
           animate: {
-            opacity: isLastMonth ? 1 : 0,
-            scaleX: isLastMonth ? 1 : 0,
+            opacity: isLastQuarter ? 1 : 0,
+            scaleX: isLastQuarter ? 1 : 0,
           },
-          style: { visibility: isLastMonth ? 'visible' : 'hidden' },
+          style: { visibility: isLastQuarter ? 'visible' : 'hidden' },
         }}
       />
 
-      {/* Share button - absolutely positioned, only active on last month */}
+      {/* Share button - absolutely positioned, only active on last quarter */}
       <ShareStatButton
         delay={0.8}
-        isActive={isActive && isLastMonth}
+        isActive={isActive && isLastQuarter}
         statText={(() => {
           const baseText = `I explored ${
             data.uniqueTopics
           } different topics on daily.dev${
-            isPartialYear ? ` in ${activeMonthsCount} months` : ' this year'
+            isPartialYear ? ` in ${activeQuartersCount} quarters` : ' this year'
           }! 🚀`;
 
           return `${baseText}\n\nMore curious than ${
