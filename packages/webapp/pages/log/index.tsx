@@ -26,113 +26,130 @@ interface CardTheme {
   decorations: { char: string; color: string }[];
 }
 
+// Design system colors from daily.dev palette
+const PALETTE = {
+  pepper90: '#0E1217',
+  pepper80: '#17191F',
+  pepper70: '#1C1F26',
+  bun40: '#FF8E3B',
+  cheese40: '#FFE923',
+  cabbage40: '#CE3DF3',
+  lettuce40: '#ACF535',
+  water40: '#427EF7',
+  water20: '#5C9BFA',
+  blueCheese40: '#2CDCE6',
+  onion40: '#7147ED',
+  onion10: '#9D70F8',
+  salt0: '#FFFFFF',
+};
+
 const CARD_THEMES: Record<string, CardTheme> = {
   'total-impact': {
-    bgColor: '#1a0a2e',
-    burstColor: 'rgba(230, 55, 191, 0.08)',
+    bgColor: PALETTE.pepper90,
+    burstColor: 'rgba(206, 61, 243, 0.08)', // cabbage.40 at 8%
     decorations: [
-      { char: '✦', color: '#f7c948' },
-      { char: '★', color: '#c6f135' },
-      { char: '✴', color: '#e637bf' },
-      { char: '✦', color: '#ff6b35' },
-      { char: '★', color: '#c6f135' },
-      { char: '✴', color: '#f7c948' },
+      { char: '✦', color: PALETTE.cheese40 },
+      { char: '★', color: PALETTE.lettuce40 },
+      { char: '✴', color: PALETTE.cabbage40 },
+      { char: '✦', color: PALETTE.bun40 },
+      { char: '★', color: PALETTE.lettuce40 },
+      { char: '✴', color: PALETTE.cheese40 },
     ],
   },
   'when-you-read': {
-    bgColor: '#0f0a2e',
-    burstColor: 'rgba(77, 157, 255, 0.08)',
+    bgColor: PALETTE.pepper90,
+    burstColor: 'rgba(66, 126, 247, 0.08)', // water.40 at 8%
     decorations: [
-      { char: '✧', color: '#4d9dff' },
-      { char: '★', color: '#a0c4ff' },
-      { char: '◇', color: '#c6f135' },
-      { char: '✦', color: '#4d9dff' },
-      { char: '✧', color: '#ffffff' },
-      { char: '★', color: '#a0c4ff' },
+      { char: '✧', color: PALETTE.water40 },
+      { char: '★', color: PALETTE.water20 },
+      { char: '◇', color: PALETTE.lettuce40 },
+      { char: '✦', color: PALETTE.water40 },
+      { char: '✧', color: PALETTE.salt0 },
+      { char: '★', color: PALETTE.water20 },
     ],
   },
   'topic-evolution': {
-    bgColor: '#0a1a2a',
-    burstColor: 'rgba(198, 241, 53, 0.06)',
+    bgColor: PALETTE.pepper90,
+    burstColor: 'rgba(172, 245, 53, 0.06)', // lettuce.40 at 6%
     decorations: [
-      { char: '◆', color: '#c6f135' },
-      { char: '▸', color: '#00d4ff' },
-      { char: '✦', color: '#c6f135' },
-      { char: '◆', color: '#00d4ff' },
-      { char: '▸', color: '#c6f135' },
-      { char: '✴', color: '#f7c948' },
+      { char: '◆', color: PALETTE.lettuce40 },
+      { char: '▸', color: PALETTE.blueCheese40 },
+      { char: '✦', color: PALETTE.lettuce40 },
+      { char: '◆', color: PALETTE.blueCheese40 },
+      { char: '▸', color: PALETTE.lettuce40 },
+      { char: '✴', color: PALETTE.cheese40 },
     ],
   },
   'favorite-sources': {
-    bgColor: '#1a0a1e',
-    burstColor: 'rgba(255, 107, 53, 0.08)',
+    bgColor: PALETTE.pepper90,
+    burstColor: 'rgba(255, 142, 59, 0.08)', // bun.40 at 8%
     decorations: [
-      { char: '♦', color: '#ff6b35' },
-      { char: '★', color: '#f7c948' },
-      { char: '✦', color: '#ff6b35' },
-      { char: '♦', color: '#f7c948' },
-      { char: '✴', color: '#e637bf' },
-      { char: '★', color: '#ff6b35' },
+      { char: '♦', color: PALETTE.bun40 },
+      { char: '★', color: PALETTE.cheese40 },
+      { char: '✦', color: PALETTE.bun40 },
+      { char: '♦', color: PALETTE.cheese40 },
+      { char: '✴', color: PALETTE.cabbage40 },
+      { char: '★', color: PALETTE.bun40 },
     ],
   },
   community: {
-    bgColor: '#1a0a3a',
-    burstColor: 'rgba(168, 85, 247, 0.08)',
+    bgColor: PALETTE.pepper90,
+    burstColor: 'rgba(157, 112, 248, 0.08)', // onion.10 at 8%
     decorations: [
-      { char: '✦', color: '#a855f7' },
-      { char: '◇', color: '#e637bf' },
-      { char: '★', color: '#a855f7' },
-      { char: '✴', color: '#e637bf' },
-      { char: '✦', color: '#c6f135' },
-      { char: '◇', color: '#a855f7' },
+      { char: '✦', color: PALETTE.onion10 },
+      { char: '◇', color: PALETTE.cabbage40 },
+      { char: '★', color: PALETTE.onion10 },
+      { char: '✴', color: PALETTE.cabbage40 },
+      { char: '✦', color: PALETTE.lettuce40 },
+      { char: '◇', color: PALETTE.onion10 },
     ],
   },
   contributions: {
-    bgColor: '#081518',
-    burstColor: 'rgba(168, 85, 247, 0.08)',
+    bgColor: PALETTE.pepper90,
+    burstColor: 'rgba(157, 112, 248, 0.08)', // onion.10 at 8%
     decorations: [
-      { char: '✴', color: '#a855f7' },
-      { char: '★', color: '#f7c948' },
-      { char: '✦', color: '#a855f7' },
-      { char: '✴', color: '#c6f135' },
-      { char: '★', color: '#a855f7' },
-      { char: '✦', color: '#f7c948' },
+      { char: '✴', color: PALETTE.onion10 },
+      { char: '★', color: PALETTE.cheese40 },
+      { char: '✦', color: PALETTE.onion10 },
+      { char: '✴', color: PALETTE.lettuce40 },
+      { char: '★', color: PALETTE.onion10 },
+      { char: '✦', color: PALETTE.cheese40 },
     ],
   },
   records: {
-    bgColor: '#0d0a1a',
-    burstColor: 'rgba(230, 55, 191, 0.06)',
+    bgColor: PALETTE.pepper90,
+    burstColor: 'rgba(206, 61, 243, 0.06)', // cabbage.40 at 6%
     decorations: [
-      { char: '★', color: '#e637bf' },
-      { char: '✦', color: '#c6f135' },
-      { char: '◆', color: '#e637bf' },
-      { char: '★', color: '#f7c948' },
-      { char: '✴', color: '#c6f135' },
-      { char: '✦', color: '#e637bf' },
+      { char: '★', color: PALETTE.cabbage40 },
+      { char: '✦', color: PALETTE.lettuce40 },
+      { char: '◆', color: PALETTE.cabbage40 },
+      { char: '★', color: PALETTE.cheese40 },
+      { char: '✴', color: PALETTE.lettuce40 },
+      { char: '✦', color: PALETTE.cabbage40 },
     ],
   },
   archetype: {
-    bgColor: '#1a0a2e', // Will be overridden dynamically
-    burstColor: 'rgba(230, 55, 191, 0.1)',
+    bgColor: PALETTE.pepper90, // Will be overridden dynamically
+    burstColor: 'rgba(206, 61, 243, 0.1)', // cabbage.40 at 10%
     decorations: [
-      { char: '✦', color: '#f7c948' },
-      { char: '★', color: '#c6f135' },
-      { char: '✴', color: '#e637bf' },
-      { char: '✦', color: '#ff6b35' },
-      { char: '★', color: '#c6f135' },
-      { char: '✴', color: '#f7c948' },
+      { char: '✦', color: PALETTE.cheese40 },
+      { char: '★', color: PALETTE.lettuce40 },
+      { char: '✴', color: PALETTE.cabbage40 },
+      { char: '✦', color: PALETTE.bun40 },
+      { char: '★', color: PALETTE.lettuce40 },
+      { char: '✴', color: PALETTE.cheese40 },
     ],
   },
   share: {
-    bgColor: '#1a0a2e',
-    burstColor: 'rgba(198, 241, 53, 0.08)',
+    bgColor: PALETTE.pepper90,
+    burstColor: 'rgba(172, 245, 53, 0.08)', // lettuce.40 at 8%
     decorations: [
-      { char: '✧', color: '#c6f135' },
-      { char: '★', color: '#f7c948' },
-      { char: '✦', color: '#e637bf' },
-      { char: '✧', color: '#ff6b35' },
-      { char: '★', color: '#c6f135' },
-      { char: '✴', color: '#f7c948' },
+      { char: '✧', color: PALETTE.lettuce40 },
+      { char: '★', color: PALETTE.cheese40 },
+      { char: '✦', color: PALETTE.cabbage40 },
+      { char: '✧', color: PALETTE.bun40 },
+      { char: '★', color: PALETTE.lettuce40 },
+      { char: '✴', color: PALETTE.cheese40 },
     ],
   },
 };
@@ -271,16 +288,7 @@ export default function LogPage({
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Space+Mono:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
+        {/* Uses app's standard fonts from design system */}
       </Head>
 
       <motion.div

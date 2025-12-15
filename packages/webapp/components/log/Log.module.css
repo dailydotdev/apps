@@ -6,27 +6,32 @@
    ======================================== */
 
 .logContainer {
-  --fest-bg: #1a0a2e;
-  --fest-bg-dark: #120820;
-  --fest-primary: #ff6b35;
-  --fest-secondary: #f7c948;
-  --fest-accent: #e637bf;
-  --fest-lime: #c6f135;
-  --fest-white: #ffffff;
-  --fest-cream: #fff8e7;
+  /* Design system colors from daily.dev palette */
+  --fest-bg: #0E1217; /* pepper.90 */
+  --fest-bg-dark: #17191F; /* pepper.80 */
+  --fest-primary: #FF8E3B; /* bun.40 */
+  --fest-secondary: #FFE923; /* cheese.40 */
+  --fest-accent: #CE3DF3; /* cabbage.40 */
+  --fest-lime: #ACF535; /* lettuce.40 */
+  --fest-white: #FFFFFF; /* salt.0 */
+  --fest-cream: #F5F8FC; /* salt.10 */
   --fest-white-70: rgba(255, 255, 255, 0.7);
   --fest-white-50: rgba(255, 255, 255, 0.5);
   --fest-white-30: rgba(255, 255, 255, 0.3);
+  --fest-white-20: rgba(255, 255, 255, 0.2);
+  --fest-white-10: rgba(255, 255, 255, 0.1);
 
-  /* Archetype colors */
-  --arch-night-owl: #4d9dff;
-  --arch-scholar: #f7c948;
-  --arch-pulse: #00d4ff;
-  --arch-opinionist: #e637bf;
-  --arch-collector: #a855f7;
-  --arch-streak: #ff6b35;
+  /* Archetype colors - mapped to design system */
+  --arch-night-owl: #427EF7; /* water.40 */
+  --arch-scholar: #FFE923; /* cheese.40 */
+  --arch-pulse: #2CDCE6; /* blueCheese.40 */
+  --arch-opinionist: #CE3DF3; /* cabbage.40 */
+  --arch-collector: #9D70F8; /* onion.10 */
+  --arch-streak: #FF8E3B; /* bun.40 */
 
-  font-family: 'Space Mono', monospace;
+  /* Typography - design system fonts */
+  --font-mono: 'Fira Code', 'SF Mono', Consolas, Menlo, 'Courier New', monospace;
+
   position: fixed;
   inset: 0;
   width: 100%;
@@ -243,7 +248,7 @@
 }
 
 .headlineBig {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 5.5rem;
   line-height: 0.9;
   color: var(--fest-white);
@@ -254,7 +259,7 @@
 }
 
 .headlineMedium {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 2.25rem;
   letter-spacing: 0.08em;
   color: var(--fest-lime);
@@ -263,7 +268,7 @@
 }
 
 .headlineAccent {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.5rem;
   color: var(--fest-secondary);
   display: block;
@@ -272,7 +277,7 @@
 
 /* Smaller variant for secondary stats */
 .headlineBigSmall {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 3.5rem;
   line-height: 0.95;
   color: var(--fest-white);
@@ -357,7 +362,7 @@
 }
 
 .badgeValue {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.25rem;
   display: block;
   line-height: 1.1;
@@ -432,7 +437,7 @@
 }
 
 .bannerMain {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 2rem;
   color: var(--fest-white);
 }
@@ -540,7 +545,7 @@
 }
 
 .timelineTopic {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 0.85rem;
   color: var(--fest-white);
   overflow: hidden;
@@ -613,7 +618,7 @@
 }
 
 .podiumRank {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.5rem;
   line-height: 1;
 }
@@ -685,7 +690,7 @@
 }
 
 .recordValue {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1rem;
   color: var(--fest-white);
   margin-top: 0.25rem;
@@ -745,7 +750,7 @@
 }
 
 .archetypeName {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 3rem;
   color: var(--fest-white);
   text-shadow:
@@ -777,7 +782,7 @@
 }
 
 .shareHeader {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 2rem;
   color: var(--fest-lime);
   margin-bottom: 1.5rem;
@@ -797,7 +802,7 @@
 }
 
 .shareArchetype {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.5rem;
   color: var(--fest-white);
   margin-bottom: 1rem;
@@ -816,7 +821,7 @@
 }
 
 .shareStatValue {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.25rem;
   color: var(--fest-lime);
 }
@@ -842,7 +847,7 @@
   background: var(--fest-white);
   color: var(--fest-bg);
   padding: 0.75rem 0.75rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;

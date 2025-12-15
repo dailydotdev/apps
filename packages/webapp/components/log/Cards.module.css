@@ -28,7 +28,7 @@
   height: 140px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.05);
-  border: 3px solid var(--fest-secondary, #f7c948);
+  border: 3px solid var(--fest-secondary, #FFE923);
   position: relative;
   display: flex;
   align-items: center;
@@ -47,26 +47,26 @@
 
 .clockMarker:nth-child(3n) {
   height: 12px;
-  background: var(--fest-secondary, #f7c948);
+  background: var(--fest-secondary, #FFE923);
 }
 
 .clockHand {
   position: absolute;
   width: 40px;
   height: 3px;
-  background: var(--fest-lime, #c6f135);
+  background: var(--fest-lime, #ACF535);
   border-radius: 2px;
   top: 50%;
   left: 50%;
   transform-origin: left center;
-  box-shadow: 0 0 10px var(--fest-lime, #c6f135);
+  box-shadow: 0 0 10px var(--fest-lime, #ACF535);
 }
 
 .clockCenter {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--fest-white, #fff);
+  background: var(--fest-white, #FFFFFF);
   position: absolute;
   z-index: 2;
 }
@@ -74,22 +74,22 @@
 .clockTime {
   position: absolute;
   bottom: -30px;
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.5rem;
-  color: var(--fest-white, #fff);
-  text-shadow: 2px 2px 0 var(--fest-primary, #ff6b35);
+  color: var(--fest-white, #FFFFFF);
+  text-shadow: 2px 2px 0 var(--fest-primary, #FF8E3B);
 }
 
 .powerDayBadge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--fest-white, #fff);
-  color: var(--fest-bg, #1a0a2e);
+  background: var(--fest-white, #FFFFFF);
+  color: var(--fest-bg, #0E1217);
   padding: 0.5rem 1rem;
   margin: 0.5rem 0;
   transform: rotate(-1deg);
-  box-shadow: 3px 3px 0 var(--fest-accent, #e637bf);
+  box-shadow: 3px 3px 0 var(--fest-accent, #CE3DF3);
 }
 
 .powerDayEmoji {
@@ -104,7 +104,7 @@
 }
 
 .powerDayValue {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.25rem;
   display: block;
 }
@@ -161,17 +161,17 @@
 }
 
 .hourDistBarPeak {
-  background: var(--fest-lime, #c6f135);
-  box-shadow: 0 0 8px var(--fest-lime, #c6f135);
+  background: var(--fest-lime, #ACF535);
+  box-shadow: 0 0 8px var(--fest-lime, #ACF535);
   animation: peakGlow 4s linear infinite;
 }
 
 @keyframes peakGlow {
   0%, 100% {
-    box-shadow: 0 0 8px var(--fest-lime, #c6f135);
+    box-shadow: 0 0 8px var(--fest-lime, #ACF535);
   }
   50% {
-    box-shadow: 0 0 16px var(--fest-lime, #c6f135), 0 0 24px rgba(198, 241, 53, 0.4);
+    box-shadow: 0 0 16px var(--fest-lime, #ACF535), 0 0 24px rgba(172, 245, 53, 0.4);
   }
 }
 
@@ -202,12 +202,12 @@
   display: flex;
   justify-content: center;
   gap: 0;
-  background: linear-gradient(135deg, var(--fest-primary, #ff6b35), var(--fest-accent, #e637bf));
+  background: linear-gradient(135deg, var(--fest-primary, #FF8E3B), var(--fest-accent, #CE3DF3));
   border-radius: 8px;
   padding: 0.75rem 1rem;
   margin-top: 1rem;
   width: 100%;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   line-height: 1.4;
 }
@@ -264,7 +264,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, var(--fest-primary, #ff6b35), var(--fest-accent, #e637bf));
+  background: linear-gradient(135deg, var(--fest-primary, #FF8E3B), var(--fest-accent, #CE3DF3));
   padding: 0.75rem 1rem;
   margin-top: 0.75rem;
   border-radius: 8px;
@@ -286,7 +286,7 @@
 }
 
 .patternName {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.25rem;
 }
 
@@ -340,7 +340,7 @@
   font-size: 1.1rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  background: linear-gradient(90deg, #ff6b35, #f7c948, #c6f135);
+  background: linear-gradient(90deg, var(--fest-primary), var(--fest-secondary), var(--fest-lime));
   background-size: 200% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -409,7 +409,7 @@
 }
 
 .monthCarouselLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--fest-white-30, rgba(255,255,255,0.3));
   text-transform: uppercase;
@@ -430,10 +430,10 @@
 
 /* Active month */
 .monthCarouselItemActive .monthCarouselLabel {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.25rem;
-  color: var(--fest-white, #fff);
-  text-shadow: 1px 1px 0 var(--fest-primary, #ff6b35);
+  color: var(--fest-white, #FFFFFF);
+  text-shadow: 1px 1px 0 var(--fest-primary, #FF8E3B);
 }
 
 /* Inactive month (no activity) */
@@ -493,14 +493,14 @@
   gap: 0.75rem;
   padding: 0.875rem 1rem;
   border-radius: 12px;
-  color: var(--fest-bg, #1a0a2e);
+  color: var(--fest-bg, #0E1217);
   transform-style: preserve-3d;
   backface-visibility: hidden;
   transform-origin: center center;
 }
 
 .topTagRank {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 700;
   opacity: 0.7;
@@ -514,20 +514,20 @@
 }
 
 .topTagName {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.1rem;
   flex: 1;
 }
 
 /* Pivot badge */
 .pivotBadge {
-  background: var(--fest-bg, #1a0a2e);
-  color: var(--fest-accent, #e637bf);
+  background: var(--fest-bg, #0E1217);
+  color: var(--fest-accent, #CE3DF3);
   padding: 0.5rem 1rem;
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  border: 2px solid var(--fest-accent, #e637bf);
+  border: 2px solid var(--fest-accent, #CE3DF3);
   margin: 0.5rem 0;
 }
 
@@ -550,7 +550,7 @@
 }
 
 .inactiveMonthText {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   color: var(--fest-white-50, rgba(255,255,255,0.5));
   text-transform: uppercase;
@@ -707,7 +707,7 @@
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   max-width: 80px;
@@ -721,12 +721,12 @@
   align-items: center;
   justify-content: flex-end;
   padding: 0.75rem 0.5rem;
-  color: var(--fest-bg, #1a0a2e);
+  color: var(--fest-bg, #0E1217);
   border-radius: 4px 4px 0 0;
 }
 
 .podiumRank {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.75rem;
 }
 
@@ -751,9 +751,9 @@
 }
 
 .discoveryValue {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.25rem;
-  color: var(--fest-lime, #c6f135);
+  color: var(--fest-lime, #ACF535);
   display: block;
 }
 
@@ -774,14 +774,14 @@
 }
 
 .engagementHeaderText {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.2em;
-  color: var(--fest-lime, #c6f135);
+  color: var(--fest-lime, #ACF535);
   text-transform: uppercase;
   padding: 0.375rem 0.75rem;
   background: rgba(198, 241, 53, 0.1);
-  border: 1px solid var(--fest-lime, #c6f135);
+  border: 1px solid var(--fest-lime, #ACF535);
   border-radius: 4px;
 }
 
@@ -794,12 +794,12 @@
 }
 
 .totalEngagementNumber {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 4rem;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
   text-shadow: 
-    2px 2px 0 var(--fest-primary, #ff6b35),
-    4px 4px 0 var(--fest-accent, #e637bf);
+    2px 2px 0 var(--fest-primary, #FF8E3B),
+    4px 4px 0 var(--fest-accent, #CE3DF3);
   display: block;
   line-height: 1;
 }
@@ -830,10 +830,10 @@
 }
 
 .loveNumber {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 3rem;
-  color: var(--fest-white, #fff);
-  text-shadow: 2px 2px 0 var(--fest-accent, #e637bf);
+  color: var(--fest-white, #FFFFFF);
+  text-shadow: 2px 2px 0 var(--fest-accent, #CE3DF3);
   display: block;
   line-height: 1;
 }
@@ -884,9 +884,9 @@
 }
 
 .pillarValue {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.5rem;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
   line-height: 1;
 }
 
@@ -920,9 +920,9 @@
 }
 
 .engagementValue {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.5rem;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
 }
 
 .engagementLabel {
@@ -936,12 +936,12 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: var(--fest-white, #fff);
-  color: var(--fest-bg, #1a0a2e);
+  background: var(--fest-white, #FFFFFF);
+  color: var(--fest-bg, #0E1217);
   padding: 0.75rem 1rem;
   margin-top: 0.75rem;
   transform: rotate(1deg);
-  box-shadow: 3px 3px 0 var(--fest-accent, #e637bf);
+  box-shadow: 3px 3px 0 var(--fest-accent, #CE3DF3);
 }
 
 .communityBannerEmoji {
@@ -949,7 +949,7 @@
 }
 
 .communityBannerTop {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.25rem;
   display: block;
 }
@@ -1030,22 +1030,22 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--fest-white, #fff);
-  color: var(--fest-bg, #1a0a2e);
+  background: var(--fest-white, #FFFFFF);
+  color: var(--fest-bg, #0E1217);
   padding: 0.5rem 1rem;
   transform: rotate(-2deg);
   box-shadow: 
-    3px 3px 0 var(--fest-primary, #ff6b35),
-    6px 6px 0 var(--fest-accent, #e637bf);
+    3px 3px 0 var(--fest-primary, #FF8E3B),
+    6px 6px 0 var(--fest-accent, #CE3DF3);
   margin-bottom: 1rem;
 }
 
 .creatorBadgeIcon {
-  color: var(--fest-accent, #e637bf);
+  color: var(--fest-accent, #CE3DF3);
 }
 
 .creatorBadgeText {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -1066,7 +1066,7 @@
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  border: 4px solid var(--fest-secondary, #f7c948);
+  border: 4px solid var(--fest-secondary, #FFE923);
   opacity: 0.3;
   animation: spotlightPulse 2s ease-in-out infinite;
 }
@@ -1093,7 +1093,7 @@
     rgba(230, 55, 191, 0.15) 50%,
     rgba(247, 201, 72, 0.15) 100%
   );
-  border: 3px solid var(--fest-white, #fff);
+  border: 3px solid var(--fest-white, #FFFFFF);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1103,26 +1103,26 @@
     inset 0 0 30px rgba(255, 255, 255, 0.1);
 }
 
-.spotlightNumber {
-  font-family: 'Dela Gothic One', cursive;
+.spotlightNumber { 
+  font-weight: 700;
   font-size: 4.5rem;
   line-height: 0.9;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
   text-shadow:
-    3px 3px 0 var(--fest-primary, #ff6b35),
-    6px 6px 0 var(--fest-accent, #e637bf);
+    3px 3px 0 var(--fest-primary, #FF8E3B),
+    6px 6px 0 var(--fest-accent, #CE3DF3);
 }
 
 .spotlightLabel {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.25rem;
-  color: var(--fest-lime, #c6f135);
+  color: var(--fest-lime, #ACF535);
   letter-spacing: 0.1em;
   margin-top: -0.25rem;
 }
 
 .spotlightSubLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   color: var(--fest-white-50, rgba(255,255,255,0.5));
   letter-spacing: 0.1em;
@@ -1145,13 +1145,13 @@
   background: linear-gradient(
     90deg,
     transparent,
-    var(--fest-secondary, #f7c948),
+    var(--fest-secondary, #FFE923),
     transparent
   );
 }
 
 .resultText {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -1175,8 +1175,8 @@
   align-items: center;
   padding: 0.625rem 0.875rem;
   padding-left: 1.25rem;
-  background: var(--fest-white, #fff);
-  color: var(--fest-bg, #1a0a2e);
+  background: var(--fest-white, #FFFFFF);
+  color: var(--fest-bg, #0E1217);
   overflow: hidden;
 }
 
@@ -1191,8 +1191,8 @@
     to bottom,
     transparent 0px,
     transparent 4px,
-    var(--fest-bg, #1a0a2e) 4px,
-    var(--fest-bg, #1a0a2e) 8px
+    var(--fest-bg, #0E1217) 4px,
+    var(--fest-bg, #0E1217) 8px
   );
 }
 
@@ -1205,8 +1205,8 @@
   width: 8px;
   background: linear-gradient(
     to right,
-    var(--fest-white, #fff) 0%,
-    var(--fest-white, #fff) 50%,
+    var(--fest-white, #FFFFFF) 0%,
+    var(--fest-white, #FFFFFF) 50%,
     transparent 50%
   );
   mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0 L4,5 L0,10 L4,15 L0,20 L4,25 L0,30 L4,35 L0,40 L4,45 L0,50 L4,55 L0,60 L4,65 L0,70 L4,75 L0,80 L4,85 L0,90 L4,95 L0,100 L8,100 L8,0 Z' fill='white'/%3E%3C/svg%3E");
@@ -1228,45 +1228,45 @@
 }
 
 .ticketStubValue {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.35rem;
   line-height: 1;
   flex: 1;
 }
 
 .ticketStubLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.1em;
   opacity: 0.6;
   text-transform: uppercase;
 }
 
-/* Views ticket - blue accent */
+/* Views ticket - water/blue accent */
 .ticketStubViews {
-  box-shadow: 4px 4px 0 #4d9dff;
+  box-shadow: 4px 4px 0 #427EF7; /* water.40 */
 }
 
 .ticketStubViews .ticketStubIcon {
-  color: #4d9dff;
+  color: #427EF7; /* water.40 */
 }
 
-/* Comments ticket - teal accent */
+/* Comments ticket - blueCheese/teal accent */
 .ticketStubComments {
-  box-shadow: 4px 4px 0 #2CDCE6;
+  box-shadow: 4px 4px 0 #2CDCE6; /* blueCheese.40 */
 }
 
 .ticketStubComments .ticketStubIcon {
-  color: #2CDCE6;
+  color: #2CDCE6; /* blueCheese.40 */
 }
 
-/* Reputation ticket - gold accent */
+/* Reputation ticket - onion/purple accent */
 .ticketStubRep {
-  box-shadow: 4px 4px 0 #7147ED;
+  box-shadow: 4px 4px 0 #7147ED; /* onion.40 */
 }
 
 .ticketStubRep .ticketStubIcon {
-  color: #7147ED;
+  color: #7147ED; /* onion.40 */
 }
 
 /* Responsive adjustments for contributions spotlight */
@@ -1356,8 +1356,8 @@
   .spotlightNumber {
     font-size: 5.5rem;
     text-shadow:
-      4px 4px 0 var(--fest-primary, #ff6b35),
-      8px 8px 0 var(--fest-accent, #e637bf);
+      4px 4px 0 var(--fest-primary, #FF8E3B),
+      8px 8px 0 var(--fest-accent, #CE3DF3);
   }
 
   .spotlightLabel {
@@ -1398,8 +1398,8 @@
     padding: 0.375rem 0.75rem;
     margin-bottom: 0.5rem;
     box-shadow: 
-      2px 2px 0 var(--fest-primary, #ff6b35),
-      4px 4px 0 var(--fest-accent, #e637bf);
+      2px 2px 0 var(--fest-primary, #FF8E3B),
+      4px 4px 0 var(--fest-accent, #CE3DF3);
   }
 
   .creatorBadgeText {
@@ -1425,8 +1425,8 @@
   .spotlightNumber {
     font-size: 3.5rem;
     text-shadow:
-      2px 2px 0 var(--fest-primary, #ff6b35),
-      4px 4px 0 var(--fest-accent, #e637bf);
+      2px 2px 0 var(--fest-primary, #FF8E3B),
+      4px 4px 0 var(--fest-accent, #CE3DF3);
   }
 
   .spotlightLabel {
@@ -1537,27 +1537,27 @@
 }
 
 .albumLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.4em;
-  color: var(--fest-secondary, #f7c948);
+  color: var(--fest-secondary, #FFE923);
   text-transform: uppercase;
   margin-bottom: 0.25rem;
 }
 
 .albumTitle {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 2.25rem;
   line-height: 0.95;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
   text-shadow:
-    3px 3px 0 var(--fest-primary, #ff6b35),
-    6px 6px 0 var(--fest-accent, #e637bf);
+    3px 3px 0 var(--fest-primary, #FF8E3B),
+    6px 6px 0 var(--fest-accent, #CE3DF3);
   letter-spacing: 0.02em;
 }
 
 .albumYear {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.2em;
   color: var(--fest-white-50, rgba(255, 255, 255, 0.5));
@@ -1589,9 +1589,9 @@
 
 /* Big track number */
 .trackNumber {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.75rem;
-  color: var(--fest-accent, #e637bf);
+  color: var(--fest-accent, #CE3DF3);
   min-width: 2.5rem;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 }
@@ -1618,15 +1618,15 @@
 
 /* Value as the "song title" - prominent */
 .trackTitle {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.1rem;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
   line-height: 1.2;
 }
 
 /* Label as the "artist" - secondary */
 .trackArtist {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.08em;
   color: var(--fest-white-50, rgba(255, 255, 255, 0.5));
@@ -1641,25 +1641,25 @@
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  background: var(--fest-lime, #c6f135);
+  background: var(--fest-lime, #ACF535);
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 2px 2px 0 var(--fest-primary, #ff6b35);
+  box-shadow: 2px 2px 0 var(--fest-primary, #FF8E3B);
 }
 
 .chartBadgeTop {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.45rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: var(--fest-bg, #1a0a2e);
+  color: var(--fest-bg, #0E1217);
   line-height: 1;
 }
 
 .chartBadgeValue {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 0.85rem;
-  color: var(--fest-bg, #1a0a2e);
+  color: var(--fest-bg, #0E1217);
   line-height: 1;
 }
 
@@ -1668,8 +1668,8 @@
   .albumTitle {
     font-size: 1.85rem;
     text-shadow:
-      2px 2px 0 var(--fest-primary, #ff6b35),
-      4px 4px 0 var(--fest-accent, #e637bf);
+      2px 2px 0 var(--fest-primary, #FF8E3B),
+      4px 4px 0 var(--fest-accent, #CE3DF3);
   }
 
   .trackNumber {
@@ -1718,7 +1718,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   color: var(--fest-white-70, rgba(255,255,255,0.7));
   letter-spacing: 0.01em;
@@ -1745,8 +1745,8 @@
   display: flex;
   gap: 1rem;
   font-size: 4rem;
-  color: var(--fest-accent, #e637bf);
-  text-shadow: 0 0 20px var(--fest-accent, #e637bf);
+  color: var(--fest-accent, #CE3DF3);
+  text-shadow: 0 0 20px var(--fest-accent, #CE3DF3);
 }
 
 /* WHO ARE YOU? dramatic moment */
@@ -1766,21 +1766,21 @@
 }
 
 .whoAreYouSmall {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 1.25rem;
   letter-spacing: 0.5em;
-  color: var(--fest-secondary, #f7c948);
+  color: var(--fest-secondary, #FFE923);
   text-transform: uppercase;
   line-height: 1.2;
 }
 
 .whoAreYouLarge {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 5rem;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
   text-shadow:
-    4px 4px 0 var(--fest-primary, #ff6b35),
-    8px 8px 0 var(--fest-accent, #e637bf);
+    4px 4px 0 var(--fest-primary, #FF8E3B),
+    8px 8px 0 var(--fest-accent, #CE3DF3);
   letter-spacing: 0.05em;
   line-height: 1;
 }
@@ -1876,35 +1876,35 @@
 }
 
 .archetypeNameLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.4em;
-  color: var(--fest-secondary, #f7c948);
+  color: var(--fest-secondary, #FFE923);
   text-transform: uppercase;
 }
 
 .archetypeNameText {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 2.75rem;
   line-height: 1;
   text-shadow:
-    3px 3px 0 var(--fest-primary, #ff6b35),
-    6px 6px 0 var(--fest-accent, #e637bf);
+    3px 3px 0 var(--fest-primary, #FF8E3B),
+    6px 6px 0 var(--fest-accent, #CE3DF3);
   animation: archetypeNameGlow 3s ease-in-out infinite;
 }
 
 @keyframes archetypeNameGlow {
   0%, 100% {
-    filter: drop-shadow(0 0 10px var(--archetype-color, #fff));
+    filter: drop-shadow(0 0 10px var(--archetype-color, #FFFFFF));
   }
   50% {
-    filter: drop-shadow(0 0 25px var(--archetype-color, #fff));
+    filter: drop-shadow(0 0 25px var(--archetype-color, #FFFFFF));
   }
 }
 
 /* Description */
 .archetypeRevealDescription {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 1rem;
   color: var(--fest-white-70, rgba(255,255,255,0.7));
   font-style: italic;
@@ -1921,12 +1921,12 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.75rem 1.25rem;
-  background: var(--fest-white, #fff);
-  color: var(--fest-bg, #1a0a2e);
+  background: var(--fest-white, #FFFFFF);
+  color: var(--fest-bg, #0E1217);
   transform: rotate(-1deg);
   box-shadow: 
-    4px 4px 0 var(--fest-primary, #ff6b35),
-    8px 8px 0 var(--fest-accent, #e637bf);
+    4px 4px 0 var(--fest-primary, #FF8E3B),
+    8px 8px 0 var(--fest-accent, #CE3DF3);
   z-index: 10;
   max-width: 280px;
   position: relative;
@@ -1943,8 +1943,8 @@
   height: 4px;
   background: repeating-linear-gradient(
     90deg,
-    var(--fest-secondary, #f7c948) 0px,
-    var(--fest-secondary, #f7c948) 8px,
+    var(--fest-secondary, #FFE923) 0px,
+    var(--fest-secondary, #FFE923) 8px,
     transparent 8px,
     transparent 12px
   );
@@ -1957,15 +1957,15 @@
   bottom: 4px;
   right: 8px;
   font-size: 0.75rem;
-  color: var(--fest-accent, #e637bf);
+  color: var(--fest-accent, #CE3DF3);
   opacity: 0.6;
 }
 
 .archetypeStatBadgeText {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--fest-bg, #1a0a2e);
+  color: var(--fest-bg, #0E1217);
   letter-spacing: 0.02em;
   line-height: 1.4;
   word-break: break-word;
@@ -1990,7 +1990,7 @@
   display: flex;
   gap: 0.75rem;
   font-size: 3rem;
-  color: var(--fest-accent, #e637bf);
+  color: var(--fest-accent, #CE3DF3);
 }
 
 .revealContainer {
@@ -2008,11 +2008,11 @@
 }
 
 .archetypeName {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 2.5rem;
   text-shadow: 
-    3px 3px 0 var(--fest-primary, #ff6b35),
-    6px 6px 0 var(--fest-accent, #e637bf);
+    3px 3px 0 var(--fest-primary, #FF8E3B),
+    6px 6px 0 var(--fest-accent, #CE3DF3);
   margin-bottom: 0.75rem;
 }
 
@@ -2033,7 +2033,7 @@
   background: rgba(255, 255, 255, 0.1);
   border-radius: 50px;
   font-size: 0.8rem;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
 }
 
 .archetypeStatIcon {
@@ -2084,8 +2084,8 @@
     padding: 0.875rem 1.5rem;
     max-width: 300px;
     box-shadow: 
-      5px 5px 0 var(--fest-primary, #ff6b35),
-      10px 10px 0 var(--fest-accent, #e637bf);
+      5px 5px 0 var(--fest-primary, #FF8E3B),
+      10px 10px 0 var(--fest-accent, #CE3DF3);
   }
 
   .archetypeStatBadgeText {
@@ -2122,8 +2122,8 @@
   .whoAreYouLarge {
     font-size: 7rem;
     text-shadow:
-      5px 5px 0 var(--fest-primary, #ff6b35),
-      10px 10px 0 var(--fest-accent, #e637bf);
+      5px 5px 0 var(--fest-primary, #FF8E3B),
+      10px 10px 0 var(--fest-accent, #CE3DF3);
   }
 
   .archetypeImageWrapper {
@@ -2138,8 +2138,8 @@
 
   .archetypeNameText {
     text-shadow:
-      4px 4px 0 var(--fest-primary, #ff6b35),
-      8px 8px 0 var(--fest-accent, #e637bf);
+      4px 4px 0 var(--fest-primary, #FF8E3B),
+      8px 8px 0 var(--fest-accent, #CE3DF3);
   }
 
   .archetypeRevealDescription {
@@ -2151,8 +2151,8 @@
     padding: 1rem 1.5rem;
     max-width: 320px;
     box-shadow: 
-      5px 5px 0 var(--fest-primary, #ff6b35),
-      10px 10px 0 var(--fest-accent, #e637bf);
+      5px 5px 0 var(--fest-primary, #FF8E3B),
+      10px 10px 0 var(--fest-accent, #CE3DF3);
   }
 
   .archetypeStatBadgeText {
@@ -2193,8 +2193,8 @@
   .whoAreYouLarge {
     font-size: 4rem;
     text-shadow:
-      3px 3px 0 var(--fest-primary, #ff6b35),
-      6px 6px 0 var(--fest-accent, #e637bf);
+      3px 3px 0 var(--fest-primary, #FF8E3B),
+      6px 6px 0 var(--fest-accent, #CE3DF3);
   }
 
   .archetypeRevealContainer {
@@ -2218,8 +2218,8 @@
   .archetypeNameText {
     font-size: 2rem;
     text-shadow:
-      2px 2px 0 var(--fest-primary, #ff6b35),
-      4px 4px 0 var(--fest-accent, #e637bf);
+      2px 2px 0 var(--fest-primary, #FF8E3B),
+      4px 4px 0 var(--fest-accent, #CE3DF3);
   }
 
   .archetypeRevealDescription {
@@ -2231,8 +2231,8 @@
     padding: 0.5rem 0.875rem;
     max-width: 240px;
     box-shadow: 
-      3px 3px 0 var(--fest-primary, #ff6b35),
-      6px 6px 0 var(--fest-accent, #e637bf);
+      3px 3px 0 var(--fest-primary, #FF8E3B),
+      6px 6px 0 var(--fest-accent, #CE3DF3);
   }
 
   .archetypeStatBadgeText {
@@ -2271,8 +2271,8 @@
 
   .archetypeStatBadge {
     box-shadow: 
-      3px 3px 0 var(--fest-primary, #ff6b35),
-      6px 6px 0 var(--fest-accent, #e637bf);
+      3px 3px 0 var(--fest-primary, #FF8E3B),
+      6px 6px 0 var(--fest-accent, #CE3DF3);
   }
 
   .archetypeStatBadgeText {
@@ -2292,16 +2292,16 @@
 }
 
 .shareTitle {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.5rem;
-  color: var(--fest-lime, #c6f135);
+  color: var(--fest-lime, #ACF535);
   margin: 0 0 0.75rem;
 }
 
 .phoneFrame {
   width: 140px;
   height: 240px;
-  background: #000;
+  background: var(--fest-bg);
   border-radius: 20px;
   padding: 6px;
   position: relative;
@@ -2316,7 +2316,7 @@
   transform: translateX(-50%);
   width: 50px;
   height: 16px;
-  background: #000;
+  background: var(--fest-bg);
   border-radius: 8px;
   z-index: 2;
 }
@@ -2324,7 +2324,7 @@
 .phoneScreen {
   width: 100%;
   height: 100%;
-  background: var(--fest-bg, #1a0a2e);
+  background: var(--fest-bg, #0E1217);
   border-radius: 14px;
   overflow: hidden;
   display: flex;
@@ -2351,9 +2351,9 @@
 }
 
 .previewArchetype {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 0.9rem;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
 }
 
 .previewStats {
@@ -2373,7 +2373,7 @@
 
 .shareButton {
   padding: 0.875rem 1rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -2384,23 +2384,23 @@
 }
 
 .shareLinkedIn {
-  background: #0077b5;
+  background: #0077B5; /* linkedin brand color */
   color: white;
 }
 
 .shareTwitter {
-  background: #1da1f2;
+  background: #000000; /* twitter/X brand color */
   color: white;
 }
 
 .shareCopy {
-  background: var(--fest-white, #fff);
-  color: var(--fest-bg, #1a0a2e);
+  background: var(--fest-white, #FFFFFF);
+  color: var(--fest-bg, #0E1217);
 }
 
 .shareDownload {
-  background: var(--fest-lime, #c6f135);
-  color: var(--fest-bg, #1a0a2e);
+  background: var(--fest-lime, #ACF535);
+  color: var(--fest-bg, #0E1217);
 }
 
 .socialProof {
@@ -2411,9 +2411,9 @@
 }
 
 .socialProofNumber {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.25rem;
-  color: var(--fest-secondary, #f7c948);
+  color: var(--fest-secondary, #FFE923);
   display: block;
   margin-bottom: 0.125rem;
 }
@@ -2446,25 +2446,25 @@
 }
 
 .shareWrapLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.3em;
-  color: var(--fest-secondary, #f7c948);
+  color: var(--fest-secondary, #FFE923);
   text-transform: uppercase;
 }
 
 .shareWrapTitle {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 3rem;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
   text-shadow: 
-    4px 4px 0 var(--fest-primary, #ff6b35),
-    8px 8px 0 var(--fest-accent, #e637bf);
+    4px 4px 0 var(--fest-primary, #FF8E3B),
+    8px 8px 0 var(--fest-accent, #CE3DF3);
   line-height: 1;
 }
 
 .shareWrapYear {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.15em;
   color: var(--fest-white-50, rgba(255,255,255,0.5));
@@ -2513,7 +2513,7 @@
 }
 
 .shareArchetypeName {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.5rem;
   letter-spacing: 0.05em;
   margin-bottom: 0.5rem;
@@ -2543,14 +2543,14 @@
 }
 
 .shareStatValue {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.1rem;
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
   line-height: 1;
 }
 
 .shareStatLabel {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.5rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -2569,15 +2569,15 @@
 }
 
 .shareThankYouText {
-  font-family: 'Dela Gothic One', cursive;
+  font-weight: 700;
   font-size: 1.1rem;
-  color: var(--fest-secondary, #f7c948);
+  color: var(--fest-secondary, #FFE923);
   margin: 0 0 0.5rem;
   opacity: 0.9;
 }
 
 .shareThankYouSubtext {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--fest-white-60, rgba(255, 255, 255, 0.6));
   margin: 0;
@@ -2600,7 +2600,7 @@
   padding: 0.75rem 0.5rem;
   border: none;
   cursor: pointer;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -2614,8 +2614,8 @@
 }
 
 .shareWrapButtonPrimary {
-  background: var(--fest-lime, #c6f135);
-  color: var(--fest-bg, #1a0a2e);
+  background: var(--fest-lime, #ACF535);
+  color: var(--fest-bg, #0E1217);
   box-shadow: 0 2px 8px rgba(198, 241, 53, 0.3);
 }
 
@@ -2624,8 +2624,8 @@
 }
 
 .shareWrapButtonLinkedIn {
-  background: #0077b5;
-  color: var(--fest-white, #fff);
+  background: #0077B5; /* linkedin brand color */
+  color: var(--fest-white);
   box-shadow: 0 2px 8px rgba(0, 119, 181, 0.3);
 }
 
@@ -2635,7 +2635,7 @@
 
 .shareWrapButtonCopy {
   background: rgba(255, 255, 255, 0.12);
-  color: var(--fest-white, #fff);
+  color: var(--fest-white, #FFFFFF);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: none;
   backdrop-filter: blur(10px);
@@ -2650,7 +2650,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   color: var(--fest-white-30, rgba(255,255,255,0.3));
   font-style: italic;
@@ -2685,10 +2685,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: var(--fest-lime, #c6f135);
+  background: var(--fest-lime, #ACF535);
   border: none;
-  color: var(--fest-bg, #1a0a2e);
-  font-family: 'Space Mono', monospace;
+  color: var(--fest-bg, #0E1217);
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -2696,23 +2696,23 @@
   cursor: pointer;
   transform: rotate(-1deg);
   box-shadow: 
-    3px 3px 0 var(--fest-primary, #ff6b35),
-    6px 6px 0 var(--fest-accent, #e637bf);
+    3px 3px 0 var(--fest-primary, #FF8E3B),
+    6px 6px 0 var(--fest-accent, #CE3DF3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .shareStatButton:hover {
   transform: rotate(0deg) scale(1.05);
   box-shadow: 
-    4px 4px 0 var(--fest-primary, #ff6b35),
-    8px 8px 0 var(--fest-accent, #e637bf);
+    4px 4px 0 var(--fest-primary, #FF8E3B),
+    8px 8px 0 var(--fest-accent, #CE3DF3);
 }
 
 .shareStatButton:active {
   transform: rotate(1deg) scale(0.98);
   box-shadow: 
-    2px 2px 0 var(--fest-primary, #ff6b35),
-    4px 4px 0 var(--fest-accent, #e637bf);
+    2px 2px 0 var(--fest-primary, #FF8E3B),
+    4px 4px 0 var(--fest-accent, #CE3DF3);
 }
 
 .shareStatIcon {
@@ -2725,20 +2725,20 @@
   bottom: calc(100% + 0.75rem);
   display: flex;
   gap: 0.5rem;
-  background: var(--fest-white, #fff);
+  background: var(--fest-white, #FFFFFF);
   padding: 0.5rem;
   box-shadow: 
-    3px 3px 0 var(--fest-accent, #e637bf),
-    6px 6px 0 var(--fest-primary, #ff6b35);
+    3px 3px 0 var(--fest-accent, #CE3DF3),
+    6px 6px 0 var(--fest-primary, #FF8E3B);
   transform: rotate(1deg);
 }
 
 .shareStatOption {
   padding: 0.625rem 0.875rem;
-  background: var(--fest-bg, #1a0a2e);
+  background: var(--fest-bg, #0E1217);
   border: none;
-  color: var(--fest-white, #fff);
-  font-family: 'Space Mono', monospace;
+  color: var(--fest-white, #FFFFFF);
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -2749,20 +2749,20 @@
 }
 
 .shareStatOption:hover {
-  background: var(--fest-accent, #e637bf);
+  background: var(--fest-accent, #CE3DF3);
 }
 
 .shareStatOptionTwitter:hover {
-  background: #1da1f2;
+  background: #000000; /* twitter/X brand */
 }
 
 .shareStatOptionLinkedIn:hover {
-  background: #0077b5;
+  background: #0077B5; /* linkedin brand */
 }
 
 .shareStatOptionCopy:hover {
-  background: var(--fest-lime, #c6f135);
-  color: var(--fest-bg, #1a0a2e);
+  background: var(--fest-lime, #ACF535);
+  color: var(--fest-bg, #0E1217);
 }
 
 /* ========================================
@@ -2778,8 +2778,8 @@
     padding: 0.625rem 1rem;
     font-size: 0.6rem;
     box-shadow: 
-      2px 2px 0 var(--fest-primary, #ff6b35),
-      4px 4px 0 var(--fest-accent, #e637bf);
+      2px 2px 0 var(--fest-primary, #FF8E3B),
+      4px 4px 0 var(--fest-accent, #CE3DF3);
   }
 
   .shareStatOptions {
@@ -3018,8 +3018,8 @@
   .totalEngagementNumber {
     font-size: 2.75rem;
     text-shadow: 
-      1px 1px 0 var(--fest-primary, #ff6b35),
-      2px 2px 0 var(--fest-accent, #e637bf);
+      1px 1px 0 var(--fest-primary, #FF8E3B),
+      2px 2px 0 var(--fest-accent, #CE3DF3);
   }
 
   .totalEngagementLabel {

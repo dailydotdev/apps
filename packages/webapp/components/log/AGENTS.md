@@ -45,17 +45,16 @@ All colors are intentionally vibrant and high-contrast. Use CSS variables for co
 
 ### Typography
 
-Two typefaces create contrast between celebration and information:
+Uses the standard daily.dev design system fonts:
 
 **Display / Headlines:**
-- **Font:** `Dela Gothic One` (Google Fonts)
-- **Fallback:** `cursive, system-ui`
+- **Font:** `Helvetica Neue, Helvetica, Inter, Arial, Segoe UI, system-ui, sans-serif`
+- **Weight:** 700 (bold)
 - **Usage:** Large numbers, archetype names, main stats
-- **Characteristics:** Chunky, bold, slightly playful Japanese-inspired display font
+- **Characteristics:** Bold weight creates impact for key statistics and names
 
 **Body / Labels:**
-- **Font:** `Space Mono` (Google Fonts)
-- **Fallback:** `monospace`
+- **Font:** `Fira Code, SF Mono, Consolas, Menlo, Courier New, monospace`
 - **Weight:** 400 (regular), 700 (bold)
 - **Usage:** Labels, card indicators, supporting text, navigation
 - **Characteristics:** Technical, monospace, creates contrast with display font
@@ -63,13 +62,13 @@ Two typefaces create contrast between celebration and information:
 **Typography scale:**
 | Element | Font | Size | Weight | Additional |
 |---------|------|------|--------|------------|
-| Hero number | Dela Gothic One | 6rem (mobile: 4.5rem) | 400 | Drop shadow |
-| Secondary headline | Dela Gothic One | 2.5rem | 400 | Single shadow |
-| Card label | Space Mono | 0.65rem | 400 | letter-spacing: 0.15em, uppercase |
-| Card number | Space Mono | 0.85rem | 700 | — |
-| Badge value | Dela Gothic One | 1.5rem | 400 | — |
-| Badge label | Space Mono | 0.6rem | 400 | letter-spacing: 0.1em, uppercase |
-| Body text | Space Mono | 0.9rem | 400 | — |
+| Hero number | Sans (bold) | 6rem (mobile: 4.5rem) | 700 | Drop shadow |
+| Secondary headline | Sans (bold) | 2.5rem | 700 | Single shadow |
+| Card label | Mono | 0.65rem | 400 | letter-spacing: 0.15em, uppercase |
+| Card number | Mono | 0.85rem | 700 | — |
+| Badge value | Sans (bold) | 1.5rem | 700 | — |
+| Badge label | Mono | 0.6rem | 400 | letter-spacing: 0.1em, uppercase |
+| Body text | Mono | 0.9rem | 400 | — |
 
 **Drop shadow formula for headlines:**
 ```css
@@ -326,7 +325,7 @@ Generated images for social sharing:
 ### Implementation Checklist
 
 - [ ] CSS variables defined at root
-- [ ] Google Fonts loaded: Dela Gothic One, Space Mono
+- [ ] Uses standard daily.dev design system fonts (no external font loading required)
 - [ ] Background burst animation
 - [ ] Floating star decorations
 - [ ] Logo badge component
