@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import type z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { ModalProps } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { TextField } from '../../fields/TextField';
@@ -28,6 +28,7 @@ import { applyZodErrorsToForm } from '../../../lib/form';
 import { opportunityEditDiscardPrompt } from './common';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
+import ProfileLocation from '../../profile/ProfileLocation';
 
 export type OpportunityEditInfoModalProps = {
   id: string;
@@ -54,20 +55,23 @@ export const OpportunityEditInfoModal = ({
     },
   });
 
+  const methods = useForm({
+    resolver: zodResolver(opportunityEditInfoSchema),
+    defaultValues: async () => {
+      const opportunityData = await promise;
+
+      return {
+        ...opportunityData,
+      };
+    },
+  });
   const {
     register,
     control,
     handleSubmit,
     formState: { errors, isSubmitting, isDirty },
     setError,
-  } = useForm({
-    resolver: zodResolver(opportunityEditInfoSchema),
-    defaultValues: async () => {
-      const opportunityData = await promise;
-
-      return opportunityData;
-    },
-  });
+  } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -123,253 +127,237 @@ export const OpportunityEditInfoModal = ({
     rest.onRequestClose?.(event);
   };
 
+  console.log(opportunity.locations?.[0]);
+
   if (!opportunity) {
     return <Loader />;
   }
 
   return (
-    <Modal {...rest} isOpen onRequestClose={onRequestClose}>
-      <Modal.Header className="flex justify-between" showCloseButton={false}>
-        <Modal.Title className="typo-title3">Role description</Modal.Title>
-        <div className="flex items-center gap-4">
-          <Button
+    <FormProvider {...methods}>
+      <Modal {...rest} isOpen onRequestClose={onRequestClose}>
+        <Modal.Header className="flex justify-between" showCloseButton={false}>
+          <Modal.Title className="typo-title3">Role description</Modal.Title>
+          <div className="flex items-center gap-4">
+            <Button
+              type="text"
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Small}
+              onClick={onRequestClose}
+            >
+              Discard
+            </Button>
+            <Button
+              type="submit"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              onClick={onSubmit}
+              loading={isSubmitting}
+            >
+              Save
+            </Button>
+          </div>
+        </Modal.Header>
+        <Modal.Body className="gap-6 p-4">
+          <TextField
+            {...register('title')}
             type="text"
-            variant={ButtonVariant.Subtle}
-            size={ButtonSize.Small}
-            onClick={onRequestClose}
-          >
-            Discard
-          </Button>
-          <Button
-            type="submit"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            onClick={onSubmit}
-            loading={isSubmitting}
-          >
-            Save
-          </Button>
-        </div>
-      </Modal.Header>
-      <Modal.Body className="gap-6 p-4">
-        <TextField
-          {...register('title')}
-          type="text"
-          inputId="opportunityTitle"
-          label="Job title"
-          fieldType="secondary"
-          valid={!errors.title}
-          hint={errors.title?.message}
-        />
-        <Textarea
-          {...register('tldr')}
-          inputId="opportunityTldr"
-          label="Role TLDR"
-          fieldType="secondary"
-          maxLength={480}
-          valid={!errors.tldr}
-          hint={errors.tldr?.message}
-        />
-        <div className="-mb-2 flex flex-col gap-2">
-          <Typography bold type={TypographyType.Caption1}>
-            Preferred tech stack*
-          </Typography>
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Tertiary}
-          >
-            Define the tools, technologies, and languages you need the candidate
-            to know.
-          </Typography>
-        </div>
-        <Controller
-          name="keywords"
-          control={control}
-          rules={{ required: labels.form.required }}
-          render={({ field }) => {
-            return (
-              <KeywordSelection
-                keywords={field.value}
-                addKeyword={(value) => {
-                  field.onChange([
-                    ...field.value,
-                    ...value.map((item) => ({ keyword: item })),
-                  ]);
-                }}
-                removeKeyword={(value) => {
-                  field.onChange(
-                    field.value.filter((item) => !value.includes(item.keyword)),
-                  );
-                }}
-                valid={!errors.keywords}
-                hint={errors.keywords?.message}
-              />
-            );
-          }}
-        />
-        <div className="flex flex-col gap-4">
-          <Typography bold type={TypographyType.Caption1} className="-mb-2">
-            Role location*
-          </Typography>
-          {!!errors.location?.[0] &&
-            errors.location?.[0]?.type === 'custom' && (
-              <Typography
-                type={TypographyType.Caption2}
-                color={TypographyColor.StatusError}
-              >
-                {errors.location?.[0]?.message}
-              </Typography>
-            )}
-          <div className="grid grid-cols-2 gap-4">
-            <TextField
-              {...register('location.0.country')}
-              defaultValue={opportunity.location[0]?.country}
-              type="text"
-              inputId="opportunityCountry"
-              label="Country"
-              valid={!errors.location?.[0]?.country}
-              hint={errors.location?.[0]?.country?.message}
-            />
-            <TextField
-              {...register('location.0.city')}
-              defaultValue={opportunity.location[0]?.city}
-              type="text"
-              label="City"
-              inputId="opportunityCity"
-              valid={!errors.location?.[0]?.city}
-              hint={errors.location?.[0]?.city?.message}
-            />
-            <TextField
-              {...register('location.0.subdivision')}
-              defaultValue={opportunity.location[0]?.subdivision}
-              type="text"
-              label="Subdivision"
-              inputId="opportunitySubdivision"
-              valid={!errors.location?.[0]?.subdivision}
-              hint={errors.location?.[0]?.subdivision?.message}
-            />
-            <TextField
-              {...register('location.0.continent')}
-              defaultValue={opportunity.location[0]?.continent}
-              type="text"
-              label="Continent"
-              inputId="opportunityContinent"
-              valid={!errors.location?.[0]?.continent}
-              hint={errors.location?.[0]?.continent?.message}
-            />
+            inputId="opportunityTitle"
+            label="Job title"
+            fieldType="secondary"
+            valid={!errors.title}
+            hint={errors.title?.message}
+          />
+          <Textarea
+            {...register('tldr')}
+            inputId="opportunityTldr"
+            label="Role TLDR"
+            fieldType="secondary"
+            maxLength={480}
+            valid={!errors.tldr}
+            hint={errors.tldr?.message}
+          />
+          <div className="-mb-2 flex flex-col gap-2">
+            <Typography bold type={TypographyType.Caption1}>
+              Preferred tech stack*
+            </Typography>
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Tertiary}
+            >
+              Define the tools, technologies, and languages you need the
+              candidate to know.
+            </Typography>
           </div>
           <Controller
-            name="location.0.type"
-            control={control}
-            render={({ field }) => {
-              return (
-                <Radio
-                  className={{ container: 'flex-1 !flex-row flex-wrap' }}
-                  name={field.name}
-                  options={
-                    [
-                      { label: 'Remote', value: '1' },
-                      { label: 'Office', value: '2' },
-                      {
-                        label: 'Hybrid',
-                        value: '3',
-                      },
-                    ] as Record<string, string>[]
-                  }
-                  value={field.value?.toString()}
-                  onChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  valid={typeof errors.location?.[0]?.type !== 'object'}
-                />
-              );
-            }}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Caption1}>
-            Employment type*
-          </Typography>
-          <Controller
-            name="meta.employmentType"
+            name="keywords"
             control={control}
             rules={{ required: labels.form.required }}
             render={({ field }) => {
               return (
-                <Radio
-                  className={{ container: 'flex-1 !flex-row flex-wrap' }}
-                  name={field.name}
-                  options={
-                    [
-                      { label: 'Full-time', value: '1' },
-                      { label: 'Part-time', value: '2' },
-                      {
-                        label: 'Contract',
-                        value: '3',
-                      },
-                    ] as Record<string, string>[]
-                  }
-                  value={field.value?.toString()}
-                  onChange={(value) => {
-                    field.onChange(value);
+                <KeywordSelection
+                  keywords={field.value}
+                  addKeyword={(value) => {
+                    field.onChange([
+                      ...field.value,
+                      ...value.map((item) => ({ keyword: item })),
+                    ]);
                   }}
-                  valid={!errors.meta?.employmentType}
+                  removeKeyword={(value) => {
+                    field.onChange(
+                      field.value.filter(
+                        (item) => !value.includes(item.keyword),
+                      ),
+                    );
+                  }}
+                  valid={!errors.keywords}
+                  hint={errors.keywords?.message}
                 />
               );
             }}
           />
-        </div>
-        <TextField
-          {...register('meta.teamSize', {
-            valueAsNumber: true,
-          })}
-          className={{
-            container: 'max-w-32',
-          }}
-          type="number"
-          inputId="opportunityTeamSize"
-          label="Team size"
-          fieldType="secondary"
-          valid={!errors.meta?.teamSize}
-          hint={errors.meta?.teamSize?.message}
-        />
-        <div className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Caption1}>
-            Salary range
-          </Typography>
-          <div className="flex gap-4">
-            <TextField
-              {...register('meta.salary.min', {
-                valueAsNumber: true,
-              })}
-              className={{
-                container: 'flex-1',
-              }}
-              type="text"
-              inputId="opportunitySalaryMin"
-              label="Min Salary"
-              valid={!errors.meta?.salary?.min}
-              hint={errors.meta?.salary?.min?.message}
+          <div className="flex flex-col">
+            <ProfileLocation
+              locationName="externalLocationId"
+              typeName="locationType"
+              defaultValue={
+                opportunity.locations?.[0]?.location
+                  ? {
+                      id: '',
+                      city: opportunity.locations[0].location.city,
+                      country: opportunity.locations[0].location.country || '',
+                      subdivision:
+                        opportunity.locations[0].location.subdivision,
+                      type: opportunity.locations[0].type,
+                    }
+                  : undefined
+              }
             />
-            <TextField
-              {...register('meta.salary.max', {
-                valueAsNumber: true,
-              })}
-              className={{
-                container: 'flex-1',
-              }}
-              defaultValue={opportunity.meta.salary?.max}
-              type="text"
-              inputId="opportunitySalaryMax"
-              label="Max Salary"
-              valid={!errors.meta?.salary?.max}
-              hint={errors.meta?.salary?.max?.message}
-            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Typography bold type={TypographyType.Caption1}>
+              Employment type*
+            </Typography>
             <Controller
-              name="meta.salary.period"
+              name="meta.employmentType"
               control={control}
+              rules={{ required: labels.form.required }}
               render={({ field }) => {
-                const options = ['Annually', 'Monthly', 'Hourly'];
+                return (
+                  <Radio
+                    className={{ container: 'flex-1 !flex-row flex-wrap' }}
+                    name={field.name}
+                    options={
+                      [
+                        { label: 'Full-time', value: '1' },
+                        { label: 'Part-time', value: '2' },
+                        {
+                          label: 'Contract',
+                          value: '3',
+                        },
+                      ] as Record<string, string>[]
+                    }
+                    value={field.value?.toString()}
+                    onChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    valid={!errors.meta?.employmentType}
+                  />
+                );
+              }}
+            />
+          </div>
+          <TextField
+            {...register('meta.teamSize', {
+              valueAsNumber: true,
+            })}
+            className={{
+              container: 'max-w-32',
+            }}
+            type="number"
+            inputId="opportunityTeamSize"
+            label="Team size"
+            fieldType="secondary"
+            valid={!errors.meta?.teamSize}
+            hint={errors.meta?.teamSize?.message}
+          />
+          <div className="flex flex-col gap-2">
+            <Typography bold type={TypographyType.Caption1}>
+              Salary range
+            </Typography>
+            <div className="flex gap-4">
+              <TextField
+                {...register('meta.salary.min', {
+                  valueAsNumber: true,
+                })}
+                className={{
+                  container: 'flex-1',
+                }}
+                type="text"
+                inputId="opportunitySalaryMin"
+                label="Min Salary"
+                valid={!errors.meta?.salary?.min}
+                hint={errors.meta?.salary?.min?.message}
+              />
+              <TextField
+                {...register('meta.salary.max', {
+                  valueAsNumber: true,
+                })}
+                className={{
+                  container: 'flex-1',
+                }}
+                defaultValue={opportunity.meta.salary?.max}
+                type="text"
+                inputId="opportunitySalaryMax"
+                label="Max Salary"
+                valid={!errors.meta?.salary?.max}
+                hint={errors.meta?.salary?.max?.message}
+              />
+              <Controller
+                name="meta.salary.period"
+                control={control}
+                render={({ field }) => {
+                  const options = ['Annually', 'Monthly', 'Hourly'];
+
+                  return (
+                    <Dropdown
+                      className={{
+                        container: 'flex-1',
+                      }}
+                      selectedIndex={field.value ? field.value - 1 : undefined}
+                      options={options}
+                      onChange={(value) => {
+                        const valueIndex = options.indexOf(value);
+                        field.onChange(valueIndex + 1);
+                      }}
+                      valid={!errors.meta?.salary?.period}
+                      hint={errors.meta?.salary?.period?.message}
+                    />
+                  );
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Typography bold type={TypographyType.Caption1}>
+              Seniority level*
+            </Typography>
+            <Controller
+              name="meta.seniorityLevel"
+              control={control}
+              rules={{ required: labels.form.required }}
+              render={({ field }) => {
+                const options = [
+                  'Intern',
+                  'Junior',
+                  'Mid',
+                  'Senior',
+                  'Lead',
+                  'Manager',
+                  'Director',
+                  'VP',
+                  'C-Level',
+                ];
 
                 return (
                   <Dropdown
@@ -382,92 +370,53 @@ export const OpportunityEditInfoModal = ({
                       const valueIndex = options.indexOf(value);
                       field.onChange(valueIndex + 1);
                     }}
-                    valid={!errors.meta?.salary?.period}
-                    hint={errors.meta?.salary?.period?.message}
+                    valid={!errors.meta?.seniorityLevel}
+                    hint={errors.meta?.seniorityLevel?.message}
                   />
                 );
               }}
             />
           </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Caption1}>
-            Seniority level*
-          </Typography>
-          <Controller
-            name="meta.seniorityLevel"
-            control={control}
-            rules={{ required: labels.form.required }}
-            render={({ field }) => {
-              const options = [
-                'Intern',
-                'Junior',
-                'Mid',
-                'Senior',
-                'Lead',
-                'Manager',
-                'Director',
-                'VP',
-                'C-Level',
-              ];
+          <div className="flex flex-col gap-2">
+            <Typography bold type={TypographyType.Caption1}>
+              Job type*
+            </Typography>
+            <Controller
+              name="meta.roleType"
+              control={control}
+              rules={{ required: labels.form.required }}
+              render={({ field }) => {
+                const options = [
+                  { value: 0, title: 'IC' },
+                  { value: 0.5, title: 'Auto' },
+                  { value: 1, title: 'Management' },
+                ];
 
-              return (
-                <Dropdown
-                  className={{
-                    container: 'flex-1',
-                  }}
-                  selectedIndex={field.value ? field.value - 1 : undefined}
-                  options={options}
-                  onChange={(value) => {
-                    const valueIndex = options.indexOf(value);
-                    field.onChange(valueIndex + 1);
-                  }}
-                  valid={!errors.meta?.seniorityLevel}
-                  hint={errors.meta?.seniorityLevel?.message}
-                />
-              );
-            }}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Caption1}>
-            Job type*
-          </Typography>
-          <Controller
-            name="meta.roleType"
-            control={control}
-            rules={{ required: labels.form.required }}
-            render={({ field }) => {
-              const options = [
-                { value: 0, title: 'IC' },
-                { value: 0.5, title: 'Auto' },
-                { value: 1, title: 'Management' },
-              ];
+                return (
+                  <Dropdown
+                    className={{
+                      container: 'flex-1',
+                    }}
+                    selectedIndex={options.findIndex(
+                      (option) => option.value === field.value,
+                    )}
+                    options={options.map((option) => option.title)}
+                    onChange={(value) => {
+                      const item = options.find(
+                        (option) => option.title === value,
+                      );
 
-              return (
-                <Dropdown
-                  className={{
-                    container: 'flex-1',
-                  }}
-                  selectedIndex={options.findIndex(
-                    (option) => option.value === field.value,
-                  )}
-                  options={options.map((option) => option.title)}
-                  onChange={(value) => {
-                    const item = options.find(
-                      (option) => option.title === value,
-                    );
-
-                    field.onChange(item?.value || 0);
-                  }}
-                  valid={!errors.meta?.roleType}
-                  hint={errors.meta?.roleType?.message}
-                />
-              );
-            }}
-          />
-        </div>
-      </Modal.Body>
-    </Modal>
+                      field.onChange(item?.value || 0);
+                    }}
+                    valid={!errors.meta?.roleType}
+                    hint={errors.meta?.roleType?.message}
+                  />
+                );
+              }}
+            />
+          </div>
+        </Modal.Body>
+      </Modal>
+    </FormProvider>
   );
 };

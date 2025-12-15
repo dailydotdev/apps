@@ -115,12 +115,13 @@ export const OPPORTUNITY_FRAGMENT = gql`
       }
       equity
     }
-    location {
+    locations {
       type
-      city
-      country
-      subdivision
-      continent
+      location {
+        city
+        country
+        subdivision
+      }
     }
     questions {
       ...OpportunityScreeningQuestionFragment

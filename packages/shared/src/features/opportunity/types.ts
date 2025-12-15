@@ -104,7 +104,7 @@ export type Opportunity = {
   };
   meta: OpportunityMeta;
   recruiters: RecruiterProfile[];
-  location: OpportunityLocation[];
+  locations: Array<{ location: OpportunityLocation }>;
   keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
   feedbackQuestions?: OpportunityFeedbackQuestion[];

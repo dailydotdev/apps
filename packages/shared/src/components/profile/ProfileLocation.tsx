@@ -19,7 +19,7 @@ import {
 type ProfileLocationProps = {
   locationName: string;
   typeName?: string;
-  defaultValue?: TLocation;
+  defaultValue?: TLocation & { type?: number };
 };
 
 const ProfileLocation = ({
@@ -35,7 +35,9 @@ const ProfileLocation = ({
   } = useFormContext();
   const [locQuery, setLocQuery] = React.useState('');
   const selectedLoc = watch(locationName);
-  const typeValue = watch(typeName || '');
+  const typeValue = watch(typeName || '', defaultValue?.type);
+  console.log(defaultValue, typeValue);
+
   const { data, isLoading } = useQuery({
     queryKey: generateQueryKey(
       RequestKey.Autocomplete,
