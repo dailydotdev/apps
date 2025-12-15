@@ -172,6 +172,7 @@ export type UserCandidatePreferences = {
   companySize?: CompanySize[];
   customKeywords?: boolean;
   keywords?: Array<UserCandidateKeyword>;
+  externalLocationId?: string;
 };
 
 export const recruiterLayoutHeaderClassName = 'recruiter-layout-header';

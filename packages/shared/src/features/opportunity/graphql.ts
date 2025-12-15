@@ -333,6 +333,7 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
     $location: [LocationInput]
     $locationType: [ProtoEnumValue]
     $customKeywords: Boolean
+    $externalLocationId: String
   ) {
     updateCandidatePreferences(
       status: $status
@@ -343,6 +344,7 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
       location: $location
       locationType: $locationType
       customKeywords: $customKeywords
+      externalLocationId: $externalLocationId
     ) {
       _
     }
