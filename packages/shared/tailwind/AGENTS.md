@@ -143,13 +143,21 @@ With colors:
 
 ## Theme System
 
-The design system supports dark/light themes via CSS custom properties. Theme-aware classes automatically adapt:
+The design system supports dark/light themes via CSS custom properties. **Always use semantic tokens** - they automatically adapt to the current theme:
 
 ```typescript
-// These adapt to current theme
+// ✅ CORRECT - Uses semantic tokens that adapt to theme
 className="bg-background-default"  // Changes based on theme
 className="text-primary"           // Changes based on theme
+className="border-border-subtlest-primary"
+
+// ❌ WRONG - Raw colors don't adapt to theme changes
+className="bg-pepper-90"           // Stays dark in both themes
+className="text-salt-50"           // Stays light in both themes
+className="bg-[#1a1a1a]"           // Hardcoded, never adapts
 ```
+
+**Why this matters:** Users can switch between dark and light themes. Raw palette colors (`pepper-*`, `salt-*`, etc.) and hex values are static - they won't change when the theme changes, breaking the visual experience.
 
 ## ESLint Enforcement
 
