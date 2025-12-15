@@ -124,169 +124,182 @@ export default function CardTopicEvolution({
 
   return (
     <>
-      {/* Title */}
-      <span className={cardStyles.topicEvolutionTitle}>
-        How your interests shifted
-      </span>
+      {/* Main content - centered vertically */}
+      <div className={styles.cardContent}>
+        {/* Title */}
+        <span className={cardStyles.topicEvolutionTitle}>
+          How your interests shifted
+        </span>
 
-      {/* Quarter carousel - static container, selection moves */}
-      <div className={cardStyles.quarterCarouselWrapper}>
-        <div className={cardStyles.quarterCarousel} ref={carouselRef}>
-          {data.topicJourney.map((item, index) => {
-            const isActiveQuarter = index === subcard;
-            const isPast = index < subcard;
-            const isAdjacent = Math.abs(index - subcard) === 1;
-            const isQuarterInactive = item.inactive === true;
+        {/* Quarter carousel - static container, selection moves */}
+        <div className={cardStyles.quarterCarouselWrapper}>
+          <div className={cardStyles.quarterCarousel} ref={carouselRef}>
+            {data.topicJourney.map((item, index) => {
+              const isActiveQuarter = index === subcard;
+              const isPast = index < subcard;
+              const isAdjacent = Math.abs(index - subcard) === 1;
+              const isQuarterInactive = item.inactive === true;
 
-            return (
-              <div
-                key={item.quarter}
-                className={`${cardStyles.quarterCarouselItem} ${
-                  isActiveQuarter ? cardStyles.quarterCarouselItemActive : ''
-                } ${isPast ? cardStyles.quarterCarouselItemPast : ''} ${
-                  isAdjacent ? cardStyles.quarterCarouselItemAdjacent : ''
-                } ${
-                  isQuarterInactive
-                    ? cardStyles.quarterCarouselItemInactive
-                    : ''
-                }`}
+              return (
+                <div
+                  key={item.quarter}
+                  className={`${cardStyles.quarterCarouselItem} ${
+                    isActiveQuarter ? cardStyles.quarterCarouselItemActive : ''
+                  } ${isPast ? cardStyles.quarterCarouselItemPast : ''} ${
+                    isAdjacent ? cardStyles.quarterCarouselItemAdjacent : ''
+                  } ${
+                    isQuarterInactive
+                      ? cardStyles.quarterCarouselItemInactive
+                      : ''
+                  }`}
+                >
+                  <span className={cardStyles.quarterCarouselLabel}>
+                    {item.quarter}
+                  </span>
+                  {isActiveQuarter && (
+                    <motion.div
+                      className={cardStyles.quarterCarouselIndicator}
+                      layoutId="quarterIndicator"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 400,
+                        damping: 30,
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Content that transitions on subcard change - split-flap airport display style */}
+        <div className={cardStyles.topicContentWrapper}>
+          {/* Top 3 tags for this quarter - stacked grid to prevent layout shift */}
+          <div
+            className={cardStyles.topTagsContainer}
+            style={{ position: 'relative', display: 'grid' }}
+          >
+            {/* Tags - hidden when inactive to reserve space */}
+            <div
+              className={cardStyles.topTagsList}
+              style={{
+                gridArea: '1 / 1',
+                visibility: isInactiveQuarter ? 'hidden' : 'visible',
+              }}
+            >
+              {[0, 1, 2].map((index) => (
+                <div key={index} className={cardStyles.flipCardContainer}>
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    <motion.div
+                      key={`${subcard}-${index}`}
+                      className={cardStyles.topTagItem}
+                      style={{
+                        background: quarterlyColors[index],
+                        rotate: `${TAG_ROTATIONS[index]}deg`,
+                      }}
+                      initial={{ rotateX: -90, opacity: 0 }}
+                      animate={{ rotateX: 0, opacity: 1 }}
+                      exit={{ rotateX: 90, opacity: 0 }}
+                      transition={{
+                        delay: index * 0.08,
+                        duration: 0.4,
+                        ease: [0.4, 0, 0.2, 1],
+                      }}
+                    >
+                      <JigglingMedal emoji={MEDAL_EMOJIS[index]} />
+                      <span className={cardStyles.topTagName}>
+                        {currentQuarter?.topics[index] || ''}
+                      </span>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+
+            {/* Inactive quarter overlay - stacked on same grid cell */}
+            {isInactiveQuarter && (
+              <motion.div
+                className={cardStyles.inactiveQuarterMessage}
+                style={{ gridArea: '1 / 1', placeSelf: 'center' }}
+                initial={{ rotateX: -90, opacity: 0 }}
+                animate={{ rotateX: 0, opacity: 1 }}
+                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               >
-                <span className={cardStyles.quarterCarouselLabel}>
-                  {item.quarter}
+                <span className={cardStyles.inactiveQuarterEmoji}>😴</span>
+                <span className={cardStyles.inactiveQuarterText}>
+                  Taking a break
                 </span>
-                {isActiveQuarter && (
-                  <motion.div
-                    className={cardStyles.quarterCarouselIndicator}
-                    layoutId="quarterIndicator"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Content that transitions on subcard change - split-flap airport display style */}
-      <div className={cardStyles.topicContentWrapper}>
-        {/* Top 3 tags for this quarter - stacked grid to prevent layout shift */}
-        <div
-          className={cardStyles.topTagsContainer}
-          style={{ position: 'relative', display: 'grid' }}
-        >
-          {/* Tags - hidden when inactive to reserve space */}
-          <div
-            className={cardStyles.topTagsList}
-            style={{
-              gridArea: '1 / 1',
-              visibility: isInactiveQuarter ? 'hidden' : 'visible',
-            }}
-          >
-            {[0, 1, 2].map((index) => (
-              <div key={index} className={cardStyles.flipCardContainer}>
-                <AnimatePresence mode="popLayout" initial={false}>
-                  <motion.div
-                    key={`${subcard}-${index}`}
-                    className={cardStyles.topTagItem}
-                    style={{
-                      background: quarterlyColors[index],
-                      rotate: `${TAG_ROTATIONS[index]}deg`,
-                    }}
-                    initial={{ rotateX: -90, opacity: 0 }}
-                    animate={{ rotateX: 0, opacity: 1 }}
-                    exit={{ rotateX: 90, opacity: 0 }}
-                    transition={{
-                      delay: index * 0.08,
-                      duration: 0.4,
-                      ease: [0.4, 0, 0.2, 1],
-                    }}
-                  >
-                    <JigglingMedal emoji={MEDAL_EMOJIS[index]} />
-                    <span className={cardStyles.topTagName}>
-                      {currentQuarter?.topics[index] || ''}
-                    </span>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            ))}
+              </motion.div>
+            )}
           </div>
 
-          {/* Inactive quarter overlay - stacked on same grid cell */}
-          {isInactiveQuarter && (
-            <motion.div
-              className={cardStyles.inactiveQuarterMessage}
-              style={{ gridArea: '1 / 1', placeSelf: 'center' }}
-              initial={{ rotateX: -90, opacity: 0 }}
-              animate={{ rotateX: 0, opacity: 1 }}
-              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            >
-              <span className={cardStyles.inactiveQuarterEmoji}>😴</span>
-              <span className={cardStyles.inactiveQuarterText}>
-                Taking a break
-              </span>
-            </motion.div>
-          )}
-        </div>
-
-        {/* Shared space for pivot indicator OR stats badge - placeholder always reserves space */}
-        <div
-          className={styles.statsBadges}
-          style={{ position: 'relative', display: 'grid' }}
-        >
-          {/* Hidden placeholder to reserve consistent space */}
+          {/* Shared space for pivot indicator OR stats badge - placeholder always reserves space */}
           <div
-            className={styles.badge}
-            style={{ visibility: 'hidden', gridArea: '1 / 1' }}
+            className={styles.statsBadges}
+            style={{ position: 'relative', display: 'grid' }}
           >
-            <span className={styles.badgeValue}>0</span>
-            <span className={styles.badgeLabel}>Topics Explored This Year</span>
-          </div>
-          {/* Actual visible content stacked on same grid cell */}
-          {currentQuarter?.comment && (
-            <motion.div
-              className={cardStyles.pivotBadge}
-              style={{ gridArea: '1 / 1', placeSelf: 'center' }}
-              initial={{ rotateX: -90, opacity: 0 }}
-              animate={{ rotateX: 0, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            >
-              {currentQuarter.comment}
-            </motion.div>
-          )}
-          {isLastQuarter && (
-            <motion.div
+            {/* Hidden placeholder to reserve consistent space */}
+            <div
               className={styles.badge}
-              style={{ gridArea: '1 / 1', placeSelf: 'center' }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              style={{ visibility: 'hidden', gridArea: '1 / 1' }}
             >
-              <span className={styles.badgeValue}>{animatedTopics}</span>
+              <span className={styles.badgeValue}>0</span>
               <span className={styles.badgeLabel}>
                 Topics Explored This Year
               </span>
-            </motion.div>
-          )}
+            </div>
+            {/* Actual visible content stacked on same grid cell */}
+            {currentQuarter?.comment && (
+              <motion.div
+                className={cardStyles.pivotBadge}
+                style={{ gridArea: '1 / 1', placeSelf: 'center' }}
+                initial={{ rotateX: -90, opacity: 0 }}
+                animate={{ rotateX: 0, opacity: 1 }}
+                transition={{
+                  delay: 0.3,
+                  duration: 0.3,
+                  ease: [0.4, 0, 0.2, 1],
+                }}
+              >
+                {currentQuarter.comment}
+              </motion.div>
+            )}
+            {isLastQuarter && (
+              <motion.div
+                className={styles.badge}
+                style={{ gridArea: '1 / 1', placeSelf: 'center' }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <span className={styles.badgeValue}>{animatedTopics}</span>
+                <span className={styles.badgeLabel}>
+                  Topics Explored This Year
+                </span>
+              </motion.div>
+            )}
+          </div>
         </div>
+
+        {/* Banner - reserve space always, animate visibility on last quarter */}
+        <TopPercentileBanner
+          preText="MORE CURIOUS THAN"
+          mainText={`${100 - data.evolutionPercentile}%`}
+          postText="OF DEVS"
+          delay={isLastQuarter ? 0.5 : 0}
+          motionProps={{
+            initial: false,
+            animate: {
+              opacity: isLastQuarter ? 1 : 0,
+              scaleX: isLastQuarter ? 1 : 0,
+            },
+            style: { visibility: isLastQuarter ? 'visible' : 'hidden' },
+          }}
+        />
       </div>
 
-      {/* Banner - reserve space always, animate visibility on last quarter */}
-      <TopPercentileBanner
-        preText="MORE CURIOUS THAN"
-        mainText={`${100 - data.evolutionPercentile}%`}
-        postText="OF DEVS"
-        delay={isLastQuarter ? 0.5 : 0}
-        motionProps={{
-          initial: false,
-          animate: {
-            opacity: isLastQuarter ? 1 : 0,
-            scaleX: isLastQuarter ? 1 : 0,
-          },
-          style: { visibility: isLastQuarter ? 'visible' : 'hidden' },
-        }}
-      />
-
-      {/* Share button - absolutely positioned, only active on last quarter */}
+      {/* Share button - pushed to bottom, only active on last quarter */}
       <ShareStatButton
         delay={0.8}
         isActive={isActive && isLastQuarter}

@@ -49,7 +49,7 @@ export const ARCHETYPES: Record<Archetype, ArchetypeInfo> = {
     id: 'OPINIONIST',
     emoji: '🎤',
     name: 'Opinionist',
-    description: 'Hot takes need witnesses.',
+    description: 'Others lurk. You speak up.',
     color: '#e637bf',
     imageUrl:
       'https://media.daily.dev/image/upload/s--pHpHjYtG--/f_auto,q_auto/v1765654579/public/opinionist',
@@ -58,7 +58,7 @@ export const ARCHETYPES: Record<Archetype, ArchetypeInfo> = {
     id: 'COLLECTOR',
     emoji: '🗃️',
     name: 'Collector',
-    description: 'Bookmarks: ∞. Read later: TBD.',
+    description: 'Nothing good escapes your vault.',
     color: '#a855f7',
     imageUrl:
       'https://media.daily.dev/image/upload/s--fMLnVbfw--/f_auto,q_auto/v1765654555/public/collector',

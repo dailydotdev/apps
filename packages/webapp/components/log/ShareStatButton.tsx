@@ -16,12 +16,15 @@ export default function ShareStatButton({
   delay = 2.0,
   statText,
   isActive,
-}: ShareStatButtonProps): ReactElement | null {
+}: ShareStatButtonProps): ReactElement {
   const [showButton, setShowButton] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const shareUrl = 'https://app.daily.dev/log';
+
+  // Determine if button should be visible (active + delay passed)
+  const isVisible = isActive && showButton;
 
   // Handle delayed appearance
   useEffect(() => {
@@ -79,9 +82,12 @@ export default function ShareStatButton({
   const handleButtonClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      if (!isVisible) {
+        return;
+      } // Ignore clicks when hidden
       setShowOptions(!showOptions);
     },
-    [showOptions],
+    [showOptions, isVisible],
   );
 
   const handleOptionClick = useCallback(
@@ -92,67 +98,70 @@ export default function ShareStatButton({
     [handleShare],
   );
 
+  // Always render container to reserve space, animate visibility
   return (
-    <AnimatePresence>
-      {isActive && showButton && (
-        <motion.div
-          key="share-stat-button"
-          className={cardStyles.shareStatContainer}
-          initial={{ opacity: 0, y: 30, rotate: -5 }}
-          animate={{ opacity: 1, y: 0, rotate: 0 }}
-          exit={{ opacity: 0, y: 30, rotate: -5 }}
-          transition={{
-            duration: 0.5,
-            type: 'spring',
-            stiffness: 200,
-            damping: 20,
-          }}
-        >
-          {/* Share options - appears above button */}
-          <AnimatePresence>
-            {showOptions && (
-              <motion.div
-                className={cardStyles.shareStatOptions}
-                initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                transition={{ duration: 0.2, type: 'spring', stiffness: 300 }}
-              >
-                <motion.button
-                  className={`${cardStyles.shareStatOption} ${cardStyles.shareStatOptionTwitter}`}
-                  onClick={(e) => handleOptionClick(e, 'twitter')}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  𝕏
-                </motion.button>
-                <motion.button
-                  className={`${cardStyles.shareStatOption} ${cardStyles.shareStatOptionLinkedIn}`}
-                  onClick={(e) => handleOptionClick(e, 'linkedin')}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  in
-                </motion.button>
-                <motion.button
-                  className={`${cardStyles.shareStatOption} ${cardStyles.shareStatOptionCopy}`}
-                  onClick={(e) => handleOptionClick(e, 'copy')}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {copied ? '✓' : '📋'}
-                </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <motion.button
-            className={cardStyles.shareStatButton}
-            onClick={handleButtonClick}
-            whileTap={{ scale: 0.95 }}
+    <motion.div
+      className={cardStyles.shareStatContainer}
+      initial={false}
+      animate={{
+        opacity: isVisible ? 1 : 0,
+        y: isVisible ? 0 : 20,
+      }}
+      transition={{
+        duration: 0.5,
+        type: 'spring',
+        stiffness: 200,
+        damping: 20,
+      }}
+      style={{
+        pointerEvents: isVisible ? 'auto' : 'none',
+      }}
+    >
+      {/* Share options - appears above button */}
+      <AnimatePresence>
+        {showOptions && (
+          <motion.div
+            className={cardStyles.shareStatOptions}
+            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.9 }}
+            transition={{ duration: 0.2, type: 'spring', stiffness: 300 }}
           >
-            <span className={cardStyles.shareStatIcon}>↗</span>
-            <span>Share This</span>
-          </motion.button>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            <motion.button
+              className={`${cardStyles.shareStatOption} ${cardStyles.shareStatOptionTwitter}`}
+              onClick={(e) => handleOptionClick(e, 'twitter')}
+              whileTap={{ scale: 0.95 }}
+            >
+              𝕏
+            </motion.button>
+            <motion.button
+              className={`${cardStyles.shareStatOption} ${cardStyles.shareStatOptionLinkedIn}`}
+              onClick={(e) => handleOptionClick(e, 'linkedin')}
+              whileTap={{ scale: 0.95 }}
+            >
+              in
+            </motion.button>
+            <motion.button
+              className={`${cardStyles.shareStatOption} ${cardStyles.shareStatOptionCopy}`}
+              onClick={(e) => handleOptionClick(e, 'copy')}
+              whileTap={{ scale: 0.95 }}
+            >
+              {copied ? '✓' : '📋'}
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        className={cardStyles.shareStatButton}
+        onClick={handleButtonClick}
+        whileTap={isVisible ? { scale: 0.95 } : undefined}
+        aria-hidden={!isVisible}
+        tabIndex={isVisible ? 0 : -1}
+      >
+        <span className={cardStyles.shareStatIcon}>↗</span>
+        <span>Share This</span>
+      </motion.button>
+    </motion.div>
   );
 }

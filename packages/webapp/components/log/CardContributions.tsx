@@ -116,132 +116,140 @@ export default function CardContributions({
         </div>
       )}
 
-      {/* Creator badge header */}
-      <motion.div
-        className={cardStyles.creatorBadge}
-        initial={{ opacity: 0, y: -20, rotate: -3 }}
-        animate={{ opacity: 1, y: 0, rotate: -2 }}
-        transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-      >
-        <EditIcon
-          size={IconSize.Small}
-          className={cardStyles.creatorBadgeIcon}
-        />
-        <span className={cardStyles.creatorBadgeText}>CONTENT CREATOR</span>
-      </motion.div>
+      {/* Main content - centered vertically */}
+      <div className={cardStyles.cardContent}>
+        {/* Creator badge header */}
+        <motion.div
+          className={cardStyles.creatorBadge}
+          initial={{ opacity: 0, y: -20, rotate: -3 }}
+          animate={{ opacity: 1, y: 0, rotate: -2 }}
+          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+        >
+          <EditIcon
+            size={IconSize.Small}
+            className={cardStyles.creatorBadgeIcon}
+          />
+          <span className={cardStyles.creatorBadgeText}>CONTENT CREATOR</span>
+        </motion.div>
 
-      {/* Main spotlight - Posts created */}
-      <motion.div
-        className={cardStyles.spotlightContainer}
-        initial={{ opacity: 0, scale: 0.3 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.4, type: 'spring', stiffness: 150, damping: 12 }}
-      >
-        <div className={cardStyles.spotlightRing} />
-        <div className={cardStyles.spotlightInner}>
-          <motion.span
-            className={cardStyles.spotlightNumber}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
+        {/* Main spotlight - Posts created */}
+        <motion.div
+          className={cardStyles.spotlightContainer}
+          initial={{ opacity: 0, scale: 0.3 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            delay: 0.4,
+            type: 'spring',
+            stiffness: 150,
+            damping: 12,
+          }}
+        >
+          <div className={cardStyles.spotlightRing} />
+          <div className={cardStyles.spotlightInner}>
+            <motion.span
+              className={cardStyles.spotlightNumber}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              {animatedPosts}
+            </motion.span>
+            <span className={cardStyles.spotlightLabel}>POSTS</span>
+            <span className={cardStyles.spotlightSubLabel}>published</span>
+          </div>
+        </motion.div>
+
+        {/* Result indicator - connects posts to impact */}
+        <motion.div
+          className={cardStyles.resultIndicator}
+          initial={{ opacity: 0, scaleX: 0 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ delay: 0.9, duration: 0.4 }}
+        >
+          <div className={cardStyles.resultLine} />
+          <span className={cardStyles.resultText}>resulted in</span>
+          <div className={cardStyles.resultLine} />
+        </motion.div>
+
+        {/* Impact metrics as ticket stubs */}
+        <div className={cardStyles.ticketStubsContainer}>
+          <motion.div
+            className={`${cardStyles.ticketStub} ${cardStyles.ticketStubViews}`}
+            initial={{ opacity: 0, x: -40, rotate: -5 }}
+            animate={{ opacity: 1, x: 0, rotate: -2 }}
+            transition={{ delay: 1.0, type: 'spring', stiffness: 120 }}
           >
-            {animatedPosts}
-          </motion.span>
-          <span className={cardStyles.spotlightLabel}>POSTS</span>
-          <span className={cardStyles.spotlightSubLabel}>published</span>
+            <div className={cardStyles.ticketStubPerforation} />
+            <div className={cardStyles.ticketStubContent}>
+              <EyeIcon
+                size={IconSize.Small}
+                className={cardStyles.ticketStubIcon}
+              />
+              <span className={cardStyles.ticketStubValue}>
+                {largeNumberFormat(animatedViews)}
+              </span>
+              <span className={cardStyles.ticketStubLabel}>VIEWS</span>
+            </div>
+            <div className={cardStyles.ticketStubTear} />
+          </motion.div>
+
+          <motion.div
+            className={`${cardStyles.ticketStub} ${cardStyles.ticketStubComments}`}
+            initial={{ opacity: 0, y: 30, rotate: 3 }}
+            animate={{ opacity: 1, y: 0, rotate: 1 }}
+            transition={{ delay: 1.2, type: 'spring', stiffness: 120 }}
+          >
+            <div className={cardStyles.ticketStubPerforation} />
+            <div className={cardStyles.ticketStubContent}>
+              <DiscussIcon
+                size={IconSize.Small}
+                className={cardStyles.ticketStubIcon}
+              />
+              <span className={cardStyles.ticketStubValue}>
+                {animatedComments}
+              </span>
+              <span className={cardStyles.ticketStubLabel}>COMMENTS</span>
+            </div>
+            <div className={cardStyles.ticketStubTear} />
+          </motion.div>
+
+          <motion.div
+            className={`${cardStyles.ticketStub} ${cardStyles.ticketStubRep}`}
+            initial={{ opacity: 0, x: 40, rotate: 5 }}
+            animate={{ opacity: 1, x: 0, rotate: 2 }}
+            transition={{ delay: 1.4, type: 'spring', stiffness: 120 }}
+          >
+            <div className={cardStyles.ticketStubPerforation} />
+            <div className={cardStyles.ticketStubContent}>
+              <ReputationIcon
+                size={IconSize.Small}
+                className={cardStyles.ticketStubIcon}
+              />
+              <span className={cardStyles.ticketStubValue}>
+                {largeNumberFormat(animatedRep)}
+              </span>
+              <span className={cardStyles.ticketStubLabel}>REPUTATION</span>
+            </div>
+            <div className={cardStyles.ticketStubTear} />
+          </motion.div>
         </div>
-      </motion.div>
 
-      {/* Result indicator - connects posts to impact */}
-      <motion.div
-        className={cardStyles.resultIndicator}
-        initial={{ opacity: 0, scaleX: 0 }}
-        animate={{ opacity: 1, scaleX: 1 }}
-        transition={{ delay: 0.9, duration: 0.4 }}
-      >
-        <div className={cardStyles.resultLine} />
-        <span className={cardStyles.resultText}>resulted in</span>
-        <div className={cardStyles.resultLine} />
-      </motion.div>
-
-      {/* Impact metrics as ticket stubs */}
-      <div className={cardStyles.ticketStubsContainer}>
-        <motion.div
-          className={`${cardStyles.ticketStub} ${cardStyles.ticketStubViews}`}
-          initial={{ opacity: 0, x: -40, rotate: -5 }}
-          animate={{ opacity: 1, x: 0, rotate: -2 }}
-          transition={{ delay: 1.0, type: 'spring', stiffness: 120 }}
-        >
-          <div className={cardStyles.ticketStubPerforation} />
-          <div className={cardStyles.ticketStubContent}>
-            <EyeIcon
-              size={IconSize.Small}
-              className={cardStyles.ticketStubIcon}
-            />
-            <span className={cardStyles.ticketStubValue}>
-              {largeNumberFormat(animatedViews)}
-            </span>
-            <span className={cardStyles.ticketStubLabel}>VIEWS</span>
-          </div>
-          <div className={cardStyles.ticketStubTear} />
-        </motion.div>
-
-        <motion.div
-          className={`${cardStyles.ticketStub} ${cardStyles.ticketStubComments}`}
-          initial={{ opacity: 0, y: 30, rotate: 3 }}
-          animate={{ opacity: 1, y: 0, rotate: 1 }}
-          transition={{ delay: 1.2, type: 'spring', stiffness: 120 }}
-        >
-          <div className={cardStyles.ticketStubPerforation} />
-          <div className={cardStyles.ticketStubContent}>
-            <DiscussIcon
-              size={IconSize.Small}
-              className={cardStyles.ticketStubIcon}
-            />
-            <span className={cardStyles.ticketStubValue}>
-              {animatedComments}
-            </span>
-            <span className={cardStyles.ticketStubLabel}>COMMENTS</span>
-          </div>
-          <div className={cardStyles.ticketStubTear} />
-        </motion.div>
-
-        <motion.div
-          className={`${cardStyles.ticketStub} ${cardStyles.ticketStubRep}`}
-          initial={{ opacity: 0, x: 40, rotate: 5 }}
-          animate={{ opacity: 1, x: 0, rotate: 2 }}
-          transition={{ delay: 1.4, type: 'spring', stiffness: 120 }}
-        >
-          <div className={cardStyles.ticketStubPerforation} />
-          <div className={cardStyles.ticketStubContent}>
-            <ReputationIcon
-              size={IconSize.Small}
-              className={cardStyles.ticketStubIcon}
-            />
-            <span className={cardStyles.ticketStubValue}>
-              {largeNumberFormat(animatedRep)}
-            </span>
-            <span className={cardStyles.ticketStubLabel}>REPUTATION</span>
-          </div>
-          <div className={cardStyles.ticketStubTear} />
-        </motion.div>
+        {/* Creator ranking banner */}
+        {data.creatorPercentile && (
+          <TopPercentileBanner
+            preText="TOP"
+            mainText={`${data.creatorPercentile}%`}
+            postText="CREATOR"
+            delay={2.0}
+            motionProps={{
+              initial: { opacity: 0, y: 30, scale: 0.9 },
+              animate: { opacity: 1, y: 0, scale: 1 },
+            }}
+          />
+        )}
       </div>
 
-      {/* Creator ranking banner */}
-      {data.creatorPercentile && (
-        <TopPercentileBanner
-          preText="TOP"
-          mainText={`${data.creatorPercentile}%`}
-          postText="CREATOR"
-          delay={2.0}
-          motionProps={{
-            initial: { opacity: 0, y: 30, scale: 0.9 },
-            animate: { opacity: 1, y: 0, scale: 1 },
-          }}
-        />
-      )}
-
-      {/* Share button */}
+      {/* Share button - pushed to bottom with margin-top: auto */}
       <ShareStatButton
         delay={2.6}
         isActive={isActive}

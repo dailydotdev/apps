@@ -1,6 +1,21 @@
 /* Card-specific styles - Each card gets unique visual treatment */
 
 /* ========================================
+   SHARED: Card Content Wrapper
+   Centers main content, share button uses margin-top: auto
+   ======================================== */
+
+.cardContent {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ========================================
    CARD 2: WHEN YOU READ - Clock Theme
    ======================================== */
 
@@ -2669,16 +2684,17 @@
    ======================================== */
 
 .shareStatContainer {
-  position: absolute;
-  bottom: 3.5rem;
-  left: 0;
-  right: 0;
+  position: relative;
+  width: 100%;
+  margin-top: auto; /* Push to bottom of flex container */
+  padding-top: 0.75rem;
+  padding-bottom: 0.5rem; /* Space between button and nav prompt */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 20;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  flex-shrink: 0; /* Don't shrink when space is tight */
 }
 
 .shareStatButton {

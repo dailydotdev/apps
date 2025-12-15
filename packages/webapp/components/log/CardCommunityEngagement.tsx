@@ -192,125 +192,130 @@ export default function CardCommunityEngagement({
         </div>
       )}
 
-      {/* Total engagement header */}
-      <motion.div
-        className={cardStyles.engagementHeader}
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <span className={cardStyles.engagementHeaderText}>COMMUNITY PULSE</span>
-      </motion.div>
+      {/* Main content - centered vertically */}
+      <div className={cardStyles.cardContent}>
+        {/* Total engagement header */}
+        <motion.div
+          className={cardStyles.engagementHeader}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <span className={cardStyles.engagementHeaderText}>
+            COMMUNITY PULSE
+          </span>
+        </motion.div>
 
-      {/* Main stat - Total engagement */}
-      <motion.div
-        className={cardStyles.totalEngagementContainer}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3 }}
-      >
-        <motion.span
-          className={cardStyles.totalEngagementNumber}
+        {/* Main stat - Total engagement */}
+        <motion.div
+          className={cardStyles.totalEngagementContainer}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <motion.span
+            className={cardStyles.totalEngagementNumber}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {largeNumberFormat(animatedTotal)}
+          </motion.span>
+          <span className={cardStyles.totalEngagementLabel}>interactions</span>
+        </motion.div>
+
+        {/* Subtitle */}
+        <motion.p
+          className={cardStyles.loveSubtitle}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
         >
-          {largeNumberFormat(animatedTotal)}
-        </motion.span>
-        <span className={cardStyles.totalEngagementLabel}>interactions</span>
-      </motion.div>
+          every action builds the community
+        </motion.p>
 
-      {/* Subtitle */}
-      <motion.p
-        className={cardStyles.loveSubtitle}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        every action builds the community
-      </motion.p>
-
-      {/* Three equal engagement pillars */}
-      <motion.div
-        className={cardStyles.engagementPillars}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-      >
+        {/* Three equal engagement pillars */}
         <motion.div
-          className={cardStyles.engagementPillar}
-          whileHover={{ scale: 1.05 }}
-        >
-          <span className={cardStyles.pillarIcon}>
-            <UpvoteIcon
-              secondary
-              size={IconSize.Medium}
-              className="text-action-upvote-default"
-            />
-          </span>
-          <span className={cardStyles.pillarValue}>
-            {largeNumberFormat(animatedUpvotes)}
-          </span>
-          <span className={cardStyles.pillarLabel}>upvotes</span>
-        </motion.div>
-
-        <motion.div
-          className={cardStyles.engagementPillar}
-          whileHover={{ scale: 1.05 }}
-        >
-          <span className={cardStyles.pillarIcon}>
-            <DiscussIcon
-              secondary
-              size={IconSize.Medium}
-              className="text-action-comment-default"
-            />
-          </span>
-          <span className={cardStyles.pillarValue}>
-            {largeNumberFormat(animatedComments)}
-          </span>
-          <span className={cardStyles.pillarLabel}>comments</span>
-        </motion.div>
-
-        <motion.div
-          className={cardStyles.engagementPillar}
-          whileHover={{ scale: 1.05 }}
-        >
-          <span className={cardStyles.pillarIcon}>
-            <BookmarkIcon
-              secondary
-              size={IconSize.Medium}
-              className="text-action-bookmark-default"
-            />
-          </span>
-          <span className={cardStyles.pillarValue}>
-            {largeNumberFormat(animatedBookmarks)}
-          </span>
-          <span className={cardStyles.pillarLabel}>saved</span>
-        </motion.div>
-      </motion.div>
-
-      {/* Best stat banner */}
-      {bestStat && (
-        <motion.div
-          className={cardStyles.communityBanner}
-          initial={{ opacity: 0, y: 30 }}
+          className={cardStyles.engagementPillars}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, type: 'spring' }}
+          transition={{ delay: 0.7 }}
         >
-          <span className={cardStyles.communityBannerEmoji}>
-            {bestStat.icon}
-          </span>
-          <div>
-            <span className={cardStyles.communityBannerTop}>
-              TOP {bestStat.value}%
+          <motion.div
+            className={cardStyles.engagementPillar}
+            whileHover={{ scale: 1.05 }}
+          >
+            <span className={cardStyles.pillarIcon}>
+              <UpvoteIcon
+                secondary
+                size={IconSize.Medium}
+                className="text-action-upvote-default"
+              />
             </span>
-            <span className={cardStyles.communityBannerLabel}>
-              {bestStat.label}
+            <span className={cardStyles.pillarValue}>
+              {largeNumberFormat(animatedUpvotes)}
             </span>
-          </div>
-        </motion.div>
-      )}
+            <span className={cardStyles.pillarLabel}>upvotes</span>
+          </motion.div>
 
-      {/* Share button */}
+          <motion.div
+            className={cardStyles.engagementPillar}
+            whileHover={{ scale: 1.05 }}
+          >
+            <span className={cardStyles.pillarIcon}>
+              <DiscussIcon
+                secondary
+                size={IconSize.Medium}
+                className="text-action-comment-default"
+              />
+            </span>
+            <span className={cardStyles.pillarValue}>
+              {largeNumberFormat(animatedComments)}
+            </span>
+            <span className={cardStyles.pillarLabel}>comments</span>
+          </motion.div>
+
+          <motion.div
+            className={cardStyles.engagementPillar}
+            whileHover={{ scale: 1.05 }}
+          >
+            <span className={cardStyles.pillarIcon}>
+              <BookmarkIcon
+                secondary
+                size={IconSize.Medium}
+                className="text-action-bookmark-default"
+              />
+            </span>
+            <span className={cardStyles.pillarValue}>
+              {largeNumberFormat(animatedBookmarks)}
+            </span>
+            <span className={cardStyles.pillarLabel}>saved</span>
+          </motion.div>
+        </motion.div>
+
+        {/* Best stat banner */}
+        {bestStat && (
+          <motion.div
+            className={cardStyles.communityBanner}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, type: 'spring' }}
+          >
+            <span className={cardStyles.communityBannerEmoji}>
+              {bestStat.icon}
+            </span>
+            <div>
+              <span className={cardStyles.communityBannerTop}>
+                TOP {bestStat.value}%
+              </span>
+              <span className={cardStyles.communityBannerLabel}>
+                {bestStat.label}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Share button - pushed to bottom with margin-top: auto */}
       <ShareStatButton
         delay={1.8}
         isActive={isActive}

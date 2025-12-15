@@ -32,10 +32,14 @@
   /* Typography - design system fonts */
   --font-mono: 'Fira Code', 'SF Mono', Consolas, Menlo, 'Courier New', monospace;
 
-  position: fixed;
-  inset: 0;
+  /* Use dvh for dynamic viewport height (accounts for mobile browser chrome) */
+  position: relative; /* Establish positioning context for absolute children */
+  height: 100vh; /* Fallback for older browsers */
+  height: 100dvh;
   width: 100%;
   max-width: 100vw;
+  display: flex;
+  flex-direction: column;
   background: var(--fest-bg);
   overflow: hidden;
   color: var(--fest-white);
@@ -43,6 +47,8 @@
   user-select: none;
   -webkit-user-select: none;
   -webkit-overflow-scrolling: touch;
+  /* Safe area padding for notches and home indicators */
+  padding-top: env(safe-area-inset-top, 0);
 }
 
 /* ========================================
@@ -87,7 +93,8 @@
   position: relative;
   width: 100%;
   max-width: 100%;
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0; /* Important for flex children with overflow */
   z-index: 10;
   overflow: hidden;
 }
@@ -100,10 +107,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* Align content from top, share button uses margin-top: auto */
   padding: 1rem;
-  padding-top: 4rem;
-  padding-bottom: 3rem;
   overflow: hidden;
   box-sizing: border-box;
   /* Framer Motion handles opacity/transform */
@@ -112,14 +117,26 @@
 .cardInner {
   width: 100%;
   max-width: calc(100vw - 2rem);
-  height: 100%;
-  max-height: calc(100vh - 7rem);
+  flex: 1 1 auto;
+  min-height: 0; /* Important for flex overflow behavior */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Let content wrapper handle centering */
+  perspective: 1000px; /* Enable 3D space for children */
+  box-sizing: border-box;
+  overflow: hidden; /* Prevent scrollbars - content should fit */
+}
+
+/* Wrapper for card content - centers main content, share button outside uses margin-top: auto */
+.cardContent {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  perspective: 1000px; /* Enable 3D space for children */
-  box-sizing: border-box;
+  width: 100%;
 }
 
 /* Limit content width on larger screens */
@@ -134,10 +151,8 @@
    ======================================== */
 
 .header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  flex: 0 0 auto;
   z-index: 100;
   padding: 1rem 1.5rem;
   display: flex;
@@ -894,16 +909,16 @@
    ======================================== */
 
 .navPrompt {
-  position: absolute;
-  bottom: 1rem;
-  left: 0;
-  right: 0;
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   z-index: 100;
-  animation: fadeIn 0.6s ease-out 2s both;
+  padding: 0.5rem 0;
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
   white-space: nowrap;
 }
 
@@ -914,12 +929,24 @@
   color: var(--fest-white);
   opacity: 0.5;
   text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.navPromptFirst span {
+  font-size: 0.75rem;
+  opacity: 1;
 }
 
 .navArrow {
   font-size: 1rem;
   color: var(--fest-lime);
-  animation: arrowBounce 1s ease-in-out infinite;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.navPromptFirst .navArrow {
+  font-size: 1.125rem;
+  opacity: 1;
 }
 
 @keyframes arrowBounce {
@@ -962,11 +989,6 @@
    ======================================== */
 
 @media (max-height: 700px) {
-  .card {
-    padding-top: 3.5rem;
-    padding-bottom: 2.5rem;
-  }
-
   .headlineStack {
     margin-bottom: 0.5rem;
   }
@@ -985,7 +1007,8 @@
   }
 
   .navPrompt {
-    bottom: 0.75rem;
+    padding: 0.375rem 0;
+    padding-bottom: calc(0.375rem + env(safe-area-inset-bottom, 0px));
   }
 }
 

@@ -279,6 +279,16 @@ export default function LogPage({
     return baseTheme;
   }, [currentCardId, data.archetype]);
 
+  // Calculate navigation prompt delay
+  let navPromptDelay: number;
+  if (isLastCard) {
+    navPromptDelay = 0;
+  } else if (currentCard === 0) {
+    navPromptDelay = 2.5;
+  } else {
+    navPromptDelay = 0.5;
+  }
+
   return (
     <>
       <Head>
@@ -436,27 +446,34 @@ export default function LogPage({
         </div>
 
         {/* Navigation prompt */}
-        {!isLastCard && (
+        <motion.div
+          className={`${styles.navPrompt} ${
+            currentCard === 0 ? styles.navPromptFirst : ''
+          }`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{
+            opacity: isLastCard ? 0 : 1,
+            y: isLastCard ? 10 : 0,
+          }}
+          transition={{
+            delay: navPromptDelay,
+            duration: 0.5,
+          }}
+          style={{ pointerEvents: isLastCard ? 'none' : 'auto' }}
+        >
+          <span>Swipe</span>
           <motion.div
-            className={styles.navPrompt}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2, duration: 0.5 }}
+            className={styles.navArrow}
+            animate={{ x: [0, 5, 0] }}
+            transition={{
+              repeat: Infinity,
+              duration: 1.5,
+              ease: 'easeInOut',
+            }}
           >
-            <span>Swipe</span>
-            <motion.div
-              className={styles.navArrow}
-              animate={{ x: [0, 5, 0] }}
-              transition={{
-                repeat: Infinity,
-                duration: 1.5,
-                ease: 'easeInOut',
-              }}
-            >
-              →
-            </motion.div>
+            →
           </motion.div>
-        )}
+        </motion.div>
       </motion.div>
     </>
   );

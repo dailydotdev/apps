@@ -80,100 +80,103 @@ export default function CardWhenYouRead({
 
   return (
     <>
-      {/* Clock visualization */}
-      <motion.div
-        className={cardStyles.clockContainer}
-        initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ delay: 0.3, type: 'spring', stiffness: 100 }}
-      >
-        <div className={cardStyles.clockFace}>
-          {/* Hour markers */}
-          {[...Array(12)].map((_, i) => {
-            const angle = i * 30;
-            return (
-              <div
-                key={`marker-${angle}`}
-                className={cardStyles.clockMarker}
-                style={{ transform: `rotate(${angle}deg)` }}
-              />
-            );
-          })}
-          {/* Hour hand */}
-          <motion.div
-            className={cardStyles.clockHand}
-            initial={{ rotate: -90 }}
-            animate={{ rotate: hourAngle }}
-            transition={{ delay: 0.8, duration: 1, type: 'spring' }}
-          />
-          {/* Center dot */}
-          <div className={cardStyles.clockCenter} />
-          {/* Time display - rounded hour */}
-          <motion.div
-            className={cardStyles.clockTime}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-          >
-            {formatHour(peakHour)}
-          </motion.div>
-        </div>
-      </motion.div>
+      {/* Main content - centered vertically */}
+      <div className={styles.cardContent}>
+        {/* Clock visualization */}
+        <motion.div
+          className={cardStyles.clockContainer}
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ delay: 0.3, type: 'spring', stiffness: 100 }}
+        >
+          <div className={cardStyles.clockFace}>
+            {/* Hour markers */}
+            {[...Array(12)].map((_, i) => {
+              const angle = i * 30;
+              return (
+                <div
+                  key={`marker-${angle}`}
+                  className={cardStyles.clockMarker}
+                  style={{ transform: `rotate(${angle}deg)` }}
+                />
+              );
+            })}
+            {/* Hour hand */}
+            <motion.div
+              className={cardStyles.clockHand}
+              initial={{ rotate: -90 }}
+              animate={{ rotate: hourAngle }}
+              transition={{ delay: 0.8, duration: 1, type: 'spring' }}
+            />
+            {/* Center dot */}
+            <div className={cardStyles.clockCenter} />
+            {/* Time display - rounded hour */}
+            <motion.div
+              className={cardStyles.clockTime}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.2 }}
+            >
+              {formatHour(peakHour)}
+            </motion.div>
+          </div>
+        </motion.div>
 
-      {/* Headline */}
-      <motion.div
-        className={styles.headlineStack}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <span className={styles.headlineSmall}>Your golden hour</span>
-      </motion.div>
+        {/* Headline */}
+        <motion.div
+          className={styles.headlineStack}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <span className={styles.headlineSmall}>Your golden hour</span>
+        </motion.div>
 
-      {/* Hour distribution bar chart */}
-      <motion.div
-        className={cardStyles.hourDistWrapper}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.0 }}
-      >
-        <div className={cardStyles.hourDistBars}>
-          {hourDistribution.map((value, hourIndex) => {
-            const hourNumber = hourIndex;
-            return (
-              <motion.div
-                key={`hour-${hourNumber}-${value}`}
-                className={`${cardStyles.hourDistBar} ${
-                  hourNumber === peakHour ? cardStyles.hourDistBarPeak : ''
-                }`}
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: value || 0.05 }}
-                transition={{
-                  delay: 1.1 + hourNumber * 0.02,
-                  duration: 0.3,
-                  ease: 'easeOut',
-                }}
-              />
-            );
-          })}
-        </div>
-        <div className={cardStyles.hourDistLabels}>
-          <span>12am</span>
-          <span>6am</span>
-          <span>12pm</span>
-          <span>6pm</span>
-        </div>
-      </motion.div>
+        {/* Hour distribution bar chart */}
+        <motion.div
+          className={cardStyles.hourDistWrapper}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.0 }}
+        >
+          <div className={cardStyles.hourDistBars}>
+            {hourDistribution.map((value, hourIndex) => {
+              const hourNumber = hourIndex;
+              return (
+                <motion.div
+                  key={`hour-${hourNumber}-${value}`}
+                  className={`${cardStyles.hourDistBar} ${
+                    hourNumber === peakHour ? cardStyles.hourDistBarPeak : ''
+                  }`}
+                  initial={{ scaleY: 0 }}
+                  animate={{ scaleY: value || 0.05 }}
+                  transition={{
+                    delay: 1.1 + hourNumber * 0.02,
+                    duration: 0.3,
+                    ease: 'easeOut',
+                  }}
+                />
+              );
+            })}
+          </div>
+          <div className={cardStyles.hourDistLabels}>
+            <span>12am</span>
+            <span>6am</span>
+            <span>12pm</span>
+            <span>6pm</span>
+          </div>
+        </motion.div>
 
-      {/* Pattern stat */}
-      <TopPercentileBanner
-        preText={PATTERN_BANNER_TEXT[data.readingPattern].preText}
-        mainText={`${data.patternPercentile}%`}
-        postText={PATTERN_BANNER_TEXT[data.readingPattern].postText}
-        delay={1.4}
-      />
+        {/* Pattern stat */}
+        <TopPercentileBanner
+          preText={PATTERN_BANNER_TEXT[data.readingPattern].preText}
+          mainText={`${data.patternPercentile}%`}
+          postText={PATTERN_BANNER_TEXT[data.readingPattern].postText}
+          delay={1.4}
+        />
+      </div>
 
-      {/* Share button */}
+      {/* Share button - pushed to bottom with margin-top: auto */}
       <ShareStatButton
         delay={2}
         isActive={isActive}
