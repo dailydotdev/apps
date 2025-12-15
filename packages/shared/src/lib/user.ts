@@ -71,15 +71,18 @@ export enum UserExperienceLevel {
   NOT_ENGINEER = `I'm not an engineer`,
 }
 
-export const ExperienceLevelOptions = [
-  { label: 'Aspiring engineer (<1 year)', value: 'LESS_THAN_1_YEAR' },
-  { label: 'Entry-level (1 year)', value: 'MORE_THAN_1_YEAR' },
-  { label: 'Mid-level (2-3 years)', value: 'MORE_THAN_2_YEARS' },
-  { label: 'Experienced (4-5 years)', value: 'MORE_THAN_4_YEARS' },
-  { label: 'Highly experienced (6-10 years)', value: 'MORE_THAN_6_YEARS' },
-  { label: `I've suffered enough (10+ years)`, value: 'MORE_THAN_10_YEARS' },
-  { label: `I'm not an engineer`, value: 'NOT_ENGINEER' },
-];
+export const ExperienceLevelOptions = Object.entries(UserExperienceLevel).map(
+  ([value, label]) => ({ label, value }),
+);
+
+export const getExperienceLevelLabel = (
+  level: string | undefined,
+): string | undefined => {
+  if (!level) {
+    return undefined;
+  }
+  return UserExperienceLevel[level as keyof typeof UserExperienceLevel];
+};
 
 export interface UserProfile {
   name: string;

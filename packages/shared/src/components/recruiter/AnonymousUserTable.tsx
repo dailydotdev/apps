@@ -20,6 +20,7 @@ import { Chip } from '../cards/common/PostTags';
 import { useOpportunityPreviewContext } from '../../features/opportunity/context/OpportunityPreviewContext';
 import type { OpportunityPreviewUser } from '../../features/opportunity/types';
 import { cloudinarySquadsImageFallback } from '../../lib/image';
+import { getExperienceLevelLabel } from '../../lib/user';
 
 const columnHelper = createColumnHelper<OpportunityPreviewUser>();
 
@@ -67,14 +68,17 @@ const columns = [
   }),
   columnHelper.accessor('seniority', {
     header: 'Seniority',
-    cell: (info) => (
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        {info.getValue() || '-'}
-      </Typography>
-    ),
+    cell: (info) => {
+      const value = info.getValue();
+      return (
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {getExperienceLevelLabel(value) ?? '-'}
+        </Typography>
+      );
+    },
   }),
   columnHelper.accessor('location', {
     header: 'Location',
