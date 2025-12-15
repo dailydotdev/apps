@@ -2656,6 +2656,66 @@
   font-size: 0.85rem;
 }
 
+/* Compact layout for shorter screens (iPhone with app banner, etc.) */
+@media (max-height: 700px) {
+  .shareWrapContainer {
+    gap: 0.5rem;
+  }
+
+  .shareArchetypeContainer {
+    gap: 0.5rem;
+    padding: 0.75rem 0;
+  }
+
+  .shareArchetypeImageWrap {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 0.25rem;
+  }
+
+  .shareArchetypeName {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .shareThankYou {
+    padding: 0.25rem 0;
+  }
+
+  .shareThankYouText {
+    font-size: 0.95rem;
+    margin: 0 0 0.25rem;
+  }
+
+  .shareThankYouSubtext {
+    font-size: 0.65rem;
+  }
+
+  .shareSwipeHint {
+    margin-top: 0.25rem;
+  }
+}
+
+/* Even more compact for very short screens */
+@media (max-height: 600px) {
+  .shareWrapTitle {
+    font-size: 2.5rem;
+  }
+
+  .shareArchetypeImageWrap {
+    width: 64px;
+    height: 64px;
+  }
+
+  .shareStatItem {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .shareSwipeHint {
+    display: none;
+  }
+}
+
 /* ========================================
    SHARE STAT BUTTON - Appears after reveal
    Festival theme: Bold, lime CTA with shadows

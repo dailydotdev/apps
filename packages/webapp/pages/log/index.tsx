@@ -50,10 +50,10 @@ const CARD_THEMES: Record<string, CardTheme> = {
     decorations: [
       { char: '✦', color: PALETTE.cheese40 },
       { char: '★', color: PALETTE.lettuce40 },
-      { char: '✴', color: PALETTE.cabbage40 },
+      { char: '✶', color: PALETTE.cabbage40 },
       { char: '✦', color: PALETTE.bun40 },
       { char: '★', color: PALETTE.lettuce40 },
-      { char: '✴', color: PALETTE.cheese40 },
+      { char: '✶', color: PALETTE.cheese40 },
     ],
   },
   'when-you-read': {
@@ -77,7 +77,7 @@ const CARD_THEMES: Record<string, CardTheme> = {
       { char: '✦', color: PALETTE.lettuce40 },
       { char: '◆', color: PALETTE.blueCheese40 },
       { char: '▸', color: PALETTE.lettuce40 },
-      { char: '✴', color: PALETTE.cheese40 },
+      { char: '✶', color: PALETTE.cheese40 },
     ],
   },
   'favorite-sources': {
@@ -88,7 +88,7 @@ const CARD_THEMES: Record<string, CardTheme> = {
       { char: '★', color: PALETTE.cheese40 },
       { char: '✦', color: PALETTE.bun40 },
       { char: '♦', color: PALETTE.cheese40 },
-      { char: '✴', color: PALETTE.cabbage40 },
+      { char: '✶', color: PALETTE.cabbage40 },
       { char: '★', color: PALETTE.bun40 },
     ],
   },
@@ -99,7 +99,7 @@ const CARD_THEMES: Record<string, CardTheme> = {
       { char: '✦', color: PALETTE.onion10 },
       { char: '◇', color: PALETTE.cabbage40 },
       { char: '★', color: PALETTE.onion10 },
-      { char: '✴', color: PALETTE.cabbage40 },
+      { char: '✶', color: PALETTE.cabbage40 },
       { char: '✦', color: PALETTE.lettuce40 },
       { char: '◇', color: PALETTE.onion10 },
     ],
@@ -108,10 +108,10 @@ const CARD_THEMES: Record<string, CardTheme> = {
     bgColor: PALETTE.pepper90,
     burstColor: 'rgba(157, 112, 248, 0.08)', // onion.10 at 8%
     decorations: [
-      { char: '✴', color: PALETTE.onion10 },
+      { char: '✶', color: PALETTE.onion10 },
       { char: '★', color: PALETTE.cheese40 },
       { char: '✦', color: PALETTE.onion10 },
-      { char: '✴', color: PALETTE.lettuce40 },
+      { char: '✶', color: PALETTE.lettuce40 },
       { char: '★', color: PALETTE.onion10 },
       { char: '✦', color: PALETTE.cheese40 },
     ],
@@ -124,7 +124,7 @@ const CARD_THEMES: Record<string, CardTheme> = {
       { char: '✦', color: PALETTE.lettuce40 },
       { char: '◆', color: PALETTE.cabbage40 },
       { char: '★', color: PALETTE.cheese40 },
-      { char: '✴', color: PALETTE.lettuce40 },
+      { char: '✶', color: PALETTE.lettuce40 },
       { char: '✦', color: PALETTE.cabbage40 },
     ],
   },
@@ -134,10 +134,10 @@ const CARD_THEMES: Record<string, CardTheme> = {
     decorations: [
       { char: '✦', color: PALETTE.cheese40 },
       { char: '★', color: PALETTE.lettuce40 },
-      { char: '✴', color: PALETTE.cabbage40 },
+      { char: '✶', color: PALETTE.cabbage40 },
       { char: '✦', color: PALETTE.bun40 },
       { char: '★', color: PALETTE.lettuce40 },
-      { char: '✴', color: PALETTE.cheese40 },
+      { char: '✶', color: PALETTE.cheese40 },
     ],
   },
   share: {
@@ -149,7 +149,7 @@ const CARD_THEMES: Record<string, CardTheme> = {
       { char: '✦', color: PALETTE.cabbage40 },
       { char: '✧', color: PALETTE.bun40 },
       { char: '★', color: PALETTE.lettuce40 },
-      { char: '✴', color: PALETTE.cheese40 },
+      { char: '✶', color: PALETTE.cheese40 },
     ],
   },
 };

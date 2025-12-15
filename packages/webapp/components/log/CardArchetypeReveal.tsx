@@ -285,7 +285,6 @@ export default function CardArchetypeReveal({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-
                 {/* Particle explosion */}
                 {showParticles && (
                   <div className={cardStyles.particleCenter}>
