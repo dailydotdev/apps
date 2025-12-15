@@ -285,14 +285,6 @@ export default function CardArchetypeReveal({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                {/* Ambient glow background */}
-                <motion.div
-                  className={cardStyles.archetypeGlow}
-                  style={{ background: archetype.color }}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 0.15, scale: 2 }}
-                  transition={{ duration: 1.5, ease: 'easeOut' }}
-                />
 
                 {/* Particle explosion */}
                 {showParticles && (

@@ -1802,17 +1802,6 @@
   gap: 0.75rem;
 }
 
-/* Ambient glow effect */
-.archetypeGlow {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-}
-
 /* Particle explosion center */
 .particleCenter {
   position: absolute;

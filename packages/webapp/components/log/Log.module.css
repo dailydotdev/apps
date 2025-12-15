@@ -125,7 +125,6 @@
   justify-content: flex-start; /* Let content wrapper handle centering */
   perspective: 1000px; /* Enable 3D space for children */
   box-sizing: border-box;
-  overflow: hidden; /* Prevent scrollbars - content should fit */
 }
 
 /* Wrapper for card content - centers main content, share button outside uses margin-top: auto */
