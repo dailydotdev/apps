@@ -36,7 +36,6 @@ const ProfileLocation = ({
   const [locQuery, setLocQuery] = React.useState('');
   const selectedLoc = watch(locationName);
   const typeValue = watch(typeName || '', defaultValue?.type);
-  console.log(defaultValue, typeValue);
 
   const { data, isLoading } = useQuery({
     queryKey: generateQueryKey(

@@ -127,8 +127,6 @@ export const OpportunityEditInfoModal = ({
     rest.onRequestClose?.(event);
   };
 
-  console.log(opportunity.locations?.[0]);
-
   if (!opportunity) {
     return <Loader />;
   }
