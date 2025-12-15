@@ -1,19 +1,5 @@
 /* Card-specific styles - Each card gets unique visual treatment */
-
-/* ========================================
-   SHARED: Card Content Wrapper
-   Centers main content, share button uses margin-top: auto
-   ======================================== */
-
-.cardContent {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
+/* Note: .cardContent is defined in Log.module.css - use styles.cardContent */
 
 /* ========================================
    CARD 2: WHEN YOU READ - Clock Theme
@@ -951,6 +937,7 @@
 .communityBanner {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   background: var(--fest-white, #FFFFFF);
   color: var(--fest-bg, #0E1217);
@@ -958,6 +945,7 @@
   margin-top: 0.75rem;
   transform: rotate(1deg);
   box-shadow: 3px 3px 0 var(--fest-accent, #CE3DF3);
+  align-self: center; /* Ensure centered in flex parent */
 }
 
 .communityBannerEmoji {
@@ -1587,6 +1575,7 @@
   gap: 0.5rem;
   width: 100%;
   margin-bottom: 1rem;
+  padding: 0 0.125rem;
 }
 
 /* Individual track row */
@@ -2687,7 +2676,6 @@
   position: relative;
   width: 100%;
   margin-top: auto; /* Push to bottom of flex container */
-  padding-top: 0.75rem;
   padding-bottom: 0.5rem; /* Space between button and nav prompt */
   display: flex;
   flex-direction: column;
@@ -2787,10 +2775,6 @@
    ======================================== */
 
 @media (max-height: 700px) {
-  .shareStatContainer {
-    bottom: 2.75rem;
-  }
-
   .shareStatButton {
     padding: 0.625rem 1rem;
     font-size: 0.6rem;

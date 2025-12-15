@@ -11,6 +11,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { LogData } from '../../types/log';
 import { useAnimatedNumber } from '../../hooks/log';
+import styles from './Log.module.css';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
@@ -117,7 +118,7 @@ export default function CardContributions({
       )}
 
       {/* Main content - centered vertically */}
-      <div className={cardStyles.cardContent}>
+      <div className={styles.cardContent}>
         {/* Creator badge header */}
         <motion.div
           className={cardStyles.creatorBadge}

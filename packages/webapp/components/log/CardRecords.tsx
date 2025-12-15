@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import type { LogData } from '../../types/log';
 import { RECORDS } from '../../types/log';
+import styles from './Log.module.css';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 
@@ -18,7 +19,7 @@ export default function CardRecords({
   return (
     <>
       {/* Main content - centered vertically */}
-      <div className={cardStyles.cardContent}>
+      <div className={styles.cardContent}>
         {/* Album-style header */}
         <motion.div
           className={cardStyles.albumHeader}

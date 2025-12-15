@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { LogData } from '../../types/log';
 import { ARCHETYPES } from '../../types/log';
+import styles from './Log.module.css';
 import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 
@@ -202,7 +203,7 @@ export default function CardArchetypeReveal({
   return (
     <>
       {/* Main content - centered vertically */}
-      <div className={cardStyles.cardContent}>
+      <div className={styles.cardContent}>
         <div className={cardStyles.archetypeContainer}>
           <AnimatePresence mode="wait">
             {/* Build up phase */}
