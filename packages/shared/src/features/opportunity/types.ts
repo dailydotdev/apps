@@ -42,7 +42,6 @@ type OpportunityContentBlock = {
 };
 
 export type OpportunityLocation = {
-  type?: ProtoEnumValue;
   city?: string;
   country?: string;
   subdivision?: string;
@@ -104,7 +103,7 @@ export type Opportunity = {
   };
   meta: OpportunityMeta;
   recruiters: RecruiterProfile[];
-  locations: Array<{ location: OpportunityLocation }>;
+  locations: Array<{ location: OpportunityLocation; type?: ProtoEnumValue }>;
   keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
   feedbackQuestions?: OpportunityFeedbackQuestion[];

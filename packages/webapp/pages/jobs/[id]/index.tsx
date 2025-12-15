@@ -239,7 +239,7 @@ const metaMap = {
   },
   locationType: {
     title: 'Work site',
-    transformer: (value: Opportunity['location']) =>
+    transformer: (value: Opportunity['locations']) =>
       locationTypeMap[value?.[0]?.type || LocationType.UNSPECIFIED],
   },
   equity: {
