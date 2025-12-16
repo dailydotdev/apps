@@ -1,5 +1,5 @@
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import type { ButtonProps } from '../buttons/Button';
 import { Button } from '../buttons/Button';
@@ -41,7 +41,7 @@ const GifPopover = ({
 }: GifPopoverProps) => {
   const { ref: scrollRef, inView } = useInView({
     rootMargin: '20px',
-    threshold: 1,
+    threshold: 0.5,
   });
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -64,14 +64,11 @@ const GifPopover = ({
     query,
     limit: '20',
   });
-
-  useEffect(() => {
+  const [debounceNextPage] = useDebounceFn<void>(() => {
     if (inView && data?.length > 0 && !isFetchingNextPage && query) {
       fetchNextPage();
     }
-    // No need to update on query change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, isLoading, isFetchingNextPage, fetchNextPage]);
+  }, 500);
 
   const showingFavorites = !query;
   const gifsToDisplay = showingFavorites ? favorites : data;
@@ -126,11 +123,17 @@ const GifPopover = ({
             }
           />
         </div>
-        <div className="min-h-0 min-w-0 max-w-full flex-1 overflow-x-hidden overflow-y-scroll">
+        <div
+          className="min-h-0 min-w-0 max-w-full flex-1 overflow-x-hidden overflow-y-scroll"
+          onScroll={() => debounceNextPage()}
+        >
           {!isLoadingGifs && gifsToDisplay?.length > 0 && (
             <div className="grid min-w-0 max-w-full grid-cols-2 gap-2">
-              {gifsToDisplay.map((gif) => (
-                <div className="relative" key={gif.id}>
+              {gifsToDisplay.map((gif, idx) => (
+                <div
+                  key={gif.id}
+                  ref={idx === gifsToDisplay.length - 1 ? scrollRef : null}
+                >
                   <div className="z-10 absolute right-2 top-2 rounded-16 bg-overlay-primary-pepper">
                     <Button
                       icon={
@@ -172,7 +175,6 @@ const GifPopover = ({
               </Typography>
             </div>
           )}
-          <div ref={scrollRef} />
         </div>
       </PopoverContent>
     </Popover>

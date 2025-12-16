@@ -15,13 +15,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import {
-  ImageIcon,
-  MarkdownIcon,
-  LinkIcon,
-  AtIcon,
-  GiftIcon,
-} from '../../icons';
+import { ImageIcon, MarkdownIcon, LinkIcon, AtIcon } from '../../icons';
 import {
   Button,
   ButtonColor,
@@ -51,6 +45,7 @@ import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
 import { ACCEPTED_TYPES } from '../../../graphql/posts';
 import GifPopover from '../../popover/GifPopover';
+import { GifIcon } from '../../icons/Gif';
 
 const RecommendedEmojiTooltip = dynamic(
   () =>
@@ -401,7 +396,7 @@ function MarkdownInput(
             buttonProps={{
               size: actionButtonSizes,
               variant: ButtonVariant.Tertiary,
-              icon: <GiftIcon />,
+              icon: <GifIcon />,
             }}
             onGifCommand={onGifCommand}
             textareaRef={textareaRef}
