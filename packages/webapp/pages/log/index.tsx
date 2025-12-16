@@ -1,7 +1,14 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { MOCK_LOG_DATA, ARCHETYPES } from '../../types/log';
 import type { LogData } from '../../types/log';
 import { useCardNavigation } from '../../hooks/log';
@@ -199,6 +206,8 @@ const cardVariants = {
 export default function LogPage({
   data = MOCK_LOG_DATA,
 }: LogPageProps): ReactElement {
+  const router = useRouter();
+
   // Prevent horizontal scrollbar on the page
   useEffect(() => {
     const originalHtmlOverflow = document.documentElement.style.overflow;
@@ -377,11 +386,19 @@ export default function LogPage({
 
         {/* Header with logo and progress */}
         <header className={styles.header}>
-          <img
-            src="/assets/icon-light.svg"
-            alt="daily.dev"
-            className={styles.logo}
-          />
+          <div className="flex items-center gap-2">
+            <Button
+              icon={<ArrowIcon className="-rotate-90" />}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              onClick={() => router.push('/')}
+            />
+            <img
+              src="/assets/icon-light.svg"
+              alt="daily.dev"
+              className={styles.logo}
+            />
+          </div>
           <div className={styles.progressDots}>
             {cards.map((card, index) => {
               let className = styles.progressDot;

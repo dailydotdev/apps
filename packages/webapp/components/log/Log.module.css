@@ -171,7 +171,6 @@
 .progressDots {
   display: flex;
   gap: 4px;
-  padding-top: 0.25rem;
   flex-shrink: 0;
   flex-wrap: wrap;
   max-width: 50%;

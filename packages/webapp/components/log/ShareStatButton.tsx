@@ -98,7 +98,9 @@ export default function ShareStatButton({
         aria-hidden={!isVisible}
         tabIndex={isVisible ? 0 : -1}
       >
-        <span className={cardStyles.shareStatIcon}><ShareIcon secondary /></span>
+        <span className={cardStyles.shareStatIcon}>
+          <ShareIcon secondary />
+        </span>
         <span>Share this</span>
       </motion.button>
     </motion.div>
