@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 import type { LogData } from '../../types/log';
 import { ARCHETYPES } from '../../types/log';
 import cardStyles from './Cards.module.css';
@@ -11,10 +12,10 @@ interface CardProps {
 }
 
 export default function CardShare({ data }: CardProps): ReactElement {
-  const [copied, setCopied] = useState(false);
   const archetype = ARCHETYPES[data.archetype];
   const streakRecord = data.records.find((r) => r.type === 'streak');
 
+  const shareUrl = 'https://app.daily.dev/log';
   const shareText = `I'm a ${archetype.name.toUpperCase()} ${
     archetype.emoji
   } on daily.dev
@@ -26,42 +27,28 @@ export default function CardShare({ data }: CardProps): ReactElement {
 What's your developer archetype?
 → app.daily.dev/log`;
 
-  const handleShare = useCallback(
-    async (platform: 'twitter' | 'linkedin' | 'copy') => {
-      const url = 'https://app.daily.dev/log';
-
-      switch (platform) {
-        case 'twitter':
-          window.open(
-            `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              shareText,
-            )}`,
-            '_blank',
-          );
-          break;
-        case 'linkedin':
-          window.open(
-            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-              url,
-            )}`,
-            '_blank',
-          );
-          break;
-        case 'copy':
-          try {
-            await navigator.clipboard.writeText(shareText);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-          } catch {
-            // Fallback
-          }
-          break;
-        default:
-          break;
+  const handleShare = useCallback(async () => {
+    // Try Web Share API first
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'My Developer Log 2025',
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch {
+        // User cancelled or error - fall through to clipboard
       }
-    },
-    [shareText],
-  );
+    }
+
+    // Fallback to clipboard
+    try {
+      await navigator.clipboard.writeText(shareText);
+    } catch {
+      // Ignore clipboard errors
+    }
+  }, [shareText]);
 
   return (
     <>
@@ -155,7 +142,7 @@ What's your developer archetype?
           </p>
         </motion.div>
 
-        {/* Share buttons */}
+        {/* Share button */}
         <motion.div
           className={cardStyles.shareWrapButtons}
           initial={{ opacity: 0, y: 20 }}
@@ -164,32 +151,14 @@ What's your developer archetype?
         >
           <motion.button
             className={`${cardStyles.shareWrapButton} ${cardStyles.shareWrapButtonPrimary}`}
-            onClick={() => handleShare('twitter')}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <span className={cardStyles.shareWrapButtonIcon}>𝕏</span>
-            <span>Share on X</span>
-          </motion.button>
-          <motion.button
-            className={`${cardStyles.shareWrapButton} ${cardStyles.shareWrapButtonLinkedIn}`}
-            onClick={() => handleShare('linkedin')}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <span className={cardStyles.shareWrapButtonIcon}>in</span>
-            <span>LinkedIn</span>
-          </motion.button>
-          <motion.button
-            className={`${cardStyles.shareWrapButton} ${cardStyles.shareWrapButtonCopy}`}
-            onClick={() => handleShare('copy')}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+            onClick={handleShare}
+            whileHover={{ scale: 1.05, rotate: 0 }}
+            whileTap={{ scale: 0.98, rotate: 1 }}
           >
             <span className={cardStyles.shareWrapButtonIcon}>
-              {copied ? '✓' : '📋'}
+              <ShareIcon secondary />
             </span>
-            <span>{copied ? 'Copied!' : 'Copy'}</span>
+            <span>Share Your Log</span>
           </motion.button>
         </motion.div>
 

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 import cardStyles from './Cards.module.css';
 
 interface ShareStatButtonProps {
@@ -18,8 +19,6 @@ export default function ShareStatButton({
   isActive,
 }: ShareStatButtonProps): ReactElement {
   const [showButton, setShowButton] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const shareUrl = 'https://app.daily.dev/log';
 
@@ -30,7 +29,6 @@ export default function ShareStatButton({
   useEffect(() => {
     if (!isActive) {
       setShowButton(false);
-      setShowOptions(false);
       return () => {};
     }
 
@@ -42,60 +40,36 @@ export default function ShareStatButton({
   }, [isActive, delay]);
 
   const handleShare = useCallback(
-    async (platform: 'twitter' | 'linkedin' | 'copy') => {
-      const fullText = `${statText}\n\nDiscover your developer stats:\n→ ${shareUrl}`;
-
-      switch (platform) {
-        case 'twitter':
-          window.open(
-            `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              fullText,
-            )}`,
-            '_blank',
-          );
-          break;
-        case 'linkedin':
-          window.open(
-            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-              shareUrl,
-            )}`,
-            '_blank',
-          );
-          break;
-        case 'copy':
-          try {
-            await navigator.clipboard.writeText(fullText);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-          } catch {
-            // Fallback - ignore
-          }
-          break;
-        default:
-          break;
-      }
-      setShowOptions(false);
-    },
-    [statText],
-  );
-
-  const handleButtonClick = useCallback(
-    (e: React.MouseEvent) => {
+    async (e: React.MouseEvent) => {
       e.stopPropagation();
       if (!isVisible) {
         return;
-      } // Ignore clicks when hidden
-      setShowOptions(!showOptions);
-    },
-    [showOptions, isVisible],
-  );
+      }
 
-  const handleOptionClick = useCallback(
-    (e: React.MouseEvent, platform: 'twitter' | 'linkedin' | 'copy') => {
-      e.stopPropagation();
-      handleShare(platform);
+      const fullText = `${statText}\n\nDiscover your developer stats:\n→ ${shareUrl}`;
+
+      // Try Web Share API first
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'My Developer Log 2025',
+            text: fullText,
+            url: shareUrl,
+          });
+          return;
+        } catch {
+          // User cancelled or error - fall through to clipboard
+        }
+      }
+
+      // Fallback to clipboard
+      try {
+        await navigator.clipboard.writeText(fullText);
+      } catch {
+        // Ignore clipboard errors
+      }
     },
-    [handleShare],
+    [statText, isVisible],
   );
 
   // Always render container to reserve space, animate visibility
@@ -117,50 +91,15 @@ export default function ShareStatButton({
         pointerEvents: isVisible ? 'auto' : 'none',
       }}
     >
-      {/* Share options - appears above button */}
-      <AnimatePresence>
-        {showOptions && (
-          <motion.div
-            className={cardStyles.shareStatOptions}
-            initial={{ opacity: 0, y: 10, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.9 }}
-            transition={{ duration: 0.2, type: 'spring', stiffness: 300 }}
-          >
-            <motion.button
-              className={`${cardStyles.shareStatOption} ${cardStyles.shareStatOptionTwitter}`}
-              onClick={(e) => handleOptionClick(e, 'twitter')}
-              whileTap={{ scale: 0.95 }}
-            >
-              𝕏
-            </motion.button>
-            <motion.button
-              className={`${cardStyles.shareStatOption} ${cardStyles.shareStatOptionLinkedIn}`}
-              onClick={(e) => handleOptionClick(e, 'linkedin')}
-              whileTap={{ scale: 0.95 }}
-            >
-              in
-            </motion.button>
-            <motion.button
-              className={`${cardStyles.shareStatOption} ${cardStyles.shareStatOptionCopy}`}
-              onClick={(e) => handleOptionClick(e, 'copy')}
-              whileTap={{ scale: 0.95 }}
-            >
-              {copied ? '✓' : '📋'}
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <motion.button
         className={cardStyles.shareStatButton}
-        onClick={handleButtonClick}
+        onClick={handleShare}
         whileTap={isVisible ? { scale: 0.95 } : undefined}
         aria-hidden={!isVisible}
         tabIndex={isVisible ? 0 : -1}
       >
-        <span className={cardStyles.shareStatIcon}>↗</span>
-        <span>Share This</span>
+        <span className={cardStyles.shareStatIcon}><ShareIcon secondary /></span>
+        <span>Share this</span>
       </motion.button>
     </motion.div>
   );
