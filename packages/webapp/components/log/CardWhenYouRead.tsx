@@ -10,6 +10,8 @@ import TopPercentileBanner from './TopPercentileBanner';
 interface CardProps {
   data: LogData;
   isActive: boolean;
+  subcard?: number;
+  isTouchDevice?: boolean;
 }
 
 const PATTERN_BANNER_TEXT: Record<

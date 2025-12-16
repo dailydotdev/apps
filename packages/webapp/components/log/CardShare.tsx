@@ -9,6 +9,7 @@ import cardStyles from './Cards.module.css';
 interface CardProps {
   data: LogData;
   isActive: boolean;
+  subcard?: number;
   isTouchDevice?: boolean;
 }
 

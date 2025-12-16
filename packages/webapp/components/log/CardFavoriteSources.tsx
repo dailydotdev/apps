@@ -16,6 +16,8 @@ import TopPercentileBanner from './TopPercentileBanner';
 interface CardProps {
   data: LogData;
   isActive: boolean;
+  subcard?: number;
+  isTouchDevice?: boolean;
 }
 
 const PODIUM_MEDALS = ['🥈', '🥇', '🥉'];

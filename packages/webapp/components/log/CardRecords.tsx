@@ -10,6 +10,8 @@ import ShareStatButton from './ShareStatButton';
 interface CardProps {
   data: LogData;
   isActive: boolean;
+  subcard?: number;
+  isTouchDevice?: boolean;
 }
 
 export default function CardRecords({

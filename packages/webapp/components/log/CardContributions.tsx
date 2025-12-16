@@ -19,6 +19,8 @@ import TopPercentileBanner from './TopPercentileBanner';
 interface CardProps {
   data: LogData;
   isActive: boolean;
+  subcard?: number;
+  isTouchDevice?: boolean;
 }
 
 // Floating sparkle effect for creator celebration

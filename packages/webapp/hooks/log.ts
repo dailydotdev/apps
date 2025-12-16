@@ -63,6 +63,7 @@ export interface CardConfig {
     data: unknown;
     isActive: boolean;
     subcard?: number;
+    isTouchDevice?: boolean;
   }>;
   subcards?: number; // Number of subcards (0 or undefined = no subcards)
 }

@@ -79,6 +79,7 @@ interface CardProps {
   data: LogData;
   isActive: boolean;
   subcard?: number;
+  isTouchDevice?: boolean;
 }
 
 const TAG_ROTATIONS = [-0.8, 0.4, -1.2];
