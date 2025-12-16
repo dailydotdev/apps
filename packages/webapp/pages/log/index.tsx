@@ -156,8 +156,8 @@ const CARD_THEMES: Record<string, CardTheme> = {
 
 // Star positions (consistent across cards)
 const STAR_POSITIONS = [
-  { top: '12%', left: '8%', size: '1.75rem', delay: 0 },
-  { top: '22%', right: '12%', size: '1.25rem', delay: 0.5 },
+  { top: '18%', left: '8%', size: '1.75rem', delay: 0 },
+  { top: '25%', right: '12%', size: '1.25rem', delay: 0.5 },
   { bottom: '28%', left: '6%', size: '1.5rem', delay: 1 },
   { bottom: '18%', right: '10%', size: '1.75rem', delay: 1.5 },
   { top: '45%', left: '4%', size: '1rem', delay: 2 },

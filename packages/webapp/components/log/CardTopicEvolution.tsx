@@ -126,10 +126,15 @@ export default function CardTopicEvolution({
     <>
       {/* Main content - centered vertically */}
       <div className={styles.cardContent}>
-        {/* Title */}
-        <span className={cardStyles.topicEvolutionTitle}>
-          How your interests shifted
-        </span>
+        {/* Header */}
+        <motion.div
+          className={styles.headlineStack}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <span className={styles.headlineSmall}>Your interests journey</span>
+        </motion.div>
 
         {/* Quarter carousel - static container, selection moves */}
         <div className={cardStyles.quarterCarouselWrapper}>
