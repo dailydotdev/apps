@@ -94,7 +94,7 @@ export default LeaderboardDetailPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return {
-    paths: Object.values(LeaderboardType).map((id) => ({ params: { id } })),
+    paths: [],
     fallback: true,
   };
 }
