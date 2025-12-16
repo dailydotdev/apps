@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { MOCK_LOG_DATA, ARCHETYPES } from '../../types/log';
 import type { LogData } from '../../types/log';
@@ -177,11 +176,6 @@ interface LogPageProps {
   data?: LogData;
 }
 
-const swipeConfidenceThreshold = 10000;
-const swipePower = (offset: number, velocity: number) => {
-  return Math.abs(offset) * velocity;
-};
-
 const cardVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? '100%' : '-100%',
@@ -263,15 +257,28 @@ export default function LogPage({
     return baseCards;
   }, [data.hasContributions, data.topicJourney?.length]);
 
-  // Navigation with subcard support - only swipe triggers transitions
-  const { currentCard, currentSubcard, direction, goNext, goPrev } =
+  // Navigation with subcard support - tap triggers transitions
+  const { currentCard, currentSubcard, direction, goNext, goPrev, goToCard } =
     useCardNavigation(cards);
 
+  // Handle tap navigation (like Instagram stories)
+  const handleTapNavigation = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const { width } = rect;
+
+      // Left 30% goes back, right 70% goes forward
+      if (clickX < width * 0.3) {
+        goPrev();
+      } else {
+        goNext();
+      }
+    },
+    [goNext, goPrev],
+  );
+
   const currentCardConfig = cards[currentCard];
-  const maxSubcard = currentCardConfig?.subcards || 0;
-  const hasSubcards = maxSubcard > 0;
-  const isLastCard =
-    currentCard === cards.length - 1 && currentSubcard === maxSubcard;
   const CardComponent = currentCardConfig.component;
 
   // Determine direction value for variants
@@ -297,16 +304,6 @@ export default function LogPage({
 
     return baseTheme;
   }, [currentCardId, data.archetype]);
-
-  // Calculate navigation prompt delay
-  let navPromptDelay: number;
-  if (isLastCard) {
-    navPromptDelay = 0;
-  } else if (currentCard === 0) {
-    navPromptDelay = 2.5;
-  } else {
-    navPromptDelay = 0.5;
-  }
 
   return (
     <>
@@ -418,41 +415,70 @@ export default function LogPage({
           })}
         </div>
 
-        {/* Header with logo and progress */}
+        {/* Header with progress bars, back button, and centered logo */}
         <header className={styles.header}>
-          <div className="flex items-center gap-2">
+          {/* Instagram-style progress bars at top */}
+          <div className={styles.progressBars}>
+            {cards.map((card, index) => {
+              const isCompleted = index < currentCard;
+              const isCurrent = index === currentCard;
+
+              return (
+                <button
+                  key={card.id}
+                  type="button"
+                  className={styles.progressBarWrapper}
+                  onClick={() => goToCard(index)}
+                  aria-label={`Go to card ${index + 1}`}
+                >
+                  <div className={styles.progressBar}>
+                    <motion.div
+                      className={styles.progressBarFill}
+                      initial={false}
+                      animate={{
+                        width: isCompleted || isCurrent ? '100%' : '0%',
+                      }}
+                      transition={{
+                        // Only animate the current bar, others change instantly
+                        duration: isCurrent ? 0.3 : 0,
+                        ease: 'easeOut',
+                      }}
+                    />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Navigation row with back button and centered logo */}
+          <div className={styles.headerNav}>
             <Button
               icon={<ArrowIcon className="-rotate-90" />}
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
               onClick={() => router.push('/')}
+              className={styles.backButton}
             />
-            <Logo position={LogoPosition.Empty} linkDisabled />
-          </div>
-          <div className={styles.progressDots}>
-            {cards.map((card, index) => {
-              let className = styles.progressDot;
-              if (index === currentCard) {
-                className += ` ${styles.active}`;
-              } else if (index < currentCard) {
-                className += ` ${styles.completed}`;
-              }
-              return (
-                <motion.div
-                  key={card.id}
-                  className={className}
-                  animate={{
-                    scale: index === currentCard ? 1.5 : 1,
-                    opacity: index <= currentCard ? 1 : 0.3,
-                  }}
-                />
-              );
-            })}
+            <div className={styles.logoCenter}>
+              <Logo position={LogoPosition.Empty} linkDisabled />
+            </div>
+            {/* Spacer to balance the back button */}
+            <div className={styles.headerSpacer} />
           </div>
         </header>
 
-        {/* Cards with AnimatePresence */}
-        <div className={styles.cardsWrapper}>
+        {/* Cards with AnimatePresence - tap to navigate */}
+        <div
+          className={styles.cardsWrapper}
+          onClick={handleTapNavigation}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              goNext();
+            }
+          }}
+        >
           <AnimatePresence
             initial={false}
             custom={directionValue}
@@ -472,18 +498,6 @@ export default function LogPage({
                 scale: { duration: 0.4 },
               }}
               className={styles.card}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={hasSubcards ? 0 : 1}
-              onDragEnd={(e, { offset, velocity }) => {
-                const swipe = swipePower(offset.x, velocity.x);
-
-                if (swipe < -swipeConfidenceThreshold) {
-                  goNext();
-                } else if (swipe > swipeConfidenceThreshold) {
-                  goPrev();
-                }
-              }}
             >
               <div className={styles.cardInner}>
                 <CardComponent
@@ -496,66 +510,6 @@ export default function LogPage({
             </motion.div>
           </AnimatePresence>
         </div>
-
-        {/* Navigation prompt - swipe indicator for touch, buttons for non-touch */}
-        <motion.div
-          className={`${styles.navPrompt} ${
-            currentCard === 0 ? styles.navPromptFirst : ''
-          }`}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{
-            opacity: isLastCard && isTouchDevice ? 0 : 1,
-            y: isLastCard && isTouchDevice ? 10 : 0,
-          }}
-          transition={{
-            delay: navPromptDelay,
-            duration: 0.5,
-          }}
-          style={{
-            pointerEvents: isLastCard && isTouchDevice ? 'none' : 'auto',
-          }}
-        >
-          {isTouchDevice ? (
-            <>
-              <span>Swipe</span>
-              <motion.div
-                className={styles.navArrow}
-                animate={{ x: [0, 5, 0] }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 1.5,
-                  ease: 'easeInOut',
-                }}
-              >
-                →
-              </motion.div>
-            </>
-          ) : (
-            <div className={styles.navButtons}>
-              <Button
-                icon={
-                  <ArrowIcon className="-rotate-90" size={IconSize.Small} />
-                }
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Float}
-                onClick={goPrev}
-                disabled={currentCard === 0 && currentSubcard === 0}
-                className={styles.navButton}
-              />
-              {!isLastCard && (
-                <Button
-                  icon={
-                    <ArrowIcon className="rotate-90" size={IconSize.Small} />
-                  }
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Float}
-                  onClick={goNext}
-                  className={styles.navButton}
-                />
-              )}
-            </div>
-          )}
-        </motion.div>
       </motion.div>
     </>
   );

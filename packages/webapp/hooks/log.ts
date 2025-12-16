@@ -69,7 +69,7 @@ export interface CardConfig {
 }
 
 /**
- * Hook for managing card navigation with swipe support and subcards
+ * Hook for managing card navigation with tap support and subcards
  * Subcards allow transitioning through multiple views within a single card
  */
 export function useCardNavigation(cards: CardConfig[]) {
@@ -134,6 +134,23 @@ export function useCardNavigation(cards: CardConfig[]) {
     }
   }, [cards, currentCard, currentSubcard, isAnimating]);
 
+  const goToCard = useCallback(
+    (cardIndex: number) => {
+      if (isAnimating || cardIndex === currentCard) {
+        return;
+      }
+
+      if (cardIndex >= 0 && cardIndex < totalCards) {
+        setIsAnimating(true);
+        setDirection(cardIndex > currentCard ? 'next' : 'prev');
+        setCurrentCard(cardIndex);
+        setCurrentSubcard(0);
+        setTimeout(() => setIsAnimating(false), 500);
+      }
+    },
+    [currentCard, isAnimating, totalCards],
+  );
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -157,6 +174,7 @@ export function useCardNavigation(cards: CardConfig[]) {
     isAnimating,
     goNext,
     goPrev,
+    goToCard,
   };
 }
 

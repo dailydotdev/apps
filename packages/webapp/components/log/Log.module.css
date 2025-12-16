@@ -97,6 +97,9 @@
   min-height: 0; /* Important for flex children with overflow */
   z-index: 10;
   overflow: hidden;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .card {
@@ -147,52 +150,77 @@
 }
 
 /* ========================================
-   HEADER - Logo & Progress
+   HEADER - Logo & Progress Bars
    ======================================== */
 
 .header {
   position: relative;
   flex: 0 0 auto;
   z-index: 100;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
   box-sizing: border-box;
   max-width: 100%;
+}
+
+/* Instagram-style progress bars */
+.progressBars {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+
+.progressBarWrapper {
+  flex: 1;
+  padding: 4px 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.progressBar {
+  height: 3px;
+  background: var(--fest-white-20);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: var(--fest-white);
+  border-radius: 2px;
+}
+
+/* Navigation row with back button and centered logo */
+.headerNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.backButton {
+  flex: 0 0 auto;
+}
+
+.logoCenter {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.headerSpacer {
+  flex: 0 0 auto;
+  width: 32px; /* Same width as the back button */
 }
 
 .logo {
   width: 40px;
   height: 40px;
   display: block;
-}
-
-.progressDots {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  max-width: 50%;
-  justify-content: flex-end;
-}
-
-.progressDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--fest-white-30);
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-
-.progressDot.active {
-  background: var(--fest-lime);
-  box-shadow: 0 0 8px var(--fest-lime);
-}
-
-.progressDot.completed {
-  background: var(--fest-white-70);
 }
 
 /* ========================================

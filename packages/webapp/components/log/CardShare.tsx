@@ -13,10 +13,7 @@ interface CardProps {
   isTouchDevice?: boolean;
 }
 
-export default function CardShare({
-  data,
-  isTouchDevice = true,
-}: CardProps): ReactElement {
+export default function CardShare({ data }: CardProps): ReactElement {
   const archetype = ARCHETYPES[data.archetype];
   const streakRecord = data.records.find((r) => r.type === 'streak');
 
@@ -166,25 +163,6 @@ What's your developer archetype?
             <span>Share Your Log</span>
           </motion.button>
         </motion.div>
-
-        {/* Swipe back hint - only shown on touch devices */}
-        {isTouchDevice && (
-          <motion.div
-            className={cardStyles.shareSwipeHint}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2 }}
-          >
-            <motion.span
-              className={cardStyles.shareSwipeArrow}
-              animate={{ x: [-3, 3, -3] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              ←
-            </motion.span>
-            <span>Swipe back to revisit your journey</span>
-          </motion.div>
-        )}
       </div>
     </>
   );
