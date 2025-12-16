@@ -49,30 +49,30 @@ export default function CardWelcome({
         </motion.div>
         <motion.div
           className={styles.headlineRow}
+          initial={hidden}
+          animate={isMounted ? visible : hidden}
+          transition={{
+            delay: TITLE_START + 0.2,
+            type: 'spring',
+            stiffness: 100,
+          }}
+        >
+          <span className={styles.headlineMedium}>LOG</span>
+        </motion.div>
+        <motion.div
+          className={styles.headlineRow}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={
             isMounted ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }
           }
           transition={{
-            delay: TITLE_START + 0.2,
+            delay: TITLE_START + 0.4,
             type: 'spring',
             stiffness: 200,
             damping: 15,
           }}
         >
-          <span className={styles.headlineBig}>LOG</span>
-        </motion.div>
-        <motion.div
-          className={styles.headlineRow}
-          initial={hidden}
-          animate={isMounted ? visible : hidden}
-          transition={{
-            delay: TITLE_START + 0.4,
-            type: 'spring',
-            stiffness: 100,
-          }}
-        >
-          <span className={styles.headlineMedium}>2025</span>
+          <span className={styles.headlineBig}>2025</span>
         </motion.div>
       </div>
 
