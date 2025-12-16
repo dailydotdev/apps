@@ -10,9 +10,9 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import { MOCK_LOG_DATA, ARCHETYPES } from '../../types/log';
-import type { LogData } from '../../types/log';
-import { useCardNavigation } from '../../hooks/log';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { ARCHETYPES } from '../../types/log';
+import { useCardNavigation, useLog } from '../../hooks/log';
 import type { CardConfig } from '../../hooks/log';
 import styles from '../../components/log/Log.module.css';
 
@@ -186,10 +186,6 @@ const STAR_POSITIONS = [
   { top: '55%', right: '5%', size: '1.25rem', delay: 2.5 },
 ];
 
-interface LogPageProps {
-  data?: LogData;
-}
-
 const cardVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? '100%' : '-100%',
@@ -213,20 +209,16 @@ const cardVariants = {
   }),
 };
 
-export default function LogPage({
-  data = MOCK_LOG_DATA,
-}: LogPageProps): ReactElement {
+export default function LogPage(): ReactElement {
   const router = useRouter();
+  const { isLoggedIn, isAuthReady } = useAuthContext();
   const [isTouchDevice, setIsTouchDevice] = useState(true);
-  // TODO: Replace with actual data fetching state when API is ready
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Simulate data loading - replace with actual data fetch
-  useEffect(() => {
-    // Data is already loaded (mock), but simulate a brief load for UX
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  // Fetch log data from API
+  const { data, isLoading: isDataLoading } = useLog(isLoggedIn);
+
+  // Combine auth and data loading states
+  const isLoading = !isAuthReady || isDataLoading;
 
   // Detect touch vs non-touch device
   useEffect(() => {
@@ -259,13 +251,13 @@ export default function LogPage({
       {
         id: 'topic-evolution',
         component: CardTopicEvolution,
-        subcards: data.topicJourney.length - 1, // One subcard per quarter
+        subcards: (data?.topicJourney?.length ?? 1) - 1, // One subcard per quarter
       },
       { id: 'favorite-sources', component: CardFavoriteSources },
       { id: 'community', component: CardCommunityEngagement },
     ];
 
-    if (data.hasContributions) {
+    if (data?.hasContributions) {
       baseCards.push({
         id: 'contributions',
         component: CardContributions,
@@ -279,7 +271,7 @@ export default function LogPage({
     );
 
     return baseCards;
-  }, [data.hasContributions, data.topicJourney?.length]);
+  }, [data?.hasContributions, data?.topicJourney?.length]);
 
   // Navigation with subcard support - tap triggers transitions
   const { currentCard, currentSubcard, direction, goNext, goPrev, goToCard } =
@@ -314,7 +306,7 @@ export default function LogPage({
     const baseTheme = CARD_THEMES[currentCardId] || CARD_THEMES['total-impact'];
 
     // Special handling for archetype card - tint based on user's archetype
-    if (currentCardId === 'archetype') {
+    if (currentCardId === 'archetype' && data?.archetype) {
       const archetypeColor = ARCHETYPES[data.archetype].color;
       return {
         ...baseTheme,
@@ -327,7 +319,7 @@ export default function LogPage({
     }
 
     return baseTheme;
-  }, [currentCardId, data.archetype]);
+  }, [currentCardId, data?.archetype]);
 
   return (
     <>
