@@ -115,12 +115,13 @@ export const OPPORTUNITY_FRAGMENT = gql`
       }
       equity
     }
-    location {
+    locations {
       type
-      city
-      country
-      subdivision
-      continent
+      location {
+        city
+        country
+        subdivision
+      }
     }
     questions {
       ...OpportunityScreeningQuestionFragment
@@ -332,6 +333,7 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
     $location: [LocationInput]
     $locationType: [ProtoEnumValue]
     $customKeywords: Boolean
+    $externalLocationId: String
   ) {
     updateCandidatePreferences(
       status: $status
@@ -342,6 +344,7 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
       location: $location
       locationType: $locationType
       customKeywords: $customKeywords
+      externalLocationId: $externalLocationId
     ) {
       _
     }

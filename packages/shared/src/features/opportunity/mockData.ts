@@ -46,13 +46,15 @@ export const mockOpportunity: Opportunity = {
       title: 'Senior Recruiter',
     },
   ],
-  location: [
+  locations: [
     {
       type: 0,
-      city: 'San Francisco',
-      country: 'United States',
-      subdivision: 'California',
-      continent: 'North America',
+      location: {
+        city: 'San Francisco',
+        country: 'United States',
+        subdivision: 'California',
+        continent: 'North America',
+      },
     },
   ],
   keywords: [
