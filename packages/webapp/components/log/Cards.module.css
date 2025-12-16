@@ -3136,3 +3136,224 @@
     max-width: 220px;
   }
 }
+
+/* ========================================
+   CARD 0: WELCOME SCREEN
+   ======================================== */
+
+.welcomeTagline {
+  font-size: 1rem;
+  color: var(--fest-white-70);
+  text-align: center;
+  max-width: 300px;
+  margin: 1rem 0;
+  line-height: 1.6;
+  font-weight: 400;
+  font-style: italic;
+}
+
+@media (min-height: 750px) {
+  .welcomeTagline {
+    font-size: 1.1rem;
+    margin: 2rem 0;
+  }
+}
+
+.welcomeInstructions {
+  width: 100%;
+  max-width: 320px;
+  margin: 1rem 0;
+}
+
+.instructionRow {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.tapZone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tapIcon {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.tapLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--fest-white);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tapAction {
+  font-size: 0.6rem;
+  color: var(--fest-lime);
+  font-weight: 600;
+}
+
+.welcomeCta {
+  margin-top: 2rem;
+  text-align: center;
+  /* Grid stacking trick to prevent layout shift */
+  display: grid;
+  place-items: center;
+}
+
+/* Both children stack in the same grid cell */
+.welcomeCta > * {
+  grid-area: 1 / 1;
+}
+
+.ctaArrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ctaText {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--fest-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+@media (min-height: 750px) {
+  .ctaText {
+    font-size: 0.95rem;
+  }
+}
+
+/* Loading state */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  transition: opacity 0.3s ease;
+}
+
+.loadingSpinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--fest-white-20);
+  border-top-color: var(--fest-lime);
+  border-radius: 50%;
+  animation: spinnerRotate 1s linear infinite;
+}
+
+@keyframes spinnerRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fest-white-70);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Ready state */
+.readyState {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.3s ease;
+}
+
+.welcomeDecorations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.welcomeStar {
+  position: absolute;
+  font-size: 1.5rem;
+  color: var(--fest-accent);
+  opacity: 0.6;
+}
+
+.welcomeStar:nth-child(1) {
+  color: var(--fest-lime);
+}
+
+.welcomeStar:nth-child(2) {
+  color: var(--fest-secondary);
+}
+
+.welcomeStar:nth-child(3) {
+  color: var(--fest-accent);
+}
+
+.welcomeStar:nth-child(4) {
+  color: var(--fest-primary);
+}
+
+/* Responsive adjustments for welcome card */
+@media (max-width: 380px) {
+  .instructionRow {
+    gap: 1rem;
+  }
+
+  .tapZone {
+    padding: 0.75rem 1rem;
+  }
+
+  .tapIcon {
+    font-size: 1.5rem;
+  }
+
+  .tapLabel {
+    font-size: 0.6rem;
+  }
+
+  .tapAction {
+    font-size: 0.5rem;
+  }
+
+  .welcomeTagline {
+    font-size: 0.9rem;
+    max-width: 240px;
+  }
+}
+
+@media (max-height: 700px) {
+  .welcomeTagline {
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+
+  .welcomeInstructions {
+    margin: 0.75rem 0;
+  }
+
+  .tapZone {
+    padding: 0.75rem 1rem;
+  }
+
+  .tapIcon {
+    font-size: 1.5rem;
+  }
+
+  .welcomeCta {
+    margin-top: 1.25rem;
+  }
+}

@@ -20,15 +20,14 @@ export default function CardTotalImpact({
 }: CardProps): ReactElement {
   const animatedPosts = useAnimatedNumber(data.totalPosts, {
     delay: 500,
-    duration: 2000,
     enabled: isActive,
   });
   const animatedTime = useAnimatedNumber(data.totalReadingTime, {
-    delay: 1100,
+    delay: 800,
     enabled: isActive,
   });
   const animatedDays = useAnimatedNumber(data.daysActive, {
-    delay: 1300,
+    delay: 1000,
     enabled: isActive,
   });
 
@@ -130,7 +129,7 @@ export default function CardTotalImpact({
           preText="Top"
           mainText={`${data.totalImpactPercentile}%`}
           postText="of devs"
-          delay={1.5}
+          delay={1.8}
         />
       </div>
 

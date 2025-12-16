@@ -11,7 +11,7 @@ export function useAnimatedNumber(
     enabled?: boolean;
   } = {},
 ): number {
-  const { duration = 1800, delay = 0, enabled = true } = options;
+  const { duration = 1000, delay = 0, enabled = true } = options;
   const [currentValue, setCurrentValue] = useState(0);
   const [started, setStarted] = useState(false);
 
@@ -64,6 +64,7 @@ export interface CardConfig {
     isActive: boolean;
     subcard?: number;
     isTouchDevice?: boolean;
+    isLoading?: boolean;
   }>;
   subcards?: number; // Number of subcards (0 or undefined = no subcards)
 }

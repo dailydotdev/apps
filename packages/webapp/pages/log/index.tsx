@@ -17,6 +17,7 @@ import type { CardConfig } from '../../hooks/log';
 import styles from '../../components/log/Log.module.css';
 
 // Card components
+import CardWelcome from '../../components/log/CardWelcome';
 import CardTotalImpact from '../../components/log/CardTotalImpact';
 import CardWhenYouRead from '../../components/log/CardWhenYouRead';
 import CardTopicEvolution from '../../components/log/CardTopicEvolution';
@@ -39,6 +40,7 @@ const PALETTE = {
   pepper90: '#0E1217',
   pepper80: '#17191F',
   pepper70: '#1C1F26',
+  pepperWarm: '#1A1410', // Warm dark variant for welcome screen
   bun40: '#FF8E3B',
   cheese40: '#FFE923',
   cabbage40: '#CE3DF3',
@@ -52,6 +54,18 @@ const PALETTE = {
 };
 
 const CARD_THEMES: Record<string, CardTheme> = {
+  welcome: {
+    bgColor: PALETTE.pepperWarm,
+    burstColor: 'rgba(255, 142, 59, 0.08)', // bun.40 at 8% - warm orange glow
+    decorations: [
+      { char: '✦', color: PALETTE.bun40 },
+      { char: '★', color: PALETTE.cheese40 },
+      { char: '✶', color: PALETTE.cabbage40 },
+      { char: '✦', color: PALETTE.cheese40 },
+      { char: '★', color: PALETTE.bun40 },
+      { char: '✶', color: PALETTE.onion10 },
+    ],
+  },
   'total-impact': {
     bgColor: PALETTE.pepper90,
     burstColor: 'rgba(206, 61, 243, 0.08)', // cabbage.40 at 8%
@@ -204,6 +218,15 @@ export default function LogPage({
 }: LogPageProps): ReactElement {
   const router = useRouter();
   const [isTouchDevice, setIsTouchDevice] = useState(true);
+  // TODO: Replace with actual data fetching state when API is ready
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate data loading - replace with actual data fetch
+  useEffect(() => {
+    // Data is already loaded (mock), but simulate a brief load for UX
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Detect touch vs non-touch device
   useEffect(() => {
@@ -230,6 +253,7 @@ export default function LogPage({
   // Cards can have optional subcards for multi-step content within a single card
   const cards: CardConfig[] = useMemo(() => {
     const baseCards: CardConfig[] = [
+      { id: 'welcome', component: CardWelcome },
       { id: 'total-impact', component: CardTotalImpact },
       { id: 'when-you-read', component: CardWhenYouRead },
       {
@@ -505,6 +529,7 @@ export default function LogPage({
                   isActive
                   subcard={currentSubcard}
                   isTouchDevice={isTouchDevice}
+                  isLoading={isLoading}
                 />
               </div>
             </motion.div>
