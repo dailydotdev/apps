@@ -74,7 +74,7 @@
 
 .clockTime {
   position: absolute;
-  bottom: -30px;
+  bottom: -34px;
   font-weight: 700;
   font-size: 1.5rem;
   color: var(--fest-white, #FFFFFF);
@@ -308,7 +308,7 @@
 
   .clockTime {
     font-size: 1.625rem;
-    bottom: -38px;
+    bottom: -42px;
   }
 }
 
@@ -328,7 +328,7 @@
 
   .clockTime {
     font-size: 1.75rem;
-    bottom: -42px;
+    bottom: -46px;
   }
 }
 
@@ -741,27 +741,48 @@
 .discoveryBadge {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  gap: 0.75rem;
+  background: var(--fest-white, #FFFFFF);
+  color: var(--fest-bg, #0E1217);
   padding: 0.5rem 1rem;
-  border-radius: 50px;
+  transform: rotate(-1deg);
+  box-shadow: 3px 3px 0 var(--fest-lime, #ACF535);
   margin: 0.5rem 0;
 }
 
-.discoveryEmoji {
-  font-size: 1.5rem;
+.discoveryIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: var(--fest-lime, #ACF535);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.discoveryIcon svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--fest-bg, #0E1217);
+}
+
+.discoveryContent {
+  display: flex;
+  flex-direction: column;
 }
 
 .discoveryValue {
   font-weight: 700;
   font-size: 1.25rem;
-  color: var(--fest-lime, #ACF535);
-  display: block;
+  color: var(--fest-bg, #0E1217);
+  line-height: 1.1;
 }
 
 .discoveryLabel {
-  font-size: 0.6rem;
-  color: var(--fest-white-70, rgba(255,255,255,0.7));
+  font-size: 0.55rem;
+  color: var(--fest-bg, #0E1217);
+  opacity: 0.7;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -2857,7 +2878,6 @@
 
   .clockTime {
     font-size: 1.25rem;
-    bottom: -25px;
   }
 
   .hourDistWrapper {

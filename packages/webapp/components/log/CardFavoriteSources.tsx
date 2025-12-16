@@ -5,6 +5,7 @@ import {
   Image,
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
+import { EarthIcon } from '@dailydotdev/shared/src/components/icons';
 import type { LogData } from '../../types/log';
 import { useAnimatedNumber } from '../../hooks/log';
 import styles from './Log.module.css';
@@ -151,8 +152,10 @@ export default function CardFavoriteSources({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.2 }}
         >
-          <span className={cardStyles.discoveryEmoji}>🔍</span>
-          <div>
+          <div className={cardStyles.discoveryIcon}>
+            <EarthIcon />
+          </div>
+          <div className={cardStyles.discoveryContent}>
             <span className={cardStyles.discoveryValue}>{animatedSources}</span>
             <span className={cardStyles.discoveryLabel}>sources read</span>
           </div>
