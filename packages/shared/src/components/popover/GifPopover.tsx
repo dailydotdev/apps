@@ -63,6 +63,7 @@ const GifPopover = ({
   } = useGif({
     query,
     limit: '20',
+    favoritesEnabled: open,
   });
   const [debounceNextPage] = useDebounceFn<void>(() => {
     if (inView && data?.length > 0 && !isFetchingNextPage && query) {
@@ -131,6 +132,7 @@ const GifPopover = ({
             <div className="grid min-w-0 max-w-full grid-cols-2 gap-2">
               {gifsToDisplay.map((gif, idx) => (
                 <div
+                  className="relative"
                   key={gif.id}
                   ref={idx === gifsToDisplay.length - 1 ? scrollRef : null}
                 >

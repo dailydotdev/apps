@@ -20,7 +20,15 @@ interface GifResponse {
   next?: string;
 }
 
-const useGif = ({ query, limit = '10' }: { query: string; limit?: string }) => {
+const useGif = ({
+  query,
+  limit = '10',
+  favoritesEnabled = true,
+}: {
+  query: string;
+  limit?: string;
+  favoritesEnabled?: boolean;
+}) => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const favoritesQueryKey = generateQueryKey(RequestKey.Gif, user, 'favorites');
@@ -59,7 +67,7 @@ const useGif = ({ query, limit = '10' }: { query: string; limit?: string }) => {
         }
         return await response.json();
       },
-      enabled: true,
+      enabled: favoritesEnabled,
     });
   const favorites = favData?.gifs ?? [];
 
