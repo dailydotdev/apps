@@ -22,10 +22,9 @@ const searchSuggestions = [
   'Mr Bean waiting',
   'Dancing dog',
   'Eye roll',
-  'Runescape gnome',
-  'Tzuyu from TWICE',
+  'TWICE',
   'Hackerman',
-  'Steve Carel cheers',
+  'Steve Carell cheers',
 ];
 
 type GifPopoverProps = {
