@@ -18,7 +18,14 @@ const PALETTE = {
 
 // Decorative star positions for the OG image
 const STARS = [
-  { id: 'star-1', top: '12%', left: '8%', size: '2rem', char: '✦', color: PALETTE.cheese40 },
+  {
+    id: 'star-1',
+    top: '12%',
+    left: '8%',
+    size: '2rem',
+    char: '✦',
+    color: PALETTE.cheese40,
+  },
   {
     id: 'star-2',
     top: '18%',
