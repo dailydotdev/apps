@@ -948,6 +948,28 @@
   opacity: 1;
 }
 
+.navButtons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.navButton {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.2s ease !important;
+}
+
+.navButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.navButton:disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
 @keyframes arrowBounce {
   0%, 100% { transform: translateX(0); }
   50% { transform: translateX(5px); }

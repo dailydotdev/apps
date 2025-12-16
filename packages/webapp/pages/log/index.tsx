@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +9,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { MOCK_LOG_DATA, ARCHETYPES } from '../../types/log';
 import type { LogData } from '../../types/log';
 import { useCardNavigation } from '../../hooks/log';
@@ -207,6 +208,14 @@ export default function LogPage({
   data = MOCK_LOG_DATA,
 }: LogPageProps): ReactElement {
   const router = useRouter();
+  const [isTouchDevice, setIsTouchDevice] = useState(true);
+
+  // Detect touch vs non-touch device
+  useEffect(() => {
+    // Check for coarse pointer (touch) - fine pointer indicates mouse/trackpad
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    setIsTouchDevice(isTouch);
+  }, []);
 
   // Prevent horizontal scrollbar on the page
   useEffect(() => {
@@ -456,40 +465,64 @@ export default function LogPage({
               }}
             >
               <div className={styles.cardInner}>
-                <CardComponent data={data} isActive subcard={currentSubcard} />
+                <CardComponent data={data} isActive subcard={currentSubcard} isTouchDevice={isTouchDevice} />
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Navigation prompt */}
+        {/* Navigation prompt - swipe indicator for touch, buttons for non-touch */}
         <motion.div
           className={`${styles.navPrompt} ${
             currentCard === 0 ? styles.navPromptFirst : ''
           }`}
           initial={{ opacity: 0, y: 10 }}
           animate={{
-            opacity: isLastCard ? 0 : 1,
-            y: isLastCard ? 10 : 0,
+            opacity: isLastCard && isTouchDevice ? 0 : 1,
+            y: isLastCard && isTouchDevice ? 10 : 0,
           }}
           transition={{
             delay: navPromptDelay,
             duration: 0.5,
           }}
-          style={{ pointerEvents: isLastCard ? 'none' : 'auto' }}
+          style={{ pointerEvents: isLastCard && isTouchDevice ? 'none' : 'auto' }}
         >
-          <span>Swipe</span>
-          <motion.div
-            className={styles.navArrow}
-            animate={{ x: [0, 5, 0] }}
-            transition={{
-              repeat: Infinity,
-              duration: 1.5,
-              ease: 'easeInOut',
-            }}
-          >
-            →
-          </motion.div>
+          {isTouchDevice ? (
+            <>
+              <span>Swipe</span>
+              <motion.div
+                className={styles.navArrow}
+                animate={{ x: [0, 5, 0] }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 1.5,
+                  ease: 'easeInOut',
+                }}
+              >
+                →
+              </motion.div>
+            </>
+          ) : (
+            <div className={styles.navButtons}>
+              <Button
+                icon={<ArrowIcon className="-rotate-90" size={IconSize.Small} />}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Float}
+                onClick={goPrev}
+                disabled={currentCard === 0 && currentSubcard === 0}
+                className={styles.navButton}
+              />
+              {!isLastCard && (
+                <Button
+                  icon={<ArrowIcon className="rotate-90" size={IconSize.Small} />}
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Float}
+                  onClick={goNext}
+                  className={styles.navButton}
+                />
+              )}
+            </div>
+          )}
         </motion.div>
       </motion.div>
     </>
