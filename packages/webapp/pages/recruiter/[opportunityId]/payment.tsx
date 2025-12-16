@@ -25,12 +25,15 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/graphql';
 import { useQuery } from '@tanstack/react-query';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
   const checkoutRef = useRef<HTMLDivElement>(null);
   const { openCheckout, selectedProduct } = useRecruiterPaymentContext();
   const { opportunity } = useOpportunityPreviewContext();
+  const { displayToast } = useToastNotification();
 
   useEffect(() => {
     if (!opportunity) {
@@ -46,6 +49,20 @@ const RecruiterPaymentPage = (): ReactElement => {
       customData: { opportunity_id: opportunity.id },
     });
   }, [selectedProduct, openCheckout, opportunity]);
+
+  useEffect(() => {
+    if (!opportunity) {
+      return;
+    }
+
+    if (!opportunity.organization) {
+      router.replace(`${webappUrl}recruiter/${opportunity.id}/prepare`);
+
+      displayToast(
+        'Organization info missing, please enter it to proceed with payment.',
+      );
+    }
+  }, [displayToast, opportunity, router]);
 
   const handleBack = () => {
     router.back();

@@ -12,7 +12,6 @@ import type { LocationType } from './protobuf/util';
 import type { Connection } from '../../graphql/common';
 import type { Squad } from '../../graphql/sources';
 import type { TopReader } from '../../components/badges/TopReaderBadge';
-import type { SubscriptionStatus } from '../../lib/plus';
 
 export enum OpportunityMatchStatus {
   Pending = 'pending',
@@ -87,9 +86,10 @@ export type OpportunityScreeningAnswer = {
   answer: string;
 };
 
-type OpportunityFlagsPublic = {
-  batchSize?: number;
-};
+type OpportunityFlagsPublic = Partial<{
+  batchSize: number;
+  plan: string;
+}>;
 
 export type Opportunity = {
   id: string;
@@ -107,7 +107,6 @@ export type Opportunity = {
   keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
   feedbackQuestions?: OpportunityFeedbackQuestion[];
-  subscriptionStatus: SubscriptionStatus;
   flags?: OpportunityFlagsPublic;
 };
 
