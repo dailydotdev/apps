@@ -311,13 +311,37 @@ export default function LogPage({
   return (
     <>
       <Head>
-        <title>Your 2025 Log | daily.dev</title>
-        <meta name="description" content="Your year in review on daily.dev" />
+        <title>Log 2025 | daily.dev</title>
+        <meta
+          name="description"
+          content="Your stats. Your story. Your archetype. Discover what kind of developer you really are."
+        />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
-        {/* Uses app's standard fonts from design system */}
+        {/* Open Graph */}
+        <meta property="og:title" content="Log 2025 | daily.dev" />
+        <meta
+          property="og:description"
+          content="Your stats. Your story. Your archetype. Discover what kind of developer you really are."
+        />
+        <meta
+          property="og:image"
+          content="https://media.daily.dev/image/upload/s--S6QRV0hA--/f_auto,q_auto/v1765881331/public/log_2025"
+        />
+        <meta property="og:type" content="website" />
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Log 2025 | daily.dev" />
+        <meta
+          name="twitter:description"
+          content="Your stats. Your story. Your archetype. Discover what kind of developer you really are."
+        />
+        <meta
+          name="twitter:image"
+          content="https://media.daily.dev/image/upload/s--S6QRV0hA--/f_auto,q_auto/v1765881331/public/log_2025"
+        />
       </Head>
 
       <motion.div
