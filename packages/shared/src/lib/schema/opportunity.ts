@@ -107,7 +107,7 @@ export const opportunityEditQuestionsSchema = z.object({
 export const opportunityEditStep1Schema = opportunityEditInfoSchema.extend({
   content: opportunityEditContentSchema.shape.content,
   organization: z.object({
-    name: z.string().nonempty().max(60),
+    name: z.string().nonempty(),
   }),
 });
 
