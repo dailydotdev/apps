@@ -12,7 +12,10 @@ interface CardProps {
   isTouchDevice?: boolean;
 }
 
-export default function CardShare({ data, isTouchDevice = true }: CardProps): ReactElement {
+export default function CardShare({
+  data,
+  isTouchDevice = true,
+}: CardProps): ReactElement {
   const archetype = ARCHETYPES[data.archetype];
   const streakRecord = data.records.find((r) => r.type === 'streak');
 

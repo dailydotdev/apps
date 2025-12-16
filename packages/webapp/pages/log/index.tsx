@@ -10,6 +10,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { MOCK_LOG_DATA, ARCHETYPES } from '../../types/log';
 import type { LogData } from '../../types/log';
 import { useCardNavigation } from '../../hooks/log';
@@ -402,11 +403,7 @@ export default function LogPage({
               variant={ButtonVariant.Tertiary}
               onClick={() => router.push('/')}
             />
-            <img
-              src="/assets/icon-light.svg"
-              alt="daily.dev"
-              className={styles.logo}
-            />
+            <Logo position={LogoPosition.Empty} linkDisabled />
           </div>
           <div className={styles.progressDots}>
             {cards.map((card, index) => {
@@ -465,7 +462,12 @@ export default function LogPage({
               }}
             >
               <div className={styles.cardInner}>
-                <CardComponent data={data} isActive subcard={currentSubcard} isTouchDevice={isTouchDevice} />
+                <CardComponent
+                  data={data}
+                  isActive
+                  subcard={currentSubcard}
+                  isTouchDevice={isTouchDevice}
+                />
               </div>
             </motion.div>
           </AnimatePresence>
@@ -485,7 +487,9 @@ export default function LogPage({
             delay: navPromptDelay,
             duration: 0.5,
           }}
-          style={{ pointerEvents: isLastCard && isTouchDevice ? 'none' : 'auto' }}
+          style={{
+            pointerEvents: isLastCard && isTouchDevice ? 'none' : 'auto',
+          }}
         >
           {isTouchDevice ? (
             <>
@@ -505,7 +509,9 @@ export default function LogPage({
           ) : (
             <div className={styles.navButtons}>
               <Button
-                icon={<ArrowIcon className="-rotate-90" size={IconSize.Small} />}
+                icon={
+                  <ArrowIcon className="-rotate-90" size={IconSize.Small} />
+                }
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Float}
                 onClick={goPrev}
@@ -514,7 +520,9 @@ export default function LogPage({
               />
               {!isLastCard && (
                 <Button
-                  icon={<ArrowIcon className="rotate-90" size={IconSize.Small} />}
+                  icon={
+                    <ArrowIcon className="rotate-90" size={IconSize.Small} />
+                  }
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Float}
                   onClick={goNext}
