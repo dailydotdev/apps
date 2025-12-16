@@ -170,10 +170,11 @@ export const opportunityCreateOrganizationSchema =
 
 // TypeScript types for GraphQL inputs
 export interface LocationInput {
-  country: string;
+  country?: string;
   city?: string;
   subdivision?: string;
   type?: number;
+  externalLocationId?: string;
 }
 
 export interface SalaryInput {

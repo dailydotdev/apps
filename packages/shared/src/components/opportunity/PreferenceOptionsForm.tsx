@@ -12,6 +12,7 @@ import { Radio } from '../fields/Radio';
 import { Checkbox } from '../fields/Checkbox';
 import { Dropdown } from '../fields/Dropdown';
 import { TextField } from '../fields/TextField';
+import Autocomplete from '../fields/Autocomplete';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { getCandidatePreferencesOptions } from '../../features/opportunity/queries';
 import { RoleType } from '../../features/opportunity/types';
@@ -30,10 +31,12 @@ import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useActions, useToastNotification } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
-import { stringToBoolean } from '../../lib/utils';
+import { locationToString, stringToBoolean } from '../../lib/utils';
 import { KeywordSelection } from '../../features/opportunity/components/KeywordSelection';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
+import { getAutocompleteLocations } from '../../graphql/autocomplete';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 const salaryDurationOptions = [
   { label: 'Annually', value: SalaryPeriod.ANNUAL },
@@ -63,6 +66,7 @@ const DEBOUNCE_DELAY_MS = 750;
 export const PreferenceOptionsForm = (): ReactElement => {
   const { logEvent } = useLogContext();
   const [selectedSalaryOption, setSelectedSalaryOption] = useState(0);
+  const [locationQuery, setLocationQuery] = useState('');
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
   const { user } = useAuthContext();
@@ -88,6 +92,17 @@ export const PreferenceOptionsForm = (): ReactElement => {
     },
   });
 
+  const { data: locationOptions, isLoading: isLoadingLocations } = useQuery({
+    queryKey: generateQueryKey(
+      RequestKey.Autocomplete,
+      user,
+      'location',
+      locationQuery,
+    ),
+    queryFn: () => getAutocompleteLocations(locationQuery),
+    enabled: !!locationQuery && locationQuery.length > 0,
+  });
+
   const { mutate: addKeyword } = useMutation({
     ...candidateAddKeywordMutationOptions(useUpdateQuery(opts)),
     onError: () => {
@@ -107,6 +122,10 @@ export const PreferenceOptionsForm = (): ReactElement => {
     },
     DEBOUNCE_DELAY_MS,
   );
+
+  const [debouncedLocationSearch] = useDebounceFn<string>((query) => {
+    setLocationQuery(query);
+  }, 300);
 
   useEffect(() => {
     if (!preferences) {
@@ -257,40 +276,29 @@ export const PreferenceOptionsForm = (): ReactElement => {
         >
           Tell us where you want to work from.
         </Typography>
-        <FlexRow className="gap-3">
-          <TextField
-            inputId="country"
-            label="Country"
-            value={preferences?.location?.[0]?.country}
-            className={{ container: 'flex-1' }}
-            onChange={(e) => {
-              debouncedUpdate({
-                location: [
-                  {
-                    ...preferences?.location?.[0],
-                    country: e.target.value,
-                  },
-                ],
-              });
-            }}
-          />
-          <TextField
-            inputId="city"
-            label="City"
-            value={preferences?.location?.[0]?.city}
-            className={{ container: 'flex-1' }}
-            onChange={(e) => {
-              debouncedUpdate({
-                location: [
-                  {
-                    ...preferences?.location?.[0],
-                    city: e.target.value,
-                  },
-                ],
-              });
-            }}
-          />
-        </FlexRow>
+        <Autocomplete
+          name="location"
+          label="Location"
+          placeholder="Search for a city or country"
+          defaultValue={locationToString(preferences?.location?.[0])}
+          options={
+            locationOptions?.map((loc) => ({
+              label: locationToString(loc),
+              value: loc.id,
+            })) || []
+          }
+          selectedValue={preferences?.externalLocationId}
+          onChange={(value) => {
+            debouncedLocationSearch(value);
+          }}
+          onSelect={(value) => {
+            updatePreferences({
+              externalLocationId: value,
+            });
+          }}
+          isLoading={isLoadingLocations}
+          resetOnBlur
+        />
 
         {/* Location type */}
         <FlexRow>
