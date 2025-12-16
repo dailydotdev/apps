@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { LogData } from '../../types/log';
 import styles from './Log.module.css';
 import cardStyles from './Cards.module.css';
@@ -141,7 +143,8 @@ export default function CardWelcome({
           transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
         >
           <span className={cardStyles.ctaText}>
-            {isTouchDevice ? 'Tap ' : 'Click '} right to begin →
+            {isTouchDevice ? 'Tap ' : 'Click '} right to begin{' '}
+            <ArrowIcon size={IconSize.XSmall} className={cardStyles.ctaArrow} />
           </span>
         </motion.div>
       </motion.div>

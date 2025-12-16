@@ -3221,6 +3221,8 @@
 }
 
 .ctaText {
+  display: inline-flex;
+  align-items: center;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--fest-secondary);
@@ -3232,6 +3234,11 @@
   .ctaText {
     font-size: 0.95rem;
   }
+}
+
+.ctaArrow {
+  flex-shrink: 0;
+  rotate: 90deg;
 }
 
 /* Loading state */
