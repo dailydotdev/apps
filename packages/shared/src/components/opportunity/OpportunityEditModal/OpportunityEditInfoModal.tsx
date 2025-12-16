@@ -60,9 +60,7 @@ export const OpportunityEditInfoModal = ({
     defaultValues: async () => {
       const opportunityData = await promise;
 
-      return {
-        ...opportunityData,
-      };
+      return opportunityData;
     },
   });
   const {
