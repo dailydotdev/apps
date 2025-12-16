@@ -60,11 +60,6 @@ export const opportunityEditInfoSchema = z.object({
       ),
     ),
   }),
-  organization: z
-    .object({
-      name: z.string().nonempty().max(60),
-    })
-    .nullish(),
 });
 
 export const createOpportunityEditContentSchema = ({
@@ -111,6 +106,9 @@ export const opportunityEditQuestionsSchema = z.object({
 
 export const opportunityEditStep1Schema = opportunityEditInfoSchema.extend({
   content: opportunityEditContentSchema.shape.content,
+  organization: z.object({
+    name: z.string().nonempty(),
+  }),
 });
 
 export const opportunityEditStep2Schema = opportunityEditQuestionsSchema.extend(

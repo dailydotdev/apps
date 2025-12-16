@@ -56,7 +56,7 @@ export const RecruiterPaymentPaddleContextProvider = ({
 
   const { paddle, openCheckout } = usePaddlePayment({
     successCallback: () => {
-      router.push(
+      router.replace(
         `${webappUrl}recruiter/${router.query.opportunityId}/matches`,
       );
     },
