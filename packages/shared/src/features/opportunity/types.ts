@@ -28,6 +28,12 @@ export enum RoleType {
   Managerial = 1.0,
 }
 
+export enum LocationVerificationStatus {
+  GeoIP = 'geoip',
+  UserProvided = 'user_provided',
+  Verified = 'verified',
+}
+
 export type RecruiterProfile = Pick<
   PublicProfile,
   'id' | 'name' | 'username' | 'image' | 'bio'
@@ -210,8 +216,8 @@ export interface OpportunityPreviewUser {
   seniority?: string;
   /** User location (from preferences or geo flags) */
   location?: string;
-  /** Whether the user location is verified (from geo flags) */
-  locationVerified?: boolean;
+  /** Location verification status (from geo flags) */
+  locationVerified?: LocationVerificationStatus;
   /** Active company from experience */
   company?: OpportunityPreviewCompany;
   /** Last activity timestamp */

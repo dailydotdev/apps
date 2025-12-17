@@ -15,11 +15,12 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
-import { MiniCloseIcon, AlertIcon } from '../icons';
+import { AlertIcon, MiniCloseIcon } from '../icons';
 import { Chip } from '../cards/common/PostTags';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useOpportunityPreviewContext } from '../../features/opportunity/context/OpportunityPreviewContext';
 import type { OpportunityPreviewUser } from '../../features/opportunity/types';
+import { LocationVerificationStatus } from '../../features/opportunity/types';
 import { cloudinarySquadsImageFallback } from '../../lib/image';
 import { getExperienceLevelLabel } from '../../lib/user';
 
@@ -86,7 +87,7 @@ const columns = [
     cell: (info) => {
       const user = info.row.original;
       const location = info.getValue();
-      const isVerified = user.locationVerified;
+      const { locationVerified } = user;
 
       return (
         <span className="inline-block">
@@ -97,13 +98,14 @@ const columns = [
           >
             {location || '-'}
           </Typography>
-          {location && !isVerified && (
-            <Tooltip content="Location estimated">
-              <span className="ml-2 inline-flex items-center align-middle">
-                <AlertIcon className="text-text-tertiary" />
-              </span>
-            </Tooltip>
-          )}
+          {location &&
+            locationVerified === LocationVerificationStatus.GeoIP && (
+              <Tooltip content="Location estimated">
+                <span className="ml-2 inline-flex items-center align-middle">
+                  <AlertIcon className="text-text-tertiary" />
+                </span>
+              </Tooltip>
+            )}
         </span>
       );
     },
