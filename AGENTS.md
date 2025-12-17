@@ -26,7 +26,7 @@ This is a pnpm monorepo containing the daily.dev application suite:
 
 ## Technology Stack
 
-- **Node.js v22.11** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
+- **Node.js v22.16** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
 - **pnpm 9.14.4** for package management (see `package.json` `packageManager` property)
 - **TypeScript** across all packages
 - **React 18.3.1** with Next.js 15 for webapp (Pages Router, NOT App Router/Server Components)
