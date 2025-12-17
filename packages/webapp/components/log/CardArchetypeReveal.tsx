@@ -130,15 +130,7 @@ export default function CardArchetypeReveal({
   );
   const [buildUpIndex, setBuildUpIndex] = useState(-1);
   const [showParticles, setShowParticles] = useState(false);
-  const [, setImageLoaded] = useState(false);
   const archetype = ARCHETYPES[data.archetype];
-
-  // Preload the image
-  useEffect(() => {
-    const img = new Image();
-    img.onload = () => setImageLoaded(true);
-    img.src = archetype.imageUrl;
-  }, [archetype.imageUrl]);
 
   // Generate particles with archetype colors
   const particles = useMemo(() => {

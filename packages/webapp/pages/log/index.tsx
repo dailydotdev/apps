@@ -19,6 +19,7 @@ import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { useImagePreloader } from '@dailydotdev/shared/src/hooks/useImagePreloader';
 import { ARCHETYPES } from '../../types/log';
 import { useCardNavigation, useLog } from '../../hooks/log';
 import type { CardConfig } from '../../hooks/log';
@@ -226,6 +227,14 @@ export default function LogPage(): ReactElement {
 
   // Fetch log data from API
   const { data, isLoading: isDataLoading } = useLog(isLoggedIn);
+
+  // Preload images (archetypes + source logos) during browser idle time
+  const imagesToPreload = useMemo(() => {
+    const archetypeUrls = Object.values(ARCHETYPES).map((a) => a.imageUrl);
+    const sourceUrls = data?.topSources?.map((s) => s.logoUrl) ?? [];
+    return [...archetypeUrls, ...sourceUrls];
+  }, [data?.topSources]);
+  useImagePreloader(imagesToPreload);
 
   // Track page landing impression
   useEffect(() => {
