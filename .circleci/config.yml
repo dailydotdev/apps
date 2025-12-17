@@ -36,7 +36,8 @@ jobs:
           working_directory: packages/<< parameters.pkg >>
       - store_test_results:
           path: ./packages/<< parameters.pkg >>/test-results
-
+      - store_artifacts:
+          path: ./packages/<< parameters.pkg >>/test-results
   lint-package:
     parameters:
       pkg:
