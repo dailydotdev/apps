@@ -8,8 +8,8 @@ import { Divider } from '../../../../components/utilities';
 import { Chip } from '../../../../components/cards/common/PostTags';
 import { Loader } from '../../../../components/Loader';
 import { useOpportunityPreviewContext } from '../../context/OpportunityPreviewContext';
-import { cloudinarySquadsImageFallback } from '../../../../lib/image';
 import { apiUrl } from '../../../../lib/config';
+import { Image, ImageType } from '../../../../components/image/Image';
 
 const iconSize = 24;
 
@@ -110,8 +110,8 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
       </Typography>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag) => (
-          <Chip key={tag} className="!my-0 !text-text-tertiary">
-            {tag}
+          <Chip key={tag} className="!my-0">
+            #{tag}
           </Chip>
         ))}
       </div>
@@ -142,17 +142,19 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
       </div>
       <div className="grid grid-cols-2 gap-2">
         {squads.map((squad) => (
-          <div className="flex gap-2" key={squad.handle}>
-            <img
-              src={cloudinarySquadsImageFallback}
-              className="size-4 rounded-full"
-              alt={squad.image}
+          <div className="flex gap-2" key={squad.id}>
+            <Image
+              src={squad.image}
+              alt={squad.name}
+              type={ImageType.Squad}
+              className="h-4 w-4 rounded-full object-cover"
+              loading="lazy"
             />
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              {squad.handle}
+              {squad.name}
             </Typography>
           </div>
         ))}
