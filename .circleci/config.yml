@@ -71,7 +71,14 @@ workflows:
           matrix:
             parameters:
               pkg: ["extension", "webapp", "shared"]
-              parallelism: [1, 2, 4]
+            include:
+              - pkg: "extension"
+                parallelism: 1
+              - pkg: "webapp"
+                parallelism: 2
+              - pkg: "shared"
+                parallelism: 4
+          name: test-package-<< matrix.pkg >>
 
       - check-steps:
           requires:
