@@ -605,6 +605,7 @@ export const OPPORTUNITY_PREVIEW = gql`
         }
         totalCount
         opportunityId
+        status
       }
     }
   }
