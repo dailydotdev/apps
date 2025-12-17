@@ -18,10 +18,13 @@ jobs:
     parameters:
       pkg:
         type: string
+      parallelism:
+        type: integer
+        default: 1
     executor:
       name: common/node
       tag: "22.16"
-    parallelism: 1
+    parallelism: << parameters.parallelism >>
     steps:
       - common/setup-node
       - run:
@@ -68,6 +71,7 @@ workflows:
           matrix:
             parameters:
               pkg: ["extension", "webapp", "shared"]
+              parallelism: [1, 2, 4]
 
       - check-steps:
           requires:
