@@ -340,7 +340,11 @@ const JobPage = (): ReactElement => {
           <OpportunityStepsInfo />
         </div>
       </Portal>
-      {!hasCompletedInitialView && !canEdit && <JobPageIntro />}
+      {!hasCompletedInitialView && !canEdit && (
+        <div className="mb-4">
+          <JobPageIntro />
+        </div>
+      )}
       {showFooterNav && (
         <OpportunityFooter>
           {!!match && (

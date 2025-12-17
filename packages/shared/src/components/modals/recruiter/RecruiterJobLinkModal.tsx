@@ -104,11 +104,7 @@ export const RecruiterJobLinkModal = ({
   const { mutateAsync: parseOpportunity } = useMutation(
     parseOpportunityMutationOptions(),
   );
-  const {
-    mutate: handleSubmit,
-    status,
-    isPending,
-  } = useMutation({
+  const { mutate: handleSubmit, isPending } = useMutation({
     mutationFn: async () => {
       if (jobLink) {
         const trimmedLink = jobLink.trim();
@@ -196,7 +192,7 @@ export const RecruiterJobLinkModal = ({
           </div>
 
           <DragDrop
-            state={status}
+            state={undefined} // we don't want double loader
             isCompactList
             className="w-full laptop:min-h-20"
             onFilesDrop={(files) => {
@@ -207,6 +203,7 @@ export const RecruiterJobLinkModal = ({
             dragDropDescription="Drop PDF or Word here or"
             ctaLabelDesktop="Select file"
             ctaLabelMobile="Select file"
+            disabled={isPending}
           />
 
           <Button

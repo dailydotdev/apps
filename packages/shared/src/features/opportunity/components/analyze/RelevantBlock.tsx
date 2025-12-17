@@ -6,11 +6,11 @@ import {
 } from '../../../../components/typography/Typography';
 import { Divider } from '../../../../components/utilities';
 import { Chip } from '../../../../components/cards/common/PostTags';
-import { Loader } from '../../../../components/Loader';
 import { useOpportunityPreviewContext } from '../../context/OpportunityPreviewContext';
 import { apiUrl } from '../../../../lib/config';
 import { Image, ImageType } from '../../../../components/image/Image';
 import { OpportunityPreviewStatus } from '../../types';
+import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 
 const iconSize = 24;
 
@@ -37,6 +37,11 @@ type RelevantBlockProps = {
 };
 
 export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
+  const [randomTagsWidths] = useState(() =>
+    new Array(16).fill(undefined).map(() => {
+      return `${Math.floor(Math.random() * 50) + 40}px`;
+    }),
+  );
   const data = useOpportunityPreviewContext();
   const totalCount = data?.result?.totalCount ?? 0;
   const tags = data?.result?.tags ?? [];
@@ -78,8 +83,30 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
 
   if (!isVisible) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Loader />
+      <div className="flex flex-col gap-4">
+        <ElementPlaceholder className="h-6 w-full rounded-8" />
+        <ElementPlaceholder className="h-6 w-full rounded-8" />
+        <Divider className="bg-border-subtlest-tertiary" />
+        <div className="flex flex-1 flex-wrap items-center gap-2">
+          {randomTagsWidths.map((tagWidth, index) => {
+            return (
+              <ElementPlaceholder
+                //  eslint-disable-next-line react/no-array-index-key
+                key={index}
+                style={{
+                  width: tagWidth,
+                }}
+                className="h-6 rounded-8"
+              />
+            );
+          })}
+        </div>
+        <Divider className="bg-border-subtlest-tertiary" />
+        <ElementPlaceholder className="h-6 w-full rounded-8" />
+        <ElementPlaceholder className="h-4 w-full rounded-8" />
+        <ElementPlaceholder className="h-4 w-full rounded-8" />
+        <ElementPlaceholder className="h-4 w-full rounded-8" />
+        <Divider className="bg-border-subtlest-tertiary" />
       </div>
     );
   }
