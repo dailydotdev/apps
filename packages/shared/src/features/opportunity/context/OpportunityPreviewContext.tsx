@@ -13,6 +13,7 @@ import {
 } from '../types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { oneMinute } from '../../../lib/dateFormat';
+import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 
 export type OpportunityPreviewContextType = OpportunityPreviewConnection & {
   opportunity?: Opportunity;
@@ -29,6 +30,14 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
     const opportunityIdParam = router?.query?.opportunityId as
       | string
       | undefined;
+
+    const [, setOpportunityPreview] = useUpdateQuery(
+      opportunityPreviewQueryOptions({
+        opportunityId: opportunityIdParam,
+        user: user || undefined,
+        enabled: !mockData,
+      }),
+    );
 
     const { data } = useQuery({
       ...opportunityPreviewQueryOptions({
@@ -47,6 +56,15 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
           (2 * oneMinute * 1000) / opportunityPreviewRefetchIntervalMs;
 
         if (retries > maxRetries) {
+          // set to error on retries exceeded and show message
+          setOpportunityPreview({
+            ...query.state.data,
+            result: {
+              ...query.state.data?.result,
+              status: OpportunityPreviewStatus.ERROR,
+            },
+          });
+
           return false;
         }
 

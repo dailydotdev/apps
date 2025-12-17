@@ -158,6 +158,16 @@ export const labels = {
       okButton: 'Approve & Publish',
       cancelButton: 'Back to edit',
     },
+    contentFields: {
+      placeholders: {
+        overview: 'Tell us about the role',
+        responsibilities: 'List the key responsibilities',
+        requirements: 'Specify the requirements',
+        whatYoullDo: 'Describe what candidate will do',
+        interviewProcess: 'Explain the interview process',
+        generic: 'Tell us more',
+      },
+    },
   },
   postCreation: {
     warnings: {

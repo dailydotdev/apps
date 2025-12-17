@@ -1,6 +1,5 @@
 import type { DefaultError, MutationOptions } from '@tanstack/react-query';
 import type z from 'zod';
-import { gql } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
 import {
   ACCEPT_OPPORTUNITY_MATCH,
@@ -10,7 +9,7 @@ import {
   CLEAR_ORGANIZATION_IMAGE_MUTATION,
   CLEAR_RESUME_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
-  OPPORTUNITY_FRAGMENT,
+  PARSE_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
   RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION,
   RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION,
@@ -427,15 +426,6 @@ export const recruiterRejectOpportunityMatchMutationOptions =
       },
     };
   };
-
-const PARSE_OPPORTUNITY_MUTATION = gql`
-  mutation ParseOpportunity($payload: ParseOpportunityInput!) {
-    parseOpportunity(payload: $payload) {
-      ...OpportunityFragment
-    }
-  }
-  ${OPPORTUNITY_FRAGMENT}
-`;
 
 export const parseOpportunityMutationOptions = () => {
   return {

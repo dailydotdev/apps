@@ -16,6 +16,7 @@ import {
 import { ContentSidebar } from '@dailydotdev/shared/src/features/opportunity/components/analyze/ContentSidebar';
 import { UserTableWrapper } from '@dailydotdev/shared/src/features/opportunity/components/analyze/UserTableWrapper';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const RecruiterPageContent = () => {
@@ -23,9 +24,17 @@ const RecruiterPageContent = () => {
   const { openModal } = useLazyModal();
   const router = useRouter();
   const [loadingStep, setLoadingStep] = useState(0);
-  const { opportunity } = useOpportunityPreviewContext();
+  const { opportunity, result } = useOpportunityPreviewContext();
 
   useEffect(() => {
+    const noCandidates =
+      result?.status === OpportunityPreviewStatus.READY &&
+      result.totalCount === 0;
+
+    if (result?.status === OpportunityPreviewStatus.ERROR || noCandidates) {
+      return setLoadingStep(4);
+    }
+
     // Always run the full loading animation sequence
     const timers: NodeJS.Timeout[] = [];
 
@@ -35,7 +44,7 @@ const RecruiterPageContent = () => {
     timers.push(setTimeout(() => setLoadingStep(4), 3200));
 
     return () => timers.forEach(clearTimeout);
-  }, []);
+  }, [result]);
 
   const handlePrepareCampaignClick = useCallback(() => {
     if (!opportunity) {
@@ -57,6 +66,7 @@ const RecruiterPageContent = () => {
         headerButton={{
           text: 'Prepare campaign',
           onClick: handlePrepareCampaignClick,
+          disabled: !opportunity,
         }}
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />

@@ -80,6 +80,7 @@ import {
   isTesting,
   opportunityUrl,
 } from '@dailydotdev/shared/src/lib/constants';
+import { locationToString } from '@dailydotdev/shared/src/lib/utils';
 import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
 import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
 import {
@@ -339,7 +340,11 @@ const JobPage = (): ReactElement => {
           <OpportunityStepsInfo />
         </div>
       </Portal>
-      {!hasCompletedInitialView && !canEdit && <JobPageIntro />}
+      {!hasCompletedInitialView && !canEdit && (
+        <div className="mb-4">
+          <JobPageIntro />
+        </div>
+      )}
       {showFooterNav && (
         <OpportunityFooter>
           {!!match && (
@@ -791,7 +796,8 @@ const JobPage = (): ReactElement => {
                   HQ
                 </Typography>
                 <Typography type={TypographyType.Footnote} bold>
-                  {opportunity.organization?.location || 'N/A'}
+                  {locationToString(opportunity.organization?.location) ||
+                    'N/A'}
                 </Typography>
 
                 <Typography
