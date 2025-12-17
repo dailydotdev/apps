@@ -792,7 +792,8 @@ const JobPage = (): ReactElement => {
                   HQ
                 </Typography>
                 <Typography type={TypographyType.Footnote} bold>
-                  {locationToString(opportunity.organization?.location) || 'N/A'}
+                  {locationToString(opportunity.organization?.location) ||
+                    'N/A'}
                 </Typography>
 
                 <Typography
