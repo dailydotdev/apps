@@ -33,11 +33,12 @@ jobs:
             TEST=$(./node_modules/.bin/jest --listTests)
             echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
-            JEST_JUNIT_OUTPUT_DIR: ../../test-results
+            JEST_JUNIT_OUTPUT_DIR: ./test-results
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
+            JEST_JUNIT_FILE_PATH_PREFIX: "/home/circleci/project/packages/<< parameters.pkg >>/"
           working_directory: packages/<< parameters.pkg >>
       - store_test_results:
-          path: ./test-results
+          path: ./packages/<< parameters.pkg >>/test-results
 
   lint-package:
     parameters:
