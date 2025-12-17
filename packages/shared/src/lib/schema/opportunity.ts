@@ -143,6 +143,7 @@ export const opportunityEditOrganizationSchema = z.object({
       .max(new Date().getFullYear())
       .optional(),
     location: z.string().max(240).optional(),
+    externalLocationId: z.string().optional(),
     category: z.string().max(240).optional(),
     size: z.number().optional(),
     stage: z.number().optional(),
