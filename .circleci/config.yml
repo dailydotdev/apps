@@ -1,6 +1,15 @@
 version: 2.1
 
+orbs:
+  common: dailydotdev/common@0.0.14
+
 jobs:
+  setup-node:
+    executor:
+      name: common/node
+      tag: "22.11"
+    steps:
+      - common/setup-node
   install_deps:
     docker:
       - image: cimg/node:22.11
@@ -27,15 +36,12 @@ jobs:
             - ./packages/webapp/node_modules
             - ./packages/extension/node_modules
   test_extension:
-    docker:
-      - image: cimg/node:22.11
+    executor:
+      name: common/node
+      tag: "22.11"
     parallelism: 1
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+      - common/setup-node
       - run:
           name: Test
           command: |
@@ -44,19 +50,17 @@ jobs:
             echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
           working_directory: packages/extension
       - store_test_results:
           path: ./test-results
   test_webapp:
-    docker:
-      - image: cimg/node:22.11
+    executor:
+      name: common/node
+      tag: "22.11"
     parallelism: 1
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+      - common/setup-node
       - run:
           name: Test
           command: |
@@ -65,33 +69,28 @@ jobs:
             echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
           working_directory: packages/webapp
       - store_test_results:
           path: ./test-results
   lint_shared:
-    docker:
-      - image: cimg/node:22.11
+    executor:
+      name: common/node
+      tag: "22.11"
     resource_class: large
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+      - common/setup-node
       - run:
           name: Lint
           command: npm run pretest
           working_directory: packages/shared
   test_shared:
-    docker:
-      - image: cimg/node:22.11
+    executor:
+      name: common/node
+      tag: "22.11"
     parallelism: 1
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+      - common/setup-node
       - run:
           name: Test
           command: |
@@ -99,22 +98,23 @@ jobs:
             echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
           working_directory: packages/shared
       - store_test_results:
           path: ./test-results
 workflows:
   build:
     jobs:
-      - install_deps
+      - setup-node
       - test_extension:
           requires:
-            - install_deps
+            - setup-node
       - test_webapp:
           requires:
-            - install_deps
+            - setup-node
       - lint_shared:
           requires:
-            - install_deps
+            - setup-node
       - test_shared:
           requires:
-            - install_deps
+            - setup-node
