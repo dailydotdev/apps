@@ -47,7 +47,7 @@ jobs:
     executor:
       name: common/node
       tag: "22.16"
-    resource_class: large
+    resource_class: small
     steps:
       - common/setup-node
       - run:
