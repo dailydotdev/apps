@@ -10,31 +10,6 @@ jobs:
       tag: "22.16"
     steps:
       - common/setup-node
-  # install_deps:
-  #   docker:
-  #     - image: cimg/node:22.11
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Install pnpm
-  #         command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
-  #     - restore_cache:
-  #         keys:
-  #           - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-  #           - deps-v7-{{ .Branch }}
-  #     - run:
-  #         name: Install dependencies
-  #         command: pnpm install
-  #     - save_cache:
-  #         key: deps-v7-{{ checksum "pnpm-lock.yaml" }}
-  #         paths:
-  #           - ./node_modules
-  #           - ./packages/eslint-config/node_modules
-  #           - ./packages/eslint-rules/node_modules
-  #           - ./packages/prettier-config/node_modules
-  #           - ./packages/shared/node_modules
-  #           - ./packages/webapp/node_modules
-  #           - ./packages/extension/node_modules
   test_extension:
     executor:
       name: common/node
