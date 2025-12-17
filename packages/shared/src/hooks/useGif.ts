@@ -45,7 +45,9 @@ const useGif = ({
           ...(pageParam && { pos: pageParam as string }),
         });
 
-        const response = await fetch(`${apiUrl}/gifs?${params}`);
+        const response = await fetch(`${apiUrl}/gifs?${params}`, {
+          credentials: 'include',
+        });
         return response.json();
       },
       getNextPageParam: (lastPage) => {
