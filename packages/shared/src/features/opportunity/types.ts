@@ -12,7 +12,6 @@ import type { LocationType } from './protobuf/util';
 import type { Connection } from '../../graphql/common';
 import type { Squad } from '../../graphql/sources';
 import type { TopReader } from '../../components/badges/TopReaderBadge';
-import type { SubscriptionStatus } from '../../lib/plus';
 
 export enum OpportunityMatchStatus {
   Pending = 'pending',
@@ -42,7 +41,6 @@ type OpportunityContentBlock = {
 };
 
 export type OpportunityLocation = {
-  type?: ProtoEnumValue;
   city?: string;
   country?: string;
   subdivision?: string;
@@ -88,9 +86,10 @@ export type OpportunityScreeningAnswer = {
   answer: string;
 };
 
-type OpportunityFlagsPublic = {
-  batchSize?: number;
-};
+type OpportunityFlagsPublic = Partial<{
+  batchSize: number;
+  plan: string;
+}>;
 
 export type Opportunity = {
   id: string;
@@ -104,11 +103,10 @@ export type Opportunity = {
   };
   meta: OpportunityMeta;
   recruiters: RecruiterProfile[];
-  location: OpportunityLocation[];
+  locations: Array<{ location: OpportunityLocation; type?: ProtoEnumValue }>;
   keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
   feedbackQuestions?: OpportunityFeedbackQuestion[];
-  subscriptionStatus: SubscriptionStatus;
   flags?: OpportunityFlagsPublic;
 };
 
@@ -173,6 +171,7 @@ export type UserCandidatePreferences = {
   companySize?: CompanySize[];
   customKeywords?: boolean;
   keywords?: Array<UserCandidateKeyword>;
+  externalLocationId?: string;
 };
 
 export const recruiterLayoutHeaderClassName = 'recruiter-layout-header';

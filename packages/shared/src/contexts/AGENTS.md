@@ -20,7 +20,8 @@ React Context providers for global application state.
 What kind of state is it?
 ├── Server data (from API) → TanStack Query
 ├── Global app state (user, settings) → React Context
-├── UI state (open/closed, selected) → Jotai or useState
+├── Feature/page-scoped state → Micro Context (createContextProvider)
+├── UI state (open/closed, selected) → useState
 └── Form state → react-hook-form
 ```
 
@@ -100,19 +101,97 @@ contexts/payment/
 
 The correct payment provider is selected based on platform.
 
+## Micro Context Pattern (Preferred for Prop Drilling)
+
+Use `createContextProvider` from `@kickass-coderz/react` to create scoped contexts for pages, features, or component blocks. This eliminates prop drilling while keeping state localized.
+
+```typescript
+import { createContextProvider } from '@kickass-coderz/react';
+import { useQuery } from '@tanstack/react-query';
+import type { PropsWithChildren } from 'react';
+
+type UseMyFeatureProps = PropsWithChildren & {
+  itemId: string;
+};
+
+const [MyFeatureProvider, useMyFeatureContext] = createContextProvider(
+  ({ itemId }: UseMyFeatureProps) => {
+    const { data, isLoading } = useQuery({
+      queryKey: ['item', itemId],
+      queryFn: () => fetchItem(itemId),
+    });
+
+    const [selectedTab, setSelectedTab] = useState('overview');
+
+    return { data, isLoading, selectedTab, setSelectedTab };
+  },
+);
+
+export { MyFeatureProvider, useMyFeatureContext };
+```
+
+**Usage at page level:**
+```typescript
+// pages/my-feature/[id].tsx
+export default function MyFeaturePage() {
+  return (
+    <MyFeatureProvider itemId={router.query.id}>
+      <Header />        {/* Can access context */}
+      <ContentArea />   {/* Can access context */}
+      <Sidebar />       {/* Can access context */}
+    </MyFeatureProvider>
+  );
+}
+
+// Any nested component:
+function ContentArea() {
+  const { data, selectedTab } = useMyFeatureContext();
+  // No props needed!
+}
+```
+
+**Key benefits:**
+- All child components access shared state without prop drilling
+- Works great when injected into layouts (they're just components)
+- Changes/additions to components don't require threading props
+- Keeps TanStack Query data fetching centralized
+
+**Real examples:**
+- `OpportunityProvider` - wraps opportunity pages
+- `ShortcutsProvider` - wraps shortcuts feature
+- `ActivePostContextProvider` - wraps post-related components
+
 ## When to Create a New Context
 
 Create a context when:
 - State needs to be accessed deeply in the component tree
 - Multiple unrelated components need the same state
-- You need to avoid prop drilling
+- You need to avoid prop drilling → **Use micro context pattern**
 
 Don't create a context when:
 - State is only used by a parent and immediate children (use props)
-- Data comes from the server (use TanStack Query)
-- State is UI-local (use useState or Jotai)
+- Data comes from the server (use TanStack Query directly, unless shared across siblings)
+- State is truly UI-local to one component (use useState)
 
-## Context Pattern
+## Context Patterns
+
+### Preferred: `createContextProvider` (less boilerplate)
+
+```typescript
+import { createContextProvider } from '@kickass-coderz/react';
+
+const [MyProvider, useMyContext] = createContextProvider(
+  () => {
+    const [value, setValue] = useState('');
+    return { value, setValue };
+  },
+  { errorMessage: 'useMyContext must be used within MyProvider' },
+);
+
+export { MyProvider, useMyContext };
+```
+
+### Traditional Pattern (for complex cases)
 
 ```typescript
 import { createContext, useContext, ReactNode } from 'react';

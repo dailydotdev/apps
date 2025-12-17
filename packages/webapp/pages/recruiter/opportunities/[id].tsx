@@ -437,7 +437,7 @@ const OpportunityDetailPage = (): ReactElement => {
               color={TypographyColor.Secondary}
             >
               {opportunity.organization?.name} •{' '}
-              {opportunity.location?.[0]?.city || 'Remote'}
+              {opportunity.locations?.[0]?.location?.city || 'Remote'}
             </Typography>
           </FlexCol>
 

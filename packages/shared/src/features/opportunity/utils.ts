@@ -9,6 +9,7 @@ export const mapMatchToProfile = (
     name: match.user.name,
     profileImage: match.user.image,
     profileLink: match.user.permalink,
+    cvUrl: match.candidatePreferences?.cv?.signedUrl,
     reputation: match.user.reputation,
     seniority: match.previewUser?.seniority || 'Not specified',
     location: match.previewUser?.location || 'Not specified',
