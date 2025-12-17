@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { createElement, useState, useEffect } from 'react';
 import z from 'zod';
 import { useMutation } from '@tanstack/react-query';
+import { useInterval } from '@kickass-coderz/react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -11,7 +12,16 @@ import {
 } from '../../typography/Typography';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { TextField } from '../../fields/TextField';
-import { MagicIcon, ShieldIcon } from '../../icons';
+import {
+  MagicIcon,
+  ShieldIcon,
+  ShieldCheckIcon,
+  SearchIcon,
+  EyeIcon,
+  PlusUserIcon,
+  SparkleIcon,
+  UserIcon,
+} from '../../icons';
 import { DragDrop } from '../../fields/DragDrop';
 import { parseOpportunityMutationOptions } from '../../../features/opportunity/mutations';
 import { useToastNotification } from '../../../hooks';
@@ -34,6 +44,30 @@ const fileValidation = {
   acceptedExtensions: ['pdf', 'docx'],
 };
 
+const loadingMessages = [
+  'Respecting developer preferences',
+  'Matching with opt-in candidates only',
+  'Analyzing role requirements',
+  'Checking trust signals',
+  'Finding developers who want to hear from you',
+  'Verifying mutual interest',
+  'Building trust-first connections',
+  'Scanning opted-in talent pool',
+  'Prioritizing authentic matches',
+];
+
+const loadingIcons = [
+  ShieldIcon,
+  ShieldCheckIcon,
+  SearchIcon,
+  EyeIcon,
+  PlusUserIcon,
+  SparkleIcon,
+  UserIcon,
+  MagicIcon,
+  ShieldCheckIcon,
+];
+
 export const RecruiterJobLinkModal = ({
   onSubmit,
   onRequestClose,
@@ -42,6 +76,7 @@ export const RecruiterJobLinkModal = ({
   const [jobLink, setJobLink] = useState('');
   const [error, setError] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const { displayToast } = useToastNotification();
 
   const validateJobLink = (value: string) => {
@@ -69,7 +104,6 @@ export const RecruiterJobLinkModal = ({
   const { mutateAsync: parseOpportunity } = useMutation(
     parseOpportunityMutationOptions(),
   );
-
   const {
     mutate: handleSubmit,
     status,
@@ -99,6 +133,19 @@ export const RecruiterJobLinkModal = ({
       onSubmit(opportunity);
     },
   });
+
+  useInterval(
+    () => {
+      setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+    },
+    isPending ? 1800 : null,
+  );
+
+  useEffect(() => {
+    if (!isPending) {
+      setLoadingMessageIndex(0);
+    }
+  }, [isPending]);
 
   return (
     <Modal
@@ -168,11 +215,20 @@ export const RecruiterJobLinkModal = ({
             onClick={() => {
               handleSubmit();
             }}
-            disabled={(!jobLink.trim() && !file) || !!error}
-            loading={isPending}
+            disabled={(!jobLink.trim() && !file) || !!error || isPending}
             className="w-full gap-2 tablet:w-auto"
           >
-            <MagicIcon /> Find my matches
+            {isPending ? (
+              <>
+                {createElement(loadingIcons[loadingMessageIndex])}
+                {loadingMessages[loadingMessageIndex]}
+              </>
+            ) : (
+              <>
+                <MagicIcon />
+                Find my matches
+              </>
+            )}
           </Button>
 
           <div className="flex items-center justify-center gap-2">
