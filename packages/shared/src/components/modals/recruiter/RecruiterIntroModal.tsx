@@ -2,11 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../typography/Typography';
+import { Typography, TypographyType } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
 export interface RecruiterIntroModalProps extends ModalProps {
@@ -46,14 +42,14 @@ export const RecruiterIntroModal = ({
         </Typography>
 
         {/* Placeholder for video */}
-        <div className="flex aspect-video h-60 w-full items-center justify-center rounded-12 bg-background-subtle">
+        {/* <div className="flex aspect-video h-60 w-full items-center justify-center rounded-12 bg-background-subtle">
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
           >
             [Video]
           </Typography>
-        </div>
+        </div> */}
 
         <Button
           variant={ButtonVariant.Primary}
