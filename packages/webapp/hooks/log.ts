@@ -68,6 +68,7 @@ export interface CardConfig {
     subcard?: number;
     isTouchDevice?: boolean;
     isLoading?: boolean;
+    onShare?: () => void;
   }>;
   subcards?: number; // Number of subcards (0 or undefined = no subcards)
 }

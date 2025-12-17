@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useEffect, useState, useCallback } from 'react';
+import React, {
+  useMemo,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,6 +17,8 @@ import {
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { ARCHETYPES } from '../../types/log';
 import { useCardNavigation, useLog } from '../../hooks/log';
 import type { CardConfig } from '../../hooks/log';
@@ -212,10 +220,24 @@ const cardVariants = {
 export default function LogPage(): ReactElement {
   const router = useRouter();
   const { isLoggedIn, isAuthReady } = useAuthContext();
+  const { logEvent } = useLogContext();
   const [isTouchDevice, setIsTouchDevice] = useState(true);
+  const hasLoggedImpression = useRef(false);
 
   // Fetch log data from API
   const { data, isLoading: isDataLoading } = useLog(isLoggedIn);
+
+  // Track page landing impression
+  useEffect(() => {
+    if (hasLoggedImpression.current) {
+      return;
+    }
+
+    hasLoggedImpression.current = true;
+    logEvent({
+      event_name: LogEvent.ViewLogPage,
+    });
+  }, [logEvent]);
 
   // Combine auth and data loading states
   const isLoading = !isAuthReady || isDataLoading;
@@ -276,6 +298,40 @@ export default function LogPage(): ReactElement {
   // Navigation with subcard support - tap triggers transitions
   const { currentCard, currentSubcard, direction, goNext, goPrev, goToCard } =
     useCardNavigation(cards);
+
+  // Track card views (handles all navigation: tap, progress bar, keyboard)
+  const previousCardRef = useRef<number | null>(null);
+  useEffect(() => {
+    // Skip initial render (already tracked by ViewLogPage)
+    if (previousCardRef.current === null) {
+      previousCardRef.current = currentCard;
+      return;
+    }
+
+    // Only log when card actually changes
+    if (previousCardRef.current !== currentCard) {
+      logEvent({
+        event_name: LogEvent.ViewLogCard,
+        extra: JSON.stringify({
+          card: cards[currentCard]?.id,
+          cardIndex: currentCard,
+        }),
+      });
+      previousCardRef.current = currentCard;
+    }
+  }, [currentCard, cards, logEvent]);
+
+  // Share analytics callback for CardShare
+  const handleShare = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.ShareLog,
+      extra: JSON.stringify({
+        archetype: data?.archetype,
+        card: cards[currentCard]?.id,
+        cardIndex: currentCard,
+      }),
+    });
+  }, [logEvent, data?.archetype, cards, currentCard]);
 
   // Handle tap navigation (like Instagram stories)
   const handleTapNavigation = useCallback(
@@ -522,6 +578,7 @@ export default function LogPage(): ReactElement {
                   subcard={currentSubcard}
                   isTouchDevice={isTouchDevice}
                   isLoading={isLoading}
+                  onShare={handleShare}
                 />
               </div>
             </motion.div>

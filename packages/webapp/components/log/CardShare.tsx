@@ -11,9 +11,10 @@ interface CardProps {
   isActive: boolean;
   subcard?: number;
   isTouchDevice?: boolean;
+  onShare?: () => void;
 }
 
-export default function CardShare({ data }: CardProps): ReactElement {
+export default function CardShare({ data, onShare }: CardProps): ReactElement {
   const archetype = ARCHETYPES[data.archetype];
   const streakRecord = data.records.find((r) => r.type === 'streak');
 
@@ -30,6 +31,9 @@ What's your developer archetype?
 → app.daily.dev/log`;
 
   const handleShare = useCallback(async () => {
+    // Track share event
+    onShare?.();
+
     // Try Web Share API first
     if (navigator.share) {
       try {
@@ -50,7 +54,7 @@ What's your developer archetype?
     } catch {
       // Ignore clipboard errors
     }
-  }, [shareText]);
+  }, [shareText, onShare]);
 
   return (
     <>
