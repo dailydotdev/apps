@@ -41,15 +41,14 @@ export const RecruiterIntroModal = ({
           </strong>
         </Typography>
 
-        {/* Placeholder for video */}
-        {/* <div className="flex aspect-video h-60 w-full items-center justify-center rounded-12 bg-background-subtle">
-          <Typography
-            type={TypographyType.Body}
-            color={TypographyColor.Tertiary}
-          >
-            [Video]
-          </Typography>
-        </div> */}
+        <div className="h-60 w-full overflow-hidden rounded-12">
+          <iframe
+            title="Recruiter introduction video"
+            src="https://www.youtube-nocookie.com/embed/GAIOnX3S2jg"
+            allowFullScreen
+            className="h-full w-full"
+          />
+        </div>
 
         <Button
           variant={ButtonVariant.Primary}
