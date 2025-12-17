@@ -1,4 +1,5 @@
 import type { Opportunity } from './types';
+import { OpportunityPreviewStatus } from './types';
 import type { OpportunityPreviewContextType } from './context/OpportunityPreviewContext';
 import { SeniorityLevel } from './protobuf/opportunity';
 import { SourceMemberRole, SourceType } from '../../graphql/sources';
@@ -304,6 +305,7 @@ export const mockAnonymousUserTableData: OpportunityPreviewContextType = {
     ],
     totalCount: 5001,
     opportunityId: '89f3daff-d6bb-4652-8f9c-b9f7254c9af1',
+    status: OpportunityPreviewStatus.READY,
   },
   opportunity: mockOpportunity,
 };

@@ -230,12 +230,19 @@ export interface OpportunityPreviewUser {
   activeSquads?: Squad[];
 }
 
+export enum OpportunityPreviewStatus {
+  UNSPECIFIED = 0,
+  PENDING = 1,
+  READY = 2,
+}
+
 export interface OpportunityPreviewResult {
   tags: string[];
   companies: OpportunityPreviewCompany[];
   squads: Squad[];
   totalCount?: number;
   opportunityId?: string;
+  status: OpportunityPreviewStatus;
 }
 
 export interface OpportunityPreviewConnection
@@ -253,3 +260,5 @@ export type OpportunityStats = {
   forReview: number;
   introduced: number;
 };
+
+export const opportunityPreviewRefetchIntervalMs = 7000;
