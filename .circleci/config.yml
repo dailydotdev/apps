@@ -10,7 +10,11 @@ jobs:
       tag: "22.16"
     steps:
       - common/setup-node
-  test_extension:
+
+  test-package:
+    parameters:
+      pkg:
+        type: string
     executor:
       name: common/node
       tag: "22.16"
@@ -20,35 +24,19 @@ jobs:
       - run:
           name: Test
           command: |
-            npm run pretest
             TEST=$(./node_modules/.bin/jest --listTests)
             echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
-          working_directory: packages/extension
+          working_directory: packages/<< parameters.pkg >>
       - store_test_results:
           path: ./test-results
-  test_webapp:
-    executor:
-      name: common/node
-      tag: "22.16"
-    parallelism: 1
-    steps:
-      - common/setup-node
-      - run:
-          name: Test
-          command: |
-            npm run pretest
-            TEST=$(./node_modules/.bin/jest --listTests)
-            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ../../test-results
-            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
-          working_directory: packages/webapp
-      - store_test_results:
-          path: ./test-results
-  lint_shared:
+
+  lint-package:
+    parameters:
+      pkg:
+        type: string
     executor:
       name: common/node
       tag: "22.16"
@@ -57,39 +45,23 @@ jobs:
       - common/setup-node
       - run:
           name: Lint
-          command: npm run pretest
-          working_directory: packages/shared
-  test_shared:
-    executor:
-      name: common/node
-      tag: "22.16"
-    parallelism: 1
-    steps:
-      - common/setup-node
-      - run:
-          name: Test
+          working_directory: packages/<< parameters.pkg >>
           command: |
-            TEST=$(./node_modules/.bin/jest --listTests)
-            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ../../test-results
-            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
-          working_directory: packages/shared
-      - store_test_results:
-          path: ./test-results
+            pnpm run lint
 workflows:
   build:
     jobs:
       - setup-node
-      - test_extension:
+      - lint-package:
           requires:
             - setup-node
-      - test_webapp:
+          matrix:
+            parameters:
+              pkg: ["extension", "webapp", "shared"]
+
+      - test-package:
           requires:
             - setup-node
-      - lint_shared:
-          requires:
-            - setup-node
-      - test_shared:
-          requires:
-            - setup-node
+          matrix:
+            parameters:
+              pkg: ["extension", "webapp", "shared"]
