@@ -10,6 +10,7 @@ import { Loader } from '../../../../components/Loader';
 import { useOpportunityPreviewContext } from '../../context/OpportunityPreviewContext';
 import { apiUrl } from '../../../../lib/config';
 import { Image, ImageType } from '../../../../components/image/Image';
+import { OpportunityPreviewStatus } from '../../types';
 
 const iconSize = 24;
 
@@ -41,7 +42,8 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
   const tags = data?.result?.tags ?? [];
   const companies = data?.result?.companies ?? [];
   const squads = data?.result?.squads ?? [];
-  const hasData = totalCount > 0 || tags.length > 0;
+  const hasData =
+    data?.result?.status === OpportunityPreviewStatus.READY || tags.length > 0;
   const [animatedCount, setAnimatedCount] = useState(0);
   const [showSubtext, setShowSubtext] = useState(false);
 
@@ -86,7 +88,7 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
     <div className="animate-fade-in flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <Typography type={TypographyType.Body} bold>
-          Relevant active developer
+          Relevant active developers
         </Typography>
         <Typography
           type={TypographyType.Title2}

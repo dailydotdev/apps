@@ -13,7 +13,7 @@ import type {
 } from './types';
 import { RecruiterPaymentContext } from './types';
 import { webappUrl } from '../../lib/constants';
-import { recruiterPricesQueryOptions } from '../../features/opportunity/graphql';
+import { recruiterPricesQueryOptions } from '../../features/opportunity/queries';
 
 export const RecruiterPaymentPaddleContextProvider = ({
   onCompletion,

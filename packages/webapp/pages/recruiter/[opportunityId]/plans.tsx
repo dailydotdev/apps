@@ -17,7 +17,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 import classNames from 'classnames';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
-import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/graphql';
+import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formatCurrency } from '@dailydotdev/shared/src/lib/utils';
