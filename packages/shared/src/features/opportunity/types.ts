@@ -210,6 +210,8 @@ export interface OpportunityPreviewUser {
   seniority?: string;
   /** User location (from preferences or geo flags) */
   location?: string;
+  /** Whether the user location is verified (from geo flags) */
+  locationVerified?: boolean;
   /** Active company from experience */
   company?: OpportunityPreviewCompany;
   /** Last activity timestamp */

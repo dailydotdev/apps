@@ -15,8 +15,9 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
-import { MiniCloseIcon } from '../icons';
+import { MiniCloseIcon, AlertIcon } from '../icons';
 import { Chip } from '../cards/common/PostTags';
+import { Tooltip } from '../tooltip/Tooltip';
 import { useOpportunityPreviewContext } from '../../features/opportunity/context/OpportunityPreviewContext';
 import type { OpportunityPreviewUser } from '../../features/opportunity/types';
 import { cloudinarySquadsImageFallback } from '../../lib/image';
@@ -82,14 +83,30 @@ const columns = [
   }),
   columnHelper.accessor('location', {
     header: 'Location',
-    cell: (info) => (
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        {info.getValue() || '-'}
-      </Typography>
-    ),
+    cell: (info) => {
+      const user = info.row.original;
+      const location = info.getValue();
+      const isVerified = user.locationVerified;
+
+      return (
+        <span className="inline-block">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+            className="inline break-words"
+          >
+            {location || '-'}
+          </Typography>
+          {location && !isVerified && (
+            <Tooltip content="Location estimated">
+              <span className="ml-2 inline-flex items-center align-middle">
+                <AlertIcon className="text-text-tertiary" />
+              </span>
+            </Tooltip>
+          )}
+        </span>
+      );
+    },
   }),
   columnHelper.accessor('company', {
     header: 'Company',
