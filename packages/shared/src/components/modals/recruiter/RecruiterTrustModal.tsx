@@ -6,7 +6,6 @@ import { Typography, TypographyType } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { Checkbox } from '../../fields/Checkbox';
 import { ShieldIcon } from '../../icons';
-import { webappUrl } from '../../../lib/constants';
 import Link from '../../utilities/Link';
 
 export interface RecruiterTrustModalProps extends ModalProps {
@@ -119,8 +118,11 @@ export const RecruiterTrustModal = ({
             Agree
           </Button>
 
-          <Link passHref href={`${webappUrl}`}>
-            <a className="text-center text-text-secondary underline typo-callout">
+          <Link passHref href="https://r.daily.dev/state-of-trust">
+            <a
+              className="text-center text-text-secondary underline typo-callout"
+              target="_blank"
+            >
               Help me understand why trust matters here
             </a>
           </Link>
