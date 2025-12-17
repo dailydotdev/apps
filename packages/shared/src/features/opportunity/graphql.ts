@@ -63,7 +63,11 @@ export const OPPORTUNITY_FRAGMENT = gql`
       perks
       category
       founded
-      location
+      location {
+        city
+        country
+        subdivision
+      }
 
       customLinks {
         ...Link
