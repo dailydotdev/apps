@@ -48,11 +48,19 @@ jobs:
     resource_class: small
     steps:
       - common/setup-node
+      - restore_cache:
+          keys:
+            - v1-eslintcache-<< parameters.pkg >>-{{ checksum "packages/<< parameters.pkg >>/package.json" }}
+            - v1-eslintcache-<< parameters.pkg >>-
       - run:
           name: Lint
           working_directory: packages/<< parameters.pkg >>
           command: |
             pnpm run lint
+      - save_cache:
+          key: v1-eslintcache-<< parameters.pkg >>-{{ checksum "packages/<< parameters.pkg >>/package.json" }}
+          paths:
+            - ./packages/<< parameters.pkg >>/.eslintcache
 workflows:
   build:
     jobs:

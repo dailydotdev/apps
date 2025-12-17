@@ -48,3 +48,5 @@ webapp.xml
 
 # Figma MCP
 figma-images/
+
+.eslintcache
