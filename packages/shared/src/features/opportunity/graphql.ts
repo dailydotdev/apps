@@ -565,6 +565,7 @@ export const OPPORTUNITY_PREVIEW = gql`
           openToWork
           seniority
           location
+          locationVerified
           company {
             name
             favicon
