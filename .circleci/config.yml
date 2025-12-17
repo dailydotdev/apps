@@ -4,6 +4,9 @@ orbs:
   common: dailydotdev/common@0.0.14
 
 jobs:
+  check-steps:
+    type: no-op
+
   setup-node:
     executor:
       name: common/node
@@ -65,3 +68,8 @@ workflows:
           matrix:
             parameters:
               pkg: ["extension", "webapp", "shared"]
+
+      - check-steps:
+          requires:
+            - lint-package
+            - test-package
