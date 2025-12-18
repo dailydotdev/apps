@@ -71,42 +71,38 @@ interface LoadingButtonContentProps {
   isPending: boolean;
 }
 
-const LoadingButtonContent = React.memo(
-  ({ isPending }: LoadingButtonContentProps) => {
-    const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+const LoadingButtonContent = ({ isPending }: LoadingButtonContentProps) => {
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
-    useEffect(() => {
-      if (!isPending) {
-        setLoadingMessageIndex(0);
-        return undefined;
-      }
-
-      const intervalId = setInterval(() => {
-        setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
-      }, 1800);
-
-      return () => clearInterval(intervalId);
-    }, [isPending]);
-
+  useEffect(() => {
     if (!isPending) {
-      return (
-        <>
-          <MagicIcon />
-          Find my matches
-        </>
-      );
+      setLoadingMessageIndex(0);
+      return undefined;
     }
 
+    const intervalId = setInterval(() => {
+      setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+    }, 1800);
+
+    return () => clearInterval(intervalId);
+  }, [isPending]);
+
+  if (!isPending) {
     return (
       <>
-        {createElement(loadingIcons[loadingMessageIndex])}
-        {loadingMessages[loadingMessageIndex]}
+        <MagicIcon />
+        Find my matches
       </>
     );
-  },
-);
+  }
 
-LoadingButtonContent.displayName = 'LoadingButtonContent';
+  return (
+    <>
+      {createElement(loadingIcons[loadingMessageIndex])}
+      {loadingMessages[loadingMessageIndex]}
+    </>
+  );
+};
 
 export const RecruiterJobLinkModal = ({
   onSubmit,
