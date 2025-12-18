@@ -13,6 +13,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { GenericLoaderSpinner } from '../utilities/loaders';
+import { IconSize } from '../Icon';
 
 const searchSuggestions = [
   'Nodding zoom',
@@ -39,7 +41,6 @@ const GifPopover = ({
   textareaRef,
 }: GifPopoverProps) => {
   const { ref: scrollRef, inView } = useInView({
-    rootMargin: '20px',
     threshold: 0.5,
   });
   const [open, setOpen] = useState(false);
@@ -128,40 +129,45 @@ const GifPopover = ({
           onScroll={() => debounceNextPage()}
         >
           {!isLoadingGifs && gifsToDisplay?.length > 0 && (
-            <div className="grid min-w-0 max-w-full grid-cols-2 gap-2">
-              {gifsToDisplay.map((gif, idx) => (
-                <div
-                  className="relative"
-                  key={gif.id}
-                  ref={idx === gifsToDisplay.length - 1 ? scrollRef : null}
-                >
-                  <div className="z-10 absolute right-2 top-2 rounded-16 bg-overlay-primary-pepper">
-                    <Button
-                      icon={
-                        <StarIcon
-                          secondary={favorites?.some((f) => f.id === gif.id)}
-                          className="text-accent-cheese-bolder"
-                        />
-                      }
-                      onClick={() => favorite(gif)}
-                    />
-                  </div>
-                  <button
-                    className="mb-auto"
-                    type="button"
-                    onClick={() =>
-                      handleGifClick({ url: gif.url, title: gif.title })
-                    }
+            <>
+              <div className="grid min-w-0 max-w-full grid-cols-2 gap-2">
+                {gifsToDisplay.map((gif, idx) => (
+                  <div
+                    className="relative"
+                    key={gif.id}
+                    ref={idx === gifsToDisplay.length - 1 ? scrollRef : null}
                   >
-                    <img
-                      src={gif.preview}
-                      alt={gif.title}
-                      className="h-auto min-h-32 w-full cursor-pointer rounded-8 object-cover"
-                    />
-                  </button>
-                </div>
-              ))}
-            </div>
+                    <div className="z-10 absolute right-2 top-2 rounded-16 bg-overlay-primary-pepper">
+                      <Button
+                        icon={
+                          <StarIcon
+                            secondary={favorites?.some((f) => f.id === gif.id)}
+                            className="text-accent-cheese-bolder"
+                          />
+                        }
+                        onClick={() => favorite(gif)}
+                      />
+                    </div>
+                    <button
+                      className="mb-auto"
+                      type="button"
+                      onClick={() =>
+                        handleGifClick({ url: gif.url, title: gif.title })
+                      }
+                    >
+                      <img
+                        src={gif.preview}
+                        alt={gif.title}
+                        className="h-auto min-h-32 w-full cursor-pointer rounded-8 object-cover"
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-center py-4">
+                <GenericLoaderSpinner size={IconSize.XLarge} />
+              </div>
+            </>
           )}
           {!isLoadingGifs && (!gifsToDisplay || gifsToDisplay.length === 0) && (
             <div className="flex h-full w-full min-w-0 items-center justify-center px-4">
