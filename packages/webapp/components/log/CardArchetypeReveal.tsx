@@ -27,8 +27,7 @@ const BUILD_UP_LINES = [
 const TIMING = {
   // Build-up phase
   buildupInitialDelay: 400, // ms before first line appears
-  buildupLineInterval: 900, // ms between each line
-  // Derived: total buildup = 400 + (4 * 900) = 4000ms (4s)
+  buildupLineInterval: 1150, // ms between each line
 
   // "WHO ARE YOU?" phase
   whoAreYouDuration: 1400, // ms to show this text
