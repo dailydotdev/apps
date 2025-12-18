@@ -149,6 +149,155 @@
   }
 }
 
+/* Desktop breakpoint - larger text for bigger screens */
+@media (min-width: 1024px) {
+  .cardInner {
+    max-width: 560px;
+  }
+
+  .headlineSmall {
+    font-size: 1.25rem;
+    letter-spacing: 0.3em;
+  }
+
+  .headlineBig {
+    font-size: 7rem;
+    text-shadow:
+      5px 5px 0 var(--fest-primary),
+      10px 10px 0 var(--fest-accent);
+  }
+
+  .headlineMedium {
+    font-size: 2.75rem;
+  }
+
+  .headlineAccent {
+    font-size: 1.75rem;
+  }
+
+  .headlineBigSmall {
+    font-size: 4.5rem;
+    text-shadow:
+      4px 4px 0 var(--fest-primary),
+      8px 8px 0 var(--fest-accent);
+  }
+
+  .badgeValue {
+    font-size: 1.5rem;
+  }
+
+  .badgeLabel {
+    font-size: 0.65rem;
+  }
+
+  .badgeLarge .badgeValue {
+    font-size: 2rem;
+  }
+
+  .badgeLarge .badgeLabel {
+    font-size: 0.7rem;
+  }
+
+  .bannerMain {
+    font-size: 2.5rem;
+  }
+
+  .bannerPre,
+  .bannerPost {
+    font-size: 0.95rem;
+  }
+
+  .archetypeEmoji {
+    font-size: 6rem;
+  }
+
+  .archetypeName {
+    font-size: 3.75rem;
+    text-shadow:
+      5px 5px 0 var(--fest-primary),
+      10px 10px 0 var(--fest-accent);
+  }
+
+  .archetypeDescription {
+    font-size: 1.05rem;
+    max-width: 340px;
+  }
+
+  .buildUpLine {
+    font-size: 1rem;
+  }
+
+  .recordLabel {
+    font-size: 0.75rem;
+  }
+
+  .recordValue {
+    font-size: 1.15rem;
+  }
+
+  .recordBadge {
+    font-size: 0.65rem;
+  }
+
+  .shareHeader {
+    font-size: 2.5rem;
+  }
+
+  .shareArchetype {
+    font-size: 1.75rem;
+  }
+
+  .shareStatValue {
+    font-size: 1.5rem;
+  }
+
+  .shareStatLabel {
+    font-size: 0.65rem;
+  }
+
+  .shareButton {
+    font-size: 0.75rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .timelineMonth {
+    font-size: 0.75rem;
+    width: 2.5rem;
+  }
+
+  .timelineTopic {
+    font-size: 1rem;
+  }
+
+  .timelineTopic.pivot {
+    font-size: 1.15rem;
+  }
+
+  .podiumRank {
+    font-size: 1.75rem;
+  }
+
+  .podiumName {
+    font-size: 0.6rem;
+  }
+
+  .podiumCount {
+    font-size: 0.6rem;
+  }
+
+  .heatmapLabels {
+    font-size: 0.6rem;
+  }
+
+  .navPrompt span {
+    font-size: 0.75rem;
+  }
+
+  .navPromptFirst span {
+    font-size: 0.85rem;
+  }
+}
+
 /* ========================================
    HEADER - Logo & Progress Bars
    ======================================== */

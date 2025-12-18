@@ -7,7 +7,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  ArrowIcon,
+  MiniCloseIcon,
   VolumeIcon,
   VolumeOffIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -71,7 +71,7 @@ export default function LogHeader({
       <div className={styles.headerNav}>
         <div className={styles.headerLeft}>
           <Button
-            icon={<ArrowIcon className="-rotate-90" />}
+            icon={<MiniCloseIcon />}
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             onClick={() => router.push('/')}
