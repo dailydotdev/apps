@@ -64,6 +64,20 @@ const RecruiterPaymentPage = (): ReactElement => {
     }
   }, [displayToast, opportunity, router]);
 
+  useEffect(() => {
+    if (!opportunity) {
+      return;
+    }
+
+    if (opportunity.flags?.plan) {
+      displayToast(
+        'You already have active subscription for this opportunity.',
+      );
+
+      router.replace(`${webappUrl}recruiter/${opportunity.id}/matches`);
+    }
+  }, [displayToast, opportunity, router]);
+
   const handleBack = () => {
     router.back();
   };
