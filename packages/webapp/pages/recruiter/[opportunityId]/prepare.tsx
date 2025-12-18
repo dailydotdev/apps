@@ -26,7 +26,7 @@ function PreparePage(): ReactElement {
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
         headerButton={{
-          text: 'Outreach settings',
+          text: 'Outreach questions',
           onClick: async () => {
             const result = onValidateOpportunity({
               schema: opportunityEditStep1Schema,
@@ -57,7 +57,7 @@ function PreparePage(): ReactElement {
               return;
             }
 
-            router.push(`${webappUrl}recruiter/${opportunityId}/plans`);
+            router.push(`${webappUrl}recruiter/${opportunityId}/questions`);
           },
         }}
       />
