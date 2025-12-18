@@ -41,11 +41,9 @@ function PreparePage(): ReactElement {
                       {labels.opportunity.requiredMissingNotice.description}
                     </span>
                     <ul className="text-text-tertiary">
-                      {result.error.issues.map((issue) => {
-                        const path = issue.path.join('.');
-
-                        return <li key={path}>• {path}</li>;
-                      })}
+                      {result.error.issues.map((issue) => (
+                        <li key={issue.message}>• {issue.message}</li>
+                      ))}
                     </ul>
                   </div>
                 ),
