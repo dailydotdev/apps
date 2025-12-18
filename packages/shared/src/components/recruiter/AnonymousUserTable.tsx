@@ -311,15 +311,13 @@ export const AnonymousUserTable = () => {
                     className="border-b border-border-subtlest-tertiary px-4 pb-3 pt-1"
                   >
                     <div className="flex flex-col gap-2">
-                      {user.description && (
-                        <Typography
-                          type={TypographyType.Footnote}
-                          color={TypographyColor.Tertiary}
-                          className={classNames(!isExpanded && 'line-clamp-1')}
-                        >
-                          {user.description}
-                        </Typography>
-                      )}
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                        className={classNames(!isExpanded && 'line-clamp-1')}
+                      >
+                        {user.description}
+                      </Typography>
 
                       {isExpanded && (
                         <UserEngagementSections
