@@ -1,6 +1,6 @@
 # Browser Extension
 
-Chrome and Opera browser extension for daily.dev.
+Chrome, Opera and Edge browser extensions for daily.dev.
 
 ## Tech Stack
 
@@ -83,17 +83,11 @@ Scripts injected into web pages (for companion functionality).
 ## Development
 
 ```bash
-# Chrome development
-pnpm --filter extension dev:chrome
+# Chrome and Edge development
+pnpm --filter extension dev
 
-# Opera development
-pnpm --filter extension dev:opera
-
-# Build for Chrome
-pnpm --filter extension build:chrome
-
-# Build for Opera
-pnpm --filter extension build:opera
+# Build for Chrome and Edge
+pnpm --filter extension build
 ```
 
 ### Loading Unpacked Extension

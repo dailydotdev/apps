@@ -11,19 +11,54 @@ import {
 } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { opportunityEditStep1Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { labels } from '@dailydotdev/shared/src/lib/labels';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 import JobPage from '../../jobs/[id]';
 
 function PreparePage(): ReactElement {
   const router = useRouter();
-  const { opportunityId } = useOpportunityEditContext();
+  const { opportunityId, onValidateOpportunity } = useOpportunityEditContext();
+  const { showPrompt } = usePrompt();
 
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
         headerButton={{
           text: 'Outreach settings',
-          onClick: () => {
+          onClick: async () => {
+            const result = onValidateOpportunity({
+              schema: opportunityEditStep1Schema,
+            });
+
+            if (result.error) {
+              await showPrompt({
+                title: labels.opportunity.requiredMissingNotice.title,
+                description: (
+                  <div className="flex flex-col gap-4">
+                    <span>
+                      {labels.opportunity.requiredMissingNotice.description}
+                    </span>
+                    <ul className="text-text-tertiary">
+                      {result.error.issues.map((issue) => {
+                        const path = issue.path.join('.');
+
+                        return <li key={path}>• {path}</li>;
+                      })}
+                    </ul>
+                  </div>
+                ),
+                okButton: {
+                  className: '!w-full',
+                  title: labels.opportunity.requiredMissingNotice.okButton,
+                },
+                cancelButton: null,
+              });
+
+              return;
+            }
+
             router.push(`${webappUrl}recruiter/${opportunityId}/plans`);
           },
         }}

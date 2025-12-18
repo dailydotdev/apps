@@ -203,19 +203,19 @@ const companyStageMap = {
 const metaMap = {
   location: {
     title: 'Location',
-    transformer: (value: Opportunity['location']) => {
+    transformer: (value: Opportunity['locations']) => {
       if (!value || value.length === 0) {
         return 'N/A';
       }
 
       return (
         value
-          .map((location) =>
+          .map((item) =>
             [
-              location.city,
-              location.subdivision,
-              location.country,
-              location.continent,
+              item.location?.city,
+              item.location?.subdivision,
+              item.location?.country,
+              item.location?.continent,
             ]
               .filter(Boolean)
               .join(', '),
@@ -239,7 +239,7 @@ const metaMap = {
   },
   locationType: {
     title: 'Work site',
-    transformer: (value: Opportunity['location']) =>
+    transformer: (value: Opportunity['locations']) =>
       locationTypeMap[value?.[0]?.type || LocationType.UNSPECIFIED],
   },
   equity: {
@@ -486,7 +486,7 @@ const JobPage = (): ReactElement => {
                   metaKey === 'location' || metaKey === 'locationType';
 
                 const value = isLocation
-                  ? opportunity.location
+                  ? opportunity.locations
                   : opportunity.meta[metaKey];
 
                 if (value === false || value === null) {

@@ -2,7 +2,6 @@ import type { Opportunity } from './types';
 import type { OpportunityPreviewContextType } from './context/OpportunityPreviewContext';
 import { SeniorityLevel } from './protobuf/opportunity';
 import { SourceMemberRole, SourceType } from '../../graphql/sources';
-import { SubscriptionStatus } from '../../lib/plus';
 
 export const mockOpportunity: Opportunity = {
   id: '89f3daff-d6bb-4652-8f9c-b9f7254c9af1',
@@ -46,13 +45,15 @@ export const mockOpportunity: Opportunity = {
       title: 'Senior Recruiter',
     },
   ],
-  location: [
+  locations: [
     {
       type: 0,
-      city: 'San Francisco',
-      country: 'United States',
-      subdivision: 'California',
-      continent: 'North America',
+      location: {
+        city: 'San Francisco',
+        country: 'United States',
+        subdivision: 'California',
+        continent: 'North America',
+      },
     },
   ],
   keywords: [
@@ -62,7 +63,6 @@ export const mockOpportunity: Opportunity = {
     { keyword: 'JavaScript' },
     { keyword: 'Tailwind CSS' },
   ],
-  subscriptionStatus: SubscriptionStatus.None,
 };
 
 export const mockAnonymousUserTableData: OpportunityPreviewContextType = {

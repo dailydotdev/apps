@@ -11,11 +11,14 @@ import { IconSize } from '../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { largeNumberFormat } from '../../lib';
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
+import { anchorDefaultRel } from '../../lib/strings';
+import { getExperienceLevelLabel } from '../../lib/user';
 
 export interface MatchProfileDetails {
   name: string;
   profileImage: string;
   profileLink: string;
+  cvUrl?: string;
   reputation?: number;
   seniority: string;
   location: string;
@@ -55,17 +58,19 @@ export const MatchProfile = ({ profile }: MatchProfileProps): ReactElement => {
       <FlexRow className="items-center gap-4">
         <FlexRow className="flex-1 justify-between gap-1">
           <Typography type={TypographyType.Body}>Profile details</Typography>
-          <Button
-            variant={ButtonVariant.Option}
-            size={ButtonSize.XSmall}
-            icon={<LinkIcon />}
-            tag="a"
-            href={profile.profileLink}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Show Profile
-          </Button>
+          {profile.cvUrl && (
+            <Button
+              variant={ButtonVariant.Option}
+              size={ButtonSize.XSmall}
+              icon={<LinkIcon />}
+              tag="a"
+              href={profile.cvUrl}
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              Show CV
+            </Button>
+          )}
         </FlexRow>
       </FlexRow>
 
@@ -82,7 +87,10 @@ export const MatchProfile = ({ profile }: MatchProfileProps): ReactElement => {
             </FlexRow>
           }
         />
-        <ProfileDetailRow label="Seniority" value={profile.seniority} />
+        <ProfileDetailRow
+          label="Seniority"
+          value={getExperienceLevelLabel(profile.seniority) ?? 'Not specified'}
+        />
         <ProfileDetailRow
           label="Company"
           value={

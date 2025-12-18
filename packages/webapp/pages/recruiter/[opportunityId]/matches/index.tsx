@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ConnectHeader } from '@dailydotdev/shared/src/components/recruiter/ConnectHeader';
 import { ConnectProgress } from '@dailydotdev/shared/src/components/recruiter/ConnectProgress';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
@@ -25,12 +25,52 @@ import {
 import { GenericLoaderSpinner } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
+import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import { oneMinute } from '@dailydotdev/shared/src/lib/dateFormat';
+import { transactionRefetchIntervalMs } from '@dailydotdev/shared/src/graphql/njord';
+import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import { getLayout } from '../../../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterMatchesPage(): ReactElement {
   const router = useRouter();
   const { opportunityId } = router.query;
   const queryClient = useQueryClient();
+
+  const { data: opportunity } = useQuery({
+    ...opportunityByIdOptions({
+      id: opportunityId as string,
+    }),
+    refetchInterval: (query) => {
+      const retries = Math.max(
+        query.state.dataUpdateCount,
+        query.state.fetchFailureCount,
+      );
+
+      // transactions are mostly processed withing few seconds
+      // so for now we stop retrying after 1 minute
+      const maxRetries = (oneMinute * 1000) / transactionRefetchIntervalMs;
+
+      if (retries > maxRetries) {
+        return false;
+      }
+
+      const queryError = query.state.error;
+
+      // in case of query error keep refetching until maxRetries is reached
+      if (queryError) {
+        return transactionRefetchIntervalMs;
+      }
+
+      const isReadyForMatches =
+        query.state.data?.state !== OpportunityState.DRAFT;
+
+      if (isReadyForMatches) {
+        return false;
+      }
+
+      return transactionRefetchIntervalMs;
+    },
+  });
 
   const { allMatches, isLoading, data } = useOpportunityMatches({
     opportunityId: opportunityId as string,
@@ -95,6 +135,8 @@ function RecruiterMatchesPage(): ReactElement {
     );
   }
 
+  const isReadyForMatches = opportunity?.state !== OpportunityState.DRAFT;
+
   return (
     <OpportunityProvider opportunityId={opportunityId as string}>
       <div className="flex flex-1 flex-col">
@@ -142,8 +184,10 @@ function RecruiterMatchesPage(): ReactElement {
                   color={TypographyColor.Tertiary}
                   center
                 >
-                  We’re already talking to the right developers for you — all
-                  opt-in, all high-intent.
+                  {isReadyForMatches &&
+                    "We're already talking to the right developers for you — all opt-in, all high-intent."}
+                  {!isReadyForMatches &&
+                    'We are gonna start reaching to developers soon, we are still processing your data and payment...'}
                 </Typography>
               </div>
             </>
