@@ -122,7 +122,9 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
           bold
           color={TypographyColor.Brand}
         >
-          {animatedCount.toLocaleString()}
+          {`${animatedCount.toLocaleString()}${
+            animatedCount >= 10_000 ? '+' : ''
+          }`}
         </Typography>
         {showSubtext && (
           <Typography
