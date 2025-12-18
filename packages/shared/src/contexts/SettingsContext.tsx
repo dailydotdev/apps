@@ -41,8 +41,10 @@ export const themes: ThemeOption[] = Object.values(ThemeMode).map((theme) => ({
   value: theme,
 }));
 
-export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
+export interface SettingsContextData
+  extends Omit<RemoteSettings, 'theme' | 'recruiterTheme'> {
   themeMode: ThemeMode;
+  recruiterTheme?: ThemeMode;
   setTheme: (theme: ThemeMode) => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;
@@ -223,6 +225,7 @@ export const SettingsContextProvider = ({
       ...settings,
       syncSettings,
       themeMode: themeModes[settings.theme],
+      recruiterTheme: themeModes[settings?.recruiterTheme],
       setTheme: (theme: ThemeMode) =>
         setSettings({ ...settings, theme: remoteThemes[theme] }),
       toggleOpenNewTab: () =>

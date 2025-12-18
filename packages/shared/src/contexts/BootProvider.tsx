@@ -146,13 +146,17 @@ export const BootDataProvider = ({
     }
 
     if (boot?.settings?.theme) {
-      applyTheme(themeModes[boot.settings.theme]);
+      if (boot.settings?.recruiterTheme && getPage().startsWith('/recruiter')) {
+        applyTheme(themeModes[boot.settings?.recruiterTheme]);
+      } else {
+        applyTheme(themeModes[boot.settings.theme]);
+      }
     }
 
     preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
 
     setCachedBootData(boot);
-  }, [localBootData]);
+  }, [getPage, localBootData]);
 
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
