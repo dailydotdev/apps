@@ -279,7 +279,7 @@ export default function CardTopicEvolution({
                 style={{ gridArea: '1 / 1', placeSelf: 'center' }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.2 }}
               >
                 <span className={styles.badgeValue}>{animatedTopics}</span>
                 <span className={styles.badgeLabel}>
@@ -309,7 +309,7 @@ export default function CardTopicEvolution({
 
       {/* Share button - pushed to bottom, only active on last quarter */}
       <ShareStatButton
-        delay={0.8}
+        delay={0.7}
         isActive={isActive && isLastQuarter}
         statText={(() => {
           const baseText = `I explored ${
