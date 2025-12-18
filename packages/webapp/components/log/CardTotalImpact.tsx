@@ -12,11 +12,17 @@ interface CardProps {
   isActive: boolean;
   subcard?: number;
   isTouchDevice?: boolean;
+  cardType?: string;
+  imageCache?: Map<string, Blob>;
+  onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
 export default function CardTotalImpact({
   data,
   isActive,
+  cardType,
+  imageCache,
+  onImageFetched,
 }: CardProps): ReactElement {
   const animatedPosts = useAnimatedNumber(data.totalPosts, {
     delay: 500,
@@ -137,6 +143,9 @@ export default function CardTotalImpact({
       <ShareStatButton
         delay={2}
         isActive={isActive}
+        cardType={cardType}
+        imageCache={imageCache}
+        onImageFetched={onImageFetched}
         statText={`I read ${data.totalPosts.toLocaleString()} posts on daily.dev this year — that's ${
           data.totalReadingTime
         } hours of learning! 📚\n\nTOP ${

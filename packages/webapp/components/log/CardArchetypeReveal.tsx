@@ -12,6 +12,9 @@ interface CardProps {
   isActive: boolean;
   subcard?: number;
   isTouchDevice?: boolean;
+  cardType?: string;
+  imageCache?: Map<string, Blob>;
+  onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
 const BUILD_UP_LINES = [
@@ -123,6 +126,9 @@ function Sparkle({
 export default function CardArchetypeReveal({
   data,
   isActive,
+  cardType,
+  imageCache,
+  onImageFetched,
 }: CardProps): ReactElement {
   const [phase, setPhase] = useState<'buildup' | 'whoAreYou' | 'reveal'>(
     'buildup',
@@ -394,6 +400,9 @@ export default function CardArchetypeReveal({
       <ShareStatButton
         delay={1.8}
         isActive={phase === 'reveal'}
+        cardType={cardType}
+        imageCache={imageCache}
+        onImageFetched={onImageFetched}
         statText={`I'm ${
           ['A', 'E', 'I', 'O', 'U'].includes(archetype.name[0]) ? 'an' : 'a'
         } ${archetype.name.toUpperCase()} on daily.dev!\n\n"${

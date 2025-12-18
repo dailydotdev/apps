@@ -13,6 +13,9 @@ interface CardProps {
   subcard?: number;
   isTouchDevice?: boolean;
   isLoading?: boolean;
+  cardType?: string;
+  imageCache?: Map<string, Blob>;
+  onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
 // Animation timing constants (in seconds, relative to mount)

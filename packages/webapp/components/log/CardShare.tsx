@@ -1,9 +1,13 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import type { LogData } from '../../types/log';
 import { ARCHETYPES } from '../../types/log';
+import { useShareLogImage } from '../../hooks/log/useShareLogImage';
 import cardStyles from './Cards.module.css';
 
 interface CardProps {
@@ -12,9 +16,22 @@ interface CardProps {
   subcard?: number;
   isTouchDevice?: boolean;
   onShare?: () => void;
+  cardType?: string;
+  imageCache?: Map<string, Blob>;
+  onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
-export default function CardShare({ data, onShare }: CardProps): ReactElement {
+export default function CardShare({
+  data,
+  onShare,
+  cardType,
+  imageCache,
+  onImageFetched,
+}: CardProps): ReactElement {
+  const { user, tokenRefreshed } = useAuthContext();
+  const { shareImage } = useShareLogImage();
+  const [isLoading, setIsLoading] = useState(false);
+
   const archetype = ARCHETYPES[data.archetype];
   const streakRecord = data.records.find((r) => r.type === 'streak');
 
@@ -30,11 +47,38 @@ export default function CardShare({ data, onShare }: CardProps): ReactElement {
 What's your developer archetype?
 → app.daily.dev/log`;
 
-  const handleShare = useCallback(async () => {
-    // Track share event
-    onShare?.();
+  /**
+   * Fetch the share image from the API.
+   */
+  const fetchShareImage = useCallback(async (): Promise<Blob | null> => {
+    if (!user?.id || !cardType || !tokenRefreshed) {
+      return null;
+    }
 
-    // Try Web Share API first
+    try {
+      const response = await fetch(
+        `${apiUrl}/log/images?card=${encodeURIComponent(cardType)}&userId=${encodeURIComponent(user.id)}`,
+        {
+          credentials: 'include',
+        },
+      );
+
+      if (!response.ok) {
+        console.error('Failed to fetch share image:', response.status);
+        return null;
+      }
+
+      return response.blob();
+    } catch (err) {
+      console.error('Error fetching share image:', err);
+      return null;
+    }
+  }, [user?.id, cardType, tokenRefreshed]);
+
+  /**
+   * Fall back to text-only sharing.
+   */
+  const shareTextOnly = useCallback(async () => {
     if (navigator.share) {
       try {
         await navigator.share({
@@ -54,7 +98,64 @@ What's your developer archetype?
     } catch {
       // Ignore clipboard errors
     }
-  }, [shareText, onShare]);
+  }, [shareText]);
+
+  const handleShare = useCallback(async () => {
+    // Track share event
+    onShare?.();
+
+    if (isLoading) {
+      return;
+    }
+
+    // If no cardType provided or user not authenticated, fall back to text share
+    if (!cardType || !user?.id) {
+      await shareTextOnly();
+      return;
+    }
+
+    // Check if image is in cache
+    let blob = imageCache?.get(cardType) ?? null;
+
+    // If not cached, fetch on demand
+    if (!blob) {
+      setIsLoading(true);
+      try {
+        blob = await fetchShareImage();
+        if (blob && onImageFetched) {
+          onImageFetched(cardType, blob);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    // If we have the image, share it
+    if (blob) {
+      const filename = `daily-log-2025-${cardType}.png`;
+
+      const result = await shareImage(blob, filename, shareText);
+
+      // If sharing failed or was cancelled, don't fall back to text
+      if (result === 'error') {
+        await shareTextOnly();
+      }
+    } else {
+      // Fall back to text-only share if image fetch failed
+      await shareTextOnly();
+    }
+  }, [
+    onShare,
+    isLoading,
+    cardType,
+    user?.id,
+    imageCache,
+    fetchShareImage,
+    shareImage,
+    shareText,
+    shareTextOnly,
+    onImageFetched,
+  ]);
 
   return (
     <>
@@ -158,13 +259,19 @@ What's your developer archetype?
           <motion.button
             className={`${cardStyles.shareWrapButton} ${cardStyles.shareWrapButtonPrimary}`}
             onClick={handleShare}
-            whileHover={{ scale: 1.05, rotate: 0 }}
-            whileTap={{ scale: 0.98, rotate: 1 }}
+            disabled={isLoading}
+            whileHover={!isLoading ? { scale: 1.05, rotate: 0 } : undefined}
+            whileTap={!isLoading ? { scale: 0.98, rotate: 1 } : undefined}
+            style={isLoading ? { opacity: 0.7, cursor: 'wait' } : undefined}
           >
             <span className={cardStyles.shareWrapButtonIcon}>
-              <ShareIcon secondary />
+              {isLoading ? (
+                <Loader innerClassName="before:!border-pepper-90 after:!border-t-pepper-90 !w-4 !h-4" />
+              ) : (
+                <ShareIcon secondary />
+              )}
             </span>
-            <span>Share Your Log</span>
+            <span>{isLoading ? 'Loading...' : 'Share Your Log'}</span>
           </motion.button>
         </motion.div>
       </div>

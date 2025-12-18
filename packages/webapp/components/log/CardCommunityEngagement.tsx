@@ -19,6 +19,9 @@ interface CardProps {
   isActive: boolean;
   subcard?: number;
   isTouchDevice?: boolean;
+  cardType?: string;
+  imageCache?: Map<string, Blob>;
+  onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
 // Mixed floating icons component
@@ -84,6 +87,9 @@ function FloatingIcon({
 export default function CardCommunityEngagement({
   data,
   isActive,
+  cardType,
+  imageCache,
+  onImageFetched,
 }: CardProps): ReactElement {
   const [showParticles, setShowParticles] = useState(false);
 
@@ -322,6 +328,9 @@ export default function CardCommunityEngagement({
       <ShareStatButton
         delay={1.8}
         isActive={isActive}
+        cardType={cardType}
+        imageCache={imageCache}
+        onImageFetched={onImageFetched}
         statText={`My community pulse on daily.dev 💜\n\n🎯 ${largeNumberFormat(
           totalEngagement,
         )} total interactions\n👍 ${largeNumberFormat(

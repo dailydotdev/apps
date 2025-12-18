@@ -12,6 +12,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useImagePreloader } from '@dailydotdev/shared/src/hooks/useImagePreloader';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { ARCHETYPES } from '../../types/log';
 import {
@@ -22,6 +23,19 @@ import {
 import type { CardConfig } from '../../hooks/log/index';
 import { CARD_THEMES, cardVariants } from '../../components/log/logTheme';
 import styles from '../../components/log/Log.module.css';
+
+// Card order for preloading
+const SHAREABLE_CARDS = [
+  'total-impact',
+  'when-you-read',
+  'topic-evolution',
+  'favorite-sources',
+  'community',
+  'contributions',
+  'records',
+  'archetype',
+  'share',
+] as const;
 
 // Components
 import LogPageHead from '../../components/log/LogPageHead';
@@ -41,7 +55,7 @@ import CardArchetypeReveal from '../../components/log/CardArchetypeReveal';
 import CardShare from '../../components/log/CardShare';
 
 export default function LogPage(): ReactElement {
-  const { isLoggedIn, isAuthReady } = useAuthContext();
+  const { user, isLoggedIn, isAuthReady, tokenRefreshed } = useAuthContext();
   const { logEvent } = useLogContext();
   const [isTouchDevice, setIsTouchDevice] = useState(true);
   const hasLoggedImpression = useRef(false);
@@ -50,6 +64,9 @@ export default function LogPage(): ReactElement {
   // Fetch log data from API
   const { data, isLoading: isDataLoading } = useLog(isLoggedIn);
 
+  // Image cache for share images (progressive preloading)
+  const [imageCache, setImageCache] = useState<Map<string, Blob>>(new Map());
+
   // Preload images (archetypes + source logos) during browser idle time
   const imagesToPreload = useMemo(() => {
     const archetypeUrls = Object.values(ARCHETYPES).map((a) => a.imageUrl);
@@ -57,6 +74,11 @@ export default function LogPage(): ReactElement {
     return [...archetypeUrls, ...sourceUrls];
   }, [data?.topSources]);
   useImagePreloader(imagesToPreload);
+
+  // Callback for when a share image is fetched on-demand (from ShareStatButton)
+  const handleImageFetched = useCallback((cardType: string, blob: Blob) => {
+    setImageCache((prev) => new Map(prev).set(cardType, blob));
+  }, []);
 
   // Track page landing impression
   useEffect(() => {
@@ -132,6 +154,70 @@ export default function LogPage(): ReactElement {
   const CardComponent = currentCardConfig.component;
   const currentCardId = currentCardConfig.id;
   const directionValue = direction === 'next' ? 1 : -1;
+
+  // Progressive preloading of share images (2 screens ahead)
+  useEffect(() => {
+    if (!user?.id || !tokenRefreshed || !isAuthReady || isDataLoading) {
+      return;
+    }
+
+    const preloadAhead = async () => {
+      // Find current card's position in shareable cards
+      const currentIdx = SHAREABLE_CARDS.indexOf(
+        currentCardId as (typeof SHAREABLE_CARDS)[number],
+      );
+
+      // Determine which cards to preload (next 2 shareable cards)
+      const cardsToPreload: string[] = [];
+      for (
+        let i = currentIdx + 1;
+        i < SHAREABLE_CARDS.length && cardsToPreload.length < 2;
+        i++
+      ) {
+        const cardId = SHAREABLE_CARDS[i];
+        // Skip contributions if user doesn't have any
+        if (cardId === 'contributions' && !data?.hasContributions) {
+          continue;
+        }
+        if (!imageCache.has(cardId)) {
+          cardsToPreload.push(cardId);
+        }
+      }
+
+      // Preload each card's image
+      for (const cardId of cardsToPreload) {
+        try {
+          const response = await fetch(
+            `${apiUrl}/log/images?card=${encodeURIComponent(cardId)}&userId=${encodeURIComponent(user.id)}`,
+            { credentials: 'include' },
+          );
+          if (response.ok) {
+            const blob = await response.blob();
+            setImageCache((prev) => new Map(prev).set(cardId, blob));
+          }
+        } catch {
+          // Silent fail - will retry on next navigation or fetch on demand
+        }
+      }
+    };
+
+    // Use requestIdleCallback for non-blocking preload
+    if (typeof requestIdleCallback !== 'undefined') {
+      const handle = requestIdleCallback(preloadAhead, { timeout: 5000 });
+      return () => cancelIdleCallback(handle);
+    }
+    // Fallback for browsers without requestIdleCallback
+    const timer = setTimeout(preloadAhead, 100);
+    return () => clearTimeout(timer);
+  }, [
+    currentCardId,
+    user?.id,
+    tokenRefreshed,
+    isAuthReady,
+    isDataLoading,
+    imageCache,
+    data?.hasContributions,
+  ]);
 
   // Background music management
   const { startMusic, isMuted, toggleMute } = useBackgroundMusic(currentCardId);
@@ -294,6 +380,9 @@ export default function LogPage(): ReactElement {
                   isTouchDevice={isTouchDevice}
                   isLoading={isLoading}
                   onShare={handleShare}
+                  cardType={currentCardId}
+                  imageCache={imageCache}
+                  onImageFetched={handleImageFetched}
                 />
               </div>
             </motion.div>

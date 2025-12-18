@@ -69,6 +69,9 @@ export interface CardConfig {
     isTouchDevice?: boolean;
     isLoading?: boolean;
     onShare?: () => void;
+    cardType?: string;
+    imageCache?: Map<string, Blob>;
+    onImageFetched?: (cardType: string, blob: Blob) => void;
   }>;
   subcards?: number; // Number of subcards (0 or undefined = no subcards)
 }

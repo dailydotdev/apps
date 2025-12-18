@@ -21,6 +21,9 @@ interface CardProps {
   isActive: boolean;
   subcard?: number;
   isTouchDevice?: boolean;
+  cardType?: string;
+  imageCache?: Map<string, Blob>;
+  onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
 // Floating sparkle effect for creator celebration
@@ -62,6 +65,9 @@ function Sparkle({
 export default function CardContributions({
   data,
   isActive,
+  cardType,
+  imageCache,
+  onImageFetched,
 }: CardProps): ReactElement {
   const [showSparkles, setShowSparkles] = useState(false);
 
@@ -256,6 +262,9 @@ export default function CardContributions({
       <ShareStatButton
         delay={2.6}
         isActive={isActive}
+        cardType={cardType}
+        imageCache={imageCache}
+        onImageFetched={onImageFetched}
         statText={`Creator spotlight on daily.dev ⭐\n\n📝 ${
           data.postsCreated
         } posts created\n👁️ ${largeNumberFormat(

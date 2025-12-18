@@ -12,3 +12,4 @@ export type { CardConfig } from '../log';
 
 // Export new hooks
 export { useBackgroundMusic } from './useBackgroundMusic';
+export { useShareLogImage } from './useShareLogImage';

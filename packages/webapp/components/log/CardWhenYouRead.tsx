@@ -12,6 +12,9 @@ interface CardProps {
   isActive: boolean;
   subcard?: number;
   isTouchDevice?: boolean;
+  cardType?: string;
+  imageCache?: Map<string, Blob>;
+  onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
 const PATTERN_BANNER_TEXT: Record<
@@ -51,6 +54,9 @@ function formatHour(hour: number): string {
 export default function CardWhenYouRead({
   data,
   isActive,
+  cardType,
+  imageCache,
+  onImageFetched,
 }: CardProps): ReactElement {
   // Aggregate heatmap data to get hour distribution (sum across all days)
   const hourDistribution = useMemo(() => {
@@ -182,6 +188,9 @@ export default function CardWhenYouRead({
       <ShareStatButton
         delay={2}
         isActive={isActive}
+        cardType={cardType}
+        imageCache={imageCache}
+        onImageFetched={onImageFetched}
         statText={`My golden hour is ${formatHour(
           peakHour,
         )}\n\n${PATTERN_BANNER_TEXT[data.readingPattern].shareText.replace(

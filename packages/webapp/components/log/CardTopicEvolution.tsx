@@ -80,6 +80,9 @@ interface CardProps {
   isActive: boolean;
   subcard?: number;
   isTouchDevice?: boolean;
+  cardType?: string;
+  imageCache?: Map<string, Blob>;
+  onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
 const TAG_ROTATIONS = [-0.8, 0.4, -1.2];
@@ -88,6 +91,9 @@ export default function CardTopicEvolution({
   data,
   isActive,
   subcard = 0,
+  cardType,
+  imageCache,
+  onImageFetched,
 }: CardProps): ReactElement {
   const currentQuarter = data.topicJourney[subcard];
   const isLastQuarter = subcard === data.topicJourney.length - 1;
@@ -311,6 +317,9 @@ export default function CardTopicEvolution({
       <ShareStatButton
         delay={0.7}
         isActive={isActive && isLastQuarter}
+        cardType={cardType}
+        imageCache={imageCache}
+        onImageFetched={onImageFetched}
         statText={(() => {
           const baseText = `I explored ${
             data.uniqueTopics

@@ -12,11 +12,17 @@ interface CardProps {
   isActive: boolean;
   subcard?: number;
   isTouchDevice?: boolean;
+  cardType?: string;
+  imageCache?: Map<string, Blob>;
+  onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
 export default function CardRecords({
   data,
   isActive,
+  cardType,
+  imageCache,
+  onImageFetched,
 }: CardProps): ReactElement {
   return (
     <>
@@ -102,6 +108,9 @@ export default function CardRecords({
       <ShareStatButton
         delay={1.4}
         isActive={isActive}
+        cardType={cardType}
+        imageCache={imageCache}
+        onImageFetched={onImageFetched}
         statText={`My 2025 Greatest Hits on daily.dev 🎵\n\n${data.records
           .map(
             (r, i) =>

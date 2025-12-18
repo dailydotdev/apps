@@ -18,6 +18,9 @@ interface CardProps {
   isActive: boolean;
   subcard?: number;
   isTouchDevice?: boolean;
+  cardType?: string;
+  imageCache?: Map<string, Blob>;
+  onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
 const PODIUM_MEDALS = ['🥈', '🥇', '🥉'];
@@ -27,6 +30,9 @@ const PODIUM_DELAYS = [0.6, 0.3, 0.9]; // 1st place reveals last for drama
 export default function CardFavoriteSources({
   data,
   isActive,
+  cardType,
+  imageCache,
+  onImageFetched,
 }: CardProps): ReactElement {
   const [showMedals, setShowMedals] = useState(false);
 
@@ -180,6 +186,9 @@ export default function CardFavoriteSources({
       <ShareStatButton
         delay={2}
         isActive={isActive}
+        cardType={cardType}
+        imageCache={imageCache}
+        onImageFetched={onImageFetched}
         statText={`My winning trio on daily.dev:\n🥇 ${data.topSources[0].name}\n🥈 ${data.topSources[1].name}\n🥉 ${data.topSources[2].name}\n\nI discovered ${data.uniqueSources} sources — TOP ${data.sourcePercentile}% explorer!`}
       />
     </>
