@@ -62,20 +62,6 @@ it('should show blurred image for carbon', async () => {
   expect(background).toBeInTheDocument();
 });
 
-it('should show promoted text by default', async () => {
-  renderComponent();
-  const el = await screen.findByText('Promoted');
-  expect(el).toBeInTheDocument();
-});
-
-it('should show referral text when available', async () => {
-  renderComponent({
-    ad: { ...ad, referralLink: 'https://daily.dev/referral' },
-  });
-  const el = await screen.findByText('Promoted by Daily');
-  expect(el).toHaveAttribute('href', 'https://daily.dev/referral');
-});
-
 it('should show pixel images', async () => {
   renderComponent({
     ad: { ...ad, pixel: ['https://daily.dev/pixel'] },

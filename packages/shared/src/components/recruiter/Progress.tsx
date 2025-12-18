@@ -54,15 +54,33 @@ const ProgressItem = ({
   );
 };
 
-export const RecruiterProgress = () => (
+export enum RecruiterProgressStep {
+  AnalyzeAndMatch = 1,
+  PrepareAndLaunch = 2,
+  ConnectAndHire = 3,
+}
+
+type RecruiterProgressProps = {
+  activeStep: RecruiterProgressStep;
+};
+
+export const RecruiterProgress = ({ activeStep }: RecruiterProgressProps) => (
   <div className="flex flex-row gap-4 border-b border-border-subtlest-tertiary">
-    <ProgressItem icon={<VIcon />} title="Analyze & Match" active />
+    <ProgressItem
+      icon={<VIcon />}
+      title="Analyze & Match"
+      active={activeStep >= RecruiterProgressStep.AnalyzeAndMatch}
+    />
     <ProgressItem
       className="border-x border-border-subtlest-tertiary"
-      icon={<p>2</p>}
+      icon={<span>2</span>}
       title="Prepare & Launch"
-      active
+      active={activeStep >= RecruiterProgressStep.PrepareAndLaunch}
     />
-    <ProgressItem icon={<p>2</p>} title="Connect & Hire" />
+    <ProgressItem
+      icon={<span>3</span>}
+      title="Connect & Hire"
+      active={activeStep >= RecruiterProgressStep.ConnectAndHire}
+    />
   </div>
 );

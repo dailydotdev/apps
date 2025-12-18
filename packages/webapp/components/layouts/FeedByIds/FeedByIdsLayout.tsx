@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo, useState } from 'react';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   generateQueryKey,
@@ -13,8 +13,10 @@ import {
   FEED_BY_IDS_QUERY,
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
-import { FeedPageHeader } from '@dailydotdev/shared/src/components/utilities';
 import { useRouter } from 'next/router';
+import { MobileFeedActions } from '@dailydotdev/shared/src/components/feeds/MobileFeedActions';
+import { FeedPageHeader } from '@dailydotdev/shared/src/components/utilities';
+import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
 
 export type FeedByIdsLayoutProps = {
   children?: ReactNode;
@@ -24,8 +26,7 @@ export default function FeedByIdsLayout({
   children,
 }: FeedByIdsLayoutProps): ReactElement {
   const router = useRouter();
-  const { FeedPageLayoutComponent } = useFeedLayout();
-  const { user, tokenRefreshed } = useAuthContext();
+  const { user } = useAuthContext();
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const defaultKey = generateQueryKey(RequestKey.FeedByIds, user);
   const ids = router.query?.id;
@@ -46,17 +47,15 @@ export default function FeedByIdsLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, ids]);
 
-  if (showEmptyScreen || !ids || !ids.length) {
-    return <p>No posts found</p>;
-  }
-
   return (
-    <FeedPageLayoutComponent>
+    <>
       {children}
-      <FeedPageHeader className="mb-5">
-        <h1 className="font-bold typo-callout">Feed by IDs</h1>
-      </FeedPageHeader>
-      {tokenRefreshed && <Feed {...feedProps} />}
-    </FeedPageLayoutComponent>
+      <div className="tablet:hidden">
+        <MobileFeedActions />
+      </div>
+      <FeedPageHeader className="mb-5" />
+      {!showEmptyScreen && !!ids?.length && <Feed {...feedProps} />}
+      {showEmptyScreen && <SearchEmptyScreen />}
+    </>
   );
 }

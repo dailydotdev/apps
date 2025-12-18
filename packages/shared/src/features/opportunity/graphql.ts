@@ -60,7 +60,11 @@ export const OPPORTUNITY_FRAGMENT = gql`
       perks
       category
       founded
-      location
+      location {
+        city
+        country
+        subdivision
+      }
 
       customLinks {
         ...Link
@@ -112,18 +116,23 @@ export const OPPORTUNITY_FRAGMENT = gql`
       }
       equity
     }
-    location {
+    locations {
       type
-      city
-      country
-      subdivision
-      continent
+      location {
+        city
+        country
+        subdivision
+      }
     }
     questions {
       ...OpportunityScreeningQuestionFragment
     }
     feedbackQuestions {
       ...OpportunityFeedbackQuestionFragment
+    }
+    flags {
+      batchSize
+      plan
     }
   }
   ${ORGANIZATION_SHORT_FRAGMENT}
@@ -218,6 +227,8 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
           userId
           opportunityId
           status
+          createdAt
+          updatedAt
           description {
             reasoning
           }
@@ -231,15 +242,18 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
           user {
             id
             name
+            username
             image
-            permalink
+            bio
             reputation
+            linkedin
           }
           candidatePreferences {
+            status
             role
-            location {
-              city
-              country
+            roleType
+            cv {
+              ...GCSBlob
             }
           }
           applicationRank {
@@ -272,6 +286,8 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
       }
     }
   }
+
+  ${GCS_BLOB_FRAGMENT}
 `;
 
 export const GET_CANDIDATE_PREFERENCES_QUERY = gql`
@@ -318,6 +334,7 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
     $location: [LocationInput]
     $locationType: [ProtoEnumValue]
     $customKeywords: Boolean
+    $externalLocationId: String
   ) {
     updateCandidatePreferences(
       status: $status
@@ -328,6 +345,7 @@ export const UPDATE_CANDIDATE_PREFERENCES_MUTATION = gql`
       location: $location
       locationType: $locationType
       customKeywords: $customKeywords
+      externalLocationId: $externalLocationId
     ) {
       _
     }
@@ -472,12 +490,18 @@ export const OPPORTUNITIES_QUERY = gql`
       }
       edges {
         node {
-          ...OpportunityFragment
+          id
+          type
+          state
+          title
+          organization {
+            ...OrganizationShortFragment
+          }
         }
       }
     }
   }
-  ${OPPORTUNITY_FRAGMENT}
+  ${ORGANIZATION_SHORT_FRAGMENT}
 `;
 
 export const RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION = gql`
@@ -531,8 +555,8 @@ export const USER_OPPORTUNITY_MATCHES_QUERY = gql`
 `;
 
 export const OPPORTUNITY_PREVIEW = gql`
-  query OpportunityPreview {
-    opportunityPreview {
+  query OpportunityPreview($opportunityId: ID) {
+    opportunityPreview(opportunityId: $opportunityId) {
       edges {
         node {
           id
@@ -542,6 +566,7 @@ export const OPPORTUNITY_PREVIEW = gql`
           openToWork
           seniority
           location
+          locationVerified
           company {
             name
             favicon
@@ -555,7 +580,8 @@ export const OPPORTUNITY_PREVIEW = gql`
             issuedAt
           }
           activeSquads {
-            handle
+            id
+            name
             image
           }
         }
@@ -574,12 +600,36 @@ export const OPPORTUNITY_PREVIEW = gql`
           favicon
         }
         squads {
-          handle
+          id
+          name
           image
         }
         totalCount
         opportunityId
+        status
       }
     }
   }
+`;
+
+export const OPPORTUNITY_STATS_QUERY = gql`
+  query OpportunityStats($opportunityId: ID!) {
+    opportunityStats(opportunityId: $opportunityId) {
+      matched
+      reached
+      considered
+      decided
+      forReview
+      introduced
+    }
+  }
+`;
+
+export const PARSE_OPPORTUNITY_MUTATION = gql`
+  mutation ParseOpportunity($payload: ParseOpportunityInput!) {
+    parseOpportunity(payload: $payload) {
+      ...OpportunityFragment
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
 `;

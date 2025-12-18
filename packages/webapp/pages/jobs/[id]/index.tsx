@@ -80,6 +80,7 @@ import {
   isTesting,
   opportunityUrl,
 } from '@dailydotdev/shared/src/lib/constants';
+import { locationToString } from '@dailydotdev/shared/src/lib/utils';
 import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
 import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
 import {
@@ -203,19 +204,19 @@ const companyStageMap = {
 const metaMap = {
   location: {
     title: 'Location',
-    transformer: (value: Opportunity['location']) => {
+    transformer: (value: Opportunity['locations']) => {
       if (!value || value.length === 0) {
         return 'N/A';
       }
 
       return (
         value
-          .map((location) =>
+          .map((item) =>
             [
-              location.city,
-              location.subdivision,
-              location.country,
-              location.continent,
+              item.location?.city,
+              item.location?.subdivision,
+              item.location?.country,
+              item.location?.continent,
             ]
               .filter(Boolean)
               .join(', '),
@@ -239,7 +240,7 @@ const metaMap = {
   },
   locationType: {
     title: 'Work site',
-    transformer: (value: Opportunity['location']) =>
+    transformer: (value: Opportunity['locations']) =>
       locationTypeMap[value?.[0]?.type || LocationType.UNSPECIFIED],
   },
   equity: {
@@ -270,15 +271,16 @@ const metaMap = {
 };
 
 const JobPage = (): ReactElement => {
-  const { canEdit } = useOpportunityEditContext();
+  const { canEdit, opportunityId } = useOpportunityEditContext();
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
     back,
-    query: { id },
+    query: { id: routerId },
   } = useRouter();
+  const id = routerId || opportunityId;
 
   const logRef = useRef<typeof logEvent>();
   const hasLoggedRef = useRef(false);
@@ -289,7 +291,7 @@ const JobPage = (): ReactElement => {
   );
   const { data: match } = useQuery({
     ...opportunityMatchOptions({ id: id as string }),
-    enabled: isLoggedIn && !!id,
+    enabled: isLoggedIn && !!id && !canEdit && !isPending,
   });
 
   const hasCompletedInitialView = checkHasCompleted(
@@ -338,7 +340,11 @@ const JobPage = (): ReactElement => {
           <OpportunityStepsInfo />
         </div>
       </Portal>
-      {!hasCompletedInitialView && !canEdit && <JobPageIntro />}
+      {!hasCompletedInitialView && !canEdit && (
+        <div className="mb-4">
+          <JobPageIntro />
+        </div>
+      )}
       {showFooterNav && (
         <OpportunityFooter>
           {!!match && (
@@ -485,7 +491,7 @@ const JobPage = (): ReactElement => {
                   metaKey === 'location' || metaKey === 'locationType';
 
                 const value = isLocation
-                  ? opportunity.location
+                  ? opportunity.locations
                   : opportunity.meta[metaKey];
 
                 if (value === false || value === null) {
@@ -648,7 +654,7 @@ const JobPage = (): ReactElement => {
                 'mx-4 flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary tablet:mx-0',
               )}
             >
-              <Link href={`${opportunityUrl}/welcome`} passHref>
+              <Link href={`${opportunityUrl}/how-it-works`} passHref>
                 <Button
                   tag="a"
                   variant={ButtonVariant.Tertiary}
@@ -790,7 +796,8 @@ const JobPage = (): ReactElement => {
                   HQ
                 </Typography>
                 <Typography type={TypographyType.Footnote} bold>
-                  {opportunity.organization?.location || 'N/A'}
+                  {locationToString(opportunity.organization?.location) ||
+                    'N/A'}
                 </Typography>
 
                 <Typography

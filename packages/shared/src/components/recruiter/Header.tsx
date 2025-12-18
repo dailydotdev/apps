@@ -12,6 +12,7 @@ export interface RecruiterHeaderButton {
   text: string;
   icon?: ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
 export interface RecruiterHeaderProps {
@@ -46,6 +47,7 @@ export const RecruiterHeader = ({ headerButton }: RecruiterHeaderProps) => {
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
           onClick={headerButton.onClick}
+          disabled={headerButton.disabled}
         >
           {headerButton.text} {headerButton.icon || <MoveToIcon />}
         </Button>

@@ -117,8 +117,8 @@ importers:
         specifier: ^5.1.5
         version: 5.1.5
       next:
-        specifier: 15.4.8
-        version: 15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
+        specifier: 15.4.10
+        version: 15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -638,8 +638,8 @@ importers:
         specifier: ^12.3.0
         version: 12.3.0
       next:
-        specifier: 15.4.8
-        version: 15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
+        specifier: 15.4.10
+        version: 15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
       nock:
         specifier: ^13.3.1
         version: 13.5.6
@@ -722,8 +722,8 @@ importers:
         specifier: ^2.12.2
         version: 2.12.2(@types/react@18.3.12)(react@18.3.1)
       next:
-        specifier: 15.4.8
-        version: 15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
+        specifier: 15.4.10
+        version: 15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -844,7 +844,7 @@ importers:
         version: 1.4.0
       '@serwist/next':
         specifier: ^9.0.9
-        version: 9.0.10(next@15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))(typescript@5.6.3)(webpack@5.97.0)
+        version: 9.0.10(next@15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))(typescript@5.6.3)(webpack@5.97.0)
       '@tanstack/react-query':
         specifier: ^5.80.5
         version: 5.80.6(react@18.3.1)
@@ -888,11 +888,11 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next:
-        specifier: 15.4.8
-        version: 15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
+        specifier: 15.4.10
+        version: 15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
       next-seo:
         specifier: ^5.4.0
-        version: 5.15.0(next@15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 5.15.0(next@15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -934,8 +934,8 @@ importers:
         specifier: workspace:*
         version: link:../prettier-config
       '@next/bundle-analyzer':
-        specifier: 15.4.8
-        version: 15.4.8
+        specifier: 15.4.10
+        version: 15.4.10
       '@svgr/webpack':
         specifier: ^5.5.0
         version: 5.5.0
@@ -2513,11 +2513,11 @@ packages:
     resolution: {integrity: sha512-USvgCL/uOGFtVa6SVyRrC8kIAedzRohxIXN5LISlg5C5vLZCn7dgMFVSNhSF9cuBEFrm/O2spDWEZeMnw4ZXYg==}
     engines: {node: '>=18'}
 
-  '@next/bundle-analyzer@15.4.8':
-    resolution: {integrity: sha512-3JHzGmV1VTtWYlCWjIEUSSw8CxAM2AG9uLPuUgzMyDq9XEL16HOFTou245aCF9yevk52THGZuvH1Ju2q2Xldzg==}
+  '@next/bundle-analyzer@15.4.10':
+    resolution: {integrity: sha512-I+nsSr8eS9n4ggjmFL6UHgbEqb9+TBeRxt6Q5PBxTJYtm9HvJnrAbrLajz/nDdnisqtXrn4qWjCio8CZ9OQgOQ==}
 
-  '@next/env@15.4.8':
-    resolution: {integrity: sha512-LydLa2MDI1NMrOFSkO54mTc8iIHSttj6R6dthITky9ylXV2gCGi0bHQjVCtLGRshdRPjyh2kXbxJukDtBWQZtQ==}
+  '@next/env@15.4.10':
+    resolution: {integrity: sha512-knhmoJ0Vv7VRf6pZEPSnciUG1S4bIhWx+qTYBW/AjxEtlzsiNORPk8sFDCEvqLfmKuey56UB9FL1UdHEV3uBrg==}
 
   '@next/swc-darwin-arm64@15.4.8':
     resolution: {integrity: sha512-Pf6zXp7yyQEn7sqMxur6+kYcywx5up1J849psyET7/8pG2gQTVMjU3NzgIt8SeEP5to3If/SaWmaA6H6ysBr1A==}
@@ -7209,8 +7209,8 @@ packages:
       react: '>=16.0.0'
       react-dom: '>=16.0.0'
 
-  next@15.4.8:
-    resolution: {integrity: sha512-jwOXTz/bo0Pvlf20FSb6VXVeWRssA2vbvq9SdrOPEg9x8E1B27C2rQtvriAn600o9hH61kjrVRexEffv3JybuA==}
+  next@15.4.10:
+    resolution: {integrity: sha512-itVlc79QjpKMFMRhP+kbGKaSG/gZM6RCvwhEbwmCNF06CdDiNaoHcbeg0PqkEa2GOcn8KJ0nnc7+yL7EjoYLHQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
     hasBin: true
     peerDependencies:
@@ -11192,14 +11192,14 @@ snapshots:
       outvariant: 1.4.3
       strict-event-emitter: 0.5.1
 
-  '@next/bundle-analyzer@15.4.8':
+  '@next/bundle-analyzer@15.4.10':
     dependencies:
       webpack-bundle-analyzer: 4.10.1
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@next/env@15.4.8': {}
+  '@next/env@15.4.10': {}
 
   '@next/swc-darwin-arm64@15.4.8':
     optional: true
@@ -11792,14 +11792,14 @@ snapshots:
     optionalDependencies:
       typescript: 5.6.3
 
-  '@serwist/next@9.0.10(next@15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))(typescript@5.6.3)(webpack@5.97.0)':
+  '@serwist/next@9.0.10(next@15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))(typescript@5.6.3)(webpack@5.97.0)':
     dependencies:
       '@serwist/build': 9.0.10(typescript@5.6.3)
       '@serwist/webpack-plugin': 9.0.10(typescript@5.6.3)(webpack@5.97.0)
       '@serwist/window': 9.0.10(typescript@5.6.3)
       chalk: 5.3.0
       glob: 10.4.5
-      next: 15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
+      next: 15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
       serwist: 9.0.10(typescript@5.6.3)
       zod: 3.23.8
     optionalDependencies:
@@ -16617,15 +16617,15 @@ snapshots:
 
   nested-error-stacks@2.1.1: {}
 
-  next-seo@5.15.0(next@15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next-seo@5.15.0(next@15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      next: 15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
+      next: 15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  next@15.4.8(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0):
+  next@15.4.10(@babel/core@7.26.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0):
     dependencies:
-      '@next/env': 15.4.8
+      '@next/env': 15.4.10
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001723
       postcss: 8.4.31

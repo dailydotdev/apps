@@ -11,19 +11,6 @@ const processSalaryValue = (val: unknown) => {
   return val;
 };
 
-const capitalize = (s: string) => {
-  if (s == null || typeof s !== 'string') {
-    return s;
-  }
-
-  return s.trim().length === 0
-    ? ''
-    : s
-        .trim()
-        .toLowerCase()
-        .replace(/\b\w/g, (c) => c.toUpperCase());
-};
-
 export const opportunityEditInfoSchema = z.object({
   title: z.string().nonempty(labels.form.required).max(240),
   tldr: z.string().nonempty(labels.form.required).max(480),
@@ -35,39 +22,8 @@ export const opportunityEditInfoSchema = z.object({
     )
     .min(1, labels.form.required)
     .max(100),
-  location: z.array(
-    z
-      .object({
-        country: z.string().max(240),
-        city: z.string().max(240).nullish(),
-        subdivision: z.string().max(240).nullish(),
-        continent: z
-          .preprocess(
-            capitalize,
-            z.union([z.literal('Europe'), z.literal(''), z.undefined()]),
-          )
-          .nullish(),
-        type: z.coerce.number().min(1),
-      })
-      .superRefine((val, ctx) => {
-        const present = [
-          val.country && val.country.trim() !== '',
-          val.city && val.city.trim() !== '',
-          val.subdivision && val.subdivision.trim() !== '',
-          // continent counts only if it is "Europe" (empty string should not count)
-          val.continent === 'Europe',
-        ].some(Boolean);
-
-        if (!present) {
-          ctx.addIssue({
-            code: 'custom',
-            message:
-              'At least one of country, city, subdivision, or continent must be provided.',
-            path: [''], // form-level error
-          });
-        }
-      }),
-  ),
+  externalLocationId: z.string().optional(),
+  locationType: z.number().optional(),
   meta: z.object({
     employmentType: z.coerce.number().min(1, {
       error: labels.form.required,
@@ -94,7 +50,20 @@ export const opportunityEditInfoSchema = z.object({
           .transform((val) => val ?? undefined)
           .default(SalaryPeriod.UNSPECIFIED),
       })
-      .nullish(),
+      .nullish()
+      .refine(
+        (data) => {
+          if (data?.min && data?.max) {
+            return data.max >= data.min && data.max <= data.min * 1.25;
+          }
+
+          return true;
+        },
+        {
+          error:
+            'Min salary must be less than or equal to max salary and no more than 25% lower',
+        },
+      ),
     seniorityLevel: z.number(labels.form.required),
     roleType: z.union(
       [0, 0.5, 1].map((item) =>
@@ -103,9 +72,6 @@ export const opportunityEditInfoSchema = z.object({
         }),
       ),
     ),
-  }),
-  organization: z.object({
-    name: z.string().nonempty().max(60),
   }),
 });
 
@@ -153,6 +119,9 @@ export const opportunityEditQuestionsSchema = z.object({
 
 export const opportunityEditStep1Schema = opportunityEditInfoSchema.extend({
   content: opportunityEditContentSchema.shape.content,
+  organization: z.object({
+    name: z.string().nonempty(),
+  }),
 });
 
 export const opportunityEditStep2Schema = opportunityEditQuestionsSchema.extend(
@@ -187,6 +156,7 @@ export const opportunityEditOrganizationSchema = z.object({
       .max(new Date().getFullYear())
       .optional(),
     location: z.string().max(240).optional(),
+    externalLocationId: z.string().optional(),
     category: z.string().max(240).optional(),
     size: z.number().optional(),
     stage: z.number().optional(),
@@ -212,10 +182,11 @@ export const opportunityCreateOrganizationSchema =
 
 // TypeScript types for GraphQL inputs
 export interface LocationInput {
-  country: string;
+  country?: string;
   city?: string;
   subdivision?: string;
   type?: number;
+  externalLocationId?: string;
 }
 
 export interface SalaryInput {

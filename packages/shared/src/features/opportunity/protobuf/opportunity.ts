@@ -8,21 +8,22 @@ export enum OpportunityState {
    * @generated from enum value: OPPORTUNITY_STATE_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
-
   /**
    * @generated from enum value: OPPORTUNITY_STATE_DRAFT = 1;
    */
   DRAFT = 1,
-
   /**
    * @generated from enum value: OPPORTUNITY_STATE_LIVE = 2;
    */
   LIVE = 2,
-
   /**
    * @generated from enum value: OPPORTUNITY_STATE_CLOSED = 3;
    */
   CLOSED = 3,
+  /**
+   * @generated from enum value: OPPORTUNITY_STATE_IN_REVIEW = 4;
+   */
+  IN_REVIEW = 4,
 }
 
 /**

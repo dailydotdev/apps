@@ -45,17 +45,17 @@ interface MyComponentProps {
   className?: string;
 }
 
-export function MyComponent({
+export const MyComponent = ({
   variant = 'primary',
   children,
   className,
-}: MyComponentProps): ReactElement {
+}: MyComponentProps): ReactElement => {
   return (
     <div className={classNames('base-classes', className)}>
       {children}
     </div>
   );
-}
+};
 ```
 
 ### Using forwardRef (for focusable/interactive elements)
@@ -87,7 +87,10 @@ className="text-primary bg-surface-float border-border-subtlest-tertiary"
 className="text-gray-500 bg-[#1a1a1a]"
 ```
 
-### CSS Modules (when Tailwind isn't enough)
+### CSS Modules (last resort only)
+
+**Use only when there's absolutely no other way** - exhaust all Tailwind options first, including arbitrary values (`[value]`), and `classed()` utilities. CSS Modules add complexity and should be avoided unless truly necessary (e.g., complex animations, pseudo-elements that can't be handled otherwise).
+
 ```typescript
 import styles from './Component.module.css';
 
@@ -127,17 +130,85 @@ screen.getByTestId('buttonLoader');
 
 ## Icons
 
-Icons live in `icons/` and are SVG files converted to React components:
+Icons live in `icons/` as SVG files wrapped in React components.
 
+### Using Icons
 ```typescript
 import { UpvoteIcon, ShareIcon } from '../icons';
+import { IconSize } from '../Icon';
 
+// Basic usage
+<UpvoteIcon />
+
+// With size
+<UpvoteIcon size={IconSize.Medium} />
+
+// Filled variant (secondary)
+<UpvoteIcon secondary />
+
+// With custom className for color
+<UpvoteIcon className="text-accent-bacon-default" />
+
+// In a Button
 <Button icon={<UpvoteIcon />}>Upvote</Button>
 ```
 
-To add a new icon:
-1. Add SVG file to `icons/` directory
-2. Export from `icons/index.ts`
+### Available Sizes (`IconSize` enum)
+- `XXSmall` (12px), `Size16` (16px), `XSmall` (20px - default), `Small` (24px)
+- `Medium` (28px), `Large` (32px), `XLarge` (40px), `XXLarge` (56px), `XXXLarge` (64px)
+
+### Adding a New Icon
+
+**1. Create directory structure:**
+```
+icons/
+└── MyIcon/
+    ├── index.tsx      # React component wrapper
+    ├── outlined.svg   # Primary variant (outline style)
+    └── filled.svg     # Secondary variant (filled style)
+```
+
+**2. SVG Requirements:**
+- **Use `fill="currentColor"`** - allows CSS color inheritance
+- Viewbox should typically be `0 0 24 24` (24x24 base size)
+- Remove hardcoded colors like `fill="#FFFFFF"` - use `currentColor` instead
+- Remove unnecessary metadata (title, xml declarations, etc.)
+
+```xml
+<!-- Good - uses currentColor for CSS inheritance -->
+<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="..." fill="currentColor"/>
+</svg>
+
+<!-- Bad - hardcoded color won't respond to CSS -->
+<svg width="24px" height="24px" viewBox="0 0 24 24">
+  <path d="..." fill="#FFFFFF"/>
+</svg>
+```
+
+**3. Create the wrapper component (`index.tsx`):**
+```typescript
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { IconProps } from '../../Icon';
+import Icon from '../../Icon';
+import OutlinedIcon from './outlined.svg';
+import FilledIcon from './filled.svg';
+
+export const MyIcon = (props: IconProps): ReactElement => (
+  <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
+);
+```
+
+**4. Export from `icons/index.ts`:**
+```typescript
+export * from './MyIcon';
+```
+
+### IconProps
+- `secondary?: boolean` - Use filled variant instead of outlined
+- `size?: IconSize` - Icon size (default: `XSmall` / 20px)
+- Extends `ComponentProps<'svg'>` - accepts standard SVG attributes
 
 ## Common Patterns
 

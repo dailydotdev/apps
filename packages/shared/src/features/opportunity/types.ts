@@ -28,6 +28,12 @@ export enum RoleType {
   Managerial = 1.0,
 }
 
+export enum LocationVerificationStatus {
+  GeoIP = 'geoip',
+  UserProvided = 'user_provided',
+  Verified = 'verified',
+}
+
 export type RecruiterProfile = Pick<
   PublicProfile,
   'id' | 'name' | 'username' | 'image' | 'bio'
@@ -41,7 +47,6 @@ type OpportunityContentBlock = {
 };
 
 export type OpportunityLocation = {
-  type?: ProtoEnumValue;
   city?: string;
   country?: string;
   subdivision?: string;
@@ -87,6 +92,11 @@ export type OpportunityScreeningAnswer = {
   answer: string;
 };
 
+type OpportunityFlagsPublic = Partial<{
+  batchSize: number;
+  plan: string;
+}>;
+
 export type Opportunity = {
   id: string;
   type: ProtoEnumValue;
@@ -99,10 +109,11 @@ export type Opportunity = {
   };
   meta: OpportunityMeta;
   recruiters: RecruiterProfile[];
-  location: OpportunityLocation[];
+  locations: Array<{ location: OpportunityLocation; type?: ProtoEnumValue }>;
   keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
   feedbackQuestions?: OpportunityFeedbackQuestion[];
+  flags?: OpportunityFlagsPublic;
 };
 
 export type OpportunityMatchDescription = {
@@ -166,6 +177,7 @@ export type UserCandidatePreferences = {
   companySize?: CompanySize[];
   customKeywords?: boolean;
   keywords?: Array<UserCandidateKeyword>;
+  externalLocationId?: string;
 };
 
 export const recruiterLayoutHeaderClassName = 'recruiter-layout-header';
@@ -204,6 +216,8 @@ export interface OpportunityPreviewUser {
   seniority?: string;
   /** User location (from preferences or geo flags) */
   location?: string;
+  /** Location verification status (from geo flags) */
+  locationVerified?: LocationVerificationStatus;
   /** Active company from experience */
   company?: OpportunityPreviewCompany;
   /** Last activity timestamp */
@@ -216,12 +230,20 @@ export interface OpportunityPreviewUser {
   activeSquads?: Squad[];
 }
 
+export enum OpportunityPreviewStatus {
+  UNSPECIFIED = 0,
+  PENDING = 1,
+  READY = 2,
+  ERROR = 3,
+}
+
 export interface OpportunityPreviewResult {
   tags: string[];
   companies: OpportunityPreviewCompany[];
   squads: Squad[];
   totalCount?: number;
   opportunityId?: string;
+  status: OpportunityPreviewStatus;
 }
 
 export interface OpportunityPreviewConnection
@@ -230,3 +252,14 @@ export interface OpportunityPreviewConnection
 }
 
 export type OpportunityPreviewResponse = OpportunityPreviewConnection;
+
+export type OpportunityStats = {
+  matched: number;
+  reached: number;
+  considered: number;
+  decided: number;
+  forReview: number;
+  introduced: number;
+};
+
+export const opportunityPreviewRefetchIntervalMs = 7000;

@@ -6,10 +6,10 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { Chip } from '../../../../components/cards/common/PostTags';
-import { Loader } from '../../../../components/Loader';
 import { useOpportunityPreviewContext } from '../../context/OpportunityPreviewContext';
 import { SeniorityLevel } from '../../protobuf/opportunity';
 import { seniorityLevelMap } from '../../common';
+import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 
 type JobInfoItemProps = {
   title: string;
@@ -44,16 +44,22 @@ export const JobInfo = ({ loadingStep }: JobInfoProps) => {
   // Show after step 1 completes (Reading job description)
   if (!opportunity || loadingStep < 1) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Loader />
+      <div className="flex flex-col gap-2">
+        <ElementPlaceholder className="h-60 w-full rounded-8" />
       </div>
     );
   }
 
   const locationString =
-    opportunity.location
-      ?.map((loc) =>
-        [loc.city, loc.subdivision, loc.country].filter(Boolean).join(', '),
+    opportunity.locations
+      ?.map((item) =>
+        [
+          item.location?.city,
+          item.location?.subdivision,
+          item.location?.country,
+        ]
+          .filter(Boolean)
+          .join(', '),
       )
       .join(' / ') || 'Not specified';
 

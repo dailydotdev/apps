@@ -1,6 +1,7 @@
 import type { SubscriptionStatus } from '../../lib/plus';
 import type { ProtoEnumValue } from '../../lib/protobuf';
 import type { LoggedUser, PublicProfile } from '../../lib/user';
+import type { TLocation } from '../../graphql/autocomplete';
 
 export enum OrganizationMemberRole {
   Owner = 'owner',
@@ -61,7 +62,8 @@ export type Organization = {
   description?: string;
   perks?: Array<string>;
   founded?: number;
-  location?: string;
+  location?: TLocation | null;
+  externalLocationId?: string;
   category?: string;
   size?: ProtoEnumValue;
   stage?: ProtoEnumValue;

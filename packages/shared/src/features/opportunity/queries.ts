@@ -3,8 +3,8 @@ import type {
   QueryKey,
   UseQueryOptions,
 } from '@tanstack/react-query';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { RequestKey, StaleTime, generateQueryKey } from '../../lib/query';
+import { keepPreviousData } from '@tanstack/react-query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { gqlClient } from '../../graphql/common';
 import type { Connection } from '../../graphql/common';
 import type {
@@ -12,6 +12,7 @@ import type {
   Opportunity,
   OpportunityMatch,
   OpportunityPreviewResponse,
+  OpportunityStats,
   UserCandidatePreferences,
 } from './types';
 import {
@@ -23,9 +24,11 @@ import {
   OPPORTUNITY_BY_ID_QUERY,
   USER_OPPORTUNITY_MATCHES_QUERY,
   OPPORTUNITY_PREVIEW,
+  OPPORTUNITY_STATS_QUERY,
 } from './graphql';
-import { useAuthContext } from '../../contexts/AuthContext';
+import type { LoggedUser } from '../../lib/user';
 import { disabledRefetch } from '../../lib/func';
+import { fetchPricingPreview, PurchaseType } from '../../graphql/paddle';
 
 export const getOpportunityByIdKey = (id: string): QueryKey => [
   RequestKey.Opportunity,
@@ -188,23 +191,77 @@ export const getUserOpportunityMatchesOptions = ({
 };
 
 // Query Function
-export const getOpportunityPreview =
-  async (): Promise<OpportunityPreviewResponse> => {
-    const result = await gqlClient.request(OPPORTUNITY_PREVIEW);
+export const getOpportunityPreview = async ({
+  opportunityId,
+}): Promise<OpportunityPreviewResponse> => {
+  const result = await gqlClient.request<{
+    opportunityPreview: OpportunityPreviewResponse;
+  }>(OPPORTUNITY_PREVIEW, {
+    opportunityId,
+  });
 
-    return result.opportunityPreview;
-  };
+  return result.opportunityPreview;
+};
 
-// React Query Hook
-export const useOpportunityPreview = () => {
-  const { user } = useAuthContext();
-
-  return useQuery({
-    queryKey: generateQueryKey(RequestKey.OpportunityPreview, user),
-    queryFn: () => getOpportunityPreview(),
-    enabled: !!user,
+export const opportunityPreviewQueryOptions = ({
+  opportunityId,
+  user,
+  enabled = true,
+}: {
+  opportunityId?: string;
+  user?: LoggedUser;
+  enabled?: boolean;
+}) => {
+  return {
+    queryKey: generateQueryKey(RequestKey.OpportunityPreview, user, {
+      opportunityId,
+    }),
+    queryFn: () => getOpportunityPreview({ opportunityId }),
+    enabled: !!user && !!enabled,
     ...disabledRefetch,
     staleTime: Infinity,
     gcTime: Infinity,
-  });
+  };
+};
+
+export const opportunityStatsOptions = ({
+  opportunityId,
+}: {
+  opportunityId: string;
+}): UseQueryOptions<OpportunityStats> => {
+  return {
+    queryKey: [RequestKey.OpportunityStats, opportunityId],
+    queryFn: async () => {
+      const res = await gqlClient.request<{
+        opportunityStats: OpportunityStats;
+      }>(OPPORTUNITY_STATS_QUERY, {
+        opportunityId,
+      });
+
+      return res.opportunityStats;
+    },
+    staleTime: StaleTime.Default,
+    enabled: !!opportunityId,
+  };
+};
+
+export const recruiterPricesQueryOptions = ({
+  isLoggedIn,
+  user,
+}: {
+  isLoggedIn: boolean;
+  user: LoggedUser;
+}) => {
+  return {
+    queryKey: generateQueryKey(
+      RequestKey.PricePreview,
+      user,
+      PurchaseType.Recruiter,
+    ),
+    queryFn: async () => {
+      return fetchPricingPreview(PurchaseType.Recruiter);
+    },
+    enabled: isLoggedIn,
+    staleTime: StaleTime.Default,
+  };
 };
