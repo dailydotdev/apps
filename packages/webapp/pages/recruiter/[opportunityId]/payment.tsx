@@ -206,7 +206,7 @@ const RecruiterPaymentPage = (): ReactElement => {
           </div>
         </div>
       </div>
-      <div className="flex flex-1 flex-col bg-white p-10 px-20">
+      <div className="flex flex-1 flex-col bg-black p-10 px-20">
         <div className="w-full max-w-[30rem]">
           <div ref={checkoutRef} className="checkout-container h-full w-full" />
         </div>
