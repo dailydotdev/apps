@@ -71,9 +71,8 @@ const GifPopover = ({
     }
   }, 500);
 
-  const showingFavorites = !query;
-  const gifsToDisplay = showingFavorites ? favorites : data;
-  const isLoadingGifs = showingFavorites ? isFetchingFavorites : isLoading;
+  const gifsToDisplay = !query ? favorites : data;
+  const isLoadingGifs = !query ? isFetchingFavorites : isLoading;
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen && textareaRef?.current) {
@@ -164,9 +163,11 @@ const GifPopover = ({
                   </div>
                 ))}
               </div>
-              <div className="flex items-center justify-center py-4">
-                <GenericLoaderSpinner size={IconSize.XLarge} />
-              </div>
+              {query && (
+                <div className="flex items-center justify-center py-4">
+                  <GenericLoaderSpinner size={IconSize.XLarge} />
+                </div>
+              )}
             </>
           )}
           {!isLoadingGifs && (!gifsToDisplay || gifsToDisplay.length === 0) && (
@@ -176,7 +177,7 @@ const GifPopover = ({
                 color={TypographyColor.Tertiary}
                 className="w-full min-w-0 whitespace-normal break-words text-center"
               >
-                {showingFavorites
+                {!query
                   ? 'You have no favorites yet. Add some, and they will appear here!'
                   : 'no results matching your search 😞'}
               </Typography>

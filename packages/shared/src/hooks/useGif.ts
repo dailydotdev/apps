@@ -70,6 +70,7 @@ const useGif = ({
         return await response.json();
       },
       enabled: favoritesEnabled,
+      staleTime: Infinity,
     });
   const favorites = favData?.gifs ?? [];
 
