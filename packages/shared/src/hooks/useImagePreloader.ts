@@ -11,10 +11,6 @@ const preloadImage = (url: string) => {
  */
 export function useImagePreloader(urls: string[]): void {
   useEffect(() => {
-    if (!urls.length) {
-      return;
-    }
-
     const load = () => urls.forEach(preloadImage);
 
     // Use requestIdleCallback if available, otherwise setTimeout as fallback

@@ -14,12 +14,18 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  ArrowIcon,
+  VolumeIcon,
+  VolumeOffIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useImagePreloader } from '@dailydotdev/shared/src/hooks/useImagePreloader';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { ARCHETYPES } from '../../types/log';
 import { useCardNavigation, useLog } from '../../hooks/log';
 import type { CardConfig } from '../../hooks/log';
@@ -36,6 +42,101 @@ import CardContributions from '../../components/log/CardContributions';
 import CardRecords from '../../components/log/CardRecords';
 import CardArchetypeReveal from '../../components/log/CardArchetypeReveal';
 import CardShare from '../../components/log/CardShare';
+
+// Card to background music track mapping (1.mp3, 2.mp3, 3.mp3)
+const CARD_TO_TRACK: Record<string, number> = {
+  welcome: 0,
+  'total-impact': 0,
+  'when-you-read': 0,
+  'topic-evolution': 0,
+  'favorite-sources': 1,
+  community: 1,
+  contributions: 1,
+  records: 1,
+  archetype: 2,
+  share: 2,
+};
+
+// Custom hook for background music management
+const useBackgroundMusic = (currentCardId: string) => {
+  const audiosRef = useRef<HTMLAudioElement[]>([]);
+  const currentTrackRef = useRef<number>(-1);
+  const hasStartedRef = useRef(false);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const targetTrack = CARD_TO_TRACK[currentCardId] ?? 0;
+
+  // Initialize, preload, and attempt autoplay
+  useEffect(() => {
+    audiosRef.current = [1, 2, 3].map((n) => {
+      const audio = new Audio(`/assets/log/${n}.mp3`);
+      audio.loop = true;
+      audio.preload = 'auto';
+      return audio;
+    });
+
+    // Attempt autoplay on first track
+    audiosRef.current[0]
+      ?.play()
+      .then(() => {
+        hasStartedRef.current = true;
+        currentTrackRef.current = 0;
+      })
+      .catch(() => {
+        // Autoplay blocked - will start on user interaction
+      });
+
+    return () => {
+      audiosRef.current.forEach((audio) => {
+        audio.pause();
+        // eslint-disable-next-line no-param-reassign
+        audio.src = '';
+      });
+    };
+  }, []);
+
+  // Switch tracks when card section changes
+  useEffect(() => {
+    if (!hasStartedRef.current || currentTrackRef.current === targetTrack) {
+      return;
+    }
+
+    audiosRef.current[currentTrackRef.current]?.pause();
+    if (!isMuted) {
+      audiosRef.current[targetTrack]?.play().catch(() => {});
+    }
+    currentTrackRef.current = targetTrack;
+  }, [targetTrack, isMuted]);
+
+  // Manual start for when autoplay was blocked
+  const startMusic = useCallback(() => {
+    if (hasStartedRef.current) {
+      return;
+    }
+
+    audiosRef.current[targetTrack]
+      ?.play()
+      .then(() => {
+        hasStartedRef.current = true;
+        currentTrackRef.current = targetTrack;
+      })
+      .catch(() => {});
+  }, [targetTrack]);
+
+  // Toggle mute/unmute
+  const toggleMute = useCallback(() => {
+    setIsMuted((prev) => {
+      const newMuted = !prev;
+      audiosRef.current.forEach((audio) => {
+        // eslint-disable-next-line no-param-reassign
+        audio.muted = newMuted;
+      });
+      return newMuted;
+    });
+  }, []);
+
+  return { startMusic, isMuted, toggleMute };
+};
 
 // Per-card theme configurations for subtle variety
 interface CardTheme {
@@ -308,6 +409,37 @@ export default function LogPage(): ReactElement {
   const { currentCard, currentSubcard, direction, goNext, goPrev, goToCard } =
     useCardNavigation(cards);
 
+  const currentCardConfig = cards[currentCard];
+  const CardComponent = currentCardConfig.component;
+  const currentCardId = currentCardConfig.id;
+
+  // Determine direction value for variants
+  const directionValue = direction === 'next' ? 1 : -1;
+
+  // Background music management
+  const { startMusic, isMuted, toggleMute } = useBackgroundMusic(currentCardId);
+  const { displayToast } = useToastNotification();
+
+  // Funny messages for mute toggle
+  const handleMuteToggle = useCallback(() => {
+    toggleMute();
+    const muteMessages = [
+      '🦻 Your eardrums have been spared',
+      '🙉 Your neighbors thank you',
+      "🔇 Okay okay, we'll shut up",
+      '😶 *sad DJ noises*',
+    ];
+    const unmuteMessages = [
+      '🎵 The vibes are BACK!',
+      '🔊 Let the beats drop!',
+      "🎶 You couldn't resist, could you?",
+      '🎧 Music makes the code go round',
+    ];
+    const messages = isMuted ? unmuteMessages : muteMessages;
+    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    displayToast(randomMessage);
+  }, [toggleMute, isMuted, displayToast]);
+
   // Track card views (handles all navigation: tap, progress bar, keyboard)
   const previousCardRef = useRef<number | null>(null);
   useEffect(() => {
@@ -322,13 +454,13 @@ export default function LogPage(): ReactElement {
       logEvent({
         event_name: LogEvent.ViewLogCard,
         extra: JSON.stringify({
-          card: cards[currentCard]?.id,
+          card: currentCardId,
           cardIndex: currentCard,
         }),
       });
       previousCardRef.current = currentCard;
     }
-  }, [currentCard, cards, logEvent]);
+  }, [currentCard, currentCardId, logEvent]);
 
   // Share analytics callback for CardShare
   const handleShare = useCallback(() => {
@@ -336,15 +468,18 @@ export default function LogPage(): ReactElement {
       event_name: LogEvent.ShareLog,
       extra: JSON.stringify({
         archetype: data?.archetype,
-        card: cards[currentCard]?.id,
+        card: currentCardId,
         cardIndex: currentCard,
       }),
     });
-  }, [logEvent, data?.archetype, cards, currentCard]);
+  }, [logEvent, data?.archetype, currentCardId, currentCard]);
 
   // Handle tap navigation (like Instagram stories)
   const handleTapNavigation = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      // Start background music on first interaction
+      startMusic();
+
       const rect = e.currentTarget.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
       const { width } = rect;
@@ -356,17 +491,10 @@ export default function LogPage(): ReactElement {
         goNext();
       }
     },
-    [goNext, goPrev],
+    [goNext, goPrev, startMusic],
   );
 
-  const currentCardConfig = cards[currentCard];
-  const CardComponent = currentCardConfig.component;
-
-  // Determine direction value for variants
-  const directionValue = direction === 'next' ? 1 : -1;
-
   // Get current card's theme (with archetype-specific override)
-  const currentCardId = cards[currentCard].id;
   const currentTheme = useMemo(() => {
     const baseTheme = CARD_THEMES[currentCardId] || CARD_THEMES['total-impact'];
 
@@ -509,7 +637,10 @@ export default function LogPage(): ReactElement {
                   key={card.id}
                   type="button"
                   className={styles.progressBarWrapper}
-                  onClick={() => goToCard(index)}
+                  onClick={() => {
+                    startMusic();
+                    goToCard(index);
+                  }}
                   aria-label={`Go to card ${index + 1}`}
                 >
                   <div className={styles.progressBar}>
@@ -531,20 +662,30 @@ export default function LogPage(): ReactElement {
             })}
           </div>
 
-          {/* Navigation row with back button and centered logo */}
+          {/* Navigation row with back button, centered logo, and mute toggle */}
           <div className={styles.headerNav}>
-            <Button
-              icon={<ArrowIcon className="-rotate-90" />}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              onClick={() => router.push('/')}
-              className={styles.backButton}
-            />
+            <div className={styles.headerLeft}>
+              <Button
+                icon={<ArrowIcon className="-rotate-90" />}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                onClick={() => router.push('/')}
+                className={styles.backButton}
+              />
+            </div>
             <div className={styles.logoCenter}>
               <Logo position={LogoPosition.Empty} linkDisabled />
             </div>
-            {/* Spacer to balance the back button */}
-            <div className={styles.headerSpacer} />
+            <div className={styles.headerRight}>
+              <Button
+                icon={isMuted ? <VolumeOffIcon /> : <VolumeIcon />}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                onClick={handleMuteToggle}
+                className={styles.muteButton}
+                aria-label={isMuted ? 'Unmute music' : 'Mute music'}
+              />
+            </div>
           </div>
         </header>
 
@@ -556,6 +697,7 @@ export default function LogPage(): ReactElement {
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
+              startMusic();
               goNext();
             }
           }}
@@ -594,6 +736,7 @@ export default function LogPage(): ReactElement {
           </AnimatePresence>
         </div>
       </motion.div>
+      <Toast autoDismissNotifications />
     </>
   );
 }

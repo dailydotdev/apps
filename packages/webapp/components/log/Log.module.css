@@ -194,7 +194,7 @@
   border-radius: 2px;
 }
 
-/* Navigation row with back button and centered logo */
+/* Navigation row with back button, mute toggle, and centered logo */
 .headerNav {
   display: flex;
   align-items: center;
@@ -202,7 +202,18 @@
   width: 100%;
 }
 
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 0 0 auto;
+}
+
 .backButton {
+  flex: 0 0 auto;
+}
+
+.muteButton {
   flex: 0 0 auto;
 }
 
@@ -212,9 +223,11 @@
   justify-content: center;
 }
 
-.headerSpacer {
+.headerRight {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   flex: 0 0 auto;
-  width: 32px; /* Same width as the back button */
 }
 
 .logo {

@@ -160,6 +160,8 @@ export * from './Upvote';
 export * from './User';
 export * from './UserShare';
 export * from './V';
+export * from './Volume';
+export * from './VolumeOff';
 export * from './Warning';
 export * from './Whatsapp';
 export * from './Youtube';
