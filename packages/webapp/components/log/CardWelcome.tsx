@@ -87,29 +87,17 @@ export default function CardWelcome({
       </motion.p>
 
       {/* Navigation instructions - appears after tagline (fade only) */}
-      <motion.div
+      <motion.p
         className={cardStyles.welcomeInstructions}
         initial={{ opacity: 0 }}
         animate={{ opacity: isMounted ? 1 : 0 }}
         transition={{ delay: INSTRUCTIONS_DELAY, duration: 0.5 }}
       >
-        <div className={cardStyles.instructionRow}>
-          <div className={cardStyles.tapZone}>
-            <span className={cardStyles.tapIcon}>👈</span>
-            <span className={cardStyles.tapLabel}>
-              {isTouchDevice ? 'Tap left' : 'Click left'}
-            </span>
-            <span className={cardStyles.tapAction}>Go back</span>
-          </div>
-          <div className={cardStyles.tapZone}>
-            <span className={cardStyles.tapIcon}>👉</span>
-            <span className={cardStyles.tapLabel}>
-              {isTouchDevice ? 'Tap right' : 'Click right'}
-            </span>
-            <span className={cardStyles.tapAction}>Go next</span>
-          </div>
-        </div>
-      </motion.div>
+        {isTouchDevice ? 'Tap' : 'Click'} the sides to navigate
+        <span className={cardStyles.instructionHint}>
+          👈 back · next 👉
+        </span>
+      </motion.p>
 
       {/* CTA prompt - appears last (fade only) */}
       <motion.div

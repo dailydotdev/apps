@@ -3160,45 +3160,17 @@
 }
 
 .welcomeInstructions {
-  width: 100%;
-  max-width: 320px;
-  margin: 1rem 0;
+  margin: 1.25rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
-.instructionRow {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-}
-
-.tapZone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 1rem 1.25rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.tapIcon {
-  font-size: 1.75rem;
-  margin-bottom: 0.25rem;
-}
-
-.tapLabel {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--fest-white);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.tapAction {
-  font-size: 0.6rem;
-  color: var(--fest-lime);
-  font-weight: 600;
+.instructionHint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
 }
 
 .welcomeCta {
@@ -3316,24 +3288,12 @@
 
 /* Responsive adjustments for welcome card */
 @media (max-width: 380px) {
-  .instructionRow {
-    gap: 1rem;
+  .welcomeInstructions {
+    font-size: 0.75rem;
   }
 
-  .tapZone {
-    padding: 0.75rem 1rem;
-  }
-
-  .tapIcon {
-    font-size: 1.5rem;
-  }
-
-  .tapLabel {
-    font-size: 0.6rem;
-  }
-
-  .tapAction {
-    font-size: 0.5rem;
+  .instructionHint {
+    font-size: 0.65rem;
   }
 
   .welcomeTagline {
@@ -3350,14 +3310,11 @@
 
   .welcomeInstructions {
     margin: 0.75rem 0;
+    font-size: 0.75rem;
   }
 
-  .tapZone {
-    padding: 0.75rem 1rem;
-  }
-
-  .tapIcon {
-    font-size: 1.5rem;
+  .instructionHint {
+    font-size: 0.65rem;
   }
 
   .welcomeCta {
@@ -3795,21 +3752,12 @@
     margin: 2.5rem 0;
   }
 
-  .tapZone {
-    padding: 1.25rem 1.5rem;
-    border-radius: 14px;
+  .welcomeInstructions {
+    font-size: 0.95rem;
   }
 
-  .tapIcon {
-    font-size: 2rem;
-  }
-
-  .tapLabel {
-    font-size: 0.85rem;
-  }
-
-  .tapAction {
-    font-size: 0.75rem;
+  .instructionHint {
+    font-size: 0.8rem;
   }
 
   .ctaText {
