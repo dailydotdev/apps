@@ -97,9 +97,7 @@ export default function CardWelcome({
         transition={{ delay: INSTRUCTIONS_DELAY, duration: 0.5 }}
       >
         {isTouchDevice ? 'Tap' : 'Click'} the sides to navigate
-        <span className={cardStyles.instructionHint}>
-          👈 back · next 👉
-        </span>
+        <span className={cardStyles.instructionHint}>👈 back · next 👉</span>
       </motion.p>
 
       {/* CTA prompt - appears last (fade only) */}

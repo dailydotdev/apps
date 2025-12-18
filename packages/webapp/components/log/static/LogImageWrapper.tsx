@@ -84,9 +84,7 @@ export default function LogImageWrapper({
               className={styles.userAvatar}
             />
           )}
-          {username && (
-            <span className={styles.username}>@{username}</span>
-          )}
+          {username && <span className={styles.username}>@{username}</span>}
         </div>
       )}
 

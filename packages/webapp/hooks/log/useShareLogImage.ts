@@ -59,7 +59,11 @@ export function useShareLogImage(): UseShareLogImageReturn {
    * or fallback to downloading the image.
    */
   const shareImage = useCallback(
-    async (blob: Blob, filename: string, text: string): Promise<ShareResult> => {
+    async (
+      blob: Blob,
+      filename: string,
+      text: string,
+    ): Promise<ShareResult> => {
       const file = new File([blob], filename, { type: 'image/png' });
 
       // Try Web Share API with files
@@ -92,8 +96,7 @@ export function useShareLogImage(): UseShareLogImageReturn {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         return 'downloaded';
-      } catch (err) {
-        console.error('Failed to download image:', err);
+      } catch {
         return 'error';
       }
     },

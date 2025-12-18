@@ -24,19 +24,6 @@ import type { CardConfig } from '../../hooks/log/index';
 import { CARD_THEMES, cardVariants } from '../../components/log/logTheme';
 import styles from '../../components/log/Log.module.css';
 
-// Card order for preloading
-const SHAREABLE_CARDS = [
-  'total-impact',
-  'when-you-read',
-  'topic-evolution',
-  'favorite-sources',
-  'community',
-  'contributions',
-  'records',
-  'archetype',
-  'share',
-] as const;
-
 // Components
 import LogPageHead from '../../components/log/LogPageHead';
 import LogHeader from '../../components/log/LogHeader';
@@ -53,6 +40,19 @@ import CardContributions from '../../components/log/CardContributions';
 import CardRecords from '../../components/log/CardRecords';
 import CardArchetypeReveal from '../../components/log/CardArchetypeReveal';
 import CardShare from '../../components/log/CardShare';
+
+// Card order for preloading
+const SHAREABLE_CARDS = [
+  'total-impact',
+  'when-you-read',
+  'topic-evolution',
+  'favorite-sources',
+  'community',
+  'contributions',
+  'records',
+  'archetype',
+  'share',
+] as const;
 
 export default function LogPage(): ReactElement {
   const { user, isLoggedIn, isAuthReady, tokenRefreshed } = useAuthContext();
@@ -158,7 +158,7 @@ export default function LogPage(): ReactElement {
   // Progressive preloading of share images (2 screens ahead)
   useEffect(() => {
     if (!user?.id || !tokenRefreshed || !isAuthReady || isDataLoading) {
-      return;
+      return undefined;
     }
 
     const preloadAhead = async () => {
@@ -168,37 +168,35 @@ export default function LogPage(): ReactElement {
       );
 
       // Determine which cards to preload (next 2 shareable cards)
-      const cardsToPreload: string[] = [];
-      for (
-        let i = currentIdx + 1;
-        i < SHAREABLE_CARDS.length && cardsToPreload.length < 2;
-        i++
-      ) {
-        const cardId = SHAREABLE_CARDS[i];
-        // Skip contributions if user doesn't have any
-        if (cardId === 'contributions' && !data?.hasContributions) {
-          continue;
-        }
-        if (!imageCache.has(cardId)) {
-          cardsToPreload.push(cardId);
-        }
-      }
-
-      // Preload each card's image
-      for (const cardId of cardsToPreload) {
-        try {
-          const response = await fetch(
-            `${apiUrl}/log/images?card=${encodeURIComponent(cardId)}&userId=${encodeURIComponent(user.id)}`,
-            { credentials: 'include' },
-          );
-          if (response.ok) {
-            const blob = await response.blob();
-            setImageCache((prev) => new Map(prev).set(cardId, blob));
+      const cardsToPreload = SHAREABLE_CARDS.slice(currentIdx + 1)
+        .filter((cardId) => {
+          // Skip contributions if user doesn't have any
+          if (cardId === 'contributions' && !data?.hasContributions) {
+            return false;
           }
-        } catch {
-          // Silent fail - will retry on next navigation or fetch on demand
-        }
-      }
+          return !imageCache.has(cardId);
+        })
+        .slice(0, 2);
+
+      // Preload each card's image in parallel
+      await Promise.all(
+        cardsToPreload.map(async (cardId) => {
+          try {
+            const response = await fetch(
+              `${apiUrl}/log/images?card=${encodeURIComponent(
+                cardId,
+              )}&userId=${encodeURIComponent(user.id)}`,
+              { credentials: 'include' },
+            );
+            if (response.ok) {
+              const blob = await response.blob();
+              setImageCache((prev) => new Map(prev).set(cardId, blob));
+            }
+          } catch {
+            // Silent fail - will retry on next navigation or fetch on demand
+          }
+        }),
+      );
     };
 
     // Use requestIdleCallback for non-blocking preload

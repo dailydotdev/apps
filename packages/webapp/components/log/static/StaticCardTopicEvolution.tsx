@@ -17,7 +17,11 @@ const QUARTERLY_PALETTES: Record<string, [string, string, string]> = {
   Q4: ['#E91E63', '#F48FB1', '#FFAB40'],
 };
 
-const DEFAULT_COLORS: [string, string, string] = ['#ff6b35', '#f7c948', '#c6f135'];
+const DEFAULT_COLORS: [string, string, string] = [
+  '#ff6b35',
+  '#f7c948',
+  '#c6f135',
+];
 
 function getQuarterlyColors(quarter: string): [string, string, string] {
   return QUARTERLY_PALETTES[quarter] || DEFAULT_COLORS;
@@ -31,13 +35,14 @@ export default function StaticCardTopicEvolution({
   data,
 }: StaticCardProps): ReactElement {
   const quarters = data.topicJourney.slice(0, 4);
-  const activeQuarters = quarters.filter((q) => !q.inactive);
 
   return (
     <>
       {/* Header */}
       <div className={styles.headlineStack}>
-        <span className={styles.headlineSmall}>Your interests, quarter by quarter</span>
+        <span className={styles.headlineSmall}>
+          Your interests, quarter by quarter
+        </span>
       </div>
 
       {/* Quarters grid */}
@@ -63,7 +68,9 @@ export default function StaticCardTopicEvolution({
                       className={styles.topicTag}
                       style={{ background: colors[index] }}
                     >
-                      <span className={styles.topicMedal}>{MEDAL_EMOJIS[index]}</span>
+                      <span className={styles.topicMedal}>
+                        {MEDAL_EMOJIS[index]}
+                      </span>
                       <span className={styles.topicName}>
                         {quarter.topics[index] || ''}
                       </span>
@@ -91,7 +98,9 @@ export default function StaticCardTopicEvolution({
         <div className={styles.bannerBg} />
         <div className={styles.bannerContent}>
           <span className={styles.bannerPre}>MORE CURIOUS THAN</span>
-          <span className={styles.bannerMain}>{100 - data.evolutionPercentile}%</span>
+          <span className={styles.bannerMain}>
+            {100 - data.evolutionPercentile}%
+          </span>
           <span className={styles.bannerPost}>OF DEVS</span>
         </div>
       </div>

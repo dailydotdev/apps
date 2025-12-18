@@ -54,8 +54,7 @@ export default function LogImagePage(): ReactElement {
         logData: rest,
         userProfile: { image: userImage, username },
       };
-    } catch (e) {
-      console.error('Failed to decode log data:', e);
+    } catch {
       return { logData: null, userProfile: {} };
     }
   }, [encodedData]);

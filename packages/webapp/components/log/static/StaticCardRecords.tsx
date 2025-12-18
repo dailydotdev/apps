@@ -27,7 +27,7 @@ export default function StaticCardRecords({
 
       {/* Records list */}
       <div className={styles.recordsList}>
-        {data.records.slice(0, 3).map((record, index) => (
+        {data.records.slice(0, 3).map((record) => (
           <div key={record.type} className={styles.recordItem}>
             <div className={styles.recordInfo}>
               <span className={styles.recordLabel}>

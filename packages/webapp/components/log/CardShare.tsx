@@ -57,20 +57,20 @@ What's your developer archetype?
 
     try {
       const response = await fetch(
-        `${apiUrl}/log/images?card=${encodeURIComponent(cardType)}&userId=${encodeURIComponent(user.id)}`,
+        `${apiUrl}/log/images?card=${encodeURIComponent(
+          cardType,
+        )}&userId=${encodeURIComponent(user.id)}`,
         {
           credentials: 'include',
         },
       );
 
       if (!response.ok) {
-        console.error('Failed to fetch share image:', response.status);
         return null;
       }
 
       return response.blob();
-    } catch (err) {
-      console.error('Error fetching share image:', err);
+    } catch {
       return null;
     }
   }, [user?.id, cardType, tokenRefreshed]);

@@ -24,8 +24,12 @@ export default function StaticCardArchetypeReveal({
     >
       {/* Explanatory title for context */}
       <div className={styles.archetypeTitle}>
-        <span className={styles.archetypeTitleSmall}>Your Developer Archetype</span>
-        <span className={styles.archetypeTitleSub}>Based on your 2025 reading habits</span>
+        <span className={styles.archetypeTitleSmall}>
+          Your Developer Archetype
+        </span>
+        <span className={styles.archetypeTitleSub}>
+          Based on your 2025 reading habits
+        </span>
       </div>
 
       {/* Archetype image */}

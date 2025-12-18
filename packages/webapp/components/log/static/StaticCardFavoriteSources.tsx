@@ -21,7 +21,11 @@ export default function StaticCardFavoriteSources({
   data,
 }: StaticCardProps): ReactElement {
   // Reorder for podium display: [2nd, 1st, 3rd]
-  const podiumOrder = [data.topSources[1], data.topSources[0], data.topSources[2]];
+  const podiumOrder = [
+    data.topSources[1],
+    data.topSources[0],
+    data.topSources[2],
+  ];
 
   return (
     <>
@@ -33,7 +37,8 @@ export default function StaticCardFavoriteSources({
       {/* Podium */}
       <div className={styles.podiumStage}>
         {podiumOrder.map((source, index) => {
-          const rank = index === 0 ? 2 : index === 1 ? 1 : 3;
+          const rankMap = [2, 1, 3];
+          const rank = rankMap[index];
           const height = PODIUM_HEIGHTS[index];
           const isFirst = index === 1;
 
@@ -56,11 +61,15 @@ export default function StaticCardFavoriteSources({
 
               {/* Bar */}
               <div
-                className={`${styles.podiumBar} ${isFirst ? styles.podiumBarFirst : ''}`}
+                className={`${styles.podiumBar} ${
+                  isFirst ? styles.podiumBarFirst : ''
+                }`}
                 style={{ height }}
               >
                 <span className={styles.podiumRank}>{rank}</span>
-                <span className={styles.podiumCount}>{source.postsRead} posts</span>
+                <span className={styles.podiumCount}>
+                  {source.postsRead} posts
+                </span>
               </div>
             </div>
           );

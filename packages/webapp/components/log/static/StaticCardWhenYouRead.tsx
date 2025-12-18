@@ -80,17 +80,16 @@ export default function StaticCardWhenYouRead({
       {/* Clock visualization */}
       <div className={styles.clockContainer}>
         <div className={styles.clockFace}>
-          {/* Hour markers */}
-          {[...Array(12)].map((_, i) => {
-            const angle = i * 30;
-            return (
-              <div
-                key={`marker-${angle}`}
-                className={styles.clockMarker}
-                style={{ transform: `rotate(${angle}deg)` }}
-              />
-            );
-          })}
+          {/* Hour markers - static array, index keys are safe */}
+          {/* eslint-disable react/no-array-index-key */}
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={`marker-${i}`}
+              className={styles.clockMarker}
+              style={{ transform: `rotate(${i * 30}deg)` }}
+            />
+          ))}
+          {/* eslint-enable react/no-array-index-key */}
           {/* Hour hand */}
           <div
             className={styles.clockHand}
@@ -111,6 +110,8 @@ export default function StaticCardWhenYouRead({
       {/* Hour distribution bar chart */}
       <div className={styles.hourDistWrapper}>
         <div className={styles.hourDistBars}>
+          {/* Static array of 24 hours, index keys are safe */}
+          {/* eslint-disable react/no-array-index-key */}
           {hourDistribution.map((value, hourIndex) => (
             <div
               key={`hour-${hourIndex}`}
@@ -120,6 +121,7 @@ export default function StaticCardWhenYouRead({
               style={{ transform: `scaleY(${value || 0.05})` }}
             />
           ))}
+          {/* eslint-enable react/no-array-index-key */}
         </div>
         <div className={styles.hourDistLabels}>
           <span>12am</span>
