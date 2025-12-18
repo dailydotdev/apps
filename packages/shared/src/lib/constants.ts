@@ -3,6 +3,7 @@ import type { RadioItemProps } from '../components/fields/RadioItem';
 declare const navigator: Navigator & { brave?: { isBrave: unknown } };
 
 // All links are loaded via Rebrandly
+export const stateOfTrust = 'https://r.daily.dev/state-of-trust';
 export const faq = 'https://r.daily.dev/faqs';
 export const feedback = 'https://r.daily.dev/feedback';
 export const termsOfService = 'https://r.daily.dev/tos';

@@ -1,8 +1,5 @@
 import { gql } from 'graphql-request';
 import { ORGANIZATION_SHORT_FRAGMENT } from '../organizations/graphql';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import type { LoggedUser } from '../../lib/user';
-import { fetchPricingPreview, PurchaseType } from '../../graphql/paddle';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   fragment OpportunityContentFragment on OpportunityContentBlock {
@@ -63,7 +60,11 @@ export const OPPORTUNITY_FRAGMENT = gql`
       perks
       category
       founded
-      location
+      location {
+        city
+        country
+        subdivision
+      }
 
       customLinks {
         ...Link
@@ -565,6 +566,7 @@ export const OPPORTUNITY_PREVIEW = gql`
           openToWork
           seniority
           location
+          locationVerified
           company {
             name
             favicon
@@ -578,7 +580,8 @@ export const OPPORTUNITY_PREVIEW = gql`
             issuedAt
           }
           activeSquads {
-            handle
+            id
+            name
             image
           }
         }
@@ -597,11 +600,13 @@ export const OPPORTUNITY_PREVIEW = gql`
           favicon
         }
         squads {
-          handle
+          id
+          name
           image
         }
         totalCount
         opportunityId
+        status
       }
     }
   }
@@ -620,23 +625,11 @@ export const OPPORTUNITY_STATS_QUERY = gql`
   }
 `;
 
-export const recruiterPricesQueryOptions = ({
-  isLoggedIn,
-  user,
-}: {
-  isLoggedIn: boolean;
-  user: LoggedUser;
-}) => {
-  return {
-    queryKey: generateQueryKey(
-      RequestKey.PricePreview,
-      user,
-      PurchaseType.Recruiter,
-    ),
-    queryFn: async () => {
-      return fetchPricingPreview(PurchaseType.Recruiter);
-    },
-    enabled: isLoggedIn,
-    staleTime: StaleTime.Default,
-  };
-};
+export const PARSE_OPPORTUNITY_MUTATION = gql`
+  mutation ParseOpportunity($payload: ParseOpportunityInput!) {
+    parseOpportunity(payload: $payload) {
+      ...OpportunityFragment
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
+`;

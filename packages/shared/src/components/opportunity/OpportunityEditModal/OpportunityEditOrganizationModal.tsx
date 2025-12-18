@@ -6,6 +6,7 @@ import type z from 'zod';
 import type { ModalProps } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { TextField } from '../../fields/TextField';
+import Autocomplete from '../../fields/Autocomplete';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
 import { Loader } from '../../Loader';
 import { Typography, TypographyType } from '../../typography/Typography';
@@ -29,6 +30,10 @@ import { applyZodErrorsToForm } from '../../../lib/form';
 import { opportunityEditDiscardPrompt } from './common';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
+import useDebounceFn from '../../../hooks/useDebounceFn';
+import { locationToString } from '../../../lib/utils';
+import { getAutocompleteLocations } from '../../../graphql/autocomplete';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
 
 import { TagElement } from '../../feeds/FeedSettings/TagElement';
 import { FeedbackIcon, PlusIcon, MiniCloseIcon } from '../../icons';
@@ -325,10 +330,22 @@ export const OpportunityEditOrganizationModal = ({
   const [organizationImageFile, setOrganizationImageFile] =
     useState<File | null>(null);
   const [shouldClearImage, setShouldClearImage] = useState(false);
+  const [locationQuery, setLocationQuery] = useState('');
   const { displayToast } = useToastNotification();
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id }),
     experimental_prefetchInRender: true,
+  });
+
+  const { data: locationOptions, isLoading: isLoadingLocations } = useQuery({
+    queryKey: generateQueryKey(
+      RequestKey.Autocomplete,
+      null,
+      'organization-location',
+      locationQuery,
+    ),
+    queryFn: () => getAutocompleteLocations(locationQuery),
+    enabled: !!locationQuery && locationQuery.length > 0,
   });
 
   const [, updateOpportunity] = useUpdateQuery(opportunityByIdOptions({ id }));
@@ -345,6 +362,10 @@ export const OpportunityEditOrganizationModal = ({
   const { mutateAsync: clearImageMutation } = useMutation({
     ...clearOrganizationImageMutationOptions(),
   });
+
+  const [debouncedLocationSearch] = useDebounceFn<string>((query) => {
+    setLocationQuery(query);
+  }, 300);
 
   // if there was no organization we use create schema to require name
   const editSchema =
@@ -378,7 +399,8 @@ export const OpportunityEditOrganizationModal = ({
           description: opportunityData.organization?.description || '',
           perks: opportunityData.organization?.perks || [],
           founded: opportunityData.organization?.founded || undefined,
-          location: opportunityData.organization?.location || '',
+          externalLocationId:
+            opportunityData.organization?.externalLocationId || undefined,
           category: opportunityData.organization?.category || '',
           size: opportunityData.organization?.size || undefined,
           stage: opportunityData.organization?.stage || undefined,
@@ -600,14 +622,45 @@ export const OpportunityEditOrganizationModal = ({
             }}
           />
         </div>
-        <TextField
-          {...register('organization.location')}
-          type="text"
-          inputId="organizationLocation"
-          label="Company location"
-          fieldType="secondary"
-          valid={!errors.organization?.location}
-          hint={errors.organization?.location?.message}
+        <Controller
+          name="organization.externalLocationId"
+          control={control}
+          render={({ field }) => (
+            <Autocomplete
+              name="organizationLocation"
+              label="Company location"
+              placeholder="Search for a city or country"
+              defaultValue={locationToString(
+                opportunity?.organization?.location,
+              )}
+              options={
+                locationOptions?.map((loc) => ({
+                  label: locationToString(loc),
+                  value: loc.id,
+                })) || []
+              }
+              selectedValue={field.value}
+              onChange={(value) => {
+                debouncedLocationSearch(value);
+              }}
+              onSelect={(value) => {
+                const selectedLocation = locationOptions?.find(
+                  (loc) => loc.id === value,
+                );
+                field.onChange(value);
+                setValue(
+                  'organization.externalLocationId',
+                  selectedLocation?.id,
+                  {
+                    shouldDirty: true,
+                  },
+                );
+              }}
+              isLoading={isLoadingLocations}
+              resetOnBlur
+              fieldType="secondary"
+            />
+          )}
         />
         <TextField
           {...register('organization.category')}

@@ -22,7 +22,7 @@ import {
   useOpportunityPreviewContext,
 } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/graphql';
+import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useQuery } from '@tanstack/react-query';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
