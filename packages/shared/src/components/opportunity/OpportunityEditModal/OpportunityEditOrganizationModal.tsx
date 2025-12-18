@@ -44,6 +44,7 @@ import type {
   OrganizationSocialLink,
 } from '../../../features/organizations/types';
 import { OrganizationLinkType } from '../../../features/organizations/types';
+import { fallbackImages } from '../../../lib/config';
 
 export type OpportunityEditOrganizationModalProps = {
   id: string;
@@ -531,6 +532,7 @@ export const OpportunityEditOrganizationModal = ({
             initialValue={
               shouldClearImage ? null : opportunity?.organization?.image
             }
+            fallbackImage={fallbackImages.company}
             id="organizationImage"
             size="large"
             onChange={(_base64, file) => {
