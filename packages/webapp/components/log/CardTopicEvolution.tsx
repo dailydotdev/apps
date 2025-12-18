@@ -134,7 +134,9 @@ export default function CardTopicEvolution({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <span className={styles.headlineSmall}>Your interests journey</span>
+          <span className={styles.headlineSmall}>
+            Your interests, quarter by quarter
+          </span>
         </motion.div>
 
         {/* Quarter carousel - static container, selection moves */}
