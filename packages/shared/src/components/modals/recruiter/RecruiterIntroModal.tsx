@@ -46,7 +46,7 @@ export const RecruiterIntroModal = ({
             title="Recruiter introduction video"
             src="https://www.youtube-nocookie.com/embed/GAIOnX3S2jg"
             allowFullScreen
-            className="h-full w-full"
+            className="aspect-video w-full border-none"
           />
         </div>
 
