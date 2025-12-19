@@ -20,7 +20,6 @@ import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { formatCurrency } from '@dailydotdev/shared/src/lib/utils';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
@@ -170,7 +169,7 @@ const RecruiterPlans = (): ReactElement => {
       icon: '🪴',
       features: [
         {
-          text: 'Reach up to 100 developers / day',
+          text: 'Reach up to 50 developers / day',
           info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
         },
         {
@@ -198,7 +197,7 @@ const RecruiterPlans = (): ReactElement => {
       icon: '🚀',
       features: [
         {
-          text: 'Reach up to 300 developers / day',
+          text: 'Reach up to 150 developers / day',
           info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
         },
         {
@@ -256,19 +255,17 @@ const RecruiterPlans = (): ReactElement => {
             <Loader />
           </div>
         )}
-        {prices?.map((price, index) => {
+        {prices?.map((priceItem, index) => {
           const additionalCopyItem = additionalCopy[index];
 
           return (
             <PricingPlan
-              key={price.priceId}
+              key={priceItem.priceId}
               emoji={additionalCopyItem.icon}
-              title={price.metadata.title}
+              title={priceItem.metadata.title}
               badge={additionalCopyItem.badge}
               description={additionalCopyItem.description}
-              price={formatCurrency(price.price.monthly.amount, {
-                minimumFractionDigits: 0,
-              })}
+              price={priceItem.price.monthly.formatted}
               priceType="/mo"
               billingInfo="Billed monthly per role"
               features={additionalCopyItem.features}
@@ -279,7 +276,7 @@ const RecruiterPlans = (): ReactElement => {
                   getPathnameWithQuery(
                     `/recruiter/${opportunityId}/payment`,
                     new URLSearchParams({
-                      pid: price.priceId,
+                      pid: priceItem.priceId,
                     }),
                   ),
                 );

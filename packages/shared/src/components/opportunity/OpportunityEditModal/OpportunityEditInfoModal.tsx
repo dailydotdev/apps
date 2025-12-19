@@ -330,6 +330,7 @@ export const OpportunityEditInfoModal = ({
                     <Dropdown
                       className={{
                         container: 'flex-1',
+                        menu: 'w-[--radix-dropdown-menu-trigger-width]',
                       }}
                       selectedIndex={field.value ? field.value - 1 : undefined}
                       options={options}
@@ -370,6 +371,7 @@ export const OpportunityEditInfoModal = ({
                   <Dropdown
                     className={{
                       container: 'flex-1',
+                      menu: 'w-[--radix-dropdown-menu-trigger-width]',
                     }}
                     selectedIndex={field.value ? field.value - 1 : undefined}
                     options={options}
@@ -403,6 +405,7 @@ export const OpportunityEditInfoModal = ({
                   <Dropdown
                     className={{
                       container: 'flex-1',
+                      menu: 'w-[--radix-dropdown-menu-trigger-width]',
                     }}
                     selectedIndex={options.findIndex(
                       (option) => option.value === field.value,

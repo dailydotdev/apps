@@ -70,13 +70,97 @@ const LinksInput = ({ links, onAdd, onRemove, error }: LinksInputProps) => {
   const [url, setUrl] = useState('');
 
   const linkTypeOptions = ['Social', 'Custom', 'Press'];
-  const socialTypeOptions = [
-    SocialMediaType.GitHub,
-    SocialMediaType.X,
-    SocialMediaType.LinkedIn,
-    SocialMediaType.Facebook,
-    SocialMediaType.Crunchbase,
-  ];
+
+  // Extract enum keys as display labels
+  const socialTypeDisplayLabels = Object.keys(
+    SocialMediaType,
+  ) as (keyof typeof SocialMediaType)[];
+
+  // Auto-detect social media type from URL
+  const detectSocialType = useCallback(
+    (
+      urlValue: string,
+    ): {
+      socialType: SocialMediaType;
+      linkType: OrganizationLinkType;
+    } | null => {
+      const lowerUrl = urlValue.toLowerCase();
+
+      if (lowerUrl.includes('github.com')) {
+        return {
+          socialType: SocialMediaType.GitHub,
+          linkType: OrganizationLinkType.Social,
+        };
+      }
+      if (lowerUrl.includes('linkedin.com')) {
+        return {
+          socialType: SocialMediaType.LinkedIn,
+          linkType: OrganizationLinkType.Social,
+        };
+      }
+      if (lowerUrl.includes('facebook.com')) {
+        return {
+          socialType: SocialMediaType.Facebook,
+          linkType: OrganizationLinkType.Social,
+        };
+      }
+      if (lowerUrl.includes('twitter.com') || lowerUrl.includes('x.com')) {
+        return {
+          socialType: SocialMediaType.X,
+          linkType: OrganizationLinkType.Social,
+        };
+      }
+      if (lowerUrl.includes('crunchbase.com')) {
+        return {
+          socialType: SocialMediaType.Crunchbase,
+          linkType: OrganizationLinkType.Social,
+        };
+      }
+
+      return null;
+    },
+    [],
+  );
+
+  const urlInputRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      const updateWidth = () => {
+        const width = node.offsetWidth;
+        document.documentElement.style.setProperty(
+          '--social-dropdown-width',
+          `${width}px`,
+        );
+      };
+
+      // Initial measurement
+      updateWidth();
+
+      // Update on resize
+      const resizeObserver = new ResizeObserver(updateWidth);
+      resizeObserver.observe(node);
+
+      // Cleanup
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
+    return undefined;
+  }, []);
+
+  const handleUrlChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newUrl = e.target.value;
+      setUrl(newUrl);
+
+      // Auto-detect social media type from URL
+      const detected = detectSocialType(newUrl);
+      if (detected) {
+        setLinkType(detected.linkType);
+        setSocialType(detected.socialType);
+      }
+    },
+    [detectSocialType],
+  );
 
   const handleAdd = () => {
     if (!url.trim()) {
@@ -124,7 +208,10 @@ const LinksInput = ({ links, onAdd, onRemove, error }: LinksInputProps) => {
               Type
             </Typography>
             <Dropdown
-              className={{ container: 'flex-1' }}
+              className={{
+                container: 'flex-1',
+                menu: 'w-[--radix-dropdown-menu-trigger-width]',
+              }}
               selectedIndex={linkTypeOptions.indexOf(
                 linkType.charAt(0).toUpperCase() + linkType.slice(1),
               )}
@@ -150,15 +237,27 @@ const LinksInput = ({ links, onAdd, onRemove, error }: LinksInputProps) => {
                 Social Platform
               </Typography>
               <Dropdown
-                className={{ container: 'flex-1' }}
+                className={{
+                  container: 'flex-1',
+                  menu: 'w-[--radix-dropdown-menu-trigger-width]',
+                }}
                 selectedIndex={
                   socialType
-                    ? socialTypeOptions.findIndex((opt) => opt === socialType)
+                    ? socialTypeDisplayLabels.findIndex(
+                        (label) =>
+                          SocialMediaType[
+                            label as keyof typeof SocialMediaType
+                          ] === socialType,
+                      )
                     : undefined
                 }
-                options={socialTypeOptions}
-                onChange={(value: string) => {
-                  setSocialType(value as SocialMediaType);
+                options={socialTypeDisplayLabels}
+                onChange={(displayLabel: string) => {
+                  setSocialType(
+                    SocialMediaType[
+                      displayLabel as keyof typeof SocialMediaType
+                    ],
+                  );
                 }}
               />
             </div>
@@ -182,16 +281,17 @@ const LinksInput = ({ links, onAdd, onRemove, error }: LinksInputProps) => {
           fieldType="secondary"
         />
         <div className="flex gap-2">
-          <TextField
-            type="url"
-            inputId="linkUrl"
-            label="URL"
-            placeholder="https://..."
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className={{ container: 'flex-1' }}
-            fieldType="secondary"
-          />
+          <div ref={urlInputRef} className="flex-1">
+            <TextField
+              type="url"
+              inputId="linkUrl"
+              label="URL"
+              placeholder="https://..."
+              value={url}
+              onChange={handleUrlChange}
+              fieldType="secondary"
+            />
+          </div>
           <div className="flex items-end">
             <Button
               type="button"
@@ -699,6 +799,7 @@ export const OpportunityEditOrganizationModal = ({
                 <Dropdown
                   className={{
                     container: 'flex-1',
+                    menu: 'w-[--radix-dropdown-menu-trigger-width]',
                   }}
                   selectedIndex={field.value ? field.value - 1 : undefined}
                   options={companySizeOptions}
@@ -725,6 +826,7 @@ export const OpportunityEditOrganizationModal = ({
                 <Dropdown
                   className={{
                     container: 'flex-1',
+                    menu: 'w-[--radix-dropdown-menu-trigger-width]',
                   }}
                   selectedIndex={field.value ? field.value - 1 : undefined}
                   options={companyStageOptions}
