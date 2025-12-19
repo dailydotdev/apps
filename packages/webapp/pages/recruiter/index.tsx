@@ -65,7 +65,9 @@ function RecruiterPage(): ReactElement {
 }
 
 RecruiterPage.getLayout = getLayout;
-RecruiterPage.layoutProps = { className: { main: 'blur-sm' } };
+RecruiterPage.layoutProps = {
+  className: { main: 'pointer-events-none blur-sm' },
+};
 
 export async function getServerSideProps() {
   return { props: {} };

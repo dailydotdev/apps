@@ -179,6 +179,7 @@ export const RecruiterJobLinkModal = ({
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
       shouldCloseOnOverlayClick={false}
+      shouldCloseOnEsc={false}
     >
       <Modal.Body className="flex flex-col items-center gap-6 p-6 !py-10">
         <div className="mx-auto flex items-center justify-center gap-3 rounded-12 bg-brand-float px-4 py-1">
