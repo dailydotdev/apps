@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
+import type { ButtonColor } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  ButtonColor,
   Button,
   ButtonSize,
   ButtonVariant,
@@ -23,6 +23,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
+import { recruiterPremiumPlanBg } from '@dailydotdev/shared/src/styles/custom';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 
 type PricingFeature = {
@@ -46,6 +47,7 @@ type PricingPlanProps = {
   className?: {
     container?: string;
   };
+  containerStyle?: React.CSSProperties;
 };
 
 const PricingPlan = ({
@@ -62,56 +64,63 @@ const PricingPlan = ({
   badge,
   onCtaClick,
   className,
+  containerStyle,
 }: PricingPlanProps): ReactElement => {
   const { container } = className || {};
   return (
     <div
       className={classNames(
-        'flex flex-1 flex-col gap-6 rounded-16 border border-border-subtlest-tertiary p-6',
+        'relative isolate flex flex-1 flex-col gap-6 overflow-hidden rounded-16 border border-border-subtlest-tertiary p-6',
         container,
       )}
     >
-      <div className="flex flex-col gap-2">
+      {containerStyle && (
+        <div
+          className="-z-10 absolute -inset-[50%] -top-[60%] rotate-[25deg] backdrop-blur-sm"
+          style={containerStyle}
+        />
+      )}
+      {badge && (
+        <span className="z-10 absolute right-0 top-0 rounded-bl-16 rounded-tr-16 bg-brand-default p-2">
+          <Typography
+            type={TypographyType.Subhead}
+            color={TypographyColor.Primary}
+            bold
+          >
+            {badge}
+          </Typography>
+        </span>
+      )}
+      <div className="z-10 relative flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex gap-2">
-            <Typography type={TypographyType.Title2}>{emoji}</Typography>
+          <div className="flex flex-col gap-4">
+            <Typography type={TypographyType.Mega1}>{emoji}</Typography>
             <Typography type={TypographyType.Title2} bold>
               {title}
             </Typography>
           </div>
-          {badge && (
-            <span className="rounded-6 bg-brand-active px-2 py-1">
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Brand}
-                bold
-              >
-                {badge}
-              </Typography>
-            </span>
-          )}
         </div>
         <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Secondary}
+          type={TypographyType.Subhead}
+          color={TypographyColor.Tertiary}
         >
           {description}
         </Typography>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="z-10 relative flex flex-col gap-1">
         <div className="flex flex-row gap-2">
           <Typography type={TypographyType.Mega1} bold>
             {price}
           </Typography>
           <Typography
-            type={TypographyType.Footnote}
+            type={TypographyType.Subhead}
             color={TypographyColor.Tertiary}
           >
             {priceType}
           </Typography>
         </div>
         <Typography
-          type={TypographyType.Footnote}
+          type={TypographyType.Subhead}
           color={TypographyColor.Tertiary}
         >
           {billingInfo}
@@ -122,18 +131,18 @@ const PricingPlan = ({
         size={ButtonSize.Large}
         color={ctaColor}
         onClick={onCtaClick}
-        className="w-full"
+        className="z-10 relative w-full"
       >
         {ctaText}
       </Button>
-      <div className="flex flex-col gap-1 border-t border-border-subtlest-tertiary pt-6">
+      <div className="z-10 relative flex flex-col gap-1 pt-4">
         {features.map((feature) => (
           <div key={feature.text}>
             <Tooltip content={feature?.info}>
               <div className="flex items-center gap-1">
                 <Typography
-                  type={TypographyType.Body}
-                  color={TypographyColor.Secondary}
+                  type={TypographyType.Subhead}
+                  color={TypographyColor.Tertiary}
                   className="flex-1"
                 >
                   {feature.text}
@@ -158,7 +167,9 @@ type AdditionalCopy = {
   description: string;
   ctaText: string;
   ctaColor?: ButtonColor;
+  ctaVariant?: ButtonVariant;
   className?: PricingPlanProps['className'];
+  containerStyle?: React.CSSProperties;
 };
 
 const RecruiterPlans = (): ReactElement => {
@@ -170,64 +181,67 @@ const RecruiterPlans = (): ReactElement => {
       features: [
         {
           text: 'Reach up to 50 developers / day',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Send personalized outreach to up to 50 qualified developers daily.',
         },
         {
           text: 'Unlimited recruiter seats',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Add your entire recruiting team at no extra cost. Collaborate seamlessly on opportunities.',
         },
         {
           text: 'Access to high-intent developer profiles',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Connect with developers actively seeking opportunities, not passive job board browsers.',
         },
         {
           text: 'Real-time matching notifications',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Get instant alerts when developers match your opportunity criteria and are ready to connect.',
         },
         {
           text: 'Basic analytics dashboard',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Track key metrics like response rates, profile views, and outreach performance.',
         },
       ],
       description:
         'Start reaching high-intent developers and see how trust-first sourcing changes your hiring experience.',
       ctaText: 'Get started',
+      ctaVariant: ButtonVariant.Secondary,
     },
     {
       icon: '🚀',
       features: [
         {
           text: 'Reach up to 150 developers / day',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Triple your outreach capacity with 150 daily credits. Perfect for high-volume hiring needs.',
         },
         {
           text: 'Unlimited recruiter seats',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Add your entire recruiting team at no extra cost. Collaborate seamlessly on opportunities.',
         },
         {
           text: 'Access to high-intent developer profiles',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Connect with developers actively seeking opportunities, not passive job board browsers.',
         },
         {
           text: 'Real-time matching notifications',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Get instant alerts when developers match your opportunity criteria and are ready to connect.',
         },
         {
           text: 'Advanced analytics & insights',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Deep dive into funnel metrics, candidate quality scores, and team performance analytics.',
         },
         {
           text: 'Priority support',
-          info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          info: 'Get faster response times and dedicated assistance from our support team when you need it.',
         },
       ],
       badge: 'best value',
       description:
         'Increase your daily reach and accelerate introductions with higher matching volume.',
       ctaText: 'Get started',
-      ctaColor: ButtonColor.Cabbage,
       className: {
-        container: 'bg-brand-float',
+        container: 'border-brand-default',
+      },
+      containerStyle: {
+        background: recruiterPremiumPlanBg,
       },
     },
   ];
@@ -271,6 +285,7 @@ const RecruiterPlans = (): ReactElement => {
               features={additionalCopyItem.features}
               ctaText={additionalCopyItem.ctaText}
               ctaColor={additionalCopyItem.ctaColor}
+              ctaVariant={additionalCopyItem.ctaVariant}
               onCtaClick={() => {
                 router.push(
                   getPathnameWithQuery(
@@ -282,6 +297,7 @@ const RecruiterPlans = (): ReactElement => {
                 );
               }}
               className={additionalCopyItem.className}
+              containerStyle={additionalCopyItem.containerStyle}
             />
           );
         })}
@@ -293,7 +309,7 @@ const RecruiterPlans = (): ReactElement => {
             Looking for higher volumes?
           </Typography>
           <Typography
-            type={TypographyType.Body}
+            type={TypographyType.Subhead}
             color={TypographyColor.Tertiary}
           >
             Get a tailored plan built around your hiring scale, workflow, and
@@ -302,7 +318,7 @@ const RecruiterPlans = (): ReactElement => {
         </div>
         <Button
           tag="a"
-          variant={ButtonVariant.Primary}
+          variant={ButtonVariant.Tertiary}
           size={ButtonSize.Medium}
           href="https://recruiter.daily.dev/schedule"
           className="laptop:w-auto"
