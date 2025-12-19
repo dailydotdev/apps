@@ -103,7 +103,9 @@ export type Opportunity = {
   state: OpportunityState;
   title: string;
   tldr: string;
-  organization?: Organization;
+  organization?: Organization & {
+    recruiterTotalSeats: number;
+  };
   content: {
     overview: OpportunityContentBlock;
   };

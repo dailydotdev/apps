@@ -75,6 +75,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
       pressLinks {
         ...Link
       }
+      recruiterTotalSeats
     }
     content {
       overview {
@@ -632,4 +633,12 @@ export const PARSE_OPPORTUNITY_MUTATION = gql`
     }
   }
   ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const ADD_OPPORTUNITY_SEATS_MUTATION = gql`
+  mutation AddOpportunitySeats($id: ID!, $payload: AddOpportunitySeatsInput!) {
+    addOpportunitySeats(id: $id, payload: $payload) {
+      _
+    }
+  }
 `;
