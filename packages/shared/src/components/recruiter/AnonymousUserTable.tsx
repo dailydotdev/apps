@@ -1,4 +1,3 @@
-import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import {
   createColumnHelper,
@@ -7,20 +6,19 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import classNames from 'classnames';
-import { format } from 'date-fns';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
-import { MiniCloseIcon } from '../icons';
-import { Chip } from '../cards/common/PostTags';
+import { AlertIcon, MiniCloseIcon } from '../icons';
+import { Tooltip } from '../tooltip/Tooltip';
 import { useOpportunityPreviewContext } from '../../features/opportunity/context/OpportunityPreviewContext';
 import type { OpportunityPreviewUser } from '../../features/opportunity/types';
-import { cloudinarySquadsImageFallback } from '../../lib/image';
+import { LocationVerificationStatus } from '../../features/opportunity/types';
 import { getExperienceLevelLabel } from '../../lib/user';
+import { UserEngagementSections } from './UserEngagementSections';
 
 const columnHelper = createColumnHelper<OpportunityPreviewUser>();
 
@@ -82,14 +80,31 @@ const columns = [
   }),
   columnHelper.accessor('location', {
     header: 'Location',
-    cell: (info) => (
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        {info.getValue() || '-'}
-      </Typography>
-    ),
+    cell: (info) => {
+      const user = info.row.original;
+      const location = info.getValue();
+      const { locationVerified } = user;
+
+      return (
+        <span className="inline-block">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+            className="inline break-words"
+          >
+            {location || '-'}
+          </Typography>
+          {location &&
+            locationVerified === LocationVerificationStatus.GeoIP && (
+              <Tooltip content="Location estimated">
+                <span className="ml-2 inline-flex items-center align-middle">
+                  <AlertIcon className="text-text-tertiary" />
+                </span>
+              </Tooltip>
+            )}
+        </span>
+      );
+    },
   }),
   columnHelper.accessor('company', {
     header: 'Company',
@@ -161,39 +176,6 @@ const columns = [
     },
   }),
 ];
-
-const ChipSection = ({
-  label,
-  items,
-}: {
-  label: string;
-  items: ReactElement[];
-}) => {
-  if (!items || items.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="flex flex-row items-center gap-2">
-      <Typography
-        type={TypographyType.Footnote}
-        tag={TypographyTag.P}
-        bold
-        color={TypographyColor.Tertiary}
-      >
-        {label}
-      </Typography>
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        {items.map((item, index) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <Chip key={`chip-${index}`} className="!my-0 !h-auto py-1">
-            {item}
-          </Chip>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 export const AnonymousUserTable = () => {
   const contextData = useOpportunityPreviewContext();
@@ -329,57 +311,20 @@ export const AnonymousUserTable = () => {
                     className="border-b border-border-subtlest-tertiary px-4 pb-3 pt-1"
                   >
                     <div className="flex flex-col gap-2">
-                      {user.description && (
-                        <Typography
-                          type={TypographyType.Footnote}
-                          color={TypographyColor.Tertiary}
-                          className={classNames(!isExpanded && 'line-clamp-1')}
-                        >
-                          {user.description}
-                        </Typography>
-                      )}
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                        className={classNames(!isExpanded && 'line-clamp-1')}
+                      >
+                        {user.description}
+                      </Typography>
 
                       {isExpanded && (
-                        <>
-                          <ChipSection
-                            label="Top tags"
-                            items={user.topTags.map((tag) => (
-                              <div key={tag}>#{tag}</div>
-                            ))}
-                          />
-                          <ChipSection
-                            label="Recently read"
-                            items={user.recentlyRead?.map((badge) => {
-                              const formattedDate = format(
-                                new Date(badge.issuedAt),
-                                'MMM yyyy',
-                              );
-                              return (
-                                <div
-                                  key={badge.keyword.value}
-                                >{`${badge.keyword.value} - ${formattedDate}`}</div>
-                              );
-                            })}
-                          />
-                          <ChipSection
-                            label="Active squads"
-                            items={user.activeSquads.map((squad) => (
-                              <div className="flex gap-2" key={squad.handle}>
-                                <img
-                                  src={cloudinarySquadsImageFallback}
-                                  className="size-4 rounded-full"
-                                  alt={squad.image}
-                                />
-                                <Typography
-                                  type={TypographyType.Footnote}
-                                  color={TypographyColor.Tertiary}
-                                >
-                                  {squad.handle}
-                                </Typography>
-                              </div>
-                            ))}
-                          />
-                        </>
+                        <UserEngagementSections
+                          topTags={user.topTags}
+                          recentlyRead={user.recentlyRead}
+                          activeSquads={user.activeSquads}
+                        />
                       )}
                     </div>
                   </td>

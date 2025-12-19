@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import type z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import classNames from 'classnames';
 import type { ModalProps } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { TextField } from '../../fields/TextField';
@@ -279,8 +280,18 @@ export const OpportunityEditInfoModal = ({
           />
           <div className="flex flex-col gap-2">
             <Typography bold type={TypographyType.Caption1}>
-              Salary range
+              Salary range (USD)
             </Typography>
+            {!!errors.meta?.salary && (
+              <div
+                role="alert"
+                className={classNames(
+                  'mb-1 flex items-center gap-1 text-status-error typo-caption1',
+                )}
+              >
+                {errors.meta.salary.message}
+              </div>
+            )}
             <div className="flex gap-4">
               <TextField
                 {...register('meta.salary.min', {
@@ -319,6 +330,7 @@ export const OpportunityEditInfoModal = ({
                     <Dropdown
                       className={{
                         container: 'flex-1',
+                        menu: 'w-[--radix-dropdown-menu-trigger-width]',
                       }}
                       selectedIndex={field.value ? field.value - 1 : undefined}
                       options={options}
@@ -359,6 +371,7 @@ export const OpportunityEditInfoModal = ({
                   <Dropdown
                     className={{
                       container: 'flex-1',
+                      menu: 'w-[--radix-dropdown-menu-trigger-width]',
                     }}
                     selectedIndex={field.value ? field.value - 1 : undefined}
                     options={options}
@@ -392,6 +405,7 @@ export const OpportunityEditInfoModal = ({
                   <Dropdown
                     className={{
                       container: 'flex-1',
+                      menu: 'w-[--radix-dropdown-menu-trigger-width]',
                     }}
                     selectedIndex={options.findIndex(
                       (option) => option.value === field.value,

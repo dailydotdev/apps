@@ -22,7 +22,7 @@ import {
   useOpportunityPreviewContext,
 } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/graphql';
+import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useQuery } from '@tanstack/react-query';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -61,6 +61,20 @@ const RecruiterPaymentPage = (): ReactElement => {
       displayToast(
         'Organization info missing, please enter it to proceed with payment.',
       );
+    }
+  }, [displayToast, opportunity, router]);
+
+  useEffect(() => {
+    if (!opportunity) {
+      return;
+    }
+
+    if (opportunity.flags?.plan) {
+      displayToast(
+        'You already have active subscription for this opportunity.',
+      );
+
+      router.replace(`${webappUrl}recruiter/${opportunity.id}/matches`);
     }
   }, [displayToast, opportunity, router]);
 
@@ -206,7 +220,7 @@ const RecruiterPaymentPage = (): ReactElement => {
           </div>
         </div>
       </div>
-      <div className="flex flex-1 flex-col bg-white p-10 px-20">
+      <div className="flex flex-1 flex-col bg-black p-10 px-20">
         <div className="w-full max-w-[30rem]">
           <div ref={checkoutRef} className="checkout-container h-full w-full" />
         </div>

@@ -15,6 +15,8 @@ export const graphqlUrl = `${apiUrl}/graphql`;
 export const fallbackImages = {
   avatar:
     'https://media.daily.dev/image/upload/s--qsFuKGv_--/t_logo,f_auto/public/noProfile',
+  company:
+    'https://media.daily.dev/image/upload/s--9Eda7mil--/t_logo,f_auto/v1766043047/placeholders/Image_noOrg',
 };
 
 export const MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP = 3;

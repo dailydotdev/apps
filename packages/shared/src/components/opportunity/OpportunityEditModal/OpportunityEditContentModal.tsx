@@ -180,6 +180,11 @@ export const OpportunityEditContentModal = ({
                     name: field.name,
                     rows: 6,
                     maxLength: 2000,
+                    placeholder:
+                      labels.opportunity.contentFields.placeholders[
+                        contentName
+                      ] ||
+                      labels.opportunity.contentFields.placeholders.generic,
                   }}
                   className={{
                     container: 'flex-1',

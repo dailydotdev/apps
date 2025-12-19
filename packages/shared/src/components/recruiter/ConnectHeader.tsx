@@ -78,7 +78,7 @@ export const ConnectHeader = ({
             {flags?.batchSize || 50} per day
           </Typography>
         </div>
-        <FlexRow className="gap-2">
+        <FlexRow className="gap-4">
           <Button
             variant={ButtonVariant.Subtle}
             icon={<EyeIcon />}

@@ -50,7 +50,20 @@ export const opportunityEditInfoSchema = z.object({
           .transform((val) => val ?? undefined)
           .default(SalaryPeriod.UNSPECIFIED),
       })
-      .nullish(),
+      .nullish()
+      .refine(
+        (data) => {
+          if (data?.min && data?.max) {
+            return data.max >= data.min && data.max <= data.min * 1.25;
+          }
+
+          return true;
+        },
+        {
+          error:
+            'Min salary must be less than or equal to max salary and no more than 25% lower',
+        },
+      ),
     seniorityLevel: z.number(labels.form.required),
     roleType: z.union(
       [0, 0.5, 1].map((item) =>
@@ -143,6 +156,7 @@ export const opportunityEditOrganizationSchema = z.object({
       .max(new Date().getFullYear())
       .optional(),
     location: z.string().max(240).optional(),
+    externalLocationId: z.string().optional(),
     category: z.string().max(240).optional(),
     size: z.number().optional(),
     stage: z.number().optional(),

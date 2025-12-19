@@ -113,7 +113,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   const { cookies } = getCookiesAndHeadersFromRequest(req);
   const result = await getUserExperienceById(id as string, { Cookie: cookies });
 
-  if (!result) {
+  if (!result || !result.isOwner) {
     return {
       redirect: {
         destination: `/settings/profile/experience/${typeParam}`,
@@ -122,6 +122,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     };
   }
 
+  delete result.isOwner;
   const [startedAtMonth, startedAtYear] = splitMonthYear(result.startedAt);
   const [endedAtMonth, endedAtYear] = splitMonthYear(result.endedAt);
 
