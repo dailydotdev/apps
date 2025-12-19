@@ -50,7 +50,7 @@ export const MatchReviewHeader = ({
       <FlexRow className="gap-2">
         {onReject && (
           <Button
-            variant={ButtonVariant.Subtle}
+            variant={ButtonVariant.Secondary}
             icon={<MiniCloseIcon />}
             size={ButtonSize.Small}
             onClick={onReject}

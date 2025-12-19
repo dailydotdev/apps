@@ -27,23 +27,24 @@ export const UserEngagementSections = ({
 }: UserEngagementSectionsProps): ReactElement => {
   return (
     <FlexCol className={className}>
-      <FlexRow className="my-2 items-center gap-2">
-        <Typography type={TypographyType.Footnote} bold>
-          Top tags
-        </Typography>
-        {topTags.length > 0 &&
-          topTags.map((t) => (
+      {topTags.length > 0 && (
+        <FlexRow className="my-2 items-center gap-2">
+          <Typography type={TypographyType.Footnote} bold>
+            Top tags
+          </Typography>
+          {topTags.map((t) => (
             <Chip className="!my-0" key={t}>
               #{t}
             </Chip>
           ))}
-      </FlexRow>
-      <FlexRow className="my-2 flex-wrap items-center gap-2">
-        <Typography type={TypographyType.Footnote} bold>
-          Top reader badges
-        </Typography>
-        {recentlyRead.length > 0 &&
-          recentlyRead.map((badge) => (
+        </FlexRow>
+      )}
+      {recentlyRead.length > 0 && (
+        <FlexRow className="my-2 flex-wrap items-center gap-2">
+          <Typography type={TypographyType.Footnote} bold>
+            Top reader badges
+          </Typography>
+          {recentlyRead.map((badge) => (
             <Chip key={badge.keyword.value} className="!my-0 gap-1.5">
               <MedalBadgeIcon size={IconSize.XSmall} secondary />
               <span>{formatKeyword(badge.keyword.value)}</span>
@@ -53,13 +54,14 @@ export const UserEngagementSections = ({
               </span>
             </Chip>
           ))}
-      </FlexRow>
-      <FlexRow className="my-2 items-center gap-2">
-        <Typography type={TypographyType.Footnote} bold>
-          Active squad
-        </Typography>
-        {activeSquads.length > 0 &&
-          activeSquads.map((squad) => (
+        </FlexRow>
+      )}
+      {activeSquads.length > 0 && (
+        <FlexRow className="my-2 items-center gap-2">
+          <Typography type={TypographyType.Footnote} bold>
+            Active squad
+          </Typography>
+          {activeSquads.map((squad) => (
             <Chip key={squad.id} className="!my-0 gap-1.5">
               <Image
                 src={squad.image}
@@ -71,7 +73,8 @@ export const UserEngagementSections = ({
               <span>{squad.name}</span>
             </Chip>
           ))}
-      </FlexRow>
+        </FlexRow>
+      )}
     </FlexCol>
   );
 };

@@ -182,7 +182,7 @@ const QuestionsSetupPage = (): ReactElement => {
             {opportunity.questions.length < 3 && (
               <article className="flex items-center justify-between gap-4 rounded-16 bg-surface-float p-4">
                 <Typography color={TypographyColor.Tertiary}>
-                  New questions
+                  New question
                 </Typography>
                 <Button
                   type="button"

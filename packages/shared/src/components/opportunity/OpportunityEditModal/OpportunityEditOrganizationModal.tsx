@@ -45,6 +45,7 @@ import type {
 } from '../../../features/organizations/types';
 import { OrganizationLinkType } from '../../../features/organizations/types';
 import { fallbackImages } from '../../../lib/config';
+import { ModalSize } from '../../modals/common/types';
 
 export type OpportunityEditOrganizationModalProps = {
   id: string;
@@ -600,7 +601,12 @@ export const OpportunityEditOrganizationModal = ({
   ];
 
   return (
-    <Modal {...rest} isOpen onRequestClose={onRequestClose}>
+    <Modal
+      {...rest}
+      isOpen
+      onRequestClose={onRequestClose}
+      size={ModalSize.Large}
+    >
       <Modal.Header className="flex justify-between" showCloseButton={false}>
         <Modal.Title className="typo-title3">Company information</Modal.Title>
         <div className="flex items-center gap-4">
