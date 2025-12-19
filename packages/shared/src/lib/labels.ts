@@ -147,7 +147,7 @@ export const labels = {
       'You can edit company data only on the Organization page.',
     requiredMissingNotice: {
       title: 'Almost there!',
-      description: 'Please make sure sure all the required fields are valid.',
+      description: 'Please make sure all the required fields are valid.',
       okButton: 'Close',
     },
     approveNotice: {
