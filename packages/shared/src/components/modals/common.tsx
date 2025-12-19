@@ -393,6 +393,13 @@ const SlackChannelConfirmationModal = dynamic(
     ),
 );
 
+const RecruiterSeatsModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterSeatsModal" */ './recruiter/RecruiterSeatsModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -457,6 +464,7 @@ export const modals = {
   [LazyModal.RecruiterSignIn]: RecruiterSignInModal,
   [LazyModal.VerifyExperience]: VerifyExperienceModal,
   [LazyModal.SlackChannelConfirmation]: SlackChannelConfirmationModal,
+  [LazyModal.RecruiterSeats]: RecruiterSeatsModal,
 };
 
 type GetComponentProps<T> = T extends

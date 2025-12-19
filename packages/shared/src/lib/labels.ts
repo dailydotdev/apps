@@ -167,6 +167,12 @@ export const labels = {
         generic: 'Tell us more',
       },
     },
+    assignSeat: {
+      title: 'Adding more seats was successful',
+      description: 'Do you want to assign your new seat to this job?',
+      okButton: 'Continue',
+      cancelButton: 'Later',
+    },
   },
   postCreation: {
     warnings: {
