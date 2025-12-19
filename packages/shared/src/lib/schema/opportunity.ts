@@ -124,9 +124,14 @@ export const opportunityEditQuestionsSchema = z.object({
 
 export const opportunityEditStep1Schema = opportunityEditInfoSchema.extend({
   content: opportunityEditContentSchema.shape.content,
-  organization: z.object({
-    name: z.string().nonempty('Add a company name'),
-  }),
+  organization: z.object(
+    {
+      name: z.string().nonempty('Add a company name'),
+    },
+    {
+      error: 'Add a company name',
+    },
+  ),
 });
 
 export const opportunityEditStep2Schema = opportunityEditQuestionsSchema.extend(
