@@ -19,7 +19,6 @@ import {
   OpportunityEditProvider,
   useOpportunityEditContext,
 } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
-import { OpportunityStepsQuestions } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunityStepsQuestions';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import classNames from 'classnames';
@@ -30,7 +29,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import { opportunityEditStep2Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
@@ -117,9 +115,6 @@ const QuestionsSetupPage = (): ReactElement => {
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.PrepareAndLaunch} />
       <div className="flex flex-1 flex-col gap-4 bg-background-subtle py-6">
-        <OpportunityFooter>
-          <OpportunityStepsQuestions className="w-full [&>:first-child]:justify-center [&>:nth-child(2)]:flex-1" />
-        </OpportunityFooter>
         <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4">
           <Typography bold center type={TypographyType.LargeTitle}>
             Screening Questions
