@@ -1,7 +1,7 @@
 import z from 'zod';
-import { labels } from '../labels';
 import { SalaryPeriod } from '../../features/opportunity/protobuf/opportunity';
 import { isNullOrUndefined } from '../func';
+import { labels } from '../labels';
 
 const processSalaryValue = (val: unknown) => {
   if (Number.isNaN(val) || isNullOrUndefined(val)) {
@@ -12,27 +12,25 @@ const processSalaryValue = (val: unknown) => {
 };
 
 export const opportunityEditInfoSchema = z.object({
-  title: z.string().nonempty(labels.form.required).max(240),
-  tldr: z.string().nonempty(labels.form.required).max(480),
+  title: z.string().nonempty('Add a job title').max(240),
+  tldr: z.string().nonempty('Add a short description').max(480),
   keywords: z
     .array(
       z.object({
         keyword: z.string().nonempty(),
       }),
     )
-    .min(1, labels.form.required)
+    .min(1, 'Add at least one skill')
     .max(100),
   externalLocationId: z.string().optional(),
   locationType: z.number().optional(),
   meta: z.object({
-    employmentType: z.coerce.number().min(1, {
-      error: labels.form.required,
-    }),
+    employmentType: z.coerce.number().min(1, 'Select an employment type'),
     teamSize: z
-      .number(labels.form.required)
+      .number({ message: 'Enter the team size' })
       .int()
       .nonnegative()
-      .min(1)
+      .min(1, 'Enter the team size')
       .max(1_000_000),
     salary: z
       .object({
@@ -60,15 +58,14 @@ export const opportunityEditInfoSchema = z.object({
           return true;
         },
         {
-          error:
-            'Min salary must be less than or equal to max salary and no more than 25% lower',
+          message: 'Max salary must be within 25% of minimum salary',
         },
       ),
-    seniorityLevel: z.number(labels.form.required),
+    seniorityLevel: z.number({ message: 'Select a seniority level' }),
     roleType: z.union(
       [0, 0.5, 1].map((item) =>
         z.literal(item, {
-          error: labels.form.required,
+          error: 'Select a role type',
         }),
       ),
     ),
@@ -111,7 +108,7 @@ export const opportunityEditQuestionsSchema = z.object({
   questions: z.array(
     z.object({
       id: z.uuid().optional(),
-      title: z.string().nonempty(labels.form.required).max(480),
+      title: z.string().nonempty('Add a question title').max(480),
       placeholder: z.string().max(480).nullable().optional(),
     }),
   ),
@@ -120,7 +117,7 @@ export const opportunityEditQuestionsSchema = z.object({
 export const opportunityEditStep1Schema = opportunityEditInfoSchema.extend({
   content: opportunityEditContentSchema.shape.content,
   organization: z.object({
-    name: z.string().nonempty(),
+    name: z.string().nonempty('Add a company name'),
   }),
 });
 
@@ -176,7 +173,7 @@ export const opportunityEditOrganizationSchema = z.object({
 export const opportunityCreateOrganizationSchema =
   opportunityEditOrganizationSchema.extend({
     organization: opportunityEditOrganizationSchema.shape.organization.extend({
-      name: z.string().nonempty().max(60),
+      name: z.string().nonempty('Add a company name').max(60),
     }),
   });
 
