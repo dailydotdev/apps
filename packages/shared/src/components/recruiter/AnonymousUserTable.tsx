@@ -15,7 +15,7 @@ import { getLastActivityDateFormat } from '../../lib/dateFormat';
 import { MiniCloseIcon } from '../icons';
 import { useOpportunityPreviewContext } from '../../features/opportunity/context/OpportunityPreviewContext';
 import type { OpportunityPreviewUser } from '../../features/opportunity/types';
-import { getExperienceLevelLabel } from '../../lib/user';
+import { getRecruiterExperienceLevelLabel } from '../../lib/user';
 import { UserEngagementSections } from './UserEngagementSections';
 
 const columnHelper = createColumnHelper<OpportunityPreviewUser>();
@@ -71,7 +71,7 @@ const columns = [
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          {getExperienceLevelLabel(value) ?? '-'}
+          {getRecruiterExperienceLevelLabel(value) ?? '-'}
         </Typography>
       );
     },
