@@ -12,11 +12,9 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
-import { AlertIcon, MiniCloseIcon } from '../icons';
-import { Tooltip } from '../tooltip/Tooltip';
+import { MiniCloseIcon } from '../icons';
 import { useOpportunityPreviewContext } from '../../features/opportunity/context/OpportunityPreviewContext';
 import type { OpportunityPreviewUser } from '../../features/opportunity/types';
-import { LocationVerificationStatus } from '../../features/opportunity/types';
 import { getExperienceLevelLabel } from '../../lib/user';
 import { UserEngagementSections } from './UserEngagementSections';
 
@@ -81,9 +79,7 @@ const columns = [
   columnHelper.accessor('location', {
     header: 'Location',
     cell: (info) => {
-      const user = info.row.original;
       const location = info.getValue();
-      const { locationVerified } = user;
 
       return (
         <span className="inline-block">
@@ -94,14 +90,6 @@ const columns = [
           >
             {location || '-'}
           </Typography>
-          {location &&
-            locationVerified === LocationVerificationStatus.GeoIP && (
-              <Tooltip content="Location estimated">
-                <span className="ml-2 inline-flex items-center align-middle">
-                  <AlertIcon className="text-text-tertiary" />
-                </span>
-              </Tooltip>
-            )}
         </span>
       );
     },

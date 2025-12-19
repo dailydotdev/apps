@@ -30,6 +30,7 @@ import { opportunityEditDiscardPrompt } from './common';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
 import ProfileLocation from '../../profile/ProfileLocation';
+import { ModalSize } from '../../modals/common/types';
 
 export type OpportunityEditInfoModalProps = {
   id: string;
@@ -132,7 +133,12 @@ export const OpportunityEditInfoModal = ({
 
   return (
     <FormProvider {...methods}>
-      <Modal {...rest} isOpen onRequestClose={onRequestClose}>
+      <Modal
+        {...rest}
+        isOpen
+        onRequestClose={onRequestClose}
+        size={ModalSize.Large}
+      >
         <Modal.Header className="flex justify-between" showCloseButton={false}>
           <Modal.Title className="typo-title3">Role description</Modal.Title>
           <div className="flex items-center gap-4">

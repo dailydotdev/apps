@@ -167,9 +167,7 @@ function RecruiterMatchesPage(): ReactElement {
                   type={TypographyType.Footnote}
                   color={TypographyColor.Brand}
                 >
-                  Your next promising candidates will land here. As soon as
-                  someone shows real potential, they’ll move into this step for
-                  review.
+                  Promising candidates will appear here for your review.
                 </Typography>
               </div>
               <div className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center gap-6 p-6">

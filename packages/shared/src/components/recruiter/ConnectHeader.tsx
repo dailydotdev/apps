@@ -75,7 +75,7 @@ export const ConnectHeader = ({
               size={IconSize.XSmall}
             />{' '}
             <strong>Autopilot ON:</strong> We will reach out to{' '}
-            {flags?.batchSize || 50} per day
+            {flags?.batchSize || 50} candidates per day
           </Typography>
         </div>
         <FlexRow className="gap-4">
