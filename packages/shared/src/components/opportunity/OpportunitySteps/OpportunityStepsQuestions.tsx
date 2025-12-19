@@ -104,7 +104,7 @@ export const OpportunityStepsQuestions = (
 
           onSubmit({
             id: opportunityId,
-            state: OpportunityState.LIVE,
+            state: OpportunityState.IN_REVIEW,
           });
         },
       }}
