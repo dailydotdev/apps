@@ -8,6 +8,7 @@ import { excludeProperties } from '../../lib/utils';
 export const profileExperiencesLimit = 3;
 
 type UserGeneralExperience = UserExperience & {
+  isOwner: boolean;
   skills?: UserSkill[];
   location?: TLocation;
 };
@@ -42,6 +43,7 @@ const USER_EXPERIENCE_FRAGMENT = gql`
     locationType
     verified
     url
+    isOwner
     location {
       id
       city

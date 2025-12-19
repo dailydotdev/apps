@@ -6,10 +6,11 @@ import {
 } from '../../../../components/typography/Typography';
 import { Divider } from '../../../../components/utilities';
 import { Chip } from '../../../../components/cards/common/PostTags';
-import { Loader } from '../../../../components/Loader';
 import { useOpportunityPreviewContext } from '../../context/OpportunityPreviewContext';
-import { cloudinarySquadsImageFallback } from '../../../../lib/image';
 import { apiUrl } from '../../../../lib/config';
+import { Image, ImageType } from '../../../../components/image/Image';
+import { OpportunityPreviewStatus } from '../../types';
+import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 
 const iconSize = 24;
 
@@ -25,7 +26,11 @@ const CompanyItem = ({ favicon, name }: CompanyItemProps) => (
       className="size-4 rounded-2"
       alt={name}
     />
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+    <Typography
+      type={TypographyType.Footnote}
+      color={TypographyColor.Tertiary}
+      truncate
+    >
       {name}
     </Typography>
   </div>
@@ -36,12 +41,18 @@ type RelevantBlockProps = {
 };
 
 export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
+  const [randomTagsWidths] = useState(() =>
+    new Array(16).fill(undefined).map(() => {
+      return `${Math.floor(Math.random() * 50) + 40}px`;
+    }),
+  );
   const data = useOpportunityPreviewContext();
   const totalCount = data?.result?.totalCount ?? 0;
   const tags = data?.result?.tags ?? [];
   const companies = data?.result?.companies ?? [];
   const squads = data?.result?.squads ?? [];
-  const hasData = totalCount > 0 || tags.length > 0;
+  const hasData =
+    data?.result?.status === OpportunityPreviewStatus.READY || tags.length > 0;
   const [animatedCount, setAnimatedCount] = useState(0);
   const [showSubtext, setShowSubtext] = useState(false);
 
@@ -76,8 +87,30 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
 
   if (!isVisible) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Loader />
+      <div className="flex flex-col gap-4">
+        <ElementPlaceholder className="h-6 w-full rounded-8" />
+        <ElementPlaceholder className="h-6 w-full rounded-8" />
+        <Divider className="bg-border-subtlest-tertiary" />
+        <div className="flex flex-1 flex-wrap items-center gap-2">
+          {randomTagsWidths.map((tagWidth, index) => {
+            return (
+              <ElementPlaceholder
+                //  eslint-disable-next-line react/no-array-index-key
+                key={index}
+                style={{
+                  width: tagWidth,
+                }}
+                className="h-6 rounded-8"
+              />
+            );
+          })}
+        </div>
+        <Divider className="bg-border-subtlest-tertiary" />
+        <ElementPlaceholder className="h-6 w-full rounded-8" />
+        <ElementPlaceholder className="h-4 w-full rounded-8" />
+        <ElementPlaceholder className="h-4 w-full rounded-8" />
+        <ElementPlaceholder className="h-4 w-full rounded-8" />
+        <Divider className="bg-border-subtlest-tertiary" />
       </div>
     );
   }
@@ -86,14 +119,16 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
     <div className="animate-fade-in flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <Typography type={TypographyType.Body} bold>
-          Relevant active developer
+          Relevant active developers
         </Typography>
         <Typography
           type={TypographyType.Title2}
           bold
           color={TypographyColor.Brand}
         >
-          {animatedCount.toLocaleString()}
+          {`${animatedCount.toLocaleString()}${
+            animatedCount >= 10_000 ? '+' : ''
+          }`}
         </Typography>
         {showSubtext && (
           <Typography
@@ -106,12 +141,12 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
       </div>
       <Divider className="bg-border-subtlest-tertiary" />
       <Typography type={TypographyType.Footnote} bold>
-        Interesting in
+        Interested in
       </Typography>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag) => (
-          <Chip key={tag} className="!my-0 !text-text-tertiary">
-            {tag}
+          <Chip key={tag} className="!my-0">
+            #{tag}
           </Chip>
         ))}
       </div>
@@ -142,17 +177,20 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
       </div>
       <div className="grid grid-cols-2 gap-2">
         {squads.map((squad) => (
-          <div className="flex gap-2" key={squad.handle}>
-            <img
-              src={cloudinarySquadsImageFallback}
-              className="size-4 rounded-full"
-              alt={squad.image}
+          <div className="flex gap-2" key={squad.id}>
+            <Image
+              src={squad.image}
+              alt={squad.name}
+              type={ImageType.Squad}
+              className="h-4 w-4 rounded-full object-cover"
+              loading="lazy"
             />
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
+              truncate
             >
-              {squad.handle}
+              {squad.name}
             </Typography>
           </div>
         ))}

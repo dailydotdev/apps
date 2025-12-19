@@ -46,8 +46,6 @@ function RecruiterMatchesPage(): ReactElement {
         query.state.fetchFailureCount,
       );
 
-      // transactions are mostly processed withing few seconds
-      // so for now we stop retrying after 1 minute
       const maxRetries = (oneMinute * 1000) / transactionRefetchIntervalMs;
 
       if (retries > maxRetries) {

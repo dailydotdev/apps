@@ -1,8 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { createElement, useState, useEffect } from 'react';
+import React, { createElement, useState, useEffect, useCallback } from 'react';
 import z from 'zod';
 import { useMutation } from '@tanstack/react-query';
-import { useInterval } from '@kickass-coderz/react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -68,6 +67,43 @@ const loadingIcons = [
   ShieldCheckIcon,
 ];
 
+interface LoadingButtonContentProps {
+  isPending: boolean;
+}
+
+const LoadingButtonContent = ({ isPending }: LoadingButtonContentProps) => {
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+  useEffect(() => {
+    if (!isPending) {
+      setLoadingMessageIndex(0);
+      return undefined;
+    }
+
+    const intervalId = setInterval(() => {
+      setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+    }, 1800);
+
+    return () => clearInterval(intervalId);
+  }, [isPending]);
+
+  if (!isPending) {
+    return (
+      <>
+        <MagicIcon />
+        Find my matches
+      </>
+    );
+  }
+
+  return (
+    <>
+      {createElement(loadingIcons[loadingMessageIndex])}
+      {loadingMessages[loadingMessageIndex]}
+    </>
+  );
+};
+
 export const RecruiterJobLinkModal = ({
   onSubmit,
   onRequestClose,
@@ -76,10 +112,9 @@ export const RecruiterJobLinkModal = ({
   const [jobLink, setJobLink] = useState('');
   const [error, setError] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const { displayToast } = useToastNotification();
 
-  const validateJobLink = (value: string) => {
+  const validateJobLink = useCallback((value: string) => {
     if (!value.trim()) {
       setError('');
       return false;
@@ -93,22 +128,25 @@ export const RecruiterJobLinkModal = ({
 
     setError('');
     return true;
-  };
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setJobLink(value);
-    validateJobLink(value);
-  };
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      setJobLink(value);
+      validateJobLink(value);
+    },
+    [validateJobLink],
+  );
+
+  const handleFilesDrop = useCallback((files: File[]) => {
+    setFile(files[0]);
+  }, []);
 
   const { mutateAsync: parseOpportunity } = useMutation(
     parseOpportunityMutationOptions(),
   );
-  const {
-    mutate: handleSubmit,
-    status,
-    isPending,
-  } = useMutation({
+  const { mutate: handleSubmit, isPending } = useMutation({
     mutationFn: async () => {
       if (jobLink) {
         const trimmedLink = jobLink.trim();
@@ -133,19 +171,6 @@ export const RecruiterJobLinkModal = ({
       onSubmit(opportunity);
     },
   });
-
-  useInterval(
-    () => {
-      setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
-    },
-    isPending ? 1800 : null,
-  );
-
-  useEffect(() => {
-    if (!isPending) {
-      setLoadingMessageIndex(0);
-    }
-  }, [isPending]);
 
   return (
     <Modal
@@ -196,17 +221,16 @@ export const RecruiterJobLinkModal = ({
           </div>
 
           <DragDrop
-            state={status}
+            state={undefined} // we don't want double loader
             isCompactList
             className="w-full laptop:min-h-20"
-            onFilesDrop={(files) => {
-              setFile(files[0]);
-            }}
+            onFilesDrop={handleFilesDrop}
             validation={fileValidation}
             isCopyBold
             dragDropDescription="Drop PDF or Word here or"
             ctaLabelDesktop="Select file"
             ctaLabelMobile="Select file"
+            disabled={isPending}
           />
 
           <Button
@@ -218,17 +242,7 @@ export const RecruiterJobLinkModal = ({
             disabled={(!jobLink.trim() && !file) || !!error || isPending}
             className="w-full gap-2 tablet:w-auto"
           >
-            {isPending ? (
-              <>
-                {createElement(loadingIcons[loadingMessageIndex])}
-                {loadingMessages[loadingMessageIndex]}
-              </>
-            ) : (
-              <>
-                <MagicIcon />
-                Find my matches
-              </>
-            )}
+            <LoadingButtonContent isPending={isPending} />
           </Button>
 
           <div className="flex items-center justify-center gap-2">

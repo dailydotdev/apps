@@ -28,6 +28,12 @@ export enum RoleType {
   Managerial = 1.0,
 }
 
+export enum LocationVerificationStatus {
+  GeoIP = 'geoip',
+  UserProvided = 'user_provided',
+  Verified = 'verified',
+}
+
 export type RecruiterProfile = Pick<
   PublicProfile,
   'id' | 'name' | 'username' | 'image' | 'bio'
@@ -210,6 +216,8 @@ export interface OpportunityPreviewUser {
   seniority?: string;
   /** User location (from preferences or geo flags) */
   location?: string;
+  /** Location verification status (from geo flags) */
+  locationVerified?: LocationVerificationStatus;
   /** Active company from experience */
   company?: OpportunityPreviewCompany;
   /** Last activity timestamp */
@@ -222,12 +230,20 @@ export interface OpportunityPreviewUser {
   activeSquads?: Squad[];
 }
 
+export enum OpportunityPreviewStatus {
+  UNSPECIFIED = 0,
+  PENDING = 1,
+  READY = 2,
+  ERROR = 3,
+}
+
 export interface OpportunityPreviewResult {
   tags: string[];
   companies: OpportunityPreviewCompany[];
   squads: Squad[];
   totalCount?: number;
   opportunityId?: string;
+  status: OpportunityPreviewStatus;
 }
 
 export interface OpportunityPreviewConnection
@@ -245,3 +261,5 @@ export type OpportunityStats = {
   forReview: number;
   introduced: number;
 };
+
+export const opportunityPreviewRefetchIntervalMs = 7000;

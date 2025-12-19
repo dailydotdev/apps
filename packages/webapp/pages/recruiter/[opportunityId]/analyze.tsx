@@ -57,6 +57,7 @@ const RecruiterPageContent = () => {
         headerButton={{
           text: 'Prepare campaign',
           onClick: handlePrepareCampaignClick,
+          disabled: !opportunity,
         }}
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
