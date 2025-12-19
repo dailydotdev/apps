@@ -75,6 +75,18 @@ const RecruiterPaymentPage = (): ReactElement => {
       );
 
       router.replace(`${webappUrl}recruiter/${opportunity.id}/matches`);
+
+      return;
+    }
+
+    if (opportunity.organization?.recruiterTotalSeats > 0) {
+      displayToast(
+        'You already have active subscription for this organization.',
+      );
+
+      // if organization has an active subscription redirect to prepare page
+      // where seats selection and plans flow will handle it
+      router.replace(`${webappUrl}recruiter/${opportunity.id}/prepare`);
     }
   }, [displayToast, opportunity, router]);
 

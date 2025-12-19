@@ -1090,7 +1090,7 @@ const GetPageLayout: typeof getLayout = (page, layoutProps) => {
   const opportunityId = router?.query?.id as string;
 
   return (
-    <OpportunityEditProvider opportunityId={opportunityId}>
+    <OpportunityEditProvider opportunityId={opportunityId} allowDraft>
       {getLayout(page, layoutProps)}
     </OpportunityEditProvider>
   );
