@@ -396,7 +396,7 @@ const SlackChannelConfirmationModal = dynamic(
 const RecruiterSeatsModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "recruiterIntroModal" */ './recruiter/RecruiterSeatsModal'
+      /* webpackChunkName: "recruiterSeatsModal" */ './recruiter/RecruiterSeatsModal'
     ),
 );
 
