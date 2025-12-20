@@ -183,9 +183,16 @@ export default function LogImagePage(): ReactElement {
             data={{
               archetype: logData.archetype ?? 'SCHOLAR',
               archetypeStat: logData.archetypeStat ?? '',
+              archetypePercentile: logData.archetypePercentile ?? 50,
               totalPosts: logData.totalPosts ?? 0,
+              totalReadingTime: logData.totalReadingTime ?? 0,
               daysActive: logData.daysActive ?? 0,
               records: logData.records ?? [],
+              uniqueTopics: logData.uniqueTopics ?? 0,
+              uniqueSources: logData.uniqueSources ?? 0,
+              upvotesGiven: logData.upvotesGiven ?? 0,
+              commentsWritten: logData.commentsWritten ?? 0,
+              postsBookmarked: logData.postsBookmarked ?? 0,
             }}
           />
         );
