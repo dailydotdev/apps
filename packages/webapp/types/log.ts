@@ -25,7 +25,7 @@ export const ARCHETYPES: Record<Archetype, ArchetypeInfo> = {
     description: 'While others sleep, you level up.',
     color: '#4d9dff',
     imageUrl:
-      'https://media.daily.dev/image/upload/s--mqo5Vxvk--/f_auto,q_auto/v1765654579/public/night_owl',
+      'https://media.daily.dev/image/upload/s--mqo5Vxvk--/f_auto,q_auto/v1766244402/public/night_owl',
   },
   SCHOLAR: {
     id: 'SCHOLAR',
@@ -61,7 +61,7 @@ export const ARCHETYPES: Record<Archetype, ArchetypeInfo> = {
     description: 'Nothing good escapes your vault.',
     color: '#a855f7',
     imageUrl:
-      'https://media.daily.dev/image/upload/s--fMLnVbfw--/f_auto,q_auto/v1765654555/public/collector',
+      'https://media.daily.dev/image/upload/s--fMLnVbfw--/f_auto,q_auto/v1766244402/public/collector',
   },
   STREAK_WARRIOR: {
     id: 'STREAK_WARRIOR',

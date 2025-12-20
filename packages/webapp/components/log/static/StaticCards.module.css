@@ -1054,3 +1054,107 @@
     10px 10px 0 var(--fest-primary),
     20px 20px 0 var(--fest-accent);
 }
+
+/* ========================================
+   WRAP SUMMARY - Enhanced Share Card Styles
+   ======================================== */
+
+/* Archetype badge - horizontal style */
+.wrapArchetypeBadge {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 28px 48px;
+  background: var(--fest-white);
+  color: var(--fest-bg);
+  box-shadow: 
+    10px 10px 0 var(--fest-primary),
+    20px 20px 0 var(--fest-accent);
+  transform: rotate(-1deg);
+  margin: 32px 0;
+}
+
+.wrapArchetypeImg {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 6px solid var(--fest-bg);
+}
+
+.wrapArchetypeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wrapArchetypeName {
+  font-weight: 700;
+  font-size: 56px;
+  line-height: 1.1;
+}
+
+.wrapArchetypePercentile {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fest-bg);
+  opacity: 0.7;
+}
+
+/* Secondary stats row */
+.wrapSecondaryStats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  margin: 32px 0;
+}
+
+.wrapSecondaryStat {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.wrapSecondaryIcon {
+  font-size: 48px;
+}
+
+.wrapSecondaryValue {
+  font-family: var(--font-mono);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--fest-white);
+}
+
+/* Community engagement row */
+.wrapCommunityRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 28px 48px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  margin: 24px 0;
+}
+
+.wrapCommunityItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 36px;
+  color: var(--fest-white);
+}
+
+.wrapCommunityTotal {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  color: var(--fest-white-50);
+  letter-spacing: 0.05em;
+}
