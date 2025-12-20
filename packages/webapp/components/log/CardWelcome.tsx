@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { LogData } from '../../types/log';
 import styles from './Log.module.css';
 import cardStyles from './Cards.module.css';
@@ -19,20 +20,25 @@ interface CardProps {
 }
 
 // Animation timing constants (in seconds, relative to mount)
-const TITLE_START = 0.2;
-const TAGLINE_DELAY = 1.0;
-const INSTRUCTIONS_DELAY = 1.6;
-const CTA_DELAY = 2.2;
+const NAME_START = 0.2;
+const TITLE_START = 0.5;
+const TAGLINE_DELAY = 1.3;
+const INSTRUCTIONS_DELAY = 1.9;
+const CTA_DELAY = 2.5;
 
 export default function CardWelcome({
   isTouchDevice,
   isLoading,
 }: CardProps): ReactElement {
+  const { user } = useAuthContext();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Get the user's first name (or username as fallback)
+  const displayName = user?.name?.split(' ')[0] || user?.username || 'Dev';
 
   // Before mount, hide elements that should animate in
   const hidden = { opacity: 0, y: 20 };
@@ -42,6 +48,15 @@ export default function CardWelcome({
     <div className={styles.cardContent}>
       {/* Main headline - appears first */}
       <div className={styles.headlineStack}>
+        {/* Personalized greeting */}
+        <motion.div
+          className={styles.headlineRow}
+          initial={hidden}
+          animate={isMounted ? visible : hidden}
+          transition={{ delay: NAME_START, type: 'spring', stiffness: 100 }}
+        >
+          <span className={cardStyles.welcomeName}>Hey {displayName}!</span>
+        </motion.div>
         <motion.div
           className={styles.headlineRow}
           initial={hidden}
@@ -55,7 +70,7 @@ export default function CardWelcome({
           initial={hidden}
           animate={isMounted ? visible : hidden}
           transition={{
-            delay: TITLE_START + 0.2,
+            delay: TITLE_START + 0.15,
             type: 'spring',
             stiffness: 100,
           }}
@@ -69,7 +84,7 @@ export default function CardWelcome({
             isMounted ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }
           }
           transition={{
-            delay: TITLE_START + 0.4,
+            delay: TITLE_START + 0.3,
             type: 'spring',
             stiffness: 200,
             damping: 15,

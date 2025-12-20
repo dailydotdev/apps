@@ -3694,6 +3694,14 @@
    CARD 0: WELCOME SCREEN
    ======================================== */
 
+.welcomeName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--fest-white);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.25rem;
+}
+
 .welcomeTagline {
   font-size: 1rem;
   color: var(--fest-white-70);
@@ -3841,6 +3849,10 @@
 
 /* Responsive adjustments for welcome card */
 @media (max-width: 380px) {
+  .welcomeName {
+    font-size: 1.25rem;
+  }
+
   .welcomeInstructions {
     font-size: 0.75rem;
   }
@@ -4299,6 +4311,10 @@
   }
 
   /* Welcome Card */
+  .welcomeName {
+    font-size: 1.75rem;
+  }
+
   .welcomeTagline {
     font-size: 1.25rem;
     max-width: 380px;
