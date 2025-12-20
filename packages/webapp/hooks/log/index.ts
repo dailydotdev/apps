@@ -8,7 +8,7 @@ export {
   useLog,
   LOG_QUERY_KEY,
 } from '../log';
-export type { CardConfig } from '../log';
+export type { CardConfig, NavigationEvent } from '../log';
 
 // Export new hooks
 export { useBackgroundMusic } from './useBackgroundMusic';

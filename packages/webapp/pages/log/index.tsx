@@ -20,7 +20,7 @@ import {
   useBackgroundMusic,
   useShareImagePreloader,
 } from '../../hooks/log/index';
-import type { CardConfig } from '../../hooks/log/index';
+import type { CardConfig, NavigationEvent } from '../../hooks/log/index';
 import { CARD_THEMES, cardVariants } from '../../components/log/logTheme';
 import styles from '../../components/log/Log.module.css';
 
@@ -125,9 +125,12 @@ export default function LogPage(): ReactElement {
     return baseCards;
   }, [data?.hasContributions, data?.topicJourney?.length]);
 
-  // Navigation with subcard support
+  // Ref for navigation callback to avoid circular dependency with useCardNavigation
+  const onNavigateRef = useRef<(event: NavigationEvent) => void>(() => {});
+
+  // Navigation with subcard support (passes callback via ref)
   const { currentCard, currentSubcard, direction, goNext, goPrev, goToCard } =
-    useCardNavigation(cards);
+    useCardNavigation(cards, (event) => onNavigateRef.current(event));
 
   const currentCardConfig = cards[currentCard];
   const CardComponent = currentCardConfig.component;
@@ -144,6 +147,21 @@ export default function LogPage(): ReactElement {
 
   // Background music management
   const { startMusic, isMuted, toggleMute } = useBackgroundMusic(currentCardId);
+
+  // Navigation callback - starts music and logs card views
+  onNavigateRef.current = (event: NavigationEvent) => {
+    startMusic();
+
+    if (event.isCardChange) {
+      logEvent({
+        event_name: LogEvent.ViewLogCard,
+        extra: JSON.stringify({
+          card: event.cardId,
+          cardIndex: event.cardIndex,
+        }),
+      });
+    }
+  };
 
   // Handle mute toggle with toast messages
   const handleMuteToggle = useCallback(() => {
@@ -165,26 +183,6 @@ export default function LogPage(): ReactElement {
     displayToast(randomMessage);
   }, [toggleMute, isMuted, displayToast]);
 
-  // Track card views
-  const previousCardRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (previousCardRef.current === null) {
-      previousCardRef.current = currentCard;
-      return;
-    }
-
-    if (previousCardRef.current !== currentCard) {
-      logEvent({
-        event_name: LogEvent.ViewLogCard,
-        extra: JSON.stringify({
-          card: currentCardId,
-          cardIndex: currentCard,
-        }),
-      });
-      previousCardRef.current = currentCard;
-    }
-  }, [currentCard, currentCardId, logEvent]);
-
   // Share analytics callback
   const handleShare = useCallback(() => {
     logEvent({
@@ -200,8 +198,6 @@ export default function LogPage(): ReactElement {
   // Handle tap navigation (like Instagram stories)
   const handleTapNavigation = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      startMusic();
-
       const rect = e.currentTarget.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
       const { width } = rect;
@@ -212,16 +208,7 @@ export default function LogPage(): ReactElement {
         goNext();
       }
     },
-    [goNext, goPrev, startMusic],
-  );
-
-  // Handle card click from header (progress bars)
-  const handleCardClick = useCallback(
-    (index: number) => {
-      startMusic();
-      goToCard(index);
-    },
-    [startMusic, goToCard],
+    [goNext, goPrev],
   );
 
   // Get current card's theme (with archetype-specific override)
@@ -259,7 +246,7 @@ export default function LogPage(): ReactElement {
           currentCard={currentCard}
           isMuted={isMuted}
           onMuteToggle={handleMuteToggle}
-          onCardClick={handleCardClick}
+          onCardClick={goToCard}
         />
 
         {/* Cards with AnimatePresence - tap to navigate */}
@@ -270,7 +257,6 @@ export default function LogPage(): ReactElement {
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
-              startMusic();
               goNext();
             }
           }}
