@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { EarthIcon } from '@dailydotdev/shared/src/components/icons';
 import type { LogData } from '../../../types/log';
 import styles from './StaticCards.module.css';
 
@@ -78,8 +79,13 @@ export default function StaticCardFavoriteSources({
 
       {/* Discovery stat */}
       <div className={styles.discoveryBadge}>
-        <span className={styles.discoveryValue}>{data.uniqueSources}</span>
-        <span className={styles.discoveryLabel}>sources discovered</span>
+        <div className={styles.discoveryIcon}>
+          <EarthIcon />
+        </div>
+        <div className={styles.discoveryContent}>
+          <span className={styles.discoveryValue}>{data.uniqueSources}</span>
+          <span className={styles.discoveryLabel}>sources read</span>
+        </div>
       </div>
 
       {/* Competitive stat banner */}

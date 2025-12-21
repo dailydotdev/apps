@@ -193,6 +193,7 @@ export default function LogImagePage(): ReactElement {
               upvotesGiven: logData.upvotesGiven ?? 0,
               commentsWritten: logData.commentsWritten ?? 0,
               postsBookmarked: logData.postsBookmarked ?? 0,
+              activityHeatmap: logData.activityHeatmap ?? [],
             }}
           />
         );

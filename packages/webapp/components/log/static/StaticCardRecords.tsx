@@ -10,7 +10,7 @@ interface StaticCardProps {
 
 /**
  * Static Records card for share image generation.
- * Shows user's personal records/achievements.
+ * Shows user's personal records/achievements in album track listing style.
  */
 export default function StaticCardRecords({
   data,
@@ -18,27 +18,41 @@ export default function StaticCardRecords({
   return (
     <>
       {/* Album-style header */}
-      <div className={styles.headlineStack}>
-        <span className={styles.headlineSmall}>Your</span>
-        <span className={styles.headlineBigSmall}>GREATEST</span>
-        <span className={styles.headlineMedium}>HITS</span>
-        <span className={styles.headlineAccent}>— 2025 —</span>
+      <div className={styles.albumHeader}>
+        <span className={styles.albumLabel}>YOUR</span>
+        <span className={styles.albumTitle}>GREATEST</span>
+        <span className={styles.albumTitle}>HITS</span>
+        <span className={styles.albumYear}>— 2025 —</span>
       </div>
 
-      {/* Records list */}
-      <div className={styles.recordsList}>
-        {data.records.slice(0, 3).map((record) => (
-          <div key={record.type} className={styles.recordItem}>
-            <div className={styles.recordInfo}>
-              <span className={styles.recordLabel}>
-                {RECORDS[record.type]?.emoji || '🎯'} {record.label}
-              </span>
-              <span className={styles.recordValue}>{record.value}</span>
+      {/* Track listing */}
+      <div className={styles.trackList}>
+        {data.records.slice(0, 3).map((record, index) => (
+          <div key={record.type} className={styles.track}>
+            {/* Track number */}
+            <span className={styles.trackNumber}>
+              {String(index + 1).padStart(2, '0')}
+            </span>
+
+            {/* Track info */}
+            <div className={styles.trackInfo}>
+              <div className={styles.trackTitleRow}>
+                <span className={styles.trackEmoji}>
+                  {RECORDS[record.type]?.emoji || '🎯'}
+                </span>
+                <span className={styles.trackTitle}>{record.value}</span>
+              </div>
+              <span className={styles.trackArtist}>{record.label}</span>
             </div>
+
+            {/* Chart position badge */}
             {record.percentile && (
-              <span className={styles.recordBadge}>
-                TOP {record.percentile}%
-              </span>
+              <div className={styles.chartBadge}>
+                <span className={styles.chartBadgeTop}>TOP</span>
+                <span className={styles.chartBadgeValue}>
+                  {record.percentile}%
+                </span>
+              </div>
             )}
           </div>
         ))}

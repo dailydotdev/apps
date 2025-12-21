@@ -9,7 +9,7 @@ interface StaticCardProps {
 
 const MEDAL_EMOJIS = ['🥇', '🥈', '🥉'];
 
-// Quarterly color palettes - each quarter has its own vibe
+// Quarterly color palettes matching the dynamic card
 const QUARTERLY_PALETTES: Record<string, [string, string, string]> = {
   Q1: ['#64B5F6', '#90CAF9', '#CE93D8'],
   Q2: ['#81C784', '#AED581', '#FFD54F'],
@@ -23,13 +23,15 @@ const DEFAULT_COLORS: [string, string, string] = [
   '#c6f135',
 ];
 
+const TAG_ROTATIONS = [-0.8, 0.4, -1.2];
+
 function getQuarterlyColors(quarter: string): [string, string, string] {
   return QUARTERLY_PALETTES[quarter] || DEFAULT_COLORS;
 }
 
 /**
  * Static Topic Evolution card for share image generation.
- * Shows all 4 quarters with top 3 topics each.
+ * 2x2 grid showing all 4 quarters with top 3 topics each.
  */
 export default function StaticCardTopicEvolution({
   data,
@@ -45,42 +47,44 @@ export default function StaticCardTopicEvolution({
         </span>
       </div>
 
-      {/* Quarters grid */}
-      <div className={styles.quartersGrid}>
+      {/* 2x2 quarters grid - compact */}
+      <div className={styles.topicGrid}>
         {quarters.map((quarter) => {
           const colors = getQuarterlyColors(quarter.quarter);
           const isInactive = quarter.inactive === true;
 
           return (
-            <div key={quarter.quarter} className={styles.quarterSection}>
-              <div className={styles.quarterLabel}>{quarter.quarter}</div>
+            <div key={quarter.quarter} className={styles.topicGridQuarter}>
+              {/* Quarter label */}
+              <div className={styles.topicGridLabel}>{quarter.quarter}</div>
 
               {isInactive ? (
-                <div className={styles.quarterInactive}>
-                  <span className={styles.quarterInactiveEmoji}>😴</span>
-                  <span className={styles.quarterInactiveText}>Break</span>
+                <div className={styles.topicGridInactive}>
+                  <span className={styles.topicGridInactiveEmoji}>😴</span>
+                  <span className={styles.topicGridInactiveText}>Break</span>
                 </div>
               ) : (
-                <div className={styles.quarterTopics}>
-                  {[0, 1, 2].map((index) => (
-                    <div
-                      key={index}
-                      className={styles.topicTag}
-                      style={{ background: colors[index] }}
-                    >
-                      <span className={styles.topicMedal}>
-                        {MEDAL_EMOJIS[index]}
-                      </span>
-                      <span className={styles.topicName}>
-                        {quarter.topics[index] || ''}
-                      </span>
-                    </div>
-                  ))}
+                <div className={styles.topicGridTags}>
+                  {[0, 1, 2].map((index) => {
+                    const topic = quarter.topics[index];
+                    if (!topic) return null;
+                    return (
+                      <div
+                        key={index}
+                        className={styles.topicGridTag}
+                        style={{
+                          background: colors[index],
+                          transform: `rotate(${TAG_ROTATIONS[index]}deg)`,
+                        }}
+                      >
+                        <span className={styles.topicGridMedal}>
+                          {MEDAL_EMOJIS[index]}
+                        </span>
+                        <span className={styles.topicGridName}>{topic}</span>
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
-
-              {quarter.comment && (
-                <div className={styles.quarterComment}>{quarter.comment}</div>
               )}
             </div>
           );
@@ -88,9 +92,9 @@ export default function StaticCardTopicEvolution({
       </div>
 
       {/* Stats badge */}
-      <div className={styles.topicStatsBadge}>
-        <span className={styles.topicStatsValue}>{data.uniqueTopics}</span>
-        <span className={styles.topicStatsLabel}>Topics Explored</span>
+      <div className={styles.badge}>
+        <span className={styles.badgeValue}>{data.uniqueTopics}</span>
+        <span className={styles.badgeLabel}>Topics Explored</span>
       </div>
 
       {/* Competitive stat banner */}

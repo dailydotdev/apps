@@ -10,7 +10,7 @@ interface StaticCardProps {
 
 /**
  * Static Archetype Reveal card for share image generation.
- * Shows the user's developer archetype with explanatory context.
+ * Matches the design of CardArchetypeReveal's reveal phase.
  */
 export default function StaticCardArchetypeReveal({
   data,
@@ -19,22 +19,15 @@ export default function StaticCardArchetypeReveal({
 
   return (
     <div
-      className={styles.archetypeReveal}
+      className={styles.archetypeRevealContainer}
       style={{ '--archetype-color': archetype.color } as React.CSSProperties}
     >
-      {/* Explanatory title for context */}
-      <div className={styles.archetypeTitle}>
-        <span className={styles.archetypeTitleSmall}>
-          Your Developer Archetype
-        </span>
-        <span className={styles.archetypeTitleSub}>
-          Based on your 2025 reading habits
-        </span>
-      </div>
-
-      {/* Archetype image */}
+      {/* Archetype image with glow ring */}
       <div className={styles.archetypeImageWrapper}>
-        <div className={styles.archetypeImageGlow} />
+        <div
+          className={styles.archetypeImageGlowRing}
+          style={{ borderColor: archetype.color }}
+        />
         <img
           src={archetype.imageUrl}
           alt={archetype.name}
@@ -42,18 +35,27 @@ export default function StaticCardArchetypeReveal({
         />
       </div>
 
-      {/* Archetype name */}
-      <div className={styles.archetypeName} style={{ color: archetype.color }}>
-        {archetype.name.toUpperCase()}
+      {/* Archetype name badge */}
+      <div className={styles.archetypeNameBadge}>
+        <span
+          className={styles.archetypeNameText}
+          style={{ color: archetype.color }}
+        >
+          {archetype.name.toUpperCase()}
+        </span>
       </div>
 
       {/* Description */}
-      <p className={styles.archetypeDescription}>
+      <p className={styles.archetypeRevealDescription}>
         &quot;{archetype.description}&quot;
       </p>
 
-      {/* Stat badge */}
-      <div className={styles.archetypeStatBadge}>{data.archetypeStat}</div>
+      {/* Stat badge - ticket stub style */}
+      <div className={styles.archetypeStatBadge}>
+        <span className={styles.archetypeStatBadgeText}>
+          {data.archetypeStat}
+        </span>
+      </div>
     </div>
   );
 }

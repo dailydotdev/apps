@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { LogData } from '../../../types/log';
-import { ARCHETYPES, RecordType } from '../../../types/log';
+import { ARCHETYPES, RECORDS, RecordType } from '../../../types/log';
 import styles from './StaticCards.module.css';
 
 interface StaticCardProps {
@@ -19,124 +19,149 @@ interface StaticCardProps {
     | 'upvotesGiven'
     | 'commentsWritten'
     | 'postsBookmarked'
+    | 'activityHeatmap'
   >;
 }
 
 /**
  * Static Share card for share image generation.
- * Shows the final wrap-up with archetype and key stats.
+ * Matches the CardShare.tsx design with receipt-style stats.
  */
 export default function StaticCardShare({
   data,
 }: StaticCardProps): ReactElement {
   const archetype = ARCHETYPES[data.archetype];
-  const streakRecord = data.records.find((r) => r.type === RecordType.STREAK);
 
-  // Calculate total community engagement
-  const totalEngagement =
+  // Calculate total interactions
+  const totalInteractions =
     data.upvotesGiven + data.commentsWritten + data.postsBookmarked;
+
+  // Find peak reading hour from heatmap
+  const peakHour = useMemo(() => {
+    if (!data.activityHeatmap?.length) {
+      return '12PM';
+    }
+    let maxActivity = 0;
+    let bestHour = 0;
+    for (let hour = 0; hour < 24; hour += 1) {
+      let hourTotal = 0;
+      for (let day = 0; day < 7; day += 1) {
+        hourTotal += data.activityHeatmap[day]?.[hour] ?? 0;
+      }
+      if (hourTotal > maxActivity) {
+        maxActivity = hourTotal;
+        bestHour = hour;
+      }
+    }
+    const suffix = bestHour >= 12 ? 'PM' : 'AM';
+    const displayHour = bestHour % 12 || 12;
+    return `${displayHour}${suffix}`;
+  }, [data.activityHeatmap]);
+
+  // Get the best record (prefer one with a percentile, or first available)
+  const bestRecord = useMemo(() => {
+    if (!data.records?.length) {
+      return null;
+    }
+    const withPercentile = data.records.filter((r) => r.percentile != null);
+    if (withPercentile.length > 0) {
+      return withPercentile.reduce((best, curr) =>
+        (curr.percentile ?? 100) < (best.percentile ?? 100) ? curr : best,
+      );
+    }
+    return data.records[0];
+  }, [data.records]);
 
   return (
     <div
-      className={styles.shareCard}
+      className={styles.shareCardNew}
       style={{ '--archetype-color': archetype.color } as React.CSSProperties}
     >
-      {/* Header */}
-      <div className={styles.shareWrapHeader}>
-        <span className={styles.shareWrapLabel}>THAT&apos;S</span>
-        <span className={styles.shareWrapTitle}>A WRAP</span>
-        <span className={styles.shareWrapYear}>— 2025 —</span>
+      {/* "That's a wrap" stamp - matches shareOfficialStamp */}
+      <div className={styles.shareOfficialStamp}>
+        <span className={styles.shareOfficialText}>That&apos;s a wrap</span>
       </div>
 
-      {/* Archetype badge */}
-      <div className={styles.wrapArchetypeBadge}>
-        <img
-          src={archetype.imageUrl}
-          alt={archetype.name}
-          className={styles.wrapArchetypeImg}
-        />
-        <div className={styles.wrapArchetypeInfo}>
-          <div
-            className={styles.wrapArchetypeName}
-            style={{ color: archetype.color }}
-          >
-            {archetype.name.toUpperCase()}
-          </div>
-          <div className={styles.wrapArchetypePercentile}>
-            TOP {data.archetypePercentile}%
-          </div>
-        </div>
-      </div>
-
-      {/* Stats badges row */}
-      <div className={styles.shareStatsRow}>
-        <div className={styles.shareStat}>
-          <span className={styles.shareStatValue}>
-            {data.totalPosts.toLocaleString()}
-          </span>
-          <span className={styles.shareStatLabel}>posts</span>
-        </div>
-        <span className={styles.shareStatDot}>•</span>
-        <div className={styles.shareStat}>
-          <span className={styles.shareStatValue}>
-            {data.totalReadingTime}h
-          </span>
-          <span className={styles.shareStatLabel}>reading</span>
-        </div>
-        <span className={styles.shareStatDot}>•</span>
-        <div className={styles.shareStat}>
-          <span className={styles.shareStatValue}>{data.daysActive}</span>
-          <span className={styles.shareStatLabel}>days</span>
-        </div>
-      </div>
-
-      {/* Secondary stats */}
-      <div className={styles.wrapSecondaryStats}>
-        {streakRecord && (
-          <div className={styles.wrapSecondaryStat}>
-            <span className={styles.wrapSecondaryIcon}>🔥</span>
-            <span className={styles.wrapSecondaryValue}>
-              {streakRecord.value}
-            </span>
-          </div>
-        )}
-        <div className={styles.wrapSecondaryStat}>
-          <span className={styles.wrapSecondaryIcon}>🏷️</span>
-          <span className={styles.wrapSecondaryValue}>
-            {data.uniqueTopics} topics
-          </span>
-        </div>
-        <div className={styles.wrapSecondaryStat}>
-          <span className={styles.wrapSecondaryIcon}>📰</span>
-          <span className={styles.wrapSecondaryValue}>
-            {data.uniqueSources} sources
-          </span>
-        </div>
-      </div>
-
-      {/* Community stats */}
-      <div className={styles.wrapCommunityRow}>
-        <div className={styles.wrapCommunityItem}>
-          <span>👍</span>
-          <span>{data.upvotesGiven.toLocaleString()}</span>
-        </div>
-        <div className={styles.wrapCommunityItem}>
-          <span>💬</span>
-          <span>{data.commentsWritten.toLocaleString()}</span>
-        </div>
-        <div className={styles.wrapCommunityItem}>
-          <span>🔖</span>
-          <span>{data.postsBookmarked.toLocaleString()}</span>
-        </div>
-        <span className={styles.wrapCommunityTotal}>
-          = {totalEngagement.toLocaleString()} interactions
+      {/* Main headline - "YOU ARE" + archetype name */}
+      <div className={styles.shareMainHeadline}>
+        <span className={styles.shareYouAre}>YOU ARE</span>
+        <span className={styles.shareArchetypeTitle}>
+          {archetype.name.toUpperCase()}
         </span>
       </div>
 
-      {/* Thank you message */}
-      <div className={styles.shareThankYou}>
-        <p>Thanks for an incredible 2025.</p>
-        <p>Can&apos;t wait to see what you&apos;ll read in 2026 🚀</p>
+      {/* Avatar with glow effect */}
+      <div className={styles.shareAvatarWrapper}>
+        <div
+          className={styles.shareAvatarGlow}
+          style={{ background: archetype.color }}
+        />
+        <img
+          src={archetype.imageUrl}
+          alt={archetype.name}
+          className={styles.shareAvatarImage}
+        />
+        <div
+          className={styles.shareAvatarRing}
+          style={{ borderColor: archetype.color }}
+        />
+      </div>
+
+      {/* Archetype description */}
+      <p className={styles.shareArchetypeDescriptionText}>
+        {archetype.description}
+      </p>
+
+      {/* Receipt-style stats card */}
+      <div className={styles.shareReceiptCard}>
+        <div className={styles.shareReceiptRow}>
+          <span className={styles.shareReceiptLabel}>📚 POSTS READ</span>
+          <span className={styles.shareReceiptValue}>
+            {data.totalPosts.toLocaleString()}
+          </span>
+        </div>
+
+        <div className={styles.shareReceiptRow}>
+          <span className={styles.shareReceiptLabel}>📅 DAYS ACTIVE</span>
+          <span className={styles.shareReceiptValue}>{data.daysActive}</span>
+        </div>
+
+        <div className={styles.shareReceiptRow}>
+          <span className={styles.shareReceiptLabel}>🕐 PEAK HOUR</span>
+          <span className={styles.shareReceiptValue}>{peakHour}</span>
+        </div>
+
+        <div className={styles.shareReceiptRow}>
+          <span className={styles.shareReceiptLabel}>🏷️ TOPICS EXPLORED</span>
+          <span className={styles.shareReceiptValue}>{data.uniqueTopics}</span>
+        </div>
+
+        <div className={styles.shareReceiptRow}>
+          <span className={styles.shareReceiptLabel}>📰 SOURCES READ</span>
+          <span className={styles.shareReceiptValue}>{data.uniqueSources}</span>
+        </div>
+
+        <div className={styles.shareReceiptRow}>
+          <span className={styles.shareReceiptLabel}>💬 INTERACTIONS</span>
+          <span className={styles.shareReceiptValue}>
+            {totalInteractions.toLocaleString()}
+          </span>
+        </div>
+
+        {bestRecord && (
+          <div className={styles.shareReceiptRow}>
+            <span className={styles.shareReceiptLabel}>
+              {RECORDS[bestRecord.type].emoji} {bestRecord.label.toUpperCase()}
+            </span>
+            <span className={styles.shareReceiptValue}>{bestRecord.value}</span>
+          </div>
+        )}
+
+        <div className={styles.shareReceiptFooter}>
+          <span className={styles.shareReceiptRank}>
+            TOP {data.archetypePercentile}% OF DEVS
+          </span>
+        </div>
       </div>
     </div>
   );

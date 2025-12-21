@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import {
+  UpvoteIcon,
+  DiscussIcon,
+  BookmarkIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { LogData } from '../../../types/log';
 import styles from './StaticCards.module.css';
@@ -18,7 +24,7 @@ interface StaticCardProps {
 
 /**
  * Static Community Engagement card for share image generation.
- * Shows engagement stats with percentile badges.
+ * Shows engagement stats with pillar layout matching the interactive card.
  */
 export default function StaticCardCommunityEngagement({
   data,
@@ -29,9 +35,39 @@ export default function StaticCardCommunityEngagement({
   // Find best stat for the banner
   const bestStat = useMemo(() => {
     const stats = [
-      { label: 'UPVOTERS', value: data.upvotePercentile },
-      { label: 'COMMENTERS', value: data.commentPercentile },
-      { label: 'CURATORS', value: data.bookmarkPercentile },
+      {
+        label: 'UPVOTERS',
+        value: data.upvotePercentile,
+        icon: (
+          <UpvoteIcon
+            secondary
+            size={IconSize.XXXLarge}
+            className="text-action-upvote-default"
+          />
+        ),
+      },
+      {
+        label: 'COMMENTERS',
+        value: data.commentPercentile,
+        icon: (
+          <DiscussIcon
+            secondary
+            size={IconSize.XXXLarge}
+            className="text-action-comment-default"
+          />
+        ),
+      },
+      {
+        label: 'CURATORS',
+        value: data.bookmarkPercentile,
+        icon: (
+          <BookmarkIcon
+            secondary
+            size={IconSize.XXXLarge}
+            className="text-action-bookmark-default"
+          />
+        ),
+      },
     ]
       .filter((s) => s.value !== undefined && s.value <= 50)
       .sort((a, b) => (a.value || 100) - (b.value || 100));
@@ -39,77 +75,84 @@ export default function StaticCardCommunityEngagement({
   }, [data]);
 
   return (
-    <>
-      {/* Main headline stack */}
-      <div className={styles.headlineStack}>
-        <span className={styles.headlineSmall}>Community pulse</span>
-        <span className={styles.headlineBig}>
-          {largeNumberFormat(totalEngagement)}
-        </span>
-        <span className={styles.headlineMedium}>INTERACTIONS</span>
+    <div className={styles.engagementContainer}>
+      {/* Header badge */}
+      <div className={styles.engagementHeader}>
+        <span className={styles.engagementHeaderText}>COMMUNITY PULSE</span>
       </div>
 
-      {/* Engagement breakdown */}
-      <div className={styles.engagementStats}>
-        <div className={styles.engagementItem}>
-          <span className={styles.engagementIcon}>👍</span>
-          <div className={styles.engagementInfo}>
-            <span className={styles.engagementValue}>
-              {largeNumberFormat(data.upvotesGiven)}
-            </span>
-            <span className={styles.engagementLabel}>upvotes given</span>
-          </div>
-          {data.upvotePercentile && data.upvotePercentile <= 50 && (
-            <span className={styles.engagementBadge}>
-              TOP {data.upvotePercentile}%
-            </span>
-          )}
+      {/* Main stat - Total engagement */}
+      <div className={styles.totalEngagementContainer}>
+        <span className={styles.totalEngagementNumber}>
+          {largeNumberFormat(totalEngagement)}
+        </span>
+        <span className={styles.totalEngagementLabel}>interactions</span>
+      </div>
+
+      {/* Subtitle */}
+      <p className={styles.engagementSubtitle}>
+        every action builds the community
+      </p>
+
+      {/* Three equal engagement pillars */}
+      <div className={styles.engagementPillars}>
+        <div className={styles.engagementPillar}>
+          <span className={styles.pillarIcon}>
+            <UpvoteIcon
+              secondary
+              size={IconSize.XXXLarge}
+              className="text-action-upvote-default"
+            />
+          </span>
+          <span className={styles.pillarValue}>
+            {largeNumberFormat(data.upvotesGiven)}
+          </span>
+          <span className={styles.pillarLabel}>upvotes</span>
         </div>
 
-        <div className={styles.engagementItem}>
-          <span className={styles.engagementIcon}>💬</span>
-          <div className={styles.engagementInfo}>
-            <span className={styles.engagementValue}>
-              {largeNumberFormat(data.commentsWritten)}
-            </span>
-            <span className={styles.engagementLabel}>comments written</span>
-          </div>
-          {data.commentPercentile && data.commentPercentile <= 50 && (
-            <span className={styles.engagementBadge}>
-              TOP {data.commentPercentile}%
-            </span>
-          )}
+        <div className={styles.engagementPillar}>
+          <span className={styles.pillarIcon}>
+            <DiscussIcon
+              secondary
+              size={IconSize.XXXLarge}
+              className="text-action-comment-default"
+            />
+          </span>
+          <span className={styles.pillarValue}>
+            {largeNumberFormat(data.commentsWritten)}
+          </span>
+          <span className={styles.pillarLabel}>comments</span>
         </div>
 
-        <div className={styles.engagementItem}>
-          <span className={styles.engagementIcon}>🔖</span>
-          <div className={styles.engagementInfo}>
-            <span className={styles.engagementValue}>
-              {largeNumberFormat(data.postsBookmarked)}
-            </span>
-            <span className={styles.engagementLabel}>posts saved</span>
-          </div>
-          {data.bookmarkPercentile && data.bookmarkPercentile <= 50 && (
-            <span className={styles.engagementBadge}>
-              TOP {data.bookmarkPercentile}%
-            </span>
-          )}
+        <div className={styles.engagementPillar}>
+          <span className={styles.pillarIcon}>
+            <BookmarkIcon
+              secondary
+              size={IconSize.XXXLarge}
+              className="text-action-bookmark-default"
+            />
+          </span>
+          <span className={styles.pillarValue}>
+            {largeNumberFormat(data.postsBookmarked)}
+          </span>
+          <span className={styles.pillarLabel}>saved</span>
         </div>
       </div>
 
       {/* Best stat banner */}
       {bestStat && (
-        <div className={styles.celebrationBanner}>
-          <div className={styles.bannerBg} />
-          <div className={styles.bannerContent}>
-            <span className={styles.bannerPre}>Top</span>
-            <span className={styles.bannerMain}>{bestStat.value}%</span>
-            <span className={styles.bannerPost}>
-              {bestStat.label.toLowerCase()}
+        <div className={styles.communityBanner}>
+          <span className={styles.communityBannerIcon}>{bestStat.icon}</span>
+          <div>
+            <span className={styles.communityBannerTop}>
+              TOP {bestStat.value}%
+            </span>
+            <span className={styles.communityBannerLabel}>
+              {bestStat.label}
             </span>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
