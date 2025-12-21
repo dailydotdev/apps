@@ -15,6 +15,6 @@ export { useLog, LOG_QUERY_KEY } from './useLog';
 export { useBackgroundMusic } from './useBackgroundMusic';
 
 // Sharing
-export { shareLogImage } from './shareLogImage';
+export { shareLog } from './shareLogImage';
 export type { ShareResult } from './shareLogImage';
 export { useShareImagePreloader } from './useShareImagePreloader';
