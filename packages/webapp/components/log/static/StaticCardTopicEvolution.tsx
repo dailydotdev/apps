@@ -67,7 +67,9 @@ export default function StaticCardTopicEvolution({
                 <div className={styles.topicGridTags}>
                   {[0, 1, 2].map((index) => {
                     const topic = quarter.topics[index];
-                    if (!topic) return null;
+                    if (!topic) {
+                      return null;
+                    }
                     return (
                       <div
                         key={index}

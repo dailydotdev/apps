@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { LogData } from '../../../types/log';
-import { ARCHETYPES, RECORDS, RecordType } from '../../../types/log';
+import { ARCHETYPES, RECORDS } from '../../../types/log';
 import styles from './StaticCards.module.css';
 
 interface StaticCardProps {
