@@ -4,14 +4,14 @@ import { motion } from 'framer-motion';
 import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { shareLogImage } from '../../hooks/log/shareLogImage';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { shareLog } from '../../hooks/log/shareLogImage';
 import cardStyles from './Cards.module.css';
 
 interface ShareStatButtonProps {
   /** Delay before the button appears (in seconds) */
   delay?: number;
-  /** The stat text to share */
+  /** The text to share */
   statText: string;
   /** Whether the button should be visible */
   isActive: boolean;
@@ -23,8 +23,6 @@ interface ShareStatButtonProps {
   onImageFetched?: (cardType: string, blob: Blob) => void;
 }
 
-const shareUrl = 'https://app.daily.dev/log';
-
 export default function ShareStatButton({
   delay = 2.0,
   statText,
@@ -33,7 +31,8 @@ export default function ShareStatButton({
   imageCache,
   onImageFetched,
 }: ShareStatButtonProps): ReactElement {
-  const { user, tokenRefreshed } = useAuthContext();
+  const { user } = useAuthContext();
+  const { displayToast } = useToastNotification();
   const [showButton, setShowButton] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -54,118 +53,41 @@ export default function ShareStatButton({
     return () => clearTimeout(timer);
   }, [isActive, delay]);
 
-  /**
-   * Fetch the share image from the API.
-   */
-  const fetchShareImage = useCallback(async (): Promise<Blob | null> => {
-    if (!user?.id || !cardType || !tokenRefreshed) {
-      return null;
-    }
-
-    try {
-      const response = await fetch(
-        `${apiUrl}/log/images?card=${encodeURIComponent(
-          cardType,
-        )}&userId=${encodeURIComponent(user.id)}`,
-        {
-          credentials: 'include',
-        },
-      );
-
-      if (!response.ok) {
-        return null;
-      }
-
-      return response.blob();
-    } catch {
-      return null;
-    }
-  }, [user?.id, cardType, tokenRefreshed]);
-
-  /**
-   * Fall back to text-only sharing.
-   */
-  const shareTextOnly = useCallback(async () => {
-    const fullText = `${statText}\n\nDiscover your developer stats:\n→ ${shareUrl}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'My Developer Log 2025',
-          text: fullText,
-          url: shareUrl,
-        });
-        return;
-      } catch {
-        // User cancelled or error - fall through to clipboard
-      }
-    }
-
-    // Fallback to clipboard
-    try {
-      await navigator.clipboard.writeText(fullText);
-    } catch {
-      // Ignore clipboard errors
-    }
-  }, [statText]);
-
   const handleShare = useCallback(
     async (e: React.MouseEvent) => {
       e.stopPropagation();
-      if (!isVisible || isLoading) {
+      if (!isVisible || isLoading || !user?.id || !cardType) {
         return;
       }
 
-      // If no cardType provided or user not authenticated, fall back to text share
-      if (!cardType || !user?.id) {
-        await shareTextOnly();
-        return;
-      }
+      setIsLoading(true);
+      try {
+        const result = await shareLog({
+          userId: user.id,
+          cardType,
+          shareText: statText,
+          imageCache,
+          onImageFetched,
+        });
 
-      // Check if image is in cache
-      let blob = imageCache?.get(cardType) ?? null;
-
-      // If not cached, fetch on demand
-      if (!blob) {
-        setIsLoading(true);
-        try {
-          blob = await fetchShareImage();
-          if (blob && onImageFetched) {
-            onImageFetched(cardType, blob);
-          }
-        } finally {
-          setIsLoading(false);
+        if (result === 'image_failed') {
+          displayToast(
+            'Image generator returned 500. Time for a manual screenshot! 📸',
+          );
         }
-      }
-
-      // If we have the image, share it
-      if (blob) {
-        const filename = `daily-log-2025-${cardType}.png`;
-        const shareText = `${statText}\n\nDiscover your developer stats:\n→ ${shareUrl}`;
-
-        const result = await shareLogImage(blob, filename, shareText);
-
-        // If sharing failed or was cancelled, don't fall back to text
-        // The user can try again
-        if (result === 'error') {
-          // Fall back to text-only share
-          await shareTextOnly();
-        }
-      } else {
-        // Fall back to text-only share if image fetch failed
-        await shareTextOnly();
+      } finally {
+        setIsLoading(false);
       }
     },
     [
-      statText,
       isVisible,
       isLoading,
-      cardType,
       user?.id,
+      cardType,
+      statText,
       imageCache,
-      fetchShareImage,
-      shareTextOnly,
       onImageFetched,
+      displayToast,
     ],
   );
 

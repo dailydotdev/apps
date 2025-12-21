@@ -265,19 +265,7 @@ export default function CardContributions({
         cardType={cardType}
         imageCache={imageCache}
         onImageFetched={onImageFetched}
-        statText={`Creator spotlight on daily.dev ⭐\n\n📝 ${
-          data.postsCreated
-        } posts created\n👁️ ${largeNumberFormat(
-          data.totalViews || 0,
-        )} views\n💬 ${
-          data.commentsReceived
-        } comments received\n⚡ ${largeNumberFormat(
-          data.reputationEarned || 0,
-        )} reputation${
-          data.creatorPercentile
-            ? `\n\nTOP ${data.creatorPercentile}% content creator!`
-            : ''
-        }`}
+        statText="shipped some thoughts in 2025"
       />
     </>
   );

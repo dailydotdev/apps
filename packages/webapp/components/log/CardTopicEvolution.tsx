@@ -101,12 +101,6 @@ export default function CardTopicEvolution({
   const quarterlyColors = getQuarterlyColors(currentQuarter?.quarter || '');
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Count active quarters for context
-  const activeQuartersCount = data.topicJourney.filter(
-    (q) => !q.inactive,
-  ).length;
-  const isPartialYear = activeQuartersCount < 4;
-
   const animatedTopics = useAnimatedNumber(data.uniqueTopics, {
     delay: 300,
     enabled: isActive && isLastQuarter,
@@ -320,17 +314,10 @@ export default function CardTopicEvolution({
         cardType={cardType}
         imageCache={imageCache}
         onImageFetched={onImageFetched}
-        statText={(() => {
-          const baseText = `I explored ${
-            data.uniqueTopics
-          } different topics on daily.dev${
-            isPartialYear ? ` in ${activeQuartersCount} quarters` : ' this year'
-          }! 🚀`;
-
-          return `${baseText}\n\nMore curious than ${
-            100 - data.evolutionPercentile
-          }% of developers`;
-        })()}
+        statText={`from ${data.topicJourney[0]?.topics[0] || 'exploring'} to ${
+          data.topicJourney[data.topicJourney.length - 1]?.topics[0] ||
+          'new things'
+        } — my 2025 learning arc`}
       />
     </>
   );

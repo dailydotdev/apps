@@ -189,7 +189,7 @@ export default function CardFavoriteSources({
         cardType={cardType}
         imageCache={imageCache}
         onImageFetched={onImageFetched}
-        statText={`My winning trio on daily.dev:\n🥇 ${data.topSources[0].name}\n🥈 ${data.topSources[1].name}\n🥉 ${data.topSources[2].name}\n\nI discovered ${data.uniqueSources} sources — TOP ${data.sourcePercentile}% explorer!`}
+        statText="my 2025 podium 🏆"
       />
     </>
   );

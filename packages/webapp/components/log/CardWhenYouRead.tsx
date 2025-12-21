@@ -191,12 +191,7 @@ export default function CardWhenYouRead({
         cardType={cardType}
         imageCache={imageCache}
         onImageFetched={onImageFetched}
-        statText={`My golden hour is ${formatHour(
-          peakHour,
-        )}\n\n${PATTERN_BANNER_TEXT[data.readingPattern].shareText.replace(
-          '{percentile}',
-          String(data.patternPercentile),
-        )} on daily.dev!`}
+        statText={`my brain peaks at ${formatHour(peakHour).toLowerCase()}`}
       />
     </>
   );

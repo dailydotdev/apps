@@ -111,16 +111,7 @@ export default function CardRecords({
         cardType={cardType}
         imageCache={imageCache}
         onImageFetched={onImageFetched}
-        statText={`My 2025 Greatest Hits on daily.dev 🎵\n\n${data.records
-          .map(
-            (r, i) =>
-              `${String(i + 1).padStart(2, '0')}. ${
-                RECORDS[r.type]?.emoji || '🎯'
-              } ${r.label}: ${r.value}${
-                r.percentile ? ` (TOP ${r.percentile}%)` : ''
-              }`,
-          )
-          .join('\n')}`}
+        statText="my 2025 greatest records on daily.dev"
       />
     </>
   );

@@ -403,11 +403,7 @@ export default function CardArchetypeReveal({
         cardType={cardType}
         imageCache={imageCache}
         onImageFetched={onImageFetched}
-        statText={`I'm ${
-          ['A', 'E', 'I', 'O', 'U'].includes(archetype.name[0]) ? 'an' : 'a'
-        } ${archetype.name.toUpperCase()} on daily.dev!\n\n"${
-          archetype.description
-        }"\n\n⚡ ${data.archetypeStat}\n\nWhat's your developer archetype?`}
+        statText={`I'm a ${archetype.name} on daily.dev`}
       />
     </>
   );

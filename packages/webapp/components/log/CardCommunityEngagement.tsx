@@ -331,17 +331,7 @@ export default function CardCommunityEngagement({
         cardType={cardType}
         imageCache={imageCache}
         onImageFetched={onImageFetched}
-        statText={`My community pulse on daily.dev 💜\n\n🎯 ${largeNumberFormat(
-          totalEngagement,
-        )} total interactions\n👍 ${largeNumberFormat(
-          data.upvotesGiven,
-        )} upvotes\n💬 ${largeNumberFormat(
-          data.commentsWritten,
-        )} comments\n🔖 ${largeNumberFormat(data.postsBookmarked)} saved${
-          bestStat
-            ? `\n\nTOP ${bestStat.value}% ${bestStat.label.toLowerCase()}!`
-            : ''
-        }`}
+        statText="lurker? not me"
       />
     </>
   );

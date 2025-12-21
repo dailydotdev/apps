@@ -4,10 +4,10 @@ import { motion } from 'framer-motion';
 import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { LogData } from '../../types/log';
 import { ARCHETYPES, RECORDS } from '../../types/log';
-import { shareLogImage } from '../../hooks/log/shareLogImage';
+import { shareLog } from '../../hooks/log/shareLogImage';
 import styles from './Log.module.css';
 import cardStyles from './Cards.module.css';
 
@@ -29,7 +29,8 @@ export default function CardShare({
   imageCache,
   onImageFetched,
 }: CardProps): ReactElement {
-  const { user, tokenRefreshed } = useAuthContext();
+  const { user } = useAuthContext();
+  const { displayToast } = useToastNotification();
   const [isLoading, setIsLoading] = useState(false);
 
   const archetype = ARCHETYPES[data.archetype];
@@ -73,109 +74,42 @@ export default function CardShare({
     return data.records[0];
   }, [data.records]);
 
-  const shareUrl = 'https://app.daily.dev/log';
-  const shareText = `I'm a ${archetype.name.toUpperCase()} ${
-    archetype.emoji
-  } on daily.dev
-
-📚 ${data.totalPosts.toLocaleString()} posts read
-📅 ${data.daysActive} days active
-⚡ ${data.archetypeStat}
-
-What's your developer archetype?
-→ app.daily.dev/log`;
-
-  const fetchShareImage = useCallback(async (): Promise<Blob | null> => {
-    if (!user?.id || !cardType || !tokenRefreshed) {
-      return null;
-    }
-
-    try {
-      const response = await fetch(
-        `${apiUrl}/log/images?card=${encodeURIComponent(
-          cardType,
-        )}&userId=${encodeURIComponent(user.id)}`,
-        {
-          credentials: 'include',
-        },
-      );
-
-      if (!response.ok) {
-        return null;
-      }
-
-      return response.blob();
-    } catch {
-      return null;
-    }
-  }, [user?.id, cardType, tokenRefreshed]);
-
-  const shareTextOnly = useCallback(async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'My Developer Log 2025',
-          text: shareText,
-          url: shareUrl,
-        });
-        return;
-      } catch {
-        // User cancelled or error - fall through to clipboard
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(shareText);
-    } catch {
-      // Ignore clipboard errors
-    }
-  }, [shareText]);
+  const shareText = `my 2025 on daily.dev`;
 
   const handleShare = useCallback(async () => {
     onShare?.();
 
-    if (isLoading) {
+    if (isLoading || !user?.id || !cardType) {
       return;
     }
 
-    if (!cardType || !user?.id) {
-      await shareTextOnly();
-      return;
-    }
+    setIsLoading(true);
+    try {
+      const result = await shareLog({
+        userId: user.id,
+        cardType,
+        shareText,
+        imageCache,
+        onImageFetched,
+      });
 
-    let blob = imageCache?.get(cardType) ?? null;
-
-    if (!blob) {
-      setIsLoading(true);
-      try {
-        blob = await fetchShareImage();
-        if (blob && onImageFetched) {
-          onImageFetched(cardType, blob);
-        }
-      } finally {
-        setIsLoading(false);
+      if (result === 'image_failed') {
+        displayToast(
+          'Image generator returned 500. Time for a manual screenshot! 📸',
+        );
       }
-    }
-
-    if (blob) {
-      const filename = `daily-log-2025-${cardType}.png`;
-      const result = await shareLogImage(blob, filename, shareText);
-      if (result === 'error') {
-        await shareTextOnly();
-      }
-    } else {
-      await shareTextOnly();
+    } finally {
+      setIsLoading(false);
     }
   }, [
     onShare,
     isLoading,
-    cardType,
     user?.id,
+    cardType,
     imageCache,
-    fetchShareImage,
-    shareText,
-    shareTextOnly,
     onImageFetched,
+    displayToast,
+    shareText,
   ]);
 
   return (
