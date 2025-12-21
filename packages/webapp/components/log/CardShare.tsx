@@ -7,7 +7,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import type { LogData } from '../../types/log';
 import { ARCHETYPES, RECORDS } from '../../types/log';
-import { useShareLogImage } from '../../hooks/log/useShareLogImage';
+import { shareLogImage } from '../../hooks/log/shareLogImage';
 import styles from './Log.module.css';
 import cardStyles from './Cards.module.css';
 
@@ -30,7 +30,6 @@ export default function CardShare({
   onImageFetched,
 }: CardProps): ReactElement {
   const { user, tokenRefreshed } = useAuthContext();
-  const { shareImage } = useShareLogImage();
   const [isLoading, setIsLoading] = useState(false);
 
   const archetype = ARCHETYPES[data.archetype];
@@ -160,7 +159,7 @@ What's your developer archetype?
 
     if (blob) {
       const filename = `daily-log-2025-${cardType}.png`;
-      const result = await shareImage(blob, filename, shareText);
+      const result = await shareLogImage(blob, filename, shareText);
       if (result === 'error') {
         await shareTextOnly();
       }
@@ -174,7 +173,6 @@ What's your developer archetype?
     user?.id,
     imageCache,
     fetchShareImage,
-    shareImage,
     shareText,
     shareTextOnly,
     onImageFetched,

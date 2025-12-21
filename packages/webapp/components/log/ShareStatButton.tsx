@@ -5,7 +5,7 @@ import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { useShareLogImage } from '../../hooks/log/useShareLogImage';
+import { shareLogImage } from '../../hooks/log/shareLogImage';
 import cardStyles from './Cards.module.css';
 
 interface ShareStatButtonProps {
@@ -34,7 +34,6 @@ export default function ShareStatButton({
   onImageFetched,
 }: ShareStatButtonProps): ReactElement {
   const { user, tokenRefreshed } = useAuthContext();
-  const { shareImage } = useShareLogImage();
   const [showButton, setShowButton] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -144,7 +143,7 @@ export default function ShareStatButton({
         const filename = `daily-log-2025-${cardType}.png`;
         const shareText = `${statText}\n\nDiscover your developer stats:\n→ ${shareUrl}`;
 
-        const result = await shareImage(blob, filename, shareText);
+        const result = await shareLogImage(blob, filename, shareText);
 
         // If sharing failed or was cancelled, don't fall back to text
         // The user can try again
@@ -165,7 +164,6 @@ export default function ShareStatButton({
       user?.id,
       imageCache,
       fetchShareImage,
-      shareImage,
       shareTextOnly,
       onImageFetched,
     ],

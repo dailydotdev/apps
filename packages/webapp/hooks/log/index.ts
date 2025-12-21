@@ -12,5 +12,6 @@ export type { CardConfig, NavigationEvent } from '../log';
 
 // Export new hooks
 export { useBackgroundMusic } from './useBackgroundMusic';
-export { useShareLogImage } from './useShareLogImage';
+export { shareLogImage } from './shareLogImage';
+export type { ShareResult } from './shareLogImage';
 export { useShareImagePreloader } from './useShareImagePreloader';
