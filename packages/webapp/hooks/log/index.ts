@@ -1,17 +1,20 @@
-// Log 2025 hooks - re-export from central location
+// Log 2025 hooks
 
-// Re-export existing hooks from the main log.ts file
-export {
-  useAnimatedNumber,
-  useCardNavigation,
-  useStaggeredAnimation,
-  useLog,
-  LOG_QUERY_KEY,
-} from '../log';
-export type { CardConfig, NavigationEvent } from '../log';
+// Animation hooks
+export { useAnimatedNumber } from './useAnimatedNumber';
+export { useStaggeredAnimation } from './useStaggeredAnimation';
 
-// Export new hooks
+// Navigation
+export { useCardNavigation } from './useCardNavigation';
+export type { CardConfig, NavigationEvent } from './useCardNavigation';
+
+// Data fetching
+export { useLog, LOG_QUERY_KEY } from './useLog';
+
+// Music
 export { useBackgroundMusic } from './useBackgroundMusic';
+
+// Sharing
 export { shareLogImage } from './shareLogImage';
 export type { ShareResult } from './shareLogImage';
 export { useShareImagePreloader } from './useShareImagePreloader';
