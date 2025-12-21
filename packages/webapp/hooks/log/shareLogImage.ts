@@ -19,8 +19,13 @@ export async function shareLogImage(
 ): Promise<ShareResult> {
   const file = new File([blob], filename, { type: 'image/png' });
 
-  // Try Web Share API with files
-  if (navigator.canShare?.({ files: [file] })) {
+  // Only use native share on Android/iOS - desktop share UX is poor
+  const { userAgent } = navigator;
+  const isAndroidOrIOS =
+    /android/i.test(userAgent) || /iPad|iPhone|iPod/.test(userAgent);
+
+  // Try Web Share API with files (Android/iOS only)
+  if (isAndroidOrIOS && navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({
         files: [file],
@@ -37,7 +42,7 @@ export async function shareLogImage(
     }
   }
 
-  // Fallback: Download the image
+  // Desktop or fallback: Download the image
   try {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
