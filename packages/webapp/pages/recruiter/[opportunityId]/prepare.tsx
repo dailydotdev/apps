@@ -14,13 +14,82 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { opportunityEditStep1Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { labels } from '@dailydotdev/shared/src/lib/labels';
-import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
+import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
+import { recommendOpportunityScreeningQuestionsOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks/useToastNotification';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import JobPage from '../../jobs/[id]';
+import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 function PreparePage(): ReactElement {
   const router = useRouter();
   const { opportunityId, onValidateOpportunity } = useOpportunityEditContext();
   const { showPrompt } = usePrompt();
+  const { dismissToast, displayToast, subject } = useToastNotification();
+
+  const { data: opportunity } = useQuery(
+    opportunityByIdOptions({ id: opportunityId }),
+  );
+
+  const [, updateOpportunity] = useUpdateQuery(
+    opportunityByIdOptions({
+      id: opportunityId,
+    }),
+  );
+
+  const goToNextStep = () => {
+    router.push(`${webappUrl}recruiter/${opportunityId}/questions`);
+  };
+
+  const {
+    mutate: onSubmit,
+    isPending,
+    isSuccess,
+  } = useMutation({
+    ...recommendOpportunityScreeningQuestionsOptions(),
+    mutationFn: async ({ id }: { id: string }) => {
+      if (opportunity?.questions?.length) {
+        return opportunity.questions;
+      }
+
+      displayToast('Generating screening questions...', {
+        subject: ToastSubject.OpportunityScreeningQuestions,
+        timer: 10_000,
+      });
+
+      return await recommendOpportunityScreeningQuestionsOptions().mutationFn({
+        id,
+      });
+    },
+    onSuccess: (data) => {
+      updateOpportunity({ ...opportunity, questions: data });
+
+      goToNextStep();
+    },
+    onError: (error: ApiErrorResult) => {
+      if (error.response?.errors?.[0]?.extensions?.code === ApiError.Conflict) {
+        // questions already generated so we can just proceed
+        goToNextStep();
+
+        return;
+      }
+
+      displayToast(
+        error.response?.errors?.[0]?.message || labels.error.generic,
+      );
+    },
+    onSettled: () => {
+      if (subject === ToastSubject.OpportunityScreeningQuestions) {
+        dismissToast();
+      }
+    },
+  });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -57,8 +126,19 @@ function PreparePage(): ReactElement {
               return;
             }
 
-            router.push(`${webappUrl}recruiter/${opportunityId}/questions`);
+            displayToast(
+              'Just a momment, generating screening questions for your job...',
+              {
+                subject: ToastSubject.OpportunityScreeningQuestions,
+                timer: 10_000,
+              },
+            );
+
+            onSubmit({
+              id: opportunity.id,
+            });
           },
+          loading: isPending || isSuccess,
         }}
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.PrepareAndLaunch} />
