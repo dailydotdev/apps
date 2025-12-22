@@ -7,26 +7,8 @@
    ======================================== */
 
 .imageWrapper {
-  /* Design system colors */
-  --fest-bg: #0e1217;
-  --fest-bg-dark: #17191f;
-  --fest-primary: #ff8e3b;
-  --fest-secondary: #ffe923;
-  --fest-accent: #ce3df3;
-  --fest-lime: #acf535;
-  --fest-white: #ffffff;
-  --fest-cream: #f5f8fc;
-  --fest-white-70: rgba(255, 255, 255, 0.7);
-  --fest-white-50: rgba(255, 255, 255, 0.5);
-  --fest-white-30: rgba(255, 255, 255, 0.3);
-  --fest-white-20: rgba(255, 255, 255, 0.2);
-  --fest-white-10: rgba(255, 255, 255, 0.1);
-
-  /* Archetype color (can be overridden via inline style) */
-  --archetype-color: var(--fest-accent);
-
-  /* Typography */
-  --font-mono: 'Fira Code', 'SF Mono', Consolas, Menlo, 'Courier New', monospace;
+  /* Import shared theme variables */
+  composes: logTheme from '../logVariables.module.css';
 
   /* Fixed dimensions for story format */
   width: 1080px;

@@ -1,21 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { LogData } from '../../types/log';
 import { ARCHETYPES } from '../../types/log';
 import styles from './Log.module.css';
-import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
-
-interface CardProps {
-  data: LogData;
-  isActive: boolean;
-  subcard?: number;
-  isTouchDevice?: boolean;
-  cardType?: string;
-  imageCache?: Map<string, Blob>;
-  onImageFetched?: (cardType: string, blob: Blob) => void;
-}
+import type { BaseCardProps } from './types';
 
 const BUILD_UP_LINES = [
   { text: "We've seen how you read...", icon: '👁️' },
@@ -129,7 +118,7 @@ export default function CardArchetypeReveal({
   cardType,
   imageCache,
   onImageFetched,
-}: CardProps): ReactElement {
+}: BaseCardProps): ReactElement {
   const [phase, setPhase] = useState<'buildup' | 'whoAreYou' | 'reveal'>(
     'buildup',
   );
@@ -203,20 +192,20 @@ export default function CardArchetypeReveal({
     <>
       {/* Main content - centered vertically */}
       <div className={styles.cardContent}>
-        <div className={cardStyles.archetypeContainer}>
+        <div className={styles.archetypeContainer}>
           <AnimatePresence mode="wait">
             {/* Build up phase */}
             {phase === 'buildup' && (
               <motion.div
                 key="buildup"
-                className={cardStyles.buildupContainer}
+                className={styles.buildupContainer}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4 }}
               >
                 {BUILD_UP_LINES.map((line, index) => (
                   <motion.div
                     key={`${line.icon}-${line.text}`}
-                    className={cardStyles.archetypeBuildupLine}
+                    className={styles.archetypeBuildupLine}
                     initial={{ opacity: 0, x: -30, filter: 'blur(4px)' }}
                     animate={
                       buildUpIndex >= index
@@ -229,7 +218,7 @@ export default function CardArchetypeReveal({
                     }}
                   >
                     <motion.span
-                      className={cardStyles.archetypeBuildupIcon}
+                      className={styles.archetypeBuildupIcon}
                       initial={{ scale: 0, rotate: -180 }}
                       animate={
                         buildUpIndex >= index ? { scale: 1, rotate: 0 } : {}
@@ -253,14 +242,14 @@ export default function CardArchetypeReveal({
             {phase === 'whoAreYou' && (
               <motion.div
                 key="whoAreYou"
-                className={cardStyles.whoAreYouContainer}
+                className={styles.whoAreYouContainer}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, scale: 3, filter: 'blur(20px)' }}
                 transition={{ duration: 0.5 }}
               >
                 <motion.div
-                  className={cardStyles.whoAreYouText}
+                  className={styles.whoAreYouText}
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{
@@ -269,9 +258,9 @@ export default function CardArchetypeReveal({
                     damping: 12,
                   }}
                 >
-                  <span className={cardStyles.whoAreYouSmall}>WHO</span>
-                  <span className={cardStyles.whoAreYouLarge}>ARE</span>
-                  <span className={cardStyles.whoAreYouSmall}>YOU?</span>
+                  <span className={styles.whoAreYouSmall}>WHO</span>
+                  <span className={styles.whoAreYouLarge}>ARE</span>
+                  <span className={styles.whoAreYouSmall}>YOU?</span>
                 </motion.div>
               </motion.div>
             )}
@@ -280,13 +269,13 @@ export default function CardArchetypeReveal({
             {phase === 'reveal' && (
               <motion.div
                 key="reveal"
-                className={cardStyles.archetypeRevealContainer}
+                className={styles.archetypeRevealContainer}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
                 {/* Particle explosion */}
                 {showParticles && (
-                  <div className={cardStyles.particleCenter}>
+                  <div className={styles.particleCenter}>
                     {particles.map((p) => (
                       <GlowParticle
                         key={`particle-${p.angle}-${p.delay}`}
@@ -299,7 +288,7 @@ export default function CardArchetypeReveal({
                 )}
 
                 {/* Sparkles around the image */}
-                <div className={cardStyles.sparklesContainer}>
+                <div className={styles.sparklesContainer}>
                   {sparkles.map((s) => (
                     <Sparkle
                       key={`sparkle-${s.x}-${s.y}`}
@@ -313,7 +302,7 @@ export default function CardArchetypeReveal({
 
                 {/* Main archetype image with dramatic entrance */}
                 <motion.div
-                  className={cardStyles.archetypeImageWrapper}
+                  className={styles.archetypeImageWrapper}
                   initial={{ scale: 0, rotate: -20, opacity: 0 }}
                   animate={{ scale: 1, rotate: 0, opacity: 1 }}
                   transition={{
@@ -324,7 +313,7 @@ export default function CardArchetypeReveal({
                   }}
                 >
                   <motion.div
-                    className={cardStyles.archetypeImageGlowRing}
+                    className={styles.archetypeImageGlowRing}
                     style={{ borderColor: archetype.color }}
                     initial={{ scale: 1.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -333,7 +322,7 @@ export default function CardArchetypeReveal({
                   <motion.img
                     src={archetype.imageUrl}
                     alt={archetype.name}
-                    className={cardStyles.archetypeImage}
+                    className={styles.archetypeImage}
                     initial={{ filter: 'brightness(2) saturate(0)' }}
                     animate={{ filter: 'brightness(1) saturate(1)' }}
                     transition={{ duration: 0.8, delay: 0.3 }}
@@ -342,7 +331,7 @@ export default function CardArchetypeReveal({
 
                 {/* Archetype name with screen shake effect */}
                 <motion.div
-                  className={cardStyles.archetypeNameBadge}
+                  className={styles.archetypeNameBadge}
                   style={
                     {
                       '--archetype-color': archetype.color,
@@ -362,7 +351,7 @@ export default function CardArchetypeReveal({
                   }}
                 >
                   <span
-                    className={cardStyles.archetypeNameText}
+                    className={styles.archetypeNameText}
                     style={{ color: archetype.color }}
                   >
                     {archetype.name.toUpperCase()}
@@ -371,7 +360,7 @@ export default function CardArchetypeReveal({
 
                 {/* Description with fade */}
                 <motion.p
-                  className={cardStyles.archetypeRevealDescription}
+                  className={styles.archetypeRevealDescription}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8, duration: 0.6 }}
@@ -381,12 +370,12 @@ export default function CardArchetypeReveal({
 
                 {/* Stat badge */}
                 <motion.div
-                  className={cardStyles.archetypeStatBadge}
+                  className={styles.archetypeStatBadge}
                   initial={{ opacity: 0, scale: 0.8, rotate: -3 }}
                   animate={{ opacity: 1, scale: 1, rotate: -1 }}
                   transition={{ delay: 1.1, duration: 0.5, type: 'spring' }}
                 >
-                  <span className={cardStyles.archetypeStatBadgeText}>
+                  <span className={styles.archetypeStatBadgeText}>
                     {data.archetypeStat}
                   </span>
                 </motion.div>

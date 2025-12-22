@@ -6,7 +6,7 @@ import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { shareLog } from '../../hooks/log/shareLogImage';
-import cardStyles from './Cards.module.css';
+import styles from './Log.module.css';
 
 interface ShareStatButtonProps {
   /** Delay before the button appears (in seconds) */
@@ -94,7 +94,7 @@ export default function ShareStatButton({
   // Always render container to reserve space, animate visibility
   return (
     <motion.div
-      className={cardStyles.shareStatContainer}
+      className={styles.shareStatContainer}
       initial={false}
       animate={{
         opacity: isVisible ? 1 : 0,
@@ -111,7 +111,7 @@ export default function ShareStatButton({
       }}
     >
       <motion.button
-        className={cardStyles.shareStatButton}
+        className={styles.shareStatButton}
         onClick={handleShare}
         whileTap={isVisible && !isLoading ? { scale: 0.95 } : undefined}
         aria-hidden={!isVisible}
@@ -119,7 +119,7 @@ export default function ShareStatButton({
         disabled={isLoading}
         style={isLoading ? { opacity: 0.7, cursor: 'wait' } : undefined}
       >
-        <span className={cardStyles.shareStatIcon}>
+        <span className={styles.shareStatIcon}>
           {isLoading ? (
             <Loader innerClassName="before:!border-pepper-90 after:!border-t-pepper-90 !w-4 !h-4" />
           ) : (

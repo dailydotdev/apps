@@ -1,12 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { LogData } from '../../types/log';
 import { useAnimatedNumber } from '../../hooks/log';
 import styles from './Log.module.css';
-import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
+import type { BaseCardProps } from './types';
 
 const MEDAL_EMOJIS = ['🥇', '🥈', '🥉'];
 
@@ -59,7 +58,7 @@ function JigglingMedal({ emoji }: { emoji: string }): ReactElement {
 
   return (
     <motion.span
-      className={cardStyles.topTagMedal}
+      className={styles.topTagMedal}
       animate={
         isJiggling
           ? {
@@ -75,16 +74,6 @@ function JigglingMedal({ emoji }: { emoji: string }): ReactElement {
   );
 }
 
-interface CardProps {
-  data: LogData;
-  isActive: boolean;
-  subcard?: number;
-  isTouchDevice?: boolean;
-  cardType?: string;
-  imageCache?: Map<string, Blob>;
-  onImageFetched?: (cardType: string, blob: Blob) => void;
-}
-
 const TAG_ROTATIONS = [-0.8, 0.4, -1.2];
 
 export default function CardTopicEvolution({
@@ -94,7 +83,7 @@ export default function CardTopicEvolution({
   cardType,
   imageCache,
   onImageFetched,
-}: CardProps): ReactElement {
+}: BaseCardProps): ReactElement {
   const currentQuarter = data.topicJourney[subcard];
   const isLastQuarter = subcard === data.topicJourney.length - 1;
   const isInactiveQuarter = currentQuarter?.inactive === true;
@@ -110,7 +99,7 @@ export default function CardTopicEvolution({
   useEffect(() => {
     if (carouselRef.current) {
       const activeItem = carouselRef.current.querySelector(
-        `.${cardStyles.quarterCarouselItemActive}`,
+        `.${styles.quarterCarouselItemActive}`,
       ) as HTMLElement;
       if (activeItem) {
         const container = carouselRef.current;
@@ -140,8 +129,8 @@ export default function CardTopicEvolution({
         </motion.div>
 
         {/* Quarter carousel - static container, selection moves */}
-        <div className={cardStyles.quarterCarouselWrapper}>
-          <div className={cardStyles.quarterCarousel} ref={carouselRef}>
+        <div className={styles.quarterCarouselWrapper}>
+          <div className={styles.quarterCarousel} ref={carouselRef}>
             {data.topicJourney.map((item, index) => {
               const isActiveQuarter = index === subcard;
               const isPast = index < subcard;
@@ -151,22 +140,20 @@ export default function CardTopicEvolution({
               return (
                 <div
                   key={item.quarter}
-                  className={`${cardStyles.quarterCarouselItem} ${
-                    isActiveQuarter ? cardStyles.quarterCarouselItemActive : ''
-                  } ${isPast ? cardStyles.quarterCarouselItemPast : ''} ${
-                    isAdjacent ? cardStyles.quarterCarouselItemAdjacent : ''
+                  className={`${styles.quarterCarouselItem} ${
+                    isActiveQuarter ? styles.quarterCarouselItemActive : ''
+                  } ${isPast ? styles.quarterCarouselItemPast : ''} ${
+                    isAdjacent ? styles.quarterCarouselItemAdjacent : ''
                   } ${
-                    isQuarterInactive
-                      ? cardStyles.quarterCarouselItemInactive
-                      : ''
+                    isQuarterInactive ? styles.quarterCarouselItemInactive : ''
                   }`}
                 >
-                  <span className={cardStyles.quarterCarouselLabel}>
+                  <span className={styles.quarterCarouselLabel}>
                     {item.quarter}
                   </span>
                   {isActiveQuarter && (
                     <motion.div
-                      className={cardStyles.quarterCarouselIndicator}
+                      className={styles.quarterCarouselIndicator}
                       layoutId="quarterIndicator"
                       transition={{
                         type: 'spring',
@@ -182,26 +169,26 @@ export default function CardTopicEvolution({
         </div>
 
         {/* Content that transitions on subcard change - split-flap airport display style */}
-        <div className={cardStyles.topicContentWrapper}>
+        <div className={styles.topicContentWrapper}>
           {/* Top 3 tags for this quarter - stacked grid to prevent layout shift */}
           <div
-            className={cardStyles.topTagsContainer}
+            className={styles.topTagsContainer}
             style={{ position: 'relative', display: 'grid' }}
           >
             {/* Tags - hidden when inactive to reserve space */}
             <div
-              className={cardStyles.topTagsList}
+              className={styles.topTagsList}
               style={{
                 gridArea: '1 / 1',
                 visibility: isInactiveQuarter ? 'hidden' : 'visible',
               }}
             >
               {[0, 1, 2].map((index) => (
-                <div key={index} className={cardStyles.flipCardContainer}>
+                <div key={index} className={styles.flipCardContainer}>
                   <AnimatePresence mode="popLayout" initial={false}>
                     <motion.div
                       key={`${subcard}-${index}`}
-                      className={cardStyles.topTagItem}
+                      className={styles.topTagItem}
                       style={{
                         background: quarterlyColors[index],
                         rotate: `${TAG_ROTATIONS[index]}deg`,
@@ -216,7 +203,7 @@ export default function CardTopicEvolution({
                       }}
                     >
                       <JigglingMedal emoji={MEDAL_EMOJIS[index]} />
-                      <span className={cardStyles.topTagName}>
+                      <span className={styles.topTagName}>
                         {currentQuarter?.topics[index] || ''}
                       </span>
                     </motion.div>
@@ -228,14 +215,14 @@ export default function CardTopicEvolution({
             {/* Inactive quarter overlay - stacked on same grid cell */}
             {isInactiveQuarter && (
               <motion.div
-                className={cardStyles.inactiveQuarterMessage}
+                className={styles.inactiveQuarterMessage}
                 style={{ gridArea: '1 / 1', placeSelf: 'center' }}
                 initial={{ rotateX: -90, opacity: 0 }}
                 animate={{ rotateX: 0, opacity: 1 }}
                 transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               >
-                <span className={cardStyles.inactiveQuarterEmoji}>😴</span>
-                <span className={cardStyles.inactiveQuarterText}>
+                <span className={styles.inactiveQuarterEmoji}>😴</span>
+                <span className={styles.inactiveQuarterText}>
                   Taking a break
                 </span>
               </motion.div>
@@ -260,7 +247,7 @@ export default function CardTopicEvolution({
             {/* Actual visible content stacked on same grid cell */}
             {currentQuarter?.comment && (
               <motion.div
-                className={cardStyles.pivotBadge}
+                className={styles.pivotBadge}
                 style={{ gridArea: '1 / 1', placeSelf: 'center' }}
                 initial={{ rotateX: -90, opacity: 0 }}
                 animate={{ rotateX: 0, opacity: 1 }}

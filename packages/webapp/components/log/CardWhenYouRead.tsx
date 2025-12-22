@@ -3,19 +3,9 @@ import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import type { LogData } from '../../types/log';
 import styles from './Log.module.css';
-import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
-
-interface CardProps {
-  data: LogData;
-  isActive: boolean;
-  subcard?: number;
-  isTouchDevice?: boolean;
-  cardType?: string;
-  imageCache?: Map<string, Blob>;
-  onImageFetched?: (cardType: string, blob: Blob) => void;
-}
+import type { BaseCardProps } from './types';
 
 const PATTERN_BANNER_TEXT: Record<
   LogData['readingPattern'],
@@ -57,7 +47,7 @@ export default function CardWhenYouRead({
   cardType,
   imageCache,
   onImageFetched,
-}: CardProps): ReactElement {
+}: BaseCardProps): ReactElement {
   // Aggregate heatmap data to get hour distribution (sum across all days)
   const hourDistribution = useMemo(() => {
     const distribution = Array(24).fill(0);
@@ -92,35 +82,35 @@ export default function CardWhenYouRead({
       <div className={styles.cardContent}>
         {/* Clock visualization */}
         <motion.div
-          className={cardStyles.clockContainer}
+          className={styles.clockContainer}
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ delay: 0.3, type: 'spring', stiffness: 100 }}
         >
-          <div className={cardStyles.clockFace}>
+          <div className={styles.clockFace}>
             {/* Hour markers */}
             {[...Array(12)].map((_, i) => {
               const angle = i * 30;
               return (
                 <div
                   key={`marker-${angle}`}
-                  className={cardStyles.clockMarker}
+                  className={styles.clockMarker}
                   style={{ transform: `rotate(${angle}deg)` }}
                 />
               );
             })}
             {/* Hour hand */}
             <motion.div
-              className={cardStyles.clockHand}
+              className={styles.clockHand}
               initial={{ rotate: -90 }}
               animate={{ rotate: hourAngle }}
               transition={{ delay: 0.8, duration: 1, type: 'spring' }}
             />
             {/* Center dot */}
-            <div className={cardStyles.clockCenter} />
+            <div className={styles.clockCenter} />
             {/* Time display - rounded hour */}
             <motion.div
-              className={cardStyles.clockTime}
+              className={styles.clockTime}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2 }}
@@ -142,19 +132,19 @@ export default function CardWhenYouRead({
 
         {/* Hour distribution bar chart */}
         <motion.div
-          className={cardStyles.hourDistWrapper}
+          className={styles.hourDistWrapper}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.0 }}
         >
-          <div className={cardStyles.hourDistBars}>
+          <div className={styles.hourDistBars}>
             {hourDistribution.map((value, hourIndex) => {
               const hourNumber = hourIndex;
               return (
                 <motion.div
                   key={`hour-${hourNumber}-${value}`}
-                  className={`${cardStyles.hourDistBar} ${
-                    hourNumber === peakHour ? cardStyles.hourDistBarPeak : ''
+                  className={`${styles.hourDistBar} ${
+                    hourNumber === peakHour ? styles.hourDistBarPeak : ''
                   }`}
                   initial={{ scaleY: 0 }}
                   animate={{ scaleY: value || 0.05 }}
@@ -167,7 +157,7 @@ export default function CardWhenYouRead({
               );
             })}
           </div>
-          <div className={cardStyles.hourDistLabels}>
+          <div className={styles.hourDistLabels}>
             <span>12am</span>
             <span>6am</span>
             <span>12pm</span>

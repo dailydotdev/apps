@@ -1,21 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { motion } from 'framer-motion';
-import type { LogData } from '../../types/log';
 import { useAnimatedNumber } from '../../hooks/log';
 import styles from './Log.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
-
-interface CardProps {
-  data: LogData;
-  isActive: boolean;
-  subcard?: number;
-  isTouchDevice?: boolean;
-  cardType?: string;
-  imageCache?: Map<string, Blob>;
-  onImageFetched?: (cardType: string, blob: Blob) => void;
-}
+import type { BaseCardProps } from './types';
 
 export default function CardTotalImpact({
   data,
@@ -23,7 +13,7 @@ export default function CardTotalImpact({
   cardType,
   imageCache,
   onImageFetched,
-}: CardProps): ReactElement {
+}: BaseCardProps): ReactElement {
   const animatedPosts = useAnimatedNumber(data.totalPosts, {
     delay: 500,
     enabled: isActive,

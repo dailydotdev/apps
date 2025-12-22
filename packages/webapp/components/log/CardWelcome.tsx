@@ -4,20 +4,8 @@ import { motion } from 'framer-motion';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import type { LogData } from '../../types/log';
 import styles from './Log.module.css';
-import cardStyles from './Cards.module.css';
-
-interface CardProps {
-  data: LogData;
-  isActive: boolean;
-  subcard?: number;
-  isTouchDevice?: boolean;
-  isLoading?: boolean;
-  cardType?: string;
-  imageCache?: Map<string, Blob>;
-  onImageFetched?: (cardType: string, blob: Blob) => void;
-}
+import type { BaseCardProps } from './types';
 
 // Animation timing constants (in seconds, relative to mount)
 const NAME_START = 0.2;
@@ -29,7 +17,7 @@ const CTA_DELAY = 2.5;
 export default function CardWelcome({
   isTouchDevice,
   isLoading,
-}: CardProps): ReactElement {
+}: BaseCardProps): ReactElement {
   const { user } = useAuthContext();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -55,7 +43,7 @@ export default function CardWelcome({
           animate={isMounted ? visible : hidden}
           transition={{ delay: NAME_START, type: 'spring', stiffness: 100 }}
         >
-          <span className={cardStyles.welcomeName}>Hey {displayName}!</span>
+          <span className={styles.welcomeName}>Hey {displayName}!</span>
         </motion.div>
         <motion.div
           className={styles.headlineRow}
@@ -96,7 +84,7 @@ export default function CardWelcome({
 
       {/* Tagline - appears after title */}
       <motion.p
-        className={cardStyles.welcomeTagline}
+        className={styles.welcomeTagline}
         initial={hidden}
         animate={isMounted ? visible : hidden}
         transition={{ delay: TAGLINE_DELAY, duration: 0.5 }}
@@ -106,39 +94,39 @@ export default function CardWelcome({
 
       {/* Navigation instructions - appears after tagline (fade only) */}
       <motion.p
-        className={cardStyles.welcomeInstructions}
+        className={styles.welcomeInstructions}
         initial={{ opacity: 0 }}
         animate={{ opacity: isMounted ? 1 : 0 }}
         transition={{ delay: INSTRUCTIONS_DELAY, duration: 0.5 }}
       >
         {isTouchDevice ? 'Tap' : 'Click'} the sides to navigate
-        <span className={cardStyles.instructionHint}>👈 back · next 👉</span>
+        <span className={styles.instructionHint}>👈 back · next 👉</span>
       </motion.p>
 
       {/* CTA prompt - appears last (fade only) */}
       <motion.div
-        className={cardStyles.welcomeCta}
+        className={styles.welcomeCta}
         initial={{ opacity: 0 }}
         animate={{ opacity: isMounted ? 1 : 0 }}
         transition={{ delay: CTA_DELAY, duration: 0.5 }}
       >
         {/* Loading state */}
         <div
-          className={cardStyles.loadingState}
+          className={styles.loadingState}
           style={{
             opacity: isLoading ? 1 : 0,
             pointerEvents: isLoading ? 'auto' : 'none',
           }}
         >
-          <div className={cardStyles.loadingSpinner} />
-          <span className={cardStyles.loadingText}>
+          <div className={styles.loadingSpinner} />
+          <span className={styles.loadingText}>
             Preparing your year in review...
           </span>
         </div>
 
         {/* Ready state */}
         <motion.div
-          className={cardStyles.readyState}
+          className={styles.readyState}
           style={{
             opacity: isLoading ? 0 : 1,
             pointerEvents: isLoading ? 'none' : 'auto',
@@ -146,9 +134,9 @@ export default function CardWelcome({
           animate={!isLoading && isMounted ? { x: [0, 10, 0] } : {}}
           transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
         >
-          <span className={cardStyles.ctaText}>
+          <span className={styles.ctaText}>
             {isTouchDevice ? 'Tap ' : 'Click '} right to begin{' '}
-            <ArrowIcon size={IconSize.XSmall} className={cardStyles.ctaArrow} />
+            <ArrowIcon size={IconSize.XSmall} className={styles.ctaArrow} />
           </span>
         </motion.div>
       </motion.div>

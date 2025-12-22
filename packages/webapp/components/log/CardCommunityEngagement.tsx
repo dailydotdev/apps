@@ -8,21 +8,10 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import type { LogData } from '../../types/log';
 import { useAnimatedNumber } from '../../hooks/log';
 import styles from './Log.module.css';
-import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
-
-interface CardProps {
-  data: LogData;
-  isActive: boolean;
-  subcard?: number;
-  isTouchDevice?: boolean;
-  cardType?: string;
-  imageCache?: Map<string, Blob>;
-  onImageFetched?: (cardType: string, blob: Blob) => void;
-}
+import type { BaseCardProps } from './types';
 
 // Mixed floating icons component
 function FloatingIcon({
@@ -90,7 +79,7 @@ export default function CardCommunityEngagement({
   cardType,
   imageCache,
   onImageFetched,
-}: CardProps): ReactElement {
+}: BaseCardProps): ReactElement {
   const [showParticles, setShowParticles] = useState(false);
 
   // Total engagement actions
@@ -205,36 +194,34 @@ export default function CardCommunityEngagement({
       <div className={styles.cardContent}>
         {/* Total engagement header */}
         <motion.div
-          className={cardStyles.engagementHeader}
+          className={styles.engagementHeader}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <span className={cardStyles.engagementHeaderText}>
-            COMMUNITY PULSE
-          </span>
+          <span className={styles.engagementHeaderText}>COMMUNITY PULSE</span>
         </motion.div>
 
         {/* Main stat - Total engagement */}
         <motion.div
-          className={cardStyles.totalEngagementContainer}
+          className={styles.totalEngagementContainer}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
         >
           <motion.span
-            className={cardStyles.totalEngagementNumber}
+            className={styles.totalEngagementNumber}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
             {largeNumberFormat(animatedTotal)}
           </motion.span>
-          <span className={cardStyles.totalEngagementLabel}>interactions</span>
+          <span className={styles.totalEngagementLabel}>interactions</span>
         </motion.div>
 
         {/* Subtitle */}
         <motion.p
-          className={cardStyles.loveSubtitle}
+          className={styles.loveSubtitle}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -244,79 +231,77 @@ export default function CardCommunityEngagement({
 
         {/* Three equal engagement pillars */}
         <motion.div
-          className={cardStyles.engagementPillars}
+          className={styles.engagementPillars}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
           <motion.div
-            className={cardStyles.engagementPillar}
+            className={styles.engagementPillar}
             whileHover={{ scale: 1.05 }}
           >
-            <span className={cardStyles.pillarIcon}>
+            <span className={styles.pillarIcon}>
               <UpvoteIcon
                 secondary
                 size={IconSize.Medium}
                 className="text-action-upvote-default"
               />
             </span>
-            <span className={cardStyles.pillarValue}>
+            <span className={styles.pillarValue}>
               {largeNumberFormat(animatedUpvotes)}
             </span>
-            <span className={cardStyles.pillarLabel}>upvotes</span>
+            <span className={styles.pillarLabel}>upvotes</span>
           </motion.div>
 
           <motion.div
-            className={cardStyles.engagementPillar}
+            className={styles.engagementPillar}
             whileHover={{ scale: 1.05 }}
           >
-            <span className={cardStyles.pillarIcon}>
+            <span className={styles.pillarIcon}>
               <DiscussIcon
                 secondary
                 size={IconSize.Medium}
                 className="text-action-comment-default"
               />
             </span>
-            <span className={cardStyles.pillarValue}>
+            <span className={styles.pillarValue}>
               {largeNumberFormat(animatedComments)}
             </span>
-            <span className={cardStyles.pillarLabel}>comments</span>
+            <span className={styles.pillarLabel}>comments</span>
           </motion.div>
 
           <motion.div
-            className={cardStyles.engagementPillar}
+            className={styles.engagementPillar}
             whileHover={{ scale: 1.05 }}
           >
-            <span className={cardStyles.pillarIcon}>
+            <span className={styles.pillarIcon}>
               <BookmarkIcon
                 secondary
                 size={IconSize.Medium}
                 className="text-action-bookmark-default"
               />
             </span>
-            <span className={cardStyles.pillarValue}>
+            <span className={styles.pillarValue}>
               {largeNumberFormat(animatedBookmarks)}
             </span>
-            <span className={cardStyles.pillarLabel}>saved</span>
+            <span className={styles.pillarLabel}>saved</span>
           </motion.div>
         </motion.div>
 
         {/* Best stat banner */}
         {bestStat && (
           <motion.div
-            className={cardStyles.communityBanner}
+            className={styles.communityBanner}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, type: 'spring' }}
           >
-            <span className={cardStyles.communityBannerEmoji}>
-              {bestStat.icon}
-            </span>
+            <span className={styles.communityBannerEmoji}>{bestStat.icon}</span>
             <div>
-              <span className={cardStyles.communityBannerTop}>
+              <span className={styles.communityBannerTop}>
                 TOP {bestStat.value}%
               </span>
-              <span className={cardStyles.communityBannerLabel}>
+              <span className={styles.communityBannerLabel}>
                 {bestStat.label}
               </span>
             </div>

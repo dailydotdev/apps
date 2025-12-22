@@ -9,22 +9,11 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import type { LogData } from '../../types/log';
 import { useAnimatedNumber } from '../../hooks/log';
 import styles from './Log.module.css';
-import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
-
-interface CardProps {
-  data: LogData;
-  isActive: boolean;
-  subcard?: number;
-  isTouchDevice?: boolean;
-  cardType?: string;
-  imageCache?: Map<string, Blob>;
-  onImageFetched?: (cardType: string, blob: Blob) => void;
-}
+import type { BaseCardProps } from './types';
 
 // Floating sparkle effect for creator celebration
 function Sparkle({
@@ -68,7 +57,7 @@ export default function CardContributions({
   cardType,
   imageCache,
   onImageFetched,
-}: CardProps): ReactElement {
+}: BaseCardProps): ReactElement {
   const [showSparkles, setShowSparkles] = useState(false);
 
   const animatedPosts = useAnimatedNumber(data.postsCreated || 0, {
@@ -129,21 +118,18 @@ export default function CardContributions({
       <div className={styles.cardContent}>
         {/* Creator badge header */}
         <motion.div
-          className={cardStyles.creatorBadge}
+          className={styles.creatorBadge}
           initial={{ opacity: 0, y: -20, rotate: -3 }}
           animate={{ opacity: 1, y: 0, rotate: -2 }}
           transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
         >
-          <EditIcon
-            size={IconSize.Small}
-            className={cardStyles.creatorBadgeIcon}
-          />
-          <span className={cardStyles.creatorBadgeText}>CONTENT CREATOR</span>
+          <EditIcon size={IconSize.Small} className={styles.creatorBadgeIcon} />
+          <span className={styles.creatorBadgeText}>CONTENT CREATOR</span>
         </motion.div>
 
         {/* Main spotlight - Posts created */}
         <motion.div
-          className={cardStyles.spotlightContainer}
+          className={styles.spotlightContainer}
           initial={{ opacity: 0, scale: 0.3 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{
@@ -153,93 +139,91 @@ export default function CardContributions({
             damping: 12,
           }}
         >
-          <div className={cardStyles.spotlightRing} />
-          <div className={cardStyles.spotlightInner}>
+          <div className={styles.spotlightRing} />
+          <div className={styles.spotlightInner}>
             <motion.span
-              className={cardStyles.spotlightNumber}
+              className={styles.spotlightNumber}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
             >
               {animatedPosts}
             </motion.span>
-            <span className={cardStyles.spotlightLabel}>POSTS</span>
-            <span className={cardStyles.spotlightSubLabel}>published</span>
+            <span className={styles.spotlightLabel}>POSTS</span>
+            <span className={styles.spotlightSubLabel}>published</span>
           </div>
         </motion.div>
 
         {/* Result indicator - connects posts to impact */}
         <motion.div
-          className={cardStyles.resultIndicator}
+          className={styles.resultIndicator}
           initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ delay: 0.9, duration: 0.4 }}
         >
-          <div className={cardStyles.resultLine} />
-          <span className={cardStyles.resultText}>resulted in</span>
-          <div className={cardStyles.resultLine} />
+          <div className={styles.resultLine} />
+          <span className={styles.resultText}>resulted in</span>
+          <div className={styles.resultLine} />
         </motion.div>
 
         {/* Impact metrics as ticket stubs */}
-        <div className={cardStyles.ticketStubsContainer}>
+        <div className={styles.ticketStubsContainer}>
           <motion.div
-            className={`${cardStyles.ticketStub} ${cardStyles.ticketStubViews}`}
+            className={`${styles.ticketStub} ${styles.ticketStubViews}`}
             initial={{ opacity: 0, x: -40, rotate: -5 }}
             animate={{ opacity: 1, x: 0, rotate: -2 }}
             transition={{ delay: 1.0, type: 'spring', stiffness: 120 }}
           >
-            <div className={cardStyles.ticketStubPerforation} />
-            <div className={cardStyles.ticketStubContent}>
+            <div className={styles.ticketStubPerforation} />
+            <div className={styles.ticketStubContent}>
               <EyeIcon
                 size={IconSize.Small}
-                className={cardStyles.ticketStubIcon}
+                className={styles.ticketStubIcon}
               />
-              <span className={cardStyles.ticketStubValue}>
+              <span className={styles.ticketStubValue}>
                 {largeNumberFormat(animatedViews)}
               </span>
-              <span className={cardStyles.ticketStubLabel}>VIEWS</span>
+              <span className={styles.ticketStubLabel}>VIEWS</span>
             </div>
-            <div className={cardStyles.ticketStubTear} />
+            <div className={styles.ticketStubTear} />
           </motion.div>
 
           <motion.div
-            className={`${cardStyles.ticketStub} ${cardStyles.ticketStubComments}`}
+            className={`${styles.ticketStub} ${styles.ticketStubComments}`}
             initial={{ opacity: 0, y: 30, rotate: 3 }}
             animate={{ opacity: 1, y: 0, rotate: 1 }}
             transition={{ delay: 1.2, type: 'spring', stiffness: 120 }}
           >
-            <div className={cardStyles.ticketStubPerforation} />
-            <div className={cardStyles.ticketStubContent}>
+            <div className={styles.ticketStubPerforation} />
+            <div className={styles.ticketStubContent}>
               <DiscussIcon
                 size={IconSize.Small}
-                className={cardStyles.ticketStubIcon}
+                className={styles.ticketStubIcon}
               />
-              <span className={cardStyles.ticketStubValue}>
-                {animatedComments}
-              </span>
-              <span className={cardStyles.ticketStubLabel}>COMMENTS</span>
+              <span className={styles.ticketStubValue}>{animatedComments}</span>
+              <span className={styles.ticketStubLabel}>COMMENTS</span>
             </div>
-            <div className={cardStyles.ticketStubTear} />
+            <div className={styles.ticketStubTear} />
           </motion.div>
 
           <motion.div
-            className={`${cardStyles.ticketStub} ${cardStyles.ticketStubRep}`}
+            className={`${styles.ticketStub} ${styles.ticketStubRep}`}
             initial={{ opacity: 0, x: 40, rotate: 5 }}
             animate={{ opacity: 1, x: 0, rotate: 2 }}
             transition={{ delay: 1.4, type: 'spring', stiffness: 120 }}
           >
-            <div className={cardStyles.ticketStubPerforation} />
-            <div className={cardStyles.ticketStubContent}>
+            <div className={styles.ticketStubPerforation} />
+            <div className={styles.ticketStubContent}>
               <ReputationIcon
                 size={IconSize.Small}
-                className={cardStyles.ticketStubIcon}
+                className={styles.ticketStubIcon}
               />
-              <span className={cardStyles.ticketStubValue}>
+              <span className={styles.ticketStubValue}>
                 {largeNumberFormat(animatedRep)}
               </span>
-              <span className={cardStyles.ticketStubLabel}>REPUTATION</span>
+              <span className={styles.ticketStubLabel}>REPUTATION</span>
             </div>
-            <div className={cardStyles.ticketStubTear} />
+            <div className={styles.ticketStubTear} />
           </motion.div>
         </div>
 

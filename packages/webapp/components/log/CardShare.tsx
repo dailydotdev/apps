@@ -5,22 +5,10 @@ import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import type { LogData } from '../../types/log';
 import { ARCHETYPES, RECORDS } from '../../types/log';
 import { shareLog } from '../../hooks/log/shareLogImage';
 import styles from './Log.module.css';
-import cardStyles from './Cards.module.css';
-
-interface CardProps {
-  data: LogData;
-  isActive: boolean;
-  subcard?: number;
-  isTouchDevice?: boolean;
-  onShare?: () => void;
-  cardType?: string;
-  imageCache?: Map<string, Blob>;
-  onImageFetched?: (cardType: string, blob: Blob) => void;
-}
+import type { ShareableCardProps } from './types';
 
 export default function CardShare({
   data,
@@ -28,7 +16,7 @@ export default function CardShare({
   cardType,
   imageCache,
   onImageFetched,
-}: CardProps): ReactElement {
+}: ShareableCardProps): ReactElement {
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
   const [isLoading, setIsLoading] = useState(false);
@@ -117,47 +105,45 @@ export default function CardShare({
       <div className={styles.cardContent}>
         {/* Hero Header - "IT'S OFFICIAL" stamp */}
         <motion.div
-          className={cardStyles.shareOfficialStamp}
+          className={styles.shareOfficialStamp}
           initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
           animate={{ opacity: 1, scale: 1, rotate: -3 }}
           transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
         >
-          <span className={cardStyles.shareOfficialText}>
-            That&apos;s a wrap
-          </span>
+          <span className={styles.shareOfficialText}>That&apos;s a wrap</span>
         </motion.div>
 
         {/* Main headline */}
         <motion.div
-          className={cardStyles.shareMainHeadline}
+          className={styles.shareMainHeadline}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
         >
-          <span className={cardStyles.shareYouAre}>YOU ARE</span>
-          <span className={cardStyles.shareArchetypeTitle}>
+          <span className={styles.shareYouAre}>YOU ARE</span>
+          <span className={styles.shareArchetypeTitle}>
             {archetype.name.toUpperCase()}
           </span>
         </motion.div>
 
         {/* Archetype Avatar with glow */}
         <motion.div
-          className={cardStyles.shareAvatarWrapper}
+          className={styles.shareAvatarWrapper}
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, type: 'spring', stiffness: 150 }}
         >
           <div
-            className={cardStyles.shareAvatarGlow}
+            className={styles.shareAvatarGlow}
             style={{ background: archetype.color }}
           />
           <img
             src={archetype.imageUrl}
             alt={archetype.name}
-            className={cardStyles.shareAvatarImage}
+            className={styles.shareAvatarImage}
           />
           <motion.div
-            className={cardStyles.shareAvatarRing}
+            className={styles.shareAvatarRing}
             style={{ borderColor: archetype.color }}
             animate={{ rotate: 360 }}
             transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
@@ -166,7 +152,7 @@ export default function CardShare({
 
         {/* Archetype description */}
         <motion.p
-          className={cardStyles.shareArchetypeDescription}
+          className={styles.shareArchetypeDescription}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.5 }}
@@ -176,71 +162,63 @@ export default function CardShare({
 
         {/* Receipt-style stats card - compact version */}
         <motion.div
-          className={cardStyles.shareReceiptCard}
+          className={styles.shareReceiptCard}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.5 }}
         >
-          <div className={cardStyles.shareReceiptRow}>
-            <span className={cardStyles.shareReceiptLabel}>📚 POSTS READ</span>
-            <span className={cardStyles.shareReceiptValue}>
+          <div className={styles.shareReceiptRow}>
+            <span className={styles.shareReceiptLabel}>📚 POSTS READ</span>
+            <span className={styles.shareReceiptValue}>
               {data.totalPosts.toLocaleString()}
             </span>
           </div>
 
-          <div className={cardStyles.shareReceiptRow}>
-            <span className={cardStyles.shareReceiptLabel}>📅 DAYS ACTIVE</span>
-            <span className={cardStyles.shareReceiptValue}>
-              {data.daysActive}
-            </span>
+          <div className={styles.shareReceiptRow}>
+            <span className={styles.shareReceiptLabel}>📅 DAYS ACTIVE</span>
+            <span className={styles.shareReceiptValue}>{data.daysActive}</span>
           </div>
 
-          <div className={cardStyles.shareReceiptRow}>
-            <span className={cardStyles.shareReceiptLabel}>🕐 PEAK HOUR</span>
-            <span className={cardStyles.shareReceiptValue}>{peakHour}</span>
+          <div className={styles.shareReceiptRow}>
+            <span className={styles.shareReceiptLabel}>🕐 PEAK HOUR</span>
+            <span className={styles.shareReceiptValue}>{peakHour}</span>
           </div>
 
-          <div className={cardStyles.shareReceiptRow}>
-            <span className={cardStyles.shareReceiptLabel}>
-              🏷️ TOPICS EXPLORED
-            </span>
-            <span className={cardStyles.shareReceiptValue}>
+          <div className={styles.shareReceiptRow}>
+            <span className={styles.shareReceiptLabel}>🏷️ TOPICS EXPLORED</span>
+            <span className={styles.shareReceiptValue}>
               {data.uniqueTopics}
             </span>
           </div>
 
-          <div className={cardStyles.shareReceiptRow}>
-            <span className={cardStyles.shareReceiptLabel}>
-              📰 SOURCES READ
-            </span>
-            <span className={cardStyles.shareReceiptValue}>
+          <div className={styles.shareReceiptRow}>
+            <span className={styles.shareReceiptLabel}>📰 SOURCES READ</span>
+            <span className={styles.shareReceiptValue}>
               {data.uniqueSources}
             </span>
           </div>
 
-          <div className={cardStyles.shareReceiptRow}>
-            <span className={cardStyles.shareReceiptLabel}>
-              💬 INTERACTIONS
-            </span>
-            <span className={cardStyles.shareReceiptValue}>
+          <div className={styles.shareReceiptRow}>
+            <span className={styles.shareReceiptLabel}>💬 INTERACTIONS</span>
+            <span className={styles.shareReceiptValue}>
               {totalInteractions.toLocaleString()}
             </span>
           </div>
 
           {bestRecord && (
-            <div className={cardStyles.shareReceiptRow}>
-              <span className={cardStyles.shareReceiptLabel}>
+            <div className={styles.shareReceiptRow}>
+              <span className={styles.shareReceiptLabel}>
                 {RECORDS[bestRecord.type].emoji}{' '}
                 {bestRecord.label.toUpperCase()}
               </span>
-              <span className={cardStyles.shareReceiptValue}>
+              <span className={styles.shareReceiptValue}>
                 {bestRecord.value}
               </span>
             </div>
           )}
 
-          <div className={cardStyles.shareReceiptFooter}>
-            <span className={cardStyles.shareReceiptRank}>
+          <div className={styles.shareReceiptFooter}>
+            <span className={styles.shareReceiptRank}>
               TOP {data.archetypePercentile}% OF DEVS
             </span>
           </div>
@@ -249,20 +227,20 @@ export default function CardShare({
 
       {/* Share button */}
       <motion.div
-        className={cardStyles.shareWrapButtons}
+        className={styles.shareWrapButtons}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.0 }}
       >
         <motion.button
-          className={`${cardStyles.shareWrapButton} ${cardStyles.shareWrapButtonPrimary}`}
+          className={`${styles.shareWrapButton} ${styles.shareWrapButtonPrimary}`}
           onClick={handleShare}
           disabled={isLoading}
           whileHover={!isLoading ? { scale: 1.05, rotate: 0 } : undefined}
           whileTap={!isLoading ? { scale: 0.98, rotate: 1 } : undefined}
           style={isLoading ? { opacity: 0.7, cursor: 'wait' } : undefined}
         >
-          <span className={cardStyles.shareWrapButtonIcon}>
+          <span className={styles.shareWrapButtonIcon}>
             {isLoading ? (
               <Loader innerClassName="before:!border-pepper-90 after:!border-t-pepper-90 !w-4 !h-4" />
             ) : (

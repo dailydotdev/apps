@@ -18,3 +18,14 @@ export { useBackgroundMusic } from './useBackgroundMusic';
 export { shareLog } from './shareLogImage';
 export type { ShareResult } from './shareLogImage';
 export { useShareImagePreloader } from './useShareImagePreloader';
+
+// Stats calculations
+export {
+  useBestPercentileStat,
+  getBestPercentileStat,
+  calculateTotalEngagement,
+  useTotalEngagement,
+  getPeakReadingHour,
+  usePeakReadingHour,
+} from './useLogStats';
+export type { EngagementStat, EngagementPercentileData } from './useLogStats';

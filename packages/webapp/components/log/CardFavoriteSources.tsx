@@ -6,22 +6,11 @@ import {
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
 import { EarthIcon } from '@dailydotdev/shared/src/components/icons';
-import type { LogData } from '../../types/log';
 import { useAnimatedNumber } from '../../hooks/log';
 import styles from './Log.module.css';
-import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
-
-interface CardProps {
-  data: LogData;
-  isActive: boolean;
-  subcard?: number;
-  isTouchDevice?: boolean;
-  cardType?: string;
-  imageCache?: Map<string, Blob>;
-  onImageFetched?: (cardType: string, blob: Blob) => void;
-}
+import type { BaseCardProps } from './types';
 
 const PODIUM_MEDALS = ['🥈', '🥇', '🥉'];
 const PODIUM_HEIGHTS = [100, 140, 70];
@@ -33,7 +22,7 @@ export default function CardFavoriteSources({
   cardType,
   imageCache,
   onImageFetched,
-}: CardProps): ReactElement {
+}: BaseCardProps): ReactElement {
   const [showMedals, setShowMedals] = useState(false);
 
   const animatedSources = useAnimatedNumber(data.uniqueSources, {
@@ -74,7 +63,7 @@ export default function CardFavoriteSources({
         </motion.div>
 
         {/* Podium */}
-        <div className={cardStyles.podiumStage}>
+        <div className={styles.podiumStage}>
           {podiumOrder.map((source, index) => {
             let rank: number;
             if (index === 1) {
@@ -90,14 +79,14 @@ export default function CardFavoriteSources({
             return (
               <motion.div
                 key={source.name}
-                className={cardStyles.podiumColumn}
+                className={styles.podiumColumn}
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay, type: 'spring', stiffness: 100 }}
               >
                 {/* Medal with bounce */}
                 <motion.div
-                  className={cardStyles.podiumMedal}
+                  className={styles.podiumMedal}
                   initial={{ scale: 0, rotate: -180 }}
                   animate={showMedals ? { scale: 1, rotate: 0 } : { scale: 0 }}
                   transition={{
@@ -112,7 +101,7 @@ export default function CardFavoriteSources({
 
                 {/* Source icon + name */}
                 <motion.div
-                  className={cardStyles.podiumSource}
+                  className={styles.podiumSource}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: delay + 0.2 }}
@@ -128,7 +117,7 @@ export default function CardFavoriteSources({
 
                 {/* Bar */}
                 <motion.div
-                  className={cardStyles.podiumBar}
+                  className={styles.podiumBar}
                   style={{
                     height: 0,
                     background:
@@ -143,8 +132,8 @@ export default function CardFavoriteSources({
                     ease: 'easeOut',
                   }}
                 >
-                  <span className={cardStyles.podiumRank}>{rank}</span>
-                  <span className={cardStyles.podiumCount}>
+                  <span className={styles.podiumRank}>{rank}</span>
+                  <span className={styles.podiumCount}>
                     {source.postsRead} posts
                   </span>
                 </motion.div>
@@ -155,17 +144,17 @@ export default function CardFavoriteSources({
 
         {/* Discovery stat */}
         <motion.div
-          className={cardStyles.discoveryBadge}
+          className={styles.discoveryBadge}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.2 }}
         >
-          <div className={cardStyles.discoveryIcon}>
+          <div className={styles.discoveryIcon}>
             <EarthIcon />
           </div>
-          <div className={cardStyles.discoveryContent}>
-            <span className={cardStyles.discoveryValue}>{animatedSources}</span>
-            <span className={cardStyles.discoveryLabel}>sources read</span>
+          <div className={styles.discoveryContent}>
+            <span className={styles.discoveryValue}>{animatedSources}</span>
+            <span className={styles.discoveryLabel}>sources read</span>
           </div>
         </motion.div>
 

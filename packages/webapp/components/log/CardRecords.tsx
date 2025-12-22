@@ -1,21 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { motion } from 'framer-motion';
-import type { LogData } from '../../types/log';
 import { RECORDS } from '../../types/log';
 import styles from './Log.module.css';
-import cardStyles from './Cards.module.css';
 import ShareStatButton from './ShareStatButton';
-
-interface CardProps {
-  data: LogData;
-  isActive: boolean;
-  subcard?: number;
-  isTouchDevice?: boolean;
-  cardType?: string;
-  imageCache?: Map<string, Blob>;
-  onImageFetched?: (cardType: string, blob: Blob) => void;
-}
+import type { BaseCardProps } from './types';
 
 export default function CardRecords({
   data,
@@ -23,30 +12,30 @@ export default function CardRecords({
   cardType,
   imageCache,
   onImageFetched,
-}: CardProps): ReactElement {
+}: BaseCardProps): ReactElement {
   return (
     <>
       {/* Main content - centered vertically */}
       <div className={styles.cardContent}>
         {/* Album-style header */}
         <motion.div
-          className={cardStyles.albumHeader}
+          className={styles.albumHeader}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, type: 'spring', stiffness: 150 }}
         >
-          <span className={cardStyles.albumLabel}>YOUR</span>
-          <span className={cardStyles.albumTitle}>GREATEST</span>
-          <span className={cardStyles.albumTitle}>HITS</span>
-          <span className={cardStyles.albumYear}>— 2025 —</span>
+          <span className={styles.albumLabel}>YOUR</span>
+          <span className={styles.albumTitle}>GREATEST</span>
+          <span className={styles.albumTitle}>HITS</span>
+          <span className={styles.albumYear}>— 2025 —</span>
         </motion.div>
 
         {/* Track listing */}
-        <div className={cardStyles.trackList}>
+        <div className={styles.trackList}>
           {data.records.map((record, index) => (
             <motion.div
               key={record.type}
-              className={cardStyles.track}
+              className={styles.track}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -58,7 +47,7 @@ export default function CardRecords({
             >
               {/* Track number */}
               <motion.span
-                className={cardStyles.trackNumber}
+                className={styles.trackNumber}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{
@@ -71,20 +60,20 @@ export default function CardRecords({
               </motion.span>
 
               {/* Track info */}
-              <div className={cardStyles.trackInfo}>
-                <div className={cardStyles.trackTitleRow}>
-                  <span className={cardStyles.trackEmoji}>
+              <div className={styles.trackInfo}>
+                <div className={styles.trackTitleRow}>
+                  <span className={styles.trackEmoji}>
                     {RECORDS[record.type]?.emoji || '🎯'}
                   </span>
-                  <span className={cardStyles.trackTitle}>{record.value}</span>
+                  <span className={styles.trackTitle}>{record.value}</span>
                 </div>
-                <span className={cardStyles.trackArtist}>{record.label}</span>
+                <span className={styles.trackArtist}>{record.label}</span>
               </div>
 
               {/* Chart position badge */}
               {record.percentile && (
                 <motion.div
-                  className={cardStyles.chartBadge}
+                  className={styles.chartBadge}
                   initial={{ scale: 0, rotate: -10 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{
@@ -93,8 +82,8 @@ export default function CardRecords({
                     stiffness: 200,
                   }}
                 >
-                  <span className={cardStyles.chartBadgeTop}>TOP</span>
-                  <span className={cardStyles.chartBadgeValue}>
+                  <span className={styles.chartBadgeTop}>TOP</span>
+                  <span className={styles.chartBadgeValue}>
                     {record.percentile}%
                   </span>
                 </motion.div>
