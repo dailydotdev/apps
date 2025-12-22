@@ -123,8 +123,8 @@ export const REMOVE_SOURCE_INTEGRATION_MUTATION = gql`
 `;
 
 export const CREATE_SHARED_SLACK_CHANNEL_MUTATION = gql`
-  mutation CreateSharedSlackChannel($email: String!, $channelName: String!) {
-    createSharedSlackChannel(email: $email, channelName: $channelName) {
+  mutation CreateSharedSlackChannel($email: String!, $channelName: String!, $organizationId: ID!) {
+    createSharedSlackChannel(email: $email, channelName: $channelName, organizationId: $organizationId) {
       _
     }
   }
