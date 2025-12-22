@@ -4967,3 +4967,67 @@
     font-size: 0.8rem;
   }
 }
+
+/* ========================================
+   NO DATA CARD - CTA Button
+   Festival theme: Inviting action for users without 2025 data
+   ======================================== */
+
+.noDataCtaButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.5rem;
+  background: var(--fest-lime, #ACF535);
+  color: var(--fest-bg, #0E1217);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transform: rotate(-1deg);
+  box-shadow:
+    4px 4px 0 var(--fest-primary, #FF8E3B),
+    8px 8px 0 var(--fest-accent, #CE3DF3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.noDataCtaButton:hover {
+  transform: rotate(0deg) scale(1.05);
+  box-shadow:
+    5px 5px 0 var(--fest-primary, #FF8E3B),
+    10px 10px 0 var(--fest-accent, #CE3DF3);
+}
+
+.noDataCtaButton:active {
+  transform: rotate(1deg) scale(0.98);
+  box-shadow:
+    2px 2px 0 var(--fest-primary, #FF8E3B),
+    4px 4px 0 var(--fest-accent, #CE3DF3);
+}
+
+@media (max-height: 700px) {
+  .noDataCtaButton {
+    padding: 0.875rem 2rem;
+    font-size: 0.8rem;
+    box-shadow:
+      3px 3px 0 var(--fest-primary, #FF8E3B),
+      6px 6px 0 var(--fest-accent, #CE3DF3);
+  }
+}
+
+@media (min-height: 750px) {
+  .noDataCtaButton {
+    padding: 1.125rem 2.75rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .noDataCtaButton {
+    padding: 1.25rem 3rem;
+    font-size: 1rem;
+  }
+}
