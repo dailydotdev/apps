@@ -33,7 +33,10 @@ export default function LogHeader({
   const router = useRouter();
 
   return (
-    <header className={styles.header}>
+    <header
+      className={styles.header}
+      style={{ '--theme-text-primary': '#FFFFFF' } as React.CSSProperties}
+    >
       {/* Instagram-style progress bars at top */}
       <div className={styles.progressBars}>
         {cards.map((card, index) => {
