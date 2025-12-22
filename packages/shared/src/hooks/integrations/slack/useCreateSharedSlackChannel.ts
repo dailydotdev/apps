@@ -18,7 +18,11 @@ export const useCreateSharedSlackChannel = (): UseCreateSharedSlackChannel => {
   const { displayToast } = useToastNotification();
 
   const { mutateAsync: createChannel, isPending: isCreating } = useMutation({
-    mutationFn: async ({ email, channelName, organizationId }: CreateChannelParams) => {
+    mutationFn: async ({
+      email,
+      channelName,
+      organizationId,
+    }: CreateChannelParams) => {
       if (!email) {
         throw new Error('Email is required');
       }
