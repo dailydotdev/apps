@@ -13,6 +13,7 @@ import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useImagePreloader } from '@dailydotdev/shared/src/hooks/useImagePreloader';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import ProtectedPage from '../../components/ProtectedPage';
 import { ARCHETYPES } from '../../types/log';
 import {
   useCardNavigation,
@@ -231,7 +232,7 @@ export default function LogPage(): ReactElement {
   }, [currentCardId, data?.archetype]);
 
   return (
-    <>
+    <ProtectedPage>
       <LogPageHead />
 
       <motion.div
@@ -299,7 +300,7 @@ export default function LogPage(): ReactElement {
         </div>
       </motion.div>
       <Toast autoDismissNotifications />
-    </>
+    </ProtectedPage>
   );
 }
 
