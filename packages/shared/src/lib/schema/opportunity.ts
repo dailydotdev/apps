@@ -74,8 +74,10 @@ export const opportunityEditInfoSchema = z.object({
 
 export const createOpportunityEditContentSchema = ({
   optional = false,
+  errorLabel = labels.form.required,
 }: {
   optional?: boolean;
+  errorLabel?: string;
 } = {}) => {
   const contentSchema = z.string().max(2000);
 
@@ -86,7 +88,7 @@ export const createOpportunityEditContentSchema = ({
     z.object({
       content: z.preprocess(
         (val) => val || '',
-        optional ? contentSchema : contentSchema.nonempty(labels.form.required),
+        optional ? contentSchema : contentSchema.nonempty(errorLabel),
       ),
     }),
   );
@@ -96,9 +98,15 @@ export const createOpportunityEditContentSchema = ({
 
 export const opportunityEditContentSchema = z.object({
   content: z.object({
-    overview: createOpportunityEditContentSchema(),
-    responsibilities: createOpportunityEditContentSchema(),
-    requirements: createOpportunityEditContentSchema(),
+    overview: createOpportunityEditContentSchema({
+      errorLabel: 'Overview is required',
+    }),
+    responsibilities: createOpportunityEditContentSchema({
+      errorLabel: 'Responsibilities are required',
+    }),
+    requirements: createOpportunityEditContentSchema({
+      errorLabel: 'Requirements are required',
+    }),
     whatYoullDo: createOpportunityEditContentSchema({ optional: true }),
     interviewProcess: createOpportunityEditContentSchema({ optional: true }),
   }),
