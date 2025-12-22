@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { LogData } from '../../../types/log';
 import styles from './StaticCards.module.css';
+import { HeadlineStack, StatBadgeGroup, Divider } from '../primitives';
+import TopPercentileBanner from '../TopPercentileBanner';
 
 interface StaticCardProps {
   data: Pick<
@@ -13,6 +15,7 @@ interface StaticCardProps {
 /**
  * Static Total Impact card for share image generation.
  * No animations - displays final state.
+ * Uses shared primitives with animated=false for consistency with interactive card.
  */
 export default function StaticCardTotalImpact({
   data,
@@ -20,45 +23,52 @@ export default function StaticCardTotalImpact({
   return (
     <>
       {/* Main headline stack */}
-      <div className={styles.headlineStack}>
-        <span className={styles.headlineSmall}>You read</span>
-        <span className={styles.headlineBig}>
-          {data.totalPosts.toLocaleString()}
-        </span>
-        <span className={styles.headlineMedium}>POSTS</span>
-        <span className={styles.headlineAccent}>this year</span>
-      </div>
+      <HeadlineStack
+        rows={[
+          { content: 'You read', variant: 'small' },
+          { content: data.totalPosts.toLocaleString(), variant: 'big' },
+          { content: 'POSTS', variant: 'medium' },
+          { content: 'this year', variant: 'accent' },
+        ]}
+        animated={false}
+        className={styles.headlineStack}
+      />
 
       {/* Divider */}
-      <div className={styles.divider}>
-        <div className={styles.dividerLine} />
-        <div className={styles.dividerIcon}>◆</div>
-        <div className={styles.dividerLine} />
-      </div>
+      <Divider
+        animated={false}
+        customStyles={{
+          divider: styles.divider,
+          dividerLine: styles.dividerLine,
+          dividerIcon: styles.dividerIcon,
+        }}
+      />
 
       {/* Secondary stats */}
-      <div className={styles.statsBadges}>
-        <div className={styles.badge}>
-          <span className={styles.badgeValue}>{data.totalReadingTime}h</span>
-          <span className={styles.badgeLabel}>Reading</span>
-        </div>
-        <div className={styles.badge}>
-          <span className={styles.badgeValue}>{data.daysActive}</span>
-          <span className={styles.badgeLabel}>Days Active</span>
-        </div>
-      </div>
+      <StatBadgeGroup
+        badges={[
+          { value: `${data.totalReadingTime}h`, label: 'Reading' },
+          { value: data.daysActive, label: 'Days Active' },
+        ]}
+        animated={false}
+        className={styles.statsBadges}
+      />
 
       {/* Competitive stat banner */}
-      <div className={styles.celebrationBanner}>
-        <div className={styles.bannerBg} />
-        <div className={styles.bannerContent}>
-          <span className={styles.bannerPre}>Top</span>
-          <span className={styles.bannerMain}>
-            {data.totalImpactPercentile}%
-          </span>
-          <span className={styles.bannerPost}>of devs</span>
-        </div>
-      </div>
+      <TopPercentileBanner
+        preText="Top"
+        mainText={`${data.totalImpactPercentile}%`}
+        postText="of devs"
+        animated={false}
+        customStyles={{
+          celebrationBanner: styles.celebrationBanner,
+          bannerBg: styles.bannerBg,
+          bannerContent: styles.bannerContent,
+          bannerPre: styles.bannerPre,
+          bannerMain: styles.bannerMain,
+          bannerPost: styles.bannerPost,
+        }}
+      />
     </>
   );
 }

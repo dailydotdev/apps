@@ -1,14 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import {
-  UpvoteIcon,
-  DiscussIcon,
-  BookmarkIcon,
-} from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { LogData } from '../../../types/log';
 import styles from './StaticCards.module.css';
+import { EngagementPillars, findBestEngagementStat } from '../primitives';
 
 interface StaticCardProps {
   data: Pick<
@@ -25,6 +21,7 @@ interface StaticCardProps {
 /**
  * Static Community Engagement card for share image generation.
  * Shows engagement stats with pillar layout matching the interactive card.
+ * Uses shared primitives with animated=false for consistency.
  */
 export default function StaticCardCommunityEngagement({
   data,
@@ -33,46 +30,16 @@ export default function StaticCardCommunityEngagement({
     data.upvotesGiven + data.commentsWritten + data.postsBookmarked;
 
   // Find best stat for the banner
-  const bestStat = useMemo(() => {
-    const stats = [
-      {
-        label: 'UPVOTERS',
-        value: data.upvotePercentile,
-        icon: (
-          <UpvoteIcon
-            secondary
-            size={IconSize.XXXLarge}
-            className="text-action-upvote-default"
-          />
-        ),
-      },
-      {
-        label: 'COMMENTERS',
-        value: data.commentPercentile,
-        icon: (
-          <DiscussIcon
-            secondary
-            size={IconSize.XXXLarge}
-            className="text-action-comment-default"
-          />
-        ),
-      },
-      {
-        label: 'CURATORS',
-        value: data.bookmarkPercentile,
-        icon: (
-          <BookmarkIcon
-            secondary
-            size={IconSize.XXXLarge}
-            className="text-action-bookmark-default"
-          />
-        ),
-      },
-    ]
-      .filter((s) => s.value !== undefined && s.value <= 50)
-      .sort((a, b) => (a.value || 100) - (b.value || 100));
-    return stats[0];
-  }, [data]);
+  const bestStat = useMemo(
+    () =>
+      findBestEngagementStat({
+        upvotePercentile: data.upvotePercentile,
+        commentPercentile: data.commentPercentile,
+        bookmarkPercentile: data.bookmarkPercentile,
+        iconSize: IconSize.XXXLarge,
+      }),
+    [data.upvotePercentile, data.commentPercentile, data.bookmarkPercentile],
+  );
 
   return (
     <div className={styles.engagementContainer}>
@@ -95,49 +62,20 @@ export default function StaticCardCommunityEngagement({
       </p>
 
       {/* Three equal engagement pillars */}
-      <div className={styles.engagementPillars}>
-        <div className={styles.engagementPillar}>
-          <span className={styles.pillarIcon}>
-            <UpvoteIcon
-              secondary
-              size={IconSize.XXXLarge}
-              className="text-action-upvote-default"
-            />
-          </span>
-          <span className={styles.pillarValue}>
-            {largeNumberFormat(data.upvotesGiven)}
-          </span>
-          <span className={styles.pillarLabel}>upvotes</span>
-        </div>
-
-        <div className={styles.engagementPillar}>
-          <span className={styles.pillarIcon}>
-            <DiscussIcon
-              secondary
-              size={IconSize.XXXLarge}
-              className="text-action-comment-default"
-            />
-          </span>
-          <span className={styles.pillarValue}>
-            {largeNumberFormat(data.commentsWritten)}
-          </span>
-          <span className={styles.pillarLabel}>comments</span>
-        </div>
-
-        <div className={styles.engagementPillar}>
-          <span className={styles.pillarIcon}>
-            <BookmarkIcon
-              secondary
-              size={IconSize.XXXLarge}
-              className="text-action-bookmark-default"
-            />
-          </span>
-          <span className={styles.pillarValue}>
-            {largeNumberFormat(data.postsBookmarked)}
-          </span>
-          <span className={styles.pillarLabel}>saved</span>
-        </div>
-      </div>
+      <EngagementPillars
+        upvotes={data.upvotesGiven}
+        comments={data.commentsWritten}
+        bookmarks={data.postsBookmarked}
+        animated={false}
+        iconSize={IconSize.XXXLarge}
+        customStyles={{
+          engagementPillars: styles.engagementPillars,
+          engagementPillar: styles.engagementPillar,
+          pillarIcon: styles.pillarIcon,
+          pillarValue: styles.pillarValue,
+          pillarLabel: styles.pillarLabel,
+        }}
+      />
 
       {/* Best stat banner */}
       {bestStat && (
