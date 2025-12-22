@@ -24,11 +24,16 @@ import {
 import { DragDrop } from '../../fields/DragDrop';
 import { parseOpportunityMutationOptions } from '../../../features/opportunity/mutations';
 import { useToastNotification } from '../../../hooks';
-import type { ApiErrorResult } from '../../../graphql/common';
+import type {
+  ApiErrorResult,
+  ApiZodErrorExtension,
+} from '../../../graphql/common';
 import { labels } from '../../../lib';
 import type { Opportunity } from '../../../features/opportunity/types';
+import Alert, { AlertType } from '../../widgets/Alert';
+import { FlexCol } from '../../utilities';
 
-const jobLinkSchema = z.string().url('Please enter a valid URL');
+const jobLinkSchema = z.string().url({ message: 'Please enter a valid URL' });
 
 export interface RecruiterJobLinkModalProps extends ModalProps {
   onSubmit: (opportunity: Opportunity) => void;
@@ -104,6 +109,11 @@ const LoadingButtonContent = ({ isPending }: LoadingButtonContentProps) => {
   );
 };
 
+interface ValidationIssue {
+  path: (string | number)[];
+  message: string;
+}
+
 export const RecruiterJobLinkModal = ({
   onSubmit,
   onRequestClose,
@@ -111,6 +121,9 @@ export const RecruiterJobLinkModal = ({
 }: RecruiterJobLinkModalProps): ReactElement => {
   const [jobLink, setJobLink] = useState('');
   const [error, setError] = useState<string>('');
+  const [validationErrors, setValidationErrors] = useState<ValidationIssue[]>(
+    [],
+  );
   const [file, setFile] = useState<File | null>(null);
   const { displayToast } = useToastNotification();
 
@@ -135,12 +148,14 @@ export const RecruiterJobLinkModal = ({
       const { value } = e.target;
       setJobLink(value);
       validateJobLink(value);
+      setValidationErrors([]);
     },
     [validateJobLink],
   );
 
   const handleFilesDrop = useCallback((files: File[]) => {
     setFile(files[0]);
+    setValidationErrors([]);
   }, []);
 
   const { mutateAsync: parseOpportunity } = useMutation(
@@ -163,9 +178,19 @@ export const RecruiterJobLinkModal = ({
       throw new Error('No job link or file provided');
     },
     onError: (mutationError: ApiErrorResult) => {
-      displayToast(
-        mutationError?.response?.errors?.[0]?.message || labels.error.generic,
-      );
+      const firstError = mutationError?.response?.errors?.[0];
+      const isZodError =
+        firstError?.extensions?.code === 'ZOD_VALIDATION_ERROR';
+
+      if (isZodError) {
+        const zodError = firstError as unknown as {
+          extensions: ApiZodErrorExtension;
+        };
+        const issues = zodError.extensions.issues as ValidationIssue[];
+        setValidationErrors(issues);
+      } else {
+        displayToast(firstError?.message || labels.error.generic);
+      }
     },
     onSuccess: (opportunity) => {
       onSubmit(opportunity);
@@ -204,6 +229,34 @@ export const RecruiterJobLinkModal = ({
           Your role is matched privately inside daily.dev&#39;s developer
           network
         </Typography>
+
+        {validationErrors.length > 0 && (
+          <Alert type={AlertType.Error} className="w-full">
+            <FlexCol className="gap-2">
+              <Typography type={TypographyType.Callout} bold>
+                We couldn&apos;t parse all the information from your job
+                posting:
+              </Typography>
+              <ul className="ml-4 list-disc">
+                {validationErrors.map((issue) => (
+                  <li
+                    key={`${issue.path.join('-')}-${issue.message}`}
+                    className="typo-footnote"
+                  >
+                    {issue.message}
+                  </li>
+                ))}
+              </ul>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Please try a different job link or upload a more detailed job
+                description.
+              </Typography>
+            </FlexCol>
+          </Alert>
+        )}
 
         <div className="flex w-full flex-col gap-4">
           <TextField
