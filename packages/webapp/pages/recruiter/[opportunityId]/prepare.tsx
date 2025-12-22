@@ -43,8 +43,8 @@ function PreparePage(): ReactElement {
     }),
   );
 
-  const goToNextStep = () => {
-    router.push(`${webappUrl}recruiter/${opportunityId}/questions`);
+  const goToNextStep = async () => {
+    await router.push(`${webappUrl}recruiter/${opportunityId}/questions`);
   };
 
   const {
@@ -58,31 +58,34 @@ function PreparePage(): ReactElement {
         return opportunity.questions;
       }
 
-      displayToast('Generating screening questions...', {
-        subject: ToastSubject.OpportunityScreeningQuestions,
-        timer: 10_000,
-      });
+      displayToast(
+        'Just a momment, generating screening questions for your job....',
+        {
+          subject: ToastSubject.OpportunityScreeningQuestions,
+          timer: 10_000,
+        },
+      );
 
       return await recommendOpportunityScreeningQuestionsOptions().mutationFn({
         id,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       updateOpportunity({ ...opportunity, questions: data });
 
-      goToNextStep();
+      await goToNextStep();
     },
-    onError: (error: ApiErrorResult) => {
-      if (error.response?.errors?.[0]?.extensions?.code === ApiError.Conflict) {
-        // questions already generated so we can just proceed
-        goToNextStep();
-
-        return;
+    onError: async (error: ApiErrorResult) => {
+      if (error.response?.errors?.[0]?.extensions?.code !== ApiError.Conflict) {
+        displayToast(
+          'We could not generate questions but you can add some manually. Sorry for that!',
+          {
+            subject: null,
+          },
+        );
       }
 
-      displayToast(
-        error.response?.errors?.[0]?.message || labels.error.generic,
-      );
+      await goToNextStep();
     },
     onSettled: () => {
       if (subject === ToastSubject.OpportunityScreeningQuestions) {
@@ -125,14 +128,6 @@ function PreparePage(): ReactElement {
 
               return;
             }
-
-            displayToast(
-              'Just a momment, generating screening questions for your job...',
-              {
-                subject: ToastSubject.OpportunityScreeningQuestions,
-                timer: 10_000,
-              },
-            );
 
             onSubmit({
               id: opportunity.id,
