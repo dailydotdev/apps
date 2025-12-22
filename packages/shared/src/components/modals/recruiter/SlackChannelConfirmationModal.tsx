@@ -17,6 +17,7 @@ export type SlackChannelConfirmationModalProps = ModalProps & {
   name: string;
   email: string;
   channelName: string;
+  organizationId?: string;
 };
 
 const generateChannelName = (name: string): string => {
@@ -34,6 +35,7 @@ export const SlackChannelConfirmationModal = ({
   name,
   email,
   channelName,
+  organizationId,
   onRequestClose,
   ...modalProps
 }: SlackChannelConfirmationModalProps): ReactElement => {
@@ -49,10 +51,17 @@ export const SlackChannelConfirmationModal = ({
 
   const handleConfirm = async () => {
     setError(null);
+
+    if (!organizationId) {
+      setError('Organization ID is required');
+      return;
+    }
+
     try {
       await createChannel({
         email: localEmail,
         channelName: currentChannelName,
+        organizationId,
       });
       onRequestClose(null);
     } catch (err) {

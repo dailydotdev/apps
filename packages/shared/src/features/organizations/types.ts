@@ -49,6 +49,10 @@ export type OrganizationSocialLink = OrganizationLinkBase & {
   socialType: SocialMediaType;
 };
 
+export type OrganizationRecruiterSubscriptionFlags = Partial<{
+  hasSlackConnection: boolean;
+}>;
+
 export type Organization = {
   id: string;
   name: string;
@@ -71,6 +75,8 @@ export type Organization = {
   customLinks?: OrganizationLink[];
   pressLinks?: OrganizationLink[];
   socialLinks?: OrganizationSocialLink[];
+
+  recruiterSubscriptionFlags?: OrganizationRecruiterSubscriptionFlags;
 };
 
 export type UserOrganization = {
