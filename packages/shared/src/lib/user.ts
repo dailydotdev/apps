@@ -75,13 +75,25 @@ export const ExperienceLevelOptions = Object.entries(UserExperienceLevel).map(
   ([value, label]) => ({ label, value }),
 );
 
-export const getExperienceLevelLabel = (
+export enum RecruiterUserExperienceLevel {
+  LESS_THAN_1_YEAR = '<1 year',
+  MORE_THAN_1_YEAR = '1 year',
+  MORE_THAN_2_YEARS = '2-3 years',
+  MORE_THAN_4_YEARS = '4-5 years',
+  MORE_THAN_6_YEARS = '6-10 years',
+  MORE_THAN_10_YEARS = '10+ years',
+  NOT_ENGINEER = 'Non-technical',
+}
+
+export const getRecruiterExperienceLevelLabel = (
   level: string | undefined,
 ): string | undefined => {
   if (!level) {
     return undefined;
   }
-  return UserExperienceLevel[level as keyof typeof UserExperienceLevel];
+  return RecruiterUserExperienceLevel[
+    level as keyof typeof RecruiterUserExperienceLevel
+  ];
 };
 
 export interface UserProfile {
