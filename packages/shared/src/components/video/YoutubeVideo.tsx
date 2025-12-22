@@ -6,6 +6,8 @@ import type { YoutubeVideoWithoutConsentProps } from './YoutubeVideoWithoutConse
 import { YoutubeVideoWithoutConsent } from './YoutubeVideoWithoutConsent';
 import { YoutubeVideoBackground, YoutubeVideoContainer } from './common';
 import { useConsentCookie } from '../../hooks/useCookieConsent';
+import { isExtension } from '../../lib/func';
+import { webappUrl } from '../../lib/constants';
 
 interface YoutubeVideoProps extends HTMLAttributes<HTMLIFrameElement> {
   videoId: string;
@@ -45,13 +47,20 @@ const YoutubeVideo = ({
     );
   }
 
+  // Extension pages don't send Referer header, causing YouTube Error 153
+  // Use webapp as intermediate page which sends proper Referer
+  const embedSrc = isExtension
+    ? `${webappUrl}embed/youtube/${videoId}`
+    : `https://www.youtube-nocookie.com/embed/${videoId}`;
+
   return (
     <YoutubeVideoContainer className={className}>
       <iframe
         {...props}
         title={title}
-        src={`https://www.youtube-nocookie.com/embed/${videoId}`}
+        src={embedSrc}
         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        referrerPolicy="strict-origin-when-cross-origin"
         allowFullScreen
         className="absolute inset-0 aspect-video w-full border-0"
       />
