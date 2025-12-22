@@ -174,7 +174,7 @@ const renderOpportunityPage = (
         getRedirectUri: jest.fn(),
       }}
     >
-      <OpportunityEditProvider opportunityId="test-opportunity-id">
+      <OpportunityEditProvider opportunityId="test-opportunity-id" allowDraft>
         <JobPage />
       </OpportunityEditProvider>
     </TestBootProvider>,

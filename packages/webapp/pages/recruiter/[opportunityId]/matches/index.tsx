@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ConnectHeader } from '@dailydotdev/shared/src/components/recruiter/ConnectHeader';
 import { ConnectProgress } from '@dailydotdev/shared/src/components/recruiter/ConnectProgress';
+import { ConnectSlack } from '@dailydotdev/shared/src/components/recruiter/ConnectSlack';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
   generateQueryKey,
@@ -185,6 +186,12 @@ function RecruiterMatchesPage(): ReactElement {
                   {!isReadyForMatches &&
                     'We are gonna start reaching to developers soon, we are still processing your data and payment...'}
                 </Typography>
+                {!opportunity?.organization?.recruiterSubscriptionFlags
+                  ?.hasSlackConnection && (
+                  <ConnectSlack
+                    organizationId={opportunity?.organization?.id}
+                  />
+                )}
               </div>
             </>
           )}

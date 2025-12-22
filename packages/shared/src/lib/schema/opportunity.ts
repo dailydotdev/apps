@@ -74,8 +74,10 @@ export const opportunityEditInfoSchema = z.object({
 
 export const createOpportunityEditContentSchema = ({
   optional = false,
+  errorLabel = labels.form.required,
 }: {
   optional?: boolean;
+  errorLabel?: string;
 } = {}) => {
   const contentSchema = z.string().max(2000);
 
@@ -86,7 +88,7 @@ export const createOpportunityEditContentSchema = ({
     z.object({
       content: z.preprocess(
         (val) => val || '',
-        optional ? contentSchema : contentSchema.nonempty(labels.form.required),
+        optional ? contentSchema : contentSchema.nonempty(errorLabel),
       ),
     }),
   );
@@ -96,9 +98,15 @@ export const createOpportunityEditContentSchema = ({
 
 export const opportunityEditContentSchema = z.object({
   content: z.object({
-    overview: createOpportunityEditContentSchema(),
-    responsibilities: createOpportunityEditContentSchema(),
-    requirements: createOpportunityEditContentSchema(),
+    overview: createOpportunityEditContentSchema({
+      errorLabel: 'Overview is required',
+    }),
+    responsibilities: createOpportunityEditContentSchema({
+      errorLabel: 'Responsibilities are required',
+    }),
+    requirements: createOpportunityEditContentSchema({
+      errorLabel: 'Requirements are required',
+    }),
     whatYoullDo: createOpportunityEditContentSchema({ optional: true }),
     interviewProcess: createOpportunityEditContentSchema({ optional: true }),
   }),
@@ -108,17 +116,30 @@ export const opportunityEditQuestionsSchema = z.object({
   questions: z.array(
     z.object({
       id: z.uuid().optional(),
-      title: z.string().nonempty('Add a question title').max(480),
-      placeholder: z.string().max(480).nullable().optional(),
+      title: z.string().nonempty('Add a question title').max(480, {
+        error: 'Question title is too long',
+      }),
+      placeholder: z
+        .string()
+        .max(480, {
+          error: 'Placeholder is too long',
+        })
+        .nullable()
+        .optional(),
     }),
   ),
 });
 
 export const opportunityEditStep1Schema = opportunityEditInfoSchema.extend({
   content: opportunityEditContentSchema.shape.content,
-  organization: z.object({
-    name: z.string().nonempty('Add a company name'),
-  }),
+  organization: z.object(
+    {
+      name: z.string().nonempty('Add a company name'),
+    },
+    {
+      error: 'Add a company name',
+    },
+  ),
 });
 
 export const opportunityEditStep2Schema = opportunityEditQuestionsSchema.extend(
@@ -219,3 +240,31 @@ export interface OpportunityPreviewInput {
   type?: number;
   keywords?: string[];
 }
+
+export const maxRecruiterSeats = 50;
+
+export const addOpportunitySeatsSchema = z.object({
+  seats: z
+    .array(
+      z.object({
+        priceId: z.string().nonempty('Select a price option'),
+        quantity: z
+          .number()
+          .nonnegative()
+          .min(1, 'Enter the number of seats')
+          .max(maxRecruiterSeats, {
+            error: `You can add up to ${maxRecruiterSeats} seats at a time`,
+          }),
+      }),
+      {
+        error: 'At least one seat is required',
+      },
+    )
+    .min(1, {
+      error: 'At least one seat is required',
+    })
+    // number of pricing ids that can be in cart, just arbitrarily limit to 10
+    .max(10, {
+      error: 'You can add up to 10 different price options at a time',
+    }),
+});

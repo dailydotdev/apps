@@ -2,7 +2,7 @@ import React from 'react';
 import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -38,12 +38,21 @@ import {
   RecruiterProgress,
   RecruiterProgressStep,
 } from '@dailydotdev/shared/src/components/recruiter/Progress';
+import { updateOpportunityStateOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import type {
+  ApiErrorResult,
+  ApiResponseError,
+  ApiZodErrorExtension,
+} from '@dailydotdev/shared/src/graphql/common';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
+import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
-import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -59,9 +68,107 @@ const QuestionsSetupPage = (): ReactElement => {
   const { opportunityId, onValidateOpportunity } = useOpportunityEditContext();
   const { showPrompt } = usePrompt();
   const router = useRouter();
+  const { displayToast } = useToastNotification();
 
   const { data: opportunity, isPending } = useQuery({
     ...opportunityByIdOptions({ id: opportunityId }),
+  });
+
+  const onValidationError = async ({
+    issues,
+  }: {
+    issues: ReturnType<typeof onValidateOpportunity>['error']['issues'];
+  }) => {
+    await showPrompt({
+      title: labels.opportunity.requiredMissingNotice.title,
+      description: (
+        <div className="flex flex-col gap-4">
+          <span>{labels.opportunity.requiredMissingNotice.description}</span>
+          <ul className="text-text-tertiary">
+            {issues.map((issue) => {
+              const path = issue.path.join('.');
+
+              return <li key={path}>• {issue.message}</li>;
+            })}
+          </ul>
+        </div>
+      ),
+      okButton: {
+        className: '!w-full',
+        title: labels.opportunity.requiredMissingNotice.okButton,
+      },
+      cancelButton: null,
+    });
+  };
+
+  const onSuccess = async () => {
+    await router.push(`${webappUrl}recruiter/${opportunityId}/matches`);
+  };
+
+  const {
+    mutateAsync: updateOpportunityState,
+    isPending: isPendingOpportunityState,
+  } = useMutation({
+    ...updateOpportunityStateOptions(),
+    onSuccess,
+    onError: async (error: ApiErrorResult) => {
+      if (
+        error.response?.errors?.[0]?.extensions?.code ===
+        ApiError.PaymentRequired
+      ) {
+        if (opportunity.organization?.recruiterTotalSeats > 0) {
+          displayToast('You need more seats to publish this job.');
+
+          openModal({
+            type: LazyModal.RecruiterSeats,
+            props: {
+              opportunityId: opportunity.id,
+              onNext: async () => {
+                await showPrompt({
+                  title: labels.opportunity.assignSeat.title,
+                  description: labels.opportunity.assignSeat.description,
+                  okButton: {
+                    title: labels.opportunity.assignSeat.okButton,
+                  },
+                  cancelButton: {
+                    title: labels.opportunity.assignSeat.cancelButton,
+                  },
+                });
+
+                await updateOpportunityState({
+                  id: opportunity.id,
+                  state: OpportunityState.IN_REVIEW,
+                });
+
+                await onSuccess();
+              },
+            },
+          });
+        } else {
+          await router.push(`${webappUrl}recruiter/${opportunityId}/plans`);
+        }
+
+        return;
+      }
+
+      if (
+        error.response?.errors?.[0]?.extensions?.code ===
+        ApiError.ZodValidationError
+      ) {
+        const apiError = error.response
+          .errors[0] as ApiResponseError<ApiZodErrorExtension>;
+
+        await onValidationError({
+          issues: apiError.extensions.issues,
+        });
+
+        return;
+      }
+
+      displayToast(
+        error.response?.errors?.[0]?.message || labels.error.generic,
+      );
+    },
   });
 
   if (!isAuthReady || isPending || !isLoggedIn) {
@@ -83,34 +190,17 @@ const QuestionsSetupPage = (): ReactElement => {
             });
 
             if (result.error) {
-              await showPrompt({
-                title: labels.opportunity.requiredMissingNotice.title,
-                description: (
-                  <div className="flex flex-col gap-4">
-                    <span>
-                      {labels.opportunity.requiredMissingNotice.description}
-                    </span>
-                    <ul className="text-text-tertiary">
-                      {result.error.issues.map((issue) => {
-                        const path = issue.path.join('.');
-
-                        return <li key={path}>• {path}</li>;
-                      })}
-                    </ul>
-                  </div>
-                ),
-                okButton: {
-                  className: '!w-full',
-                  title: labels.opportunity.requiredMissingNotice.okButton,
-                },
-                cancelButton: null,
-              });
+              await onValidationError({ issues: result.error.issues });
 
               return;
             }
 
-            router.push(`${webappUrl}recruiter/${opportunityId}/plans`);
+            await updateOpportunityState({
+              id: opportunity.id,
+              state: OpportunityState.IN_REVIEW,
+            });
           },
+          disabled: isPendingOpportunityState,
         }}
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.PrepareAndLaunch} />

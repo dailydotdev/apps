@@ -17,9 +17,14 @@ export enum AutocompleteType {
   School = 'school',
 }
 
+export enum LocationDataset {
+  Internal = 'internal',
+  External = 'external',
+}
+
 export const AUTOCOMPLETE_LOCATION_QUERY = gql`
-  query AutocompleteLocation($query: String!) {
-    autocompleteLocation(query: $query) {
+  query AutocompleteLocation($query: String!, $dataset: LocationDataset) {
+    autocompleteLocation(query: $query, dataset: $dataset) {
       id
       country
       city
@@ -30,8 +35,12 @@ export const AUTOCOMPLETE_LOCATION_QUERY = gql`
 
 export const getAutocompleteLocations = async (
   query: string,
+  dataset = LocationDataset.External,
 ): Promise<TLocation[]> => {
-  const res = await gqlClient.request(AUTOCOMPLETE_LOCATION_QUERY, { query });
+  const res = await gqlClient.request(AUTOCOMPLETE_LOCATION_QUERY, {
+    query,
+    dataset,
+  });
   return res.autocompleteLocation;
 };
 
