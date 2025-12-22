@@ -93,12 +93,9 @@ export const PreferenceOptionsForm = (): ReactElement => {
   });
 
   const { data: locationOptions, isLoading: isLoadingLocations } = useQuery({
-    queryKey: generateQueryKey(
-      RequestKey.Autocomplete,
-      user,
-      'location',
-      locationQuery,
-    ),
+    queryKey: generateQueryKey(RequestKey.Autocomplete, user, 'location', {
+      query: locationQuery,
+    }),
     queryFn: () => getAutocompleteLocations(locationQuery),
     enabled: !!locationQuery && locationQuery.length > 0,
   });

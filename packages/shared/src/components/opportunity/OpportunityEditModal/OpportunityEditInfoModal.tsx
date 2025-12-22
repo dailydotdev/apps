@@ -31,6 +31,7 @@ import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
 import ProfileLocation from '../../profile/ProfileLocation';
 import { ModalSize } from '../../modals/common/types';
+import { LocationDataset } from '../../../graphql/autocomplete';
 
 export type OpportunityEditInfoModalProps = {
   id: string;
@@ -195,7 +196,7 @@ export const OpportunityEditInfoModal = ({
           <Controller
             name="keywords"
             control={control}
-            rules={{ required: labels.form.required }}
+            rules={{ required: 'Keywords are required' }}
             render={({ field }) => {
               return (
                 <KeywordSelection
@@ -223,6 +224,7 @@ export const OpportunityEditInfoModal = ({
             <ProfileLocation
               locationName="externalLocationId"
               typeName="locationType"
+              dataset={LocationDataset.Internal}
               defaultValue={
                 opportunity.locations?.[0]?.location
                   ? {
@@ -244,7 +246,7 @@ export const OpportunityEditInfoModal = ({
             <Controller
               name="meta.employmentType"
               control={control}
-              rules={{ required: labels.form.required }}
+              rules={{ required: 'Employment type is required' }}
               render={({ field }) => {
                 return (
                   <Radio
@@ -359,7 +361,7 @@ export const OpportunityEditInfoModal = ({
             <Controller
               name="meta.seniorityLevel"
               control={control}
-              rules={{ required: labels.form.required }}
+              rules={{ required: 'Seniority level is required' }}
               render={({ field }) => {
                 const options = [
                   'Intern',
@@ -399,7 +401,7 @@ export const OpportunityEditInfoModal = ({
             <Controller
               name="meta.roleType"
               control={control}
-              rules={{ required: labels.form.required }}
+              rules={{ required: 'Job type is required' }}
               render={({ field }) => {
                 const options = [
                   { value: 0, title: 'IC' },
