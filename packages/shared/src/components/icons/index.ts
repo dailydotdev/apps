@@ -164,4 +164,5 @@ export * from './Volume';
 export * from './VolumeOff';
 export * from './Warning';
 export * from './Whatsapp';
+export * from './YearInReview';
 export * from './Youtube';
