@@ -41,9 +41,7 @@ export const AdGrid = forwardRef(function AdGrid(
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <AdFavicon ad={ad} className="mx-4" />
       <CardTextContainer className="flex-1">
-        <CardTitle className="line-clamp-4 typo-title3">
-          {ad.description}
-        </CardTitle>
+        <CardTitle className="typo-title3">{ad.description}</CardTitle>
         {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
           <PostTags
             post={{ tags: ad.matchingTags.slice(0, 6) }}

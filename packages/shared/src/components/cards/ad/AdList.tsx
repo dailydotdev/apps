@@ -62,9 +62,7 @@ export const AdList = forwardRef(function AdCard(
       linkProps={getLinkProps({ ad, onLinkClick })}
     >
       <CardContent>
-        <CardTitle
-          className={classNames('!mt-0 mr-4 line-clamp-4 flex-1 typo-title3')}
-        >
+        <CardTitle className={classNames('!mt-0 mr-4 flex-1 typo-title3')}>
           <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
           {ad.description}
           {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
