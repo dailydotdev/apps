@@ -15,6 +15,7 @@ import useSourcePostModeration from '../../../hooks/source/useSourcePostModerati
 import type { SourcePostModeration } from '../../../graphql/squads';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useWritePostContext } from '../../../contexts';
+import { MAX_POST_COMMENTARY_LENGTH } from '../../../constants/post';
 
 interface ShareLinkProps {
   squad?: Squad;
@@ -34,7 +35,6 @@ const confirmSharingAgainPrompt = {
   },
 };
 
-const MAX_COMMENTARY_LENGTH = 250;
 
 export function ShareLink({
   squad,
@@ -111,7 +111,7 @@ export function ShareLink({
       return null;
     }
 
-    if ((commentary || '').length > MAX_COMMENTARY_LENGTH) {
+    if ((commentary || '').length > MAX_POST_COMMENTARY_LENGTH) {
       return null;
     }
 
@@ -175,7 +175,7 @@ export function ShareLink({
         enabledCommand={{ mention: true }}
         showMarkdownGuide={false}
         onValueUpdate={setCommentary}
-        maxInputLength={MAX_COMMENTARY_LENGTH}
+        maxInputLength={MAX_POST_COMMENTARY_LENGTH}
       />
       <WriteFooter
         isLoading={isPosting || isPostingModeration || isPendingCreation}
