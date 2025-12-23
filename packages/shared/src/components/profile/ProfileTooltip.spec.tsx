@@ -6,16 +6,16 @@ const simpleTooltipSpy = jest.fn();
 const linkWithTooltipSpy = jest.fn();
 
 jest.mock('../tooltips/SimpleTooltip', () => ({
-  SimpleTooltip: (props) => {
-    simpleTooltipSpy(props);
-    return <div data-testid="simple-tooltip">{props.children}</div>;
+  SimpleTooltip: ({ children, ...props }) => {
+    simpleTooltipSpy({ children, ...props });
+    return <div data-testid="simple-tooltip">{children}</div>;
   },
 }));
 
 jest.mock('../tooltips/LinkWithTooltip', () => ({
-  LinkWithTooltip: (props) => {
-    linkWithTooltipSpy(props);
-    return <a data-testid="link-with-tooltip">{props.children}</a>;
+  LinkWithTooltip: ({ children, ...props }) => {
+    linkWithTooltipSpy({ children, ...props });
+    return <a data-testid="link-with-tooltip">{children}</a>;
   },
 }));
 

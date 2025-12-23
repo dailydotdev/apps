@@ -113,8 +113,11 @@ export function ProfileTooltip({
     }),
   };
 
-  const { trigger: tooltipTrigger, onShow: tooltipOnShow, ...restTooltip } =
-    tooltip || {};
+  const {
+    trigger: tooltipTrigger,
+    onShow: tooltipOnShow,
+    ...restTooltip
+  } = tooltip || {};
 
   const props: TooltipProps = {
     showArrow: false,
