@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import type { GetServerSideProps } from 'next';
 import React, {
   useMemo,
   useEffect,
@@ -42,6 +43,12 @@ import CardRecords from '../../components/log/CardRecords';
 import CardArchetypeReveal from '../../components/log/CardArchetypeReveal';
 import CardShare from '../../components/log/CardShare';
 import CardNoData from '../../components/log/CardNoData';
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    notFound: true,
+  };
+};
 
 // Default theme for no-data state (welcome card theme)
 const noDataTheme = CARD_THEMES.welcome;

@@ -10,68 +10,57 @@ import { webappUrl } from '../../lib/constants';
 import Logo, { LogoPosition } from '../Logo';
 import { MiniCloseIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
 import styles from './MarketingCtaYearInReview.module.css';
 
 const STARS = [
   {
     id: 'star-1',
-    top: '10%',
-    left: '6%',
+    className: 'top-[10%] left-[6%] text-[1.5rem] text-accent-cheese-default',
     char: '✦',
-    colorClass: 'text-accent-cheese-default',
     delay: 0,
     duration: 4,
-    size: '1.5rem',
   },
   {
     id: 'star-2',
-    top: '15%',
-    right: '8%',
+    className:
+      'top-[15%] right-[8%] text-[1.25rem] text-accent-lettuce-default',
     char: '★',
-    colorClass: 'text-accent-lettuce-default',
     delay: 0.7,
     duration: 4.5,
-    size: '1.25rem',
   },
   {
     id: 'star-3',
-    bottom: '20%',
-    left: '8%',
+    className:
+      'bottom-[20%] left-[8%] text-[1.5rem] text-accent-cabbage-default',
     char: '✶',
-    colorClass: 'text-accent-cabbage-default',
     delay: 1.3,
     duration: 5,
-    size: '1.5rem',
   },
   {
     id: 'star-4',
-    bottom: '12%',
-    right: '6%',
+    className: 'bottom-[12%] right-[6%] text-[1.75rem] text-accent-bun-default',
     char: '✦',
-    colorClass: 'text-accent-bun-default',
     delay: 0.4,
     duration: 5.5,
-    size: '1.75rem',
   },
   {
     id: 'star-5',
-    top: '45%',
-    left: '4%',
+    className: 'top-[45%] left-[4%] text-[1rem] text-accent-blueCheese-default',
     char: '★',
-    colorClass: 'text-accent-blueCheese-default',
     delay: 1.8,
     duration: 6,
-    size: '1rem',
   },
   {
     id: 'star-6',
-    top: '50%',
-    right: '5%',
+    className: 'top-[50%] right-[5%] text-[1.25rem] text-accent-onion-default',
     char: '◆',
-    colorClass: 'text-accent-onion-default',
     delay: 0.9,
     duration: 4.8,
-    size: '1.25rem',
   },
 ];
 
@@ -128,10 +117,10 @@ export function MarketingCtaYearInReview({
         className="flex h-full cursor-pointer flex-col"
       >
         {/* Gradient border wrapper */}
-        <div className="flex h-full flex-col rounded-[30px] bg-gradient-to-b from-accent-lettuce-default to-accent-cabbage-default p-1">
+        <div className="flex h-full flex-col rounded-16 bg-gradient-to-b from-accent-lettuce-default to-accent-cabbage-default p-1">
           {/* Inner content container - hardcoded dark theme colors since this feature is dark-only */}
           <div
-            className="relative flex h-full flex-1 flex-col items-center justify-center overflow-hidden rounded-26 bg-raw-pepper-90 px-6 py-8"
+            className="relative flex h-full flex-1 flex-col items-center justify-center overflow-hidden rounded-12 bg-raw-pepper-90 px-6 py-8"
             style={{ '--theme-text-primary': '#FFFFFF' } as React.CSSProperties}
           >
             {/* Dismiss button */}
@@ -154,16 +143,11 @@ export function MarketingCtaYearInReview({
                 className={classNames(
                   styles.star,
                   'absolute z-1',
-                  star.colorClass,
+                  star.className,
                 )}
                 style={{
-                  top: star.top,
-                  left: star.left,
-                  right: star.right,
-                  bottom: star.bottom,
                   animationDuration: `${star.duration}s`,
                   animationDelay: `${star.delay}s`,
-                  fontSize: star.size,
                 }}
                 aria-hidden="true"
               >
@@ -183,43 +167,61 @@ export function MarketingCtaYearInReview({
               </div>
 
               {/* Year label */}
-              <span className="mb-2 font-medium uppercase tracking-[0.2em] text-accent-cheese-default typo-footnote">
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Footnote}
+                className="mb-2 font-medium uppercase tracking-[0.2em] text-accent-cheese-default"
+              >
                 Your year in review
-              </span>
+              </Typography>
 
               {/* Main title - 2025 */}
-              <span
-                className="mb-1 font-bold text-white typo-mega1"
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Mega1}
+                bold
+                className="mb-1 text-white"
                 style={{
                   textShadow: '3px 3px 0 #FF8E3B, 6px 6px 0 #CE3DF3',
                 }}
               >
                 2025
-              </span>
+              </Typography>
 
               {/* Subtitle - LOG */}
-              <span
-                className="mb-4 font-bold tracking-[0.1em] text-accent-lettuce-default typo-title1"
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Title1}
+                bold
+                className="mb-4 tracking-[0.1em] text-accent-lettuce-default"
                 style={{
                   textShadow: '2px 2px 0 rgba(0, 0, 0, 0.3)',
                 }}
               >
                 LOG
-              </span>
+              </Typography>
 
               {/* Divider */}
               <div className="mb-4 flex items-center gap-2">
                 <div className="h-0.5 w-8 bg-accent-cheese-default" />
-                <span className="text-accent-cabbage-default typo-footnote">
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Footnote}
+                  className="text-accent-cabbage-default"
+                >
                   ◆
-                </span>
+                </Typography>
                 <div className="h-0.5 w-8 bg-accent-cheese-default" />
               </div>
 
               {/* Tagline */}
-              <span className="font-mono tracking-wide text-raw-salt-90 typo-caption1">
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+                className="font-mono tracking-wide text-raw-salt-90"
+              >
                 Discover your developer archetype
-              </span>
+              </Typography>
             </div>
           </div>
         </div>
