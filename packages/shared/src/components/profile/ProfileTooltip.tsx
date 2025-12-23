@@ -113,6 +113,9 @@ export function ProfileTooltip({
     }),
   };
 
+  const { trigger: tooltipTrigger, onShow: tooltipOnShow, ...restTooltip } =
+    tooltip || {};
+
   const props: TooltipProps = {
     showArrow: false,
     interactive: true,
@@ -122,13 +125,14 @@ export function ProfileTooltip({
     content: !isLoading && data ? <UserEntityCard user={data} /> : null,
     plugins:
       onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
-    ...tooltip,
+    ...restTooltip,
+    trigger: tooltipTrigger ?? 'mouseenter',
     onShow: (instance) => {
       if (id !== userId) {
         setId(userId);
       }
-      if (typeof tooltip.onShow === 'function') {
-        tooltip.onShow(instance);
+      if (typeof tooltipOnShow === 'function') {
+        tooltipOnShow(instance);
         return;
       }
       onShow();
