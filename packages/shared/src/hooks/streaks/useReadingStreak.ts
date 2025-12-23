@@ -8,8 +8,6 @@ import {
   UPDATE_STREAK_COUNT_MUTATION,
 } from '../../graphql/users';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useActions } from '../useActions';
-import { ActionType } from '../../graphql/actions';
 import useDebounceFn from '../useDebounceFn';
 import SettingsContext from '../../contexts/SettingsContext';
 import type { ResponseError } from '../../graphql/common';
@@ -25,7 +23,6 @@ interface UserReadingStreak {
   streak: UserStreak;
   isLoading: boolean;
   isUpdatingConfig: boolean;
-  shouldShowPopup: boolean;
   checkReadingStreak: () => void;
   isStreaksEnabled: boolean;
   updateStreakConfig: UseMutateFunction<
@@ -38,7 +35,6 @@ interface UserReadingStreak {
 export const useReadingStreak = (): UserReadingStreak => {
   const { user, isLoggedIn } = useAuthContext();
   const { optOutReadingStreak, loadedSettings } = useContext(SettingsContext);
-  const { checkHasCompleted } = useActions();
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.UserStreak, user);
 
@@ -93,9 +89,5 @@ export const useReadingStreak = (): UserReadingStreak => {
     isStreaksEnabled,
     updateStreakConfig,
     checkReadingStreak: clearQueries,
-    shouldShowPopup:
-      isStreaksEnabled &&
-      user?.createdAt < '2024-03-14T00:00:00.000Z' &&
-      !checkHasCompleted(ActionType.ExistingUserSeenStreaks),
   };
 };

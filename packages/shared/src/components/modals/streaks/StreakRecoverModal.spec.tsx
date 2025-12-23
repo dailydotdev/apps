@@ -133,6 +133,7 @@ beforeEach(async () => {
   jest.spyOn(streakHook, 'useReadingStreak').mockReturnValue({
     isLoading: false,
     isStreaksEnabled: true,
+    isUpdatingConfig: false,
     streak: {
       current: 10,
       max: 10,
@@ -142,7 +143,6 @@ beforeEach(async () => {
     },
     updateStreakConfig: jest.fn(),
     checkReadingStreak: jest.fn(),
-    shouldShowPopup: false,
   });
 
   // need to reset the query cache
