@@ -1,0 +1,168 @@
+/**
+ * Shared utilities for Log card primitives
+ * Extracted to ensure consistency between interactive and static card components
+ */
+
+import type { ReactElement } from 'react';
+import {
+  UpvoteIcon,
+  DiscussIcon,
+  BookmarkIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import type { LogData } from '../../../types/log';
+
+/**
+ * Format hour number to human-readable time string
+ * @example formatHour(0) => '12 AM'
+ * @example formatHour(13) => '1 PM'
+ */
+export function formatHour(hour: number): string {
+  if (hour === 0 || hour === 24) {
+    return '12 AM';
+  }
+  if (hour === 12) {
+    return '12 PM';
+  }
+  if (hour < 12) {
+    return `${hour} AM`;
+  }
+  return `${hour - 12} PM`;
+}
+
+/**
+ * Banner text configuration for reading patterns
+ */
+export const PATTERN_BANNER_TEXT: Record<
+  LogData['readingPattern'],
+  { preText: string; postText: string; shareText: string }
+> = {
+  night: {
+    preText: 'ONLY',
+    postText: 'READ THIS LATE',
+    shareText: 'Only {percentile}% of devs read this late',
+  },
+  early: {
+    preText: 'ONLY',
+    postText: 'START THIS EARLY',
+    shareText: 'Only {percentile}% of devs start this early',
+  },
+  afternoon: {
+    preText: 'ONLY',
+    postText: 'AT PEAK HOURS',
+    shareText: 'Only {percentile}% read during peak hours',
+  },
+};
+
+/**
+ * Podium configuration constants
+ */
+export const PODIUM_MEDALS = ['🥈', '🥇', '🥉'] as const;
+export const PODIUM_HEIGHTS_INTERACTIVE = [100, 140, 70] as const; // For mobile cards
+export const PODIUM_HEIGHTS_STATIC = [180, 240, 140] as const; // For share images
+export const PODIUM_DELAYS = [0.6, 0.3, 0.9] as const; // 1st place reveals last for drama
+
+/**
+ * Get podium rank from display index
+ * Display order is [2nd, 1st, 3rd] but we need actual ranks
+ */
+export function getPodiumRank(displayIndex: number): number {
+  const rankMap = [2, 1, 3];
+  return rankMap[displayIndex];
+}
+
+/**
+ * Community engagement stat configuration
+ */
+export interface EngagementStat {
+  label: string;
+  value: number | undefined;
+  icon: ReactElement;
+}
+
+/**
+ * Find the best (lowest) percentile stat for community engagement
+ * Only returns stats where user is in top 50%
+ */
+export function findBestEngagementStat(data: {
+  upvotePercentile?: number;
+  commentPercentile?: number;
+  bookmarkPercentile?: number;
+  iconSize?: IconSize;
+}): EngagementStat | undefined {
+  const size = data.iconSize ?? IconSize.Large;
+
+  const stats: EngagementStat[] = [
+    {
+      label: 'UPVOTERS',
+      value: data.upvotePercentile,
+      icon: UpvoteIcon({
+        secondary: true,
+        size,
+        className: 'text-action-upvote-default',
+      }),
+    },
+    {
+      label: 'COMMENTERS',
+      value: data.commentPercentile,
+      icon: DiscussIcon({
+        secondary: true,
+        size,
+        className: 'text-action-comment-default',
+      }),
+    },
+    {
+      label: 'CURATORS',
+      value: data.bookmarkPercentile,
+      icon: BookmarkIcon({
+        secondary: true,
+        size,
+        className: 'text-action-bookmark-default',
+      }),
+    },
+  ]
+    .filter((s) => s.value !== undefined && s.value <= 50)
+    .sort((a, b) => (a.value || 100) - (b.value || 100));
+
+  return stats[0];
+}
+
+/**
+ * Calculate hour distribution from activity heatmap
+ * Returns normalized values (0-1) and peak hour index
+ */
+export function calculateHourDistribution(activityHeatmap: number[][]): {
+  distribution: number[];
+  peakHour: number;
+} {
+  const distribution = Array(24).fill(0);
+
+  activityHeatmap.forEach((day) => {
+    day.forEach((value, hourIndex) => {
+      distribution[hourIndex] += value;
+    });
+  });
+
+  const maxValue = Math.max(...distribution, 1);
+  const normalized = distribution.map((value) => value / maxValue);
+
+  // Find peak hour
+  let peakHour = 0;
+  let maxVal = 0;
+  normalized.forEach((val, idx) => {
+    if (val > maxVal) {
+      maxVal = val;
+      peakHour = idx;
+    }
+  });
+
+  return { distribution: normalized, peakHour };
+}
+
+/**
+ * Calculate clock hand angle from hour
+ * Returns degrees for CSS transform rotation
+ */
+export function calculateClockAngle(hour: number): number {
+  return (hour % 12) * 30 - 90;
+}
