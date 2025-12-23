@@ -99,10 +99,12 @@ export const JobInfo = ({ loadingStep }: JobInfoProps) => {
       )}
       <div className="flex flex-col gap-1 rounded-16 bg-background-subtle px-4 py-2">
         <Typography type={TypographyType.Footnote} bold>
-          Job in high level details
+          Job details extracted automatically
         </Typography>
         <Typography type={TypographyType.Footnote}>
-          In the next step we will be going into details
+          We’ll refine everything in the next step.
+          <br />
+          This is just the high-level overview.
         </Typography>
       </div>
     </div>

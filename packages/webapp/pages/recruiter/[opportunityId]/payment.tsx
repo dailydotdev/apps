@@ -64,6 +64,32 @@ const RecruiterPaymentPage = (): ReactElement => {
     }
   }, [displayToast, opportunity, router]);
 
+  useEffect(() => {
+    if (!opportunity) {
+      return;
+    }
+
+    if (opportunity.flags?.plan) {
+      displayToast(
+        'You already have active subscription for this opportunity.',
+      );
+
+      router.replace(`${webappUrl}recruiter/${opportunity.id}/matches`);
+
+      return;
+    }
+
+    if (opportunity.organization?.recruiterTotalSeats > 0) {
+      displayToast(
+        'You already have active subscription for this organization.',
+      );
+
+      // if organization has an active subscription redirect to prepare page
+      // where seats selection and plans flow will handle it
+      router.replace(`${webappUrl}recruiter/${opportunity.id}/prepare`);
+    }
+  }, [displayToast, opportunity, router]);
+
   const handleBack = () => {
     router.back();
   };
@@ -206,7 +232,7 @@ const RecruiterPaymentPage = (): ReactElement => {
           </div>
         </div>
       </div>
-      <div className="flex flex-1 flex-col bg-white p-10 px-20">
+      <div className="flex flex-1 flex-col bg-black p-10 px-20">
         <div className="w-full max-w-[30rem]">
           <div ref={checkoutRef} className="checkout-container h-full w-full" />
         </div>

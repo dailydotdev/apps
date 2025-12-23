@@ -2,11 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../typography/Typography';
+import { Typography, TypographyType } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
 export interface RecruiterIntroModalProps extends ModalProps {
@@ -25,6 +21,7 @@ export const RecruiterIntroModal = ({
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
       shouldCloseOnOverlayClick={false}
+      shouldCloseOnEsc={false}
     >
       <Modal.Body className="flex flex-col items-center gap-6 p-6">
         <Typography type={TypographyType.Title1} bold>
@@ -45,14 +42,13 @@ export const RecruiterIntroModal = ({
           </strong>
         </Typography>
 
-        {/* Placeholder for video */}
-        <div className="flex aspect-video h-60 w-full items-center justify-center rounded-12 bg-background-subtle">
-          <Typography
-            type={TypographyType.Body}
-            color={TypographyColor.Tertiary}
-          >
-            [Video]
-          </Typography>
+        <div className="h-60 w-full overflow-hidden rounded-12">
+          <iframe
+            title="Recruiter introduction video"
+            src="https://www.youtube-nocookie.com/embed/GAIOnX3S2jg"
+            allowFullScreen
+            className="aspect-video w-full border-none"
+          />
         </div>
 
         <Button

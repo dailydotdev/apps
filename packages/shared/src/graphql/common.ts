@@ -91,6 +91,7 @@ export enum ApiError {
   BalanceTransactionError = 'BALANCE_TRANSACTION_ERROR',
   ZodValidationError = 'ZOD_VALIDATION_ERROR',
   Conflict = 'CONFLICT',
+  PaymentRequired = 'PAYMENT_REQUIRED',
 }
 
 export enum ApiErrorMessage {

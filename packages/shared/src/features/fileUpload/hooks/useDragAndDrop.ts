@@ -22,6 +22,8 @@ export const useDragAndDrop = ({ disabled, onFiles }: Options) => {
   const handleDragEnter = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
       event.preventDefault();
+      event.stopPropagation();
+
       if (disabled || isDraggingRef.current) {
         return;
       }
@@ -35,11 +37,14 @@ export const useDragAndDrop = ({ disabled, onFiles }: Options) => {
 
   const handleDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
     event.preventDefault();
+    event.stopPropagation();
   }, []);
 
   const handleDragLeave = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
       event.preventDefault();
+      event.stopPropagation();
+
       if (disabled || !isDraggingRef.current) {
         return;
       }
@@ -58,6 +63,8 @@ export const useDragAndDrop = ({ disabled, onFiles }: Options) => {
   const handleDrop = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
       event.preventDefault();
+      event.stopPropagation();
+
       if (disabled) {
         return;
       }

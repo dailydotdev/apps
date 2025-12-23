@@ -3,6 +3,7 @@ import type z from 'zod';
 import { gqlClient } from '../../graphql/common';
 import {
   ACCEPT_OPPORTUNITY_MATCH,
+  ADD_OPPORTUNITY_SEATS_MUTATION,
   CANDIDATE_KEYWORD_ADD_MUTATION,
   CANDIDATE_KEYWORD_REMOVE_MUTATION,
   CLEAR_EMPLOYMENT_AGREEMENT_MUTATION,
@@ -30,6 +31,7 @@ import type {
 import { OpportunityMatchStatus } from './types';
 import type { UseUpdateQuery } from '../../hooks/useUpdateQuery';
 import type {
+  addOpportunitySeatsSchema,
   opportunityEditContentSchema,
   opportunityEditInfoSchema,
   opportunityEditOrganizationSchema,
@@ -440,6 +442,25 @@ export const parseOpportunityMutationOptions = () => {
       });
 
       return result.parseOpportunity;
+    },
+  };
+};
+
+export const addOpportunitySeatsMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof addOpportunitySeatsSchema>;
+    }): Promise<void> => {
+      await gqlClient.request<{
+        updateOpportunityState: EmptyResponse;
+      }>(ADD_OPPORTUNITY_SEATS_MUTATION, {
+        id,
+        payload,
+      });
     },
   };
 };

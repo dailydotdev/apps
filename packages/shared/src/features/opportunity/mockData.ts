@@ -15,6 +15,7 @@ export const mockOpportunity: Opportunity = {
     name: 'Daily.dev',
     website: 'https://daily.dev',
     image: 'https://daily.dev/favicon.ico',
+    recruiterTotalSeats: 1,
   },
   content: {
     overview: {

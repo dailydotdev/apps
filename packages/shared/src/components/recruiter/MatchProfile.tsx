@@ -12,7 +12,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { largeNumberFormat } from '../../lib';
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
 import { anchorDefaultRel } from '../../lib/strings';
-import { getExperienceLevelLabel } from '../../lib/user';
+import { getRecruiterExperienceLevelLabel } from '../../lib/user';
 
 export interface MatchProfileDetails {
   name: string;
@@ -89,7 +89,10 @@ export const MatchProfile = ({ profile }: MatchProfileProps): ReactElement => {
         />
         <ProfileDetailRow
           label="Seniority"
-          value={getExperienceLevelLabel(profile.seniority) ?? 'Not specified'}
+          value={
+            getRecruiterExperienceLevelLabel(profile.seniority) ??
+            'Not specified'
+          }
         />
         <ProfileDetailRow
           label="Company"

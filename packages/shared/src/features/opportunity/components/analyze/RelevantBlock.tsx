@@ -26,7 +26,11 @@ const CompanyItem = ({ favicon, name }: CompanyItemProps) => (
       className="size-4 rounded-2"
       alt={name}
     />
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+    <Typography
+      type={TypographyType.Footnote}
+      color={TypographyColor.Tertiary}
+      truncate
+    >
       {name}
     </Typography>
   </div>
@@ -122,7 +126,9 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
           bold
           color={TypographyColor.Brand}
         >
-          {animatedCount.toLocaleString()}
+          {`${animatedCount.toLocaleString()}${
+            animatedCount >= 10_000 ? '+' : ''
+          }`}
         </Typography>
         {showSubtext && (
           <Typography
@@ -135,7 +141,7 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
       </div>
       <Divider className="bg-border-subtlest-tertiary" />
       <Typography type={TypographyType.Footnote} bold>
-        Interesting in
+        Interested in
       </Typography>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag) => (
@@ -182,6 +188,7 @@ export const RelevantBlock = ({ loadingStep }: RelevantBlockProps) => {
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
+              truncate
             >
               {squad.name}
             </Typography>

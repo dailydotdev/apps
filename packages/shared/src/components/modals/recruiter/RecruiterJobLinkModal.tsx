@@ -1,8 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { createElement, useState, useEffect } from 'react';
+import React, { createElement, useState, useEffect, useCallback } from 'react';
 import z from 'zod';
 import { useMutation } from '@tanstack/react-query';
-import { useInterval } from '@kickass-coderz/react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -25,11 +24,16 @@ import {
 import { DragDrop } from '../../fields/DragDrop';
 import { parseOpportunityMutationOptions } from '../../../features/opportunity/mutations';
 import { useToastNotification } from '../../../hooks';
-import type { ApiErrorResult } from '../../../graphql/common';
+import type {
+  ApiErrorResult,
+  ApiZodErrorExtension,
+} from '../../../graphql/common';
 import { labels } from '../../../lib';
 import type { Opportunity } from '../../../features/opportunity/types';
+import Alert, { AlertType } from '../../widgets/Alert';
+import { FlexCol } from '../../utilities';
 
-const jobLinkSchema = z.string().url('Please enter a valid URL');
+const jobLinkSchema = z.string().url({ message: 'Please enter a valid URL' });
 
 export interface RecruiterJobLinkModalProps extends ModalProps {
   onSubmit: (opportunity: Opportunity) => void;
@@ -68,6 +72,48 @@ const loadingIcons = [
   ShieldCheckIcon,
 ];
 
+interface LoadingButtonContentProps {
+  isPending: boolean;
+}
+
+const LoadingButtonContent = ({ isPending }: LoadingButtonContentProps) => {
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+  useEffect(() => {
+    if (!isPending) {
+      setLoadingMessageIndex(0);
+      return undefined;
+    }
+
+    const intervalId = setInterval(() => {
+      setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+    }, 1800);
+
+    return () => clearInterval(intervalId);
+  }, [isPending]);
+
+  if (!isPending) {
+    return (
+      <>
+        <MagicIcon />
+        Find my matches
+      </>
+    );
+  }
+
+  return (
+    <>
+      {createElement(loadingIcons[loadingMessageIndex])}
+      {loadingMessages[loadingMessageIndex]}
+    </>
+  );
+};
+
+interface ValidationIssue {
+  path: (string | number)[];
+  message: string;
+}
+
 export const RecruiterJobLinkModal = ({
   onSubmit,
   onRequestClose,
@@ -75,11 +121,13 @@ export const RecruiterJobLinkModal = ({
 }: RecruiterJobLinkModalProps): ReactElement => {
   const [jobLink, setJobLink] = useState('');
   const [error, setError] = useState<string>('');
+  const [validationErrors, setValidationErrors] = useState<ValidationIssue[]>(
+    [],
+  );
   const [file, setFile] = useState<File | null>(null);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const { displayToast } = useToastNotification();
 
-  const validateJobLink = (value: string) => {
+  const validateJobLink = useCallback((value: string) => {
     if (!value.trim()) {
       setError('');
       return false;
@@ -93,13 +141,22 @@ export const RecruiterJobLinkModal = ({
 
     setError('');
     return true;
-  };
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setJobLink(value);
-    validateJobLink(value);
-  };
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      setJobLink(value);
+      validateJobLink(value);
+      setValidationErrors([]);
+    },
+    [validateJobLink],
+  );
+
+  const handleFilesDrop = useCallback((files: File[]) => {
+    setFile(files[0]);
+    setValidationErrors([]);
+  }, []);
 
   const { mutateAsync: parseOpportunity } = useMutation(
     parseOpportunityMutationOptions(),
@@ -121,27 +178,24 @@ export const RecruiterJobLinkModal = ({
       throw new Error('No job link or file provided');
     },
     onError: (mutationError: ApiErrorResult) => {
-      displayToast(
-        mutationError?.response?.errors?.[0]?.message || labels.error.generic,
-      );
+      const firstError = mutationError?.response?.errors?.[0];
+      const isZodError =
+        firstError?.extensions?.code === 'ZOD_VALIDATION_ERROR';
+
+      if (isZodError) {
+        const zodError = firstError as unknown as {
+          extensions: ApiZodErrorExtension;
+        };
+        const issues = zodError.extensions.issues as ValidationIssue[];
+        setValidationErrors(issues);
+      } else {
+        displayToast(firstError?.message || labels.error.generic);
+      }
     },
     onSuccess: (opportunity) => {
       onSubmit(opportunity);
     },
   });
-
-  useInterval(
-    () => {
-      setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
-    },
-    isPending ? 1800 : null,
-  );
-
-  useEffect(() => {
-    if (!isPending) {
-      setLoadingMessageIndex(0);
-    }
-  }, [isPending]);
 
   return (
     <Modal
@@ -150,6 +204,7 @@ export const RecruiterJobLinkModal = ({
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
       shouldCloseOnOverlayClick={false}
+      shouldCloseOnEsc={false}
     >
       <Modal.Body className="flex flex-col items-center gap-6 p-6 !py-10">
         <div className="mx-auto flex items-center justify-center gap-3 rounded-12 bg-brand-float px-4 py-1">
@@ -175,6 +230,34 @@ export const RecruiterJobLinkModal = ({
           network
         </Typography>
 
+        {validationErrors.length > 0 && (
+          <Alert type={AlertType.Error} className="w-full">
+            <FlexCol className="gap-2">
+              <Typography type={TypographyType.Callout} bold>
+                We couldn&apos;t parse all the information from your job
+                posting:
+              </Typography>
+              <ul className="ml-4 list-disc">
+                {validationErrors.map((issue) => (
+                  <li
+                    key={`${issue.path.join('-')}-${issue.message}`}
+                    className="typo-footnote"
+                  >
+                    {issue.message}
+                  </li>
+                ))}
+              </ul>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Please try a different job link or upload a more detailed job
+                description.
+              </Typography>
+            </FlexCol>
+          </Alert>
+        )}
+
         <div className="flex w-full flex-col gap-4">
           <TextField
             label="Paste your job link"
@@ -195,9 +278,7 @@ export const RecruiterJobLinkModal = ({
             state={undefined} // we don't want double loader
             isCompactList
             className="w-full laptop:min-h-20"
-            onFilesDrop={(files) => {
-              setFile(files[0]);
-            }}
+            onFilesDrop={handleFilesDrop}
             validation={fileValidation}
             isCopyBold
             dragDropDescription="Drop PDF or Word here or"
@@ -215,17 +296,7 @@ export const RecruiterJobLinkModal = ({
             disabled={(!jobLink.trim() && !file) || !!error || isPending}
             className="w-full gap-2 tablet:w-auto"
           >
-            {isPending ? (
-              <>
-                {createElement(loadingIcons[loadingMessageIndex])}
-                {loadingMessages[loadingMessageIndex]}
-              </>
-            ) : (
-              <>
-                <MagicIcon />
-                Find my matches
-              </>
-            )}
+            <LoadingButtonContent isPending={isPending} />
           </Button>
 
           <div className="flex items-center justify-center gap-2">

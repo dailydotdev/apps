@@ -1,7 +1,7 @@
 import z from 'zod';
-import { labels } from '../labels';
 import { SalaryPeriod } from '../../features/opportunity/protobuf/opportunity';
 import { isNullOrUndefined } from '../func';
+import { labels } from '../labels';
 
 const processSalaryValue = (val: unknown) => {
   if (Number.isNaN(val) || isNullOrUndefined(val)) {
@@ -12,27 +12,25 @@ const processSalaryValue = (val: unknown) => {
 };
 
 export const opportunityEditInfoSchema = z.object({
-  title: z.string().nonempty(labels.form.required).max(240),
-  tldr: z.string().nonempty(labels.form.required).max(480),
+  title: z.string().nonempty('Add a job title').max(240),
+  tldr: z.string().nonempty('Add a short description').max(480),
   keywords: z
     .array(
       z.object({
         keyword: z.string().nonempty(),
       }),
     )
-    .min(1, labels.form.required)
+    .min(1, 'Add at least one skill')
     .max(100),
   externalLocationId: z.string().optional(),
   locationType: z.number().optional(),
   meta: z.object({
-    employmentType: z.coerce.number().min(1, {
-      error: labels.form.required,
-    }),
+    employmentType: z.coerce.number().min(1, 'Select an employment type'),
     teamSize: z
-      .number(labels.form.required)
+      .number({ message: 'Enter the team size' })
       .int()
       .nonnegative()
-      .min(1)
+      .min(1, 'Enter the team size')
       .max(1_000_000),
     salary: z
       .object({
@@ -60,15 +58,14 @@ export const opportunityEditInfoSchema = z.object({
           return true;
         },
         {
-          error:
-            'Min salary must be less than or equal to max salary and no more than 25% lower',
+          message: 'Max salary must be within 25% of minimum salary',
         },
       ),
-    seniorityLevel: z.number(labels.form.required),
+    seniorityLevel: z.number({ message: 'Select a seniority level' }),
     roleType: z.union(
       [0, 0.5, 1].map((item) =>
         z.literal(item, {
-          error: labels.form.required,
+          error: 'Select a role type',
         }),
       ),
     ),
@@ -77,8 +74,10 @@ export const opportunityEditInfoSchema = z.object({
 
 export const createOpportunityEditContentSchema = ({
   optional = false,
+  errorLabel = labels.form.required,
 }: {
   optional?: boolean;
+  errorLabel?: string;
 } = {}) => {
   const contentSchema = z.string().max(2000);
 
@@ -89,7 +88,7 @@ export const createOpportunityEditContentSchema = ({
     z.object({
       content: z.preprocess(
         (val) => val || '',
-        optional ? contentSchema : contentSchema.nonempty(labels.form.required),
+        optional ? contentSchema : contentSchema.nonempty(errorLabel),
       ),
     }),
   );
@@ -99,9 +98,15 @@ export const createOpportunityEditContentSchema = ({
 
 export const opportunityEditContentSchema = z.object({
   content: z.object({
-    overview: createOpportunityEditContentSchema(),
-    responsibilities: createOpportunityEditContentSchema(),
-    requirements: createOpportunityEditContentSchema(),
+    overview: createOpportunityEditContentSchema({
+      errorLabel: 'Overview is required',
+    }),
+    responsibilities: createOpportunityEditContentSchema({
+      errorLabel: 'Responsibilities are required',
+    }),
+    requirements: createOpportunityEditContentSchema({
+      errorLabel: 'Requirements are required',
+    }),
     whatYoullDo: createOpportunityEditContentSchema({ optional: true }),
     interviewProcess: createOpportunityEditContentSchema({ optional: true }),
   }),
@@ -111,17 +116,30 @@ export const opportunityEditQuestionsSchema = z.object({
   questions: z.array(
     z.object({
       id: z.uuid().optional(),
-      title: z.string().nonempty(labels.form.required).max(480),
-      placeholder: z.string().max(480).nullable().optional(),
+      title: z.string().nonempty('Add a question title').max(480, {
+        error: 'Question title is too long',
+      }),
+      placeholder: z
+        .string()
+        .max(480, {
+          error: 'Placeholder is too long',
+        })
+        .nullable()
+        .optional(),
     }),
   ),
 });
 
 export const opportunityEditStep1Schema = opportunityEditInfoSchema.extend({
   content: opportunityEditContentSchema.shape.content,
-  organization: z.object({
-    name: z.string().nonempty(),
-  }),
+  organization: z.object(
+    {
+      name: z.string().nonempty('Add a company name'),
+    },
+    {
+      error: 'Add a company name',
+    },
+  ),
 });
 
 export const opportunityEditStep2Schema = opportunityEditQuestionsSchema.extend(
@@ -176,7 +194,7 @@ export const opportunityEditOrganizationSchema = z.object({
 export const opportunityCreateOrganizationSchema =
   opportunityEditOrganizationSchema.extend({
     organization: opportunityEditOrganizationSchema.shape.organization.extend({
-      name: z.string().nonempty().max(60),
+      name: z.string().nonempty('Add a company name').max(60),
     }),
   });
 
@@ -222,3 +240,31 @@ export interface OpportunityPreviewInput {
   type?: number;
   keywords?: string[];
 }
+
+export const maxRecruiterSeats = 50;
+
+export const addOpportunitySeatsSchema = z.object({
+  seats: z
+    .array(
+      z.object({
+        priceId: z.string().nonempty('Select a price option'),
+        quantity: z
+          .number()
+          .nonnegative()
+          .min(1, 'Enter the number of seats')
+          .max(maxRecruiterSeats, {
+            error: `You can add up to ${maxRecruiterSeats} seats at a time`,
+          }),
+      }),
+      {
+        error: 'At least one seat is required',
+      },
+    )
+    .min(1, {
+      error: 'At least one seat is required',
+    })
+    // number of pricing ids that can be in cart, just arbitrarily limit to 10
+    .max(10, {
+      error: 'You can add up to 10 different price options at a time',
+    }),
+});

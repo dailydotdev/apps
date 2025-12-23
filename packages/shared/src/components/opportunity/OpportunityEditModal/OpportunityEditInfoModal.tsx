@@ -30,6 +30,8 @@ import { opportunityEditDiscardPrompt } from './common';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
 import ProfileLocation from '../../profile/ProfileLocation';
+import { ModalSize } from '../../modals/common/types';
+import { LocationDataset } from '../../../graphql/autocomplete';
 
 export type OpportunityEditInfoModalProps = {
   id: string;
@@ -132,7 +134,12 @@ export const OpportunityEditInfoModal = ({
 
   return (
     <FormProvider {...methods}>
-      <Modal {...rest} isOpen onRequestClose={onRequestClose}>
+      <Modal
+        {...rest}
+        isOpen
+        onRequestClose={onRequestClose}
+        size={ModalSize.Large}
+      >
         <Modal.Header className="flex justify-between" showCloseButton={false}>
           <Modal.Title className="typo-title3">Role description</Modal.Title>
           <div className="flex items-center gap-4">
@@ -189,7 +196,7 @@ export const OpportunityEditInfoModal = ({
           <Controller
             name="keywords"
             control={control}
-            rules={{ required: labels.form.required }}
+            rules={{ required: 'Keywords are required' }}
             render={({ field }) => {
               return (
                 <KeywordSelection
@@ -217,6 +224,7 @@ export const OpportunityEditInfoModal = ({
             <ProfileLocation
               locationName="externalLocationId"
               typeName="locationType"
+              dataset={LocationDataset.Internal}
               defaultValue={
                 opportunity.locations?.[0]?.location
                   ? {
@@ -238,7 +246,7 @@ export const OpportunityEditInfoModal = ({
             <Controller
               name="meta.employmentType"
               control={control}
-              rules={{ required: labels.form.required }}
+              rules={{ required: 'Employment type is required' }}
               render={({ field }) => {
                 return (
                   <Radio
@@ -330,6 +338,7 @@ export const OpportunityEditInfoModal = ({
                     <Dropdown
                       className={{
                         container: 'flex-1',
+                        menu: 'w-[--radix-dropdown-menu-trigger-width]',
                       }}
                       selectedIndex={field.value ? field.value - 1 : undefined}
                       options={options}
@@ -352,7 +361,7 @@ export const OpportunityEditInfoModal = ({
             <Controller
               name="meta.seniorityLevel"
               control={control}
-              rules={{ required: labels.form.required }}
+              rules={{ required: 'Seniority level is required' }}
               render={({ field }) => {
                 const options = [
                   'Intern',
@@ -370,6 +379,7 @@ export const OpportunityEditInfoModal = ({
                   <Dropdown
                     className={{
                       container: 'flex-1',
+                      menu: 'w-[--radix-dropdown-menu-trigger-width]',
                     }}
                     selectedIndex={field.value ? field.value - 1 : undefined}
                     options={options}
@@ -391,7 +401,7 @@ export const OpportunityEditInfoModal = ({
             <Controller
               name="meta.roleType"
               control={control}
-              rules={{ required: labels.form.required }}
+              rules={{ required: 'Job type is required' }}
               render={({ field }) => {
                 const options = [
                   { value: 0, title: 'IC' },
@@ -403,6 +413,7 @@ export const OpportunityEditInfoModal = ({
                   <Dropdown
                     className={{
                       container: 'flex-1',
+                      menu: 'w-[--radix-dropdown-menu-trigger-width]',
                     }}
                     selectedIndex={options.findIndex(
                       (option) => option.value === field.value,

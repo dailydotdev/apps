@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -15,6 +16,8 @@ import Link from '../utilities/Link';
 import { useOpportunityContext } from '../../features/opportunity/context/OpportunityContext';
 import { boostOpportunityLink, opportunityUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
+import { recruiterPricesQueryOptions } from '../../features/opportunity/queries';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 type ItemProps = {
   children: ReactNode;
@@ -47,6 +50,14 @@ export const ConnectHeader = ({
   activeTab,
 }: ConnectHeaderProps = {}): ReactElement => {
   const { opportunity } = useOpportunityContext();
+  const { user, isLoggedIn } = useAuthContext();
+
+  const { data: prices } = useQuery(
+    recruiterPricesQueryOptions({
+      user,
+      isLoggedIn,
+    }),
+  );
 
   const flags = opportunity?.flags || {};
   const opportunityId = opportunity?.id;
@@ -56,6 +67,20 @@ export const ConnectHeader = ({
   const introsHref = opportunityId
     ? `/recruiter/${opportunityId}/matches/intros`
     : '#';
+
+  const isBoosted = useMemo(() => {
+    // hack for now to determine if boosted, ideally we have some kind of
+    // static string inside our experiment variation metadata
+    const boostedPlan = prices?.find(
+      (price) => price.metadata.title === 'Boost',
+    );
+
+    if (!boostedPlan) {
+      return false;
+    }
+
+    return boostedPlan.priceId === opportunity?.flags?.plan;
+  }, [opportunity?.flags?.plan, prices]);
 
   return (
     <FlexCol>
@@ -74,8 +99,11 @@ export const ConnectHeader = ({
               secondary
               size={IconSize.XSmall}
             />{' '}
-            <strong>Autopilot ON:</strong> We will reach out to{' '}
-            {flags?.batchSize || 50} per day
+            <strong>Autopilot ON:</strong>
+            {!!flags?.batchSize &&
+              `We will reach out to ${flags.batchSize} candidates per day`}
+            {!flags?.batchSize &&
+              'We will start reaching out to candidates soon'}
           </Typography>
         </div>
         <FlexRow className="gap-4">
@@ -98,8 +126,9 @@ export const ConnectHeader = ({
             tag="a"
             target="_blank"
             rel={anchorDefaultRel}
+            disabled={isBoosted}
           >
-            Boost
+            {isBoosted ? 'Boosted' : 'Boost'}
           </Button>
         </FlexRow>
       </FlexRow>

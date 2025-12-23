@@ -12,12 +12,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
-import { AlertIcon, MiniCloseIcon } from '../icons';
-import { Tooltip } from '../tooltip/Tooltip';
+import { MiniCloseIcon } from '../icons';
 import { useOpportunityPreviewContext } from '../../features/opportunity/context/OpportunityPreviewContext';
 import type { OpportunityPreviewUser } from '../../features/opportunity/types';
-import { LocationVerificationStatus } from '../../features/opportunity/types';
-import { getExperienceLevelLabel } from '../../lib/user';
+import { getRecruiterExperienceLevelLabel } from '../../lib/user';
 import { UserEngagementSections } from './UserEngagementSections';
 
 const columnHelper = createColumnHelper<OpportunityPreviewUser>();
@@ -73,7 +71,7 @@ const columns = [
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          {getExperienceLevelLabel(value) ?? '-'}
+          {getRecruiterExperienceLevelLabel(value) ?? '-'}
         </Typography>
       );
     },
@@ -81,9 +79,7 @@ const columns = [
   columnHelper.accessor('location', {
     header: 'Location',
     cell: (info) => {
-      const user = info.row.original;
       const location = info.getValue();
-      const { locationVerified } = user;
 
       return (
         <span className="inline-block">
@@ -94,14 +90,6 @@ const columns = [
           >
             {location || '-'}
           </Typography>
-          {location &&
-            locationVerified === LocationVerificationStatus.GeoIP && (
-              <Tooltip content="Location estimated">
-                <span className="ml-2 inline-flex items-center align-middle">
-                  <AlertIcon className="text-text-tertiary" />
-                </span>
-              </Tooltip>
-            )}
         </span>
       );
     },
@@ -311,15 +299,13 @@ export const AnonymousUserTable = () => {
                     className="border-b border-border-subtlest-tertiary px-4 pb-3 pt-1"
                   >
                     <div className="flex flex-col gap-2">
-                      {user.description && (
-                        <Typography
-                          type={TypographyType.Footnote}
-                          color={TypographyColor.Tertiary}
-                          className={classNames(!isExpanded && 'line-clamp-1')}
-                        >
-                          {user.description}
-                        </Typography>
-                      )}
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                        className={classNames(!isExpanded && 'line-clamp-1')}
+                      >
+                        {user.description}
+                      </Typography>
 
                       {isExpanded && (
                         <UserEngagementSections

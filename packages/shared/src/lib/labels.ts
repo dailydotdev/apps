@@ -146,9 +146,8 @@ export const labels = {
     companyInfoEditNotice:
       'You can edit company data only on the Organization page.',
     requiredMissingNotice: {
-      title: 'Missing Required Information',
-      description:
-        'Some vital fields are empty. Please complete the required information before continuing.',
+      title: 'Almost there!',
+      description: 'Please make sure all the required fields are valid.',
       okButton: 'Close',
     },
     approveNotice: {
@@ -167,6 +166,12 @@ export const labels = {
         interviewProcess: 'Explain the interview process',
         generic: 'Tell us more',
       },
+    },
+    assignSeat: {
+      title: 'Adding more seats was successful',
+      description: 'Do you want to assign your new seat to this job?',
+      okButton: 'Continue',
+      cancelButton: 'Later',
     },
   },
   postCreation: {

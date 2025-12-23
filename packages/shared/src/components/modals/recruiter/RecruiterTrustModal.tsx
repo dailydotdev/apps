@@ -34,6 +34,7 @@ export const RecruiterTrustModal = ({
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
       shouldCloseOnOverlayClick={false}
+      shouldCloseOnEsc={false}
     >
       <Modal.Body className="flex flex-col gap-6 p-6">
         <div className="mr-auto flex items-center gap-3 rounded-12 bg-accent-water-flat px-3 py-1">

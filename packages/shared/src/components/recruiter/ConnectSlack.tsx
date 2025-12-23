@@ -15,7 +15,13 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 
-export const ConnectSlack = (): ReactElement => {
+export type ConnectSlackProps = {
+  organizationId?: string;
+};
+
+export const ConnectSlack = ({
+  organizationId,
+}: ConnectSlackProps): ReactElement => {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
 
@@ -45,9 +51,10 @@ export const ConnectSlack = (): ReactElement => {
         name: organizationName || user.name || user.username || '',
         email: user.email || '',
         channelName,
+        organizationId,
       },
     });
-  }, [user, openModal]);
+  }, [user, openModal, organizationId]);
   return (
     <FlexCol className="mt-20 max-w-xl items-center gap-3 p-4 text-center">
       <FlexRow>
