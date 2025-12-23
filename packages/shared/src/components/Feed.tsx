@@ -218,6 +218,7 @@ export default function Feed<T>({
     isFetching,
     isInitialLoading,
     isError,
+    error: feedError,
   } = useFeed(
     feedQueryKey,
     pageSize ?? currentSettings.pageSize,
@@ -494,7 +495,7 @@ export default function Feed<T>({
   const PostModal = PostModalMap[selectedPost?.type];
 
   if (isError) {
-    return <FeedErrorScreen />;
+    return <FeedErrorScreen error={feedError} />;
   }
 
   if (emptyScreen && emptyFeed && !isSearchPageLaptop) {

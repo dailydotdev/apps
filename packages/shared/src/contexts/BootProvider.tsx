@@ -25,11 +25,19 @@ import { gqlClient } from '../graphql/common';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';
 import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
+import { isConnectionError } from '../lib/errors';
 
 const ServerError = dynamic(
   () =>
     import(
       /* webpackChunkName: "serverError" */ '../components/errors/ServerError'
+    ),
+);
+
+const ConnectionError = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "connectionError" */ '../components/errors/ConnectionError'
     ),
 );
 
@@ -282,9 +290,14 @@ export const BootDataProvider = ({
   }, [logged, shouldRefetch, updateBootData]);
 
   if (error) {
+    const isNetworkError = isConnectionError(error);
     return (
       <div className="mx-2 flex h-screen items-center justify-center">
-        <ServerError />
+        {isNetworkError ? (
+          <ConnectionError onRetry={() => refetch()} />
+        ) : (
+          <ServerError />
+        )}
       </div>
     );
   }
