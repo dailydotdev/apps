@@ -2,21 +2,26 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { ProfileTooltip } from './ProfileTooltip';
 
-const simpleTooltipSpy = jest.fn();
-const linkWithTooltipSpy = jest.fn();
+const mockSimpleTooltipSpy = jest.fn();
+const mockLinkWithTooltipSpy = jest.fn();
 
 jest.mock('../tooltips/SimpleTooltip', () => ({
   SimpleTooltip: ({ children, ...props }) => {
-    simpleTooltipSpy({ children, ...props });
+    mockSimpleTooltipSpy({ children, ...props });
     return <div data-testid="simple-tooltip">{children}</div>;
   },
 }));
 
 jest.mock('../tooltips/LinkWithTooltip', () => ({
   LinkWithTooltip: ({ children, ...props }) => {
-    linkWithTooltipSpy({ children, ...props });
+    mockLinkWithTooltipSpy({ children, ...props });
     return <a data-testid="link-with-tooltip">{children}</a>;
   },
+}));
+
+jest.mock('../cards/entity/UserEntityCard', () => ({
+  __esModule: true,
+  default: () => <div data-testid="user-entity-card" />,
 }));
 
 jest.mock('@tanstack/react-query', () => ({
@@ -38,8 +43,8 @@ describe('ProfileTooltip', () => {
       </ProfileTooltip>,
     );
 
-    expect(simpleTooltipSpy).toHaveBeenCalled();
-    expect(simpleTooltipSpy.mock.calls[0][0].trigger).toBe('mouseenter');
+    expect(mockSimpleTooltipSpy).toHaveBeenCalled();
+    expect(mockSimpleTooltipSpy.mock.calls[0][0].trigger).toBe('mouseenter');
   });
 
   it('passes default trigger to LinkWithTooltip when link is provided', () => {
@@ -49,8 +54,8 @@ describe('ProfileTooltip', () => {
       </ProfileTooltip>,
     );
 
-    expect(linkWithTooltipSpy).toHaveBeenCalled();
-    expect(linkWithTooltipSpy.mock.calls[0][0].tooltip.trigger).toBe(
+    expect(mockLinkWithTooltipSpy).toHaveBeenCalled();
+    expect(mockLinkWithTooltipSpy.mock.calls[0][0].tooltip.trigger).toBe(
       'mouseenter',
     );
   });
@@ -65,8 +70,7 @@ describe('ProfileTooltip', () => {
       </ProfileTooltip>,
     );
 
-    expect(simpleTooltipSpy).toHaveBeenCalled();
-    expect(simpleTooltipSpy.mock.calls[0][0].trigger).toBe('click');
+    expect(mockSimpleTooltipSpy).toHaveBeenCalled();
+    expect(mockSimpleTooltipSpy.mock.calls[0][0].trigger).toBe('click');
   });
 });
-
