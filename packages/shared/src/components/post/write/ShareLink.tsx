@@ -34,6 +34,8 @@ const confirmSharingAgainPrompt = {
   },
 };
 
+const MAX_COMMENTARY_LENGTH = 250;
+
 export function ShareLink({
   squad,
   className,
@@ -109,6 +111,10 @@ export function ShareLink({
       return null;
     }
 
+    if ((commentary || '').length > MAX_COMMENTARY_LENGTH) {
+      return null;
+    }
+
     if (!isCreatingPost) {
       return onUpdateSubmit(e);
     }
@@ -169,6 +175,7 @@ export function ShareLink({
         enabledCommand={{ mention: true }}
         showMarkdownGuide={false}
         onValueUpdate={setCommentary}
+        maxInputLength={MAX_COMMENTARY_LENGTH}
       />
       <WriteFooter
         isLoading={isPosting || isPostingModeration || isPendingCreation}
