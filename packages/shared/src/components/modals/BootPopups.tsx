@@ -9,7 +9,6 @@ import AlertContext from '../../contexts/AlertContext';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
-import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { InteractivePopupProps } from '../tooltips/InteractivePopup';
 import InteractivePopup, {
@@ -30,7 +29,7 @@ const REP_TRESHOLD = 250;
  */
 export const BootPopups = (): ReactElement => {
   const { logEvent } = useLogContext();
-  const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
+  const { checkHasCompleted, isActionsFetched } = useActions();
   const { openModal } = useLazyModal();
   const { user, isValidRegion } = useAuthContext();
   const { updateUserProfile } = useProfileForm();
@@ -51,11 +50,7 @@ export const BootPopups = (): ReactElement => {
   );
   const marketingCtaPlus = getMarketingCta(MarketingCtaVariant.Plus);
 
-  const {
-    streak,
-    shouldShowPopup: shouldShowStreaksPopup,
-    isStreaksEnabled,
-  } = useReadingStreak();
+  const { streak, isStreaksEnabled } = useReadingStreak();
 
   const isDisabledMilestone = checkHasCompleted(
     ActionType.DisableReadingStreakMilestone,
@@ -190,31 +185,6 @@ export const BootPopups = (): ReactElement => {
       },
     });
   }, [alerts?.showGenericReferral, updateLastBootPopup]);
-
-  /**
-   * Boot popup for migrate streaks
-   */
-  useEffect(() => {
-    if (!shouldShowStreaksPopup || !isActionsFetched) {
-      return;
-    }
-
-    addBootPopup({
-      type: LazyModal.MarketingCta,
-      props: {
-        marketingCta: promotion.migrateStreaks,
-        onAfterOpen: () => {
-          updateLastBootPopup();
-          completeAction(ActionType.ExistingUserSeenStreaks);
-        },
-      },
-    });
-  }, [
-    completeAction,
-    isActionsFetched,
-    shouldShowStreaksPopup,
-    updateLastBootPopup,
-  ]);
 
   /**
    * Boot popup for streaks milestone

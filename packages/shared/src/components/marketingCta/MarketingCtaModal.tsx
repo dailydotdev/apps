@@ -9,7 +9,6 @@ import { CTAButton, Description, Header, Title } from './common';
 import { useBoot } from '../../hooks';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
-import { promotion } from '../modals/generic';
 import { MiniCloseIcon } from '../icons';
 
 export interface MarketingCtaModalProps extends ModalProps {
@@ -36,14 +35,7 @@ export const MarketingCtaModal = ({
       target_id: campaignId,
     });
 
-    const isManualCampaign = Object.values(promotion).some(
-      (campaign) => campaign.campaignId === campaignId,
-    );
-
-    if (!isManualCampaign) {
-      clearMarketingCta(campaignId);
-    }
-
+    clearMarketingCta(campaignId);
     onRequestClose(param);
   };
 
