@@ -4,8 +4,8 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --watch",
     "build": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome webpack",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --fix",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --cache --fix",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --cache",
     "pretest": "npm run lint",
     "test": "jest --runInBand"
   },
@@ -84,7 +84,7 @@
     "html-webpack-plugin": "^5.5.3",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.6.3",
-    "jest-junit": "^12.3.0",
+    "jest-junit": "^16.0.0",
     "mini-css-extract-plugin": "^1.6.2",
     "nock": "^13.2.4",
     "node-fetch": "^2.6.6",

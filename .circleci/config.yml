@@ -1,120 +1,85 @@
 version: 2.1
 
+orbs:
+  common: dailydotdev/common@0.0.14
+
 jobs:
-  install_deps:
-    docker:
-      - image: cimg/node:22.11
+  check-steps:
+    type: no-op
+
+  setup-node:
+    executor:
+      name: common/node
+      tag: "22.16"
     steps:
-      - checkout
-      - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
-      - restore_cache:
-          keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
-      - run:
-          name: Install dependencies
-          command: pnpm install
-      - save_cache:
-          key: deps-v7-{{ checksum "pnpm-lock.yaml" }}
-          paths:
-            - ./node_modules
-            - ./packages/eslint-config/node_modules
-            - ./packages/eslint-rules/node_modules
-            - ./packages/prettier-config/node_modules
-            - ./packages/shared/node_modules
-            - ./packages/webapp/node_modules
-            - ./packages/extension/node_modules
-  test_extension:
-    docker:
-      - image: cimg/node:22.11
-    parallelism: 1
+      - common/setup-node
+
+  test-package:
+    parameters:
+      pkg:
+        type: string
+    executor:
+      name: common/node
+      tag: "22.16"
+    parallelism: 4
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+      - common/setup-node
       - run:
           name: Test
           command: |
-            npm run pretest
             TEST=$(./node_modules/.bin/jest --listTests)
             echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
-            JEST_JUNIT_OUTPUT_DIR: ../../test-results
-          working_directory: packages/extension
+            JEST_JUNIT_OUTPUT_DIR: ./test-results
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
+            JEST_JUNIT_FILE_PATH_PREFIX: "/home/circleci/project/packages/<< parameters.pkg >>/"
+          working_directory: packages/<< parameters.pkg >>
       - store_test_results:
-          path: ./test-results
-  test_webapp:
-    docker:
-      - image: cimg/node:22.11
-    parallelism: 1
+          path: ./packages/<< parameters.pkg >>/test-results
+      - store_artifacts:
+          path: ./packages/<< parameters.pkg >>/test-results
+  lint-package:
+    parameters:
+      pkg:
+        type: string
+    executor:
+      name: common/node
+      tag: "22.16"
+    resource_class: small
     steps:
-      - checkout
+      - common/setup-node
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
-      - run:
-          name: Test
-          command: |
-            npm run pretest
-            TEST=$(./node_modules/.bin/jest --listTests)
-            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ../../test-results
-          working_directory: packages/webapp
-      - store_test_results:
-          path: ./test-results
-  lint_shared:
-    docker:
-      - image: cimg/node:22.11
-    resource_class: large
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - v1-eslintcache-<< parameters.pkg >>-{{ checksum "packages/<< parameters.pkg >>/package.json" }}
+            - v1-eslintcache-<< parameters.pkg >>-
       - run:
           name: Lint
-          command: npm run pretest
-          working_directory: packages/shared
-  test_shared:
-    docker:
-      - image: cimg/node:22.11
-    parallelism: 1
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
-      - run:
-          name: Test
+          working_directory: packages/<< parameters.pkg >>
           command: |
-            TEST=$(./node_modules/.bin/jest --listTests)
-            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ../../test-results
-          working_directory: packages/shared
-      - store_test_results:
-          path: ./test-results
+            pnpm run lint
+      - save_cache:
+          key: v1-eslintcache-<< parameters.pkg >>-{{ checksum "packages/<< parameters.pkg >>/package.json" }}
+          paths:
+            - ./packages/<< parameters.pkg >>/.eslintcache
 workflows:
   build:
     jobs:
-      - install_deps
-      - test_extension:
+      - setup-node
+      - lint-package:
           requires:
-            - install_deps
-      - test_webapp:
+            - setup-node
+          matrix:
+            parameters:
+              pkg: ["extension", "webapp", "shared"]
+
+      - test-package:
           requires:
-            - install_deps
-      - lint_shared:
+            - setup-node
+          matrix:
+            parameters:
+              pkg: ["extension", "webapp", "shared"]
+
+      - check-steps:
           requires:
-            - install_deps
-      - test_shared:
-          requires:
-            - install_deps
+            - lint-package
+            - test-package
