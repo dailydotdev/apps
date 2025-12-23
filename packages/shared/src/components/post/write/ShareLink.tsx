@@ -77,6 +77,10 @@ export function ShareLink({
       onSuccess: async () => push(squad?.permalink),
     });
 
+  // Character limit state
+  const commentaryLength = commentary?.length ?? 0;
+  const isCommentaryTooLong = commentaryLength > MAX_POST_COMMENTARY_LENGTH;
+
   const onUpdateSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     if (!fetchedPost?.id || !squad) {
       return null;
@@ -108,10 +112,6 @@ export function ShareLink({
     e.preventDefault();
 
     if (isPosting || isPostingModeration || isPendingCreation) {
-      return null;
-    }
-
-    if ((commentary || '').length > MAX_POST_COMMENTARY_LENGTH) {
       return null;
     }
 
@@ -177,8 +177,14 @@ export function ShareLink({
         onValueUpdate={setCommentary}
         maxInputLength={MAX_POST_COMMENTARY_LENGTH}
       />
+      {isCommentaryTooLong && (
+        <p className="text-text-tertiary typo-caption">
+          Maximum length is {MAX_POST_COMMENTARY_LENGTH} characters
+        </p>
+      )}
       <WriteFooter
         isLoading={isPosting || isPostingModeration || isPendingCreation}
+        disabled={isCommentaryTooLong}
       />
     </form>
   );
