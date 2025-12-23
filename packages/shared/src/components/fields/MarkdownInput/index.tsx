@@ -44,6 +44,8 @@ import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
 import { ACCEPTED_TYPES } from '../../../graphql/posts';
+import GifPopover from '../../popover/GifPopover';
+import { GifIcon } from '../../icons/Gif';
 
 const RecommendedEmojiTooltip = dynamic(
   () =>
@@ -132,6 +134,7 @@ function MarkdownInput(
     uploadedCount,
     onLinkCommand,
     onUploadCommand,
+    onGifCommand,
     onMentionCommand,
     onApplyMention,
     onCloseMention,
@@ -389,6 +392,15 @@ function MarkdownInput(
               />
             )}
           </ConditionalWrapper>
+          <GifPopover
+            buttonProps={{
+              size: actionButtonSizes,
+              variant: ButtonVariant.Tertiary,
+              icon: <GifIcon />,
+            }}
+            onGifCommand={onGifCommand}
+            textareaRef={textareaRef}
+          />
           {shouldShowSubmit && (
             <Button
               className="ml-auto"
