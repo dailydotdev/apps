@@ -444,13 +444,11 @@ export const handleRegex = new RegExp(
   '^@?[\\p{L}\\p{N}]([\\p{L}\\p{N}_]){2,38}$',
   'iu',
 );
-
 // Using string constructor to avoid Babel unicode-regex transformation issues
 export const socialHandleRegex = new RegExp(
   '^@?([\\p{L}\\p{N}_-]){1,39}$',
   'iu',
 );
-
 export const REFERRAL_CAMPAIGN_QUERY = gql`
   query ReferralCampaign($referralOrigin: String!) {
     referralCampaign(referralOrigin: $referralOrigin) {

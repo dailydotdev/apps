@@ -64,7 +64,7 @@ export function ShortcutLinksList({
     <div
       className={classNames(
         'hidden tablet:flex',
-        shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : '-mt-2 mb-5',
+        shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : 'mb-5',
       )}
     >
       {hasShortcuts && (
