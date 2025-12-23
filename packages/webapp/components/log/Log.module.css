@@ -128,6 +128,11 @@
 
 /* Desktop breakpoint - larger text for bigger screens */
 @media (min-width: 1024px) {
+  .header {
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+  }
+
   .cardInner {
     max-width: 560px;
   }
@@ -2918,6 +2923,9 @@
     2px 2px 0 var(--fest-primary, #FF8E3B),
     4px 4px 0 var(--fest-accent, #CE3DF3);
   margin-bottom: 0.5rem;
+  white-space: nowrap;
+  overflow: visible;
+  flex-shrink: 0;
 }
 
 .shareOfficialText {
