@@ -95,9 +95,3 @@
     transform: translateX(0);
   }
 }
-
-/* Force scrollbar to always be visible (especially for Safari) */
-.DropdownMenuScrollable {
-  scrollbar-width: thin;
-  scrollbar-color: var(--theme-text-tertiary) transparent;
-}

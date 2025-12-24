@@ -42,6 +42,7 @@ import { adLogEvent, feedLogExtra } from '../lib/feed';
 import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
+import { MarketingCtaYearInReview } from './marketingCta/MarketingCtaYearInReview';
 import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 
@@ -364,6 +365,10 @@ function FeedItemComponent({
     case FeedItemType.MarketingCta:
       if (item.marketingCta.variant === MarketingCtaVariant.BriefCard) {
         return <MarketingCtaBriefing {...item.marketingCta} />;
+      }
+
+      if (item.marketingCta.variant === MarketingCtaVariant.YearInReview) {
+        return <MarketingCtaYearInReview marketingCta={item.marketingCta} />;
       }
 
       return (

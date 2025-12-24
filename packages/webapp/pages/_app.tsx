@@ -163,6 +163,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const seo = (pageProps?.seo || layoutProps?.seo) as Record<string, unknown>;
 
   const showAppStoreBanner = !router.pathname.startsWith('/helloworld');
+  const isImageGenerator = router.pathname.startsWith('/image-generator');
 
   return (
     <>
@@ -240,7 +241,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       <DndContextProvider>
         {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       </DndContextProvider>
-      {showBanner && !isFunnel && (
+      {showBanner && !isFunnel && !isImageGenerator && (
         <CookieBanner
           onAccepted={onAcceptCookies}
           onHideBanner={onHideBanner}

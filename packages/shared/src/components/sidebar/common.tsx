@@ -13,6 +13,7 @@ import type { TooltipProps } from '../tooltips/BaseTooltip';
 export interface SidebarMenuItem {
   icon: ((active: boolean) => ReactElement) | ReactNode;
   title: string;
+  titleClassName?: string;
   rightIcon?: (active: boolean) => ReactElement;
   path?: string;
   onClick?: () => unknown;
@@ -134,6 +135,7 @@ export const ItemInner = ({
         className={classNames(
           'flex-1 truncate text-left transition-opacity',
           shouldShowLabel ? 'opacity-100 delay-150' : 'opacity-0',
+          item.titleClassName,
         )}
         title={item.title}
       >
