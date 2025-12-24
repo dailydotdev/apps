@@ -1,7 +1,9 @@
 import z from 'zod';
-import { SalaryPeriod } from '../../features/opportunity/protobuf/opportunity';
-import { isNullOrUndefined } from '../func';
 import { labels } from '../labels';
+import { isNullOrUndefined } from '../func';
+
+const MAX_SALARY = 100_000_000;
+const MAX_TEAM_SIZE = 1_000_000;
 
 const processSalaryValue = (val: unknown) => {
   if (Number.isNaN(val) || isNullOrUndefined(val)) {
@@ -31,22 +33,22 @@ export const opportunityEditInfoSchema = z.object({
       .int()
       .nonnegative()
       .min(1, 'Enter the team size')
-      .max(1_000_000),
+      .max(MAX_TEAM_SIZE),
     salary: z
       .object({
         min: z.preprocess(
           processSalaryValue,
-          z.number().int().nonnegative().max(100_000_000).optional(),
+          z.number().int().nonnegative().max(MAX_SALARY).optional(),
         ),
         max: z.preprocess(
           processSalaryValue,
-          z.number().int().nonnegative().max(100_000_000).optional(),
+          z.number().int().nonnegative().max(MAX_SALARY).optional(),
         ),
         period: z
           .number()
           .nullish()
           .transform((val) => val ?? undefined)
-          .default(SalaryPeriod.UNSPECIFIED),
+          .default(0),
       })
       .nullish()
       .refine(

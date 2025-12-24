@@ -118,6 +118,8 @@ jobs:
       - run:
           name: Build Extension
           command: pnpm --filter extension build
+          environment:
+            NODE_OPTIONS: --max-old-space-size=8192
 workflows:
   build:
     jobs:
