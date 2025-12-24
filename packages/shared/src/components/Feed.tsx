@@ -186,7 +186,8 @@ export default function Feed<T>({
   const { isActionsFetched, checkHasCompleted } = useActions();
   const marketingCta =
     getMarketingCta(MarketingCtaVariant.Card) ||
-    getMarketingCta(MarketingCtaVariant.BriefCard);
+    getMarketingCta(MarketingCtaVariant.BriefCard) ||
+    getMarketingCta(MarketingCtaVariant.YearInReview);
   const { plusEntryFeed } = usePlusEntry();
   const hasDismissBriefCta =
     isActionsFetched && checkHasCompleted(ActionType.DisableBriefCardCta);
@@ -218,6 +219,7 @@ export default function Feed<T>({
     isFetching,
     isInitialLoading,
     isError,
+    error: feedError,
   } = useFeed(
     feedQueryKey,
     pageSize ?? currentSettings.pageSize,
@@ -494,7 +496,7 @@ export default function Feed<T>({
   const PostModal = PostModalMap[selectedPost?.type];
 
   if (isError) {
-    return <FeedErrorScreen />;
+    return <FeedErrorScreen error={feedError} />;
   }
 
   if (emptyScreen && emptyFeed && !isSearchPageLaptop) {

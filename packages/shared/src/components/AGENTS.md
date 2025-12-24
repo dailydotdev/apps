@@ -210,6 +210,67 @@ export * from './MyIcon';
 - `size?: IconSize` - Icon size (default: `XSmall` / 20px)
 - Extends `ComponentProps<'svg'>` - accepts standard SVG attributes
 
+## Typography
+
+Use the `Typography` component instead of raw `<span>`, `<p>`, or heading elements for consistent text styling.
+
+### Basic Usage
+```typescript
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+  TypographyColor,
+} from '../typography/Typography';
+
+// Basic paragraph
+<Typography type={TypographyType.Body}>
+  Some text content
+</Typography>
+
+// With specific tag and styling
+<Typography
+  tag={TypographyTag.Span}
+  type={TypographyType.Footnote}
+  bold
+>
+  Bold footnote text
+</Typography>
+
+// With semantic color
+<Typography
+  tag={TypographyTag.H1}
+  type={TypographyType.Title1}
+  color={TypographyColor.Primary}
+>
+  Page Title
+</Typography>
+```
+
+### Available Props
+- `tag` - HTML element to render (`TypographyTag.Span`, `TypographyTag.P`, `TypographyTag.H1`, etc.)
+- `type` - Typography size/style (`TypographyType.Caption1`, `TypographyType.Footnote`, `TypographyType.Body`, `TypographyType.Title1`, `TypographyType.Mega1`, etc.)
+- `color` - Semantic color (`TypographyColor.Primary`, `TypographyColor.Secondary`, `TypographyColor.Link`, etc.)
+- `bold` - Apply bold font weight
+- `center` - Center align text
+- `truncate` - Truncate with ellipsis
+- `className` - Additional CSS classes for custom styling (colors, spacing, etc.)
+
+### Typography Types (smallest to largest)
+`Caption2` → `Caption1` → `Footnote` → `Subhead` → `Callout` → `Body` → `Title4` → `Title3` → `Title2` → `Title1` → `LargeTitle` → `Mega3` → `Mega2` → `Mega1` → `Giga3` → `Giga2` → `Giga1` → `Tera`
+
+### Custom Colors via className
+When you need colors not in `TypographyColor`, use `className`:
+```typescript
+<Typography
+  tag={TypographyTag.Span}
+  type={TypographyType.Footnote}
+  className="text-accent-cheese-default"
+>
+  Custom colored text
+</Typography>
+```
+
 ## Common Patterns
 
 ### Compound Components

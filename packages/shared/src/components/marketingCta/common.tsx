@@ -16,6 +16,7 @@ export type MarketingCtaFlags = {
   tagColor?: string;
   ctaUrl: string;
   ctaText: string;
+  asFirstCard?: boolean;
 };
 
 export enum MarketingCtaVariant {
@@ -29,6 +30,7 @@ export enum MarketingCtaVariant {
   PlusAnnouncementBar = 'plus_announcement_bar',
   FeedBanner = 'feed_banner',
   BriefCard = 'brief_card',
+  YearInReview = 'year_in_review',
 }
 
 interface MarketingCtaTargets {

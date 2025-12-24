@@ -1,0 +1,39 @@
+/* Log 2025 - Shared CSS Variables */
+/* Design tokens shared between dynamic and static card components */
+
+/* 
+ * Note: These variables are defined as a mixin using :export for CSS Module compatibility.
+ * Import this file and apply the .logTheme class to the root container.
+ */
+
+.logTheme {
+  /* Design system colors from daily.dev palette */
+  --fest-bg: #0e1217; /* pepper.90 */
+  --fest-bg-dark: #17191f; /* pepper.80 */
+  --fest-primary: #ff8e3b; /* bun.40 */
+  --fest-secondary: #ffe923; /* cheese.40 */
+  --fest-accent: #ce3df3; /* cabbage.40 */
+  --fest-lime: #acf535; /* lettuce.40 */
+  --fest-white: #ffffff; /* salt.0 */
+  --fest-cream: #f5f8fc; /* salt.10 */
+  --fest-white-70: rgba(255, 255, 255, 0.7);
+  --fest-white-50: rgba(255, 255, 255, 0.5);
+  --fest-white-30: rgba(255, 255, 255, 0.3);
+  --fest-white-20: rgba(255, 255, 255, 0.2);
+  --fest-white-10: rgba(255, 255, 255, 0.1);
+
+  /* Archetype colors - mapped to design system */
+  --arch-night-owl: #427ef7; /* water.40 */
+  --arch-scholar: #ffe923; /* cheese.40 */
+  --arch-pulse: #2cdce6; /* blueCheese.40 */
+  --arch-opinionist: #ce3df3; /* cabbage.40 */
+  --arch-collector: #9d70f8; /* onion.10 */
+  --arch-streak: #ff8e3b; /* bun.40 */
+
+  /* Typography - design system fonts */
+  --font-mono: 'Fira Code', 'SF Mono', Consolas, Menlo, 'Courier New', monospace;
+
+  /* Archetype color variable (can be overridden via inline style) */
+  --archetype-color: var(--fest-accent);
+}
+

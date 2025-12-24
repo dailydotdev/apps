@@ -108,3 +108,5 @@ export const boostSettingsFeature = new Feature('boost_settings', {
 });
 
 export const adImprovementsV3Feature = new Feature('ad_improvements_v3', false);
+
+export const featureYearInReview = new Feature('year_in_review_2025', false);
