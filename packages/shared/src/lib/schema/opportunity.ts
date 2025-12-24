@@ -1,15 +1,8 @@
 import z from 'zod';
-import { SalaryPeriod } from '../../features/opportunity/protobuf/opportunity';
-import { isNullOrUndefined } from '../func';
 import { labels } from '../labels';
 
-const processSalaryValue = (val: unknown) => {
-  if (Number.isNaN(val) || isNullOrUndefined(val)) {
-    return undefined;
-  }
-
-  return val;
-};
+const MAX_SALARY = 100000000;
+const MAX_TEAM_SIZE = 1000000;
 
 export const opportunityEditInfoSchema = z.object({
   title: z.string().nonempty('Add a job title').max(240),
@@ -31,24 +24,13 @@ export const opportunityEditInfoSchema = z.object({
       .int()
       .nonnegative()
       .min(1, 'Enter the team size')
-      .max(1_000_000),
+      .max(MAX_TEAM_SIZE),
     salary: z
       .object({
-        min: z.preprocess(
-          processSalaryValue,
-          z.number().int().nonnegative().max(100_000_000).optional(),
-        ),
-        max: z.preprocess(
-          processSalaryValue,
-          z.number().int().nonnegative().max(100_000_000).optional(),
-        ),
-        period: z
-          .number()
-          .nullish()
-          .transform((val) => val ?? undefined)
-          .default(SalaryPeriod.UNSPECIFIED),
+        min: z.number().int().nonnegative().max(MAX_SALARY).nullish(),
+        max: z.number().int().nonnegative().max(MAX_SALARY).nullish(),
+        period: z.number().nullish().default(0),
       })
-      .nullish()
       .refine(
         (data) => {
           if (data?.min && data?.max) {
@@ -60,15 +42,14 @@ export const opportunityEditInfoSchema = z.object({
         {
           message: 'Max salary must be within 25% of minimum salary',
         },
-      ),
+      )
+      .nullish(),
     seniorityLevel: z.number({ message: 'Select a seniority level' }),
-    roleType: z.union(
-      [0, 0.5, 1].map((item) =>
-        z.literal(item, {
-          error: 'Select a role type',
-        }),
-      ),
-    ),
+    roleType: z.union([
+      z.literal(0, { error: 'Select a role type' }),
+      z.literal(0.5, { error: 'Select a role type' }),
+      z.literal(1, { error: 'Select a role type' }),
+    ]),
   }),
 });
 
