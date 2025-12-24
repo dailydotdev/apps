@@ -328,17 +328,24 @@ const SquadNotificationSettingsModal = dynamic(
     ),
 );
 
-const OpportunityEditModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "opportunityEditModal" */ '../opportunity/OpportunityEditModal/OpportunityEditModal'
-  ).then((mod) => mod.OpportunityEditModal),
-);
+// Opportunity modals are webapp-only and import lib/schema/opportunity.ts
+// which triggers Next.js 15.4.10 Babel bug ("Invalid array length") in extension builds
+// Must use process.env directly (not isExtension) for webpack compile-time exclusion
+const OpportunityEditModal = process.env.TARGET_BROWSER
+  ? null
+  : dynamic(() =>
+      import(
+        /* webpackChunkName: "opportunityEditModal" */ '../opportunity/OpportunityEditModal/OpportunityEditModal'
+      ).then((mod) => mod.OpportunityEditModal),
+    );
 
-const OpportunityEditRecruiterModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "opportunityEditRecruiterModal" */ '../opportunity/OpportunityEditModal/OpportunityEditRecruiterModal'
-  ).then((mod) => mod.OpportunityEditRecruiterModal),
-);
+const OpportunityEditRecruiterModal = process.env.TARGET_BROWSER
+  ? null
+  : dynamic(() =>
+      import(
+        /* webpackChunkName: "opportunityEditRecruiterModal" */ '../opportunity/OpportunityEditModal/OpportunityEditRecruiterModal'
+      ).then((mod) => mod.OpportunityEditRecruiterModal),
+    );
 
 const DirtyFormModal = dynamic(
   () => import(/* webpackChunkName: "dirtyFormModal" */ './DirtyFormModal'),
