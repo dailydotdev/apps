@@ -91,6 +91,7 @@ export type FeedReturnType = {
   isInitialLoading: boolean;
   isError: boolean;
   isPending: boolean;
+  error?: ClientError;
 };
 
 type UseFeedSettingParams = {
@@ -417,5 +418,6 @@ export default function useFeed<T>(
     isFetching: feedQuery.isFetching,
     isInitialLoading: feedQuery.isInitialLoading,
     isPending: feedQuery.isPending,
+    error: clientError,
   };
 }
