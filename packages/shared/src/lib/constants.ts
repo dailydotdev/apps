@@ -172,3 +172,5 @@ export const webFunnelPrefix = '/helloworld';
 export const creatorsTermsOfService = 'https://r.daily.dev/creators-terms';
 
 export const boostDocsLink = 'https://r.daily.dev/boost';
+
+export const recruiterBookLink = 'https://r.daily.dev/recruiter-book';
