@@ -298,11 +298,7 @@ export default function CompanionMenu({
   const handleMouseDown = (e: React.MouseEvent) => {
     // Prevent dragging if clicking on interactive elements
     const target = e.target as HTMLElement;
-    if (
-      target.closest('button') ||
-      target.closest('a') ||
-      target.closest('[role="menuitem"]')
-    ) {
+    if (target.closest('button, a, [role="menuitem"]')) {
       return;
     }
 
