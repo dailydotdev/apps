@@ -1,0 +1,2 @@
+export const MAX_POST_TITLE_LENGTH = 250;
+export const MAX_POST_COMMENTARY_LENGTH = 250;
