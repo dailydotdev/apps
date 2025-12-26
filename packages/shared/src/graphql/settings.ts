@@ -33,6 +33,7 @@ export enum SidebarSettingsFlags {
 export type RemoteSettings = {
   openNewTab: boolean;
   theme: RemoteTheme;
+  recruiterTheme?: RemoteTheme;
   spaciness: Spaciness;
   insaneMode: boolean;
   showTopSites: boolean;
