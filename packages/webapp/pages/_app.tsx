@@ -41,6 +41,10 @@ import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
+import {
+  BrowserName,
+  getCurrentBrowserName,
+} from '@dailydotdev/shared/src/lib/func';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import {
@@ -108,14 +112,60 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     if (
-      user &&
-      !didRegisterSwRef.current &&
-      'serviceWorker' in globalThis?.navigator &&
-      window.serwist !== undefined
+      !user ||
+      didRegisterSwRef.current ||
+      typeof navigator === 'undefined' ||
+      !('serviceWorker' in navigator)
     ) {
-      didRegisterSwRef.current = true;
-      window.serwist.register();
+      return;
     }
+
+    const unregisterSerwist = async () => {
+      if (!navigator.serviceWorker) {
+        return;
+      }
+
+      try {
+        if (navigator.serviceWorker.getRegistrations) {
+          const registrations =
+            await navigator.serviceWorker.getRegistrations();
+          await Promise.all(
+            registrations
+              .filter((registration) => {
+                const scriptURL =
+                  registration.active?.scriptURL ||
+                  registration.installing?.scriptURL ||
+                  registration.waiting?.scriptURL;
+
+                return scriptURL?.endsWith('/sw.js');
+              })
+              .map((registration) => registration.unregister()),
+          );
+        } else if (navigator.serviceWorker.getRegistration) {
+          const registration = await navigator.serviceWorker.getRegistration(
+            '/sw.js',
+          );
+          await registration?.unregister();
+        }
+      } catch {
+        // Ignore cleanup failures – Safari sometimes rejects during shutdown.
+      }
+    };
+
+    const browserName = getCurrentBrowserName();
+
+    if (browserName === BrowserName.Safari) {
+      didRegisterSwRef.current = true;
+      unregisterSerwist();
+      return;
+    }
+
+    if (window.serwist === undefined) {
+      return;
+    }
+
+    didRegisterSwRef.current = true;
+    window.serwist.register();
   }, [user]);
 
   useEffect(() => {
