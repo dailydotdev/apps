@@ -51,18 +51,21 @@ const FormWrapper: React.FC<FormWrapperProps> = ({
   );
 };
 
+const getFieldByName = (container: HTMLElement, name: string) => {
+  // eslint-disable-next-line testing-library/no-node-access
+  return container.querySelector(`[name="${name}"]`) as HTMLInputElement;
+};
+
 describe('UserProjectExperienceForm', () => {
   it('should render all form fields', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserProjectExperienceForm />
       </FormWrapper>,
     );
 
     // Check title input field is rendered
-    const titleInput = screen.getByPlaceholderText(
-      'Ex: Name of the publication or article',
-    );
+    const titleInput = getFieldByName(container, 'title');
     expect(titleInput).toBeInTheDocument();
     expect(titleInput).toHaveAttribute('name', 'title');
 
@@ -75,9 +78,7 @@ describe('UserProjectExperienceForm', () => {
     expect(currentDescription).toBeInTheDocument();
 
     // Check URL field
-    const urlInput = screen.getByPlaceholderText(
-      'Ex: Validates against URL format',
-    );
+    const urlInput = getFieldByName(container, 'url');
     expect(urlInput).toBeInTheDocument();
     expect(urlInput).toHaveAttribute('name', 'url');
 
@@ -93,16 +94,14 @@ describe('UserProjectExperienceForm', () => {
   });
 
   it('should handle user interaction with form fields', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserProjectExperienceForm />
       </FormWrapper>,
     );
 
     // Type in title field
-    const titleInput = screen.getByPlaceholderText(
-      'Ex: Name of the publication or article',
-    );
+    const titleInput = getFieldByName(container, 'title');
     await userEvent.type(
       titleInput,
       'Building Scalable Microservices Architecture',
@@ -123,9 +122,7 @@ describe('UserProjectExperienceForm', () => {
     expect(currentSwitch).toBeChecked();
 
     // Type in URL field
-    const urlInput = screen.getByPlaceholderText(
-      'Ex: Validates against URL format',
-    );
+    const urlInput = getFieldByName(container, 'url');
     await userEvent.type(
       urlInput,
       'https://example-blog.com/@user/microservices-article',
@@ -135,9 +132,7 @@ describe('UserProjectExperienceForm', () => {
     );
 
     // Type in description
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'Summary of the work, focus area',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
     await userEvent.type(
       descriptionTextarea,
       'Article about implementing microservices with Docker and Kubernetes',
@@ -157,28 +152,22 @@ describe('UserProjectExperienceForm', () => {
       description: 'Research on neural network optimization techniques',
     };
 
-    render(
+    const { container } = render(
       <FormWrapper defaultValues={defaultValues}>
         <UserProjectExperienceForm />
       </FormWrapper>,
     );
 
     // Check that form fields have the default values
-    const titleInput = screen.getByPlaceholderText(
-      'Ex: Name of the publication or article',
-    );
+    const titleInput = getFieldByName(container, 'title');
     expect(titleInput).toHaveValue('Machine Learning Research Paper');
 
-    const urlInput = screen.getByPlaceholderText(
-      'Ex: Validates against URL format',
-    );
+    const urlInput = getFieldByName(container, 'url');
     expect(urlInput).toHaveValue(
       'https://example-publications.org/document/12345',
     );
 
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'Summary of the work, focus area',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
     expect(descriptionTextarea).toHaveValue(
       'Research on neural network optimization techniques',
     );
@@ -248,22 +237,16 @@ describe('UserProjectExperienceForm', () => {
   });
 
   it('should render all form sections with proper structure', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserProjectExperienceForm />
       </FormWrapper>,
     );
 
     // Verify all main input fields are present using proper queries
-    expect(
-      screen.getByPlaceholderText('Ex: Name of the publication or article'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Ex: Validates against URL format'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Summary of the work, focus area'),
-    ).toBeInTheDocument();
+    expect(getFieldByName(container, 'title')).toBeInTheDocument();
+    expect(getFieldByName(container, 'url')).toBeInTheDocument();
+    expect(getFieldByName(container, 'description')).toBeInTheDocument();
 
     // Check current project text is present
     expect(screen.getByText('Ongoing project/publication')).toBeInTheDocument();
@@ -326,16 +309,14 @@ describe('UserProjectExperienceForm', () => {
   });
 
   it('should validate project-specific fields', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserProjectExperienceForm />
       </FormWrapper>,
     );
 
     // Test title field accepts various project names
-    const titleInput = screen.getByPlaceholderText(
-      'Ex: Name of the publication or article',
-    );
+    const titleInput = getFieldByName(container, 'title');
     await userEvent.type(titleInput, 'React Performance Optimization Guide');
     expect(titleInput).toHaveValue('React Performance Optimization Guide');
 
@@ -348,23 +329,19 @@ describe('UserProjectExperienceForm', () => {
     expect(titleInput).toHaveValue('Open Source Contribution to React Native');
 
     // Test URL field accepts valid URLs
-    const urlInput = screen.getByPlaceholderText(
-      'Ex: Validates against URL format',
-    );
+    const urlInput = getFieldByName(container, 'url');
     await userEvent.type(urlInput, 'https://example-code.com/user/project');
     expect(urlInput).toHaveValue('https://example-code.com/user/project');
   });
 
   it('should handle description field with project details', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserProjectExperienceForm />
       </FormWrapper>,
     );
 
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'Summary of the work, focus area',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
 
     // Textarea has a 5000 character limit
     const description =
@@ -378,15 +355,13 @@ describe('UserProjectExperienceForm', () => {
   });
 
   it('should handle various URL formats in publication URL field', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserProjectExperienceForm />
       </FormWrapper>,
     );
 
-    const urlInput = screen.getByPlaceholderText(
-      'Ex: Validates against URL format',
-    );
+    const urlInput = getFieldByName(container, 'url');
 
     // Test with https URL
     await userEvent.type(

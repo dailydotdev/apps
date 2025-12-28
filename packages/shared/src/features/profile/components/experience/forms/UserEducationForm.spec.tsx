@@ -50,25 +50,26 @@ const FormWrapper: React.FC<FormWrapperProps> = ({
   );
 };
 
+const getFieldByName = (container: HTMLElement, name: string) => {
+  // eslint-disable-next-line testing-library/no-node-access
+  return container.querySelector(`[name="${name}"]`) as HTMLInputElement;
+};
+
 describe('UserEducationForm', () => {
   it('should render all form fields', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserEducationForm />
       </FormWrapper>,
     );
 
     // Check degree input field is rendered
-    const degreeInput = screen.getByPlaceholderText(
-      'Ex: Bachelor, Master, PhD, Diploma, Certificate',
-    );
+    const degreeInput = getFieldByName(container, 'subtitle');
     expect(degreeInput).toBeInTheDocument();
     expect(degreeInput).toHaveAttribute('name', 'subtitle');
 
     // Check field of study input field is rendered
-    const fieldOfStudyInput = screen.getByPlaceholderText(
-      'Ex: Science in Computer Science',
-    );
+    const fieldOfStudyInput = getFieldByName(container, 'title');
     expect(fieldOfStudyInput).toBeInTheDocument();
     expect(fieldOfStudyInput).toHaveAttribute('name', 'title');
 
@@ -81,9 +82,7 @@ describe('UserEducationForm', () => {
     expect(currentDescription).toBeInTheDocument();
 
     // Check grade field
-    const gradeInput = screen.getByPlaceholderText(
-      'Ex: 3.8/4.0, First Class Honours, 85%',
-    );
+    const gradeInput = getFieldByName(container, 'grade');
     expect(gradeInput).toBeInTheDocument();
     expect(gradeInput).toHaveAttribute('name', 'grade');
 
@@ -97,23 +96,19 @@ describe('UserEducationForm', () => {
   });
 
   it('should handle user interaction with form fields', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserEducationForm />
       </FormWrapper>,
     );
 
     // Type in degree field
-    const degreeInput = screen.getByPlaceholderText(
-      'Ex: Bachelor, Master, PhD, Diploma, Certificate',
-    );
+    const degreeInput = getFieldByName(container, 'subtitle');
     await userEvent.type(degreeInput, 'Bachelor of Science');
     expect(degreeInput).toHaveValue('Bachelor of Science');
 
     // Type in field of study
-    const fieldOfStudyInput = screen.getByPlaceholderText(
-      'Ex: Science in Computer Science',
-    );
+    const fieldOfStudyInput = getFieldByName(container, 'title');
     await userEvent.type(fieldOfStudyInput, 'Computer Science');
     expect(fieldOfStudyInput).toHaveValue('Computer Science');
 
@@ -129,16 +124,12 @@ describe('UserEducationForm', () => {
     expect(currentSwitch).toBeChecked();
 
     // Type in grade field
-    const gradeInput = screen.getByPlaceholderText(
-      'Ex: 3.8/4.0, First Class Honours, 85%',
-    );
+    const gradeInput = getFieldByName(container, 'grade');
     await userEvent.type(gradeInput, '3.9/4.0');
     expect(gradeInput).toHaveValue('3.9/4.0');
 
     // Type in description
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'Achievements, societies, coursework',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
     await userEvent.type(
       descriptionTextarea,
       "Dean's list, Computer Science Society President",
@@ -158,31 +149,23 @@ describe('UserEducationForm', () => {
       description: 'Graduated with honors, member of ACM',
     };
 
-    render(
+    const { container } = render(
       <FormWrapper defaultValues={defaultValues}>
         <UserEducationForm />
       </FormWrapper>,
     );
 
     // Check that form fields have the default values
-    const degreeInput = screen.getByPlaceholderText(
-      'Ex: Bachelor, Master, PhD, Diploma, Certificate',
-    );
+    const degreeInput = getFieldByName(container, 'subtitle');
     expect(degreeInput).toHaveValue('Bachelor of Science');
 
-    const fieldOfStudyInput = screen.getByPlaceholderText(
-      'Ex: Science in Computer Science',
-    );
+    const fieldOfStudyInput = getFieldByName(container, 'title');
     expect(fieldOfStudyInput).toHaveValue('Computer Science');
 
-    const gradeInput = screen.getByPlaceholderText(
-      'Ex: 3.8/4.0, First Class Honours, 85%',
-    );
+    const gradeInput = getFieldByName(container, 'grade');
     expect(gradeInput).toHaveValue('3.95/4.0');
 
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'Achievements, societies, coursework',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
     expect(descriptionTextarea).toHaveValue(
       'Graduated with honors, member of ACM',
     );
@@ -219,33 +202,23 @@ describe('UserEducationForm', () => {
   });
 
   it('should render all form sections with proper structure', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserEducationForm />
       </FormWrapper>,
     );
 
     // Verify all main input fields are present using proper queries
-    expect(
-      screen.getByPlaceholderText(
-        'Ex: Bachelor, Master, PhD, Diploma, Certificate',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Ex: Science in Computer Science'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Ex: 3.8/4.0, First Class Honours, 85%'),
-    ).toBeInTheDocument();
+    expect(getFieldByName(container, 'subtitle')).toBeInTheDocument();
+    expect(getFieldByName(container, 'title')).toBeInTheDocument();
+    expect(getFieldByName(container, 'grade')).toBeInTheDocument();
 
     // Check current education text is present
     expect(screen.getByText('Current education')).toBeInTheDocument();
 
     // Check description section
     expect(screen.getByText('Description')).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Achievements, societies, coursework'),
-    ).toBeInTheDocument();
+    expect(getFieldByName(container, 'description')).toBeInTheDocument();
 
     // Verify labels for each section
     expect(screen.getByText('School*')).toBeInTheDocument();
@@ -299,16 +272,14 @@ describe('UserEducationForm', () => {
   });
 
   it('should validate education-specific fields', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserEducationForm />
       </FormWrapper>,
     );
 
     // Test degree field accepts various degree types
-    const degreeInput = screen.getByPlaceholderText(
-      'Ex: Bachelor, Master, PhD, Diploma, Certificate',
-    );
+    const degreeInput = getFieldByName(container, 'subtitle');
     await userEvent.type(degreeInput, 'Master of Business Administration');
     expect(degreeInput).toHaveValue('Master of Business Administration');
 
@@ -318,16 +289,12 @@ describe('UserEducationForm', () => {
     expect(degreeInput).toHaveValue('PhD');
 
     // Test field of study accepts various fields
-    const fieldOfStudyInput = screen.getByPlaceholderText(
-      'Ex: Science in Computer Science',
-    );
+    const fieldOfStudyInput = getFieldByName(container, 'title');
     await userEvent.type(fieldOfStudyInput, 'Electrical Engineering');
     expect(fieldOfStudyInput).toHaveValue('Electrical Engineering');
 
     // Test grade field accepts various formats
-    const gradeInput = screen.getByPlaceholderText(
-      'Ex: 3.8/4.0, First Class Honours, 85%',
-    );
+    const gradeInput = getFieldByName(container, 'grade');
     await userEvent.type(gradeInput, 'First Class Honours');
     expect(gradeInput).toHaveValue('First Class Honours');
 
@@ -337,14 +304,15 @@ describe('UserEducationForm', () => {
   });
 
   it('should handle description field with achievements and coursework', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserEducationForm />
       </FormWrapper>,
     );
 
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'Achievements, societies, coursework',
+    const descriptionTextarea = getFieldByName(
+      container,
+      'description',
     ) as HTMLTextAreaElement;
 
     // Textarea has a 5000 character limit
@@ -359,21 +327,17 @@ describe('UserEducationForm', () => {
   });
 
   it('should maintain form state when switching current education status', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserEducationForm />
       </FormWrapper>,
     );
 
     // Fill in some fields
-    const degreeInput = screen.getByPlaceholderText(
-      'Ex: Bachelor, Master, PhD, Diploma, Certificate',
-    );
+    const degreeInput = getFieldByName(container, 'subtitle');
     await userEvent.type(degreeInput, 'Bachelor of Arts');
 
-    const gradeInput = screen.getByPlaceholderText(
-      'Ex: 3.8/4.0, First Class Honours, 85%',
-    );
+    const gradeInput = getFieldByName(container, 'grade');
     await userEvent.type(gradeInput, '3.7/4.0');
 
     // Toggle current education

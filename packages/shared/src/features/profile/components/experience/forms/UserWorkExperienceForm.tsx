@@ -26,7 +26,7 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
         <ControlledTextField
           name="title"
           label="Job Title*"
-          placeholder="Ex: Retail Sales Manager"
+          placeholder="Ex: Senior Frontend Engineer"
           fieldType="secondary"
           className={profileSecondaryFieldStyles}
         />
@@ -84,7 +84,7 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
           </Typography>
           <ControlledTextarea
             name="description"
-            label="List your major duties and successes, highlighting specific projects"
+            label="Key technologies, projects, and achievements"
             maxLength={5000}
           />
         </div>
