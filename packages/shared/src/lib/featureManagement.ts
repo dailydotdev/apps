@@ -113,5 +113,5 @@ export const featureYearInReview = new Feature('year_in_review_2025', false);
 
 export const featureProfileCompletionIndicator = new Feature(
   'profile_completion_indicator',
-  100,
+  0,
 );
