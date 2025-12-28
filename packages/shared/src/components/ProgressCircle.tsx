@@ -8,20 +8,38 @@ import {
   TypographyType,
 } from './typography/Typography';
 
+export type ProgressCircleColor = 'brand' | 'help';
+
 type ProgressCircleProps = {
   progress: number;
   size?: number;
-  color?: string;
   stroke?: number;
   showPercentage?: boolean;
+  color?: ProgressCircleColor;
+};
+
+const colorConfig: Record<
+  ProgressCircleColor,
+  { stroke: string; text: string; typography: TypographyColor }
+> = {
+  brand: {
+    stroke: 'stroke-brand-default',
+    text: 'text-brand-default',
+    typography: TypographyColor.Brand,
+  },
+  help: {
+    stroke: 'stroke-action-help-default',
+    text: 'text-action-help-default',
+    typography: TypographyColor.StatusHelp,
+  },
 };
 
 const ProgressCircle = ({
   progress = 0,
   size = 40,
   stroke = 5,
-  color = '#b259f8',
   showPercentage = false,
+  color = 'brand',
 }: ProgressCircleProps): ReactElement => {
   const normalizedCompletion = Math.min(100, Math.max(0, progress));
   const isComplete = normalizedCompletion >= 100;
@@ -35,7 +53,7 @@ const ProgressCircle = ({
       style={{ width: size, height: size }}
     >
       {isComplete ? (
-        <VIcon size={IconSize.Medium} className="text-brand-default" />
+        <VIcon size={IconSize.Medium} className={colorConfig[color].text} />
       ) : (
         <>
           <svg
@@ -58,20 +76,19 @@ const ProgressCircle = ({
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke={color}
               strokeWidth={stroke}
               strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               transform={`rotate(-90 ${size / 2} ${size / 2})`}
               fill="transparent"
-              className="stroke-brand-default"
+              className={colorConfig[color].stroke}
             />
           </svg>
           {showPercentage && (
             <Typography
               bold
-              color={TypographyColor.Brand}
+              color={colorConfig[color].typography}
               type={TypographyType.Callout}
               className="absolute leading-none"
             >

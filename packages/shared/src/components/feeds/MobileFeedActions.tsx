@@ -13,8 +13,10 @@ import HeaderLogo from '../layout/HeaderLogo';
 import { LogoPosition } from '../Logo';
 import { webappUrl } from '../../lib/constants';
 import { Button } from '../buttons/Button';
-import { SettingsIcon } from '../icons';
+import { InfoIcon, SettingsIcon } from '../icons';
 import { RootPortal } from '../tooltips/Portal';
+import { IconSize } from '../Icon';
+import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 
 const ProfileSettingsMenuMobile = dynamic(
   () =>
@@ -29,6 +31,8 @@ export function MobileFeedActions(): ReactElement {
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { showIndicator: showProfileCompletionIndicator } =
+    useProfileCompletionIndicator();
 
   return (
     <div className="flex flex-row justify-between px-4 py-1">
@@ -60,12 +64,18 @@ export function MobileFeedActions(): ReactElement {
               />
             </RootPortal>
             <Link href={`${webappUrl}${user.username}`} passHref>
-              <a>
+              <a className="relative">
                 <ProfilePicture
                   user={user}
                   size={ProfileImageSize.Medium}
                   nativeLazyLoading
                 />
+                {showProfileCompletionIndicator && (
+                  <InfoIcon
+                    size={IconSize.XSmall}
+                    className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 rounded-full bg-background-subtle text-accent-cheese-default"
+                  />
+                )}
               </a>
             </Link>
           </>

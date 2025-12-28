@@ -69,9 +69,7 @@ const ProfilePage = ({
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
         )}
       />
-      {isUserSame && (
-        <ProfileCompletion user={user} className="laptop:hidden" />
-      )}
+      {isUserSame && <ProfileCompletion className="laptop:hidden" />}
       <div ref={stickyRef} />
       <ProfileHeader user={user} userStats={userStats} />
       <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { CoreIcon, SettingsIcon } from '../icons';
+import { CoreIcon, InfoIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ReputationUserBadge } from '../ReputationUserBadge';
@@ -17,6 +17,7 @@ import { formatCurrency } from '../../lib/utils';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import Link from '../utilities/Link';
 import { Tooltip } from '../tooltip/Tooltip';
+import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 
 const ProfileMenu = dynamic(
   () =>
@@ -36,6 +37,8 @@ export default function ProfileButton({
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const hasCoresAccess = useHasAccessToCores();
+  const { showIndicator: showProfileCompletionIndicator } =
+    useProfileCompletionIndicator();
 
   const preciseBalance = formatCurrency(user?.balance?.amount, {
     minimumFractionDigits: 0,
@@ -100,11 +103,19 @@ export default function ProfileButton({
                 }}
                 disableTooltip
               />
-              <ProfilePicture
-                user={user}
-                size={ProfileImageSize.Medium}
-                nativeLazyLoading
-              />
+              <span className="relative">
+                <ProfilePicture
+                  user={user}
+                  size={ProfileImageSize.Medium}
+                  nativeLazyLoading
+                />
+                {showProfileCompletionIndicator && (
+                  <InfoIcon
+                    size={IconSize.XSmall}
+                    className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 rounded-full bg-background-subtle text-accent-cheese-default"
+                  />
+                )}
+              </span>
             </button>
           </Tooltip>
         </div>
