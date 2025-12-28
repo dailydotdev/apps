@@ -51,6 +51,7 @@ const FormWrapper: React.FC<FormWrapperProps> = ({
 };
 
 const getFieldByName = (container: HTMLElement, name: string) => {
+  // eslint-disable-next-line testing-library/no-node-access
   return container.querySelector(`[name="${name}"]`) as HTMLInputElement;
 };
 
