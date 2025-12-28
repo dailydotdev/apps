@@ -47,18 +47,20 @@ const FormWrapper: React.FC<FormWrapperProps> = ({
   );
 };
 
+const getFieldByName = (container: HTMLElement, name: string) => {
+  return container.querySelector(`[name="${name}"]`) as HTMLInputElement;
+};
+
 describe('UserVolunteeringExperienceForm', () => {
   it('should render all form fields', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserVolunteeringExperienceForm />
       </FormWrapper>,
     );
 
     // Check role input field is rendered
-    const roleInput = screen.getByPlaceholderText(
-      'Ex: Mentor, Fundraiser, Maintainer',
-    );
+    const roleInput = getFieldByName(container, 'title');
     expect(roleInput).toBeInTheDocument();
     expect(roleInput).toHaveAttribute('name', 'title');
 
@@ -79,16 +81,14 @@ describe('UserVolunteeringExperienceForm', () => {
   });
 
   it('should handle user interaction with form fields', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserVolunteeringExperienceForm />
       </FormWrapper>,
     );
 
     // Type in role field
-    const roleInput = screen.getByPlaceholderText(
-      'Ex: Mentor, Fundraiser, Maintainer',
-    );
+    const roleInput = getFieldByName(container, 'title');
     await userEvent.type(roleInput, 'Technical Mentor');
     expect(roleInput).toHaveValue('Technical Mentor');
 
@@ -111,16 +111,14 @@ describe('UserVolunteeringExperienceForm', () => {
       current: true,
     };
 
-    render(
+    const { container } = render(
       <FormWrapper defaultValues={defaultValues}>
         <UserVolunteeringExperienceForm />
       </FormWrapper>,
     );
 
     // Check that form fields have the default values
-    const roleInput = screen.getByPlaceholderText(
-      'Ex: Mentor, Fundraiser, Maintainer',
-    );
+    const roleInput = getFieldByName(container, 'title');
     expect(roleInput).toHaveValue('Lead Volunteer Coordinator');
 
     // Check current switch state through the label
@@ -150,16 +148,14 @@ describe('UserVolunteeringExperienceForm', () => {
   });
 
   it('should render all form sections with proper structure', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserVolunteeringExperienceForm />
       </FormWrapper>,
     );
 
     // Verify all main input fields are present using proper queries
-    expect(
-      screen.getByPlaceholderText('Ex: Mentor, Fundraiser, Maintainer'),
-    ).toBeInTheDocument();
+    expect(getFieldByName(container, 'title')).toBeInTheDocument();
 
     // Check current volunteer role text is present
     expect(screen.getByText('Current volunteer role')).toBeInTheDocument();
@@ -216,16 +212,14 @@ describe('UserVolunteeringExperienceForm', () => {
   });
 
   it('should validate volunteering-specific fields', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserVolunteeringExperienceForm />
       </FormWrapper>,
     );
 
     // Test role field accepts various volunteer roles
-    const roleInput = screen.getByPlaceholderText(
-      'Ex: Mentor, Fundraiser, Maintainer',
-    );
+    const roleInput = getFieldByName(container, 'title');
     await userEvent.type(roleInput, 'Community Outreach Coordinator');
     expect(roleInput).toHaveValue('Community Outreach Coordinator');
 
@@ -241,16 +235,14 @@ describe('UserVolunteeringExperienceForm', () => {
   });
 
   it('should maintain form state when switching current volunteer status', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserVolunteeringExperienceForm />
       </FormWrapper>,
     );
 
     // Fill in role field
-    const roleInput = screen.getByPlaceholderText(
-      'Ex: Mentor, Fundraiser, Maintainer',
-    );
+    const roleInput = getFieldByName(container, 'title');
     await userEvent.type(roleInput, 'Youth Mentor');
 
     // Toggle current volunteer role
@@ -273,15 +265,13 @@ describe('UserVolunteeringExperienceForm', () => {
   });
 
   it('should handle various volunteer role types', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserVolunteeringExperienceForm />
       </FormWrapper>,
     );
 
-    const roleInput = screen.getByPlaceholderText(
-      'Ex: Mentor, Fundraiser, Maintainer',
-    );
+    const roleInput = getFieldByName(container, 'title');
 
     // Test with technical role
     await userEvent.type(roleInput, 'Software Development Mentor');
@@ -324,16 +314,14 @@ describe('UserVolunteeringExperienceForm', () => {
   });
 
   it('should have correct field names for form submission', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserVolunteeringExperienceForm />
       </FormWrapper>,
     );
 
     // Check that the role field has the correct name attribute
-    const roleInput = screen.getByPlaceholderText(
-      'Ex: Mentor, Fundraiser, Maintainer',
-    );
+    const roleInput = getFieldByName(container, 'title');
     expect(roleInput).toHaveAttribute('name', 'title');
 
     // The organization field (ProfileCompany) should have customCompanyName as the name
