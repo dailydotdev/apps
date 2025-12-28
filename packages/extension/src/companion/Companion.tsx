@@ -40,6 +40,8 @@ interface ContainerProps {
   containerRef?: LegacyRef<HTMLDivElement>;
   companionExpanded: boolean;
   shouldLoad: boolean;
+  verticalPosition: number;
+  isDragging: boolean;
   children: ReactNode;
 }
 
@@ -47,6 +49,8 @@ const Container = ({
   containerRef,
   companionExpanded,
   shouldLoad,
+  verticalPosition,
+  isDragging,
   children,
 }: ContainerProps) => {
   return (
@@ -55,9 +59,14 @@ const Container = ({
       data-testid="companion"
       className={classNames(
         'fixed right-0 top-[7.5rem] flex max-w-[26.5rem] flex-row items-stretch',
-        shouldLoad && 'transition-transform',
+        shouldLoad && !isDragging && 'transition-transform',
         companionExpanded ? 'translate-x-0' : 'translate-x-[22.5rem]',
       )}
+      style={{
+        transform: `translateY(${verticalPosition}px) ${
+          companionExpanded ? 'translateX(0)' : 'translateX(22.5rem)'
+        }`,
+      }}
     >
       {shouldLoad ? children : null}
     </div>
@@ -97,6 +106,8 @@ export default function Companion({
   );
   const [companionState, setCompanionState] =
     useState<boolean>(companionExpanded);
+  const [verticalPosition, setVerticalPosition] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   useQuery({
     queryKey: REQUEST_PROTOCOL_KEY,
     queryFn: () => ({
@@ -139,6 +150,8 @@ export default function Companion({
       containerRef={containerRef}
       companionExpanded={companionState}
       shouldLoad={assetsLoaded}
+      verticalPosition={verticalPosition}
+      isDragging={isDragging}
     >
       <CompanionMenu
         post={post}
@@ -147,6 +160,10 @@ export default function Companion({
         onOptOut={onOptOut}
         companionState={companionState}
         setCompanionState={setCompanionState}
+        verticalPosition={verticalPosition}
+        setVerticalPosition={setVerticalPosition}
+        isDragging={isDragging}
+        setIsDragging={setIsDragging}
       />
       <CompanionContent post={post} />
     </Container>

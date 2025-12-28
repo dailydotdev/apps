@@ -188,9 +188,7 @@ function RecruiterMatchesPage(): ReactElement {
                 </Typography>
                 {!opportunity?.organization?.recruiterSubscriptionFlags
                   ?.hasSlackConnection && (
-                  <ConnectSlack
-                    organizationId={opportunity?.organization?.id}
-                  />
+                  <ConnectSlack organization={opportunity?.organization} />
                 )}
               </div>
             </>
