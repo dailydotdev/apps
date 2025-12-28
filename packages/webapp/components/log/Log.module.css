@@ -127,7 +127,8 @@
 }
 
 /* Desktop breakpoint - larger text for bigger screens */
-@media (min-width: 1024px) {
+/* Requires both width AND height to prevent truncation on shorter windows */
+@media (min-width: 1024px) and (min-height: 960px) {
   .header {
     padding: 0.5rem 1rem;
     gap: 0.5rem;
@@ -195,6 +196,13 @@
 
   .navPromptFirst span {
     font-size: 0.85rem;
+  }
+}
+
+/* Desktop width with shorter height - use moderate sizing */
+@media (min-width: 1024px) and (max-height: 959px) {
+  .cardInner {
+    max-width: 480px;
   }
 }
 
@@ -3424,8 +3432,8 @@
   }
 }
 
-/* Desktop enhancements */
-@media (min-width: 1024px) {
+/* Desktop enhancements - requires sufficient height */
+@media (min-width: 1024px) and (min-height: 960px) {
   .shareOfficialStamp {
     padding: 0.625rem 2rem;
   }
@@ -4362,9 +4370,10 @@
 
 /* ========================================
    DESKTOP BREAKPOINT - Larger text for bigger screens
+   Requires both width AND height to prevent content truncation
    ======================================== */
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (min-height: 960px) {
   /* Clock (When You Read card) */
   .clockFace {
     width: 200px;
@@ -4954,8 +4963,8 @@
   }
 }
 
-/* Desktop */
-@media (min-width: 1024px) {
+/* Desktop - requires sufficient height */
+@media (min-width: 1024px) and (min-height: 960px) {
   .archetypeBanner {
     gap: 1.125rem;
     padding: 1rem 1.5rem;
@@ -5033,7 +5042,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (min-height: 960px) {
   .noDataCtaButton {
     padding: 1.25rem 3rem;
     font-size: 1rem;
