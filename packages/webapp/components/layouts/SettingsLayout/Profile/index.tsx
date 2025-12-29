@@ -93,11 +93,7 @@ const ProfileIndex = (): ReactElement => {
                 label="Username"
                 leftIcon={<AtIcon />}
               />
-              <ControlledTextarea
-                name="bio"
-                label="Headline"
-                placeholder="Software Engineer at Acme | Building open source tools"
-              />
+              <ControlledTextarea name="bio" label="Headline" />
               <ExperienceSelect
                 icon={<TerminalIcon />}
                 name="experienceLevel"
