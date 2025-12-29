@@ -64,7 +64,7 @@ const Container = ({
       )}
       style={{
         transform: `translateY(${verticalPosition}px) ${
-          companionExpanded ? 'translateX(0)' : 'translateX(22.5rem)'
+          companionExpanded ? 'translateX(0)' : 'translateX(360px)'
         }`,
       }}
     >
