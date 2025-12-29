@@ -182,7 +182,9 @@ const AccountInvitePage = (): ReactElement => {
           emptyPlaceholder={
             <div className="mt-16 flex flex-col items-center text-text-secondary">
               <InviteIcon size={IconSize.XXXLarge} />
-              <p className="mt-2 typo-body">No one has joined yet. Share your link!</p>
+              <p className="mt-2 typo-body">
+                No one has joined yet. Share your link!
+              </p>
             </div>
           }
           userInfoProps={{

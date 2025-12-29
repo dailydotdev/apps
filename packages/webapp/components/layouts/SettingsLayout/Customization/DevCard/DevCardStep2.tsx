@@ -292,8 +292,8 @@ export const DevCardStep2 = ({
                   color={TypographyColor.Tertiary}
                   className="mt-2 inline-block"
                 >
-                  Embed your DevCard in your GitHub README with auto-updates
-                  via GitHub Actions.{' '}
+                  Embed your DevCard in your GitHub README with auto-updates via
+                  GitHub Actions.{' '}
                   <ClickableText
                     tag="a"
                     defaultTypo={false}
@@ -337,8 +337,8 @@ export const DevCardStep2 = ({
                   type={TypographyType.Title4}
                   className="flex"
                 >
-                  <TwitterIcon size={IconSize.Small} className="mr-1.5" />
-                  X header image
+                  <TwitterIcon size={IconSize.Small} className="mr-1.5" />X
+                  header image
                 </Typography>
                 <Typography
                   type={TypographyType.Callout}

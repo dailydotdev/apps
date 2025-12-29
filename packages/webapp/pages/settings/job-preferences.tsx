@@ -75,9 +75,7 @@ const options = [
     key: CandidateStatus.OPEN_TO_OFFERS,
     icon: <SemiActiveIcon size={IconSize.XLarge} />,
     title: <>Open to offers</>,
-    description: (
-      <>Happy where I am, but open to something exceptional.</>
-    ),
+    description: <>Happy where I am, but open to something exceptional.</>,
   },
 ];
 
