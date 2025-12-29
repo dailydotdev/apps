@@ -61,8 +61,8 @@ const AccountInvitePage = (): ReactElement => {
     <AccountPageContainer title="Privacy">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
-        title="Your privacy, our priority"
-        description="We are committed to protecting your data and ensuring transparency in how we handle your information. Our approach prioritizes user control, minimal data collection, and secure practices to provide a seamless and privacy-conscious experience."
+        title="How we handle your data"
+        description="We collect only what's needed and give you control over your information."
       >
         <Typography
           href={privacyPolicy}
@@ -71,14 +71,14 @@ const AccountInvitePage = (): ReactElement => {
           target="_blank"
           rel="noopener"
         >
-          Learn more about our Privacy Policy →
+          Privacy Policy →
         </Typography>
       </AccountContentSection>
       {isGdprCovered && (
         <AccountContentSection
           className={{ container: 'flex flex-col' }}
           title="Cookie preferences"
-          description="We use cookies to personalize content, improve performance, and provide a better experience. Manage your preferences below."
+          description="Control how we use cookies on your device."
         >
           <Typography
             href={cookiePolicy}
@@ -87,7 +87,7 @@ const AccountInvitePage = (): ReactElement => {
             target="_blank"
             rel="noopener"
           >
-            Learn more about our Cookie Policy →
+            Cookie Policy →
           </Typography>
           <div className="mt-4 flex flex-col gap-4">
             <CookieConsentItem consent={GdprConsentKey.Necessary} />
@@ -99,7 +99,7 @@ const AccountInvitePage = (): ReactElement => {
         </AccountContentSection>
       )}
       <AccountContentSection
-        title="More links"
+        title="Legal & support"
         className={{ container: 'flex flex-col gap-4' }}
       >
         <Typography

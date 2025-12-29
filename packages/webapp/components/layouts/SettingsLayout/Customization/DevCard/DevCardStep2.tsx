@@ -272,9 +272,8 @@ export const DevCardStep2 = ({
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
               >
-                Show off your daily.dev activity easily by adding your DevCard
-                to GitHub, your website, or use it as a dynamic Twitter cover
-                (now called X, but we still like the old name better).
+                Add your DevCard to GitHub, your website, or use it as your X
+                header image.
               </Typography>
 
               <div>
@@ -293,8 +292,8 @@ export const DevCardStep2 = ({
                   color={TypographyColor.Tertiary}
                   className="mt-2 inline-block"
                 >
-                  Find out how to put your DevCard in your GitHub README and
-                  make it update automatically using GitHub Actions.{' '}
+                  Embed your DevCard in your GitHub README with auto-updates
+                  via GitHub Actions.{' '}
                   <ClickableText
                     tag="a"
                     defaultTypo={false}
@@ -339,14 +338,14 @@ export const DevCardStep2 = ({
                   className="flex"
                 >
                   <TwitterIcon size={IconSize.Small} className="mr-1.5" />
-                  Use as X header
+                  X header image
                 </Typography>
                 <Typography
                   type={TypographyType.Callout}
                   color={TypographyColor.Tertiary}
                   className="mt-2"
                 >
-                  Level up your Twitter game with a DevCard header image!
+                  Download a header-sized version for your X profile.
                 </Typography>
                 <Button
                   className="mt-5"
@@ -428,8 +427,7 @@ export const DevCardStep2 = ({
                   type={TypographyType.Callout}
                   color={TypographyColor.Tertiary}
                 >
-                  You can use our default image or update the image by editing
-                  your profile
+                  Use the default or your profile cover image
                 </Typography>
 
                 <RadioItem

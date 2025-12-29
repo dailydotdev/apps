@@ -93,7 +93,7 @@ const ProfileIndex = (): ReactElement => {
                 label="Username"
                 leftIcon={<AtIcon />}
               />
-              <ControlledTextarea name="bio" label="Headline*" />
+              <ControlledTextarea name="bio" label="Headline" placeholder="Software Engineer at Acme | Building open source tools" />
               <ExperienceSelect
                 icon={<TerminalIcon />}
                 name="experienceLevel"
@@ -101,8 +101,8 @@ const ProfileIndex = (): ReactElement => {
               />
               <ControlledSwitch
                 name="hideExperience"
-                label="Hide experience"
-                description="Toggle whether your experience should be visible on your profile"
+                label="Hide work history"
+                description="Your work experience and education won't be visible on your public profile"
               />
             </Section>
             <HorizontalSeparator />
@@ -116,13 +116,14 @@ const ProfileIndex = (): ReactElement => {
             <Section>
               <div>
                 <Typography type={TypographyType.Body} bold>
-                  About me
+                  About
                 </Typography>
                 <Typography
                   type={TypographyType.Callout}
                   color={TypographyColor.Secondary}
                 >
-                  Write a short introduction that highlights who you are.
+                  Share your background, what you&apos;re working on, or what
+                  you&apos;re learning. Markdown supported.
                 </Typography>
               </div>
               <ControlledMarkdownInput
@@ -134,87 +135,86 @@ const ProfileIndex = (): ReactElement => {
             <Section>
               <div>
                 <Typography type={TypographyType.Body} bold>
-                  Profile Social Links
+                  Links
                 </Typography>
                 <Typography
                   type={TypographyType.Callout}
                   color={TypographyColor.Secondary}
                 >
-                  Add your social media profiles so others can connect with you
-                  and you can grow your network!
+                  Connect your profiles across the web.
                 </Typography>
               </div>
               <ControlledTextField
                 name="github"
                 label="GitHub"
                 leftIcon={<GitHubIcon />}
-                placeholder="Username or URL"
+                placeholder="Username or profile URL"
               />
               <ControlledTextField
                 name="linkedin"
                 label="LinkedIn"
                 leftIcon={<LinkedInIcon />}
-                placeholder="Username or URL"
+                placeholder="Username or profile URL"
               />
               <ControlledTextField
                 name="portfolio"
-                label="Your Website"
+                label="Website"
                 leftIcon={<LinkIcon />}
-                placeholder="example.com"
+                placeholder="https://"
               />
               <ControlledTextField
                 name="twitter"
                 label="X"
                 leftIcon={<TwitterIcon />}
-                placeholder="Handle or URL"
+                placeholder="Handle or profile URL"
               />
               <ControlledTextField
                 name="youtube"
                 label="YouTube"
                 leftIcon={<YoutubeIcon />}
-                placeholder="Username or URL"
+                placeholder="Channel name or URL"
               />
               <ControlledTextField
                 name="stackoverflow"
                 label="Stack Overflow"
                 leftIcon={<StackOverflowIcon />}
-                placeholder="stackoverflow.com/users/999999/username"
+                placeholder="Profile URL"
               />
               <ControlledTextField
                 name="reddit"
                 label="Reddit"
                 leftIcon={<RedditIcon />}
-                placeholder="Username or URL"
+                placeholder="Username or profile URL"
               />
               <ControlledTextField
                 name="roadmap"
                 label="Roadmap.sh"
                 leftIcon={<RoadmapIcon />}
-                placeholder="Username or URL"
+                placeholder="Username or profile URL"
               />
               <ControlledTextField
                 name="codepen"
                 label="CodePen"
                 leftIcon={<CodePenIcon />}
-                placeholder="Username or URL"
+                placeholder="Username or profile URL"
               />
               <ControlledTextField
                 name="mastodon"
                 label="Mastodon"
                 leftIcon={<MastodonIcon />}
-                placeholder="mastodon.social/@username"
+                placeholder="Full handle (user@instance) or URL"
               />
               <ControlledTextField
                 name="bluesky"
                 label="Bluesky"
                 leftIcon={<BlueskyIcon />}
-                placeholder="bsky.app/profile/username"
+                placeholder="Handle or profile URL"
               />
               <ControlledTextField
                 name="threads"
                 label="Threads"
                 leftIcon={<ThreadsIcon />}
-                placeholder="Handle or URL"
+                placeholder="Handle or profile URL"
               />
             </Section>
           </div>
