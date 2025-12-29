@@ -18,6 +18,7 @@
   "dependencies": {
     "@dailydotdev/shared": "workspace:*",
     "@hookform/resolvers": "5.2.2",
+    "@intercom/messenger-js-sdk": "^0.0.18",
     "@kickass-coderz/react": "^0.0.4",
     "@marsidev/react-turnstile": "1.1.0",
     "@paddle/paddle-js": "1.4.0",
