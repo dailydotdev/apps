@@ -335,6 +335,7 @@ export enum LogEvent {
   SelectCandidateAvailability = 'select candidate availability',
   UpdateCandidatePreferences = 'update candidate preferences',
   ClickCandidatePreferences = 'click candidate preferences',
+  ClickStartHiring = 'click start hiring',
   // End Opportunity
   UploadEmploymentAgreement = 'upload employment agreement',
   ClearEmploymentAgreement = 'clear employment agreement',
