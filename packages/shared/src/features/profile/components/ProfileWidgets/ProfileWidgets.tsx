@@ -59,9 +59,7 @@ export function ProfileWidgets({
         className,
       )}
     >
-      {isSameUser && (
-        <ProfileCompletion className="hidden laptop:flex" user={user} />
-      )}
+      {isSameUser && <ProfileCompletion className="hidden laptop:flex" />}
       {isSameUser && (
         <Share permalink={user?.permalink} className="hidden laptop:flex" />
       )}

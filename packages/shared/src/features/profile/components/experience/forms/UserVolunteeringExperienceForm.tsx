@@ -27,7 +27,7 @@ const UserVolunteeringExperienceForm = () => {
         <ControlledTextField
           name="title"
           label="Role*"
-          placeholder="Ex: Mentor, Fundraiser, Maintainer"
+          placeholder="Ex: Mentor, Workshop Instructor, OSS Maintainer"
           fieldType="secondary"
           className={profileSecondaryFieldStyles}
         />

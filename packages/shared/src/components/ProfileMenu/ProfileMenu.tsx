@@ -22,6 +22,8 @@ import { ResourceSection } from './sections/ResourceSection';
 import { AccountSection } from './sections/AccountSection';
 import { MainSection } from './sections/MainSection';
 import { ThemeSection } from './sections/ThemeSection';
+import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
+import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 
 const ExtensionSection = dynamic(() =>
   import(
@@ -38,6 +40,8 @@ export default function ProfileMenu({
 }: ProfileMenuProps): ReactElement {
   const { events } = useRouter();
   const { user, logout } = useAuthContext();
+  const { showIndicator: showProfileCompletion } =
+    useProfileCompletionIndicator();
 
   useEffect(() => {
     events.on('routeChangeStart', onClose);
@@ -56,8 +60,9 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
-      className="flex w-full max-w-64 flex-col gap-3 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+      className="flex w-full max-w-80 flex-col gap-3 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
+      {showProfileCompletion && <ProfileCompletion />}
       <ProfileMenuHeader />
 
       <UpgradeToPlus
