@@ -169,6 +169,15 @@ export enum CoresRole {
   Creator = 3,
 }
 
+export interface ProfileCompletion {
+  percentage: number;
+  hasProfileImage: boolean;
+  hasHeadline: boolean;
+  hasExperienceLevel: boolean;
+  hasWork: boolean;
+  hasEducation: boolean;
+}
+
 export interface LoggedUser extends UserProfile, AnonymousUser {
   image: string;
   infoConfirmed?: boolean;
@@ -198,6 +207,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   };
   clickbaitTries?: number;
   hasLocationSet?: boolean;
+  profileCompletion?: ProfileCompletion;
 }
 
 export async function logout(reason: string): Promise<void> {

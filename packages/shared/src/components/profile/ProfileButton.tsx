@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfilePictureWithIndicator } from './ProfilePictureWithIndicator';
 import { CoreIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
@@ -100,11 +100,7 @@ export default function ProfileButton({
                 }}
                 disableTooltip
               />
-              <ProfilePicture
-                user={user}
-                size={ProfileImageSize.Medium}
-                nativeLazyLoading
-              />
+              <ProfilePictureWithIndicator user={user} />
             </button>
           </Tooltip>
         </div>

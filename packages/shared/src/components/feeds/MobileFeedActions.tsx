@@ -8,7 +8,7 @@ import { Divider } from '../utilities';
 import { useReadingStreak } from '../../hooks/streaks';
 import { ButtonIconPosition, ButtonVariant } from '../buttons/common';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfilePictureWithIndicator } from '../profile/ProfilePictureWithIndicator';
 import HeaderLogo from '../layout/HeaderLogo';
 import { LogoPosition } from '../Logo';
 import { webappUrl } from '../../lib/constants';
@@ -61,11 +61,7 @@ export function MobileFeedActions(): ReactElement {
             </RootPortal>
             <Link href={`${webappUrl}${user.username}`} passHref>
               <a>
-                <ProfilePicture
-                  user={user}
-                  size={ProfileImageSize.Medium}
-                  nativeLazyLoading
-                />
+                <ProfilePictureWithIndicator user={user} />
               </a>
             </Link>
           </>
