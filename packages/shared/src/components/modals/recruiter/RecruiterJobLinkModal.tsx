@@ -49,21 +49,21 @@ const fileValidation = {
 };
 
 const loadingMessages = [
-  'Respecting developer preferences',
-  'Matching with opt-in candidates only',
-  'Analyzing role requirements',
-  'Checking trust signals',
-  'Finding developers who want to hear from you',
-  'Verifying mutual interest',
-  'Building trust-first connections',
-  'Scanning opted-in talent pool',
-  'Prioritizing authentic matches',
+  'Reading your role details',
+  'Extracting skills and requirements',
+  'Checking who opted in for roles like this',
+  'Matching based on real activity',
+  'Finding devs interested in this stack',
+  'Filtering by experience level',
+  'Prioritizing active community members',
+  'Ranking by relevance',
+  'Preparing your matches',
 ];
 
 const loadingIcons = [
+  SearchIcon,
   ShieldIcon,
   ShieldCheckIcon,
-  SearchIcon,
   EyeIcon,
   PlusUserIcon,
   SparkleIcon,
@@ -96,7 +96,7 @@ const LoadingButtonContent = ({ isPending }: LoadingButtonContentProps) => {
     return (
       <>
         <MagicIcon />
-        Find my matches
+        Analyze & find matches
       </>
     );
   }
@@ -149,12 +149,17 @@ export const RecruiterJobLinkModal = ({
       setJobLink(value);
       validateJobLink(value);
       setValidationErrors([]);
+      if (value.trim()) {
+        setFile(null);
+      }
     },
     [validateJobLink],
   );
 
   const handleFilesDrop = useCallback((files: File[]) => {
     setFile(files[0]);
+    setJobLink('');
+    setError('');
     setValidationErrors([]);
   }, []);
 
@@ -206,19 +211,9 @@ export const RecruiterJobLinkModal = ({
       shouldCloseOnOverlayClick={false}
       shouldCloseOnEsc={false}
     >
-      <Modal.Body className="flex flex-col items-center gap-6 p-6 !py-10">
-        <div className="mx-auto flex items-center justify-center gap-3 rounded-12 bg-brand-float px-4 py-1">
-          <MagicIcon className="text-brand-default" />
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Brand}
-          >
-            Something magical in 3...2...1...
-          </Typography>
-        </div>
-
+      <Modal.Body className="flex flex-col gap-6 p-6">
         <Typography type={TypographyType.Title1} bold center>
-          Find out who&#39;s ready to say yes
+          Help us understand your role
         </Typography>
 
         <Typography
@@ -226,16 +221,16 @@ export const RecruiterJobLinkModal = ({
           color={TypographyColor.Tertiary}
           center
         >
-          Your role is matched privately inside daily.dev&#39;s developer
-          network
+          Share a link or upload a job description. We&#39;ll extract the
+          details and match your role with developers who opted in to hear about
+          it.
         </Typography>
 
         {validationErrors.length > 0 && (
           <Alert type={AlertType.Error} className="w-full">
             <FlexCol className="gap-2">
               <Typography type={TypographyType.Callout} bold>
-                We couldn&apos;t parse all the information from your job
-                posting:
+                We need a bit more information to find the right matches:
               </Typography>
               <ul className="ml-4 list-disc">
                 {validationErrors.map((issue) => (
@@ -251,8 +246,8 @@ export const RecruiterJobLinkModal = ({
                 type={TypographyType.Footnote}
                 color={TypographyColor.Tertiary}
               >
-                Please try a different job link or upload a more detailed job
-                description.
+                Try a different link, or upload a job description (PDF/Word)
+                that includes these details.
               </Typography>
             </FlexCol>
           </Alert>
@@ -260,18 +255,21 @@ export const RecruiterJobLinkModal = ({
 
         <div className="flex w-full flex-col gap-4">
           <TextField
-            label="Paste your job link"
+            label="Job description URL"
             inputId="job-link"
             name="job-link"
             placeholder="https://yourcompany.com/careers/senior-engineer"
             value={jobLink}
             onChange={handleChange}
             valid={!error && jobLink.trim().length > 0}
-            hint={error}
+            hint={
+              error ||
+              "We'll extract title, requirements, salary, and location from the page"
+            }
           />
 
           <div className="text-center text-text-secondary typo-callout">
-            Or upload
+            Or upload a job description
           </div>
 
           <DragDrop
@@ -281,9 +279,9 @@ export const RecruiterJobLinkModal = ({
             onFilesDrop={handleFilesDrop}
             validation={fileValidation}
             isCopyBold
-            dragDropDescription="Drop PDF or Word here or"
-            ctaLabelDesktop="Select file"
-            ctaLabelMobile="Select file"
+            dragDropDescription="Drop PDF or Word file here or"
+            ctaLabelDesktop="Browse files"
+            ctaLabelMobile="Browse files"
             disabled={isPending}
           />
 
@@ -306,20 +304,11 @@ export const RecruiterJobLinkModal = ({
               color={TypographyColor.Tertiary}
               center
             >
-              Built on trust, not scraping. Every match is fully opt-in.
+              Developers only see your role if they opted in and it fits.
             </Typography>
           </div>
         </div>
       </Modal.Body>
-      <Modal.Footer className="!justify-center bg-surface-float">
-        <Typography
-          type={TypographyType.Subhead}
-          color={TypographyColor.Tertiary}
-          center
-        >
-          See real developer introductions in hours, not weeks.
-        </Typography>
-      </Modal.Footer>
     </Modal>
   );
 };

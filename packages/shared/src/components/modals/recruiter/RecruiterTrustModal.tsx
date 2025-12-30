@@ -37,7 +37,7 @@ export const RecruiterTrustModal = ({
       shouldCloseOnEsc={false}
     >
       <Modal.Body className="flex flex-col gap-6 p-6">
-        <div className="mr-auto flex items-center gap-3 rounded-12 bg-accent-water-flat px-3 py-1">
+        <div className="mx-auto flex items-center gap-3 rounded-12 bg-accent-water-flat px-3 py-1">
           <ShieldIcon className="text-accent-water-bolder" />
           <Typography
             type={TypographyType.Footnote}
@@ -47,7 +47,7 @@ export const RecruiterTrustModal = ({
           </Typography>
         </div>
 
-        <Typography type={TypographyType.Title1} bold>
+        <Typography type={TypographyType.Title1} bold center>
           When you hire on daily.dev, you inherit the trust developers already
           gave us
         </Typography>
