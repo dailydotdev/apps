@@ -311,12 +311,6 @@ const AcceptPage = (): ReactElement => {
 
     updatePreferences(
       {
-        location: [
-          {
-            city: selectedLocation.city,
-            country: selectedLocation.country,
-          },
-        ],
         externalLocationId: selectedLocation.id,
       },
       {
