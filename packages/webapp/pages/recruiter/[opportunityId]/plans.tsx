@@ -180,10 +180,6 @@ const RecruiterPlans = (): ReactElement => {
       icon: '🪴',
       features: [
         {
-          text: 'Reach up to 50 developers / day',
-          info: 'Send personalized outreach to up to 50 qualified developers daily.',
-        },
-        {
           text: 'Unlimited recruiter seats',
           info: 'Add your entire recruiting team at no extra cost. Collaborate seamlessly on opportunities.',
         },
@@ -209,10 +205,6 @@ const RecruiterPlans = (): ReactElement => {
       icon: '🚀',
       features: [
         {
-          text: 'Reach up to 150 developers / day',
-          info: 'Triple your outreach capacity with 150 daily credits. Perfect for high-volume hiring needs.',
-        },
-        {
           text: 'Unlimited recruiter seats',
           info: 'Add your entire recruiting team at no extra cost. Collaborate seamlessly on opportunities.',
         },
@@ -229,13 +221,17 @@ const RecruiterPlans = (): ReactElement => {
           info: 'Deep dive into funnel metrics, candidate quality scores, and team performance analytics.',
         },
         {
+          text: 'Feedback and reminders',
+          info: 'Automated follow-up reminders and candidate feedback collection to keep your pipeline moving.',
+        },
+        {
           text: 'Priority support',
           info: 'Get faster response times and dedicated assistance from our support team when you need it.',
         },
       ],
-      badge: 'best value',
+      badge: 'fastest matching',
       description:
-        'Increase your daily reach and accelerate introductions with higher matching volume.',
+        'Accelerate your hiring with priority matching and innovative features that keep your pipeline moving.',
       ctaText: 'Get started',
       className: {
         container: 'border-brand-default',
