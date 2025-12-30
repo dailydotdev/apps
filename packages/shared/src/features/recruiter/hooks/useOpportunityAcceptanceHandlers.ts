@@ -18,6 +18,7 @@ export const useOpportunityAcceptanceHandlers = ({
   onError,
   onSaveAnswers,
   onLogAnswer,
+  onLogExperienceLevel,
   initialExperienceLevel,
   initialLocationId,
 }: {
@@ -33,6 +34,9 @@ export const useOpportunityAcceptanceHandlers = ({
   onError: (message: string) => void;
   onSaveAnswers: (answers: Array<OpportunityScreeningAnswer>) => void;
   onLogAnswer: (index: number, questionId: string) => void;
+  onLogExperienceLevel?: (
+    experienceLevel: keyof typeof UserExperienceLevel,
+  ) => void;
   initialExperienceLevel?: keyof typeof UserExperienceLevel;
   initialLocationId?: string;
 }) => {
@@ -118,6 +122,8 @@ export const useOpportunityAcceptanceHandlers = ({
       return;
     }
 
+    onLogExperienceLevel?.(selectedExperienceLevel);
+
     updateUserExperienceLevel(selectedExperienceLevel, {
       onSuccess: () => {
         if (questions.length > 0) {
@@ -129,6 +135,7 @@ export const useOpportunityAcceptanceHandlers = ({
     });
   }, [
     selectedExperienceLevel,
+    onLogExperienceLevel,
     updateUserExperienceLevel,
     questions.length,
     hasUploadedCV,

@@ -86,9 +86,20 @@ const AcceptPage = (): ReactElement => {
   const {
     file,
     setFile,
-    handleUpload,
+    handleUpload: handleUploadCV,
     isPending: isUploadPending,
   } = useCVUploadManager(acceptOpportunity);
+
+  const handleUpload = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.AnswerScreeningQuestion,
+      target_id: opportunityId,
+      extra: JSON.stringify({
+        question_type: 'cv',
+      }),
+    });
+    handleUploadCV();
+  }, [logEvent, opportunityId, handleUploadCV]);
 
   const { data: opportunity } = useQuery({
     ...opportunityByIdOptions({ id: opportunityId }),
@@ -119,7 +130,6 @@ const AcceptPage = (): ReactElement => {
     opportunity,
     candidatePreferences,
     hasUploadedCV,
-    isActionsFetched,
   });
 
   const { mutate: saveAnswers } = useMutation({
@@ -178,6 +188,16 @@ const AcceptPage = (): ReactElement => {
         }),
       });
     },
+    onLogExperienceLevel: (experienceLevel) => {
+      logEvent({
+        event_name: LogEvent.AnswerScreeningQuestion,
+        target_id: opportunityId,
+        extra: JSON.stringify({
+          experience_level: experienceLevel,
+          question_type: 'experience_level',
+        }),
+      });
+    },
     initialExperienceLevel: user?.experienceLevel,
     initialLocationId: candidatePreferences?.externalLocationId,
   });
@@ -201,6 +221,14 @@ const AcceptPage = (): ReactElement => {
   // Location handler with actual locationOptions
   const handleLocationNext = useCallback(() => {
     if (!selectedLocationId && candidatePreferences?.location?.length) {
+      logEvent({
+        event_name: LogEvent.AnswerScreeningQuestion,
+        target_id: opportunityId,
+        extra: JSON.stringify({
+          location_id: candidatePreferences?.externalLocationId,
+          question_type: 'location',
+        }),
+      });
       setCurrentStep(AcceptStep.EXPERIENCE_LEVEL);
       return;
     }
@@ -208,6 +236,15 @@ const AcceptPage = (): ReactElement => {
     if (!selectedLocationId) {
       return;
     }
+
+    logEvent({
+      event_name: LogEvent.AnswerScreeningQuestion,
+      target_id: opportunityId,
+      extra: JSON.stringify({
+        location_id: selectedLocationId,
+        question_type: 'location',
+      }),
+    });
 
     // If user kept their existing location (didn't change it), just proceed
     if (selectedLocationId === candidatePreferences?.externalLocationId) {
@@ -240,6 +277,8 @@ const AcceptPage = (): ReactElement => {
     locationOptions,
     updatePreferences,
     setCurrentStep,
+    logEvent,
+    opportunityId,
   ]);
 
   // Memoize mapped location options to avoid recreating on every render

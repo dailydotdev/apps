@@ -15,12 +15,10 @@ export const useOpportunityAcceptanceSteps = ({
   opportunity,
   candidatePreferences,
   hasUploadedCV,
-  isActionsFetched,
 }: {
   opportunity: Opportunity | undefined;
   candidatePreferences: UserCandidatePreferences | undefined;
   hasUploadedCV: boolean;
-  isActionsFetched: boolean;
 }) => {
   const [activeQuestion, setActiveQuestion] = useState(0);
 
