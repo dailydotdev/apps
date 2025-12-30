@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export const removeLinkTargetElement = (link: string): string => {
   const { origin, pathname, search } = new URL(link);
 
@@ -48,4 +50,46 @@ export const concatStrings = (
   separator = ', ',
 ): string => {
   return strings.filter(Boolean).join(separator);
+};
+
+/**
+ * Generates a display name from an email address.
+ * Extracts the local part (before @), replaces dots/underscores with spaces,
+ * and capitalizes each word.
+ *
+ * @example
+ * generateNameFromEmail('john.doe@gmail.com') // 'John Doe'
+ * generateNameFromEmail('x@test.com') // 'User abc123' (fallback for unusable)
+ */
+export const generateNameFromEmail = (
+  email: string,
+  entity = 'User',
+): string => {
+  const fallbackName = `${entity} ${uuidv4().slice(0, 8)}`;
+
+  if (!email || !email.includes('@')) {
+    return fallbackName;
+  }
+
+  const localPart = email.split('@')[0];
+
+  // Replace common separators with spaces
+  const withSpaces = localPart.replace(/[._-]/g, ' ');
+
+  // Remove any remaining non-alphanumeric characters except spaces
+  const cleaned = withSpaces.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+
+  // If the cleaned result is too short or just numbers, use fallback
+  if (cleaned.length < 2 || /^\d+$/.test(cleaned)) {
+    return fallbackName;
+  }
+
+  // Capitalize each word
+  const capitalized = cleaned
+    .split(' ')
+    .filter((word) => word.length > 0)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+
+  return capitalized || fallbackName;
 };

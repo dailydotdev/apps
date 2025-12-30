@@ -30,12 +30,9 @@ export const PendingSubmissionProvider = ({
   const [pendingSubmission, setPendingSubmissionState] =
     useState<PendingSubmission | null>(null);
 
-  const setPendingSubmission = useCallback(
-    (submission: PendingSubmission) => {
-      setPendingSubmissionState(submission);
-    },
-    [],
-  );
+  const setPendingSubmission = useCallback((submission: PendingSubmission) => {
+    setPendingSubmissionState(submission);
+  }, []);
 
   const clearPendingSubmission = useCallback(() => {
     setPendingSubmissionState(null);
@@ -63,4 +60,3 @@ export const usePendingSubmission = (): PendingSubmissionContextType => {
   }
   return context;
 };
-

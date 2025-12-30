@@ -88,6 +88,7 @@ const RegistrationForm = ({
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
+  const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
   const {
     username,
     setUsername,
@@ -169,10 +170,11 @@ const RegistrationForm = ({
     );
     delete values?.['cf-turnstile-response'];
 
+    const requiresExperienceLevel = !isRecruiterOnboarding;
     if (
       !values['traits.name']?.length ||
       !values['traits.username']?.length ||
-      !values['traits.experienceLevel']?.length
+      (requiresExperienceLevel && !values['traits.experienceLevel']?.length)
     ) {
       const setHints = { ...hints };
 
@@ -182,7 +184,10 @@ const RegistrationForm = ({
       if (!values['traits.username']?.length) {
         setHints['traits.username'] = 'Please provide username.';
       }
-      if (!values['traits.experienceLevel']?.length) {
+      if (
+        requiresExperienceLevel &&
+        !values['traits.experienceLevel']?.length
+      ) {
         setHints['traits.experienceLevel'] = 'Please provide experience level.';
       }
 
@@ -227,6 +232,10 @@ const RegistrationForm = ({
     onSignup({
       ...values,
       'traits.acceptedMarketing': !optOutMarketing,
+      // Set experience level to "not an engineer" for recruiters
+      ...(isRecruiterOnboarding && {
+        'traits.experienceLevel': 'NOT_ENGINEER',
+      }),
       headers: {
         'True-Client-Ip': isDevelopment
           ? undefined
@@ -263,7 +272,7 @@ const RegistrationForm = ({
   return (
     <>
       {!isAuthenticating && (
-        <div className="flex gap-4">
+        <div className="flex gap-4 pt-2">
           <Button
             className="border-border-subtlest-tertiary text-text-secondary"
             data-funnel-track={FunnelTargetId.StepBack}
@@ -400,17 +409,19 @@ const RegistrationForm = ({
             required
           />
         )}
-        <ExperienceLevelDropdown
-          className={{ container: 'w-full' }}
-          name="traits.experienceLevel"
-          valid={isExperienceLevelValid}
-          hint={hints?.['traits.experienceLevel']}
-          onChange={() =>
-            hints?.['traits.experienceLevel'] &&
-            onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
-          }
-          saveHintSpace
-        />
+        {!isRecruiterOnboarding && (
+          <ExperienceLevelDropdown
+            className={{ container: 'w-full' }}
+            name="traits.experienceLevel"
+            valid={isExperienceLevelValid}
+            hint={hints?.['traits.experienceLevel']}
+            onChange={() =>
+              hints?.['traits.experienceLevel'] &&
+              onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
+            }
+            saveHintSpace
+          />
+        )}
         <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
           Your email will be used to send you product and community updates
         </span>

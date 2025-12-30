@@ -50,7 +50,7 @@ const ReachHeroSection = ({
       } else {
         // Ease-out effect: start fast, slow down at end
         const progress = currentStep / steps;
-        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        const easedProgress = 1 - (1 - progress) ** 3;
         setAnimatedCount(Math.floor(totalCount * easedProgress));
       }
     }, stepDuration);
@@ -71,7 +71,7 @@ const ReachHeroSection = ({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-16 border border-brand-subtlest bg-brand-float">
+    <div className="border-brand-subtlest relative overflow-hidden rounded-16 border bg-brand-float">
       <div className="relative flex flex-col items-center gap-1 px-6 py-8">
         {/* Main number with emphasis */}
         <div className="flex items-baseline gap-1">
@@ -83,7 +83,11 @@ const ReachHeroSection = ({
           >
             {animatedCount.toLocaleString()}
           </Typography>
-          <Typography type={TypographyType.Giga3} color={TypographyColor.Brand} bold>
+          <Typography
+            type={TypographyType.Giga3}
+            color={TypographyColor.Brand}
+            bold
+          >
             +
           </Typography>
         </div>
@@ -99,8 +103,8 @@ const ReachHeroSection = ({
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
           >
-            <span className="font-bold text-brand-default">30%</span> exclusively
-            reachable on daily.dev
+            <span className="font-bold text-brand-default">30%</span>{' '}
+            exclusively reachable on daily.dev
           </Typography>
         </div>
       </div>
@@ -275,12 +279,11 @@ export const AnalyzeContent = ({ loadingStep }: AnalyzeContentProps) => {
             >
               <div className="flex flex-col gap-2.5">
                 {companies.slice(0, 4).map((company) => (
-                  <div
-                    key={company.name}
-                    className="flex items-center gap-2.5"
-                  >
+                  <div key={company.name} className="flex items-center gap-2.5">
                     <img
-                      src={`${apiUrl}/icon?url=${encodeURIComponent(company.favicon)}&size=${iconSize}`}
+                      src={`${apiUrl}/icon?url=${encodeURIComponent(
+                        company.favicon,
+                      )}&size=${iconSize}`}
                       className="size-5 rounded-4 bg-surface-float object-contain"
                       alt={company.name}
                     />
@@ -346,7 +349,10 @@ export const AnalyzeContent = ({ loadingStep }: AnalyzeContentProps) => {
 
         {/* Trust Footer */}
         <div className="flex items-center justify-center gap-2 rounded-12">
-          <ShieldIcon secondary className="size-4 text-accent-avocado-default" />
+          <ShieldIcon
+            secondary
+            className="size-4 text-accent-avocado-default"
+          />
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
@@ -358,4 +364,3 @@ export const AnalyzeContent = ({ loadingStep }: AnalyzeContentProps) => {
     </div>
   );
 };
-

@@ -7,10 +7,7 @@ import {
   RecruiterProgress,
   RecruiterProgressStep,
 } from '@dailydotdev/shared/src/components/recruiter/Progress';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import {
   OpportunityPreviewProvider,
   useOpportunityPreviewContext,
@@ -36,11 +33,9 @@ const useNewOpportunityParser = () => {
     ...parseOpportunityMutationOptions(),
     onSuccess: (opportunity) => {
       clearPendingSubmission();
-      router.replace(
-        `/recruiter/${opportunity.id}/analyze`,
-        undefined,
-        { shallow: true },
-      );
+      router.replace(`/recruiter/${opportunity.id}/analyze`, undefined, {
+        shallow: true,
+      });
     },
     onError: (error: ApiErrorResult) => {
       clearPendingSubmission();
@@ -89,8 +84,6 @@ const useLoadingAnimation = () => {
 };
 
 const RecruiterPageContent = () => {
-  const { user } = useAuthContext();
-  const { openModal } = useLazyModal();
   const router = useRouter();
   const { opportunity } = useOpportunityPreviewContext();
   const loadingStep = useLoadingAnimation();
@@ -102,12 +95,8 @@ const RecruiterPageContent = () => {
       return;
     }
 
-    if (!user) {
-      openModal({ type: LazyModal.RecruiterSignIn });
-    } else {
-      router.push(`/recruiter/${opportunity.id}/prepare`);
-    }
-  }, [user, openModal, router, opportunity]);
+    router.push(`/recruiter/${opportunity.id}/prepare`);
+  }, [router, opportunity]);
 
   return (
     <div className="flex flex-1 flex-col">

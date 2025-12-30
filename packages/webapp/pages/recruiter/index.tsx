@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import {
@@ -9,26 +9,42 @@ import {
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { OpportunityPreviewProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
-import {
-  usePendingSubmission,
-  type PendingSubmission,
-} from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
+import type { PendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
+import { usePendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { mockOpportunityPreviewData } from '@dailydotdev/shared/src/features/opportunity/mockData';
 import { AnalyzeContent } from '@dailydotdev/shared/src/features/opportunity/components/analyze/AnalyzeContent';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterPage(): ReactElement {
   const router = useRouter();
   const { openModal, closeModal } = useLazyModal();
   const { setPendingSubmission } = usePendingSubmission();
+  const { user } = useAuthContext();
+  const hasInitializedRef = useRef(false);
+
+  const navigateToAnalyze = useCallback(() => {
+    closeModal();
+    router.push(`/recruiter/new/analyze`);
+  }, [closeModal, router]);
 
   const handleJobSubmit = useCallback(
     (submission: PendingSubmission) => {
       setPendingSubmission(submission);
       closeModal();
-      router.push(`/recruiter/new/analyze`);
+
+      if (!user) {
+        openModal({
+          type: LazyModal.RecruiterSignIn,
+          props: {
+            onSuccess: navigateToAnalyze,
+          },
+        });
+      } else {
+        navigateToAnalyze();
+      }
     },
-    [setPendingSubmission, closeModal, router],
+    [setPendingSubmission, closeModal, user, openModal, navigateToAnalyze],
   );
 
   const openJobLinkModal = useCallback(() => {
@@ -42,6 +58,12 @@ function RecruiterPage(): ReactElement {
 
   // Open the appropriate modal when the page loads
   useEffect(() => {
+    // Only run initialization once to prevent re-opening modals on navigation
+    if (hasInitializedRef.current) {
+      return;
+    }
+    hasInitializedRef.current = true;
+
     const { openModal: openModalParam } = router.query;
 
     // If openModal=joblink query param is present, skip intro/trust modals
