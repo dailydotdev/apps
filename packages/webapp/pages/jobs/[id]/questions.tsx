@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
@@ -13,7 +13,6 @@ import {
   getCandidatePreferencesOptions,
   opportunityByIdOptions,
 } from '@dailydotdev/shared/src/features/opportunity/queries';
-import type { OpportunityScreeningAnswer } from '@dailydotdev/shared/src/features/opportunity/types';
 import {
   acceptOpportunityMatchMutationOptions,
   saveOpportunityScreeningAnswersMutationOptions,
@@ -27,26 +26,23 @@ import { useCVUploadManager } from '@dailydotdev/shared/src/features/opportunity
 import { ScreeningQuestionStep } from '@dailydotdev/shared/src/features/opportunity/components/ScreeningQuestionStep';
 import { CVUploadStep } from '@dailydotdev/shared/src/features/opportunity/components/CVUploadStep';
 import { StepNavigation } from '@dailydotdev/shared/src/features/opportunity/components/StepNavigation';
-import { ProgressStep } from '@dailydotdev/shared/src/features/opportunity/components/ProgressStep';
+import { LocationStep } from '@dailydotdev/shared/src/features/recruiter/components/LocationStep';
+import { ExperienceLevelStep } from '@dailydotdev/shared/src/features/recruiter/components/ExperienceLevelStep';
 import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
-import { mutateUserInfo } from '@dailydotdev/shared/src/graphql/users';
 import {
   getAutocompleteLocations,
   LocationDataset,
 } from '@dailydotdev/shared/src/graphql/autocomplete';
-import type { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
-import ExperienceLevelDropdown from '@dailydotdev/shared/src/components/profile/ExperienceLevelDropdown';
-import Autocomplete from '@dailydotdev/shared/src/components/fields/Autocomplete';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import { locationToString } from '@dailydotdev/shared/src/lib/utils';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
+import { locationToString } from '@dailydotdev/shared/src/lib/utils';
+import {
+  useOpportunityAcceptanceSteps,
+  AcceptStep,
+} from '@dailydotdev/shared/src/features/recruiter/hooks/useOpportunityAcceptanceSteps';
+import { useOpportunityAcceptanceHandlers } from '@dailydotdev/shared/src/features/recruiter/hooks/useOpportunityAcceptanceHandlers';
 import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 import {
   defaultOpenGraph,
@@ -63,13 +59,6 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
-enum AcceptStep {
-  QUESTIONS = 'questions',
-  LOCATION = 'location',
-  EXPERIENCE_LEVEL = 'experience_level',
-  CV = 'cv',
-}
-
 const AcceptPage = (): ReactElement => {
   const {
     query: { id },
@@ -77,23 +66,7 @@ const AcceptPage = (): ReactElement => {
     back,
   } = useRouter();
   const opportunityId = id as string;
-  const [currentStep, setCurrentStep] = useState<AcceptStep | null>(null);
-  const [activeQuestion, setActiveQuestion] = useState(0);
-  const [activeAnswer, setActiveAnswer] = useState('');
-  const [answers, setAnswers] = useState<
-    Record<string, OpportunityScreeningAnswer>
-  >({});
-  const [selectedLocationId, setSelectedLocationId] = useState<string>('');
-  const [locationQuery, setLocationQuery] = useState('');
-  const [selectedExperienceLevel, setSelectedExperienceLevel] = useState<
-    keyof typeof UserExperienceLevel | null
-  >(null);
-  const [initialTotalSteps, setInitialTotalSteps] = useState<number | null>(
-    null,
-  );
-  const [initialNeedsLocation, setInitialNeedsLocation] = useState<
-    boolean | null
-  >(null);
+
   const { completeAction, isActionsFetched, checkHasCompleted } = useActions();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
@@ -130,31 +103,24 @@ const AcceptPage = (): ReactElement => {
 
   const updateQueryTuple = useUpdateQuery(candidatePreferencesOpts);
 
-  const { data: locationOptions, isLoading: isLoadingLocations } = useQuery({
-    queryKey: generateQueryKey(RequestKey.Autocomplete, user, 'location', {
-      query: locationQuery,
-    }),
-    queryFn: () =>
-      getAutocompleteLocations(locationQuery, LocationDataset.External),
-    enabled: !!locationQuery && locationQuery.length > 0,
+  // Step management hook
+  const {
+    currentStep,
+    setCurrentStep,
+    activeQuestion,
+    setActiveQuestion,
+    questions,
+    totalSteps,
+    stepNumber,
+    nextButtonLabel,
+    goToLastQuestion,
+    goToPrevQuestion,
+  } = useOpportunityAcceptanceSteps({
+    opportunity,
+    candidatePreferences,
+    hasUploadedCV,
+    isActionsFetched,
   });
-
-  const { mutate: updatePreferences } = useMutation({
-    ...updateCandidatePreferencesMutationOptions(updateQueryTuple),
-    onError: () => {
-      displayToast('Failed to save location. Please try again.');
-    },
-  });
-
-  const { mutate: updateUserExperienceLevel, isPending: isUpdatingExperience } =
-    useMutation({
-      mutationFn: async (experienceLevel: keyof typeof UserExperienceLevel) => {
-        return mutateUserInfo({ experienceLevel }, null, null);
-      },
-      onError: () => {
-        displayToast('Failed to update experience level. Please try again.');
-      },
-    });
 
   const { mutate: saveAnswers } = useMutation({
     ...saveOpportunityScreeningAnswersMutationOptions(opportunityId),
@@ -175,116 +141,64 @@ const AcceptPage = (): ReactElement => {
     },
   });
 
-  const questions = useMemo(
-    () => opportunity?.questions || [],
-    [opportunity?.questions],
-  );
-
-  const handleNext = useCallback(() => {
-    // Log the screening answer
-    logEvent({
-      event_name: LogEvent.AnswerScreeningQuestion,
-      target_id: opportunityId,
-      extra: JSON.stringify({
-        index: activeQuestion,
-        question_id: questions[activeQuestion].id,
-      }),
-    });
-
-    // Check if this is the last screening question
-    if (activeQuestion === questions.length - 1) {
-      saveAnswers(Object.values(answers));
-      return;
-    }
-
-    // Move to next screening question
-    setActiveQuestion((current) => current + 1);
-    setActiveAnswer('');
-  }, [
-    logEvent,
-    opportunityId,
-    activeQuestion,
-    questions,
-    saveAnswers,
-    answers,
-  ]);
-
-  const goToLastQuestion = useCallback(() => {
-    const lastIdx = questions.length - 1;
-    setCurrentStep(AcceptStep.QUESTIONS);
-    setActiveQuestion(lastIdx);
-    setActiveAnswer(answers[lastIdx]?.answer || '');
-  }, [questions.length, answers]);
-
-  const goToPrevQuestion = useCallback(
-    () =>
-      setActiveQuestion((q) => {
-        const prev = q - 1;
-        setActiveAnswer(answers[prev]?.answer || '');
-        return prev;
-      }),
-    [answers],
-  );
-
-  const handleBack = useCallback(() => {
-    // Order: Location → Experience Level → Questions → CV
-    switch (currentStep) {
-      case AcceptStep.CV:
-        // Go back to last question if there are questions
-        if (questions.length > 0) {
-          goToLastQuestion();
-        } else {
-          // No questions, go back to experience level
-          setCurrentStep(AcceptStep.EXPERIENCE_LEVEL);
-        }
-        break;
-
-      case AcceptStep.QUESTIONS:
-        if (activeQuestion === 0) {
-          // First question, go back to experience level
-          setCurrentStep(AcceptStep.EXPERIENCE_LEVEL);
-        } else {
-          // Go to previous question
-          goToPrevQuestion();
-        }
-        break;
-
-      case AcceptStep.EXPERIENCE_LEVEL:
-        // Always go back to location (which is always shown)
-        setCurrentStep(AcceptStep.LOCATION);
-        break;
-
-      case AcceptStep.LOCATION:
-        // First step, go back to previous page
-        back();
-        break;
-
-      default:
-        back();
-    }
-  }, [
+  // Handlers hook
+  const {
+    activeAnswer,
+    selectedLocationId,
+    setSelectedLocationId,
+    locationQuery,
+    setLocationQuery,
+    selectedExperienceLevel,
+    setSelectedExperienceLevel,
+    isUpdatingExperience,
+    handleChange,
+    handleBack,
+    handleExperienceLevelNext,
+    handleNext,
+  } = useOpportunityAcceptanceHandlers({
     currentStep,
-    questions.length,
-    goToLastQuestion,
+    setCurrentStep,
     activeQuestion,
+    setActiveQuestion,
+    goToLastQuestion,
     goToPrevQuestion,
-    back,
-  ]);
-
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setActiveAnswer(e.target.value);
-      setAnswers((current) => ({
-        ...current,
-        [activeQuestion]: {
-          questionId: questions[activeQuestion].id,
-          answer: e.target.value,
-        },
-      }));
+    questions,
+    hasUploadedCV,
+    onBack: back,
+    onError: displayToast,
+    onSaveAnswers: (answersToSave) => saveAnswers(answersToSave),
+    onLogAnswer: (index, questionId) => {
+      logEvent({
+        event_name: LogEvent.AnswerScreeningQuestion,
+        target_id: opportunityId,
+        extra: JSON.stringify({
+          index,
+          question_id: questionId,
+          question_type: 'screening',
+        }),
+      });
     },
-    [activeQuestion, questions],
-  );
+    initialExperienceLevel: user?.experienceLevel,
+    initialLocationId: candidatePreferences?.externalLocationId,
+  });
 
+  const { data: locationOptions, isLoading: isLoadingLocations } = useQuery({
+    queryKey: generateQueryKey(RequestKey.Autocomplete, user, 'location', {
+      query: locationQuery,
+    }),
+    queryFn: () =>
+      getAutocompleteLocations(locationQuery, LocationDataset.External),
+    enabled: !!locationQuery && locationQuery.length > 0,
+  });
+
+  const { mutate: updatePreferences } = useMutation({
+    ...updateCandidatePreferencesMutationOptions(updateQueryTuple),
+    onError: () => {
+      displayToast('Failed to save location. Please try again.');
+    },
+  });
+
+  // Location handler with actual locationOptions
   const handleLocationNext = useCallback(() => {
     if (!selectedLocationId && candidatePreferences?.location?.length) {
       setCurrentStep(AcceptStep.EXPERIENCE_LEVEL);
@@ -315,7 +229,6 @@ const AcceptPage = (): ReactElement => {
       },
       {
         onSuccess: () => {
-          // Always go to experience level validation step
           setCurrentStep(AcceptStep.EXPERIENCE_LEVEL);
         },
       },
@@ -326,100 +239,8 @@ const AcceptPage = (): ReactElement => {
     candidatePreferences?.externalLocationId,
     locationOptions,
     updatePreferences,
+    setCurrentStep,
   ]);
-
-  const handleExperienceLevelNext = useCallback(() => {
-    if (!selectedExperienceLevel) {
-      return;
-    }
-
-    updateUserExperienceLevel(selectedExperienceLevel, {
-      onSuccess: () => {
-        // Check if there are screening questions
-        if (questions.length > 0) {
-          setCurrentStep(AcceptStep.QUESTIONS);
-        } else if (!hasUploadedCV) {
-          // No questions, check if we need CV step
-          setCurrentStep(AcceptStep.CV);
-        } else {
-          // No questions and CV already uploaded
-          acceptOpportunity();
-        }
-      },
-    });
-  }, [
-    selectedExperienceLevel,
-    updateUserExperienceLevel,
-    questions.length,
-    hasUploadedCV,
-    acceptOpportunity,
-  ]);
-
-  // Calculate and store initial total steps once
-  // Order: Location → Experience Level → Screening Questions → CV
-  useEffect(() => {
-    if (
-      initialTotalSteps === null &&
-      candidatePreferences &&
-      isActionsFetched
-    ) {
-      let steps = 0;
-      steps += 1; // Always include location
-      steps += 1; // Always include experience level
-      steps += questions.length; // Screening questions
-      if (!hasUploadedCV) {
-        steps += 1; // CV step
-      }
-      setInitialNeedsLocation(true); // Always show location
-      setInitialTotalSteps(steps);
-    }
-  }, [
-    candidatePreferences,
-    questions.length,
-    hasUploadedCV,
-    isActionsFetched,
-    initialTotalSteps,
-  ]);
-
-  const totalSteps = initialTotalSteps || 0;
-
-  const stepNumber = useMemo(() => {
-    let step = 0;
-
-    // Order: Location → Experience Level → Questions → CV
-    // Use initialNeedsLocation to match the frozen totalSteps
-
-    // Location step
-    if (currentStep === AcceptStep.LOCATION) {
-      return step + 1;
-    }
-    if (initialNeedsLocation) {
-      step += 1;
-    }
-
-    // Experience level step (always shown)
-    if (currentStep === AcceptStep.EXPERIENCE_LEVEL) {
-      return step + 1;
-    }
-    step += 1; // Always add experience level
-
-    // Questions steps
-    if (currentStep === AcceptStep.QUESTIONS) {
-      return step + activeQuestion + 1;
-    }
-    step += questions.length;
-
-    // CV step
-    if (currentStep === AcceptStep.CV) {
-      return step + 1;
-    }
-
-    return step;
-  }, [currentStep, activeQuestion, questions.length, initialNeedsLocation]);
-
-  // Determine if current step is the last step
-  const isLastStep = stepNumber === totalSteps;
-  const nextButtonLabel = isLastStep ? 'Submit' : 'Next →';
 
   // Memoize mapped location options to avoid recreating on every render
   const mappedLocationOptions = useMemo(
@@ -437,36 +258,6 @@ const AcceptPage = (): ReactElement => {
     }
     completeAction(ActionType.OpportunityInitialView);
   }, [completeAction, isActionsFetched]);
-
-  // Initialize experience level from user
-  useEffect(() => {
-    if (user?.experienceLevel) {
-      setSelectedExperienceLevel(user.experienceLevel);
-    }
-  }, [user?.experienceLevel]);
-
-  // Initialize location from candidatePreferences if already set
-  useEffect(() => {
-    if (candidatePreferences?.externalLocationId) {
-      setSelectedLocationId(candidatePreferences.externalLocationId);
-    }
-  }, [candidatePreferences?.externalLocationId]);
-
-  // Initialize the correct step based on location, experience level, questions, and CV status
-  // Order: Location → Experience Level → Questions → CV
-  useEffect(() => {
-    if (
-      !opportunity ||
-      !isActionsFetched ||
-      currentStep !== null ||
-      !candidatePreferences
-    ) {
-      return;
-    }
-
-    // Always start with location
-    setCurrentStep(AcceptStep.LOCATION);
-  }, [opportunity, candidatePreferences, isActionsFetched, currentStep]);
 
   if (!opportunity || currentStep === null) {
     return null;
@@ -500,41 +291,23 @@ const AcceptPage = (): ReactElement => {
 
         {currentStep === AcceptStep.LOCATION && (
           <>
-            <FlexCol className="gap-4">
-              <Typography type={TypographyType.LargeTitle} bold center>
-                Is this still right?
-              </Typography>
-              <Typography
-                type={TypographyType.Title3}
-                color={TypographyColor.Secondary}
-                center
-              >
-                Make sure your location is up to date for the best opportunities
-              </Typography>
-            </FlexCol>
-            <FlexCol className="gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-              <ProgressStep currentStep={stepNumber} totalSteps={totalSteps} />
-              <Autocomplete
-                name="location"
-                label="Location"
-                placeholder="Search for a city or country"
-                defaultValue={
-                  candidatePreferences?.location?.[0]
-                    ? locationToString(candidatePreferences.location[0])
-                    : ''
-                }
-                options={mappedLocationOptions}
-                selectedValue={selectedLocationId}
-                onChange={(value) => {
-                  setLocationQuery(value);
-                }}
-                onSelect={(value) => {
-                  setSelectedLocationId(value);
-                }}
-                isLoading={isLoadingLocations}
-                resetOnBlur
-              />
-            </FlexCol>
+            <LocationStep
+              currentStep={stepNumber}
+              totalSteps={totalSteps}
+              defaultLocation={{
+                city: candidatePreferences?.location?.[0]?.city,
+                country: candidatePreferences?.location?.[0]?.country,
+              }}
+              locationOptions={mappedLocationOptions}
+              selectedLocationId={selectedLocationId}
+              isLoadingLocations={isLoadingLocations}
+              onLocationQueryChange={(value) => {
+                setLocationQuery(value);
+              }}
+              onLocationSelect={(value) => {
+                setSelectedLocationId(value);
+              }}
+            />
             <StepNavigation
               onBack={handleBack}
               onNext={handleLocationNext}
@@ -549,25 +322,12 @@ const AcceptPage = (): ReactElement => {
 
         {currentStep === AcceptStep.EXPERIENCE_LEVEL && (
           <>
-            <FlexCol className="gap-4">
-              <Typography type={TypographyType.LargeTitle} bold center>
-                Verify your experience level
-              </Typography>
-              <Typography
-                type={TypographyType.Title3}
-                color={TypographyColor.Secondary}
-                center
-              >
-                Make sure this is still accurate to get the best matches
-              </Typography>
-            </FlexCol>
-            <FlexCol className="gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-              <ProgressStep currentStep={stepNumber} totalSteps={totalSteps} />
-              <ExperienceLevelDropdown
-                defaultValue={selectedExperienceLevel || undefined}
-                onChange={(value) => setSelectedExperienceLevel(value)}
-              />
-            </FlexCol>
+            <ExperienceLevelStep
+              currentStep={stepNumber}
+              totalSteps={totalSteps}
+              defaultValue={selectedExperienceLevel || undefined}
+              onChange={(value) => setSelectedExperienceLevel(value)}
+            />
             <StepNavigation
               onBack={handleBack}
               onNext={handleExperienceLevelNext}
