@@ -192,6 +192,67 @@ function AuthOptionsInner({
     return false;
   };
 
+  const { onUpdateSignBack: onSignBackLogin } = useSignBack();
+  const {
+    isReady: isRegistrationReady,
+    registration,
+    verificationFlowId,
+    validateRegistration,
+    onSocialRegistration,
+  } = useRegistration({
+    key: ['registration_form'],
+    onInitializeVerification: () => {
+      onSetActiveDisplay(AuthDisplay.EmailVerification);
+    },
+    onInvalidRegistration: setRegistrationHints,
+    onRedirectFail: () => {
+      windowPopup.current.close();
+      windowPopup.current = null;
+    },
+    onRedirect: (redirect) => {
+      windowPopup.current.location.href = redirect;
+    },
+    keepSession: isOnboardingOrFunnel,
+  });
+
+  const onProfileSuccess = async (
+    options: { redirect?: string; setSignBack?: boolean } = {},
+  ) => {
+    setIsRegistration(true);
+    const { redirect, setSignBack = true } = options;
+    const { data } = await refetchBoot();
+
+    const isLoggedUser = 'infoConfirmed' in data.user;
+    if (!isLoggedUser) {
+      return;
+    }
+
+    if (data.user && setSignBack) {
+      const provider = chosenProvider || 'password';
+      onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
+    }
+
+    logEvent({
+      event_name: AuthEventNames.SignupSuccessfully,
+    });
+    const loggedUser = data?.user as LoggedUser;
+    trackSignup(loggedUser);
+
+    // if redirect is set, move before modal close
+    if (redirect) {
+      await router.push(redirect);
+    }
+
+    onSuccessfulRegistration?.(data?.user);
+    onClose?.(null, true);
+  };
+  const {
+    updateUserProfile,
+    hint,
+    onUpdateHint,
+    isLoading: isProfileUpdateLoading,
+  } = useProfileForm({ onSuccess: onProfileSuccess });
+
   const autoCompleteProfileForRecruiter = async (
     email: string,
     name?: string,
@@ -267,29 +328,6 @@ function AuthOptionsInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const { onUpdateSignBack: onSignBackLogin } = useSignBack();
-  const {
-    isReady: isRegistrationReady,
-    registration,
-    verificationFlowId,
-    validateRegistration,
-    onSocialRegistration,
-  } = useRegistration({
-    key: ['registration_form'],
-    onInitializeVerification: () => {
-      onSetActiveDisplay(AuthDisplay.EmailVerification);
-    },
-    onInvalidRegistration: setRegistrationHints,
-    onRedirectFail: () => {
-      windowPopup.current.close();
-      windowPopup.current = null;
-    },
-    onRedirect: (redirect) => {
-      windowPopup.current.location.href = redirect;
-    },
-    keepSession: isOnboardingOrFunnel,
-  });
-
   const {
     isReady: isLoginReady,
     loginHint,
@@ -304,43 +342,6 @@ function AuthOptionsInner({
       return displayToast(labels.auth.error.generic);
     },
   });
-  const onProfileSuccess = async (
-    options: { redirect?: string; setSignBack?: boolean } = {},
-  ) => {
-    setIsRegistration(true);
-    const { redirect, setSignBack = true } = options;
-    const { data } = await refetchBoot();
-
-    const isLoggedUser = 'infoConfirmed' in data.user;
-    if (!isLoggedUser) {
-      return;
-    }
-
-    if (data.user && setSignBack) {
-      const provider = chosenProvider || 'password';
-      onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
-    }
-
-    logEvent({
-      event_name: AuthEventNames.SignupSuccessfully,
-    });
-    const loggedUser = data?.user as LoggedUser;
-    trackSignup(loggedUser);
-
-    // if redirect is set, move before modal close
-    if (redirect) {
-      await router.push(redirect);
-    }
-
-    onSuccessfulRegistration?.(data?.user);
-    onClose?.(null, true);
-  };
-  const {
-    updateUserProfile,
-    hint,
-    onUpdateHint,
-    isLoading: isProfileUpdateLoading,
-  } = useProfileForm({ onSuccess: onProfileSuccess });
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
   const onProviderClick = async (provider: string, login = true) => {
