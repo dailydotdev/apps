@@ -16,8 +16,8 @@ import {
   useOpportunityPreviewContext,
 } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { usePendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
-import { ContentSidebar } from '@dailydotdev/shared/src/features/opportunity/components/analyze/ContentSidebar';
-import { UserTableWrapper } from '@dailydotdev/shared/src/features/opportunity/components/analyze/UserTableWrapper';
+import { AnalyzeContent } from '@dailydotdev/shared/src/features/opportunity/components/analyze/AnalyzeContent';
+import { AnalyzeStatusBar } from '@dailydotdev/shared/src/components/recruiter/AnalyzeStatusBar';
 import { parseOpportunityMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
@@ -112,6 +112,8 @@ const RecruiterPageContent = () => {
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
+        title="See who matches your role"
+        subtitle="We matched your role to developers already active on daily.dev."
         headerButton={{
           text: 'Prepare campaign',
           onClick: handlePrepareCampaignClick,
@@ -119,10 +121,8 @@ const RecruiterPageContent = () => {
         }}
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
-      <div className="flex flex-1">
-        <ContentSidebar loadingStep={loadingStep} />
-        <UserTableWrapper loadingStep={loadingStep} />
-      </div>
+      <AnalyzeStatusBar loadingStep={loadingStep} />
+      <AnalyzeContent loadingStep={loadingStep} />
     </div>
   );
 };

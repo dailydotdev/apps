@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { AnonymousUserTable } from '@dailydotdev/shared/src/components/recruiter/AnonymousUserTable';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import {
   RecruiterProgress,
@@ -14,8 +13,8 @@ import {
   usePendingSubmission,
   type PendingSubmission,
 } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
-import { mockAnonymousUserTableData } from '@dailydotdev/shared/src/features/opportunity/mockData';
-import { ContentSidebar } from '@dailydotdev/shared/src/features/opportunity/components/analyze/ContentSidebar';
+import { mockOpportunityPreviewData } from '@dailydotdev/shared/src/features/opportunity/mockData';
+import { AnalyzeContent } from '@dailydotdev/shared/src/features/opportunity/components/analyze/AnalyzeContent';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterPage(): ReactElement {
@@ -74,14 +73,11 @@ function RecruiterPage(): ReactElement {
   }, [openModal, closeModal, router, openJobLinkModal]);
 
   return (
-    <OpportunityPreviewProvider mockData={mockAnonymousUserTableData}>
+    <OpportunityPreviewProvider mockData={mockOpportunityPreviewData}>
       <div className="flex flex-1 flex-col">
         <RecruiterHeader />
         <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
-        <div className="flex flex-1">
-          <ContentSidebar loadingStep={4} />
-          <AnonymousUserTable />
-        </div>
+        <AnalyzeContent loadingStep={4} />
       </div>
     </OpportunityPreviewProvider>
   );

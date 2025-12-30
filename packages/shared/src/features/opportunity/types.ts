@@ -11,7 +11,6 @@ import type { CandidateStatus } from './protobuf/user-candidate-preference';
 import type { LocationType } from './protobuf/util';
 import type { Connection } from '../../graphql/common';
 import type { Squad } from '../../graphql/sources';
-import type { TopReader } from '../../components/badges/TopReaderBadge';
 
 export enum OpportunityMatchStatus {
   Pending = 'pending',
@@ -26,12 +25,6 @@ export enum RoleType {
   IC = 0.0,
   Auto = 0.5,
   Managerial = 1.0,
-}
-
-export enum LocationVerificationStatus {
-  GeoIP = 'geoip',
-  UserProvided = 'user_provided',
-  Verified = 'verified',
 }
 
 export type RecruiterProfile = Pick<
@@ -203,35 +196,6 @@ export interface OpportunityPreviewCompany {
   favicon?: string;
 }
 
-export interface OpportunityPreviewUser {
-  /** Real user ID */
-  id: string;
-  /** User profile image */
-  profileImage?: string;
-  /** Anonymized ID (e.g., anon #1002) */
-  anonId: string;
-  /** User description/bio */
-  description?: string;
-  /** Whether the user is open to work */
-  openToWork: boolean;
-  /** User seniority level */
-  seniority?: string;
-  /** User location (from preferences or geo flags) */
-  location?: string;
-  /** Location verification status (from geo flags) */
-  locationVerified?: LocationVerificationStatus;
-  /** Active company from experience */
-  company?: OpportunityPreviewCompany;
-  /** Last activity timestamp */
-  lastActivity?: Date;
-  /** Top tags for the user */
-  topTags?: string[];
-  /** Top reader badges with tag and issue date */
-  recentlyRead?: TopReader[];
-  /** Active squad IDs */
-  activeSquads?: Squad[];
-}
-
 export enum OpportunityPreviewStatus {
   UNSPECIFIED = 0,
   PENDING = 1,
@@ -248,12 +212,9 @@ export interface OpportunityPreviewResult {
   status: OpportunityPreviewStatus;
 }
 
-export interface OpportunityPreviewConnection
-  extends Connection<OpportunityPreviewUser> {
+export interface OpportunityPreviewResponse {
   result?: OpportunityPreviewResult;
 }
-
-export type OpportunityPreviewResponse = OpportunityPreviewConnection;
 
 export type OpportunityStats = {
   matched: number;
