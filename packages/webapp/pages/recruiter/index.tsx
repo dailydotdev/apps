@@ -58,14 +58,7 @@ function RecruiterPage(): ReactElement {
 
   // Open the appropriate modal when the page loads
   useEffect(() => {
-    // Only run initialization once to prevent re-opening modals on navigation
-    if (hasInitializedRef.current) {
-      return;
-    }
-    hasInitializedRef.current = true;
-
     const { openModal: openModalParam } = router.query;
-
     // If openModal=joblink query param is present, skip intro/trust modals
     if (openModalParam === 'joblink') {
       // Clear the query param from URL without triggering navigation
@@ -73,6 +66,12 @@ function RecruiterPage(): ReactElement {
       openJobLinkModal();
       return;
     }
+
+    // Only run initialization once to prevent re-opening modals on navigation
+    if (hasInitializedRef.current) {
+      return;
+    }
+    hasInitializedRef.current = true;
 
     // Default flow: start with intro modal
     openModal({
