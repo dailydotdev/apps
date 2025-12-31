@@ -48,7 +48,8 @@ export const RecruiterHeader = ({
           disabled={headerButton.disabled}
           loading={headerButton.loading}
         >
-          {headerButton.text} {headerButton.icon || <MoveToIcon />}
+          <span className="mr-1.5">{headerButton.text}</span>{' '}
+          {headerButton.icon || <MoveToIcon />}
         </Button>
       )}
     </div>

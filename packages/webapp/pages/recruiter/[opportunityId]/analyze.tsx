@@ -95,7 +95,7 @@ const RecruiterPageContent = () => {
       return;
     }
 
-    router.push(`/recruiter/${opportunity.id}/prepare`);
+    router.push(`/recruiter/${opportunity.id}/plans`);
   }, [router, opportunity]);
 
   return (
@@ -104,7 +104,7 @@ const RecruiterPageContent = () => {
         title="See who matches your role"
         subtitle="We matched your role to developers already active on daily.dev."
         headerButton={{
-          text: 'Prepare campaign',
+          text: 'Select plan',
           onClick: handlePrepareCampaignClick,
           disabled: !opportunity,
         }}
