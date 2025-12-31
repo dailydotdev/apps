@@ -58,4 +58,3 @@ const useLogEventOnce = (
 };
 
 export default useLogEventOnce;
-
