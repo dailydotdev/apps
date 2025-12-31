@@ -101,8 +101,8 @@ const RecruiterPageContent = () => {
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
-        title="Your matched candidates"
-        subtitle="Real developers on our platform—including passive talent you won't find elsewhere."
+        title="See who matches your role"
+        subtitle="We matched your role to developers already active on daily.dev."
         headerButton={{
           text: 'Prepare campaign',
           onClick: handlePrepareCampaignClick,
