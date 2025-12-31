@@ -1,13 +1,14 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Loader } from '../Loader';
 import { VIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { GenericLoaderSpinner } from '../utilities/loaders';
+import { IconSize } from '../Icon';
 
 const LOADING_STEPS = [
   'Analyzing your job description',
@@ -36,22 +37,16 @@ export const AnalyzeStatusBar = ({
   return (
     <div
       className={classNames(
-        'flex items-center justify-center gap-2 border-b border-border-subtlest-tertiary bg-brand-float px-4 py-2',
+        'flex items-center justify-center gap-2 border-b border-border-subtlest-tertiary bg-brand-float px-4 py-3',
         className,
       )}
     >
       {isComplete ? (
-        <div className="size-5 rounded-8 text-brand-default">
-          <VIcon />
-        </div>
+        <VIcon className="size-5 text-status-success" />
       ) : (
-        <Loader className="size-5" />
+        <GenericLoaderSpinner size={IconSize.XSmall} />
       )}
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Brand}
-        bold
-      >
+      <Typography type={TypographyType.Footnote} color={TypographyColor.Brand}>
         {message}
       </Typography>
     </div>

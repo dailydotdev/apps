@@ -11,6 +11,8 @@ type ReachHeroSectionProps = {
   isLoading: boolean;
 };
 
+const PASSIVE_PERCENTAGE = 30;
+
 export const ReachHeroSection = ({
   totalCount,
   isLoading,
@@ -33,7 +35,6 @@ export const ReachHeroSection = ({
         setAnimatedCount(totalCount);
         clearInterval(timer);
       } else {
-        // Ease-out effect: start fast, slow down at end
         const progress = currentStep / steps;
         const easedProgress = 1 - (1 - progress) ** 3;
         setAnimatedCount(Math.floor(totalCount * easedProgress));
@@ -45,54 +46,60 @@ export const ReachHeroSection = ({
 
   if (isLoading) {
     return (
-      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float p-8">
-        <div className="flex flex-col items-center gap-3">
-          <ElementPlaceholder className="h-16 w-56 rounded-8" />
-          <ElementPlaceholder className="h-6 w-72 rounded-8" />
-          <ElementPlaceholder className="mt-2 h-4 w-48 rounded-6" />
+      <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-6">
+        <div className="flex flex-col items-center gap-4">
+          <ElementPlaceholder className="h-20 w-40 rounded-8" />
+          <ElementPlaceholder className="h-5 w-48 rounded-8" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="border-brand-subtlest relative overflow-hidden rounded-16 border bg-brand-float">
-      <div className="relative flex flex-col items-center gap-1 px-6 py-8">
-        {/* Main number with emphasis */}
-        <div className="flex items-baseline gap-1">
-          <Typography
-            type={TypographyType.Tera}
-            color={TypographyColor.Brand}
-            bold
-            className="tabular-nums tracking-tight"
-          >
-            {animatedCount.toLocaleString()}
-          </Typography>
-          <Typography
-            type={TypographyType.Giga3}
-            color={TypographyColor.Brand}
-            bold
-          >
-            +
-          </Typography>
-        </div>
-
-        <Typography type={TypographyType.Title2} bold className="text-center">
-          relevant developers in your reach
+    <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-6">
+      <div className="flex flex-col items-center">
+        {/* Hero number */}
+        <Typography type={TypographyType.Tera} bold className="tabular-nums">
+          {animatedCount.toLocaleString()}
+        </Typography>
+        <Typography
+          type={TypographyType.Title3}
+          color={TypographyColor.Primary}
+          className="mt-1"
+        >
+          developers matched
         </Typography>
 
-        {/* Exclusive reach stat */}
-        <div className="mt-4 flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary bg-background-default px-4 py-2">
-          <div className="size-2 rounded-full bg-brand-default" />
+        {/* Exclusive stat */}
+        <div
+          className="mt-5 flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2"
+          style={{ animation: 'fadeSlideUp 0.5s ease-out 1s both' }}
+        >
+          <div
+            className="size-2 rounded-full bg-status-success"
+            style={{ animation: 'gentlePulse 2s ease-in-out infinite' }}
+          />
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
           >
-            <span className="font-bold text-brand-default">30%</span>{' '}
-            exclusively reachable on daily.dev
+            <span className="font-bold text-text-primary">
+              {PASSIVE_PERCENTAGE}%
+            </span>{' '}
+            are passively open to new opportunities
           </Typography>
         </div>
       </div>
+      <style>{`
+        @keyframes gentlePulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.2); }
+        }
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 };
