@@ -43,7 +43,7 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
       ...opportunityPreviewQueryOptions({
         opportunityId: opportunityIdParam,
         user: user || undefined,
-        enabled: !mockData,
+        enabled: !mockData && opportunityIdParam !== 'new',
       }),
       refetchInterval: (query) => {
         const retries = Math.max(
