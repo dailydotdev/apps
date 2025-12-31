@@ -71,14 +71,8 @@ export const ReachHeroSection = ({
         </Typography>
 
         {/* Exclusive stat */}
-        <div
-          className="mt-5 flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2"
-          style={{ animation: 'fadeSlideUp 0.5s ease-out 1s both' }}
-        >
-          <div
-            className="size-2 rounded-full bg-status-success"
-            style={{ animation: 'gentlePulse 2s ease-in-out infinite' }}
-          />
+        <div className="mt-5 flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2 animate-fade-slide-up">
+          <div className="size-2 rounded-full bg-status-success animate-pulse" />
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
@@ -90,16 +84,6 @@ export const ReachHeroSection = ({
           </Typography>
         </div>
       </div>
-      <style>{`
-        @keyframes gentlePulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.6; transform: scale(1.2); }
-        }
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 };
