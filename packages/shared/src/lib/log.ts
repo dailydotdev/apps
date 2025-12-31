@@ -339,6 +339,10 @@ export enum LogEvent {
   // End Opportunity
   UploadEmploymentAgreement = 'upload employment agreement',
   ClearEmploymentAgreement = 'clear employment agreement',
+  // Experience
+  StartAddExperience = 'start add experience',
+  AddExperience = 'add experience',
+  RemoveExperience = 'remove experience',
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',
