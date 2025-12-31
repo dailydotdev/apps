@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import {
@@ -12,9 +12,32 @@ import { OpportunityPreviewProvider } from '@dailydotdev/shared/src/features/opp
 import type { PendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { usePendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { mockOpportunityPreviewData } from '@dailydotdev/shared/src/features/opportunity/mockData';
+import type { OpportunityPreviewContextType } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { AnalyzeContent } from '@dailydotdev/shared/src/features/opportunity/components/analyze/AnalyzeContent';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
+
+const useLoadingAnimation = (isActive: boolean) => {
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  useEffect(() => {
+    if (!isActive) {
+      setLoadingStep(0);
+      return undefined;
+    }
+
+    const timers = [
+      setTimeout(() => setLoadingStep(1), 800),
+      setTimeout(() => setLoadingStep(2), 1600),
+      setTimeout(() => setLoadingStep(3), 2400),
+      setTimeout(() => setLoadingStep(4), 3200),
+    ];
+
+    return () => timers.forEach(clearTimeout);
+  }, [isActive]);
+
+  return loadingStep;
+};
 
 function RecruiterPage(): ReactElement {
   const router = useRouter();
@@ -22,39 +45,47 @@ function RecruiterPage(): ReactElement {
   const { setPendingSubmission } = usePendingSubmission();
   const { user } = useAuthContext();
   const hasInitializedRef = useRef(false);
+  const [mockData, setMockData] = useState<OpportunityPreviewContextType>({});
+  const [isAnimating, setIsAnimating] = useState(false);
+  const loadingStep = useLoadingAnimation(isAnimating);
 
   const navigateToAnalyze = useCallback(() => {
     closeModal();
     router.push(`/recruiter/new/analyze`);
   }, [closeModal, router]);
 
-  const handleJobSubmit = useCallback(
-    (submission: PendingSubmission) => {
-      setPendingSubmission(submission);
-      closeModal();
+  // Use a ref so the modal always calls the latest version of this function
+  // This avoids stale closures since the modal captures the callback when opened
+  const handleJobSubmitRef = useRef<(submission: PendingSubmission) => void>();
+  handleJobSubmitRef.current = (submission: PendingSubmission) => {
+    setPendingSubmission(submission);
+    closeModal();
 
-      if (!user) {
-        openModal({
-          type: LazyModal.RecruiterSignIn,
-          props: {
-            onSuccess: navigateToAnalyze,
-          },
-        });
-      } else {
-        navigateToAnalyze();
-      }
-    },
-    [setPendingSubmission, closeModal, user, openModal, navigateToAnalyze],
-  );
+    if (!user) {
+      // Show mock data to make it look like processing is happening,
+      // encouraging the user to sign up
+      setMockData(mockOpportunityPreviewData);
+      setIsAnimating(true);
+      openModal({
+        type: LazyModal.RecruiterSignIn,
+        props: {
+          onSuccess: navigateToAnalyze,
+        },
+      });
+    } else {
+      navigateToAnalyze();
+    }
+  };
 
   const openJobLinkModal = useCallback(() => {
     openModal({
       type: LazyModal.RecruiterJobLink,
       props: {
-        onSubmit: handleJobSubmit,
+        onSubmit: (submission: PendingSubmission) =>
+          handleJobSubmitRef.current?.(submission),
       },
     });
-  }, [openModal, handleJobSubmit]);
+  }, [openModal]);
 
   // Open the appropriate modal when the page loads
   useEffect(() => {
@@ -94,11 +125,11 @@ function RecruiterPage(): ReactElement {
   }, [openModal, closeModal, router, openJobLinkModal]);
 
   return (
-    <OpportunityPreviewProvider mockData={mockOpportunityPreviewData}>
+    <OpportunityPreviewProvider mockData={mockData}>
       <div className="flex flex-1 flex-col">
         <RecruiterHeader />
         <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
-        <AnalyzeContent loadingStep={4} />
+        <AnalyzeContent loadingStep={loadingStep} />
       </div>
     </OpportunityPreviewProvider>
   );
