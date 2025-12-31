@@ -100,7 +100,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       !isFunnel &&
       isOnboardingActionsReady &&
       !isOnboardingComplete &&
-      !router.pathname.includes('/onboarding')
+      !router.pathname.startsWith('/onboarding') &&
+      !router.pathname.startsWith('/recruiter')
     ) {
       router.replace('/onboarding');
     }

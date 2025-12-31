@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import React from 'react';
 import type { RecruiterSelfServeLayoutProps } from '@dailydotdev/shared/src/components/recruiter/layout/RecruiterLayout';
 import { RecruiterLayout } from '@dailydotdev/shared/src/components/recruiter/layout/RecruiterLayout';
+import { PendingSubmissionProvider } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { useIntercom } from '../../hooks/useIntercom';
 
 const RecruiterSelfServeLayoutWithIntercom = ({
@@ -13,7 +14,11 @@ const RecruiterSelfServeLayoutWithIntercom = ({
 }) => {
   useIntercom();
 
-  return <RecruiterLayout {...layoutProps}>{children}</RecruiterLayout>;
+  return (
+    <PendingSubmissionProvider>
+      <RecruiterLayout {...layoutProps}>{children}</RecruiterLayout>
+    </PendingSubmissionProvider>
+  );
 };
 
 const GetLayout = (

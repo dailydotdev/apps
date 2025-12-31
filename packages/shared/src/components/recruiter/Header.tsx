@@ -17,21 +17,27 @@ export interface RecruiterHeaderButton {
 }
 
 export interface RecruiterHeaderProps {
+  title?: string;
+  subtitle?: string;
   headerButton?: RecruiterHeaderButton;
 }
 
-export const RecruiterHeader = ({ headerButton }: RecruiterHeaderProps) => {
+export const RecruiterHeader = ({
+  title = 'This is how your candidates will see your job',
+  subtitle = 'Review your draft carefully and update any details as needed.',
+  headerButton,
+}: RecruiterHeaderProps) => {
   return (
     <div className="flex flex-row items-center gap-2 border-b border-border-subtlest-tertiary p-4">
       <div>
         <Typography type={TypographyType.Title3} bold>
-          This is how your candidates will see your job
+          {title}
         </Typography>
         <Typography
           type={TypographyType.Subhead}
           color={TypographyColor.Tertiary}
         >
-          Review your draft carefully and update any details as needed.
+          {subtitle}
         </Typography>
       </div>
       <div className="flex-1" />
