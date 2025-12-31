@@ -397,6 +397,14 @@ export const GET_USERNAME_SUGGESTION = gql`
   }
 `;
 
+export const generateUsername = async (name: string): Promise<string> => {
+  const result = await gqlClient.request<{ generateUniqueUsername: string }>(
+    GET_USERNAME_SUGGESTION,
+    { name },
+  );
+  return result.generateUniqueUsername;
+};
+
 export const GET_USER_COMPANIES = gql`
   query Companies {
     companies {

@@ -1,33 +1,42 @@
 import type { ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { Chip } from '../../../../components/cards/common/PostTags';
 import { useOpportunityPreviewContext } from '../../context/OpportunityPreviewContext';
 import { SeniorityLevel } from '../../protobuf/opportunity';
 import { seniorityLevelMap } from '../../common';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 
 type JobInfoItemProps = {
-  title: string;
-  description?: string;
+  label: string;
+  value?: string;
   children?: ReactNode;
+  className?: string;
 };
 
-const JobInfoItem = ({ title, description, children }: JobInfoItemProps) => {
+const JobInfoItem = ({
+  label,
+  value,
+  children,
+  className,
+}: JobInfoItemProps) => {
   return (
-    <div className="flex flex-col gap-1">
+    <div className={classNames('flex flex-col gap-1', className)}>
       <Typography
-        type={TypographyType.Footnote}
+        type={TypographyType.Caption1}
         color={TypographyColor.Tertiary}
+        className="uppercase tracking-wider"
       >
-        {title}
+        {label}
       </Typography>
-      {description && (
-        <Typography type={TypographyType.Subhead}>{description}</Typography>
+      {value && (
+        <Typography type={TypographyType.Body} color={TypographyColor.Primary}>
+          {value}
+        </Typography>
       )}
       {children}
     </div>
@@ -44,8 +53,27 @@ export const JobInfo = ({ loadingStep }: JobInfoProps) => {
   // Show after step 1 completes (Reading job description)
   if (!opportunity || loadingStep < 1) {
     return (
-      <div className="flex flex-col gap-2">
-        <ElementPlaceholder className="h-60 w-full rounded-8" />
+      <div className="grid gap-4 tablet:grid-cols-2">
+        <div className="flex flex-col gap-2">
+          <ElementPlaceholder className="h-3 w-16 rounded-4" />
+          <ElementPlaceholder className="h-5 w-48 rounded-4" />
+        </div>
+        <div className="flex flex-col gap-2">
+          <ElementPlaceholder className="h-3 w-16 rounded-4" />
+          <ElementPlaceholder className="h-5 w-36 rounded-4" />
+        </div>
+        <div className="flex flex-col gap-2">
+          <ElementPlaceholder className="h-3 w-16 rounded-4" />
+          <ElementPlaceholder className="h-5 w-24 rounded-4" />
+        </div>
+        <div className="flex flex-col gap-2">
+          <ElementPlaceholder className="h-3 w-16 rounded-4" />
+          <div className="flex flex-wrap gap-2">
+            <ElementPlaceholder className="h-6 w-16 rounded-6" />
+            <ElementPlaceholder className="h-6 w-20 rounded-6" />
+            <ElementPlaceholder className="h-6 w-14 rounded-6" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -61,7 +89,7 @@ export const JobInfo = ({ loadingStep }: JobInfoProps) => {
           .filter(Boolean)
           .join(', '),
       )
-      .join(' / ') || 'Not specified';
+      .join(' · ') || 'Not specified';
 
   const seniorityLabel =
     seniorityLevelMap[
@@ -73,38 +101,69 @@ export const JobInfo = ({ loadingStep }: JobInfoProps) => {
     : [];
 
   return (
-    <div className="animate-fade-in flex flex-col gap-4">
-      <JobInfoItem title="Job Title" description={opportunity.title} />
-      <JobInfoItem title="Location" description={locationString} />
-      <JobInfoItem title="Seniority" description={seniorityLabel} />
-      {opportunity.keywords && opportunity.keywords.length > 0 && (
-        <JobInfoItem title="Tech Stack">
-          <div className="flex flex-wrap gap-2">
-            {opportunity.keywords.map((tag) => (
-              <Chip key={tag.keyword} className="!my-0 !text-text-tertiary">
-                {tag.keyword}
-              </Chip>
-            ))}
-          </div>
-        </JobInfoItem>
-      )}
+    <div className="flex flex-col gap-5">
+      {/* Primary info grid */}
+      <div className="grid gap-4 tablet:grid-cols-2">
+        <JobInfoItem label="Position" value={opportunity.title} />
+        <JobInfoItem label="Location" value={locationString} />
+        <JobInfoItem label="Seniority" value={seniorityLabel} />
+
+        {opportunity.keywords && opportunity.keywords.length > 0 && (
+          <JobInfoItem label="Tech Stack">
+            <div className="flex flex-wrap gap-1.5">
+              {opportunity.keywords.slice(0, 8).map((tag) => (
+                <Typography
+                  key={tag.keyword}
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Secondary}
+                  className="rounded-6 bg-surface-float px-2 py-0.5"
+                >
+                  {tag.keyword}
+                </Typography>
+              ))}
+              {opportunity.keywords.length > 8 && (
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  className="rounded-6 border border-border-subtlest-tertiary bg-surface-float px-2 py-0.5"
+                >
+                  +{opportunity.keywords.length - 8}
+                </Typography>
+              )}
+            </div>
+          </JobInfoItem>
+        )}
+      </div>
+
+      {/* Requirements section */}
       {requirements.length > 0 && (
-        <JobInfoItem title="Key requirements">
-          <ul className="list-disc pl-4 typo-callout">
-            {requirements.slice(0, 3).map((req) => (
-              <li key={req}>{req}</li>
-            ))}
-          </ul>
-        </JobInfoItem>
+        <div className="border-t border-border-subtlest-tertiary pt-4">
+          <JobInfoItem label="Key requirements">
+            <ul className="mt-1 space-y-1.5">
+              {requirements.slice(0, 3).map((req) => (
+                <li key={req} className="flex items-start gap-2">
+                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-text-tertiary" />
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Secondary}
+                    className="min-w-0 flex-1"
+                  >
+                    {req}
+                  </Typography>
+                </li>
+              ))}
+            </ul>
+          </JobInfoItem>
+        </div>
       )}
-      <div className="flex flex-col gap-1 rounded-16 bg-background-subtle px-4 py-2">
-        <Typography type={TypographyType.Footnote} bold>
-          Job details extracted automatically
-        </Typography>
-        <Typography type={TypographyType.Footnote}>
-          We’ll refine everything in the next step.
-          <br />
-          This is just the high-level overview.
+
+      {/* Footer note */}
+      <div className="rounded-8 bg-surface-float px-3 py-2">
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+        >
+          ✨ We&apos;ll refine these details in the next step
         </Typography>
       </div>
     </div>

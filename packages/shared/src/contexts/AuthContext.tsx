@@ -157,12 +157,14 @@ export const AuthContextProvider = ({
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
   const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
+  const isRecruiterPage = router?.pathname?.startsWith('/recruiter');
 
   if (
     firstLoad === true &&
     endUser &&
     !endUser?.infoConfirmed &&
-    !isFunnelRef.current
+    !isFunnelRef.current &&
+    !isRecruiterPage
   ) {
     logout(LogoutReason.IncomleteOnboarding);
   }

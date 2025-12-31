@@ -7,9 +7,12 @@ import { labels } from '../lib/labels';
 import { webappUrl } from '../lib/constants';
 import { useUserExperiencesByType } from '../features/profile/hooks/useUserExperiencesByType';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useLogContext } from '../contexts/LogContext';
+import { LogEvent } from '../lib/log';
 
 const useRemoveExperience = ({ type }: { type: UserExperienceType }) => {
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const { queryKey: experienceQueryKey } = useUserExperiencesByType(
@@ -19,7 +22,12 @@ const useRemoveExperience = ({ type }: { type: UserExperienceType }) => {
   const qc = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: (id: string) => removeUserExperience(id),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
+      logEvent({
+        event_name: LogEvent.RemoveExperience,
+        target_type: type,
+        target_id: id,
+      });
       router.push(`${webappUrl}settings/profile/experience/${type}`);
       qc.invalidateQueries({ queryKey: experienceQueryKey });
     },

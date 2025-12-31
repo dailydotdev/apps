@@ -48,7 +48,7 @@ const Footer = () => {
   const { user, logout } = useAuthContext();
   return (
     <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary p-3">
-      <ProfilePicture user={{ image: null }} size={ProfileImageSize.Medium} />
+      <ProfilePicture user={user} size={ProfileImageSize.Medium} />
       <div>
         <Typography type={TypographyType.Subhead} bold>
           {user?.name || 'Guest user'}

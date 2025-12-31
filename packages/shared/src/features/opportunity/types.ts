@@ -248,12 +248,9 @@ export interface OpportunityPreviewResult {
   status: OpportunityPreviewStatus;
 }
 
-export interface OpportunityPreviewConnection
-  extends Connection<OpportunityPreviewUser> {
+export type OpportunityPreviewResponse = {
   result?: OpportunityPreviewResult;
-}
-
-export type OpportunityPreviewResponse = OpportunityPreviewConnection;
+};
 
 export type OpportunityStats = {
   matched: number;
