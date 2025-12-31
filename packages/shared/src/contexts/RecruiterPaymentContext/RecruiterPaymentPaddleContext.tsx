@@ -12,7 +12,6 @@ import type {
   RecruiterProductOption,
 } from './types';
 import { RecruiterPaymentContext } from './types';
-import { webappUrl } from '../../lib/constants';
 import { recruiterPricesQueryOptions } from '../../features/opportunity/queries';
 
 export const RecruiterPaymentPaddleContextProvider = ({
@@ -56,9 +55,7 @@ export const RecruiterPaymentPaddleContextProvider = ({
 
   const { paddle, openCheckout } = usePaddlePayment({
     successCallback: () => {
-      router.replace(
-        `${webappUrl}recruiter/${router.query.opportunityId}/matches`,
-      );
+      router.replace(`/recruiter/${router.query.opportunityId}/prepare`);
     },
     priceType: PurchaseType.Recruiter,
   });
