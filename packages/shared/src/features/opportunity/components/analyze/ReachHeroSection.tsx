@@ -71,8 +71,8 @@ export const ReachHeroSection = ({
         </Typography>
 
         {/* Exclusive stat */}
-        <div className="mt-5 flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2 animate-fade-slide-up">
-          <div className="size-2 rounded-full bg-status-success animate-pulse" />
+        <div className="mt-5 flex animate-fade-slide-up items-center gap-2 rounded-10 bg-surface-float px-3 py-2">
+          <div className="size-2 animate-pulse rounded-full bg-status-success" />
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
