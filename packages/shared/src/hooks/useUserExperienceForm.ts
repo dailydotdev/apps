@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/router';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type {
   UserExperience,
   UserExperienceWork,
@@ -22,6 +22,8 @@ import { useToastNotification } from './useToastNotification';
 import { webappUrl } from '../lib/constants';
 import { useUserExperiencesByType } from '../features/profile/hooks/useUserExperiencesByType';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useLogContext } from '../contexts/LogContext';
+import { LogEvent } from '../lib/log';
 
 export const userExperienceInputBaseSchema = z
   .object({
@@ -79,6 +81,7 @@ const useUserExperienceForm = ({
 }) => {
   const qc = useQueryClient();
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const { queryKey: experienceQueryKey } = useUserExperiencesByType(
     defaultValues.type,
     user?.id,
@@ -92,12 +95,31 @@ const useUserExperienceForm = ({
     resolver: zodResolver(userExperienceInputBaseSchema),
   });
   const { id, type } = methods.getValues();
+  const isNewExperience = !id;
+
+  useEffect(() => {
+    if (isNewExperience) {
+      logEvent({
+        event_name: LogEvent.StartAddExperience,
+        target_type: type,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const { mutate, isPending } = useMutation({
     mutationFn: (data: UserExperience | UserExperienceWork) =>
       type === UserExperienceType.Work
         ? upsertUserWorkExperience(data as UserExperienceWork, id)
         : upsertUserGeneralExperience(data, id),
-    onSuccess: (_, vars) => {
+    onSuccess: (result, vars) => {
+      if (isNewExperience) {
+        logEvent({
+          event_name: LogEvent.AddExperience,
+          target_type: type,
+          target_id: result?.id,
+        });
+      }
       methods.reset(vars);
       dirtyFormRef.current?.allowNavigation();
       qc.invalidateQueries({ queryKey: experienceQueryKey });
