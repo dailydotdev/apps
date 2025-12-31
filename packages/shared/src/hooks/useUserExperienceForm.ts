@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/router';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import type {
   UserExperience,
   UserExperienceWork,
@@ -24,6 +24,7 @@ import { useUserExperiencesByType } from '../features/profile/hooks/useUserExper
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
+import useLogEventOnce from './log/useLogEventOnce';
 
 export const userExperienceInputBaseSchema = z
   .object({
@@ -97,15 +98,13 @@ const useUserExperienceForm = ({
   const { id, type } = methods.getValues();
   const isNewExperience = !id;
 
-  useEffect(() => {
-    if (isNewExperience) {
-      logEvent({
-        event_name: LogEvent.StartAddExperience,
-        target_type: type,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.StartAddExperience,
+      target_type: type,
+    }),
+    { condition: isNewExperience },
+  );
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: UserExperience | UserExperienceWork) =>
