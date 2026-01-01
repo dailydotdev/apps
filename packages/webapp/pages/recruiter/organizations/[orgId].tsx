@@ -20,7 +20,7 @@ import {
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
-import type { recruiterOrganizationEditSchema } from '@dailydotdev/shared/src/graphql/schema';
+import type { recruiterOrganizationEditSchema } from '@dailydotdev/shared/src/features/organizations/schema';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const EditOrganizationPage = (): ReactElement => {
