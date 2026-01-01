@@ -11,7 +11,7 @@ import { GenericLoaderSpinner } from '../utilities/loaders';
 import { IconSize } from '../Icon';
 
 const LOADING_STEPS = [
-  'Analyzing your job description',
+  'Analyzing your job description (this may take a minute)',
   'Mapping skills, requirements, and intent',
   'Scanning the daily.dev network',
   'Ranking engineers most likely to engage',

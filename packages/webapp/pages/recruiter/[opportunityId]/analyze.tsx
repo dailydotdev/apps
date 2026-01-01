@@ -20,24 +20,31 @@ import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
-const useNewOpportunityParser = () => {
+interface UseNewOpportunityParserResult {
+  isParsing: boolean;
+}
+
+const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const { pendingSubmission, clearPendingSubmission } = usePendingSubmission();
   const hasStartedParsing = useRef(false);
+  const [parsingComplete, setParsingComplete] = useState(false);
 
   const opportunityId = router.query.opportunityId as string;
   const isNewSubmission = opportunityId === 'new';
 
-  const { mutate: parseOpportunity } = useMutation({
+  const { mutate: parseOpportunity, isPending } = useMutation({
     ...parseOpportunityMutationOptions(),
     onSuccess: (opportunity) => {
+      setParsingComplete(true);
       clearPendingSubmission();
       router.replace(`/recruiter/${opportunity.id}/analyze`, undefined, {
         shallow: true,
       });
     },
     onError: (error: ApiErrorResult) => {
+      setParsingComplete(true);
       clearPendingSubmission();
       const message =
         error?.response?.errors?.[0]?.message || labels.error.generic;
@@ -64,12 +71,26 @@ const useNewOpportunityParser = () => {
       parseOpportunity({ file: pendingSubmission.file });
     }
   }, [isNewSubmission, pendingSubmission, parseOpportunity, router]);
+
+  // Consider parsing in progress if:
+  // 1. The mutation is currently pending, OR
+  // 2. We're on a new submission and parsing hasn't completed yet
+  const isParsingInProgress =
+    isPending || (isNewSubmission && !parsingComplete);
+
+  return { isParsing: isParsingInProgress };
 };
 
-const useLoadingAnimation = () => {
+const useLoadingAnimation = (isParsing: boolean) => {
   const [loadingStep, setLoadingStep] = useState(0);
 
   useEffect(() => {
+    // Don't start the timer until parsing is complete
+    if (isParsing) {
+      return () => {};
+    }
+
+    // Start from step 1 since step 0 was shown during parsing
     const timers = [
       setTimeout(() => setLoadingStep(1), 800),
       setTimeout(() => setLoadingStep(2), 1600),
@@ -78,7 +99,7 @@ const useLoadingAnimation = () => {
     ];
 
     return () => timers.forEach(clearTimeout);
-  }, []);
+  }, [isParsing]);
 
   return loadingStep;
 };
@@ -86,9 +107,8 @@ const useLoadingAnimation = () => {
 const RecruiterPageContent = () => {
   const router = useRouter();
   const { opportunity } = useOpportunityPreviewContext();
-  const loadingStep = useLoadingAnimation();
-
-  useNewOpportunityParser();
+  const { isParsing } = useNewOpportunityParser();
+  const loadingStep = useLoadingAnimation(isParsing);
 
   const handlePrepareCampaignClick = useCallback(() => {
     if (!opportunity) {
