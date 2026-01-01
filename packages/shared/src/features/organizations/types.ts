@@ -26,6 +26,14 @@ export enum SocialMediaType {
   GitHub = 'github',
   Crunchbase = 'crunchbase',
   LinkedIn = 'linkedin',
+  Wellfound = 'wellfound',
+  Glassdoor = 'glassdoor',
+  Instagram = 'instagram',
+  YouTube = 'youtube',
+  GitLab = 'gitlab',
+  Medium = 'medium',
+  DevTo = 'devto',
+  StackOverflow = 'stackoverflow',
 }
 
 export type OrganizationMember = {
@@ -42,6 +50,7 @@ type OrganizationLinkBase = {
 export type OrganizationLink = OrganizationLinkBase & {
   type: OrganizationLinkType.Custom | OrganizationLinkType.Press;
   title?: string;
+  socialType?: null;
 };
 
 export type OrganizationSocialLink = OrganizationLinkBase & {

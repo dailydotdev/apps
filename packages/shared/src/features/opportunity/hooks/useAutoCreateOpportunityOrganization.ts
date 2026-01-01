@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { opportunityByIdOptions } from '../queries';
-import { editOpportunityOrganizationMutationOptions } from '../mutations';
+import { createOrganizationForOpportunityMutationOptions } from '../mutations';
+import { RequestKey } from '../../../lib/query';
 import type { Opportunity } from '../types';
 
 /**
@@ -14,16 +14,22 @@ export const useAutoCreateOpportunityOrganization = (
   opportunity: Opportunity | undefined | null,
 ): void => {
   const { displayToast } = useToastNotification();
+  const queryClient = useQueryClient();
   const creatingOrgRef = useRef(false);
 
-  const [, updateOpportunity] = useUpdateQuery(
-    opportunityByIdOptions({ id: opportunity?.id ?? '' }),
-  );
-
   const { mutate: createDefaultOrg } = useMutation({
-    ...editOpportunityOrganizationMutationOptions(),
-    onSuccess: (result) => {
-      updateOpportunity(result);
+    ...createOrganizationForOpportunityMutationOptions(),
+    onSuccess: () => {
+      // The API already assigns the organization to the opportunity,
+      // so we just need to refetch the opportunity data
+      queryClient.invalidateQueries({
+        queryKey: opportunityByIdOptions({ id: opportunity?.id ?? '' })
+          .queryKey,
+      });
+      // Invalidate opportunities query to update sidebar
+      queryClient.invalidateQueries({
+        queryKey: [RequestKey.Opportunities],
+      });
       creatingOrgRef.current = false;
     },
     onError: () => {
@@ -41,8 +47,7 @@ export const useAutoCreateOpportunityOrganization = (
     if (!opportunity.organization && !creatingOrgRef.current) {
       creatingOrgRef.current = true;
       createDefaultOrg({
-        id: opportunity.id,
-        payload: { organization: {} },
+        opportunityId: opportunity.id,
       });
     }
   }, [opportunity, createDefaultOrg]);

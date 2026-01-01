@@ -1,27 +1,16 @@
-import React, { useCallback, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useCallback } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type z from 'zod';
 import type { ModalProps } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
-import { TextField } from '../../fields/TextField';
-import Autocomplete from '../../fields/Autocomplete';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
 import { Loader } from '../../Loader';
-import { Typography, TypographyType } from '../../typography/Typography';
-import { Dropdown } from '../../fields/Dropdown';
-import Textarea from '../../fields/Textarea';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { labels } from '../../../lib';
+import type { recruiterOrganizationEditSchema } from '../../../features/organizations/schema';
 import {
-  opportunityCreateOrganizationSchema,
-  opportunityEditOrganizationSchema,
-  SocialMediaType,
-} from '../../../lib/schema/opportunity';
-import {
-  clearOrganizationImageMutationOptions,
-  editOpportunityOrganizationMutationOptions,
+  clearRecruiterOrganizationImageMutationOptions,
+  updateRecruiterOrganizationMutationOptions,
 } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
@@ -30,499 +19,122 @@ import { applyZodErrorsToForm } from '../../../lib/form';
 import { opportunityEditDiscardPrompt } from './common';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
-import useDebounceFn from '../../../hooks/useDebounceFn';
-import { locationToString } from '../../../lib/utils';
-import { getAutocompleteLocations } from '../../../graphql/autocomplete';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
-
-import { TagElement } from '../../feeds/FeedSettings/TagElement';
-import { FeedbackIcon, PlusIcon, MiniCloseIcon } from '../../icons';
-import { IconSize } from '../../Icon';
-import ImageInput from '../../fields/ImageInput';
-import type {
-  OrganizationLink as OrgLink,
-  OrganizationSocialLink,
-} from '../../../features/organizations/types';
-import { OrganizationLinkType } from '../../../features/organizations/types';
-import { fallbackImages } from '../../../lib/config';
 import { ModalSize } from '../../modals/common/types';
+import { locationToString } from '../../../lib/utils';
+import { RequestKey } from '../../../lib/query';
+import { useOrganizationEditForm } from '../../../features/organizations/hooks/useOrganizationEditForm';
+import { useLocationAutocomplete } from '../../../features/organizations/hooks/useLocationAutocomplete';
+import { OrganizationEditFields } from '../../../features/organizations/components/OrganizationEditFields';
 
 export type OpportunityEditOrganizationModalProps = {
   id: string;
-};
-
-type LinkItem = (OrgLink | OrganizationSocialLink) & {
-  title?: string;
-};
-
-type LinksInputProps = {
-  links: LinkItem[];
-  onAdd: (link: LinkItem) => void;
-  onRemove: (index: number) => void;
-  error?: string;
-};
-
-const LinksInput = ({ links, onAdd, onRemove, error }: LinksInputProps) => {
-  const [linkType, setLinkType] = useState<OrganizationLinkType>(
-    OrganizationLinkType.Social,
-  );
-  const [socialType, setSocialType] = useState<SocialMediaType | ''>('');
-  const [title, setTitle] = useState('');
-  const [url, setUrl] = useState('');
-
-  const linkTypeOptions = ['Social', 'Custom', 'Press'];
-
-  // Extract enum keys as display labels
-  const socialTypeDisplayLabels = Object.keys(
-    SocialMediaType,
-  ) as (keyof typeof SocialMediaType)[];
-
-  // Auto-detect social media type from URL
-  const detectSocialType = useCallback(
-    (
-      urlValue: string,
-    ): {
-      socialType: SocialMediaType;
-      linkType: OrganizationLinkType;
-    } | null => {
-      const lowerUrl = urlValue.toLowerCase();
-
-      if (lowerUrl.includes('github.com')) {
-        return {
-          socialType: SocialMediaType.GitHub,
-          linkType: OrganizationLinkType.Social,
-        };
-      }
-      if (lowerUrl.includes('linkedin.com')) {
-        return {
-          socialType: SocialMediaType.LinkedIn,
-          linkType: OrganizationLinkType.Social,
-        };
-      }
-      if (lowerUrl.includes('facebook.com')) {
-        return {
-          socialType: SocialMediaType.Facebook,
-          linkType: OrganizationLinkType.Social,
-        };
-      }
-      if (lowerUrl.includes('twitter.com') || lowerUrl.includes('x.com')) {
-        return {
-          socialType: SocialMediaType.X,
-          linkType: OrganizationLinkType.Social,
-        };
-      }
-      if (lowerUrl.includes('crunchbase.com')) {
-        return {
-          socialType: SocialMediaType.Crunchbase,
-          linkType: OrganizationLinkType.Social,
-        };
-      }
-
-      return null;
-    },
-    [],
-  );
-
-  const urlInputRef = useCallback((node: HTMLDivElement | null) => {
-    if (node) {
-      const updateWidth = () => {
-        const width = node.offsetWidth;
-        document.documentElement.style.setProperty(
-          '--social-dropdown-width',
-          `${width}px`,
-        );
-      };
-
-      // Initial measurement
-      updateWidth();
-
-      // Update on resize
-      const resizeObserver = new ResizeObserver(updateWidth);
-      resizeObserver.observe(node);
-
-      // Cleanup
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }
-    return undefined;
-  }, []);
-
-  const handleUrlChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newUrl = e.target.value;
-      setUrl(newUrl);
-
-      // Auto-detect social media type from URL
-      const detected = detectSocialType(newUrl);
-      if (detected) {
-        setLinkType(detected.linkType);
-        setSocialType(detected.socialType);
-      }
-    },
-    [detectSocialType],
-  );
-
-  const handleAdd = () => {
-    if (!url.trim()) {
-      return;
-    }
-
-    let newLink: LinkItem;
-
-    if (linkType === OrganizationLinkType.Social) {
-      if (!socialType) {
-        return;
-      }
-      newLink = {
-        type: OrganizationLinkType.Social,
-        link: url.trim(),
-        socialType,
-        title: title.trim() || undefined,
-      };
-    } else {
-      if (!title.trim()) {
-        return;
-      }
-      newLink = {
-        type: linkType,
-        link: url.trim(),
-        title: title.trim(),
-      };
-    }
-
-    onAdd(newLink);
-    setTitle('');
-    setUrl('');
-    setSocialType('');
-  };
-
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3">
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <Typography
-              type={TypographyType.Caption1}
-              className="mb-1 block text-text-tertiary"
-            >
-              Type
-            </Typography>
-            <Dropdown
-              className={{
-                container: 'flex-1',
-                menu: 'w-[--radix-dropdown-menu-trigger-width]',
-              }}
-              selectedIndex={linkTypeOptions.indexOf(
-                linkType.charAt(0).toUpperCase() + linkType.slice(1),
-              )}
-              options={linkTypeOptions}
-              onChange={(value) => {
-                const lowerValue = value.toLowerCase();
-                if (lowerValue === 'custom') {
-                  setLinkType(OrganizationLinkType.Custom);
-                } else if (lowerValue === 'press') {
-                  setLinkType(OrganizationLinkType.Press);
-                } else {
-                  setLinkType(OrganizationLinkType.Social);
-                }
-              }}
-            />
-          </div>
-          {linkType === OrganizationLinkType.Social && (
-            <div className="flex-1">
-              <Typography
-                type={TypographyType.Caption1}
-                className="mb-1 block text-text-tertiary"
-              >
-                Social Platform
-              </Typography>
-              <Dropdown
-                className={{
-                  container: 'flex-1',
-                  menu: 'w-[--radix-dropdown-menu-trigger-width]',
-                }}
-                selectedIndex={
-                  socialType
-                    ? socialTypeDisplayLabels.findIndex(
-                        (label) =>
-                          SocialMediaType[
-                            label as keyof typeof SocialMediaType
-                          ] === socialType,
-                      )
-                    : undefined
-                }
-                options={socialTypeDisplayLabels}
-                onChange={(displayLabel: string) => {
-                  setSocialType(
-                    SocialMediaType[
-                      displayLabel as keyof typeof SocialMediaType
-                    ],
-                  );
-                }}
-              />
-            </div>
-          )}
-        </div>
-        <TextField
-          type="text"
-          inputId="linkTitle"
-          label={
-            linkType === OrganizationLinkType.Social
-              ? 'Title (optional)'
-              : 'Title'
-          }
-          placeholder={
-            linkType === OrganizationLinkType.Social
-              ? 'Leave empty to use platform name'
-              : 'e.g., Blog, Press Release'
-          }
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          fieldType="secondary"
-        />
-        <div className="flex gap-2">
-          <div ref={urlInputRef} className="flex-1">
-            <TextField
-              type="url"
-              inputId="linkUrl"
-              label="URL"
-              placeholder="https://..."
-              value={url}
-              onChange={handleUrlChange}
-              fieldType="secondary"
-            />
-          </div>
-          <div className="flex items-end">
-            <Button
-              type="button"
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              icon={<PlusIcon />}
-              onClick={handleAdd}
-            >
-              Add
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {links.length > 0 && (
-        <div className="flex flex-col gap-2">
-          {links.map((link) => (
-            <div
-              key={`${link.type}-${link.link}`}
-              className="flex items-center justify-between rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-3"
-            >
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <Typography type={TypographyType.Callout} bold>
-                    {link.title ||
-                      ('socialType' in link
-                        ? link.socialType.charAt(0).toUpperCase() +
-                          link.socialType.slice(1)
-                        : 'Link')}
-                  </Typography>
-                  <span className="rounded-6 bg-surface-float px-2 py-0.5 text-text-tertiary typo-caption2">
-                    {link.type}
-                    {'socialType' in link && ` • ${link.socialType}`}
-                  </span>
-                </div>
-                <Typography
-                  type={TypographyType.Footnote}
-                  className="text-text-tertiary"
-                >
-                  {link.link}
-                </Typography>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  const linkIndex = links.findIndex(
-                    (l) => l.link === link.link && l.type === link.type,
-                  );
-                  onRemove(linkIndex);
-                }}
-                className="hover:text-text-primary"
-              >
-                <MiniCloseIcon size={IconSize.Medium} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {error && (
-        <Typography
-          type={TypographyType.Footnote}
-          className="text-status-error"
-        >
-          {error}
-        </Typography>
-      )}
-    </div>
-  );
-};
-
-type PerkInputProps = {
-  perks: string[];
-  onAdd: (perks: string | string[]) => void;
-  onRemove: (perk: string) => void;
-};
-
-const PerkInput = ({ perks, onAdd, onRemove }: PerkInputProps) => {
-  const [inputValue, setInputValue] = useState('');
-
-  return (
-    <div className="flex flex-col gap-4">
-      <TextField
-        type="text"
-        inputId="perkInput"
-        label="Add perks"
-        placeholder="e.g., Remote work, Health insurance"
-        hint="Add commas (,) to add multiple perks. Press Enter to submit them."
-        hintIcon={<FeedbackIcon />}
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-
-            const newPerks = inputValue
-              .split(',')
-              .map((p) => p.trim())
-              .filter(Boolean)
-              .filter((p) => !perks.includes(p)); // exclude already-added perks
-
-            if (newPerks.length === 0) {
-              if (inputValue) {
-                setInputValue('');
-              }
-              return;
-            }
-
-            // Pass all new perks at once
-            onAdd(newPerks);
-            setInputValue('');
-          }
-        }}
-        fieldType="secondary"
-      />
-
-      {perks.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {perks.map((perk) => (
-            <TagElement
-              key={perk}
-              tag={{ name: perk }}
-              isSelected
-              onClick={() => onRemove(perk)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
 };
 
 export const OpportunityEditOrganizationModal = ({
   id,
   ...rest
 }: OpportunityEditOrganizationModalProps & ModalProps) => {
-  const [organizationImageFile, setOrganizationImageFile] =
-    useState<File | null>(null);
-  const [shouldClearImage, setShouldClearImage] = useState(false);
-  const [locationQuery, setLocationQuery] = useState('');
+  const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
+
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id }),
     experimental_prefetchInRender: true,
   });
 
-  const { data: locationOptions, isLoading: isLoadingLocations } = useQuery({
-    queryKey: generateQueryKey(
-      RequestKey.Autocomplete,
-      null,
-      'organization-location',
-      locationQuery,
-    ),
-    queryFn: () => getAutocompleteLocations(locationQuery),
-    enabled: !!locationQuery && locationQuery.length > 0,
-  });
+  const [get, updateOpportunity] = useUpdateQuery(
+    opportunityByIdOptions({ id }),
+  );
 
-  const [, updateOpportunity] = useUpdateQuery(opportunityByIdOptions({ id }));
-
-  const { mutateAsync } = useMutation({
-    ...editOpportunityOrganizationMutationOptions(),
-    onSuccess: (result) => {
-      updateOpportunity(result);
-
-      rest.onRequestClose?.(null);
-    },
-  });
-
-  const { mutateAsync: clearImageMutation } = useMutation({
-    ...clearOrganizationImageMutationOptions(),
-  });
-
-  const [debouncedLocationSearch] = useDebounceFn<string>((query) => {
-    setLocationQuery(query);
-  }, 300);
-
-  // if there was no organization we use create schema to require name
-  const editSchema =
-    opportunity && !opportunity.organization
-      ? opportunityCreateOrganizationSchema
-      : opportunityEditOrganizationSchema;
-
+  // Use the shared form hook with async default values
   const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors, isSubmitting, isDirty },
-    setError,
-    setValue,
-    watch,
-  } = useForm({
-    resolver: zodResolver(editSchema),
-    defaultValues: async () => {
-      const opportunityData = await promise;
-
-      // Merge all link types into a single array
+    form,
+    imageFile,
+    shouldClearImage,
+    handleImageChange,
+    perks,
+    handleAddPerks,
+    handleRemovePerk,
+    links,
+    handleAddLink,
+    handleRemoveLink,
+    handleUpdateLink,
+  } = useOrganizationEditForm({
+    defaultValuesPromise: promise.then((opportunityData) => {
       const customLinks = opportunityData.organization?.customLinks || [];
       const socialLinks = opportunityData.organization?.socialLinks || [];
       const pressLinks = opportunityData.organization?.pressLinks || [];
       const allLinks = [...customLinks, ...socialLinks, ...pressLinks];
 
       return {
-        organization: {
-          name: opportunityData.organization?.name || '',
-          website: opportunityData.organization?.website || '',
-          description: opportunityData.organization?.description || '',
-          perks: opportunityData.organization?.perks || [],
-          founded: opportunityData.organization?.founded || undefined,
-          externalLocationId:
-            opportunityData.organization?.externalLocationId || undefined,
-          category: opportunityData.organization?.category || '',
-          size: opportunityData.organization?.size || undefined,
-          stage: opportunityData.organization?.stage || undefined,
-          links: allLinks,
-        },
+        name: opportunityData.organization?.name || '',
+        website: opportunityData.organization?.website || '',
+        description: opportunityData.organization?.description || '',
+        perks: opportunityData.organization?.perks || [],
+        founded: opportunityData.organization?.founded || undefined,
+        externalLocationId:
+          opportunityData.organization?.externalLocationId || undefined,
+        category: opportunityData.organization?.category || '',
+        size: opportunityData.organization?.size || undefined,
+        stage: opportunityData.organization?.stage || undefined,
+        links: allLinks,
       };
+    }),
+  });
+
+  const {
+    locationOptions,
+    isLoadingLocations,
+    handleLocationSearch,
+    findLocationById,
+  } = useLocationAutocomplete();
+
+  const { handleSubmit, formState, setError, setValue } = form;
+  const { isSubmitting, isDirty } = formState;
+
+  const { mutateAsync: updateOrgMutation } = useMutation({
+    ...updateRecruiterOrganizationMutationOptions(),
+    onSuccess: (result) => {
+      const currentOpportunity = get();
+      updateOpportunity({
+        ...currentOpportunity,
+        organization: {
+          ...currentOpportunity.organization,
+          ...result,
+        },
+      });
+
+      // Invalidate opportunities query to update sidebar
+      queryClient.invalidateQueries({
+        queryKey: [RequestKey.Opportunities],
+      });
+
+      rest.onRequestClose?.(null);
     },
   });
 
+  const { mutateAsync: clearImageMutation } = useMutation({
+    ...clearRecruiterOrganizationImageMutationOptions(),
+  });
+
   const onSubmit = handleSubmit(async (data) => {
+    const organizationId = opportunity?.organization?.id;
+
+    if (!organizationId) {
+      displayToast('Organization not found. Please refresh the page.');
+      return;
+    }
+
     try {
       // Clear image first if requested
       if (shouldClearImage) {
-        await clearImageMutation({ id });
+        await clearImageMutation({ id: organizationId });
       }
 
-      await mutateAsync({
-        id,
-        payload: data as z.infer<typeof editSchema>,
-        organizationImage: organizationImageFile || undefined,
+      await updateOrgMutation({
+        id: organizationId,
+        payload: data as z.infer<typeof recruiterOrganizationEditSchema>,
+        organizationImage: imageFile || undefined,
       });
     } catch (originalError) {
       if (
@@ -562,7 +174,6 @@ export const OpportunityEditOrganizationModal = ({
 
       if (shouldSave) {
         await onSubmit();
-
         return;
       }
     }
@@ -570,35 +181,16 @@ export const OpportunityEditOrganizationModal = ({
     rest.onRequestClose?.(event);
   };
 
+  const handleLocationSelect = (value: string) => {
+    const selectedLocation = findLocationById(value);
+    setValue('externalLocationId', selectedLocation?.id, {
+      shouldDirty: true,
+    });
+  };
+
   if (!opportunity) {
     return <Loader />;
   }
-
-  const perks = watch('organization.perks') || [];
-  const links = watch('organization.links') || [];
-
-  const companySizeOptions = [
-    '1-10',
-    '11-50',
-    '51-200',
-    '201-500',
-    '501-1,000',
-    '1,001-5,000',
-    '5,000+',
-  ];
-
-  const companyStageOptions = [
-    'Pre-seed',
-    'Seed',
-    'Series A',
-    'Series B',
-    'Series C',
-    'Series D',
-    'Public',
-    'Bootstrapped',
-    'Non-profit',
-    'Government',
-  ];
 
   return (
     <Modal
@@ -630,223 +222,28 @@ export const OpportunityEditOrganizationModal = ({
         </div>
       </Modal.Header>
       <Modal.Body className="gap-6 p-4">
-        <div className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Caption1}>
-            Company image
-          </Typography>
-          <ImageInput
-            initialValue={
-              shouldClearImage ? null : opportunity?.organization?.image
-            }
-            fallbackImage={fallbackImages.company}
-            id="organizationImage"
-            size="large"
-            onChange={(_base64, file) => {
-              if (file === null) {
-                // User clicked the close button
-                setShouldClearImage(true);
-                setOrganizationImageFile(null);
-              } else {
-                // User uploaded a new image
-                setShouldClearImage(false);
-                setOrganizationImageFile(file);
-              }
-              setValue('organization', watch('organization'), {
-                shouldDirty: true,
-              });
-            }}
-            closeable
-            fileSizeLimitMB={5}
-          />
-        </div>
-        {editSchema === opportunityCreateOrganizationSchema && (
-          <TextField
-            {...register('organization.name')}
-            type="text"
-            inputId="organizationName"
-            label="Company name"
-            fieldType="secondary"
-            valid={!errors.organization?.name}
-            hint={errors.organization?.name?.message}
-          />
-        )}
-        <TextField
-          {...register('organization.website')}
-          type="url"
-          inputId="organizationWebsite"
-          label="Company website"
-          fieldType="secondary"
-          valid={!errors.organization?.website}
-          hint={errors.organization?.website?.message}
+        <OrganizationEditFields
+          form={form}
+          organization={opportunity.organization}
+          shouldClearImage={shouldClearImage}
+          onImageChange={handleImageChange}
+          locationOptions={
+            locationOptions?.map((loc) => ({
+              label: locationToString(loc),
+              value: loc.id,
+            })) || []
+          }
+          isLoadingLocations={isLoadingLocations}
+          onLocationSearch={handleLocationSearch}
+          onLocationSelect={handleLocationSelect}
+          perks={perks}
+          onAddPerks={handleAddPerks}
+          onRemovePerk={handleRemovePerk}
+          links={links}
+          onAddLink={handleAddLink}
+          onRemoveLink={handleRemoveLink}
+          onUpdateLink={handleUpdateLink}
         />
-        <Textarea
-          {...register('organization.description')}
-          inputId="organizationDescription"
-          label="Company description"
-          fieldType="secondary"
-          maxLength={2000}
-          valid={!errors.organization?.description}
-          hint={errors.organization?.description?.message}
-        />
-        <div className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Caption1}>
-            Company links
-          </Typography>
-          <LinksInput
-            links={links}
-            onAdd={(link) => {
-              setValue('organization.links', [...links, link], {
-                shouldDirty: true,
-              });
-            }}
-            onRemove={(index) => {
-              setValue(
-                'organization.links',
-                links.filter((_link: LinkItem, i: number) => i !== index),
-                { shouldDirty: true },
-              );
-            }}
-            error={errors.organization?.links?.message}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Caption1}>
-            Company perks
-          </Typography>
-          <PerkInput
-            perks={perks}
-            onAdd={(perk) => {
-              const newPerks = Array.isArray(perk) ? perk : [perk];
-              setValue('organization.perks', [...perks, ...newPerks], {
-                shouldDirty: true,
-              });
-            }}
-            onRemove={(perk) => {
-              setValue(
-                'organization.perks',
-                perks.filter((p: string) => p !== perk),
-                { shouldDirty: true },
-              );
-            }}
-          />
-        </div>
-        <Controller
-          name="organization.externalLocationId"
-          control={control}
-          render={({ field }) => (
-            <Autocomplete
-              name="organizationLocation"
-              label="Company location"
-              placeholder="Search for a city or country"
-              defaultValue={locationToString(
-                opportunity?.organization?.location,
-              )}
-              options={
-                locationOptions?.map((loc) => ({
-                  label: locationToString(loc),
-                  value: loc.id,
-                })) || []
-              }
-              selectedValue={field.value}
-              onChange={(value) => {
-                debouncedLocationSearch(value);
-              }}
-              onSelect={(value) => {
-                const selectedLocation = locationOptions?.find(
-                  (loc) => loc.id === value,
-                );
-                field.onChange(value);
-                setValue(
-                  'organization.externalLocationId',
-                  selectedLocation?.id,
-                  {
-                    shouldDirty: true,
-                  },
-                );
-              }}
-              isLoading={isLoadingLocations}
-              resetOnBlur
-              fieldType="secondary"
-            />
-          )}
-        />
-        <TextField
-          {...register('organization.category')}
-          type="text"
-          inputId="organizationCategory"
-          label="Company category"
-          fieldType="secondary"
-          valid={!errors.organization?.category}
-          hint={errors.organization?.category?.message}
-        />
-        <TextField
-          {...register('organization.founded', {
-            valueAsNumber: true,
-          })}
-          className={{
-            container: 'max-w-32',
-          }}
-          type="number"
-          inputId="organizationFounded"
-          label="Founded year"
-          fieldType="secondary"
-          valid={!errors.organization?.founded}
-          hint={errors.organization?.founded?.message}
-        />
-        <div className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Caption1}>
-            Company size
-          </Typography>
-          <Controller
-            name="organization.size"
-            control={control}
-            render={({ field }) => {
-              return (
-                <Dropdown
-                  className={{
-                    container: 'flex-1',
-                    menu: 'w-[--radix-dropdown-menu-trigger-width]',
-                  }}
-                  selectedIndex={field.value ? field.value - 1 : undefined}
-                  options={companySizeOptions}
-                  onChange={(value) => {
-                    const valueIndex = companySizeOptions.indexOf(value);
-                    field.onChange(valueIndex + 1);
-                  }}
-                  valid={!errors.organization?.size}
-                  hint={errors.organization?.size?.message as string}
-                />
-              );
-            }}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Typography bold type={TypographyType.Caption1}>
-            Company stage
-          </Typography>
-          <Controller
-            name="organization.stage"
-            control={control}
-            render={({ field }) => {
-              return (
-                <Dropdown
-                  className={{
-                    container: 'flex-1',
-                    menu: 'w-[--radix-dropdown-menu-trigger-width]',
-                  }}
-                  selectedIndex={field.value ? field.value - 1 : undefined}
-                  options={companyStageOptions}
-                  onChange={(value) => {
-                    const valueIndex = companyStageOptions.indexOf(value);
-                    field.onChange(valueIndex + 1);
-                  }}
-                  valid={!errors.organization?.stage}
-                  hint={errors.organization?.stage?.message as string}
-                />
-              );
-            }}
-          />
-        </div>
       </Modal.Body>
     </Modal>
   );

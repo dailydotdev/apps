@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import type z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,6 +21,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { KeywordSelection } from '../../../features/opportunity/components/KeywordSelection';
 import { labels } from '../../../lib';
 import { opportunityEditInfoSchema } from '../../../lib/schema/opportunity';
+import { RequestKey } from '../../../lib/query';
 import { editOpportunityInfoMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
@@ -41,6 +42,7 @@ export const OpportunityEditInfoModal = ({
   id,
   ...rest
 }: OpportunityEditInfoModalProps & ModalProps) => {
+  const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id }),
@@ -53,6 +55,11 @@ export const OpportunityEditInfoModal = ({
     ...editOpportunityInfoMutationOptions(),
     onSuccess: (result) => {
       updateOpportunity(result);
+
+      // Invalidate opportunities query to update sidebar
+      queryClient.invalidateQueries({
+        queryKey: [RequestKey.Opportunities],
+      });
 
       rest.onRequestClose?.(null);
     },
