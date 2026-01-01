@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type z from 'zod';
@@ -89,8 +89,14 @@ export const useOrganizationEditForm = (
   const { setValue, watch } = form;
 
   // Watch perks and links for helpers
-  const perks = watch('perks') || [];
-  const links = (watch('links') || []) as LinkItem[];
+  const watchedPerks = watch('perks');
+  const watchedLinks = watch('links');
+
+  const perks = useMemo(() => watchedPerks || [], [watchedPerks]);
+  const links = useMemo(
+    () => (watchedLinks || []) as LinkItem[],
+    [watchedLinks],
+  );
 
   // Image handling
   const handleImageChange = useCallback(
