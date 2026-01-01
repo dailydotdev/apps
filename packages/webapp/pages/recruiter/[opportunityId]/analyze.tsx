@@ -17,6 +17,7 @@ import { AnalyzeContent } from '@dailydotdev/shared/src/features/opportunity/com
 import { AnalyzeStatusBar } from '@dailydotdev/shared/src/components/recruiter/AnalyzeStatusBar';
 import { parseOpportunityMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
@@ -46,8 +47,15 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
     onError: (error: ApiErrorResult) => {
       setParsingComplete(true);
       clearPendingSubmission();
-      const message =
-        error?.response?.errors?.[0]?.message || labels.error.generic;
+
+      const isZodError =
+        error?.response?.errors?.[0]?.extensions?.code ===
+        ApiError.ZodValidationError;
+
+      const message = isZodError
+        ? 'We could not extract the job details from your submission. Please try a different file or URL, or enter the details manually.'
+        : error?.response?.errors?.[0]?.message || labels.error.generic;
+
       displayToast(message);
       router.push(`/recruiter?openModal=joblink`);
     },
