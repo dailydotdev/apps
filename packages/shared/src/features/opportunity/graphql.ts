@@ -441,25 +441,67 @@ export const CLEAR_EMPLOYMENT_AGREEMENT_MUTATION = gql`
 `;
 
 export const EDIT_OPPORTUNITY_MUTATION = gql`
-  mutation EditOpportunity(
-    $id: ID!
-    $payload: OpportunityEditInput!
-    $organizationImage: Upload
-  ) {
-    editOpportunity(
-      id: $id
-      payload: $payload
-      organizationImage: $organizationImage
-    ) {
+  mutation EditOpportunity($id: ID!, $payload: OpportunityEditInput!) {
+    editOpportunity(id: $id, payload: $payload) {
       ...OpportunityFragment
     }
   }
   ${OPPORTUNITY_FRAGMENT}
 `;
 
-export const CLEAR_ORGANIZATION_IMAGE_MUTATION = gql`
-  mutation ClearOrganizationImage($id: ID!) {
-    clearOrganizationImage(id: $id) {
+export const CREATE_ORGANIZATION_FOR_OPPORTUNITY_MUTATION = gql`
+  mutation CreateOrganizationForOpportunity($opportunityId: ID!) {
+    createOrganizationForOpportunity(opportunityId: $opportunityId) {
+      id
+      name
+      image
+    }
+  }
+`;
+
+export const UPDATE_RECRUITER_ORGANIZATION_MUTATION = gql`
+  mutation UpdateRecruiterOrganization(
+    $id: ID!
+    $payload: RecruiterOrganizationEditInput!
+    $organizationImage: Upload
+  ) {
+    updateRecruiterOrganization(
+      id: $id
+      payload: $payload
+      organizationImage: $organizationImage
+    ) {
+      id
+      name
+      image
+      description
+      size
+      stage
+      website
+      perks
+      category
+      founded
+      location {
+        city
+        country
+        subdivision
+      }
+      customLinks {
+        ...Link
+      }
+      socialLinks {
+        ...Link
+      }
+      pressLinks {
+        ...Link
+      }
+    }
+  }
+  ${LINK_FRAGMENT}
+`;
+
+export const CLEAR_RECRUITER_ORGANIZATION_IMAGE_MUTATION = gql`
+  mutation ClearRecruiterOrganizationImage($id: ID!) {
+    clearRecruiterOrganizationImage(id: $id) {
       _
     }
   }
@@ -497,12 +539,36 @@ export const OPPORTUNITIES_QUERY = gql`
           title
           organization {
             ...OrganizationShortFragment
+
+            description
+            size
+            stage
+            website
+            perks
+            category
+            founded
+            location {
+              city
+              country
+              subdivision
+            }
+
+            customLinks {
+              ...Link
+            }
+            socialLinks {
+              ...Link
+            }
+            pressLinks {
+              ...Link
+            }
           }
         }
       }
     }
   }
   ${ORGANIZATION_SHORT_FRAGMENT}
+  ${LINK_FRAGMENT}
 `;
 
 export const RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION = gql`

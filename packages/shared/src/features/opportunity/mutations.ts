@@ -7,8 +7,9 @@ import {
   CANDIDATE_KEYWORD_ADD_MUTATION,
   CANDIDATE_KEYWORD_REMOVE_MUTATION,
   CLEAR_EMPLOYMENT_AGREEMENT_MUTATION,
-  CLEAR_ORGANIZATION_IMAGE_MUTATION,
+  CLEAR_RECRUITER_ORGANIZATION_IMAGE_MUTATION,
   CLEAR_RESUME_MUTATION,
+  CREATE_ORGANIZATION_FOR_OPPORTUNITY_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
   PARSE_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
@@ -19,6 +20,7 @@ import {
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
   UPDATE_OPPORTUNITY_STATE_MUTATION,
+  UPDATE_RECRUITER_ORGANIZATION_MUTATION,
   UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION,
 } from './graphql';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
@@ -29,14 +31,15 @@ import type {
   UserCandidatePreferences,
 } from './types';
 import { OpportunityMatchStatus } from './types';
+import type { Organization } from '../organizations/types';
 import type { UseUpdateQuery } from '../../hooks/useUpdateQuery';
 import type {
   addOpportunitySeatsSchema,
   opportunityEditContentSchema,
   opportunityEditInfoSchema,
-  opportunityEditOrganizationSchema,
   opportunityEditQuestionsSchema,
 } from '../../lib/schema/opportunity';
+import type { recruiterOrganizationEditSchema } from '../organizations/schema';
 import type { OpportunityState } from './protobuf/opportunity';
 import type { opportunityEditRecruiterSchema } from '../../components/opportunity/OpportunityEditModal/OpportunityEditRecruiterModal';
 
@@ -301,7 +304,21 @@ export const editOpportunityQuestionMutationOptions = () => {
   };
 };
 
-export const editOpportunityOrganizationMutationOptions = () => {
+export const createOrganizationForOpportunityMutationOptions = () => {
+  return {
+    mutationFn: async ({ opportunityId }: { opportunityId: string }) => {
+      const result = await gqlClient.request<{
+        createOrganizationForOpportunity: Organization;
+      }>(CREATE_ORGANIZATION_FOR_OPPORTUNITY_MUTATION, {
+        opportunityId,
+      });
+
+      return result.createOrganizationForOpportunity;
+    },
+  };
+};
+
+export const updateRecruiterOrganizationMutationOptions = () => {
   return {
     mutationFn: async ({
       id,
@@ -309,33 +326,32 @@ export const editOpportunityOrganizationMutationOptions = () => {
       organizationImage,
     }: {
       id: string;
-      payload: z.infer<typeof opportunityEditOrganizationSchema>;
+      payload: z.infer<typeof recruiterOrganizationEditSchema>;
       organizationImage?: File;
     }) => {
       const result = await gqlClient.request<{
-        editOpportunity: Opportunity;
-      }>(EDIT_OPPORTUNITY_MUTATION, {
+        updateRecruiterOrganization: Organization;
+      }>(UPDATE_RECRUITER_ORGANIZATION_MUTATION, {
         id,
         payload,
         organizationImage,
       });
 
-      return result.editOpportunity;
+      return result.updateRecruiterOrganization;
     },
   };
 };
 
-export const clearOrganizationImageMutationOptions = (): MutationOptions<
-  EmptyResponse,
-  DefaultError,
-  { id: string }
-> => {
-  return {
-    mutationFn: async ({ id }: { id: string }) => {
-      return gqlClient.request(CLEAR_ORGANIZATION_IMAGE_MUTATION, { id });
-    },
+export const clearRecruiterOrganizationImageMutationOptions =
+  (): MutationOptions<EmptyResponse, DefaultError, { id: string }> => {
+    return {
+      mutationFn: async ({ id }: { id: string }) => {
+        return gqlClient.request(CLEAR_RECRUITER_ORGANIZATION_IMAGE_MUTATION, {
+          id,
+        });
+      },
+    };
   };
-};
 
 export const editOpportunityRecruiterMutationOptions = () => {
   return {

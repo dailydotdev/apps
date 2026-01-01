@@ -138,7 +138,13 @@ function PreparePage(): ReactElement {
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.PrepareAndLaunch} />
       <div className="flex-1 bg-background-subtle pt-6">
-        <JobPage />
+        <JobPage
+          hideHeader
+          hideCompanyBadge
+          hideRecruiterBadge
+          hideCompanyPanel
+          hideRecruiterPanel
+        />
       </div>
     </div>
   );

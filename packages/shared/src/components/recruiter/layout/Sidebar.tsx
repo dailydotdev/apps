@@ -20,16 +20,17 @@ import { LogoutReason } from '../../../lib/user';
 
 const Header = () => (
   <div className="p-4">
-    <HeaderLogo isRecruiter href={`${webappUrl}recruiter/dashboard`} />
+    <HeaderLogo isRecruiter href="/recruiter/dashboard" />
   </div>
 );
 
 type CompanyBadgeProps = {
   name: string;
   image?: string | null;
+  editUrl?: string;
 };
 
-export const CompanyBadge = ({ name, image }: CompanyBadgeProps) => (
+export const CompanyBadge = ({ name, image, editUrl }: CompanyBadgeProps) => (
   <div className="flex items-center gap-2 px-3 py-2">
     <ProfilePicture
       user={{ image }}
@@ -41,6 +42,15 @@ export const CompanyBadge = ({ name, image }: CompanyBadgeProps) => (
         {name}
       </Typography>
     </div>
+    {editUrl && (
+      <Button
+        variant={ButtonVariant.Tertiary}
+        icon={<SettingsIcon />}
+        size={ButtonSize.XSmall}
+        href={editUrl}
+        tag="a"
+      />
+    )}
   </div>
 );
 
@@ -85,6 +95,7 @@ type StateGroup = {
 };
 
 type SidebarSectionProps = {
+  orgId: string;
   orgName: string;
   orgImage?: string | null;
   opportunitiesByState: StateGroup;
@@ -141,6 +152,7 @@ const StateSubsection = ({
 };
 
 const SidebarSection = ({
+  orgId,
   orgName,
   orgImage,
   opportunitiesByState,
@@ -156,7 +168,15 @@ const SidebarSection = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <CompanyBadge name={orgName} image={orgImage} />
+      <CompanyBadge
+        name={orgName}
+        image={orgImage}
+        editUrl={
+          orgId !== 'no-org'
+            ? `${webappUrl}recruiter/organizations/${orgId}`
+            : undefined
+        }
+      />
       {(['draft', 'active', 'paused'] as const).map((state) => (
         <StateSubsection
           key={state}
@@ -187,6 +207,7 @@ export const Sidebar = (): ReactElement => {
     const grouped = new Map<
       string,
       {
+        id: string;
         name: string;
         image?: string | null;
         opportunitiesByState: StateGroup;
@@ -194,11 +215,13 @@ export const Sidebar = (): ReactElement => {
     >();
 
     opportunities.forEach((opportunity) => {
+      const orgId = opportunity.organization?.id || 'no-org';
       const orgName = opportunity.organization?.name || 'No Organization';
       const orgImage = opportunity.organization?.image;
 
-      if (!grouped.has(orgName)) {
-        grouped.set(orgName, {
+      if (!grouped.has(orgId)) {
+        grouped.set(orgId, {
+          id: orgId,
           name: orgName,
           image: orgImage,
           opportunitiesByState: {
@@ -209,7 +232,7 @@ export const Sidebar = (): ReactElement => {
         });
       }
 
-      const orgGroup = grouped.get(orgName);
+      const orgGroup = grouped.get(orgId);
       if (orgGroup) {
         // Categorize by state
         const key = STATE_KEYS[opportunity.state];
@@ -240,7 +263,8 @@ export const Sidebar = (): ReactElement => {
           </div>
           {Array.from(opportunitiesByOrg.values()).map((org) => (
             <SidebarSection
-              key={org.name}
+              key={org.id}
+              orgId={org.id}
               orgName={org.name}
               orgImage={org.image}
               opportunitiesByState={org.opportunitiesByState}

@@ -29,13 +29,16 @@ import {
   CrunchbaseIcon,
   FacebookIcon,
   GitHubIcon,
+  GitLabIcon,
   InfoIcon,
   LinkedInIcon,
   MagicIcon,
   MoveToIcon,
   OpenLinkIcon,
   PlusIcon,
+  StackOverflowIcon,
   TwitterIcon,
+  YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Chip } from '@dailydotdev/shared/src/components/cards/common/PostTags';
@@ -145,6 +148,14 @@ const socialMediaIconMap: SocialMediaIconMap = {
   [SocialMediaType.GitHub]: <GitHubIcon />,
   [SocialMediaType.Crunchbase]: <CrunchbaseIcon />,
   [SocialMediaType.LinkedIn]: <LinkedInIcon />,
+  [SocialMediaType.Wellfound]: <OpenLinkIcon />,
+  [SocialMediaType.Glassdoor]: <OpenLinkIcon />,
+  [SocialMediaType.Instagram]: <OpenLinkIcon />,
+  [SocialMediaType.YouTube]: <YoutubeIcon />,
+  [SocialMediaType.GitLab]: <GitLabIcon />,
+  [SocialMediaType.Medium]: <OpenLinkIcon />,
+  [SocialMediaType.DevTo]: <OpenLinkIcon />,
+  [SocialMediaType.StackOverflow]: <StackOverflowIcon />,
 };
 
 const locationTypeMap = {
@@ -270,7 +281,21 @@ const metaMap = {
   },
 };
 
-const JobPage = (): ReactElement => {
+export type JobPageProps = {
+  hideHeader?: boolean;
+  hideCompanyBadge?: boolean;
+  hideRecruiterBadge?: boolean;
+  hideCompanyPanel?: boolean;
+  hideRecruiterPanel?: boolean;
+};
+
+const JobPage = ({
+  hideHeader,
+  hideCompanyBadge,
+  hideRecruiterBadge,
+  hideCompanyPanel,
+  hideRecruiterPanel,
+}: JobPageProps = {}): ReactElement => {
   const { canEdit, opportunityId } = useOpportunityEditContext();
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -360,29 +385,36 @@ const JobPage = (): ReactElement => {
           <OpportunityStepsInfo className="w-full [&>:first-child]:justify-center [&>:nth-child(2)]:flex-1" />
         </OpportunityFooter>
       )}
-      <div className="z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 pb-safe-offset-14 tablet:pb-0 laptop:flex-row">
-        <div className="h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary">
+      <div className="z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 pb-safe-offset-14 tablet:pb-0 laptop:flex-row laptop:justify-center">
+        <div
+          className={classNames(
+            'h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary',
+            hideCompanyPanel && hideRecruiterPanel && 'laptop:max-w-3xl',
+          )}
+        >
           {/* Header */}
-          <div className="flex min-h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary p-3">
-            {!canEdit && (
-              <Button
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-                onClick={back}
-                icon={<MoveToIcon className="rotate-180" />}
-              />
-            )}
+          {!hideHeader && (
+            <div className="flex min-h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary p-3">
+              {!canEdit && (
+                <Button
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                  onClick={back}
+                  icon={<MoveToIcon className="rotate-180" />}
+                />
+              )}
 
-            {!!match && (
-              <ResponseButtons
-                id={opportunity.id}
-                className={{
-                  container: 'hidden items-center gap-4 laptop:flex',
-                }}
-                size={ButtonSize.Medium}
-              />
-            )}
-          </div>
+              {!!match && (
+                <ResponseButtons
+                  id={opportunity.id}
+                  className={{
+                    container: 'hidden items-center gap-4 laptop:flex',
+                  }}
+                  size={ButtonSize.Medium}
+                />
+              )}
+            </div>
+          )}
 
           {/* Content */}
           <div className="relative flex flex-col gap-4 px-8 py-6">
@@ -400,7 +432,7 @@ const JobPage = (): ReactElement => {
                 });
               }}
             />
-            {!!opportunity.organization && (
+            {!hideCompanyBadge && !!opportunity.organization && (
               <div className="flex items-center">
                 <SourceAvatar
                   source={{
@@ -427,7 +459,7 @@ const JobPage = (): ReactElement => {
               </div>
             )}
             {/* Recruiter */}
-            {!!opportunity.recruiters?.[0] && (
+            {!hideRecruiterBadge && !!opportunity.recruiters?.[0] && (
               <div className="flex items-center gap-2">
                 <ProfilePicture
                   user={opportunity.recruiters[0]}
@@ -647,196 +679,133 @@ const JobPage = (): ReactElement => {
         </div>
 
         {/* Sidebar */}
-        <FlexCol className="h-full flex-1 flex-shrink-0 gap-4 laptop:max-w-80">
-          {!canEdit && (
-            <FlexCol
-              className={classNames(
-                'mx-4 flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary tablet:mx-0',
-              )}
-            >
-              <Link href={`${opportunityUrl}/how-it-works`} passHref>
-                <Button
-                  tag="a"
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.Medium}
-                  icon={<InfoIcon />}
-                  iconPosition={ButtonIconPosition.Left}
-                  className="w-full"
-                >
-                  How it works
-                </Button>
-              </Link>
-            </FlexCol>
-          )}
-
-          {/* Company Info */}
-          <FlexCol
-            className={classNames(
-              'flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary',
-              !hasLinks && 'pb-4',
-            )}
-          >
-            {/* Header */}
-            <div className="flex min-h-14 items-center justify-between px-4 py-3">
-              <Typography
-                bold
-                type={TypographyType.Body}
-                color={TypographyColor.Primary}
+        {(!hideCompanyPanel || !hideRecruiterPanel || !canEdit) && (
+          <FlexCol className="h-full flex-1 flex-shrink-0 gap-4 laptop:max-w-80">
+            {!canEdit && (
+              <FlexCol
+                className={classNames(
+                  'mx-4 flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary tablet:mx-0',
+                )}
               >
-                Company
-              </Typography>
-
-              <OpportunityEditButton
-                onClick={() => {
-                  openModal({
-                    type: LazyModal.OpportunityEdit,
-                    props: {
-                      type: 'organization',
-                      payload: {
-                        id: opportunity.id,
-                      },
-                    },
-                  });
-                }}
-              />
-
-              {!!opportunity.organization?.website && (
-                <Link href={opportunity.organization.website} passHref>
+                <Link href={`${opportunityUrl}/how-it-works`} passHref>
                   <Button
                     tag="a"
-                    target="_blank"
-                    rel={anchorDefaultRel}
-                    variant={ButtonVariant.Subtle}
-                    size={ButtonSize.Small}
-                    icon={<OpenLinkIcon />}
-                    iconPosition={ButtonIconPosition.Right}
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.Medium}
+                    icon={<InfoIcon />}
+                    iconPosition={ButtonIconPosition.Left}
+                    className="w-full"
                   >
-                    Website
+                    How it works
                   </Button>
                 </Link>
-              )}
-            </div>
-            {/* Company information */}
-            {!!opportunity.organization && (
-              <div className="flex px-4">
-                <SourceAvatar
-                  source={{
-                    image: opportunity.organization.image,
-                    handle: opportunity.organization.name,
-                  }}
-                  size={ProfileImageSize.Large}
-                />
+              </FlexCol>
+            )}
 
-                <div className="flex flex-shrink flex-col flex-wrap">
+            {/* Company Info */}
+            {!hideCompanyPanel && (
+              <FlexCol
+                className={classNames(
+                  'flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary',
+                  !hasLinks && 'pb-4',
+                )}
+              >
+                {/* Header */}
+                <div className="flex min-h-14 items-center justify-between px-4 py-3">
                   <Typography
+                    bold
                     type={TypographyType.Body}
                     color={TypographyColor.Primary}
                   >
-                    {opportunity.organization.name}
+                    Company
                   </Typography>
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {companyStageMap[opportunity.organization.stage]}
-                    {opportunity.organization?.category
-                      ? `• ${opportunity.organization.category}`
-                      : null}
-                  </Typography>
-                </div>
-              </div>
-            )}
 
-            {/* SoMe Links */}
-            {opportunity.organization?.socialLinks?.length > 0 && (
-              <div className="flex gap-2 px-4">
-                {opportunity.organization.socialLinks.map(
-                  ({ link, socialType }) => (
-                    <Link key={link} href={link} passHref>
+                  <OpportunityEditButton
+                    onClick={() => {
+                      openModal({
+                        type: LazyModal.OpportunityEdit,
+                        props: {
+                          type: 'organization',
+                          payload: {
+                            id: opportunity.id,
+                          },
+                        },
+                      });
+                    }}
+                  />
+
+                  {!!opportunity.organization?.website && (
+                    <Link href={opportunity.organization.website} passHref>
                       <Button
                         tag="a"
-                        variant={ButtonVariant.Subtle}
-                        size={ButtonSize.Small}
-                        icon={
-                          socialMediaIconMap[
-                            socialType.toLowerCase() as keyof typeof socialMediaIconMap
-                          ]
-                        }
                         target="_blank"
                         rel={anchorDefaultRel}
-                      />
+                        variant={ButtonVariant.Subtle}
+                        size={ButtonSize.Small}
+                        icon={<OpenLinkIcon />}
+                        iconPosition={ButtonIconPosition.Right}
+                      >
+                        Website
+                      </Button>
                     </Link>
-                  ),
+                  )}
+                </div>
+                {/* Company information */}
+                {!!opportunity.organization && (
+                  <div className="flex px-4">
+                    <SourceAvatar
+                      source={{
+                        image: opportunity.organization.image,
+                        handle: opportunity.organization.name,
+                      }}
+                      size={ProfileImageSize.Large}
+                    />
+
+                    <div className="flex flex-shrink flex-col flex-wrap">
+                      <Typography
+                        type={TypographyType.Body}
+                        color={TypographyColor.Primary}
+                      >
+                        {opportunity.organization.name}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                      >
+                        {companyStageMap[opportunity.organization.stage]}
+                        {opportunity.organization?.category
+                          ? `• ${opportunity.organization.category}`
+                          : null}
+                      </Typography>
+                    </div>
+                  </div>
                 )}
-              </div>
-            )}
 
-            {/* Meta */}
-            <SimpleTooltip
-              content={
-                canEdit ? labels.opportunity.companyInfoEditNotice : undefined
-              }
-              forceLoad={!isTesting}
-            >
-              <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
-                <Typography
-                  type={TypographyType.Subhead}
-                  color={TypographyColor.Tertiary}
-                >
-                  Founded
-                </Typography>
-                <Typography type={TypographyType.Footnote} bold>
-                  {opportunity.organization?.founded || 'N/A'}
-                </Typography>
+                {/* SoMe Links */}
+                {opportunity.organization?.socialLinks?.length > 0 && (
+                  <div className="flex gap-2 px-4">
+                    {opportunity.organization.socialLinks.map(
+                      ({ link, socialType }) => (
+                        <Link key={link} href={link} passHref>
+                          <Button
+                            tag="a"
+                            variant={ButtonVariant.Subtle}
+                            size={ButtonSize.Small}
+                            icon={
+                              socialMediaIconMap[
+                                socialType.toLowerCase() as keyof typeof socialMediaIconMap
+                              ]
+                            }
+                            target="_blank"
+                            rel={anchorDefaultRel}
+                          />
+                        </Link>
+                      ),
+                    )}
+                  </div>
+                )}
 
-                <Typography
-                  type={TypographyType.Subhead}
-                  color={TypographyColor.Tertiary}
-                >
-                  HQ
-                </Typography>
-                <Typography type={TypographyType.Footnote} bold>
-                  {locationToString(opportunity.organization?.location) ||
-                    'N/A'}
-                </Typography>
-
-                <Typography
-                  type={TypographyType.Subhead}
-                  color={TypographyColor.Tertiary}
-                >
-                  Employees
-                </Typography>
-                <Typography type={TypographyType.Footnote} bold>
-                  {companySizeMap[opportunity.organization?.size] || 'N/A'}
-                </Typography>
-              </div>
-            </SimpleTooltip>
-
-            {/* Description */}
-            {!!opportunity.organization?.description && (
-              <SimpleTooltip
-                content={
-                  canEdit ? labels.opportunity.companyInfoEditNotice : undefined
-                }
-                forceLoad={!isTesting}
-              >
-                <Typography
-                  className="px-4"
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Secondary}
-                >
-                  {opportunity.organization.description}
-                </Typography>
-              </SimpleTooltip>
-            )}
-
-            {/* Perks & Benefits */}
-            {opportunity.organization?.perks?.length > 0 && (
-              <div className="flex flex-col gap-2 px-4">
-                <Typography bold type={TypographyType.Callout}>
-                  Perks & Benefits
-                </Typography>
-
+                {/* Meta */}
                 <SimpleTooltip
                   content={
                     canEdit
@@ -845,201 +814,275 @@ const JobPage = (): ReactElement => {
                   }
                   forceLoad={!isTesting}
                 >
-                  <ul className="list-disc pl-7">
-                    {opportunity.organization.perks.map((perk) => (
-                      <Typography
-                        key={perk}
-                        tag={TypographyTag.Li}
-                        type={TypographyType.Callout}
-                        color={TypographyColor.Secondary}
-                      >
-                        {perk}
-                      </Typography>
-                    ))}
-                  </ul>
+                  <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
+                    <Typography
+                      type={TypographyType.Subhead}
+                      color={TypographyColor.Tertiary}
+                    >
+                      Founded
+                    </Typography>
+                    <Typography type={TypographyType.Footnote} bold>
+                      {opportunity.organization?.founded || 'N/A'}
+                    </Typography>
+
+                    <Typography
+                      type={TypographyType.Subhead}
+                      color={TypographyColor.Tertiary}
+                    >
+                      HQ
+                    </Typography>
+                    <Typography type={TypographyType.Footnote} bold>
+                      {locationToString(opportunity.organization?.location) ||
+                        'N/A'}
+                    </Typography>
+
+                    <Typography
+                      type={TypographyType.Subhead}
+                      color={TypographyColor.Tertiary}
+                    >
+                      Employees
+                    </Typography>
+                    <Typography type={TypographyType.Footnote} bold>
+                      {companySizeMap[opportunity.organization?.size] || 'N/A'}
+                    </Typography>
+                  </div>
                 </SimpleTooltip>
-              </div>
-            )}
-            {hasLinks && (
-              <>
-                {/* Resources */}
-                {opportunity.organization.customLinks?.length > 0 && (
-                  <div
-                    className={classNames(
-                      'flex flex-col gap-2 px-4 pb-2',
-                      showMore ? '' : 'hidden',
-                    )}
-                  >
-                    <Typography bold type={TypographyType.Callout}>
-                      Resources
-                    </Typography>
 
-                    {opportunity.organization.customLinks.map(
-                      ({ link, title }) => (
-                        <Link key={link} href={link} passHref>
-                          <Button
-                            tag="a"
-                            target="_blank"
-                            rel={anchorDefaultRel}
-                            variant={ButtonVariant.Subtle}
-                            icon={
-                              <OpenLinkIcon
-                                className="text-text-disabled"
-                                size={IconSize.Small}
-                              />
-                            }
-                            iconPosition={ButtonIconPosition.Right}
-                            className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
-                          >
-                            {title}
-                          </Button>
-                        </Link>
-                      ),
-                    )}
-                  </div>
+                {/* Description */}
+                {!!opportunity.organization?.description && (
+                  <SimpleTooltip
+                    content={
+                      canEdit
+                        ? labels.opportunity.companyInfoEditNotice
+                        : undefined
+                    }
+                    forceLoad={!isTesting}
+                  >
+                    <Typography
+                      className="px-4"
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Secondary}
+                    >
+                      {opportunity.organization.description}
+                    </Typography>
+                  </SimpleTooltip>
                 )}
 
-                {/* Featured press */}
-                {opportunity.organization.pressLinks?.length > 0 && (
-                  <div
-                    className={classNames(
-                      'flex flex-col gap-2 px-4 pb-2',
-                      showMore ? '' : 'hidden',
-                    )}
-                  >
+                {/* Perks & Benefits */}
+                {opportunity.organization?.perks?.length > 0 && (
+                  <div className="flex flex-col gap-2 px-4">
                     <Typography bold type={TypographyType.Callout}>
-                      Featured press
+                      Perks & Benefits
                     </Typography>
 
-                    {opportunity.organization.pressLinks.map(
-                      ({ link, title }) => (
-                        <Link key={link} href={link} passHref>
-                          <Button
-                            tag="a"
-                            target="_blank"
-                            rel={anchorDefaultRel}
-                            variant={ButtonVariant.Subtle}
-                            icon={
-                              <OpenLinkIcon
-                                className="text-text-disabled"
-                                size={IconSize.Small}
-                              />
-                            }
-                            iconPosition={ButtonIconPosition.Right}
-                            className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
+                    <SimpleTooltip
+                      content={
+                        canEdit
+                          ? labels.opportunity.companyInfoEditNotice
+                          : undefined
+                      }
+                      forceLoad={!isTesting}
+                    >
+                      <ul className="list-disc pl-7">
+                        {opportunity.organization.perks.map((perk) => (
+                          <Typography
+                            key={perk}
+                            tag={TypographyTag.Li}
+                            type={TypographyType.Callout}
+                            color={TypographyColor.Secondary}
                           >
-                            <Image
-                              className={classNames(
-                                'mr-2 rounded-full object-cover',
-                                sizeClasses[ProfileImageSize.Small],
-                              )}
-                              src={`${apiUrl}/icon?url=${encodeURIComponent(
-                                link,
-                              )}&size=${iconSize}`}
-                              type={ImageType.Squad}
-                            />
-                            <span className="flex-1 truncate text-left">
-                              {title}
-                            </span>
-                          </Button>
-                        </Link>
-                      ),
-                    )}
+                            {perk}
+                          </Typography>
+                        ))}
+                      </ul>
+                    </SimpleTooltip>
                   </div>
                 )}
+                {hasLinks && (
+                  <>
+                    {/* Resources */}
+                    {opportunity.organization.customLinks?.length > 0 && (
+                      <div
+                        className={classNames(
+                          'flex flex-col gap-2 px-4 pb-2',
+                          showMore ? '' : 'hidden',
+                        )}
+                      >
+                        <Typography bold type={TypographyType.Callout}>
+                          Resources
+                        </Typography>
 
-                <Button
-                  aria-controls="company-show-more"
-                  aria-expanded={showMore}
-                  className="flex w-full flex-row !justify-center gap-1 rounded-none border-0 border-t border-border-subtlest-tertiary !px-4 py-2.5"
-                  type="button"
-                  onClick={() => setShowMore((prev) => !prev)}
-                >
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Primary}
-                  >
-                    {showMore ? 'See less' : 'See more'}
-                  </Typography>
+                        {opportunity.organization.customLinks.map(
+                          ({ link, title }) => (
+                            <Link key={link} href={link} passHref>
+                              <Button
+                                tag="a"
+                                target="_blank"
+                                rel={anchorDefaultRel}
+                                variant={ButtonVariant.Subtle}
+                                icon={
+                                  <OpenLinkIcon
+                                    className="text-text-disabled"
+                                    size={IconSize.Small}
+                                  />
+                                }
+                                iconPosition={ButtonIconPosition.Right}
+                                className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
+                              >
+                                {title}
+                              </Button>
+                            </Link>
+                          ),
+                        )}
+                      </div>
+                    )}
 
-                  <MoveToIcon
-                    className={classNames('transition-transform ease-in-out', {
-                      'rotate-90': !showMore,
-                      '-rotate-90': showMore,
-                    })}
-                  />
-                </Button>
-              </>
-            )}
-          </FlexCol>
+                    {/* Featured press */}
+                    {opportunity.organization.pressLinks?.length > 0 && (
+                      <div
+                        className={classNames(
+                          'flex flex-col gap-2 px-4 pb-2',
+                          showMore ? '' : 'hidden',
+                        )}
+                      >
+                        <Typography bold type={TypographyType.Callout}>
+                          Featured press
+                        </Typography>
 
-          {/* Recruiter Info */}
-          {opportunity?.recruiters?.length > 0 && (
-            <FlexCol className="flex-1 rounded-16 border-t border-border-subtlest-tertiary laptop:border">
-              {/* Header */}
-              <div className="flex min-h-14 items-center justify-between px-4 py-3">
-                <Typography
-                  bold
-                  type={TypographyType.Body}
-                  color={TypographyColor.Primary}
-                >
-                  Recruiters
-                </Typography>
-              </div>
+                        {opportunity.organization.pressLinks.map(
+                          ({ link, title }) => (
+                            <Link key={link} href={link} passHref>
+                              <Button
+                                tag="a"
+                                target="_blank"
+                                rel={anchorDefaultRel}
+                                variant={ButtonVariant.Subtle}
+                                icon={
+                                  <OpenLinkIcon
+                                    className="text-text-disabled"
+                                    size={IconSize.Small}
+                                  />
+                                }
+                                iconPosition={ButtonIconPosition.Right}
+                                className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
+                              >
+                                <Image
+                                  className={classNames(
+                                    'mr-2 rounded-full object-cover',
+                                    sizeClasses[ProfileImageSize.Small],
+                                  )}
+                                  src={`${apiUrl}/icon?url=${encodeURIComponent(
+                                    link,
+                                  )}&size=${iconSize}`}
+                                  type={ImageType.Squad}
+                                />
+                                <span className="flex-1 truncate text-left">
+                                  {title}
+                                </span>
+                              </Button>
+                            </Link>
+                          ),
+                        )}
+                      </div>
+                    )}
 
-              {/* Recruiters */}
-              {opportunity?.recruiters?.map((recruiter) => (
-                <FlexCol key={recruiter.id} className="gap-4 px-4 pb-4">
-                  <div className="flex items-center gap-2">
-                    <ProfilePicture
-                      user={recruiter}
-                      size={ProfileImageSize.Large}
-                    />
-
-                    <div className="flex flex-1 flex-col truncate">
+                    <Button
+                      aria-controls="company-show-more"
+                      aria-expanded={showMore}
+                      className="flex w-full flex-row !justify-center gap-1 rounded-none border-0 border-t border-border-subtlest-tertiary !px-4 py-2.5"
+                      type="button"
+                      onClick={() => setShowMore((prev) => !prev)}
+                    >
                       <Typography
-                        bold
-                        truncate
                         type={TypographyType.Callout}
                         color={TypographyColor.Primary}
                       >
-                        {recruiter.name}
+                        {showMore ? 'See less' : 'See more'}
                       </Typography>
-                      {recruiter?.title && (
-                        <Typography
-                          truncate
-                          type={TypographyType.Footnote}
-                          color={TypographyColor.Tertiary}
-                        >
-                          {recruiter.title}
-                        </Typography>
-                      )}
-                    </div>
-                    <OpportunityEditButton
-                      onClick={() => {
-                        openModal({
-                          type: LazyModal.OpportunityEdit,
-                          props: {
-                            type: 'recruiter',
-                            payload: {
-                              id: opportunity.id,
-                              recruiterId: recruiter.id,
-                            },
+
+                      <MoveToIcon
+                        className={classNames(
+                          'transition-transform ease-in-out',
+                          {
+                            'rotate-90': !showMore,
+                            '-rotate-90': showMore,
                           },
-                        });
-                      }}
+                        )}
+                      />
+                    </Button>
+                  </>
+                )}
+              </FlexCol>
+            )}
+
+            {/* Recruiter Info */}
+            {!hideRecruiterPanel && opportunity?.recruiters?.length > 0 && (
+              <FlexCol className="flex-1 rounded-16 border-t border-border-subtlest-tertiary laptop:border">
+                {/* Header */}
+                <div className="flex min-h-14 items-center justify-between px-4 py-3">
+                  <Typography
+                    bold
+                    type={TypographyType.Body}
+                    color={TypographyColor.Primary}
+                  >
+                    Recruiters
+                  </Typography>
+                </div>
+
+                {/* Recruiters */}
+                {opportunity?.recruiters?.map((recruiter) => (
+                  <FlexCol key={recruiter.id} className="gap-4 px-4 pb-4">
+                    <div className="flex items-center gap-2">
+                      <ProfilePicture
+                        user={recruiter}
+                        size={ProfileImageSize.Large}
+                      />
+
+                      <div className="flex flex-1 flex-col truncate">
+                        <Typography
+                          bold
+                          truncate
+                          type={TypographyType.Callout}
+                          color={TypographyColor.Primary}
+                        >
+                          {recruiter.name}
+                        </Typography>
+                        {recruiter?.title && (
+                          <Typography
+                            truncate
+                            type={TypographyType.Footnote}
+                            color={TypographyColor.Tertiary}
+                          >
+                            {recruiter.title}
+                          </Typography>
+                        )}
+                      </div>
+                      <OpportunityEditButton
+                        onClick={() => {
+                          openModal({
+                            type: LazyModal.OpportunityEdit,
+                            props: {
+                              type: 'recruiter',
+                              payload: {
+                                id: opportunity.id,
+                                recruiterId: recruiter.id,
+                              },
+                            },
+                          });
+                        }}
+                      />
+                    </div>
+                    {/* Description */}
+                    <ShowMoreContent
+                      content={recruiter?.bio}
+                      className={{ text: '!text-text-secondary !typo-callout' }}
                     />
-                  </div>
-                  {/* Description */}
-                  <ShowMoreContent
-                    content={recruiter?.bio}
-                    className={{ text: '!text-text-secondary !typo-callout' }}
-                  />
-                </FlexCol>
-              ))}
-            </FlexCol>
-          )}
-        </FlexCol>
+                  </FlexCol>
+                ))}
+              </FlexCol>
+            )}
+          </FlexCol>
+        )}
       </div>
     </>
   );
