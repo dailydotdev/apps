@@ -29,13 +29,16 @@ import {
   CrunchbaseIcon,
   FacebookIcon,
   GitHubIcon,
+  GitLabIcon,
   InfoIcon,
   LinkedInIcon,
   MagicIcon,
   MoveToIcon,
   OpenLinkIcon,
   PlusIcon,
+  StackOverflowIcon,
   TwitterIcon,
+  YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Chip } from '@dailydotdev/shared/src/components/cards/common/PostTags';
@@ -145,6 +148,14 @@ const socialMediaIconMap: SocialMediaIconMap = {
   [SocialMediaType.GitHub]: <GitHubIcon />,
   [SocialMediaType.Crunchbase]: <CrunchbaseIcon />,
   [SocialMediaType.LinkedIn]: <LinkedInIcon />,
+  [SocialMediaType.Wellfound]: <OpenLinkIcon />,
+  [SocialMediaType.Glassdoor]: <OpenLinkIcon />,
+  [SocialMediaType.Instagram]: <OpenLinkIcon />,
+  [SocialMediaType.YouTube]: <YoutubeIcon />,
+  [SocialMediaType.GitLab]: <GitLabIcon />,
+  [SocialMediaType.Medium]: <OpenLinkIcon />,
+  [SocialMediaType.DevTo]: <OpenLinkIcon />,
+  [SocialMediaType.StackOverflow]: <StackOverflowIcon />,
 };
 
 const locationTypeMap = {
