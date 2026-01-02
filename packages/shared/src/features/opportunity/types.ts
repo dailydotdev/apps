@@ -261,4 +261,4 @@ export type OpportunityStats = {
   introduced: number;
 };
 
-export const opportunityPreviewRefetchIntervalMs = 7000;
+export const opportunityPreviewRefetchIntervalMs = 3000;
