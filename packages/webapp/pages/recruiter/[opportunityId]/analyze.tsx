@@ -19,6 +19,7 @@ import { parseOpportunityMutationOptions } from '@dailydotdev/shared/src/feature
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 interface UseNewOpportunityParserResult {
@@ -53,7 +54,7 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
         ApiError.ZodValidationError;
 
       const message = isZodError
-        ? 'We could not extract the job details from your submission. Please try a different file or URL, or enter the details manually.'
+        ? 'We could not extract the job details from your submission. Please try a different file or URL.'
         : error?.response?.errors?.[0]?.message || labels.error.generic;
 
       displayToast(message);
@@ -92,9 +93,12 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
 const useLoadingAnimation = (isParsing: boolean) => {
   const [loadingStep, setLoadingStep] = useState(0);
 
+  const isParsingRef = useRef(isParsing);
+  isParsingRef.current = isParsing;
+
   useEffect(() => {
     // Don't start the timer until parsing is complete
-    if (isParsing) {
+    if (isParsingRef.current) {
       return () => {};
     }
 
@@ -103,20 +107,28 @@ const useLoadingAnimation = (isParsing: boolean) => {
       setTimeout(() => setLoadingStep(1), 800),
       setTimeout(() => setLoadingStep(2), 1600),
       setTimeout(() => setLoadingStep(3), 2400),
-      setTimeout(() => setLoadingStep(4), 3200),
     ];
 
     return () => timers.forEach(clearTimeout);
-  }, [isParsing]);
+  }, []);
 
-  return loadingStep;
+  return { loadingStep, setLoadingStep };
 };
 
 const RecruiterPageContent = () => {
   const router = useRouter();
-  const { opportunity } = useOpportunityPreviewContext();
+  const { opportunity, result } = useOpportunityPreviewContext();
   const { isParsing } = useNewOpportunityParser();
-  const loadingStep = useLoadingAnimation(isParsing);
+  const { loadingStep, setLoadingStep } = useLoadingAnimation(isParsing);
+
+  useEffect(() => {
+    if (
+      loadingStep === 3 &&
+      result?.status === OpportunityPreviewStatus.READY
+    ) {
+      setLoadingStep(4);
+    }
+  }, [result?.status, loadingStep, setLoadingStep]);
 
   const handlePrepareCampaignClick = useCallback(() => {
     if (!opportunity) {
