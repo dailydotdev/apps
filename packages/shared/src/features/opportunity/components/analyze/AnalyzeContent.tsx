@@ -28,7 +28,7 @@ export const AnalyzeContent = ({ loadingStep }: AnalyzeContentProps) => {
   const squads = data?.result?.squads ?? [];
 
   const showAggregation = loadingStep >= 2 && (isReady || tags.length > 0);
-  const showReachHero = loadingStep >= 3;
+  const showReachHero = loadingStep >= 2;
 
   return (
     <div className="flex flex-1 justify-center overflow-auto bg-background-subtle p-4 laptop:p-6">
