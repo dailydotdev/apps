@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+} from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
@@ -90,45 +96,26 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
   return { isParsing: isParsingInProgress };
 };
 
-const useLoadingAnimation = (isParsing: boolean) => {
-  const [loadingStep, setLoadingStep] = useState(0);
-
-  const isParsingRef = useRef(isParsing);
-  isParsingRef.current = isParsing;
-
-  useEffect(() => {
-    // Don't start the timer until parsing is complete
-    if (isParsingRef.current) {
-      return () => {};
-    }
-
-    // Start from step 1 since step 0 was shown during parsing
-    const timers = [
-      setTimeout(() => setLoadingStep(1), 800),
-      setTimeout(() => setLoadingStep(2), 1600),
-      setTimeout(() => setLoadingStep(3), 2400),
-    ];
-
-    return () => timers.forEach(clearTimeout);
-  }, []);
-
-  return { loadingStep, setLoadingStep };
-};
-
 const RecruiterPageContent = () => {
   const router = useRouter();
   const { opportunity, result } = useOpportunityPreviewContext();
   const { isParsing } = useNewOpportunityParser();
-  const { loadingStep, setLoadingStep } = useLoadingAnimation(isParsing);
 
-  useEffect(() => {
-    if (
-      loadingStep === 3 &&
-      result?.status === OpportunityPreviewStatus.READY
-    ) {
-      setLoadingStep(4);
+  const loadingStep = useMemo(() => {
+    if (isParsing) {
+      return 0;
     }
-  }, [result?.status, loadingStep, setLoadingStep]);
+
+    if (!result?.status) {
+      return 1;
+    }
+
+    if (result.status === OpportunityPreviewStatus.PENDING) {
+      return 2;
+    }
+
+    return 3;
+  }, [isParsing, result?.status]);
 
   const handlePrepareCampaignClick = useCallback(() => {
     if (!opportunity) {
