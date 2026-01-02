@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useQuery } from '@tanstack/react-query';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import {
   RecruiterProgress,
@@ -15,6 +16,7 @@ import { mockOpportunityPreviewData } from '@dailydotdev/shared/src/features/opp
 import type { OpportunityPreviewContextType } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { AnalyzeContent } from '@dailydotdev/shared/src/features/opportunity/components/analyze/AnalyzeContent';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { getOpportunitiesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
 
 const useLoadingAnimation = (isActive: boolean) => {
@@ -43,8 +45,15 @@ function RecruiterPage(): ReactElement {
   const router = useRouter();
   const { openModal, closeModal } = useLazyModal();
   const { setPendingSubmission } = usePendingSubmission();
-  const { user } = useAuthContext();
+  const { user, loadingUser } = useAuthContext();
   const hasInitializedRef = useRef(false);
+
+  // Check if user already has opportunities (jobs)
+  const { data: opportunitiesData, isLoading: isLoadingOpportunities } =
+    useQuery({
+      ...getOpportunitiesOptions(),
+      enabled: !!user,
+    });
   const [mockData, setMockData] = useState<OpportunityPreviewContextType>({});
   const [isAnimating, setIsAnimating] = useState(false);
   const loadingStep = useLoadingAnimation(isAnimating);
@@ -87,6 +96,9 @@ function RecruiterPage(): ReactElement {
     });
   }, [openModal]);
 
+  const hasExistingOpportunities =
+    opportunitiesData?.edges && opportunitiesData.edges.length > 0;
+
   // Open the appropriate modal when the page loads
   useEffect(() => {
     const { openModal: openModalParam } = router.query;
@@ -98,11 +110,21 @@ function RecruiterPage(): ReactElement {
       return;
     }
 
+    if ((user && isLoadingOpportunities) || loadingUser) {
+      return;
+    }
+
     // Only run initialization once to prevent re-opening modals on navigation
     if (hasInitializedRef.current) {
       return;
     }
+
     hasInitializedRef.current = true;
+
+    if (hasExistingOpportunities) {
+      openJobLinkModal();
+      return;
+    }
 
     // Default flow: start with intro modal
     openModal({
@@ -122,7 +144,16 @@ function RecruiterPage(): ReactElement {
         },
       },
     });
-  }, [openModal, closeModal, router, openJobLinkModal]);
+  }, [
+    openModal,
+    closeModal,
+    router,
+    openJobLinkModal,
+    user,
+    isLoadingOpportunities,
+    hasExistingOpportunities,
+    loadingUser,
+  ]);
 
   return (
     <OpportunityPreviewProvider mockData={mockData}>
