@@ -6,7 +6,13 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { OrganizationIcon, UserIcon, SlackIcon, VIcon, ArrowIcon } from '../icons';
+import {
+  OrganizationIcon,
+  UserIcon,
+  SlackIcon,
+  VIcon,
+  ArrowIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -32,11 +38,7 @@ export type RecruiterSetupChecklistProps = {
   className?: string;
 };
 
-const ChecklistItemRow = ({
-  item,
-}: {
-  item: ChecklistItem;
-}): ReactElement => {
+const ChecklistItemRow = ({ item }: { item: ChecklistItem }): ReactElement => {
   const content = (
     <div
       className={classNames(
@@ -54,18 +56,14 @@ const ChecklistItemRow = ({
             : 'bg-surface-float text-text-tertiary',
         )}
       >
-        {item.completed ? (
-          <VIcon size={IconSize.Small} />
-        ) : (
-          item.icon
-        )}
+        {item.completed ? <VIcon size={IconSize.Small} /> : item.icon}
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <Typography
           type={TypographyType.Callout}
           bold
           className={classNames(
-            item.completed && 'line-through text-text-disabled',
+            item.completed && 'text-text-disabled line-through',
           )}
         >
           {item.title}
@@ -73,9 +71,7 @@ const ChecklistItemRow = ({
         <Typography
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
-          className={classNames(
-            item.completed && 'line-through',
-          )}
+          className={classNames(item.completed && 'line-through')}
         >
           {item.description}
         </Typography>
@@ -119,12 +115,14 @@ export const RecruiterSetupChecklist = ({
 
   // Company profile completion checks
   const isCompanyComplete = useMemo(() => {
-    if (!organization) return false;
+    if (!organization) {
+      return false;
+    }
     return Boolean(
       organization.image &&
-      organization.website &&
-      organization.description &&
-      organization.location,
+        organization.website &&
+        organization.description &&
+        organization.location,
     );
   }, [organization]);
 
@@ -138,7 +136,8 @@ export const RecruiterSetupChecklist = ({
     [user?.image],
   );
   const hasHeadline = useMemo(() => Boolean(user?.bio), [user?.bio]);
-  const isProfileComplete = hasVerifiedCompany && hasProfileImage && hasHeadline;
+  const isProfileComplete =
+    hasVerifiedCompany && hasProfileImage && hasHeadline;
 
   // Slack connection check
   const hasSlackConnection = Boolean(
@@ -237,4 +236,3 @@ export const RecruiterSetupChecklist = ({
     </div>
   );
 };
-
