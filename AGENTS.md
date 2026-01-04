@@ -227,3 +227,7 @@ Each package has its own AGENTS.md with detailed guidance:
 - Tailwind utilities preferred over CSS-in-JS
 - GraphQL schema changes require manual TypeScript type updates
 - **Avoid index/barrel exports** - they easily cause dependency cycles; prefer direct file imports
+
+## Pull Requests
+
+Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
