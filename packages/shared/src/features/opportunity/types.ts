@@ -115,6 +115,10 @@ export type Opportunity = {
   };
   content: {
     overview: OpportunityContentBlock;
+    responsibilities?: OpportunityContentBlock;
+    requirements?: OpportunityContentBlock;
+    whatYoullDo?: OpportunityContentBlock;
+    interviewProcess?: OpportunityContentBlock;
   };
   meta: OpportunityMeta;
   recruiters: RecruiterProfile[];
