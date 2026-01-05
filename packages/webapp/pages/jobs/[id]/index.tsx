@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import type { MouseEvent, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
 import type { NextSeoProps } from 'next-seo';
 import type { GetStaticPathsResult, GetStaticProps } from 'next';
@@ -35,9 +35,9 @@ import {
   MagicIcon,
   MoveToIcon,
   OpenLinkIcon,
-  PlusIcon,
   StackOverflowIcon,
   TwitterIcon,
+  UploadIcon,
   YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
@@ -46,6 +46,10 @@ import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { briefButtonBg } from '@dailydotdev/shared/src/styles/custom';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Accordion } from '@dailydotdev/shared/src/components/accordion';
+import {
+  InlineContentEditor,
+  InlineRoleInfoEditor,
+} from '@dailydotdev/shared/src/components/opportunity/InlineEditor';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import ShowMoreContent from '@dailydotdev/shared/src/components/cards/common/ShowMoreContent';
@@ -63,6 +67,7 @@ import { ResponseButtons } from '@dailydotdev/shared/src/features/opportunity/co
 import type {
   Opportunity,
   OpportunityMeta,
+  ContentSection,
 } from '@dailydotdev/shared/src/features/opportunity/types';
 import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
 import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
@@ -86,6 +91,7 @@ import {
 import { locationToString } from '@dailydotdev/shared/src/lib/utils';
 import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
 import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
+import { OpportunityCompletenessBar } from '@dailydotdev/shared/src/components/opportunity/OpportunityCompletenessBar';
 import {
   OpportunityEditProvider,
   useOpportunityEditContext,
@@ -117,26 +123,31 @@ const seo: NextSeoProps = {
 const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);
 
-const faq = [
+const faq: Array<{ key: ContentSection; title: string; required: boolean }> = [
   {
     key: 'overview',
     title: 'Overview',
+    required: true,
   },
   {
     key: 'responsibilities',
     title: 'Responsibilities',
+    required: true,
   },
   {
     key: 'requirements',
     title: 'Requirements',
+    required: true,
   },
   {
     key: 'whatYoullDo',
     title: "What you'll do",
+    required: false,
   },
   {
     key: 'interviewProcess',
     title: 'Interview process',
+    required: false,
   },
 ];
 
@@ -281,6 +292,73 @@ const metaMap = {
   },
 };
 
+// Role info display component - extracted for use with InlineRoleInfoEditor
+const RoleInfoDisplay = ({
+  opportunity,
+}: {
+  opportunity: Opportunity;
+}): ReactElement => (
+  <div className="flex flex-col gap-4">
+    {/* Title */}
+    <Typography bold tag={TypographyTag.H1} type={TypographyType.LargeTitle}>
+      {opportunity.title}
+    </Typography>
+
+    {/* Tags */}
+    {opportunity.keywords?.length > 0 && (
+      <div className="flex flex-wrap gap-2">
+        {opportunity.keywords?.map((tag) => (
+          <Chip key={tag.keyword} className="!my-0 !text-text-tertiary">
+            {tag.keyword}
+          </Chip>
+        ))}
+      </div>
+    )}
+
+    {/* TLDR */}
+    <Typography type={TypographyType.Body} color={TypographyColor.Secondary}>
+      <span className="font-bold text-text-primary">TLDR</span>{' '}
+      {opportunity.tldr}
+    </Typography>
+
+    {/* Details */}
+    <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-white laptop:grid-cols-[max-content_1fr_max-content_1fr]">
+      {Object.keys(metaMap).map((metaKey) => {
+        const { title, transformer } = metaMap[metaKey];
+        const isLocation = metaKey === 'location' || metaKey === 'locationType';
+
+        const value = isLocation
+          ? opportunity.locations
+          : opportunity.meta[metaKey];
+
+        if (value === false || value === null) {
+          return false;
+        }
+
+        return (
+          <Fragment key={metaKey}>
+            <Typography
+              className="laptop:[&:nth-child(4n+3)]:pl-2"
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {title}
+            </Typography>
+            <Typography
+              className="laptop:[&:nth-child(4n+3)]:pl-2"
+              bold
+              type={TypographyType.Subhead}
+              color={TypographyColor.Primary}
+            >
+              {transformer(value)}
+            </Typography>
+          </Fragment>
+        );
+      })}
+    </div>
+  </div>
+);
+
 export type JobPageProps = {
   hideHeader?: boolean;
   hideCompanyBadge?: boolean;
@@ -341,11 +419,6 @@ const JobPage = ({
     hasLoggedRef.current = true;
   }, [id, match]);
 
-  const [matchReasonExample, setMatchReasonExample] = useState<{
-    title: string;
-    reasoning: string;
-  }>();
-
   if (!isAuthReady || isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
   }
@@ -370,6 +443,12 @@ const JobPage = ({
           <JobPageIntro />
         </div>
       )}
+      {canEdit && (
+        <OpportunityCompletenessBar
+          opportunity={opportunity}
+          className="mx-auto mb-4 w-full max-w-[69.25rem]"
+        />
+      )}
       {showFooterNav && (
         <OpportunityFooter>
           {!!match && (
@@ -393,7 +472,7 @@ const JobPage = ({
           )}
         >
           {/* Header */}
-          {!hideHeader && (
+          {!hideHeader && (!canEdit || !!match) && (
             <div className="flex min-h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary p-3">
               {!canEdit && (
                 <Button
@@ -416,22 +495,39 @@ const JobPage = ({
             </div>
           )}
 
+          {/* Edit mode banner */}
+          {canEdit && (
+            <div className="flex items-center gap-3 rounded-t-16 border-b border-border-subtlest-tertiary bg-surface-float px-4 py-2">
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+              >
+                Editing mode — Click Save on each section to save changes
+              </Typography>
+            </div>
+          )}
+
           {/* Content */}
           <div className="relative flex flex-col gap-4 px-8 py-6">
-            <OpportunityEditButton
-              className="absolute right-4 top-4"
-              onClick={() => {
-                openModal({
-                  type: LazyModal.OpportunityEdit,
-                  props: {
-                    type: 'info',
-                    payload: {
-                      id: opportunity.id,
-                    },
-                  },
-                });
-              }}
-            />
+            {canEdit && (
+              <div className="absolute right-4 top-4">
+                <SimpleTooltip content="Import & update from URL or file">
+                  <Button
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                    icon={<UploadIcon />}
+                    onClick={() => {
+                      openModal({
+                        type: LazyModal.OpportunityReimport,
+                        props: {
+                          opportunityId: opportunity.id,
+                        },
+                      });
+                    }}
+                  />
+                </SimpleTooltip>
+              </div>
+            )}
             {!hideCompanyBadge && !!opportunity.organization && (
               <div className="flex items-center">
                 <SourceAvatar
@@ -486,71 +582,14 @@ const JobPage = ({
               </div>
             )}
 
-            {/* Title */}
-            <Typography
-              bold
-              tag={TypographyTag.H1}
-              type={TypographyType.LargeTitle}
-            >
-              {opportunity.title}
-            </Typography>
-
-            {/* Tags */}
-            {opportunity.keywords?.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {opportunity.keywords?.map((tag) => (
-                  <Chip key={tag.keyword} className="!my-0 !text-text-tertiary">
-                    {tag.keyword}
-                  </Chip>
-                ))}
-              </div>
+            {/* Role Info - Title, Tags, TLDR, Details */}
+            {canEdit ? (
+              <InlineRoleInfoEditor opportunityId={opportunity.id}>
+                <RoleInfoDisplay opportunity={opportunity} />
+              </InlineRoleInfoEditor>
+            ) : (
+              <RoleInfoDisplay opportunity={opportunity} />
             )}
-
-            {/* TLDR */}
-            <Typography
-              type={TypographyType.Body}
-              color={TypographyColor.Secondary}
-            >
-              <span className="font-bold text-text-primary">TLDR</span>{' '}
-              {opportunity.tldr}
-            </Typography>
-
-            {/* Details */}
-            <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-white laptop:grid-cols-[max-content_1fr_max-content_1fr]">
-              {Object.keys(metaMap).map((metaKey) => {
-                const { title, transformer } = metaMap[metaKey];
-                const isLocation =
-                  metaKey === 'location' || metaKey === 'locationType';
-
-                const value = isLocation
-                  ? opportunity.locations
-                  : opportunity.meta[metaKey];
-
-                if (value === false || value === null) {
-                  return false;
-                }
-
-                return (
-                  <Fragment key={metaKey}>
-                    <Typography
-                      className="laptop:[&:nth-child(4n+3)]:pl-2"
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                    >
-                      {title}
-                    </Typography>
-                    <Typography
-                      className="laptop:[&:nth-child(4n+3)]:pl-2"
-                      bold
-                      type={TypographyType.Subhead}
-                      color={TypographyColor.Primary}
-                    >
-                      {transformer(value)}
-                    </Typography>
-                  </Fragment>
-                );
-              })}
-            </div>
 
             {/* Why we think */}
             {!canEdit && !!match?.description?.reasoning && (
@@ -581,101 +620,78 @@ const JobPage = ({
                 <div className="flex items-center gap-1">
                   <MagicIcon size={IconSize.Medium} />
                   <Typography bold type={TypographyType.Body} truncate>
-                    {matchReasonExample?.title ??
-                      'AI Personalized candidate message placeholder'}
+                    AI personalized message
                   </Typography>
                 </div>
                 <Typography type={TypographyType.Callout}>
-                  {matchReasonExample?.reasoning ??
-                    'daily.dev will use this space to highlight why the job is a great fit for the candidate. We automatically generate a personalized message that explains the match in a compelling way.'}
+                  Candidates will see a personalized message here explaining why
+                  this role matches their skills and interests based on their
+                  daily.dev activity.
                 </Typography>
-                {!matchReasonExample && (
-                  <Button
-                    className="max-w-32 border-black text-black"
-                    variant={ButtonVariant.Secondary}
-                    size={ButtonSize.Small}
-                    onClick={() => {
-                      setMatchReasonExample({
-                        title: "Why we think you'll like this",
-                        reasoning:
-                          "We noticed you've been digging into React performance optimization and exploring payment systems lately. Your skills in TypeScript and Node.js line up directly with the core technologies this team uses. You also follow several Atlassian engineers and have shown consistent interest in project management software, which makes this role a natural fit for your trajectory.",
-                      });
-                    }}
-                  >
-                    See example
-                  </Button>
-                )}
               </FlexCol>
             )}
           </div>
 
-          {faq.map((faqItem, index) => {
-            const contentHtml = opportunity.content[faqItem.key]?.html;
-
-            const buttonLabel = contentHtml ? 'Edit' : 'Add';
-
-            return (
-              <div
-                key={faqItem.key}
-                className={classNames(
-                  'border-t border-border-subtlest-tertiary px-4',
-                  !contentHtml && 'bg-surface-float',
-                  index === faq.length - 1 && 'rounded-b-14',
-                )}
-              >
-                <Accordion
-                  className={{
-                    button: classNames('min-h-12 flex-row-reverse'),
-                  }}
-                  title={
-                    <div className="flex items-center">
-                      <Typography>{faqItem.title}</Typography>
-                      <OpportunityEditButton
-                        tag="a"
-                        className="ml-auto"
-                        type="text"
-                        variant={
-                          !contentHtml
-                            ? ButtonVariant.Secondary
-                            : ButtonVariant.Tertiary
-                        }
-                        size={ButtonSize.Small}
-                        icon={!contentHtml ? <PlusIcon /> : undefined}
-                        onClick={(event: MouseEvent) => {
-                          event.preventDefault(); // prevent link click
-                          event.stopPropagation();
-
-                          openModal({
-                            type: LazyModal.OpportunityEdit,
-                            props: {
-                              type: 'content',
-                              payload: {
-                                id: opportunity.id,
-                                contentTitle: faqItem.title,
-                                contentName: faqItem.key,
-                              },
-                            },
-                          });
-                        }}
-                      >
-                        {buttonLabel}
-                      </OpportunityEditButton>
-                    </div>
-                  }
-                  disabled={!contentHtml}
+          {/* Content sections - inline editors for edit mode, accordions for candidates */}
+          {canEdit ? (
+            <div className="flex flex-col gap-3 p-4">
+              <div className="flex items-center gap-2 rounded-12 bg-surface-float p-3">
+                <InfoIcon
+                  size={IconSize.Small}
+                  className="mt-0.5 flex-shrink-0 text-text-tertiary"
+                />
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                  className="break-words"
                 >
-                  {!!contentHtml && (
+                  This is the format developers actually read and trust. Based
+                  on feedback from our community.
+                </Typography>
+              </div>
+              {faq.map((faqItem) => (
+                <InlineContentEditor
+                  key={faqItem.key}
+                  opportunityId={opportunity.id}
+                  section={faqItem.key}
+                  title={faqItem.title}
+                  isRequired={faqItem.required}
+                />
+              ))}
+            </div>
+          ) : (
+            faq.map((faqItem, index) => {
+              const contentHtml = opportunity.content[faqItem.key]?.html;
+
+              if (!contentHtml) {
+                return null; // Don't show empty sections to candidates
+              }
+
+              return (
+                <div
+                  key={faqItem.key}
+                  className={classNames(
+                    'border-t border-border-subtlest-tertiary px-4',
+                    index === faq.length - 1 && 'rounded-b-14',
+                  )}
+                >
+                  <Accordion
+                    className={{
+                      button: classNames('min-h-12 flex-row-reverse'),
+                    }}
+                    title={<Typography>{faqItem.title}</Typography>}
+                  >
                     <div
                       className="pb-4 text-text-secondary [&>ol]:list-inside [&>ol]:list-decimal [&>ol]:pl-7 [&>ul]:list-inside [&>ul]:list-disc [&>ul]:pl-7"
                       dangerouslySetInnerHTML={{
                         __html: contentHtml,
                       }}
                     />
-                  )}
-                </Accordion>
-              </div>
-            );
-          })}
+                  </Accordion>
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* Sidebar */}

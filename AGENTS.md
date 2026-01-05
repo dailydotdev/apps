@@ -126,6 +126,7 @@ import ControlledSwitch from '@dailydotdev/shared/src/components/fields/Controll
 
 ```bash
 # Setup
+nvm use                   # Use correct Node version from .nvmrc
 npm i -g pnpm@9.14.4
 pnpm install
 
