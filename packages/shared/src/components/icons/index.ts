@@ -156,6 +156,7 @@ export * from './Trash';
 export * from './Trending';
 export * from './Twitter';
 export * from './Unread';
+export * from './Upload';
 export * from './Upvote';
 export * from './User';
 export * from './UserShare';
