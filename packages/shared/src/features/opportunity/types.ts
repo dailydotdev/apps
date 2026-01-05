@@ -46,6 +46,13 @@ type OpportunityContentBlock = {
   html?: string;
 };
 
+export type ContentSection =
+  | 'overview'
+  | 'responsibilities'
+  | 'requirements'
+  | 'whatYoullDo'
+  | 'interviewProcess';
+
 export type OpportunityLocation = {
   city?: string;
   country?: string;
@@ -108,6 +115,10 @@ export type Opportunity = {
   };
   content: {
     overview: OpportunityContentBlock;
+    responsibilities?: OpportunityContentBlock;
+    requirements?: OpportunityContentBlock;
+    whatYoullDo?: OpportunityContentBlock;
+    interviewProcess?: OpportunityContentBlock;
   };
   meta: OpportunityMeta;
   recruiters: RecruiterProfile[];
