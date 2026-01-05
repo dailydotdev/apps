@@ -220,6 +220,18 @@ Each package has its own AGENTS.md with detailed guidance:
 - `packages/extension/AGENTS.md` - Browser extension development
 - `packages/storybook/AGENTS.md` - Component documentation
 
+## Adding Content to Existing Pages
+
+When adding new content (videos, images, text blocks) to existing pages:
+- **Study the page structure first** - Identify existing sections and their purpose
+- **Integrate into existing components** rather than creating new wrapper components
+- **Avoid duplicating section headers** - If a page has "How it works", don't add "See how it works"
+- **Extend existing components** - Add content to the relevant existing component instead of creating parallel components
+
+Example: Adding a video to the jobs page
+- ❌ Wrong: Create new `OpportunityVideo` component with its own "See how it works" title
+- ✅ Right: Add the video embed inside the existing `OpportunityHowItWorks` component
+
 ## Development Notes
 
 - Extension uses `webextension-polyfill` for cross-browser compatibility

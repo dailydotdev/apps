@@ -18,7 +18,6 @@ import { IntroHeader } from '@dailydotdev/shared/src/features/opportunity/compon
 import { OpportunityFAQ } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityFAQ';
 import { OpportunityBenefits } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityBenefits';
 import { OpportunityHowItWorks } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityHowItWorks';
-import { OpportunityVideo } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityVideo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 
@@ -77,7 +76,6 @@ const JobsPage = (): ReactElement => {
           <OpportunityCVUpload />
           {sidebarRendered && (
             <>
-              <OpportunityVideo />
               <OpportunityBenefits />
               <OpportunityHowItWorks />
               <OpportunityFAQ />
