@@ -52,7 +52,7 @@ const OpportunityCard = ({
       </div>
 
       <div className="mt-auto flex items-center gap-2">
-        <span className="rounded-8 bg-accent-cabbage-default px-2 py-1 text-text-primary typo-caption1">
+        <span className="rounded-8 bg-accent-cabbage-default px-2 py-1 text-white typo-caption1">
           Live
         </span>
       </div>
