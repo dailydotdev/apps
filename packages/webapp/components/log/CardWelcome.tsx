@@ -1,9 +1,13 @@
 import type { ReactElement } from 'react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon, UploadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useLogDataOverride } from '../../contexts/LogDataOverrideContext';
+import { validateLogData } from '../../lib/validateLogData';
+import type { LogData } from '../../types/log';
 import styles from './Log.module.css';
 import type { BaseCardProps } from './types';
 
@@ -20,6 +24,10 @@ export default function CardWelcome({
 }: BaseCardProps): ReactElement {
   const { user } = useAuthContext();
   const [isMounted, setIsMounted] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { displayToast } = useToastNotification();
+  const { setOverrideData } = useLogDataOverride();
 
   useEffect(() => {
     setIsMounted(true);
@@ -27,6 +35,62 @@ export default function CardWelcome({
 
   // Get the user's first name (or username as fallback)
   const displayName = user?.name?.split(' ')[0] || user?.username || 'Dev';
+
+  // Handle file upload
+  const handleFileUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) {
+        return;
+      }
+
+      // Check file type
+      if (file.type !== 'application/json') {
+        displayToast('Please upload a valid JSON file');
+        return;
+      }
+
+      setIsUploading(true);
+
+      try {
+        // Read file contents
+        const text = await file.text();
+        const data = JSON.parse(text);
+
+        // Validate the data structure
+        const validation = validateLogData(data);
+        if (!validation.valid) {
+          displayToast(
+            `Invalid log data format: ${validation.errors[0]}`,
+          );
+          console.error('Validation errors:', validation.errors);
+          return;
+        }
+
+        // Store the data in memory
+        setOverrideData(data as LogData);
+        displayToast('Log data uploaded successfully!');
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          displayToast('Invalid JSON file format');
+        } else {
+          displayToast('Failed to upload log data');
+        }
+        console.error('Upload error:', error);
+      } finally {
+        setIsUploading(false);
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    },
+    [displayToast, setOverrideData],
+  );
+
+  const handleUploadClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
 
   // Before mount, hide elements that should animate in
   const hidden = { opacity: 0, y: 20 };
@@ -114,13 +178,15 @@ export default function CardWelcome({
         <div
           className={styles.loadingState}
           style={{
-            opacity: isLoading ? 1 : 0,
-            pointerEvents: isLoading ? 'auto' : 'none',
+            opacity: isLoading || isUploading ? 1 : 0,
+            pointerEvents: isLoading || isUploading ? 'auto' : 'none',
           }}
         >
           <div className={styles.loadingSpinner} />
           <span className={styles.loadingText}>
-            Preparing your year in review...
+            {isUploading
+              ? 'Processing your log data...'
+              : 'Preparing your year in review...'}
           </span>
         </div>
 
@@ -128,10 +194,12 @@ export default function CardWelcome({
         <motion.div
           className={styles.readyState}
           style={{
-            opacity: isLoading ? 0 : 1,
-            pointerEvents: isLoading ? 'none' : 'auto',
+            opacity: isLoading || isUploading ? 0 : 1,
+            pointerEvents: isLoading || isUploading ? 'none' : 'auto',
           }}
-          animate={!isLoading && isMounted ? { x: [0, 10, 0] } : {}}
+          animate={
+            !isLoading && !isUploading && isMounted ? { x: [0, 10, 0] } : {}
+          }
           transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
         >
           <span className={styles.ctaText}>
@@ -139,6 +207,57 @@ export default function CardWelcome({
             <ArrowIcon size={IconSize.XSmall} className={styles.ctaArrow} />
           </span>
         </motion.div>
+      </motion.div>
+
+      {/* Upload option - appears after CTA (fade only) */}
+      <motion.div
+        className={styles.welcomeUpload}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isMounted && !isLoading ? 1 : 0 }}
+        transition={{ delay: CTA_DELAY + 0.5, duration: 0.5 }}
+        style={{
+          marginTop: '1.5rem',
+          textAlign: 'center',
+          pointerEvents: isLoading || isUploading ? 'none' : 'auto',
+        }}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          onChange={handleFileUpload}
+          style={{ display: 'none' }}
+        />
+        <button
+          onClick={handleUploadClick}
+          className={styles.uploadButton}
+          type="button"
+          disabled={isLoading || isUploading}
+          style={{
+            background: 'transparent',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            padding: '0.75rem 1.25rem',
+            color: 'rgba(255, 255, 255, 0.7)',
+            fontSize: '0.875rem',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+          }}
+        >
+          <UploadIcon size={IconSize.XSmall} />
+          Upload custom log data (JSON)
+        </button>
       </motion.div>
     </div>
   );

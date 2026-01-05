@@ -1,5 +1,4 @@
 import type { ReactElement } from 'react';
-import type { GetServerSideProps } from 'next';
 import React, {
   useMemo,
   useEffect,
@@ -15,6 +14,7 @@ import { useImagePreloader } from '@dailydotdev/shared/src/hooks/useImagePreload
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import ProtectedPage from '../../components/ProtectedPage';
+import { LogDataOverrideProvider } from '../../contexts/LogDataOverrideContext';
 import { ARCHETYPES } from '../../types/log';
 import {
   useCardNavigation,
@@ -44,11 +44,6 @@ import CardArchetypeReveal from '../../components/log/CardArchetypeReveal';
 import CardShare from '../../components/log/CardShare';
 import CardNoData from '../../components/log/CardNoData';
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  return {
-    notFound: true,
-  };
-};
 
 // Default theme for no-data state (welcome card theme)
 const noDataTheme = CARD_THEMES.welcome;
@@ -246,8 +241,9 @@ export default function LogPage(): ReactElement {
   const showNoDataCard = !isLoading && !hasData;
 
   return (
-    <ProtectedPage>
-      <LogPageHead />
+    <LogDataOverrideProvider>
+      <ProtectedPage>
+        <LogPageHead />
 
       <motion.div
         className={styles.logContainer}
@@ -332,7 +328,8 @@ export default function LogPage(): ReactElement {
         )}
       </motion.div>
       <Toast autoDismissNotifications />
-    </ProtectedPage>
+      </ProtectedPage>
+    </LogDataOverrideProvider>
   );
 }
 
