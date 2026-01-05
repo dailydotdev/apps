@@ -89,6 +89,15 @@ export default function CardWelcome({
     fileInputRef.current?.click();
   }, []);
 
+  // Prevent click from bubbling up to parent's tap navigation
+  const handleButtonClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      handleUploadClick();
+    },
+    [handleUploadClick],
+  );
+
   // Before mount, hide elements that should animate in
   const hidden = { opacity: 0, y: 20 };
   const visible = { opacity: 1, y: 0 };
@@ -226,7 +235,7 @@ export default function CardWelcome({
           style={{ display: 'none' }}
         />
         <button
-          onClick={handleUploadClick}
+          onClick={handleButtonClick}
           className={styles.uploadButton}
           type="button"
           disabled={isLoading || isUploading}
