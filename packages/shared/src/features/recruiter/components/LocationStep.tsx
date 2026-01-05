@@ -33,7 +33,7 @@ export const LocationStep = ({
     <>
       <FlexCol className="gap-4">
         <Typography type={TypographyType.LargeTitle} bold center>
-          Is this still right?
+          Confirm your location
         </Typography>
         <Typography
           type={TypographyType.Title3}
@@ -48,7 +48,7 @@ export const LocationStep = ({
         <Autocomplete
           name="location"
           label="Location"
-          placeholder="Search for a city or country"
+          placeholder="City, Country"
           defaultValue={
             defaultLocation ? locationToString(defaultLocation) : ''
           }
