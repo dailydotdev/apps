@@ -46,9 +46,10 @@ export const LocationStep = ({
       <FlexCol className="gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
         <ProgressStep currentStep={currentStep} totalSteps={totalSteps} />
         <Autocomplete
+          fieldType="secondary"
           name="location"
           label="Location"
-          placeholder="City, Country"
+          placeholder="Search for a city or country"
           defaultValue={
             defaultLocation ? locationToString(defaultLocation) : ''
           }
