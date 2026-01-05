@@ -19,12 +19,6 @@
   </a>
 </p>
 
-<p align="center">
-  <a href="https://gitpod.io/#https://github.com/dailydotdev/apps/">
-    <img src="https://gitpod.io/button/open-in-gitpod.svg" alt="Open in Gitpod">
-  </a>
-</p>
-
 This monorepo contains daily.dev's application suite. The repo includes the web app and the extension, along with shared components for the two.
 By using a monorepo approach, we can easily share code and maintain consistency across the different parts of the application suite.
 The decision was made to allow faster iterations and to keep features parity in both platforms.
@@ -70,9 +64,14 @@ contains a collection of smaller projects or libraries that are used across the 
 
 ## Local Environment
 
-  To spin up a local environment, we suggest using GitPod. We have a GitPod button above, everything is already configured and should work out of the box. Click on it and let's roll!
+  To spin up a local environment, you will need Docker. Do the steps below and you should be able to start trying to center a div:
 
-  **Note:** Checkout getting started with GitPod using their [official docs](https://www.gitpod.io/docs/introduction/getting-started). If you're new to gitPod, don't worry, it's a simple and powerful tool that will help you get started with this project in no time.
+  - Fork this repo
+  - Pull it locally
+  - Run `docker compose up`
+  - Once done, seed your local data by running `docker compose exec daily-api node ./bin/import`
+  - Then lastly, run npm run dev:oss
+  - The app should run at `http://localhost:5002/`
 
 ## Want to Help?
 
