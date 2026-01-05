@@ -33,10 +33,17 @@ export function LogDataOverrideProvider({
 
 export function useLogDataOverride(): LogDataOverrideContextValue {
   const context = useContext(LogDataOverrideContext);
+
+  // Return default values for SSR/when provider is not available
+  // File upload only happens on client, so this is safe
   if (context === undefined) {
-    throw new Error(
-      'useLogDataOverride must be used within a LogDataOverrideProvider',
-    );
+    return {
+      overrideData: null,
+      setOverrideData: () => {
+        // No-op during SSR
+      },
+    };
   }
+
   return context;
 }
