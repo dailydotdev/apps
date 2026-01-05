@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>Icon/Bold/Outline</title>
+    <g id="Icon/Bold/Outline" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M6,4 L12,4 C14.209139,4 16,5.790861 16,8 C16,9.19469028 15.4696166,10.2670743 14.6458685,11 C15.4696166,11.7329257 16,12.8053097 16,14 C16,16.209139 14.209139,18 12,18 L6,18 C5.44771525,18 5,17.5522847 5,17 L5,5 C5,4.44771525 5.44771525,4 6,4 Z M7,6 L7,10 L12,10 C13.1045695,10 14,9.1045695 14,8 C14,6.8954305 13.1045695,6 12,6 L7,6 Z M7,12 L7,16 L12,16 C13.1045695,16 14,15.1045695 14,14 C14,12.8954305 13.1045695,12 12,12 L7,12 Z" fill="#FFFFFF" fill-rule="nonzero"></path>
+    </g>
+</svg>
