@@ -28,6 +28,12 @@ export enum RoleType {
   Managerial = 1.0,
 }
 
+export enum LocationVerificationStatus {
+  GeoIP = 'geoip',
+  UserProvided = 'user_provided',
+  Verified = 'verified',
+}
+
 export type RecruiterProfile = Pick<
   PublicProfile,
   'id' | 'name' | 'username' | 'image' | 'bio'
@@ -39,6 +45,13 @@ type OpportunityContentBlock = {
   content?: string;
   html?: string;
 };
+
+export type ContentSection =
+  | 'overview'
+  | 'responsibilities'
+  | 'requirements'
+  | 'whatYoullDo'
+  | 'interviewProcess';
 
 export type OpportunityLocation = {
   city?: string;
@@ -97,9 +110,15 @@ export type Opportunity = {
   state: OpportunityState;
   title: string;
   tldr: string;
-  organization?: Organization;
+  organization?: Organization & {
+    recruiterTotalSeats: number;
+  };
   content: {
     overview: OpportunityContentBlock;
+    responsibilities?: OpportunityContentBlock;
+    requirements?: OpportunityContentBlock;
+    whatYoullDo?: OpportunityContentBlock;
+    interviewProcess?: OpportunityContentBlock;
   };
   meta: OpportunityMeta;
   recruiters: RecruiterProfile[];
@@ -210,6 +229,8 @@ export interface OpportunityPreviewUser {
   seniority?: string;
   /** User location (from preferences or geo flags) */
   location?: string;
+  /** Location verification status (from geo flags) */
+  locationVerified?: LocationVerificationStatus;
   /** Active company from experience */
   company?: OpportunityPreviewCompany;
   /** Last activity timestamp */
@@ -222,20 +243,25 @@ export interface OpportunityPreviewUser {
   activeSquads?: Squad[];
 }
 
+export enum OpportunityPreviewStatus {
+  UNSPECIFIED = 0,
+  PENDING = 1,
+  READY = 2,
+  ERROR = 3,
+}
+
 export interface OpportunityPreviewResult {
   tags: string[];
   companies: OpportunityPreviewCompany[];
   squads: Squad[];
   totalCount?: number;
   opportunityId?: string;
+  status: OpportunityPreviewStatus;
 }
 
-export interface OpportunityPreviewConnection
-  extends Connection<OpportunityPreviewUser> {
+export type OpportunityPreviewResponse = {
   result?: OpportunityPreviewResult;
-}
-
-export type OpportunityPreviewResponse = OpportunityPreviewConnection;
+};
 
 export type OpportunityStats = {
   matched: number;
@@ -245,3 +271,5 @@ export type OpportunityStats = {
   forReview: number;
   introduced: number;
 };
+
+export const opportunityPreviewRefetchIntervalMs = 3000;

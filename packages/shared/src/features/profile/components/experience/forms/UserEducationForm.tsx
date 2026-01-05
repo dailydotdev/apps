@@ -84,7 +84,7 @@ const UserEducationForm = () => {
           </Typography>
           <ControlledTextarea
             name="description"
-            label="Achievements, societies, coursework"
+            label="Relevant projects, hackathons, technical clubs"
             maxLength={5000}
           />
         </div>

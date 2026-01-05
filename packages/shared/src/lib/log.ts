@@ -275,6 +275,7 @@ export enum LogEvent {
   ShareTag = 'share tag',
   SharePost = 'share post',
   ShareComment = 'share comment',
+  ShareLog = 'share log',
   // End Share
   // Start Smart Prompts
   SmartPrompt = 'smart prompt',
@@ -334,9 +335,17 @@ export enum LogEvent {
   SelectCandidateAvailability = 'select candidate availability',
   UpdateCandidatePreferences = 'update candidate preferences',
   ClickCandidatePreferences = 'click candidate preferences',
+  ClickStartHiring = 'click start hiring',
   // End Opportunity
   UploadEmploymentAgreement = 'upload employment agreement',
   ClearEmploymentAgreement = 'clear employment agreement',
+  // Experience
+  StartAddExperience = 'start add experience',
+  AddExperience = 'add experience',
+  RemoveExperience = 'remove experience',
+  // Log
+  ViewLogPage = 'view log page',
+  ViewLogCard = 'view log card',
 }
 
 export enum TargetType {

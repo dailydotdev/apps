@@ -6,8 +6,9 @@ import { Typography, TypographyType } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { Checkbox } from '../../fields/Checkbox';
 import { ShieldIcon } from '../../icons';
-import { webappUrl } from '../../../lib/constants';
 import Link from '../../utilities/Link';
+import { stateOfTrust } from '../../../lib/constants';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 export interface RecruiterTrustModalProps extends ModalProps {
   onNext: () => void;
@@ -33,9 +34,10 @@ export const RecruiterTrustModal = ({
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
       shouldCloseOnOverlayClick={false}
+      shouldCloseOnEsc={false}
     >
       <Modal.Body className="flex flex-col gap-6 p-6">
-        <div className="mr-auto flex items-center gap-3 rounded-12 bg-accent-water-flat px-3 py-1">
+        <div className="mx-auto flex items-center gap-3 rounded-12 bg-accent-water-flat px-3 py-1">
           <ShieldIcon className="text-accent-water-bolder" />
           <Typography
             type={TypographyType.Footnote}
@@ -45,7 +47,7 @@ export const RecruiterTrustModal = ({
           </Typography>
         </div>
 
-        <Typography type={TypographyType.Title1} bold>
+        <Typography type={TypographyType.Title1} bold center>
           When you hire on daily.dev, you inherit the trust developers already
           gave us
         </Typography>
@@ -119,8 +121,12 @@ export const RecruiterTrustModal = ({
             Agree
           </Button>
 
-          <Link passHref href={`${webappUrl}`}>
-            <a className="text-center text-text-secondary underline typo-callout">
+          <Link passHref href={stateOfTrust}>
+            <a
+              className="text-center text-text-secondary underline typo-callout"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
               Help me understand why trust matters here
             </a>
           </Link>

@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import type z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import classNames from 'classnames';
 import type { ModalProps } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { TextField } from '../../fields/TextField';
@@ -20,6 +21,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { KeywordSelection } from '../../../features/opportunity/components/KeywordSelection';
 import { labels } from '../../../lib';
 import { opportunityEditInfoSchema } from '../../../lib/schema/opportunity';
+import { RequestKey } from '../../../lib/query';
 import { editOpportunityInfoMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
@@ -29,6 +31,8 @@ import { opportunityEditDiscardPrompt } from './common';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
 import ProfileLocation from '../../profile/ProfileLocation';
+import { ModalSize } from '../../modals/common/types';
+import { LocationDataset } from '../../../graphql/autocomplete';
 
 export type OpportunityEditInfoModalProps = {
   id: string;
@@ -38,6 +42,7 @@ export const OpportunityEditInfoModal = ({
   id,
   ...rest
 }: OpportunityEditInfoModalProps & ModalProps) => {
+  const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id }),
@@ -50,6 +55,11 @@ export const OpportunityEditInfoModal = ({
     ...editOpportunityInfoMutationOptions(),
     onSuccess: (result) => {
       updateOpportunity(result);
+
+      // Invalidate opportunities query to update sidebar
+      queryClient.invalidateQueries({
+        queryKey: [RequestKey.Opportunities],
+      });
 
       rest.onRequestClose?.(null);
     },
@@ -131,7 +141,12 @@ export const OpportunityEditInfoModal = ({
 
   return (
     <FormProvider {...methods}>
-      <Modal {...rest} isOpen onRequestClose={onRequestClose}>
+      <Modal
+        {...rest}
+        isOpen
+        onRequestClose={onRequestClose}
+        size={ModalSize.Large}
+      >
         <Modal.Header className="flex justify-between" showCloseButton={false}>
           <Modal.Title className="typo-title3">Role description</Modal.Title>
           <div className="flex items-center gap-4">
@@ -188,7 +203,7 @@ export const OpportunityEditInfoModal = ({
           <Controller
             name="keywords"
             control={control}
-            rules={{ required: labels.form.required }}
+            rules={{ required: 'Keywords are required' }}
             render={({ field }) => {
               return (
                 <KeywordSelection
@@ -216,6 +231,7 @@ export const OpportunityEditInfoModal = ({
             <ProfileLocation
               locationName="externalLocationId"
               typeName="locationType"
+              dataset={LocationDataset.Internal}
               defaultValue={
                 opportunity.locations?.[0]?.location
                   ? {
@@ -237,7 +253,7 @@ export const OpportunityEditInfoModal = ({
             <Controller
               name="meta.employmentType"
               control={control}
-              rules={{ required: labels.form.required }}
+              rules={{ required: 'Employment type is required' }}
               render={({ field }) => {
                 return (
                   <Radio
@@ -279,8 +295,18 @@ export const OpportunityEditInfoModal = ({
           />
           <div className="flex flex-col gap-2">
             <Typography bold type={TypographyType.Caption1}>
-              Salary range
+              Salary range (USD)
             </Typography>
+            {!!errors.meta?.salary && (
+              <div
+                role="alert"
+                className={classNames(
+                  'mb-1 flex items-center gap-1 text-status-error typo-caption1',
+                )}
+              >
+                {errors.meta.salary.message}
+              </div>
+            )}
             <div className="flex gap-4">
               <TextField
                 {...register('meta.salary.min', {
@@ -319,6 +345,7 @@ export const OpportunityEditInfoModal = ({
                     <Dropdown
                       className={{
                         container: 'flex-1',
+                        menu: 'w-[--radix-dropdown-menu-trigger-width]',
                       }}
                       selectedIndex={field.value ? field.value - 1 : undefined}
                       options={options}
@@ -341,7 +368,7 @@ export const OpportunityEditInfoModal = ({
             <Controller
               name="meta.seniorityLevel"
               control={control}
-              rules={{ required: labels.form.required }}
+              rules={{ required: 'Seniority level is required' }}
               render={({ field }) => {
                 const options = [
                   'Intern',
@@ -359,6 +386,7 @@ export const OpportunityEditInfoModal = ({
                   <Dropdown
                     className={{
                       container: 'flex-1',
+                      menu: 'w-[--radix-dropdown-menu-trigger-width]',
                     }}
                     selectedIndex={field.value ? field.value - 1 : undefined}
                     options={options}
@@ -380,7 +408,7 @@ export const OpportunityEditInfoModal = ({
             <Controller
               name="meta.roleType"
               control={control}
-              rules={{ required: labels.form.required }}
+              rules={{ required: 'Job type is required' }}
               render={({ field }) => {
                 const options = [
                   { value: 0, title: 'IC' },
@@ -392,6 +420,7 @@ export const OpportunityEditInfoModal = ({
                   <Dropdown
                     className={{
                       container: 'flex-1',
+                      menu: 'w-[--radix-dropdown-menu-trigger-width]',
                     }}
                     selectedIndex={options.findIndex(
                       (option) => option.value === field.value,

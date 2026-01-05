@@ -1,16 +1,18 @@
 import type { DefaultError, MutationOptions } from '@tanstack/react-query';
 import type z from 'zod';
-import { gql } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
 import {
   ACCEPT_OPPORTUNITY_MATCH,
+  ADD_OPPORTUNITY_SEATS_MUTATION,
   CANDIDATE_KEYWORD_ADD_MUTATION,
   CANDIDATE_KEYWORD_REMOVE_MUTATION,
   CLEAR_EMPLOYMENT_AGREEMENT_MUTATION,
-  CLEAR_ORGANIZATION_IMAGE_MUTATION,
+  CLEAR_RECRUITER_ORGANIZATION_IMAGE_MUTATION,
   CLEAR_RESUME_MUTATION,
+  CREATE_ORGANIZATION_FOR_OPPORTUNITY_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
-  OPPORTUNITY_FRAGMENT,
+  PARSE_OPPORTUNITY_MUTATION,
+  REIMPORT_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
   RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION,
   RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION,
@@ -19,6 +21,7 @@ import {
   SAVE_OPPORTUNITY_SCREENING_ANSWERS,
   UPDATE_CANDIDATE_PREFERENCES_MUTATION,
   UPDATE_OPPORTUNITY_STATE_MUTATION,
+  UPDATE_RECRUITER_ORGANIZATION_MUTATION,
   UPLOAD_EMPLOYMENT_AGREEMENT_MUTATION,
 } from './graphql';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
@@ -29,13 +32,15 @@ import type {
   UserCandidatePreferences,
 } from './types';
 import { OpportunityMatchStatus } from './types';
+import type { Organization } from '../organizations/types';
 import type { UseUpdateQuery } from '../../hooks/useUpdateQuery';
 import type {
+  addOpportunitySeatsSchema,
   opportunityEditContentSchema,
   opportunityEditInfoSchema,
-  opportunityEditOrganizationSchema,
   opportunityEditQuestionsSchema,
 } from '../../lib/schema/opportunity';
+import type { recruiterOrganizationEditSchema } from '../organizations/schema';
 import type { OpportunityState } from './protobuf/opportunity';
 import type { opportunityEditRecruiterSchema } from '../../components/opportunity/OpportunityEditModal/OpportunityEditRecruiterModal';
 
@@ -300,7 +305,21 @@ export const editOpportunityQuestionMutationOptions = () => {
   };
 };
 
-export const editOpportunityOrganizationMutationOptions = () => {
+export const createOrganizationForOpportunityMutationOptions = () => {
+  return {
+    mutationFn: async ({ opportunityId }: { opportunityId: string }) => {
+      const result = await gqlClient.request<{
+        createOrganizationForOpportunity: Organization;
+      }>(CREATE_ORGANIZATION_FOR_OPPORTUNITY_MUTATION, {
+        opportunityId,
+      });
+
+      return result.createOrganizationForOpportunity;
+    },
+  };
+};
+
+export const updateRecruiterOrganizationMutationOptions = () => {
   return {
     mutationFn: async ({
       id,
@@ -308,33 +327,32 @@ export const editOpportunityOrganizationMutationOptions = () => {
       organizationImage,
     }: {
       id: string;
-      payload: z.infer<typeof opportunityEditOrganizationSchema>;
+      payload: z.infer<typeof recruiterOrganizationEditSchema>;
       organizationImage?: File;
     }) => {
       const result = await gqlClient.request<{
-        editOpportunity: Opportunity;
-      }>(EDIT_OPPORTUNITY_MUTATION, {
+        updateRecruiterOrganization: Organization;
+      }>(UPDATE_RECRUITER_ORGANIZATION_MUTATION, {
         id,
         payload,
         organizationImage,
       });
 
-      return result.editOpportunity;
+      return result.updateRecruiterOrganization;
     },
   };
 };
 
-export const clearOrganizationImageMutationOptions = (): MutationOptions<
-  EmptyResponse,
-  DefaultError,
-  { id: string }
-> => {
-  return {
-    mutationFn: async ({ id }: { id: string }) => {
-      return gqlClient.request(CLEAR_ORGANIZATION_IMAGE_MUTATION, { id });
-    },
+export const clearRecruiterOrganizationImageMutationOptions =
+  (): MutationOptions<EmptyResponse, DefaultError, { id: string }> => {
+    return {
+      mutationFn: async ({ id }: { id: string }) => {
+        return gqlClient.request(CLEAR_RECRUITER_ORGANIZATION_IMAGE_MUTATION, {
+          id,
+        });
+      },
+    };
   };
-};
 
 export const editOpportunityRecruiterMutationOptions = () => {
   return {
@@ -428,15 +446,6 @@ export const recruiterRejectOpportunityMatchMutationOptions =
     };
   };
 
-const PARSE_OPPORTUNITY_MUTATION = gql`
-  mutation ParseOpportunity($payload: ParseOpportunityInput!) {
-    parseOpportunity(payload: $payload) {
-      ...OpportunityFragment
-    }
-  }
-  ${OPPORTUNITY_FRAGMENT}
-`;
-
 export const parseOpportunityMutationOptions = () => {
   return {
     mutationFn: async ({ file, url }: { file?: File; url?: string }) => {
@@ -450,6 +459,51 @@ export const parseOpportunityMutationOptions = () => {
       });
 
       return result.parseOpportunity;
+    },
+  };
+};
+
+export const reimportOpportunityMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      opportunityId,
+      file,
+      url,
+    }: {
+      opportunityId: string;
+      file?: File;
+      url?: string;
+    }) => {
+      const result = await gqlClient.request<{
+        reimportOpportunity: Opportunity;
+      }>(REIMPORT_OPPORTUNITY_MUTATION, {
+        payload: {
+          opportunityId,
+          file,
+          url,
+        },
+      });
+
+      return result.reimportOpportunity;
+    },
+  };
+};
+
+export const addOpportunitySeatsMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: z.infer<typeof addOpportunitySeatsSchema>;
+    }): Promise<void> => {
+      await gqlClient.request<{
+        updateOpportunityState: EmptyResponse;
+      }>(ADD_OPPORTUNITY_SEATS_MUTATION, {
+        id,
+        payload,
+      });
     },
   };
 };

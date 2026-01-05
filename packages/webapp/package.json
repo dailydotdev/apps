@@ -18,6 +18,7 @@
   "dependencies": {
     "@dailydotdev/shared": "workspace:*",
     "@hookform/resolvers": "5.2.2",
+    "@intercom/messenger-js-sdk": "^0.0.18",
     "@kickass-coderz/react": "^0.0.4",
     "@marsidev/react-turnstile": "1.1.0",
     "@paddle/paddle-js": "1.4.0",
@@ -30,6 +31,7 @@
     "dompurify": "^2.5.4",
     "fetch-event-stream": "^0.1.5",
     "focus-visible": "^5.2.1",
+    "framer-motion": "^12.23.25",
     "graphql": "^16.9.0",
     "graphql-request": "^3.7.0",
     "idb-keyval": "^5.1.5",

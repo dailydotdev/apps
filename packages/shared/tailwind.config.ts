@@ -235,10 +235,15 @@ export default {
           '0%, 100%': { transform: 'scale(1)', opacity: '1' },
           '50%': { transform: 'scale(0.7)', opacity: '0.5' },
         },
+        'fade-slide-up': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
       },
     },
     lineClamp: {

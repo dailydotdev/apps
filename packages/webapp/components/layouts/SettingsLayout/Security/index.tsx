@@ -88,22 +88,21 @@ interface AccountSecurityDefaultProps {
 }
 
 const alreadyLinkedProviderOptions: PromptOptions = {
-  title: 'Account already linked',
+  title: 'Already linked to another account',
   okButton: null,
 };
 const unlinkProviderPromptOptions: PromptOptions = {
   title: 'Remove provider?',
-  description:
-    'You will no longer be able to log in with this connected account',
+  description: "You won't be able to log in with this account anymore",
   okButton: {
     title: 'Remove',
     color: ButtonColor.Ketchup,
   },
 };
 const deleteAccountPromptOptions: PromptOptions = {
-  title: 'Delete account',
+  title: 'Delete account?',
   description:
-    'Are you sure you want to delete your account? This action cannot be undone.',
+    'This will permanently delete your account and all associated data. This cannot be undone.',
   okButton: {
     title: 'Yes, delete my account',
     color: ButtonColor.Ketchup,
@@ -136,7 +135,7 @@ function AccountSecurityDefault({
   const alreadyLinkedProvider = async (provider: string) => {
     await showPrompt({
       ...alreadyLinkedProviderOptions,
-      description: `The “${provider}” account you trying to link, is already linked to another daily account.`,
+      description: `This ${provider} account is already linked to a different daily.dev account.`,
     });
   };
   const unlinkProvider = async (provider: string) => {
@@ -201,16 +200,15 @@ function AccountSecurityDefault({
     <AccountPageContainer title="Account access">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
-        title="Account email"
-        description="The email address associated with your daily.dev account"
+        title="Email"
+        description="Primary email for your account"
       >
         <Tooltip
           side="bottom"
           visible={!hasPassword}
           content={
             <div className="w-60 py-2 typo-subhead">
-              You must set a password for the account before you can change your
-              email address.
+              Set a password first to change your email
             </div>
           }
         >
@@ -241,8 +239,8 @@ function AccountSecurityDefault({
       </AccountContentSection>
       <AccountLoginSection
         buttonVariant={ButtonVariant.Primary}
-        title="Add login account"
-        description="Add more accounts to ensure you never lose access to your daily.dev profile and to make logging in quick and easy across devices"
+        title="Login methods"
+        description="Link additional accounts for backup access and easier sign-in"
         providerActionType="link"
         providerAction={manageSocialProviders}
         providers={providers.filter(
@@ -251,7 +249,7 @@ function AccountSecurityDefault({
       />
       <AccountLoginSection
         title="Connected accounts"
-        description="Remove the connection between daily.dev and authorized login providers."
+        description="Accounts currently linked to your profile"
         providerAction={({ provider }) => unlinkProvider(provider)}
         providerActionType="unlink"
         className={{ button: 'hover:bg-accent-ketchup-default' }}
@@ -261,8 +259,8 @@ function AccountSecurityDefault({
         )}
       />
       <AccountContentSection
-        title="Set your password"
-        description="Please enter your new password"
+        title="Password"
+        description="Set or update your account password"
       >
         <form
           ref={updatePasswordRef}

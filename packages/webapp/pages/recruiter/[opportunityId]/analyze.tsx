@@ -1,69 +1,144 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+} from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import {
   RecruiterProgress,
   RecruiterProgressStep,
 } from '@dailydotdev/shared/src/components/recruiter/Progress';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { useRouter } from 'next/router';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import {
   OpportunityPreviewProvider,
   useOpportunityPreviewContext,
 } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
-import { ContentSidebar } from '@dailydotdev/shared/src/features/opportunity/components/analyze/ContentSidebar';
-import { UserTableWrapper } from '@dailydotdev/shared/src/features/opportunity/components/analyze/UserTableWrapper';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { usePendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
+import { AnalyzeContent } from '@dailydotdev/shared/src/features/opportunity/components/analyze/AnalyzeContent';
+import { AnalyzeStatusBar } from '@dailydotdev/shared/src/components/recruiter/AnalyzeStatusBar';
+import { parseOpportunityMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { labels } from '@dailydotdev/shared/src/lib';
+import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
-const RecruiterPageContent = () => {
-  const { user } = useAuthContext();
-  const { openModal } = useLazyModal();
+interface UseNewOpportunityParserResult {
+  isParsing: boolean;
+}
+
+const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
   const router = useRouter();
-  const [loadingStep, setLoadingStep] = useState(0);
-  const { opportunity } = useOpportunityPreviewContext();
+  const { displayToast } = useToastNotification();
+  const { pendingSubmission, clearPendingSubmission } = usePendingSubmission();
+  const hasStartedParsing = useRef(false);
+  const [parsingComplete, setParsingComplete] = useState(false);
+
+  const opportunityId = router.query.opportunityId as string;
+  const isNewSubmission = opportunityId === 'new';
+
+  const { mutate: parseOpportunity, isPending } = useMutation({
+    ...parseOpportunityMutationOptions(),
+    onSuccess: (opportunity) => {
+      setParsingComplete(true);
+      clearPendingSubmission();
+      router.replace(`/recruiter/${opportunity.id}/analyze`, undefined, {
+        shallow: true,
+      });
+    },
+    onError: (error: ApiErrorResult) => {
+      setParsingComplete(true);
+      clearPendingSubmission();
+
+      const isZodError =
+        error?.response?.errors?.[0]?.extensions?.code ===
+        ApiError.ZodValidationError;
+
+      const message = isZodError
+        ? 'We could not extract the job details from your submission. Please try a different file or URL.'
+        : error?.response?.errors?.[0]?.message || labels.error.generic;
+
+      displayToast(message);
+      router.push(`/recruiter?openModal=joblink`);
+    },
+  });
 
   useEffect(() => {
-    // Always run the full loading animation sequence
-    const timers: NodeJS.Timeout[] = [];
+    if (!isNewSubmission || hasStartedParsing.current) {
+      return;
+    }
 
-    timers.push(setTimeout(() => setLoadingStep(1), 800));
-    timers.push(setTimeout(() => setLoadingStep(2), 1600));
-    timers.push(setTimeout(() => setLoadingStep(3), 2400));
-    timers.push(setTimeout(() => setLoadingStep(4), 3200));
+    if (!pendingSubmission) {
+      router.push(`/recruiter?openModal=joblink`);
+      return;
+    }
 
-    return () => timers.forEach(clearTimeout);
-  }, []);
+    hasStartedParsing.current = true;
+
+    if (pendingSubmission.type === 'url') {
+      parseOpportunity({ url: pendingSubmission.url });
+    } else {
+      parseOpportunity({ file: pendingSubmission.file });
+    }
+  }, [isNewSubmission, pendingSubmission, parseOpportunity, router]);
+
+  // Consider parsing in progress if:
+  // 1. The mutation is currently pending, OR
+  // 2. We're on a new submission and parsing hasn't completed yet
+  const isParsingInProgress =
+    isPending || (isNewSubmission && !parsingComplete);
+
+  return { isParsing: isParsingInProgress };
+};
+
+const RecruiterPageContent = () => {
+  const router = useRouter();
+  const { opportunity, result } = useOpportunityPreviewContext();
+  const { isParsing } = useNewOpportunityParser();
+
+  const loadingStep = useMemo(() => {
+    if (isParsing) {
+      return 0;
+    }
+
+    if (!result?.status) {
+      return 1;
+    }
+
+    if (result.status === OpportunityPreviewStatus.PENDING) {
+      return 2;
+    }
+
+    return 3;
+  }, [isParsing, result?.status]);
 
   const handlePrepareCampaignClick = useCallback(() => {
     if (!opportunity) {
       return;
     }
 
-    if (!user) {
-      openModal({
-        type: LazyModal.RecruiterSignIn,
-      });
-    } else {
-      router.push(`${webappUrl}recruiter/${opportunity.id}/prepare`);
-    }
-  }, [user, openModal, router, opportunity]);
+    router.push(`/recruiter/${opportunity.id}/plans`);
+  }, [router, opportunity]);
 
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
+        title="See who matches your role"
+        subtitle="We matched your role to developers already active on daily.dev."
         headerButton={{
-          text: 'Prepare campaign',
+          text: 'Select plan',
           onClick: handlePrepareCampaignClick,
+          disabled: !opportunity,
         }}
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
-      <div className="flex flex-1">
-        <ContentSidebar loadingStep={loadingStep} />
-        <UserTableWrapper loadingStep={loadingStep} />
-      </div>
+      <AnalyzeStatusBar loadingStep={loadingStep} />
+      <AnalyzeContent loadingStep={loadingStep} />
     </div>
   );
 };

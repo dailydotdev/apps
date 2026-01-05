@@ -3,6 +3,7 @@ import type { RadioItemProps } from '../components/fields/RadioItem';
 declare const navigator: Navigator & { brave?: { isBrave: unknown } };
 
 // All links are loaded via Rebrandly
+export const stateOfTrust = 'https://r.daily.dev/state-of-trust';
 export const faq = 'https://r.daily.dev/faqs';
 export const feedback = 'https://r.daily.dev/feedback';
 export const termsOfService = 'https://r.daily.dev/tos';
@@ -58,6 +59,7 @@ export const walletUrl = `${webappUrl}wallet`;
 export const settingsUrl = `${webappUrl}settings`;
 export const briefingUrl = `${webappUrl}briefing`;
 export const opportunityUrl = `${webappUrl}jobs`;
+export const recruiterUrl = `${webappUrl}recruiter`;
 export const boostOpportunityLink = 'https://r.daily.dev/boost-opportunity';
 
 export const authUrl =
@@ -171,3 +173,5 @@ export const webFunnelPrefix = '/helloworld';
 export const creatorsTermsOfService = 'https://r.daily.dev/creators-terms';
 
 export const boostDocsLink = 'https://r.daily.dev/boost';
+
+export const recruiterBookLink = 'https://r.daily.dev/recruiter-book';

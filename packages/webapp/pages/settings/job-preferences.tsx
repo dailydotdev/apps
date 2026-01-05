@@ -69,23 +69,13 @@ const options = [
     key: CandidateStatus.ACTIVELY_LOOKING,
     icon: <ActivelyLookingIcon size={IconSize.XLarge} />,
     title: 'Actively looking',
-    description: (
-      <>
-        I&apos;m in the market and ready to move. This one just wasn&apos;t a
-        fit.
-      </>
-    ),
+    description: <>Ready to make a move and exploring new opportunities.</>,
   },
   {
     key: CandidateStatus.OPEN_TO_OFFERS,
     icon: <SemiActiveIcon size={IconSize.XLarge} />,
-    title: <>Open only if it&apos;s right</>,
-    description: (
-      <>
-        I&apos;m happy where I am, but I&apos;d explore something truly
-        exceptional.
-      </>
-    ),
+    title: <>Open to offers</>,
+    description: <>Happy where I am, but open to something exceptional.</>,
   },
 ];
 

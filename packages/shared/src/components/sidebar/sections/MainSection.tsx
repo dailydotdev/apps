@@ -3,7 +3,13 @@ import React, { useMemo } from 'react';
 import { Section } from '../Section';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { DevPlusIcon, EyeIcon, HotIcon, SquadIcon } from '../../icons';
+import {
+  DevPlusIcon,
+  EyeIcon,
+  HotIcon,
+  SquadIcon,
+  YearInReviewIcon,
+} from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -13,7 +19,10 @@ import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
-import { featurePlusCtaCopy } from '../../../lib/featureManagement';
+import {
+  featurePlusCtaCopy,
+  featureYearInReview,
+} from '../../../lib/featureManagement';
 
 export const MainSection = ({
   isItemsButton,
@@ -26,6 +35,10 @@ export const MainSection = ({
   const { value: ctaCopy } = useConditionalFeature({
     feature: featurePlusCtaCopy,
     shouldEvaluate: !isPlus,
+  });
+  const { value: showYearInReview } = useConditionalFeature({
+    feature: featureYearInReview,
+    shouldEvaluate: isLoggedIn,
   });
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
@@ -62,8 +75,20 @@ export const MainSection = ({
         }
       : undefined;
 
+    const yearInReview = showYearInReview
+      ? {
+          icon: () => <ListIcon Icon={() => <YearInReviewIcon />} />,
+          title: 'Your 2025 in Review',
+          titleClassName:
+            'text-transparent bg-clip-text bg-gradient-to-b from-accent-lettuce-default to-accent-cabbage-default',
+          path: `${webappUrl}log`,
+          isForcedLink: true,
+        }
+      : undefined;
+
     return [
       plusButton,
+      yearInReview,
       myFeed,
       {
         title: 'Following',
@@ -93,7 +118,15 @@ export const MainSection = ({
         requiresLogin: true,
       },
     ].filter(Boolean);
-  }, [ctaCopy, isCustomDefaultFeed, isLoggedIn, isPlus, onNavTabClick, user]);
+  }, [
+    ctaCopy,
+    isCustomDefaultFeed,
+    isLoggedIn,
+    isPlus,
+    onNavTabClick,
+    showYearInReview,
+    user,
+  ]);
 
   return (
     <Section

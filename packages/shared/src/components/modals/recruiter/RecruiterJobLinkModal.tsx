@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import z from 'zod';
-import { useMutation } from '@tanstack/react-query';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -13,16 +12,14 @@ import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { TextField } from '../../fields/TextField';
 import { MagicIcon, ShieldIcon } from '../../icons';
 import { DragDrop } from '../../fields/DragDrop';
-import { parseOpportunityMutationOptions } from '../../../features/opportunity/mutations';
-import { useToastNotification } from '../../../hooks';
-import type { ApiErrorResult } from '../../../graphql/common';
-import { labels } from '../../../lib';
-import type { Opportunity } from '../../../features/opportunity/types';
+import type { PendingSubmission } from '../../../features/opportunity/context/PendingSubmissionContext';
+import { ModalClose } from '../common/ModalClose';
 
-const jobLinkSchema = z.string().url('Please enter a valid URL');
+const jobLinkSchema = z.url({ message: 'Please enter a valid URL' });
 
 export interface RecruiterJobLinkModalProps extends ModalProps {
-  onSubmit: (opportunity: Opportunity) => void;
+  onSubmit: (submission: PendingSubmission) => void;
+  closeable?: boolean;
 }
 
 const fileValidation = {
@@ -37,14 +34,14 @@ const fileValidation = {
 export const RecruiterJobLinkModal = ({
   onSubmit,
   onRequestClose,
+  closeable = false,
   ...modalProps
 }: RecruiterJobLinkModalProps): ReactElement => {
   const [jobLink, setJobLink] = useState('');
   const [error, setError] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
-  const { displayToast } = useToastNotification();
 
-  const validateJobLink = (value: string) => {
+  const validateJobLink = useCallback((value: string) => {
     if (!value.trim()) {
       setError('');
       return false;
@@ -52,53 +49,45 @@ export const RecruiterJobLinkModal = ({
 
     const result = jobLinkSchema.safeParse(value.trim());
     if (!result.success) {
-      setError(result.error[0]?.message || 'Invalid URL');
+      setError(result.error.issues[0]?.message || 'Invalid URL');
       return false;
     }
 
     setError('');
     return true;
-  };
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setJobLink(value);
-    validateJobLink(value);
-  };
-
-  const { mutateAsync: parseOpportunity } = useMutation(
-    parseOpportunityMutationOptions(),
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      setJobLink(value);
+      validateJobLink(value);
+      if (value.trim()) {
+        setFile(null);
+      }
+    },
+    [validateJobLink],
   );
 
-  const {
-    mutate: handleSubmit,
-    status,
-    isPending,
-  } = useMutation({
-    mutationFn: async () => {
-      if (jobLink) {
-        const trimmedLink = jobLink.trim();
+  const handleFilesDrop = useCallback((files: File[]) => {
+    setFile(files[0]);
+    setJobLink('');
+    setError('');
+  }, []);
 
-        if (trimmedLink && validateJobLink(trimmedLink)) {
-          return parseOpportunity({ url: trimmedLink });
-        }
+  const handleSubmit = useCallback(() => {
+    if (jobLink) {
+      const trimmedLink = jobLink.trim();
+      if (trimmedLink && validateJobLink(trimmedLink)) {
+        onSubmit({ type: 'url', url: trimmedLink });
+        return;
       }
+    }
 
-      if (file) {
-        return parseOpportunity({ file });
-      }
-
-      throw new Error('No job link or file provided');
-    },
-    onError: (mutationError: ApiErrorResult) => {
-      displayToast(
-        mutationError?.response?.errors?.[0]?.message || labels.error.generic,
-      );
-    },
-    onSuccess: (opportunity) => {
-      onSubmit(opportunity);
-    },
-  });
+    if (file) {
+      onSubmit({ type: 'file', file });
+    }
+  }, [jobLink, file, validateJobLink, onSubmit]);
 
   return (
     <Modal
@@ -106,21 +95,13 @@ export const RecruiterJobLinkModal = ({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
-      shouldCloseOnOverlayClick={false}
+      shouldCloseOnOverlayClick={closeable}
+      shouldCloseOnEsc={closeable}
     >
-      <Modal.Body className="flex flex-col items-center gap-6 p-6 !py-10">
-        <div className="mx-auto flex items-center justify-center gap-3 rounded-12 bg-brand-float px-4 py-1">
-          <MagicIcon className="text-brand-default" />
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Brand}
-          >
-            Something magical in 3...2...1...
-          </Typography>
-        </div>
-
+      {closeable && <ModalClose className="top-2" onClick={onRequestClose} />}
+      <Modal.Body className="flex flex-col gap-6 p-6">
         <Typography type={TypographyType.Title1} bold center>
-          Find out who&#39;s ready to say yes
+          Help us understand your role
         </Typography>
 
         <Typography
@@ -128,51 +109,51 @@ export const RecruiterJobLinkModal = ({
           color={TypographyColor.Tertiary}
           center
         >
-          Your role is matched privately inside daily.dev&#39;s developer
-          network
+          Share a link or upload a job description. We&#39;ll extract the
+          details and match your role with developers who opted in to hear about
+          it.
         </Typography>
 
         <div className="flex w-full flex-col gap-4">
           <TextField
-            label="Paste your job link"
+            label="Job description URL"
             inputId="job-link"
             name="job-link"
             placeholder="https://yourcompany.com/careers/senior-engineer"
             value={jobLink}
             onChange={handleChange}
             valid={!error && jobLink.trim().length > 0}
-            hint={error}
+            hint={
+              error ||
+              "We'll extract title, requirements, salary, and location from the page"
+            }
           />
 
           <div className="text-center text-text-secondary typo-callout">
-            Or upload
+            Or upload a job description
           </div>
 
           <DragDrop
-            state={status}
+            state={undefined}
             isCompactList
             className="w-full laptop:min-h-20"
-            onFilesDrop={(files) => {
-              setFile(files[0]);
-            }}
+            onFilesDrop={handleFilesDrop}
             validation={fileValidation}
             isCopyBold
-            dragDropDescription="Drop PDF or Word here or"
-            ctaLabelDesktop="Select file"
-            ctaLabelMobile="Select file"
+            dragDropDescription="Drop PDF or Word file here or"
+            ctaLabelDesktop="Browse files"
+            ctaLabelMobile="Browse files"
           />
 
           <Button
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
-            onClick={() => {
-              handleSubmit();
-            }}
+            onClick={handleSubmit}
             disabled={(!jobLink.trim() && !file) || !!error}
-            loading={isPending}
             className="w-full gap-2 tablet:w-auto"
           >
-            <MagicIcon /> Find my matches
+            <MagicIcon />
+            Analyze & find matches
           </Button>
 
           <div className="flex items-center justify-center gap-2">
@@ -182,20 +163,11 @@ export const RecruiterJobLinkModal = ({
               color={TypographyColor.Tertiary}
               center
             >
-              Built on trust, not scraping. Every match is fully opt-in.
+              Developers only see your role if they opted in and it fits.
             </Typography>
           </div>
         </div>
       </Modal.Body>
-      <Modal.Footer className="!justify-center bg-surface-float">
-        <Typography
-          type={TypographyType.Subhead}
-          color={TypographyColor.Tertiary}
-          center
-        >
-          See real developer introductions in hours, not weeks.
-        </Typography>
-      </Modal.Footer>
     </Modal>
   );
 };

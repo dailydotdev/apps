@@ -12,6 +12,8 @@ import {
   jobsHowItWorksTwo,
 } from '../../../lib/image';
 
+const VIDEO_ID = '80GzyJ3ejgU';
+
 const howItWorks = [
   {
     image: jobsHowItWorksOne,
@@ -38,6 +40,18 @@ export const OpportunityHowItWorks = (): ReactElement => {
       <Typography type={TypographyType.Title3} bold>
         How it works
       </Typography>
+      <div className="mx-auto w-full max-w-md overflow-hidden rounded-16">
+        <div className="relative pt-[56.25%]">
+          <iframe
+            title="A developer-first way to find your next job"
+            src={`https://www.youtube-nocookie.com/embed/${VIDEO_ID}`}
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            className="absolute inset-0 size-full border-0"
+          />
+        </div>
+      </div>
       <div className="flex flex-col gap-4 text-left tablet:flex-row">
         {howItWorks.map(({ image, title, description }, index) => (
           <div

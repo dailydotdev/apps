@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -10,17 +10,44 @@ import {
 import { ButtonVariant } from '../../buttons/Button';
 import Logo from '../../Logo';
 import { AuthTriggers } from '../../../lib/auth';
+import type { AuthProps } from '../../auth/common';
 import { AuthDisplay } from '../../auth/common';
 import AuthOptions from '../../auth/AuthOptions';
-import { useAuthContext } from '../../../contexts/AuthContext';
 
-export type RecruiterSignInModalProps = ModalProps;
+export type RecruiterSignInModalProps = ModalProps & {
+  onSuccess?: () => void;
+};
 
 export const RecruiterSignInModal = ({
   onRequestClose,
+  onSuccess,
   ...modalProps
 }: RecruiterSignInModalProps): ReactElement => {
-  const { showLogin } = useAuthContext();
+  const [authDisplay, setAuthDisplay] = useState<AuthDisplay>(
+    AuthDisplay.OnboardingSignup,
+  );
+
+  const handleAuthStateUpdate = useCallback((props: Partial<AuthProps>) => {
+    // Handle display changes within the modal (e.g., switching to email registration)
+    if (props.defaultDisplay) {
+      setAuthDisplay(props.defaultDisplay);
+    }
+  }, []);
+
+  const handleSuccessfulRegistration = useCallback(() => {
+    // Close the modal and trigger success callback
+    onRequestClose?.(null);
+    onSuccess?.();
+  }, [onRequestClose, onSuccess]);
+
+  const handleSuccessfulLogin = useCallback(() => {
+    // Close the modal and trigger success callback
+    onRequestClose?.(null);
+    onSuccess?.();
+  }, [onRequestClose, onSuccess]);
+
+  // Show header content only on the initial signup screen
+  const showHeader = authDisplay === AuthDisplay.OnboardingSignup;
 
   return (
     <Modal
@@ -31,34 +58,35 @@ export const RecruiterSignInModal = ({
       shouldCloseOnOverlayClick
     >
       <Modal.Body className="flex flex-col items-center gap-6 p-6">
-        <Logo />
-        <Typography type={TypographyType.Title1} bold center>
-          Ready to launch? Let&#39;s unlock your warm intros.
-        </Typography>
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Tertiary}
-          center
-        >
-          Sign in to activate your campaign and get first access to warm devs.
-        </Typography>
+        {showHeader && (
+          <>
+            <Logo />
+            <Typography type={TypographyType.Title1} bold center>
+              Last step to see your matches
+            </Typography>
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Tertiary}
+              center
+            >
+              We&apos;re analyzing your job now. Sign up to see developers who
+              already opted in to hear about roles like yours.
+            </Typography>
+          </>
+        )}
 
         <AuthOptions
-          ignoreMessages
           formRef={null}
           trigger={AuthTriggers.RecruiterSelfServe}
           simplified
-          defaultDisplay={AuthDisplay.OnboardingSignup}
+          defaultDisplay={authDisplay}
           forceDefaultDisplay
           className={{
             onboardingSignup: '!gap-4',
           }}
-          onAuthStateUpdate={(props) => {
-            showLogin({
-              trigger: AuthTriggers.Onboarding,
-              options: { isLogin: true, formValues: props },
-            });
-          }}
+          onAuthStateUpdate={handleAuthStateUpdate}
+          onSuccessfulRegistration={handleSuccessfulRegistration}
+          onSuccessfulLogin={handleSuccessfulLogin}
           onboardingSignupButton={{
             variant: ButtonVariant.Primary,
           }}

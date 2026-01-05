@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { OpportunityStepsProps } from './OpportunitySteps';
@@ -15,6 +15,7 @@ import { ApiError } from '../../../graphql/common';
 import { labels } from '../../../lib/labels';
 import { updateOpportunityStateOptions } from '../../../features/opportunity/mutations';
 import { opportunityEditStep2Schema } from '../../../lib/schema/opportunity';
+import { RequestKey } from '../../../lib/query';
 import { OpportunityState } from '../../../features/opportunity/protobuf/opportunity';
 import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
@@ -33,6 +34,7 @@ export const opportunityEditDiscardPrompt: PromptOptions = {
 export const OpportunityStepsQuestions = (
   props: Partial<OpportunityStepsProps>,
 ): ReactElement => {
+  const queryClient = useQueryClient();
   const { showPrompt } = usePrompt();
   const router = useRouter();
   const opportunityId = router?.query?.id as string;
@@ -49,6 +51,10 @@ export const OpportunityStepsQuestions = (
   } = useMutation({
     ...updateOpportunityStateOptions(),
     onSuccess: () => {
+      // Invalidate opportunities query to update sidebar
+      queryClient.invalidateQueries({
+        queryKey: [RequestKey.Opportunities],
+      });
       goToNextStep();
     },
     onError: async (error: ApiErrorResult) => {
@@ -104,7 +110,7 @@ export const OpportunityStepsQuestions = (
 
           onSubmit({
             id: opportunityId,
-            state: OpportunityState.LIVE,
+            state: OpportunityState.IN_REVIEW,
           });
         },
       }}

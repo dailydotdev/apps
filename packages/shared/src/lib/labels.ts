@@ -143,12 +143,10 @@ export const labels = {
     },
   },
   opportunity: {
-    companyInfoEditNotice:
-      'You can edit company data only on the Organization page.',
+    companyInfoEditNotice: 'Click "Edit" above to update company details',
     requiredMissingNotice: {
-      title: 'Missing Required Information',
-      description:
-        'Some vital fields are empty. Please complete the required information before continuing.',
+      title: 'Almost there!',
+      description: 'Please make sure all the required fields are valid.',
       okButton: 'Close',
     },
     approveNotice: {
@@ -157,6 +155,22 @@ export const labels = {
         'Once approved, we will start matching this job to candidates and notify you in Slack when intros are ready.',
       okButton: 'Approve & Publish',
       cancelButton: 'Back to edit',
+    },
+    contentFields: {
+      placeholders: {
+        overview: 'Tell us about the role',
+        responsibilities: 'List the key responsibilities',
+        requirements: 'Specify the requirements',
+        whatYoullDo: 'Describe what candidate will do',
+        interviewProcess: 'Explain the interview process',
+        generic: 'Tell us more',
+      },
+    },
+    assignSeat: {
+      title: 'Adding more seats was successful',
+      description: 'Do you want to assign your new seat to this job?',
+      okButton: 'Continue',
+      cancelButton: 'Later',
     },
   },
   postCreation: {

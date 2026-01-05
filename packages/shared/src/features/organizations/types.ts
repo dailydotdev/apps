@@ -1,6 +1,7 @@
 import type { SubscriptionStatus } from '../../lib/plus';
 import type { ProtoEnumValue } from '../../lib/protobuf';
 import type { LoggedUser, PublicProfile } from '../../lib/user';
+import type { TLocation } from '../../graphql/autocomplete';
 
 export enum OrganizationMemberRole {
   Owner = 'owner',
@@ -25,6 +26,14 @@ export enum SocialMediaType {
   GitHub = 'github',
   Crunchbase = 'crunchbase',
   LinkedIn = 'linkedin',
+  Wellfound = 'wellfound',
+  Glassdoor = 'glassdoor',
+  Instagram = 'instagram',
+  YouTube = 'youtube',
+  GitLab = 'gitlab',
+  Medium = 'medium',
+  DevTo = 'devto',
+  StackOverflow = 'stackoverflow',
 }
 
 export type OrganizationMember = {
@@ -41,12 +50,17 @@ type OrganizationLinkBase = {
 export type OrganizationLink = OrganizationLinkBase & {
   type: OrganizationLinkType.Custom | OrganizationLinkType.Press;
   title?: string;
+  socialType?: null;
 };
 
 export type OrganizationSocialLink = OrganizationLinkBase & {
   type: OrganizationLinkType.Social;
   socialType: SocialMediaType;
 };
+
+export type OrganizationRecruiterSubscriptionFlags = Partial<{
+  hasSlackConnection: boolean;
+}>;
 
 export type Organization = {
   id: string;
@@ -61,7 +75,8 @@ export type Organization = {
   description?: string;
   perks?: Array<string>;
   founded?: number;
-  location?: string;
+  location?: TLocation | null;
+  externalLocationId?: string;
   category?: string;
   size?: ProtoEnumValue;
   stage?: ProtoEnumValue;
@@ -69,6 +84,8 @@ export type Organization = {
   customLinks?: OrganizationLink[];
   pressLinks?: OrganizationLink[];
   socialLinks?: OrganizationSocialLink[];
+
+  recruiterSubscriptionFlags?: OrganizationRecruiterSubscriptionFlags;
 };
 
 export type UserOrganization = {

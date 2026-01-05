@@ -1,8 +1,5 @@
 import { gql } from 'graphql-request';
 import { ORGANIZATION_SHORT_FRAGMENT } from '../organizations/graphql';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import type { LoggedUser } from '../../lib/user';
-import { fetchPricingPreview, PurchaseType } from '../../graphql/paddle';
 
 export const OPPORTUNITY_CONTENT_FRAGMENT = gql`
   fragment OpportunityContentFragment on OpportunityContentBlock {
@@ -63,7 +60,11 @@ export const OPPORTUNITY_FRAGMENT = gql`
       perks
       category
       founded
-      location
+      location {
+        city
+        country
+        subdivision
+      }
 
       customLinks {
         ...Link
@@ -74,6 +75,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
       pressLinks {
         ...Link
       }
+      recruiterTotalSeats
     }
     content {
       overview {
@@ -439,25 +441,67 @@ export const CLEAR_EMPLOYMENT_AGREEMENT_MUTATION = gql`
 `;
 
 export const EDIT_OPPORTUNITY_MUTATION = gql`
-  mutation EditOpportunity(
-    $id: ID!
-    $payload: OpportunityEditInput!
-    $organizationImage: Upload
-  ) {
-    editOpportunity(
-      id: $id
-      payload: $payload
-      organizationImage: $organizationImage
-    ) {
+  mutation EditOpportunity($id: ID!, $payload: OpportunityEditInput!) {
+    editOpportunity(id: $id, payload: $payload) {
       ...OpportunityFragment
     }
   }
   ${OPPORTUNITY_FRAGMENT}
 `;
 
-export const CLEAR_ORGANIZATION_IMAGE_MUTATION = gql`
-  mutation ClearOrganizationImage($id: ID!) {
-    clearOrganizationImage(id: $id) {
+export const CREATE_ORGANIZATION_FOR_OPPORTUNITY_MUTATION = gql`
+  mutation CreateOrganizationForOpportunity($opportunityId: ID!) {
+    createOrganizationForOpportunity(opportunityId: $opportunityId) {
+      id
+      name
+      image
+    }
+  }
+`;
+
+export const UPDATE_RECRUITER_ORGANIZATION_MUTATION = gql`
+  mutation UpdateRecruiterOrganization(
+    $id: ID!
+    $payload: RecruiterOrganizationEditInput!
+    $organizationImage: Upload
+  ) {
+    updateRecruiterOrganization(
+      id: $id
+      payload: $payload
+      organizationImage: $organizationImage
+    ) {
+      id
+      name
+      image
+      description
+      size
+      stage
+      website
+      perks
+      category
+      founded
+      location {
+        city
+        country
+        subdivision
+      }
+      customLinks {
+        ...Link
+      }
+      socialLinks {
+        ...Link
+      }
+      pressLinks {
+        ...Link
+      }
+    }
+  }
+  ${LINK_FRAGMENT}
+`;
+
+export const CLEAR_RECRUITER_ORGANIZATION_IMAGE_MUTATION = gql`
+  mutation ClearRecruiterOrganizationImage($id: ID!) {
+    clearRecruiterOrganizationImage(id: $id) {
       _
     }
   }
@@ -495,12 +539,36 @@ export const OPPORTUNITIES_QUERY = gql`
           title
           organization {
             ...OrganizationShortFragment
+
+            description
+            size
+            stage
+            website
+            perks
+            category
+            founded
+            location {
+              city
+              country
+              subdivision
+            }
+
+            customLinks {
+              ...Link
+            }
+            socialLinks {
+              ...Link
+            }
+            pressLinks {
+              ...Link
+            }
           }
         }
       }
     }
   }
   ${ORGANIZATION_SHORT_FRAGMENT}
+  ${LINK_FRAGMENT}
 `;
 
 export const RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION = gql`
@@ -565,6 +633,7 @@ export const OPPORTUNITY_PREVIEW = gql`
           openToWork
           seniority
           location
+          locationVerified
           company {
             name
             favicon
@@ -578,7 +647,8 @@ export const OPPORTUNITY_PREVIEW = gql`
             issuedAt
           }
           activeSquads {
-            handle
+            id
+            name
             image
           }
         }
@@ -597,11 +667,13 @@ export const OPPORTUNITY_PREVIEW = gql`
           favicon
         }
         squads {
-          handle
+          id
+          name
           image
         }
         totalCount
         opportunityId
+        status
       }
     }
   }
@@ -620,23 +692,28 @@ export const OPPORTUNITY_STATS_QUERY = gql`
   }
 `;
 
-export const recruiterPricesQueryOptions = ({
-  isLoggedIn,
-  user,
-}: {
-  isLoggedIn: boolean;
-  user: LoggedUser;
-}) => {
-  return {
-    queryKey: generateQueryKey(
-      RequestKey.PricePreview,
-      user,
-      PurchaseType.Recruiter,
-    ),
-    queryFn: async () => {
-      return fetchPricingPreview(PurchaseType.Recruiter);
-    },
-    enabled: isLoggedIn,
-    staleTime: StaleTime.Default,
-  };
-};
+export const PARSE_OPPORTUNITY_MUTATION = gql`
+  mutation ParseOpportunity($payload: ParseOpportunityInput!) {
+    parseOpportunity(payload: $payload) {
+      ...OpportunityFragment
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const REIMPORT_OPPORTUNITY_MUTATION = gql`
+  mutation ReimportOpportunity($payload: ReimportOpportunityInput!) {
+    reimportOpportunity(payload: $payload) {
+      ...OpportunityFragment
+    }
+  }
+  ${OPPORTUNITY_FRAGMENT}
+`;
+
+export const ADD_OPPORTUNITY_SEATS_MUTATION = gql`
+  mutation AddOpportunitySeats($id: ID!, $payload: AddOpportunitySeatsInput!) {
+    addOpportunitySeats(id: $id, payload: $payload) {
+      _
+    }
+  }
+`;

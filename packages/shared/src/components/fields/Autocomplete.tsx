@@ -71,11 +71,15 @@ const Autocomplete = ({
     }
   };
 
+  const isSecondaryField = restProps.fieldType === 'secondary';
+
   return (
     <div className="flex flex-col gap-2">
-      <Typography type={TypographyType.Callout} bold>
-        {label}
-      </Typography>
+      {!isSecondaryField && (
+        <Typography type={TypographyType.Callout} bold>
+          {label}
+        </Typography>
+      )}
       <Popover open={isFocused && (isLoading || options.length > 0)}>
         <PopoverAnchor asChild>
           <TextField

@@ -22,11 +22,11 @@ import {
   useOpportunityPreviewContext,
 } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/graphql';
+import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useQuery } from '@tanstack/react-query';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { useAutoCreateOpportunityOrganization } from '@dailydotdev/shared/src/features/opportunity/hooks/useAutoCreateOpportunityOrganization';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
@@ -35,12 +35,10 @@ const RecruiterPaymentPage = (): ReactElement => {
   const { opportunity } = useOpportunityPreviewContext();
   const { displayToast } = useToastNotification();
 
-  useEffect(() => {
-    if (!opportunity) {
-      return;
-    }
+  useAutoCreateOpportunityOrganization(opportunity);
 
-    if (!selectedProduct) {
+  useEffect(() => {
+    if (!opportunity || !opportunity.organization || !selectedProduct) {
       return;
     }
 
@@ -55,12 +53,22 @@ const RecruiterPaymentPage = (): ReactElement => {
       return;
     }
 
-    if (!opportunity.organization) {
-      router.replace(`${webappUrl}recruiter/${opportunity.id}/prepare`);
-
+    if (opportunity.flags?.plan) {
       displayToast(
-        'Organization info missing, please enter it to proceed with payment.',
+        'You already have active subscription for this opportunity.',
       );
+
+      router.replace(`/recruiter/${opportunity.id}/prepare`);
+
+      return;
+    }
+
+    if (opportunity.organization?.recruiterTotalSeats > 0) {
+      displayToast(
+        'You already have active subscription for this organization.',
+      );
+
+      router.replace(`/recruiter/${opportunity.id}/prepare`);
     }
   }, [displayToast, opportunity, router]);
 
@@ -206,7 +214,7 @@ const RecruiterPaymentPage = (): ReactElement => {
           </div>
         </div>
       </div>
-      <div className="flex flex-1 flex-col bg-white p-10 px-20">
+      <div className="flex flex-1 flex-col bg-black p-10 px-20">
         <div className="w-full max-w-[30rem]">
           <div ref={checkoutRef} className="checkout-container h-full w-full" />
         </div>

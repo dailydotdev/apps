@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode, MutableRefObject } from 'react';
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import type { MutationStatus } from '@tanstack/react-query';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import {
@@ -139,7 +139,7 @@ const CompactItem = ({
 export const dragDropClasses =
   'relative flex flex-1 rounded-10 border border-dashed border-border-subtlest-secondary';
 
-export function DragDrop({
+function DragDropComponent({
   onFilesDrop,
   validation = {},
   errorMessages = {},
@@ -326,3 +326,5 @@ export function DragDrop({
     </div>
   );
 }
+
+export const DragDrop = memo(DragDropComponent);

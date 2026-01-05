@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import {
   Button,
   ButtonColor,
@@ -29,6 +30,7 @@ import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboard
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { useEventListener } from '@dailydotdev/shared/src/hooks/useEventListener';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import {
   useToastNotification,
@@ -67,6 +69,10 @@ type CompanionMenuProps = {
   companionState: boolean;
   onOptOut: () => void;
   setCompanionState: (T) => void;
+  verticalPosition: number;
+  setVerticalPosition: (position: number) => void;
+  isDragging: boolean;
+  setIsDragging: (dragging: boolean) => void;
   onOpenComments?: () => void;
 };
 
@@ -77,6 +83,10 @@ export default function CompanionMenu({
   companionState,
   onOptOut,
   setCompanionState,
+  verticalPosition,
+  setVerticalPosition,
+  isDragging,
+  setIsDragging,
 }: CompanionMenuProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
   const { logEvent } = useLogContext();
@@ -84,6 +94,7 @@ export default function CompanionMenu({
   const { showPrompt } = usePrompt();
   const [reportModal, setReportModal] = useState<boolean>();
   const { displayToast } = useToastNotification();
+  const dragStartRef = useRef({ y: 0, initialY: 0 });
 
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',
@@ -284,9 +295,61 @@ export default function CompanionMenu({
     },
   ];
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Prevent dragging if clicking on interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, [role="menuitem"]')) {
+      return;
+    }
+
+    setIsDragging(true);
+    dragStartRef.current = {
+      y: e.clientY,
+      initialY: verticalPosition,
+    };
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) {
+      return;
+    }
+
+    const deltaY = e.clientY - dragStartRef.current.y;
+    const newY = dragStartRef.current.initialY + deltaY;
+
+    // Constrain to viewport bounds (prevent going negative or beyond viewport)
+    // top-[7.5rem] is 120px, so we need to account for that
+    const topOffset = 120; // 7.5rem in pixels
+    const minY = -topOffset; // Allow moving up to the very top (0px from viewport top)
+    const maxY = window.innerHeight - topOffset - 600; // Prevent going below viewport bottom
+    const constrainedY = Math.max(minY, Math.min(maxY, newY));
+
+    setVerticalPosition(constrainedY);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEventListener(isDragging ? window : null, 'mousemove', handleMouseMove);
+  useEventListener(isDragging ? window : null, 'mouseup', handleMouseUp);
+
   return (
     <>
-      <div className="group relative my-6 flex w-14 flex-col gap-2 self-center rounded-l-16 border border-border-subtlest-quaternary bg-background-default p-2">
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div
+        className={classNames(
+          'group relative my-6 flex w-14 select-none flex-col gap-2 self-center rounded-l-16 border border-border-subtlest-quaternary bg-background-default p-2',
+          isDragging ? 'cursor-grabbing' : 'cursor-grab',
+        )}
+        onMouseDown={handleMouseDown}
+      >
+        {/* Grip indicator dots */}
+        <div className="pointer-events-none absolute left-1/2 top-1 flex -translate-x-1/2 gap-0.5">
+          <div className="h-0.5 w-0.5 rounded-full bg-text-quaternary" />
+          <div className="h-0.5 w-0.5 rounded-full bg-text-quaternary" />
+          <div className="h-0.5 w-0.5 rounded-full bg-text-quaternary" />
+        </div>
         <CompanionToggle
           companionState={companionState}
           isAlertDisabled={!showCompanionHelper}

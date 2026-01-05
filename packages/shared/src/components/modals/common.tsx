@@ -340,6 +340,12 @@ const OpportunityEditRecruiterModal = dynamic(() =>
   ).then((mod) => mod.OpportunityEditRecruiterModal),
 );
 
+const OpportunityReimportModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "opportunityReimportModal" */ '../opportunity/OpportunityEditModal/OpportunityReimportModal'
+  ).then((mod) => mod.OpportunityReimportModal),
+);
+
 const DirtyFormModal = dynamic(
   () => import(/* webpackChunkName: "dirtyFormModal" */ './DirtyFormModal'),
 );
@@ -390,6 +396,13 @@ const SlackChannelConfirmationModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "slackChannelConfirmationModal" */ './recruiter/SlackChannelConfirmationModal'
+    ),
+);
+
+const RecruiterSeatsModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "recruiterSeatsModal" */ './recruiter/RecruiterSeatsModal'
     ),
 );
 
@@ -449,6 +462,7 @@ export const modals = {
   [LazyModal.SquadNotificationSettings]: SquadNotificationSettingsModal,
   [LazyModal.OpportunityEdit]: OpportunityEditModal,
   [LazyModal.OpportunityEditRecruiter]: OpportunityEditRecruiterModal,
+  [LazyModal.OpportunityReimport]: OpportunityReimportModal,
   [LazyModal.DirtyForm]: DirtyFormModal,
   [LazyModal.JobOpportunity]: JobOpportunityModal,
   [LazyModal.RecruiterIntro]: RecruiterIntroModal,
@@ -457,6 +471,7 @@ export const modals = {
   [LazyModal.RecruiterSignIn]: RecruiterSignInModal,
   [LazyModal.VerifyExperience]: VerifyExperienceModal,
   [LazyModal.SlackChannelConfirmation]: SlackChannelConfirmationModal,
+  [LazyModal.RecruiterSeats]: RecruiterSeatsModal,
 };
 
 type GetComponentProps<T> = T extends

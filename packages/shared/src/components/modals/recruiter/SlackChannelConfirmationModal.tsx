@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -14,45 +14,35 @@ import { useCreateSharedSlackChannel } from '../../../hooks/integrations/slack/u
 import Alert, { AlertType } from '../../widgets/Alert';
 
 export type SlackChannelConfirmationModalProps = ModalProps & {
-  name: string;
   email: string;
   channelName: string;
-};
-
-const generateChannelName = (name: string): string => {
-  const sanitizedName = name
-    .toLowerCase()
-    .replace(/[^a-z0-9-_]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .substring(0, 80);
-
-  return `dailydev-${sanitizedName}`;
+  organizationId?: string;
 };
 
 export const SlackChannelConfirmationModal = ({
-  name,
   email,
   channelName,
+  organizationId,
   onRequestClose,
   ...modalProps
 }: SlackChannelConfirmationModalProps): ReactElement => {
   const { createChannel, isCreating } = useCreateSharedSlackChannel();
-  const [localName, setLocalName] = useState(name);
   const [localEmail, setLocalEmail] = useState(email);
   const [error, setError] = useState<string | null>(null);
 
-  const currentChannelName = useMemo(
-    () => generateChannelName(localName || 'user'),
-    [localName],
-  );
-
   const handleConfirm = async () => {
     setError(null);
+
+    if (!organizationId) {
+      setError('Organization ID is required');
+      return;
+    }
+
     try {
       await createChannel({
         email: localEmail,
-        channelName: currentChannelName,
+        channelName,
+        organizationId,
       });
       onRequestClose(null);
     } catch (err) {
@@ -90,14 +80,6 @@ export const SlackChannelConfirmationModal = ({
           )}
 
           <TextField
-            label="Name"
-            inputId="slack-name"
-            value={localName}
-            onChange={(e) => setLocalName(e.target.value)}
-            disabled={isCreating}
-          />
-
-          <TextField
             label="Email"
             inputId="slack-email"
             type="email"
@@ -111,7 +93,7 @@ export const SlackChannelConfirmationModal = ({
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              Channel name: <strong>{currentChannelName}</strong>
+              Channel name: <strong>{channelName}</strong>
             </Typography>
           </div>
         </FlexCol>
@@ -129,7 +111,7 @@ export const SlackChannelConfirmationModal = ({
           variant={ButtonVariant.Primary}
           onClick={handleConfirm}
           loading={isCreating}
-          disabled={isCreating || !localName || !localEmail}
+          disabled={isCreating || !localEmail}
           className="flex-1"
         >
           Connect Slack

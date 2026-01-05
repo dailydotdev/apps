@@ -268,6 +268,64 @@ import { useEventListener } from './useEventListener';
 useEventListener('scroll', handleScroll);
 ```
 
+## Analytics Logging Patterns
+
+### useLogEventOnce - One-Time Event Logging
+
+Use `useLogEventOnce` for logging events that should fire exactly once (e.g., impressions, form open tracking). This hook follows React best practices by using refs to track logged state, avoiding `eslint-disable` comments for empty dependency arrays.
+
+```typescript
+import useLogEventOnce from './log/useLogEventOnce';
+import { LogEvent } from '../lib/log';
+
+// Log once on mount
+useLogEventOnce(() => ({
+  event_name: LogEvent.StartAddExperience,
+  target_type: type,
+}));
+
+// Log once when condition becomes true
+useLogEventOnce(
+  () => ({
+    event_name: LogEvent.StartAddExperience,
+    target_type: type,
+  }),
+  { condition: isNewExperience }
+);
+```
+
+**Why use this hook?**
+- ✅ No `eslint-disable` comments needed
+- ✅ Uses refs to track if already logged (survives re-renders)
+- ✅ Supports conditional logging via `condition` option
+- ✅ Getter function captures values at log time (no stale closures)
+- ✅ Works correctly with React Strict Mode
+
+**When to use:**
+- Impression events (page views, component visibility)
+- Form initialization tracking ("start add X" events)
+- Any event that should fire exactly once per component mount
+
+#### ❌ Don't use useEffect with empty deps
+
+```typescript
+// Bad: requires eslint-disable, doesn't capture latest values
+useEffect(() => {
+  logEvent({ event_name: LogEvent.Impression });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+```
+
+#### ✅ Use useLogEventOnce instead
+
+```typescript
+// Good: proper dependency tracking, no lint suppression
+useLogEventOnce(() => ({
+  event_name: LogEvent.Impression,
+  target_type: someValue, // captured at log time
+}));
+```
+
 ## Creating Custom Hooks
 
 Most custom hooks contain specific parts of business logic as public API for other components and hooks to consume. They often mimic part of specific business logic or are tied to bigger features.

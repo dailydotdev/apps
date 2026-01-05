@@ -53,16 +53,21 @@ const FormWrapper: React.FC<FormWrapperProps> = ({
   );
 };
 
+const getFieldByName = (container: HTMLElement, name: string) => {
+  // eslint-disable-next-line testing-library/no-node-access
+  return container.querySelector(`[name="${name}"]`) as HTMLInputElement;
+};
+
 describe('UserWorkExperienceForm', () => {
   it('should render all form fields', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserWorkExperienceForm />
       </FormWrapper>,
     );
 
     // Check title input field is rendered
-    const titleInput = screen.getByPlaceholderText('Ex: Retail Sales Manager');
+    const titleInput = getFieldByName(container, 'title');
     expect(titleInput).toBeInTheDocument();
     expect(titleInput).toHaveAttribute('name', 'title');
 
@@ -81,9 +86,7 @@ describe('UserWorkExperienceForm', () => {
     expect(currentDescription).toBeInTheDocument();
 
     // Check description textarea
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'List your major duties and successes, highlighting specific projects',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
     expect(descriptionTextarea).toBeInTheDocument();
     expect(descriptionTextarea).toHaveAttribute('name', 'description');
 
@@ -98,14 +101,14 @@ describe('UserWorkExperienceForm', () => {
   });
 
   it('should handle user interaction with form fields', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserWorkExperienceForm />
       </FormWrapper>,
     );
 
     // Type in title field
-    const titleInput = screen.getByPlaceholderText('Ex: Retail Sales Manager');
+    const titleInput = getFieldByName(container, 'title');
     await userEvent.type(titleInput, 'Senior Software Engineer');
     expect(titleInput).toHaveValue('Senior Software Engineer');
 
@@ -121,9 +124,7 @@ describe('UserWorkExperienceForm', () => {
     expect(currentSwitch).toBeChecked();
 
     // Type in description
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'List your major duties and successes, highlighting specific projects',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
     await userEvent.type(
       descriptionTextarea,
       'Led development of microservices',
@@ -145,16 +146,14 @@ describe('UserWorkExperienceForm', () => {
       country: 'USA',
     };
 
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserWorkExperienceForm location={mockLocation} />
       </FormWrapper>,
     );
 
     // Verify form renders with location - the ProfileLocation component should handle it
-    expect(
-      screen.getByPlaceholderText('Ex: Retail Sales Manager'),
-    ).toBeInTheDocument();
+    expect(getFieldByName(container, 'title')).toBeInTheDocument();
     expect(screen.getByText('Description')).toBeInTheDocument();
   });
 
@@ -168,19 +167,17 @@ describe('UserWorkExperienceForm', () => {
       skills: ['JavaScript', 'React'],
     };
 
-    render(
+    const { container } = render(
       <FormWrapper defaultValues={defaultValues}>
         <UserWorkExperienceForm />
       </FormWrapper>,
     );
 
     // Check that form fields have the default values
-    const titleInput = screen.getByPlaceholderText('Ex: Retail Sales Manager');
+    const titleInput = getFieldByName(container, 'title');
     expect(titleInput).toHaveValue('Software Engineer');
 
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'List your major duties and successes, highlighting specific projects',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
     expect(descriptionTextarea).toHaveValue('Building awesome applications');
 
     // Check current switch state through the label
@@ -194,16 +191,14 @@ describe('UserWorkExperienceForm', () => {
   });
 
   it('should display all required field indicators', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserWorkExperienceForm />
       </FormWrapper>,
     );
 
     // Check for required field indicators
-    expect(
-      screen.getByPlaceholderText('Ex: Retail Sales Manager'),
-    ).toBeInTheDocument();
+    expect(getFieldByName(container, 'title')).toBeInTheDocument();
 
     // Check date fields have required indicators
     expect(screen.getByText('Start date*')).toBeInTheDocument();
@@ -211,27 +206,21 @@ describe('UserWorkExperienceForm', () => {
   });
 
   it('should render all form sections with proper structure', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserWorkExperienceForm />
       </FormWrapper>,
     );
 
     // Verify all main input fields are present using proper queries
-    expect(
-      screen.getByPlaceholderText('Ex: Retail Sales Manager'),
-    ).toBeInTheDocument();
+    expect(getFieldByName(container, 'title')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /please select/i }),
     ).toBeInTheDocument();
 
     // Check current position text is present
     expect(screen.getByText('Current position')).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText(
-        'List your major duties and successes, highlighting specific projects',
-      ),
-    ).toBeInTheDocument();
+    expect(getFieldByName(container, 'description')).toBeInTheDocument();
 
     // Check text content for sections
     expect(screen.getByText('Employment Type')).toBeInTheDocument();
@@ -268,15 +257,13 @@ describe('UserWorkExperienceForm', () => {
   });
 
   it('should show character count for description field', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserWorkExperienceForm />
       </FormWrapper>,
     );
 
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'List your major duties and successes, highlighting specific projects',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
 
     // Type some text and check if character count updates
     await userEvent.type(descriptionTextarea, 'Test description');

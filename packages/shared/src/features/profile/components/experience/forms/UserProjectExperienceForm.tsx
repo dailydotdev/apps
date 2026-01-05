@@ -37,7 +37,7 @@ const getFormCopy = (type: UserExperienceType): FormCopy => {
   }
 
   return {
-    titlePlaceholder: 'Ex: Name of the publication or article',
+    titlePlaceholder: 'Ex: Building Scalable APIs with Go',
     switchLabel: 'Ongoing project/publication',
     switchDescription:
       'Check if this project or publication is currently active or ongoing.',
@@ -102,7 +102,7 @@ const UserProjectExperienceForm = () => {
         <ControlledTextField
           name="url"
           label={copy.urlLabel}
-          placeholder="Ex: Validates against URL format"
+          placeholder="Ex: https://github.com/username/repo"
           fieldType="secondary"
           className={profileSecondaryFieldStyles}
         />

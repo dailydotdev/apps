@@ -28,6 +28,7 @@ import {
 } from './graphql';
 import type { LoggedUser } from '../../lib/user';
 import { disabledRefetch } from '../../lib/func';
+import { fetchPricingPreview, PurchaseType } from '../../graphql/paddle';
 
 export const getOpportunityByIdKey = (id: string): QueryKey => [
   RequestKey.Opportunity,
@@ -112,7 +113,7 @@ export const getKeywordAutocompleteOptions = (
       return res.autocompleteKeywords;
     },
     staleTime: query.length === 0 ? StaleTime.OneHour : StaleTime.Default,
-    enabled: query.length === 0 || query.length >= 2,
+    enabled: query.length >= 2,
     placeholderData: keepPreviousData,
   };
 };
@@ -241,5 +242,26 @@ export const opportunityStatsOptions = ({
     },
     staleTime: StaleTime.Default,
     enabled: !!opportunityId,
+  };
+};
+
+export const recruiterPricesQueryOptions = ({
+  isLoggedIn,
+  user,
+}: {
+  isLoggedIn: boolean;
+  user: LoggedUser;
+}) => {
+  return {
+    queryKey: generateQueryKey(
+      RequestKey.PricePreview,
+      user,
+      PurchaseType.Recruiter,
+    ),
+    queryFn: async () => {
+      return fetchPricingPreview(PurchaseType.Recruiter);
+    },
+    enabled: isLoggedIn,
+    staleTime: StaleTime.Default,
   };
 };

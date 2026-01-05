@@ -1,4 +1,5 @@
 import type { Opportunity } from './types';
+import { OpportunityPreviewStatus } from './types';
 import type { OpportunityPreviewContextType } from './context/OpportunityPreviewContext';
 import { SeniorityLevel } from './protobuf/opportunity';
 import { SourceMemberRole, SourceType } from '../../graphql/sources';
@@ -14,6 +15,7 @@ export const mockOpportunity: Opportunity = {
     name: 'Daily.dev',
     website: 'https://daily.dev',
     image: 'https://daily.dev/favicon.ico',
+    recruiterTotalSeats: 1,
   },
   content: {
     overview: {
@@ -65,199 +67,9 @@ export const mockOpportunity: Opportunity = {
   ],
 };
 
-export const mockAnonymousUserTableData: OpportunityPreviewContextType = {
-  edges: [
-    {
-      node: {
-        id: '1',
-        profileImage:
-          'https://media.daily.dev/image/upload/f_auto/v1/placeholders/1',
-        anonId: 'anon #1001',
-        description:
-          'Senior frontend developer with 8+ years experience in React, TypeScript, and modern web technologies. Passionate about building scalable applications.',
-        openToWork: true,
-        seniority: 'Senior',
-        location: 'San Francisco, CA',
-        company: {
-          name: 'Google',
-          favicon: 'https://www.google.com/s2/favicons?domain=google.com',
-        },
-        lastActivity: new Date(Date.now() - 1000 * 60 * 5),
-        topTags: ['react', 'typescript', 'javascript', 'nextjs'],
-        recentlyRead: [
-          {
-            keyword: { value: 'React' },
-            issuedAt: new Date('2024-11-01'),
-            id: 'topreader1',
-            total: 1,
-            user: null,
-          },
-          {
-            keyword: { value: 'TypeScript' },
-            issuedAt: new Date('2024-10-01'),
-            id: 'topreader2',
-            total: 1,
-            user: null,
-          },
-        ],
-        activeSquads: [
-          {
-            handle: 'webdev',
-            image:
-              'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
-            active: false,
-            permalink: '',
-            public: false,
-            type: SourceType.Squad,
-            membersCount: 0,
-            description: '',
-            memberPostingRole: SourceMemberRole.Member,
-            memberInviteRole: SourceMemberRole.Member,
-            moderationRequired: false,
-            moderationPostCount: 0,
-            name: '',
-          },
-          {
-            handle: 'javascript',
-            image:
-              'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
-            active: false,
-            permalink: '',
-            public: false,
-            type: SourceType.Squad,
-            membersCount: 0,
-            description: '',
-            memberPostingRole: SourceMemberRole.Member,
-            memberInviteRole: SourceMemberRole.Member,
-            moderationRequired: false,
-            moderationPostCount: 0,
-            name: '',
-          },
-        ],
-      },
-    },
-    {
-      node: {
-        id: '2',
-        profileImage:
-          'https://media.daily.dev/image/upload/f_auto/v1/placeholders/2',
-        anonId: 'anon #1002',
-        description:
-          'Full-stack engineer specializing in Node.js and React. Love working on challenging problems and learning new technologies.',
-        openToWork: true,
-        seniority: 'Mid',
-        location: 'New York, NY',
-        company: {
-          name: 'Microsoft',
-          favicon: 'https://www.google.com/s2/favicons?domain=microsoft.com',
-        },
-        lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 2),
-        topTags: ['nodejs', 'react', 'mongodb', 'aws'],
-        recentlyRead: [
-          {
-            keyword: { value: 'Node.js' },
-            issuedAt: new Date('2024-11-15'),
-            id: 'topreader4',
-            total: 1,
-            user: null,
-          },
-          {
-            keyword: { value: 'AWS' },
-            issuedAt: new Date('2024-09-01'),
-            id: 'topreader5',
-            total: 1,
-            user: null,
-          },
-        ],
-        activeSquads: [
-          {
-            handle: 'backend',
-            image:
-              'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
-            active: false,
-            permalink: '',
-            public: false,
-            type: SourceType.Squad,
-            membersCount: 0,
-            description: '',
-            memberPostingRole: SourceMemberRole.Member,
-            memberInviteRole: SourceMemberRole.Member,
-            moderationRequired: false,
-            moderationPostCount: 0,
-            name: '',
-          },
-        ],
-      },
-    },
-    {
-      node: {
-        id: '3',
-        profileImage:
-          'https://media.daily.dev/image/upload/f_auto/v1/placeholders/3',
-        anonId: 'anon #1003',
-        description:
-          'Frontend developer with expertise in Vue and React. Strong focus on UI/UX and accessibility.',
-        openToWork: false,
-        seniority: 'Senior',
-        location: 'Austin, TX',
-        company: {
-          name: 'Apple Inc.',
-          favicon: 'https://www.google.com/s2/favicons?domain=apple.com',
-        },
-        lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 24),
-        topTags: ['vue', 'react', 'css', 'accessibility'],
-        recentlyRead: [
-          {
-            keyword: { value: 'Vue' },
-            issuedAt: new Date('2024-10-15'),
-            id: 'topreader6',
-            total: 1,
-            user: null,
-          },
-        ],
-        activeSquads: [
-          {
-            handle: 'frontend',
-            image:
-              'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
-            active: false,
-            permalink: '',
-            public: false,
-            type: SourceType.Squad,
-            membersCount: 0,
-            description: '',
-            memberPostingRole: SourceMemberRole.Member,
-            memberInviteRole: SourceMemberRole.Member,
-            moderationRequired: false,
-            moderationPostCount: 0,
-            name: '',
-          },
-          {
-            handle: 'css',
-            image:
-              'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d81fd85ddaea4d25a658694de448118f',
-            active: false,
-            permalink: '',
-            public: false,
-            type: SourceType.Squad,
-            membersCount: 0,
-            description: '',
-            memberPostingRole: SourceMemberRole.Member,
-            memberInviteRole: SourceMemberRole.Member,
-            moderationRequired: false,
-            moderationPostCount: 0,
-            name: '',
-          },
-        ],
-      },
-    },
-  ],
-  pageInfo: {
-    hasNextPage: false,
-    endCursor: null,
-  },
+export const mockOpportunityPreviewData: OpportunityPreviewContextType = {
   result: {
-    tags: ['google', 'startup'],
+    tags: ['react', 'typescript', 'nextjs', 'javascript', 'nodejs', 'graphql'],
     companies: [
       {
         name: 'Shopify',
@@ -286,7 +98,9 @@ export const mockAnonymousUserTableData: OpportunityPreviewContextType = {
     ],
     squads: [
       {
-        handle: 'publicsquad',
+        id: 'squad-1',
+        handle: 'webdev',
+        name: 'Web Development',
         image:
           'https://media.daily.dev/image/upload/s--iK6zGJCz--/f_auto,t_logo/v1698841319/logos/collections.jpg',
         active: false,
@@ -299,11 +113,62 @@ export const mockAnonymousUserTableData: OpportunityPreviewContextType = {
         memberInviteRole: SourceMemberRole.Member,
         moderationRequired: false,
         moderationPostCount: 0,
-        name: '',
+      },
+      {
+        id: 'squad-2',
+        handle: 'javascript',
+        name: 'JavaScript',
+        image:
+          'https://media.daily.dev/image/upload/s--iK6zGJCz--/f_auto,t_logo/v1698841319/logos/collections.jpg',
+        active: false,
+        permalink: '',
+        public: false,
+        type: SourceType.Squad,
+        membersCount: 0,
+        description: '',
+        memberPostingRole: SourceMemberRole.Member,
+        memberInviteRole: SourceMemberRole.Member,
+        moderationRequired: false,
+        moderationPostCount: 0,
+      },
+      {
+        id: 'squad-3',
+        handle: 'react',
+        name: 'React Developers',
+        image:
+          'https://media.daily.dev/image/upload/s--iK6zGJCz--/f_auto,t_logo/v1698841319/logos/collections.jpg',
+        active: false,
+        permalink: '',
+        public: false,
+        type: SourceType.Squad,
+        membersCount: 0,
+        description: '',
+        memberPostingRole: SourceMemberRole.Member,
+        memberInviteRole: SourceMemberRole.Member,
+        moderationRequired: false,
+        moderationPostCount: 0,
+      },
+      {
+        id: 'squad-4',
+        handle: 'typescript',
+        name: 'TypeScript Community',
+        image:
+          'https://media.daily.dev/image/upload/s--iK6zGJCz--/f_auto,t_logo/v1698841319/logos/collections.jpg',
+        active: false,
+        permalink: '',
+        public: false,
+        type: SourceType.Squad,
+        membersCount: 0,
+        description: '',
+        memberPostingRole: SourceMemberRole.Member,
+        memberInviteRole: SourceMemberRole.Member,
+        moderationRequired: false,
+        moderationPostCount: 0,
       },
     ],
     totalCount: 5001,
     opportunityId: '89f3daff-d6bb-4652-8f9c-b9f7254c9af1',
+    status: OpportunityPreviewStatus.READY,
   },
   opportunity: mockOpportunity,
 };

@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ConnectHeader } from '@dailydotdev/shared/src/components/recruiter/ConnectHeader';
 import { ConnectProgress } from '@dailydotdev/shared/src/components/recruiter/ConnectProgress';
+import { RecruiterSetupChecklist } from '@dailydotdev/shared/src/components/recruiter/RecruiterSetupChecklist';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
   generateQueryKey,
@@ -46,8 +47,6 @@ function RecruiterMatchesPage(): ReactElement {
         query.state.fetchFailureCount,
       );
 
-      // transactions are mostly processed withing few seconds
-      // so for now we stop retrying after 1 minute
       const maxRetries = (oneMinute * 1000) / transactionRefetchIntervalMs;
 
       if (retries > maxRetries) {
@@ -136,6 +135,17 @@ function RecruiterMatchesPage(): ReactElement {
   }
 
   const isReadyForMatches = opportunity?.state !== OpportunityState.DRAFT;
+  const isInReview = opportunity?.state === OpportunityState.IN_REVIEW;
+
+  const getStatusBannerContent = () => {
+    if (isInReview) {
+      return 'Your job is in review. We will notify you once it goes live.';
+    }
+    if (!isReadyForMatches) {
+      return 'Processing your data and payment...';
+    }
+    return 'Promising candidates will appear here for your review.';
+  };
 
   return (
     <OpportunityProvider opportunityId={opportunityId as string}>
@@ -169,26 +179,24 @@ function RecruiterMatchesPage(): ReactElement {
                   type={TypographyType.Footnote}
                   color={TypographyColor.Brand}
                 >
-                  Your next promising candidates will land here. As soon as
-                  someone shows real potential, they’ll move into this step for
-                  review.
+                  {getStatusBannerContent()}
                 </Typography>
               </div>
-              <div className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center gap-6 p-6">
-                <Typography type={TypographyType.Mega3} bold center>
-                  We are reaching out to devs and we&#39;ll find who&#39;s ready
-                  to say yes.
-                </Typography>
-                <Typography
-                  type={TypographyType.Body}
-                  color={TypographyColor.Tertiary}
-                  center
-                >
-                  {isReadyForMatches &&
-                    "We're already talking to the right developers for you — all opt-in, all high-intent."}
-                  {!isReadyForMatches &&
-                    'We are gonna start reaching to developers soon, we are still processing your data and payment...'}
-                </Typography>
+              <div className="mx-auto flex flex-1 flex-col items-center justify-center gap-6 p-6">
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <Typography type={TypographyType.Title1} bold>
+                    While we find your matches...
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Tertiary}
+                  >
+                    Complete these steps to maximize your response rates
+                  </Typography>
+                </div>
+                <RecruiterSetupChecklist
+                  organization={opportunity?.organization}
+                />
               </div>
             </>
           )}

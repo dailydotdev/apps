@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import Autocomplete from '../fields/Autocomplete';
-import type { TLocation } from '../../graphql/autocomplete';
+import type { TLocation, LocationDataset } from '../../graphql/autocomplete';
 import { getAutocompleteLocations } from '../../graphql/autocomplete';
 import { Radio } from '../fields/Radio';
 import { LocationType } from '../../features/opportunity/protobuf/util';
@@ -20,12 +20,14 @@ type ProfileLocationProps = {
   locationName: string;
   typeName?: string;
   defaultValue?: TLocation & { type?: number };
+  dataset?: LocationDataset;
 };
 
 const ProfileLocation = ({
   locationName,
   typeName,
   defaultValue,
+  dataset,
 }: ProfileLocationProps) => {
   const { user } = useAuthContext();
   const {
@@ -38,13 +40,11 @@ const ProfileLocation = ({
   const typeValue = watch(typeName || '', defaultValue?.type);
 
   const { data, isLoading } = useQuery({
-    queryKey: generateQueryKey(
-      RequestKey.Autocomplete,
-      user,
-      'location',
-      locQuery,
-    ),
-    queryFn: () => getAutocompleteLocations(locQuery),
+    queryKey: generateQueryKey(RequestKey.Autocomplete, user, 'location', {
+      query: locQuery,
+      dataset,
+    }),
+    queryFn: () => getAutocompleteLocations(locQuery, dataset),
     enabled: !!locQuery,
   });
   const handleSearch = (query: string) => {

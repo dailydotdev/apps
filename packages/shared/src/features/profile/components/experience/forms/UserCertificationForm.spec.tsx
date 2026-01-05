@@ -50,18 +50,21 @@ const FormWrapper: React.FC<FormWrapperProps> = ({
   );
 };
 
+const getFieldByName = (container: HTMLElement, name: string) => {
+  // eslint-disable-next-line testing-library/no-node-access
+  return container.querySelector(`[name="${name}"]`) as HTMLInputElement;
+};
+
 describe('UserCertificationForm', () => {
   it('should render all form fields', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserCertificationForm />
       </FormWrapper>,
     );
 
     // Check certification name input field is rendered
-    const certNameInput = screen.getByPlaceholderText(
-      'Ex: AWS Certified Solutions Architect',
-    );
+    const certNameInput = getFieldByName(container, 'title');
     expect(certNameInput).toBeInTheDocument();
     expect(certNameInput).toHaveAttribute('name', 'title');
 
@@ -74,16 +77,12 @@ describe('UserCertificationForm', () => {
     expect(currentDescription).toBeInTheDocument();
 
     // Check credential ID field
-    const credentialIdInput = screen.getByPlaceholderText(
-      'Ex: Certificate number',
-    );
+    const credentialIdInput = getFieldByName(container, 'externalReferenceId');
     expect(credentialIdInput).toBeInTheDocument();
     expect(credentialIdInput).toHaveAttribute('name', 'externalReferenceId');
 
     // Check credential URL field
-    const credentialUrlInput = screen.getByPlaceholderText(
-      'Link to verification page',
-    );
+    const credentialUrlInput = getFieldByName(container, 'url');
     expect(credentialUrlInput).toBeInTheDocument();
     expect(credentialUrlInput).toHaveAttribute('name', 'url');
 
@@ -97,16 +96,14 @@ describe('UserCertificationForm', () => {
   });
 
   it('should handle user interaction with form fields', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserCertificationForm />
       </FormWrapper>,
     );
 
     // Type in certification name field
-    const certNameInput = screen.getByPlaceholderText(
-      'Ex: AWS Certified Solutions Architect',
-    );
+    const certNameInput = getFieldByName(container, 'title');
     await userEvent.type(certNameInput, 'AWS Solutions Architect - Associate');
     expect(certNameInput).toHaveValue('AWS Solutions Architect - Associate');
 
@@ -122,16 +119,12 @@ describe('UserCertificationForm', () => {
     expect(currentSwitch).toBeChecked();
 
     // Type in credential ID field
-    const credentialIdInput = screen.getByPlaceholderText(
-      'Ex: Certificate number',
-    );
+    const credentialIdInput = getFieldByName(container, 'externalReferenceId');
     await userEvent.type(credentialIdInput, 'AWS-123456789');
     expect(credentialIdInput).toHaveValue('AWS-123456789');
 
     // Type in credential URL field
-    const credentialUrlInput = screen.getByPlaceholderText(
-      'Link to verification page',
-    );
+    const credentialUrlInput = getFieldByName(container, 'url');
     await userEvent.type(
       credentialUrlInput,
       'https://example-cert.com/verification/123456789',
@@ -141,9 +134,7 @@ describe('UserCertificationForm', () => {
     );
 
     // Type in description
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'Achievements, societies, coursework',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
     await userEvent.type(
       descriptionTextarea,
       'Certified for designing distributed systems on AWS',
@@ -163,35 +154,27 @@ describe('UserCertificationForm', () => {
       description: 'Expertise in data engineering on Google Cloud Platform',
     };
 
-    render(
+    const { container } = render(
       <FormWrapper defaultValues={defaultValues}>
         <UserCertificationForm />
       </FormWrapper>,
     );
 
     // Check that form fields have the default values
-    const certNameInput = screen.getByPlaceholderText(
-      'Ex: AWS Certified Solutions Architect',
-    );
+    const certNameInput = getFieldByName(container, 'title');
     expect(certNameInput).toHaveValue(
       'Google Cloud Professional Data Engineer',
     );
 
-    const credentialIdInput = screen.getByPlaceholderText(
-      'Ex: Certificate number',
-    );
+    const credentialIdInput = getFieldByName(container, 'externalReferenceId');
     expect(credentialIdInput).toHaveValue('GCP-987654321');
 
-    const credentialUrlInput = screen.getByPlaceholderText(
-      'Link to verification page',
-    );
+    const credentialUrlInput = getFieldByName(container, 'url');
     expect(credentialUrlInput).toHaveValue(
       'https://example-cloud.com/certification/verify/987654321',
     );
 
-    const descriptionTextarea = screen.getByPlaceholderText(
-      'Achievements, societies, coursework',
-    );
+    const descriptionTextarea = getFieldByName(container, 'description');
     expect(descriptionTextarea).toHaveValue(
       'Expertise in data engineering on Google Cloud Platform',
     );
@@ -234,25 +217,19 @@ describe('UserCertificationForm', () => {
   });
 
   it('should render all form sections with proper structure', () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserCertificationForm />
       </FormWrapper>,
     );
 
     // Verify all main input fields are present using proper queries
+    expect(getFieldByName(container, 'title')).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText('Ex: AWS Certified Solutions Architect'),
+      getFieldByName(container, 'externalReferenceId'),
     ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Ex: Certificate number'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Link to verification page'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Achievements, societies, coursework'),
-    ).toBeInTheDocument();
+    expect(getFieldByName(container, 'url')).toBeInTheDocument();
+    expect(getFieldByName(container, 'description')).toBeInTheDocument();
 
     // Check currently valid certification text is present
     expect(
@@ -314,16 +291,14 @@ describe('UserCertificationForm', () => {
   });
 
   it('should validate certification-specific fields', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserCertificationForm />
       </FormWrapper>,
     );
 
     // Test certification name field accepts various certification types
-    const certNameInput = screen.getByPlaceholderText(
-      'Ex: AWS Certified Solutions Architect',
-    );
+    const certNameInput = getFieldByName(container, 'title');
     await userEvent.type(
       certNameInput,
       'Microsoft Azure Administrator Associate',
@@ -338,16 +313,12 @@ describe('UserCertificationForm', () => {
     expect(certNameInput).toHaveValue('Certified Kubernetes Administrator');
 
     // Test credential ID accepts various formats
-    const credentialIdInput = screen.getByPlaceholderText(
-      'Ex: Certificate number',
-    );
+    const credentialIdInput = getFieldByName(container, 'externalReferenceId');
     await userEvent.type(credentialIdInput, '2024-CERT-001234');
     expect(credentialIdInput).toHaveValue('2024-CERT-001234');
 
     // Test URL field accepts valid URLs
-    const credentialUrlInput = screen.getByPlaceholderText(
-      'Link to verification page',
-    );
+    const credentialUrlInput = getFieldByName(container, 'url');
     await userEvent.type(
       credentialUrlInput,
       'https://certification.example.com/verify/abc123',
@@ -358,14 +329,16 @@ describe('UserCertificationForm', () => {
   });
 
   it('should handle description field with certification details', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserCertificationForm />
       </FormWrapper>,
     );
 
-    const descriptionTextarea: HTMLTextAreaElement =
-      screen.getByPlaceholderText('Achievements, societies, coursework');
+    const descriptionTextarea = getFieldByName(
+      container,
+      'description',
+    ) as HTMLTextAreaElement;
 
     // Textarea has a 5000 character limit
     const description =
@@ -379,26 +352,20 @@ describe('UserCertificationForm', () => {
   });
 
   it('should maintain form state when switching current certification status', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserCertificationForm />
       </FormWrapper>,
     );
 
     // Fill in some fields
-    const certNameInput = screen.getByPlaceholderText(
-      'Ex: AWS Certified Solutions Architect',
-    );
+    const certNameInput = getFieldByName(container, 'title');
     await userEvent.type(certNameInput, 'AWS DevOps Engineer');
 
-    const credentialIdInput = screen.getByPlaceholderText(
-      'Ex: Certificate number',
-    );
+    const credentialIdInput = getFieldByName(container, 'externalReferenceId');
     await userEvent.type(credentialIdInput, 'AWS-2024-12345');
 
-    const credentialUrlInput = screen.getByPlaceholderText(
-      'Link to verification page',
-    );
+    const credentialUrlInput = getFieldByName(container, 'url');
     await userEvent.type(
       credentialUrlInput,
       'https://example-verify.com/12345',
@@ -428,15 +395,13 @@ describe('UserCertificationForm', () => {
   });
 
   it('should handle various URL formats in credential URL field', async () => {
-    render(
+    const { container } = render(
       <FormWrapper>
         <UserCertificationForm />
       </FormWrapper>,
     );
 
-    const credentialUrlInput = screen.getByPlaceholderText(
-      'Link to verification page',
-    );
+    const credentialUrlInput = getFieldByName(container, 'url');
 
     // Test with https URL
     await userEvent.type(
