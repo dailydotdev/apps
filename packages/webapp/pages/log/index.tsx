@@ -14,7 +14,10 @@ import { useImagePreloader } from '@dailydotdev/shared/src/hooks/useImagePreload
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import ProtectedPage from '../../components/ProtectedPage';
-import { LogDataOverrideProvider } from '../../contexts/LogDataOverrideContext';
+import {
+  LogDataOverrideProvider,
+  useLogDataOverride,
+} from '../../contexts/LogDataOverrideContext';
 import { ARCHETYPES } from '../../types/log';
 import {
   useCardNavigation,
@@ -54,8 +57,11 @@ export default function LogPage(): ReactElement {
   const hasLoggedImpression = useRef(false);
   const { displayToast } = useToastNotification();
 
-  // Fetch log data from API
+  // Fetch log data from API (or use override data if uploaded)
   const { data, isLoading: isDataLoading, hasData } = useLog(isLoggedIn);
+
+  // Track if we're using override data to force card re-renders when data source changes
+  const { overrideData } = useLogDataOverride();
 
   // Preload images (archetypes + source logos) during browser idle time
   const imagesToPreload = useMemo(() => {
@@ -294,7 +300,7 @@ export default function LogPage(): ReactElement {
                 mode="popLayout"
               >
                 <motion.div
-                  key={currentCard}
+                  key={`${currentCard}-${overrideData ? 'override' : 'api'}`}
                   custom={directionValue}
                   variants={cardVariants}
                   initial="enter"
