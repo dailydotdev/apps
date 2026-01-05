@@ -20,7 +20,7 @@ module.exports = {
     ],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!@dailydotdev|@tiptap|prosemirror-.*)',
+    '/node_modules/(?!.*(@dailydotdev|@tiptap|prosemirror-))',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {

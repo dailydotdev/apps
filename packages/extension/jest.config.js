@@ -10,7 +10,7 @@ module.exports = {
     '<rootDir>/__tests__/fixture/',
   ],
   transformIgnorePatterns: [
-    '<rootDir>/node_modules/(?!@dailydotdev|@tiptap|prosemirror-.*)',
+    '/node_modules/(?!.*(@dailydotdev|@tiptap|prosemirror-))',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
