@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -95,6 +95,13 @@ export const InlineRoleInfoEditor = ({
     setError,
     reset,
   } = methods;
+
+  // Reset form when opportunity data changes (e.g., after reimport)
+  useEffect(() => {
+    if (opportunity && !isEditing) {
+      reset(opportunity);
+    }
+  }, [opportunity, reset, isEditing]);
 
   const onSubmit = handleSubmit(async (data) => {
     try {

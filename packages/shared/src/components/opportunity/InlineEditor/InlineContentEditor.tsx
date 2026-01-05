@@ -89,6 +89,8 @@ export const InlineContentEditor = ({
           },
         },
       });
+      // Also update MarkdownInput's internal state
+      markdownRef.current?.setInput(serverContent);
     }
   }, [opportunity, section, reset]);
 
