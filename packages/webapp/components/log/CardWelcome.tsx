@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowIcon, UploadIcon } from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { UploadIcon } from '@dailydotdev/shared/src/components/icons/Upload';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
@@ -60,10 +61,7 @@ export default function CardWelcome({
         // Validate the data structure
         const validation = validateLogData(data);
         if (!validation.valid) {
-          displayToast(
-            `Invalid log data format: ${validation.errors[0]}`,
-          );
-          console.error('Validation errors:', validation.errors);
+          displayToast(`Invalid log data format: ${validation.errors[0]}`);
           return;
         }
 
@@ -76,7 +74,6 @@ export default function CardWelcome({
         } else {
           displayToast('Failed to upload log data');
         }
-        console.error('Upload error:', error);
       } finally {
         setIsUploading(false);
         // Reset file input

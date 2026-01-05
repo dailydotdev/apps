@@ -44,7 +44,6 @@ import CardArchetypeReveal from '../../components/log/CardArchetypeReveal';
 import CardShare from '../../components/log/CardShare';
 import CardNoData from '../../components/log/CardNoData';
 
-
 // Default theme for no-data state (welcome card theme)
 const noDataTheme = CARD_THEMES.welcome;
 
@@ -245,89 +244,89 @@ export default function LogPage(): ReactElement {
       <ProtectedPage>
         <LogPageHead />
 
-      <motion.div
-        className={styles.logContainer}
-        animate={{
-          backgroundColor: showNoDataCard
-            ? noDataTheme.bgColor
-            : currentTheme.bgColor,
-        }}
-        transition={{ duration: 0.6, ease: 'easeInOut' }}
-      >
-        <LogBackground theme={showNoDataCard ? noDataTheme : currentTheme} />
+        <motion.div
+          className={styles.logContainer}
+          animate={{
+            backgroundColor: showNoDataCard
+              ? noDataTheme.bgColor
+              : currentTheme.bgColor,
+          }}
+          transition={{ duration: 0.6, ease: 'easeInOut' }}
+        >
+          <LogBackground theme={showNoDataCard ? noDataTheme : currentTheme} />
 
-        {/* Only show header with progress bars when user has data */}
-        {!showNoDataCard && (
-          <LogHeader
-            cards={cards}
-            currentCard={currentCard}
-            isMuted={isMuted}
-            onMuteToggle={handleMuteToggle}
-            onCardClick={goToCard}
-          />
-        )}
+          {/* Only show header with progress bars when user has data */}
+          {!showNoDataCard && (
+            <LogHeader
+              cards={cards}
+              currentCard={currentCard}
+              isMuted={isMuted}
+              onMuteToggle={handleMuteToggle}
+              onCardClick={goToCard}
+            />
+          )}
 
-        {showNoDataCard ? (
-          /* No data card - single card, no navigation */
-          <div className={styles.cardsWrapper}>
-            <div className={styles.card}>
-              <div className={styles.cardInner}>
-                <CardNoData />
+          {showNoDataCard ? (
+            /* No data card - single card, no navigation */
+            <div className={styles.cardsWrapper}>
+              <div className={styles.card}>
+                <div className={styles.cardInner}>
+                  <CardNoData />
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          /* Cards with AnimatePresence - tap to navigate */
-          <div
-            className={styles.cardsWrapper}
-            onClick={handleTapNavigation}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                goNext();
-              }
-            }}
-          >
-            <AnimatePresence
-              initial={false}
-              custom={directionValue}
-              mode="popLayout"
+          ) : (
+            /* Cards with AnimatePresence - tap to navigate */
+            <div
+              className={styles.cardsWrapper}
+              onClick={handleTapNavigation}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  goNext();
+                }
+              }}
             >
-              <motion.div
-                key={currentCard}
+              <AnimatePresence
+                initial={false}
                 custom={directionValue}
-                variants={cardVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{
-                  x: { type: 'spring', stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.2 },
-                  rotate: { duration: 0.4 },
-                  scale: { duration: 0.4 },
-                }}
-                className={styles.card}
+                mode="popLayout"
               >
-                <div className={styles.cardInner}>
-                  <CardComponent
-                    data={data}
-                    isActive
-                    subcard={currentSubcard}
-                    isTouchDevice={isTouchDevice}
-                    isLoading={isLoading}
-                    onShare={handleShare}
-                    cardType={currentCardId}
-                    imageCache={imageCache}
-                    onImageFetched={onImageFetched}
-                  />
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        )}
-      </motion.div>
-      <Toast autoDismissNotifications />
+                <motion.div
+                  key={currentCard}
+                  custom={directionValue}
+                  variants={cardVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{
+                    x: { type: 'spring', stiffness: 300, damping: 30 },
+                    opacity: { duration: 0.2 },
+                    rotate: { duration: 0.4 },
+                    scale: { duration: 0.4 },
+                  }}
+                  className={styles.card}
+                >
+                  <div className={styles.cardInner}>
+                    <CardComponent
+                      data={data}
+                      isActive
+                      subcard={currentSubcard}
+                      isTouchDevice={isTouchDevice}
+                      isLoading={isLoading}
+                      onShare={handleShare}
+                      cardType={currentCardId}
+                      imageCache={imageCache}
+                      onImageFetched={onImageFetched}
+                    />
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          )}
+        </motion.div>
+        <Toast autoDismissNotifications />
       </ProtectedPage>
     </LogDataOverrideProvider>
   );

@@ -26,8 +26,7 @@ function isValidReadingPattern(
   value: unknown,
 ): value is 'night' | 'early' | 'afternoon' {
   return (
-    typeof value === 'string' &&
-    ['night', 'early', 'afternoon'].includes(value)
+    typeof value === 'string' && ['night', 'early', 'afternoon'].includes(value)
   );
 }
 
@@ -112,10 +111,7 @@ export function validateLogData(data: unknown): ValidationResult {
   }
 
   // Required fields for Card 4: Favorite Sources
-  if (
-    !Array.isArray(logData.topSources) ||
-    logData.topSources.length !== 3
-  ) {
+  if (!Array.isArray(logData.topSources) || logData.topSources.length !== 3) {
     errors.push('topSources must be an array with exactly 3 sources');
   } else {
     logData.topSources.forEach((source, i) => {
@@ -126,7 +122,9 @@ export function validateLogData(data: unknown): ValidationResult {
           errors.push(`topSources[${i}].name must be a string`);
         }
         if (typeof source.postsRead !== 'number' || source.postsRead < 0) {
-          errors.push(`topSources[${i}].postsRead must be a non-negative number`);
+          errors.push(
+            `topSources[${i}].postsRead must be a non-negative number`,
+          );
         }
         if (typeof source.logoUrl !== 'string') {
           errors.push(`topSources[${i}].logoUrl must be a string`);
@@ -134,10 +132,7 @@ export function validateLogData(data: unknown): ValidationResult {
       }
     });
   }
-  if (
-    typeof logData.uniqueSources !== 'number' ||
-    logData.uniqueSources < 0
-  ) {
+  if (typeof logData.uniqueSources !== 'number' || logData.uniqueSources < 0) {
     errors.push('uniqueSources must be a non-negative number');
   }
   if (
@@ -155,10 +150,7 @@ export function validateLogData(data: unknown): ValidationResult {
   }
 
   // Required fields for Card 5: Community Engagement
-  if (
-    typeof logData.upvotesGiven !== 'number' ||
-    logData.upvotesGiven < 0
-  ) {
+  if (typeof logData.upvotesGiven !== 'number' || logData.upvotesGiven < 0) {
     errors.push('upvotesGiven must be a non-negative number');
   }
   if (
@@ -190,10 +182,7 @@ export function validateLogData(data: unknown): ValidationResult {
       `archetype must be one of: ${Object.keys(ARCHETYPES).join(', ')}`,
     );
   }
-  if (
-    typeof logData.archetypeStat !== 'string' ||
-    !logData.archetypeStat
-  ) {
+  if (typeof logData.archetypeStat !== 'string' || !logData.archetypeStat) {
     errors.push('archetypeStat must be a non-empty string');
   }
   if (
