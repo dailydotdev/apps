@@ -15,7 +15,7 @@ import { UploadIcon } from '../../icons';
 import { DragDrop } from '../../fields/DragDrop';
 import { Loader } from '../../Loader';
 import { reimportOpportunityMutationOptions } from '../../../features/opportunity/mutations';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { getOpportunityByIdKey } from '../../../features/opportunity/queries';
 
 const jobLinkSchema = z.url({ message: 'Please enter a valid URL' });
 
@@ -46,7 +46,7 @@ export const OpportunityReimportModal = ({
     ...reimportOpportunityMutationOptions(),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.Opportunity, null, opportunityId),
+        queryKey: getOpportunityByIdKey(opportunityId),
       });
       onRequestClose?.(null);
     },
