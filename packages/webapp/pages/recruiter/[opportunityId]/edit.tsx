@@ -132,7 +132,7 @@ function EditPageContent(): ReactElement {
 
   const handleEditCompany = useCallback(() => {
     openModal({
-      type: LazyModal.OpportunityEditModal,
+      type: LazyModal.OpportunityEdit,
       props: {
         type: 'organization',
         payload: { id: opportunityId },
@@ -142,7 +142,7 @@ function EditPageContent(): ReactElement {
 
   const handleEditRecruiter = useCallback(() => {
     openModal({
-      type: LazyModal.OpportunityEditModal,
+      type: LazyModal.OpportunityEdit,
       props: {
         type: 'recruiter',
         payload: { id: opportunityId },
