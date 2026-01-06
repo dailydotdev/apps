@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import { TextField } from '../../../components/fields/TextField';
-import { useShortcutLinks } from '../hooks/useShortcutLinks';
+import classNames from 'classnames';
 import {
   DndContext,
   closestCenter,
@@ -19,6 +18,14 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { TextField } from '../../../components/fields/TextField';
+import { MenuIcon } from '../../../components/icons';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { useShortcutLinks } from '../hooks/useShortcutLinks';
 
 const limit = 8;
 const list = Array(limit).fill(0);
@@ -38,8 +45,14 @@ function SortableTextField({
   validInputs,
   onChange,
 }: SortableTextFieldProps): ReactElement {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: `shortcutLink-${index}` });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: `shortcutLink-${index}` });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -47,24 +60,43 @@ function SortableTextField({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <TextField
-        name="shortcutLink"
-        inputId={`shortcutLink-${index}`}
-        type="url"
-        autoComplete="off"
-        fieldType="tertiary"
-        label="Add shortcuts"
-        value={value}
-        valid={validInputs[index] !== false}
-        hint={validInputs[index] === false && 'Must be a valid HTTP/S link'}
-        readOnly={isFormReadonly}
-        validityChanged={(isValid) => onChange(index, isValid)}
-        placeholder="http://example.com"
-        className={{
-          input: isFormReadonly ? '!text-text-quaternary' : undefined,
-        }}
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={classNames(
+        'group flex items-start gap-2',
+        isDragging && 'opacity-50',
+      )}
+    >
+      <Button
+        type="button"
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        className="mt-2 cursor-grab active:cursor-grabbing"
+        aria-label="Drag to reorder"
+        icon={<MenuIcon className="rotate-90" />}
+        {...attributes}
+        {...listeners}
       />
+      <div className="flex-1">
+        <TextField
+          name="shortcutLink"
+          inputId={`shortcutLink-${index}`}
+          type="url"
+          autoComplete="off"
+          fieldType="tertiary"
+          label="Add shortcuts"
+          value={value}
+          valid={validInputs[index] !== false}
+          hint={validInputs[index] === false && 'Must be a valid HTTP/S link'}
+          readOnly={isFormReadonly}
+          validityChanged={(isValid) => onChange(index, isValid)}
+          placeholder="http://example.com"
+          className={{
+            input: isFormReadonly ? '!text-text-quaternary' : undefined,
+          }}
+        />
+      </div>
     </div>
   );
 }
