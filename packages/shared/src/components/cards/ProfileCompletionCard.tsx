@@ -8,7 +8,10 @@ import {
 } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import ProgressCircle from '../ProgressCircle';
+import CloseButton from '../CloseButton';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useActions } from '../../hooks';
+import { ActionType } from '../../graphql/actions';
 import type { ProfileCompletion } from '../../lib/user';
 import { webappUrl } from '../../lib/constants';
 
@@ -74,20 +77,11 @@ const getCompletionItems = (
   ];
 };
 
-// Using softer, less saturated purple tones that align with the brand
-const profileCompletionCardBorder =
-  '1px solid color-mix(in srgb, var(--theme-accent-cabbage-subtler), transparent 50%)';
-
-const profileCompletionCardBg =
-  'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 96%) 100%)';
-
-const profileCompletionButtonBg =
-  'color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 20%)';
-
 export const ProfileCompletionCard = ({
   className,
 }: ProfileCompletionCardProps): ReactElement | null => {
   const { user } = useAuthContext();
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const profileCompletion = user?.profileCompletion;
 
   const items = useMemo(
@@ -103,44 +97,67 @@ export const ProfileCompletionCard = ({
   const firstIncompleteItem = incompleteItems[0];
   const progress = profileCompletion?.percentage ?? 0;
   const isCompleted = progress === 100;
+  const isDismissed =
+    isActionsFetched && checkHasCompleted(ActionType.ProfileCompletionCard);
 
-  if (!profileCompletion || isCompleted || !firstIncompleteItem) {
+  if (
+    !profileCompletion ||
+    isCompleted ||
+    !firstIncompleteItem ||
+    isDismissed
+  ) {
     return null;
   }
+
+  const handleDismiss = () => {
+    completeAction(ActionType.ProfileCompletionCard);
+  };
 
   return (
     <div
       className={classNames('flex flex-1 p-2 laptop:p-0', className?.container)}
     >
       <div
-        style={{
-          border: profileCompletionCardBorder,
-          background: profileCompletionCardBg,
-        }}
         className={classNames(
-          'flex flex-1 flex-col gap-4 rounded-16 px-6 py-4',
-          'backdrop-blur-3xl',
+          'relative flex flex-1 flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-6 py-4',
           className?.card,
         )}
       >
+        <CloseButton
+          className="absolute right-2 top-2"
+          size={ButtonSize.XSmall}
+          onClick={handleDismiss}
+        />
         <ProgressCircle progress={progress} size={48} showPercentage />
         <Typography
           type={TypographyType.Title2}
           color={TypographyColor.Primary}
           bold
         >
-          Profile completion
+          Complete your profile
         </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-        >
-          {firstIncompleteItem.benefit}
-        </Typography>
+        <div className="flex flex-col gap-2">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Finish setting up your profile to get the most out of daily.dev:
+          </Typography>
+          <ul className="flex list-inside list-disc flex-col gap-1">
+            {incompleteItems.map((item) => (
+              <li key={item.label}>
+                <Typography
+                  tag="span"
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                >
+                  {item.label}
+                </Typography>
+              </li>
+            ))}
+          </ul>
+        </div>
         <Button
-          style={{
-            background: profileCompletionButtonBg,
-          }}
           className="mt-auto w-full"
           tag="a"
           href={firstIncompleteItem.redirectPath}
