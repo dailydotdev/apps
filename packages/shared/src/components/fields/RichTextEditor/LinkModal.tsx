@@ -48,14 +48,10 @@ export const LinkModal = ({
     [url, label, onSubmit],
   );
 
-  const handleClose = useCallback(() => {
-    onClose();
-  }, [onClose]);
-
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={handleClose}
+      onRequestClose={onClose}
       size={ModalSize.Small}
       kind={ModalKind.FlexibleCenter}
       parentSelector={() => document.body}
@@ -86,7 +82,7 @@ export const LinkModal = ({
           <Button
             type="button"
             variant={ButtonVariant.Tertiary}
-            onClick={handleClose}
+            onClick={onClose}
           >
             Cancel
           </Button>
