@@ -50,16 +50,16 @@ export function opportunityToFormData(
     tldr: opportunity.tldr || '',
     keywords: opportunity.keywords?.map((k) => ({ keyword: k.keyword })) || [],
     externalLocationId: opportunity.locations?.[0]?.location?.city || undefined,
-    locationType: opportunity.locations?.[0]?.type?.value,
+    locationType: opportunity.locations?.[0]?.type,
     meta: {
-      employmentType: opportunity.meta?.employmentType?.value ?? 0,
+      employmentType: opportunity.meta?.employmentType ?? 0,
       teamSize: opportunity.meta?.teamSize ?? 1,
       salary: {
         min: opportunity.meta?.salary?.min,
         max: opportunity.meta?.salary?.max,
-        period: opportunity.meta?.salary?.period?.value ?? 0,
+        period: opportunity.meta?.salary?.period ?? 0,
       },
-      seniorityLevel: opportunity.meta?.seniorityLevel?.value ?? 0,
+      seniorityLevel: opportunity.meta?.seniorityLevel ?? 0,
       roleType: opportunity.meta?.roleType ?? 0.5,
     },
     content: {

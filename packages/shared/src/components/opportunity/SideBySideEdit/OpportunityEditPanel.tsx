@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import classNames from 'classnames';
 import {
@@ -7,8 +7,15 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../typography/Typography';
+import { ArrowIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import type { OpportunitySideBySideEditFormData } from './hooks/useOpportunityEditForm';
 import type { Opportunity } from '../../../features/opportunity/types';
+import { RoleInfoSection } from './sections/RoleInfoSection';
+import { JobDetailsSection } from './sections/JobDetailsSection';
+import { ContentSection } from './sections/ContentSection';
+import { CompanySection } from './sections/CompanySection';
+import { RecruiterSection } from './sections/RecruiterSection';
 
 export interface OpportunityEditPanelProps {
   /**
@@ -33,6 +40,58 @@ export interface OpportunityEditPanelProps {
   className?: string;
 }
 
+interface CollapsibleSectionProps {
+  id: string;
+  title: string;
+  required?: boolean;
+  children: ReactNode;
+  defaultExpanded?: boolean;
+}
+
+function CollapsibleSection({
+  id,
+  title,
+  required = false,
+  children,
+  defaultExpanded = true,
+}: CollapsibleSectionProps): ReactElement {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  return (
+    <div className="rounded-12 border border-border-subtlest-tertiary bg-surface-float">
+      <button
+        type="button"
+        className="flex w-full items-center justify-between p-4"
+        onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+        aria-controls={`section-${id}`}
+      >
+        <div className="flex items-center gap-2">
+          <Typography type={TypographyType.Callout} bold>
+            {title}
+          </Typography>
+          {required && <span className="text-xs text-status-error">*</span>}
+        </div>
+        <ArrowIcon
+          size={IconSize.Small}
+          className={classNames(
+            'text-text-tertiary transition-transform',
+            isExpanded ? 'rotate-0' : 'rotate-180',
+          )}
+        />
+      </button>
+      {isExpanded && (
+        <div
+          id={`section-${id}`}
+          className="border-t border-border-subtlest-tertiary p-4"
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /**
  * Edit panel for the side-by-side opportunity editor.
  *
@@ -42,30 +101,14 @@ export interface OpportunityEditPanelProps {
  * - Content sections (overview, responsibilities, requirements, etc.)
  * - Company (opens modal)
  * - Recruiter (opens modal)
- *
- * TODO: Implement actual section components in Phase 2
  */
 export function OpportunityEditPanel({
   form,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  opportunity: _opportunity,
+  opportunity,
   onEditCompany,
   onEditRecruiter,
   className,
 }: OpportunityEditPanelProps): ReactElement {
-  // Placeholder sections for layout review
-  const sections = [
-    { id: 'roleInfo', title: 'Role Info', required: true },
-    { id: 'jobDetails', title: 'Job Details', required: true },
-    { id: 'overview', title: 'Overview', required: true },
-    { id: 'responsibilities', title: 'Responsibilities', required: true },
-    { id: 'requirements', title: 'Requirements', required: true },
-    { id: 'whatYoullDo', title: "What You'll Do", required: false },
-    { id: 'interviewProcess', title: 'Interview Process', required: false },
-    { id: 'company', title: 'Company', required: false, isModal: true },
-    { id: 'recruiter', title: 'Recruiter', required: false, isModal: true },
-  ];
-
   return (
     <div className={classNames('flex flex-col', className)}>
       <div className="p-4">
@@ -81,46 +124,65 @@ export function OpportunityEditPanel({
       </div>
 
       <div className="flex flex-col gap-2 px-4 pb-6">
-        {sections.map((section) => (
-          <div
-            key={section.id}
-            className="rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Typography type={TypographyType.Callout} bold>
-                  {section.title}
-                </Typography>
-                {section.required && (
-                  <span className="text-xs text-status-error">*</span>
-                )}
-              </div>
-              {section.isModal && (
-                <button
-                  type="button"
-                  className="text-sm text-text-link hover:underline"
-                  onClick={
-                    section.id === 'company' ? onEditCompany : onEditRecruiter
-                  }
-                >
-                  Edit details →
-                </button>
-              )}
-            </div>
+        {/* Role Info Section */}
+        <CollapsibleSection id="roleInfo" title="Role Info" required>
+          <RoleInfoSection opportunity={opportunity} />
+        </CollapsibleSection>
 
-            {/* Placeholder content - will be replaced with actual form fields */}
-            <div className="mt-3 rounded-8 border border-dashed border-border-subtlest-secondary bg-background-subtle p-3">
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Quaternary}
-              >
-                {section.isModal
-                  ? `${section.title} section - click "Edit details" to modify`
-                  : `${section.title} form fields will be implemented in Phase 2`}
-              </Typography>
-            </div>
-          </div>
-        ))}
+        {/* Job Details Section */}
+        <CollapsibleSection id="jobDetails" title="Job Details" required>
+          <JobDetailsSection />
+        </CollapsibleSection>
+
+        {/* Overview Section */}
+        <CollapsibleSection id="overview" title="Overview" required>
+          <ContentSection section="overview" />
+        </CollapsibleSection>
+
+        {/* Responsibilities Section */}
+        <CollapsibleSection
+          id="responsibilities"
+          title="Responsibilities"
+          required
+        >
+          <ContentSection section="responsibilities" />
+        </CollapsibleSection>
+
+        {/* Requirements Section */}
+        <CollapsibleSection id="requirements" title="Requirements" required>
+          <ContentSection section="requirements" />
+        </CollapsibleSection>
+
+        {/* What You'll Do Section (optional) */}
+        <CollapsibleSection
+          id="whatYoullDo"
+          title="What You'll Do"
+          defaultExpanded={!!opportunity?.content?.whatYoullDo?.html}
+        >
+          <ContentSection section="whatYoullDo" />
+        </CollapsibleSection>
+
+        {/* Interview Process Section (optional) */}
+        <CollapsibleSection
+          id="interviewProcess"
+          title="Interview Process"
+          defaultExpanded={!!opportunity?.content?.interviewProcess?.html}
+        >
+          <ContentSection section="interviewProcess" />
+        </CollapsibleSection>
+
+        {/* Company Section */}
+        <CollapsibleSection id="company" title="Company">
+          <CompanySection opportunity={opportunity} onEdit={onEditCompany} />
+        </CollapsibleSection>
+
+        {/* Recruiter Section */}
+        <CollapsibleSection id="recruiter" title="Recruiter">
+          <RecruiterSection
+            opportunity={opportunity}
+            onEdit={onEditRecruiter}
+          />
+        </CollapsibleSection>
       </div>
 
       {/* Debug info - remove in production */}
