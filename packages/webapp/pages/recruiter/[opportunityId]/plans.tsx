@@ -27,6 +27,7 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { recruiterPremiumPlanBg } from '@dailydotdev/shared/src/styles/custom';
+import { WarningIcon } from '@dailydotdev/shared/src/components/icons';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 
 type PricingFeature = {
@@ -280,9 +281,19 @@ const RecruiterPlans = (): ReactElement => {
   );
 
   const opportunityId = router.query.opportunityId as string;
+  const showPaymentRequired = router.query.required === '1';
 
   return (
     <div className="mx-auto flex w-full max-w-[48rem] flex-col gap-8 px-4 tablet:px-0">
+      {showPaymentRequired && (
+        <div className="flex items-center gap-2 rounded-12 border border-status-warning bg-status-warning/10 p-4">
+          <WarningIcon className="text-status-warning" size={IconSize.Small} />
+          <Typography type={TypographyType.Callout}>
+            Select a plan to continue setting up your job posting
+          </Typography>
+        </div>
+      )}
+
       <div className="flex flex-col gap-4">
         <Typography type={TypographyType.Title1} bold center>
           Simple pricing. Unlimited hiring.
