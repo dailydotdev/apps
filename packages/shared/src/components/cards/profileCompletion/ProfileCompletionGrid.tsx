@@ -6,13 +6,10 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../typography/Typography';
-import { InfoIcon, MoveToIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import type { ProfileCompletion as ProfileCompletionData } from '../../../lib/user';
-import Link from '../../utilities/Link';
-import { anchorDefaultRel } from '../../../lib/strings';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
 type CompletionItem = {
   label: string;
@@ -52,12 +49,12 @@ const getCompletionItems = (
   ];
 };
 
-const formatDescription = (incompleteItems: CompletionItem[]): string => {
+const formatNextStep = (incompleteItems: CompletionItem[]): string => {
   if (incompleteItems.length === 0) {
-    return 'Profile completed!';
+    return 'Your profile is complete!';
   }
 
-  const labels = incompleteItems.map((item) => item.label);
+  const labels = incompleteItems.map((item) => item.label.toLowerCase());
   const formattedList =
     labels.length === 1
       ? labels[0]
@@ -80,8 +77,8 @@ export const ProfileCompletionGrid = (): ReactElement | null => {
     [items],
   );
 
-  const description = useMemo(
-    () => formatDescription(incompleteItems),
+  const nextStep = useMemo(
+    () => formatNextStep(incompleteItems),
     [incompleteItems],
   );
 
@@ -95,54 +92,36 @@ export const ProfileCompletionGrid = (): ReactElement | null => {
   }
 
   return (
-    <Link href={redirectPath}>
-      <a
-        href={redirectPath}
-        rel={anchorDefaultRel}
-        className="flex cursor-pointer flex-col gap-6 rounded-16 border border-action-help-active bg-action-help-float p-4 hover:bg-action-help-hover"
+    <div className="flex flex-1 flex-col gap-4 rounded-16 border border-action-help-active bg-action-help-float px-6 py-4">
+      <ProgressCircle
+        progress={progress}
+        size={48}
+        showPercentage
+        color="help"
+      />
+      <Typography
+        type={TypographyType.Title2}
+        color={TypographyColor.Primary}
+        bold
       >
-        <div className="flex w-full items-center gap-6">
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <div className="flex items-center gap-1">
-              <InfoIcon
-                size={IconSize.XSmall}
-                className="text-text-secondary"
-              />
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-                bold
-              >
-                Profile Completion
-              </Typography>
-            </div>
-            <div className="flex min-w-0 items-center gap-1">
-              <MoveToIcon
-                size={IconSize.XSmall}
-                className="shrink-0 text-text-secondary"
-              />
-              <div className="min-w-0 max-w-full flex-1">
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Secondary}
-                  className="w-full break-words"
-                >
-                  {description}
-                </Typography>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex shrink-0 leading-none">
-            <ProgressCircle
-              progress={progress}
-              size={50}
-              showPercentage
-              color="help"
-            />
-          </div>
-        </div>
-      </a>
-    </Link>
+        Profile completion
+      </Typography>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+      >
+        {nextStep}
+      </Typography>
+      <Button
+        className="mt-auto w-full"
+        tag="a"
+        href={redirectPath}
+        type="button"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Small}
+      >
+        Update your profile
+      </Button>
+    </div>
   );
 };
