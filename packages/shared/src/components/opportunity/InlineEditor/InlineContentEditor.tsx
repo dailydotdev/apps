@@ -5,18 +5,30 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type z from 'zod';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
 import { editOpportunityContentMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
 import { opportunityEditContentSchema } from '../../../lib/schema/opportunity';
-import type { MarkdownRef } from '../../fields/MarkdownInput';
-import MarkdownInput from '../../fields/MarkdownInput';
+import type { RichTextRef } from '../../fields/RichTextEditor';
 import { applyZodErrorsToForm } from '../../../lib/form';
 import { labels } from '../../../lib';
 import { InlineEditor } from './InlineEditor';
 import type { ContentSection } from '../../../features/opportunity/types';
+import { Loader } from '../../Loader';
+
+const RichTextEditor = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "richTextEditor" */ '../../fields/RichTextEditor'
+    ),
+  {
+    ssr: false,
+    loading: () => <Loader />,
+  },
+);
 
 export interface InlineContentEditorProps {
   opportunityId: string;
@@ -32,7 +44,7 @@ export const InlineContentEditor = ({
   isRequired = false,
 }: InlineContentEditorProps): ReactElement => {
   const { displayToast } = useToastNotification();
-  const markdownRef = useRef<MarkdownRef>();
+  const richTextRef = useRef<RichTextRef>();
 
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id: opportunityId }),
@@ -68,10 +80,11 @@ export const InlineContentEditor = ({
     ),
     defaultValues: async () => {
       const opportunityData = await promise;
+      // Use HTML for rich text editor
       return {
         content: {
           [section]: {
-            content: opportunityData?.content?.[section]?.content || '',
+            content: opportunityData?.content?.[section]?.html || '',
           },
         },
       };
@@ -81,16 +94,19 @@ export const InlineContentEditor = ({
   // Reset form when opportunity data changes
   useEffect(() => {
     if (opportunity) {
-      const serverContent = opportunity.content?.[section]?.content || '';
+      // Use HTML for rich text editor
+      const serverHtml = opportunity.content?.[section]?.html || '';
       reset({
         content: {
           [section]: {
-            content: serverContent,
+            content: serverHtml,
           },
         },
       });
-      // Also update MarkdownInput's internal state
-      markdownRef.current?.setInput(serverContent);
+      // Also update RichTextEditor's internal state (check method exists for dynamic import timing)
+      if (typeof richTextRef.current?.setContent === 'function') {
+        richTextRef.current.setContent(serverHtml);
+      }
     }
   }, [opportunity, section, reset]);
 
@@ -120,21 +136,24 @@ export const InlineContentEditor = ({
 
   const handleDiscard = useCallback(() => {
     if (opportunity) {
+      const serverHtml = opportunity.content?.[section]?.html || '';
       reset({
         content: {
           [section]: {
-            content: opportunity.content?.[section]?.content || '',
+            content: serverHtml,
           },
         },
       });
-      markdownRef.current?.setInput(
-        opportunity.content?.[section]?.content || '',
-      );
+      if (typeof richTextRef.current?.setContent === 'function') {
+        richTextRef.current.setContent(serverHtml);
+      }
     }
   }, [opportunity, section, reset]);
 
   const handleRemoveSection = useCallback(async () => {
-    markdownRef.current?.setInput('');
+    if (typeof richTextRef.current?.setContent === 'function') {
+      richTextRef.current.setContent('');
+    }
     setValue(`content.${section}.content`, '');
     await onSubmit();
   }, [setValue, section, onSubmit]);
@@ -166,29 +185,19 @@ export const InlineContentEditor = ({
 
           return (
             <div className="flex flex-col gap-2">
-              <MarkdownInput
-                ref={markdownRef}
-                allowPreview={false}
-                textareaProps={{
-                  name: field.name,
-                  rows: 8,
-                  maxLength: 2000,
-                  placeholder:
-                    labels.opportunity.contentFields.placeholders[section] ||
-                    labels.opportunity.contentFields.placeholders.generic,
+              <RichTextEditor
+                ref={richTextRef}
+                initialContent={field.value}
+                placeholder={
+                  labels.opportunity.contentFields.placeholders[section] ||
+                  labels.opportunity.contentFields.placeholders.generic
+                }
+                maxLength={2000}
+                onValueUpdate={(value) => {
+                  field.onChange(value);
                 }}
                 className={{
                   container: 'flex-1',
-                }}
-                initialContent={field.value}
-                enabledCommand={{
-                  upload: false,
-                  link: false,
-                  mention: false,
-                }}
-                showMarkdownGuide={false}
-                onValueUpdate={(value) => {
-                  field.onChange(value);
                 }}
               />
               {!!hint && (

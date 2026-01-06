@@ -8,10 +8,11 @@ import type { BaseCardProps } from './types';
 import {
   ClockVisualization,
   SimpleHeadline,
-  calculateHourDistribution,
+  normalizeHourDistribution,
   formatHour,
   PATTERN_BANNER_TEXT,
 } from './primitives';
+import { usePeakReadingHour } from '../../hooks/log/useLogStats';
 
 export default function CardWhenYouRead({
   data,
@@ -20,11 +21,11 @@ export default function CardWhenYouRead({
   imageCache,
   onImageFetched,
 }: BaseCardProps): ReactElement {
-  // Calculate hour distribution from activity heatmap
-  const { distribution: hourDistribution, peakHour } = useMemo(
-    () => calculateHourDistribution(data.activityHeatmap),
+  const hourDistribution = useMemo(
+    () => normalizeHourDistribution(data.activityHeatmap),
     [data.activityHeatmap],
   );
+  const { hour: peakHour } = usePeakReadingHour(data.activityHeatmap);
 
   return (
     <>

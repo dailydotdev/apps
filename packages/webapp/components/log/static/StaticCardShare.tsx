@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import type { LogData } from '../../../types/log';
 import { ARCHETYPES, RECORDS } from '../../../types/log';
 import styles from './StaticCards.module.css';
+import { getPeakReadingHour } from '../../../hooks/log/useLogStats';
 
 interface StaticCardProps {
   data: Pick<
@@ -36,27 +37,9 @@ export default function StaticCardShare({
   const totalInteractions =
     data.upvotesGiven + data.commentsWritten + data.postsBookmarked;
 
-  // Find peak reading hour from heatmap
-  const peakHour = useMemo(() => {
-    if (!data.activityHeatmap?.length) {
-      return '12PM';
-    }
-    let maxActivity = 0;
-    let bestHour = 0;
-    for (let hour = 0; hour < 24; hour += 1) {
-      let hourTotal = 0;
-      for (let day = 0; day < 7; day += 1) {
-        hourTotal += data.activityHeatmap[day]?.[hour] ?? 0;
-      }
-      if (hourTotal > maxActivity) {
-        maxActivity = hourTotal;
-        bestHour = hour;
-      }
-    }
-    const suffix = bestHour >= 12 ? 'PM' : 'AM';
-    const displayHour = bestHour % 12 || 12;
-    return `${displayHour}${suffix}`;
-  }, [data.activityHeatmap]);
+  const peakHour = data.activityHeatmap?.length
+    ? getPeakReadingHour(data.activityHeatmap).formatted
+    : '12PM';
 
   // Get the best record (prefer one with a percentile, or first available)
   const bestRecord = useMemo(() => {

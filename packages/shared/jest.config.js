@@ -8,6 +8,7 @@ module.exports = {
     '<rootDir>/__tests__/helpers/',
     '<rootDir>/__tests__/fixture/',
   ],
+  transformIgnorePatterns: ['/node_modules/(?!.*(@tiptap|prosemirror-))'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     '^node-emoji$': 'node-emoji/lib/index.cjs',

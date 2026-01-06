@@ -21,7 +21,7 @@ export { default as EngagementPillars } from './EngagementPillars';
 // Shared utilities
 export {
   formatHour,
-  calculateHourDistribution,
+  normalizeHourDistribution,
   calculateClockAngle,
   PATTERN_BANNER_TEXT,
   PODIUM_MEDALS,
