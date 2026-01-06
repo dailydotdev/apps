@@ -24,6 +24,7 @@ import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
+import { useViewSize, ViewSize } from '../../hooks';
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
@@ -60,6 +61,8 @@ function NewCommentComponent(
   const { user, showLogin } = useAuthContext();
   const [inputContent, setInputContent] = useState<string>(undefined);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
+  // On tablet+, comment input is inline. On mobile, it opens as a separate modal.
+  const isInlineComment = useViewSize(ViewSize.Tablet);
 
   const onSuccess: typeof onCommented = (comment, isNew) => {
     setInputContent(undefined);
@@ -105,12 +108,14 @@ function NewCommentComponent(
   }, [post, hasCommentQuery, onShowComment, router, shouldHandleCommentQuery]);
 
   // Auto-open comment input when openComment prop is true (e.g., from feed comment button)
+  // Only auto-open on tablet+ where comment input is inline. On mobile, it would open
+  // as a separate modal which creates a double-dialog UX issue.
   useEffect(() => {
-    if (openComment && user && !hasAutoOpened) {
+    if (openComment && user && !hasAutoOpened && isInlineComment) {
       setHasAutoOpened(true);
       onShowComment(Origin.PostCommentButton);
     }
-  }, [openComment, user, hasAutoOpened, onShowComment]);
+  }, [openComment, user, hasAutoOpened, onShowComment, isInlineComment]);
 
   const onCommentClick = (origin: Origin) => {
     if (!user) {
