@@ -504,7 +504,14 @@ export const generateCommentsQueryKey = ({
   postId,
   sortBy,
 }: GenerateCommentsQueryKeyProps): QueryKeyReturnType =>
-  generateQueryKey(RequestKey.PostComments, null, { postId, sortBy });
+  generateQueryKey(
+    RequestKey.PostComments,
+    null,
+    // Filter out undefined to ensure key matches after JSON serialization
+    Object.fromEntries(
+      Object.entries({ postId, sortBy }).filter(([, v]) => v !== undefined),
+    ),
+  );
 
 export const getAllCommentsQuery = (postId: string): QueryKeyReturnType[] => {
   const sorting = Object.values(SortCommentsBy).map((sortBy) =>
