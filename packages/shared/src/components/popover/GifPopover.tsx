@@ -226,7 +226,11 @@ const GifPopover = ({
   if (!isTablet) {
     return (
       <>
-        <Button {...buttonProps} onClick={() => handleOpenChange(true)} />
+        <Button
+          {...buttonProps}
+          type="button"
+          onClick={() => handleOpenChange(true)}
+        />
         <Drawer
           isOpen={open}
           onClose={handleClose}
