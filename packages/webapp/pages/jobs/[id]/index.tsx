@@ -365,6 +365,10 @@ export type JobPageProps = {
   hideRecruiterBadge?: boolean;
   hideCompanyPanel?: boolean;
   hideRecruiterPanel?: boolean;
+  /**
+   * When true, disables all edit functionality (preview-only mode)
+   */
+  previewMode?: boolean;
 };
 
 const JobPage = ({
@@ -373,8 +377,12 @@ const JobPage = ({
   hideRecruiterBadge,
   hideCompanyPanel,
   hideRecruiterPanel,
+  previewMode,
 }: JobPageProps = {}): ReactElement => {
-  const { canEdit, opportunityId } = useOpportunityEditContext();
+  const { canEdit: contextCanEdit, opportunityId } =
+    useOpportunityEditContext();
+  // In preview mode, disable all editing regardless of context
+  const canEdit = previewMode ? false : contextCanEdit;
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
@@ -438,7 +446,7 @@ const JobPage = ({
           <OpportunityStepsInfo />
         </div>
       </Portal>
-      {!hasCompletedInitialView && !canEdit && (
+      {!hasCompletedInitialView && !canEdit && !previewMode && (
         <div className="mb-4">
           <JobPageIntro />
         </div>
