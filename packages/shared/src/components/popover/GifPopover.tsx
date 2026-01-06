@@ -67,6 +67,12 @@ const GifPickerContent = ({
       <TextField
         value={query}
         onChange={(e) => debounceQuery(e.target.value)}
+        onKeyDown={(e) => {
+          // Prevent Enter key from submitting the parent form
+          if (e.key === 'Enter') {
+            e.preventDefault();
+          }
+        }}
         inputId="gifs"
         label="Search Tenor"
         placeholder={
