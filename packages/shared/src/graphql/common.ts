@@ -64,24 +64,47 @@ export interface RequestProtocol {
   isCompanion?: boolean;
 }
 
-export const isQueryKeySame = (left: QueryKey, right: QueryKey): boolean => {
-  if (typeof left !== typeof right) {
+const isDeepEqual = (a: unknown, b: unknown): boolean => {
+  if (a === b) {
+    return true;
+  }
+
+  if (typeof a !== typeof b) {
     return false;
   }
 
-  if (typeof left === 'string' && typeof right === 'string') {
-    return left === right;
+  if (a === null || b === null) {
+    return a === b;
   }
 
-  if (Array.isArray(left) && Array.isArray(right)) {
-    if (left.length !== right.length) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) {
+      return false;
+    }
+    return a.every((item, i) => isDeepEqual(item, b[i]));
+  }
+
+  if (typeof a === 'object' && typeof b === 'object') {
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+
+    if (keysA.length !== keysB.length) {
       return false;
     }
 
-    return left.every((key, i) => key === right[i]);
+    return keysA.every((key) =>
+      isDeepEqual(
+        (a as Record<string, unknown>)[key],
+        (b as Record<string, unknown>)[key],
+      ),
+    );
   }
 
   return false;
+};
+
+export const isQueryKeySame = (left: QueryKey, right: QueryKey): boolean => {
+  return isDeepEqual(left, right);
 };
 
 export enum ApiError {
