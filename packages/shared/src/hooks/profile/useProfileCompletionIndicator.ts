@@ -6,6 +6,7 @@ import { ActionType } from '../../graphql/actions';
 
 interface UseProfileCompletionIndicator {
   showIndicator: boolean;
+  isDismissed: boolean;
 }
 
 export const useProfileCompletionIndicator =
@@ -24,5 +25,6 @@ export const useProfileCompletionIndicator =
       showIndicator:
         profileCompletionPercentage < profileCompletionThreshold &&
         !isDismissed,
+      isDismissed,
     };
   };

@@ -210,9 +210,15 @@ export default function Feed<T>({
     feature: briefCardFeedFeature,
     shouldEvaluate: isMyFeed && hasNoBriefAction,
   });
-  const showBriefCard = isMyFeed && briefCardFeatureValue && hasNoBriefAction;
-  const { showIndicator: showProfileCompletionCard } =
-    useProfileCompletionIndicator();
+  const {
+    showIndicator: showProfileCompletionCard,
+    isDismissed: isProfileCompletionCardDismissed,
+  } = useProfileCompletionIndicator();
+  const showBriefCard =
+    isMyFeed &&
+    briefCardFeatureValue &&
+    hasNoBriefAction &&
+    !isProfileCompletionCardDismissed;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
 
   const { value: briefBannerPage } = useConditionalFeature({
