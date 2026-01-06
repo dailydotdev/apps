@@ -82,6 +82,60 @@ export function opportunityToFormData(
   };
 }
 
+/**
+ * Convert form data back to Opportunity format for preview.
+ * Returns a partial opportunity that can be merged with fetched data.
+ * Handles undefined values during form initialization.
+ */
+export function formDataToPreviewOpportunity(
+  formData: Partial<OpportunitySideBySideEditFormData>,
+): Partial<Opportunity> {
+  return {
+    title: formData.title,
+    tldr: formData.tldr,
+    keywords: formData.keywords,
+    meta: formData.meta
+      ? {
+          employmentType: formData.meta.employmentType,
+          teamSize: formData.meta.teamSize,
+          salary: formData.meta.salary
+            ? {
+                min: formData.meta.salary.min,
+                max: formData.meta.salary.max,
+                period: formData.meta.salary.period,
+              }
+            : undefined,
+          seniorityLevel: formData.meta.seniorityLevel,
+          roleType: formData.meta.roleType,
+        }
+      : undefined,
+    content: formData.content
+      ? {
+          overview: {
+            content: formData.content.overview?.content || '',
+            html: formData.content.overview?.content || '',
+          },
+          responsibilities: {
+            content: formData.content.responsibilities?.content || '',
+            html: formData.content.responsibilities?.content || '',
+          },
+          requirements: {
+            content: formData.content.requirements?.content || '',
+            html: formData.content.requirements?.content || '',
+          },
+          whatYoullDo: {
+            content: formData.content.whatYoullDo?.content || '',
+            html: formData.content.whatYoullDo?.content || '',
+          },
+          interviewProcess: {
+            content: formData.content.interviewProcess?.content || '',
+            html: formData.content.interviewProcess?.content || '',
+          },
+        }
+      : undefined,
+  };
+}
+
 export interface UseOpportunityEditFormOptions {
   /**
    * Initial opportunity data to populate the form

@@ -1,9 +1,16 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { FormProvider } from 'react-hook-form';
-import { useQuery } from '@tanstack/react-query';
+import { FormProvider, useWatch } from 'react-hook-form';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { EDIT_OPPORTUNITY_MUTATION } from '@dailydotdev/shared/src/features/opportunity/graphql';
+import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import {
   OpportunityEditProvider,
   useOpportunityEditContext,
@@ -12,10 +19,15 @@ import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportu
 import {
   useOpportunityEditForm,
   useLocalDraft,
+  formDataToPreviewOpportunity,
+  useScrollSync,
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
+import type { OpportunitySideBySideEditFormData } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/hooks/useOpportunityEditForm';
+import type { ScrollSyncSection } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/hooks/useScrollSync';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useExitConfirmation } from '@dailydotdev/shared/src/hooks/useExitConfirmation';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
   useViewSize,
@@ -80,10 +92,44 @@ function getStateBadgeClass(state: OpportunityState): string {
   }
 }
 
+/**
+ * Transform form data to GraphQL mutation payload
+ */
+function formDataToMutationPayload(
+  formData: OpportunitySideBySideEditFormData,
+) {
+  return {
+    title: formData.title,
+    tldr: formData.tldr,
+    keywords: formData.keywords,
+    meta: {
+      employmentType: formData.meta.employmentType,
+      teamSize: formData.meta.teamSize,
+      salary: formData.meta.salary
+        ? {
+            min: formData.meta.salary.min,
+            max: formData.meta.salary.max,
+            period: formData.meta.salary.period,
+          }
+        : undefined,
+      seniorityLevel: formData.meta.seniorityLevel,
+      roleType: formData.meta.roleType,
+    },
+    content: {
+      overview: formData.content.overview?.content || '',
+      responsibilities: formData.content.responsibilities?.content || '',
+      requirements: formData.content.requirements?.content || '',
+      whatYoullDo: formData.content.whatYoullDo?.content || undefined,
+      interviewProcess: formData.content.interviewProcess?.content || undefined,
+    },
+  };
+}
+
 function EditPageContent(): ReactElement {
   const { opportunityId } = useOpportunityEditContext();
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
+  const queryClient = useQueryClient();
   const [isSaved, setIsSaved] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [activeTab, setActiveTab] = useState<EditPreviewTab>(
@@ -94,19 +140,68 @@ function EditPageContent(): ReactElement {
     opportunityByIdOptions({ id: opportunityId }),
   );
 
+  // Save mutation for unified form data
+  const { mutateAsync: saveOpportunity, isPending: isSaving } = useMutation({
+    mutationFn: async (payload: ReturnType<typeof formDataToMutationPayload>) =>
+      gqlClient.request<{ editOpportunity: Opportunity }>(
+        EDIT_OPPORTUNITY_MUTATION,
+        {
+          id: opportunityId,
+          payload,
+        },
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Opportunity, null, opportunityId),
+      });
+    },
+  });
+
   // Initialize form with opportunity data
   const { form, isDirty } = useOpportunityEditForm({
     opportunity,
   });
 
   // Local draft persistence
-  const { clearDraft } = useLocalDraft({
+  const { clearDraft, lastSaved } = useLocalDraft({
     opportunityId,
     form,
     enabled: true,
   });
 
-  // TODO: Implement unified save mutation in Phase 4
+  // Watch form values for real-time preview
+  const formValues = useWatch({
+    control: form.control,
+  }) as OpportunitySideBySideEditFormData;
+
+  // Convert form data to preview opportunity for real-time updates
+  const previewData = useMemo(() => {
+    if (!formValues) {
+      return undefined;
+    }
+    return formDataToPreviewOpportunity(formValues);
+  }, [formValues]);
+
+  // Scroll sync between edit panel and preview
+  const { scrollToSection } = useScrollSync({
+    offset: 20,
+    behavior: 'smooth',
+  });
+
+  const handleSectionFocus = useCallback(
+    (sectionId: string) => {
+      scrollToSection(sectionId as ScrollSyncSection);
+    },
+    [scrollToSection],
+  );
+
+  // Exit confirmation when navigating away with unsaved changes
+  useExitConfirmation({
+    message: 'You have unsaved changes. Leave anyway?',
+    onValidateAction: useCallback(() => !isDirty, [isDirty]),
+  });
+
+  // Save handler with mutation
   const handleSave = useCallback(async () => {
     const isValid = await form.trigger();
     if (!isValid) {
@@ -114,12 +209,21 @@ function EditPageContent(): ReactElement {
       return;
     }
 
-    displayToast('Changes saved');
-    setIsSaved(true);
-    clearDraft();
+    try {
+      const formData = form.getValues();
+      const payload = formDataToMutationPayload(formData);
+      await saveOpportunity(payload);
 
-    setTimeout(() => setIsSaved(false), 2000);
-  }, [form, displayToast, clearDraft]);
+      displayToast('Changes saved');
+      setIsSaved(true);
+      clearDraft();
+      form.reset(formData); // Reset dirty state after successful save
+
+      setTimeout(() => setIsSaved(false), 2000);
+    } catch (error) {
+      displayToast('Failed to save changes. Please try again.');
+    }
+  }, [form, displayToast, clearDraft, saveOpportunity]);
 
   const handleUpdateFromUrl = useCallback(() => {
     openModal({
@@ -130,27 +234,10 @@ function EditPageContent(): ReactElement {
     });
   }, [openModal, opportunityId]);
 
-  const handleEditCompany = useCallback(() => {
-    openModal({
-      type: LazyModal.OpportunityEdit,
-      props: {
-        type: 'organization',
-        payload: { id: opportunityId },
-      },
-    });
-  }, [openModal, opportunityId]);
-
-  const handleEditRecruiter = useCallback(() => {
-    openModal({
-      type: LazyModal.OpportunityEdit,
-      props: {
-        type: 'recruiter',
-        payload: { id: opportunityId },
-      },
-    });
-  }, [openModal, opportunityId]);
-
   const getSaveButtonText = () => {
+    if (isSaving) {
+      return 'Saving...';
+    }
     if (isSaved && !isDirty) {
       return 'Saved';
     }
@@ -203,6 +290,16 @@ function EditPageContent(): ReactElement {
                 >
                   {getStateLabel(opportunity.state)}
                 </span>
+
+                {isDirty && lastSaved && (
+                  <Typography
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Quaternary}
+                    className="shrink-0"
+                  >
+                    Draft saved
+                  </Typography>
+                )}
               </div>
             </div>
 
@@ -221,6 +318,7 @@ function EditPageContent(): ReactElement {
                 color={ButtonColor.Cabbage}
                 size={ButtonSize.Small}
                 onClick={handleSave}
+                disabled={isSaving}
               >
                 {getSaveButtonText()}
               </Button>
@@ -236,10 +334,8 @@ function EditPageContent(): ReactElement {
                 className="m-4"
               />
               <OpportunityEditPanel
-                form={form}
                 opportunity={opportunity}
-                onEditCompany={handleEditCompany}
-                onEditRecruiter={handleEditRecruiter}
+                onSectionFocus={handleSectionFocus}
               />
             </div>
 
@@ -256,6 +352,7 @@ function EditPageContent(): ReactElement {
                   hideCompanyBadge
                   hideRecruiterBadge
                   previewMode
+                  previewData={previewData}
                 />
               </BrowserPreviewFrame>
             </div>
@@ -306,6 +403,7 @@ function EditPageContent(): ReactElement {
             color={ButtonColor.Cabbage}
             size={ButtonSize.Small}
             onClick={handleSave}
+            disabled={isSaving}
           >
             {getSaveButtonText()}
           </Button>
@@ -323,10 +421,8 @@ function EditPageContent(): ReactElement {
                 className="m-4"
               />
               <OpportunityEditPanel
-                form={form}
                 opportunity={opportunity}
-                onEditCompany={handleEditCompany}
-                onEditRecruiter={handleEditRecruiter}
+                onSectionFocus={handleSectionFocus}
               />
             </div>
           ) : (
@@ -336,6 +432,7 @@ function EditPageContent(): ReactElement {
                 hideCompanyBadge
                 hideRecruiterBadge
                 previewMode
+                previewData={previewData}
               />
             </div>
           )}

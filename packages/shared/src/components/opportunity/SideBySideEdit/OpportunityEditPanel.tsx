@@ -1,6 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
-import type { UseFormReturn } from 'react-hook-form';
 import classNames from 'classnames';
 import {
   Typography,
@@ -9,7 +8,6 @@ import {
 } from '../../typography/Typography';
 import { ArrowIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import type { OpportunitySideBySideEditFormData } from './hooks/useOpportunityEditForm';
 import type { Opportunity } from '../../../features/opportunity/types';
 import { RoleInfoSection } from './sections/RoleInfoSection';
 import { JobDetailsSection } from './sections/JobDetailsSection';
@@ -19,21 +17,13 @@ import { RecruiterSection } from './sections/RecruiterSection';
 
 export interface OpportunityEditPanelProps {
   /**
-   * Form instance for managing form state
-   */
-  form: UseFormReturn<OpportunitySideBySideEditFormData>;
-  /**
    * The opportunity being edited
    */
   opportunity: Opportunity;
   /**
-   * Callback when company edit button is clicked
+   * Callback when a section is focused/expanded (for scroll sync)
    */
-  onEditCompany?: () => void;
-  /**
-   * Callback when recruiter edit button is clicked
-   */
-  onEditRecruiter?: () => void;
+  onSectionFocus?: (sectionId: string) => void;
   /**
    * Additional className
    */
@@ -46,6 +36,7 @@ interface CollapsibleSectionProps {
   required?: boolean;
   children: ReactNode;
   defaultExpanded?: boolean;
+  onFocus?: () => void;
 }
 
 function CollapsibleSection({
@@ -54,15 +45,25 @@ function CollapsibleSection({
   required = false,
   children,
   defaultExpanded = true,
+  onFocus,
 }: CollapsibleSectionProps): ReactElement {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  const handleClick = () => {
+    const willExpand = !isExpanded;
+    setIsExpanded(willExpand);
+    // Trigger scroll sync when expanding
+    if (willExpand && onFocus) {
+      onFocus();
+    }
+  };
 
   return (
     <div className="rounded-12 border border-border-subtlest-tertiary bg-surface-float">
       <button
         type="button"
         className="flex w-full items-center justify-between p-4"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={handleClick}
         aria-expanded={isExpanded}
         aria-controls={`section-${id}`}
       >
@@ -99,18 +100,21 @@ function CollapsibleSection({
  * - Role Info (title, TLDR, keywords, location)
  * - Job Details (employment, seniority, team size, salary)
  * - Content sections (overview, responsibilities, requirements, etc.)
- * - Company (opens modal)
- * - Recruiter (opens modal)
+ * - Company (inline editing)
+ * - Recruiter (inline editing)
  */
 export function OpportunityEditPanel({
-  form,
   opportunity,
-  onEditCompany,
-  onEditRecruiter,
+  onSectionFocus,
   className,
 }: OpportunityEditPanelProps): ReactElement {
   return (
-    <div className={classNames('flex flex-col', className)}>
+    <div
+      className={classNames(
+        'flex min-w-0 flex-col overflow-x-hidden',
+        className,
+      )}
+    >
       <div className="p-4">
         <Typography type={TypographyType.Title3} bold className="mb-2">
           Edit Job Posting
@@ -124,18 +128,24 @@ export function OpportunityEditPanel({
       </div>
 
       <div className="flex flex-col gap-2 px-4 pb-6">
-        {/* Role Info Section */}
-        <CollapsibleSection id="roleInfo" title="Role Info" required>
+        {/* Role Info Section (includes job details) */}
+        <CollapsibleSection
+          id="roleInfo"
+          title="Role Info"
+          required
+          onFocus={() => onSectionFocus?.('roleInfo')}
+        >
           <RoleInfoSection opportunity={opportunity} />
-        </CollapsibleSection>
-
-        {/* Job Details Section */}
-        <CollapsibleSection id="jobDetails" title="Job Details" required>
           <JobDetailsSection />
         </CollapsibleSection>
 
         {/* Overview Section */}
-        <CollapsibleSection id="overview" title="Overview" required>
+        <CollapsibleSection
+          id="overview"
+          title="Overview"
+          required
+          onFocus={() => onSectionFocus?.('overview')}
+        >
           <ContentSection section="overview" />
         </CollapsibleSection>
 
@@ -144,12 +154,18 @@ export function OpportunityEditPanel({
           id="responsibilities"
           title="Responsibilities"
           required
+          onFocus={() => onSectionFocus?.('responsibilities')}
         >
           <ContentSection section="responsibilities" />
         </CollapsibleSection>
 
         {/* Requirements Section */}
-        <CollapsibleSection id="requirements" title="Requirements" required>
+        <CollapsibleSection
+          id="requirements"
+          title="Requirements"
+          required
+          onFocus={() => onSectionFocus?.('requirements')}
+        >
           <ContentSection section="requirements" />
         </CollapsibleSection>
 
@@ -158,6 +174,7 @@ export function OpportunityEditPanel({
           id="whatYoullDo"
           title="What You'll Do"
           defaultExpanded={!!opportunity?.content?.whatYoullDo?.html}
+          onFocus={() => onSectionFocus?.('whatYoullDo')}
         >
           <ContentSection section="whatYoullDo" />
         </CollapsibleSection>
@@ -167,35 +184,29 @@ export function OpportunityEditPanel({
           id="interviewProcess"
           title="Interview Process"
           defaultExpanded={!!opportunity?.content?.interviewProcess?.html}
+          onFocus={() => onSectionFocus?.('interviewProcess')}
         >
           <ContentSection section="interviewProcess" />
         </CollapsibleSection>
 
         {/* Company Section */}
-        <CollapsibleSection id="company" title="Company">
-          <CompanySection opportunity={opportunity} onEdit={onEditCompany} />
+        <CollapsibleSection
+          id="company"
+          title="Company"
+          onFocus={() => onSectionFocus?.('company')}
+        >
+          <CompanySection opportunity={opportunity} />
         </CollapsibleSection>
 
         {/* Recruiter Section */}
-        <CollapsibleSection id="recruiter" title="Recruiter">
-          <RecruiterSection
-            opportunity={opportunity}
-            onEdit={onEditRecruiter}
-          />
+        <CollapsibleSection
+          id="recruiter"
+          title="Recruiter"
+          onFocus={() => onSectionFocus?.('recruiter')}
+        >
+          <RecruiterSection opportunity={opportunity} />
         </CollapsibleSection>
       </div>
-
-      {/* Debug info - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="border-t border-border-subtlest-tertiary p-4">
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Quaternary}
-          >
-            Form dirty: {form.formState.isDirty ? 'Yes' : 'No'}
-          </Typography>
-        </div>
-      )}
     </div>
   );
 }

@@ -154,10 +154,9 @@ export function JobDetailsSection(): ReactElement {
             {errors.meta.salary.message as string}
           </div>
         )}
-        <div className="flex flex-col gap-3 tablet:flex-row tablet:gap-4">
+        <div className="flex flex-col gap-3">
           <TextField
             {...register('meta.salary.min', { valueAsNumber: true })}
-            className={{ container: 'flex-1' }}
             type="number"
             inputId="opportunitySalaryMin"
             label="Min Salary"
@@ -167,7 +166,6 @@ export function JobDetailsSection(): ReactElement {
           />
           <TextField
             {...register('meta.salary.max', { valueAsNumber: true })}
-            className={{ container: 'flex-1' }}
             type="number"
             inputId="opportunitySalaryMax"
             label="Max Salary"
@@ -181,7 +179,6 @@ export function JobDetailsSection(): ReactElement {
             render={({ field }) => (
               <Dropdown
                 className={{
-                  container: 'flex-1',
                   menu: 'w-[--radix-dropdown-menu-trigger-width]',
                 }}
                 selectedIndex={field.value ? field.value - 1 : undefined}
