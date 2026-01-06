@@ -70,7 +70,9 @@ const GifPickerContent = ({
         inputId="gifs"
         label="Search Tenor"
         placeholder={
-          searchSuggestions[Math.floor(Math.random() * searchSuggestions.length)]
+          searchSuggestions[
+            Math.floor(Math.random() * searchSuggestions.length)
+          ]
         }
       />
     </div>
@@ -101,7 +103,9 @@ const GifPickerContent = ({
                 <button
                   className="mb-auto"
                   type="button"
-                  onClick={() => handleGifClick({ url: gif.url, title: gif.title })}
+                  onClick={() =>
+                    handleGifClick({ url: gif.url, title: gif.title })
+                  }
                 >
                   <img
                     src={gif.preview}
@@ -222,10 +226,7 @@ const GifPopover = ({
   if (!isTablet) {
     return (
       <>
-        <Button
-          {...buttonProps}
-          onClick={() => handleOpenChange(true)}
-        />
+        <Button {...buttonProps} onClick={() => handleOpenChange(true)} />
         <Drawer
           isOpen={open}
           onClose={handleClose}
