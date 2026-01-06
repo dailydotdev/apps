@@ -32,6 +32,7 @@ import { IconSize } from '../../Icon';
 export interface InlineRoleInfoEditorProps {
   opportunityId: string;
   children: ReactNode;
+  extraActions?: ReactNode;
 }
 
 const salaryPeriodOptions = ['Annually', 'Monthly', 'Hourly'];
@@ -57,6 +58,7 @@ const roleTypeOptions = [
 export const InlineRoleInfoEditor = ({
   opportunityId,
   children,
+  extraActions,
 }: InlineRoleInfoEditorProps): ReactElement => {
   const { displayToast } = useToastNotification();
   const [isEditing, setIsEditing] = useState(false);
@@ -144,13 +146,15 @@ export const InlineRoleInfoEditor = ({
   if (!isEditing) {
     return (
       <div className="relative">
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<EditIcon size={IconSize.Small} />}
-          onClick={handleEdit}
-          className="absolute right-0 top-0"
-        />
+        <div className="absolute right-0 top-0 flex items-center gap-1">
+          {extraActions}
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<EditIcon size={IconSize.Small} />}
+            onClick={handleEdit}
+          />
+        </div>
         {children}
       </div>
     );

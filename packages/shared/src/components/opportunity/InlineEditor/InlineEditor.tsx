@@ -93,12 +93,12 @@ export const InlineEditor = ({
                 {title}
               </Typography>
               {isRequired && !isComplete && (
-                <span className="rounded-full bg-status-warning px-2 py-0.5 text-white typo-caption2">
+                <span className="rounded-6 bg-status-warning px-2 py-0.5 text-white typo-caption2">
                   Required
                 </span>
               )}
               {!isRequired && !isComplete && (
-                <span className="rounded-full bg-surface-float px-2 py-0.5 text-text-tertiary typo-caption2">
+                <span className="rounded-6 bg-surface-float px-2 py-0.5 text-text-tertiary typo-caption2">
                   Optional
                 </span>
               )}

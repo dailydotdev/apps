@@ -24,6 +24,8 @@ import {
 } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import JobPage from '../../jobs/[id]';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
@@ -36,6 +38,11 @@ function PreparePage(): ReactElement {
   const { data: opportunity } = useQuery(
     opportunityByIdOptions({ id: opportunityId }),
   );
+
+  const { isCheckingPayment } = useRequirePayment({
+    opportunity,
+    opportunityId,
+  });
 
   const [, updateOpportunity] = useUpdateQuery(
     opportunityByIdOptions({
@@ -93,6 +100,14 @@ function PreparePage(): ReactElement {
       }
     },
   });
+
+  if (isCheckingPayment) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col">
