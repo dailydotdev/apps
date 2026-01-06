@@ -7,10 +7,7 @@ import { PostComments } from '@dailydotdev/shared/src/components/post/PostCommen
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { useShareComment } from '@dailydotdev/shared/src/hooks/useShareComment';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
+import { generateCommentsQueryKey } from '@dailydotdev/shared/src/lib/query';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import CommentInputOrModal from '@dailydotdev/shared/src/components/comments/CommentInputOrModal';
@@ -31,7 +28,7 @@ export function CompanionDiscussion({
   const commentClasses = { tab: '!min-h-[14.5rem]' };
   const { openShareComment } = useShareComment(Origin.Companion);
   useBackgroundRequest(
-    generateQueryKey(RequestKey.PostComments, null, post?.id),
+    generateCommentsQueryKey({ postId: post?.id, sortBy: undefined }),
   );
 
   if (!post) {

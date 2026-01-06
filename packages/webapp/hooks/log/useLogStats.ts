@@ -164,6 +164,8 @@ export function useTotalEngagement(
 /**
  * Find peak reading hour from activity heatmap
  * Returns formatted 12-hour time string
+ *
+ * The activityHeatmap is a 24-element array of floats that sum to 1.
  */
 export function getPeakReadingHour(
   activityHeatmap: LogData['activityHeatmap'],
@@ -171,16 +173,12 @@ export function getPeakReadingHour(
   let maxActivity = 0;
   let bestHour = 0;
 
-  for (let hour = 0; hour < 24; hour += 1) {
-    let hourTotal = 0;
-    for (let day = 0; day < 7; day += 1) {
-      hourTotal += activityHeatmap[day]?.[hour] ?? 0;
-    }
-    if (hourTotal > maxActivity) {
-      maxActivity = hourTotal;
+  activityHeatmap.forEach((activity, hour) => {
+    if (activity > maxActivity) {
+      maxActivity = activity;
       bestHour = hour;
     }
-  }
+  });
 
   // Format as 12-hour time
   const suffix = bestHour >= 12 ? 'PM' : 'AM';
