@@ -44,15 +44,11 @@ export const LinkModal = ({
       }
 
       onSubmit(finalUrl, label.trim() || undefined);
-      setUrl('');
-      setLabel('');
     },
     [url, label, onSubmit],
   );
 
   const handleClose = useCallback(() => {
-    setUrl('');
-    setLabel('');
     onClose();
   }, [onClose]);
 

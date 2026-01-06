@@ -99,16 +99,12 @@ function RichTextToolbarComponent(
       }
       onLinkAdd(url, label);
       setIsLinkModalOpen(false);
-      setInitialUrl('');
-      setInitialLabel('');
     },
     [editor, onLinkAdd],
   );
 
   const handleModalClose = useCallback(() => {
     setIsLinkModalOpen(false);
-    setInitialUrl('');
-    setInitialLabel('');
   }, []);
 
   return (

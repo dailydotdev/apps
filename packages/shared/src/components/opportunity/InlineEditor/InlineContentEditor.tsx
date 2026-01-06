@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect, lazy, Suspense } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,11 +12,17 @@ import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
 import { opportunityEditContentSchema } from '../../../lib/schema/opportunity';
 import type { RichTextRef } from '../../fields/RichTextEditor';
-import { RichTextEditor } from '../../fields/RichTextEditor';
 import { applyZodErrorsToForm } from '../../../lib/form';
 import { labels } from '../../../lib';
 import { InlineEditor } from './InlineEditor';
 import type { ContentSection } from '../../../features/opportunity/types';
+import { Loader } from '../../Loader';
+
+const RichTextEditor = lazy(() =>
+  import('../../fields/RichTextEditor').then((mod) => ({
+    default: mod.RichTextEditor,
+  })),
+);
 
 export interface InlineContentEditorProps {
   opportunityId: string;
@@ -167,21 +173,23 @@ export const InlineContentEditor = ({
 
           return (
             <div className="flex flex-col gap-2">
-              <RichTextEditor
-                ref={richTextRef}
-                initialContent={field.value}
-                placeholder={
-                  labels.opportunity.contentFields.placeholders[section] ||
-                  labels.opportunity.contentFields.placeholders.generic
-                }
-                maxLength={2000}
-                onValueUpdate={(value) => {
-                  field.onChange(value);
-                }}
-                className={{
-                  container: 'flex-1',
-                }}
-              />
+              <Suspense fallback={<Loader />}>
+                <RichTextEditor
+                  ref={richTextRef}
+                  initialContent={field.value}
+                  placeholder={
+                    labels.opportunity.contentFields.placeholders[section] ||
+                    labels.opportunity.contentFields.placeholders.generic
+                  }
+                  maxLength={2000}
+                  onValueUpdate={(value) => {
+                    field.onChange(value);
+                  }}
+                  className={{
+                    container: 'flex-1',
+                  }}
+                />
+              </Suspense>
               {!!hint && (
                 <div
                   role={!valid ? 'alert' : undefined}
