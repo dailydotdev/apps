@@ -5,10 +5,11 @@ import styles from './StaticCards.module.css';
 import {
   ClockVisualization,
   SimpleHeadline,
-  calculateHourDistribution,
+  normalizeHourDistribution,
   PATTERN_BANNER_TEXT,
 } from '../primitives';
 import TopPercentileBanner from '../TopPercentileBanner';
+import { getPeakReadingHour } from '../../../hooks/log/useLogStats';
 
 interface StaticCardProps {
   data: Pick<
@@ -25,11 +26,11 @@ interface StaticCardProps {
 export default function StaticCardWhenYouRead({
   data,
 }: StaticCardProps): ReactElement {
-  // Calculate hour distribution from activity heatmap
-  const { distribution: hourDistribution, peakHour } = useMemo(
-    () => calculateHourDistribution(data.activityHeatmap),
+  const hourDistribution = useMemo(
+    () => normalizeHourDistribution(data.activityHeatmap),
     [data.activityHeatmap],
   );
+  const { hour: peakHour } = getPeakReadingHour(data.activityHeatmap);
 
   return (
     <>

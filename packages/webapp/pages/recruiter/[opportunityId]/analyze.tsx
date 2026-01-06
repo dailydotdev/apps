@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+} from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
@@ -19,6 +25,7 @@ import { parseOpportunityMutationOptions } from '@dailydotdev/shared/src/feature
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 
 interface UseNewOpportunityParserResult {
@@ -53,7 +60,7 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
         ApiError.ZodValidationError;
 
       const message = isZodError
-        ? 'We could not extract the job details from your submission. Please try a different file or URL, or enter the details manually.'
+        ? 'We could not extract the job details from your submission. Please try a different file or URL.'
         : error?.response?.errors?.[0]?.message || labels.error.generic;
 
       displayToast(message);
@@ -89,34 +96,26 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
   return { isParsing: isParsingInProgress };
 };
 
-const useLoadingAnimation = (isParsing: boolean) => {
-  const [loadingStep, setLoadingStep] = useState(0);
-
-  useEffect(() => {
-    // Don't start the timer until parsing is complete
-    if (isParsing) {
-      return () => {};
-    }
-
-    // Start from step 1 since step 0 was shown during parsing
-    const timers = [
-      setTimeout(() => setLoadingStep(1), 800),
-      setTimeout(() => setLoadingStep(2), 1600),
-      setTimeout(() => setLoadingStep(3), 2400),
-      setTimeout(() => setLoadingStep(4), 3200),
-    ];
-
-    return () => timers.forEach(clearTimeout);
-  }, [isParsing]);
-
-  return loadingStep;
-};
-
 const RecruiterPageContent = () => {
   const router = useRouter();
-  const { opportunity } = useOpportunityPreviewContext();
+  const { opportunity, result } = useOpportunityPreviewContext();
   const { isParsing } = useNewOpportunityParser();
-  const loadingStep = useLoadingAnimation(isParsing);
+
+  const loadingStep = useMemo(() => {
+    if (isParsing) {
+      return 0;
+    }
+
+    if (!result?.status) {
+      return 1;
+    }
+
+    if (result.status === OpportunityPreviewStatus.PENDING) {
+      return 2;
+    }
+
+    return 3;
+  }, [isParsing, result?.status]);
 
   const handlePrepareCampaignClick = useCallback(() => {
     if (!opportunity) {
@@ -129,8 +128,8 @@ const RecruiterPageContent = () => {
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
-        title="See who matches your role"
-        subtitle="We matched your role to developers already active on daily.dev."
+        title="Your potential reach"
+        subtitle="See how many developers match your role and what they're interested in."
         headerButton={{
           text: 'Select plan',
           onClick: handlePrepareCampaignClick,

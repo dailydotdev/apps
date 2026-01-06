@@ -81,6 +81,7 @@ export enum LazyModal {
   SquadNotificationSettings = 'squadNotificationSettings',
   OpportunityEdit = 'opportunityEdit',
   OpportunityEditRecruiter = 'opportunityEditRecruiter',
+  OpportunityReimport = 'opportunityReimport',
   JobOpportunity = 'jobOpportunity',
   RecruiterIntro = 'recruiterIntro',
   RecruiterTrust = 'recruiterTrust',

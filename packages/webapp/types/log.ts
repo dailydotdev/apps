@@ -192,7 +192,7 @@ export interface LogData {
   peakDay: string; // e.g., "Thursday"
   readingPattern: 'night' | 'early' | 'afternoon';
   patternPercentile: number;
-  activityHeatmap: number[][]; // 7 days x 24 hours
+  activityHeatmap: number[]; // 24 hours, values sum to 1
 
   // Card 3: Topic Evolution
   topicJourney: TopicQuarter[];

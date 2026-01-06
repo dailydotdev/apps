@@ -126,6 +126,7 @@ import ControlledSwitch from '@dailydotdev/shared/src/components/fields/Controll
 
 ```bash
 # Setup
+nvm use                   # Use correct Node version from .nvmrc
 npm i -g pnpm@9.14.4
 pnpm install
 
@@ -220,6 +221,18 @@ Each package has its own AGENTS.md with detailed guidance:
 - `packages/extension/AGENTS.md` - Browser extension development
 - `packages/storybook/AGENTS.md` - Component documentation
 
+## Adding Content to Existing Pages
+
+When adding new content (videos, images, text blocks) to existing pages:
+- **Study the page structure first** - Identify existing sections and their purpose
+- **Integrate into existing components** rather than creating new wrapper components
+- **Avoid duplicating section headers** - If a page has "How it works", don't add "See how it works"
+- **Extend existing components** - Add content to the relevant existing component instead of creating parallel components
+
+Example: Adding a video to the jobs page
+- ❌ Wrong: Create new `OpportunityVideo` component with its own "See how it works" title
+- ✅ Right: Add the video embed inside the existing `OpportunityHowItWorks` component
+
 ## Development Notes
 
 - Extension uses `webextension-polyfill` for cross-browser compatibility
@@ -227,3 +240,7 @@ Each package has its own AGENTS.md with detailed guidance:
 - Tailwind utilities preferred over CSS-in-JS
 - GraphQL schema changes require manual TypeScript type updates
 - **Avoid index/barrel exports** - they easily cause dependency cycles; prefer direct file imports
+
+## Pull Requests
+
+Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.

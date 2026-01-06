@@ -8,7 +8,6 @@ import { useOpportunityPreviewContext } from '../../context/OpportunityPreviewCo
 import { OpportunityPreviewStatus } from '../../types';
 import { JobInfo } from './JobInfo';
 import { apiUrl } from '../../../../lib/config';
-import { Image, ImageType } from '../../../../components/image/Image';
 import { ReachHeroSection } from './ReachHeroSection';
 import { InsightCard } from './InsightCard';
 import { Chip } from '../../../../components/cards/common/PostTags';
@@ -25,10 +24,12 @@ export const AnalyzeContent = ({ loadingStep }: AnalyzeContentProps) => {
   const totalCount = data?.result?.totalCount ?? 0;
   const tags = data?.result?.tags ?? [];
   const companies = data?.result?.companies ?? [];
-  const squads = data?.result?.squads ?? [];
+
+  // Mock engagement stat - in production this would come from the API
+  const avgTimePerWeek = '4.2 hrs';
 
   const showAggregation = loadingStep >= 2 && (isReady || tags.length > 0);
-  const showReachHero = loadingStep >= 3;
+  const showReachHero = loadingStep >= 2;
 
   return (
     <div className="flex flex-1 justify-center overflow-auto bg-background-subtle p-4 laptop:p-6">
@@ -48,14 +49,11 @@ export const AnalyzeContent = ({ loadingStep }: AnalyzeContentProps) => {
               isLoading={!isReady}
             >
               <div className="flex flex-wrap gap-1.5">
-                {tags.slice(0, 6).map((tag) => (
+                {tags.map((tag) => (
                   <Chip key={tag} className="!my-0">
                     #{tag}
                   </Chip>
                 ))}
-                {tags.length > 6 && (
-                  <Chip className="!my-0">+{tags.length - 6}</Chip>
-                )}
               </div>
             </InsightCard>
 
@@ -81,25 +79,26 @@ export const AnalyzeContent = ({ loadingStep }: AnalyzeContentProps) => {
               </div>
             </InsightCard>
 
-            {/* Squads */}
+            {/* Platform Engagement */}
             <InsightCard
-              label="Active in"
-              tooltip="Communities where these developers engage and share knowledge"
+              label="Weekly active time"
+              tooltip="How much time these developers spend on daily.dev each week"
               isLoading={!isReady}
             >
-              <div className="flex flex-wrap gap-1.5">
-                {squads.slice(0, 4).map((squad) => (
-                  <Chip key={squad.id} className="!my-0 gap-1.5">
-                    <Image
-                      src={squad.image}
-                      alt={squad.name}
-                      type={ImageType.Squad}
-                      className="size-4 rounded-full object-cover"
-                      loading="lazy"
-                    />
-                    <span>{squad.name}</span>
-                  </Chip>
-                ))}
+              <div className="flex flex-col">
+                <Typography
+                  type={TypographyType.Title2}
+                  bold
+                  className="text-accent-cabbage-default"
+                >
+                  {avgTimePerWeek}
+                </Typography>
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  avg. per candidate
+                </Typography>
               </div>
             </InsightCard>
           </div>

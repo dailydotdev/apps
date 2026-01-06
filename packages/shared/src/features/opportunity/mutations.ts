@@ -12,6 +12,7 @@ import {
   CREATE_ORGANIZATION_FOR_OPPORTUNITY_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
   PARSE_OPPORTUNITY_MUTATION,
+  REIMPORT_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
   RECRUITER_ACCEPT_OPPORTUNITY_MATCH_MUTATION,
   RECRUITER_REJECT_OPPORTUNITY_MATCH_MUTATION,
@@ -458,6 +459,32 @@ export const parseOpportunityMutationOptions = () => {
       });
 
       return result.parseOpportunity;
+    },
+  };
+};
+
+export const reimportOpportunityMutationOptions = () => {
+  return {
+    mutationFn: async ({
+      opportunityId,
+      file,
+      url,
+    }: {
+      opportunityId: string;
+      file?: File;
+      url?: string;
+    }) => {
+      const result = await gqlClient.request<{
+        reimportOpportunity: Opportunity;
+      }>(REIMPORT_OPPORTUNITY_MUTATION, {
+        payload: {
+          opportunityId,
+          file,
+          url,
+        },
+      });
+
+      return result.reimportOpportunity;
     },
   };
 };

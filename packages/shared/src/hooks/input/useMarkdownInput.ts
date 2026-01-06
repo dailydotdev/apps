@@ -39,6 +39,7 @@ import {
   isSelectionInMarkdownLink,
 } from '../../lib/markdown';
 import { handleRegex } from '../../graphql/users';
+import { isValidHttpUrl } from '../../lib';
 import { UploadState, useSyncUploader } from './useSyncUploader';
 import { useToastNotification } from '../useToastNotification';
 import {
@@ -46,13 +47,13 @@ import {
   allowedFileSize,
   uploadNotAcceptedMessage,
 } from '../../graphql/posts';
-import { isValidHttpUrl } from '../../lib';
 
 export enum MarkdownCommand {
   Upload = 'upload',
   Link = 'link',
   Mention = 'mention',
   Emoji = 'emoji',
+  Gif = 'gif',
 }
 
 export interface UseMarkdownInputProps
@@ -81,6 +82,7 @@ export interface UseMarkdownInput {
   onLinkCommand?: () => Promise<unknown>;
   onMentionCommand?: () => Promise<void>;
   onUploadCommand?: (files: FileList) => void;
+  onGifCommand?: (gifUrl: string, altText: string) => Promise<void>;
   onApplyMention?: (user: UserShortProfile) => Promise<void>;
   onApplyEmoji?: (emoji: string) => Promise<void>;
   checkMention?: (position?: number[]) => void;
@@ -98,6 +100,7 @@ export const defaultMarkdownCommands = {
   link: true,
   mention: true,
   emoji: true,
+  gif: true,
 };
 
 const specialCharsRegex = new RegExp(/[^A-Za-z0-9_.]/);
@@ -117,6 +120,7 @@ export const useMarkdownInput = ({
   const isUploadEnabled = enabledCommand[MarkdownCommand.Upload];
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
   const isEmojiEnabled = enabledCommand[MarkdownCommand.Emoji];
+  const isGifEnabled = enabledCommand[MarkdownCommand.Gif];
   const [command, setCommand] = useState<TextareaCommand>();
   const [input, setInput] = useState(initialContent);
   const [query, setQuery] = useState<string>(undefined);
@@ -259,6 +263,20 @@ export const useMarkdownInput = ({
     updateQuery(mention);
   };
 
+  /**
+   * Checks if the current cursor position contains a valid mention pattern (@username)
+   * and triggers the mention autocomplete if appropriate.
+   *
+   * This function specifically excludes mention detection in the following cases:
+   * - When @ is inside a markdown link: [text](https://example.com/@username)
+   * - When @ is part of a URL: https://example.com/@username or www.example.com/@username
+   *
+   * This prevents false positive mention suggestions when users are typing URLs
+   * that contain @ symbols, which was causing URLs to be incorrectly processed
+   * as user mentions.
+   *
+   * @see https://linear.app/dailydotdev/issue/ENG-228
+   */
   const checkMention = (position?: number[]) => {
     const current = [textarea.selectionStart, textarea.selectionEnd];
     const selection = position ?? current;
@@ -269,6 +287,26 @@ export const useMarkdownInput = ({
       (mention.length === 0 || handleRegex.test(mention));
 
     if (!isValid) {
+      return updateQuery(undefined);
+    }
+
+    // Skip mention detection if @ is inside a markdown link
+    if (isSelectionInMarkdownLink(textarea, selection[0], selection[1])) {
+      return updateQuery(undefined);
+    }
+
+    // Skip mention detection if @ is part of a URL
+    // Check if the word containing @ is a URL (with or without protocol)
+    // This regex matches:
+    // - URLs starting with www.
+    // - URLs with http:// or https://
+    // - Domain-like patterns (e.g., example.com, sub.domain.com)
+    const looksLikeUrl =
+      isValidHttpUrl(word) ||
+      word.startsWith('www.') ||
+      /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+/i.test(word);
+
+    if (looksLikeUrl) {
       return updateQuery(undefined);
     }
 
@@ -433,6 +471,16 @@ export const useMarkdownInput = ({
     startUploading();
   };
 
+  const onGifCommand = async (gifUrl: string, altText: string) => {
+    const replace: GetReplacementFn = (type, { trailingChar }) => {
+      const replacement = `${
+        !trailingChar ? '' : '\n\n'
+      }![${altText}](${gifUrl})\n\n`;
+      return { replacement };
+    };
+    await command.replaceWord(replace, onUpdate);
+  };
+
   const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = async (e) => {
     const pastedText = e.clipboardData.getData('text');
     if (isValidHttpUrl(pastedText)) {
@@ -493,11 +541,13 @@ export const useMarkdownInput = ({
         onCloseEmoji,
       }
     : {};
+  const gifProps = isGifEnabled ? { onGifCommand } : {};
 
   return {
     ...uploadProps,
     ...mentionProps,
     ...emojiProps,
+    ...gifProps,
     input,
     onLinkCommand: isLinkEnabled ? onLinkCommand : null,
     callbacks: {

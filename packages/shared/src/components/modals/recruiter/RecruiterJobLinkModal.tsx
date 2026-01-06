@@ -13,11 +13,13 @@ import { TextField } from '../../fields/TextField';
 import { MagicIcon, ShieldIcon } from '../../icons';
 import { DragDrop } from '../../fields/DragDrop';
 import type { PendingSubmission } from '../../../features/opportunity/context/PendingSubmissionContext';
+import { ModalClose } from '../common/ModalClose';
 
 const jobLinkSchema = z.url({ message: 'Please enter a valid URL' });
 
 export interface RecruiterJobLinkModalProps extends ModalProps {
   onSubmit: (submission: PendingSubmission) => void;
+  closeable?: boolean;
 }
 
 const fileValidation = {
@@ -32,6 +34,7 @@ const fileValidation = {
 export const RecruiterJobLinkModal = ({
   onSubmit,
   onRequestClose,
+  closeable = false,
   ...modalProps
 }: RecruiterJobLinkModalProps): ReactElement => {
   const [jobLink, setJobLink] = useState('');
@@ -92,9 +95,10 @@ export const RecruiterJobLinkModal = ({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
-      shouldCloseOnOverlayClick={false}
-      shouldCloseOnEsc={false}
+      shouldCloseOnOverlayClick={closeable}
+      shouldCloseOnEsc={closeable}
     >
+      {closeable && <ModalClose className="top-2" onClick={onRequestClose} />}
       <Modal.Body className="flex flex-col gap-6 p-6">
         <Typography type={TypographyType.Title1} bold center>
           Help us understand your role
