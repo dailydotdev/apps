@@ -128,31 +128,15 @@ export function findBestEngagementStat(data: {
 }
 
 /**
- * Calculate hour distribution from activity heatmap
- * Returns normalized values (0-1) and peak hour index
+ * Normalize hour distribution for bar chart visualization
+ * Returns values scaled to 0-1 range where the max value becomes 1
  *
  * The activityHeatmap is a 24-element array of floats that sum to 1,
  * representing the distribution of reading activity across hours.
  */
-export function calculateHourDistribution(activityHeatmap: number[]): {
-  distribution: number[];
-  peakHour: number;
-} {
-  // Normalize to 0-1 range for visualization (scale by max value)
+export function normalizeHourDistribution(activityHeatmap: number[]): number[] {
   const maxValue = Math.max(...activityHeatmap, 0.001);
-  const distribution = activityHeatmap.map((value) => value / maxValue);
-
-  // Find peak hour
-  let peakHour = 0;
-  let maxVal = 0;
-  activityHeatmap.forEach((val, idx) => {
-    if (val > maxVal) {
-      maxVal = val;
-      peakHour = idx;
-    }
-  });
-
-  return { distribution, peakHour };
+  return activityHeatmap.map((value) => value / maxValue);
 }
 
 /**

@@ -9,6 +9,7 @@ import { ARCHETYPES, RECORDS } from '../../types/log';
 import { shareLog } from '../../hooks/log/shareLogImage';
 import styles from './Log.module.css';
 import type { ShareableCardProps } from './types';
+import { usePeakReadingHour } from '../../hooks/log/useLogStats';
 
 export default function CardShare({
   data,
@@ -27,21 +28,7 @@ export default function CardShare({
   const totalInteractions =
     data.upvotesGiven + data.commentsWritten + data.postsBookmarked;
 
-  // Find peak reading hour from heatmap (24-element array of floats summing to 1)
-  const peakHour = useMemo(() => {
-    let maxActivity = 0;
-    let bestHour = 0;
-    data.activityHeatmap.forEach((activity, hour) => {
-      if (activity > maxActivity) {
-        maxActivity = activity;
-        bestHour = hour;
-      }
-    });
-    // Format as 12-hour time
-    const suffix = bestHour >= 12 ? 'PM' : 'AM';
-    const displayHour = bestHour % 12 || 12;
-    return `${displayHour}${suffix}`;
-  }, [data.activityHeatmap]);
+  const { formatted: peakHour } = usePeakReadingHour(data.activityHeatmap);
 
   // Get the best record (prefer one with a percentile, or first available)
   const bestRecord = useMemo(() => {
