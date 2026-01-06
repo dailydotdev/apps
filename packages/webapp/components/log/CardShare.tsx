@@ -27,20 +27,16 @@ export default function CardShare({
   const totalInteractions =
     data.upvotesGiven + data.commentsWritten + data.postsBookmarked;
 
-  // Find peak reading hour from heatmap
+  // Find peak reading hour from heatmap (24-element array of floats summing to 1)
   const peakHour = useMemo(() => {
     let maxActivity = 0;
     let bestHour = 0;
-    for (let hour = 0; hour < 24; hour += 1) {
-      let hourTotal = 0;
-      for (let day = 0; day < 7; day += 1) {
-        hourTotal += data.activityHeatmap[day]?.[hour] ?? 0;
-      }
-      if (hourTotal > maxActivity) {
-        maxActivity = hourTotal;
+    data.activityHeatmap.forEach((activity, hour) => {
+      if (activity > maxActivity) {
+        maxActivity = activity;
         bestHour = hour;
       }
-    }
+    });
     // Format as 12-hour time
     const suffix = bestHour >= 12 ? 'PM' : 'AM';
     const displayHour = bestHour % 12 || 12;
