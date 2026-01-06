@@ -94,7 +94,7 @@ const GifPopover = ({
       currentTextarea.selectionEnd = selectionEnd;
     }
 
-    await onGifCommand?.(gif.url, gif.title);
+    await onGifCommand?.(gif.url, 'GIF');
     setOpen(false);
     setQuery('');
   };
