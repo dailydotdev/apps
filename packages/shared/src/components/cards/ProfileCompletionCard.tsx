@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -147,7 +148,7 @@ export const ProfileCompletionCard = ({
             {incompleteItems.map((item) => (
               <li key={item.label}>
                 <Typography
-                  tag="span"
+                  tag={TypographyTag.Span}
                   type={TypographyType.Callout}
                   color={TypographyColor.Secondary}
                 >
