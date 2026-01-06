@@ -48,3 +48,6 @@ webapp.xml
 
 # Figma MCP
 figma-images/
+
+# Node compile cache
+node-compile-cache/

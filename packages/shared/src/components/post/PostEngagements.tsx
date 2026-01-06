@@ -22,7 +22,7 @@ import {
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
 import { SourceType } from '../../graphql/sources';
-import { useActions } from '../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -63,7 +63,9 @@ function PostEngagements({
     useSettingsContext();
   const { user, showLogin } = useAuthContext();
   const { isPlus } = usePlusSubscription();
+  const isMobile = !useViewSize(ViewSize.Tablet);
   const commentRef = useRef<NewCommentRef>();
+  const commentsContainerRef = useRef<HTMLDivElement>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
     useState<string>();
@@ -99,6 +101,17 @@ function PostEngagements({
 
     if (post.source?.type === SourceType.Squad) {
       completeAction(ActionType.SquadFirstComment);
+    }
+
+    // On mobile, scroll to show the newly added comment
+    if (isMobile && commentsContainerRef.current) {
+      // Use setTimeout to ensure the comment is rendered before scrolling
+      setTimeout(() => {
+        commentsContainerRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }, 100);
     }
   };
 
@@ -160,16 +173,18 @@ function PostEngagements({
         CommentInputOrModal={CommentInputOrModal}
       />
       {!isPlus && <AdAsComment postId={post.id} />}
-      <PostComments
-        post={post}
-        sortBy={sortBy}
-        origin={logOrigin}
-        onShare={(comment) => openShareComment(comment, post)}
-        onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
-        permissionNotificationCommentId={permissionNotificationCommentId}
-        joinNotificationCommentId={joinNotificationCommentId}
-        onCommented={onCommented}
-      />
+      <div ref={commentsContainerRef}>
+        <PostComments
+          post={post}
+          sortBy={sortBy}
+          origin={logOrigin}
+          onShare={(comment) => openShareComment(comment, post)}
+          onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
+          permissionNotificationCommentId={permissionNotificationCommentId}
+          joinNotificationCommentId={joinNotificationCommentId}
+          onCommented={onCommented}
+        />
+      </div>
       {authorOnboarding && (
         <AuthorOnboarding
           onSignUp={
