@@ -81,8 +81,7 @@ const ReviewListPage = (): ReactElement => {
     getOpportunitiesOptions('4'),
   );
 
-  const opportunities =
-    opportunitiesData?.edges.map((edge) => edge.node) || [];
+  const opportunities = opportunitiesData?.edges.map((edge) => edge.node) || [];
 
   if (!isAuthReady) {
     return (

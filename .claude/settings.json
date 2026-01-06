@@ -3,7 +3,8 @@
     "allow": [
       "Bash(pnpm:*)",
       "Bash(mkdir:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Skill(recruiter)"
     ],
     "deny": []
   },
