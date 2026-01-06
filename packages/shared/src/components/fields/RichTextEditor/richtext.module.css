@@ -1,0 +1,55 @@
+.editor {
+  @apply text-text-primary typo-body;
+
+  & :where(p) {
+    @apply my-2 first:mt-0 last:mb-0;
+  }
+
+  & :where(ul) {
+    @apply list-disc my-2 pl-5;
+  }
+
+  & :where(ol) {
+    @apply list-decimal my-2 pl-5;
+  }
+
+  & :where(li) {
+    @apply my-1 pl-1;
+  }
+
+  & :where(li p) {
+    @apply my-0;
+  }
+
+  & :where(a) {
+    @apply text-text-link hover:underline cursor-pointer;
+  }
+
+  & :where(strong) {
+    @apply font-bold;
+  }
+
+  & :where(em) {
+    @apply italic;
+  }
+
+  /* Placeholder styling */
+  & :global(.is-editor-empty:first-child::before) {
+    @apply text-text-quaternary pointer-events-none float-left h-0;
+    content: attr(data-placeholder);
+  }
+
+  /* Focus state */
+  &:focus-within {
+    @apply outline-none;
+  }
+
+  /* Tiptap ProseMirror specific */
+  & :global(.ProseMirror) {
+    @apply outline-none min-h-[6rem];
+  }
+
+  & :global(.ProseMirror-focused) {
+    @apply outline-none;
+  }
+}
