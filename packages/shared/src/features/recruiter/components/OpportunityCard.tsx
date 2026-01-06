@@ -34,15 +34,15 @@ const getStateLabel = (state: OpportunityState): string => {
 const getStateColor = (state: OpportunityState): string => {
   switch (state) {
     case OpportunityState.LIVE:
-      return 'bg-accent-cabbage-default';
+      return 'bg-accent-cabbage-default text-white';
     case OpportunityState.DRAFT:
-      return 'bg-surface-secondary';
+      return 'bg-surface-float border border-border-subtlest-tertiary text-text-secondary';
     case OpportunityState.IN_REVIEW:
-      return 'bg-accent-cheese-default';
+      return 'bg-accent-cheese-default text-raw-pepper-90';
     case OpportunityState.CLOSED:
-      return 'bg-surface-tertiary';
+      return 'bg-surface-float border border-border-subtlest-tertiary text-text-tertiary';
     default:
-      return 'bg-surface-secondary';
+      return 'bg-surface-float border border-border-subtlest-tertiary text-text-secondary';
   }
 };
 
@@ -77,7 +77,7 @@ export const OpportunityCard = ({
       <div className="flex items-center justify-between">
         <span
           className={classNames(
-            'rounded-8 px-2 py-1 text-text-primary typo-caption1',
+            'rounded-8 px-2 py-1 typo-caption1',
             getStateColor(state),
           )}
         >
