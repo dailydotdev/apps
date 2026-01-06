@@ -180,15 +180,16 @@ describe('shortcut links component', () => {
       ...defaultBootData,
       settings: { ...defaultSettings, customLinks: null },
     });
-    await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
     const addShortcuts = await screen.findByText('Add shortcuts');
     expect(addShortcuts).toBeVisible();
 
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.Impression,
-      target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
+    await waitFor(() => {
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.Shortcuts,
+        extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
+      });
     });
   });
 
