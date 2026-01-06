@@ -2,21 +2,20 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
-import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
-import {
-  RecruiterProgress,
-  RecruiterProgressStep,
-} from '@dailydotdev/shared/src/components/recruiter/Progress';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { OpportunityPreviewProvider } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import type { PendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { usePendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { mockOpportunityPreviewData } from '@dailydotdev/shared/src/features/opportunity/mockData';
 import type { OpportunityPreviewContextType } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
-import { AnalyzeContent } from '@dailydotdev/shared/src/features/opportunity/components/analyze/AnalyzeContent';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getOpportunitiesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import {
+  Typography,
+  TypographyColor,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { DashboardView } from '@dailydotdev/shared/src/features/recruiter/components/DashboardView';
+import { OnboardingView } from '@dailydotdev/shared/src/features/recruiter/components/OnboardingView';
 import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
 
 const useLoadingAnimation = (isActive: boolean) => {
@@ -86,27 +85,29 @@ function RecruiterPage(): ReactElement {
     }
   };
 
-  const openJobLinkModal = useCallback(() => {
-    openModal({
-      type: LazyModal.RecruiterJobLink,
-      props: {
-        onSubmit: (submission: PendingSubmission) =>
-          handleJobSubmitRef.current?.(submission),
-      },
-    });
-  }, [openModal]);
+  const openJobLinkModal = useCallback(
+    (closeable = false) => {
+      openModal({
+        type: LazyModal.RecruiterJobLink,
+        props: {
+          closeable,
+          onSubmit: (submission: PendingSubmission) =>
+            handleJobSubmitRef.current?.(submission),
+        },
+      });
+    },
+    [openModal],
+  );
 
   const hasExistingOpportunities =
     opportunitiesData?.edges && opportunitiesData.edges.length > 0;
 
-  // Open the appropriate modal when the page loads
+  // Open the onboarding modal flow for new users (no opportunities)
   useEffect(() => {
-    const { openModal: openModalParam } = router.query;
+    const { openModal: openModalParam, closeable } = router.query;
     // If openModal=joblink query param is present, skip intro/trust modals
     if (openModalParam === 'joblink') {
-      // Clear the query param from URL without triggering navigation
-      router.replace('/recruiter', undefined, { shallow: true });
-      openJobLinkModal();
+      openJobLinkModal(closeable === '1');
       return;
     }
 
@@ -121,12 +122,12 @@ function RecruiterPage(): ReactElement {
 
     hasInitializedRef.current = true;
 
+    // Users with existing opportunities see the dashboard, no auto-modal
     if (hasExistingOpportunities) {
-      openJobLinkModal();
       return;
     }
 
-    // Default flow: start with intro modal
+    // Default flow for new users: start with intro modal
     openModal({
       type: LazyModal.RecruiterIntro,
       props: {
@@ -155,21 +156,36 @@ function RecruiterPage(): ReactElement {
     loadingUser,
   ]);
 
-  return (
-    <OpportunityPreviewProvider mockData={mockData}>
-      <div className="flex flex-1 flex-col">
-        <RecruiterHeader />
-        <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
-        <AnalyzeContent loadingStep={loadingStep} />
+  const opportunities = opportunitiesData?.edges.map((edge) => edge.node) || [];
+
+  // Loading state
+  if ((user && isLoadingOpportunities) || loadingUser) {
+    return (
+      <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
+        <div className="flex flex-col items-center justify-center py-20">
+          <Typography color={TypographyColor.Tertiary}>
+            Loading your opportunities...
+          </Typography>
+        </div>
       </div>
-    </OpportunityPreviewProvider>
-  );
+    );
+  }
+
+  // Dashboard view for users with existing opportunities
+  if (hasExistingOpportunities) {
+    return (
+      <DashboardView
+        opportunities={opportunities}
+        onAddNew={() => openJobLinkModal(true)}
+      />
+    );
+  }
+
+  // Onboarding flow for new users (with blur effect)
+  return <OnboardingView mockData={mockData} loadingStep={loadingStep} />;
 }
 
 RecruiterPage.getLayout = getLayout;
-RecruiterPage.layoutProps = {
-  className: { main: 'pointer-events-none blur-sm' },
-};
 
 export async function getServerSideProps() {
   return { props: {} };

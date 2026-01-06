@@ -47,6 +47,8 @@ import type {
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
+import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 import {
   defaultOpenGraph,
@@ -72,6 +74,11 @@ const QuestionsSetupPage = (): ReactElement => {
 
   const { data: opportunity, isPending } = useQuery({
     ...opportunityByIdOptions({ id: opportunityId }),
+  });
+
+  const { isCheckingPayment } = useRequirePayment({
+    opportunity,
+    opportunityId,
   });
 
   const onValidationError = async ({
@@ -171,8 +178,12 @@ const QuestionsSetupPage = (): ReactElement => {
     },
   });
 
-  if (!isAuthReady || isPending || !isLoggedIn) {
-    return null;
+  if (!isAuthReady || isPending || !isLoggedIn || isCheckingPayment) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
 
   if (!opportunity || !isLoggedIn) {

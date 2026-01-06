@@ -10,7 +10,7 @@ export type { CardConfig, NavigationEvent } from './useCardNavigation';
 
 // Data fetching
 export { useLog, LOG_QUERY_KEY, NoLogDataError } from './useLog';
-export type { UseLogResult } from './useLog';
+export type { UseLogResult, UseLogOptions } from './useLog';
 
 // Music
 export { useBackgroundMusic } from './useBackgroundMusic';

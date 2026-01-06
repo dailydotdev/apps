@@ -49,5 +49,6 @@ webapp.xml
 # Figma MCP
 figma-images/
 
-# Node.js compile cache
+# Build cache
+*.tsbuildinfo
 node-compile-cache/

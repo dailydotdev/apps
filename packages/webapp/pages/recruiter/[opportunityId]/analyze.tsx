@@ -128,8 +128,8 @@ const RecruiterPageContent = () => {
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
-        title="See who matches your role"
-        subtitle="We matched your role to developers already active on daily.dev."
+        title="Your potential reach"
+        subtitle="See how many developers match your role and what they're interested in."
         headerButton={{
           text: 'Select plan',
           onClick: handlePrepareCampaignClick,

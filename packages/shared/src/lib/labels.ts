@@ -143,8 +143,7 @@ export const labels = {
     },
   },
   opportunity: {
-    companyInfoEditNotice:
-      'You can edit company data only on the Organization page.',
+    companyInfoEditNotice: 'Click "Edit" above to update company details',
     requiredMissingNotice: {
       title: 'Almost there!',
       description: 'Please make sure all the required fields are valid.',

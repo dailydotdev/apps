@@ -30,6 +30,7 @@ import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportu
 import { oneMinute } from '@dailydotdev/shared/src/lib/dateFormat';
 import { transactionRefetchIntervalMs } from '@dailydotdev/shared/src/graphql/njord';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
+import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import { getLayout } from '../../../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterMatchesPage(): ReactElement {
@@ -69,6 +70,11 @@ function RecruiterMatchesPage(): ReactElement {
 
       return transactionRefetchIntervalMs;
     },
+  });
+
+  const { isCheckingPayment } = useRequirePayment({
+    opportunity,
+    opportunityId: opportunityId as string,
   });
 
   const { allMatches, isLoading, data } = useOpportunityMatches({
@@ -120,7 +126,7 @@ function RecruiterMatchesPage(): ReactElement {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || isCheckingPayment) {
     return (
       <OpportunityProvider opportunityId={opportunityId as string}>
         <div className="flex flex-1 flex-col">

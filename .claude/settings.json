@@ -3,7 +3,9 @@
     "allow": [
       "Bash(pnpm:*)",
       "Bash(mkdir:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npx eslint:*)",
+      "Skill(recruiter)"
     ],
     "deny": []
   },

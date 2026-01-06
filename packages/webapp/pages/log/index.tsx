@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
+import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -51,14 +52,23 @@ import CardNoData from '../../components/log/CardNoData';
 const noDataTheme = CARD_THEMES.welcome;
 
 export default function LogPage(): ReactElement {
+  const router = useRouter();
+  const { userId } = router.query;
   const { user, isLoggedIn, isAuthReady, tokenRefreshed } = useAuthContext();
   const { logEvent } = useLogContext();
   const [isTouchDevice, setIsTouchDevice] = useState(true);
   const hasLoggedImpression = useRef(false);
   const { displayToast } = useToastNotification();
 
-  // Fetch log data from API (or use override data if uploaded)
-  const { data, isLoading: isDataLoading, hasData } = useLog(isLoggedIn);
+  // Fetch log data from API
+  const {
+    data,
+    isLoading: isDataLoading,
+    hasData,
+  } = useLog({
+    enabled: isLoggedIn,
+    userId: typeof userId === 'string' ? userId : undefined,
+  });
 
   // Track if we're using override data to force card re-renders when data source changes
   const { overrideData } = useLogDataOverride();
