@@ -110,16 +110,6 @@ export const getSEOJsonLd = (post: Post): string => {
         userInteractionCount: post.numComments,
       },
     ],
-    // Aggregate rating based on upvotes (helps with rich snippets)
-    ...(post.numUpvotes > 0 && {
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: Math.min(5, 3 + (post.numUpvotes / 100) * 2).toFixed(1),
-        bestRating: 5,
-        worstRating: 1,
-        ratingCount: post.numUpvotes,
-      },
-    }),
     keywords: post.tags?.join(','),
     timeRequired: `PT${post.readTime}M`,
     // Video schema for YouTube posts
@@ -273,42 +263,6 @@ export const getQAJsonLd = (
   });
 };
 
-// Get Review schema for highly upvoted comments (10+ upvotes)
-export const getReviewJsonLd = (
-  post: Post,
-  topComments: Comment[],
-): string | null => {
-  const featuredComment = topComments?.find((c) => c.numUpvotes >= 10);
-
-  if (!featuredComment) {
-    return null;
-  }
-
-  return JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'Review',
-    itemReviewed: {
-      '@type': 'Article',
-      name: post.title,
-      url: post.commentsPermalink,
-    },
-    reviewBody: stripHtml(featuredComment.contentHtml),
-    datePublished: featuredComment.createdAt,
-    author: featuredComment.author
-      ? {
-          '@type': 'Person',
-          name: featuredComment.author.name || featuredComment.author.username,
-          url: featuredComment.author.permalink,
-        }
-      : undefined,
-    reviewRating: {
-      '@type': 'Rating',
-      ratingValue: 5,
-      bestRating: 5,
-    },
-  });
-};
-
 export interface PostSEOSchemaProps {
   post: Post;
   topComments?: Comment[];
@@ -329,9 +283,6 @@ export const PostSEOSchema = ({
       : null;
   const qaJsonLd =
     isQuestion && topComments?.length ? getQAJsonLd(post, topComments) : null;
-  const reviewJsonLd = topComments?.length
-    ? getReviewJsonLd(post, topComments)
-    : null;
 
   return (
     <>
@@ -360,14 +311,6 @@ export const PostSEOSchema = ({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: qaJsonLd,
-          }}
-        />
-      )}
-      {reviewJsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: reviewJsonLd,
           }}
         />
       )}
