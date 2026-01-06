@@ -32,6 +32,7 @@ export function BasePostContent({
   engagementProps,
   shouldOnboardAuthor,
   isPostPage,
+  openComment,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
   const { onCopyPostLink } = engagementProps ?? {};
@@ -62,6 +63,7 @@ export function BasePostContent({
           onCopyLinkClick={onCopyPostLink}
           logOrigin={origin}
           shouldOnboardAuthor={shouldOnboardAuthor}
+          openComment={openComment}
         />
       )}
     </>

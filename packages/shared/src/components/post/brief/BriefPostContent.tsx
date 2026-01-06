@@ -87,6 +87,7 @@ const BriefPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
+  openComment,
 }: PostContentProps): ReactElement => {
   const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
   const { completeAction } = useActions();
@@ -336,6 +337,7 @@ const BriefPostContentRaw = ({
           navigationProps={navigationProps}
           origin={origin}
           post={post}
+          openComment={openComment}
         >
           <div className="my-6 flex flex-col gap-6">
             {!!user && !user?.isPlus && <BriefUpgradeAlert className="!mb-0" />}

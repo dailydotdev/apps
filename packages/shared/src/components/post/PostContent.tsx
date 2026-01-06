@@ -52,6 +52,7 @@ export function PostContentRaw({
   backToSquad,
   isBannerVisible,
   isPostPage,
+  openComment,
 }: PostContentProps): ReactElement {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
@@ -149,6 +150,7 @@ export function PostContentRaw({
           engagementProps={engagementActions}
           origin={origin}
           post={post}
+          openComment={openComment}
         >
           <div className="my-6">
             <PostSourceInfo

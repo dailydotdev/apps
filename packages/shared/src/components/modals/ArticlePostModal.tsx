@@ -13,6 +13,7 @@ import { Origin } from '../../lib/log';
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
   post: Post;
+  openComment?: boolean;
 }
 
 export default function ArticlePostModal({
@@ -23,6 +24,7 @@ export default function ArticlePostModal({
   onNextPost,
   postPosition,
   post,
+  openComment,
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { position, onLoad } = usePostNavigationPosition({
@@ -59,6 +61,7 @@ export default function ArticlePostModal({
         }}
         onClose={onRequestClose}
         origin={Origin.ArticleModal}
+        openComment={openComment}
       />
     </BasePostModal>
   );

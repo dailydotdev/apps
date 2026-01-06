@@ -45,6 +45,7 @@ function SquadPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
+  openComment,
 }: PostContentProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
@@ -131,6 +132,7 @@ function SquadPostContentRaw({
           engagementProps={engagementActions}
           origin={origin}
           post={post}
+          openComment={openComment}
         >
           {shouldShowBanner && !isLaptop && (
             <BoostNewPostStrip className="-mt-2 mb-4" />

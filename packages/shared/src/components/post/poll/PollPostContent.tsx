@@ -42,6 +42,7 @@ function PollPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
+  openComment,
 }: PostContentProps): ReactElement {
   const [justVoted, setJustVoted] = useState(false);
   const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
@@ -149,6 +150,7 @@ function PollPostContentRaw({
           engagementProps={engagementActions}
           origin={origin}
           post={post}
+          openComment={openComment}
         >
           {shouldShowBanner && !isLaptop && (
             <BoostNewPostStrip className="-mt-2 mb-4" />

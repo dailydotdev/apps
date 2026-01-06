@@ -29,6 +29,7 @@ interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
   shouldHandleCommentQuery?: boolean;
   CommentInputOrModal: React.ElementType;
+  openComment?: boolean;
 }
 
 const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
@@ -48,6 +49,7 @@ function NewCommentComponent(
     post,
     shouldHandleCommentQuery = false,
     CommentInputOrModal,
+    openComment,
     ...props
   }: NewCommentProps,
   ref: MutableRefObject<NewCommentRef>,
@@ -57,6 +59,7 @@ function NewCommentComponent(
   const { logOpts } = useActiveFeedContext();
   const { user, showLogin } = useAuthContext();
   const [inputContent, setInputContent] = useState<string>(undefined);
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
   const onSuccess: typeof onCommented = (comment, isNew) => {
     setInputContent(undefined);
@@ -100,6 +103,14 @@ function NewCommentComponent(
       shallow: true,
     });
   }, [post, hasCommentQuery, onShowComment, router, shouldHandleCommentQuery]);
+
+  // Auto-open comment input when openComment prop is true (e.g., from feed comment button)
+  useEffect(() => {
+    if (openComment && user && !hasAutoOpened) {
+      setHasAutoOpened(true);
+      onShowComment(Origin.PostCommentButton);
+    }
+  }, [openComment, user, hasAutoOpened, onShowComment]);
 
   const onCommentClick = (origin: Origin) => {
     if (!user) {

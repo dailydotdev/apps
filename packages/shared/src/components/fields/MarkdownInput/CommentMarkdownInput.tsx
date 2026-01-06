@@ -5,10 +5,11 @@ import type {
   MutableRefObject,
   ReactElement,
 } from 'react';
-import React, { forwardRef, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import classNames from 'classnames';
 import { defaultMarkdownCommands } from '../../../hooks/input';
 import MarkdownInput from './index';
+import type { MarkdownRef } from './index';
 import type { Comment } from '../../../graphql/comments';
 import { formToJson } from '../../../lib/form';
 import type { Post } from '../../../graphql/posts';
@@ -41,6 +42,11 @@ export interface CommentMarkdownInputProps {
   onClose?: () => void;
 }
 
+export interface CommentMarkdownInputRef {
+  form: HTMLFormElement | null;
+  focus: () => void;
+}
+
 export function CommentMarkdownInputComponent(
   {
     post,
@@ -55,14 +61,23 @@ export function CommentMarkdownInputComponent(
     formProps = {},
     onClose,
   }: CommentMarkdownInputProps,
-  ref: MutableRefObject<HTMLFormElement>,
+  ref: MutableRefObject<CommentMarkdownInputRef>,
 ): ReactElement {
-  const shouldFocus = useRef(true);
+  const formRef = useRef<HTMLFormElement>(null);
+  const markdownRef = useRef<MarkdownRef>(null);
   const postId = post?.id;
   const sourceId = post?.source?.id;
   const {
     mutateComment: { mutateComment, isLoading, isSuccess },
   } = useWriteCommentContext();
+
+  useImperativeHandle(ref, () => ({
+    form: formRef.current,
+    focus: () => {
+      markdownRef.current?.textareaRef?.current?.focus();
+    },
+  }));
+
   const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
@@ -92,15 +107,10 @@ export function CommentMarkdownInputComponent(
       onSubmit={onSubmitForm}
       className={className?.container}
       style={style}
-      ref={ref}
+      ref={formRef}
     >
       <MarkdownInput
-        ref={(markdownRef) => {
-          if (markdownRef && shouldFocus.current) {
-            markdownRef.textareaRef.current.focus();
-            shouldFocus.current = false;
-          }
-        }}
+        ref={markdownRef}
         className={{
           tab: classNames('!min-h-16', className?.tab),
           input: classNames(className?.input, replyTo && 'mt-0'),

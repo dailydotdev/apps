@@ -49,6 +49,7 @@ interface PostEngagementsProps {
   logOrigin: PostOrigin;
   shouldOnboardAuthor?: boolean;
   onCopyLinkClick?: (post?: Post) => void;
+  openComment?: boolean;
 }
 
 function PostEngagements({
@@ -56,6 +57,7 @@ function PostEngagements({
   onCopyLinkClick,
   logOrigin,
   shouldOnboardAuthor,
+  openComment,
 }: PostEngagementsProps): ReactElement {
   const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
@@ -158,6 +160,7 @@ function PostEngagements({
         onCommented={onCommented}
         shouldHandleCommentQuery
         CommentInputOrModal={CommentInputOrModal}
+        openComment={openComment}
       />
       {!isPlus && <AdAsComment postId={post.id} />}
       <PostComments

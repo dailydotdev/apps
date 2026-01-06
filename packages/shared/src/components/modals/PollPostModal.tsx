@@ -15,6 +15,7 @@ import { isSourceUserSource } from '../../graphql/sources';
 interface PollPostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
   post: Post;
+  openComment?: boolean;
 }
 
 export default function PollPostModal({
@@ -25,6 +26,7 @@ export default function PollPostModal({
   onNextPost,
   postPosition,
   post,
+  openComment,
   ...props
 }: PollPostModalProps): ReactElement {
   const { position, onLoad } = usePostNavigationPosition({
@@ -68,6 +70,7 @@ export default function PollPostModal({
           navigation: { actions: 'ml-auto tablet:hidden' },
           onboarding: 'mb-0 mt-8',
         }}
+        openComment={openComment}
       />
     </BasePostModal>
   );

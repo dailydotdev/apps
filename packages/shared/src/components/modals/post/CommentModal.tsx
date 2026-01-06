@@ -12,7 +12,10 @@ import classNames from 'classnames';
 import type { LazyModalCommonProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { FormWrapper } from '../../fields/form';
-import type { CommentMarkdownInputProps } from '../../fields/MarkdownInput/CommentMarkdownInput';
+import type {
+  CommentMarkdownInputProps,
+  CommentMarkdownInputRef,
+} from '../../fields/MarkdownInput/CommentMarkdownInput';
 import { CommentMarkdownInput } from '../../fields/MarkdownInput/CommentMarkdownInput';
 import { useMutateComment } from '../../../hooks/post/useMutateComment';
 import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
@@ -97,10 +100,15 @@ export default function CommentModal({
   post,
   initialContent: initialContentFromProps,
 }: CommentModalProps): ReactElement {
-  const inputRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<CommentMarkdownInputRef>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const replyRef = useRef<HTMLDivElement>(null);
   const switchRef = useRef<HTMLLabelElement>(null);
+
+  const handleAfterOpen = useCallback(() => {
+    // Focus textarea after modal animation completes for better mobile keyboard behavior
+    inputRef.current?.focus();
+  }, []);
 
   const { user } = useAuthContext();
   const client = useQueryClient();
@@ -173,11 +181,9 @@ export default function CommentModal({
   const totalHeight = height - headerHeight - replyHeight - footerHeight;
   const inputHeight = totalHeight > 0 ? Math.max(totalHeight, 300) : 'auto';
 
-  if (
-    inputRef.current &&
-    inputRef.current.style?.height !== `${inputHeight}px`
-  ) {
-    inputRef.current.style.height = `${inputHeight}px`;
+  const formElement = inputRef.current?.form;
+  if (formElement && formElement.style?.height !== `${inputHeight}px`) {
+    formElement.style.height = `${inputHeight}px`;
   }
 
   const { submitCopy, initialContent } = useMemo(() => {
@@ -214,6 +220,7 @@ export default function CommentModal({
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       onAfterClose={onAfterClose}
+      onAfterOpen={handleAfterOpen}
       className="!border-none"
       overlayClassName="!touch-none"
     >
@@ -270,7 +277,7 @@ export default function CommentModal({
               editCommentId={isEdit && editCommentId}
               initialContent={initialContent}
               className={{
-                markdownContainer: 'flex-1',
+                markdownContainer: 'flex-1 overflow-auto',
                 container: classNames(
                   'flex flex-col',
                   isReply ? 'h-[calc(100%-2.5rem)]' : 'h-full',

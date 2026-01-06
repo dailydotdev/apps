@@ -13,6 +13,7 @@ import { BriefPostContent } from '../post/brief/BriefPostContent';
 interface BriefPostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
   post: Post;
+  openComment?: boolean;
 }
 
 export default function BriefPostModal({
@@ -23,6 +24,7 @@ export default function BriefPostModal({
   onNextPost,
   postPosition,
   post,
+  openComment,
   ...props
 }: BriefPostModalProps): ReactElement {
   const { position, onLoad } = usePostNavigationPosition({
@@ -61,6 +63,7 @@ export default function BriefPostModal({
         }}
         onClose={onRequestClose}
         origin={Origin.BriefModal}
+        openComment={openComment}
       />
     </BasePostModal>
   );

@@ -40,6 +40,7 @@ const CollectionPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
+  openComment,
 }: PostContentProps): ReactElement => {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
@@ -121,6 +122,7 @@ const CollectionPostContentRaw = ({
           engagementProps={engagementActions}
           origin={origin}
           post={post}
+          openComment={openComment}
         >
           <div className="mb-6 flex flex-col gap-6">
             <CollectionsIntro className="mt-6 laptop:hidden" />

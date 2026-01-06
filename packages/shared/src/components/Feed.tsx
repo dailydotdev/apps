@@ -247,6 +247,7 @@ export default function Feed<T>({
   );
   const canFetchMore = allowFetchMore ?? queryCanFetchMore;
   const [postModalIndex, setPostModalIndex] = useState<PostLocation>(null);
+  const [openComment, setOpenComment] = useState(false);
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -444,6 +445,7 @@ export default function Feed<T>({
 
   const onPostModalClose = () => {
     setPostModalIndex(null);
+    setOpenComment(false);
     onCloseModal(false);
   };
 
@@ -489,6 +491,7 @@ export default function Feed<T>({
       }),
     );
     if (!shouldUseListFeedLayout) {
+      setOpenComment(true);
       onPostModalOpen({ index, row, column });
     }
   };
@@ -601,6 +604,7 @@ export default function Feed<T>({
                 onNextPost={onNext}
                 postPosition={postPosition}
                 post={selectedPost}
+                openComment={openComment}
               />
             )}
           </>

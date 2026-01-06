@@ -75,6 +75,7 @@ export interface PostContentProps
   position?: CSSProperties['position'];
   backToSquad?: boolean;
   isPostPage?: boolean;
+  openComment?: boolean;
 }
 
 export const PostContainer = classed(
@@ -93,4 +94,5 @@ export interface BasePostContentProps extends UsePostContentProps {
   loadingPlaceholder?: ReactNode;
   customNavigation?: ReactNode;
   isPostPage?: boolean;
+  openComment?: boolean;
 }

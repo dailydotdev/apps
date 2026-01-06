@@ -15,6 +15,7 @@ interface CollectionPostModalProps
     PassedPostNavigationProps {
   id: string;
   post: Post;
+  openComment?: boolean;
 }
 
 export default function CollectionPostModal({
@@ -25,6 +26,7 @@ export default function CollectionPostModal({
   onNextPost,
   postPosition,
   post,
+  openComment,
   ...props
 }: CollectionPostModalProps): ReactElement {
   const { position, onLoad } = usePostNavigationPosition({
@@ -62,6 +64,7 @@ export default function CollectionPostModal({
         }}
         onClose={onRequestClose}
         origin={Origin.CollectionModal}
+        openComment={openComment}
       />
     </BasePostModal>
   );

@@ -319,7 +319,7 @@ function MarkdownInput(
         onClickOutside={onCloseEmoji}
       />
       {footer ?? (
-        <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
+        <span className="sticky bottom-0 flex flex-row items-center gap-3 border-border-subtlest-tertiary bg-surface-float p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
           {!!onUploadCommand && (
             <Button
               size={actionButtonSizes}
