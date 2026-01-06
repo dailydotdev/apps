@@ -16,6 +16,8 @@ type CompletionItem = {
   label: string;
   completed: boolean;
   redirectPath: string;
+  cta: string;
+  benefit: string;
 };
 
 type ProfileCompletionCardProps = {
@@ -33,37 +35,54 @@ const getCompletionItems = (
       label: 'Profile image',
       completed: completion.hasProfileImage,
       redirectPath: `${webappUrl}settings/profile`,
+      cta: 'Add profile image',
+      benefit:
+        'Stand out in comments and discussions. Profiles with photos get more engagement.',
     },
     {
       label: 'Headline',
       completed: completion.hasHeadline,
       redirectPath: `${webappUrl}settings/profile?field=bio`,
+      cta: 'Write your headline',
+      benefit:
+        'Tell the community who you are. A good headline helps others connect with you.',
     },
     {
       label: 'Experience level',
       completed: completion.hasExperienceLevel,
       redirectPath: `${webappUrl}settings/profile?field=experienceLevel`,
+      cta: 'Set experience level',
+      benefit:
+        'Get personalized content recommendations based on where you are in your career.',
     },
     {
       label: 'Work experience',
       completed: completion.hasWork,
       redirectPath: `${webappUrl}settings/profile/experience/work`,
+      cta: 'Add work experience',
+      benefit:
+        'Showcase your background and unlock opportunities from companies looking for talent like you.',
     },
     {
       label: 'Education',
       completed: completion.hasEducation,
       redirectPath: `${webappUrl}settings/profile/experience/education`,
+      cta: 'Add education',
+      benefit:
+        'Complete your story. Education helps others understand your journey.',
     },
   ];
 };
 
+// Using softer, less saturated purple tones that align with the brand
 const profileCompletionCardBorder =
-  '1px solid var(--theme-accent-cabbage-default)';
+  '1px solid color-mix(in srgb, var(--theme-accent-cabbage-subtler), transparent 50%)';
 
 const profileCompletionCardBg =
-  'linear-gradient(180deg, rgba(61, 179, 158, 0.16) 0%, rgba(61, 179, 158, 0.08) 50%, rgba(61, 179, 158, 0.04) 100%)';
+  'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 96%) 100%)';
 
-const profileCompletionButtonBg = 'var(--theme-accent-cabbage-default)';
+const profileCompletionButtonBg =
+  'color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 20%)';
 
 export const ProfileCompletionCard = ({
   className,
@@ -88,8 +107,6 @@ export const ProfileCompletionCard = ({
   if (!profileCompletion || isCompleted || !firstIncompleteItem) {
     return null;
   }
-
-  const nextSectionText = `Add your ${firstIncompleteItem.label.toLowerCase()} to improve your profile visibility.`;
 
   return (
     <div
@@ -118,7 +135,7 @@ export const ProfileCompletionCard = ({
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          {nextSectionText}
+          {firstIncompleteItem.benefit}
         </Typography>
         <Button
           style={{
@@ -131,7 +148,7 @@ export const ProfileCompletionCard = ({
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
         >
-          Update your profile
+          {firstIncompleteItem.cta}
         </Button>
       </div>
     </div>
