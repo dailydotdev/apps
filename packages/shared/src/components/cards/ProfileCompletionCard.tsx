@@ -31,6 +31,16 @@ type ProfileCompletionCardProps = {
   }>;
 };
 
+// Using softer, less saturated purple tones that align with the brand
+const profileCompletionCardBorder =
+  '1px solid color-mix(in srgb, var(--theme-accent-cabbage-subtler), transparent 50%)';
+
+const profileCompletionCardBg =
+  'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 96%) 100%)';
+
+const profileCompletionButtonBg =
+  'color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 20%)';
+
 const getCompletionItems = (
   completion: ProfileCompletion,
 ): CompletionItem[] => {
@@ -119,8 +129,13 @@ export const ProfileCompletionCard = ({
       className={classNames('flex flex-1 p-2 laptop:p-0', className?.container)}
     >
       <div
+        style={{
+          border: profileCompletionCardBorder,
+          background: profileCompletionCardBg,
+        }}
         className={classNames(
-          'relative flex flex-1 flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-6 py-4',
+          'relative flex flex-1 flex-col gap-4 rounded-16 px-6 py-4',
+          'backdrop-blur-3xl',
           className?.card,
         )}
       >
@@ -159,6 +174,9 @@ export const ProfileCompletionCard = ({
           </ul>
         </div>
         <Button
+          style={{
+            background: profileCompletionButtonBg,
+          }}
           className="mt-auto w-full"
           tag="a"
           href={firstIncompleteItem.redirectPath}
