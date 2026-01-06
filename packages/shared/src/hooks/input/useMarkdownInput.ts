@@ -53,6 +53,7 @@ export enum MarkdownCommand {
   Link = 'link',
   Mention = 'mention',
   Emoji = 'emoji',
+  Gif = 'gif',
 }
 
 export interface UseMarkdownInputProps
@@ -81,6 +82,7 @@ export interface UseMarkdownInput {
   onLinkCommand?: () => Promise<unknown>;
   onMentionCommand?: () => Promise<void>;
   onUploadCommand?: (files: FileList) => void;
+  onGifCommand?: (gifUrl: string, altText: string) => Promise<void>;
   onApplyMention?: (user: UserShortProfile) => Promise<void>;
   onApplyEmoji?: (emoji: string) => Promise<void>;
   checkMention?: (position?: number[]) => void;
@@ -98,6 +100,7 @@ export const defaultMarkdownCommands = {
   link: true,
   mention: true,
   emoji: true,
+  gif: true,
 };
 
 const specialCharsRegex = new RegExp(/[^A-Za-z0-9_.]/);
@@ -117,6 +120,7 @@ export const useMarkdownInput = ({
   const isUploadEnabled = enabledCommand[MarkdownCommand.Upload];
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
   const isEmojiEnabled = enabledCommand[MarkdownCommand.Emoji];
+  const isGifEnabled = enabledCommand[MarkdownCommand.Gif];
   const [command, setCommand] = useState<TextareaCommand>();
   const [input, setInput] = useState(initialContent);
   const [query, setQuery] = useState<string>(undefined);
@@ -467,6 +471,16 @@ export const useMarkdownInput = ({
     startUploading();
   };
 
+  const onGifCommand = async (gifUrl: string, altText: string) => {
+    const replace: GetReplacementFn = (type, { trailingChar }) => {
+      const replacement = `${
+        !trailingChar ? '' : '\n\n'
+      }![${altText}](${gifUrl})\n\n`;
+      return { replacement };
+    };
+    await command.replaceWord(replace, onUpdate);
+  };
+
   const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = async (e) => {
     const pastedText = e.clipboardData.getData('text');
     if (isValidHttpUrl(pastedText)) {
@@ -527,11 +541,13 @@ export const useMarkdownInput = ({
         onCloseEmoji,
       }
     : {};
+  const gifProps = isGifEnabled ? { onGifCommand } : {};
 
   return {
     ...uploadProps,
     ...mentionProps,
     ...emojiProps,
+    ...gifProps,
     input,
     onLinkCommand: isLinkEnabled ? onLinkCommand : null,
     callbacks: {

@@ -223,6 +223,7 @@ export enum RequestKey {
   OpportunityStats = 'opportunity_stats',
   UserCandidatePreferences = 'user_candidate_preferences',
   KeywordAutocomplete = 'keyword_autocomplete',
+  Gif = 'gif',
   Location = 'location',
   Autocomplete = 'autocomplete',
   UserExperience = 'user_experience',
