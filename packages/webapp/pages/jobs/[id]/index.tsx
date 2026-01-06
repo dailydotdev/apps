@@ -508,26 +508,7 @@ const JobPage = ({
           )}
 
           {/* Content */}
-          <div className="relative flex flex-col gap-4 px-8 py-6">
-            {canEdit && (
-              <div className="absolute right-4 top-4">
-                <SimpleTooltip content="Import & update from URL or file">
-                  <Button
-                    size={ButtonSize.Small}
-                    variant={ButtonVariant.Tertiary}
-                    icon={<UploadIcon />}
-                    onClick={() => {
-                      openModal({
-                        type: LazyModal.OpportunityReimport,
-                        props: {
-                          opportunityId: opportunity.id,
-                        },
-                      });
-                    }}
-                  />
-                </SimpleTooltip>
-              </div>
-            )}
+          <div className="flex flex-col gap-4 px-8 py-6">
             {!hideCompanyBadge && !!opportunity.organization && (
               <div className="flex items-center">
                 <SourceAvatar
@@ -584,7 +565,26 @@ const JobPage = ({
 
             {/* Role Info - Title, Tags, TLDR, Details */}
             {canEdit ? (
-              <InlineRoleInfoEditor opportunityId={opportunity.id}>
+              <InlineRoleInfoEditor
+                opportunityId={opportunity.id}
+                extraActions={
+                  <SimpleTooltip content="Import & update from URL or file">
+                    <Button
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Tertiary}
+                      icon={<UploadIcon />}
+                      onClick={() => {
+                        openModal({
+                          type: LazyModal.OpportunityReimport,
+                          props: {
+                            opportunityId: opportunity.id,
+                          },
+                        });
+                      }}
+                    />
+                  </SimpleTooltip>
+                }
+              >
                 <RoleInfoDisplay opportunity={opportunity} />
               </InlineRoleInfoEditor>
             ) : (

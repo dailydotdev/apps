@@ -128,9 +128,9 @@ export const OpportunityCompletenessBar = ({
         </Typography>
       </div>
 
-      <div className="h-2 overflow-hidden rounded-full bg-surface-float">
+      <div className="h-2 overflow-hidden rounded-4 bg-surface-float">
         <div
-          className="h-full rounded-full bg-status-warning transition-all duration-300"
+          className="h-full rounded-4 bg-status-warning transition-all duration-300"
           style={{ width: `${completionPercentage}%` }}
         />
       </div>

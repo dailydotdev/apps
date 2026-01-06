@@ -104,12 +104,10 @@ function RecruiterPage(): ReactElement {
 
   // Open the onboarding modal flow for new users (no opportunities)
   useEffect(() => {
-    const { openModal: openModalParam } = router.query;
+    const { openModal: openModalParam, closeable } = router.query;
     // If openModal=joblink query param is present, skip intro/trust modals
     if (openModalParam === 'joblink') {
-      // Clear the query param from URL without triggering navigation
-      router.replace('/recruiter', undefined, { shallow: true });
-      openJobLinkModal();
+      openJobLinkModal(closeable === '1');
       return;
     }
 

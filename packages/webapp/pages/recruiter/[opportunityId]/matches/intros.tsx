@@ -12,11 +12,23 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { useQuery } from '@tanstack/react-query';
+import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import { getLayout } from '../../../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterMatchesPage(): ReactElement {
   const router = useRouter();
   const { opportunityId } = router.query;
+
+  const { data: opportunity } = useQuery(
+    opportunityByIdOptions({ id: opportunityId as string }),
+  );
+
+  const { isCheckingPayment } = useRequirePayment({
+    opportunity,
+    opportunityId: opportunityId as string,
+  });
 
   const { allMatches, isLoading } = useOpportunityMatches({
     opportunityId: opportunityId as string,
@@ -24,7 +36,7 @@ function RecruiterMatchesPage(): ReactElement {
     first: 20,
   });
 
-  if (isLoading) {
+  if (isLoading || isCheckingPayment) {
     return (
       <OpportunityProvider opportunityId={opportunityId as string}>
         <div className="flex flex-1 flex-col">

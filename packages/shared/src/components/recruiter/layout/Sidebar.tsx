@@ -133,7 +133,7 @@ const StateSubsection = ({
       </Typography>
       {opportunities.map((opportunity) => {
         const isDraft = opportunity.state === OpportunityState.DRAFT;
-        const path = isDraft ? 'analyze' : 'matches';
+        const path = isDraft ? 'prepare' : 'matches';
         return (
           <Button
             key={opportunity.id}
@@ -253,7 +253,7 @@ export const Sidebar = (): ReactElement => {
           <div className="px-2">
             <Button
               tag="a"
-              href={`${webappUrl}recruiter`}
+              href={`${webappUrl}recruiter?openModal=joblink&closeable=1`}
               variant={ButtonVariant.Option}
               className="w-full px-2"
               size={ButtonSize.Small}
