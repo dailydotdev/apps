@@ -64,6 +64,7 @@ import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
+import { useProfileCompletionIndicator } from '../hooks/profile/useProfileCompletionIndicator';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -204,6 +205,8 @@ export default function Feed<T>({
   });
   const showBriefCard = isMyFeed && briefCardFeatureValue && hasNoBriefAction;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
+  const { showIndicator: showProfileCompletion } =
+    useProfileCompletionIndicator();
 
   const { value: briefBannerPage } = useConditionalFeature({
     feature: briefFeedEntrypointPage,
@@ -239,6 +242,7 @@ export default function Feed<T>({
         disableAds,
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,
+        showProfileCompletion,
         ...(showMarketingCta && { marketingCta }),
         ...(plusEntryFeed && { plusEntry: plusEntryFeed }),
         feedName,

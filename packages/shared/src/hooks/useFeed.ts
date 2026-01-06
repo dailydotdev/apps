@@ -69,6 +69,7 @@ export type FeedItem =
   | MarketingCtaItem
   | FeedItemBase<FeedItemType.Placeholder>
   | FeedItemBase<FeedItemType.UserAcquisition>
+  | FeedItemBase<FeedItemType.ProfileCompletion>
   | PlusEntryItem;
 
 export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
@@ -98,6 +99,7 @@ type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
   showAcquisitionForm?: boolean;
+  showProfileCompletion?: boolean;
   marketingCta?: MarketingCta;
   plusEntry?: MarketingCta;
   feedName?: string;
@@ -325,6 +327,8 @@ export default function useFeed<T>(
               });
             } else if (withFirstIndex(settings.showAcquisitionForm)) {
               acc.push({ type: FeedItemType.UserAcquisition });
+            } else if (withFirstIndex(settings.showProfileCompletion)) {
+              acc.push({ type: FeedItemType.ProfileCompletion });
             } else {
               acc.push(adItem);
             }
@@ -371,6 +375,7 @@ export default function useFeed<T>(
     feedQuery.dataUpdatedAt,
     settings.marketingCta,
     settings.showAcquisitionForm,
+    settings.showProfileCompletion,
     placeholdersPerPage,
     getAd,
     settings.plusEntry,

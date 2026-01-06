@@ -45,6 +45,7 @@ import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
 import { MarketingCtaYearInReview } from './marketingCta/MarketingCtaYearInReview';
 import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
+import { ProfileCompletionGrid } from './cards/profileCompletion/ProfileCompletionGrid';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -141,6 +142,7 @@ const getTags = ({
     AcquisitionFormTag: useListCards
       ? AcquisitionFormList
       : AcquisitionFormGrid,
+    ProfileCompletionTag: ProfileCompletionGrid,
   };
 };
 
@@ -242,6 +244,7 @@ function FeedItemComponent({
     MarketingCtaTag,
     PlusGridTag,
     AcquisitionFormTag,
+    ProfileCompletionTag,
   } = getTags({
     isListFeedLayout: shouldUseListFeedLayout,
     shouldUseListMode,
@@ -379,6 +382,8 @@ function FeedItemComponent({
       );
     case FeedItemType.PlusEntry:
       return <PlusGridTag {...item.plusEntry} />;
+    case FeedItemType.ProfileCompletion:
+      return <ProfileCompletionTag key="profile-completion-card" />;
     default:
       return <PlaceholderTag />;
   }

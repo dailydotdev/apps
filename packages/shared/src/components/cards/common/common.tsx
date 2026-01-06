@@ -79,4 +79,5 @@ export enum FeedItemType {
   Placeholder = 'placeholder',
   UserAcquisition = 'userAcquisition',
   MarketingCta = 'marketingCta',
+  ProfileCompletion = 'profileCompletion',
 }
