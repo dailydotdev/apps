@@ -4,6 +4,8 @@ import type { GetServerSideProps } from 'next';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import { POST_BY_ID_STATIC_FIELDS_QUERY } from '@dailydotdev/shared/src/graphql/posts';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type { TopCommentsData } from '@dailydotdev/shared/src/graphql/comments';
+import { TOP_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import type { ClientError } from 'graphql-request';
 import type { NextSeoProps } from 'next-seo';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -39,22 +41,27 @@ export const getServerSideProps: GetServerSideProps<
 > = async ({ params, res, query }) => {
   const { id } = params;
   try {
-    const promises: [Promise<PostData>, Promise<PublicProfile>?] = [
+    const promises: [
+      Promise<PostData>,
+      Promise<PublicProfile | undefined>,
+      Promise<TopCommentsData>,
+    ] = [
       gqlClient.request<PostData>(POST_BY_ID_STATIC_FIELDS_QUERY, { id }),
+      query.userid
+        ? gqlClient
+            .request(USER_SHORT_BY_ID, {
+              id: query.userid as string,
+            })
+            .then((data) => data.user)
+            .catch(() => undefined)
+        : Promise.resolve(undefined),
+      gqlClient
+        .request<TopCommentsData>(TOP_COMMENTS_QUERY, { postId: id, first: 5 })
+        .catch(() => ({ topComments: [] })),
     ];
 
-    if (query.userid) {
-      promises.push(
-        gqlClient
-          .request(USER_SHORT_BY_ID, {
-            id: query.userid as string,
-          })
-          .then((data) => data.user)
-          .catch(() => undefined),
-      );
-    }
-
-    const [initialData, shareUser] = await Promise.all(promises);
+    const [initialData, shareUser, commentsData] = await Promise.all(promises);
+    const topComments = commentsData.topComments || [];
 
     if (shareUser && query.userid !== shareUser.id) {
       const { id: queryId, userid, ...restQuery } = query;
@@ -114,6 +121,7 @@ export const getServerSideProps: GetServerSideProps<
         seo,
         shareUser: shareUser || null,
         shareUserId: shareUser ? (query.userid as string) : null,
+        topComments,
       },
     };
   } catch (err) {

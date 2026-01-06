@@ -91,9 +91,9 @@ export const getSEOJsonLd = (post: Post): string => {
         }
       : {
           '@type': 'Organization',
-          name: post.source?.name,
+          name: post.source?.name || 'daily.dev',
           logo: post.source?.image,
-          url: post.source?.permalink,
+          url: post.source?.permalink || 'https://daily.dev',
         },
     // Engagement metrics
     commentCount: post.numComments,
@@ -113,18 +113,19 @@ export const getSEOJsonLd = (post: Post): string => {
     keywords: post.tags?.join(','),
     timeRequired: `PT${post.readTime}M`,
     // Video schema for YouTube posts
-    ...(post.type === PostType.VideoYouTube && {
-      video: {
-        '@type': 'VideoObject',
-        name: post.title,
-        description: getSeoDescription(post),
-        thumbnailUrl: post.image,
-        uploadDate: post.createdAt,
-        duration: `PT${post.readTime}M`,
-        url: post.permalink,
-        embedUrl: `https://www.youtube.com/embed/${post.videoId}`,
-      },
-    }),
+    ...(post.type === PostType.VideoYouTube &&
+      post.videoId && {
+        video: {
+          '@type': 'VideoObject',
+          name: post.title,
+          description: getSeoDescription(post),
+          thumbnailUrl: post.image,
+          uploadDate: post.createdAt,
+          duration: `PT${post.readTime}M`,
+          url: post.permalink,
+          embedUrl: `https://www.youtube.com/embed/${post.videoId}`,
+        },
+      }),
   });
 };
 
@@ -192,8 +193,21 @@ export const getCommentsJsonLd = (
 
 // Check if post title indicates a question
 const isQuestionPost = (post: Post): boolean => {
-  const title = post?.title?.trim();
-  return title?.endsWith('?') || false;
+  const title = post?.title?.trim()?.toLowerCase();
+  if (!title) {
+    return false;
+  }
+
+  return (
+    title.endsWith('?') ||
+    title.startsWith('how to ') ||
+    title.startsWith('how do ') ||
+    title.startsWith('what is ') ||
+    title.startsWith('what are ') ||
+    title.startsWith('why ') ||
+    title.startsWith('when ') ||
+    title.startsWith('where ')
+  );
 };
 
 // Get Q&A schema for question-style posts

@@ -280,7 +280,7 @@ export type CommentFeedData = {
   page: Connection<Comment>;
 };
 
-// SEO: Top comments query for structured data
+// SEO: Fetches top N comments ordered by upvotes (descending) for structured data schemas
 export interface TopCommentsData {
   topComments: Comment[];
 }
