@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
+import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -54,6 +55,8 @@ export const getServerSideProps: GetServerSideProps = async () => {
 const noDataTheme = CARD_THEMES.welcome;
 
 export default function LogPage(): ReactElement {
+  const router = useRouter();
+  const { userId } = router.query;
   const { user, isLoggedIn, isAuthReady, tokenRefreshed } = useAuthContext();
   const { logEvent } = useLogContext();
   const [isTouchDevice, setIsTouchDevice] = useState(true);
@@ -61,7 +64,10 @@ export default function LogPage(): ReactElement {
   const { displayToast } = useToastNotification();
 
   // Fetch log data from API
-  const { data, isLoading: isDataLoading, hasData } = useLog(isLoggedIn);
+  const { data, isLoading: isDataLoading, hasData } = useLog({
+    enabled: isLoggedIn,
+    userId: typeof userId === 'string' ? userId : undefined,
+  });
 
   // Preload images (archetypes + source logos) during browser idle time
   const imagesToPreload = useMemo(() => {

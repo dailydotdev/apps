@@ -7,6 +7,11 @@ import type { LogData } from '../../types/log';
  */
 export const LOG_QUERY_KEY = ['log'];
 
+export interface UseLogOptions {
+  enabled?: boolean;
+  userId?: string;
+}
+
 /**
  * Custom error class for when user has no log data
  */
@@ -21,8 +26,13 @@ export class NoLogDataError extends Error {
  * Fetch log data from the API.
  * Throws NoLogDataError if user doesn't have enough data (404 response).
  */
-async function fetchLog(): Promise<LogData> {
-  const response = await fetch(`${apiUrl}/log`, {
+async function fetchLog(userId?: string): Promise<LogData> {
+  const url = new URL(`${apiUrl}/log`);
+  if (userId) {
+    url.searchParams.set('userId', userId);
+  }
+
+  const response = await fetch(url.toString(), {
     credentials: 'include',
   });
 
@@ -51,10 +61,13 @@ export interface UseLogResult {
  * Hook for fetching log data from the API.
  * Returns hasData: false when the user doesn't have enough 2025 activity.
  */
-export function useLog(enabled = true): UseLogResult {
+export function useLog(options: UseLogOptions | boolean = true): UseLogResult {
+  const { enabled = true, userId } =
+    typeof options === 'boolean' ? { enabled: options } : options;
+
   const query = useQuery<LogData, Error>({
-    queryKey: LOG_QUERY_KEY,
-    queryFn: fetchLog,
+    queryKey: userId ? [...LOG_QUERY_KEY, userId] : LOG_QUERY_KEY,
+    queryFn: () => fetchLog(userId),
     enabled,
     staleTime: Infinity, // Log data doesn't change often
     retry: (failureCount, error) => {
