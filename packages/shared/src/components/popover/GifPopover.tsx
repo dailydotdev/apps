@@ -7,7 +7,7 @@ import { PopoverContent } from './Popover';
 import { TextField } from '../fields/TextField';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import useGif from '../../hooks/useGif';
-import { StarIcon } from '../icons';
+import { MiniCloseIcon, StarIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -233,6 +233,16 @@ const GifPopover = ({
           isFullScreen
           className={{ wrapper: 'flex flex-col p-4' }}
         >
+          <div className="mb-2 flex shrink-0 items-center justify-between">
+            <Typography type={TypographyType.Title3} bold>
+              GIFs
+            </Typography>
+            <Button
+              icon={<MiniCloseIcon />}
+              onClick={handleClose}
+              aria-label="Close"
+            />
+          </div>
           <GifPickerContent {...contentProps} />
         </Drawer>
       </>
