@@ -64,7 +64,11 @@ export default function LogPage(): ReactElement {
   const { displayToast } = useToastNotification();
 
   // Fetch log data from API
-  const { data, isLoading: isDataLoading, hasData } = useLog({
+  const {
+    data,
+    isLoading: isDataLoading,
+    hasData,
+  } = useLog({
     enabled: isLoggedIn,
     userId: typeof userId === 'string' ? userId : undefined,
   });
