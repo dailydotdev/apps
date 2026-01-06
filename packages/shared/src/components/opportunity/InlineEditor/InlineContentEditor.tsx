@@ -23,7 +23,7 @@ const RichTextEditor = dynamic(
   () =>
     import(
       /* webpackChunkName: "richTextEditor" */ '../../fields/RichTextEditor'
-    ).then((mod) => mod.RichTextEditor),
+    ),
   {
     ssr: false,
     loading: () => <Loader />,
@@ -103,8 +103,10 @@ export const InlineContentEditor = ({
           },
         },
       });
-      // Also update RichTextEditor's internal state
-      richTextRef.current?.setContent(serverHtml);
+      // Also update RichTextEditor's internal state (check method exists for dynamic import timing)
+      if (typeof richTextRef.current?.setContent === 'function') {
+        richTextRef.current.setContent(serverHtml);
+      }
     }
   }, [opportunity, section, reset]);
 
@@ -142,12 +144,16 @@ export const InlineContentEditor = ({
           },
         },
       });
-      richTextRef.current?.setContent(serverHtml);
+      if (typeof richTextRef.current?.setContent === 'function') {
+        richTextRef.current.setContent(serverHtml);
+      }
     }
   }, [opportunity, section, reset]);
 
   const handleRemoveSection = useCallback(async () => {
-    richTextRef.current?.setContent('');
+    if (typeof richTextRef.current?.setContent === 'function') {
+      richTextRef.current.setContent('');
+    }
     setValue(`content.${section}.content`, '');
     await onSubmit();
   }, [setValue, section, onSubmit]);
