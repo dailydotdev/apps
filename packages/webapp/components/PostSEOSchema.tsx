@@ -191,92 +191,6 @@ export const getCommentsJsonLd = (
   });
 };
 
-// Check if post title indicates a question
-const isQuestionPost = (post: Post): boolean => {
-  const title = post?.title?.trim()?.toLowerCase();
-  if (!title) {
-    return false;
-  }
-
-  return (
-    title.endsWith('?') ||
-    title.startsWith('how to ') ||
-    title.startsWith('how do ') ||
-    title.startsWith('what is ') ||
-    title.startsWith('what are ') ||
-    title.startsWith('why ') ||
-    title.startsWith('when ') ||
-    title.startsWith('where ')
-  );
-};
-
-// Get Q&A schema for question-style posts
-export const getQAJsonLd = (
-  post: Post,
-  topComments: Comment[],
-): string | null => {
-  if (!isQuestionPost(post) || !topComments?.length) {
-    return null;
-  }
-
-  const [acceptedAnswer, ...suggestedAnswers] = topComments;
-
-  return JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'QAPage',
-    mainEntity: {
-      '@type': 'Question',
-      name: post.title,
-      text: getSeoDescription(post),
-      dateCreated: post.createdAt,
-      answerCount: post.numComments,
-      upvoteCount: post.numUpvotes,
-      author: post.author
-        ? {
-            '@type': 'Person',
-            name: post.author.name ?? post.author.username,
-            url: post.author.permalink,
-          }
-        : {
-            '@type': 'Organization',
-            name: post.source?.name,
-            url: post.source?.permalink,
-          },
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: stripHtml(acceptedAnswer.contentHtml),
-        dateCreated: acceptedAnswer.createdAt,
-        url: acceptedAnswer.permalink,
-        upvoteCount: acceptedAnswer.numUpvotes,
-        author: acceptedAnswer.author
-          ? {
-              '@type': 'Person',
-              name:
-                acceptedAnswer.author.name || acceptedAnswer.author.username,
-              url: acceptedAnswer.author.permalink,
-            }
-          : undefined,
-      },
-      ...(suggestedAnswers.length > 0 && {
-        suggestedAnswer: suggestedAnswers.map((comment) => ({
-          '@type': 'Answer',
-          text: stripHtml(comment.contentHtml),
-          dateCreated: comment.createdAt,
-          url: comment.permalink,
-          upvoteCount: comment.numUpvotes,
-          author: comment.author
-            ? {
-                '@type': 'Person',
-                name: comment.author.name || comment.author.username,
-                url: comment.author.permalink,
-              }
-            : undefined,
-        })),
-      }),
-    },
-  });
-};
-
 export interface PostSEOSchemaProps {
   post: Post;
   topComments?: Comment[];
@@ -290,13 +204,9 @@ export const PostSEOSchema = ({
     return null;
   }
 
-  const isQuestion = isQuestionPost(post);
-  const commentsJsonLd =
-    !isQuestion && topComments?.length
-      ? getCommentsJsonLd(post, topComments)
-      : null;
-  const qaJsonLd =
-    isQuestion && topComments?.length ? getQAJsonLd(post, topComments) : null;
+  const commentsJsonLd = topComments?.length
+    ? getCommentsJsonLd(post, topComments)
+    : null;
 
   return (
     <>
@@ -317,14 +227,6 @@ export const PostSEOSchema = ({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: commentsJsonLd,
-          }}
-        />
-      )}
-      {qaJsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: qaJsonLd,
           }}
         />
       )}

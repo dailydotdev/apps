@@ -289,7 +289,6 @@ export const TOP_COMMENTS_QUERY = gql`
   query TopComments($postId: ID!, $first: Int) {
     topComments(postId: $postId, first: $first) {
       id
-      content
       contentHtml
       createdAt
       lastUpdatedAt
