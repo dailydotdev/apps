@@ -2,6 +2,12 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import type { Comment } from '@dailydotdev/shared/src/graphql/comments';
+
+// Helper to strip HTML tags for plain text schema fields
+const stripHtml = (html: string): string => {
+  return html?.replace(/<[^>]*>/g, '').trim() || '';
+};
 
 export const getSeoDescription = (post: Post): string => {
   if (post?.summary) {
@@ -159,10 +165,173 @@ export const getBreadcrumbJsonLd = (post: Post): string => {
   });
 };
 
-export const PostSEOSchema = ({ post }: { post: Post }): ReactElement => {
+// Convert a comment to schema.org Comment format
+const commentToSchema = (comment: Comment) => ({
+  '@type': 'Comment',
+  text: stripHtml(comment.contentHtml),
+  dateCreated: comment.createdAt,
+  ...(comment.lastUpdatedAt && { dateModified: comment.lastUpdatedAt }),
+  url: comment.permalink,
+  upvoteCount: comment.numUpvotes,
+  author: comment.author
+    ? {
+        '@type': 'Person',
+        name: comment.author.name || comment.author.username,
+        url: comment.author.permalink,
+        ...(comment.author.image && { image: comment.author.image }),
+      }
+    : undefined,
+});
+
+// Get comments schema for the article
+export const getCommentsJsonLd = (
+  post: Post,
+  topComments: Comment[],
+): string | null => {
+  if (!topComments?.length) {
+    return null;
+  }
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': post.commentsPermalink,
+    comment: topComments.map(commentToSchema),
+  });
+};
+
+// Check if post title indicates a question
+const isQuestionPost = (post: Post): boolean => {
+  const title = post?.title?.trim();
+  return title?.endsWith('?') || false;
+};
+
+// Get Q&A schema for question-style posts
+export const getQAJsonLd = (
+  post: Post,
+  topComments: Comment[],
+): string | null => {
+  if (!isQuestionPost(post) || !topComments?.length) {
+    return null;
+  }
+
+  const [acceptedAnswer, ...suggestedAnswers] = topComments;
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'QAPage',
+    mainEntity: {
+      '@type': 'Question',
+      name: post.title,
+      text: getSeoDescription(post),
+      dateCreated: post.createdAt,
+      answerCount: post.numComments,
+      upvoteCount: post.numUpvotes,
+      author: post.author
+        ? {
+            '@type': 'Person',
+            name: post.author.name ?? post.author.username,
+            url: post.author.permalink,
+          }
+        : {
+            '@type': 'Organization',
+            name: post.source?.name,
+            url: post.source?.permalink,
+          },
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: stripHtml(acceptedAnswer.contentHtml),
+        dateCreated: acceptedAnswer.createdAt,
+        url: acceptedAnswer.permalink,
+        upvoteCount: acceptedAnswer.numUpvotes,
+        author: acceptedAnswer.author
+          ? {
+              '@type': 'Person',
+              name:
+                acceptedAnswer.author.name || acceptedAnswer.author.username,
+              url: acceptedAnswer.author.permalink,
+            }
+          : undefined,
+      },
+      ...(suggestedAnswers.length > 0 && {
+        suggestedAnswer: suggestedAnswers.map((comment) => ({
+          '@type': 'Answer',
+          text: stripHtml(comment.contentHtml),
+          dateCreated: comment.createdAt,
+          url: comment.permalink,
+          upvoteCount: comment.numUpvotes,
+          author: comment.author
+            ? {
+                '@type': 'Person',
+                name: comment.author.name || comment.author.username,
+                url: comment.author.permalink,
+              }
+            : undefined,
+        })),
+      }),
+    },
+  });
+};
+
+// Get Review schema for highly upvoted comments (10+ upvotes)
+export const getReviewJsonLd = (
+  post: Post,
+  topComments: Comment[],
+): string | null => {
+  const featuredComment = topComments?.find((c) => c.numUpvotes >= 10);
+
+  if (!featuredComment) {
+    return null;
+  }
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Review',
+    itemReviewed: {
+      '@type': 'Article',
+      name: post.title,
+      url: post.commentsPermalink,
+    },
+    reviewBody: stripHtml(featuredComment.contentHtml),
+    datePublished: featuredComment.createdAt,
+    author: featuredComment.author
+      ? {
+          '@type': 'Person',
+          name: featuredComment.author.name || featuredComment.author.username,
+          url: featuredComment.author.permalink,
+        }
+      : undefined,
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: 5,
+      bestRating: 5,
+    },
+  });
+};
+
+export interface PostSEOSchemaProps {
+  post: Post;
+  topComments?: Comment[];
+}
+
+export const PostSEOSchema = ({
+  post,
+  topComments,
+}: PostSEOSchemaProps): ReactElement => {
   if (!post) {
     return null;
   }
+
+  const isQuestion = isQuestionPost(post);
+  const commentsJsonLd =
+    !isQuestion && topComments?.length
+      ? getCommentsJsonLd(post, topComments)
+      : null;
+  const qaJsonLd =
+    isQuestion && topComments?.length ? getQAJsonLd(post, topComments) : null;
+  const reviewJsonLd = topComments?.length
+    ? getReviewJsonLd(post, topComments)
+    : null;
 
   return (
     <>
@@ -178,6 +347,30 @@ export const PostSEOSchema = ({ post }: { post: Post }): ReactElement => {
           __html: getBreadcrumbJsonLd(post),
         }}
       />
+      {commentsJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: commentsJsonLd,
+          }}
+        />
+      )}
+      {qaJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: qaJsonLd,
+          }}
+        />
+      )}
+      {reviewJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: reviewJsonLd,
+          }}
+        />
+      )}
     </>
   );
 };

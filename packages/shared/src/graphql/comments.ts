@@ -279,3 +279,29 @@ export const COMMENT_BY_ID_QUERY = gql`
 export type CommentFeedData = {
   page: Connection<Comment>;
 };
+
+// SEO: Top comments query for structured data
+export interface TopCommentsData {
+  topComments: Comment[];
+}
+
+export const TOP_COMMENTS_QUERY = gql`
+  query TopComments($postId: ID!, $first: Int) {
+    topComments(postId: $postId, first: $first) {
+      id
+      content
+      contentHtml
+      createdAt
+      lastUpdatedAt
+      permalink
+      numUpvotes
+      author {
+        id
+        name
+        username
+        image
+        permalink
+      }
+    }
+  }
+`;
