@@ -6,6 +6,8 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);
@@ -51,8 +53,28 @@ export function ShortcutLinksItem({
   onLinkClick: () => void;
 }): ReactElement {
   const cleanUrl = url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: url });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   return (
     <a
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       href={url}
       rel="noopener noreferrer"
       {...combinedClicks(onLinkClick)}
