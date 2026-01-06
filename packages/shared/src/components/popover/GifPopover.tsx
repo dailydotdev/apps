@@ -203,12 +203,6 @@ const GifPopover = ({
     await onGifCommand?.(gif.url, 'GIF');
     setOpen(false);
     setQuery('');
-
-    // On mobile, blur the textarea to dismiss the keyboard and prevent
-    // accidental form submission via the keyboard's submit button
-    if (!isTablet && textareaRef?.current) {
-      textareaRef.current.blur();
-    }
   };
 
   const handleClose = () => {
