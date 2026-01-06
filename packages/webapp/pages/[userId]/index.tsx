@@ -23,6 +23,7 @@ import { Header } from '@dailydotdev/shared/src/components/profile/Header';
 import classNames from 'classnames';
 import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
 import { Share } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/Share';
+import dynamic from 'next/dynamic';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
@@ -30,6 +31,43 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
+
+// Dynamically import mock components to avoid SSR issues
+const CurrentlySection = dynamic(
+  () =>
+    import(
+      '@dailydotdev/shared/src/features/profile/components/mocks/CurrentlySection'
+    ).then((mod) => mod.CurrentlySection),
+  { ssr: false },
+);
+const StackDNA = dynamic(
+  () =>
+    import(
+      '@dailydotdev/shared/src/features/profile/components/mocks/StackDNA'
+    ).then((mod) => mod.StackDNA),
+  { ssr: false },
+);
+const OpenSourceImpact = dynamic(
+  () =>
+    import(
+      '@dailydotdev/shared/src/features/profile/components/mocks/OpenSourceImpact'
+    ).then((mod) => mod.OpenSourceImpact),
+  { ssr: false },
+);
+const LearningJourney = dynamic(
+  () =>
+    import(
+      '@dailydotdev/shared/src/features/profile/components/mocks/LearningJourney'
+    ).then((mod) => mod.LearningJourney),
+  { ssr: false },
+);
+const SetupShowcase = dynamic(
+  () =>
+    import(
+      '@dailydotdev/shared/src/features/profile/components/mocks/SetupShowcase'
+    ).then((mod) => mod.SetupShowcase),
+  { ssr: false },
+);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -81,6 +119,13 @@ const ProfilePage = ({
         )}
         {!shouldShowBanner && <div />}
         <AboutMe user={user} />
+        {/* Mock Profile Sections - for preview/demo purposes */}
+        <CurrentlySection />
+        <StackDNA />
+        <OpenSourceImpact />
+        <LearningJourney />
+        <SetupShowcase />
+        {/* End Mock Profile Sections */}
         <Activity user={user} />
         {isUserSame && (
           <Share permalink={user?.permalink} className="laptop:hidden" />
