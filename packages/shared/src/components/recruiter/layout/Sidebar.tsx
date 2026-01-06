@@ -133,7 +133,7 @@ const StateSubsection = ({
       </Typography>
       {opportunities.map((opportunity) => {
         const isDraft = opportunity.state === OpportunityState.DRAFT;
-        const path = isDraft ? 'analyze' : 'matches';
+        const path = isDraft ? 'prepare' : 'matches';
         return (
           <Button
             key={opportunity.id}
