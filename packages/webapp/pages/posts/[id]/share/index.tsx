@@ -79,13 +79,27 @@ export const getServerSideProps: GetServerSideProps<
         images: [
           {
             url: `https://og.daily.dev/api/posts/${post?.id}?userid=${shareUser.id}`,
+            width: 1200,
+            height: 630,
+            alt: post?.title || 'Post cover image',
           },
         ],
         article: {
           publishedTime: post?.createdAt,
+          modifiedTime: post?.updatedAt,
           tags: post?.tags,
+          authors: post?.author?.permalink
+            ? [post.author.permalink]
+            : undefined,
         },
+        locale: post?.language || 'en',
       },
+      additionalMetaTags: [
+        {
+          name: 'robots',
+          content: 'max-image-preview:large',
+        },
+      ],
     };
 
     res.setHeader(
@@ -104,8 +118,16 @@ export const getServerSideProps: GetServerSideProps<
     };
   } catch (err) {
     const clientError = err as ClientError;
+    const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
     const errors = Object.values(ApiError);
-    if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
+    if (errors.includes(errorCode)) {
+      // Return proper 404 for not found posts (better for SEO/crawl budget)
+      if (errorCode === ApiError.NotFound) {
+        return {
+          notFound: true,
+        };
+      }
+
       const { postId } = clientError.response.errors[0].extensions;
 
       return {

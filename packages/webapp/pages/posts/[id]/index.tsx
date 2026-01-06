@@ -269,12 +269,30 @@ export async function getStaticProps({
       description: getSeoDescription(post),
       noindex: post?.author ? post.author.reputation <= 10 : false,
       openGraph: {
-        images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
+        images: [
+          {
+            url: `https://og.daily.dev/api/posts/${post?.id}`,
+            width: 1200,
+            height: 630,
+            alt: post?.title || 'Post cover image',
+          },
+        ],
         article: {
           publishedTime: post?.createdAt,
+          modifiedTime: post?.updatedAt,
           tags: post?.tags,
+          authors: post?.author?.permalink
+            ? [post.author.permalink]
+            : undefined,
         },
+        locale: post?.language || 'en',
       },
+      additionalMetaTags: [
+        {
+          name: 'robots',
+          content: 'max-image-preview:large',
+        },
+      ],
     };
 
     return {
@@ -290,6 +308,13 @@ export async function getStaticProps({
     const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
     const errors = Object.values(ApiError);
     if (errors.includes(errorCode)) {
+      // Return proper 404 for not found posts (better for SEO/crawl budget)
+      if (errorCode === ApiError.NotFound) {
+        return {
+          notFound: true,
+        };
+      }
+
       const { postId } = clientError.response.errors[0].extensions;
 
       return {
