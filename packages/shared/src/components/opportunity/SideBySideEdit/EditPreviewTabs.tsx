@@ -20,9 +20,6 @@ export interface EditPreviewTabsProps {
   className?: string;
 }
 
-/**
- * Mobile tab switcher for toggling between Edit and Preview modes.
- */
 export function EditPreviewTabs({
   activeTab,
   onTabChange,

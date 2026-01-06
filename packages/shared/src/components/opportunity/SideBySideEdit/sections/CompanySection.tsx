@@ -21,7 +21,6 @@ import { opportunityByIdOptions } from '../../../../features/opportunity/queries
 import { useToastNotification } from '../../../../hooks';
 import { RequestKey } from '../../../../lib/query';
 
-// Simplified schema for inline company editing
 const companyInlineEditSchema = z.object({
   name: z
     .string()
@@ -36,17 +35,9 @@ const companyInlineEditSchema = z.object({
 type CompanyInlineFormData = z.infer<typeof companyInlineEditSchema>;
 
 export interface CompanySectionProps {
-  /**
-   * The opportunity being edited
-   */
   opportunity: Opportunity;
 }
 
-/**
- * Company section for the side-by-side edit panel.
- * Contains inline editable fields for company name and description.
- * Changes to company are global across all job postings.
- */
 export function CompanySection({
   opportunity,
 }: CompanySectionProps): ReactElement {
@@ -72,7 +63,6 @@ export function CompanySection({
     },
   });
 
-  // Reset form when opportunity data changes
   useEffect(() => {
     if (company) {
       reset({
@@ -94,7 +84,6 @@ export function CompanySection({
         },
       });
 
-      // Invalidate opportunities query to update sidebar
       queryClient.invalidateQueries({
         queryKey: [RequestKey.Opportunities],
       });
@@ -150,7 +139,6 @@ export function CompanySection({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Global changes notice */}
       <div className="flex items-center gap-2 rounded-8 bg-surface-float p-3">
         <InfoIcon
           size={IconSize.Small}
@@ -166,7 +154,6 @@ export function CompanySection({
         </Typography>
       </div>
 
-      {/* Company logo */}
       {company?.image && (
         <div className="flex items-center gap-3">
           <img
@@ -177,7 +164,6 @@ export function CompanySection({
         </div>
       )}
 
-      {/* Inline form fields */}
       <TextField
         {...register('name')}
         type="text"

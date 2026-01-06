@@ -42,10 +42,13 @@ import {
   useOpportunityEditForm,
   useLocalDraft,
   formDataToPreviewOpportunity,
+  formDataToMutationPayload,
   useScrollSync,
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
-import type { OpportunitySideBySideEditFormData } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/hooks/useOpportunityEditForm';
-import type { ScrollSyncSection } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/hooks/useScrollSync';
+import type {
+  OpportunitySideBySideEditFormData,
+  ScrollSyncSection,
+} from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
 import { OpportunityCompletenessBar } from '@dailydotdev/shared/src/components/opportunity/OpportunityCompletenessBar';
 import { OpportunityEditPanel } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/OpportunityEditPanel';
 import {
@@ -55,39 +58,6 @@ import {
 import { BrowserPreviewFrame } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/BrowserPreviewFrame';
 import JobPage from '../../jobs/[id]';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
-
-/**
- * Transform form data to GraphQL mutation payload
- */
-function formDataToMutationPayload(
-  formData: OpportunitySideBySideEditFormData,
-) {
-  return {
-    title: formData.title,
-    tldr: formData.tldr,
-    keywords: formData.keywords,
-    meta: {
-      employmentType: formData.meta.employmentType,
-      teamSize: formData.meta.teamSize,
-      salary: formData.meta.salary
-        ? {
-            min: formData.meta.salary.min,
-            max: formData.meta.salary.max,
-            period: formData.meta.salary.period,
-          }
-        : undefined,
-      seniorityLevel: formData.meta.seniorityLevel,
-      roleType: formData.meta.roleType,
-    },
-    content: {
-      overview: formData.content.overview?.content || '',
-      responsibilities: formData.content.responsibilities?.content || '',
-      requirements: formData.content.requirements?.content || '',
-      whatYoullDo: formData.content.whatYoullDo?.content || undefined,
-      interviewProcess: formData.content.interviewProcess?.content || undefined,
-    },
-  };
-}
 
 function PreparePageContent(): ReactElement {
   const router = useRouter();

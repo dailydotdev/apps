@@ -16,17 +16,8 @@ import { CompanySection } from './sections/CompanySection';
 import { RecruiterSection } from './sections/RecruiterSection';
 
 export interface OpportunityEditPanelProps {
-  /**
-   * The opportunity being edited
-   */
   opportunity: Opportunity;
-  /**
-   * Callback when a section is focused/expanded (for scroll sync)
-   */
   onSectionFocus?: (sectionId: string) => void;
-  /**
-   * Additional className
-   */
   className?: string;
 }
 
@@ -52,7 +43,6 @@ function CollapsibleSection({
   const handleClick = () => {
     const willExpand = !isExpanded;
     setIsExpanded(willExpand);
-    // Trigger scroll sync when expanding
     if (willExpand && onFocus) {
       onFocus();
     }
@@ -93,16 +83,6 @@ function CollapsibleSection({
   );
 }
 
-/**
- * Edit panel for the side-by-side opportunity editor.
- *
- * Contains all editable sections:
- * - Role Info (title, TLDR, keywords, location)
- * - Job Details (employment, seniority, team size, salary)
- * - Content sections (overview, responsibilities, requirements, etc.)
- * - Company (inline editing)
- * - Recruiter (inline editing)
- */
 export function OpportunityEditPanel({
   opportunity,
   onSectionFocus,
@@ -128,7 +108,6 @@ export function OpportunityEditPanel({
       </div>
 
       <div className="flex flex-col gap-2 px-4 pb-6">
-        {/* Role Info Section (includes job details) */}
         <CollapsibleSection
           id="roleInfo"
           title="Role Info"
@@ -139,7 +118,6 @@ export function OpportunityEditPanel({
           <JobDetailsSection />
         </CollapsibleSection>
 
-        {/* Overview Section */}
         <CollapsibleSection
           id="overview"
           title="Overview"
@@ -149,7 +127,6 @@ export function OpportunityEditPanel({
           <ContentSection section="overview" />
         </CollapsibleSection>
 
-        {/* Responsibilities Section */}
         <CollapsibleSection
           id="responsibilities"
           title="Responsibilities"
@@ -159,7 +136,6 @@ export function OpportunityEditPanel({
           <ContentSection section="responsibilities" />
         </CollapsibleSection>
 
-        {/* Requirements Section */}
         <CollapsibleSection
           id="requirements"
           title="Requirements"
@@ -169,7 +145,6 @@ export function OpportunityEditPanel({
           <ContentSection section="requirements" />
         </CollapsibleSection>
 
-        {/* What You'll Do Section (optional) */}
         <CollapsibleSection
           id="whatYoullDo"
           title="What You'll Do"
@@ -179,7 +154,6 @@ export function OpportunityEditPanel({
           <ContentSection section="whatYoullDo" />
         </CollapsibleSection>
 
-        {/* Interview Process Section (optional) */}
         <CollapsibleSection
           id="interviewProcess"
           title="Interview Process"
@@ -189,7 +163,6 @@ export function OpportunityEditPanel({
           <ContentSection section="interviewProcess" />
         </CollapsibleSection>
 
-        {/* Company Section */}
         <CollapsibleSection
           id="company"
           title="Company"
@@ -198,7 +171,6 @@ export function OpportunityEditPanel({
           <CompanySection opportunity={opportunity} />
         </CollapsibleSection>
 
-        {/* Recruiter Section */}
         <CollapsibleSection
           id="recruiter"
           title="Recruiter"

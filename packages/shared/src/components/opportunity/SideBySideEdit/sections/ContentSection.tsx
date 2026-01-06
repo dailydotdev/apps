@@ -21,20 +21,10 @@ const RichTextEditor = dynamic(
 );
 
 export interface ContentSectionProps {
-  /**
-   * The section key (overview, responsibilities, requirements, etc.)
-   */
   section: ContentSectionType;
-  /**
-   * Optional placeholder text override
-   */
   placeholder?: string;
 }
 
-/**
- * Reusable content section for the side-by-side edit panel.
- * Wraps RichTextEditor with form context integration.
- */
 export function ContentSection({
   section,
   placeholder,
@@ -46,10 +36,8 @@ export function ContentSection({
     watch,
   } = useFormContext<OpportunitySideBySideEditFormData>();
 
-  // Get the current value from form to initialize the editor
   const currentValue = watch(`content.${section}.content`);
 
-  // Sync editor content when form value changes externally (e.g., reimport)
   useEffect(() => {
     if (
       richTextRef.current &&

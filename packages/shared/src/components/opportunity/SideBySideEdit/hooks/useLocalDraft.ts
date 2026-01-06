@@ -6,40 +6,16 @@ const DRAFT_KEY_PREFIX = 'opportunity_draft_';
 const DEBOUNCE_MS = 1000;
 
 export interface UseLocalDraftOptions {
-  /**
-   * Opportunity ID for localStorage key
-   */
   opportunityId: string;
-  /**
-   * Form instance to watch and save
-   */
   form: UseFormReturn<OpportunitySideBySideEditFormData>;
-  /**
-   * Whether to enable auto-save (default: true)
-   */
   enabled?: boolean;
 }
 
 export interface UseLocalDraftReturn {
-  /**
-   * Whether a draft exists in localStorage
-   */
   hasDraft: boolean;
-  /**
-   * The draft data if it exists
-   */
   draftData: OpportunitySideBySideEditFormData | null;
-  /**
-   * Clear the draft from localStorage
-   */
   clearDraft: () => void;
-  /**
-   * Manually save current form state to draft
-   */
   saveDraft: () => void;
-  /**
-   * Last saved timestamp
-   */
   lastSaved: Date | null;
 }
 
@@ -99,15 +75,6 @@ function clearDraftFromStorage(opportunityId: string): void {
   }
 }
 
-/**
- * Hook to manage local draft persistence for opportunity editing.
- *
- * Features:
- * - Auto-saves form changes to localStorage (debounced)
- * - Loads existing draft on mount
- * - Clears draft on successful server save
- * - Prevents data loss on accidental navigation
- */
 export function useLocalDraft({
   opportunityId,
   form,
@@ -128,7 +95,6 @@ export function useLocalDraft({
     setLastSaved(null);
   }, [opportunityId]);
 
-  // Watch form changes and auto-save with debounce
   useEffect(() => {
     if (!enabled) {
       return undefined;

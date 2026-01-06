@@ -21,17 +21,9 @@ import { opportunityByIdOptions } from '../../../../features/opportunity/queries
 import { useToastNotification } from '../../../../hooks';
 
 export interface RecruiterSectionProps {
-  /**
-   * The opportunity being edited
-   */
   opportunity: Opportunity;
 }
 
-/**
- * Recruiter section for the side-by-side edit panel.
- * Contains inline editable fields for recruiter title and bio.
- * Changes to recruiter profile are global across all job postings.
- */
 export function RecruiterSection({
   opportunity,
 }: RecruiterSectionProps): ReactElement {
@@ -59,7 +51,6 @@ export function RecruiterSection({
     },
   });
 
-  // Reset form when opportunity data changes
   useEffect(() => {
     if (recruiter) {
       reset({
@@ -119,7 +110,6 @@ export function RecruiterSection({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Global changes notice */}
       <div className="flex items-center gap-2 rounded-8 bg-surface-float p-3">
         <InfoIcon
           size={IconSize.Small}
@@ -135,7 +125,6 @@ export function RecruiterSection({
         </Typography>
       </div>
 
-      {/* Recruiter info header */}
       <div className="flex items-center gap-3">
         {recruiter?.image && (
           <img
@@ -149,7 +138,6 @@ export function RecruiterSection({
         </Typography>
       </div>
 
-      {/* Inline form fields */}
       <input type="hidden" {...register('recruiter.userId')} />
 
       <TextField

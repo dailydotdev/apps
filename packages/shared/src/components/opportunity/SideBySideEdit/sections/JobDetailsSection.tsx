@@ -28,10 +28,6 @@ const roleTypeOptions = [
   { value: 1, title: 'Management' },
 ];
 
-/**
- * Job Details section for the side-by-side edit panel.
- * Contains: employment type, seniority, team size, salary
- */
 export function JobDetailsSection(): ReactElement {
   const {
     register,

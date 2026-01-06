@@ -15,16 +15,9 @@ import type { Opportunity } from '../../../../features/opportunity/types';
 import type { OpportunitySideBySideEditFormData } from '../hooks/useOpportunityEditForm';
 
 export interface RoleInfoSectionProps {
-  /**
-   * The opportunity being edited (for default location value)
-   */
   opportunity: Opportunity;
 }
 
-/**
- * Role Info section for the side-by-side edit panel.
- * Contains: title, TLDR, keywords, location
- */
 export function RoleInfoSection({
   opportunity,
 }: RoleInfoSectionProps): ReactElement {

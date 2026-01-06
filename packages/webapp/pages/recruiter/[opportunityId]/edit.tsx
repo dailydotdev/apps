@@ -20,10 +20,15 @@ import {
   useOpportunityEditForm,
   useLocalDraft,
   formDataToPreviewOpportunity,
+  formDataToMutationPayload,
   useScrollSync,
+  getOpportunityStateLabel,
+  getOpportunityStateBadgeClass,
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
-import type { OpportunitySideBySideEditFormData } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/hooks/useOpportunityEditForm';
-import type { ScrollSyncSection } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/hooks/useScrollSync';
+import type {
+  OpportunitySideBySideEditFormData,
+  ScrollSyncSection,
+} from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
@@ -51,7 +56,6 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import { OpportunityCompletenessBar } from '@dailydotdev/shared/src/components/opportunity/OpportunityCompletenessBar';
 import { OpportunityEditPanel } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/OpportunityEditPanel';
 import {
@@ -61,69 +65,6 @@ import {
 import { BrowserPreviewFrame } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/BrowserPreviewFrame';
 import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
 import JobPage from '../../jobs/[id]';
-
-function getStateLabel(state: OpportunityState): string {
-  switch (state) {
-    case OpportunityState.DRAFT:
-      return 'DRAFT';
-    case OpportunityState.LIVE:
-      return 'LIVE';
-    case OpportunityState.CLOSED:
-      return 'CLOSED';
-    case OpportunityState.IN_REVIEW:
-      return 'IN REVIEW';
-    default:
-      return 'DRAFT';
-  }
-}
-
-function getStateBadgeClass(state: OpportunityState): string {
-  switch (state) {
-    case OpportunityState.DRAFT:
-      return 'bg-status-warning text-white';
-    case OpportunityState.LIVE:
-      return 'bg-status-success text-white';
-    case OpportunityState.CLOSED:
-      return 'bg-text-disabled text-white';
-    case OpportunityState.IN_REVIEW:
-      return 'bg-status-info text-white';
-    default:
-      return 'bg-status-warning text-white';
-  }
-}
-
-/**
- * Transform form data to GraphQL mutation payload
- */
-function formDataToMutationPayload(
-  formData: OpportunitySideBySideEditFormData,
-) {
-  return {
-    title: formData.title,
-    tldr: formData.tldr,
-    keywords: formData.keywords,
-    meta: {
-      employmentType: formData.meta.employmentType,
-      teamSize: formData.meta.teamSize,
-      salary: formData.meta.salary
-        ? {
-            min: formData.meta.salary.min,
-            max: formData.meta.salary.max,
-            period: formData.meta.salary.period,
-          }
-        : undefined,
-      seniorityLevel: formData.meta.seniorityLevel,
-      roleType: formData.meta.roleType,
-    },
-    content: {
-      overview: formData.content.overview?.content || '',
-      responsibilities: formData.content.responsibilities?.content || '',
-      requirements: formData.content.requirements?.content || '',
-      whatYoullDo: formData.content.whatYoullDo?.content || undefined,
-      interviewProcess: formData.content.interviewProcess?.content || undefined,
-    },
-  };
-}
 
 function EditPageContent(): ReactElement {
   const { opportunityId } = useOpportunityEditContext();
@@ -285,10 +226,10 @@ function EditPageContent(): ReactElement {
                 <span
                   className={classNames(
                     'rounded shrink-0 px-2 py-0.5 text-xs font-bold',
-                    getStateBadgeClass(opportunity.state),
+                    getOpportunityStateBadgeClass(opportunity.state),
                   )}
                 >
-                  {getStateLabel(opportunity.state)}
+                  {getOpportunityStateLabel(opportunity.state)}
                 </span>
 
                 {isDirty && lastSaved && (
@@ -391,10 +332,10 @@ function EditPageContent(): ReactElement {
             <span
               className={classNames(
                 'rounded shrink-0 px-1.5 py-0.5 text-xs font-bold',
-                getStateBadgeClass(opportunity.state),
+                getOpportunityStateBadgeClass(opportunity.state),
               )}
             >
-              {getStateLabel(opportunity.state)}
+              {getOpportunityStateLabel(opportunity.state)}
             </span>
           </div>
 

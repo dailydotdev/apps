@@ -4,15 +4,42 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCallback, useEffect } from 'react';
 import type { Opportunity } from '../../../../features/opportunity/types';
+import { OpportunityState } from '../../../../features/opportunity/protobuf/opportunity';
 import {
   opportunityEditInfoSchema,
   createOpportunityEditContentSchema,
 } from '../../../../lib/schema/opportunity';
 
-/**
- * Unified schema combining info and content for side-by-side editing.
- * This schema is used for real-time validation and form state management.
- */
+export function getOpportunityStateLabel(state: OpportunityState): string {
+  switch (state) {
+    case OpportunityState.DRAFT:
+      return 'DRAFT';
+    case OpportunityState.LIVE:
+      return 'LIVE';
+    case OpportunityState.CLOSED:
+      return 'CLOSED';
+    case OpportunityState.IN_REVIEW:
+      return 'IN REVIEW';
+    default:
+      return 'DRAFT';
+  }
+}
+
+export function getOpportunityStateBadgeClass(state: OpportunityState): string {
+  switch (state) {
+    case OpportunityState.DRAFT:
+      return 'bg-status-warning text-white';
+    case OpportunityState.LIVE:
+      return 'bg-status-success text-white';
+    case OpportunityState.CLOSED:
+      return 'bg-text-disabled text-white';
+    case OpportunityState.IN_REVIEW:
+      return 'bg-status-info text-white';
+    default:
+      return 'bg-status-warning text-white';
+  }
+}
+
 export const opportunitySideBySideEditSchema = opportunityEditInfoSchema.extend(
   {
     content: z.object({
@@ -35,9 +62,6 @@ export type OpportunitySideBySideEditFormData = z.infer<
   typeof opportunitySideBySideEditSchema
 >;
 
-/**
- * Convert Opportunity data to form data format.
- */
 export function opportunityToFormData(
   opportunity: Opportunity | undefined,
 ): OpportunitySideBySideEditFormData | undefined {
@@ -82,11 +106,6 @@ export function opportunityToFormData(
   };
 }
 
-/**
- * Convert form data back to Opportunity format for preview.
- * Returns a partial opportunity that can be merged with fetched data.
- * Handles undefined values during form initialization.
- */
 export function formDataToPreviewOpportunity(
   formData: Partial<OpportunitySideBySideEditFormData>,
 ): Partial<Opportunity> {
@@ -136,45 +155,52 @@ export function formDataToPreviewOpportunity(
   };
 }
 
+export function formDataToMutationPayload(
+  formData: OpportunitySideBySideEditFormData,
+) {
+  return {
+    title: formData.title,
+    tldr: formData.tldr,
+    keywords: formData.keywords,
+    meta: {
+      employmentType: formData.meta.employmentType,
+      teamSize: formData.meta.teamSize,
+      salary: formData.meta.salary
+        ? {
+            min: formData.meta.salary.min,
+            max: formData.meta.salary.max,
+            period: formData.meta.salary.period,
+          }
+        : undefined,
+      seniorityLevel: formData.meta.seniorityLevel,
+      roleType: formData.meta.roleType,
+    },
+    content: {
+      overview: formData.content.overview?.content || '',
+      responsibilities: formData.content.responsibilities?.content || '',
+      requirements: formData.content.requirements?.content || '',
+      whatYoullDo: formData.content.whatYoullDo?.content || undefined,
+      interviewProcess: formData.content.interviewProcess?.content || undefined,
+    },
+  };
+}
+
 export interface UseOpportunityEditFormOptions {
-  /**
-   * Initial opportunity data to populate the form
-   */
   opportunity?: Opportunity;
-  /**
-   * Draft data from localStorage (takes precedence over opportunity)
-   */
   draftData?: OpportunitySideBySideEditFormData;
 }
 
 export interface UseOpportunityEditFormReturn {
   form: UseFormReturn<OpportunitySideBySideEditFormData>;
-  /**
-   * Reset form to opportunity data (discard changes)
-   */
   resetToOpportunity: () => void;
-  /**
-   * Check if form has unsaved changes
-   */
   isDirty: boolean;
 }
 
-/**
- * Hook to manage the opportunity edit form state.
- *
- * Features:
- * - Unified form schema combining info and content
- * - Real-time validation
- * - Support for draft data from localStorage
- * - Reset functionality
- */
 export function useOpportunityEditForm({
   opportunity,
   draftData,
 }: UseOpportunityEditFormOptions): UseOpportunityEditFormReturn {
   const opportunityFormData = opportunityToFormData(opportunity);
-
-  // Use draft data if available, otherwise use opportunity data
   const defaultValues = draftData || opportunityFormData;
 
   const form = useForm<OpportunitySideBySideEditFormData>({
@@ -183,13 +209,11 @@ export function useOpportunityEditForm({
     mode: 'onChange',
   });
 
-  // Reset form when opportunity data changes (e.g., after reimport)
-  // We intentionally only depend on opportunity?.id to avoid resetting on every render
   useEffect(() => {
     if (opportunityFormData && !draftData) {
       form.reset(opportunityFormData);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to id changes
   }, [opportunity?.id]);
 
   const resetToOpportunity = useCallback(() => {
