@@ -29,6 +29,7 @@ export interface RichTextEditorProps {
   placeholder?: string;
   maxLength?: number;
   onValueUpdate?: (html: string) => void;
+  onFocus?: () => void;
   className?: {
     container?: string;
     editor?: string;
@@ -41,6 +42,7 @@ function RichTextEditorComponent(
     placeholder = 'Start typing...',
     maxLength = 2000,
     onValueUpdate,
+    onFocus,
     className = {},
   }: RichTextEditorProps,
   ref: MutableRefObject<RichTextRef>,
@@ -91,6 +93,9 @@ function RichTextEditorComponent(
     content: initialContent,
     onUpdate: ({ editor: updatedEditor }) => {
       onValueUpdate?.(updatedEditor.getHTML());
+    },
+    onFocus: () => {
+      onFocus?.();
     },
     // Disable immediate render to avoid SSR hydration mismatches
     immediatelyRender: false,
