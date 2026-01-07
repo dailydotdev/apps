@@ -279,3 +279,28 @@ export const COMMENT_BY_ID_QUERY = gql`
 export type CommentFeedData = {
   page: Connection<Comment>;
 };
+
+// SEO: Fetches top N comments ordered by upvotes (descending) for structured data schemas
+export interface TopCommentsData {
+  topComments: Comment[];
+}
+
+export const TOP_COMMENTS_QUERY = gql`
+  query TopComments($postId: ID!, $first: Int) {
+    topComments(postId: $postId, first: $first) {
+      id
+      contentHtml
+      createdAt
+      lastUpdatedAt
+      permalink
+      numUpvotes
+      author {
+        id
+        name
+        username
+        image
+        permalink
+      }
+    }
+  }
+`;
