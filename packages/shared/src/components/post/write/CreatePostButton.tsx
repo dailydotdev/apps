@@ -124,9 +124,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const button = (
     <Button
       {...buttonProps}
-      variant={
-        sidebar || footer ? ButtonVariant.Float : ButtonVariant.Primary
-      }
+      variant={sidebar || footer ? ButtonVariant.Float : ButtonVariant.Primary}
       className={className}
       disabled={getIsDisabled()}
       icon={(shouldShowAsCompact || showIcon) && <PlusIcon />}
