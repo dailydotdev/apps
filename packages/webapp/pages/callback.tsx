@@ -1,6 +1,7 @@
 import {
   broadcastMessage,
   postWindowMessage,
+  isPWA,
 } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import type { ReactElement } from 'react';
@@ -66,7 +67,9 @@ function CallbackPage(): ReactElement {
         postWindowMessage(eventKey, params);
       }
 
-      window.close();
+      if (!isPWA()) {
+        window.close();
+      }
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;
       window.location.replace(url);
