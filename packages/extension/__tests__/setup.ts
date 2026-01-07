@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
+import type { ReactNode } from 'react';
 import { clear } from 'idb-keyval';
 import nodeFetch from 'node-fetch';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
@@ -119,3 +120,42 @@ Object.defineProperty(global, 'ResizeObserver', {
 });
 
 structuredCloneJsonPolyfill();
+
+// Mock dnd-kit for tests
+jest.mock('@dnd-kit/core', () => ({
+  DndContext: ({ children }: { children: ReactNode }) => children,
+  closestCenter: jest.fn(),
+  KeyboardSensor: jest.fn(),
+  PointerSensor: jest.fn(),
+  useSensor: jest.fn(),
+  useSensors: jest.fn(() => []),
+}));
+
+jest.mock('@dnd-kit/sortable', () => ({
+  SortableContext: ({ children }: { children: ReactNode }) => children,
+  arrayMove: jest.fn((arr, from, to) => {
+    const result = [...arr];
+    const [removed] = result.splice(from, 1);
+    result.splice(to, 0, removed);
+    return result;
+  }),
+  sortableKeyboardCoordinates: jest.fn(),
+  horizontalListSortingStrategy: jest.fn(),
+  verticalListSortingStrategy: jest.fn(),
+  useSortable: jest.fn(() => ({
+    attributes: {},
+    listeners: {},
+    setNodeRef: jest.fn(),
+    transform: null,
+    transition: null,
+    isDragging: false,
+  })),
+}));
+
+jest.mock('@dnd-kit/utilities', () => ({
+  CSS: {
+    Transform: {
+      toString: jest.fn(() => ''),
+    },
+  },
+}));
