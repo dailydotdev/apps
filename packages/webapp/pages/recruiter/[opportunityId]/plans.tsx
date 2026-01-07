@@ -294,7 +294,7 @@ const RecruiterPlans = (): ReactElement => {
         </div>
       )}
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2 pt-2">
         <Typography type={TypographyType.Title1} bold center>
           Simple pricing. Unlimited hiring.
         </Typography>
