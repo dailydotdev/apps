@@ -81,6 +81,7 @@ export function JobDetailsSection(): ReactElement {
               className={{
                 container: 'flex-1',
                 menu: 'w-[--radix-dropdown-menu-trigger-width]',
+                button: '!h-9',
               }}
               selectedIndex={field.value ? field.value - 1 : undefined}
               options={seniorityOptions}
@@ -107,6 +108,7 @@ export function JobDetailsSection(): ReactElement {
               className={{
                 container: 'flex-1',
                 menu: 'w-[--radix-dropdown-menu-trigger-width]',
+                button: '!h-9',
               }}
               selectedIndex={roleTypeOptions.findIndex(
                 (option) => option.value === field.value,
@@ -157,6 +159,7 @@ export function JobDetailsSection(): ReactElement {
             inputId="opportunitySalaryMin"
             label="Min Salary"
             fieldType="secondary"
+            leftIcon="$"
             valid={!errors.meta?.salary?.min}
             hint={errors.meta?.salary?.min?.message as string}
           />
@@ -166,6 +169,7 @@ export function JobDetailsSection(): ReactElement {
             inputId="opportunitySalaryMax"
             label="Max Salary"
             fieldType="secondary"
+            leftIcon="$"
             valid={!errors.meta?.salary?.max}
             hint={errors.meta?.salary?.max?.message as string}
           />
@@ -176,6 +180,7 @@ export function JobDetailsSection(): ReactElement {
               <Dropdown
                 className={{
                   menu: 'w-[--radix-dropdown-menu-trigger-width]',
+                  button: '!h-9',
                 }}
                 selectedIndex={field.value ? field.value - 1 : undefined}
                 options={salaryPeriodOptions}

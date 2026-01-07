@@ -6,7 +6,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { EDIT_OPPORTUNITY_MUTATION } from '@dailydotdev/shared/src/features/opportunity/graphql';
-import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
+import type {
+  Opportunity,
+  ContentSection as ContentSectionType,
+} from '@dailydotdev/shared/src/features/opportunity/types';
 import {
   generateQueryKey,
   RequestKey,
@@ -18,7 +21,6 @@ import {
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import {
   useOpportunityEditForm,
-  useLocalDraft,
   formDataToPreviewOpportunity,
   formDataToMutationPayload,
   useScrollSync,
@@ -49,13 +51,8 @@ import {
   ButtonSize,
   ButtonColor,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  ArrowIcon,
-  RefreshIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { RefreshIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { OpportunityCompletenessBar } from '@dailydotdev/shared/src/components/opportunity/OpportunityCompletenessBar';
 import { OpportunityEditPanel } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/OpportunityEditPanel';
 import {
@@ -63,7 +60,8 @@ import {
   EditPreviewTab,
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/EditPreviewTabs';
 import { BrowserPreviewFrame } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/BrowserPreviewFrame';
-import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
+import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
+import { getLayout } from '../../../components/layouts/RecruiterFullscreenLayout';
 import JobPage from '../../jobs/[id]';
 
 function EditPageContent(): ReactElement {
@@ -76,6 +74,9 @@ function EditPageContent(): ReactElement {
   const [activeTab, setActiveTab] = useState<EditPreviewTab>(
     EditPreviewTab.Edit,
   );
+  const [expandedSections, setExpandedSections] = useState<
+    Set<ContentSectionType>
+  >(new Set());
 
   const { data: opportunity, isLoading } = useQuery(
     opportunityByIdOptions({ id: opportunityId }),
@@ -103,13 +104,6 @@ function EditPageContent(): ReactElement {
     opportunity,
   });
 
-  // Local draft persistence
-  const { clearDraft, lastSaved } = useLocalDraft({
-    opportunityId,
-    form,
-    enabled: true,
-  });
-
   // Watch form values for real-time preview
   const formValues = useWatch({
     control: form.control,
@@ -132,6 +126,12 @@ function EditPageContent(): ReactElement {
   const handleSectionFocus = useCallback(
     (sectionId: string) => {
       scrollToSection(sectionId as ScrollSyncSection);
+      // Also expand the section in the preview (without closing others)
+      setExpandedSections((prev) => {
+        const next = new Set(prev);
+        next.add(sectionId as ContentSectionType);
+        return next;
+      });
     },
     [scrollToSection],
   );
@@ -157,14 +157,13 @@ function EditPageContent(): ReactElement {
 
       displayToast('Changes saved');
       setIsSaved(true);
-      clearDraft();
       form.reset(formData); // Reset dirty state after successful save
 
       setTimeout(() => setIsSaved(false), 2000);
     } catch (error) {
       displayToast('Failed to save changes. Please try again.');
     }
-  }, [form, displayToast, clearDraft, saveOpportunity]);
+  }, [form, displayToast, saveOpportunity]);
 
   const handleUpdateFromUrl = useCallback(() => {
     openModal({
@@ -199,19 +198,10 @@ function EditPageContent(): ReactElement {
       <FormProvider {...form}>
         <div className="flex flex-1 flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3">
+          <header className="sticky top-0 z-header flex h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 laptop:h-16">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <Link href={`${webappUrl}recruiter`}>
-                <Button
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.Small}
-                  icon={
-                    <ArrowIcon className="rotate-180" size={IconSize.Small} />
-                  }
-                >
-                  Dashboard
-                </Button>
-              </Link>
+              <HeaderLogo isRecruiter />
+              <div className="mx-2 h-6 w-px bg-border-subtlest-tertiary" />
 
               <div className="flex min-w-0 items-center gap-2">
                 <Typography
@@ -231,16 +221,6 @@ function EditPageContent(): ReactElement {
                 >
                   {getOpportunityStateLabel(opportunity.state)}
                 </span>
-
-                {isDirty && lastSaved && (
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Quaternary}
-                    className="shrink-0"
-                  >
-                    Draft saved
-                  </Typography>
-                )}
               </div>
             </div>
 
@@ -264,12 +244,12 @@ function EditPageContent(): ReactElement {
                 {getSaveButtonText()}
               </Button>
             </div>
-          </div>
+          </header>
 
           {/* Main content */}
-          <div className="flex flex-1">
+          <div className="flex h-[calc(100vh-64px)]">
             {/* Edit Panel - 1/3 width */}
-            <div className="h-[calc(100vh-57px)] w-1/3 min-w-80 max-w-md overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default">
+            <div className="flex w-1/3 max-w-md flex-col overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default">
               <OpportunityCompletenessBar
                 opportunity={opportunity}
                 className="m-4"
@@ -277,6 +257,7 @@ function EditPageContent(): ReactElement {
               <OpportunityEditPanel
                 opportunity={opportunity}
                 onSectionFocus={handleSectionFocus}
+                className="flex-1"
               />
             </div>
 
@@ -294,6 +275,7 @@ function EditPageContent(): ReactElement {
                   hideRecruiterBadge
                   previewMode
                   previewData={previewData}
+                  expandedSections={expandedSections}
                 />
               </BrowserPreviewFrame>
             </div>
@@ -308,17 +290,10 @@ function EditPageContent(): ReactElement {
     <FormProvider {...form}>
       <div className="flex flex-1 flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3">
+        <header className="sticky top-0 z-header flex h-14 items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4">
           <div className="flex min-w-0 items-center gap-2">
-            <Link href={`${webappUrl}recruiter`}>
-              <Button
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                icon={
-                  <ArrowIcon className="rotate-180" size={IconSize.Small} />
-                }
-              />
-            </Link>
+            <HeaderLogo isRecruiter />
+            <div className="mx-2 h-6 w-px bg-border-subtlest-tertiary" />
 
             <Typography
               type={TypographyType.Callout}
@@ -348,7 +323,7 @@ function EditPageContent(): ReactElement {
           >
             {getSaveButtonText()}
           </Button>
-        </div>
+        </header>
 
         {/* Tab switcher */}
         <EditPreviewTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -374,6 +349,7 @@ function EditPageContent(): ReactElement {
                 hideRecruiterBadge
                 previewMode
                 previewData={previewData}
+                expandedSections={expandedSections}
               />
             </div>
           )}
@@ -387,17 +363,14 @@ function EditPage(): ReactElement {
   return <EditPageContent />;
 }
 
-const GetPageLayout = (
-  page: ReactNode,
-  pageProps: Record<string, unknown>,
-): ReactNode => {
+const GetPageLayout = (page: ReactNode): ReactNode => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = useRouter();
   const { opportunityId } = router.query;
 
   return (
-    <OpportunityEditProvider opportunityId={opportunityId as string} allowDraft>
-      {getLayout(page, pageProps)}
+    <OpportunityEditProvider opportunityId={opportunityId as string}>
+      {getLayout(page)}
     </OpportunityEditProvider>
   );
 };

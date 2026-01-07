@@ -166,7 +166,7 @@ const socialMediaIconMap: SocialMediaIconMap = {
 const locationTypeMap = {
   [LocationType.UNSPECIFIED]: 'N/A',
   [LocationType.REMOTE]: 'Remote',
-  [LocationType.OFFICE]: 'Office',
+  [LocationType.OFFICE]: 'On-site',
   [LocationType.HYBRID]: 'Hybrid',
 };
 
@@ -368,6 +368,11 @@ export type JobPageProps = {
    * Used for real-time preview in side-by-side editing.
    */
   previewData?: Partial<Opportunity>;
+  /**
+   * Optional sections to expand in preview mode.
+   * Used to sync accordion state with edit panel focus.
+   */
+  expandedSections?: Set<ContentSection>;
 };
 
 const JobPage = ({
@@ -378,6 +383,7 @@ const JobPage = ({
   hideRecruiterPanel,
   previewMode,
   previewData,
+  expandedSections,
 }: JobPageProps = {}): ReactElement => {
   const { canEdit: contextCanEdit, opportunityId } =
     useOpportunityEditContext();
@@ -611,6 +617,9 @@ const JobPage = ({
               return null; // Don't show empty sections to candidates
             }
 
+            // In preview mode with expandedSections, control accordion state
+            const shouldExpand = expandedSections?.has(faqItem.key);
+
             return (
               <div
                 key={faqItem.key}
@@ -625,9 +634,10 @@ const JobPage = ({
                     button: classNames('min-h-12 flex-row-reverse'),
                   }}
                   title={<Typography>{faqItem.title}</Typography>}
+                  isOpen={shouldExpand || undefined}
                 >
                   <div
-                    className="pb-4 text-text-secondary [&>ol]:list-inside [&>ol]:list-decimal [&>ol]:pl-7 [&>ul]:list-inside [&>ul]:list-disc [&>ul]:pl-7"
+                    className="pb-4 text-text-secondary [&_li]:my-1 [&_li]:pl-1 [&_li_p]:my-0 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5"
                     dangerouslySetInnerHTML={{
                       __html: contentHtml,
                     }}

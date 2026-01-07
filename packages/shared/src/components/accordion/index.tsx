@@ -16,6 +16,8 @@ interface AccordionProps {
   title: ReactNode;
   children: ReactNode;
   initiallyOpen?: boolean;
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
   onClick?: MouseEventHandler<HTMLButtonElement>;
   className?: {
     button?: string;
@@ -69,13 +71,18 @@ export function Accordion({
   children,
   onClick,
   initiallyOpen = false,
+  isOpen: controlledIsOpen,
+  onOpenChange,
   className,
   disabled = false,
 }: AccordionProps): ReactElement {
-  const [isOpen, setIsOpen] = useState(initiallyOpen);
+  const [internalIsOpen, setInternalIsOpen] = useState(initiallyOpen);
   const id = useId();
   const contentId = `accordion-content-${id}`;
 
+  // Use controlled state if provided, otherwise use internal state
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
   const isOpenAndEnabled = isOpen && !disabled;
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
@@ -85,7 +92,11 @@ export function Accordion({
 
     onClick?.(e);
 
-    setIsOpen((prev) => !prev);
+    const newIsOpen = !isOpen;
+    if (!isControlled) {
+      setInternalIsOpen(newIsOpen);
+    }
+    onOpenChange?.(newIsOpen);
   };
 
   return (

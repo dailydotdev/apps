@@ -3,11 +3,24 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FormProvider, useWatch } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import {
   RecruiterProgress,
   RecruiterProgressStep,
 } from '@dailydotdev/shared/src/components/recruiter/Progress';
+import {
+  Typography,
+  TypographyType,
+  TypographyColor,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  Button,
+  ButtonVariant,
+  ButtonSize,
+  ButtonColor,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import {
   OpportunityEditProvider,
   useOpportunityEditContext,
@@ -57,7 +70,7 @@ import {
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/EditPreviewTabs';
 import { BrowserPreviewFrame } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/BrowserPreviewFrame';
 import JobPage from '../../jobs/[id]';
-import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
+import { getLayout } from '../../../components/layouts/RecruiterFullscreenLayout';
 
 function PreparePageContent(): ReactElement {
   const router = useRouter();
@@ -282,13 +295,35 @@ function PreparePageContent(): ReactElement {
     return (
       <FormProvider {...form}>
         <div className="flex flex-1 flex-col">
-          <RecruiterHeader
-            headerButton={{
-              text: 'Outreach questions',
-              onClick: handleNextStep,
-              loading: isSaving || isSubmitting || isSuccess,
-            }}
-          />
+          {/* Header */}
+          <header className="sticky top-0 z-header flex items-center justify-between gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 laptop:py-4">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <HeaderLogo isRecruiter />
+              <div className="mx-2 h-6 w-px bg-border-subtlest-tertiary" />
+              <div>
+                <Typography type={TypographyType.Title2} bold>
+                  This is how your candidates will see your job
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  Review your draft carefully and update any details as needed.
+                </Typography>
+              </div>
+            </div>
+
+            <Button
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
+              onClick={handleNextStep}
+              loading={isSaving || isSubmitting || isSuccess}
+            >
+              <span className="mr-1.5">Outreach questions</span>
+              <MoveToIcon />
+            </Button>
+          </header>
+
           <RecruiterProgress
             activeStep={RecruiterProgressStep.PrepareAndLaunch}
           />
@@ -296,7 +331,7 @@ function PreparePageContent(): ReactElement {
           {/* Main content */}
           <div className="flex flex-1">
             {/* Edit Panel - 1/3 width */}
-            <div className="h-[calc(100vh-120px)] w-1/3 min-w-80 max-w-md overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default">
+            <div className="h-[calc(100vh-112px)] w-1/3 min-w-80 max-w-md overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default">
               <OpportunityCompletenessBar
                 opportunity={opportunity}
                 className="m-4"
@@ -334,13 +369,41 @@ function PreparePageContent(): ReactElement {
   return (
     <FormProvider {...form}>
       <div className="flex flex-1 flex-col">
-        <RecruiterHeader
-          headerButton={{
-            text: 'Next',
-            onClick: handleNextStep,
-            loading: isSaving || isSubmitting || isSuccess,
-          }}
-        />
+        {/* Header */}
+        <header className="sticky top-0 z-header flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <HeaderLogo isRecruiter />
+            <div className="mx-2 h-6 w-px bg-border-subtlest-tertiary" />
+            <div className="min-w-0">
+              <Typography
+                type={TypographyType.Callout}
+                bold
+                className="truncate"
+              >
+                This is how your candidates will see your job
+              </Typography>
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                className="truncate"
+              >
+                Review your draft carefully and update any details as needed.
+              </Typography>
+            </div>
+          </div>
+
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            size={ButtonSize.Small}
+            onClick={handleNextStep}
+            loading={isSaving || isSubmitting || isSuccess}
+          >
+            Next
+            <MoveToIcon size={IconSize.Small} className="ml-1" />
+          </Button>
+        </header>
+
         <RecruiterProgress
           activeStep={RecruiterProgressStep.PrepareAndLaunch}
         />
@@ -382,17 +445,14 @@ function PreparePage(): ReactElement {
   return <PreparePageContent />;
 }
 
-const GetPageLayout = (
-  page: ReactNode,
-  pageProps: Record<string, unknown>,
-): ReactNode => {
+const GetPageLayout = (page: ReactNode): ReactNode => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = useRouter();
   const { opportunityId } = router.query;
 
   return (
     <OpportunityEditProvider opportunityId={opportunityId as string} allowDraft>
-      {getLayout(page, pageProps)}
+      {getLayout(page)}
     </OpportunityEditProvider>
   );
 };

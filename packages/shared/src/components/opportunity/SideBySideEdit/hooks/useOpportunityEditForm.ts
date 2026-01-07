@@ -113,6 +113,9 @@ export function formDataToPreviewOpportunity(
     title: formData.title,
     tldr: formData.tldr,
     keywords: formData.keywords,
+    locations: formData.locationType
+      ? [{ type: formData.locationType, location: null }]
+      : undefined,
     meta: formData.meta
       ? {
           employmentType: formData.meta.employmentType,
@@ -176,11 +179,17 @@ export function formDataToMutationPayload(
       roleType: formData.meta.roleType,
     },
     content: {
-      overview: formData.content.overview?.content || '',
-      responsibilities: formData.content.responsibilities?.content || '',
-      requirements: formData.content.requirements?.content || '',
-      whatYoullDo: formData.content.whatYoullDo?.content || undefined,
-      interviewProcess: formData.content.interviewProcess?.content || undefined,
+      overview: { content: formData.content.overview?.content || '' },
+      responsibilities: {
+        content: formData.content.responsibilities?.content || '',
+      },
+      requirements: { content: formData.content.requirements?.content || '' },
+      whatYoullDo: formData.content.whatYoullDo?.content
+        ? { content: formData.content.whatYoullDo.content }
+        : undefined,
+      interviewProcess: formData.content.interviewProcess?.content
+        ? { content: formData.content.interviewProcess.content }
+        : undefined,
     },
   };
 }
@@ -209,12 +218,16 @@ export function useOpportunityEditForm({
     mode: 'onChange',
   });
 
+  // Reset form when opportunity data changes (e.g., after reimport)
   useEffect(() => {
-    if (opportunityFormData && !draftData) {
-      form.reset(opportunityFormData);
+    if (opportunity && !draftData) {
+      // Compute form data inside effect to avoid stale closure
+      const freshFormData = opportunityToFormData(opportunity);
+      if (freshFormData) {
+        form.reset(freshFormData);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to id changes
-  }, [opportunity?.id]);
+  }, [opportunity, draftData, form]);
 
   const resetToOpportunity = useCallback(() => {
     if (opportunityFormData) {

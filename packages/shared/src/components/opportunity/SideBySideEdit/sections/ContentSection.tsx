@@ -23,11 +23,13 @@ const RichTextEditor = dynamic(
 export interface ContentSectionProps {
   section: ContentSectionType;
   placeholder?: string;
+  onFocus?: () => void;
 }
 
 export function ContentSection({
   section,
   placeholder,
+  onFocus,
 }: ContentSectionProps): ReactElement {
   const richTextRef = useRef<RichTextRef>(null);
   const {
@@ -72,6 +74,7 @@ export function ContentSection({
             onValueUpdate={(value) => {
               field.onChange(value);
             }}
+            onFocus={onFocus}
             className={{
               container: 'flex-1',
             }}

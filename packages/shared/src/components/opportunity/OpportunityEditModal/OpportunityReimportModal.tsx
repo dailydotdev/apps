@@ -44,10 +44,9 @@ export const OpportunityReimportModal = ({
 
   const { mutate: reimportOpportunity, isPending } = useMutation({
     ...reimportOpportunityMutationOptions(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: getOpportunityByIdKey(opportunityId),
-      });
+    onSuccess: (data) => {
+      // Immediately update the cache with the returned data
+      queryClient.setQueryData(getOpportunityByIdKey(opportunityId), data);
       onRequestClose?.(null);
     },
     onError: (err) => {

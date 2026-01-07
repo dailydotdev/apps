@@ -124,7 +124,10 @@ export function OpportunityEditPanel({
           required
           onFocus={() => onSectionFocus?.('overview')}
         >
-          <ContentSection section="overview" />
+          <ContentSection
+            section="overview"
+            onFocus={() => onSectionFocus?.('overview')}
+          />
         </CollapsibleSection>
 
         <CollapsibleSection
@@ -133,7 +136,10 @@ export function OpportunityEditPanel({
           required
           onFocus={() => onSectionFocus?.('responsibilities')}
         >
-          <ContentSection section="responsibilities" />
+          <ContentSection
+            section="responsibilities"
+            onFocus={() => onSectionFocus?.('responsibilities')}
+          />
         </CollapsibleSection>
 
         <CollapsibleSection
@@ -142,7 +148,10 @@ export function OpportunityEditPanel({
           required
           onFocus={() => onSectionFocus?.('requirements')}
         >
-          <ContentSection section="requirements" />
+          <ContentSection
+            section="requirements"
+            onFocus={() => onSectionFocus?.('requirements')}
+          />
         </CollapsibleSection>
 
         <CollapsibleSection
@@ -151,7 +160,10 @@ export function OpportunityEditPanel({
           defaultExpanded={!!opportunity?.content?.whatYoullDo?.html}
           onFocus={() => onSectionFocus?.('whatYoullDo')}
         >
-          <ContentSection section="whatYoullDo" />
+          <ContentSection
+            section="whatYoullDo"
+            onFocus={() => onSectionFocus?.('whatYoullDo')}
+          />
         </CollapsibleSection>
 
         <CollapsibleSection
@@ -160,7 +172,10 @@ export function OpportunityEditPanel({
           defaultExpanded={!!opportunity?.content?.interviewProcess?.html}
           onFocus={() => onSectionFocus?.('interviewProcess')}
         >
-          <ContentSection section="interviewProcess" />
+          <ContentSection
+            section="interviewProcess"
+            onFocus={() => onSectionFocus?.('interviewProcess')}
+          />
         </CollapsibleSection>
 
         <CollapsibleSection
