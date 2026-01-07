@@ -12,18 +12,8 @@ import {
   RecruiterProgress,
   RecruiterProgressStep,
 } from '@dailydotdev/shared/src/components/recruiter/Progress';
-import {
-  Typography,
-  TypographyType,
-  TypographyColor,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  Button,
-  ButtonVariant,
-  ButtonColor,
-} from '@dailydotdev/shared/src/components/buttons/Button';
 import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
-import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
+import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import {
   OpportunityPreviewProvider,
@@ -138,36 +128,14 @@ const RecruiterPageContent = () => {
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-header flex items-center justify-between gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 laptop:py-4">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <HeaderLogo isRecruiter href="/recruiter" />
-          <div className="mx-2 h-6 w-px bg-border-subtlest-tertiary" />
-          <div>
-            <Typography type={TypographyType.Title2} bold>
-              Your potential reach
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              See how many developers match your role and what they&apos;re
-              interested in.
-            </Typography>
-          </div>
-        </div>
-
-        <Button
-          variant={ButtonVariant.Primary}
-          color={ButtonColor.Cabbage}
-          onClick={handlePrepareCampaignClick}
-          disabled={!opportunity}
-        >
-          <span className="mr-1.5">Select plan</span>
-          <MoveToIcon />
-        </Button>
-      </header>
-
+      <RecruiterHeader
+        headerButton={{
+          text: 'Select plan',
+          icon: <MoveToIcon />,
+          onClick: handlePrepareCampaignClick,
+          disabled: !opportunity,
+        }}
+      />
       <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
       <AnalyzeStatusBar loadingStep={loadingStep} />
       <AnalyzeContent loadingStep={loadingStep} />

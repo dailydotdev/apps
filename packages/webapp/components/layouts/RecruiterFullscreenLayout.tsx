@@ -29,7 +29,9 @@ const RecruiterFullscreenLayoutInner = ({
 
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
+  const isIndexPage = router.pathname === '/recruiter';
+  const shouldRedirectOnboarding =
+    !user && isPageReady && !isTesting && !isIndexPage;
 
   useEffect(() => {
     if (!shouldRedirectOnboarding) {
@@ -54,7 +56,7 @@ const RecruiterFullscreenLayoutInner = ({
     router.push(`${onboardingUrl}?${params.toString()}`);
   }, [shouldRedirectOnboarding, router]);
 
-  const shouldShowLogin = !user && isAuthReady;
+  const shouldShowLogin = !user && isAuthReady && !isIndexPage;
 
   useEffect(() => {
     if (!shouldShowLogin) {

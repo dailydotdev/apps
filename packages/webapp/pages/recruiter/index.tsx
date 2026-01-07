@@ -16,7 +16,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { DashboardView } from '@dailydotdev/shared/src/features/recruiter/components/DashboardView';
 import { OnboardingView } from '@dailydotdev/shared/src/features/recruiter/components/OnboardingView';
-import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
+import { getLayout } from '../../components/layouts/RecruiterFullscreenLayout';
 
 const useLoadingAnimation = (isActive: boolean) => {
   const [loadingStep, setLoadingStep] = useState(0);
