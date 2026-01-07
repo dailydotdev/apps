@@ -37,7 +37,6 @@ import {
   OpenLinkIcon,
   StackOverflowIcon,
   TwitterIcon,
-  UploadIcon,
   YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
@@ -46,10 +45,6 @@ import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { briefButtonBg } from '@dailydotdev/shared/src/styles/custom';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Accordion } from '@dailydotdev/shared/src/components/accordion';
-import {
-  InlineContentEditor,
-  InlineRoleInfoEditor,
-} from '@dailydotdev/shared/src/components/opportunity/InlineEditor';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import ShowMoreContent from '@dailydotdev/shared/src/components/cards/common/ShowMoreContent';
@@ -69,7 +64,6 @@ import type {
   OpportunityMeta,
   ContentSection,
 } from '@dailydotdev/shared/src/features/opportunity/types';
-import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
 import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
 import {
   EmploymentType,
@@ -84,33 +78,18 @@ import {
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import {
-  isTesting,
-  opportunityUrl,
-} from '@dailydotdev/shared/src/lib/constants';
+import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { locationToString } from '@dailydotdev/shared/src/lib/utils';
-import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
 import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
-import { OpportunityCompletenessBar } from '@dailydotdev/shared/src/components/opportunity/OpportunityCompletenessBar';
-import {
-  OpportunityEditProvider,
-  useOpportunityEditContext,
-} from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
-import { labels } from '@dailydotdev/shared/src/lib';
-import { OpportunityStepsInfo } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunityStepsInfo';
-import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { SocialMediaType } from '@dailydotdev/shared/src/features/organizations/types';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import { getLayout } from '../../../components/layouts/MainLayout';
+import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
-import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -172,7 +151,7 @@ const socialMediaIconMap: SocialMediaIconMap = {
 const locationTypeMap = {
   [LocationType.UNSPECIFIED]: 'N/A',
   [LocationType.REMOTE]: 'Remote',
-  [LocationType.OFFICE]: 'Office',
+  [LocationType.OFFICE]: 'On-site',
   [LocationType.HYBRID]: 'Hybrid',
 };
 
@@ -360,41 +339,89 @@ const RoleInfoDisplay = ({
 );
 
 export type JobPageProps = {
+  /**
+   * Optional opportunity ID. When not provided, uses router query.
+   * Used when JobPage is rendered as a component (e.g., in side-by-side editor).
+   */
+  id?: string;
   hideHeader?: boolean;
   hideCompanyBadge?: boolean;
   hideRecruiterBadge?: boolean;
   hideCompanyPanel?: boolean;
   hideRecruiterPanel?: boolean;
+  /**
+   * When true, disables all edit functionality (preview-only mode)
+   */
+  previewMode?: boolean;
+  /**
+   * Optional preview data that overrides the fetched opportunity data.
+   * Used for real-time preview in side-by-side editing.
+   */
+  previewData?: Partial<Opportunity>;
+  /**
+   * Optional sections to expand in preview mode.
+   * Used to sync accordion state with edit panel focus.
+   */
+  expandedSections?: Set<ContentSection>;
 };
 
 const JobPage = ({
+  id: propId,
   hideHeader,
   hideCompanyBadge,
   hideRecruiterBadge,
   hideCompanyPanel,
   hideRecruiterPanel,
+  previewMode,
+  previewData,
+  expandedSections,
 }: JobPageProps = {}): ReactElement => {
-  const { canEdit, opportunityId } = useOpportunityEditContext();
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { openModal } = useLazyModal();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
     back,
     query: { id: routerId },
   } = useRouter();
-  const id = routerId || opportunityId;
+  // Use prop ID if provided (when used as component), otherwise use router query (when used as page)
+  const id = propId || (routerId as string);
 
   const logRef = useRef<typeof logEvent>();
   const hasLoggedRef = useRef(false);
   logRef.current = logEvent;
 
-  const { data: opportunity, isPending } = useQuery(
+  const { data: fetchedOpportunity, isPending } = useQuery(
     opportunityByIdOptions({ id: id as string }),
   );
+
+  // Merge previewData with fetched opportunity for real-time preview
+  const opportunity = React.useMemo(() => {
+    if (!fetchedOpportunity) {
+      return undefined;
+    }
+    if (!previewData) {
+      return fetchedOpportunity;
+    }
+    return {
+      ...fetchedOpportunity,
+      ...previewData,
+      meta: {
+        ...fetchedOpportunity.meta,
+        ...previewData.meta,
+        salary: {
+          ...fetchedOpportunity.meta?.salary,
+          ...previewData.meta?.salary,
+        },
+      },
+      content: {
+        ...fetchedOpportunity.content,
+        ...previewData.content,
+      },
+    } as Opportunity;
+  }, [fetchedOpportunity, previewData]);
   const { data: match } = useQuery({
     ...opportunityMatchOptions({ id: id as string }),
-    enabled: isLoggedIn && !!id && !canEdit && !isPending,
+    enabled: isLoggedIn && !!id && !isPending,
   });
 
   const hasCompletedInitialView = checkHasCompleted(
@@ -427,27 +454,14 @@ const JobPage = ({
     return <NoOpportunity />;
   }
 
-  const showFooterNav = !!match || canEdit;
+  const showFooterNav = !!match;
 
   return (
     <>
-      <Portal
-        container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
-      >
-        <div className="hidden items-center laptop:flex">
-          <OpportunityStepsInfo />
-        </div>
-      </Portal>
-      {!hasCompletedInitialView && !canEdit && (
+      {!hasCompletedInitialView && !previewMode && (
         <div className="mb-4">
           <JobPageIntro />
         </div>
-      )}
-      {canEdit && (
-        <OpportunityCompletenessBar
-          opportunity={opportunity}
-          className="mx-auto mb-4 w-full max-w-[69.25rem]"
-        />
       )}
       {showFooterNav && (
         <OpportunityFooter>
@@ -461,7 +475,6 @@ const JobPage = ({
               size={ButtonSize.Medium}
             />
           )}
-          <OpportunityStepsInfo className="w-full [&>:first-child]:justify-center [&>:nth-child(2)]:flex-1" />
         </OpportunityFooter>
       )}
       <div className="z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 pb-safe-offset-14 tablet:pb-0 laptop:flex-row laptop:justify-center">
@@ -472,16 +485,14 @@ const JobPage = ({
           )}
         >
           {/* Header */}
-          {!hideHeader && (!canEdit || !!match) && (
+          {!hideHeader && !previewMode && (
             <div className="flex min-h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary p-3">
-              {!canEdit && (
-                <Button
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                  onClick={back}
-                  icon={<MoveToIcon className="rotate-180" />}
-                />
-              )}
+              <Button
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                onClick={back}
+                icon={<MoveToIcon className="rotate-180" />}
+              />
 
               {!!match && (
                 <ResponseButtons
@@ -492,18 +503,6 @@ const JobPage = ({
                   size={ButtonSize.Medium}
                 />
               )}
-            </div>
-          )}
-
-          {/* Edit mode banner */}
-          {canEdit && (
-            <div className="flex items-center gap-3 rounded-t-16 border-b border-border-subtlest-tertiary bg-surface-float px-4 py-2">
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
-                Editing mode — Click Save on each section to save changes
-              </Typography>
             </div>
           )}
 
@@ -564,35 +563,12 @@ const JobPage = ({
             )}
 
             {/* Role Info - Title, Tags, TLDR, Details */}
-            {canEdit ? (
-              <InlineRoleInfoEditor
-                opportunityId={opportunity.id}
-                extraActions={
-                  <SimpleTooltip content="Import & update from URL or file">
-                    <Button
-                      size={ButtonSize.Small}
-                      variant={ButtonVariant.Tertiary}
-                      icon={<UploadIcon />}
-                      onClick={() => {
-                        openModal({
-                          type: LazyModal.OpportunityReimport,
-                          props: {
-                            opportunityId: opportunity.id,
-                          },
-                        });
-                      }}
-                    />
-                  </SimpleTooltip>
-                }
-              >
-                <RoleInfoDisplay opportunity={opportunity} />
-              </InlineRoleInfoEditor>
-            ) : (
+            <div id="job-preview-roleInfo">
               <RoleInfoDisplay opportunity={opportunity} />
-            )}
+            </div>
 
             {/* Why we think */}
-            {!canEdit && !!match?.description?.reasoning && (
+            {!!match?.description?.reasoning && (
               <FlexCol
                 className="gap-2 rounded-16 p-4 text-black"
                 style={{
@@ -610,94 +586,51 @@ const JobPage = ({
                 </Typography>
               </FlexCol>
             )}
-            {canEdit && (
-              <FlexCol
-                className="gap-2 rounded-16 p-4 text-black"
-                style={{
-                  background: briefButtonBg,
-                }}
-              >
-                <div className="flex items-center gap-1">
-                  <MagicIcon size={IconSize.Medium} />
-                  <Typography bold type={TypographyType.Body} truncate>
-                    AI personalized message
-                  </Typography>
-                </div>
-                <Typography type={TypographyType.Callout}>
-                  Candidates will see a personalized message here explaining why
-                  this role matches their skills and interests based on their
-                  daily.dev activity.
-                </Typography>
-              </FlexCol>
-            )}
           </div>
 
-          {/* Content sections - inline editors for edit mode, accordions for candidates */}
-          {canEdit ? (
-            <div className="flex flex-col gap-3 p-4">
-              <div className="flex items-center gap-2 rounded-12 bg-surface-float p-3">
-                <InfoIcon
-                  size={IconSize.Small}
-                  className="mt-0.5 flex-shrink-0 text-text-tertiary"
-                />
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                  className="break-words"
-                >
-                  This is the format developers actually read and trust. Based
-                  on feedback from our community.
-                </Typography>
-              </div>
-              {faq.map((faqItem) => (
-                <InlineContentEditor
-                  key={faqItem.key}
-                  opportunityId={opportunity.id}
-                  section={faqItem.key}
-                  title={faqItem.title}
-                  isRequired={faqItem.required}
-                />
-              ))}
-            </div>
-          ) : (
-            faq.map((faqItem, index) => {
-              const contentHtml = opportunity.content[faqItem.key]?.html;
+          {/* Content sections */}
+          {faq.map((faqItem, index) => {
+            const contentHtml = opportunity.content[faqItem.key]?.html;
 
-              if (!contentHtml) {
-                return null; // Don't show empty sections to candidates
-              }
+            if (!contentHtml) {
+              return null; // Don't show empty sections to candidates
+            }
 
-              return (
-                <div
-                  key={faqItem.key}
-                  className={classNames(
-                    'border-t border-border-subtlest-tertiary px-4',
-                    index === faq.length - 1 && 'rounded-b-14',
-                  )}
+            // In preview mode with expandedSections, control accordion state
+            const shouldExpand = expandedSections?.has(faqItem.key);
+
+            return (
+              <div
+                key={faqItem.key}
+                id={`job-preview-${faqItem.key}`}
+                className={classNames(
+                  'border-t border-border-subtlest-tertiary px-4',
+                  index === faq.length - 1 && 'rounded-b-14',
+                )}
+              >
+                <Accordion
+                  className={{
+                    button: classNames('min-h-12 flex-row-reverse'),
+                  }}
+                  title={<Typography>{faqItem.title}</Typography>}
+                  isOpen={shouldExpand || undefined}
                 >
-                  <Accordion
-                    className={{
-                      button: classNames('min-h-12 flex-row-reverse'),
+                  <div
+                    className="pb-4 text-text-secondary [&_li]:my-1 [&_li]:pl-1 [&_li_p]:my-0 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5"
+                    dangerouslySetInnerHTML={{
+                      __html: contentHtml,
                     }}
-                    title={<Typography>{faqItem.title}</Typography>}
-                  >
-                    <div
-                      className="pb-4 text-text-secondary [&>ol]:list-inside [&>ol]:list-decimal [&>ol]:pl-7 [&>ul]:list-inside [&>ul]:list-disc [&>ul]:pl-7"
-                      dangerouslySetInnerHTML={{
-                        __html: contentHtml,
-                      }}
-                    />
-                  </Accordion>
-                </div>
-              );
-            })
-          )}
+                  />
+                </Accordion>
+              </div>
+            );
+          })}
         </div>
 
         {/* Sidebar */}
-        {(!hideCompanyPanel || !hideRecruiterPanel || !canEdit) && (
+        {(!hideCompanyPanel || !hideRecruiterPanel) && (
           <FlexCol className="h-full flex-1 flex-shrink-0 gap-4 laptop:max-w-80">
-            {!canEdit && (
+            {!previewMode && (
               <FlexCol
                 className={classNames(
                   'mx-4 flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary tablet:mx-0',
@@ -721,6 +654,7 @@ const JobPage = ({
             {/* Company Info */}
             {!hideCompanyPanel && (
               <FlexCol
+                id="job-preview-company"
                 className={classNames(
                   'flex-1 gap-4 rounded-16 border border-border-subtlest-tertiary',
                   !hasLinks && 'pb-4',
@@ -735,20 +669,6 @@ const JobPage = ({
                   >
                     Company
                   </Typography>
-
-                  <OpportunityEditButton
-                    onClick={() => {
-                      openModal({
-                        type: LazyModal.OpportunityEdit,
-                        props: {
-                          type: 'organization',
-                          payload: {
-                            id: opportunity.id,
-                          },
-                        },
-                      });
-                    }}
-                  />
 
                   {!!opportunity.organization?.website && (
                     <Link href={opportunity.organization.website} passHref>
@@ -822,66 +742,48 @@ const JobPage = ({
                 )}
 
                 {/* Meta */}
-                <SimpleTooltip
-                  content={
-                    canEdit
-                      ? labels.opportunity.companyInfoEditNotice
-                      : undefined
-                  }
-                  forceLoad={!isTesting}
-                >
-                  <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
-                    <Typography
-                      type={TypographyType.Subhead}
-                      color={TypographyColor.Tertiary}
-                    >
-                      Founded
-                    </Typography>
-                    <Typography type={TypographyType.Footnote} bold>
-                      {opportunity.organization?.founded || 'N/A'}
-                    </Typography>
+                <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
+                  <Typography
+                    type={TypographyType.Subhead}
+                    color={TypographyColor.Tertiary}
+                  >
+                    Founded
+                  </Typography>
+                  <Typography type={TypographyType.Footnote} bold>
+                    {opportunity.organization?.founded || 'N/A'}
+                  </Typography>
 
-                    <Typography
-                      type={TypographyType.Subhead}
-                      color={TypographyColor.Tertiary}
-                    >
-                      HQ
-                    </Typography>
-                    <Typography type={TypographyType.Footnote} bold>
-                      {locationToString(opportunity.organization?.location) ||
-                        'N/A'}
-                    </Typography>
+                  <Typography
+                    type={TypographyType.Subhead}
+                    color={TypographyColor.Tertiary}
+                  >
+                    HQ
+                  </Typography>
+                  <Typography type={TypographyType.Footnote} bold>
+                    {locationToString(opportunity.organization?.location) ||
+                      'N/A'}
+                  </Typography>
 
-                    <Typography
-                      type={TypographyType.Subhead}
-                      color={TypographyColor.Tertiary}
-                    >
-                      Employees
-                    </Typography>
-                    <Typography type={TypographyType.Footnote} bold>
-                      {companySizeMap[opportunity.organization?.size] || 'N/A'}
-                    </Typography>
-                  </div>
-                </SimpleTooltip>
+                  <Typography
+                    type={TypographyType.Subhead}
+                    color={TypographyColor.Tertiary}
+                  >
+                    Employees
+                  </Typography>
+                  <Typography type={TypographyType.Footnote} bold>
+                    {companySizeMap[opportunity.organization?.size] || 'N/A'}
+                  </Typography>
+                </div>
 
                 {/* Description */}
                 {!!opportunity.organization?.description && (
-                  <SimpleTooltip
-                    content={
-                      canEdit
-                        ? labels.opportunity.companyInfoEditNotice
-                        : undefined
-                    }
-                    forceLoad={!isTesting}
+                  <Typography
+                    className="px-4"
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Secondary}
                   >
-                    <Typography
-                      className="px-4"
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Secondary}
-                    >
-                      {opportunity.organization.description}
-                    </Typography>
-                  </SimpleTooltip>
+                    {opportunity.organization.description}
+                  </Typography>
                 )}
 
                 {/* Perks & Benefits */}
@@ -891,27 +793,18 @@ const JobPage = ({
                       Perks & Benefits
                     </Typography>
 
-                    <SimpleTooltip
-                      content={
-                        canEdit
-                          ? labels.opportunity.companyInfoEditNotice
-                          : undefined
-                      }
-                      forceLoad={!isTesting}
-                    >
-                      <ul className="list-disc pl-7">
-                        {opportunity.organization.perks.map((perk) => (
-                          <Typography
-                            key={perk}
-                            tag={TypographyTag.Li}
-                            type={TypographyType.Callout}
-                            color={TypographyColor.Secondary}
-                          >
-                            {perk}
-                          </Typography>
-                        ))}
-                      </ul>
-                    </SimpleTooltip>
+                    <ul className="list-disc pl-7">
+                      {opportunity.organization.perks.map((perk) => (
+                        <Typography
+                          key={perk}
+                          tag={TypographyTag.Li}
+                          type={TypographyType.Callout}
+                          color={TypographyColor.Secondary}
+                        >
+                          {perk}
+                        </Typography>
+                      ))}
+                    </ul>
                   </div>
                 )}
                 {hasLinks && (
@@ -1033,7 +926,10 @@ const JobPage = ({
 
             {/* Recruiter Info */}
             {!hideRecruiterPanel && opportunity?.recruiters?.length > 0 && (
-              <FlexCol className="flex-1 rounded-16 border-t border-border-subtlest-tertiary laptop:border">
+              <FlexCol
+                id="job-preview-recruiter"
+                className="flex-1 rounded-16 border-t border-border-subtlest-tertiary laptop:border"
+              >
                 {/* Header */}
                 <div className="flex min-h-14 items-center justify-between px-4 py-3">
                   <Typography
@@ -1073,20 +969,6 @@ const JobPage = ({
                           </Typography>
                         )}
                       </div>
-                      <OpportunityEditButton
-                        onClick={() => {
-                          openModal({
-                            type: LazyModal.OpportunityEdit,
-                            props: {
-                              type: 'recruiter',
-                              payload: {
-                                id: opportunity.id,
-                                recruiterId: recruiter.id,
-                              },
-                            },
-                          });
-                        }}
-                      />
                     </div>
                     {/* Description */}
                     <ShowMoreContent
@@ -1144,20 +1026,12 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   }
 };
 
-const GetPageLayout: typeof getLayout = (page, layoutProps) => {
-  const router = useRouter();
-  const opportunityId = router?.query?.id as string;
+const getPageLayout: typeof getLayout = (...props) =>
+  getFooterNavBarLayout(getLayout(...props));
 
-  return (
-    <OpportunityEditProvider opportunityId={opportunityId} allowDraft>
-      {getLayout(page, layoutProps)}
-    </OpportunityEditProvider>
-  );
-};
-
-JobPage.getLayout = GetPageLayout;
+JobPage.getLayout = getPageLayout;
 JobPage.layoutProps = {
-  ...opportunityPageLayoutProps,
+  screenCentered: false,
   seo,
 };
 

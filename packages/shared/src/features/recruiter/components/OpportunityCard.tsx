@@ -95,7 +95,7 @@ export const OpportunityCard = ({
           />
           <Button
             tag="a"
-            href={`${webappUrl}recruiter/${id}/prepare`}
+            href={`${webappUrl}recruiter/${id}/edit`}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<EditIcon />}

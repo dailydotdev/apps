@@ -20,7 +20,7 @@ import { LogoutReason } from '../../../lib/user';
 
 const Header = () => (
   <div className="p-4">
-    <HeaderLogo isRecruiter href="/recruiter/dashboard" />
+    <HeaderLogo isRecruiter href="/recruiter" />
   </div>
 );
 
@@ -133,7 +133,7 @@ const StateSubsection = ({
       </Typography>
       {opportunities.map((opportunity) => {
         const isDraft = opportunity.state === OpportunityState.DRAFT;
-        const path = isDraft ? 'prepare' : 'matches';
+        const path = isDraft ? 'edit' : 'matches';
         return (
           <Button
             key={opportunity.id}
