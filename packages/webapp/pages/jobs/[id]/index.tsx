@@ -64,7 +64,6 @@ import type {
   OpportunityMeta,
   ContentSection,
 } from '@dailydotdev/shared/src/features/opportunity/types';
-import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
 import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
 import {
   EmploymentType,
@@ -79,32 +78,18 @@ import {
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import {
-  isTesting,
-  opportunityUrl,
-} from '@dailydotdev/shared/src/lib/constants';
+import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { locationToString } from '@dailydotdev/shared/src/lib/utils';
-import { OpportunityEditButton } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditButton';
 import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
-import {
-  OpportunityEditProvider,
-  useOpportunityEditContext,
-} from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
-import { labels } from '@dailydotdev/shared/src/lib';
-import { OpportunityStepsInfo } from '@dailydotdev/shared/src/components/opportunity/OpportunitySteps/OpportunityStepsInfo';
-import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { SocialMediaType } from '@dailydotdev/shared/src/features/organizations/types';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import { getLayout } from '../../../components/layouts/MainLayout';
+import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
-import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -354,6 +339,11 @@ const RoleInfoDisplay = ({
 );
 
 export type JobPageProps = {
+  /**
+   * Optional opportunity ID. When not provided, uses router query.
+   * Used when JobPage is rendered as a component (e.g., in side-by-side editor).
+   */
+  id?: string;
   hideHeader?: boolean;
   hideCompanyBadge?: boolean;
   hideRecruiterBadge?: boolean;
@@ -376,6 +366,7 @@ export type JobPageProps = {
 };
 
 const JobPage = ({
+  id: propId,
   hideHeader,
   hideCompanyBadge,
   hideRecruiterBadge,
@@ -385,19 +376,15 @@ const JobPage = ({
   previewData,
   expandedSections,
 }: JobPageProps = {}): ReactElement => {
-  const { canEdit: contextCanEdit, opportunityId } =
-    useOpportunityEditContext();
-  // In preview mode, disable all editing regardless of context
-  const canEdit = previewMode ? false : contextCanEdit;
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { openModal } = useLazyModal();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
     back,
     query: { id: routerId },
   } = useRouter();
-  const id = routerId || opportunityId;
+  // Use prop ID if provided (when used as component), otherwise use router query (when used as page)
+  const id = propId || (routerId as string);
 
   const logRef = useRef<typeof logEvent>();
   const hasLoggedRef = useRef(false);
@@ -434,7 +421,7 @@ const JobPage = ({
   }, [fetchedOpportunity, previewData]);
   const { data: match } = useQuery({
     ...opportunityMatchOptions({ id: id as string }),
-    enabled: isLoggedIn && !!id && !canEdit && !isPending,
+    enabled: isLoggedIn && !!id && !isPending,
   });
 
   const hasCompletedInitialView = checkHasCompleted(
@@ -471,13 +458,6 @@ const JobPage = ({
 
   return (
     <>
-      <Portal
-        container={document.querySelector(`.${recruiterLayoutHeaderClassName}`)}
-      >
-        <div className="hidden items-center laptop:flex">
-          <OpportunityStepsInfo />
-        </div>
-      </Portal>
       {!hasCompletedInitialView && !previewMode && (
         <div className="mb-4">
           <JobPageIntro />
@@ -495,7 +475,6 @@ const JobPage = ({
               size={ButtonSize.Medium}
             />
           )}
-          <OpportunityStepsInfo className="w-full [&>:first-child]:justify-center [&>:nth-child(2)]:flex-1" />
         </OpportunityFooter>
       )}
       <div className="z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 pb-safe-offset-14 tablet:pb-0 laptop:flex-row laptop:justify-center">
@@ -691,22 +670,6 @@ const JobPage = ({
                     Company
                   </Typography>
 
-                  {!previewMode && (
-                    <OpportunityEditButton
-                      onClick={() => {
-                        openModal({
-                          type: LazyModal.OpportunityEdit,
-                          props: {
-                            type: 'organization',
-                            payload: {
-                              id: opportunity.id,
-                            },
-                          },
-                        });
-                      }}
-                    />
-                  )}
-
                   {!!opportunity.organization?.website && (
                     <Link href={opportunity.organization.website} passHref>
                       <Button
@@ -779,66 +742,48 @@ const JobPage = ({
                 )}
 
                 {/* Meta */}
-                <SimpleTooltip
-                  content={
-                    canEdit
-                      ? labels.opportunity.companyInfoEditNotice
-                      : undefined
-                  }
-                  forceLoad={!isTesting}
-                >
-                  <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
-                    <Typography
-                      type={TypographyType.Subhead}
-                      color={TypographyColor.Tertiary}
-                    >
-                      Founded
-                    </Typography>
-                    <Typography type={TypographyType.Footnote} bold>
-                      {opportunity.organization?.founded || 'N/A'}
-                    </Typography>
+                <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 px-4">
+                  <Typography
+                    type={TypographyType.Subhead}
+                    color={TypographyColor.Tertiary}
+                  >
+                    Founded
+                  </Typography>
+                  <Typography type={TypographyType.Footnote} bold>
+                    {opportunity.organization?.founded || 'N/A'}
+                  </Typography>
 
-                    <Typography
-                      type={TypographyType.Subhead}
-                      color={TypographyColor.Tertiary}
-                    >
-                      HQ
-                    </Typography>
-                    <Typography type={TypographyType.Footnote} bold>
-                      {locationToString(opportunity.organization?.location) ||
-                        'N/A'}
-                    </Typography>
+                  <Typography
+                    type={TypographyType.Subhead}
+                    color={TypographyColor.Tertiary}
+                  >
+                    HQ
+                  </Typography>
+                  <Typography type={TypographyType.Footnote} bold>
+                    {locationToString(opportunity.organization?.location) ||
+                      'N/A'}
+                  </Typography>
 
-                    <Typography
-                      type={TypographyType.Subhead}
-                      color={TypographyColor.Tertiary}
-                    >
-                      Employees
-                    </Typography>
-                    <Typography type={TypographyType.Footnote} bold>
-                      {companySizeMap[opportunity.organization?.size] || 'N/A'}
-                    </Typography>
-                  </div>
-                </SimpleTooltip>
+                  <Typography
+                    type={TypographyType.Subhead}
+                    color={TypographyColor.Tertiary}
+                  >
+                    Employees
+                  </Typography>
+                  <Typography type={TypographyType.Footnote} bold>
+                    {companySizeMap[opportunity.organization?.size] || 'N/A'}
+                  </Typography>
+                </div>
 
                 {/* Description */}
                 {!!opportunity.organization?.description && (
-                  <SimpleTooltip
-                    content={
-                      canEdit
-                        ? labels.opportunity.companyInfoEditNotice
-                        : undefined
-                    }
-                    forceLoad={!isTesting}
+                  <Typography
+                    className="px-4"
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Secondary}
                   >
-                    <Typography
-                      className="px-4"
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Secondary}
-                    >
-                      {opportunity.organization.description}
-                    </Typography>
-                  </SimpleTooltip>
+                    {opportunity.organization.description}
+                  </Typography>
                 )}
 
                 {/* Perks & Benefits */}
@@ -848,27 +793,18 @@ const JobPage = ({
                       Perks & Benefits
                     </Typography>
 
-                    <SimpleTooltip
-                      content={
-                        canEdit
-                          ? labels.opportunity.companyInfoEditNotice
-                          : undefined
-                      }
-                      forceLoad={!isTesting}
-                    >
-                      <ul className="list-disc pl-7">
-                        {opportunity.organization.perks.map((perk) => (
-                          <Typography
-                            key={perk}
-                            tag={TypographyTag.Li}
-                            type={TypographyType.Callout}
-                            color={TypographyColor.Secondary}
-                          >
-                            {perk}
-                          </Typography>
-                        ))}
-                      </ul>
-                    </SimpleTooltip>
+                    <ul className="list-disc pl-7">
+                      {opportunity.organization.perks.map((perk) => (
+                        <Typography
+                          key={perk}
+                          tag={TypographyTag.Li}
+                          type={TypographyType.Callout}
+                          color={TypographyColor.Secondary}
+                        >
+                          {perk}
+                        </Typography>
+                      ))}
+                    </ul>
                   </div>
                 )}
                 {hasLinks && (
@@ -1033,22 +969,6 @@ const JobPage = ({
                           </Typography>
                         )}
                       </div>
-                      {!previewMode && (
-                        <OpportunityEditButton
-                          onClick={() => {
-                            openModal({
-                              type: LazyModal.OpportunityEdit,
-                              props: {
-                                type: 'recruiter',
-                                payload: {
-                                  id: opportunity.id,
-                                  recruiterId: recruiter.id,
-                                },
-                              },
-                            });
-                          }}
-                        />
-                      )}
                     </div>
                     {/* Description */}
                     <ShowMoreContent
@@ -1106,20 +1026,12 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   }
 };
 
-const GetPageLayout: typeof getLayout = (page, layoutProps) => {
-  const router = useRouter();
-  const opportunityId = router?.query?.id as string;
+const getPageLayout: typeof getLayout = (...props) =>
+  getFooterNavBarLayout(getLayout(...props));
 
-  return (
-    <OpportunityEditProvider opportunityId={opportunityId} allowDraft>
-      {getLayout(page, layoutProps)}
-    </OpportunityEditProvider>
-  );
-};
-
-JobPage.getLayout = GetPageLayout;
+JobPage.getLayout = getPageLayout;
 JobPage.layoutProps = {
-  ...opportunityPageLayoutProps,
+  screenCentered: false,
   seo,
 };
 

@@ -178,21 +178,18 @@ export function OpportunityEditPanel({
           />
         </CollapsibleSection>
 
-        <CollapsibleSection
-          id="company"
-          title="Company"
-          onFocus={() => onSectionFocus?.('company')}
-        >
+        {/* Linked profiles - flat list without collapsible wrapper */}
+        <div className="mt-4 flex flex-col gap-3">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+            bold
+          >
+            Linked profiles
+          </Typography>
           <CompanySection opportunity={opportunity} />
-        </CollapsibleSection>
-
-        <CollapsibleSection
-          id="recruiter"
-          title="Recruiter"
-          onFocus={() => onSectionFocus?.('recruiter')}
-        >
           <RecruiterSection opportunity={opportunity} />
-        </CollapsibleSection>
+        </div>
       </div>
     </div>
   );

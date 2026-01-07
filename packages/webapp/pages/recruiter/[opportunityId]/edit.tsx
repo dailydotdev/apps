@@ -200,7 +200,7 @@ function EditPageContent(): ReactElement {
           {/* Header */}
           <header className="sticky top-0 z-header flex h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 laptop:h-16">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <HeaderLogo isRecruiter />
+              <HeaderLogo isRecruiter href="/recruiter" />
               <div className="mx-2 h-6 w-px bg-border-subtlest-tertiary" />
 
               <div className="flex min-w-0 items-center gap-2">
@@ -270,6 +270,7 @@ function EditPageContent(): ReactElement {
                 className="h-full"
               >
                 <JobPage
+                  id={opportunityId}
                   hideHeader
                   hideCompanyBadge
                   hideRecruiterBadge
@@ -292,7 +293,7 @@ function EditPageContent(): ReactElement {
         {/* Header */}
         <header className="sticky top-0 z-header flex h-14 items-center justify-between gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4">
           <div className="flex min-w-0 items-center gap-2">
-            <HeaderLogo isRecruiter />
+            <HeaderLogo isRecruiter href="/recruiter" />
             <div className="mx-2 h-6 w-px bg-border-subtlest-tertiary" />
 
             <Typography
@@ -344,6 +345,7 @@ function EditPageContent(): ReactElement {
           ) : (
             <div className="bg-background-subtle py-6">
               <JobPage
+                id={opportunityId}
                 hideHeader
                 hideCompanyBadge
                 hideRecruiterBadge
