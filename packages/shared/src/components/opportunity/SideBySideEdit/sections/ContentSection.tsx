@@ -76,7 +76,7 @@ export function ContentSection({
             }}
             onFocus={onFocus}
             className={{
-              container: 'flex-1 !rounded-none !border-0 !bg-transparent',
+              container: 'flex-1 !rounded-none !border-0',
             }}
           />
         )}

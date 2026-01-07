@@ -49,7 +49,7 @@ function CollapsibleSection({
   };
 
   return (
-    <div className="rounded-12 border border-border-subtlest-tertiary bg-surface-float">
+    <div className="border-t border-border-subtlest-tertiary">
       <button
         type="button"
         className="flex w-full items-center justify-between p-4"
@@ -91,7 +91,7 @@ export function OpportunityEditPanel({
   return (
     <div
       className={classNames(
-        'flex min-w-0 flex-col overflow-x-hidden',
+        'flex min-w-0 flex-col overflow-x-hidden border-r border-border-subtlest-tertiary',
         className,
       )}
     >
@@ -107,7 +107,7 @@ export function OpportunityEditPanel({
         </Typography>
       </div>
 
-      <div className="flex flex-col gap-2 pb-6">
+      <div className="flex flex-col pb-6">
         <CollapsibleSection
           id="roleInfo"
           title="Role Info"
