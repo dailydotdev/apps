@@ -4,8 +4,18 @@ import { useRouter } from 'next/router';
 import { FormProvider, useWatch } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type {
+  ApiErrorResult,
+  ApiResponseError,
+  ApiZodErrorExtension,
+} from '@dailydotdev/shared/src/graphql/common';
+import { gqlClient, ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { EDIT_OPPORTUNITY_MUTATION } from '@dailydotdev/shared/src/features/opportunity/graphql';
+import { updateOpportunityStateOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { labels } from '@dailydotdev/shared/src/lib/labels';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type {
   Opportunity,
   ContentSection as ContentSectionType,
@@ -68,8 +78,9 @@ function EditPageContent(): ReactElement {
   const { opportunityId } = useOpportunityEditContext();
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
+  const { showPrompt } = usePrompt();
+  const router = useRouter();
   const queryClient = useQueryClient();
-  const [isSaved, setIsSaved] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [activeTab, setActiveTab] = useState<EditPreviewTab>(
     EditPreviewTab.Edit,
@@ -96,6 +107,105 @@ function EditPageContent(): ReactElement {
       queryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.Opportunity, null, opportunityId),
       });
+    },
+  });
+
+  const onSuccess = useCallback(async () => {
+    await router.push(`${webappUrl}recruiter/${opportunityId}/matches`);
+  }, [router, opportunityId]);
+
+  const onValidationError = useCallback(
+    async ({
+      issues,
+    }: {
+      issues: Array<{ path: Array<string | number>; message: string }>;
+    }) => {
+      await showPrompt({
+        title: labels.opportunity.requiredMissingNotice.title,
+        description: (
+          <div className="flex flex-col gap-4">
+            <span>{labels.opportunity.requiredMissingNotice.description}</span>
+            <ul className="text-text-tertiary">
+              {issues.map((issue) => {
+                const path = issue.path.join('.');
+                return <li key={path}>• {issue.message}</li>;
+              })}
+            </ul>
+          </div>
+        ),
+        okButton: {
+          className: '!w-full',
+          title: labels.opportunity.requiredMissingNotice.okButton,
+        },
+        cancelButton: null,
+      });
+    },
+    [showPrompt],
+  );
+
+  const {
+    mutateAsync: updateOpportunityState,
+    isPending: isPendingOpportunityState,
+  } = useMutation({
+    ...updateOpportunityStateOptions(),
+    onSuccess,
+    onError: async (error: ApiErrorResult) => {
+      if (
+        error.response?.errors?.[0]?.extensions?.code ===
+        ApiError.PaymentRequired
+      ) {
+        if (opportunity?.organization?.recruiterTotalSeats > 0) {
+          displayToast('You need more seats to publish this job.');
+
+          openModal({
+            type: LazyModal.RecruiterSeats,
+            props: {
+              opportunityId,
+              onNext: async () => {
+                await showPrompt({
+                  title: labels.opportunity.assignSeat.title,
+                  description: labels.opportunity.assignSeat.description,
+                  okButton: {
+                    title: labels.opportunity.assignSeat.okButton,
+                  },
+                  cancelButton: {
+                    title: labels.opportunity.assignSeat.cancelButton,
+                  },
+                });
+
+                await updateOpportunityState({
+                  id: opportunityId,
+                  state: OpportunityState.IN_REVIEW,
+                });
+
+                await onSuccess();
+              },
+            },
+          });
+        } else {
+          await router.push(`${webappUrl}recruiter/${opportunityId}/plans`);
+        }
+
+        return;
+      }
+
+      if (
+        error.response?.errors?.[0]?.extensions?.code ===
+        ApiError.ZodValidationError
+      ) {
+        const apiError = error.response
+          .errors[0] as ApiResponseError<ApiZodErrorExtension>;
+
+        await onValidationError({
+          issues: apiError.extensions.issues,
+        });
+
+        return;
+      }
+
+      displayToast(
+        error.response?.errors?.[0]?.message || labels.error.generic,
+      );
     },
   });
 
@@ -155,15 +265,23 @@ function EditPageContent(): ReactElement {
       const payload = formDataToMutationPayload(formData);
       await saveOpportunity(payload);
 
-      displayToast('Changes saved');
-      setIsSaved(true);
       form.reset(formData); // Reset dirty state after successful save
 
-      setTimeout(() => setIsSaved(false), 2000);
+      // Update opportunity state to IN_REVIEW and redirect
+      await updateOpportunityState({
+        id: opportunityId,
+        state: OpportunityState.IN_REVIEW,
+      });
     } catch (error) {
       displayToast('Failed to save changes. Please try again.');
     }
-  }, [form, displayToast, saveOpportunity]);
+  }, [
+    form,
+    displayToast,
+    saveOpportunity,
+    updateOpportunityState,
+    opportunityId,
+  ]);
 
   const handleUpdateFromUrl = useCallback(() => {
     openModal({
@@ -175,14 +293,13 @@ function EditPageContent(): ReactElement {
   }, [openModal, opportunityId]);
 
   const getSaveButtonText = () => {
-    if (isSaving) {
-      return 'Saving...';
+    if (isSaving || isPendingOpportunityState) {
+      return 'Submitting...';
     }
-    if (isSaved && !isDirty) {
-      return 'Saved';
-    }
-    return 'Save';
+    return 'Submit for review';
   };
+
+  const isSaveDisabled = isSaving || isPendingOpportunityState;
 
   if (isLoading || !opportunity) {
     return (
@@ -239,7 +356,7 @@ function EditPageContent(): ReactElement {
                 color={ButtonColor.Cabbage}
                 size={ButtonSize.Small}
                 onClick={handleSave}
-                disabled={isSaving}
+                disabled={isSaveDisabled}
               >
                 {getSaveButtonText()}
               </Button>
@@ -320,7 +437,7 @@ function EditPageContent(): ReactElement {
             color={ButtonColor.Cabbage}
             size={ButtonSize.Small}
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaveDisabled}
           >
             {getSaveButtonText()}
           </Button>
