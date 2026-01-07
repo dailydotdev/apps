@@ -74,7 +74,7 @@ function CollapsibleSection({
       {isExpanded && (
         <div
           id={`section-${id}`}
-          className="border-t border-border-subtlest-tertiary p-4"
+          className="border-t border-border-subtlest-tertiary"
         >
           {children}
         </div>
@@ -107,15 +107,17 @@ export function OpportunityEditPanel({
         </Typography>
       </div>
 
-      <div className="flex flex-col gap-2 px-4 pb-6">
+      <div className="flex flex-col gap-2 pb-6">
         <CollapsibleSection
           id="roleInfo"
           title="Role Info"
           required
           onFocus={() => onSectionFocus?.('roleInfo')}
         >
-          <RoleInfoSection opportunity={opportunity} />
-          <JobDetailsSection />
+          <div className="flex flex-col gap-4 p-4">
+            <RoleInfoSection opportunity={opportunity} />
+            <JobDetailsSection />
+          </div>
         </CollapsibleSection>
 
         <CollapsibleSection
@@ -179,7 +181,7 @@ export function OpportunityEditPanel({
         </CollapsibleSection>
 
         {/* Linked profiles - flat list without collapsible wrapper */}
-        <div className="mt-4 flex flex-col gap-3">
+        <div className="mt-4 flex flex-col gap-3 px-4">
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
