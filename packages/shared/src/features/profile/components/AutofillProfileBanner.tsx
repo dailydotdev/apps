@@ -28,12 +28,14 @@ interface ProfileUploadBannerProps {
   targetId?: TargetId;
   onUpload: (file: File) => Promise<void>;
   isLoading?: boolean;
+  showManualButton?: boolean;
 }
 
 export function AutofillProfileBanner({
   targetId = TargetId.MyProfile,
   onUpload,
   isLoading,
+  showManualButton = true,
 }: ProfileUploadBannerProps): ReactElement {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
@@ -99,18 +101,20 @@ export function AutofillProfileBanner({
           >
             Upload PDF
           </Button>
-          <Link href={`${webappUrl}settings/profile`} passHref>
-            <Button
-              tag="a"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Subtle}
-            >
-              Fill in manually
-            </Button>
-          </Link>
+          {showManualButton && (
+            <Link href={`${webappUrl}settings/profile`} passHref>
+              <Button
+                tag="a"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Subtle}
+              >
+                Fill in manually
+              </Button>
+            </Link>
+          )}
         </div>
         <FeelingLazy
-          copy=", CV file deleted automatically after import"
+          copy=""
           className="flex-row-reverse items-start justify-end"
         />
       </div>

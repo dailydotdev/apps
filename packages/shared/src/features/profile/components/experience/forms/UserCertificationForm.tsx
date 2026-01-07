@@ -84,7 +84,7 @@ const UserCertificationForm = () => {
           </Typography>
           <ControlledTextarea
             name="description"
-            label="Achievements, societies, coursework"
+            label="Key topics covered, skills validated"
             maxLength={5000}
           />
         </div>

@@ -46,6 +46,13 @@ type OpportunityContentBlock = {
   html?: string;
 };
 
+export type ContentSection =
+  | 'overview'
+  | 'responsibilities'
+  | 'requirements'
+  | 'whatYoullDo'
+  | 'interviewProcess';
+
 export type OpportunityLocation = {
   city?: string;
   country?: string;
@@ -108,6 +115,10 @@ export type Opportunity = {
   };
   content: {
     overview: OpportunityContentBlock;
+    responsibilities?: OpportunityContentBlock;
+    requirements?: OpportunityContentBlock;
+    whatYoullDo?: OpportunityContentBlock;
+    interviewProcess?: OpportunityContentBlock;
   };
   meta: OpportunityMeta;
   recruiters: RecruiterProfile[];
@@ -248,12 +259,9 @@ export interface OpportunityPreviewResult {
   status: OpportunityPreviewStatus;
 }
 
-export interface OpportunityPreviewConnection
-  extends Connection<OpportunityPreviewUser> {
+export type OpportunityPreviewResponse = {
   result?: OpportunityPreviewResult;
-}
-
-export type OpportunityPreviewResponse = OpportunityPreviewConnection;
+};
 
 export type OpportunityStats = {
   matched: number;
@@ -264,4 +272,4 @@ export type OpportunityStats = {
   introduced: number;
 };
 
-export const opportunityPreviewRefetchIntervalMs = 7000;
+export const opportunityPreviewRefetchIntervalMs = 3000;

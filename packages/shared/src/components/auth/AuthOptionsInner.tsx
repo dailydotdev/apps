@@ -10,8 +10,11 @@ import type { RegistrationError } from '../../lib/auth';
 import {
   isNativeAuthSupported,
   AuthEventNames,
+  AuthTriggers,
   getNodeValue,
 } from '../../lib/auth';
+import { generateNameFromEmail } from '../../lib/strings';
+import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
 import {
   AuthEvent,
@@ -47,7 +50,6 @@ import {
   DATE_SINCE_ACTIONS_REQUIRED,
   onboardingCompletedActions,
 } from '../../hooks/auth';
-import { claimClaimableItem } from '../../graphql/users';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -145,7 +147,7 @@ function AuthOptionsInner({
 
   const onSetActiveDisplay = (display: AuthDisplay) => {
     onDisplayChange?.(display);
-    onAuthStateUpdate?.({ isLoading: false });
+    onAuthStateUpdate?.({ isLoading: false, defaultDisplay: display });
     setActiveDisplay(display);
   };
 
@@ -190,49 +192,6 @@ function AuthOptionsInner({
     return false;
   };
 
-  const onLoginCheck = async (shouldVerify?: boolean) => {
-    if (shouldVerify) {
-      onSetActiveDisplay(AuthDisplay.EmailVerification);
-      return;
-    }
-
-    if (isRegistration) {
-      return;
-    }
-
-    if (!user || handleLoginCheck === false) {
-      return;
-    }
-
-    setHandleLoginCheck(handleLoginCheck === null);
-
-    if (user.infoConfirmed) {
-      logEvent({
-        event_name: AuthEventNames.LoginSuccessfully,
-      });
-
-      // Check for claimable items on login (e.g., Plus subscription)
-      claimClaimableItem().then((hasClaimed) => {
-        if (hasClaimed) {
-          refetchBoot();
-        }
-      });
-
-      const isAlreadyOnboarded = await checkForOnboardedUser(user);
-      if (!isAlreadyOnboarded) {
-        onSuccessfulLogin?.();
-      }
-    } else {
-      onSetActiveDisplay(AuthDisplay.SocialRegistration);
-    }
-  };
-
-  useEffect(() => {
-    onLoginCheck();
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
   const { onUpdateSignBack: onSignBackLogin } = useSignBack();
   const {
     isReady: isRegistrationReady,
@@ -256,20 +215,6 @@ function AuthOptionsInner({
     keepSession: isOnboardingOrFunnel,
   });
 
-  const {
-    isReady: isLoginReady,
-    loginHint,
-    onPasswordLogin,
-    isPasswordLoginLoading,
-  } = useLogin({
-    onSuccessfulLogin: onLoginCheck,
-    ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
-    trigger,
-    provider: chosenProvider,
-    onLoginError: () => {
-      return displayToast(labels.auth.error.generic);
-    },
-  });
   const onProfileSuccess = async (
     options: { redirect?: string; setSignBack?: boolean } = {},
   ) => {
@@ -307,6 +252,96 @@ function AuthOptionsInner({
     onUpdateHint,
     isLoading: isProfileUpdateLoading,
   } = useProfileForm({ onSuccess: onProfileSuccess });
+
+  const autoCompleteProfileForRecruiter = async (
+    email: string,
+    name?: string,
+  ) => {
+    try {
+      // Generate name from email if not provided by OAuth
+      const displayName = name || generateNameFromEmail(email, 'Recruiter');
+
+      // Generate username from the display name
+      const username = await generateUsername(displayName);
+
+      // Auto-complete profile
+      updateUserProfile({
+        name: displayName,
+        username,
+        acceptedMarketing: false,
+      });
+    } catch (error) {
+      logEvent({
+        event_name: AuthEventNames.SubmitSignUpFormError,
+        extra: JSON.stringify({
+          error: 'Failed to auto-complete profile for recruiter',
+          details: error instanceof Error ? error.message : 'Unknown error',
+        }),
+      });
+      displayToast(labels.auth.error.generic);
+    }
+  };
+
+  const onLoginCheck = async (shouldVerify?: boolean) => {
+    if (shouldVerify) {
+      onSetActiveDisplay(AuthDisplay.EmailVerification);
+      return;
+    }
+
+    if (isRegistration) {
+      return;
+    }
+
+    if (!user || handleLoginCheck === false) {
+      return;
+    }
+
+    setHandleLoginCheck(handleLoginCheck === null);
+
+    if (user.infoConfirmed) {
+      logEvent({
+        event_name: AuthEventNames.LoginSuccessfully,
+      });
+
+      // Check for claimable items on login (e.g., Plus subscription)
+      claimClaimableItem().then((hasClaimed) => {
+        if (hasClaimed) {
+          refetchBoot();
+        }
+      });
+
+      const isAlreadyOnboarded = await checkForOnboardedUser(user);
+      if (!isAlreadyOnboarded) {
+        onSuccessfulLogin?.();
+      }
+    } else if (trigger === AuthTriggers.RecruiterSelfServe) {
+      // For RecruiterSelfServe, auto-complete profile without showing the form
+      await autoCompleteProfileForRecruiter(user.email, user.name);
+    } else {
+      onSetActiveDisplay(AuthDisplay.SocialRegistration);
+    }
+  };
+
+  useEffect(() => {
+    onLoginCheck();
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  const {
+    isReady: isLoginReady,
+    loginHint,
+    onPasswordLogin,
+    isPasswordLoginLoading,
+  } = useLogin({
+    onSuccessfulLogin: onLoginCheck,
+    ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
+    trigger,
+    provider: chosenProvider,
+    onLoginError: () => {
+      return displayToast(labels.auth.error.generic);
+    },
+  });
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
   const onProviderClick = async (provider: string, login = true) => {
@@ -358,6 +393,13 @@ function AuthOptionsInner({
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
       }
+      return;
+    }
+
+    // For RecruiterSelfServe, auto-complete profile without showing the form
+    if (trigger === AuthTriggers.RecruiterSelfServe) {
+      const loggedUser = boot.user as LoggedUser;
+      await autoCompleteProfileForRecruiter(loggedUser.email, loggedUser.name);
       return;
     }
 

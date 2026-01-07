@@ -1,38 +1,14 @@
-import type { ReactNode } from 'react';
 import React from 'react';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { Chip } from '../../../../components/cards/common/PostTags';
 import { useOpportunityPreviewContext } from '../../context/OpportunityPreviewContext';
 import { SeniorityLevel } from '../../protobuf/opportunity';
 import { seniorityLevelMap } from '../../common';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
-
-type JobInfoItemProps = {
-  title: string;
-  description?: string;
-  children?: ReactNode;
-};
-
-const JobInfoItem = ({ title, description, children }: JobInfoItemProps) => {
-  return (
-    <div className="flex flex-col gap-1">
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        {title}
-      </Typography>
-      {description && (
-        <Typography type={TypographyType.Subhead}>{description}</Typography>
-      )}
-      {children}
-    </div>
-  );
-};
+import { Chip } from '../../../../components/cards/common/PostTags';
 
 type JobInfoProps = {
   loadingStep: number;
@@ -41,11 +17,18 @@ type JobInfoProps = {
 export const JobInfo = ({ loadingStep }: JobInfoProps) => {
   const { opportunity } = useOpportunityPreviewContext();
 
-  // Show after step 1 completes (Reading job description)
   if (!opportunity || loadingStep < 1) {
     return (
-      <div className="flex flex-col gap-2">
-        <ElementPlaceholder className="h-60 w-full rounded-8" />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <ElementPlaceholder className="rounded h-5 w-48" />
+          <ElementPlaceholder className="rounded h-3 w-32" />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          <ElementPlaceholder className="h-6 w-16 rounded-8" />
+          <ElementPlaceholder className="h-6 w-20 rounded-8" />
+          <ElementPlaceholder className="h-6 w-14 rounded-8" />
+        </div>
       </div>
     );
   }
@@ -61,50 +44,62 @@ export const JobInfo = ({ loadingStep }: JobInfoProps) => {
           .filter(Boolean)
           .join(', '),
       )
-      .join(' / ') || 'Not specified';
+      .join(' · ') || 'Location not specified';
 
   const seniorityLabel =
     seniorityLevelMap[
       opportunity.meta?.seniorityLevel ?? SeniorityLevel.UNSPECIFIED
     ];
 
-  const requirements = opportunity.content?.overview?.content
-    ? opportunity.content.overview.content.split('\n').filter(Boolean)
-    : [];
-
   return (
-    <div className="animate-fade-in flex flex-col gap-4">
-      <JobInfoItem title="Job Title" description={opportunity.title} />
-      <JobInfoItem title="Location" description={locationString} />
-      <JobInfoItem title="Seniority" description={seniorityLabel} />
-      {opportunity.keywords && opportunity.keywords.length > 0 && (
-        <JobInfoItem title="Tech Stack">
-          <div className="flex flex-wrap gap-2">
-            {opportunity.keywords.map((tag) => (
-              <Chip key={tag.keyword} className="!my-0 !text-text-tertiary">
-                {tag.keyword}
-              </Chip>
-            ))}
-          </div>
-        </JobInfoItem>
-      )}
-      {requirements.length > 0 && (
-        <JobInfoItem title="Key requirements">
-          <ul className="list-disc pl-4 typo-callout">
-            {requirements.slice(0, 3).map((req) => (
-              <li key={req}>{req}</li>
-            ))}
-          </ul>
-        </JobInfoItem>
-      )}
-      <div className="flex flex-col gap-1 rounded-16 bg-background-subtle px-4 py-2">
-        <Typography type={TypographyType.Footnote} bold>
-          Job details extracted automatically
+    <div className="flex flex-col gap-4">
+      {/* Title and meta */}
+      <div>
+        <Typography type={TypographyType.Title3} bold>
+          {opportunity.title}
         </Typography>
-        <Typography type={TypographyType.Footnote}>
-          We’ll refine everything in the next step.
-          <br />
-          This is just the high-level overview.
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            {locationString}
+          </Typography>
+          {seniorityLabel && (
+            <>
+              <span className="text-text-quaternary">·</span>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                {seniorityLabel}
+              </Typography>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Tech stack */}
+      {opportunity.keywords && opportunity.keywords.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {opportunity.keywords.slice(0, 10).map((tag) => (
+            <Chip key={tag.keyword} className="!my-0">
+              #{tag.keyword}
+            </Chip>
+          ))}
+          {opportunity.keywords.length > 10 && (
+            <Chip className="!my-0">+{opportunity.keywords.length - 10}</Chip>
+          )}
+        </div>
+      )}
+
+      {/* Footer note */}
+      <div className="rounded-8 bg-surface-float px-3 py-2">
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+        >
+          ✨ We&apos;ll refine these details in the next step
         </Typography>
       </div>
     </div>

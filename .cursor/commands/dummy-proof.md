@@ -1,0 +1,1 @@
+review the following from a perspective of a low context, technically inclined person. our target audience is technical recruiter. consider the copy, order of elements, user experience, error messages, and mainly make it easy to use and dummy proof.

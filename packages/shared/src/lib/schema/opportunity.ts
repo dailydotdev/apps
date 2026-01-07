@@ -1,7 +1,9 @@
 import z from 'zod';
-import { SalaryPeriod } from '../../features/opportunity/protobuf/opportunity';
-import { isNullOrUndefined } from '../func';
 import { labels } from '../labels';
+import { isNullOrUndefined } from '../func';
+
+const MAX_SALARY = 100_000_000;
+const MAX_TEAM_SIZE = 1_000_000;
 
 const processSalaryValue = (val: unknown) => {
   if (Number.isNaN(val) || isNullOrUndefined(val)) {
@@ -31,22 +33,22 @@ export const opportunityEditInfoSchema = z.object({
       .int()
       .nonnegative()
       .min(1, 'Enter the team size')
-      .max(1_000_000),
+      .max(MAX_TEAM_SIZE),
     salary: z
       .object({
         min: z.preprocess(
           processSalaryValue,
-          z.number().int().nonnegative().max(100_000_000).optional(),
+          z.number().int().nonnegative().max(MAX_SALARY).optional(),
         ),
         max: z.preprocess(
           processSalaryValue,
-          z.number().int().nonnegative().max(100_000_000).optional(),
+          z.number().int().nonnegative().max(MAX_SALARY).optional(),
         ),
         period: z
           .number()
           .nullish()
           .transform((val) => val ?? undefined)
-          .default(SalaryPeriod.UNSPECIFIED),
+          .default(0),
       })
       .nullish()
       .refine(
@@ -147,56 +149,6 @@ export const opportunityEditStep2Schema = opportunityEditQuestionsSchema.extend(
     questions: opportunityEditQuestionsSchema.shape.questions,
   },
 );
-
-export enum OrganizationLinkType {
-  Custom = 'custom',
-  Social = 'social',
-  Press = 'press',
-}
-
-export enum SocialMediaType {
-  Facebook = 'facebook',
-  X = 'x',
-  GitHub = 'github',
-  Crunchbase = 'crunchbase',
-  LinkedIn = 'linkedin',
-}
-
-export const opportunityEditOrganizationSchema = z.object({
-  organization: z.object({
-    website: z.string().url().optional().or(z.literal('')),
-    description: z.string().max(2000).optional(),
-    perks: z.array(z.string().max(240)).optional(),
-    founded: z
-      .number()
-      .int()
-      .min(1800)
-      .max(new Date().getFullYear())
-      .optional(),
-    location: z.string().max(240).optional(),
-    externalLocationId: z.string().optional(),
-    category: z.string().max(240).optional(),
-    size: z.number().optional(),
-    stage: z.number().optional(),
-    links: z
-      .array(
-        z.object({
-          type: z.enum(['custom', 'social', 'press']),
-          socialType: z.string().nullish(),
-          title: z.string().max(240).nullish(),
-          link: z.string(),
-        }),
-      )
-      .optional(),
-  }),
-});
-
-export const opportunityCreateOrganizationSchema =
-  opportunityEditOrganizationSchema.extend({
-    organization: opportunityEditOrganizationSchema.shape.organization.extend({
-      name: z.string().nonempty('Add a company name').max(60),
-    }),
-  });
 
 // TypeScript types for GraphQL inputs
 export interface LocationInput {

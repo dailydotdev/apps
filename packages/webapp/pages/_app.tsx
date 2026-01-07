@@ -104,7 +104,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       !isFunnel &&
       isOnboardingActionsReady &&
       !isOnboardingComplete &&
-      !router.pathname.includes('/onboarding')
+      !router.pathname.startsWith('/onboarding') &&
+      !router.pathname.startsWith('/recruiter')
     ) {
       router.replace('/onboarding');
     }
@@ -213,6 +214,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const seo = (pageProps?.seo || layoutProps?.seo) as Record<string, unknown>;
 
   const showAppStoreBanner = !router.pathname.startsWith('/helloworld');
+  const isImageGenerator = router.pathname.startsWith('/image-generator');
 
   return (
     <>
@@ -290,7 +292,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       <DndContextProvider>
         {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       </DndContextProvider>
-      {showBanner && !isFunnel && (
+      {showBanner && !isFunnel && !isImageGenerator && (
         <CookieBanner
           onAccepted={onAcceptCookies}
           onHideBanner={onHideBanner}

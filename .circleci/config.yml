@@ -102,6 +102,24 @@ jobs:
           working_directory: packages/shared
       - store_test_results:
           path: ./test-results
+  build_extension:
+    docker:
+      - image: cimg/node:22.11
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Install pnpm
+          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
+      - restore_cache:
+          keys:
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
+      - run:
+          name: Build Extension
+          command: pnpm --filter extension build
+          environment:
+            NODE_OPTIONS: --max-old-space-size=8192
 workflows:
   build:
     jobs:
@@ -118,3 +136,9 @@ workflows:
       - test_shared:
           requires:
             - install_deps
+      - build_extension:
+          requires:
+            - install_deps
+          filters:
+            branches:
+              only: main

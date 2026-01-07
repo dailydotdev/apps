@@ -1,0 +1,42 @@
+@keyframes starFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(10deg);
+  }
+}
+
+@keyframes burstRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.star {
+  animation: starFloat 4s ease-in-out infinite;
+}
+
+.burstBackground {
+  position: absolute;
+  inset: -50%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    #0e1217 0deg 10deg,
+    #1d1529 10deg 20deg
+  );
+  animation: burstRotate 120s linear infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star,
+  .burstBackground {
+    animation: none;
+  }
+}
+

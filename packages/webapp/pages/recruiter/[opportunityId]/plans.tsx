@@ -12,7 +12,10 @@ import {
   TypographyType,
   TypographyColor,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { InfoIcon } from '@dailydotdev/shared/src/components/icons/Info';
+import { AgentIcon } from '@dailydotdev/shared/src/components/icons/Agent';
+import { SuperAgentIcon } from '@dailydotdev/shared/src/components/icons/SuperAgent';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 import classNames from 'classnames';
@@ -24,6 +27,7 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { recruiterPremiumPlanBg } from '@dailydotdev/shared/src/styles/custom';
+import { WarningIcon } from '@dailydotdev/shared/src/components/icons';
 import { getLayout } from '../../../components/layouts/RecruiterLayout';
 
 type PricingFeature = {
@@ -32,7 +36,7 @@ type PricingFeature = {
 };
 
 type PricingPlanProps = {
-  emoji: string;
+  icon: React.ReactElement;
   title: string;
   description: string;
   price: string;
@@ -51,7 +55,7 @@ type PricingPlanProps = {
 };
 
 const PricingPlan = ({
-  emoji,
+  icon,
   title,
   description,
   price,
@@ -80,25 +84,25 @@ const PricingPlan = ({
           style={containerStyle}
         />
       )}
-      {badge && (
-        <span className="z-10 absolute right-0 top-0 rounded-bl-16 rounded-tr-16 bg-brand-default p-2">
-          <Typography
-            type={TypographyType.Subhead}
-            color={TypographyColor.Primary}
-            bold
-          >
-            {badge}
-          </Typography>
-        </span>
-      )}
-      <div className="z-10 relative flex flex-col gap-2">
+      <div className="z-10 relative flex flex-col gap-4">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex flex-col gap-4">
-            <Typography type={TypographyType.Mega1}>{emoji}</Typography>
-            <Typography type={TypographyType.Title2} bold>
+          <div className="flex items-center gap-2">
+            {icon}
+            <Typography type={TypographyType.Title3} bold>
               {title}
             </Typography>
           </div>
+          {badge && (
+            <span className="rounded-8 bg-brand-float px-2 py-1">
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Brand}
+                bold
+              >
+                {badge}
+              </Typography>
+            </span>
+          )}
         </div>
         <Typography
           type={TypographyType.Subhead}
@@ -137,9 +141,14 @@ const PricingPlan = ({
       </Button>
       <div className="z-10 relative flex flex-col gap-1 pt-4">
         {features.map((feature) => (
-          <div key={feature.text}>
+          <div key={feature.text} className="flex items-start gap-2">
+            <VIcon
+              size={IconSize.Small}
+              className="mt-0.5 shrink-0 text-accent-avocado-default"
+              secondary
+            />
             <Tooltip content={feature?.info}>
-              <div className="flex items-center gap-1">
+              <div className="flex flex-1 items-center gap-1">
                 <Typography
                   type={TypographyType.Subhead}
                   color={TypographyColor.Tertiary}
@@ -161,7 +170,7 @@ const PricingPlan = ({
 };
 
 type AdditionalCopy = {
-  icon: string;
+  icon: React.ReactElement;
   features: PricingFeature[];
   badge?: string;
   description: string;
@@ -177,65 +186,81 @@ const RecruiterPlans = (): ReactElement => {
 
   const additionalCopy: AdditionalCopy[] = [
     {
-      icon: '🪴',
+      icon: <AgentIcon size={IconSize.Medium} />,
       features: [
         {
-          text: 'Reach up to 50 developers / day',
-          info: 'Send personalized outreach to up to 50 qualified developers daily.',
+          text: 'Standard matching pace',
+          info: 'Consistent daily exposure to qualified, high-intent engineers.',
+        },
+        {
+          text: 'Access to passive talent',
+          info: 'Reach engineers who ignore LinkedIn and job boards but engage daily on our platform.',
         },
         {
           text: 'Unlimited recruiter seats',
-          info: 'Add your entire recruiting team at no extra cost. Collaborate seamlessly on opportunities.',
+          info: 'Invite your entire hiring team at no extra cost.',
         },
         {
-          text: 'Access to high-intent developer profiles',
-          info: 'Connect with developers actively seeking opportunities, not passive job board browsers.',
+          text: 'Unlimited warm introductions',
+          info: 'Connect with as many interested candidates as you want.',
         },
         {
-          text: 'Real-time matching notifications',
-          info: 'Get instant alerts when developers match your opportunity criteria and are ready to connect.',
+          text: 'Native candidate experience',
+          info: 'Engineers engage through a seamless, branded experience built into their daily workflow.',
         },
         {
-          text: 'Basic analytics dashboard',
-          info: 'Track key metrics like response rates, profile views, and outreach performance.',
+          text: 'Standard support',
+          info: 'Email support with 24-48h response time.',
         },
       ],
       description:
-        'Start reaching high-intent developers and see how trust-first sourcing changes your hiring experience.',
+        "Your entry point to trust-first recruiting. Access engineers who are growing on daily.dev and aren't reachable anywhere else.",
       ctaText: 'Get started',
       ctaVariant: ButtonVariant.Secondary,
     },
     {
-      icon: '🚀',
+      icon: <SuperAgentIcon size={IconSize.Medium} />,
       features: [
         {
-          text: 'Reach up to 150 developers / day',
-          info: 'Triple your outreach capacity with 150 daily credits. Perfect for high-volume hiring needs.',
+          text: '3× matching pace',
+          info: 'Triple your daily exposure to qualified engineers and fill roles faster.',
+        },
+        {
+          text: 'Access to passive talent',
+          info: 'Reach engineers who ignore LinkedIn and job boards but engage daily on our platform.',
         },
         {
           text: 'Unlimited recruiter seats',
-          info: 'Add your entire recruiting team at no extra cost. Collaborate seamlessly on opportunities.',
+          info: 'Invite your entire hiring team at no extra cost.',
         },
         {
-          text: 'Access to high-intent developer profiles',
-          info: 'Connect with developers actively seeking opportunities, not passive job board browsers.',
+          text: 'Unlimited warm introductions',
+          info: 'Connect with as many interested candidates as you want.',
         },
         {
-          text: 'Real-time matching notifications',
-          info: 'Get instant alerts when developers match your opportunity criteria and are ready to connect.',
+          text: 'Native candidate experience',
+          info: 'Engineers engage through a seamless, branded experience built into their daily workflow.',
         },
         {
-          text: 'Advanced analytics & insights',
-          info: 'Deep dive into funnel metrics, candidate quality scores, and team performance analytics.',
+          text: 'Reply rate booster',
+          info: 'Automated follow-up sequences that keep candidates engaged and responsive.',
         },
         {
-          text: 'Priority support',
-          info: 'Get faster response times and dedicated assistance from our support team when you need it.',
+          text: 'Candidate insights',
+          info: 'See why engineers pass on roles and optimize your job descriptions accordingly.',
+        },
+        {
+          text: 'ATS & CRM integrations',
+          info: 'Seamlessly sync candidates with Greenhouse, Lever, Ashby, and more.',
+        },
+        {
+          text: 'Priority support (email, chat, Slack)',
+          info: 'Direct line to our support team with expedited response times.',
         },
       ],
-      badge: 'best value',
+      badge: 'MOST POPULAR',
       description:
-        'Increase your daily reach and accelerate introductions with higher matching volume.',
+        'Scale your hiring with 3× the reach. Tap deeper into our exclusive network of engineers who only respond here.',
       ctaText: 'Get started',
       className: {
         container: 'border-brand-default',
@@ -256,12 +281,32 @@ const RecruiterPlans = (): ReactElement => {
   );
 
   const opportunityId = router.query.opportunityId as string;
+  const showPaymentRequired = router.query.required === '1';
 
   return (
     <div className="mx-auto flex w-full max-w-[48rem] flex-col gap-8 px-4 tablet:px-0">
-      <Typography type={TypographyType.Title1} bold center>
-        Predictable pricing built for teams who hate hidden fees
-      </Typography>
+      {showPaymentRequired && (
+        <div className="bg-status-warning/10 flex items-center gap-2 rounded-12 border border-status-warning p-4">
+          <WarningIcon className="text-status-warning" size={IconSize.Small} />
+          <Typography type={TypographyType.Callout}>
+            Select a plan to continue setting up your job posting
+          </Typography>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-4">
+        <Typography type={TypographyType.Title1} bold center>
+          Simple pricing. Unlimited hiring.
+        </Typography>
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Tertiary}
+          center
+        >
+          A new hiring channel. Reach engineers who ignore LinkedIn and never
+          apply on job boards, but are active on daily.dev every day.
+        </Typography>
+      </div>
 
       <div className="flex flex-col gap-4 laptop:flex-row">
         {isPending && !prices && (
@@ -275,11 +320,11 @@ const RecruiterPlans = (): ReactElement => {
           return (
             <PricingPlan
               key={priceItem.priceId}
-              emoji={additionalCopyItem.icon}
+              icon={additionalCopyItem.icon}
               title={priceItem.metadata.title}
               badge={additionalCopyItem.badge}
               description={additionalCopyItem.description}
-              price={priceItem.price.monthly.formatted}
+              price={priceItem.price.monthly.formatted.replace('.00', '')}
               priceType="/mo"
               billingInfo="Billed monthly per role"
               features={additionalCopyItem.features}

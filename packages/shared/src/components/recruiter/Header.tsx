@@ -17,32 +17,29 @@ export interface RecruiterHeaderButton {
 }
 
 export interface RecruiterHeaderProps {
+  title?: string;
+  subtitle?: string;
   headerButton?: RecruiterHeaderButton;
 }
 
-export const RecruiterHeader = ({ headerButton }: RecruiterHeaderProps) => {
+export const RecruiterHeader = ({
+  title = 'This is how your candidates will see your job',
+  subtitle = 'Review your draft carefully and update any details as needed.',
+  headerButton,
+}: RecruiterHeaderProps) => {
   return (
-    <div className="flex flex-row items-center gap-2 border-b border-border-subtlest-tertiary p-4">
+    <div className="flex flex-row items-center justify-between gap-4 p-4">
       <div>
-        <Typography type={TypographyType.Title3} bold>
-          This is how your candidates will see your job
+        <Typography type={TypographyType.Title2} bold>
+          {title}
         </Typography>
         <Typography
-          type={TypographyType.Subhead}
+          type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          Review your draft carefully and update any details as needed.
+          {subtitle}
         </Typography>
       </div>
-      <div className="flex-1" />
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        Private matching.
-        <br />
-        No spam. 100% opt-in.
-      </Typography>
       {headerButton && (
         <Button
           variant={ButtonVariant.Primary}
@@ -51,7 +48,8 @@ export const RecruiterHeader = ({ headerButton }: RecruiterHeaderProps) => {
           disabled={headerButton.disabled}
           loading={headerButton.loading}
         >
-          {headerButton.text} {headerButton.icon || <MoveToIcon />}
+          <span className="mr-1.5">{headerButton.text}</span>{' '}
+          {headerButton.icon || <MoveToIcon />}
         </Button>
       )}
     </div>

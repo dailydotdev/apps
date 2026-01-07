@@ -91,6 +91,7 @@ export type FeedReturnType = {
   isInitialLoading: boolean;
   isError: boolean;
   isPending: boolean;
+  error?: ClientError;
 };
 
 type UseFeedSettingParams = {
@@ -290,6 +291,11 @@ export default function useFeed<T>(
 
   const items = useMemo(() => {
     let newItems: FeedItem[] = [];
+
+    // Check if marketing CTA should be shown as first card
+    const marketingCtaAsFirstCard = settings?.marketingCta?.flags?.asFirstCard;
+    const plusEntryAsFirstCard = settings?.plusEntry?.flags?.asFirstCard;
+
     if (feedQuery.data) {
       newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
         page.edges.forEach(({ node }, index) => {
@@ -300,7 +306,14 @@ export default function useFeed<T>(
             const withFirstIndex = (condition: boolean) =>
               pageIndex === 0 && adItem.index === 0 && condition;
 
-            if (withFirstIndex(!!settings.plusEntry)) {
+            // Skip ad slot if marketing CTA is shown as first card
+            const shouldSkipAdForMarketingCta = withFirstIndex(
+              marketingCtaAsFirstCard || plusEntryAsFirstCard,
+            );
+
+            if (shouldSkipAdForMarketingCta) {
+              // Don't push anything - marketing CTA is already at the top
+            } else if (withFirstIndex(!!settings.plusEntry)) {
               acc.push({
                 type: FeedItemType.PlusEntry,
                 plusEntry: settings.plusEntry,
@@ -328,6 +341,21 @@ export default function useFeed<T>(
 
         return acc;
       }, []);
+
+      // Prepend marketing CTA as first card if configured
+      if (plusEntryAsFirstCard && settings.plusEntry) {
+        newItems.unshift({
+          type: FeedItemType.PlusEntry,
+          plusEntry: settings.plusEntry,
+          dataUpdatedAt: feedQuery.dataUpdatedAt,
+        });
+      } else if (marketingCtaAsFirstCard && settings.marketingCta) {
+        newItems.unshift({
+          type: FeedItemType.MarketingCta,
+          marketingCta: settings.marketingCta,
+          dataUpdatedAt: feedQuery.dataUpdatedAt,
+        });
+      }
     }
     if (feedQuery.isFetching) {
       newItems.push(
@@ -390,5 +418,6 @@ export default function useFeed<T>(
     isFetching: feedQuery.isFetching,
     isInitialLoading: feedQuery.isInitialLoading,
     isPending: feedQuery.isPending,
+    error: clientError,
   };
 }

@@ -99,7 +99,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               type={TypographyType.Subhead}
               color={TypographyColor.Tertiary}
             >
-              Density is not customizable in list mode layout.
+              Not available in list layout
             </Typography>
           )}
 
@@ -147,7 +147,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             checked={!optOutCompanion}
             onToggle={toggleOptOutCompanion}
           >
-            Enable companion
+            Show companion widget on external sites
           </SettingsSwitch>
         </section>
 
@@ -161,7 +161,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             checked={autoDismissNotifications}
             onToggle={toggleAutoDismissNotifications}
           >
-            Automatically dismiss notifications
+            Auto-hide notifications after a few seconds
           </SettingsSwitch>
         </section>
       </div>

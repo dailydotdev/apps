@@ -8,34 +8,33 @@ import {
 import { SlackIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { FlexCol, FlexRow } from '../utilities';
-import Link from '../utilities/Link';
-import { webappUrl } from '../../lib/constants';
+import { recruiterBookLink } from '../../lib/constants';
 import { Image, ImageType } from '../image/Image';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { anchorDefaultRel } from '../../lib/strings';
+import type { Organization } from '../../features/organizations/types';
 
 export type ConnectSlackProps = {
-  organizationId?: string;
+  organization?: Organization;
 };
 
 export const ConnectSlack = ({
-  organizationId,
+  organization,
 }: ConnectSlackProps): ReactElement => {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
 
   const handleConnectSlack = useCallback(() => {
-    if (!user) {
+    if (!user || !organization) {
       return;
     }
 
     // Generate a channel name based on user info
     // Prefer organization name, then username, then name, then email
     // Channel names must be lowercase letters, numbers, hyphens, and underscores only
-    const organizationName = user.companies?.[0]?.name;
-    const baseName =
-      organizationName || user.username || user.name || user.email || 'user';
+    const baseName = organization?.name;
 
     const sanitizedName = baseName
       .toLowerCase()
@@ -48,13 +47,12 @@ export const ConnectSlack = ({
     openModal({
       type: LazyModal.SlackChannelConfirmation,
       props: {
-        name: organizationName || user.name || user.username || '',
         email: user.email || '',
         channelName,
-        organizationId,
+        organizationId: organization.id,
       },
     });
-  }, [user, openModal, organizationId]);
+  }, [user, organization, openModal]);
   return (
     <FlexCol className="mt-20 max-w-xl items-center gap-3 p-4 text-center">
       <FlexRow>
@@ -91,18 +89,17 @@ export const ConnectSlack = ({
         >
           Connect Slack
         </Button>
-        <Button variant={ButtonVariant.Secondary} size={ButtonSize.Medium}>
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Medium}
+          href={recruiterBookLink}
+          tag="a"
+          target="_blank"
+          rel={anchorDefaultRel}
+        >
           Book a meeting
         </Button>
       </FlexRow>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-      >
-        <Link passHref href={`${webappUrl}`}>
-          <a className="underline">I don’t have Slack</a>
-        </Link>
-      </Typography>
     </FlexCol>
   );
 };

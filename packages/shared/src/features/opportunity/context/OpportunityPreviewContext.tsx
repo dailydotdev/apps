@@ -6,7 +6,7 @@ import {
   opportunityByIdOptions,
   opportunityPreviewQueryOptions,
 } from '../queries';
-import type { Opportunity, OpportunityPreviewConnection } from '../types';
+import type { Opportunity, OpportunityPreviewResponse } from '../types';
 import {
   opportunityPreviewRefetchIntervalMs,
   OpportunityPreviewStatus,
@@ -15,7 +15,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { oneMinute } from '../../../lib/dateFormat';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 
-export type OpportunityPreviewContextType = OpportunityPreviewConnection & {
+export type OpportunityPreviewContextType = OpportunityPreviewResponse & {
   opportunity?: Opportunity;
 };
 
@@ -43,7 +43,7 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
       ...opportunityPreviewQueryOptions({
         opportunityId: opportunityIdParam,
         user: user || undefined,
-        enabled: !mockData,
+        enabled: !mockData && opportunityIdParam !== 'new',
       }),
       refetchInterval: (query) => {
         const retries = Math.max(

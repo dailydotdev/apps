@@ -205,24 +205,6 @@ const baseConfig = {
                       )}.${getExtensionFileType(targetBrowser)}`,
                       options: { zlib: { level: 6 } },
                     },
-                    {
-                      format: 'zip',
-                      source: path.resolve(path.join(__dirname, '../../')),
-                      destination: `${path.join(destPath, 'src')}.zip`,
-                      options: {
-                        ignore: [
-                          '**/*.zip',
-                          '**/.idea/**',
-                          '**/node_modules/**',
-                          '**/dist/**',
-                          '.git/**',
-                          '**/.next/**',
-                        ],
-                        globOptions: {
-                          dot: true,
-                        },
-                      },
-                    },
                   ],
                 },
               },

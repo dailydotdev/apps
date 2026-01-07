@@ -5,6 +5,7 @@ import type { UserExperienceType } from '../../graphql/user/profile';
 import { UserExperienceList } from '../../features/profile/components/experience/UserExperiencesList';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PublicProfile } from '../../lib/user';
+import { ExperienceEmptyState } from './ExperienceEmptyState';
 
 type ExperienceSettingsProps = {
   experienceType: UserExperienceType;
@@ -28,9 +29,7 @@ export const ExperienceSettings = ({
           showEditOnItems
         />
       ) : (
-        <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-          <p className="text-text-secondary">{emptyStateMessage}</p>
-        </div>
+        <ExperienceEmptyState message={emptyStateMessage} />
       )}
     </div>
   );

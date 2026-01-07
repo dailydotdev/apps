@@ -59,6 +59,7 @@ export const walletUrl = `${webappUrl}wallet`;
 export const settingsUrl = `${webappUrl}settings`;
 export const briefingUrl = `${webappUrl}briefing`;
 export const opportunityUrl = `${webappUrl}jobs`;
+export const recruiterUrl = `${webappUrl}recruiter`;
 export const boostOpportunityLink = 'https://r.daily.dev/boost-opportunity';
 
 export const authUrl =
@@ -172,3 +173,5 @@ export const webFunnelPrefix = '/helloworld';
 export const creatorsTermsOfService = 'https://r.daily.dev/creators-terms';
 
 export const boostDocsLink = 'https://r.daily.dev/boost';
+
+export const recruiterBookLink = 'https://r.daily.dev/recruiter-book';
