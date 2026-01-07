@@ -130,7 +130,7 @@ export const OpportunityReimportModal = ({
 
         <div className="flex w-full flex-col gap-4">
           <TextField
-            label="Job description URL"
+            label="Job posting URL"
             inputId="job-link"
             name="job-link"
             placeholder="https://yourcompany.com/careers/senior-engineer"

@@ -53,7 +53,6 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import {
   useOpportunityEditForm,
-  useLocalDraft,
   formDataToPreviewOpportunity,
   formDataToMutationPayload,
   useScrollSync,
@@ -120,13 +119,6 @@ function PreparePageContent(): ReactElement {
     opportunity,
   });
 
-  // Local draft persistence
-  const { clearDraft } = useLocalDraft({
-    opportunityId,
-    form,
-    enabled: true,
-  });
-
   // Watch form values for real-time preview
   const formValues = useWatch({
     control: form.control,
@@ -173,14 +165,13 @@ function PreparePageContent(): ReactElement {
       await saveOpportunity(payload);
 
       displayToast('Changes saved');
-      clearDraft();
       form.reset(formData);
       return true;
     } catch (error) {
       displayToast('Failed to save changes. Please try again.');
       return false;
     }
-  }, [form, displayToast, clearDraft, saveOpportunity]);
+  }, [form, displayToast, saveOpportunity]);
 
   const goToNextStep = async () => {
     await router.push(`${webappUrl}recruiter/${opportunityId}/questions`);
