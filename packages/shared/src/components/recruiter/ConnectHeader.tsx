@@ -59,7 +59,6 @@ export const ConnectHeader = ({
     }),
   );
 
-  const flags = opportunity?.flags || {};
   const opportunityId = opportunity?.id;
   const forReviewHref = opportunityId
     ? `/recruiter/${opportunityId}/matches`
