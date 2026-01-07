@@ -24,7 +24,8 @@ export default function ShortcutLinks({
   shouldUseListFeedLayout,
 }: ShortcutLinksProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { showTopSites, toggleShowTopSites } = useSettingsContext();
+  const { showTopSites, toggleShowTopSites, updateCustomLinks } =
+    useSettingsContext();
   const { logEvent } = useLogContext();
   const {
     shortcutLinks,
@@ -32,6 +33,7 @@ export default function ShortcutLinks({
     isTopSiteActive,
     showGetStarted,
     hideShortcuts,
+    isManual,
   } = useShortcutLinks();
 
   const { showPermissionsModal } = useShortcuts();
@@ -88,6 +90,10 @@ export default function ShortcutLinks({
     });
   };
 
+  const onReorder = (reorderedLinks: string[]) => {
+    updateCustomLinks(reorderedLinks);
+  };
+
   if (!showTopSites) {
     return <></>;
   }
@@ -110,6 +116,8 @@ export default function ShortcutLinks({
               showTopSites,
               toggleShowTopSites,
               hasCheckedPermission,
+              onReorder,
+              isManual,
             }}
           />
         ))}
