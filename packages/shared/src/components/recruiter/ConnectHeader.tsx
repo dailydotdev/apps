@@ -99,11 +99,7 @@ export const ConnectHeader = ({
               secondary
               size={IconSize.XSmall}
             />{' '}
-            <strong>Autopilot ON:</strong>
-            {!!flags?.batchSize &&
-              `We will reach out to ${flags.batchSize} candidates per day`}
-            {!flags?.batchSize &&
-              'We will start reaching out to candidates soon'}
+            <strong>Autopilot ON</strong>
           </Typography>
         </div>
         <FlexRow className="gap-4">
