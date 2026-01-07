@@ -12,8 +12,7 @@ import type { Opportunity } from '../../../features/opportunity/types';
 import { RoleInfoSection } from './sections/RoleInfoSection';
 import { JobDetailsSection } from './sections/JobDetailsSection';
 import { ContentSection } from './sections/ContentSection';
-import { CompanySection } from './sections/CompanySection';
-import { RecruiterSection } from './sections/RecruiterSection';
+import { LinkedProfileSection } from './sections/LinkedProfileSection';
 
 export interface OpportunityEditPanelProps {
   opportunity: Opportunity;
@@ -83,11 +82,45 @@ function CollapsibleSection({
   );
 }
 
+// Content section configuration for config-driven rendering
+type ContentSectionConfig = {
+  id:
+    | 'overview'
+    | 'responsibilities'
+    | 'requirements'
+    | 'whatYoullDo'
+    | 'interviewProcess';
+  title: string;
+  required: boolean;
+  getDefaultExpanded?: (opportunity: Opportunity) => boolean;
+};
+
+const contentSections: ContentSectionConfig[] = [
+  { id: 'overview', title: 'Overview', required: true },
+  { id: 'responsibilities', title: 'Responsibilities', required: true },
+  { id: 'requirements', title: 'Requirements', required: true },
+  {
+    id: 'whatYoullDo',
+    title: "What You'll Do",
+    required: false,
+    getDefaultExpanded: (opp) => !!opp?.content?.whatYoullDo?.html,
+  },
+  {
+    id: 'interviewProcess',
+    title: 'Interview Process',
+    required: false,
+    getDefaultExpanded: (opp) => !!opp?.content?.interviewProcess?.html,
+  },
+];
+
 export function OpportunityEditPanel({
   opportunity,
   onSectionFocus,
   className,
 }: OpportunityEditPanelProps): ReactElement {
+  const company = opportunity?.organization;
+  const recruiter = opportunity?.recruiters?.[0];
+
   return (
     <div
       className={classNames(
@@ -108,6 +141,7 @@ export function OpportunityEditPanel({
       </div>
 
       <div className="flex flex-col pb-6">
+        {/* Role Info section with form inputs */}
         <CollapsibleSection
           id="roleInfo"
           title="Role Info"
@@ -120,65 +154,22 @@ export function OpportunityEditPanel({
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection
-          id="overview"
-          title="Overview"
-          required
-          onFocus={() => onSectionFocus?.('overview')}
-        >
-          <ContentSection
-            section="overview"
-            onFocus={() => onSectionFocus?.('overview')}
-          />
-        </CollapsibleSection>
-
-        <CollapsibleSection
-          id="responsibilities"
-          title="Responsibilities"
-          required
-          onFocus={() => onSectionFocus?.('responsibilities')}
-        >
-          <ContentSection
-            section="responsibilities"
-            onFocus={() => onSectionFocus?.('responsibilities')}
-          />
-        </CollapsibleSection>
-
-        <CollapsibleSection
-          id="requirements"
-          title="Requirements"
-          required
-          onFocus={() => onSectionFocus?.('requirements')}
-        >
-          <ContentSection
-            section="requirements"
-            onFocus={() => onSectionFocus?.('requirements')}
-          />
-        </CollapsibleSection>
-
-        <CollapsibleSection
-          id="whatYoullDo"
-          title="What You'll Do"
-          defaultExpanded={!!opportunity?.content?.whatYoullDo?.html}
-          onFocus={() => onSectionFocus?.('whatYoullDo')}
-        >
-          <ContentSection
-            section="whatYoullDo"
-            onFocus={() => onSectionFocus?.('whatYoullDo')}
-          />
-        </CollapsibleSection>
-
-        <CollapsibleSection
-          id="interviewProcess"
-          title="Interview Process"
-          defaultExpanded={!!opportunity?.content?.interviewProcess?.html}
-          onFocus={() => onSectionFocus?.('interviewProcess')}
-        >
-          <ContentSection
-            section="interviewProcess"
-            onFocus={() => onSectionFocus?.('interviewProcess')}
-          />
-        </CollapsibleSection>
+        {/* Content sections - config-driven */}
+        {contentSections.map((section) => (
+          <CollapsibleSection
+            key={section.id}
+            id={section.id}
+            title={section.title}
+            required={section.required}
+            defaultExpanded={section.getDefaultExpanded?.(opportunity) ?? true}
+            onFocus={() => onSectionFocus?.(section.id)}
+          >
+            <ContentSection
+              section={section.id}
+              onFocus={() => onSectionFocus?.(section.id)}
+            />
+          </CollapsibleSection>
+        ))}
 
         {/* Linked profiles - flat list without collapsible wrapper */}
         <div className="mt-4 flex flex-col gap-3 px-4">
@@ -189,8 +180,21 @@ export function OpportunityEditPanel({
           >
             Linked profiles
           </Typography>
-          <CompanySection opportunity={opportunity} />
-          <RecruiterSection opportunity={opportunity} />
+          <LinkedProfileSection
+            type="company"
+            name={company?.name}
+            image={company?.image}
+            editUrl={`/recruiter/organizations/${company?.id}`}
+            emptyMessage="No company info added yet"
+          />
+          <LinkedProfileSection
+            type="recruiter"
+            name={recruiter?.name}
+            image={recruiter?.image}
+            subtitle={recruiter?.title}
+            editUrl="/settings/profile"
+            emptyMessage="No recruiter info added yet"
+          />
         </div>
       </div>
     </div>

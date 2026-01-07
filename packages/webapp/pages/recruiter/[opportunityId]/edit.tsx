@@ -118,7 +118,7 @@ function EditPageContent(): ReactElement {
     async ({
       issues,
     }: {
-      issues: Array<{ path: Array<string | number>; message: string }>;
+      issues: Array<{ path: PropertyKey[]; message: string }>;
     }) => {
       await showPrompt({
         title: labels.opportunity.requiredMissingNotice.title,
