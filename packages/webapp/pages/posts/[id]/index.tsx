@@ -13,6 +13,11 @@ import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostType,
 } from '@dailydotdev/shared/src/graphql/posts';
+import type {
+  Comment,
+  TopCommentsData,
+} from '@dailydotdev/shared/src/graphql/comments';
+import { TOP_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
@@ -99,6 +104,7 @@ const PollPostContent = dynamic(() =>
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
+  topComments?: Comment[];
   error?: ApiError;
 }
 
@@ -132,7 +138,12 @@ export const seoTitle = (post: Post): string | undefined => {
   return `Shared post ${sourceName}`;
 };
 
-export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
+export const PostPage = ({
+  id,
+  initialData,
+  topComments,
+  error,
+}: Props): ReactElement => {
   useJoinReferral();
   const { logEvent } = useLogContext();
   const [position, setPosition] =
@@ -185,7 +196,7 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
   if (isLoading || isFallback || privateSourceJoin.isActive) {
     return (
       <>
-        <PostSEOSchema post={post} />
+        <PostSEOSchema post={post} topComments={topComments} />
         <PostLoadingSkeleton className={containerClass} type={post?.type} />
       </>
     );
@@ -214,7 +225,7 @@ export const PostPage = ({ id, initialData, error }: Props): ReactElement => {
           <Head>
             <link rel="preload" as="image" href={post?.image} />
           </Head>
-          <PostSEOSchema post={post} />
+          <PostSEOSchema post={post} topComments={topComments} />
           <Content
             position={position}
             isPostPage
@@ -257,30 +268,53 @@ export async function getStaticProps({
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
   const { id } = params;
   try {
-    const initialData = await gqlClient.request<PostData>(
-      POST_BY_ID_STATIC_FIELDS_QUERY,
-      { id },
-    );
+    // Fetch post data and top comments in parallel
+    const [initialData, commentsData] = await Promise.all([
+      gqlClient.request<PostData>(POST_BY_ID_STATIC_FIELDS_QUERY, { id }),
+      gqlClient
+        .request<TopCommentsData>(TOP_COMMENTS_QUERY, { postId: id, first: 5 })
+        .catch(() => ({ topComments: [] })), // Gracefully handle comment fetch errors
+    ]);
 
     const post = initialData.post as Post;
+    const topComments = commentsData.topComments || [];
     const seo: NextSeoProps = {
       canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
       title: getTemplatedTitle(seoTitle(post)),
       description: getSeoDescription(post),
       noindex: post?.author ? post.author.reputation <= 10 : false,
       openGraph: {
-        images: [{ url: `https://og.daily.dev/api/posts/${post?.id}` }],
+        images: [
+          {
+            url: `https://og.daily.dev/api/posts/${post?.id}`,
+            width: 1200,
+            height: 630,
+            alt: post?.title || 'Post cover image',
+          },
+        ],
         article: {
           publishedTime: post?.createdAt,
+          modifiedTime: post?.updatedAt,
           tags: post?.tags,
+          authors: post?.author?.permalink
+            ? [post.author.permalink]
+            : undefined,
         },
+        locale: post?.language || 'en',
       },
+      additionalMetaTags: [
+        {
+          name: 'robots',
+          content: 'max-image-preview:large',
+        },
+      ],
     };
 
     return {
       props: {
         id: initialData.post.id,
         initialData,
+        topComments,
         seo,
       },
       revalidate: 60,
@@ -290,6 +324,13 @@ export async function getStaticProps({
     const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
     const errors = Object.values(ApiError);
     if (errors.includes(errorCode)) {
+      // Return proper 404 for not found posts (better for SEO/crawl budget)
+      if (errorCode === ApiError.NotFound) {
+        return {
+          notFound: true,
+        };
+      }
+
       const { postId } = clientError.response.errors[0].extensions;
 
       return {
