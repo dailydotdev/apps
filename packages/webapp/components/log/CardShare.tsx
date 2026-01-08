@@ -10,6 +10,7 @@ import { shareLog } from '../../hooks/log/shareLogImage';
 import styles from './Log.module.css';
 import type { ShareableCardProps } from './types';
 import { usePeakReadingHour } from '../../hooks/log/useLogStats';
+import { shouldShowPercentileBanner } from './primitives/utils';
 
 export default function CardShare({
   data,
@@ -204,11 +205,13 @@ export default function CardShare({
             </div>
           )}
 
-          <div className={styles.shareReceiptFooter}>
-            <span className={styles.shareReceiptRank}>
-              TOP {data.archetypePercentile}% OF DEVS
-            </span>
-          </div>
+          {shouldShowPercentileBanner(data.totalImpactPercentile) && (
+            <div className={styles.shareReceiptFooter}>
+              <span className={styles.shareReceiptRank}>
+                TOP {data.totalImpactPercentile}% OF DEVS
+              </span>
+            </div>
+          )}
         </motion.div>
       </div>
 

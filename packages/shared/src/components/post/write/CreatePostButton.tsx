@@ -17,6 +17,7 @@ import ConditionalWrapper from '../../ConditionalWrapper';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { ActionType } from '../../../graphql/actions';
 import { Typography, TypographyType } from '../../typography/Typography';
+import Link from '../../utilities/Link';
 
 interface CreatePostButtonProps<Tag extends AllowedTags>
   extends Pick<ButtonProps<Tag>, 'className' | 'onClick' | 'size'> {
@@ -88,9 +89,10 @@ export function CreatePostButton<Tag extends AllowedTags>({
 
   const buttonProps: {
     tag?: AllowedTags;
-    href?: string;
     onClick?: (e: React.MouseEvent<AllowedElements, MouseEvent>) => void;
-  } = onClick ? { onClick } : { tag: 'a', href };
+  } = onClick ? { onClick } : { tag: 'a' };
+
+  const shouldUseLink = !onClick;
 
   const shouldShowAsCompact =
     compact !== false && ((isLaptop && !isLaptopL) || compact);
@@ -105,18 +107,35 @@ export function CreatePostButton<Tag extends AllowedTags>({
         <Typography type={TypographyType.Subhead} center>
           You can now create polls!
         </Typography>
-        <Button
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          className="border-surface-invert bg-surface-invert"
-          tag="a"
-          href={`${link.post.create}?poll=true`}
-        >
-          Try it now!
-        </Button>
+        <Link href={`${link.post.create}?poll=true`} passHref prefetch={false}>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            className="border-surface-invert bg-surface-invert"
+            tag="a"
+          >
+            Try it now!
+          </Button>
+        </Link>
       </div>
     );
   };
+
+  const button = (
+    <Button
+      {...buttonProps}
+      variant={sidebar || footer ? ButtonVariant.Float : ButtonVariant.Primary}
+      className={className}
+      disabled={getIsDisabled()}
+      icon={(shouldShowAsCompact || showIcon) && <PlusIcon />}
+      size={
+        isLaptop || sidebar || footer ? ButtonSize.Medium : ButtonSize.Small
+      }
+      {...attrs}
+    >
+      {!shouldShowAsCompact ? 'New post' : null}
+    </Button>
+  );
 
   return (
     <ConditionalWrapper
@@ -131,21 +150,16 @@ export function CreatePostButton<Tag extends AllowedTags>({
         </Tooltip>
       )}
     >
-      <Button
-        {...buttonProps}
-        variant={
-          sidebar || footer ? ButtonVariant.Float : ButtonVariant.Primary
-        }
-        className={className}
-        disabled={getIsDisabled()}
-        icon={(shouldShowAsCompact || showIcon) && <PlusIcon />}
-        size={
-          isLaptop || sidebar || footer ? ButtonSize.Medium : ButtonSize.Small
-        }
-        {...attrs}
+      <ConditionalWrapper
+        condition={shouldUseLink}
+        wrapper={(component: ReactElement) => (
+          <Link href={href} passHref prefetch={false}>
+            {component}
+          </Link>
+        )}
       >
-        {!shouldShowAsCompact ? 'New post' : null}
-      </Button>
+        {button}
+      </ConditionalWrapper>
     </ConditionalWrapper>
   );
 }
