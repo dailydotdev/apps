@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
-import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { NextSeo } from 'next-seo';
@@ -11,13 +10,6 @@ import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/
 import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
-import {
-  TypographyType,
-  TypographyTag,
-  TypographyColor,
-  Typography,
-} from '@dailydotdev/shared/src/components/typography/Typography';
 import { useDynamicHeader } from '@dailydotdev/shared/src/useDynamicHeader';
 import { Header } from '@dailydotdev/shared/src/components/profile/Header';
 import classNames from 'classnames';
@@ -33,32 +25,11 @@ import {
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 
 // Dynamically import mock components to avoid SSR issues
-const CurrentlySection = dynamic(
-  () =>
-    import(
-      '@dailydotdev/shared/src/features/profile/components/mocks/CurrentlySection'
-    ).then((mod) => mod.CurrentlySection),
-  { ssr: false },
-);
 const StackDNA = dynamic(
   () =>
     import(
       '@dailydotdev/shared/src/features/profile/components/mocks/StackDNA'
     ).then((mod) => mod.StackDNA),
-  { ssr: false },
-);
-const OpenSourceImpact = dynamic(
-  () =>
-    import(
-      '@dailydotdev/shared/src/features/profile/components/mocks/OpenSourceImpact'
-    ).then((mod) => mod.OpenSourceImpact),
-  { ssr: false },
-);
-const LearningJourney = dynamic(
-  () =>
-    import(
-      '@dailydotdev/shared/src/features/profile/components/mocks/LearningJourney'
-    ).then((mod) => mod.LearningJourney),
   { ssr: false },
 );
 const SetupShowcase = dynamic(
@@ -69,12 +40,10 @@ const SetupShowcase = dynamic(
   { ssr: false },
 );
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
   user: initialUser,
   noindex,
   userStats,
-  sources,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const { status, onUpload, shouldShow } = useUploadCv();
@@ -120,33 +89,12 @@ const ProfilePage = ({
         {!shouldShowBanner && <div />}
         <AboutMe user={user} />
         {/* Mock Profile Sections - for preview/demo purposes */}
-        <CurrentlySection />
         <StackDNA />
-        <OpenSourceImpact />
-        <LearningJourney />
         <SetupShowcase />
         {/* End Mock Profile Sections */}
-        <Activity user={user} />
         {isUserSame && (
           <Share permalink={user?.permalink} className="laptop:hidden" />
         )}
-        <div className="py-4 laptop:hidden">
-          <Typography
-            type={TypographyType.Body}
-            tag={TypographyTag.H1}
-            color={TypographyColor.Primary}
-            bold
-            className="laptop:hidden"
-          >
-            Highlights
-          </Typography>
-          <ProfileWidgets
-            user={user}
-            userStats={userStats}
-            sources={sources}
-            className="no-scrollbar overflow-auto laptop:hidden"
-          />
-        </div>
         <ProfileUserExperiences user={user} />
       </div>
     </div>

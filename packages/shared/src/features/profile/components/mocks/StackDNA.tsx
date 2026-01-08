@@ -3,22 +3,20 @@ import React from 'react';
 import {
   Typography,
   TypographyType,
-  TypographyTag,
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import { IconSize } from '../../../../components/Icon';
+import { TerminalIcon, EditIcon, PlusIcon } from '../../../../components/icons';
 import {
-  TerminalIcon,
-  AiIcon,
-  ShieldIcon,
-  AppIcon,
-  CodePenIcon,
-} from '../../../../components/icons';
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
 
 interface StackItemProps {
   icon: ReactElement;
   name: string;
-  level?: 'expert' | 'proficient' | 'learning';
+  level?: 'expert' | 'proficient' | 'hobby';
   years?: number;
 }
 
@@ -28,49 +26,87 @@ const StackItem = ({
   level = 'proficient',
   years,
 }: StackItemProps): ReactElement => {
-  const levelColors = {
-    expert: 'text-status-success',
-    proficient: 'text-brand-default',
-    learning: 'text-text-quaternary',
+  const levelStyles = {
+    expert: 'bg-action-upvote-float text-action-upvote-default',
+    proficient: 'bg-accent-cabbage-float text-accent-cabbage-default',
+    hobby: 'bg-accent-blueCheese-float text-accent-blueCheese-default',
   };
 
   return (
-    <div className="flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-2">
-      <span className="text-text-secondary">{icon}</span>
-      <span className="font-medium text-text-primary typo-callout">{name}</span>
+    <div className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-3 py-2 transition-colors hover:border-border-subtlest-secondary">
+      <span className="text-text-tertiary">{icon}</span>
+      <Typography type={TypographyType.Callout} bold className="flex-1">
+        {name}
+      </Typography>
       {years && (
-        <span className="text-text-quaternary typo-footnote">{years}y</span>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Quaternary}
+        >
+          {years}y
+        </Typography>
       )}
-      <span className={`ml-auto typo-footnote ${levelColors[level]}`}>
+      <span
+        className={`rounded-6 px-2 py-0.5 typo-caption2 ${levelStyles[level]}`}
+      >
         {level}
       </span>
     </div>
   );
 };
 
-interface PassionTagProps {
+interface HotTakeItemProps {
+  icon: string;
   label: string;
-  icon: ReactElement;
+  content: string;
 }
 
-const PassionTag = ({ label, icon }: PassionTagProps): ReactElement => (
-  <div className="flex items-center gap-1.5 rounded-10 bg-surface-float px-3 py-1.5">
-    <span className="text-text-tertiary">{icon}</span>
-    <span className="text-text-secondary typo-callout">{label}</span>
+const HotTakeItem = ({
+  icon,
+  label,
+  content,
+}: HotTakeItemProps): ReactElement => (
+  <div className="group flex items-start gap-3">
+    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-8 bg-surface-float text-base">
+      {icon}
+    </span>
+    <div className="flex flex-1 flex-col gap-0.5">
+      <div className="flex items-center gap-1">
+        <Typography type={TypographyType.Callout} bold>
+          {label}
+        </Typography>
+        <Button
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.XSmall}
+          icon={<EditIcon />}
+          className="opacity-0 group-hover:opacity-100"
+        />
+      </div>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        {content}
+      </Typography>
+    </div>
   </div>
 );
 
 export const StackDNA = (): ReactElement => {
   return (
     <div className="flex flex-col gap-4 py-4">
-      <Typography
-        type={TypographyType.Body}
-        tag={TypographyTag.H2}
-        color={TypographyColor.Primary}
-        bold
-      >
-        Stack & Tools DNA
-      </Typography>
+      <div className="flex items-center justify-between">
+        <Typography type={TypographyType.Body} bold>
+          Stack & Tools
+        </Typography>
+        <Button
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<EditIcon />}
+        >
+          Edit
+        </Button>
+      </div>
 
       {/* Primary Stack */}
       <div className="flex flex-col gap-2">
@@ -106,29 +142,43 @@ export const StackDNA = (): ReactElement => {
             level="proficient"
             years={3}
           />
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 py-2 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-secondary"
+          >
+            <PlusIcon size={IconSize.Small} />
+            <span className="typo-callout">Add</span>
+          </button>
         </div>
       </div>
 
-      {/* Currently Learning */}
+      {/* Just for Fun */}
       <div className="flex flex-col gap-2">
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
           className="uppercase tracking-wider"
         >
-          Currently Learning
+          Just for Fun
         </Typography>
         <div className="flex flex-wrap gap-2">
           <StackItem
             icon={<TerminalIcon size={IconSize.Small} />}
             name="Rust"
-            level="learning"
+            level="hobby"
           />
           <StackItem
             icon={<TerminalIcon size={IconSize.Small} />}
             name="Go"
-            level="learning"
+            level="hobby"
           />
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 py-2 text-text-tertiary transition-colors hover:border-border-subtlest-secondary hover:text-text-secondary"
+          >
+            <PlusIcon size={IconSize.Small} />
+            <span className="typo-callout">Add</span>
+          </button>
         </div>
       </div>
 
@@ -141,76 +191,33 @@ export const StackDNA = (): ReactElement => {
         >
           Hot Takes
         </Typography>
-        <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3">
-          <div className="flex items-start gap-2">
-            <span className="mt-0.5 text-status-success">♥</span>
-            <div className="flex flex-col gap-1">
-              <span className="font-medium text-text-primary typo-callout">
-                Favorite
-              </span>
-              <span className="text-text-secondary typo-footnote">
-                TypeScript + React + Tailwind - the holy trinity
-              </span>
-            </div>
-          </div>
+        <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+          <HotTakeItem
+            icon="💚"
+            label="Favorite"
+            content="TypeScript + React + Tailwind - the holy trinity"
+          />
           <div className="h-px bg-border-subtlest-tertiary" />
-          <div className="flex items-start gap-2">
-            <span className="mt-0.5 text-status-error">✗</span>
-            <div className="flex flex-col gap-1">
-              <span className="font-medium text-text-primary typo-callout">
-                Would Rather Not
-              </span>
-              <span className="text-text-secondary typo-footnote">
-                PHP - sorry, I&apos;ve moved on. Also XML configs can stay in
-                2010.
-              </span>
-            </div>
-          </div>
+          <HotTakeItem
+            icon="🚫"
+            label="Would Rather Not"
+            content="PHP - sorry, I've moved on. Also XML configs can stay in 2010."
+          />
           <div className="h-px bg-border-subtlest-tertiary" />
-          <div className="flex items-start gap-2">
-            <span className="mt-0.5 text-brand-default">★</span>
-            <div className="flex flex-col gap-1">
-              <span className="font-medium text-text-primary typo-callout">
-                Guilty Pleasure
-              </span>
-              <span className="text-text-secondary typo-footnote">
-                Still write bash scripts for everything. No regrets.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Passions & Interests */}
-      <div className="flex flex-col gap-2">
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="uppercase tracking-wider"
-        >
-          Passions & Interests
-        </Typography>
-        <div className="flex flex-wrap gap-2">
-          <PassionTag
-            label="Design Systems"
-            icon={<CodePenIcon size={IconSize.XSmall} />}
+          <HotTakeItem
+            icon="🔥"
+            label="Unpopular Opinion"
+            content="Vim keybindings are overrated. Fight me."
           />
-          <PassionTag
-            label="Performance"
-            icon={<TerminalIcon size={IconSize.XSmall} />}
-          />
-          <PassionTag
-            label="AI/ML Tooling"
-            icon={<AiIcon size={IconSize.XSmall} />}
-          />
-          <PassionTag
-            label="Security"
-            icon={<ShieldIcon size={IconSize.XSmall} />}
-          />
-          <PassionTag
-            label="Mobile Dev"
-            icon={<AppIcon size={IconSize.XSmall} />}
-          />
+          <div className="h-px bg-border-subtlest-tertiary" />
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+            className="self-start"
+          >
+            Add hot take
+          </Button>
         </div>
       </div>
     </div>

@@ -33,21 +33,8 @@ import { LazyModal } from '../../../../components/modals/common/types';
 import { IconSize } from '../../../../components/Icon';
 import { VerifiedBadge } from './VerifiedBadge';
 import type { TLocation } from '../../../../graphql/autocomplete';
-import {
-  GitIntegrationStats,
-  generateMockGitStats,
-} from './github-integration';
-import {
-  ExperienceTimeline,
-  generateMockExperiencePosts,
-} from './experience-posts';
-import { ActivityOverviewCard } from '../../../../components/MultiSourceHeatmap';
 
 const MAX_SKILLS = 3;
-
-// TODO: Remove these mocks - for demo purposes only
-const MOCK_GIT_DATA = generateMockGitStats('github');
-const MOCK_EXPERIENCE_POSTS = generateMockExperiencePosts();
 
 const getDisplayLocation = (
   grouped: boolean | undefined,
@@ -285,16 +272,6 @@ export function UserExperienceItem({
             )}
           </div>
         )}
-        {/* GitHub/GitLab Integration - Mock for demo */}
-        {isWorkExperience && !grouped && (
-          <GitIntegrationStats data={MOCK_GIT_DATA} />
-        )}
-        {/* Experience Posts Timeline - Mock for demo */}
-        {isWorkExperience && !grouped && (
-          <ExperienceTimeline posts={MOCK_EXPERIENCE_POSTS} />
-        )}
-        {/* Multi-source Activity Heatmap - Mock for demo */}
-        {isWorkExperience && !grouped && <ActivityOverviewCard />}
       </div>
     </li>
   );
