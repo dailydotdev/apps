@@ -21,8 +21,8 @@ interface SourceData {
 }
 
 interface PodiumProps {
-  /** Top 3 sources to display (in rank order: 1st, 2nd, 3rd) */
-  sources: [SourceData, SourceData, SourceData];
+  /** Top sources to display (in rank order: 1st, 2nd, 3rd). Can have 1-3 items. */
+  sources: SourceData[];
   /** Whether to animate the podium (set false for static image generation) */
   animated?: boolean;
   /** Additional CSS class name */
@@ -83,8 +83,18 @@ export default function Podium({
     ? `${s.podiumStage} ${className}`
     : s.podiumStage;
 
-  // Reorder for podium display: [2nd, 1st, 3rd]
-  const podiumOrder = [sources[1], sources[0], sources[2]];
+  // Reorder for podium display: [2nd, 1st, 3rd] - only include sources that exist
+  // Visual order maps to: index 0 = 2nd place, index 1 = 1st place, index 2 = 3rd place
+  const podiumOrder: Array<{ source: SourceData; rankIndex: number }> = [];
+  if (sources[1]) {
+    podiumOrder.push({ source: sources[1], rankIndex: 0 }); // 2nd place (left)
+  }
+  if (sources[0]) {
+    podiumOrder.push({ source: sources[0], rankIndex: 1 }); // 1st place (center)
+  }
+  if (sources[2]) {
+    podiumOrder.push({ source: sources[2], rankIndex: 2 }); // 3rd place (right)
+  }
   const heights = animated ? PODIUM_HEIGHTS_INTERACTIVE : PODIUM_HEIGHTS_STATIC;
 
   // Show medals after delay in animated mode
@@ -102,14 +112,14 @@ export default function Podium({
   if (!animated) {
     return (
       <div className={containerClass}>
-        {podiumOrder.map((source, index) => {
-          const rank = getPodiumRank(index);
-          const height = heights[index];
-          const isFirst = index === 1;
+        {podiumOrder.map(({ source, rankIndex }) => {
+          const rank = getPodiumRank(rankIndex);
+          const height = heights[rankIndex];
+          const isFirst = rankIndex === 1;
 
           return (
             <div key={source.name} className={s.podiumColumn}>
-              <div className={s.podiumMedal}>{PODIUM_MEDALS[index]}</div>
+              <div className={s.podiumMedal}>{PODIUM_MEDALS[rankIndex]}</div>
               <div className={s.podiumSource}>
                 {source.logoUrl && (
                   <img
@@ -137,11 +147,11 @@ export default function Podium({
   // Animated rendering for interactive cards
   return (
     <div className={containerClass}>
-      {podiumOrder.map((source, index) => {
-        const rank = getPodiumRank(index);
-        const height = heights[index];
-        const delay = PODIUM_DELAYS[index];
-        const isFirst = index === 1;
+      {podiumOrder.map(({ source, rankIndex }) => {
+        const rank = getPodiumRank(rankIndex);
+        const height = heights[rankIndex];
+        const delay = PODIUM_DELAYS[rankIndex];
+        const isFirst = rankIndex === 1;
 
         return (
           <motion.div
@@ -163,7 +173,7 @@ export default function Podium({
                 damping: 10,
               }}
             >
-              {PODIUM_MEDALS[index]}
+              {PODIUM_MEDALS[rankIndex]}
             </motion.div>
 
             {/* Source icon + name */}
@@ -173,12 +183,14 @@ export default function Podium({
               animate={{ opacity: 1 }}
               transition={{ delay: delay + 0.2 }}
             >
-              <Image
-                src={source.logoUrl}
-                alt={source.name}
-                className="size-8 rounded-full object-cover"
-                type={ImageType.Squad}
-              />
+              {source.logoUrl && (
+                <Image
+                  src={source.logoUrl}
+                  alt={source.name}
+                  className="size-8 rounded-full object-cover"
+                  type={ImageType.Squad}
+                />
+              )}
               {source.name}
             </motion.div>
 

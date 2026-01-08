@@ -6,6 +6,7 @@ import styles from './Log.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
 import type { BaseCardProps } from './types';
+import { shouldShowPercentileBanner } from './primitives';
 
 const MEDAL_EMOJIS = ['🥇', '🥈', '🥉'];
 
@@ -245,21 +246,6 @@ export default function CardTopicEvolution({
               </span>
             </div>
             {/* Actual visible content stacked on same grid cell */}
-            {currentQuarter?.comment && (
-              <motion.div
-                className={styles.pivotBadge}
-                style={{ gridArea: '1 / 1', placeSelf: 'center' }}
-                initial={{ rotateX: -90, opacity: 0 }}
-                animate={{ rotateX: 0, opacity: 1 }}
-                transition={{
-                  delay: 0.3,
-                  duration: 0.3,
-                  ease: [0.4, 0, 0.2, 1],
-                }}
-              >
-                {currentQuarter.comment}
-              </motion.div>
-            )}
             {isLastQuarter && (
               <motion.div
                 className={styles.badge}
@@ -278,20 +264,22 @@ export default function CardTopicEvolution({
         </div>
 
         {/* Banner - reserve space always, animate visibility on last quarter */}
-        <TopPercentileBanner
-          preText="MORE CURIOUS THAN"
-          mainText={`${100 - data.evolutionPercentile}%`}
-          postText="OF DEVS"
-          delay={isLastQuarter ? 0.5 : 0}
-          motionProps={{
-            initial: false,
-            animate: {
-              opacity: isLastQuarter ? 1 : 0,
-              scaleX: isLastQuarter ? 1 : 0,
-            },
-            style: { visibility: isLastQuarter ? 'visible' : 'hidden' },
-          }}
-        />
+        {shouldShowPercentileBanner(data.evolutionPercentile) && (
+          <TopPercentileBanner
+            preText="MORE CURIOUS THAN"
+            mainText={`${100 - data.evolutionPercentile}%`}
+            postText="OF DEVS"
+            delay={isLastQuarter ? 0.5 : 0}
+            motionProps={{
+              initial: false,
+              animate: {
+                opacity: isLastQuarter ? 1 : 0,
+                scaleX: isLastQuarter ? 1 : 0,
+              },
+              style: { visibility: isLastQuarter ? 'visible' : 'hidden' },
+            }}
+          />
+        )}
       </div>
 
       {/* Share button - pushed to bottom, only active on last quarter */}

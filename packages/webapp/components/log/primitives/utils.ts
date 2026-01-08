@@ -48,11 +48,21 @@ export const PATTERN_BANNER_TEXT: Record<
     shareText: 'Only {percentile}% of devs start this early',
   },
   afternoon: {
-    preText: 'ONLY',
-    postText: 'AT PEAK HOURS',
-    shareText: 'Only {percentile}% read during peak hours',
+    preText: 'TOP',
+    postText: 'AFTERNOON READER',
+    shareText: 'Top {percentile}% afternoon reader',
   },
 };
+
+/**
+ * Check if percentile banner should be shown
+ * Only show for users in top 50% (lower percentile = better ranking)
+ */
+export function shouldShowPercentileBanner(
+  percentile: number | null | undefined,
+): boolean {
+  return percentile != null && percentile <= 50;
+}
 
 /**
  * Podium configuration constants
