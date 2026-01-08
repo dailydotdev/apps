@@ -63,6 +63,10 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       readmeHtml
       isPlus
       experienceLevel
+      socialLinks {
+        platform
+        url
+      }
       location {
         city
         subdivision
@@ -328,6 +332,10 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       timezone
       experienceLevel
       language
+      socialLinks {
+        platform
+        url
+      }
     }
   }
 `;
@@ -365,6 +373,10 @@ export const UPDATE_USER_INFO_MUTATION = gql`
       experienceLevel
       hideExperience
       language
+      socialLinks {
+        platform
+        url
+      }
     }
   }
 `;
