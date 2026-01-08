@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import type { type LogData } from '../../../types/log';
+import type { LogData } from '../../../types/log';
 import { RecordType, ARCHETYPES, RECORDS } from '../../../types/log';
 import styles from './StaticCards.module.css';
 import { getPeakReadingHour } from '../../../hooks/log/useLogStats';
