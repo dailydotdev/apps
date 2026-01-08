@@ -41,7 +41,7 @@ import {
   useFeedVotePost,
   useMutationSubscription,
 } from '../hooks';
-import { useProfileCompletionIndicator } from '../hooks/profile/useProfileCompletionIndicator';
+import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionCard';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
@@ -211,9 +211,9 @@ export default function Feed<T>({
     shouldEvaluate: isMyFeed && hasNoBriefAction,
   });
   const {
-    showIndicator: showProfileCompletionCard,
+    showProfileCompletionCard,
     isDismissed: isProfileCompletionCardDismissed,
-  } = useProfileCompletionIndicator();
+  } = useProfileCompletionCard({ isMyFeed });
   const showBriefCard =
     isMyFeed &&
     briefCardFeatureValue &&
