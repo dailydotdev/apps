@@ -7,13 +7,14 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlusIcon, MiniCloseIcon, VIcon } from '../icons';
 import { IconSize } from '../Icon';
 import type { UserSocialLink } from '../../lib/user';
-import { detectPlatform } from '../../features/organizations/utils/platformDetection';
-import type { SocialPlatform } from '../../lib/socialLink';
+import type { SocialLinkDisplay } from '../../lib/socialLink';
 import {
+  detectUserPlatform,
   getPlatformIcon,
   getPlatformLabel,
   PLATFORM_LABELS,
 } from '../../lib/socialLink';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 export interface SocialLinksInputProps {
   name: string;
@@ -21,49 +22,12 @@ export interface SocialLinksInputProps {
   hint?: string;
 }
 
-interface SocialLinkDisplay {
-  url: string;
-  platform: string;
-  icon: ReactElement;
-  label: string;
-}
-
-/**
- * Map SocialMediaType enum value to our platform identifier
- */
-const SOCIAL_TYPE_TO_PLATFORM: Record<string, SocialPlatform> = {
-  github: 'github',
-  linkedin: 'linkedin',
-  x: 'twitter',
-  youtube: 'youtube',
-  stackoverflow: 'stackoverflow',
-  reddit: 'reddit',
-  roadmap: 'roadmap',
-  codepen: 'codepen',
-  mastodon: 'mastodon',
-  bluesky: 'bluesky',
-  threads: 'threads',
-  hashnode: 'hashnode',
-};
-
-/**
- * Map platform detection result to our platform identifier
- */
-const mapDetectedPlatform = (
-  detected: ReturnType<typeof detectPlatform>,
-): SocialPlatform | null => {
-  if (!detected) {
-    return null;
-  }
-  const socialType = detected.socialType?.toLowerCase();
-  return socialType ? SOCIAL_TYPE_TO_PLATFORM[socialType] || null : null;
-};
-
 /**
  * Get display info for a social link
  */
 const getSocialLinkDisplay = (link: UserSocialLink): SocialLinkDisplay => {
   return {
+    id: link.platform,
     url: link.url,
     platform: link.platform,
     icon: getPlatformIcon(link.platform, IconSize.Small),
@@ -87,25 +51,19 @@ export function SocialLinksInput({
   });
 
   const [url, setUrl] = useState('');
+  const { displayToast } = useToastNotification();
 
   const links: UserSocialLink[] = useMemo(() => value || [], [value]);
 
   // Detect platform as user types
-  const detected = useMemo(() => detectPlatform(url), [url]);
-  const detectedPlatform = useMemo(
-    () => mapDetectedPlatform(detected),
-    [detected],
-  );
+  const detectedPlatform = detectUserPlatform(url);
   const detectedLabel = detectedPlatform
     ? PLATFORM_LABELS[detectedPlatform]
     : null;
 
-  const handleUrlChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setUrl(e.target.value);
-    },
-    [],
-  );
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUrl(e.target.value);
+  };
 
   const handleAdd = useCallback(() => {
     const trimmedUrl = url.trim();
@@ -118,14 +76,18 @@ export function SocialLinksInput({
       const parsedUrl = new URL(
         trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`,
       );
-      const normalizedUrl = parsedUrl.href;
+      // Normalize URL by removing trailing slash for consistency
+      const normalizedUrl = parsedUrl.href.replace(/\/$/, '');
 
       // Check if URL already exists
       if (
         links.some(
-          (link) => link.url.toLowerCase() === normalizedUrl.toLowerCase(),
+          (link) =>
+            link.url.toLowerCase().replace(/\/$/, '') ===
+            normalizedUrl.toLowerCase(),
         )
       ) {
+        displayToast('This link has already been added');
         return;
       }
 
@@ -137,9 +99,9 @@ export function SocialLinksInput({
       onChange([...links, newLink]);
       setUrl('');
     } catch {
-      // Invalid URL, don't add
+      displayToast('Please enter a valid URL');
     }
-  }, [url, detectedPlatform, links, onChange]);
+  }, [url, detectedPlatform, links, onChange, displayToast]);
 
   const handleRemove = useCallback(
     (index: number) => {
