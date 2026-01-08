@@ -135,6 +135,71 @@ export const PLATFORM_MATCHERS: Array<{
       defaultLabel: 'Press Release',
     },
   },
+  // User profile platforms
+  {
+    domains: ['threads.net'],
+    match: {
+      platform: 'Threads',
+      socialType: SocialMediaType.Threads,
+      linkType: OrganizationLinkType.Social,
+    },
+  },
+  {
+    domains: ['bsky.app'],
+    match: {
+      platform: 'Bluesky',
+      socialType: SocialMediaType.Bluesky,
+      linkType: OrganizationLinkType.Social,
+    },
+  },
+  {
+    // Common mastodon instances - detection is tricky due to federated nature
+    // The URL pattern /@username is a better indicator
+    domains: [
+      'mastodon.social',
+      'mastodon.online',
+      'fosstodon.org',
+      'hachyderm.io',
+      'mstdn.social',
+    ],
+    match: {
+      platform: 'Mastodon',
+      socialType: SocialMediaType.Mastodon,
+      linkType: OrganizationLinkType.Social,
+    },
+  },
+  {
+    domains: ['roadmap.sh'],
+    match: {
+      platform: 'Roadmap',
+      socialType: SocialMediaType.Roadmap,
+      linkType: OrganizationLinkType.Social,
+    },
+  },
+  {
+    domains: ['codepen.io'],
+    match: {
+      platform: 'CodePen',
+      socialType: SocialMediaType.Codepen,
+      linkType: OrganizationLinkType.Social,
+    },
+  },
+  {
+    domains: ['reddit.com'],
+    match: {
+      platform: 'Reddit',
+      socialType: SocialMediaType.Reddit,
+      linkType: OrganizationLinkType.Social,
+    },
+  },
+  {
+    domains: ['hashnode.com', 'hashnode.dev'],
+    match: {
+      platform: 'Hashnode',
+      socialType: SocialMediaType.Hashnode,
+      linkType: OrganizationLinkType.Social,
+    },
+  },
 ];
 
 /**
@@ -150,6 +215,18 @@ export const normalizeUrl = (url: string): string => {
 };
 
 /**
+ * Check if URL is a Mastodon instance URL (has /@username pattern)
+ */
+const isMastodonUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url.startsWith('http') ? url : `https://${url}`);
+    return parsed.pathname.includes('/@');
+  } catch {
+    return false;
+  }
+};
+
+/**
  * Detect platform from URL
  */
 export const detectPlatform = (url: string): PlatformMatch | null => {
@@ -160,7 +237,21 @@ export const detectPlatform = (url: string): PlatformMatch | null => {
   const matcher = PLATFORM_MATCHERS.find(({ domains }) =>
     domains.some((d) => hostname.includes(d)),
   );
-  return matcher?.match ?? null;
+
+  if (matcher) {
+    return matcher.match;
+  }
+
+  // Check for Mastodon instances by URL pattern (/@username)
+  if (isMastodonUrl(url)) {
+    return {
+      platform: 'Mastodon',
+      socialType: SocialMediaType.Mastodon,
+      linkType: OrganizationLinkType.Social,
+    };
+  }
+
+  return null;
 };
 
 /**

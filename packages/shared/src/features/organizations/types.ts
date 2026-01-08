@@ -34,6 +34,14 @@ export enum SocialMediaType {
   Medium = 'medium',
   DevTo = 'devto',
   StackOverflow = 'stackoverflow',
+  // User profile platforms
+  Threads = 'threads',
+  Bluesky = 'bluesky',
+  Mastodon = 'mastodon',
+  Roadmap = 'roadmap',
+  Codepen = 'codepen',
+  Reddit = 'reddit',
+  Hashnode = 'hashnode',
 }
 
 export type OrganizationMember = {
