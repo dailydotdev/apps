@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import {
@@ -11,10 +11,12 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import ProgressCircle from '../ProgressCircle';
 import CloseButton from '../CloseButton';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import type { ProfileCompletion } from '../../lib/user';
 import { webappUrl } from '../../lib/constants';
+import { LogEvent, TargetType } from '../../lib/log';
 
 type CompletionItem = {
   label: string;
@@ -92,8 +94,10 @@ export const ProfileCompletionCard = ({
   className,
 }: ProfileCompletionCardProps): ReactElement | null => {
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const profileCompletion = user?.profileCompletion;
+  const isImpressionTracked = useRef(false);
 
   const items = useMemo(
     () => (profileCompletion ? getCompletionItems(profileCompletion) : []),
@@ -111,18 +115,39 @@ export const ProfileCompletionCard = ({
   const isDismissed =
     isActionsFetched && checkHasCompleted(ActionType.ProfileCompletionCard);
 
-  if (
-    !profileCompletion ||
-    isCompleted ||
-    !firstIncompleteItem ||
-    isDismissed
-  ) {
+  const shouldShow =
+    profileCompletion && !isCompleted && firstIncompleteItem && !isDismissed;
+
+  useEffect(() => {
+    if (!shouldShow || isImpressionTracked.current) {
+      return;
+    }
+
+    logEvent({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.ProfileCompletionCard,
+    });
+    isImpressionTracked.current = true;
+  }, [shouldShow, logEvent]);
+
+  const handleCtaClick = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.ProfileCompletionCard,
+    });
+  }, [logEvent]);
+
+  const handleDismiss = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.Dismiss,
+      target_type: TargetType.ProfileCompletionCard,
+    });
+    completeAction(ActionType.ProfileCompletionCard);
+  }, [logEvent, completeAction]);
+
+  if (!shouldShow) {
     return null;
   }
-
-  const handleDismiss = () => {
-    completeAction(ActionType.ProfileCompletionCard);
-  };
 
   return (
     <div
@@ -183,6 +208,7 @@ export const ProfileCompletionCard = ({
           type="button"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
+          onClick={handleCtaClick}
         >
           {firstIncompleteItem.cta}
         </Button>
