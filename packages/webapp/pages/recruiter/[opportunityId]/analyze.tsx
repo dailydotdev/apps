@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, {
   useCallback,
   useEffect,
@@ -8,11 +8,12 @@ import React, {
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import {
   RecruiterProgress,
   RecruiterProgressStep,
 } from '@dailydotdev/shared/src/components/recruiter/Progress';
+import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
+import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import {
   OpportunityPreviewProvider,
@@ -26,7 +27,7 @@ import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
-import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
+import { getLayout } from '../../../components/layouts/RecruiterFullscreenLayout';
 
 interface UseNewOpportunityParserResult {
   isParsing: boolean;
@@ -128,10 +129,9 @@ const RecruiterPageContent = () => {
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
-        title="Your potential reach"
-        subtitle="See how many developers match your role and what they're interested in."
         headerButton={{
           text: 'Select plan',
+          icon: <MoveToIcon />,
           onClick: handlePrepareCampaignClick,
           disabled: !opportunity,
         }}
@@ -151,7 +151,11 @@ function RecruiterPage(): ReactElement {
   );
 }
 
-RecruiterPage.getLayout = getLayout;
+const GetPageLayout = (page: ReactNode): ReactNode => {
+  return getLayout(page);
+};
+
+RecruiterPage.getLayout = GetPageLayout;
 
 export async function getServerSideProps() {
   return { props: {} };

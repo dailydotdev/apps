@@ -44,10 +44,9 @@ export const OpportunityReimportModal = ({
 
   const { mutate: reimportOpportunity, isPending } = useMutation({
     ...reimportOpportunityMutationOptions(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: getOpportunityByIdKey(opportunityId),
-      });
+    onSuccess: (data) => {
+      // Immediately update the cache with the returned data
+      queryClient.setQueryData(getOpportunityByIdKey(opportunityId), data);
       onRequestClose?.(null);
     },
     onError: (err) => {
@@ -131,7 +130,7 @@ export const OpportunityReimportModal = ({
 
         <div className="flex w-full flex-col gap-4">
           <TextField
-            label="Job description URL"
+            label="Job posting URL"
             inputId="job-link"
             name="job-link"
             placeholder="https://yourcompany.com/careers/senior-engineer"

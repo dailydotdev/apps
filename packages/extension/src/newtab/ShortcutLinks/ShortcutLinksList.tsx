@@ -22,6 +22,21 @@ import {
   DropdownMenuTrigger,
 } from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
 import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
   ShortcutLinksItem,
   ShortcutItemPlaceholder,
 } from './ShortcutLinksItem';
@@ -34,6 +49,8 @@ interface ShortcutLinksListProps {
   showTopSites: boolean;
   toggleShowTopSites: () => void;
   hasCheckedPermission?: boolean;
+  onReorder?: (links: string[]) => void;
+  isManual?: boolean;
 }
 
 const placeholderLinks = Array.from({ length: 6 }).map((_, index) => index);
@@ -44,8 +61,31 @@ export function ShortcutLinksList({
   toggleShowTopSites,
   shortcutLinks,
   shouldUseListFeedLayout,
+  onReorder,
+  isManual,
 }: ShortcutLinksListProps): ReactElement {
   const hasShortcuts = shortcutLinks?.length > 0;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !onReorder || !isManual) {
+      return;
+    }
+
+    const oldIndex = shortcutLinks.indexOf(active.id as string);
+    const newIndex = shortcutLinks.indexOf(over.id as string);
+
+    const reorderedLinks = arrayMove(shortcutLinks, oldIndex, newIndex);
+    onReorder(reorderedLinks);
+  };
 
   const options = [
     {
@@ -60,7 +100,7 @@ export function ShortcutLinksList({
     },
   ];
 
-  return (
+  const content = (
     <div
       className={classNames(
         'hidden tablet:flex',
@@ -109,4 +149,23 @@ export function ShortcutLinksList({
       )}
     </div>
   );
+
+  if (hasShortcuts && isManual && onReorder) {
+    return (
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={shortcutLinks}
+          strategy={horizontalListSortingStrategy}
+        >
+          {content}
+        </SortableContext>
+      </DndContext>
+    );
+  }
+
+  return content;
 }

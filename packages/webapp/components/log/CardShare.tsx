@@ -5,7 +5,7 @@ import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { ARCHETYPES, RECORDS } from '../../types/log';
+import { ARCHETYPES, RECORDS, RecordType } from '../../types/log';
 import { shareLog } from '../../hooks/log/shareLogImage';
 import styles from './Log.module.css';
 import type { ShareableCardProps } from './types';
@@ -31,18 +31,22 @@ export default function CardShare({
   const { formatted: peakHour } = usePeakReadingHour(data.activityHeatmap);
 
   // Get the best record (prefer one with a percentile, or first available)
+  // Skip YEAR_ACTIVE record as it's not meaningful for sharing
   const bestRecord = useMemo(() => {
-    if (!data.records.length) {
+    const eligibleRecords = data.records.filter(
+      (r) => r.type !== RecordType.YEAR_ACTIVE,
+    );
+    if (!eligibleRecords.length) {
       return null;
     }
     // Pick the record with best percentile, or first one
-    const withPercentile = data.records.filter((r) => r.percentile != null);
+    const withPercentile = eligibleRecords.filter((r) => r.percentile != null);
     if (withPercentile.length > 0) {
       return withPercentile.reduce((best, curr) =>
         (curr.percentile ?? 100) < (best.percentile ?? 100) ? curr : best,
       );
     }
-    return data.records[0];
+    return eligibleRecords[0];
   }, [data.records]);
 
   const shareText = `my 2025 on daily.dev`;
@@ -192,10 +196,10 @@ export default function CardShare({
             <div className={styles.shareReceiptRow}>
               <span className={styles.shareReceiptLabel}>
                 {RECORDS[bestRecord.type].emoji}{' '}
-                {bestRecord.label.toUpperCase()}
+                {RECORDS[bestRecord.type].defaultLabel.toUpperCase()}
               </span>
               <span className={styles.shareReceiptValue}>
-                {bestRecord.value}
+                {bestRecord.label}
               </span>
             </div>
           )}

@@ -3,7 +3,11 @@ import React from 'react';
 import { EarthIcon } from '@dailydotdev/shared/src/components/icons';
 import type { LogData } from '../../../types/log';
 import styles from './StaticCards.module.css';
-import { SimpleHeadline, Podium } from '../primitives';
+import {
+  SimpleHeadline,
+  Podium,
+  shouldShowPercentileBanner,
+} from '../primitives';
 import TopPercentileBanner from '../TopPercentileBanner';
 
 interface StaticCardProps {
@@ -30,7 +34,7 @@ export default function StaticCardFavoriteSources({
 
       {/* Podium */}
       <Podium
-        sources={[data.topSources[0], data.topSources[1], data.topSources[2]]}
+        sources={data.topSources}
         animated={false}
         customStyles={{
           podiumStage: styles.podiumStage,
@@ -58,20 +62,22 @@ export default function StaticCardFavoriteSources({
       </div>
 
       {/* Competitive stat banner */}
-      <TopPercentileBanner
-        preText="TOP"
-        mainText={`${data.sourcePercentile}%`}
-        postText="EXPLORER"
-        animated={false}
-        customStyles={{
-          celebrationBanner: styles.celebrationBanner,
-          bannerBg: styles.bannerBg,
-          bannerContent: styles.bannerContent,
-          bannerPre: styles.bannerPre,
-          bannerMain: styles.bannerMain,
-          bannerPost: styles.bannerPost,
-        }}
-      />
+      {shouldShowPercentileBanner(data.sourcePercentile) && (
+        <TopPercentileBanner
+          preText="TOP"
+          mainText={`${data.sourcePercentile}%`}
+          postText="EXPLORER"
+          animated={false}
+          customStyles={{
+            celebrationBanner: styles.celebrationBanner,
+            bannerBg: styles.bannerBg,
+            bannerContent: styles.bannerContent,
+            bannerPre: styles.bannerPre,
+            bannerMain: styles.bannerMain,
+            bannerPost: styles.bannerPost,
+          }}
+        />
+      )}
     </>
   );
 }

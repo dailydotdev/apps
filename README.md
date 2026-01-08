@@ -64,14 +64,14 @@ contains a collection of smaller projects or libraries that are used across the 
 
 ## Local Environment
 
-  To spin up a local environment, you will need Docker. Do the steps below and you should be able to start trying to center a div:
+To spin up a local environment, you will need Docker. Do the steps below and you should be able to start trying to center a div:
 
-  - Fork this repo
-  - Pull it locally
-  - Run `docker compose up`
-  - Once done, seed your local data by running `docker compose exec daily-api node ./bin/import`
-  - Then lastly, run npm run dev:oss
-  - The app should run at `http://localhost:5002/`
+- Fork this repo
+- Pull it locally
+- Run `docker compose up`
+- Once done, seed your local data by running `docker compose exec daily-api node ./bin/import`
+- Then lastly, run npm run dev:oss
+- The app should run at `http://localhost:5002/`
 
 ## Want to Help?
 
@@ -95,7 +95,7 @@ pnpm install
 
 Example for Chrome:
 
-- Run `pnpm --filter extension dev:chrome` in the root directory
+- Run `pnpm --filter extension dev` in the root directory
 - Open Chrome and go to `chrome://extensions/`
 - Enable `Developer mode` in the top right corner
 - Click on `Load unpacked` and select the `packages/extension/dist/chrome` folder

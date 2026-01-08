@@ -103,7 +103,7 @@ const RecruiterPaymentPage = (): ReactElement => {
           />
           <div className="flex flex-1 flex-col">
             <div className="mb-10 flex h-8">
-              <HeaderLogo isRecruiter />
+              <HeaderLogo isRecruiter href="/recruiter" />
             </div>
             <div className="flex flex-col gap-6">
               <Typography
