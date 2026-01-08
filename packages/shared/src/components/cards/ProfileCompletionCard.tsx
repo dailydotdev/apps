@@ -134,13 +134,15 @@ export const ProfileCompletionCard = ({
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.ProfileCompletionCard,
+      target_id: 'cta',
     });
   }, [logEvent]);
 
   const handleDismiss = useCallback(() => {
     logEvent({
-      event_name: LogEvent.Dismiss,
+      event_name: LogEvent.Click,
       target_type: TargetType.ProfileCompletionCard,
+      target_id: 'dismiss',
     });
     completeAction(ActionType.ProfileCompletionCard);
   }, [logEvent, completeAction]);
