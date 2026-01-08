@@ -30,5 +30,6 @@ export {
   PODIUM_DELAYS,
   getPodiumRank,
   findBestEngagementStat,
+  shouldShowPercentileBanner,
 } from './utils';
 export type { EngagementStat } from './utils';

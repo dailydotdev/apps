@@ -192,10 +192,10 @@ export default function CardShare({
             <div className={styles.shareReceiptRow}>
               <span className={styles.shareReceiptLabel}>
                 {RECORDS[bestRecord.type].emoji}{' '}
-                {bestRecord.label.toUpperCase()}
+                {RECORDS[bestRecord.type].defaultLabel.toUpperCase()}
               </span>
               <span className={styles.shareReceiptValue}>
-                {bestRecord.value}
+                {bestRecord.label}
               </span>
             </div>
           )}

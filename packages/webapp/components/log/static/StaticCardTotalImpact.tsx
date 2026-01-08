@@ -2,7 +2,12 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { LogData } from '../../../types/log';
 import styles from './StaticCards.module.css';
-import { HeadlineStack, StatBadgeGroup, Divider } from '../primitives';
+import {
+  HeadlineStack,
+  StatBadgeGroup,
+  Divider,
+  shouldShowPercentileBanner,
+} from '../primitives';
 import TopPercentileBanner from '../TopPercentileBanner';
 
 interface StaticCardProps {
@@ -55,20 +60,22 @@ export default function StaticCardTotalImpact({
       />
 
       {/* Competitive stat banner */}
-      <TopPercentileBanner
-        preText="Top"
-        mainText={`${data.totalImpactPercentile}%`}
-        postText="of devs"
-        animated={false}
-        customStyles={{
-          celebrationBanner: styles.celebrationBanner,
-          bannerBg: styles.bannerBg,
-          bannerContent: styles.bannerContent,
-          bannerPre: styles.bannerPre,
-          bannerMain: styles.bannerMain,
-          bannerPost: styles.bannerPost,
-        }}
-      />
+      {shouldShowPercentileBanner(data.totalImpactPercentile) && (
+        <TopPercentileBanner
+          preText="Top"
+          mainText={`${data.totalImpactPercentile}%`}
+          postText="of devs"
+          animated={false}
+          customStyles={{
+            celebrationBanner: styles.celebrationBanner,
+            bannerBg: styles.bannerBg,
+            bannerContent: styles.bannerContent,
+            bannerPre: styles.bannerPre,
+            bannerMain: styles.bannerMain,
+            bannerPost: styles.bannerPost,
+          }}
+        />
+      )}
     </>
   );
 }
