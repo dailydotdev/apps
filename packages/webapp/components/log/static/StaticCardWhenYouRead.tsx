@@ -7,6 +7,7 @@ import {
   SimpleHeadline,
   normalizeHourDistribution,
   PATTERN_BANNER_TEXT,
+  shouldShowPercentileBanner,
 } from '../primitives';
 import TopPercentileBanner from '../TopPercentileBanner';
 import { getPeakReadingHour } from '../../../hooks/log/useLogStats';
@@ -77,20 +78,22 @@ export default function StaticCardWhenYouRead({
       </div>
 
       {/* Competitive stat banner */}
-      <TopPercentileBanner
-        preText={PATTERN_BANNER_TEXT[data.readingPattern].preText}
-        mainText={`${data.patternPercentile}%`}
-        postText={PATTERN_BANNER_TEXT[data.readingPattern].postText}
-        animated={false}
-        customStyles={{
-          celebrationBanner: styles.celebrationBanner,
-          bannerBg: styles.bannerBg,
-          bannerContent: styles.bannerContent,
-          bannerPre: styles.bannerPre,
-          bannerMain: styles.bannerMain,
-          bannerPost: styles.bannerPost,
-        }}
-      />
+      {shouldShowPercentileBanner(data.patternPercentile) && (
+        <TopPercentileBanner
+          preText={PATTERN_BANNER_TEXT[data.readingPattern].preText}
+          mainText={`${data.patternPercentile}%`}
+          postText={PATTERN_BANNER_TEXT[data.readingPattern].postText}
+          animated={false}
+          customStyles={{
+            celebrationBanner: styles.celebrationBanner,
+            bannerBg: styles.bannerBg,
+            bannerContent: styles.bannerContent,
+            bannerPre: styles.bannerPre,
+            bannerMain: styles.bannerMain,
+            bannerPost: styles.bannerPost,
+          }}
+        />
+      )}
     </>
   );
 }

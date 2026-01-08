@@ -7,7 +7,11 @@ import styles from './Log.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
 import type { BaseCardProps } from './types';
-import { SimpleHeadline, Podium } from './primitives';
+import {
+  SimpleHeadline,
+  Podium,
+  shouldShowPercentileBanner,
+} from './primitives';
 
 export default function CardFavoriteSources({
   data,
@@ -31,10 +35,7 @@ export default function CardFavoriteSources({
         </SimpleHeadline>
 
         {/* Podium */}
-        <Podium
-          sources={[data.topSources[0], data.topSources[1], data.topSources[2]]}
-          animated
-        />
+        <Podium sources={data.topSources} animated />
 
         {/* Discovery stat */}
         <motion.div
@@ -53,16 +54,18 @@ export default function CardFavoriteSources({
         </motion.div>
 
         {/* Banner */}
-        <TopPercentileBanner
-          preText="TOP"
-          mainText={`${data.sourcePercentile}%`}
-          postText="EXPLORER"
-          delay={1.5}
-          motionProps={{
-            initial: { opacity: 0, x: 100 },
-            animate: { opacity: 1, x: 0 },
-          }}
-        />
+        {shouldShowPercentileBanner(data.sourcePercentile) && (
+          <TopPercentileBanner
+            preText="TOP"
+            mainText={`${data.sourcePercentile}%`}
+            postText="EXPLORER"
+            delay={1.5}
+            motionProps={{
+              initial: { opacity: 0, x: 100 },
+              animate: { opacity: 1, x: 0 },
+            }}
+          />
+        )}
       </div>
 
       {/* Share button - pushed to bottom with margin-top: auto */}
