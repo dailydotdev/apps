@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
-import type { PublicProfile, UserSocialLink } from '../../../../lib/user';
+import type { PublicProfile } from '../../../../lib/user';
 import Markdown from '../../../../components/Markdown';
 import {
   Button,
@@ -13,21 +13,6 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../../../components/typography/Typography';
-import {
-  BlueskyIcon,
-  CodePenIcon,
-  GitHubIcon,
-  HashnodeIcon,
-  LinkedInIcon,
-  LinkIcon,
-  MastodonIcon,
-  RedditIcon,
-  RoadmapIcon,
-  StackOverflowIcon,
-  ThreadsIcon,
-  TwitterIcon,
-  YoutubeIcon,
-} from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { SimpleTooltip } from '../../../../components/tooltips/SimpleTooltip';
 import { ExpandableContent } from '../../../../components/ExpandableContent';
@@ -35,6 +20,7 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { combinedClicks } from '../../../../lib/click';
 import { LogEvent, TargetType } from '../../../../lib/log';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import { getUserSocialLinks } from '../../../../lib/socialLink';
 
 export interface AboutMeProps {
   user: PublicProfile;
@@ -42,154 +28,6 @@ export interface AboutMeProps {
 }
 
 const MAX_VISIBLE_LINKS = 3;
-
-interface SocialLinkDisplay {
-  id: string;
-  url: string;
-  icon: ReactElement;
-  label: string;
-}
-
-/**
- * Platform icon and label mapping for socialLinks
- */
-const PLATFORM_CONFIG: Record<string, { icon: ReactElement; label: string }> = {
-  github: { icon: <GitHubIcon size={IconSize.XSmall} />, label: 'GitHub' },
-  linkedin: {
-    icon: <LinkedInIcon size={IconSize.XSmall} />,
-    label: 'LinkedIn',
-  },
-  twitter: { icon: <TwitterIcon size={IconSize.XSmall} />, label: 'X' },
-  youtube: { icon: <YoutubeIcon size={IconSize.XSmall} />, label: 'YouTube' },
-  stackoverflow: {
-    icon: <StackOverflowIcon size={IconSize.XSmall} />,
-    label: 'Stack Overflow',
-  },
-  reddit: { icon: <RedditIcon size={IconSize.XSmall} />, label: 'Reddit' },
-  roadmap: {
-    icon: <RoadmapIcon size={IconSize.XSmall} />,
-    label: 'Roadmap.sh',
-  },
-  codepen: { icon: <CodePenIcon size={IconSize.XSmall} />, label: 'CodePen' },
-  mastodon: {
-    icon: <MastodonIcon size={IconSize.XSmall} />,
-    label: 'Mastodon',
-  },
-  bluesky: { icon: <BlueskyIcon size={IconSize.XSmall} />, label: 'Bluesky' },
-  threads: { icon: <ThreadsIcon size={IconSize.XSmall} />, label: 'Threads' },
-  hashnode: {
-    icon: <HashnodeIcon size={IconSize.XSmall} />,
-    label: 'Hashnode',
-  },
-  portfolio: { icon: <LinkIcon size={IconSize.XSmall} />, label: 'Portfolio' },
-};
-
-/**
- * Convert UserSocialLink array to display format with icons
- */
-const mapSocialLinksToDisplay = (
-  links: UserSocialLink[],
-): SocialLinkDisplay[] => {
-  return links.map(({ platform, url }) => {
-    const config = PLATFORM_CONFIG[platform] || {
-      icon: <LinkIcon size={IconSize.XSmall} />,
-      label: platform.charAt(0).toUpperCase() + platform.slice(1),
-    };
-    return {
-      id: platform,
-      url,
-      icon: config.icon,
-      label: config.label,
-    };
-  });
-};
-
-/**
- * Build social links from legacy individual fields (fallback)
- * @deprecated This will be removed once all users have socialLinks populated
- */
-const buildLegacySocialLinks = (user: PublicProfile): SocialLinkDisplay[] => {
-  return [
-    user.github && {
-      id: 'github',
-      url: `https://github.com/${user.github}`,
-      icon: <GitHubIcon size={IconSize.XSmall} />,
-      label: 'GitHub',
-    },
-    user.linkedin && {
-      id: 'linkedin',
-      url: `https://linkedin.com/in/${user.linkedin}`,
-      icon: <LinkedInIcon size={IconSize.XSmall} />,
-      label: 'LinkedIn',
-    },
-    user.portfolio && {
-      id: 'portfolio',
-      url: user.portfolio,
-      icon: <LinkIcon size={IconSize.XSmall} />,
-      label: 'Portfolio',
-    },
-    user.twitter && {
-      id: 'twitter',
-      url: `https://x.com/${user.twitter}`,
-      icon: <TwitterIcon size={IconSize.XSmall} />,
-      label: 'X',
-    },
-    user.youtube && {
-      id: 'youtube',
-      url: `https://youtube.com/@${user.youtube}`,
-      icon: <YoutubeIcon size={IconSize.XSmall} />,
-      label: 'YouTube',
-    },
-    user.stackoverflow && {
-      id: 'stackoverflow',
-      url: `https://stackoverflow.com/users/${user.stackoverflow}`,
-      icon: <StackOverflowIcon size={IconSize.XSmall} />,
-      label: 'Stack Overflow',
-    },
-    user.reddit && {
-      id: 'reddit',
-      url: `https://reddit.com/user/${user.reddit}`,
-      icon: <RedditIcon size={IconSize.XSmall} />,
-      label: 'Reddit',
-    },
-    user.roadmap && {
-      id: 'roadmap',
-      url: `https://roadmap.sh/u/${user.roadmap}`,
-      icon: <RoadmapIcon size={IconSize.XSmall} />,
-      label: 'Roadmap.sh',
-    },
-    user.codepen && {
-      id: 'codepen',
-      url: `https://codepen.io/${user.codepen}`,
-      icon: <CodePenIcon size={IconSize.XSmall} />,
-      label: 'CodePen',
-    },
-    user.mastodon && {
-      id: 'mastodon',
-      url: user.mastodon,
-      icon: <MastodonIcon size={IconSize.XSmall} />,
-      label: 'Mastodon',
-    },
-    user.bluesky && {
-      id: 'bluesky',
-      url: `https://bsky.app/profile/${user.bluesky}`,
-      icon: <BlueskyIcon size={IconSize.XSmall} />,
-      label: 'Bluesky',
-    },
-    user.threads && {
-      id: 'threads',
-      url: `https://threads.net/@${user.threads}`,
-      icon: <ThreadsIcon size={IconSize.XSmall} />,
-      label: 'Threads',
-    },
-    user.hashnode && {
-      id: 'hashnode',
-      url: `https://hashnode.com/@${user.hashnode}`,
-      icon: <HashnodeIcon size={IconSize.XSmall} />,
-      label: 'Hashnode',
-    },
-  ].filter(Boolean) as SocialLinkDisplay[];
-};
 
 export function AboutMe({
   user,
@@ -202,13 +40,10 @@ export function AboutMe({
   // Markdown is supported only in the client due to sanitization
   const isClient = typeof window !== 'undefined';
 
-  const socialLinks = useMemo(() => {
-    // Use new socialLinks array if available, otherwise fall back to legacy fields
-    if (user.socialLinks && user.socialLinks.length > 0) {
-      return mapSocialLinksToDisplay(user.socialLinks);
-    }
-    return buildLegacySocialLinks(user);
-  }, [user]);
+  const socialLinks = useMemo(
+    () => getUserSocialLinks(user, IconSize.XSmall),
+    [user],
+  );
 
   const visibleLinks = showAllLinks
     ? socialLinks

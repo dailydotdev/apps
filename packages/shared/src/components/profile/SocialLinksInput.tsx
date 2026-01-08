@@ -4,27 +4,16 @@ import { useController, useFormContext } from 'react-hook-form';
 import { TextField } from '../fields/TextField';
 import { Typography, TypographyType } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import {
-  PlusIcon,
-  MiniCloseIcon,
-  VIcon,
-  GitHubIcon,
-  LinkedInIcon,
-  LinkIcon,
-  TwitterIcon,
-  YoutubeIcon,
-  StackOverflowIcon,
-  RedditIcon,
-  RoadmapIcon,
-  CodePenIcon,
-  MastodonIcon,
-  BlueskyIcon,
-  ThreadsIcon,
-  HashnodeIcon,
-} from '../icons';
+import { PlusIcon, MiniCloseIcon, VIcon } from '../icons';
 import { IconSize } from '../Icon';
 import type { UserSocialLink } from '../../lib/user';
 import { detectPlatform } from '../../features/organizations/utils/platformDetection';
+import type { SocialPlatform } from '../../lib/socialLink';
+import {
+  getPlatformIcon,
+  getPlatformLabel,
+  PLATFORM_LABELS,
+} from '../../lib/socialLink';
 
 export interface SocialLinksInputProps {
   name: string;
@@ -40,26 +29,21 @@ interface SocialLinkDisplay {
 }
 
 /**
- * Platform icon and label mapping
+ * Map SocialMediaType enum value to our platform identifier
  */
-const PLATFORM_CONFIG: Record<string, { icon: ReactElement; label: string }> = {
-  github: { icon: <GitHubIcon size={IconSize.Small} />, label: 'GitHub' },
-  linkedin: { icon: <LinkedInIcon size={IconSize.Small} />, label: 'LinkedIn' },
-  twitter: { icon: <TwitterIcon size={IconSize.Small} />, label: 'X' },
-  youtube: { icon: <YoutubeIcon size={IconSize.Small} />, label: 'YouTube' },
-  stackoverflow: {
-    icon: <StackOverflowIcon size={IconSize.Small} />,
-    label: 'Stack Overflow',
-  },
-  reddit: { icon: <RedditIcon size={IconSize.Small} />, label: 'Reddit' },
-  roadmap: { icon: <RoadmapIcon size={IconSize.Small} />, label: 'Roadmap.sh' },
-  codepen: { icon: <CodePenIcon size={IconSize.Small} />, label: 'CodePen' },
-  mastodon: { icon: <MastodonIcon size={IconSize.Small} />, label: 'Mastodon' },
-  bluesky: { icon: <BlueskyIcon size={IconSize.Small} />, label: 'Bluesky' },
-  threads: { icon: <ThreadsIcon size={IconSize.Small} />, label: 'Threads' },
-  hashnode: { icon: <HashnodeIcon size={IconSize.Small} />, label: 'Hashnode' },
-  portfolio: { icon: <LinkIcon size={IconSize.Small} />, label: 'Website' },
-  other: { icon: <LinkIcon size={IconSize.Small} />, label: 'Link' },
+const SOCIAL_TYPE_TO_PLATFORM: Record<string, SocialPlatform> = {
+  github: 'github',
+  linkedin: 'linkedin',
+  x: 'twitter',
+  youtube: 'youtube',
+  stackoverflow: 'stackoverflow',
+  reddit: 'reddit',
+  roadmap: 'roadmap',
+  codepen: 'codepen',
+  mastodon: 'mastodon',
+  bluesky: 'bluesky',
+  threads: 'threads',
+  hashnode: 'hashnode',
 };
 
 /**
@@ -67,39 +51,23 @@ const PLATFORM_CONFIG: Record<string, { icon: ReactElement; label: string }> = {
  */
 const mapDetectedPlatform = (
   detected: ReturnType<typeof detectPlatform>,
-): string | null => {
+): SocialPlatform | null => {
   if (!detected) {
     return null;
   }
-  // Map socialType enum values to our platform identifiers
-  const platformMap: Record<string, string> = {
-    github: 'github',
-    linkedin: 'linkedin',
-    x: 'twitter',
-    youtube: 'youtube',
-    stackoverflow: 'stackoverflow',
-    reddit: 'reddit',
-    roadmap: 'roadmap',
-    codepen: 'codepen',
-    mastodon: 'mastodon',
-    bluesky: 'bluesky',
-    threads: 'threads',
-    hashnode: 'hashnode',
-  };
   const socialType = detected.socialType?.toLowerCase();
-  return socialType ? platformMap[socialType] || null : null;
+  return socialType ? SOCIAL_TYPE_TO_PLATFORM[socialType] || null : null;
 };
 
 /**
  * Get display info for a social link
  */
 const getSocialLinkDisplay = (link: UserSocialLink): SocialLinkDisplay => {
-  const config = PLATFORM_CONFIG[link.platform] || PLATFORM_CONFIG.other;
   return {
     url: link.url,
     platform: link.platform,
-    icon: config.icon,
-    label: config.label,
+    icon: getPlatformIcon(link.platform, IconSize.Small),
+    label: getPlatformLabel(link.platform),
   };
 };
 
@@ -128,7 +96,9 @@ export function SocialLinksInput({
     () => mapDetectedPlatform(detected),
     [detected],
   );
-  const detectedLabel = detected?.platform;
+  const detectedLabel = detectedPlatform
+    ? PLATFORM_LABELS[detectedPlatform]
+    : null;
 
   const handleUrlChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

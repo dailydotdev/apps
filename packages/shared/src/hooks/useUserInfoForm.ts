@@ -5,12 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import AuthContext from '../contexts/AuthContext';
 import { mutateUserInfo } from '../graphql/users';
-import type {
-  LoggedUser,
-  PublicProfile,
-  UserProfile,
-  UserSocialLink,
-} from '../lib/user';
+import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
 import { errorMessage } from '../graphql/common';
@@ -18,6 +13,7 @@ import { useDirtyForm } from './useDirtyForm';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import { useProfile } from './profile/useProfile';
+import { buildUserSocialLinksFromLegacy } from '../lib/socialLink';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -35,62 +31,6 @@ export interface ProfileFormHint {
   mastodon?: string;
   bluesky?: string;
 }
-
-/**
- * Build socialLinks array from legacy individual fields
- * @deprecated Used for backwards compatibility during migration
- */
-const buildSocialLinksFromLegacy = (
-  user: LoggedUser | undefined,
-): UserSocialLink[] => {
-  if (!user) {
-    return [];
-  }
-  return [
-    user.github && {
-      platform: 'github',
-      url: `https://github.com/${user.github}`,
-    },
-    user.linkedin && {
-      platform: 'linkedin',
-      url: `https://linkedin.com/in/${user.linkedin}`,
-    },
-    user.portfolio && { platform: 'portfolio', url: user.portfolio },
-    user.twitter && {
-      platform: 'twitter',
-      url: `https://x.com/${user.twitter}`,
-    },
-    user.youtube && {
-      platform: 'youtube',
-      url: `https://youtube.com/@${user.youtube}`,
-    },
-    user.stackoverflow && {
-      platform: 'stackoverflow',
-      url: `https://stackoverflow.com/users/${user.stackoverflow}`,
-    },
-    user.reddit && {
-      platform: 'reddit',
-      url: `https://reddit.com/user/${user.reddit}`,
-    },
-    user.roadmap && {
-      platform: 'roadmap',
-      url: `https://roadmap.sh/u/${user.roadmap}`,
-    },
-    user.codepen && {
-      platform: 'codepen',
-      url: `https://codepen.io/${user.codepen}`,
-    },
-    user.mastodon && { platform: 'mastodon', url: user.mastodon },
-    user.bluesky && {
-      platform: 'bluesky',
-      url: `https://bsky.app/profile/${user.bluesky}`,
-    },
-    user.threads && {
-      platform: 'threads',
-      url: `https://threads.net/@${user.threads}`,
-    },
-  ].filter(Boolean) as UserSocialLink[];
-};
 
 export type UpdateProfileParameters = Partial<UserProfile> & {
   upload?: File;
@@ -130,7 +70,7 @@ const useUserInfoForm = (): UseUserInfoForm => {
     if (user?.socialLinks && user.socialLinks.length > 0) {
       return user.socialLinks;
     }
-    return buildSocialLinksFromLegacy(user);
+    return user ? buildUserSocialLinksFromLegacy(user) : [];
   }, [user]);
 
   useEffect(() => {
