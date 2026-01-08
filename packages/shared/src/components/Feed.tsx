@@ -206,19 +206,27 @@ export default function Feed<T>({
   const { isSearchPageLaptop } = useSearchResultsLayout();
   const hasNoBriefAction =
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
-  const { value: briefCardFeatureValue } = useConditionalFeature({
-    feature: briefCardFeedFeature,
-    shouldEvaluate: isMyFeed && hasNoBriefAction,
-  });
+
+  // Evaluate profile card first (it takes priority over brief card)
   const {
     showProfileCompletionCard,
     isDismissed: isProfileCompletionCardDismissed,
+    isLoading: isProfileCompletionCardLoading,
   } = useProfileCompletionCard({ isMyFeed });
-  const showBriefCard =
+
+  // Only evaluate brief card feature when profile card definitively won't show
+  // This prevents both experiments from being "exposed" for the same user
+  const shouldEvaluateBriefCard =
     isMyFeed &&
-    briefCardFeatureValue &&
     hasNoBriefAction &&
+    !showProfileCompletionCard &&
+    !isProfileCompletionCardLoading &&
     !isProfileCompletionCardDismissed;
+  const { value: briefCardFeatureValue } = useConditionalFeature({
+    feature: briefCardFeedFeature,
+    shouldEvaluate: shouldEvaluateBriefCard,
+  });
+  const showBriefCard = shouldEvaluateBriefCard && briefCardFeatureValue;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
 
   const { value: briefBannerPage } = useConditionalFeature({

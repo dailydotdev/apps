@@ -7,6 +7,7 @@ import { ActionType } from '../../graphql/actions';
 interface UseProfileCompletionCard {
   showProfileCompletionCard: boolean;
   isDismissed: boolean;
+  isLoading: boolean;
 }
 
 interface UseProfileCompletionCardProps {
@@ -24,16 +25,26 @@ export const useProfileCompletionCard = ({
   const isDismissed =
     isActionsFetched && checkHasCompleted(ActionType.ProfileCompletionCard);
 
-  const shouldEvaluate = isMyFeed && !isCompleted && !isDismissed;
+  // Use same pattern as brief card: require isActionsFetched before evaluating
+  const hasNotDismissed =
+    isActionsFetched && !checkHasCompleted(ActionType.ProfileCompletionCard);
+  const shouldEvaluate = isMyFeed && !isCompleted && hasNotDismissed;
 
-  const { value: featureEnabled } = useConditionalFeature({
-    feature: profileCompletionCardFeature,
-    shouldEvaluate,
-  });
+  const { value: featureEnabled, isLoading: isFeatureLoading } =
+    useConditionalFeature({
+      feature: profileCompletionCardFeature,
+      shouldEvaluate,
+    });
+
+  // We're loading if we might show the card but are still waiting for data
+  const couldPotentiallyShow = isMyFeed && !isCompleted && !!profileCompletion;
+  const isLoading =
+    couldPotentiallyShow && (!isActionsFetched || isFeatureLoading);
 
   return {
     showProfileCompletionCard:
       shouldEvaluate && featureEnabled && !!profileCompletion,
     isDismissed,
+    isLoading,
   };
 };
