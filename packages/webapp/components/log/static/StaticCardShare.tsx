@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import type { LogData } from '../../../types/log';
-import { ARCHETYPES, RECORDS } from '../../../types/log';
+import type { type LogData } from '../../../types/log';
+import { RecordType, ARCHETYPES, RECORDS } from '../../../types/log';
 import styles from './StaticCards.module.css';
 import { getPeakReadingHour } from '../../../hooks/log/useLogStats';
 
@@ -42,17 +42,20 @@ export default function StaticCardShare({
     : '12PM';
 
   // Get the best record (prefer one with a percentile, or first available)
+  // Skip YEAR_ACTIVE record as it's not meaningful for sharing
   const bestRecord = useMemo(() => {
-    if (!data.records?.length) {
+    const eligibleRecords =
+      data.records?.filter((r) => r.type !== RecordType.YEAR_ACTIVE) ?? [];
+    if (!eligibleRecords.length) {
       return null;
     }
-    const withPercentile = data.records.filter((r) => r.percentile != null);
+    const withPercentile = eligibleRecords.filter((r) => r.percentile != null);
     if (withPercentile.length > 0) {
       return withPercentile.reduce((best, curr) =>
         (curr.percentile ?? 100) < (best.percentile ?? 100) ? curr : best,
       );
     }
-    return data.records[0];
+    return eligibleRecords[0];
   }, [data.records]);
 
   return (
