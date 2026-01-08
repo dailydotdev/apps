@@ -74,20 +74,20 @@ const RecruiterFullscreenLayoutInner = ({
   }
 
   return (
-    <PendingSubmissionProvider>
-      <div className="flex min-h-screen flex-col antialiased">
-        <InAppNotificationElement />
-        <PromptElement />
-        <Toast autoDismissNotifications={autoDismissNotifications} />
-        {children}
-      </div>
-    </PendingSubmissionProvider>
+    <div className="flex min-h-screen flex-col antialiased">
+      <InAppNotificationElement />
+      <PromptElement />
+      <Toast autoDismissNotifications={autoDismissNotifications} />
+      {children}
+    </div>
   );
 };
 
 const GetLayout = (page: ReactNode): ReactNode => {
   return (
-    <RecruiterFullscreenLayoutInner>{page}</RecruiterFullscreenLayoutInner>
+    <PendingSubmissionProvider>
+      <RecruiterFullscreenLayoutInner>{page}</RecruiterFullscreenLayoutInner>
+    </PendingSubmissionProvider>
   );
 };
 
