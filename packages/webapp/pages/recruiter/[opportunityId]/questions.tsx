@@ -1,7 +1,6 @@
 import React from 'react';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
-import type { NextSeoProps } from 'next-seo';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   Typography,
@@ -10,7 +9,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
+import { MoveToIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { useRouter } from 'next/router';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 
@@ -28,8 +27,11 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
+import {
+  Button,
+  ButtonColor,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import { opportunityEditStep2Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { labels } from '@dailydotdev/shared/src/lib/labels';
@@ -49,20 +51,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
-import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
-import {
-  defaultOpenGraph,
-  defaultSeo,
-  defaultSeoTitle,
-} from '../../../next-seo';
-
-const seo: NextSeoProps = {
-  title: defaultSeoTitle,
-  openGraph: { ...defaultOpenGraph },
-  ...defaultSeo,
-  nofollow: true,
-  noindex: true,
-};
+import { getLayout } from '../../../components/layouts/RecruiterFullscreenLayout';
 
 const QuestionsSetupPage = (): ReactElement => {
   const { isLoggedIn, isAuthReady } = useAuthContext();
@@ -190,46 +179,56 @@ const QuestionsSetupPage = (): ReactElement => {
     return <NoOpportunity />;
   }
 
+  const handleNextStep = async () => {
+    const result = onValidateOpportunity({
+      schema: opportunityEditStep2Schema,
+    });
+
+    if (result.error) {
+      await onValidationError({ issues: result.error.issues });
+
+      return;
+    }
+
+    await updateOpportunityState({
+      id: opportunity.id,
+      state: OpportunityState.IN_REVIEW,
+    });
+  };
+
   return (
     <div className="flex flex-1 flex-col">
-      <RecruiterHeader
-        headerButton={{
-          text: 'Outreach settings',
-          onClick: async () => {
-            const result = onValidateOpportunity({
-              schema: opportunityEditStep2Schema,
-            });
+      {/* Header */}
+      <header className="sticky top-0 z-header flex items-center justify-between gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 laptop:py-4">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <HeaderLogo isRecruiter href="/recruiter" />
+          <div className="mx-2 h-6 w-px bg-border-subtlest-tertiary" />
+          <div>
+            <Typography type={TypographyType.Title2} bold>
+              Screening Questions
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              Questions candidates will answer before you connect.
+            </Typography>
+          </div>
+        </div>
 
-            if (result.error) {
-              await onValidationError({ issues: result.error.issues });
+        <Button
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          onClick={handleNextStep}
+          loading={isPendingOpportunityState}
+        >
+          <span className="mr-1.5">Submit for review</span>
+          <MoveToIcon />
+        </Button>
+      </header>
 
-              return;
-            }
-
-            await updateOpportunityState({
-              id: opportunity.id,
-              state: OpportunityState.IN_REVIEW,
-            });
-          },
-          disabled: isPendingOpportunityState,
-        }}
-      />
       <RecruiterProgress activeStep={RecruiterProgressStep.PrepareAndLaunch} />
       <div className="flex flex-1 flex-col gap-4 bg-background-subtle py-6">
-        <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4">
-          <Typography bold center type={TypographyType.LargeTitle}>
-            Screening Questions
-          </Typography>
-          <Typography
-            center
-            type={TypographyType.Title3}
-            color={TypographyColor.Secondary}
-          >
-            AI generated questions to help you quickly assess candidate fit
-            before moving forward. You can edit, replace, or remove them to
-            match your hiring needs
-          </Typography>
-        </div>
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 laptop:flex-row">
           <div className="flex h-full min-w-0 max-w-full flex-1 flex-shrink-0 flex-col gap-4 rounded-16">
             {opportunity.questions.map((question, index) => {
@@ -314,19 +313,22 @@ const QuestionsSetupPage = (): ReactElement => {
   );
 };
 
-const GetPageLayout: typeof getLayout = (page, layoutProps) => {
+const GetPageLayout = (page: ReactNode): ReactNode => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = useRouter();
   const { opportunityId } = router.query;
 
   return (
     <OpportunityEditProvider opportunityId={opportunityId as string}>
-      {getLayout(page, {
-        ...layoutProps,
-        seo,
-      })}
+      {getLayout(page)}
     </OpportunityEditProvider>
   );
 };
+
 QuestionsSetupPage.getLayout = GetPageLayout;
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default QuestionsSetupPage;

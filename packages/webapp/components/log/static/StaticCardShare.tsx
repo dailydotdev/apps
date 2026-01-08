@@ -134,9 +134,10 @@ export default function StaticCardShare({
         {bestRecord && (
           <div className={styles.shareReceiptRow}>
             <span className={styles.shareReceiptLabel}>
-              {RECORDS[bestRecord.type].emoji} {bestRecord.label.toUpperCase()}
+              {RECORDS[bestRecord.type].emoji}{' '}
+              {RECORDS[bestRecord.type].defaultLabel.toUpperCase()}
             </span>
-            <span className={styles.shareReceiptValue}>{bestRecord.value}</span>
+            <span className={styles.shareReceiptValue}>{bestRecord.label}</span>
           </div>
         )}
 

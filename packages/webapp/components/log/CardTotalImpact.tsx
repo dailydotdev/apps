@@ -5,7 +5,12 @@ import styles from './Log.module.css';
 import ShareStatButton from './ShareStatButton';
 import TopPercentileBanner from './TopPercentileBanner';
 import type { BaseCardProps } from './types';
-import { HeadlineStack, StatBadgeGroup, Divider } from './primitives';
+import {
+  HeadlineStack,
+  StatBadgeGroup,
+  Divider,
+  shouldShowPercentileBanner,
+} from './primitives';
 
 export default function CardTotalImpact({
   data,
@@ -60,12 +65,14 @@ export default function CardTotalImpact({
         />
 
         {/* Competitive stat banner with slide in */}
-        <TopPercentileBanner
-          preText="Top"
-          mainText={`${data.totalImpactPercentile}%`}
-          postText="of devs"
-          delay={1.8}
-        />
+        {shouldShowPercentileBanner(data.totalImpactPercentile) && (
+          <TopPercentileBanner
+            preText="Top"
+            mainText={`${data.totalImpactPercentile}%`}
+            postText="of devs"
+            delay={1.8}
+          />
+        )}
       </div>
 
       {/* Share button */}

@@ -319,7 +319,7 @@ it('should check meta tag with only description', async () => {
 it('should check meta tag with no description and no summary', async () => {
   const seo = getSeoDescription(createPostMock({}).result.data.post);
   expect(seo).toEqual(
-    'Join us to the discussion about "Learn SQL" on daily.dev ✌️',
+    'Discussion about "Learn SQL" on daily.dev - join the developer community',
   );
 });
 
@@ -351,7 +351,7 @@ it('should check meta tag with empty summary and empty description', async () =>
     }).result.data.post,
   );
   expect(seo).toEqual(
-    'Join us to the discussion about "Learn SQL" on daily.dev ✌️',
+    'Discussion about "Learn SQL" on daily.dev - join the developer community',
   );
 });
 
@@ -372,7 +372,7 @@ it('should check meta tag with no description, summary of shared post', async ()
     }).result.data.post,
   );
   expect(seo).toEqual(
-    'Join us to the discussion about "GitHub is down" on daily.dev ✌️',
+    'Discussion about "GitHub is down" on daily.dev - join the developer community',
   );
 });
 
@@ -384,7 +384,9 @@ it('should check meta tag with no description, summary or title', async () => {
       summary: null,
     }).result.data.post,
   );
-  expect(seo).toEqual('Join the discussion on daily.dev ✌️');
+  expect(seo).toEqual(
+    'Join the discussion on daily.dev - the developer community',
+  );
 });
 
 it('should send upvote mutation', async () => {
