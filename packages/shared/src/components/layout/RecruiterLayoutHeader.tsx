@@ -30,7 +30,7 @@ export const RecruiterLayoutHeader = ({
     >
       {canGoBack && <GoBackButton />}
       <div className="mr-auto flex items-center gap-2">
-        <HeaderLogo onLogoClick={onLogoClick} isRecruiter />
+        <HeaderLogo onLogoClick={onLogoClick} isRecruiter href="/recruiter" />
       </div>
       <div className={recruiterLayoutHeaderClassName} />
     </header>

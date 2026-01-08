@@ -13,6 +13,8 @@ import {
   ItalicIcon,
   BulletListIcon,
   NumberedListIcon,
+  UndoIcon,
+  RedoIcon,
 } from '../../icons';
 import { LinkIcon } from '../../icons/Link';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -32,6 +34,7 @@ interface ToolbarButtonProps {
   icon: ReactElement;
   isActive: boolean;
   onClick: () => void;
+  disabled?: boolean;
 }
 
 const ToolbarButton = ({
@@ -39,18 +42,25 @@ const ToolbarButton = ({
   icon,
   isActive,
   onClick,
-}: ToolbarButtonProps): ReactElement => (
-  <Tooltip content={tooltip}>
-    <Button
-      variant={ButtonVariant.Tertiary}
-      size={ButtonSize.XSmall}
-      icon={icon}
-      pressed={isActive}
-      onClick={onClick}
-      type="button"
-    />
-  </Tooltip>
-);
+  disabled = false,
+}: ToolbarButtonProps): ReactElement | null => {
+  if (disabled) {
+    return null;
+  }
+
+  return (
+    <Tooltip content={tooltip}>
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.XSmall}
+        icon={icon}
+        pressed={isActive}
+        onClick={onClick}
+        type="button"
+      />
+    </Tooltip>
+  );
+};
 
 function RichTextToolbarComponent(
   { editor, onLinkAdd }: RichTextToolbarProps,
@@ -141,6 +151,23 @@ function RichTextToolbarComponent(
           icon={<LinkIcon />}
           isActive={editor.isActive('link')}
           onClick={openLinkModal}
+        />
+        {(editor.can().undo() || editor.can().redo()) && (
+          <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
+        )}
+        <ToolbarButton
+          tooltip="Undo (⌘Z)"
+          icon={<UndoIcon />}
+          isActive={false}
+          onClick={() => editor.chain().focus().undo().run()}
+          disabled={!editor.can().undo()}
+        />
+        <ToolbarButton
+          tooltip="Redo (⌘⇧Z)"
+          icon={<RedoIcon />}
+          isActive={false}
+          onClick={() => editor.chain().focus().redo().run()}
+          disabled={!editor.can().redo()}
         />
       </div>
       <LinkModal

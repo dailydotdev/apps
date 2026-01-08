@@ -112,7 +112,7 @@ const ReviewListPage = (): ReactElement => {
           Job Review Queue
         </Typography>
         <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
-          Review and approve job descriptions before they go live
+          Review and approve job postings before they go live
         </Typography>
       </div>
 
