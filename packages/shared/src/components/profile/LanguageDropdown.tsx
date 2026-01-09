@@ -39,7 +39,7 @@ export const LanguageDropdown = ({
   const [open, setOpen] = useState(false);
   const validLanguages = useFeature(featureValidLanguages);
   const languageOptions = useMemo(() => {
-    return ['Original language', ...Object.values(validLanguages)];
+    return ['Original language', ...Object.values(validLanguages)] as string[];
   }, [validLanguages]);
   const values = useMemo(() => {
     return [null, ...Object.keys(validLanguages)];

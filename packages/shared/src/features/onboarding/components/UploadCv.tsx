@@ -118,7 +118,7 @@ export const UploadCv = ({
         <Image
           src={linkedin.image}
           alt={linkedin.headline}
-          className="shadow-sm aspect-[343/182] w-full max-w-[21.4375rem] flex-shrink-0 self-start rounded-10 object-cover"
+          className="shadow-xs aspect-[343/182] w-full max-w-[21.4375rem] flex-shrink-0 self-start rounded-10 object-cover"
         />
       </div>
     </div>

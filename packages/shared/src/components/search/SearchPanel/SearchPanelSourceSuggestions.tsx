@@ -58,7 +58,7 @@ const PanelItem = ({ suggestion, showFollow, ...rest }: PanelItemProps) => {
       className="px-2 py-1"
     >
       <div className="flex flex-1 flex-col items-start">
-        <span className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap font-bold text-text-primary typo-subhead">
+        <span className="flex-shrink overflow-hidden text-ellipsis whitespace-nowrap font-bold text-text-primary typo-subhead">
           {suggestion.title}
         </span>
         <span className="text-text-quarternary typo-footnote">

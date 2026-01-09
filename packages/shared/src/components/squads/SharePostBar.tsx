@@ -107,7 +107,7 @@ function SharePostBar({
               name="share-post-bar"
               placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
               className={classNames(
-                'bg-transparent text-text-primary outline-none typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary',
+                'bg-transparent text-text-primary outline-hidden typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary',
                 !shouldRenderReadingHistory && '!flex-1 pr-2',
                 (!url || isMobile) && 'w-[12.5rem]',
               )}

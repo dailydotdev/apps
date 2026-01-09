@@ -11,7 +11,7 @@ import { AnalyzeContent } from '../../opportunity/components/analyze/AnalyzeCont
 export const OnboardingView = (): ReactElement => {
   return (
     <OpportunityPreviewProvider mockData={{}}>
-      <div className="pointer-events-none flex flex-1 flex-col blur-sm">
+      <div className="pointer-events-none flex flex-1 flex-col blur-xs">
         <RecruiterHeader />
         <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
         <AnalyzeContent loadingStep={0} />

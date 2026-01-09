@@ -46,7 +46,7 @@ export const SocialShareButton = ({
       />
       <ShareText
         className={classNames(
-          'mt-1.5 max-w-16 overflow-hidden overflow-ellipsis text-center',
+          'mt-1.5 max-w-16 overflow-hidden text-ellipsis text-center',
           sizeToText[size],
         )}
         onClick={() => button?.current?.click()}

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { UseQueryResult } from '@tanstack/react-query/src/types';
+import type { UseQueryResult } from '@tanstack/react-query';
 import type { FunnelBootData } from '../types/funnelBoot';
 
 /**

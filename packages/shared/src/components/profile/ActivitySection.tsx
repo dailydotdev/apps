@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { Fragment } from 'react';
-import type { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
+import type { UseInfiniteQueryResult } from '@tanstack/react-query';
 import type { InfiniteData } from '@tanstack/react-query';
 import classed from '../../lib/classed';
 import type { FeedData } from '../../graphql/feed';

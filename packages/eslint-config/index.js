@@ -10,7 +10,8 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:react-hooks/recommended',
   ],
-  plugins: ['prettier', 'tailwindcss', 'react-hooks', 'unused-imports'],
+  // Temporarily disabled tailwindcss plugin until it supports Tailwind v4
+  plugins: ['prettier', /* 'tailwindcss', */ 'react-hooks', 'unused-imports'],
   parserOptions: {
     project: './tsconfig.eslint.json',
     ecmaVersion: 2020,
@@ -26,6 +27,9 @@ module.exports = {
     tailwindcss: {
       callees: ["classnames", "clsx", "ctl", "classNames"],
       officialSorting: true,
+      skipClassAttribute: false,
+      // Tailwind CSS v4 removed resolveConfig export, disable config resolution
+      config: undefined,
     }
   },
   env: {
@@ -45,8 +49,9 @@ module.exports = {
     'react/no-danger': 0,
     '@typescript-eslint/return-await': 0,
     '@typescript-eslint/consistent-type-imports': 'error',
-    'tailwindcss/classnames-order': 'warn',
-    'tailwindcss/no-contradicting-classname': 'error',
+    // Temporarily disabled tailwindcss rules until plugin supports Tailwind v4
+    // 'tailwindcss/classnames-order': 'warn',
+    // 'tailwindcss/no-contradicting-classname': 'error',
     'no-restricted-globals': [
       'error',
       {

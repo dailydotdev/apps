@@ -80,7 +80,7 @@ const PricingPlan = ({
     >
       {containerStyle && (
         <div
-          className="-z-10 absolute -inset-[50%] -top-[60%] rotate-[25deg] backdrop-blur-sm"
+          className="-z-10 absolute -inset-[50%] -top-[60%] rotate-[25deg] backdrop-blur-xs"
           style={containerStyle}
         />
       )}

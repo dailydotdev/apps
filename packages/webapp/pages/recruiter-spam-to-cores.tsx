@@ -132,7 +132,7 @@ const HowItWorksSection = (): ReactElement => {
         {howItWorksItems.map(
           ({ icon: Icon, number, title, description, extra }) => (
             <div
-              className="shadow-sm relative flex flex-col gap-6 overflow-hidden rounded-16 border border-border-subtlest-primary bg-background-subtle p-6"
+              className="shadow-xs relative flex flex-col gap-6 overflow-hidden rounded-16 border border-border-subtlest-primary bg-background-subtle p-6"
               key={number}
             >
               <FlexRow className="items-center gap-4">
@@ -167,7 +167,7 @@ const HowItWorksSection = (): ReactElement => {
           ),
         )}
       </FlexCol>
-      <div className="shadow-sm md:p-8 flex flex-col gap-6 rounded-16 border border-border-subtlest-primary bg-background-subtle p-6">
+      <div className="shadow-xs md:p-8 flex flex-col gap-6 rounded-16 border border-border-subtlest-primary bg-background-subtle p-6">
         <div className="mb-4 flex items-start justify-between gap-4">
           <FlexCol className="flex-1 gap-4">
             <Typography type={TypographyType.Title3} bold>

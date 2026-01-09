@@ -1,3 +1,5 @@
+@reference "../../styles/globals.css";
+
 .authorOnboarding {
   & p {
     margin: 1rem 0;

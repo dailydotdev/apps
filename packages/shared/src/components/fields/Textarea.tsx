@@ -123,7 +123,7 @@ function Textarea(
         readOnly={readOnly}
         rows={rows}
         className={classNames(
-          'w-full min-w-0 resize-none self-stretch bg-transparent caret-text-link typo-body focus:outline-none',
+          'w-full min-w-0 resize-none self-stretch bg-transparent caret-text-link typo-body focus:outline-hidden',
           className.input,
           hasAdditionalSpacing && 'mb-3',
           getFieldFontColor({

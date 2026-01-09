@@ -224,7 +224,7 @@ export const LinksInput = ({
                         handleCancelEdit();
                       }
                     }}
-                    className="w-full rounded-6 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 text-text-primary typo-callout focus:border-accent-cabbage-default focus:outline-none"
+                    className="w-full rounded-6 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 text-text-primary typo-callout focus:border-accent-cabbage-default focus:outline-hidden"
                     placeholder={getLinkDisplayName(link)}
                   />
                 ) : (
