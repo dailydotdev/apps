@@ -198,6 +198,7 @@ const AcceptPage = (): ReactElement => {
         }),
       });
     },
+    onComplete: acceptOpportunity,
     initialExperienceLevel: user?.experienceLevel,
     initialLocationId: candidatePreferences?.externalLocationId,
   });

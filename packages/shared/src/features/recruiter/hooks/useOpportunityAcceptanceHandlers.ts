@@ -19,6 +19,7 @@ export const useOpportunityAcceptanceHandlers = ({
   onSaveAnswers,
   onLogAnswer,
   onLogExperienceLevel,
+  onComplete,
   initialExperienceLevel,
   initialLocationId,
 }: {
@@ -37,6 +38,7 @@ export const useOpportunityAcceptanceHandlers = ({
   onLogExperienceLevel?: (
     experienceLevel: keyof typeof UserExperienceLevel,
   ) => void;
+  onComplete?: () => void;
   initialExperienceLevel?: keyof typeof UserExperienceLevel;
   initialLocationId?: string;
 }) => {
@@ -83,6 +85,7 @@ export const useOpportunityAcceptanceHandlers = ({
       case AcceptStep.CV:
         if (questions.length > 0) {
           goToLastQuestion();
+          setCurrentStep(AcceptStep.QUESTIONS);
         } else {
           setCurrentStep(AcceptStep.EXPERIENCE_LEVEL);
         }
@@ -130,6 +133,9 @@ export const useOpportunityAcceptanceHandlers = ({
           setCurrentStep(AcceptStep.QUESTIONS);
         } else if (!hasUploadedCV) {
           setCurrentStep(AcceptStep.CV);
+        } else {
+          // Experience level is the last step, complete the flow
+          onComplete?.();
         }
       },
     });
@@ -140,6 +146,7 @@ export const useOpportunityAcceptanceHandlers = ({
     questions.length,
     hasUploadedCV,
     setCurrentStep,
+    onComplete,
   ]);
 
   const handleNext = useCallback(() => {
