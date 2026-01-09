@@ -7,6 +7,7 @@ import {
 } from '../typography/Typography';
 import { MoveToIcon } from '../icons';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import HeaderLogo from '../layout/HeaderLogo';
 
 export interface RecruiterHeaderButton {
   text: string;
@@ -23,22 +24,26 @@ export interface RecruiterHeaderProps {
 }
 
 export const RecruiterHeader = ({
-  title = 'This is how your candidates will see your job',
-  subtitle = 'Review your draft carefully and update any details as needed.',
+  title = 'Your potential reach',
+  subtitle = "See how many developers match your role and what they're interested in.",
   headerButton,
 }: RecruiterHeaderProps) => {
   return (
-    <div className="flex flex-row items-center justify-between gap-4 p-4">
-      <div>
-        <Typography type={TypographyType.Title2} bold>
-          {title}
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {subtitle}
-        </Typography>
+    <header className="sticky top-0 z-header flex items-center justify-between gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 laptop:py-4">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <HeaderLogo isRecruiter href="/recruiter" />
+        <div className="mx-2 h-6 w-px bg-border-subtlest-tertiary" />
+        <div>
+          <Typography type={TypographyType.Title2} bold>
+            {title}
+          </Typography>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            {subtitle}
+          </Typography>
+        </div>
       </div>
       {headerButton && (
         <Button
@@ -52,6 +57,6 @@ export const RecruiterHeader = ({
           {headerButton.icon || <MoveToIcon />}
         </Button>
       )}
-    </div>
+    </header>
   );
 };

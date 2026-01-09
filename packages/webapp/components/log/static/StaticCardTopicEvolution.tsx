@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { LogData } from '../../../types/log';
 import styles from './StaticCards.module.css';
+import { shouldShowPercentileBanner } from '../primitives';
 
 interface StaticCardProps {
   data: Pick<LogData, 'topicJourney' | 'uniqueTopics' | 'evolutionPercentile'>;
@@ -100,16 +101,18 @@ export default function StaticCardTopicEvolution({
       </div>
 
       {/* Competitive stat banner */}
-      <div className={styles.celebrationBanner}>
-        <div className={styles.bannerBg} />
-        <div className={styles.bannerContent}>
-          <span className={styles.bannerPre}>MORE CURIOUS THAN</span>
-          <span className={styles.bannerMain}>
-            {100 - data.evolutionPercentile}%
-          </span>
-          <span className={styles.bannerPost}>OF DEVS</span>
+      {shouldShowPercentileBanner(data.evolutionPercentile) && (
+        <div className={styles.celebrationBanner}>
+          <div className={styles.bannerBg} />
+          <div className={styles.bannerContent}>
+            <span className={styles.bannerPre}>MORE CURIOUS THAN</span>
+            <span className={styles.bannerMain}>
+              {100 - data.evolutionPercentile}%
+            </span>
+            <span className={styles.bannerPost}>OF DEVS</span>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

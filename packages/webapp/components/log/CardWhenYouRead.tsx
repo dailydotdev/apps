@@ -11,6 +11,7 @@ import {
   normalizeHourDistribution,
   formatHour,
   PATTERN_BANNER_TEXT,
+  shouldShowPercentileBanner,
 } from './primitives';
 import { usePeakReadingHour } from '../../hooks/log/useLogStats';
 
@@ -75,12 +76,14 @@ export default function CardWhenYouRead({
         </motion.div>
 
         {/* Pattern stat */}
-        <TopPercentileBanner
-          preText={PATTERN_BANNER_TEXT[data.readingPattern].preText}
-          mainText={`${data.patternPercentile}%`}
-          postText={PATTERN_BANNER_TEXT[data.readingPattern].postText}
-          delay={1.4}
-        />
+        {shouldShowPercentileBanner(data.patternPercentile) && (
+          <TopPercentileBanner
+            preText={PATTERN_BANNER_TEXT[data.readingPattern].preText}
+            mainText={`${data.patternPercentile}%`}
+            postText={PATTERN_BANNER_TEXT[data.readingPattern].postText}
+            delay={1.4}
+          />
+        )}
       </div>
 
       {/* Share button - pushed to bottom with margin-top: auto */}

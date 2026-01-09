@@ -1,13 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import type { PendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { usePendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
-import { mockOpportunityPreviewData } from '@dailydotdev/shared/src/features/opportunity/mockData';
-import type { OpportunityPreviewContextType } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getOpportunitiesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import {
@@ -16,29 +14,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { DashboardView } from '@dailydotdev/shared/src/features/recruiter/components/DashboardView';
 import { OnboardingView } from '@dailydotdev/shared/src/features/recruiter/components/OnboardingView';
-import { getLayout } from '../../components/layouts/RecruiterSelfServeLayout';
-
-const useLoadingAnimation = (isActive: boolean) => {
-  const [loadingStep, setLoadingStep] = useState(0);
-
-  useEffect(() => {
-    if (!isActive) {
-      setLoadingStep(0);
-      return undefined;
-    }
-
-    const timers = [
-      setTimeout(() => setLoadingStep(1), 800),
-      setTimeout(() => setLoadingStep(2), 1600),
-      setTimeout(() => setLoadingStep(3), 2400),
-      setTimeout(() => setLoadingStep(4), 3200),
-    ];
-
-    return () => timers.forEach(clearTimeout);
-  }, [isActive]);
-
-  return loadingStep;
-};
+import { getLayout } from '../../components/layouts/RecruiterFullscreenLayout';
 
 function RecruiterPage(): ReactElement {
   const router = useRouter();
@@ -53,10 +29,6 @@ function RecruiterPage(): ReactElement {
       ...getOpportunitiesOptions(),
       enabled: !!user,
     });
-  const [mockData, setMockData] = useState<OpportunityPreviewContextType>({});
-  const [isAnimating, setIsAnimating] = useState(false);
-  const loadingStep = useLoadingAnimation(isAnimating);
-
   const navigateToAnalyze = useCallback(() => {
     closeModal();
     router.push(`/recruiter/new/analyze`);
@@ -70,10 +42,6 @@ function RecruiterPage(): ReactElement {
     closeModal();
 
     if (!user) {
-      // Show mock data to make it look like processing is happening,
-      // encouraging the user to sign up
-      setMockData(mockOpportunityPreviewData);
-      setIsAnimating(true);
       openModal({
         type: LazyModal.RecruiterSignIn,
         props: {
@@ -182,7 +150,7 @@ function RecruiterPage(): ReactElement {
   }
 
   // Onboarding flow for new users (with blur effect)
-  return <OnboardingView mockData={mockData} loadingStep={loadingStep} />;
+  return <OnboardingView />;
 }
 
 RecruiterPage.getLayout = getLayout;

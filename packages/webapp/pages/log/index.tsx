@@ -128,8 +128,17 @@ export default function LogPage(): ReactElement {
         subcards: (data?.topicJourney?.length ?? 1) - 1,
       },
       { id: 'favorite-sources', component: CardFavoriteSources },
-      { id: 'community', component: CardCommunityEngagement },
     ];
+
+    // Only include community card if user has any interactions
+    const hasInteractions =
+      (data?.upvotesGiven ?? 0) +
+        (data?.commentsWritten ?? 0) +
+        (data?.postsBookmarked ?? 0) >
+      0;
+    if (hasInteractions) {
+      baseCards.push({ id: 'community', component: CardCommunityEngagement });
+    }
 
     if (data?.hasContributions) {
       baseCards.push({
@@ -145,7 +154,13 @@ export default function LogPage(): ReactElement {
     );
 
     return baseCards;
-  }, [data?.hasContributions, data?.topicJourney?.length]);
+  }, [
+    data?.hasContributions,
+    data?.topicJourney?.length,
+    data?.upvotesGiven,
+    data?.commentsWritten,
+    data?.postsBookmarked,
+  ]);
 
   // Ref for navigation callback to avoid circular dependency with useCardNavigation
   const onNavigateRef = useRef<(event: NavigationEvent) => void>(() => {});

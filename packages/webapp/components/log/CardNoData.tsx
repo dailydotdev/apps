@@ -77,9 +77,8 @@ export default function CardNoData(): ReactElement {
         animate={isMounted ? visible : hidden}
         transition={{ delay: SUBTEXT_DELAY, duration: 0.5 }}
       >
-        But 2026? That&apos;s YOUR year.
-        <br />
-        Start reading, start building your story.
+        We need more reading history to build your Log. Keep exploring daily.dev
+        and your 2026 story awaits!
       </motion.p>
 
       {/* CTA Button - links to feed */}
@@ -89,7 +88,7 @@ export default function CardNoData(): ReactElement {
         transition={{ delay: CTA_DELAY, duration: 0.5 }}
       >
         <Link href="/">
-          <a className={styles.noDataCtaButton}>Let&apos;s go</a>
+          <a className={styles.noDataCtaButton}>Go to my feed</a>
         </Link>
       </motion.div>
     </div>
