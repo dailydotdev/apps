@@ -85,6 +85,11 @@ export const briefCardFeedFeature = new Feature(
   isDevelopment,
 );
 
+export const profileCompletionCardFeature = new Feature(
+  'profile_completion_card',
+  false,
+);
+
 export const briefGeneratePricing = new Feature<Record<BriefingType, number>>(
   'brief_generate_pricing',
   {
