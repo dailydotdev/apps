@@ -76,6 +76,10 @@ const getRedirectUri = () =>
 
 const getPage = () => window.location.pathname;
 
+const onboardingExcludedPaths = ['/onboarding', '/recruiter', '/opportunity'];
+const isOnboardingExcludedPath = (pathname: string): boolean =>
+  onboardingExcludedPaths.some((path) => pathname.startsWith(path));
+
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { isOnboardingActionsReady, isOnboardingComplete } =
     useOnboardingActions();
@@ -100,8 +104,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       !isFunnel &&
       isOnboardingActionsReady &&
       !isOnboardingComplete &&
-      !router.pathname.startsWith('/onboarding') &&
-      !router.pathname.startsWith('/recruiter')
+      !isOnboardingExcludedPath(router.pathname)
     ) {
       router.replace('/onboarding');
     }
