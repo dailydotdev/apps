@@ -75,7 +75,9 @@ const Footer = () => {
         variant={ButtonVariant.Tertiary}
         icon={<SettingsIcon />}
         size={ButtonSize.XSmall}
-        href={`${settingsUrl}/profile`}
+        href={`${settingsUrl}/profile?redirectTo=${encodeURIComponent(
+          `${webappUrl}recruiter`,
+        )}&redirectCopy=${encodeURIComponent('Back to recruiter dashboard')}`}
         tag="a"
       />
       <Button

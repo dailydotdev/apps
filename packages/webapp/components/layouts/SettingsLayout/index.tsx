@@ -14,6 +14,7 @@ import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
 import dynamic from 'next/dynamic';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
@@ -133,7 +134,21 @@ export default function SettingsLayout({
           />
         </div>
       )}
-
+      {router.query.redirectTo && router.query.redirectCopy && (
+        <button
+          type="button"
+          onClick={() => router.push(router.query.redirectTo as string)}
+          className="flex w-full items-center justify-center gap-2 border-b border-border-subtlest-tertiary bg-surface-float px-6 py-3 text-left transition-colors hover:bg-surface-hover"
+        >
+          <ArrowIcon className="-rotate-90 text-text-tertiary" />
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+          >
+            {router.query.redirectCopy}
+          </Typography>
+        </button>
+      )}
       <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
         {isMobile ? (
           <ProfileSettingsMenuMobile
