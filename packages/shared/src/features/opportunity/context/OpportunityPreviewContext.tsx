@@ -46,6 +46,12 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
         enabled: !mockData && opportunityIdParam !== 'new',
       }),
       refetchInterval: (query) => {
+        if (
+          query.state.data?.result?.status === OpportunityPreviewStatus.ERROR
+        ) {
+          return false;
+        }
+
         const retries = Math.max(
           query.state.dataUpdateCount,
           query.state.fetchFailureCount,

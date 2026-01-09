@@ -139,6 +139,8 @@ const RecruiterPageContent = () => {
     router.push(`/recruiter/${opportunity.id}/plans`);
   }, [router, opportunity]);
 
+  const isError = result?.status === OpportunityPreviewStatus.ERROR;
+
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
@@ -150,7 +152,7 @@ const RecruiterPageContent = () => {
         }}
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
-      <AnalyzeStatusBar loadingStep={loadingStep} />
+      {!isError && <AnalyzeStatusBar loadingStep={loadingStep} />}
       <AnalyzeContent loadingStep={loadingStep} />
     </div>
   );
