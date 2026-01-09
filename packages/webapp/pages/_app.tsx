@@ -76,7 +76,12 @@ const getRedirectUri = () =>
 
 const getPage = () => window.location.pathname;
 
-const onboardingExcludedPaths = ['/onboarding', '/recruiter', '/opportunity'];
+const onboardingExcludedPaths = [
+  '/onboarding',
+  '/recruiter',
+  '/jobs',
+  '/settings',
+];
 const isOnboardingExcludedPath = (pathname: string): boolean =>
   onboardingExcludedPaths.some((path) => pathname.startsWith(path));
 
