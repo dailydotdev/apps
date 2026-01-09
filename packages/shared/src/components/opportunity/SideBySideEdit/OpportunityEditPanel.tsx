@@ -10,6 +10,7 @@ import { ArrowIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import type { Opportunity } from '../../../features/opportunity/types';
 import { settingsUrl, webappUrl } from '../../../lib/constants';
+import { getPathnameWithQuery } from '../../../lib/links';
 import { RoleInfoSection } from './sections/RoleInfoSection';
 import { JobDetailsSection } from './sections/JobDetailsSection';
 import { ContentSection } from './sections/ContentSection';
@@ -193,9 +194,13 @@ export function OpportunityEditPanel({
             name={recruiter?.name}
             image={recruiter?.image}
             subtitle={recruiter?.title}
-            editUrl={`${settingsUrl}/profile?redirectTo=${encodeURIComponent(
-              `${webappUrl}recruiter/${opportunity.id}/edit`,
-            )}&redirectCopy=${encodeURIComponent('Back to job posting')}`}
+            editUrl={getPathnameWithQuery(
+              `${settingsUrl}/profile`,
+              new URLSearchParams({
+                redirectTo: `${webappUrl}recruiter/${opportunity.id}/edit`,
+                redirectCopy: 'Back to job posting',
+              }),
+            )}
             emptyMessage="No recruiter info added yet"
           />
         </div>
