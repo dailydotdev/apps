@@ -88,7 +88,7 @@ export const LanguageDropdown = ({
           container: dropdownClassName,
         }}
         selectedIndex={selectedIndex}
-        options={languageOptions as string[]}
+        options={languageOptions}
         onChange={(_, index) => {
           const val = values[index];
           onChange?.(val, index);
