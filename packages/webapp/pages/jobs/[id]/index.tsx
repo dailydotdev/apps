@@ -420,6 +420,15 @@ const JobPage = ({
         ...fetchedOpportunity.content,
         ...previewData.content,
       },
+      locations:
+        previewData.locations?.map((loc, i) => ({
+          ...fetchedOpportunity.locations?.[i],
+          ...loc,
+          location: {
+            ...fetchedOpportunity.locations?.[i]?.location,
+            ...loc.location,
+          },
+        })) ?? fetchedOpportunity.locations,
     } as Opportunity;
   }, [fetchedOpportunity, previewData]);
   const { data: match } = useQuery({
