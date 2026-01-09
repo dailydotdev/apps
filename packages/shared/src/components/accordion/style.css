@@ -1,3 +1,5 @@
+@reference "../../styles/globals.css";
+
 .AccordionRoot {
 @apply flex flex-col gap-2 w-full flex-1;
 }

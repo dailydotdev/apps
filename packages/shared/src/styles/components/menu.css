@@ -1,3 +1,5 @@
+@reference "../globals.css";
+
 .react-contexify {
   position: fixed;
   opacity: 0;

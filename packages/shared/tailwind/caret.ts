@@ -2,18 +2,18 @@
 // @ts-nocheck
 import plugin from 'tailwindcss/plugin';
 
-const generateColors = (e, colors, prefix) =>
+const generateColors = (colors, prefix) =>
   Object.keys(colors).reduce((acc, key) => {
     if (typeof colors[key] === 'string') {
       return {
         ...acc,
-        [`${prefix}-${e(key)}`]: {
+        [`${prefix}-${key}`]: {
           'caret-color': colors[key],
         },
       };
     }
 
-    const innerColors = generateColors(e, colors[key], `${prefix}-${e(key)}`);
+    const innerColors = generateColors(colors[key], `${prefix}-${key}`);
 
     return {
       ...acc,
@@ -21,10 +21,8 @@ const generateColors = (e, colors, prefix) =>
     };
   }, {});
 
-export default plugin.withOptions(({ className = 'caret' } = {}) => {
-  return ({ e, addUtilities, theme, variants }) => {
-    const colors = theme('colors');
-    const caretColors = generateColors(e, colors, `.${className}`);
-    addUtilities(caretColors, variants('caretColor'));
-  };
+export default plugin(({ addUtilities, theme }) => {
+  const colors = theme('colors');
+  const caretColors = generateColors(colors, `.caret`);
+  addUtilities(caretColors);
 });

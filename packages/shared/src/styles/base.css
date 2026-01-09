@@ -1,3 +1,5 @@
+@reference "./globals.css";
+
 html, #daily-companion-wrapper {
   background: var(--theme-background-default);
   color: var(--theme-text-primary);

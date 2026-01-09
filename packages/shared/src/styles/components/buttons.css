@@ -1,3 +1,5 @@
+@reference "../globals.css";
+
 .btn {
   transition: 0.2s ease-in-out;
   transition-property: border, background, box-shadow, color;

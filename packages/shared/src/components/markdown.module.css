@@ -1,3 +1,5 @@
+@reference "../styles/globals.css";
+
 .markdown {
   position: relative;
   word-break: break-word;
