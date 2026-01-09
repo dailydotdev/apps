@@ -1,4 +1,4 @@
-import { Config } from 'tailwindcss';
+import type { Config } from 'tailwindcss';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import containerQueries from '@tailwindcss/container-queries';
 import colors from './tailwind/colors';
