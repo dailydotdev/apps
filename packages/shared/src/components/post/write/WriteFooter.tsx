@@ -11,12 +11,14 @@ interface WriteFooterProps {
   isLoading?: boolean;
   className?: string;
   isPoll?: boolean;
+  disabled?: boolean;
 }
 
 export function WriteFooter({
   isLoading,
   className,
   isPoll,
+  disabled,
 }: WriteFooterProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
@@ -54,7 +56,7 @@ export function WriteFooter({
           'ml-auto hidden w-full tablet:mt-0 tablet:w-32 laptop:flex',
           shouldShowCta && 'mt-6',
         )}
-        disabled={isLoading}
+        disabled={isLoading || disabled}
         loading={isLoading}
         onClick={onSubmitted}
       >

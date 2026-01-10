@@ -19,6 +19,7 @@ import type { MergedWriteObject, WriteForm } from '../../../../contexts';
 import { useWritePostContext } from '../../../../contexts';
 import { defaultMarkdownCommands } from '../../../../hooks/input';
 import { WriteFooter } from '../../write';
+import { MAX_POST_TITLE_LENGTH } from '../../../../constants/post';
 
 export const generateWritePostKey = (reference = 'create'): string =>
   `write:post:${reference}`;
@@ -34,7 +35,6 @@ export const checkSavedProperty = (
 const defaultFilename = 'thumbnail.png';
 
 // Shared constants - remember to update them in daily-api
-const MAX_TITLE_LENGTH = 250;
 const MAX_CONTENT_LENGTH = 10_000;
 
 interface WriteFreeformContentProps {
@@ -154,7 +154,7 @@ export function WriteFreeformContent({
           required
           defaultValue={draft?.title ?? fetchedPost?.title}
           onInput={onFormUpdate}
-          maxLength={MAX_TITLE_LENGTH}
+          maxLength={MAX_POST_TITLE_LENGTH}
         />
       </AlertPointer>
       <MarkdownInput

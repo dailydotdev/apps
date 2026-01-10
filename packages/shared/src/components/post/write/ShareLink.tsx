@@ -15,6 +15,7 @@ import useSourcePostModeration from '../../../hooks/source/useSourcePostModerati
 import type { SourcePostModeration } from '../../../graphql/squads';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useWritePostContext } from '../../../contexts';
+import { MAX_POST_COMMENTARY_LENGTH } from '../../../constants/post';
 
 interface ShareLinkProps {
   squad?: Squad;
@@ -33,6 +34,7 @@ const confirmSharingAgainPrompt = {
     className: 'btn-primary-cabbage',
   },
 };
+
 
 export function ShareLink({
   squad,
@@ -74,6 +76,10 @@ export function ShareLink({
     useSourcePostModeration({
       onSuccess: async () => push(squad?.permalink),
     });
+
+  // Character limit state
+  const commentaryLength = commentary?.length ?? 0;
+  const isCommentaryTooLong = commentaryLength > MAX_POST_COMMENTARY_LENGTH;
 
   const onUpdateSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     if (!fetchedPost?.id || !squad) {
@@ -169,9 +175,16 @@ export function ShareLink({
         enabledCommand={{ mention: true }}
         showMarkdownGuide={false}
         onValueUpdate={setCommentary}
+        maxInputLength={MAX_POST_COMMENTARY_LENGTH}
       />
+      {isCommentaryTooLong && (
+        <p className="text-text-tertiary typo-caption">
+          Maximum length is {MAX_POST_COMMENTARY_LENGTH} characters
+        </p>
+      )}
       <WriteFooter
         isLoading={isPosting || isPostingModeration || isPendingCreation}
+        disabled={isCommentaryTooLong}
       />
     </form>
   );
