@@ -1,5 +1,5 @@
 import type { FormEventHandler, ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import z from 'zod';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -15,6 +15,7 @@ import useSourcePostModeration from '../../../hooks/source/useSourcePostModerati
 import type { SourcePostModeration } from '../../../graphql/squads';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useWritePostContext } from '../../../contexts';
+import { TextField } from '../../fields/TextField';
 
 interface ShareLinkProps {
   squad?: Squad;
@@ -53,6 +54,9 @@ export function ShareLink({
   const [commentary, setCommentary] = useState(
     fetchedPost?.sharedPost ? fetchedPost?.title : fetchedPost?.content,
   );
+  const [title, setTitle] = useState(
+    fetchedPost?.sharedPost?.title || moderated?.title || '',
+  );
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -70,6 +74,13 @@ export function ShareLink({
         image: moderated.image,
       }),
   });
+
+  // Sync title with preview when it loads/changes
+  useEffect(() => {
+    if (preview?.title && !title) {
+      setTitle(preview.title);
+    }
+  }, [preview?.title, title]);
   const { onUpdatePostModeration, isPending: isPostingModeration } =
     useSourcePostModeration({
       onSuccess: async () => push(squad?.permalink),
@@ -123,10 +134,10 @@ export function ShareLink({
       return null;
     }
 
-    const { title, image } = preview;
+    const { image } = preview;
     const externalLink = preview.finalUrl ?? preview.url;
 
-    if (!title) {
+    if (!preview.title) {
       displayToast('Invalid link');
       return null;
     }
@@ -136,7 +147,7 @@ export function ShareLink({
       commentary,
       content: '',
       externalLink,
-      title,
+      title: title || preview.title,
       ...(isImageValid && { imageUrl: image }),
     };
 
@@ -163,6 +174,17 @@ export function ShareLink({
           onSelectedHistory={onUpdatePreview}
         />
       )}
+
+      <TextField
+        className={{ container: 'w-full' }}
+        inputId="title"
+        name="title"
+        label="Title"
+        placeholder="Edit the title (optional)"
+        value={title}
+        onInput={(e) => setTitle(e.currentTarget.value)}
+        maxLength={250}
+      />
 
       <MarkdownInput
         initialContent={commentary || fetchedPost?.title || ''}
