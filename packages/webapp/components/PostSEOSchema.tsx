@@ -149,8 +149,7 @@ export const getBreadcrumbJsonLd = (post: Post): string => {
       {
         '@type': 'ListItem',
         position: 3,
-        name: post.title,
-        item: post.commentsPermalink,
+        name: post.title || post.sharedPost?.title || 'Post',
       },
     ],
   });
