@@ -15,17 +15,39 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
-const serwist = new Serwist({
-  // eslint-disable-next-line no-underscore-dangle
-  precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
-  clientsClaim: true,
-  navigationPreload: true,
-  runtimeCaching: defaultCache,
-  precacheOptions: {
-    concurrency: 3,
-    cleanupOutdatedCaches: true,
-  },
-});
+const excludedSafariVendors = /(Chrome|Chromium|Android|CriOS|FxiOS|Edg|OPR)/i;
+const isSafariWorker = (): boolean => {
+  const userAgent = self.navigator?.userAgent || '';
+  return /Safari/i.test(userAgent) && !excludedSafariVendors.test(userAgent);
+};
 
-serwist.addEventListeners();
+if (isSafariWorker()) {
+  // Safari crashes with WebKitInternal:0 when this SW intercepts navigations (ENG-210).
+  self.addEventListener('install', (event) => {
+    event.waitUntil(self.skipWaiting());
+  });
+
+  self.addEventListener('activate', (event) => {
+    event.waitUntil(
+      (async () => {
+        await self.clients.claim();
+        await self.registration.unregister();
+      })(),
+    );
+  });
+} else {
+  const serwist = new Serwist({
+    // eslint-disable-next-line no-underscore-dangle
+    precacheEntries: self.__SW_MANIFEST,
+    skipWaiting: true,
+    clientsClaim: true,
+    navigationPreload: true,
+    runtimeCaching: defaultCache,
+    precacheOptions: {
+      concurrency: 3,
+      cleanupOutdatedCaches: true,
+    },
+  });
+
+  serwist.addEventListeners();
+}
