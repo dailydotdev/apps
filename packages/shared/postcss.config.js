@@ -2,7 +2,6 @@
 
 module.exports = {
   plugins: [
-    'postcss-import',
     [
       'postcss-simple-vars',
       {
@@ -16,10 +15,7 @@ module.exports = {
         },
       },
     ],
-    process.env.TARGET_BROWSER
-      ? require('tailwindcss/nesting')(require('postcss-nesting'))
-      : 'tailwindcss/nesting',
-    'tailwindcss',
+    '@tailwindcss/postcss',
     'postcss-focus-visible',
     'postcss-custom-media',
     'postcss-mixins',
@@ -30,6 +26,5 @@ module.exports = {
           propList: ['*'],
         })
       : ['postcss-rem-to-responsive-pixel', { rootValue: 16, propList: ['*'] }],
-    'autoprefixer',
   ],
 };

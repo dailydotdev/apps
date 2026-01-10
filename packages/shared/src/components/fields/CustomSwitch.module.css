@@ -1,3 +1,5 @@
+@reference "../../styles/globals.css";
+
 .knob {
   @apply bg-raw-cabbage-40;
   transition-property: transform, width;

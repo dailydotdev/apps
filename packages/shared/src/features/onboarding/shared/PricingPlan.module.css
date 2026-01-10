@@ -1,3 +1,5 @@
+@reference "../../../styles/globals.css";
+
 /*
 * Had to CSS to hack my way with the best value variant.
 * First, we need to expand the label using the wrapper of the radio item which isn't highly customizable

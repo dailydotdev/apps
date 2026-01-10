@@ -1,9 +1,9 @@
 import type {
   InfiniteData,
   UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
 } from '@tanstack/react-query';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import type { UseInfiniteQueryResult } from '@tanstack/react-query/build/legacy/types';
 import type {
   ContentPreference,
   ContentPreferenceType,
