@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import { useDirtyForm } from './useDirtyForm';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import { useProfile } from './profile/useProfile';
+import { buildUserSocialLinksFromLegacy } from '../lib/socialLink';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -64,6 +65,14 @@ const useUserInfoForm = (): UseUserInfoForm => {
   const { displayToast } = useToastNotification();
   const router = useRouter();
 
+  // Build initial socialLinks from user data or legacy fields
+  const initialSocialLinks = useMemo(() => {
+    if (user?.socialLinks && user.socialLinks.length > 0) {
+      return user.socialLinks;
+    }
+    return user ? buildUserSocialLinksFromLegacy(user) : [];
+  }, [user]);
+
   useEffect(() => {
     const searchParams = new URLSearchParams(window?.location?.search);
     const field = searchParams?.get('field');
@@ -82,22 +91,11 @@ const useUserInfoForm = (): UseUserInfoForm => {
       image: user?.image,
       cover: user?.cover,
       bio: user?.bio,
-      github: user?.github,
       externalLocationId: user?.location?.externalId,
-      linkedin: user?.linkedin,
-      portfolio: user?.portfolio,
-      twitter: user?.twitter,
-      youtube: user?.youtube,
-      stackoverflow: user?.stackoverflow,
-      reddit: user?.reddit,
-      roadmap: user?.roadmap,
-      codepen: user?.codepen,
-      mastodon: user?.mastodon,
-      bluesky: user?.bluesky,
-      threads: user?.threads,
       experienceLevel: user?.experienceLevel,
       hideExperience: user?.hideExperience,
       readme: user?.readme || '',
+      socialLinks: initialSocialLinks,
     },
   });
 

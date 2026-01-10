@@ -246,3 +246,11 @@ Example: Adding a video to the jobs page
 ## Pull Requests
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
+
+## Code Review Guidelines
+
+When reviewing code (or writing code that will be reviewed):
+- **Delete dead code** - Remove unused components, functions, exports, and files. Don't leave code "for later"
+- **Avoid confusing naming** - Don't create multiple components with the same name in different locations (e.g., two `AboutMe` components)
+- **Remove unused exports** - If a function/constant is only used internally, don't export it
+- **Clean up duplicates** - If the same interface/type is defined in multiple places, consolidate to one location and import
