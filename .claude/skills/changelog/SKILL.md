@@ -44,6 +44,7 @@ Based on real daily.dev changelogs, follow these patterns:
 - Practical elements when helpful (templates, examples, tips)
 
 ### What NOT to do
+- Don't use em dashes (—). Use periods, commas, or rewrite the sentence instead
 - Don't be overly formal or corporate
 - Don't list technical implementation details
 - Don't use jargon without explanation
