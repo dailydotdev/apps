@@ -21,8 +21,8 @@ const USER_GENERATED_POST_TYPES: PostType[] = [
  * Check if a post is user-generated content (Squad posts)
  * These should use DiscussionForumPosting schema per Google's guidelines
  */
-export const isUserGeneratedPost = (post: Post): boolean =>
-  USER_GENERATED_POST_TYPES.includes(post?.type);
+export const isUserGeneratedPost = (post: Post | null | undefined): boolean =>
+  post?.type ? USER_GENERATED_POST_TYPES.includes(post.type) : false;
 
 export const getSeoDescription = (post: Post): string => {
   if (post?.summary) {
@@ -70,7 +70,7 @@ const getPostTextContent = (post: Post): string => {
 /**
  * Build author schema object for a post author
  */
-const getAuthorSchema = (post: Post) => {
+const getAuthorSchema = (post: Post): Record<string, unknown> => {
   if (post.author) {
     return {
       '@type': 'Person',
@@ -131,9 +131,9 @@ const commentToSchema = (
   // Recursively include nested replies (limit depth for performance)
   ...(comment.children?.edges?.length &&
     currentDepth < maxDepth && {
-      comment: comment.children.edges.map((edge) =>
-        commentToSchema(edge.node, maxDepth, currentDepth + 1),
-      ),
+      comment: comment.children.edges
+        .filter((edge) => edge?.node)
+        .map((edge) => commentToSchema(edge.node, maxDepth, currentDepth + 1)),
     }),
 });
 
@@ -204,7 +204,6 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
     '@type': 'WebPage',
     '@id': post.commentsPermalink,
   },
-  dateCreated: post.createdAt,
   datePublished: post.createdAt,
   dateModified: post.updatedAt,
   description: getSeoDescription(post),
