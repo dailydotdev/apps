@@ -112,14 +112,15 @@ const commentToSchema = (
   datePublished: comment.createdAt,
   ...(comment.lastUpdatedAt && { dateModified: comment.lastUpdatedAt }),
   url: comment.permalink,
-  author: comment.author
-    ? {
-        '@type': 'Person',
-        name: comment.author.name || comment.author.username,
-        url: comment.author.permalink,
-        ...(comment.author.image && { image: comment.author.image }),
-      }
-    : undefined,
+  // Omit author field entirely if not present (schema.org best practice)
+  ...(comment.author && {
+    author: {
+      '@type': 'Person',
+      name: comment.author.name || comment.author.username,
+      url: comment.author.permalink,
+      ...(comment.author.image && { image: comment.author.image }),
+    },
+  }),
   // Interaction statistics for comments (upvotes)
   ...(comment.numUpvotes > 0 && {
     interactionStatistic: {
