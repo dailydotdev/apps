@@ -3,7 +3,7 @@ import Head from 'next/head';
 
 const TITLE = 'Log 2025 | daily.dev';
 const DESCRIPTION =
-  'Your stats. Your story. Your archetype. Discover what kind of developer you really are.';
+  'Your stats. Your story. Discover your developer archetype.';
 const IMAGE_URL =
   'https://media.daily.dev/image/upload/s--S6QRV0hA--/f_auto,q_auto/v1765881331/public/log_2025';
 
