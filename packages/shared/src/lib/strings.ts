@@ -93,3 +93,13 @@ export const generateNameFromEmail = (
 
   return capitalized || fallbackName;
 };
+
+/**
+ * Strips HTML tags from a string, returning plain text
+ * Useful for extracting text content from HTML for SEO, search indexing, etc.
+ * @param html - The HTML string to strip
+ * @returns The plain text content without HTML tags
+ */
+export const stripHtmlTags = (html: string): string => {
+  return html?.replace(/<[^>]*>/g, '').trim() || '';
+};

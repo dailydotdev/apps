@@ -3,11 +3,7 @@ import React from 'react';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import type { Comment } from '@dailydotdev/shared/src/graphql/comments';
-
-// Helper to strip HTML tags for plain text schema fields
-const stripHtml = (html: string): string => {
-  return html?.replace(/<[^>]*>/g, '').trim() || '';
-};
+import { stripHtmlTags } from '@dailydotdev/shared/src/lib/strings';
 
 // User-generated post types that should use DiscussionForumPosting schema
 const USER_GENERATED_POST_TYPES: PostType[] = [
@@ -68,27 +64,48 @@ const getPostTextContent = (post: Post): string => {
 };
 
 /**
+ * Build Person schema for an author (reusable for posts and comments)
+ */
+const getPersonSchema = (author: {
+  name?: string;
+  username?: string;
+  permalink: string;
+  image?: string;
+  bio?: string;
+  companies?: Array<{ name?: string; image?: string }>;
+  reputation?: number;
+}): Record<string, unknown> => ({
+  '@type': 'Person',
+  name: author.name ?? author.username,
+  url: author.permalink,
+  ...(author.image && { image: author.image }),
+  ...(author.bio && { description: author.bio }),
+  // Author's company/employer
+  ...(author.companies?.[0]?.name && {
+    worksFor: {
+      '@type': 'Organization',
+      name: author.companies[0].name,
+      ...(author.companies[0].image && {
+        logo: author.companies[0].image,
+      }),
+    },
+  }),
+  // Reputation for author profile pages
+  ...(author.reputation && {
+    interactionStatistic: {
+      '@type': 'InteractionCounter',
+      interactionType: 'https://schema.org/EndorseAction',
+      userInteractionCount: author.reputation,
+    },
+  }),
+});
+
+/**
  * Build author schema object for a post author
  */
 const getAuthorSchema = (post: Post): Record<string, unknown> => {
   if (post.author) {
-    return {
-      '@type': 'Person',
-      name: post.author.name ?? post.author.username,
-      url: post.author.permalink,
-      ...(post.author.image && { image: post.author.image }),
-      ...(post.author.bio && { description: post.author.bio }),
-      // Author's company/employer
-      ...(post.author.companies?.[0]?.name && {
-        worksFor: {
-          '@type': 'Organization',
-          name: post.author.companies[0].name,
-          ...(post.author.companies[0].image && {
-            logo: post.author.companies[0].image,
-          }),
-        },
-      }),
-    };
+    return getPersonSchema(post.author);
   }
 
   return {
@@ -108,18 +125,13 @@ const commentToSchema = (
   currentDepth = 0,
 ): Record<string, unknown> => ({
   '@type': 'Comment',
-  text: stripHtml(comment.contentHtml),
+  text: stripHtmlTags(comment.contentHtml),
   datePublished: comment.createdAt,
   ...(comment.lastUpdatedAt && { dateModified: comment.lastUpdatedAt }),
   url: comment.permalink,
   // Omit author field entirely if not present (schema.org best practice)
   ...(comment.author && {
-    author: {
-      '@type': 'Person',
-      name: comment.author.name || comment.author.username,
-      url: comment.author.permalink,
-      ...(comment.author.image && { image: comment.author.image }),
-    },
+    author: getPersonSchema(comment.author),
   }),
   // Interaction statistics for comments (upvotes)
   ...(comment.numUpvotes > 0 && {
@@ -227,37 +239,7 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
     },
   },
   // Author - Person for user authors, Organization for source-only
-  author: post.author
-    ? {
-        '@type': 'Person',
-        name: post.author.name ?? post.author.username,
-        description: post.author.bio,
-        image: post.author.image,
-        url: post.author.permalink,
-        // Author's company/employer
-        ...(post.author.companies?.[0]?.name && {
-          worksFor: {
-            '@type': 'Organization',
-            name: post.author.companies[0].name,
-            ...(post.author.companies[0].image && {
-              logo: post.author.companies[0].image,
-            }),
-          },
-        }),
-        ...(post.author.reputation && {
-          interactionStatistic: {
-            '@type': 'InteractionCounter',
-            interactionType: 'https://schema.org/EndorseAction',
-            userInteractionCount: post.author.reputation,
-          },
-        }),
-      }
-    : {
-        '@type': 'Organization',
-        name: post.source?.name || 'daily.dev',
-        logo: post.source?.image,
-        url: post.source?.permalink || 'https://daily.dev',
-      },
+  author: getAuthorSchema(post),
   // Engagement metrics
   commentCount: post.numComments,
   discussionUrl: post.commentsPermalink,
