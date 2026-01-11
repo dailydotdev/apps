@@ -46,7 +46,10 @@ export default function StaticCardShare({
   // Skip YEAR_ACTIVE record as it's not meaningful for sharing
   const bestRecord = useMemo(() => {
     const eligibleRecords =
-      data.records?.filter((r) => r.type !== RecordType.YEAR_ACTIVE) ?? [];
+      data.records?.filter(
+        (r) =>
+          ![RecordType.YEAR_ACTIVE, RecordType.TOPIC_MARATHON].includes(r.type),
+      ) ?? [];
     if (!eligibleRecords.length) {
       return null;
     }
