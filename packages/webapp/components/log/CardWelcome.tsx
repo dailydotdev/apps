@@ -89,7 +89,7 @@ export default function CardWelcome({
         animate={isMounted ? visible : hidden}
         transition={{ delay: TAGLINE_DELAY, duration: 0.5 }}
       >
-        Discover what kind of developer you really are.
+        Discover your developer archetype.
       </motion.p>
 
       {/* Navigation instructions - appears after tagline (fade only) */}
