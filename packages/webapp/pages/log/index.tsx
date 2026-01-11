@@ -14,6 +14,7 @@ import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useImagePreloader } from '@dailydotdev/shared/src/hooks/useImagePreloader';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import type { GetServerSideProps } from 'next';
 import ProtectedPage from '../../components/ProtectedPage';
 import { ARCHETYPES } from '../../types/log';
 import {
@@ -43,6 +44,12 @@ import CardRecords from '../../components/log/CardRecords';
 import CardArchetypeReveal from '../../components/log/CardArchetypeReveal';
 import CardShare from '../../components/log/CardShare';
 import CardNoData from '../../components/log/CardNoData';
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    notFound: true,
+  };
+};
 
 // Default theme for no-data state (welcome card theme)
 const noDataTheme = CARD_THEMES.welcome;

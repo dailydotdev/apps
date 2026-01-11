@@ -99,6 +99,9 @@ export default function CardWelcome({
         animate={{ opacity: isMounted ? 1 : 0 }}
         transition={{ delay: INSTRUCTIONS_DELAY, duration: 0.5 }}
       >
+        <span className={styles.instructionHint}>
+          🔊 Turn on sound for the full experience
+        </span>
         {isTouchDevice ? 'Tap' : 'Click'} the sides to navigate
         <span className={styles.instructionHint}>👈 back · next 👉</span>
       </motion.p>
