@@ -36,32 +36,6 @@ export interface PublicProfile {
   id: string;
   name: string;
   username?: string;
-  /** @deprecated Use socialLinks instead */
-  twitter?: string;
-  /** @deprecated Use socialLinks instead */
-  github?: string;
-  /** @deprecated Use socialLinks instead */
-  hashnode?: string;
-  /** @deprecated Use socialLinks instead */
-  portfolio?: string;
-  /** @deprecated Use socialLinks instead */
-  roadmap?: string;
-  /** @deprecated Use socialLinks instead */
-  threads?: string;
-  /** @deprecated Use socialLinks instead */
-  codepen?: string;
-  /** @deprecated Use socialLinks instead */
-  reddit?: string;
-  /** @deprecated Use socialLinks instead */
-  stackoverflow?: string;
-  /** @deprecated Use socialLinks instead */
-  youtube?: string;
-  /** @deprecated Use socialLinks instead */
-  linkedin?: string;
-  /** @deprecated Use socialLinks instead */
-  mastodon?: string;
-  /** @deprecated Use socialLinks instead */
-  bluesky?: string;
   socialLinks?: UserSocialLink[];
   bio?: string;
   createdAt: string;
@@ -121,32 +95,6 @@ export interface UserProfile {
   username?: string;
   company?: string;
   title?: string;
-  /** @deprecated Use socialLinks instead */
-  twitter?: string;
-  /** @deprecated Use socialLinks instead */
-  github?: string;
-  /** @deprecated Use socialLinks instead */
-  hashnode?: string;
-  /** @deprecated Use socialLinks instead */
-  roadmap?: string;
-  /** @deprecated Use socialLinks instead */
-  threads?: string;
-  /** @deprecated Use socialLinks instead */
-  codepen?: string;
-  /** @deprecated Use socialLinks instead */
-  reddit?: string;
-  /** @deprecated Use socialLinks instead */
-  stackoverflow?: string;
-  /** @deprecated Use socialLinks instead */
-  youtube?: string;
-  /** @deprecated Use socialLinks instead */
-  linkedin?: string;
-  /** @deprecated Use socialLinks instead */
-  mastodon?: string;
-  /** @deprecated Use socialLinks instead */
-  bluesky?: string;
-  /** @deprecated Use socialLinks instead */
-  portfolio?: string;
   socialLinks?: UserSocialLink[];
   bio?: string;
   acceptedMarketing?: boolean;

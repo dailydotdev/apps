@@ -9,7 +9,6 @@ import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
 import { getProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
-import { errorMessage } from '../graphql/common';
 import { useDirtyForm } from './useDirtyForm';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
@@ -17,20 +16,8 @@ import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { disabledRefetch } from '../lib/func';
 
 export interface ProfileFormHint {
-  portfolio?: string;
   username?: string;
-  twitter?: string;
-  github?: string;
   name?: string;
-  roadmap?: string;
-  threads?: string;
-  codepen?: string;
-  reddit?: string;
-  stackoverflow?: string;
-  youtube?: string;
-  linkedin?: string;
-  mastodon?: string;
-  bluesky?: string;
 }
 
 export type UpdateProfileParameters = Partial<UserProfile> & {
@@ -43,20 +30,6 @@ interface UseUserInfoForm {
   save: () => void;
   isLoading: boolean;
 }
-
-const socials = [
-  'github',
-  'twitter',
-  'roadmap',
-  'threads',
-  'codepen',
-  'reddit',
-  'stackoverflow',
-  'youtube',
-  'linkedin',
-  'mastodon',
-  'bluesky',
-];
 
 const useUserInfoForm = (): UseUserInfoForm => {
   const qc = useQueryClient();
@@ -156,14 +129,6 @@ const useUserInfoForm = (): UseUserInfoForm => {
             message: value,
           });
         });
-
-        if (
-          Object.values(data).some((errorHint) =>
-            socials.some((social) => errorHint.includes(social)),
-          )
-        ) {
-          displayToast(errorMessage.profile.invalidSocialLinks);
-        }
       } else {
         displayToast('Failed to update profile');
       }

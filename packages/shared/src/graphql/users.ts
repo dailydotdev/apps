@@ -43,20 +43,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       cover
       username
       bio
-      twitter
-      github
-      hashnode
-      roadmap
-      threads
-      codepen
-      reddit
-      stackoverflow
-      youtube
-      linkedin
-      mastodon
-      bluesky
       timezone
-      portfolio
       reputation
       permalink
       createdAt
@@ -315,18 +302,6 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       permalink
       bio
       readme
-      twitter
-      github
-      hashnode
-      roadmap
-      threads
-      codepen
-      reddit
-      stackoverflow
-      youtube
-      linkedin
-      mastodon
-      bluesky
       createdAt
       infoConfirmed
       timezone
@@ -355,18 +330,6 @@ export const UPDATE_USER_INFO_MUTATION = gql`
       permalink
       bio
       readme
-      twitter
-      github
-      hashnode
-      roadmap
-      threads
-      codepen
-      reddit
-      stackoverflow
-      youtube
-      linkedin
-      mastodon
-      bluesky
       createdAt
       infoConfirmed
       timezone
