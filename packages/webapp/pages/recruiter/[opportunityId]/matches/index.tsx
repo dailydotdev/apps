@@ -23,8 +23,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { GenericLoaderSpinner } from '@dailydotdev/shared/src/components/utilities/loaders';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { AgentStatusBar } from '@dailydotdev/shared/src/features/recruiter/components/AgentStatusBar';
 
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { oneMinute } from '@dailydotdev/shared/src/lib/dateFormat';
@@ -143,14 +142,14 @@ function RecruiterMatchesPage(): ReactElement {
   const isReadyForMatches = opportunity?.state !== OpportunityState.DRAFT;
   const isInReview = opportunity?.state === OpportunityState.IN_REVIEW;
 
-  const getStatusBannerContent = () => {
+  const getStaticMessage = (): string | undefined => {
     if (isInReview) {
       return 'Your job is in review. We will notify you once it goes live.';
     }
     if (!isReadyForMatches) {
       return 'Processing your data and payment...';
     }
-    return 'Promising candidates will appear here for your review.';
+    return undefined;
   };
 
   return (
@@ -158,6 +157,11 @@ function RecruiterMatchesPage(): ReactElement {
       <div className="flex flex-1 flex-col">
         <ConnectHeader activeTab="review" />
         <ConnectProgress />
+        <AgentStatusBar
+          staticMessage={getStaticMessage()}
+          opportunity={opportunity}
+          opportunityId={opportunityId as string}
+        />
         <div
           className={classNames(
             'flex flex-1 flex-col bg-background-subtle',
@@ -178,31 +182,20 @@ function RecruiterMatchesPage(): ReactElement {
               }
             />
           ) : (
-            <>
-              <div className="flex items-center justify-center gap-2 border-b border-border-subtlest-tertiary bg-brand-float px-4 py-3">
-                <GenericLoaderSpinner size={IconSize.XSmall} />
+            <div className="mx-auto flex flex-1 flex-col items-center justify-center gap-6 p-6">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <Typography type={TypographyType.Title1} bold>
+                  While we find your matches...
+                </Typography>
                 <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Brand}
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
                 >
-                  {getStatusBannerContent()}
+                  Complete these steps to maximize your response rates
                 </Typography>
               </div>
-              <div className="mx-auto flex flex-1 flex-col items-center justify-center gap-6 p-6">
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <Typography type={TypographyType.Title1} bold>
-                    While we find your matches...
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Tertiary}
-                  >
-                    Complete these steps to maximize your response rates
-                  </Typography>
-                </div>
-                <RecruiterSetupChecklist opportunity={opportunity} />
-              </div>
-            </>
+              <RecruiterSetupChecklist opportunity={opportunity} />
+            </div>
           )}
         </div>
       </div>
