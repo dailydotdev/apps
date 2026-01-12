@@ -8,6 +8,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { gqlClient } from '../../graphql/common';
 import type { Connection } from '../../graphql/common';
 import type {
+  FeedbackClassification,
   Keyword,
   Opportunity,
   OpportunityMatch,
@@ -25,6 +26,7 @@ import {
   USER_OPPORTUNITY_MATCHES_QUERY,
   OPPORTUNITY_PREVIEW,
   OPPORTUNITY_STATS_QUERY,
+  OPPORTUNITY_FEEDBACK_QUERY,
 } from './graphql';
 import type { LoggedUser } from '../../lib/user';
 import { disabledRefetch } from '../../lib/func';
@@ -263,5 +265,32 @@ export const recruiterPricesQueryOptions = ({
     },
     enabled: isLoggedIn,
     staleTime: StaleTime.Default,
+  };
+};
+
+export const opportunityFeedbackQueryOptions = ({
+  opportunityId,
+  after,
+  first = 20,
+}: {
+  opportunityId: string;
+  after?: string;
+  first?: number;
+}): UseQueryOptions<Connection<FeedbackClassification>> => {
+  return {
+    queryKey: [RequestKey.OpportunityFeedback, opportunityId, after, first],
+    queryFn: async () => {
+      const res = await gqlClient.request<{
+        opportunityFeedback: Connection<FeedbackClassification>;
+      }>(OPPORTUNITY_FEEDBACK_QUERY, {
+        opportunityId,
+        after,
+        first,
+      });
+
+      return res.opportunityFeedback;
+    },
+    staleTime: StaleTime.Default,
+    enabled: !!opportunityId,
   };
 };
