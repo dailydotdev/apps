@@ -2,7 +2,7 @@
   "name": "@dailydotdev/eslint-config",
   "type": "module",
   "version": "0.0.0",
-  "main": "index.js",
+  "main": "index.cjs",
   "prettier": "@dailydotdev/prettier-config",
   "devDependencies": {
     "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "workspace:*",

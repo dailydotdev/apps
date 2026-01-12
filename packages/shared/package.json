@@ -4,6 +4,12 @@
   "version": "0.0.0",
   "main": "./src/index.ts",
   "license": "AGPL-3.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./postcss.config": "./postcss.config.cjs",
+    "./tailwind.config": "./tailwind.config.ts",
+    "./*": "./*"
+  },
   "scripts": {
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix --max-warnings 0",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
