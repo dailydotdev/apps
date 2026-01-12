@@ -44,7 +44,7 @@ const ChecklistItemRow = ({ item }: { item: ChecklistItem }): ReactElement => {
       className={classNames(
         'flex cursor-pointer items-center gap-3 rounded-8 border border-border-subtlest-tertiary bg-background-default p-3 transition-colors',
         item.completed
-          ? 'border-status-success'
+          ? 'pointer-events-none border-status-success'
           : 'hover:border-border-subtlest-secondary hover:bg-surface-hover',
       )}
     >
