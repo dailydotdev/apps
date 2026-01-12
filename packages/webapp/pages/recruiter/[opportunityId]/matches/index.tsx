@@ -194,9 +194,7 @@ function RecruiterMatchesPage(): ReactElement {
                   Complete these steps to maximize your response rates
                 </Typography>
               </div>
-              <RecruiterSetupChecklist
-                organization={opportunity?.organization}
-              />
+              <RecruiterSetupChecklist opportunity={opportunity} />
             </div>
           )}
         </div>
