@@ -126,12 +126,12 @@ export const CREATE_SHARED_SLACK_CHANNEL_MUTATION = gql`
   mutation CreateSharedSlackChannel(
     $email: String!
     $channelName: String!
-    $organizationId: ID!
+    $opportunityId: ID!
   ) {
     createSharedSlackChannel(
       email: $email
       channelName: $channelName
-      organizationId: $organizationId
+      opportunityId: $opportunityId
     ) {
       _
     }
