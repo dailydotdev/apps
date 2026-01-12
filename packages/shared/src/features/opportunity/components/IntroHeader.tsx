@@ -8,8 +8,11 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { briefButtonBg } from '../../../styles/custom';
+import { useIsLightTheme } from '../../../hooks/utils';
 
 export const IntroHeader = (): ReactElement => {
+  const isLightTheme = useIsLightTheme();
+
   return (
     <FlexCol className="items-center gap-2">
       <FlexRow className="items-center gap-1">
@@ -26,10 +29,12 @@ export const IntroHeader = (): ReactElement => {
         center
         type={TypographyType.LargeTitle}
         bold
-        style={{
-          background: briefButtonBg,
-        }}
-        className="!bg-clip-text text-transparent"
+        style={isLightTheme ? undefined : { background: briefButtonBg }}
+        className={
+          isLightTheme
+            ? 'text-accent-onion-default'
+            : '!bg-clip-text text-transparent'
+        }
       >
         Welcome to a new hiring experience that respects your time, privacy, and
         intelligence

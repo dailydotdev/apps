@@ -10,6 +10,7 @@ import { shareLog } from '../../hooks/log/shareLogImage';
 import styles from './Log.module.css';
 import type { ShareableCardProps } from './types';
 import { usePeakReadingHour } from '../../hooks/log/useLogStats';
+import { shouldShowPercentileBanner } from './primitives/utils';
 
 export default function CardShare({
   data,
@@ -34,7 +35,8 @@ export default function CardShare({
   // Skip YEAR_ACTIVE record as it's not meaningful for sharing
   const bestRecord = useMemo(() => {
     const eligibleRecords = data.records.filter(
-      (r) => r.type !== RecordType.YEAR_ACTIVE,
+      (r) =>
+        ![RecordType.YEAR_ACTIVE, RecordType.TOPIC_MARATHON].includes(r.type),
     );
     if (!eligibleRecords.length) {
       return null;
@@ -204,11 +206,13 @@ export default function CardShare({
             </div>
           )}
 
-          <div className={styles.shareReceiptFooter}>
-            <span className={styles.shareReceiptRank}>
-              TOP {data.archetypePercentile}% OF DEVS
-            </span>
-          </div>
+          {shouldShowPercentileBanner(data.totalImpactPercentile) && (
+            <div className={styles.shareReceiptFooter}>
+              <span className={styles.shareReceiptRank}>
+                TOP {data.totalImpactPercentile}% OF DEVS
+              </span>
+            </div>
+          )}
         </motion.div>
       </div>
 

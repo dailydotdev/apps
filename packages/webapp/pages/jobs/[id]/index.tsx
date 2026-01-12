@@ -301,39 +301,42 @@ const RoleInfoDisplay = ({
     </Typography>
 
     {/* Details */}
-    <div className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-white laptop:grid-cols-[max-content_1fr_max-content_1fr]">
-      {Object.keys(metaMap).map((metaKey) => {
-        const { title, transformer } = metaMap[metaKey];
-        const isLocation = metaKey === 'location' || metaKey === 'locationType';
+    <div className="w-full @container">
+      <div className="grid grid-cols-1 gap-x-4 gap-y-2 text-white @[400px]:grid-cols-[max-content_1fr] @[600px]:grid-cols-[max-content_1fr_max-content_1fr]">
+        {Object.keys(metaMap).map((metaKey) => {
+          const { title, transformer } = metaMap[metaKey];
+          const isLocation =
+            metaKey === 'location' || metaKey === 'locationType';
 
-        const value = isLocation
-          ? opportunity.locations
-          : opportunity.meta[metaKey];
+          const value = isLocation
+            ? opportunity.locations
+            : opportunity.meta[metaKey];
 
-        if (value === false || value === null) {
-          return false;
-        }
+          if (value === false || value === null) {
+            return false;
+          }
 
-        return (
-          <Fragment key={metaKey}>
-            <Typography
-              className="laptop:[&:nth-child(4n+3)]:pl-2"
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              {title}
-            </Typography>
-            <Typography
-              className="laptop:[&:nth-child(4n+3)]:pl-2"
-              bold
-              type={TypographyType.Subhead}
-              color={TypographyColor.Primary}
-            >
-              {transformer(value)}
-            </Typography>
-          </Fragment>
-        );
-      })}
+          return (
+            <Fragment key={metaKey}>
+              <Typography
+                className="@[600px]:[&:nth-child(4n+3)]:pl-2"
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                {title}
+              </Typography>
+              <Typography
+                className="@[600px]:[&:nth-child(4n+3)]:pl-2"
+                bold
+                type={TypographyType.Subhead}
+                color={TypographyColor.Primary}
+              >
+                {transformer(value)}
+              </Typography>
+            </Fragment>
+          );
+        })}
+      </div>
     </div>
   </div>
 );
@@ -417,6 +420,15 @@ const JobPage = ({
         ...fetchedOpportunity.content,
         ...previewData.content,
       },
+      locations:
+        previewData.locations?.map((loc, i) => ({
+          ...fetchedOpportunity.locations?.[i],
+          ...loc,
+          location: {
+            ...fetchedOpportunity.locations?.[i]?.location,
+            ...loc.location,
+          },
+        })) ?? fetchedOpportunity.locations,
     } as Opportunity;
   }, [fetchedOpportunity, previewData]);
   const { data: match } = useQuery({

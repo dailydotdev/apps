@@ -16,6 +16,7 @@ import { getOpportunitiesOptions } from '../../../features/opportunity/queries';
 import type { Opportunity } from '../../../features/opportunity/types';
 import { OpportunityState } from '../../../features/opportunity/protobuf/opportunity';
 import { settingsUrl, webappUrl } from '../../../lib/constants';
+import { getPathnameWithQuery } from '../../../lib/links';
 import { LogoutReason } from '../../../lib/user';
 
 const Header = () => (
@@ -75,7 +76,13 @@ const Footer = () => {
         variant={ButtonVariant.Tertiary}
         icon={<SettingsIcon />}
         size={ButtonSize.XSmall}
-        href={`${settingsUrl}/profile`}
+        href={getPathnameWithQuery(
+          `${settingsUrl}/profile`,
+          new URLSearchParams({
+            redirectTo: `${webappUrl}recruiter`,
+            redirectCopy: 'Back to recruiter dashboard',
+          }),
+        )}
         tag="a"
       />
       <Button

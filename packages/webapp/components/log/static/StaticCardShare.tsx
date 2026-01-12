@@ -4,13 +4,14 @@ import type { LogData } from '../../../types/log';
 import { RecordType, ARCHETYPES, RECORDS } from '../../../types/log';
 import styles from './StaticCards.module.css';
 import { getPeakReadingHour } from '../../../hooks/log/useLogStats';
+import { shouldShowPercentileBanner } from '../primitives/utils';
 
 interface StaticCardProps {
   data: Pick<
     LogData,
     | 'archetype'
     | 'archetypeStat'
-    | 'archetypePercentile'
+    | 'totalImpactPercentile'
     | 'totalPosts'
     | 'totalReadingTime'
     | 'daysActive'
@@ -45,7 +46,10 @@ export default function StaticCardShare({
   // Skip YEAR_ACTIVE record as it's not meaningful for sharing
   const bestRecord = useMemo(() => {
     const eligibleRecords =
-      data.records?.filter((r) => r.type !== RecordType.YEAR_ACTIVE) ?? [];
+      data.records?.filter(
+        (r) =>
+          ![RecordType.YEAR_ACTIVE, RecordType.TOPIC_MARATHON].includes(r.type),
+      ) ?? [];
     if (!eligibleRecords.length) {
       return null;
     }
@@ -144,11 +148,13 @@ export default function StaticCardShare({
           </div>
         )}
 
-        <div className={styles.shareReceiptFooter}>
-          <span className={styles.shareReceiptRank}>
-            TOP {data.archetypePercentile}% OF DEVS
-          </span>
-        </div>
+        {shouldShowPercentileBanner(data.totalImpactPercentile) && (
+          <div className={styles.shareReceiptFooter}>
+            <span className={styles.shareReceiptRank}>
+              TOP {data.totalImpactPercentile}% OF DEVS
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

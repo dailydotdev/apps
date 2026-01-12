@@ -23,7 +23,10 @@ import { usePendingSubmission } from '@dailydotdev/shared/src/features/opportuni
 import { AnalyzeContent } from '@dailydotdev/shared/src/features/opportunity/components/analyze/AnalyzeContent';
 import { AnalyzeStatusBar } from '@dailydotdev/shared/src/components/recruiter/AnalyzeStatusBar';
 import { parseOpportunityMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
-import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import type {
+  ApiErrorResult,
+  ApiZodErrorExtension,
+} from '@dailydotdev/shared/src/graphql/common';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
@@ -60,9 +63,19 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
         error?.response?.errors?.[0]?.extensions?.code ===
         ApiError.ZodValidationError;
 
-      const message = isZodError
-        ? 'We could not extract the job details from your submission. Please try a different file or URL.'
-        : error?.response?.errors?.[0]?.message || labels.error.generic;
+      let message =
+        error?.response?.errors?.[0]?.message || labels.error.generic;
+
+      if (isZodError) {
+        const zodError = error as ApiErrorResult<ApiZodErrorExtension>;
+
+        // find and show custom error message or fallback to generic message
+        message =
+          zodError.response.errors[0].extensions.issues?.find((issue) => {
+            return issue.code === 'custom';
+          })?.message ||
+          'We could not extract the job details from your submission. Please try a different file or URL.';
+      }
 
       displayToast(message);
       router.push(`/recruiter?openModal=joblink`);
@@ -126,6 +139,8 @@ const RecruiterPageContent = () => {
     router.push(`/recruiter/${opportunity.id}/plans`);
   }, [router, opportunity]);
 
+  const isError = result?.status === OpportunityPreviewStatus.ERROR;
+
   return (
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
@@ -137,7 +152,7 @@ const RecruiterPageContent = () => {
         }}
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />
-      <AnalyzeStatusBar loadingStep={loadingStep} />
+      {!isError && <AnalyzeStatusBar loadingStep={loadingStep} />}
       <AnalyzeContent loadingStep={loadingStep} />
     </div>
   );
