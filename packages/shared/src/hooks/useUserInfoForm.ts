@@ -1,19 +1,20 @@
-import { useContext, useEffect, useMemo, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import AuthContext from '../contexts/AuthContext';
 import { mutateUserInfo } from '../graphql/users';
 import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
+import { getProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
 import { errorMessage } from '../graphql/common';
 import { useDirtyForm } from './useDirtyForm';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
-import { useProfile } from './profile/useProfile';
-import { buildUserSocialLinksFromLegacy } from '../lib/socialLink';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import { disabledRefetch } from '../lib/func';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -60,18 +61,21 @@ const socials = [
 const useUserInfoForm = (): UseUserInfoForm => {
   const qc = useQueryClient();
   const { user, updateUser } = useContext(AuthContext);
-  const { userQueryKey } = useProfile(user as PublicProfile);
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const router = useRouter();
 
-  // Build initial socialLinks from user data or legacy fields
-  const initialSocialLinks = useMemo(() => {
-    if (user?.socialLinks && user.socialLinks.length > 0) {
-      return user.socialLinks;
-    }
-    return user ? buildUserSocialLinksFromLegacy(user) : [];
-  }, [user]);
+  // Fetch full profile via GraphQL to get socialLinks (boot endpoint doesn't include them)
+  const userQueryKey = generateQueryKey(RequestKey.Profile, user, {
+    id: user?.id,
+  });
+  const { data: fullProfile } = useQuery({
+    queryKey: userQueryKey,
+    queryFn: () => getProfile(user?.id),
+    ...disabledRefetch,
+    staleTime: StaleTime.OneHour,
+    enabled: !!user?.id,
+  });
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window?.location?.search);
@@ -95,9 +99,20 @@ const useUserInfoForm = (): UseUserInfoForm => {
       experienceLevel: user?.experienceLevel,
       hideExperience: user?.hideExperience,
       readme: user?.readme || '',
-      socialLinks: initialSocialLinks,
+      socialLinks: [],
     },
   });
+
+  // Update socialLinks when fullProfile loads (async fetch completes)
+  const hasUpdatedSocialLinks = useRef(false);
+  useEffect(() => {
+    if (fullProfile && !hasUpdatedSocialLinks.current) {
+      hasUpdatedSocialLinks.current = true;
+      methods.setValue('socialLinks', fullProfile.socialLinks || [], {
+        shouldDirty: false,
+      });
+    }
+  }, [fullProfile, methods]);
 
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
 
