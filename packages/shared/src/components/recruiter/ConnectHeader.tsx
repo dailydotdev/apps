@@ -43,7 +43,7 @@ const Item = ({ children, href, active }: ItemProps) => {
 };
 
 type ConnectHeaderProps = {
-  activeTab?: 'review' | 'intros';
+  activeTab?: 'review' | 'intros' | 'feedback';
 };
 
 export const ConnectHeader = ({
@@ -65,6 +65,9 @@ export const ConnectHeader = ({
     : '#';
   const introsHref = opportunityId
     ? `/recruiter/${opportunityId}/matches/intros`
+    : '#';
+  const feedbackHref = opportunityId
+    ? `/recruiter/${opportunityId}/matches/feedback`
     : '#';
 
   const isBoosted = useMemo(() => {
@@ -133,6 +136,9 @@ export const ConnectHeader = ({
         </Item>
         <Item href={introsHref} active={activeTab === 'intros'}>
           Intros
+        </Item>
+        <Item href={feedbackHref} active={activeTab === 'feedback'}>
+          Feedback
         </Item>
       </FlexRow>
     </FlexCol>

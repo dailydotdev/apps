@@ -720,3 +720,35 @@ export const ADD_OPPORTUNITY_SEATS_MUTATION = gql`
     }
   }
 `;
+
+export const FEEDBACK_CLASSIFICATION_FRAGMENT = gql`
+  fragment FeedbackClassificationFragment on FeedbackClassification {
+    platform
+    category
+    sentiment
+    urgency
+    answer
+  }
+`;
+
+export const OPPORTUNITY_FEEDBACK_QUERY = gql`
+  query OpportunityFeedback($opportunityId: ID!, $after: String, $first: Int) {
+    opportunityFeedback(
+      opportunityId: $opportunityId
+      after: $after
+      first: $first
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+        totalCount
+      }
+      edges {
+        node {
+          ...FeedbackClassificationFragment
+        }
+      }
+    }
+  }
+  ${FEEDBACK_CLASSIFICATION_FRAGMENT}
+`;
