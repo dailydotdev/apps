@@ -101,7 +101,7 @@ function BasePostModal({
             <>
               <PostNavigation
                 className={{
-                  container: 'px-4',
+                  container: 'sticky top-0 z-postNavigation bg-background-subtle px-4',
                 }}
                 postPosition={postPosition}
                 onPreviousPost={onPreviousPost}
