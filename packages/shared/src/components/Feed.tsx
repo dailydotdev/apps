@@ -207,15 +207,12 @@ export default function Feed<T>({
   const hasNoBriefAction =
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
 
-  // Evaluate profile card first (it takes priority over brief card)
   const {
     showProfileCompletionCard,
     isDismissed: isProfileCompletionCardDismissed,
     isLoading: isProfileCompletionCardLoading,
   } = useProfileCompletionCard({ isMyFeed });
 
-  // Only evaluate brief card feature when profile card definitively won't show
-  // This prevents both experiments from being "exposed" for the same user
   const shouldEvaluateBriefCard =
     isMyFeed &&
     hasNoBriefAction &&
@@ -555,7 +552,7 @@ export default function Feed<T>({
   const indexWhenShowingPromoBanner =
     currentPageSize * Number(briefBannerPage) - // number of items at that page
     columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
-    Number(showFirstSlotCard); // if showing a first slot card, we need to subtract 1 to the index
+    Number(showFirstSlotCard);
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
