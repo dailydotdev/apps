@@ -3,12 +3,12 @@
   "type": "module",
   "version": "3.42.2",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --watch",
-    "build": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome webpack",
+    "dev": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --config webpack.config.cjs --watch",
+    "build": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome webpack --config webpack.config.cjs",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --fix",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint",
-    "test": "jest --runInBand"
+    "test": "jest --config jest.config.cjs --runInBand"
   },
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
