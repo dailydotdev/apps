@@ -9,19 +9,7 @@ import ControlledTextField from '@dailydotdev/shared/src/components/fields/Contr
 import ControlledTextarea from '@dailydotdev/shared/src/components/fields/ControlledTextarea';
 import {
   AtIcon,
-  CodePenIcon,
-  GitHubIcon,
-  LinkedInIcon,
-  LinkIcon,
-  MastodonIcon,
-  BlueskyIcon,
-  RedditIcon,
-  RoadmapIcon,
-  StackOverflowIcon,
-  ThreadsIcon,
-  TwitterIcon,
   UserIcon,
-  YoutubeIcon,
   TerminalIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
@@ -40,6 +28,7 @@ import ControlledCoverUpload from '@dailydotdev/shared/src/components/profile/Co
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useUserInfoForm from '@dailydotdev/shared/src/hooks/useUserInfoForm';
 import ControlledSwitch from '@dailydotdev/shared/src/components/fields/ControlledSwitch';
+import { SocialLinksInput } from '@dailydotdev/shared/src/components/profile/SocialLinksInput';
 import { AccountPageContainer } from '../AccountPageContainer';
 
 const Section = classed('section', 'flex flex-col gap-7');
@@ -133,88 +122,10 @@ const ProfileIndex = (): ReactElement => {
             </Section>
             <HorizontalSeparator />
             <Section>
-              <div>
-                <Typography type={TypographyType.Body} bold>
-                  Links
-                </Typography>
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Secondary}
-                >
-                  Connect your profiles across the web.
-                </Typography>
-              </div>
-              <ControlledTextField
-                name="github"
-                label="GitHub"
-                leftIcon={<GitHubIcon />}
-                placeholder="Username or profile URL"
-              />
-              <ControlledTextField
-                name="linkedin"
-                label="LinkedIn"
-                leftIcon={<LinkedInIcon />}
-                placeholder="Username or profile URL"
-              />
-              <ControlledTextField
-                name="portfolio"
-                label="Website"
-                leftIcon={<LinkIcon />}
-                placeholder="https://"
-              />
-              <ControlledTextField
-                name="twitter"
-                label="X"
-                leftIcon={<TwitterIcon />}
-                placeholder="Handle or profile URL"
-              />
-              <ControlledTextField
-                name="youtube"
-                label="YouTube"
-                leftIcon={<YoutubeIcon />}
-                placeholder="Channel name or URL"
-              />
-              <ControlledTextField
-                name="stackoverflow"
-                label="Stack Overflow"
-                leftIcon={<StackOverflowIcon />}
-                placeholder="Profile URL"
-              />
-              <ControlledTextField
-                name="reddit"
-                label="Reddit"
-                leftIcon={<RedditIcon />}
-                placeholder="Username or profile URL"
-              />
-              <ControlledTextField
-                name="roadmap"
-                label="Roadmap.sh"
-                leftIcon={<RoadmapIcon />}
-                placeholder="Username or profile URL"
-              />
-              <ControlledTextField
-                name="codepen"
-                label="CodePen"
-                leftIcon={<CodePenIcon />}
-                placeholder="Username or profile URL"
-              />
-              <ControlledTextField
-                name="mastodon"
-                label="Mastodon"
-                leftIcon={<MastodonIcon />}
-                placeholder="Full handle (user@instance) or URL"
-              />
-              <ControlledTextField
-                name="bluesky"
-                label="Bluesky"
-                leftIcon={<BlueskyIcon />}
-                placeholder="Handle or profile URL"
-              />
-              <ControlledTextField
-                name="threads"
-                label="Threads"
-                leftIcon={<ThreadsIcon />}
-                placeholder="Handle or profile URL"
+              <SocialLinksInput
+                name="socialLinks"
+                label="Links"
+                hint="Connect your profiles across the web"
               />
             </Section>
           </div>

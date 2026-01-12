@@ -43,26 +43,17 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       cover
       username
       bio
-      twitter
-      github
-      hashnode
-      roadmap
-      threads
-      codepen
-      reddit
-      stackoverflow
-      youtube
-      linkedin
-      mastodon
-      bluesky
       timezone
-      portfolio
       reputation
       permalink
       createdAt
       readmeHtml
       isPlus
       experienceLevel
+      socialLinks {
+        platform
+        url
+      }
       location {
         city
         subdivision
@@ -311,23 +302,15 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       permalink
       bio
       readme
-      twitter
-      github
-      hashnode
-      roadmap
-      threads
-      codepen
-      reddit
-      stackoverflow
-      youtube
-      linkedin
-      mastodon
-      bluesky
       createdAt
       infoConfirmed
       timezone
       experienceLevel
       language
+      socialLinks {
+        platform
+        url
+      }
     }
   }
 `;
@@ -347,24 +330,16 @@ export const UPDATE_USER_INFO_MUTATION = gql`
       permalink
       bio
       readme
-      twitter
-      github
-      hashnode
-      roadmap
-      threads
-      codepen
-      reddit
-      stackoverflow
-      youtube
-      linkedin
-      mastodon
-      bluesky
       createdAt
       infoConfirmed
       timezone
       experienceLevel
       hideExperience
       language
+      socialLinks {
+        platform
+        url
+      }
     }
   }
 `;

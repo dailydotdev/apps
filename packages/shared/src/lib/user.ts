@@ -16,6 +16,11 @@ export enum Roles {
   Moderator = 'moderator',
 }
 
+export interface UserSocialLink {
+  platform: string;
+  url: string;
+}
+
 export interface AnonymousUser {
   id: string;
   firstVisit?: string;
@@ -31,19 +36,7 @@ export interface PublicProfile {
   id: string;
   name: string;
   username?: string;
-  twitter?: string;
-  github?: string;
-  hashnode?: string;
-  portfolio?: string;
-  roadmap?: string;
-  threads?: string;
-  codepen?: string;
-  reddit?: string;
-  stackoverflow?: string;
-  youtube?: string;
-  linkedin?: string;
-  mastodon?: string;
-  bluesky?: string;
+  socialLinks?: UserSocialLink[];
   bio?: string;
   createdAt: string;
   premium: boolean;
@@ -102,19 +95,7 @@ export interface UserProfile {
   username?: string;
   company?: string;
   title?: string;
-  twitter?: string;
-  github?: string;
-  hashnode?: string;
-  roadmap?: string;
-  threads?: string;
-  codepen?: string;
-  reddit?: string;
-  stackoverflow?: string;
-  youtube?: string;
-  linkedin?: string;
-  mastodon?: string;
-  bluesky?: string;
-  portfolio?: string;
+  socialLinks?: UserSocialLink[];
   bio?: string;
   acceptedMarketing?: boolean;
   timezone?: string;

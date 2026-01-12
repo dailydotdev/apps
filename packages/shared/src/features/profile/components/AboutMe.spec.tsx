@@ -37,18 +37,26 @@ const userWithReadme: PublicProfile = {
 
 const userWithSocialLinks: PublicProfile = {
   ...userWithReadme,
-  twitter: 'testuser',
-  github: 'testuser',
-  linkedin: 'testuser',
-  portfolio: 'https://testuser.com',
-  youtube: 'testuser',
-  stackoverflow: '123456/testuser',
-  reddit: 'testuser',
-  roadmap: 'testuser',
-  codepen: 'testuser',
-  mastodon: 'https://mastodon.social/@testuser',
-  bluesky: 'testuser.bsky.social',
-  threads: 'testuser',
+  socialLinks: [
+    { platform: 'twitter', url: 'https://twitter.com/testuser' },
+    { platform: 'github', url: 'https://github.com/testuser' },
+    { platform: 'linkedin', url: 'https://linkedin.com/in/testuser' },
+    { platform: 'portfolio', url: 'https://testuser.com' },
+    { platform: 'youtube', url: 'https://youtube.com/@testuser' },
+    {
+      platform: 'stackoverflow',
+      url: 'https://stackoverflow.com/users/123456/testuser',
+    },
+    { platform: 'reddit', url: 'https://reddit.com/u/testuser' },
+    { platform: 'roadmap', url: 'https://roadmap.sh/u/testuser' },
+    { platform: 'codepen', url: 'https://codepen.io/testuser' },
+    { platform: 'mastodon', url: 'https://mastodon.social/@testuser' },
+    {
+      platform: 'bluesky',
+      url: 'https://bsky.app/profile/testuser.bsky.social',
+    },
+    { platform: 'threads', url: 'https://threads.net/@testuser' },
+  ],
 };
 
 const renderComponent = (user: Partial<PublicProfile> = {}) => {
