@@ -8,7 +8,7 @@
     "tailwind/**/*.ts",
     "*.js",
     "*.ts",
-    "**/.eslintrc.js",
+    "**/.eslintrc.cjs",
     "__tests__/**/*.ts",
     "__tests__/**/*.tsx",
     "__mocks__/**/*.ts",

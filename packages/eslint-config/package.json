@@ -1,5 +1,6 @@
 {
   "name": "@dailydotdev/eslint-config",
+  "type": "module",
   "version": "0.0.0",
   "main": "index.js",
   "prettier": "@dailydotdev/prettier-config",

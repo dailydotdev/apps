@@ -216,7 +216,7 @@ const { value, isLoading } = useConditionalFeature({
 - `pnpm-workspace.yaml` - Monorepo workspace packages
 - `packages/webapp/next.config.ts` - Next.js configuration
 - `packages/shared/tailwind.config.ts` - Base Tailwind configuration
-- `packages/extension/webpack.config.js` - Extension build configuration
+- `packages/extension/webpack.config.cjs` - Extension build configuration
 
 ## Package-Specific Guides
 

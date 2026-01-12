@@ -1,5 +1,6 @@
 {
   "name": "daily-apps",
+  "type": "module",
   "private": true,
   "dependencies": {
     "postcss-rem-to-responsive-pixel": "^6.0.2"
