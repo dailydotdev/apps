@@ -76,6 +76,9 @@ export const OPPORTUNITY_FRAGMENT = gql`
         ...Link
       }
       recruiterTotalSeats
+      recruiterSubscriptionFlags {
+        hasSlackConnection
+      }
     }
     content {
       overview {
