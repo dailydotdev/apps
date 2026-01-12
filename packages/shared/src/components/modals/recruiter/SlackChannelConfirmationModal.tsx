@@ -16,13 +16,13 @@ import Alert, { AlertType } from '../../widgets/Alert';
 export type SlackChannelConfirmationModalProps = ModalProps & {
   email: string;
   channelName: string;
-  organizationId?: string;
+  opportunityId?: string;
 };
 
 export const SlackChannelConfirmationModal = ({
   email,
   channelName,
-  organizationId,
+  opportunityId,
   onRequestClose,
   ...modalProps
 }: SlackChannelConfirmationModalProps): ReactElement => {
@@ -33,8 +33,8 @@ export const SlackChannelConfirmationModal = ({
   const handleConfirm = async () => {
     setError(null);
 
-    if (!organizationId) {
-      setError('Organization ID is required');
+    if (!opportunityId) {
+      setError('Opportunity ID is required');
       return;
     }
 
@@ -42,7 +42,7 @@ export const SlackChannelConfirmationModal = ({
       await createChannel({
         email: localEmail,
         channelName,
-        organizationId,
+        opportunityId,
       });
       onRequestClose(null);
     } catch (err) {

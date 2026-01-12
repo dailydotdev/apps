@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>bitbucket</title>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="#FFFFFF">
+            <path d="M2.65 3C2.29 3 2 3.31 2.01 3.67l2.72 16.52c.06.36.37.62.73.67h13.27c.27 0 .5-.19.54-.46l2.72-16.73c.04-.36-.2-.67-.56-.67H2.65zM14.1 14.95H9.94L8.84 9.05h6.26l-1 5.9z"/>
+        </g>
+    </g>
+</svg>

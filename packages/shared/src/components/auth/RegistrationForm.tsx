@@ -14,14 +14,7 @@ import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
-import {
-  MailIcon,
-  UserIcon,
-  VIcon,
-  AtIcon,
-  TwitterIcon,
-  ArrowIcon,
-} from '../icons';
+import { MailIcon, UserIcon, VIcon, AtIcon, ArrowIcon } from '../icons';
 import type { CloseModalFunc } from '../modals/common';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
@@ -87,7 +80,6 @@ const RegistrationForm = ({
     useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
-  const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
   const {
     username,
@@ -210,19 +202,14 @@ const RegistrationForm = ({
       {},
       {
         username: values['traits.username'],
-        twitter: values['traits.twitter'],
       },
     );
 
-    if (error.username || error.twitter) {
+    if (error.username) {
       const updatedHints = { ...hints };
 
       if (error.username) {
         updatedHints['traits.username'] = error.username;
-      }
-
-      if (error.twitter) {
-        updatedHints['traits.twitter'] = error.twitter;
       }
 
       onUpdateHints(updatedHints);
@@ -397,18 +384,6 @@ const RegistrationForm = ({
           }
           rightIcon={usernameIcon}
         />
-        {isAuthorOnboarding && (
-          <TextField
-            saveHintSpace
-            className={{ container: 'w-full' }}
-            leftIcon={<TwitterIcon aria-hidden role="presentation" />}
-            name="traits.twitter"
-            inputId="traits.twitter"
-            label="X"
-            type="text"
-            required
-          />
-        )}
         {!isRecruiterOnboarding && (
           <ExperienceLevelDropdown
             className={{ container: 'w-full' }}

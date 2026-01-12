@@ -19,9 +19,9 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { fallbackImages } from '../../lib/config';
 import { settingsUrl, recruiterUrl } from '../../lib/constants';
-import type { Organization } from '../../features/organizations/types';
 import Link from '../utilities/Link';
 import { anchorDefaultRel } from '../../lib/strings';
+import type { Opportunity } from '../../features/opportunity/types';
 
 type ChecklistItem = {
   id: string;
@@ -34,7 +34,7 @@ type ChecklistItem = {
 };
 
 export type RecruiterSetupChecklistProps = {
-  organization?: Organization;
+  opportunity?: Pick<Opportunity, 'id' | 'organization'>;
   className?: string;
 };
 
@@ -44,7 +44,7 @@ const ChecklistItemRow = ({ item }: { item: ChecklistItem }): ReactElement => {
       className={classNames(
         'flex cursor-pointer items-center gap-3 rounded-8 border border-border-subtlest-tertiary bg-background-default p-3 transition-colors',
         item.completed
-          ? 'border-status-success'
+          ? 'pointer-events-none border-status-success'
           : 'hover:border-border-subtlest-secondary hover:bg-surface-hover',
       )}
     >
@@ -107,9 +107,10 @@ const ChecklistItemRow = ({ item }: { item: ChecklistItem }): ReactElement => {
 };
 
 export const RecruiterSetupChecklist = ({
-  organization,
+  opportunity,
   className,
 }: RecruiterSetupChecklistProps): ReactElement => {
+  const { organization } = opportunity || {};
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
 
@@ -145,7 +146,7 @@ export const RecruiterSetupChecklist = ({
   );
 
   const handleConnectSlack = useCallback(() => {
-    if (!user || !organization) {
+    if (!user || !opportunity || !organization?.name) {
       return;
     }
 
@@ -163,10 +164,10 @@ export const RecruiterSetupChecklist = ({
       props: {
         email: user.email || '',
         channelName,
-        organizationId: organization.id,
+        opportunityId: opportunity.id,
       },
     });
-  }, [user, organization, openModal]);
+  }, [user, opportunity, openModal, organization?.name]);
 
   const items: ChecklistItem[] = useMemo(
     () => [

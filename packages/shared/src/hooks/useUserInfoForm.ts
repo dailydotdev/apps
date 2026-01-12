@@ -1,34 +1,23 @@
 import { useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import AuthContext from '../contexts/AuthContext';
 import { mutateUserInfo } from '../graphql/users';
 import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
+import { getProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
-import { errorMessage } from '../graphql/common';
 import { useDirtyForm } from './useDirtyForm';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
-import { useProfile } from './profile/useProfile';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import { disabledRefetch } from '../lib/func';
 
 export interface ProfileFormHint {
-  portfolio?: string;
   username?: string;
-  twitter?: string;
-  github?: string;
   name?: string;
-  roadmap?: string;
-  threads?: string;
-  codepen?: string;
-  reddit?: string;
-  stackoverflow?: string;
-  youtube?: string;
-  linkedin?: string;
-  mastodon?: string;
-  bluesky?: string;
 }
 
 export type UpdateProfileParameters = Partial<UserProfile> & {
@@ -42,27 +31,24 @@ interface UseUserInfoForm {
   isLoading: boolean;
 }
 
-const socials = [
-  'github',
-  'twitter',
-  'roadmap',
-  'threads',
-  'codepen',
-  'reddit',
-  'stackoverflow',
-  'youtube',
-  'linkedin',
-  'mastodon',
-  'bluesky',
-];
-
 const useUserInfoForm = (): UseUserInfoForm => {
   const qc = useQueryClient();
   const { user, updateUser } = useContext(AuthContext);
-  const { userQueryKey } = useProfile(user as PublicProfile);
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const router = useRouter();
+
+  // Fetch full profile via GraphQL to get socialLinks (boot endpoint doesn't include them)
+  const userQueryKey = generateQueryKey(RequestKey.Profile, user, {
+    id: user?.id,
+  });
+  const { data: fullProfile } = useQuery({
+    queryKey: userQueryKey,
+    queryFn: () => getProfile(user?.id),
+    ...disabledRefetch,
+    staleTime: StaleTime.OneHour,
+    enabled: !!user?.id,
+  });
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window?.location?.search);
@@ -82,24 +68,24 @@ const useUserInfoForm = (): UseUserInfoForm => {
       image: user?.image,
       cover: user?.cover,
       bio: user?.bio,
-      github: user?.github,
       externalLocationId: user?.location?.externalId,
-      linkedin: user?.linkedin,
-      portfolio: user?.portfolio,
-      twitter: user?.twitter,
-      youtube: user?.youtube,
-      stackoverflow: user?.stackoverflow,
-      reddit: user?.reddit,
-      roadmap: user?.roadmap,
-      codepen: user?.codepen,
-      mastodon: user?.mastodon,
-      bluesky: user?.bluesky,
-      threads: user?.threads,
       experienceLevel: user?.experienceLevel,
       hideExperience: user?.hideExperience,
       readme: user?.readme || '',
+      socialLinks: [],
     },
   });
+
+  // Update socialLinks when fullProfile loads (async fetch completes)
+  const hasUpdatedSocialLinks = useRef(false);
+  useEffect(() => {
+    if (fullProfile && !hasUpdatedSocialLinks.current) {
+      hasUpdatedSocialLinks.current = true;
+      methods.setValue('socialLinks', fullProfile.socialLinks || [], {
+        shouldDirty: false,
+      });
+    }
+  }, [fullProfile, methods]);
 
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
 
@@ -143,14 +129,6 @@ const useUserInfoForm = (): UseUserInfoForm => {
             message: value,
           });
         });
-
-        if (
-          Object.values(data).some((errorHint) =>
-            socials.some((social) => errorHint.includes(social)),
-          )
-        ) {
-          displayToast(errorMessage.profile.invalidSocialLinks);
-        }
       } else {
         displayToast('Failed to update profile');
       }

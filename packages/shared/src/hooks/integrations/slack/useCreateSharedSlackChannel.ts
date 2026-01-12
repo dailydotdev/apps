@@ -6,7 +6,7 @@ import { useToastNotification } from '../../useToastNotification';
 export type CreateChannelParams = {
   email: string;
   channelName: string;
-  organizationId: string;
+  opportunityId: string;
 };
 
 export type UseCreateSharedSlackChannel = {
@@ -21,20 +21,20 @@ export const useCreateSharedSlackChannel = (): UseCreateSharedSlackChannel => {
     mutationFn: async ({
       email,
       channelName,
-      organizationId,
+      opportunityId,
     }: CreateChannelParams) => {
       if (!email) {
         throw new Error('Email is required');
       }
 
-      if (!organizationId) {
-        throw new Error('Organization ID is required');
+      if (!opportunityId) {
+        throw new Error('Opportunity ID is required');
       }
 
       await gqlClient.request(CREATE_SHARED_SLACK_CHANNEL_MUTATION, {
         email,
         channelName,
-        organizationId,
+        opportunityId,
       });
     },
 
