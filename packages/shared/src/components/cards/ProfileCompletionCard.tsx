@@ -17,6 +17,11 @@ import { ActionType } from '../../graphql/actions';
 import type { ProfileCompletion } from '../../lib/user';
 import { webappUrl } from '../../lib/constants';
 import { LogEvent, TargetType } from '../../lib/log';
+import {
+  profileCompletionCardBorder,
+  profileCompletionCardBg,
+  profileCompletionButtonBg,
+} from '../../styles/custom';
 
 type CompletionItem = {
   label: string;
@@ -32,15 +37,6 @@ type ProfileCompletionCardProps = {
     card: string;
   }>;
 };
-
-const profileCompletionCardBorder =
-  '1px solid color-mix(in srgb, var(--theme-accent-cabbage-subtler), transparent 50%)';
-
-const profileCompletionCardBg =
-  'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 96%) 100%)';
-
-const profileCompletionButtonBg =
-  'color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 20%)';
 
 const getCompletionItems = (
   completion: ProfileCompletion,
