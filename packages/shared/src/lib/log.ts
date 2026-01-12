@@ -401,7 +401,6 @@ export enum TargetType {
   CvBanner = 'cv banner',
   Post = 'post',
   Recruiter = 'recruiter',
-  // Profile
   ProfileCompletionCard = 'profile completion card',
 }
 

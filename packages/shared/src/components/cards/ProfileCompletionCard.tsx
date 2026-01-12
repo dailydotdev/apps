@@ -33,7 +33,6 @@ type ProfileCompletionCardProps = {
   }>;
 };
 
-// Using softer, less saturated purple tones that align with the brand
 const profileCompletionCardBorder =
   '1px solid color-mix(in srgb, var(--theme-accent-cabbage-subtler), transparent 50%)';
 
