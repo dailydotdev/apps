@@ -108,10 +108,15 @@ const CandidateCard = ({
                   icon={<DailyIcon />}
                   aria-label="View daily.dev profile"
                 />
-                {user.linkedin && (
+                {user.socialLinks?.find((link) => link.platform === 'linkedin')
+                  ?.url && (
                   <Button
                     tag="a"
-                    href={`https://linkedin.com/in/${user.linkedin}`}
+                    href={
+                      user.socialLinks.find(
+                        (link) => link.platform === 'linkedin',
+                      ).url
+                    }
                     target="_blank"
                     rel={anchorDefaultRel}
                     variant={ButtonVariant.Tertiary}

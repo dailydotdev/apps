@@ -26,16 +26,23 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
+  BlueskyIcon,
+  CodePenIcon,
   CrunchbaseIcon,
   FacebookIcon,
   GitHubIcon,
   GitLabIcon,
+  HashnodeIcon,
   InfoIcon,
   LinkedInIcon,
   MagicIcon,
+  MastodonIcon,
   MoveToIcon,
   OpenLinkIcon,
+  RedditIcon,
+  RoadmapIcon,
   StackOverflowIcon,
+  ThreadsIcon,
   TwitterIcon,
   YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -146,6 +153,13 @@ const socialMediaIconMap: SocialMediaIconMap = {
   [SocialMediaType.Medium]: <OpenLinkIcon />,
   [SocialMediaType.DevTo]: <OpenLinkIcon />,
   [SocialMediaType.StackOverflow]: <StackOverflowIcon />,
+  [SocialMediaType.Threads]: <ThreadsIcon />,
+  [SocialMediaType.Bluesky]: <BlueskyIcon />,
+  [SocialMediaType.Mastodon]: <MastodonIcon />,
+  [SocialMediaType.Roadmap]: <RoadmapIcon />,
+  [SocialMediaType.Codepen]: <CodePenIcon />,
+  [SocialMediaType.Reddit]: <RedditIcon />,
+  [SocialMediaType.Hashnode]: <HashnodeIcon />,
 };
 
 const locationTypeMap = {
