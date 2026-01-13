@@ -24,7 +24,7 @@ const RecruiterSelfServeLayoutWithIntercom = ({
 
 const GetLayout = (
   page: ReactNode,
-  pageProps: Record<string, unknown>,
+  _pageProps: Record<string, unknown>,
   layoutProps?: RecruiterSelfServeLayoutProps,
 ): ReactNode => {
   return (
