@@ -4,9 +4,12 @@ import React, { Component } from 'react';
 import NextError from 'next/error';
 import { LogEvent } from '../lib/log';
 import { getLogContextStatic } from '../contexts/LogContext';
+import type { ErrorBoundaryFeature } from '../types';
 
 type ErrorBoundaryProps = {
   children: ReactNode;
+  fallback?: ReactNode;
+  feature?: ErrorBoundaryFeature;
 };
 
 type ErrorBoundaryState = {
@@ -35,6 +38,7 @@ export class ErrorBoundary extends Component<
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     const { logEvent } = this.context;
+    const { feature } = this.props;
 
     if (!logEvent) {
       return;
@@ -48,15 +52,20 @@ export class ErrorBoundary extends Component<
         error,
         stack: errorInfo.componentStack,
         digest: errorInfo.digest,
+        feature,
       }),
     });
   }
 
   render(): ReactNode {
     const { hasError } = this.state;
-    const { children } = this.props;
+    const { children, fallback } = this.props;
 
     if (hasError) {
+      if (fallback) {
+        return fallback;
+      }
+
       return <NextError statusCode={0} />;
     }
 

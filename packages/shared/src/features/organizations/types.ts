@@ -67,7 +67,7 @@ export type OrganizationSocialLink = OrganizationLinkBase & {
 };
 
 export type OrganizationRecruiterSubscriptionFlags = Partial<{
-  hasSlackConnection: boolean;
+  hasSlackConnection: string;
 }>;
 
 export type Organization = {
