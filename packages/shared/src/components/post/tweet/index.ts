@@ -5,3 +5,4 @@ export {
   TweetMediaGallery,
   type TweetMediaGalleryProps,
 } from './TweetMediaGallery';
+export { TweetThread, type TweetThreadProps } from './TweetThread';

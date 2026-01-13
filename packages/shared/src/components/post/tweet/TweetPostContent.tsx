@@ -5,6 +5,7 @@ import type { Post } from '../../../graphql/posts';
 import { TweetAuthorHeader } from './TweetAuthorHeader';
 import { TweetContent } from './TweetContent';
 import { TweetMediaGallery } from './TweetMediaGallery';
+import { TweetThread } from './TweetThread';
 import { SharePostTitle } from '../share';
 import { TwitterIcon } from '../../icons';
 import { Button, ButtonVariant, ButtonSize } from '../../buttons/Button';
@@ -80,13 +81,15 @@ export function TweetPostContent({
           <TweetMediaGallery media={tweetPost.tweetMedia} className="mb-4" />
         )}
 
-        {/* Thread indicator - will be expanded in ENG-312 */}
-        {tweetPost.isThread && tweetPost.threadTweets && (
-          <div className="border-t border-border-subtlest-tertiary pt-3 text-text-tertiary typo-footnote">
-            This tweet is part of a thread ({tweetPost.threadTweets.length}{' '}
-            tweets)
-          </div>
-        )}
+        {/* Thread tweets */}
+        {tweetPost.isThread &&
+          tweetPost.threadTweets &&
+          tweetPost.threadTweets.length > 0 && (
+            <TweetThread
+              threadTweets={tweetPost.threadTweets}
+              authorUsername={tweetPost.tweetAuthorUsername || ''}
+            />
+          )}
 
         {/* View on X button */}
         {tweetUrl && (
