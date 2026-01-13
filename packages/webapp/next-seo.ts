@@ -49,9 +49,9 @@ export const getSquadOpenGraph = ({
 export const defaultSeoTitle = 'daily.dev | Where developers grow together';
 
 export const recruiterSeo: NextSeoProps = {
-  title: 'daily.dev Recruiter | Hire top developers',
+  title: 'daily.dev Recruiter | Reach developers who want to hear from you',
   description:
-    'Find and hire top developers with daily.dev Recruiter. Connect with qualified candidates who match your requirements.',
+    'Connect with developers who opted in to hear about opportunities. Matched by real coding activity, not keywords. Pay for intros, not seats.',
   openGraph: {
     images: [
       {
