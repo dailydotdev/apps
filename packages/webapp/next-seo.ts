@@ -1,8 +1,5 @@
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
-import {
-  cloudinarySquadsImageFallback,
-  recruiterSpamCampaignSEO,
-} from '@dailydotdev/shared/src/lib/image';
+import { cloudinarySquadsImageFallback } from '@dailydotdev/shared/src/lib/image';
 import type {
   DefaultSeoProps,
   NextSeoProps,
@@ -52,11 +49,4 @@ export const recruiterSeo: NextSeoProps = {
   title: 'daily.dev Recruiter | Dashboard',
   description:
     'Your dashboard for the developer-first hiring platform. Manage roles, review matches, and track warm introductions.',
-  openGraph: {
-    images: [
-      {
-        url: recruiterSpamCampaignSEO,
-      },
-    ],
-  },
 };
