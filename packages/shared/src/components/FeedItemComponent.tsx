@@ -45,6 +45,7 @@ import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
 import { MarketingCtaYearInReview } from './marketingCta/MarketingCtaYearInReview';
 import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
+import { TweetGrid, TweetList } from './cards/tweet';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -104,6 +105,7 @@ const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.Collection]: CollectionGrid,
   [PostType.Brief]: BriefCard,
   [PostType.Poll]: PollGrid,
+  [PostType.Tweet]: TweetGrid,
 };
 
 const PostTypeToTagList: Record<PostType, FunctionComponent> = {
@@ -115,6 +117,7 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.Collection]: CollectionList,
   [PostType.Brief]: BriefCard,
   [PostType.Poll]: PollList,
+  [PostType.Tweet]: TweetList,
 };
 
 type GetTagsProps = {
