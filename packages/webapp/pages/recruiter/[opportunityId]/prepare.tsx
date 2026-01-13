@@ -266,7 +266,7 @@ function PreparePageContent(): ReactElement {
     isDirty,
     form,
     opportunity?.organization,
-    opportunity.id,
+    opportunity?.id,
     onSubmit,
     handleSave,
     showPrompt,
