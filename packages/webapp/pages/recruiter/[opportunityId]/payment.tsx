@@ -4,7 +4,6 @@ import { useRouter } from 'next/router';
 import { RecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/RecruiterPaymentContext';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
-import { recruiterSeo } from '../../../next-seo';
 import {
   Button,
   ButtonSize,
@@ -28,6 +27,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { useAutoCreateOpportunityOrganization } from '@dailydotdev/shared/src/features/opportunity/hooks/useAutoCreateOpportunityOrganization';
+import { recruiterSeo } from '../../../next-seo';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
