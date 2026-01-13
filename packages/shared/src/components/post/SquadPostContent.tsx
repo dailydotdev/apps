@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
-import { isVideoPost, PostType } from '../../graphql/posts';
+import { isVideoPost, isTweetPost, PostType } from '../../graphql/posts';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
@@ -13,6 +13,7 @@ import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
+import { TweetPostContent } from './tweet';
 import { useViewPost } from '../../hooks/post';
 import { withPostById } from './withPostById';
 import PostSourceInfo from './PostSourceInfo';
@@ -28,6 +29,7 @@ const ContentMap = {
   [PostType.Welcome]: MarkdownPostContent,
   [PostType.Share]: SharePostContent,
   [PostType.VideoYouTube]: ShareYouTubeContent,
+  [PostType.Tweet]: TweetPostContent,
 };
 
 function SquadPostContentRaw({
@@ -85,7 +87,13 @@ function SquadPostContentRaw({
     onSendViewPost(post.id);
   }, [post.id, onSendViewPost, user?.id]);
 
-  const finalType = isVideoPost(post) ? PostType.VideoYouTube : post?.type;
+  // Determine the correct content type for the post
+  const getFinalType = (): PostType => {
+    if (isVideoPost(post)) return PostType.VideoYouTube;
+    if (isTweetPost(post)) return PostType.Tweet;
+    return post?.type;
+  };
+  const finalType = getFinalType();
   const Content = ContentMap[finalType];
 
   return (
