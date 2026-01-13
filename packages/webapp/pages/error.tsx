@@ -1,4 +1,4 @@
-import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
+import { postWindowMessage, isPWA } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
@@ -8,7 +8,9 @@ function ErrorPage(): ReactElement {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     postWindowMessage(AuthEvent.Error, params);
-    window.close();
+    if (!isPWA()) {
+      window.close();
+    }
   }, []);
 
   return null;

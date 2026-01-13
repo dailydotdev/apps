@@ -50,7 +50,10 @@ import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
-import { getLayout } from '../../../components/layouts/RecruiterFullscreenLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterFullscreenLayout';
 
 const QuestionsSetupPage = (): ReactElement => {
   const { isLoggedIn, isAuthReady } = useAuthContext();
@@ -320,6 +323,7 @@ const GetPageLayout = (page: ReactNode): ReactNode => {
 };
 
 QuestionsSetupPage.getLayout = GetPageLayout;
+QuestionsSetupPage.layoutProps = layoutProps;
 
 export async function getServerSideProps() {
   return { props: {} };

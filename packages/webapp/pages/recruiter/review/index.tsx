@@ -16,7 +16,10 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterLayout';
 
 type OpportunityCardProps = {
   opportunity: Opportunity;
@@ -145,5 +148,6 @@ const ReviewListPage = (): ReactElement => {
 };
 
 ReviewListPage.getLayout = getLayout;
+ReviewListPage.layoutProps = layoutProps;
 
 export default ReviewListPage;

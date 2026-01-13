@@ -27,7 +27,10 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterLayout';
 
 const STATE_LABELS: Record<OpportunityState, string> = {
   [OpportunityState.DRAFT]: 'Draft',
@@ -451,5 +454,6 @@ const ReviewDetailPage = (): ReactElement => {
 };
 
 ReviewDetailPage.getLayout = getLayout;
+ReviewDetailPage.layoutProps = layoutProps;
 
 export default ReviewDetailPage;

@@ -6,6 +6,8 @@ import { PromptElement } from '../../modals/Prompt';
 import { Sidebar } from './Sidebar';
 import Toast from '../../notifications/Toast';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
+import { ErrorBoundary } from '../../ErrorBoundary';
+import RecruiterErrorFallback from '../../errors/RecruiterErrorFallback';
 
 export type RecruiterSelfServeLayoutProps = {
   children: ReactNode | undefined;
@@ -27,7 +29,14 @@ export const RecruiterLayout = ({
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <main className={classNames('flex', className?.main)}>
         <Sidebar />
-        <section className="flex flex-1">{children}</section>
+        <section className="flex flex-1">
+          <ErrorBoundary
+            feature="recruiter-self-serve"
+            fallback={<RecruiterErrorFallback />}
+          >
+            {children}
+          </ErrorBoundary>
+        </section>
       </main>
     </div>
   );

@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import NotificationToggleIcon from '@dailydotdev/shared/src/components/icons/NotificationToggle/primary.svg';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
+import { postWindowMessage, isPWA } from '@dailydotdev/shared/src/lib/func';
 import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
 import { useRouter } from 'next/router';
 import type { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
@@ -52,7 +52,9 @@ function Enable(): React.ReactElement {
     const checkPermission = async () => {
       const closeWindow = () => {
         sendBeacon();
-        window.close();
+        if (!isPWA()) {
+          window.close();
+        }
       };
 
       if (isSubscribed) {

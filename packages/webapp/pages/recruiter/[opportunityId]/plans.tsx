@@ -17,6 +17,7 @@ import { InfoIcon } from '@dailydotdev/shared/src/components/icons/Info';
 import { AgentIcon } from '@dailydotdev/shared/src/components/icons/Agent';
 import { SuperAgentIcon } from '@dailydotdev/shared/src/components/icons/SuperAgent';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { recruiterScheduleUrl } from '@dailydotdev/shared/src/lib/constants';
 
 import classNames from 'classnames';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
@@ -28,7 +29,10 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { recruiterPremiumPlanBg } from '@dailydotdev/shared/src/styles/custom';
 import { WarningIcon } from '@dailydotdev/shared/src/components/icons';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterLayout';
 
 type PricingFeature = {
   text: string;
@@ -365,7 +369,7 @@ const RecruiterPlans = (): ReactElement => {
           tag="a"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Medium}
-          href="https://recruiter.daily.dev/schedule"
+          href={recruiterScheduleUrl}
           className="laptop:w-auto"
           target="_blank"
           rel={anchorDefaultRel}
@@ -378,4 +382,6 @@ const RecruiterPlans = (): ReactElement => {
 };
 
 RecruiterPlans.getLayout = getLayout;
+RecruiterPlans.layoutProps = layoutProps;
+
 export default RecruiterPlans;

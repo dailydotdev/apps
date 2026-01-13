@@ -13,7 +13,10 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { PendingSubmissionProvider } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
+import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
+import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/RecruiterErrorFallback';
 import { useIntercom } from '../../hooks/useIntercom';
+import { recruiterSeo } from '../../next-seo';
 
 const RecruiterFullscreenLayoutInner = ({
   children,
@@ -78,7 +81,12 @@ const RecruiterFullscreenLayoutInner = ({
       <InAppNotificationElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
-      {children}
+      <ErrorBoundary
+        feature="recruiter-self-serve"
+        fallback={<RecruiterErrorFallback />}
+      >
+        {children}
+      </ErrorBoundary>
     </div>
   );
 };
@@ -92,3 +100,5 @@ const GetLayout = (page: ReactNode): ReactNode => {
 };
 
 export { GetLayout as getLayout };
+
+export const layoutProps = { seo: recruiterSeo };
