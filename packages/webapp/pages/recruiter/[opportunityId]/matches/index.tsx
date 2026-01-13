@@ -30,7 +30,10 @@ import { oneMinute } from '@dailydotdev/shared/src/lib/dateFormat';
 import { transactionRefetchIntervalMs } from '@dailydotdev/shared/src/graphql/njord';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
-import { getLayout } from '../../../../components/layouts/RecruiterSelfServeLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterMatchesPage(): ReactElement {
   const router = useRouter();
@@ -204,5 +207,6 @@ function RecruiterMatchesPage(): ReactElement {
 }
 
 RecruiterMatchesPage.getLayout = getLayout;
+RecruiterMatchesPage.layoutProps = layoutProps;
 
 export default RecruiterMatchesPage;

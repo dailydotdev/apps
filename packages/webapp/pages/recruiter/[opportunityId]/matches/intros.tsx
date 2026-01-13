@@ -15,7 +15,10 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
-import { getLayout } from '../../../../components/layouts/RecruiterSelfServeLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterMatchesPage(): ReactElement {
   const router = useRouter();
@@ -90,5 +93,6 @@ function RecruiterMatchesPage(): ReactElement {
 }
 
 RecruiterMatchesPage.getLayout = getLayout;
+RecruiterMatchesPage.layoutProps = layoutProps;
 
 export default RecruiterMatchesPage;

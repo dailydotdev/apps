@@ -4,6 +4,7 @@ import type { RecruiterSelfServeLayoutProps } from '@dailydotdev/shared/src/comp
 import { RecruiterLayout } from '@dailydotdev/shared/src/components/recruiter/layout/RecruiterLayout';
 import { PendingSubmissionProvider } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { useIntercom } from '../../hooks/useIntercom';
+import { recruiterSeo } from '../../next-seo';
 
 const RecruiterSelfServeLayoutWithIntercom = ({
   children,
@@ -23,7 +24,7 @@ const RecruiterSelfServeLayoutWithIntercom = ({
 
 const GetLayout = (
   page: ReactNode,
-  pageProps: Record<string, unknown>,
+  _pageProps: Record<string, unknown>,
   layoutProps?: RecruiterSelfServeLayoutProps,
 ): ReactNode => {
   return (
@@ -34,3 +35,5 @@ const GetLayout = (
 };
 
 export { GetLayout as getLayout };
+
+export const layoutProps = { seo: recruiterSeo };

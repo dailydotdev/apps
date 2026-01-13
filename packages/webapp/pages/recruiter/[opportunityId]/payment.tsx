@@ -29,6 +29,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { useAutoCreateOpportunityOrganization } from '@dailydotdev/shared/src/features/opportunity/hooks/useAutoCreateOpportunityOrganization';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/RecruiterErrorFallback';
+import { recruiterSeo } from '../../../next-seo';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
@@ -241,5 +242,6 @@ RecruiterPaymentPage.getLayout = function getLayout(
     </OpportunityPreviewProvider>
   );
 };
+RecruiterPaymentPage.layoutProps = { seo: recruiterSeo };
 
 export default RecruiterPaymentPage;

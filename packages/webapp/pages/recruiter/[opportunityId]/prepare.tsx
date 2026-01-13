@@ -68,7 +68,10 @@ import {
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/EditPreviewTabs';
 import { BrowserPreviewFrame } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/BrowserPreviewFrame';
 import JobPage from '../../jobs/[id]';
-import { getLayout } from '../../../components/layouts/RecruiterFullscreenLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterFullscreenLayout';
 
 function PreparePageContent(): ReactElement {
   const router = useRouter();
@@ -447,5 +450,6 @@ const GetPageLayout = (page: ReactNode): ReactNode => {
 };
 
 PreparePage.getLayout = GetPageLayout;
+PreparePage.layoutProps = layoutProps;
 
 export default PreparePage;

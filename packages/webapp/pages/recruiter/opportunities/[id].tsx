@@ -43,7 +43,10 @@ import { getLastActivityDateFormat } from '@dailydotdev/shared/src/lib/dateForma
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterLayout';
 
 type CandidateCardProps = {
   match: OpportunityMatch;
@@ -516,5 +519,6 @@ const OpportunityDetailPage = (): ReactElement => {
 };
 
 OpportunityDetailPage.getLayout = getLayout;
+OpportunityDetailPage.layoutProps = layoutProps;
 
 export default OpportunityDetailPage;

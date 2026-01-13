@@ -29,7 +29,10 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { recruiterPremiumPlanBg } from '@dailydotdev/shared/src/styles/custom';
 import { WarningIcon } from '@dailydotdev/shared/src/components/icons';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterLayout';
 
 type PricingFeature = {
   text: string;
@@ -379,4 +382,6 @@ const RecruiterPlans = (): ReactElement => {
 };
 
 RecruiterPlans.getLayout = getLayout;
+RecruiterPlans.layoutProps = layoutProps;
+
 export default RecruiterPlans;
