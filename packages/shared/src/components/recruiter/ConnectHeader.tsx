@@ -137,9 +137,9 @@ export const ConnectHeader = ({
         <Item href={introsHref} active={activeTab === 'intros'}>
           Intros
         </Item>
-        <Item href={feedbackHref} active={activeTab === 'feedback'}>
-          Feedback
-        </Item>
+          <Item href={feedbackHref} active={activeTab === 'feedback'}>
+            Feedback
+          </Item>
       </FlexRow>
     </FlexCol>
   );
