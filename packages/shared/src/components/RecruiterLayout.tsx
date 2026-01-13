@@ -12,6 +12,8 @@ import { InAppNotificationElement } from './notifications/InAppNotification';
 import { PromptElement } from './modals/Prompt';
 import Toast from './notifications/Toast';
 import SettingsContext from '../contexts/SettingsContext';
+import { ErrorBoundary } from './ErrorBoundary';
+import RecruiterErrorFallback from './errors/RecruiterErrorFallback';
 
 export type RecruiterLayoutProps = Pick<
   MainLayoutProps,
@@ -84,7 +86,12 @@ export const RecruiterLayout = ({
         hideBackButton
         className="flex flex-col gap-5 laptop:gap-10"
       >
-        {children}
+        <ErrorBoundary
+          feature="recruiter-self-serve"
+          fallback={<RecruiterErrorFallback />}
+        >
+          {children}
+        </ErrorBoundary>
       </NoSidebarLayout>
     </div>
   );

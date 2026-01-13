@@ -27,6 +27,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { useAutoCreateOpportunityOrganization } from '@dailydotdev/shared/src/features/opportunity/hooks/useAutoCreateOpportunityOrganization';
+import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
+import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/RecruiterErrorFallback';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
@@ -228,7 +230,14 @@ RecruiterPaymentPage.getLayout = function getLayout(
 ): ReactNode {
   return (
     <OpportunityPreviewProvider>
-      <RecruiterPaymentContext>{page}</RecruiterPaymentContext>
+      <RecruiterPaymentContext>
+        <ErrorBoundary
+          feature="recruiter-self-serve"
+          fallback={<RecruiterErrorFallback />}
+        >
+          {page}
+        </ErrorBoundary>
+      </RecruiterPaymentContext>
     </OpportunityPreviewProvider>
   );
 };
