@@ -14,6 +14,9 @@ import Link from '../../../../components/utilities/Link';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { webappUrl } from '../../../../lib/constants';
 import { useAuthContext } from '../../../../contexts/AuthContext';
+import CloseButton from '../../../../components/CloseButton';
+import { ButtonSize } from '../../../../components/buttons/Button';
+import { useProfileCompletionIndicator } from '../../../../hooks/profile/useProfileCompletionIndicator';
 
 type CompletionItem = {
   label: string;
@@ -23,6 +26,7 @@ type CompletionItem = {
 
 type ProfileCompletionProps = {
   className?: string;
+  showDismiss?: boolean;
 };
 
 const getCompletionItems = (
@@ -73,8 +77,10 @@ const formatDescription = (incompleteItems: CompletionItem[]): string => {
 
 export const ProfileCompletion = ({
   className,
+  showDismiss = false,
 }: ProfileCompletionProps): ReactElement | null => {
   const { user } = useAuthContext();
+  const { dismissIndicator } = useProfileCompletionIndicator();
   const profileCompletion = user?.profileCompletion;
 
   const items = useMemo(
@@ -103,16 +109,26 @@ export const ProfileCompletion = ({
   }
 
   return (
-    <Link href={redirectPath}>
-      <a
-        href={redirectPath}
-        rel={anchorDefaultRel}
-        className={classNames(
-          'flex cursor-pointer flex-col gap-6 border border-action-help-active bg-action-help-float p-4 hover:bg-action-help-hover laptop:rounded-16',
-          className,
-        )}
-      >
-        <div className="flex w-full items-center gap-6">
+    <div
+      className={classNames(
+        'flex cursor-pointer flex-col border border-action-help-active bg-action-help-float hover:bg-action-help-hover laptop:rounded-16',
+        className,
+      )}
+    >
+      {showDismiss && (
+        <div className="flex justify-end px-2 pt-2">
+          <CloseButton size={ButtonSize.XSmall} onClick={dismissIndicator} />
+        </div>
+      )}
+      <Link href={redirectPath}>
+        <a
+          href={redirectPath}
+          rel={anchorDefaultRel}
+          className={classNames(
+            'flex w-full items-center gap-6 p-4',
+            showDismiss && 'pt-0',
+          )}
+        >
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex items-center gap-1">
               <InfoIcon
@@ -152,8 +168,8 @@ export const ProfileCompletion = ({
               color="help"
             />
           </div>
-        </div>
-      </a>
-    </Link>
+        </a>
+      </Link>
+    </div>
   );
 };
