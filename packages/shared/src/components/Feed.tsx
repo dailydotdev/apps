@@ -41,6 +41,7 @@ import {
   useFeedVotePost,
   useMutationSubscription,
 } from '../hooks';
+import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionCard';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
@@ -129,6 +130,13 @@ const BriefCardFeed = dynamic(
     ),
 );
 
+const ProfileCompletionCard = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "profileCompletionCard" */ './cards/ProfileCompletionCard'
+    ),
+);
+
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
 const calculateColumn = (index: number, numCards: number): number =>
@@ -198,11 +206,24 @@ export default function Feed<T>({
   const { isSearchPageLaptop } = useSearchResultsLayout();
   const hasNoBriefAction =
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
+
+  const {
+    showProfileCompletionCard,
+    isDismissed: isProfileCompletionCardDismissed,
+    isLoading: isProfileCompletionCardLoading,
+  } = useProfileCompletionCard({ isMyFeed });
+
+  const shouldEvaluateBriefCard =
+    isMyFeed &&
+    hasNoBriefAction &&
+    !showProfileCompletionCard &&
+    !isProfileCompletionCardLoading &&
+    !isProfileCompletionCardDismissed;
   const { value: briefCardFeatureValue } = useConditionalFeature({
     feature: briefCardFeedFeature,
-    shouldEvaluate: isMyFeed && hasNoBriefAction,
+    shouldEvaluate: shouldEvaluateBriefCard,
   });
-  const showBriefCard = isMyFeed && briefCardFeatureValue && hasNoBriefAction;
+  const showBriefCard = shouldEvaluateBriefCard && briefCardFeatureValue;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
 
   const { value: briefBannerPage } = useConditionalFeature({
@@ -527,10 +548,11 @@ export default function Feed<T>({
   const currentPageSize = pageSize ?? currentSettings.pageSize;
   const showPromoBanner = !!briefBannerPage;
   const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
+  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
   const indexWhenShowingPromoBanner =
     currentPageSize * Number(briefBannerPage) - // number of items at that page
     columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
-    Number(showBriefCard); // if showing the brief card, we need to subtract 1 to the index
+    Number(showFirstSlotCard);
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
@@ -539,7 +561,14 @@ export default function Feed<T>({
           <>{emptyScreen}</>
         ) : (
           <>
-            {showBriefCard && (
+            {showProfileCompletionCard && (
+              <ProfileCompletionCard
+                className={{
+                  container: 'p-4 pt-0',
+                }}
+              />
+            )}
+            {showBriefCard && !showProfileCompletionCard && (
               <BriefCardFeed
                 targetId={TargetId.Feed}
                 className={{

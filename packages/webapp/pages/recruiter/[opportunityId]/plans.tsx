@@ -17,6 +17,7 @@ import { InfoIcon } from '@dailydotdev/shared/src/components/icons/Info';
 import { AgentIcon } from '@dailydotdev/shared/src/components/icons/Agent';
 import { SuperAgentIcon } from '@dailydotdev/shared/src/components/icons/SuperAgent';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { recruiterScheduleUrl } from '@dailydotdev/shared/src/lib/constants';
 
 import classNames from 'classnames';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
@@ -368,7 +369,7 @@ const RecruiterPlans = (): ReactElement => {
           tag="a"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Medium}
-          href="https://recruiter.daily.dev/schedule"
+          href={recruiterScheduleUrl}
           className="laptop:w-auto"
           target="_blank"
           rel={anchorDefaultRel}

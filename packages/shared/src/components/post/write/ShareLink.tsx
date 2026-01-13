@@ -16,6 +16,8 @@ import type { SourcePostModeration } from '../../../graphql/squads';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useWritePostContext } from '../../../contexts';
 
+const MAX_TITLE_LENGTH = 250;
+
 interface ShareLinkProps {
   squad?: Squad;
   post?: Post;
@@ -109,6 +111,10 @@ export function ShareLink({
       return null;
     }
 
+    if ((commentary || '').length > MAX_TITLE_LENGTH) {
+      return null;
+    }
+
     if (!isCreatingPost) {
       return onUpdateSubmit(e);
     }
@@ -169,6 +175,7 @@ export function ShareLink({
         enabledCommand={{ mention: true }}
         showMarkdownGuide={false}
         onValueUpdate={setCommentary}
+        maxInputLength={MAX_TITLE_LENGTH}
       />
       <WriteFooter
         isLoading={isPosting || isPostingModeration || isPendingCreation}
