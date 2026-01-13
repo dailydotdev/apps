@@ -1,5 +1,6 @@
 {
   "name": "@dailydotdev/eslint-plugin-daily-dev-eslint-rules",
+  "type": "module",
   "version": "0.0.0",
   "description": "> TODO: description",
   "author": "Chris Bongers <chrisbongers@gmail.com>",

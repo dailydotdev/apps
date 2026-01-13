@@ -1,13 +1,20 @@
 {
   "name": "@dailydotdev/shared",
+  "type": "module",
   "version": "0.0.0",
   "main": "./src/index.ts",
   "license": "AGPL-3.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./postcss.config": "./postcss.config.cjs",
+    "./tailwind.config": "./tailwind.config.ts",
+    "./*": "./*"
+  },
   "scripts": {
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix --max-warnings 0",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint",
-    "test": "jest --runInBand"
+    "test": "jest --config jest.config.cjs --runInBand"
   },
   "prettier": "@dailydotdev/prettier-config",
   "peerDependencies": {

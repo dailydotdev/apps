@@ -1,5 +1,6 @@
 {
   "name": "webapp",
+  "type": "module",
   "version": "0.0.0",
   "scripts": {
     "dev": "next dev -p 5002 --experimental-https --experimental-https-key ./certificates/adhoc-server.key --experimental-https-cert ./certificates/adhoc-server.crt --experimental-https-ca ./certificates/root_ca.crt",
@@ -11,7 +12,7 @@
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --fix",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint",
-    "test": "jest --runInBand",
+    "test": "jest --config jest.config.cjs --runInBand",
     "deploy": "vercel"
   },
   "prettier": "@dailydotdev/prettier-config",
