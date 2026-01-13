@@ -71,7 +71,10 @@ import {
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/EditPreviewTabs';
 import { BrowserPreviewFrame } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/BrowserPreviewFrame';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
-import { getLayout } from '../../../components/layouts/RecruiterFullscreenLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterFullscreenLayout';
 import JobPage from '../../jobs/[id]';
 
 function EditPageContent(): ReactElement {
@@ -495,5 +498,6 @@ const GetPageLayout = (page: ReactNode): ReactNode => {
 };
 
 EditPage.getLayout = GetPageLayout;
+EditPage.layoutProps = layoutProps;
 
 export default EditPage;

@@ -23,7 +23,10 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { boostOpportunityLink } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
-import { getLayout } from '../../../../components/layouts/RecruiterSelfServeLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterFeedbackPage(): ReactElement {
   const router = useRouter();
@@ -133,5 +136,6 @@ function RecruiterFeedbackPage(): ReactElement {
 }
 
 RecruiterFeedbackPage.getLayout = getLayout;
+RecruiterFeedbackPage.layoutProps = layoutProps;
 
 export default RecruiterFeedbackPage;

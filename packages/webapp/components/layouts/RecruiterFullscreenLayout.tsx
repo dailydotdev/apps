@@ -14,6 +14,7 @@ import {
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { PendingSubmissionProvider } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { useIntercom } from '../../hooks/useIntercom';
+import { recruiterSeo } from '../../next-seo';
 
 const RecruiterFullscreenLayoutInner = ({
   children,
@@ -92,3 +93,5 @@ const GetLayout = (page: ReactNode): ReactNode => {
 };
 
 export { GetLayout as getLayout };
+
+export const layoutProps = { seo: recruiterSeo };

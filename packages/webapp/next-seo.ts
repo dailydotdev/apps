@@ -1,5 +1,8 @@
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
-import { cloudinarySquadsImageFallback } from '@dailydotdev/shared/src/lib/image';
+import {
+  cloudinarySquadsImageFallback,
+  recruiterSpamCampaignSEO,
+} from '@dailydotdev/shared/src/lib/image';
 import type {
   DefaultSeoProps,
   NextSeoProps,
@@ -44,3 +47,16 @@ export const getSquadOpenGraph = ({
 });
 
 export const defaultSeoTitle = 'daily.dev | Where developers grow together';
+
+export const recruiterSeo: NextSeoProps = {
+  title: 'daily.dev Recruiter | Hire top developers',
+  description:
+    'Find and hire top developers with daily.dev Recruiter. Connect with qualified candidates who match your requirements.',
+  openGraph: {
+    images: [
+      {
+        url: recruiterSpamCampaignSEO,
+      },
+    ],
+  },
+};

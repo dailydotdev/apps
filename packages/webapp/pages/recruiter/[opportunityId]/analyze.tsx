@@ -30,7 +30,10 @@ import type {
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
-import { getLayout } from '../../../components/layouts/RecruiterFullscreenLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterFullscreenLayout';
 
 interface UseNewOpportunityParserResult {
   isParsing: boolean;
@@ -171,6 +174,7 @@ const GetPageLayout = (page: ReactNode): ReactNode => {
 };
 
 RecruiterPage.getLayout = GetPageLayout;
+RecruiterPage.layoutProps = layoutProps;
 
 export async function getServerSideProps() {
   return { props: {} };

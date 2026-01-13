@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { RecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/RecruiterPaymentContext';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
+import { recruiterSeo } from '../../../next-seo';
 import {
   Button,
   ButtonSize,
@@ -232,5 +233,6 @@ RecruiterPaymentPage.getLayout = function getLayout(
     </OpportunityPreviewProvider>
   );
 };
+RecruiterPaymentPage.layoutProps = { seo: recruiterSeo };
 
 export default RecruiterPaymentPage;

@@ -14,7 +14,10 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { DashboardView } from '@dailydotdev/shared/src/features/recruiter/components/DashboardView';
 import { OnboardingView } from '@dailydotdev/shared/src/features/recruiter/components/OnboardingView';
-import { getLayout } from '../../components/layouts/RecruiterFullscreenLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../components/layouts/RecruiterFullscreenLayout';
 
 function RecruiterPage(): ReactElement {
   const router = useRouter();
@@ -154,6 +157,7 @@ function RecruiterPage(): ReactElement {
 }
 
 RecruiterPage.getLayout = getLayout;
+RecruiterPage.layoutProps = layoutProps;
 
 export async function getServerSideProps() {
   return { props: {} };
