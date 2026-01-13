@@ -108,6 +108,9 @@ import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import classed from '@dailydotdev/shared/src/lib/classed';
+
+// String utilities
+import { stripHtmlTags, capitalize, formatKeyword } from '@dailydotdev/shared/src/lib/strings';
 ```
 
 ### Forms (react-hook-form + Zod)
@@ -243,6 +246,49 @@ Example: Adding a video to the jobs page
 - GraphQL schema changes require manual TypeScript type updates
 - **Avoid index/barrel exports** - they easily cause dependency cycles; prefer direct file imports
 
+## Avoiding Code Duplication
+
+Before implementing new functionality, always check if similar code already exists:
+
+1. **Search for existing utilities** - Use Grep/Glob to find similar patterns:
+   ```bash
+   # Search for similar function names
+   grep -r "functionName" packages/shared/src/lib
+
+   # Search for similar logic patterns
+   grep -r "specific_pattern" packages/
+   ```
+
+2. **Check shared libraries first**:
+   - `packages/shared/src/lib/strings.ts` - String manipulation, text utilities
+   - `packages/shared/src/lib/utils.ts` - General utility functions
+   - `packages/shared/src/lib/[domain].ts` - Domain-specific utilities
+
+3. **Extract reusable functions**:
+   - If you write similar logic in multiple places, extract it to a helper
+   - If the logic is used only in one package → package-specific file
+   - If the logic could be used across packages → `packages/shared/src/lib/`
+
+4. **Real-world example** (from PostSEOSchema refactor):
+   - ❌ **Wrong**: Duplicate author schema logic in 3 places
+   - ✅ **Right**: Create `getPersonSchema()` helper, reuse everywhere
+   - ❌ **Wrong**: Local `stripHtml()` in webapp-only file
+   - ✅ **Right**: Move to `shared/src/lib/strings.ts` as `stripHtmlTags()`
+
+5. **Before submitting a PR**:
+   - Search for similar patterns in the codebase
+   - Refactor duplications into reusable functions
+   - Place utilities in appropriate shared locations
+   - Run lint to ensure code quality: `pnpm --filter <package> lint`
+
 ## Pull Requests
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
+
+## Code Review Guidelines
+
+When reviewing code (or writing code that will be reviewed):
+- **Delete dead code** - Remove unused components, functions, exports, and files. Don't leave code "for later"
+- **Avoid confusing naming** - Don't create multiple components with the same name in different locations (e.g., two `AboutMe` components)
+- **Remove unused exports** - If a function/constant is only used internally, don't export it
+- **Clean up duplicates** - If the same interface/type is defined in multiple places, consolidate to one location and import

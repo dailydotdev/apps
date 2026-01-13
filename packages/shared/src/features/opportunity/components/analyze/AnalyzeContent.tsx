@@ -11,6 +11,8 @@ import { apiUrl } from '../../../../lib/config';
 import { ReachHeroSection } from './ReachHeroSection';
 import { InsightCard } from './InsightCard';
 import { Chip } from '../../../../components/cards/common/PostTags';
+import { PlusUserIcon } from '../../../../components/icons/PlusUser';
+import { IconSize } from '../../../../components/Icon';
 
 type AnalyzeContentProps = {
   loadingStep: number;
@@ -28,8 +30,10 @@ export const AnalyzeContent = ({ loadingStep }: AnalyzeContentProps) => {
   // Mock engagement stat - in production this would come from the API
   const avgTimePerWeek = '4.2 hrs';
 
-  const showAggregation = loadingStep >= 2 && (isReady || tags.length > 0);
-  const showReachHero = loadingStep >= 2;
+  const isError = data?.result?.status === OpportunityPreviewStatus.ERROR;
+  const showAggregation =
+    !isError && loadingStep >= 2 && (isReady || tags.length > 0);
+  const showReachHero = !isError && loadingStep >= 2;
 
   return (
     <div className="flex flex-1 justify-center overflow-auto bg-background-subtle p-4 laptop:p-6">
@@ -37,6 +41,23 @@ export const AnalyzeContent = ({ loadingStep }: AnalyzeContentProps) => {
         {/* Hero Section - Matching Stats */}
         {showReachHero && (
           <ReachHeroSection totalCount={totalCount} isLoading={!isReady} />
+        )}
+
+        {isError && (
+          <div className="flex items-center justify-center rounded-16 border border-border-subtlest-tertiary bg-background-default p-6">
+            <div className="flex max-w-96 flex-1 flex-col items-center gap-2 text-center">
+              <PlusUserIcon size={IconSize.XXXLarge} />
+              <Typography type={TypographyType.Body}>
+                We didn&apos;t find any matching candidates at this time, but
+                don&apos;t worry—this doesn&apos;t necessarily mean there&apos;s
+                a problem. Our team is here to help.{' '}
+                <Typography bold type={TypographyType.Body}>
+                  Feel free to continue by selecting a plan and we can assist
+                  you further.
+                </Typography>
+              </Typography>
+            </div>
+          </div>
         )}
 
         {/* Candidate Insights */}

@@ -30,6 +30,13 @@ interface StatBadgeProps {
   style?: React.CSSProperties;
   /** Additional motion props for animated badges */
   motionProps?: MotionProps;
+  /** Custom styles object for static cards using different CSS modules */
+  customStyles?: {
+    badge?: string;
+    badgeLarge?: string;
+    badgeValue?: string;
+    badgeLabel?: string;
+  };
 }
 
 /**
@@ -55,8 +62,17 @@ export default function StatBadge({
   className,
   style,
   motionProps,
+  customStyles,
 }: StatBadgeProps): ReactElement {
-  const badgeClass = `${styles.badge} ${large ? styles.badgeLarge : ''} ${
+  // Use custom styles if provided (for static cards), otherwise use default styles
+  const s = {
+    badge: customStyles?.badge ?? styles.badge,
+    badgeLarge: customStyles?.badgeLarge ?? styles.badgeLarge,
+    badgeValue: customStyles?.badgeValue ?? styles.badgeValue,
+    badgeLabel: customStyles?.badgeLabel ?? styles.badgeLabel,
+  };
+
+  const badgeClass = `${s.badge} ${large ? s.badgeLarge : ''} ${
     className || ''
   }`;
 
@@ -69,8 +85,8 @@ export default function StatBadge({
   if (!animated) {
     return (
       <div className={badgeClass} style={customStyle}>
-        <span className={styles.badgeValue}>{value}</span>
-        <span className={styles.badgeLabel}>{label}</span>
+        <span className={s.badgeValue}>{value}</span>
+        <span className={s.badgeLabel}>{label}</span>
       </div>
     );
   }
@@ -101,7 +117,7 @@ export default function StatBadge({
 
 interface StatBadgeGroupProps {
   /** Array of badge configurations */
-  badges: Array<Omit<StatBadgeProps, 'animated' | 'delay'>>;
+  badges: Array<Omit<StatBadgeProps, 'animated' | 'delay' | 'customStyles'>>;
   /** Whether to animate the badge group */
   animated?: boolean;
   /** Base delay for animation */
@@ -110,6 +126,14 @@ interface StatBadgeGroupProps {
   staggerDelay?: number;
   /** Additional CSS class name for the container */
   className?: string;
+  /** Custom styles object for static cards using different CSS modules */
+  customStyles?: {
+    statsBadges?: string;
+    badge?: string;
+    badgeLarge?: string;
+    badgeValue?: string;
+    badgeLabel?: string;
+  };
 }
 
 /**
@@ -133,15 +157,28 @@ export function StatBadgeGroup({
   baseDelay = 0,
   staggerDelay = 0.1,
   className,
+  customStyles,
 }: StatBadgeGroupProps): ReactElement {
-  const containerClass = `${styles.statsBadges} ${className || ''}`;
+  // Use custom styles if provided (for static cards), otherwise use default styles
+  const containerStyle = customStyles?.statsBadges ?? styles.statsBadges;
+  const containerClass = `${containerStyle} ${className || ''}`;
+
+  // Extract badge-specific custom styles to pass to individual badges
+  const badgeCustomStyles = customStyles
+    ? {
+        badge: customStyles.badge,
+        badgeLarge: customStyles.badgeLarge,
+        badgeValue: customStyles.badgeValue,
+        badgeLabel: customStyles.badgeLabel,
+      }
+    : undefined;
 
   if (!animated) {
     return (
       <div className={containerClass}>
         {badges.map((badge, index) => (
           // eslint-disable-next-line react/no-array-index-key
-          <StatBadge key={index} {...badge} />
+          <StatBadge key={index} {...badge} customStyles={badgeCustomStyles} />
         ))}
       </div>
     );

@@ -1,5 +1,4 @@
 import type { ReactElement } from 'react';
-import type { GetServerSideProps } from 'next';
 import React, {
   useMemo,
   useEffect,
@@ -15,6 +14,7 @@ import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useImagePreloader } from '@dailydotdev/shared/src/hooks/useImagePreloader';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import type { GetServerSideProps } from 'next';
 import ProtectedPage from '../../components/ProtectedPage';
 import { ARCHETYPES } from '../../types/log';
 import {

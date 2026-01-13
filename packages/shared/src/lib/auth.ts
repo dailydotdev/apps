@@ -117,7 +117,6 @@ export interface ResetPasswordParameters extends AuthPostParams {
 export interface SocialRegistrationParameters {
   name?: string;
   username?: string;
-  twitter?: string;
   file?: string;
   acceptedMarketing?: boolean;
   optOutMarketing?: boolean;
@@ -135,7 +134,6 @@ export interface RegistrationParameters {
   'traits.referral'?: string;
   'traits.referralOrigin'?: string;
   'traits.timezone'?: string;
-  'traits.twitter'?: string;
   'traits.name'?: string;
   'traits.username': string;
   'traits.image': string;

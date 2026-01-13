@@ -200,7 +200,9 @@ export default function CardContributions({
                 size={IconSize.Small}
                 className={styles.ticketStubIcon}
               />
-              <span className={styles.ticketStubValue}>{animatedComments}</span>
+              <span className={styles.ticketStubValue}>
+                {largeNumberFormat(animatedComments)}
+              </span>
               <span className={styles.ticketStubLabel}>COMMENTS</span>
             </div>
             <div className={styles.ticketStubTear} />

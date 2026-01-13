@@ -5,12 +5,12 @@ import type {
   AuthTriggersType,
   SocialRegistrationParameters,
 } from '../../lib/auth';
-import { AuthEventNames, AuthTriggers } from '../../lib/auth';
+import { AuthEventNames } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
-import { MailIcon, UserIcon, LockIcon, AtIcon, TwitterIcon } from '../icons';
+import { MailIcon, UserIcon, LockIcon, AtIcon } from '../icons';
 import AuthHeader from './AuthHeader';
 import type { AuthFormProps } from './common';
 import { providerMap } from './common';
@@ -53,7 +53,6 @@ export const SocialRegistrationForm = ({
   formRef,
   title = 'Sign up',
   hints,
-  trigger,
   onUpdateHints,
   onSignup,
   isLoading,
@@ -63,10 +62,8 @@ export const SocialRegistrationForm = ({
   const { user } = useContext(AuthContext);
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
-  const [twitterHint, setTwitterHint] = useState<string>(null);
   const [experienceLevelHint, setExperienceLevelHint] = useState<string>(null);
   const [name, setName] = useState(user?.name);
-  const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const {
     username,
     setUsername,
@@ -127,16 +124,10 @@ export const SocialRegistrationForm = ({
       return;
     }
 
-    if (isAuthorOnboarding && !values.twitter) {
-      logError('Twitter not provider');
-      setTwitterHint('Please add your twitter handle');
-    }
-
     logEvent({
       event_name: AuthEventNames.SubmitSignupFormExtra,
       extra: JSON.stringify({
         username: values?.username,
-        twitter: values?.twitter,
         acceptedMarketing: !values?.optOutMarketing,
         experienceLevel: values?.experienceLevel,
         language: values?.language,
@@ -238,24 +229,6 @@ export const SocialRegistrationForm = ({
           }
           rightIcon={isLoadingUsername ? <Loader /> : null}
         />
-        {isAuthorOnboarding && (
-          <TextField
-            saveHintSpace
-            className={{ container: 'w-full' }}
-            leftIcon={<TwitterIcon />}
-            name="twitter"
-            inputId="twitter"
-            label="X"
-            type="text"
-            valid={!twitterHint}
-            hint={twitterHint}
-            valueChanged={() => {
-              if (twitterHint) {
-                setTwitterHint('');
-              }
-            }}
-          />
-        )}
         <ExperienceLevelDropdown
           className={{ container: 'w-full' }}
           name="experienceLevel"

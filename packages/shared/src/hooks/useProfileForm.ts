@@ -2,32 +2,14 @@ import { useContext, useState } from 'react';
 import type { UseMutateFunction } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
-import {
-  handleRegex,
-  socialHandleRegex,
-  UPDATE_USER_PROFILE_MUTATION,
-} from '../graphql/users';
+import { handleRegex, UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
 import type { LoggedUser, UserFlagsPublic, UserProfile } from '../lib/user';
-import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
 import { errorMessage, gqlClient } from '../graphql/common';
 
 export interface ProfileFormHint {
-  portfolio?: string;
   username?: string;
-  twitter?: string;
-  github?: string;
-  hashnode?: string;
   name?: string;
-  roadmap?: string;
-  threads?: string;
-  codepen?: string;
-  reddit?: string;
-  stackoverflow?: string;
-  youtube?: string;
-  linkedin?: string;
-  mastodon?: string;
-  bluesky?: string;
 }
 
 export interface UpdateProfileParameters extends Partial<UserProfile> {
@@ -53,36 +35,7 @@ interface UseProfileFormProps {
   onError?: (error: ResponseError) => void;
 }
 
-type Handles = Pick<
-  UserProfile,
-  | 'github'
-  | 'hashnode'
-  | 'twitter'
-  | 'username'
-  | 'roadmap'
-  | 'threads'
-  | 'codepen'
-  | 'reddit'
-  | 'stackoverflow'
-  | 'youtube'
-  | 'linkedin'
-  | 'mastodon'
-  | 'bluesky'
->;
-const socials: Array<keyof Handles> = [
-  'github',
-  'hashnode',
-  'twitter',
-  'roadmap',
-  'threads',
-  'codepen',
-  'reddit',
-  'stackoverflow',
-  'youtube',
-  'linkedin',
-  'mastodon',
-  'bluesky',
-];
+type Handles = Pick<UserProfile, 'username'>;
 
 export const onValidateHandles = (
   before: Partial<Handles>,
@@ -101,22 +54,7 @@ export const onValidateHandles = (
     return { username: errorMessage.profile.invalidUsername };
   }
 
-  return socials.reduce((obj, social) => {
-    if (after[social] && after[social] === before[social]) {
-      return obj;
-    }
-
-    const isValid = socialHandleRegex.test(after[social]);
-
-    if (isValid) {
-      return obj;
-    }
-
-    return {
-      ...obj,
-      [social]: errorMessage.profile.invalidHandle,
-    };
-  }, {});
+  return {};
 };
 
 /**
@@ -127,7 +65,6 @@ const useProfileForm = ({
   onError,
 }: UseProfileFormProps = {}): UseProfileForm => {
   const { user, updateUser } = useContext(AuthContext);
-  const { displayToast } = useToastNotification();
   const [hint, setHint] = useState<ProfileFormHint>({});
   const { isPending: isLoading, mutate: updateUserProfile } = useMutation<
     LoggedUser,
@@ -155,15 +92,6 @@ const useProfileForm = ({
       }
 
       const data: ProfileFormHint = JSON.parse(err.response.errors[0].message);
-
-      if (
-        Object.values(data).some((errorHint) =>
-          socials.some((social) => errorHint.includes(social)),
-        )
-      ) {
-        displayToast(errorMessage.profile.invalidSocialLinks);
-      }
-
       setHint(data);
     },
   });

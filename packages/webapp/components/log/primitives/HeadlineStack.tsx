@@ -64,6 +64,15 @@ interface HeadlineStackProps {
   baseDelay?: number;
   /** Additional CSS class name */
   className?: string;
+  /** Custom styles object for static cards using different CSS modules */
+  customStyles?: {
+    headlineStack?: string;
+    headlineRow?: string;
+    headlineSmall?: string;
+    headlineBig?: string;
+    headlineMedium?: string;
+    headlineAccent?: string;
+  };
 }
 
 /**
@@ -91,19 +100,39 @@ export default function HeadlineStack({
   animated = true,
   baseDelay = 0,
   className,
+  customStyles,
 }: HeadlineStackProps): ReactElement {
+  // Map variant names to custom style class names
+  const customStyleMap = {
+    small: 'headlineSmall',
+    big: 'headlineBig',
+    medium: 'headlineMedium',
+    accent: 'headlineAccent',
+  } as const;
+
+  // Use custom styles if provided (for static cards), otherwise use default styles
+  const s = {
+    headlineStack: customStyles?.headlineStack ?? styles.headlineStack,
+    headlineRow: customStyles?.headlineRow ?? styles.headlineRow,
+  };
+
+  const getVariantClass = (variant: HeadlineRowConfig['variant']) => {
+    const customKey = customStyleMap[variant];
+    return customStyles?.[customKey] ?? styles[variantClassMap[variant]];
+  };
+
   return (
-    <div className={`${styles.headlineStack} ${className || ''}`}>
+    <div className={`${s.headlineStack} ${className || ''}`}>
       {rows.map((row, index) => {
         const variantAnimation = animationVariants[row.variant];
         const delay = baseDelay + (row.delay ?? index * 0.2);
-        const styleClass = styles[variantClassMap[row.variant]];
+        const styleClass = getVariantClass(row.variant);
 
         if (!animated) {
           // Static rendering for image generation
           return (
             // eslint-disable-next-line react/no-array-index-key
-            <div key={index} className={styles.headlineRow}>
+            <div key={index} className={s.headlineRow}>
               <span className={styleClass}>{row.content}</span>
             </div>
           );

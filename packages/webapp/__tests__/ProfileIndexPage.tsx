@@ -81,10 +81,12 @@ const defaultProfile: PublicProfile = {
   cover: 'https://daily.dev/cover.png',
   bio: 'The best company!',
   createdAt: '2020-08-26T13:04:35.000Z',
-  twitter: 'dailydotdev',
-  github: 'dailydotdev',
-  hashnode: 'dailydotdev',
-  portfolio: 'https://daily.dev/?key=vaue',
+  socialLinks: [
+    { platform: 'twitter', url: 'https://x.com/dailydotdev' },
+    { platform: 'github', url: 'https://github.com/dailydotdev' },
+    { platform: 'hashnode', url: 'https://hashnode.com/@dailydotdev' },
+    { platform: 'portfolio', url: 'https://daily.dev/?key=vaue' },
+  ],
   permalink: 'https://daily.dev/dailydotdev',
   readmeHtml: 'This is my readme',
 };

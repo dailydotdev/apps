@@ -89,7 +89,7 @@ export default function CardWelcome({
         animate={isMounted ? visible : hidden}
         transition={{ delay: TAGLINE_DELAY, duration: 0.5 }}
       >
-        Discover what kind of developer you really are.
+        Discover your developer archetype.
       </motion.p>
 
       {/* Navigation instructions - appears after tagline (fade only) */}
@@ -99,6 +99,9 @@ export default function CardWelcome({
         animate={{ opacity: isMounted ? 1 : 0 }}
         transition={{ delay: INSTRUCTIONS_DELAY, duration: 0.5 }}
       >
+        <span className={styles.instructionHint}>
+          🔊 Turn on sound for the full experience
+        </span>
         {isTouchDevice ? 'Tap' : 'Click'} the sides to navigate
         <span className={styles.instructionHint}>👈 back · next 👉</span>
       </motion.p>

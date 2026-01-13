@@ -9,8 +9,11 @@ import { opportunityBriefcaseDone } from '../../../lib/image';
 import { briefButtonBg } from '../../../styles/custom';
 import { TargetId } from '../../../lib/log';
 import { CandidatePreferenceButton } from './CandidatePreferenceButton';
+import { useIsLightTheme } from '../../../hooks/utils';
 
 export const OpportunityAllSet = (): ReactElement => {
+  const isLightTheme = useIsLightTheme();
+
   return (
     <div className="flex flex-col gap-6 rounded-16 border-border-subtlest-secondary px-4 py-6 laptop:border">
       <div className="flex flex-col flex-wrap items-center gap-4 laptop:flex-row-reverse">
@@ -24,10 +27,12 @@ export const OpportunityAllSet = (): ReactElement => {
             center
             type={TypographyType.Title1}
             bold
-            style={{
-              background: briefButtonBg,
-            }}
-            className="!bg-clip-text text-transparent"
+            style={isLightTheme ? undefined : { background: briefButtonBg }}
+            className={
+              isLightTheme
+                ? 'text-accent-onion-default'
+                : '!bg-clip-text text-transparent'
+            }
           >
             You are all set!
           </Typography>

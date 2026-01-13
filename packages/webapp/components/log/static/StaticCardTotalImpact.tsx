@@ -36,7 +36,14 @@ export default function StaticCardTotalImpact({
           { content: 'this year', variant: 'accent' },
         ]}
         animated={false}
-        className={styles.headlineStack}
+        customStyles={{
+          headlineStack: styles.headlineStack,
+          headlineRow: styles.headlineRow,
+          headlineSmall: styles.headlineSmall,
+          headlineBig: styles.headlineBig,
+          headlineMedium: styles.headlineMedium,
+          headlineAccent: styles.headlineAccent,
+        }}
       />
 
       {/* Divider */}
@@ -56,7 +63,12 @@ export default function StaticCardTotalImpact({
           { value: data.daysActive, label: 'Days Active' },
         ]}
         animated={false}
-        className={styles.statsBadges}
+        customStyles={{
+          statsBadges: styles.statsBadges,
+          badge: styles.badge,
+          badgeValue: styles.badgeValue,
+          badgeLabel: styles.badgeLabel,
+        }}
       />
 
       {/* Competitive stat banner */}
