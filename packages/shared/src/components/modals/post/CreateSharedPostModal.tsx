@@ -23,6 +23,9 @@ import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
 import { ProfileImageSize } from '../../ProfilePicture';
 
+// Shared constants - remember to update them in daily-api
+const MAX_CONTENT_LENGTH = 10_000;
+
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
   onSharedSuccessfully?: (enableNotification?: boolean) => void;
@@ -126,6 +129,7 @@ export function CreateSharedPostModal({
           sourceId={squad?.id}
           allowPreview={false}
           enabledCommand={{ mention: true }}
+          maxInputLength={MAX_CONTENT_LENGTH}
           footer={
             isLoadingPreview ? (
               <WritePreviewSkeleton

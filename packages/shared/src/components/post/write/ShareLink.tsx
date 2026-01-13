@@ -16,6 +16,9 @@ import type { SourcePostModeration } from '../../../graphql/squads';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useWritePostContext } from '../../../contexts';
 
+// Shared constants - remember to update them in daily-api
+const MAX_CONTENT_LENGTH = 10_000;
+
 interface ShareLinkProps {
   squad?: Squad;
   post?: Post;
@@ -169,6 +172,7 @@ export function ShareLink({
         enabledCommand={{ mention: true }}
         showMarkdownGuide={false}
         onValueUpdate={setCommentary}
+        maxInputLength={MAX_CONTENT_LENGTH}
       />
       <WriteFooter
         isLoading={isPosting || isPostingModeration || isPendingCreation}
