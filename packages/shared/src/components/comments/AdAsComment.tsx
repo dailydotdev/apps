@@ -99,7 +99,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         <TruncateText className="commentAuthor flex w-fit font-bold text-text-primary typo-callout">
           {company}
         </TruncateText>
-        <TruncateText className="flex w-fit text-text-quaternary typo-callout">
+        <TruncateText className="text-text-quaternary typo-callout">
           {promotedText}
         </TruncateText>
       </div>
