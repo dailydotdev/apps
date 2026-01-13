@@ -224,6 +224,10 @@ export const RecruiterSetupChecklist = ({
 
   const completedCount = items.filter((item) => item.completed).length;
 
+  if (!userProfile) {
+    return null;
+  }
+
   return (
     <div
       className={classNames(
