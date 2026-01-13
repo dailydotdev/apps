@@ -72,7 +72,7 @@ import { getLayout } from '../../../components/layouts/RecruiterFullscreenLayout
 
 function PreparePageContent(): ReactElement {
   const router = useRouter();
-  const { opportunityId, onValidateOpportunity } = useOpportunityEditContext();
+  const { opportunityId } = useOpportunityEditContext();
   const { showPrompt } = usePrompt();
   const { dismissToast, displayToast, subject } = useToastNotification();
   const queryClient = useQueryClient();
@@ -228,8 +228,9 @@ function PreparePageContent(): ReactElement {
     }
 
     // Validate the opportunity data
-    const result = onValidateOpportunity({
-      schema: opportunityEditStep1Schema,
+    const result = opportunityEditStep1Schema.safeParse({
+      ...formDataToMutationPayload(form.getValues()),
+      organization: opportunity?.organization,
     });
 
     if (result.error) {
@@ -260,11 +261,12 @@ function PreparePageContent(): ReactElement {
     });
   }, [
     isDirty,
-    handleSave,
-    onValidateOpportunity,
-    showPrompt,
+    form,
+    opportunity?.organization,
+    opportunity.id,
     onSubmit,
-    opportunity?.id,
+    handleSave,
+    showPrompt,
   ]);
 
   if (isLoading || !opportunity) {
