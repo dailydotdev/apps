@@ -49,7 +49,6 @@ import type {
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
-import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { getLayout } from '../../../components/layouts/RecruiterFullscreenLayout';
 
@@ -63,11 +62,6 @@ const QuestionsSetupPage = (): ReactElement => {
 
   const { data: opportunity, isPending } = useQuery({
     ...opportunityByIdOptions({ id: opportunityId }),
-  });
-
-  const { isCheckingPayment } = useRequirePayment({
-    opportunity,
-    opportunityId,
   });
 
   const onValidationError = async ({
@@ -167,7 +161,7 @@ const QuestionsSetupPage = (): ReactElement => {
     },
   });
 
-  if (!isAuthReady || isPending || !isLoggedIn || isCheckingPayment) {
+  if (!isAuthReady || isPending || !isLoggedIn) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <Loader />

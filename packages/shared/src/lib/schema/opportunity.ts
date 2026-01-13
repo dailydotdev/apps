@@ -54,13 +54,13 @@ export const opportunityEditInfoSchema = z.object({
       .refine(
         (data) => {
           if (data?.min && data?.max) {
-            return data.max >= data.min && data.max <= data.min * 1.25;
+            return data.max >= data.min && data.min >= data.max * 0.75;
           }
 
           return true;
         },
         {
-          message: 'Max salary must be within 25% of minimum salary',
+          message: 'Salary range must be within 25% of maximum salary',
         },
       ),
     seniorityLevel: z.number({ message: 'Select a seniority level' }),

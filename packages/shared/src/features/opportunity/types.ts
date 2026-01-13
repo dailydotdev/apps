@@ -102,6 +102,8 @@ export type OpportunityScreeningAnswer = {
 type OpportunityFlagsPublic = Partial<{
   batchSize: number;
   plan: string;
+  showSlack: boolean;
+  showFeedback: boolean;
 }>;
 
 export type Opportunity = {
@@ -273,3 +275,45 @@ export type OpportunityStats = {
 };
 
 export const opportunityPreviewRefetchIntervalMs = 3000;
+
+export enum FeedbackPlatform {
+  Unspecified = 0,
+  DailyDev = 1,
+  Recruiter = 2,
+}
+
+export enum FeedbackCategory {
+  Unspecified = 0,
+  BugReport = 1,
+  FeatureRequest = 2,
+  UxIssue = 3,
+  PerformanceComplaint = 4,
+  ContentQuality = 5,
+}
+
+export enum FeedbackSentiment {
+  Unspecified = 0,
+  Positive = 1,
+  Neutral = 2,
+  Negative = 3,
+}
+
+export enum FeedbackUrgency {
+  Unspecified = 0,
+  Low = 1,
+  Medium = 2,
+  High = 3,
+  Critical = 4,
+}
+
+export type FeedbackClassification = {
+  platform: FeedbackPlatform;
+  category: FeedbackCategory;
+  sentiment: FeedbackSentiment;
+  urgency: FeedbackUrgency;
+  answer?: string;
+};
+
+export interface OpportunityFeedbackData {
+  opportunityFeedback: Connection<FeedbackClassification>;
+}

@@ -47,6 +47,18 @@ export const getOGImageUrl = (userId: string): string => {
   return ogImageUrl.toString();
 };
 
+const getTwitterHandle = (user: PublicProfile): string | undefined => {
+  const twitterLink = user.socialLinks?.find(
+    (link) => link.platform === 'twitter',
+  );
+  if (!twitterLink?.url) {
+    return undefined;
+  }
+  // Extract handle from URL like https://x.com/username or https://twitter.com/username
+  const match = twitterLink.url.match(/(?:twitter\.com|x\.com)\/([^/?]+)/);
+  return match?.[1];
+};
+
 export const getProfileSeoDefaults = (
   user: PublicProfile,
   seoOverrides: NextSeoProps,
@@ -59,7 +71,7 @@ export const getProfileSeoDefaults = (
       images: [{ url: getOGImageUrl(user.id) }],
     },
     twitter: {
-      handle: user.twitter,
+      handle: getTwitterHandle(user),
     },
     noindex,
     nofollow: noindex,

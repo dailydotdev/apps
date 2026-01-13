@@ -221,6 +221,7 @@ export enum RequestKey {
   OpportunityMatches = 'opportunity_matches',
   UserOpportunityMatches = 'user_opportunity_matches',
   OpportunityStats = 'opportunity_stats',
+  OpportunityFeedback = 'opportunity_feedback',
   UserCandidatePreferences = 'user_candidate_preferences',
   KeywordAutocomplete = 'keyword_autocomplete',
   Gif = 'gif',
