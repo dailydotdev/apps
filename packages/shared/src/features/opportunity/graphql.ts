@@ -730,6 +730,10 @@ export const FEEDBACK_CLASSIFICATION_FRAGMENT = gql`
     sentiment
     urgency
     answer
+    userContext {
+      seniority
+      locationCountry
+    }
   }
 `;
 
