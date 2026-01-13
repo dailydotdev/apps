@@ -26,7 +26,6 @@ type CompletionItem = {
 
 type ProfileCompletionProps = {
   className?: string;
-  showDismiss?: boolean;
 };
 
 const getCompletionItems = (
@@ -77,7 +76,6 @@ const formatDescription = (incompleteItems: CompletionItem[]): string => {
 
 export const ProfileCompletion = ({
   className,
-  showDismiss = false,
 }: ProfileCompletionProps): ReactElement | null => {
   const { user } = useAuthContext();
   const { dismissIndicator } = useProfileCompletionIndicator();
@@ -115,19 +113,14 @@ export const ProfileCompletion = ({
         className,
       )}
     >
-      {showDismiss && (
-        <div className="flex justify-end px-2 pt-2">
-          <CloseButton size={ButtonSize.XSmall} onClick={dismissIndicator} />
-        </div>
-      )}
+      <div className="flex justify-end px-2 pt-2">
+        <CloseButton size={ButtonSize.XSmall} onClick={dismissIndicator} />
+      </div>
       <Link href={redirectPath}>
         <a
           href={redirectPath}
           rel={anchorDefaultRel}
-          className={classNames(
-            'flex w-full items-center gap-6 p-4',
-            showDismiss && 'pt-0',
-          )}
+          className="flex w-full items-center gap-6 p-4 pt-0"
         >
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex items-center gap-1">

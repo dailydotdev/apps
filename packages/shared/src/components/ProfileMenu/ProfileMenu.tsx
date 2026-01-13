@@ -62,7 +62,7 @@ export default function ProfileMenu({
       position={InteractivePopupPosition.ProfileMenu}
       className="flex w-full max-w-80 flex-col gap-3 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
-      {showProfileCompletion && <ProfileCompletion showDismiss />}
+      {showProfileCompletion && <ProfileCompletion />}
       <ProfileMenuHeader />
 
       <UpgradeToPlus
