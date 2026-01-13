@@ -2,13 +2,16 @@ import type { ComponentType, ReactElement } from 'react';
 import React from 'react';
 import type { IconProps, IconSize } from '../components/Icon';
 import {
+  BitbucketIcon,
   BlueskyIcon,
+  CodebergIcon,
   CodePenIcon,
   CrunchbaseIcon,
   FacebookIcon,
   GitHubIcon,
   GitLabIcon,
   HashnodeIcon,
+  KaggleIcon,
   LinkedInIcon,
   LinkIcon,
   MastodonIcon,
@@ -131,6 +134,34 @@ export const CORE_PLATFORMS = {
     icon: RoadmapIcon,
     urlBuilder: (u: string) => `https://roadmap.sh/u/${u}`,
   },
+  gitlab: {
+    id: 'gitlab',
+    label: 'GitLab',
+    domains: ['gitlab.com'],
+    icon: GitLabIcon,
+    urlBuilder: (u: string) => `https://gitlab.com/${u}`,
+  },
+  codeberg: {
+    id: 'codeberg',
+    label: 'Codeberg',
+    domains: ['codeberg.org'],
+    icon: CodebergIcon,
+    urlBuilder: (u: string) => `https://codeberg.org/${u}`,
+  },
+  bitbucket: {
+    id: 'bitbucket',
+    label: 'Bitbucket',
+    domains: ['bitbucket.org'],
+    icon: BitbucketIcon,
+    urlBuilder: (u: string) => `https://bitbucket.org/${u}`,
+  },
+  kaggle: {
+    id: 'kaggle',
+    label: 'Kaggle',
+    domains: ['kaggle.com'],
+    icon: KaggleIcon,
+    urlBuilder: (u: string) => `https://kaggle.com/${u}`,
+  },
 } satisfies Record<string, PlatformConfig>;
 
 /**
@@ -148,12 +179,6 @@ export const ORG_ONLY_PLATFORMS = {
     label: 'Instagram',
     domains: ['instagram.com'],
     icon: LinkIcon, // No specific icon available
-  },
-  gitlab: {
-    id: 'gitlab',
-    label: 'GitLab',
-    domains: ['gitlab.com'],
-    icon: GitLabIcon,
   },
   medium: {
     id: 'medium',

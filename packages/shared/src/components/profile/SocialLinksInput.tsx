@@ -38,7 +38,7 @@ const getSocialLinkDisplay = (link: UserSocialLink): SocialLinkDisplay => {
 export function SocialLinksInput({
   name,
   label = 'Links',
-  hint = 'Connect your profiles across the web',
+  hint = "Paste any URL and we'll auto-detect the platform",
 }: SocialLinksInputProps): ReactElement {
   const { control } = useFormContext();
   const {

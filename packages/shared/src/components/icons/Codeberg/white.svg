@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>codeberg</title>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="#FFFFFF">
+            <path d="M11.955 2C6.465 2 2 6.465 2 11.955c0 4.15 2.55 7.7 6.165 9.195l3.47-9.47a.5.5 0 0 1 .94 0l3.47 9.47c3.615-1.495 6.165-5.045 6.165-9.195C22.21 6.465 17.745 2 12.255 2h-.3z"/>
+        </g>
+    </g>
+</svg>

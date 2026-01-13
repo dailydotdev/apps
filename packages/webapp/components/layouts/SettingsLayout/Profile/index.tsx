@@ -125,7 +125,7 @@ const ProfileIndex = (): ReactElement => {
               <SocialLinksInput
                 name="socialLinks"
                 label="Links"
-                hint="Connect your profiles across the web"
+                hint="Paste any URL and we'll auto-detect the platform"
               />
             </Section>
           </div>

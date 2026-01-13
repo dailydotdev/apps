@@ -102,7 +102,7 @@ const EditOrganizationPage = (): ReactElement => {
   };
 
   const handleCancel = () => {
-    router.reload();
+    router.back();
   };
 
   if (!isAuthReady) {
