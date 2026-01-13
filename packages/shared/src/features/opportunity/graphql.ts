@@ -137,6 +137,8 @@ export const OPPORTUNITY_FRAGMENT = gql`
     flags {
       batchSize
       plan
+      showSlack
+      showFeedback
     }
   }
   ${ORGANIZATION_SHORT_FRAGMENT}

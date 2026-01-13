@@ -102,6 +102,8 @@ export type OpportunityScreeningAnswer = {
 type OpportunityFlagsPublic = Partial<{
   batchSize: number;
   plan: string;
+  showSlack: boolean;
+  showFeedback: boolean;
 }>;
 
 export type Opportunity = {
