@@ -1,11 +1,20 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type {
   ProfileCompletion as ProfileCompletionData,
   LoggedUser,
 } from '../../../../lib/user';
 import { ProfileCompletion } from './ProfileCompletion';
 import { AuthContextProvider } from '../../../../contexts/AuthContext';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
 
 const createMockUser = (
   profileCompletion: ProfileCompletionData,
@@ -27,20 +36,22 @@ const createMockUser = (
 
 const renderWithAuth = (user: LoggedUser | null) => {
   return render(
-    <AuthContextProvider
-      user={user}
-      updateUser={jest.fn()}
-      tokenRefreshed
-      getRedirectUri={jest.fn()}
-      closeLogin={jest.fn()}
-      loadingUser={false}
-      loadedUserFromCache
-      refetchBoot={jest.fn()}
-      firstLoad={false}
-      isValidSession
-    >
-      <ProfileCompletion />
-    </AuthContextProvider>,
+    <QueryClientProvider client={queryClient}>
+      <AuthContextProvider
+        user={user}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        closeLogin={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+        refetchBoot={jest.fn()}
+        firstLoad={false}
+        isValidSession
+      >
+        <ProfileCompletion />
+      </AuthContextProvider>
+    </QueryClientProvider>,
   );
 };
 
