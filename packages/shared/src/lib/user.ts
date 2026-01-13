@@ -11,6 +11,7 @@ import type { SubscriptionProvider, SubscriptionStatus } from './plus';
 import type { FeaturedAward, UserTransactionPublic } from '../graphql/njord';
 import type { Post } from '../graphql/posts';
 import type { TLocation } from '../graphql/autocomplete';
+import { generateQueryKey, RequestKey, StaleTime } from './query';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -303,4 +304,19 @@ export const canViewPostAnalytics = ({
   }
 
   return !!user?.id && user.id === post?.author?.id;
+};
+
+export const userProfileQueryOptions = ({ id }) => {
+  return {
+    queryKey: generateQueryKey(
+      RequestKey.Profile,
+      { id },
+      {
+        id,
+      },
+    ),
+    queryFn: () => getProfile(id),
+    staleTime: StaleTime.OneHour,
+    enabled: !!id,
+  };
 };

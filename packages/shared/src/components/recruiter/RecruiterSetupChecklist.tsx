@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -22,6 +23,7 @@ import { settingsUrl, recruiterUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { anchorDefaultRel } from '../../lib/strings';
 import type { Opportunity } from '../../features/opportunity/types';
+import { userProfileQueryOptions } from '../../lib/user';
 
 type ChecklistItem = {
   id: string;
@@ -112,6 +114,9 @@ export const RecruiterSetupChecklist = ({
 }: RecruiterSetupChecklistProps): ReactElement => {
   const { organization, flags } = opportunity || {};
   const { user } = useAuthContext();
+  const { data: userProfile } = useQuery(
+    userProfileQueryOptions({ id: user?.id }),
+  );
   const { openModal } = useLazyModal();
 
   // Company profile completion checks
@@ -129,14 +134,20 @@ export const RecruiterSetupChecklist = ({
 
   // Personal profile completion checks
   const hasVerifiedCompany = useMemo(
-    () => Boolean(user?.companies && user.companies.length > 0),
-    [user?.companies],
+    () => Boolean(userProfile?.companies && userProfile.companies.length > 0),
+    [userProfile?.companies],
   );
   const hasProfileImage = useMemo(
-    () => Boolean(user?.image && user.image !== fallbackImages.avatar),
-    [user?.image],
+    () =>
+      Boolean(
+        userProfile?.image && userProfile.image !== fallbackImages.avatar,
+      ),
+    [userProfile?.image],
   );
-  const hasHeadline = useMemo(() => Boolean(user?.bio), [user?.bio]);
+  const hasHeadline = useMemo(
+    () => Boolean(userProfile?.bio),
+    [userProfile?.bio],
+  );
   const isProfileComplete =
     hasVerifiedCompany && hasProfileImage && hasHeadline;
 
