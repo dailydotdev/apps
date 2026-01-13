@@ -28,6 +28,27 @@ export const MEGABYTE = 1024 * 1024;
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];
 
+// Tweet-specific types
+export type TweetMediaType = 'image' | 'video' | 'gif';
+
+export interface TweetMedia {
+  type: TweetMediaType;
+  url: string;
+  thumbnail?: string;
+}
+
+export interface TweetData {
+  tweetId: string;
+  authorUsername: string;
+  authorName: string;
+  authorAvatar: string;
+  authorVerified: boolean;
+  content: string;
+  contentHtml?: string;
+  media?: TweetMedia[];
+  createdAt: string;
+}
+
 export interface SharedPost extends Post {
   __typename?: string;
   id: string;
@@ -55,6 +76,10 @@ export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
   post?.type === PostType.VideoYouTube ||
   (post?.type === PostType.Share &&
     post?.sharedPost?.type === PostType.VideoYouTube);
+
+export const isTweetPost = (post: Post | ReadHistoryPost): boolean =>
+  post?.type === PostType.Tweet ||
+  (post?.type === PostType.Share && post?.sharedPost?.type === PostType.Tweet);
 
 export const getReadPostButtonText = (post: Post): string =>
   isVideoPost(post) ? 'Watch video' : 'Read post';
@@ -160,6 +185,18 @@ export interface Post {
   numPollVotes?: number;
   endsAt?: string;
   analytics?: Partial<Pick<PostAnalytics, 'impressions'>>;
+  // Tweet-specific fields (populated for PostType.Tweet)
+  tweetId?: string;
+  tweetAuthorUsername?: string;
+  tweetAuthorName?: string;
+  tweetAuthorAvatar?: string;
+  tweetAuthorVerified?: boolean;
+  tweetContent?: string;
+  tweetContentHtml?: string;
+  tweetMedia?: TweetMedia[];
+  tweetCreatedAt?: Date;
+  isThread?: boolean;
+  threadTweets?: TweetData[];
 }
 
 export type RelatedPost = Pick<
