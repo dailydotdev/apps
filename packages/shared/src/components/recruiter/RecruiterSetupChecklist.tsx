@@ -34,7 +34,7 @@ type ChecklistItem = {
 };
 
 export type RecruiterSetupChecklistProps = {
-  opportunity?: Pick<Opportunity, 'id' | 'organization'>;
+  opportunity?: Pick<Opportunity, 'id' | 'organization' | 'flags'>;
   className?: string;
 };
 
@@ -110,7 +110,7 @@ export const RecruiterSetupChecklist = ({
   opportunity,
   className,
 }: RecruiterSetupChecklistProps): ReactElement => {
-  const { organization } = opportunity || {};
+  const { organization, flags } = opportunity || {};
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
 
@@ -170,42 +170,44 @@ export const RecruiterSetupChecklist = ({
   }, [user, opportunity, openModal, organization?.name]);
 
   const items: ChecklistItem[] = useMemo(
-    () => [
-      {
-        id: 'company',
-        title: 'Complete company profile',
-        description:
-          'Developers trust companies they can verify. Complete profiles build that trust.',
-        icon: <OrganizationIcon size={IconSize.Small} />,
-        completed: isCompanyComplete,
-        href: organization?.id
-          ? `${recruiterUrl}/organizations/${organization.id}`
-          : undefined,
-      },
-      {
-        id: 'profile',
-        title: 'Verify your identity',
-        description:
-          'Developers share their real profiles. Earn their trust by doing the same.',
-        icon: <UserIcon size={IconSize.Small} />,
-        completed: isProfileComplete,
-        href: `${settingsUrl}/profile`,
-      },
-      {
-        id: 'slack',
-        title: 'Connect on Slack',
-        description: 'Direct line to our team. No tickets, real humans.',
-        icon: <SlackIcon size={IconSize.Small} />,
-        completed: hasSlackConnection,
-        onClick: hasSlackConnection ? undefined : handleConnectSlack,
-      },
-    ],
+    () =>
+      [
+        {
+          id: 'company',
+          title: 'Complete company profile',
+          description:
+            'Developers trust companies they can verify. Complete profiles build that trust.',
+          icon: <OrganizationIcon size={IconSize.Small} />,
+          completed: isCompanyComplete,
+          href: organization?.id
+            ? `${recruiterUrl}/organizations/${organization.id}`
+            : undefined,
+        },
+        {
+          id: 'profile',
+          title: 'Verify your identity',
+          description:
+            'Developers share their real profiles. Earn their trust by doing the same.',
+          icon: <UserIcon size={IconSize.Small} />,
+          completed: isProfileComplete,
+          href: `${settingsUrl}/profile`,
+        },
+        flags?.showSlack && {
+          id: 'slack',
+          title: 'Connect on Slack',
+          description: 'Direct line to our team. No tickets, real humans.',
+          icon: <SlackIcon size={IconSize.Small} />,
+          completed: hasSlackConnection,
+          onClick: hasSlackConnection ? undefined : handleConnectSlack,
+        },
+      ].filter(Boolean) as ChecklistItem[],
     [
       isCompanyComplete,
       isProfileComplete,
       hasSlackConnection,
       organization?.id,
       handleConnectSlack,
+      flags?.showSlack,
     ],
   );
 

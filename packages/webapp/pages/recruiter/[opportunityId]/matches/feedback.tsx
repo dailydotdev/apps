@@ -17,6 +17,12 @@ import {
   opportunityFeedbackQueryOptions,
 } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { boostOpportunityLink } from '@dailydotdev/shared/src/lib/constants';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { getLayout } from '../../../../components/layouts/RecruiterSelfServeLayout';
 
 function RecruiterFeedbackPage(): ReactElement {
@@ -41,6 +47,8 @@ function RecruiterFeedbackPage(): ReactElement {
 
   const feedback = feedbackData?.edges?.map((edge) => edge.node) ?? [];
 
+  const hasAccess = opportunity?.flags?.showFeedback;
+
   if (isLoading || isCheckingPayment) {
     return (
       <OpportunityProvider opportunityId={opportunityId as string}>
@@ -49,6 +57,42 @@ function RecruiterFeedbackPage(): ReactElement {
           <ConnectProgress />
           <div className="flex flex-1 items-center justify-center bg-background-subtle">
             <Loader />
+          </div>
+        </div>
+      </OpportunityProvider>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <OpportunityProvider opportunityId={opportunityId as string}>
+        <div className="flex flex-1 flex-col">
+          <ConnectHeader activeTab="feedback" />
+          <ConnectProgress />
+          <div className="flex flex-1 flex-col gap-6 bg-background-subtle p-6">
+            <div className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center gap-6 p-6">
+              <Typography type={TypographyType.Mega3} bold center>
+                Upgrade to access feedback
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Tertiary}
+                center
+              >
+                Get insights into why candidates pass on your opportunity.
+                Upgrade your plan to unlock candidate feedback and improve your
+                listing.
+              </Typography>
+              <Button
+                variant={ButtonVariant.Primary}
+                tag="a"
+                href={boostOpportunityLink}
+                target="_blank"
+                rel={anchorDefaultRel}
+              >
+                Upgrade plan
+              </Button>
+            </div>
           </div>
         </div>
       </OpportunityProvider>
