@@ -16,7 +16,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { getLayout } from '../../../components/layouts/RecruiterLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterLayout';
 
 type OpportunityCardProps = {
   opportunity: Opportunity;
@@ -163,5 +166,6 @@ const RecruiterDashboard = (): ReactElement => {
 };
 
 RecruiterDashboard.getLayout = getLayout;
+RecruiterDashboard.layoutProps = layoutProps;
 
 export default RecruiterDashboard;

@@ -21,7 +21,10 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { labels } from '@dailydotdev/shared/src/lib';
 import type { recruiterOrganizationEditSchema } from '@dailydotdev/shared/src/features/organizations/schema';
-import { getLayout } from '../../../components/layouts/RecruiterSelfServeLayout';
+import {
+  getLayout,
+  layoutProps,
+} from '../../../components/layouts/RecruiterSelfServeLayout';
 
 const EditOrganizationPage = (): ReactElement => {
   const router = useRouter();
@@ -158,5 +161,6 @@ const EditOrganizationPage = (): ReactElement => {
 };
 
 EditOrganizationPage.getLayout = getLayout;
+EditOrganizationPage.layoutProps = layoutProps;
 
 export default EditOrganizationPage;

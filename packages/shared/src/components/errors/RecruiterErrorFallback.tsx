@@ -38,8 +38,9 @@ function RecruiterErrorFallback(): ReactElement {
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
           >
-            We&apos;re sorry, but something unexpected happened. Our team has
-            been notified. Please reach out if you need immediate assistance.
+            We&apos;re sorry, but something unexpected happened. We will look
+            into it, you can also try refreshing the page to try again. Please
+            reach out if you need immediate assistance.
           </Typography>
         </div>
         <div className="flex w-full flex-col gap-3">

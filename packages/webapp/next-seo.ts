@@ -44,3 +44,9 @@ export const getSquadOpenGraph = ({
 });
 
 export const defaultSeoTitle = 'daily.dev | Where developers grow together';
+
+export const recruiterSeo: NextSeoProps = {
+  title: 'daily.dev Recruiter | Dashboard',
+  description:
+    'Your dashboard for the developer-first hiring platform. Manage roles, review matches, and track warm introductions.',
+};

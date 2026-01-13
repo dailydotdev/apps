@@ -23,15 +23,17 @@ export const RecruiterSignInModal = ({
   onSuccess,
   ...modalProps
 }: RecruiterSignInModalProps): ReactElement => {
-  const [authDisplay, setAuthDisplay] = useState<AuthDisplay>(
-    AuthDisplay.OnboardingSignup,
-  );
+  const [authState, setAuthState] = useState<AuthProps>(() => {
+    return {
+      isAuthenticating: false,
+      isLoginFlow: false,
+      isLoading: false,
+      defaultDisplay: AuthDisplay.OnboardingSignup,
+    };
+  });
 
   const handleAuthStateUpdate = useCallback((props: Partial<AuthProps>) => {
-    // Handle display changes within the modal (e.g., switching to email registration)
-    if (props.defaultDisplay) {
-      setAuthDisplay(props.defaultDisplay);
-    }
+    setAuthState((prev) => ({ ...prev, ...props }));
   }, []);
 
   const handleSuccessfulRegistration = useCallback(() => {
@@ -46,6 +48,11 @@ export const RecruiterSignInModal = ({
     onSuccess?.();
   }, [onRequestClose, onSuccess]);
 
+  // Derive the display from auth state - login flow should show default display
+  const authDisplay = authState.isLoginFlow
+    ? AuthDisplay.Default
+    : authState.defaultDisplay ?? AuthDisplay.OnboardingSignup;
+
   // Show header content only on the initial signup screen
   const showHeader = authDisplay === AuthDisplay.OnboardingSignup;
 
@@ -55,7 +62,7 @@ export const RecruiterSignInModal = ({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       onRequestClose={onRequestClose}
-      shouldCloseOnOverlayClick
+      shouldCloseOnOverlayClick={false}
     >
       <Modal.Body className="flex flex-col items-center gap-6 p-6">
         {showHeader && (
@@ -81,6 +88,7 @@ export const RecruiterSignInModal = ({
           simplified
           defaultDisplay={authDisplay}
           forceDefaultDisplay
+          isLoginFlow={authState.isLoginFlow}
           className={{
             onboardingSignup: '!gap-4',
           }}

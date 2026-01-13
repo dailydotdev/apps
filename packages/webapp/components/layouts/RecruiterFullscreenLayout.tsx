@@ -16,6 +16,7 @@ import { PendingSubmissionProvider } from '@dailydotdev/shared/src/features/oppo
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/RecruiterErrorFallback';
 import { useIntercom } from '../../hooks/useIntercom';
+import { recruiterSeo } from '../../next-seo';
 
 const RecruiterFullscreenLayoutInner = ({
   children,
@@ -99,3 +100,5 @@ const GetLayout = (page: ReactNode): ReactNode => {
 };
 
 export { GetLayout as getLayout };
+
+export const layoutProps = { seo: recruiterSeo };

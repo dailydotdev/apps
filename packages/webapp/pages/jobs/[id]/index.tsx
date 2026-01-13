@@ -485,7 +485,7 @@ const JobPage = ({
   return (
     <>
       {!hasCompletedInitialView && !previewMode && (
-        <div className="mb-4">
+        <div className="my-4">
           <JobPageIntro />
         </div>
       )}
