@@ -82,7 +82,7 @@ const ProfileIndex = (): ReactElement => {
                 label="Username"
                 leftIcon={<AtIcon />}
               />
-              <ControlledTextarea name="bio" label="Headline" />
+              <ControlledTextarea name="bio" label="Headline" maxLength={250} />
               <ExperienceSelect
                 icon={<TerminalIcon />}
                 name="experienceLevel"
@@ -118,6 +118,7 @@ const ProfileIndex = (): ReactElement => {
               <ControlledMarkdownInput
                 name="readme"
                 textareaProps={{ rows: 10 }}
+                maxInputLength={2000}
               />
             </Section>
             <HorizontalSeparator />
