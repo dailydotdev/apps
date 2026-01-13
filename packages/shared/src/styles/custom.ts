@@ -25,3 +25,12 @@ export const cvUploadBannerBg =
 
 export const recruiterPremiumPlanBg =
   'radial-gradient(76.99% 27.96% at 53.99% 54.97%, #CE3DF3 0%, rgba(114, 41, 240, 0.08) 50%)';
+
+export const profileCompletionCardBorder =
+  '1px solid color-mix(in srgb, var(--theme-accent-cabbage-subtler), transparent 50%)';
+
+export const profileCompletionCardBg =
+  'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 96%) 100%)';
+
+export const profileCompletionButtonBg =
+  'color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 20%)';
