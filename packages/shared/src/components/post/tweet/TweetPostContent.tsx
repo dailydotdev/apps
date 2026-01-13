@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { TweetAuthorHeader } from './TweetAuthorHeader';
 import { TweetContent } from './TweetContent';
+import { TweetMediaGallery } from './TweetMediaGallery';
 import { SharePostTitle } from '../share';
 import { TwitterIcon } from '../../icons';
 import { Button, ButtonVariant, ButtonSize } from '../../buttons/Button';
@@ -74,18 +75,9 @@ export function TweetPostContent({
           />
         )}
 
-        {/* Tweet media - will be implemented in ENG-311 */}
+        {/* Tweet media gallery */}
         {tweetPost.tweetMedia && tweetPost.tweetMedia.length > 0 && (
-          <div className="mb-4 overflow-hidden rounded-12">
-            {/* TweetMediaGallery component will be added here */}
-            {tweetPost.tweetMedia[0].type === 'image' && (
-              <img
-                src={tweetPost.tweetMedia[0].url}
-                alt="Tweet media"
-                className="max-h-[512px] w-full object-cover"
-              />
-            )}
-          </div>
+          <TweetMediaGallery media={tweetPost.tweetMedia} className="mb-4" />
         )}
 
         {/* Thread indicator - will be expanded in ENG-312 */}
