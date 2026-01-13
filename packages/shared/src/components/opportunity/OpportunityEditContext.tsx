@@ -8,6 +8,7 @@ import { opportunityByIdOptions } from '../../features/opportunity/queries';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { OpportunityState } from '../../features/opportunity/protobuf/opportunity';
 import { webappUrl } from '../../lib/constants';
+import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 
 export type OpportunityEditContextProps = {
   children: ReactNode;
@@ -22,6 +23,10 @@ const [OpportunityEditProvider, useOpportunityEditContext] =
     const router = useRouter();
 
     const { data: opportunity } = useQuery(
+      opportunityByIdOptions({ id: opportunityId }),
+    );
+
+    const [getOpportunity] = useUpdateQuery(
       opportunityByIdOptions({ id: opportunityId }),
     );
 
@@ -62,7 +67,7 @@ const [OpportunityEditProvider, useOpportunityEditContext] =
     return {
       canEdit,
       onValidateOpportunity: ({ schema }: { schema: z.ZodType }) => {
-        const result = schema.safeParse(opportunity);
+        const result = schema.safeParse(getOpportunity());
 
         return result;
       },
