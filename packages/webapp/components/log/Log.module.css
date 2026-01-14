@@ -28,6 +28,11 @@
   padding-top: env(safe-area-inset-top, 0);
 }
 
+/* iOS native app already handles safe area on body via ios.css */
+:global(.ios) .logContainer {
+  padding-top: 0;
+}
+
 /* ========================================
    BACKGROUND EFFECTS
    ======================================== */
