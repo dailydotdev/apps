@@ -80,19 +80,18 @@ function NewCommentComponent(
   const hasCommentQuery = typeof router.query.comment === 'string';
 
   useEffect(() => {
-    if (
-      !shouldHandleCommentQuery ||
-      !hasCommentQuery ||
-      (post.type !== PostType.Welcome && post.type !== PostType.Poll)
-    ) {
+    if (!shouldHandleCommentQuery || !hasCommentQuery) {
       return;
     }
 
     const { comment, ...query } = router.query;
-    const origin =
-      post.type === PostType.Poll
-        ? Origin.PollCommentButton
-        : Origin.SquadChecklist;
+    let origin = Origin.Notification;
+
+    if (post.type === PostType.Poll) {
+      origin = Origin.PollCommentButton;
+    } else if (post.type === PostType.Welcome) {
+      origin = Origin.SquadChecklist;
+    }
 
     onShowComment(origin, comment as string);
 
