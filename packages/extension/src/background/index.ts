@@ -52,7 +52,7 @@ const sendBootData = async (_, tab: Tabs.Tab) => {
 
   const [deviceId, boot] = await Promise.all([
     getOrGenerateDeviceId(),
-    getBootData('companion', href),
+    getBootData({ app: 'companion', url: href }),
   ]);
 
   let settingsOutput = boot.settings;
