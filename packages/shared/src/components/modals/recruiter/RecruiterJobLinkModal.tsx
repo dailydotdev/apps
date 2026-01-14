@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
 import z from 'zod';
+import { useMutation } from '@tanstack/react-query';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -14,6 +15,15 @@ import { MagicIcon, ShieldIcon } from '../../icons';
 import { DragDrop } from '../../fields/DragDrop';
 import type { PendingSubmission } from '../../../features/opportunity/context/PendingSubmissionContext';
 import { ModalClose } from '../common/ModalClose';
+import usePersistentContext, {
+  PersistentContextKeys,
+} from '../../../hooks/usePersistentContext';
+import {
+  parseOpportunityMutationOptions,
+  getParseOpportunityMutationErrorMessage,
+} from '../../../features/opportunity/mutations';
+import { useToastNotification } from '../../../hooks/useToastNotification';
+import type { ApiErrorResult } from '../../../graphql/common';
 
 const jobLinkSchema = z.url({ message: 'Please enter a valid URL' });
 
@@ -40,6 +50,19 @@ export const RecruiterJobLinkModal = ({
   const [jobLink, setJobLink] = useState('');
   const [error, setError] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
+
+  const { displayToast } = useToastNotification();
+  const [, setPendingOpportunityId] = usePersistentContext<string | null>(
+    PersistentContextKeys.PendingOpportunityId,
+    null,
+  );
+
+  const { mutateAsync: parseOpportunity, isPending } = useMutation({
+    ...parseOpportunityMutationOptions(),
+    onError: (err: ApiErrorResult) => {
+      displayToast(getParseOpportunityMutationErrorMessage(err));
+    },
+  });
 
   const validateJobLink = useCallback((value: string) => {
     if (!value.trim()) {
@@ -75,19 +98,38 @@ export const RecruiterJobLinkModal = ({
     setError('');
   }, []);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
+    const payload: { url?: string; file?: File } = {};
+
     if (jobLink) {
       const trimmedLink = jobLink.trim();
       if (trimmedLink && validateJobLink(trimmedLink)) {
-        onSubmit({ type: 'url', url: trimmedLink });
-        return;
+        payload.url = trimmedLink;
       }
+
+      return;
     }
 
     if (file) {
-      onSubmit({ type: 'file', file });
+      payload.file = file;
     }
-  }, [jobLink, file, validateJobLink, onSubmit]);
+
+    const opportunity = await parseOpportunity(payload);
+    await setPendingOpportunityId(opportunity.id);
+
+    if (payload.url) {
+      onSubmit({ type: 'url', url: payload.url });
+    } else if (payload.file) {
+      onSubmit({ type: 'file', file: payload.file });
+    }
+  }, [
+    jobLink,
+    file,
+    validateJobLink,
+    parseOpportunity,
+    setPendingOpportunityId,
+    onSubmit,
+  ]);
 
   return (
     <Modal
@@ -149,7 +191,8 @@ export const RecruiterJobLinkModal = ({
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
             onClick={handleSubmit}
-            disabled={(!jobLink.trim() && !file) || !!error}
+            disabled={(!jobLink.trim() && !file) || !!error || isPending}
+            loading={isPending}
             className="w-full gap-2 tablet:w-auto"
           >
             <MagicIcon />

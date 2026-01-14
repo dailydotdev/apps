@@ -14,6 +14,10 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { DashboardView } from '@dailydotdev/shared/src/features/recruiter/components/DashboardView';
 import { OnboardingView } from '@dailydotdev/shared/src/features/recruiter/components/OnboardingView';
+import usePersistentContext, {
+  PersistentContextKeys,
+} from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   getLayout,
   layoutProps,
@@ -25,6 +29,9 @@ function RecruiterPage(): ReactElement {
   const { setPendingSubmission } = usePendingSubmission();
   const { user, loadingUser } = useAuthContext();
   const hasInitializedRef = useRef(false);
+  const [pendingOpportunityId, setPendingOpportunityId] = usePersistentContext<
+    string | null
+  >(PersistentContextKeys.PendingOpportunityId, null);
 
   // Check if user already has opportunities (jobs)
   const { data: opportunitiesData, isLoading: isLoadingOpportunities } =
@@ -32,10 +39,18 @@ function RecruiterPage(): ReactElement {
       ...getOpportunitiesOptions(),
       enabled: !!user,
     });
-  const navigateToAnalyze = useCallback(() => {
+  const navigateToAnalyze = useCallback(async () => {
+    if (pendingOpportunityId) {
+      setPendingOpportunityId(null);
+      await router.push(
+        `${webappUrl}recruiter/${pendingOpportunityId}/analyze`,
+      );
+    } else {
+      await router.push(`${webappUrl}recruiter/new/analyze`);
+    }
+
     closeModal();
-    router.push(`/recruiter/new/analyze`);
-  }, [closeModal, router]);
+  }, [closeModal, pendingOpportunityId, setPendingOpportunityId, router]);
 
   // Use a ref so the modal always calls the latest version of this function
   // This avoids stale closures since the modal captures the callback when opened

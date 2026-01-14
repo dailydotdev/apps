@@ -1,6 +1,11 @@
 import type { DefaultError, MutationOptions } from '@tanstack/react-query';
 import type z from 'zod';
-import { gqlClient } from '../../graphql/common';
+import type {
+  ApiErrorResult,
+  ApiZodErrorExtension,
+} from '../../graphql/common';
+import { gqlClient, ApiError } from '../../graphql/common';
+import { labels } from '../../lib';
 import {
   ACCEPT_OPPORTUNITY_MATCH,
   ADD_OPPORTUNITY_SEATS_MUTATION,
@@ -445,6 +450,26 @@ export const recruiterRejectOpportunityMatchMutationOptions =
       },
     };
   };
+
+export const getParseOpportunityMutationErrorMessage = (
+  error: ApiErrorResult,
+): string => {
+  const isZodError =
+    error?.response?.errors?.[0]?.extensions?.code ===
+    ApiError.ZodValidationError;
+
+  if (isZodError) {
+    const zodError = error as ApiErrorResult<ApiZodErrorExtension>;
+    return (
+      zodError.response.errors[0].extensions.issues?.find(
+        (issue) => issue.code === 'custom',
+      )?.message ||
+      'We could not extract the job details from your submission. Please try a different file or URL.'
+    );
+  }
+
+  return error?.response?.errors?.[0]?.message || labels.error.generic;
+};
 
 export const parseOpportunityMutationOptions = () => {
   return {

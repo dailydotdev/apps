@@ -268,6 +268,8 @@ Before implementing new functionality, always check if similar code already exis
    - If you write similar logic in multiple places, extract it to a helper
    - If the logic is used only in one package → package-specific file
    - If the logic could be used across packages → `packages/shared/src/lib/`
+   - Don't extract single-use code into separate functions - keep logic inline where it's used
+   - Only extract functions when the same logic is needed in multiple places
 
 4. **Real-world example** (from PostSEOSchema refactor):
    - ❌ **Wrong**: Duplicate author schema logic in 3 places
