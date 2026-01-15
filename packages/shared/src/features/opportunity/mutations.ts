@@ -5,7 +5,6 @@ import type {
   ApiZodErrorExtension,
 } from '../../graphql/common';
 import { gqlClient, ApiError } from '../../graphql/common';
-import { labels } from '../../lib';
 import {
   ACCEPT_OPPORTUNITY_MATCH,
   ADD_OPPORTUNITY_SEATS_MUTATION,
@@ -474,7 +473,13 @@ export const getParseOpportunityMutationErrorMessage = (
     );
   }
 
-  return error?.response?.errors?.[0]?.message || labels.error.generic;
+  if (error?.response?.errors?.[0]?.extensions?.code === ApiError.Unexpected) {
+    return PARSE_OPPORTUNITY_ERROR_MESSAGE;
+  }
+
+  return (
+    error?.response?.errors?.[0]?.message || PARSE_OPPORTUNITY_ERROR_MESSAGE
+  );
 };
 
 export const parseOpportunityMutationOptions = () => {
