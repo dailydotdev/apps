@@ -302,3 +302,5 @@ When upgrading Node.js version, update these files:
 - `.circleci/config.yml` (multiple occurrences)
 - `packages/playwright/package.json` (engines field)
 - This file (`CLAUDE.md` - Technology Stack section)
+
+After updating, run `pnpm install` to check if lock file needs updating and commit any changes.

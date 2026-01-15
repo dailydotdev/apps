@@ -16,5 +16,8 @@
     "patchedDependencies": {
       "graphql-request@3.7.0": "patches/graphql-request@3.7.0.patch"
     }
+  },
+  "volta": {
+    "node": "22.22.0"
   }
 }
