@@ -24,6 +24,14 @@ export enum OpportunityState {
    * @generated from enum value: OPPORTUNITY_STATE_IN_REVIEW = 4;
    */
   IN_REVIEW = 4,
+  /**
+   * @generated from enum value: OPPORTUNITY_STATE_PARSING = 5;
+   */
+  PARSING = 5,
+  /**
+   * @generated from enum value: OPPORTUNITY_STATE_ERROR = 6;
+   */
+  ERROR = 6,
 }
 
 /**

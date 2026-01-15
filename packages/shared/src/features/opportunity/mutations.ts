@@ -1,6 +1,10 @@
 import type { DefaultError, MutationOptions } from '@tanstack/react-query';
 import type z from 'zod';
-import { gqlClient } from '../../graphql/common';
+import type {
+  ApiErrorResult,
+  ApiZodErrorExtension,
+} from '../../graphql/common';
+import { gqlClient, ApiError } from '../../graphql/common';
 import {
   ACCEPT_OPPORTUNITY_MATCH,
   ADD_OPPORTUNITY_SEATS_MUTATION,
@@ -445,6 +449,38 @@ export const recruiterRejectOpportunityMatchMutationOptions =
       },
     };
   };
+
+export const PARSE_OPPORTUNITY_ERROR_MESSAGE =
+  'We could not extract the job details from your submission. Please try a different file or URL.';
+
+export const getParseOpportunityMutationErrorMessage = (
+  error?: ApiErrorResult,
+): string => {
+  if (!error) {
+    return PARSE_OPPORTUNITY_ERROR_MESSAGE;
+  }
+
+  const isZodError =
+    error?.response?.errors?.[0]?.extensions?.code ===
+    ApiError.ZodValidationError;
+
+  if (isZodError) {
+    const zodError = error as ApiErrorResult<ApiZodErrorExtension>;
+    return (
+      zodError.response.errors[0].extensions.issues?.find(
+        (issue) => issue.code === 'custom',
+      )?.message || PARSE_OPPORTUNITY_ERROR_MESSAGE
+    );
+  }
+
+  if (error?.response?.errors?.[0]?.extensions?.code === ApiError.Unexpected) {
+    return PARSE_OPPORTUNITY_ERROR_MESSAGE;
+  }
+
+  return (
+    error?.response?.errors?.[0]?.message || PARSE_OPPORTUNITY_ERROR_MESSAGE
+  );
+};
 
 export const parseOpportunityMutationOptions = () => {
   return {

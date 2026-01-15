@@ -38,6 +38,8 @@ const STATE_LABELS: Record<OpportunityState, string> = {
   [OpportunityState.LIVE]: 'Live',
   [OpportunityState.CLOSED]: 'Closed',
   [OpportunityState.UNSPECIFIED]: 'Unknown',
+  [OpportunityState.PARSING]: 'Parsing',
+  [OpportunityState.ERROR]: 'Error',
 };
 
 const STATE_COLORS: Record<OpportunityState, string> = {
@@ -46,6 +48,8 @@ const STATE_COLORS: Record<OpportunityState, string> = {
   [OpportunityState.LIVE]: 'bg-accent-cabbage-default text-white',
   [OpportunityState.CLOSED]: 'bg-surface-float text-text-tertiary',
   [OpportunityState.UNSPECIFIED]: 'bg-surface-float text-text-tertiary',
+  [OpportunityState.PARSING]: 'bg-surface-float text-text-tertiary',
+  [OpportunityState.ERROR]: 'bg-status-danger text-white',
 };
 
 type ContentSectionProps = {
