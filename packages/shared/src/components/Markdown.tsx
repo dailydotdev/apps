@@ -1,5 +1,10 @@
-import type { MouseEvent, MouseEventHandler, ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import type {
+  KeyboardEvent,
+  MouseEvent,
+  MouseEventHandler,
+  ReactElement,
+} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
@@ -14,6 +19,10 @@ function isImageElement(
   element: Element | EventTarget,
 ): element is HTMLImageElement {
   return element instanceof HTMLImageElement;
+}
+
+function openImageInNewTab(src: string): void {
+  window.open(src, '_blank', 'noopener,noreferrer');
 }
 
 const UserEntityCard = dynamic(() => import('./cards/entity/UserEntityCard'), {
@@ -53,6 +62,7 @@ export default function Markdown({
   appendTooltipTo,
 }: MarkdownProps): ReactElement {
   const purify = useDomPurify();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [userId, setUserId] = useState('');
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
   const [clearUser, cancelUserClearing] = useDebounceFn(
@@ -66,6 +76,21 @@ export default function Markdown({
     },
     enabled: !!userId,
   });
+
+  // Add accessibility attributes to images after render
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const images = container.querySelectorAll('img[src]');
+    images.forEach((img) => {
+      img.setAttribute('tabindex', '0');
+      img.setAttribute('role', 'button');
+      img.setAttribute('aria-label', 'Open image in new tab');
+    });
+  }, [content]);
 
   const onHoverHandler: MouseEventHandler<HTMLDivElement> = useCallback(
     (e) => {
@@ -92,7 +117,21 @@ export default function Markdown({
 
     if (isImageElement(element) && element.src) {
       e.stopPropagation();
-      window.open(element.src, '_blank', 'noopener,noreferrer');
+      openImageInNewTab(element.src);
+    }
+  }, []);
+
+  const onImageKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
+    const element = e.target;
+
+    if (
+      isImageElement(element) &&
+      element.src &&
+      (e.key === 'Enter' || e.key === ' ')
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      openImageInNewTab(element.src);
     }
   }, []);
 
@@ -106,8 +145,11 @@ export default function Markdown({
       side="top"
       appendTo={appendTooltipTo?.()}
       trigger={
-        // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+        /* Event delegation: click/keyboard handlers capture events from images inside.
+           Images are made accessible via useEffect (tabindex, role, aria-label). */
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions
         <div
+          ref={containerRef}
           className={classNames(styles.markdown, className)}
           dangerouslySetInnerHTML={{
             __html: purify?.sanitize?.(content, { ADD_ATTR: ['target'] }),
@@ -115,6 +157,7 @@ export default function Markdown({
           onMouseOverCapture={onHoverHandler}
           onMouseLeave={clearUser}
           onClick={onImageClick}
+          onKeyDown={onImageKeyDown}
         />
       }
     >

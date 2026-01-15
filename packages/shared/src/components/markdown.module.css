@@ -85,6 +85,10 @@
   }
   & :where(img) {
     @apply rounded-16 max-h-img-mobile tablet:max-h-img-desktop cursor-pointer;
+
+    &:focus-visible {
+      @apply outline-none ring-2 ring-accent-cabbage-default ring-offset-2 ring-offset-background-default;
+    }
   }
   & > :where(:first-child) {
     @apply mt-0;
