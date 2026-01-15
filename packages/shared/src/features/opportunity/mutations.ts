@@ -451,9 +451,16 @@ export const recruiterRejectOpportunityMatchMutationOptions =
     };
   };
 
+export const PARSE_OPPORTUNITY_ERROR_MESSAGE =
+  'We could not extract the job details from your submission. Please try a different file or URL.';
+
 export const getParseOpportunityMutationErrorMessage = (
-  error: ApiErrorResult,
+  error?: ApiErrorResult,
 ): string => {
+  if (!error) {
+    return PARSE_OPPORTUNITY_ERROR_MESSAGE;
+  }
+
   const isZodError =
     error?.response?.errors?.[0]?.extensions?.code ===
     ApiError.ZodValidationError;
@@ -463,8 +470,7 @@ export const getParseOpportunityMutationErrorMessage = (
     return (
       zodError.response.errors[0].extensions.issues?.find(
         (issue) => issue.code === 'custom',
-      )?.message ||
-      'We could not extract the job details from your submission. Please try a different file or URL.'
+      )?.message || PARSE_OPPORTUNITY_ERROR_MESSAGE
     );
   }
 

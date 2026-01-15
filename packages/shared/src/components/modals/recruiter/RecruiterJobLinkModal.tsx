@@ -106,8 +106,6 @@ export const RecruiterJobLinkModal = ({
       if (trimmedLink && validateJobLink(trimmedLink)) {
         payload.url = trimmedLink;
       }
-
-      return;
     }
 
     if (file) {

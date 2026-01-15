@@ -109,9 +109,7 @@ const RecruiterPageContent = () => {
   // Show toast and redirect when background parsing fails
   useEffect(() => {
     if (isParseError) {
-      displayToast(
-        'Failed to process your job description. Please try again with a different file or URL.',
-      );
+      displayToast(getParseOpportunityMutationErrorMessage());
 
       router.push(`${webappUrl}recruiter?openModal=joblink`);
     }
