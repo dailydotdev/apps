@@ -53,7 +53,7 @@ export const RecruiterPaymentPaddleContextProvider = ({
     });
   }, [prices, selectedProduct, priceIdQuery]);
 
-  const { paddle, openCheckout } = usePaddlePayment({
+  const { paddle, openCheckout, checkoutTotals } = usePaddlePayment({
     successCallback: () => {
       router.replace(`/recruiter/${router.query.opportunityId}/prepare`);
     },
@@ -68,8 +68,9 @@ export const RecruiterPaymentPaddleContextProvider = ({
       setSelectedProduct,
       openCheckout,
       origin,
+      checkoutTotals,
     }),
-    [onCompletion, openCheckout, origin, paddle, selectedProduct],
+    [onCompletion, openCheckout, origin, paddle, selectedProduct, checkoutTotals],
   );
 
   return (

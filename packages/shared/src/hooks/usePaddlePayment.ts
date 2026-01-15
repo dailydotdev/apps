@@ -7,6 +7,15 @@ import type {
   PaddleEventData,
 } from '@paddle/paddle-js';
 import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
+
+export interface CheckoutTotals {
+  subtotal: number;
+  discount: number;
+  tax: number;
+  total: number;
+  currencyCode: string;
+  hasDiscount: boolean;
+}
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
@@ -41,6 +50,9 @@ export const usePaddlePayment = ({
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = useRef(false);
   const [checkoutItemsLoading, setCheckoutItemsLoading] = useState(false);
+  const [checkoutTotals, setCheckoutTotals] = useState<CheckoutTotals | null>(
+    null,
+  );
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
   const successCallbackRef = useRef(successCallback);
@@ -178,6 +190,23 @@ export const usePaddlePayment = ({
           case CheckoutEventNames.CHECKOUT_ITEMS_UPDATED:
             setCheckoutItemsLoading(false);
             break;
+          case CheckoutEventNames.CHECKOUT_DISCOUNT_APPLIED:
+          case CheckoutEventNames.CHECKOUT_DISCOUNT_REMOVED:
+            if (event?.data?.totals) {
+              const { totals, currency_code } = event.data;
+              setCheckoutTotals({
+                subtotal: Number(totals.subtotal),
+                discount: Number(totals.discount),
+                tax: Number(totals.tax),
+                total: Number(totals.total),
+                currencyCode: currency_code,
+                hasDiscount:
+                  event.name ===
+                    CheckoutEventNames.CHECKOUT_DISCOUNT_APPLIED &&
+                  Number(totals.discount) > 0,
+              });
+            }
+            break;
           default:
             break;
         }
@@ -257,5 +286,6 @@ export const usePaddlePayment = ({
     openCheckout,
     isPaddleReady: !!paddle,
     checkoutItemsLoading,
+    checkoutTotals,
   };
 };

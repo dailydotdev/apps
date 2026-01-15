@@ -31,10 +31,18 @@ import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary'
 import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/RecruiterErrorFallback';
 import { recruiterSeo } from '../../../next-seo';
 
+const formatCurrency = (amount: number, currencyCode: string): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currencyCode,
+  }).format(amount);
+};
+
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
   const checkoutRef = useRef<HTMLDivElement>(null);
-  const { openCheckout, selectedProduct } = useRecruiterPaymentContext();
+  const { openCheckout, selectedProduct, checkoutTotals } =
+    useRecruiterPaymentContext();
   const { opportunity } = useOpportunityPreviewContext();
   const { displayToast } = useToastNotification();
 
@@ -184,11 +192,36 @@ const RecruiterPaymentPage = (): ReactElement => {
                     Subtotal
                   </Typography>
                   <Typography type={TypographyType.Body} bold>
-                    {selectedPrice
-                      ? selectedPrice.price.monthly.formatted
-                      : 'X.XX'}
+                    {checkoutTotals
+                      ? formatCurrency(
+                          checkoutTotals.subtotal,
+                          checkoutTotals.currencyCode,
+                        )
+                      : selectedPrice?.price.monthly.formatted ?? 'X.XX'}
                   </Typography>
                 </div>
+
+                {checkoutTotals?.hasDiscount && (
+                  <div className="flex items-center justify-between">
+                    <Typography
+                      type={TypographyType.Body}
+                      color={TypographyColor.StatusSuccess}
+                    >
+                      Discount
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Body}
+                      color={TypographyColor.StatusSuccess}
+                      bold
+                    >
+                      -
+                      {formatCurrency(
+                        checkoutTotals.discount,
+                        checkoutTotals.currencyCode,
+                      )}
+                    </Typography>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between">
                   <Typography
@@ -198,7 +231,12 @@ const RecruiterPaymentPage = (): ReactElement => {
                     Tax
                   </Typography>
                   <Typography type={TypographyType.Body} bold>
-                    $0.00
+                    {checkoutTotals
+                      ? formatCurrency(
+                          checkoutTotals.tax,
+                          checkoutTotals.currencyCode,
+                        )
+                      : '$0.00'}
                   </Typography>
                 </div>
 
@@ -207,9 +245,12 @@ const RecruiterPaymentPage = (): ReactElement => {
                     Total due today
                   </Typography>
                   <Typography type={TypographyType.Title3} bold>
-                    {selectedPrice
-                      ? selectedPrice.price.monthly.formatted
-                      : 'X.XX'}
+                    {checkoutTotals
+                      ? formatCurrency(
+                          checkoutTotals.total,
+                          checkoutTotals.currencyCode,
+                        )
+                      : selectedPrice?.price.monthly.formatted ?? 'X.XX'}
                   </Typography>
                 </div>
               </div>
