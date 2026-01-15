@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import type { OpenCheckoutFn } from '../payment/context';
 import type { Origin } from '../../lib/log';
+import type { ProductPricingPreview } from '../../graphql/paddle';
 
 export const RecruiterPaymentContext =
   createContext<RecruiterPaymentContextData>(undefined);
@@ -28,6 +29,7 @@ export type RecruiterPaymentContextData = {
   setSelectedProduct: (product: RecruiterProductOption) => void;
   error?: ProcessingError;
   origin?: Origin;
+  prices?: ProductPricingPreview[];
 };
 
 export type RecruiterContextProviderProps = {

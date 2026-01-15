@@ -250,18 +250,21 @@ export const opportunityStatsOptions = ({
 export const recruiterPricesQueryOptions = ({
   isLoggedIn,
   user,
+  discountId,
 }: {
   isLoggedIn: boolean;
   user: LoggedUser;
+  discountId?: string;
 }) => {
   return {
     queryKey: generateQueryKey(
       RequestKey.PricePreview,
       user,
       PurchaseType.Recruiter,
+      discountId,
     ),
     queryFn: async () => {
-      return fetchPricingPreview(PurchaseType.Recruiter);
+      return fetchPricingPreview(PurchaseType.Recruiter, undefined, discountId);
     },
     enabled: isLoggedIn,
     staleTime: StaleTime.Default,

@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { RecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/RecruiterPaymentContext';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
@@ -21,9 +21,6 @@ import {
   OpportunityPreviewProvider,
   useOpportunityPreviewContext,
 } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { recruiterPricesQueryOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
-import { useQuery } from '@tanstack/react-query';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { useAutoCreateOpportunityOrganization } from '@dailydotdev/shared/src/features/opportunity/hooks/useAutoCreateOpportunityOrganization';
@@ -34,7 +31,8 @@ import { recruiterSeo } from '../../../next-seo';
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
   const checkoutRef = useRef<HTMLDivElement>(null);
-  const { openCheckout, selectedProduct } = useRecruiterPaymentContext();
+  const { openCheckout, selectedProduct, prices } =
+    useRecruiterPaymentContext();
   const { opportunity } = useOpportunityPreviewContext();
   const { displayToast } = useToastNotification();
 
@@ -79,20 +77,14 @@ const RecruiterPaymentPage = (): ReactElement => {
     router.back();
   };
 
-  const { user, isLoggedIn } = useAuthContext();
-
-  const { data: selectedPrice } = useQuery({
-    ...recruiterPricesQueryOptions({
-      user,
-      isLoggedIn,
-    }),
-    select: (prices) => {
-      return (
-        prices.find((price) => price.priceId === selectedProduct?.id) ||
-        prices?.[0]
-      );
-    },
-  });
+  const selectedPrice = useMemo(() => {
+    if (!prices?.length) {
+      return undefined;
+    }
+    return (
+      prices.find((price) => price.priceId === selectedProduct?.id) || prices[0]
+    );
+  }, [prices, selectedProduct?.id]);
 
   return (
     <div className="flex min-h-screen flex-col laptop:flex-row">
@@ -184,9 +176,7 @@ const RecruiterPaymentPage = (): ReactElement => {
                     Subtotal
                   </Typography>
                   <Typography type={TypographyType.Body} bold>
-                    {selectedPrice
-                      ? selectedPrice.price.monthly.formatted
-                      : 'X.XX'}
+                    {selectedPrice?.price.monthly.formatted ?? 'X.XX'}
                   </Typography>
                 </div>
 
@@ -207,9 +197,7 @@ const RecruiterPaymentPage = (): ReactElement => {
                     Total due today
                   </Typography>
                   <Typography type={TypographyType.Title3} bold>
-                    {selectedPrice
-                      ? selectedPrice.price.monthly.formatted
-                      : 'X.XX'}
+                    {selectedPrice?.price.monthly.formatted ?? 'X.XX'}
                   </Typography>
                 </div>
               </div>

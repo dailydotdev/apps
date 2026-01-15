@@ -41,6 +41,9 @@ export const usePaddlePayment = ({
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = useRef(false);
   const [checkoutItemsLoading, setCheckoutItemsLoading] = useState(false);
+  const [appliedDiscountId, setAppliedDiscountId] = useState<string | null>(
+    null,
+  );
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
   const successCallbackRef = useRef(successCallback);
@@ -178,6 +181,12 @@ export const usePaddlePayment = ({
           case CheckoutEventNames.CHECKOUT_ITEMS_UPDATED:
             setCheckoutItemsLoading(false);
             break;
+          case CheckoutEventNames.CHECKOUT_DISCOUNT_APPLIED:
+            setAppliedDiscountId(event?.data?.discount?.id ?? null);
+            break;
+          case CheckoutEventNames.CHECKOUT_DISCOUNT_REMOVED:
+            setAppliedDiscountId(null);
+            break;
           default:
             break;
         }
@@ -257,5 +266,6 @@ export const usePaddlePayment = ({
     openCheckout,
     isPaddleReady: !!paddle,
     checkoutItemsLoading,
+    appliedDiscountId,
   };
 };
