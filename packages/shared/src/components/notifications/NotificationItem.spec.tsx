@@ -181,8 +181,7 @@ describe('ExperienceCompanyEnriched notification', () => {
   const experienceCompanyEnrichedNotification: NotificationItemProps = {
     isUnread: true,
     icon: NotificationIconType.Bell,
-    title:
-      '<p>Your experience at <strong>Acme Corp</strong> has been enriched</p>',
+    title: 'Your work experience has been linked to Acme Corp',
     type: NotificationType.ExperienceCompanyEnriched,
     targetUrl: '/recruiter/profile',
   };
@@ -191,8 +190,9 @@ describe('ExperienceCompanyEnriched notification', () => {
     renderComponent(
       <NotificationItem {...experienceCompanyEnrichedNotification} />,
     );
-    await screen.findByText(/Your experience at/);
-    await screen.findByText(/Acme Corp/);
+    await screen.findByText(
+      'Your work experience has been linked to Acme Corp',
+    );
   });
 
   it('should display the Bell icon', async () => {
