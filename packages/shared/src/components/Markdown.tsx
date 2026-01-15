@@ -89,7 +89,7 @@ export default function Markdown({
     const element = e.target;
 
     if (isImageElement(element) && element.src) {
-      e.preventDefault();
+      e.stopPropagation();
       window.open(element.src, '_blank', 'noopener,noreferrer');
     }
   }, []);
