@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   install_deps:
     docker:
-      - image: cimg/node:22.11
+      - image: cimg/node:22.22
     steps:
       - checkout
       - run:
@@ -28,7 +28,7 @@ jobs:
             - ./packages/extension/node_modules
   test_extension:
     docker:
-      - image: cimg/node:22.11
+      - image: cimg/node:22.22
     parallelism: 1
     steps:
       - checkout
@@ -49,7 +49,7 @@ jobs:
           path: ./test-results
   test_webapp:
     docker:
-      - image: cimg/node:22.11
+      - image: cimg/node:22.22
     parallelism: 1
     steps:
       - checkout
@@ -70,7 +70,7 @@ jobs:
           path: ./test-results
   lint_shared:
     docker:
-      - image: cimg/node:22.11
+      - image: cimg/node:22.22
     resource_class: large
     steps:
       - checkout
@@ -84,7 +84,7 @@ jobs:
           working_directory: packages/shared
   test_shared:
     docker:
-      - image: cimg/node:22.11
+      - image: cimg/node:22.22
     parallelism: 1
     steps:
       - checkout
@@ -104,7 +104,7 @@ jobs:
           path: ./test-results
   build_extension:
     docker:
-      - image: cimg/node:22.11
+      - image: cimg/node:22.22
     resource_class: large
     steps:
       - checkout
