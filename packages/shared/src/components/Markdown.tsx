@@ -10,7 +10,9 @@ import { useDomPurify } from '../hooks/useDomPurify';
 import { getUserShortInfo } from '../graphql/users';
 import { generateQueryKey, RequestKey } from '../lib/query';
 
-function isImageElement(element: Element | EventTarget): element is HTMLImageElement {
+function isImageElement(
+  element: Element | EventTarget,
+): element is HTMLImageElement {
   return element instanceof HTMLImageElement;
 }
 
@@ -104,6 +106,7 @@ export default function Markdown({
       side="top"
       appendTo={appendTooltipTo?.()}
       trigger={
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
         <div
           className={classNames(styles.markdown, className)}
           dangerouslySetInnerHTML={{
