@@ -92,6 +92,7 @@ export enum NotificationType {
   PollResultAuthor = 'poll_result_author',
   NewOpportunityMatch = 'new_opportunity_match',
   WarmIntro = 'warm_intro',
+  ExperienceCompanyEnriched = 'experience_company_enriched',
 }
 
 export enum NotificationIconType {

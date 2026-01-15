@@ -176,3 +176,47 @@ describe('notification click if onClick prop is NOT provided', () => {
     expect(screen.queryByTestId('openNotification')).not.toBeInTheDocument();
   });
 });
+
+describe('ExperienceCompanyEnriched notification', () => {
+  const experienceCompanyEnrichedNotification: NotificationItemProps = {
+    isUnread: true,
+    icon: NotificationIconType.Bell,
+    title:
+      '<p>Your experience at <strong>Acme Corp</strong> has been enriched</p>',
+    type: NotificationType.ExperienceCompanyEnriched,
+    targetUrl: '/recruiter/profile',
+  };
+
+  it('should display the title', async () => {
+    renderComponent(
+      <NotificationItem {...experienceCompanyEnrichedNotification} />,
+    );
+    await screen.findByText(/Your experience at/);
+    await screen.findByText(/Acme Corp/);
+  });
+
+  it('should display the Bell icon', async () => {
+    renderComponent(
+      <NotificationItem {...experienceCompanyEnrichedNotification} />,
+    );
+    const icon = await screen.findByTestId('notification-Bell');
+    expect(icon).toBeInTheDocument();
+  });
+
+  it('should be clickable and navigate to targetUrl', async () => {
+    const mockOnClick = jest.fn();
+    renderComponent(
+      <NotificationItem
+        {...experienceCompanyEnrichedNotification}
+        onClick={mockOnClick}
+      />,
+    );
+
+    const notificationLink = await screen.findByTestId('openNotification');
+    expect(notificationLink).toBeInTheDocument();
+    expect(notificationLink).toHaveAttribute('href', '/recruiter/profile');
+
+    fireEvent.click(notificationLink);
+    await waitFor(() => expect(mockOnClick).toBeCalledTimes(1));
+  });
+});
