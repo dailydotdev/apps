@@ -18,7 +18,7 @@
     "typescript": "^5.6.0"
   },
   "engines": {
-    "node": ">=22.11.0"
+    "node": ">=22.22.0"
   },
   "dependencies": {
     "dotenv": "^17.2.1"
