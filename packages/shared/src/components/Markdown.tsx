@@ -1,4 +1,4 @@
-import type { MouseEventHandler, ReactElement } from 'react';
+import type { MouseEvent, MouseEventHandler, ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +9,10 @@ import useDebounceFn from '../hooks/useDebounceFn';
 import { useDomPurify } from '../hooks/useDomPurify';
 import { getUserShortInfo } from '../graphql/users';
 import { generateQueryKey, RequestKey } from '../lib/query';
+
+function isImageElement(element: Element | EventTarget): element is HTMLImageElement {
+  return element instanceof HTMLImageElement;
+}
 
 const UserEntityCard = dynamic(() => import('./cards/entity/UserEntityCard'), {
   ssr: false,
@@ -81,6 +85,15 @@ export default function Markdown({
     [cancelUserClearing, userId, clearUser],
   );
 
+  const onImageClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    const element = e.target;
+
+    if (isImageElement(element) && element.src) {
+      e.preventDefault();
+      window.open(element.src, '_blank', 'noopener,noreferrer');
+    }
+  }, []);
+
   return (
     <HoverCard
       onMouseLeave={clearUser}
@@ -98,6 +111,7 @@ export default function Markdown({
           }}
           onMouseOverCapture={onHoverHandler}
           onMouseLeave={clearUser}
+          onClick={onImageClick}
         />
       }
     >

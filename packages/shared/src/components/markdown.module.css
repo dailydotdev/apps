@@ -84,7 +84,7 @@
     @apply border-border-subtlest-secondary my-10;
   }
   & :where(img) {
-    @apply rounded-16 max-h-img-mobile tablet:max-h-img-desktop;
+    @apply rounded-16 max-h-img-mobile tablet:max-h-img-desktop cursor-pointer;
   }
   & > :where(:first-child) {
     @apply mt-0;
