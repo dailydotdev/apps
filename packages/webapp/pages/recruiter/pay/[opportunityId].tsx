@@ -23,14 +23,15 @@ import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/Re
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { RecruiterPaymentPublicContextProvider } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/RecruiterPaymentPublicContext';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
-import { CheckIcon } from '@dailydotdev/shared/src/components/icons';
+import { VIcon as CheckIcon } from '@dailydotdev/shared/src/components/icons';
 import type { ProductPricingPreview } from '@dailydotdev/shared/src/graphql/paddle';
 import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 const PaymentCompleteMessage = (): ReactElement => (
   <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-10">
     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-status-success">
-      <CheckIcon className="text-white" size="xlarge" />
+      <CheckIcon className="text-white" size={IconSize.XLarge} />
     </div>
     <Typography type={TypographyType.Title1} bold>
       Payment successful
@@ -334,7 +335,7 @@ RecruiterPublicPaymentPage.getLayout = function getLayout(
 ): ReactNode {
   return (
     <ErrorBoundary
-      feature="recruiter-public-payment"
+      feature="recruiter-self-serve"
       fallback={<RecruiterErrorFallback />}
     >
       <Toast autoDismissNotifications />
