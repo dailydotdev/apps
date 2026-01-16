@@ -12,6 +12,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { EditIcon, UserIcon, MoveToIcon } from '../../../components/icons';
+import Link from '../../../components/utilities/Link';
 import { webappUrl } from '../../../lib/constants';
 import type { Opportunity } from '../../opportunity/types';
 import { OpportunityState } from '../../opportunity/protobuf/opportunity';
@@ -101,38 +102,41 @@ export const OpportunityCard = ({
         <div className="flex items-center gap-1">
           {/* Show matches button only if paid AND live */}
           {isPaid && isLive && (
-            <Button
-              tag="a"
-              href={`${webappUrl}recruiter/${id}/matches`}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<UserIcon />}
-              title="View matches"
-            />
+            <Link href={`${webappUrl}recruiter/${id}/matches`} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<UserIcon />}
+                title="View matches"
+              />
+            </Link>
           )}
 
           {/* Show edit button only if paid */}
           {isPaid && (
-            <Button
-              tag="a"
-              href={`${webappUrl}recruiter/${id}/edit`}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<EditIcon />}
-              title="Edit opportunity"
-            />
+            <Link href={`${webappUrl}recruiter/${id}/edit`} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<EditIcon />}
+                title="Edit opportunity"
+              />
+            </Link>
           )}
 
           {/* Show continue button if not paid (draft needs to complete payment) */}
           {!isPaid && isDraft && (
-            <Button
-              tag="a"
-              href={getNextStepUrl(opportunity)}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<MoveToIcon />}
-              title="Continue setup"
-            />
+            <Link href={getNextStepUrl(opportunity)} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<MoveToIcon />}
+                title="Continue setup"
+              />
+            </Link>
           )}
         </div>
       </div>

@@ -13,7 +13,6 @@ import type {
 } from './types';
 import { RecruiterPaymentContext } from './types';
 import { recruiterPricesQueryOptions } from '../../features/opportunity/queries';
-import { setOptimisticPayment } from '../../features/opportunity/hooks/useRequirePayment';
 
 export const RecruiterPaymentPaddleContextProvider = ({
   onCompletion,
@@ -30,10 +29,7 @@ export const RecruiterPaymentPaddleContextProvider = ({
 
   const { paddle, openCheckout, appliedDiscountId } = usePaddlePayment({
     successCallback: () => {
-      const opportunityId = router.query.opportunityId as string;
-      // Set optimistic payment flag before redirect to allow access while webhook processes
-      setOptimisticPayment(opportunityId);
-      router.replace(`/recruiter/${opportunityId}/prepare`);
+      router.replace(`/recruiter/${router.query.opportunityId}/prepare`);
     },
     priceType: PurchaseType.Recruiter,
   });
