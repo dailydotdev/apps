@@ -58,7 +58,7 @@ const RecruiterPaymentPage = (): ReactElement => {
       .filter(Boolean)
       .join('&');
     const link = getPathnameWithQuery(
-      `https://app.daily.dev/recruiter/pay/${opportunity.id}`,
+      `${window.location.origin}/recruiter/pay/${opportunity.id}`,
       queryParams,
     );
     copyLink({ link, message: 'Payment link copied to clipboard' });
