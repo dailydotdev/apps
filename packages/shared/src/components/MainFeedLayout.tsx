@@ -64,7 +64,7 @@ import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
-import { isDevelopment } from '../lib/constants';
+import { isDevelopment, isProductionAPI } from '../lib/constants';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -319,9 +319,10 @@ export default function MainFeedLayout({
       variables: {
         ...propsByFeed[feedName].variables,
         ...dynamicPropsByFeed[feedName]?.variables,
-        version: isDevelopment
-          ? 1
-          : dynamicFeedVersionByFeed[feedName] || feedVersion,
+        version:
+          isDevelopment && !isProductionAPI
+            ? 1
+            : dynamicFeedVersionByFeed[feedName] || feedVersion,
       },
     };
   }, [
