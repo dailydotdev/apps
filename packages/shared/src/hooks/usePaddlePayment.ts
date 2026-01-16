@@ -67,7 +67,7 @@ export const usePaddlePayment = ({
       environment:
         (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
         'production',
-      token: 'test_4194076987e44d19d7e0c3388d6',
+      token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
       eventCallback: (event: PaddleEventData) => {
         if (disabledEvents?.includes(event?.name as CheckoutEventNames)) {
           if (event?.name === CheckoutEventNames.CHECKOUT_LOADED) {
