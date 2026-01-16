@@ -22,10 +22,12 @@ import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary'
 import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/RecruiterErrorFallback';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { RecruiterPaymentPublicContextProvider } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/RecruiterPaymentPublicContext';
-import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import {
+  opportunityByIdPublicOptions,
+  type OpportunityPublic,
+} from '@dailydotdev/shared/src/features/opportunity/queries';
 import { VIcon as CheckIcon } from '@dailydotdev/shared/src/components/icons';
 import type { ProductPricingPreview } from '@dailydotdev/shared/src/graphql/paddle';
-import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 const PaymentCompleteMessage = (): ReactElement => (
@@ -112,10 +114,14 @@ const PlanSelector = ({
 );
 
 interface PaymentFormProps {
-  opportunity: Opportunity;
+  opportunity: OpportunityPublic;
+  referrerId?: string;
 }
 
-const PaymentForm = ({ opportunity }: PaymentFormProps): ReactElement => {
+const PaymentForm = ({
+  opportunity,
+  referrerId,
+}: PaymentFormProps): ReactElement => {
   const { openCheckout, selectedProduct, setSelectedProduct, prices } =
     useRecruiterPaymentContext();
 
@@ -126,9 +132,12 @@ const PaymentForm = ({ opportunity }: PaymentFormProps): ReactElement => {
 
     openCheckout?.({
       priceId: selectedProduct.id,
-      customData: { opportunity_id: opportunity.id },
+      customData: {
+        opportunity_id: opportunity.id,
+        ...(referrerId && { recruiter_id: referrerId }),
+      },
     });
-  }, [selectedProduct, openCheckout, opportunity]);
+  }, [selectedProduct, openCheckout, opportunity, referrerId]);
 
   const selectedPrice = useMemo(() => {
     if (!prices?.length) {
@@ -294,18 +303,19 @@ const PaymentForm = ({ opportunity }: PaymentFormProps): ReactElement => {
 const RecruiterPublicPaymentPage = (): ReactElement => {
   const router = useRouter();
   const opportunityId = router.query.opportunityId as string;
+  const referrerId = router.query.ref as string | undefined;
   const [paymentComplete, setPaymentComplete] = useState(false);
 
   const { data: opportunity, isLoading: isOpportunityLoading } = useQuery({
-    ...opportunityByIdOptions({ id: opportunityId || '' }),
-    enabled: !!opportunityId,
+    ...opportunityByIdPublicOptions({ id: opportunityId || '' }),
+    enabled: !!opportunityId && router.isReady,
   });
 
   if (paymentComplete) {
     return <PaymentCompleteMessage />;
   }
 
-  if (isOpportunityLoading) {
+  if (!router.isReady || isOpportunityLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader />
@@ -325,7 +335,7 @@ const RecruiterPublicPaymentPage = (): ReactElement => {
     <RecruiterPaymentPublicContextProvider
       onPaymentComplete={() => setPaymentComplete(true)}
     >
-      <PaymentForm opportunity={opportunity} />
+      <PaymentForm opportunity={opportunity} referrerId={referrerId} />
     </RecruiterPaymentPublicContextProvider>
   );
 };

@@ -157,6 +157,21 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
   ${OPPORTUNITY_FRAGMENT}
 `;
 
+export const OPPORTUNITY_BY_ID_PUBLIC_QUERY = gql`
+  query OpportunityByIdPublic($id: ID!) {
+    opportunityByIdPublic(id: $id) {
+      id
+      title
+      organization {
+        name
+      }
+      flags {
+        plan
+      }
+    }
+  }
+`;
+
 export const OPPORTUNITY_MATCH_FRAGMENT = gql`
   fragment OpportunityMatchFragment on OpportunityMatch {
     status

@@ -33,11 +33,13 @@ import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/Re
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { recruiterSeo } from '../../../next-seo';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
   const checkoutRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuthContext();
   const { openCheckout, selectedProduct, prices } =
     useRecruiterPaymentContext();
   const { opportunity } = useOpportunityPreviewContext();
@@ -50,9 +52,15 @@ const RecruiterPaymentPage = (): ReactElement => {
     if (!opportunity?.id) {
       return;
     }
+    const queryParams = [
+      selectedProduct?.id && `pid=${selectedProduct.id}`,
+      user?.id && `ref=${user.id}`,
+    ]
+      .filter(Boolean)
+      .join('&');
     const link = getPathnameWithQuery(
       `${webappUrl}recruiter/pay/${opportunity.id}`,
-      selectedProduct?.id ? `pid=${selectedProduct.id}` : '',
+      queryParams,
     );
     copyLink({ link, message: 'Payment link copied to clipboard' });
   };
