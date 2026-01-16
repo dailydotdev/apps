@@ -3,7 +3,10 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { RecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/RecruiterPaymentContext';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
-import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  MoveToIcon,
+  ShareIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
   ButtonSize,
@@ -23,9 +26,13 @@ import {
 } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { useAutoCreateOpportunityOrganization } from '@dailydotdev/shared/src/features/opportunity/hooks/useAutoCreateOpportunityOrganization';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/RecruiterErrorFallback';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
 import { recruiterSeo } from '../../../next-seo';
 
 const RecruiterPaymentPage = (): ReactElement => {
@@ -35,8 +42,20 @@ const RecruiterPaymentPage = (): ReactElement => {
     useRecruiterPaymentContext();
   const { opportunity } = useOpportunityPreviewContext();
   const { displayToast } = useToastNotification();
+  const [, copyLink] = useCopyLink();
 
   useAutoCreateOpportunityOrganization(opportunity);
+
+  const handleSharePaymentLink = () => {
+    if (!opportunity?.id) {
+      return;
+    }
+    const link = getPathnameWithQuery(
+      `${webappUrl}recruiter/pay/${opportunity.id}`,
+      selectedProduct?.id ? `pid=${selectedProduct.id}` : '',
+    );
+    copyLink({ link, message: 'Payment link copied to clipboard' });
+  };
 
   useEffect(() => {
     if (!opportunity || !opportunity.organization || !selectedProduct) {
@@ -201,6 +220,22 @@ const RecruiterPaymentPage = (): ReactElement => {
                   </Typography>
                 </div>
               </div>
+              <div className="mt-6 flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4">
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  Need someone else to complete the payment?
+                </Typography>
+                <Button
+                  variant={ButtonVariant.Secondary}
+                  size={ButtonSize.Small}
+                  icon={<ShareIcon />}
+                  onClick={handleSharePaymentLink}
+                >
+                  Copy payment link
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -224,6 +259,7 @@ RecruiterPaymentPage.getLayout = function getLayout(
           feature="recruiter-self-serve"
           fallback={<RecruiterErrorFallback />}
         >
+          <Toast autoDismissNotifications />
           {page}
         </ErrorBoundary>
       </RecruiterPaymentContext>

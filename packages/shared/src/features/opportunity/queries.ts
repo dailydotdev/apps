@@ -271,6 +271,18 @@ export const recruiterPricesQueryOptions = ({
   };
 };
 
+export const recruiterPricesPublicQueryOptions = (discountId?: string) => ({
+  queryKey: [
+    RequestKey.PricePreview,
+    PurchaseType.Recruiter,
+    'public',
+    discountId,
+  ],
+  queryFn: () =>
+    fetchPricingPreview(PurchaseType.Recruiter, undefined, discountId),
+  staleTime: StaleTime.Default,
+});
+
 export const opportunityFeedbackQueryOptions = ({
   opportunityId,
   after,
