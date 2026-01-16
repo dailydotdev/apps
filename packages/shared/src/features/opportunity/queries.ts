@@ -23,6 +23,7 @@ import {
   OPPORTUNITY_MATCHES_QUERY,
   OPPORTUNITIES_QUERY,
   OPPORTUNITY_BY_ID_QUERY,
+  OPPORTUNITY_BY_ID_PUBLIC_QUERY,
   USER_OPPORTUNITY_MATCHES_QUERY,
   OPPORTUNITY_PREVIEW,
   OPPORTUNITY_STATS_QUERY,
@@ -52,6 +53,27 @@ export const opportunityByIdOptions = ({ id }: { id: string }) => {
       });
 
       return res.opportunityById;
+    },
+    staleTime: StaleTime.Default,
+    enabled: !!id,
+  };
+};
+
+export type OpportunityPublic = Pick<Opportunity, 'id' | 'title' | 'flags'> & {
+  organization?: { name: string };
+};
+
+export const opportunityByIdPublicOptions = ({ id }: { id: string }) => {
+  return {
+    queryKey: [RequestKey.Opportunity, 'public', id],
+    queryFn: async () => {
+      const res = await gqlClient.request<{
+        opportunityByIdPublic: OpportunityPublic;
+      }>(OPPORTUNITY_BY_ID_PUBLIC_QUERY, {
+        id,
+      });
+
+      return res.opportunityByIdPublic;
     },
     staleTime: StaleTime.Default,
     enabled: !!id,
@@ -270,6 +292,18 @@ export const recruiterPricesQueryOptions = ({
     staleTime: StaleTime.Default,
   };
 };
+
+export const recruiterPricesPublicQueryOptions = (discountId?: string) => ({
+  queryKey: [
+    RequestKey.PricePreview,
+    PurchaseType.Recruiter,
+    'public',
+    discountId,
+  ],
+  queryFn: () =>
+    fetchPricingPreview(PurchaseType.Recruiter, undefined, discountId),
+  staleTime: StaleTime.Default,
+});
 
 export const opportunityFeedbackQueryOptions = ({
   opportunityId,

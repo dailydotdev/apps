@@ -231,9 +231,16 @@ export const usePaddlePayment = ({
         }),
       };
 
+      const recruiterId =
+        customDataProp &&
+        typeof customDataProp === 'object' &&
+        'recruiter_id' in customDataProp
+          ? (customDataProp.recruiter_id as string)
+          : undefined;
+
       const customData = {
         ...customDataProp,
-        user_id: giftToUserId ?? user?.id,
+        user_id: giftToUserId ?? recruiterId ?? user?.id,
         tracking_id: trackingId,
         ...(!!giftToUserId && { gifter_id: user?.id }),
       };
