@@ -25,7 +25,7 @@ const getNextStepUrl = (opportunity: Opportunity): string => {
     return `${webappUrl}recruiter/${id}/plans`;
   }
 
-  return `${webappUrl}recruiter/${id}/edit`;
+  return `${webappUrl}recruiter/${id}/prepare`;
 };
 
 const getStateLabel = (state: OpportunityState): string => {
@@ -115,7 +115,7 @@ export const OpportunityCard = ({
 
           {/* Show edit button only if paid */}
           {isPaid && (
-            <Link href={`${webappUrl}recruiter/${id}/edit`} passHref>
+            <Link href={`${webappUrl}recruiter/${id}/prepare`} passHref>
               <Button
                 tag="a"
                 variant={ButtonVariant.Tertiary}
