@@ -22,10 +22,8 @@ import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary'
 import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/RecruiterErrorFallback';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { RecruiterPaymentPublicContextProvider } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/RecruiterPaymentPublicContext';
-import {
-  opportunityByIdPublicOptions,
-  type OpportunityPublic,
-} from '@dailydotdev/shared/src/features/opportunity/queries';
+import type { OpportunityPublic } from '@dailydotdev/shared/src/features/opportunity/queries';
+import { opportunityByIdPublicOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { VIcon as CheckIcon } from '@dailydotdev/shared/src/components/icons';
 import type { ProductPricingPreview } from '@dailydotdev/shared/src/graphql/paddle';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
