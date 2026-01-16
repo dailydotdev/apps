@@ -29,6 +29,7 @@ import {
   useOpportunityEditContext,
 } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import {
   useOpportunityEditForm,
   formDataToPreviewOpportunity,
@@ -95,6 +96,11 @@ function EditPageContent(): ReactElement {
   const { data: opportunity, isLoading } = useQuery(
     opportunityByIdOptions({ id: opportunityId }),
   );
+
+  const { isCheckingPayment } = useRequirePayment({
+    opportunity,
+    opportunityId,
+  });
 
   // Save mutation for unified form data
   const { mutateAsync: saveOpportunity, isPending: isSaving } = useMutation({
@@ -304,7 +310,7 @@ function EditPageContent(): ReactElement {
 
   const isSaveDisabled = isSaving || isPendingOpportunityState;
 
-  if (isLoading || !opportunity) {
+  if (isLoading || !opportunity || isCheckingPayment) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <Loader />

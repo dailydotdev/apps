@@ -11,10 +11,21 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { EditIcon, UserIcon } from '../../../components/icons';
+import { EditIcon, UserIcon, MoveToIcon } from '../../../components/icons';
 import { webappUrl } from '../../../lib/constants';
 import type { Opportunity } from '../../opportunity/types';
 import { OpportunityState } from '../../opportunity/protobuf/opportunity';
+
+const getNextStepUrl = (opportunity: Opportunity): string => {
+  const { id, flags } = opportunity;
+  const isPaid = !!flags?.plan;
+
+  if (!isPaid) {
+    return `${webappUrl}recruiter/${id}/plans`;
+  }
+
+  return `${webappUrl}recruiter/${id}/edit`;
+};
 
 const getStateLabel = (state: OpportunityState): string => {
   switch (state) {
@@ -53,7 +64,10 @@ export type OpportunityCardProps = {
 export const OpportunityCard = ({
   opportunity,
 }: OpportunityCardProps): ReactElement => {
-  const { title, organization, id, state } = opportunity;
+  const { title, organization, id, state, flags } = opportunity;
+  const isPaid = !!flags?.plan;
+  const isLive = state === OpportunityState.LIVE;
+  const isDraft = state === OpportunityState.DRAFT;
 
   return (
     <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
@@ -85,22 +99,41 @@ export const OpportunityCard = ({
         </span>
 
         <div className="flex items-center gap-1">
-          <Button
-            tag="a"
-            href={`${webappUrl}recruiter/${id}/matches`}
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<UserIcon />}
-            title="View matches"
-          />
-          <Button
-            tag="a"
-            href={`${webappUrl}recruiter/${id}/edit`}
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<EditIcon />}
-            title="Edit opportunity"
-          />
+          {/* Show matches button only if paid AND live */}
+          {isPaid && isLive && (
+            <Button
+              tag="a"
+              href={`${webappUrl}recruiter/${id}/matches`}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<UserIcon />}
+              title="View matches"
+            />
+          )}
+
+          {/* Show edit button only if paid */}
+          {isPaid && (
+            <Button
+              tag="a"
+              href={`${webappUrl}recruiter/${id}/edit`}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<EditIcon />}
+              title="Edit opportunity"
+            />
+          )}
+
+          {/* Show continue button if not paid (draft needs to complete payment) */}
+          {!isPaid && isDraft && (
+            <Button
+              tag="a"
+              href={getNextStepUrl(opportunity)}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<MoveToIcon />}
+              title="Continue setup"
+            />
+          )}
         </div>
       </div>
     </div>
