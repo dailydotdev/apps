@@ -568,6 +568,12 @@ export const OPPORTUNITIES_QUERY = gql`
               ...Link
             }
           }
+          flags {
+            batchSize
+            plan
+            showSlack
+            showFeedback
+          }
         }
       }
     }
