@@ -31,7 +31,6 @@ import { useAutoCreateOpportunityOrganization } from '@dailydotdev/shared/src/fe
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/RecruiterErrorFallback';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { recruiterSeo } from '../../../next-seo';
@@ -59,7 +58,7 @@ const RecruiterPaymentPage = (): ReactElement => {
       .filter(Boolean)
       .join('&');
     const link = getPathnameWithQuery(
-      `${webappUrl}recruiter/pay/${opportunity.id}`,
+      `https://app.daily.dev/recruiter/pay/${opportunity.id}`,
       queryParams,
     );
     copyLink({ link, message: 'Payment link copied to clipboard' });
