@@ -212,6 +212,8 @@ export enum RequestKey {
   NotificationSettings = 'notification_settings',
   PostAnalytics = 'post_analytics',
   PostAnalyticsHistory = 'post_analytics_history',
+  ProfileAnalytics = 'profile_analytics',
+  ProfileAnalyticsHistory = 'profile_analytics_history',
   CheckLocation = 'check_location',
   GenerateBrief = 'generate_brief',
   Opportunity = 'opportunity',
