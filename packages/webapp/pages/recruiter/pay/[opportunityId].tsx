@@ -28,24 +28,71 @@ import { VIcon as CheckIcon } from '@dailydotdev/shared/src/components/icons';
 import type { ProductPricingPreview } from '@dailydotdev/shared/src/graphql/paddle';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
-const PaymentCompleteMessage = (): ReactElement => (
-  <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-10">
-    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-status-success">
-      <CheckIcon className="text-white" size={IconSize.XLarge} />
+interface PaymentCompleteMessageProps {
+  opportunityId: string;
+}
+
+const PaymentCompleteMessage = ({
+  opportunityId,
+}: PaymentCompleteMessageProps): ReactElement => {
+  const [copied, setCopied] = useState(false);
+  const recruiterLink = `${
+    typeof window !== 'undefined' ? window.location.origin : ''
+  }/recruiter/${opportunityId}/prepare`;
+
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(recruiterLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-10">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-status-success">
+        <CheckIcon className="text-white" size={IconSize.XLarge} />
+      </div>
+      <Typography type={TypographyType.Title1} bold>
+        Payment successful
+      </Typography>
+      <Typography
+        type={TypographyType.Body}
+        color={TypographyColor.Secondary}
+        className="text-center"
+      >
+        Thank you for your payment. The person who shared this link has been
+        notified.
+      </Typography>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        OR
+      </Typography>
+      <Typography
+        type={TypographyType.Body}
+        color={TypographyColor.Secondary}
+        className="text-center"
+      >
+        Copy this link and send it to them
+      </Typography>
+      <div className="flex w-full max-w-md items-center gap-2">
+        <input
+          type="text"
+          readOnly
+          value={recruiterLink}
+          className="flex-1 truncate rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-tertiary typo-callout"
+        />
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Medium}
+          onClick={handleCopyLink}
+        >
+          {copied ? 'Copied!' : 'Copy'}
+        </Button>
+      </div>
     </div>
-    <Typography type={TypographyType.Title1} bold>
-      Payment successful
-    </Typography>
-    <Typography
-      type={TypographyType.Body}
-      color={TypographyColor.Secondary}
-      className="text-center"
-    >
-      Thank you for your payment. The recruiter who shared this link has been
-      notified.
-    </Typography>
-  </div>
-);
+  );
+};
 
 const AlreadyPaidMessage = (): ReactElement => (
   <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-10">
@@ -310,7 +357,7 @@ const RecruiterPublicPaymentPage = (): ReactElement => {
   });
 
   if (paymentComplete) {
-    return <PaymentCompleteMessage />;
+    return <PaymentCompleteMessage opportunityId={opportunityId} />;
   }
 
   if (!router.isReady || isOpportunityLoading) {
