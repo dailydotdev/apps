@@ -292,7 +292,7 @@ const RecruiterPlans = (): ReactElement => {
   const showPaymentRequired = router.query.required === '1';
 
   return (
-    <div className="mx-auto flex w-full max-w-[48rem] flex-col gap-8 px-4 tablet:px-0">
+    <div className="mx-auto flex w-full max-w-[48rem] flex-col gap-8 px-4 py-8 tablet:px-0">
       {showPaymentRequired && (
         <div className="bg-status-warning/10 flex items-center gap-2 rounded-12 border border-status-warning p-4">
           <WarningIcon className="text-status-warning" size={IconSize.Small} />
