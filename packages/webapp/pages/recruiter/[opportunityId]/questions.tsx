@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactElement, ReactNode } from 'react';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -12,7 +12,6 @@ import {
 import { MoveToIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { useRouter } from 'next/router';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
-import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
 import {
   OpportunityEditProvider,
@@ -67,10 +66,7 @@ const QuestionsSetupPage = (): ReactElement => {
     ...opportunityByIdOptions({ id: opportunityId }),
   });
 
-  const { isCheckingPayment } = useRequirePayment({
-    opportunity,
-    opportunityId,
-  });
+  const queryClient = useQueryClient();
 
   const onValidationError = async ({
     issues,
@@ -108,7 +104,13 @@ const QuestionsSetupPage = (): ReactElement => {
     isPending: isPendingOpportunityState,
   } = useMutation({
     ...updateOpportunityStateOptions(),
-    onSuccess,
+    onSuccess: async () => {
+      await queryClient.refetchQueries({
+        queryKey: opportunityByIdOptions({ id: opportunityId }).queryKey,
+      });
+
+      await onSuccess();
+    },
     onError: async (error: ApiErrorResult) => {
       if (
         error.response?.errors?.[0]?.extensions?.code ===
@@ -169,7 +171,7 @@ const QuestionsSetupPage = (): ReactElement => {
     },
   });
 
-  if (!isAuthReady || isPending || !isLoggedIn || isCheckingPayment) {
+  if (!isAuthReady || isPending || !isLoggedIn) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <Loader />
