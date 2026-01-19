@@ -113,8 +113,8 @@ export const OpportunityCard = ({
             </Link>
           )}
 
-          {/* Show edit button only if paid */}
-          {isPaid && (
+          {/* Show edit button only if paid and not live */}
+          {isPaid && !isLive && (
             <Link href={`${webappUrl}recruiter/${id}/prepare`} passHref>
               <Button
                 tag="a"
