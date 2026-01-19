@@ -157,7 +157,13 @@ function EditPageContent(): ReactElement {
     isPending: isPendingOpportunityState,
   } = useMutation({
     ...updateOpportunityStateOptions(),
-    onSuccess,
+    onSuccess: async () => {
+      await queryClient.refetchQueries({
+        queryKey: opportunityByIdOptions({ id: opportunityId }).queryKey,
+      });
+
+      await onSuccess();
+    },
     onError: async (error: ApiErrorResult) => {
       if (
         error.response?.errors?.[0]?.extensions?.code ===

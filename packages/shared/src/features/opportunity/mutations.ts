@@ -535,7 +535,7 @@ export const addOpportunitySeatsMutationOptions = () => {
       payload: z.infer<typeof addOpportunitySeatsSchema>;
     }): Promise<void> => {
       await gqlClient.request<{
-        updateOpportunityState: EmptyResponse;
+        addOpportunitySeats: EmptyResponse;
       }>(ADD_OPPORTUNITY_SEATS_MUTATION, {
         id,
         payload,

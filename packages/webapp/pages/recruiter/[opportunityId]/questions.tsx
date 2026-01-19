@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactElement, ReactNode } from 'react';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -66,6 +66,8 @@ const QuestionsSetupPage = (): ReactElement => {
     ...opportunityByIdOptions({ id: opportunityId }),
   });
 
+  const queryClient = useQueryClient();
+
   const onValidationError = async ({
     issues,
   }: {
@@ -102,7 +104,13 @@ const QuestionsSetupPage = (): ReactElement => {
     isPending: isPendingOpportunityState,
   } = useMutation({
     ...updateOpportunityStateOptions(),
-    onSuccess,
+    onSuccess: async () => {
+      await queryClient.refetchQueries({
+        queryKey: opportunityByIdOptions({ id: opportunityId }).queryKey,
+      });
+
+      await onSuccess();
+    },
     onError: async (error: ApiErrorResult) => {
       if (
         error.response?.errors?.[0]?.extensions?.code ===
