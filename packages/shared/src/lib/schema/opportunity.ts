@@ -26,6 +26,15 @@ export const opportunityEditInfoSchema = z.object({
     .max(100),
   externalLocationId: z.string().optional(),
   locationType: z.number().optional(),
+  locationData: z
+    .object({
+      id: z.string(),
+      city: z.string().nullish(),
+      country: z.string(),
+      subdivision: z.string().nullish(),
+    })
+    .nullable()
+    .optional(),
   meta: z.object({
     employmentType: z.coerce.number().min(1, 'Select an employment type'),
     teamSize: z
@@ -180,17 +189,6 @@ export interface OpportunityContentInput {
   requirements?: string;
   whatYoullDo?: string;
   interviewProcess?: string;
-}
-
-export interface OpportunityPreviewInput {
-  title: string;
-  tldr: string;
-  content?: OpportunityContentInput;
-  meta?: OpportunityMetaInput;
-  location?: LocationInput[];
-  state?: number;
-  type?: number;
-  keywords?: string[];
 }
 
 export const maxRecruiterSeats = 50;

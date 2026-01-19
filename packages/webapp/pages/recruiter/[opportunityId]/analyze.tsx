@@ -22,14 +22,14 @@ import {
 import { usePendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { AnalyzeContent } from '@dailydotdev/shared/src/features/opportunity/components/analyze/AnalyzeContent';
 import { AnalyzeStatusBar } from '@dailydotdev/shared/src/components/recruiter/AnalyzeStatusBar';
-import { parseOpportunityMutationOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
-import type {
-  ApiErrorResult,
-  ApiZodErrorExtension,
-} from '@dailydotdev/shared/src/graphql/common';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import { labels } from '@dailydotdev/shared/src/lib';
+import {
+  parseOpportunityMutationOptions,
+  getParseOpportunityMutationErrorMessage,
+} from '@dailydotdev/shared/src/features/opportunity/mutations';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import {
   getLayout,
   layoutProps,
@@ -47,6 +47,7 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
   const [parsingComplete, setParsingComplete] = useState(false);
 
   const opportunityId = router.query.opportunityId as string;
+  const urlQueryParam = router.query.url as string | undefined;
   const isNewSubmission = opportunityId === 'new';
 
   const { mutate: parseOpportunity, isPending } = useMutation({
@@ -61,26 +62,7 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
     onError: (error: ApiErrorResult) => {
       setParsingComplete(true);
       clearPendingSubmission();
-
-      const isZodError =
-        error?.response?.errors?.[0]?.extensions?.code ===
-        ApiError.ZodValidationError;
-
-      let message =
-        error?.response?.errors?.[0]?.message || labels.error.generic;
-
-      if (isZodError) {
-        const zodError = error as ApiErrorResult<ApiZodErrorExtension>;
-
-        // find and show custom error message or fallback to generic message
-        message =
-          zodError.response.errors[0].extensions.issues?.find((issue) => {
-            return issue.code === 'custom';
-          })?.message ||
-          'We could not extract the job details from your submission. Please try a different file or URL.';
-      }
-
-      displayToast(message);
+      displayToast(getParseOpportunityMutationErrorMessage(error));
       router.push(`/recruiter?openModal=joblink`);
     },
   });
@@ -90,6 +72,14 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
       return;
     }
 
+    // Support URL from query param (e.g., /recruiter/new/analyze?url=https://...)
+    if (urlQueryParam) {
+      hasStartedParsing.current = true;
+      parseOpportunity({ url: urlQueryParam });
+      return;
+    }
+
+    // Fall back to pending submission from context
     if (!pendingSubmission) {
       router.push(`/recruiter?openModal=joblink`);
       return;
@@ -102,7 +92,13 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
     } else {
       parseOpportunity({ file: pendingSubmission.file });
     }
-  }, [isNewSubmission, pendingSubmission, parseOpportunity, router]);
+  }, [
+    isNewSubmission,
+    urlQueryParam,
+    pendingSubmission,
+    parseOpportunity,
+    router,
+  ]);
 
   // Consider parsing in progress if:
   // 1. The mutation is currently pending, OR
@@ -115,8 +111,27 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
 
 const RecruiterPageContent = () => {
   const router = useRouter();
-  const { opportunity, result } = useOpportunityPreviewContext();
-  const { isParsing } = useNewOpportunityParser();
+  const { displayToast } = useToastNotification();
+  const {
+    opportunity,
+    result,
+    isParsing: isBackgroundParsing,
+  } = useOpportunityPreviewContext();
+  const { isParsing: isMutationParsing } = useNewOpportunityParser();
+
+  const isParseError = opportunity?.state === OpportunityState.ERROR;
+
+  // Show toast and redirect when background parsing fails
+  useEffect(() => {
+    if (isParseError) {
+      displayToast(getParseOpportunityMutationErrorMessage());
+
+      router.push(`${webappUrl}recruiter?openModal=joblink`);
+    }
+  }, [isParseError, displayToast, router]);
+
+  // Consider parsing in progress if mutation is pending OR background parsing is happening
+  const isParsing = isMutationParsing || isBackgroundParsing;
 
   const loadingStep = useMemo(() => {
     if (isParsing) {
@@ -151,7 +166,7 @@ const RecruiterPageContent = () => {
           text: 'Select plan',
           icon: <MoveToIcon />,
           onClick: handlePrepareCampaignClick,
-          disabled: !opportunity,
+          disabled: !opportunity || isParsing,
         }}
       />
       <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />

@@ -11,6 +11,7 @@ import {
   Typography,
   TypographyType,
   TypographyColor,
+  TypographyTag,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { InfoIcon } from '@dailydotdev/shared/src/components/icons/Info';
@@ -28,7 +29,10 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { recruiterPremiumPlanBg } from '@dailydotdev/shared/src/styles/custom';
-import { WarningIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  CreditCardIcon,
+  WarningIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   getLayout,
   layoutProps,
@@ -309,6 +313,27 @@ const RecruiterPlans = (): ReactElement => {
         >
           A new hiring channel. Reach engineers who ignore LinkedIn and never
           apply on job boards, but are active on daily.dev every day.
+        </Typography>
+      </div>
+
+      <div className="flex items-center gap-3 rounded-12 border-l-4 border-accent-cabbage-default bg-gradient-to-r from-action-share-float to-transparent px-4 py-3">
+        <CreditCardIcon
+          size={IconSize.Medium}
+          className="text-accent-cabbage-default"
+        />
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Secondary}
+        >
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Callout}
+            bold
+          >
+            Not the one paying?
+          </Typography>{' '}
+          No problem — you can share a secure payment link with your finance
+          team in the next step.
         </Typography>
       </div>
 

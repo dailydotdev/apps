@@ -20,6 +20,7 @@ export interface OpportunityEditPanelProps {
   opportunity: Opportunity;
   onSectionFocus?: (sectionId: string) => void;
   className?: string;
+  hideLinkedProfiles?: boolean;
 }
 
 interface CollapsibleSectionProps {
@@ -119,6 +120,7 @@ export function OpportunityEditPanel({
   opportunity,
   onSectionFocus,
   className,
+  hideLinkedProfiles,
 }: OpportunityEditPanelProps): ReactElement {
   const company = opportunity?.organization;
   const recruiter = opportunity?.recruiters?.[0];
@@ -174,36 +176,38 @@ export function OpportunityEditPanel({
         ))}
 
         {/* Linked profiles - flat list without collapsible wrapper */}
-        <div className="mt-4 flex flex-col gap-3 px-4">
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-            bold
-          >
-            Linked profiles
-          </Typography>
-          <LinkedProfileSection
-            type="company"
-            name={company?.name}
-            image={company?.image}
-            editUrl={`/recruiter/organizations/${company?.id}`}
-            emptyMessage="No company info added yet"
-          />
-          <LinkedProfileSection
-            type="recruiter"
-            name={recruiter?.name}
-            image={recruiter?.image}
-            subtitle={recruiter?.title}
-            editUrl={getPathnameWithQuery(
-              `${settingsUrl}/profile`,
-              new URLSearchParams({
-                redirectTo: `${webappUrl}recruiter/${opportunity.id}/edit`,
-                redirectCopy: 'Back to job posting',
-              }),
-            )}
-            emptyMessage="No recruiter info added yet"
-          />
-        </div>
+        {!hideLinkedProfiles && (
+          <div className="mt-4 flex flex-col gap-3 px-4">
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              bold
+            >
+              Linked profiles
+            </Typography>
+            <LinkedProfileSection
+              type="company"
+              name={company?.name}
+              image={company?.image}
+              editUrl={`/recruiter/organizations/${company?.id}`}
+              emptyMessage="No company info added yet"
+            />
+            <LinkedProfileSection
+              type="recruiter"
+              name={recruiter?.name}
+              image={recruiter?.image}
+              subtitle={recruiter?.title}
+              editUrl={getPathnameWithQuery(
+                `${settingsUrl}/profile`,
+                new URLSearchParams({
+                  redirectTo: `${webappUrl}recruiter/${opportunity.id}/edit`,
+                  redirectCopy: 'Back to job posting',
+                }),
+              )}
+              emptyMessage="No recruiter info added yet"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

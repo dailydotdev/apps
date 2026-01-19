@@ -75,6 +75,14 @@ export function opportunityToFormData(
     keywords: opportunity.keywords?.map((k) => ({ keyword: k.keyword })) || [],
     externalLocationId: opportunity.locations?.[0]?.location?.city || undefined,
     locationType: opportunity.locations?.[0]?.type,
+    locationData: opportunity.locations?.[0]?.location
+      ? {
+          id: '',
+          city: opportunity.locations[0].location.city,
+          country: opportunity.locations[0].location.country || '',
+          subdivision: opportunity.locations[0].location.subdivision,
+        }
+      : undefined,
     meta: {
       employmentType: opportunity.meta?.employmentType ?? 0,
       teamSize: opportunity.meta?.teamSize ?? 1,
@@ -114,7 +122,18 @@ export function formDataToPreviewOpportunity(
     tldr: formData.tldr,
     keywords: formData.keywords,
     locations: formData.locationType
-      ? [{ type: formData.locationType, location: null }]
+      ? [
+          {
+            type: formData.locationType,
+            location: formData.locationData
+              ? {
+                  city: formData.locationData.city,
+                  country: formData.locationData.country,
+                  subdivision: formData.locationData.subdivision,
+                }
+              : null,
+          },
+        ]
       : undefined,
     meta: formData.meta
       ? {
@@ -165,6 +184,8 @@ export function formDataToMutationPayload(
     title: formData.title,
     tldr: formData.tldr,
     keywords: formData.keywords,
+    externalLocationId: formData.externalLocationId,
+    locationType: formData.locationType,
     meta: {
       employmentType: formData.meta.employmentType,
       teamSize: formData.meta.teamSize,

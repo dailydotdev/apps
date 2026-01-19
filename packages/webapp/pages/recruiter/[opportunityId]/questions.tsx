@@ -12,7 +12,7 @@ import {
 import { MoveToIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { useRouter } from 'next/router';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
-
+import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
 import {
   OpportunityEditProvider,
@@ -65,6 +65,11 @@ const QuestionsSetupPage = (): ReactElement => {
 
   const { data: opportunity, isPending } = useQuery({
     ...opportunityByIdOptions({ id: opportunityId }),
+  });
+
+  const { isCheckingPayment } = useRequirePayment({
+    opportunity,
+    opportunityId,
   });
 
   const onValidationError = async ({
@@ -164,7 +169,7 @@ const QuestionsSetupPage = (): ReactElement => {
     },
   });
 
-  if (!isAuthReady || isPending || !isLoggedIn) {
+  if (!isAuthReady || isPending || !isLoggedIn || isCheckingPayment) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <Loader />

@@ -14,6 +14,9 @@ import {
 import { RequestKey } from '@dailydotdev/shared/src/lib/query';
 import type { OpportunityMatch } from '@dailydotdev/shared/src/features/opportunity/types';
 import { OpportunityMatchStatus } from '@dailydotdev/shared/src/features/opportunity/types';
+import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
+import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
   Button,
   ButtonSize,
@@ -310,6 +313,14 @@ const OpportunityDetailPage = (): ReactElement => {
     opportunityByIdOptions({ id: id as string }),
   );
 
+  // Require payment to view this page
+  const { isCheckingPayment } = useRequirePayment({
+    opportunity,
+    opportunityId: id as string,
+  });
+
+  const isLive = opportunity?.state === OpportunityState.LIVE;
+
   // Fetch opportunity matches
   const { data: matchesData, isLoading: isLoadingMatches } = useQuery(
     getOpportunityMatchesOptions({ opportunityId: id as string }),
@@ -366,15 +377,24 @@ const OpportunityDetailPage = (): ReactElement => {
     });
   };
 
-  const isLoading = isLoadingOpportunity || isLoadingMatches;
+  const isLoading =
+    isLoadingOpportunity || isLoadingMatches || isCheckingPayment;
+
+  const getNotLiveMessage = () => {
+    if (opportunity?.state === OpportunityState.IN_REVIEW) {
+      return 'Your job is being reviewed. Matches will appear once it goes live.';
+    }
+    if (opportunity?.state === OpportunityState.DRAFT) {
+      return 'Complete your job posting to start receiving matches.';
+    }
+    return 'Matches are only available for live opportunities.';
+  };
 
   if (!isAuthReady || isLoading) {
     return (
       <div className="relative mx-4 mt-10 max-w-[47.875rem] tablet:mx-auto">
         <div className="flex flex-col items-center justify-center py-20">
-          <Typography color={TypographyColor.Tertiary}>
-            Loading opportunity details...
-          </Typography>
+          <Loader />
         </div>
       </div>
     );
@@ -493,7 +513,15 @@ const OpportunityDetailPage = (): ReactElement => {
             Candidate Applications
           </Typography>
 
-          {matches.length > 0 ? (
+          {!isLive && (
+            <div className="flex w-full flex-col items-center justify-center rounded-16 border border-border-subtlest-tertiary bg-surface-float py-12">
+              <Typography color={TypographyColor.Tertiary}>
+                {getNotLiveMessage()}
+              </Typography>
+            </div>
+          )}
+
+          {isLive && matches.length > 0 && (
             <FlexCol className="gap-4">
               {matches.map((match) => (
                 <CandidateCard
@@ -505,7 +533,9 @@ const OpportunityDetailPage = (): ReactElement => {
                 />
               ))}
             </FlexCol>
-          ) : (
+          )}
+
+          {isLive && matches.length === 0 && (
             <div className="flex w-full flex-col items-center justify-center rounded-16 border border-border-subtlest-tertiary bg-surface-float py-12">
               <Typography color={TypographyColor.Tertiary}>
                 No candidates yet

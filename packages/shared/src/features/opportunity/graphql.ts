@@ -157,6 +157,21 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
   ${OPPORTUNITY_FRAGMENT}
 `;
 
+export const OPPORTUNITY_BY_ID_PUBLIC_QUERY = gql`
+  query OpportunityByIdPublic($id: ID!) {
+    opportunityByIdPublic(id: $id) {
+      id
+      title
+      organization {
+        name
+      }
+      flags {
+        plan
+      }
+    }
+  }
+`;
+
 export const OPPORTUNITY_MATCH_FRAGMENT = gql`
   fragment OpportunityMatchFragment on OpportunityMatch {
     status
@@ -568,6 +583,12 @@ export const OPPORTUNITIES_QUERY = gql`
               ...Link
             }
           }
+          flags {
+            batchSize
+            plan
+            showSlack
+            showFeedback
+          }
         }
       }
     }
@@ -730,6 +751,10 @@ export const FEEDBACK_CLASSIFICATION_FRAGMENT = gql`
     sentiment
     urgency
     answer
+    userContext {
+      seniority
+      locationCountry
+    }
   }
 `;
 

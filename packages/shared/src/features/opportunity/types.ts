@@ -306,12 +306,18 @@ export enum FeedbackUrgency {
   Critical = 4,
 }
 
+export type AnonymousUserContext = {
+  seniority: string | null;
+  locationCountry: string | null;
+};
+
 export type FeedbackClassification = {
   platform: FeedbackPlatform;
   category: FeedbackCategory;
   sentiment: FeedbackSentiment;
   urgency: FeedbackUrgency;
   answer?: string;
+  userContext?: AnonymousUserContext | null;
 };
 
 export interface OpportunityFeedbackData {
