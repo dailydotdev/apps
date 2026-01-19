@@ -24,10 +24,11 @@ export interface UseInfiniteReadingHistory {
   queryResult: UseInfiniteQueryResult<ReadHistoryInfiniteData>;
 }
 
-interface UseInfiniteReadingHistoryProps {
+export interface UseInfiniteReadingHistoryProps {
   key: QueryKey;
   query;
   variables?;
+  staleTime?: number;
 }
 function useInfiniteReadingHistory({
   key,

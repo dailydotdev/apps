@@ -1,8 +1,8 @@
 import type { HTMLAttributes, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
+import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
 import { SearchField } from './fields/SearchField';
 import { useAutoComplete } from '../hooks/useAutoComplete';
 import useDebounceFn from '../hooks/useDebounceFn';
@@ -16,16 +16,11 @@ import { gqlClient } from '../graphql/common';
 import { useConditionalFeature } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
-
-const AutoCompleteMenu = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "autoCompleteMenu" */ './fields/AutoCompleteMenu'
-    ),
-  {
-    ssr: false,
-  },
-);
+import { useDomPurify } from '../hooks/useDomPurify';
+import type { PopoverContentProps } from './popover/Popover';
+import { PopoverContent } from './popover/Popover';
+import { SearchIcon } from './icons';
+import { StaleTime } from '../lib/query';
 
 export type PostsSearchProps = {
   initialQuery?: string;
@@ -60,19 +55,16 @@ export default function PostsSearch({
 }: PostsSearchProps): ReactElement {
   const { time, contentCurationFilter } = useSearchContextProvider();
   const searchBoxRef = useRef<HTMLDivElement>();
-  const [initialQuery, setInitialQuery] = useState<string>();
   const [query, setQuery] = useState<string>();
-  const [menuPosition, setMenuPosition] = useState<{
-    x: number;
-    y: number;
-    width: number;
-  }>(null);
   const [items, setItems] = useState<string[]>([]);
   const { value: searchVersion } = useConditionalFeature({
     feature: feature.searchVersion,
     shouldEvaluate: !!query && suggestionType === 'searchPostSuggestions',
   });
   const SEARCH_URL = SEARCH_TYPES[suggestionType];
+  const purify = useDomPurify();
+  const [isFocused, setIsFocused] = useState(false);
+  const initialQuery = useRef<string>(initialQueryProp || '');
 
   const { data: searchResults, isPending } = useQuery<{
     [suggestionType: string]: { hits: { title: string }[] };
@@ -81,39 +73,18 @@ export default function PostsSearch({
     queryFn: () =>
       gqlClient.request(SEARCH_URL, { query, version: searchVersion }),
     enabled: !!query,
+    staleTime: StaleTime.Default,
   });
 
   useEffect(() => {
-    if (!initialQuery) {
-      setInitialQuery(initialQueryProp);
-    }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialQueryProp]);
-
-  const hideMenu = () => setMenuPosition(null);
-
-  const showSuggestions = () => {
-    if (menuPosition) {
-      return;
-    }
-    const { left, bottom, width } =
-      searchBoxRef.current.getBoundingClientRect();
-    setMenuPosition({ x: left, y: bottom + window.scrollY, width });
-  };
-
-  useEffect(() => {
     if (!isPending) {
-      if (!items?.length && searchResults?.[suggestionType]?.hits.length) {
-        showSuggestions();
-      }
       setItems(
-        searchResults?.[suggestionType]?.hits.map((hit) => hit.title) ?? [],
+        searchResults?.[suggestionType]?.hits.map((hit) =>
+          purify?.sanitize?.(hit.title),
+        ) ?? [],
       );
     }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchResults, isPending]);
+  }, [searchResults, isPending, suggestionType, purify]);
 
   const submitQuery = async (item?: string) => {
     const itemQuery = item?.replace?.(sanitizeSearchTitleMatch, '');
@@ -124,9 +95,10 @@ export default function PostsSearch({
       },
     });
     if (itemQuery) {
-      setInitialQuery(itemQuery);
+      initialQuery.current = itemQuery;
     }
-    hideMenu();
+
+    setIsFocused(false);
   };
 
   const { selectedItemIndex, onKeyDown } = useAutoComplete(items, submitQuery);
@@ -136,9 +108,10 @@ export default function PostsSearch({
   );
   const onValueChanged = (value: string) => {
     if (!value.length) {
-      hideMenu();
       setQuery('');
+      initialQuery.current = '';
       onClearQuery?.();
+      setIsFocused(false);
       return;
     }
 
@@ -146,8 +119,8 @@ export default function PostsSearch({
       debounceQuery(value);
     }
 
-    if (menuPosition === null) {
-      showSuggestions();
+    if (value !== initialQuery.current) {
+      setIsFocused(true);
     }
   };
 
@@ -157,40 +130,78 @@ export default function PostsSearch({
     }
   }, [searchBoxRef, autoFocus]);
 
-  const isOpen = !!menuPosition && !!items.length;
+  const handlePopoverClose: PopoverContentProps['onInteractOutside'] = (e) => {
+    if (searchBoxRef.current.contains(e.target as Node)) {
+      e.preventDefault();
+      return;
+    }
+
+    // Click or focus is outside the popover, close it
+    setIsFocused(false);
+  };
+
+  const isOpen = isFocused && items?.length > 0;
   return (
     <>
-      <SearchField
-        className={classNames('compact flex-1', className)}
-        inputId="posts-search"
-        fieldSize="medium"
-        placeholder={placeholder ?? 'Find posts'}
-        ref={searchBoxRef}
-        value={initialQuery}
-        valueChanged={onValueChanged}
-        onKeyDown={onKeyDown}
-        onBlur={() => {
-          if (query?.length) {
-            hideMenu();
-          }
-        }}
-        onFocus={(event) => {
-          onFocus?.(event);
-
-          if (items?.length) {
-            showSuggestions();
-          }
-        }}
-        aria-haspopup="true"
-        aria-expanded={isOpen}
-      />
-      <AutoCompleteMenu
-        placement={menuPosition}
-        items={items}
-        focusedItemIndex={selectedItemIndex}
-        onItemClick={submitQuery}
-        isOpen={isOpen}
-      />
+      <Popover open={isOpen}>
+        <PopoverAnchor asChild>
+          <SearchField
+            className={classNames('compact flex-1', className)}
+            inputId="posts-search"
+            fieldSize="medium"
+            placeholder={placeholder ?? 'Find posts'}
+            ref={searchBoxRef}
+            value={initialQuery.current}
+            valueChanged={onValueChanged}
+            onKeyDown={(e) => {
+              if (
+                !isFocused &&
+                (e.key === 'ArrowDown' || e.key === 'ArrowUp')
+              ) {
+                setIsFocused(true);
+              }
+              onKeyDown(e);
+            }}
+            onFocus={(event) => {
+              onFocus?.(event);
+              setIsFocused(true);
+            }}
+            aria-haspopup="true"
+            aria-expanded={isOpen}
+          />
+        </PopoverAnchor>
+        <PopoverContent
+          className="rounded-12 border border-border-subtlest-tertiary bg-background-popover py-1 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
+          side="bottom"
+          align="start"
+          avoidCollisions
+          sameWidthAsAnchor
+          onOpenAutoFocus={(e) => e.preventDefault()} // keep focus in input
+          onCloseAutoFocus={(e) => e.preventDefault()} // avoid refocus jumps
+          onPointerDownOutside={handlePopoverClose}
+          onInteractOutside={handlePopoverClose}
+        >
+          {items.map((item, index) => {
+            return (
+              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+              <div
+                className={classNames(
+                  'flex h-8 items-center gap-1 truncate px-3 typo-footnote hover:cursor-pointer hover:bg-surface-hover',
+                  { 'bg-surface-hover': index === selectedItemIndex },
+                )}
+                key={item}
+                onClick={() => {
+                  setIsFocused(false);
+                  submitQuery(item);
+                }}
+              >
+                <SearchIcon />
+                <span dangerouslySetInnerHTML={{ __html: item }} />
+              </div>
+            );
+          })}
+        </PopoverContent>
+      </Popover>
     </>
   );
 }
