@@ -6,12 +6,13 @@ import classed from '../../lib/classed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
-import { ReputationIcon } from '../icons';
+import { ReputationIcon, UpvoteIcon } from '../icons';
 import { IconSize } from '../Icon';
 
 export interface UserStatsProps {
   stats: {
     reputation: number;
+    upvotes: number;
     numFollowers: number;
     numFollowing: number;
   };
@@ -59,6 +60,13 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
               size={IconSize.Small}
             />
             <Item stat={{ title: 'Reputation', amount: stats.reputation }} />
+          </div>
+          <div className="flex">
+            <UpvoteIcon
+              className="text-accent-avocado-default"
+              size={IconSize.Small}
+            />
+            <Item stat={{ title: 'Upvotes', amount: stats.upvotes }} />
           </div>
           <Item
             stat={{ title: 'Followers', amount: stats.numFollowers }}
