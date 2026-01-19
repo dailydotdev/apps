@@ -11,8 +11,6 @@ type ReachHeroSectionProps = {
   isLoading: boolean;
 };
 
-const PASSIVE_PERCENTAGE = 30;
-
 export const ReachHeroSection = ({
   totalCount,
   isLoading,
@@ -58,6 +56,13 @@ export const ReachHeroSection = ({
   return (
     <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-6">
       <div className="flex flex-col items-center">
+        {/* Label */}
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+        >
+          Potential reach
+        </Typography>
         {/* Hero number */}
         <Typography type={TypographyType.Tera} bold className="tabular-nums">
           {animatedCount.toLocaleString()}
@@ -65,22 +70,18 @@ export const ReachHeroSection = ({
         <Typography
           type={TypographyType.Title3}
           color={TypographyColor.Primary}
-          className="mt-1"
         >
           developers matched
         </Typography>
 
-        {/* Exclusive stat */}
+        {/* Community differentiator */}
         <div className="mt-5 flex animate-fade-slide-up items-center gap-2 rounded-10 bg-surface-float px-3 py-2">
           <div className="size-2 animate-pulse rounded-full bg-status-success" />
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
           >
-            <span className="font-bold text-text-primary">
-              {PASSIVE_PERCENTAGE}%
-            </span>{' '}
-            are passively open to new opportunities
+            Active in our community
           </Typography>
         </div>
       </div>

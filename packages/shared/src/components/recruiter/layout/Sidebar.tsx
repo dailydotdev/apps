@@ -200,6 +200,8 @@ const STATE_KEYS: Record<OpportunityState, keyof StateGroup | null> = {
   [OpportunityState.IN_REVIEW]: 'active',
   [OpportunityState.LIVE]: 'active',
   [OpportunityState.CLOSED]: 'paused',
+  [OpportunityState.PARSING]: 'draft',
+  [OpportunityState.ERROR]: 'draft',
   [OpportunityState.UNSPECIFIED]: null,
 };
 

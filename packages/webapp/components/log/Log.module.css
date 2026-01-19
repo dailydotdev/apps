@@ -28,6 +28,418 @@
   padding-top: env(safe-area-inset-top, 0);
 }
 
+/* iOS native app already handles safe area on body via ios.css */
+:global(.ios) .logContainer {
+  padding-top: 0;
+}
+
+/* iOS native app has reduced viewport height due to safe area - apply compact sizing */
+:global(.ios) {
+  /* Headlines & Banners */
+  & .headlineStack {
+    margin-bottom: 0.5rem;
+  }
+
+  & .headlineSmall {
+    font-size: 0.75rem;
+  }
+
+  & .celebrationBanner {
+    padding: 0.625rem;
+    margin: 0.5rem 0;
+  }
+
+  & .bannerMain {
+    font-size: 1.5rem;
+  }
+
+  & .navPrompt {
+    padding: 0.375rem 0;
+    padding-bottom: calc(0.375rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Topic Evolution Card */
+  & .quarterCarouselWrapper {
+    margin-bottom: 1rem;
+  }
+
+  & .quarterCarouselItem {
+    padding: 0.375rem 0.5rem;
+    min-width: 44px;
+  }
+
+  & .quarterCarouselLabel {
+    font-size: 0.6rem;
+  }
+
+  & .quarterCarouselItemActive .quarterCarouselLabel {
+    font-size: 1rem;
+  }
+
+  & .topTagsContainer {
+    max-width: 260px;
+  }
+
+  & .topTagsList {
+    gap: 0.5rem;
+  }
+
+  & .topTagItem {
+    padding: 0.625rem 0.875rem;
+    border-radius: 10px;
+  }
+
+  & .topTagName {
+    font-size: 0.95rem;
+  }
+
+  & .pivotBadge {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.6rem;
+  }
+
+  /* Contributions Card */
+  & .creatorBadge {
+    padding: 0.375rem 0.75rem;
+    margin-bottom: 0.5rem;
+    box-shadow:
+      2px 2px 0 var(--fest-primary, #FF8E3B),
+      4px 4px 0 var(--fest-accent, #CE3DF3);
+  }
+
+  & .creatorBadgeText {
+    font-size: 0.55rem;
+  }
+
+  & .spotlightContainer {
+    margin: 0.25rem 0;
+  }
+
+  & .spotlightRing {
+    width: 150px;
+    height: 150px;
+    border-width: 3px;
+  }
+
+  & .spotlightInner {
+    width: 140px;
+    height: 140px;
+    border-width: 2px;
+  }
+
+  & .spotlightNumber {
+    font-size: 3.5rem;
+    text-shadow:
+      2px 2px 0 var(--fest-primary, #FF8E3B),
+      4px 4px 0 var(--fest-accent, #CE3DF3);
+  }
+
+  & .spotlightLabel {
+    font-size: 1rem;
+  }
+
+  & .spotlightSubLabel {
+    font-size: 0.5rem;
+  }
+
+  & .resultIndicator {
+    max-width: 240px;
+    margin: 0.5rem 0;
+    gap: 0.5rem;
+  }
+
+  /* Archetype Card */
+  & .archetypeContainer {
+    min-height: 320px;
+  }
+
+  & .buildupContainer {
+    gap: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  & .archetypeBuildupLine {
+    font-size: 0.7rem;
+    gap: 0.5rem;
+  }
+
+  & .archetypeBuildupIcon {
+    font-size: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  & .archetypePauseDots {
+    font-size: 3rem;
+    gap: 0.75rem;
+  }
+
+  & .whoAreYouSmall {
+    font-size: 1rem;
+  }
+
+  & .whoAreYouLarge {
+    font-size: 4rem;
+    text-shadow:
+      3px 3px 0 var(--fest-primary, #FF8E3B),
+      6px 6px 0 var(--fest-accent, #CE3DF3);
+  }
+
+  & .archetypeRevealContainer {
+    gap: 0.5rem;
+  }
+
+  & .archetypeImageWrapper {
+    width: 140px;
+    height: 140px;
+  }
+
+  & .archetypeImageGlowRing {
+    inset: -6px;
+    border-width: 2px;
+  }
+
+  & .archetypeNameLabel {
+    font-size: 0.6rem;
+  }
+
+  & .archetypeNameText {
+    font-size: 2rem;
+    text-shadow:
+      2px 2px 0 var(--fest-primary, #FF8E3B),
+      4px 4px 0 var(--fest-accent, #CE3DF3);
+  }
+
+  & .archetypeRevealDescription {
+    font-size: 0.85rem;
+    max-width: 260px;
+  }
+
+  & .archetypeStatBadge {
+    padding: 0.5rem 0.875rem;
+    max-width: 240px;
+    box-shadow:
+      3px 3px 0 var(--fest-primary, #FF8E3B),
+      6px 6px 0 var(--fest-accent, #CE3DF3);
+  }
+
+  & .archetypeStatBadgeText {
+    font-size: 0.6rem;
+  }
+
+  /* Share Card */
+  & .shareOfficialStamp {
+    padding: 0.25rem 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  & .shareOfficialText {
+    font-size: 0.6rem;
+  }
+
+  & .shareYouAre {
+    font-size: 0.7rem;
+  }
+
+  & .shareArchetypeTitle {
+    font-size: 1.75rem;
+    text-shadow:
+      2px 2px 0 var(--fest-primary, #FF8E3B),
+      4px 4px 0 var(--fest-accent, #CE3DF3);
+  }
+
+  & .shareAvatarWrapper {
+    width: 70px;
+    height: 70px;
+    margin: 0.25rem 0;
+  }
+
+  & .shareAvatarGlow {
+    inset: -10px;
+  }
+
+  & .shareAvatarRing {
+    inset: -5px;
+    border-width: 2px;
+  }
+
+  & .shareReceiptCard {
+    padding: 0.5rem 0.75rem;
+    max-width: 240px;
+    box-shadow:
+      3px 3px 0 var(--fest-accent, #CE3DF3),
+      6px 6px 0 var(--fest-primary, #FF8E3B);
+  }
+
+  & .shareReceiptTitle {
+    font-size: 0.55rem;
+  }
+
+  & .shareReceiptRow {
+    padding: 0.125rem 0;
+  }
+
+  & .shareReceiptLabel {
+    font-size: 0.5rem;
+  }
+
+  & .shareReceiptValue {
+    font-size: 0.75rem;
+  }
+
+  & .shareReceiptRank {
+    font-size: 0.65rem;
+  }
+
+  & .shareCelebrationText {
+    font-size: 0.7rem;
+    margin: 0.25rem 0 0;
+  }
+
+  & .shareGiantButton {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.85rem;
+    box-shadow:
+      3px 3px 0 var(--fest-primary, #FF8E3B),
+      6px 6px 0 var(--fest-accent, #CE3DF3);
+  }
+
+  & .shareWrapContainer {
+    gap: 0.5rem;
+  }
+
+  & .shareArchetypeContainer {
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+
+  & .shareArchetypeImageWrap {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 0.25rem;
+  }
+
+  & .shareArchetypeName {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  & .shareThankYou {
+    padding: 0.25rem 0;
+  }
+
+  & .shareThankYouText {
+    font-size: 0.95rem;
+    margin: 0 0 0.25rem;
+  }
+
+  & .shareThankYouSubtext {
+    font-size: 0.65rem;
+  }
+
+  & .shareSwipeHint {
+    margin-top: 0.25rem;
+  }
+
+  /* Share Stat Button */
+  & .shareStatButton {
+    padding: 0.625rem 1rem;
+    font-size: 0.6rem;
+    box-shadow:
+      2px 2px 0 var(--fest-primary, #FF8E3B),
+      4px 4px 0 var(--fest-accent, #CE3DF3);
+  }
+
+  & .shareStatOptions {
+    padding: 0.375rem;
+    gap: 0.375rem;
+  }
+
+  & .shareStatOption {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.55rem;
+  }
+
+  /* When You Read Card */
+  & .clockFace {
+    width: 120px;
+    height: 120px;
+  }
+
+  & .clockMarker {
+    transform-origin: center 54px;
+  }
+
+  & .clockHand {
+    width: 35px;
+  }
+
+  & .clockTime {
+    font-size: 1.25rem;
+  }
+
+  & .hourDistWrapper {
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+  }
+
+  & .hourDistBars {
+    height: 40px;
+  }
+
+  & .whenStatsRow {
+    padding: 0.5rem 0.625rem;
+    margin-top: 0.375rem;
+  }
+
+  /* Welcome Card */
+  & .welcomeTagline {
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+
+  & .welcomeInstructions {
+    margin: 0.75rem 0;
+    font-size: 0.75rem;
+  }
+
+  & .instructionHint {
+    font-size: 0.65rem;
+  }
+
+  & .welcomeCta {
+    margin-top: 1.25rem;
+  }
+
+  /* Archetype Banner */
+  & .archetypeBanner {
+    gap: 0.625rem;
+    padding: 0.5rem 0.875rem;
+  }
+
+  & .archetypeBannerAvatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  & .archetypeBannerName {
+    font-size: 1.1rem;
+  }
+
+  & .archetypeBannerStat {
+    font-size: 0.5rem;
+  }
+
+  /* No Data Card */
+  & .noDataCtaButton {
+    padding: 0.875rem 2rem;
+    font-size: 0.8rem;
+    box-shadow:
+      3px 3px 0 var(--fest-primary, #FF8E3B),
+      6px 6px 0 var(--fest-accent, #CE3DF3);
+  }
+}
+
 /* ========================================
    BACKGROUND EFFECTS
    ======================================== */

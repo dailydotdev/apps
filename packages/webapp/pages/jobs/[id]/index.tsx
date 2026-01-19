@@ -46,6 +46,7 @@ import {
   TwitterIcon,
   YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { GoBackButton } from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Chip } from '@dailydotdev/shared/src/components/cards/common/PostTags';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
@@ -397,7 +398,6 @@ const JobPage = ({
   const { logEvent } = useLogContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
-    back,
     query: { id: routerId },
   } = useRouter();
   // Use prop ID if provided (when used as component), otherwise use router query (when used as page)
@@ -513,12 +513,7 @@ const JobPage = ({
           {/* Header */}
           {!hideHeader && !previewMode && (
             <div className="flex min-h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary p-3">
-              <Button
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-                onClick={back}
-                icon={<MoveToIcon className="rotate-180" />}
-              />
+              <GoBackButton showLogo={false} />
 
               {!!match && (
                 <ResponseButtons
