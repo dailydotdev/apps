@@ -51,7 +51,7 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
   };
 
   return (
-    <div className="-ml-1 grid grid-cols-[auto_auto] gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
+    <div className="-ml-1 grid w-fit grid-cols-[auto_auto] gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
       <div className="flex">
         <ReputationIcon
           className="text-accent-onion-default"
