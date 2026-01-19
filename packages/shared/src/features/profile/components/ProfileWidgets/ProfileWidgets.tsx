@@ -14,7 +14,7 @@ import { canViewUserProfileAnalytics } from '../../../../lib/user';
 import { ReadingOverview } from './ReadingOverview';
 import { ProfileCompletion } from './ProfileCompletion';
 import { Share } from './Share';
-import { ProfileViewersWidget } from './ProfileViewersWidget';
+import { ProfileViewsWidget } from './ProfileViewsWidget';
 
 const BadgesAndAwards = dynamic(() =>
   import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
@@ -68,7 +68,7 @@ export function ProfileWidgets({
       {canViewUserProfileAnalytics({
         user: loggedUser,
         profileUserId: user.id,
-      }) && <ProfileViewersWidget userId={user.id} />}
+      }) && <ProfileViewsWidget userId={user.id} />}
       <ReadingOverview
         readHistory={readingHistory?.userReadHistory}
         before={before}

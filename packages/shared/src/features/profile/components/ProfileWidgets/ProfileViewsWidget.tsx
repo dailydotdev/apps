@@ -29,7 +29,7 @@ import { largeNumberFormat } from '../../../../lib';
 import { SummaryCard } from './BadgesAndAwardsComponents';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 
-interface ProfileViewersWidgetProps {
+interface ProfileViewsWidgetProps {
   userId: string;
 }
 
@@ -45,9 +45,9 @@ interface AnalyticsQueryResult {
   userProfileAnalytics: UserProfileAnalytics | null;
 }
 
-const ProfileViewersWidgetSkeleton = (): ReactElement => {
+const ProfileViewsWidgetSkeleton = (): ReactElement => {
   return (
-    <ActivityContainer data-testid="ProfileViewersWidgetSkeleton">
+    <ActivityContainer data-testid="ProfileViewsWidgetSkeleton">
       <Typography
         tag={TypographyTag.H2}
         type={TypographyType.Callout}
@@ -77,9 +77,9 @@ const ProfileViewersWidgetSkeleton = (): ReactElement => {
   );
 };
 
-export const ProfileViewersWidget = ({
+export const ProfileViewsWidget = ({
   userId,
-}: ProfileViewersWidgetProps): ReactElement => {
+}: ProfileViewsWidgetProps): ReactElement => {
   const { data: historyData, isPending: isHistoryPending } =
     useQuery<HistoryQueryResult>({
       queryKey: generateQueryKey(RequestKey.ProfileAnalyticsHistory, {
@@ -135,7 +135,7 @@ export const ProfileViewersWidget = ({
   const total = analyticsData?.userProfileAnalytics?.uniqueVisitors ?? 0;
 
   if (isHistoryPending || isAnalyticsPending) {
-    return <ProfileViewersWidgetSkeleton />;
+    return <ProfileViewsWidgetSkeleton />;
   }
 
   return (
