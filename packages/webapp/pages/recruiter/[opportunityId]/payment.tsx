@@ -72,7 +72,7 @@ const RecruiterPaymentPage = (): ReactElement => {
 
     openCheckout({
       priceId: selectedProduct.id,
-      customData: { opportunity_id: opportunity.id },
+      customData: { opportunity_id: opportunity.id, external_pay: true },
     });
   }, [selectedProduct, openCheckout, opportunity]);
 
