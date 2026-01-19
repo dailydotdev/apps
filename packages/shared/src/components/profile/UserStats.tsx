@@ -6,7 +6,7 @@ import classed from '../../lib/classed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
-import { ReputationIcon, UpvoteIcon } from '../icons';
+import { ReputationIcon } from '../icons';
 import { IconSize } from '../Icon';
 
 export interface UserStatsProps {
@@ -53,7 +53,7 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
   return (
     <div className="-ml-1 flex flex-wrap items-center text-text-tertiary typo-footnote">
       <div className="flex flex-col gap-3">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           <div className="flex">
             <ReputationIcon
               className="text-accent-onion-default"
@@ -61,13 +61,7 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
             />
             <Item stat={{ title: 'Reputation', amount: stats.reputation }} />
           </div>
-          <div className="flex">
-            <UpvoteIcon
-              className="text-accent-avocado-default"
-              size={IconSize.Small}
-            />
-            <Item stat={{ title: 'Upvotes', amount: stats.upvotes }} />
-          </div>
+          <Item stat={{ title: 'Upvotes', amount: stats.upvotes }} />
           <Item
             stat={{ title: 'Followers', amount: stats.numFollowers }}
             className={classNames(stats.numFollowers && 'cursor-pointer')}
