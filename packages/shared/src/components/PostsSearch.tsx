@@ -196,6 +196,7 @@ export default function PostsSearch({
                 }}
               >
                 <SearchIcon />
+                {/* item is already sanitized via DomPurify in useEffect above */}
                 <span dangerouslySetInnerHTML={{ __html: item }} />
               </div>
             );
