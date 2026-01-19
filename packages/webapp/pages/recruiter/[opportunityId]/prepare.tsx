@@ -329,6 +329,7 @@ function PreparePageContent(): ReactElement {
               <OpportunityEditPanel
                 opportunity={opportunity}
                 onSectionFocus={handleSectionFocus}
+                hideLinkedProfiles
               />
             </div>
 
@@ -345,6 +346,8 @@ function PreparePageContent(): ReactElement {
                   hideHeader
                   hideCompanyBadge
                   hideRecruiterBadge
+                  hideCompanyPanel
+                  hideRecruiterPanel
                   previewMode
                   previewData={previewData}
                 />
@@ -413,6 +416,7 @@ function PreparePageContent(): ReactElement {
               <OpportunityEditPanel
                 opportunity={opportunity}
                 onSectionFocus={handleSectionFocus}
+                hideLinkedProfiles
               />
             </div>
           ) : (
@@ -422,6 +426,8 @@ function PreparePageContent(): ReactElement {
                 hideHeader
                 hideCompanyBadge
                 hideRecruiterBadge
+                hideCompanyPanel
+                hideRecruiterPanel
                 previewMode
                 previewData={previewData}
               />

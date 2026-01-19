@@ -178,7 +178,8 @@ export const BootDataProvider = ({
   } = useQuery<Partial<Boot>>({
     queryKey: BOOT_QUERY_KEY,
     queryFn: async () => {
-      const result = await getBootData(app);
+      const pathname = globalThis?.location?.pathname;
+      const result = await getBootData({ app, pathname });
       preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
 
       return result;

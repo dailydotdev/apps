@@ -115,6 +115,7 @@ export enum ApiError {
   ZodValidationError = 'ZOD_VALIDATION_ERROR',
   Conflict = 'CONFLICT',
   PaymentRequired = 'PAYMENT_REQUIRED',
+  Unexpected = 'UNEXPECTED',
 }
 
 export enum ApiErrorMessage {

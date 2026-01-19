@@ -21,6 +21,7 @@ type ProfileLocationProps = {
   typeName?: string;
   defaultValue?: TLocation & { type?: number };
   dataset?: LocationDataset;
+  onLocationSelect?: (location: TLocation | null) => void;
 };
 
 const ProfileLocation = ({
@@ -28,6 +29,7 @@ const ProfileLocation = ({
   typeName,
   defaultValue,
   dataset,
+  onLocationSelect,
 }: ProfileLocationProps) => {
   const { user } = useAuthContext();
   const {
@@ -53,7 +55,9 @@ const ProfileLocation = ({
   const [debouncedQuery] = useDebounceFn<string>((q) => handleSearch(q), 300);
 
   const handleSelect = (val: string) => {
-    setValue(locationName, val);
+    setValue(locationName, val, { shouldDirty: true });
+    const selectedLocation = data?.find((loc) => loc.id === val) ?? null;
+    onLocationSelect?.(selectedLocation);
   };
 
   const locationTypeOptions = [
@@ -87,7 +91,9 @@ const ProfileLocation = ({
           name={typeName}
           options={locationTypeOptions}
           value={typeValue}
-          onChange={(newVal) => setValue(typeName, newVal)}
+          onChange={(newVal) =>
+            setValue(typeName, newVal, { shouldDirty: true })
+          }
         />
       )}
       {errors[typeName] && (

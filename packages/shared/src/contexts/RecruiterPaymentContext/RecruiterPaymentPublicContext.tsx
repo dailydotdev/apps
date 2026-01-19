@@ -1,45 +1,38 @@
-import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { PurchaseType } from '../../graphql/paddle';
 import { usePaddlePayment } from '../../hooks/usePaddlePayment';
-import { useLogContext } from '../LogContext';
-import { useAuthContext } from '../AuthContext';
 import type {
   RecruiterPaymentContextData,
-  RecruiterContextProviderProps,
   RecruiterProductOption,
 } from './types';
 import { RecruiterPaymentContext } from './types';
-import { recruiterPricesQueryOptions } from '../../features/opportunity/queries';
+import { recruiterPricesPublicQueryOptions } from '../../features/opportunity/queries';
 
-export const RecruiterPaymentPaddleContextProvider = ({
-  onCompletion,
-  origin,
+interface RecruiterPaymentPublicContextProviderProps {
+  children?: ReactNode;
+  onPaymentComplete?: () => void;
+}
+
+export const RecruiterPaymentPublicContextProvider = ({
+  onPaymentComplete,
   children,
-}: RecruiterContextProviderProps): ReactElement => {
+}: RecruiterPaymentPublicContextProviderProps): ReactElement => {
   const router = useRouter();
-  const { user, isLoggedIn } = useAuthContext();
-  const { logEvent } = useLogContext();
   const [selectedProduct, setSelectedProduct] =
     useState<RecruiterProductOption>();
-  const logRef = useRef<typeof logEvent>();
-  logRef.current = logEvent;
 
   const { paddle, openCheckout, appliedDiscountId } = usePaddlePayment({
     successCallback: () => {
-      router.replace(`/recruiter/${router.query.opportunityId}/prepare`);
+      onPaymentComplete?.();
     },
     priceType: PurchaseType.Recruiter,
   });
 
   const { data: prices } = useQuery(
-    recruiterPricesQueryOptions({
-      user,
-      isLoggedIn,
-      discountId: appliedDiscountId ?? undefined,
-    }),
+    recruiterPricesPublicQueryOptions(appliedDiscountId ?? undefined),
   );
 
   const priceIdQuery = router?.query?.pid as string | undefined;
@@ -64,14 +57,12 @@ export const RecruiterPaymentPaddleContextProvider = ({
   const contextData = useMemo<RecruiterPaymentContextData>(
     () => ({
       paddle,
-      onCompletion,
       selectedProduct,
       setSelectedProduct,
       openCheckout,
-      origin,
       prices,
     }),
-    [onCompletion, openCheckout, origin, paddle, selectedProduct, prices],
+    [openCheckout, paddle, selectedProduct, prices],
   );
 
   return (

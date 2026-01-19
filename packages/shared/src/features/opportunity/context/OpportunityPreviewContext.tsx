@@ -11,17 +11,21 @@ import {
   opportunityPreviewRefetchIntervalMs,
   OpportunityPreviewStatus,
 } from '../types';
+import { OpportunityState } from '../protobuf/opportunity';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { oneMinute } from '../../../lib/dateFormat';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 
 export type OpportunityPreviewContextType = OpportunityPreviewResponse & {
   opportunity?: Opportunity;
+  isParsing?: boolean;
 };
 
 type UseOpportunityPreviewProps = PropsWithChildren & {
   mockData?: OpportunityPreviewContextType;
 };
+
+const parseOpportunityIntervalMs = 3000;
 
 const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
   createContextProvider(({ mockData }: UseOpportunityPreviewProps = {}) => {
@@ -31,6 +35,47 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
       | string
       | undefined;
 
+    const isValidOpportunityId =
+      !!opportunityIdParam && opportunityIdParam !== 'new';
+
+    const [, updateOpportunity] = useUpdateQuery(
+      opportunityByIdOptions({ id: opportunityIdParam || '' }),
+    );
+
+    // Fetch opportunity from URL param with polling for PARSING state
+    const { data: opportunity } = useQuery({
+      ...opportunityByIdOptions({ id: opportunityIdParam || '' }),
+      enabled: isValidOpportunityId && !mockData,
+      refetchInterval: (query) => {
+        const retries = Math.max(
+          query.state.dataUpdateCount,
+          query.state.fetchFailureCount,
+        );
+
+        const state = query.state.data?.state;
+
+        if (state !== OpportunityState.PARSING) {
+          return false;
+        }
+
+        const maxRetries = (oneMinute * 1000) / parseOpportunityIntervalMs;
+
+        if (retries > maxRetries) {
+          updateOpportunity({
+            ...query.state.data,
+            state: OpportunityState.ERROR,
+          });
+
+          return false;
+        }
+
+        return parseOpportunityIntervalMs;
+      },
+    });
+
+    const isParsing = opportunity?.state === OpportunityState.PARSING;
+    const isParseError = opportunity?.state === OpportunityState.ERROR;
+
     const [, setOpportunityPreview] = useUpdateQuery(
       opportunityPreviewQueryOptions({
         opportunityId: opportunityIdParam,
@@ -39,11 +84,17 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
       }),
     );
 
+    // Only fetch preview once opportunity is no longer in PARSING state
     const { data } = useQuery({
       ...opportunityPreviewQueryOptions({
         opportunityId: opportunityIdParam,
         user: user || undefined,
-        enabled: !mockData && opportunityIdParam !== 'new',
+        enabled:
+          !mockData &&
+          isValidOpportunityId &&
+          !!opportunity &&
+          !isParsing &&
+          !isParseError,
       }),
       refetchInterval: (query) => {
         if (
@@ -92,18 +143,11 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
       },
     });
 
-    const opportunityId = data?.result?.opportunityId;
-
-    const { data: opportunity } = useQuery({
-      ...opportunityByIdOptions({ id: opportunityId || '' }),
-      enabled: !!opportunityId && !mockData,
-    });
-
     if (mockData) {
       return mockData;
     }
 
-    return { ...data, opportunity };
+    return { ...data, opportunity, isParsing };
   });
 
 export { OpportunityPreviewProvider, useOpportunityPreviewContext };
