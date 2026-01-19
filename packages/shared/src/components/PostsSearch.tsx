@@ -131,7 +131,7 @@ export default function PostsSearch({
   }, [searchBoxRef, autoFocus]);
 
   const handlePopoverClose: PopoverContentProps['onInteractOutside'] = (e) => {
-    if (searchBoxRef.current.contains(e.target as Node)) {
+    if (searchBoxRef?.current?.contains(e.target as Node)) {
       e.preventDefault();
       return;
     }
