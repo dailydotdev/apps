@@ -56,6 +56,7 @@ export enum ActionType {
   ProfileCompleted = 'profile_completed',
   ClickedOpportunityNavigation = 'click_opportunity_navigation',
   ProfileCompletionCard = 'profile_completion_card',
+  DismissProfileCompletionIndicator = 'dismiss_profile_completion_indicator',
 }
 
 export const cvActions = [
