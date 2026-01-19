@@ -19,12 +19,6 @@ const DevPlusIcon = dynamic(() =>
   ),
 );
 
-const LogoRecruiterSvg = dynamic(() =>
-  import(
-    /* webpackChunkName: "logoRecruiterSvg" */ '../svg/LogoRecruiterSvg'
-  ).then((mod) => mod.LogoRecruiterSvg),
-);
-
 export enum LogoPosition {
   Absolute = 'absolute',
   Relative = 'relative',
@@ -152,7 +146,11 @@ export default function Logo({
             fallback={LogoText}
           />
         )}
-        {isRecruiter && !compact && <LogoRecruiterSvg />}
+        {isRecruiter && !compact && (
+          <span className="hidden rounded-6 border border-accent-cabbage-subtler bg-accent-cabbage-flat px-1.5 py-0.5 font-bold uppercase tracking-wider text-accent-cabbage-default typo-caption2 laptop:inline-block">
+            Recruiter
+          </span>
+        )}
       </a>
     </LinkWithTooltip>
   );

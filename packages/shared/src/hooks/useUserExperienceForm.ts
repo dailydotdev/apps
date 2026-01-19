@@ -44,6 +44,14 @@ export const userExperienceInputBaseSchema = z
       .nullable()
       .optional()
       .default(null),
+    customDomain: z
+      .string()
+      .trim()
+      .normalize()
+      .max(255)
+      .nullable()
+      .optional()
+      .default(null),
     url: z
       .union([
         z.url('Please enter a valid URL.').max(2000),

@@ -75,6 +75,7 @@ export function UserExperienceItem({
     startedAt,
     endedAt,
     subtitle,
+    image,
   } = experience;
   const { skills, location, locationType, customLocation } =
     experience as UserExperienceWork;
@@ -127,7 +128,7 @@ export function UserExperienceItem({
         <Image
           className="h-8 w-8 rounded-max object-cover"
           type={ImageType.Organization}
-          src={company?.image}
+          src={company?.image || image}
         />
       )}
       {editUrl && (

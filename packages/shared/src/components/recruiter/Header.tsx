@@ -24,8 +24,8 @@ export interface RecruiterHeaderProps {
 }
 
 export const RecruiterHeader = ({
-  title = 'Your potential reach',
-  subtitle = "See how many developers match your role and what they're interested in.",
+  title = 'Reach analysis',
+  subtitle = 'See who in our community fits your role',
   headerButton,
 }: RecruiterHeaderProps) => {
   return (

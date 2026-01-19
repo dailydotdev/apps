@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { RecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/RecruiterPaymentContext';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import {
+  CreditCardIcon,
   MoveToIcon,
   ShareIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -71,7 +72,7 @@ const RecruiterPaymentPage = (): ReactElement => {
 
     openCheckout({
       priceId: selectedProduct.id,
-      customData: { opportunity_id: opportunity.id },
+      customData: { opportunity_id: opportunity.id, external_pay: true },
     });
   }, [selectedProduct, openCheckout, opportunity]);
 
@@ -227,16 +228,26 @@ const RecruiterPaymentPage = (): ReactElement => {
                   </Typography>
                 </div>
               </div>
-              <div className="mt-6 flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4">
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  Need someone else to complete the payment?
-                </Typography>
+              <div className="relative mt-6 overflow-hidden rounded-16 border-l-4 border-accent-cabbage-default bg-gradient-to-r from-action-share-float to-transparent p-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-12 bg-action-share-float">
+                    <CreditCardIcon className="text-accent-cabbage-default" />
+                  </div>
+                  <FlexCol className="flex-1 gap-1">
+                    <Typography type={TypographyType.Body} bold>
+                      Need someone else to pay?
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Secondary}
+                    >
+                      Share a secure payment link with your finance team
+                    </Typography>
+                  </FlexCol>
+                </div>
                 <Button
+                  className="mt-4 w-full"
                   variant={ButtonVariant.Secondary}
-                  size={ButtonSize.Small}
                   icon={<ShareIcon />}
                   onClick={handleSharePaymentLink}
                 >

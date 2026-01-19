@@ -39,6 +39,13 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
           label="Company or organization*"
           name="customCompanyName"
         />
+        <ControlledTextField
+          name="customDomain"
+          label="Company domain"
+          placeholder="Ex: company.com"
+          fieldType="secondary"
+          className={profileSecondaryFieldStyles}
+        />
       </div>
       <HorizontalSeparator />
       <CurrentExperienceSwitch
