@@ -51,51 +51,55 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
   };
 
   return (
-    <div className="-ml-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
-      <div className="flex">
-        <ReputationIcon
-          className="text-accent-onion-default"
-          size={IconSize.Small}
-        />
-        <Item stat={{ title: 'Reputation', amount: stats.reputation }} />
+    <div className="-ml-1 flex flex-col gap-1 text-text-tertiary typo-footnote">
+      <div className="flex items-center gap-2">
+        <div className="flex">
+          <ReputationIcon
+            className="text-accent-onion-default"
+            size={IconSize.Small}
+          />
+          <Item stat={{ title: 'Reputation', amount: stats.reputation }} />
+        </div>
+        <Item stat={{ title: 'Upvotes', amount: stats.upvotes }} />
       </div>
-      <Item stat={{ title: 'Upvotes', amount: stats.upvotes }} />
-      <Item
-        stat={{ title: 'Followers', amount: stats.numFollowers }}
-        className={classNames(stats.numFollowers && 'cursor-pointer')}
-        onClick={() => {
-          if (!stats.numFollowers) {
-            return;
-          }
+      <div className="flex items-center gap-2 pl-6">
+        <Item
+          stat={{ title: 'Followers', amount: stats.numFollowers }}
+          className={classNames(stats.numFollowers && 'cursor-pointer')}
+          onClick={() => {
+            if (!stats.numFollowers) {
+              return;
+            }
 
-          openModal({
-            type: LazyModal.UserFollowersModal,
-            ...defaultModalProps,
-            props: {
-              ...defaultModalProps.props,
-              placeholderAmount: stats.numFollowers,
-            },
-          });
-        }}
-      />
-      <Item
-        stat={{ title: 'Following', amount: stats.numFollowing }}
-        className={classNames(stats.numFollowing && 'cursor-pointer')}
-        onClick={() => {
-          if (!stats.numFollowing) {
-            return;
-          }
+            openModal({
+              type: LazyModal.UserFollowersModal,
+              ...defaultModalProps,
+              props: {
+                ...defaultModalProps.props,
+                placeholderAmount: stats.numFollowers,
+              },
+            });
+          }}
+        />
+        <Item
+          stat={{ title: 'Following', amount: stats.numFollowing }}
+          className={classNames(stats.numFollowing && 'cursor-pointer')}
+          onClick={() => {
+            if (!stats.numFollowing) {
+              return;
+            }
 
-          openModal({
-            type: LazyModal.UserFollowingModal,
-            ...defaultModalProps,
-            props: {
-              ...defaultModalProps.props,
-              placeholderAmount: stats.numFollowing,
-            },
-          });
-        }}
-      />
+            openModal({
+              type: LazyModal.UserFollowingModal,
+              ...defaultModalProps,
+              props: {
+                ...defaultModalProps.props,
+                placeholderAmount: stats.numFollowing,
+              },
+            });
+          }}
+        />
+      </div>
     </div>
   );
 }
