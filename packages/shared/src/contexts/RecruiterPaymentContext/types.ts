@@ -23,7 +23,10 @@ export type ProcessingError = {
 
 export type RecruiterPaymentContextData = {
   paddle?: Paddle | undefined;
-  openCheckout?: OpenCheckoutFn<{ opportunity_id: string }>;
+  openCheckout?: OpenCheckoutFn<{
+    opportunity_id: string;
+    external_pay?: boolean;
+  }>;
   onCompletion?: () => void;
   selectedProduct?: RecruiterProductOption;
   setSelectedProduct: (product: RecruiterProductOption) => void;

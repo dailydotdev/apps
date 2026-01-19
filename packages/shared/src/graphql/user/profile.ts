@@ -25,6 +25,7 @@ const excludedProperties = [
   'location',
   'company',
   'customLocation',
+  'image',
 ];
 
 const USER_EXPERIENCE_FRAGMENT = gql`
@@ -39,6 +40,8 @@ const USER_EXPERIENCE_FRAGMENT = gql`
     startedAt
     endedAt
     customCompanyName
+    customDomain
+    image
     employmentType
     locationType
     verified
@@ -175,6 +178,8 @@ export interface UserExperience {
   endedAt?: string | null;
   company?: Company | null;
   customCompanyName?: string | null;
+  customDomain?: string | null;
+  image?: string | null;
   subtitle?: string | null;
   url?: string | null;
   verified?: boolean | null;
@@ -282,6 +287,8 @@ const UPSERT_USER_GENERAL_EXPERIENCE = gql`
         name
       }
       customCompanyName
+      customDomain
+      image
       url
       grade
       externalReferenceId
@@ -325,6 +332,8 @@ const UPSERT_USER_WORK_EXPERIENCE = gql`
         name
       }
       customCompanyName
+      customDomain
+      image
       employmentType
       location {
         id
