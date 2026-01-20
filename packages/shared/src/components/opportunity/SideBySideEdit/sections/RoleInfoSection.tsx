@@ -49,27 +49,31 @@ export function RoleInfoSection({
 
   return (
     <div className="flex flex-col gap-4">
-      <TextField
-        {...register('title')}
-        type="text"
-        inputId="opportunityTitle"
-        label="Job title"
-        fieldType="secondary"
-        valid={!errors.title}
-        hint={errors.title?.message as string}
-      />
+      <div data-field-key="title">
+        <TextField
+          {...register('title')}
+          type="text"
+          inputId="opportunityTitle"
+          label="Job title"
+          fieldType="secondary"
+          valid={!errors.title}
+          hint={errors.title?.message as string}
+        />
+      </div>
 
-      <Textarea
-        {...register('tldr')}
-        inputId="opportunityTldr"
-        label="Role TLDR"
-        fieldType="secondary"
-        maxLength={480}
-        valid={!errors.tldr}
-        hint={errors.tldr?.message as string}
-      />
+      <div data-field-key="tldr">
+        <Textarea
+          {...register('tldr')}
+          inputId="opportunityTldr"
+          label="Role TLDR"
+          fieldType="secondary"
+          maxLength={480}
+          valid={!errors.tldr}
+          hint={errors.tldr?.message as string}
+        />
+      </div>
 
-      <div className="flex flex-col gap-2">
+      <div data-field-key="keywords" className="flex flex-col gap-2">
         <Typography bold type={TypographyType.Caption1}>
           Preferred tech stack*
         </Typography>
@@ -106,23 +110,25 @@ export function RoleInfoSection({
         />
       </div>
 
-      <ProfileLocation
-        locationName="externalLocationId"
-        typeName="locationType"
-        dataset={LocationDataset.Internal}
-        defaultValue={
-          opportunity?.locations?.[0]?.location
-            ? {
-                id: '',
-                city: opportunity.locations[0].location.city,
-                country: opportunity.locations[0].location.country || '',
-                subdivision: opportunity.locations[0].location.subdivision,
-                type: opportunity.locations[0].type,
-              }
-            : undefined
-        }
-        onLocationSelect={handleLocationSelect}
-      />
+      <div data-field-key="location">
+        <ProfileLocation
+          locationName="externalLocationId"
+          typeName="locationType"
+          dataset={LocationDataset.Internal}
+          defaultValue={
+            opportunity?.locations?.[0]?.location
+              ? {
+                  id: '',
+                  city: opportunity.locations[0].location.city,
+                  country: opportunity.locations[0].location.country || '',
+                  subdivision: opportunity.locations[0].location.subdivision,
+                  type: opportunity.locations[0].type,
+                }
+              : undefined
+          }
+          onLocationSelect={handleLocationSelect}
+        />
+      </div>
     </div>
   );
 }

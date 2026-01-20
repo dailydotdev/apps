@@ -283,6 +283,52 @@ Before implementing new functionality, always check if similar code already exis
    - Place utilities in appropriate shared locations
    - Run lint to ensure code quality: `pnpm --filter <package> lint`
 
+## Writing Readable Hooks
+
+When a hook's callback becomes hard to follow, break it into small helper functions:
+
+1. **Extract repeated selectors** to constants
+2. **Create single-purpose helpers** - each function does one thing
+3. **Name helpers by what they do** - `expandSectionIfCollapsed`, `focusFirstInput`
+4. **Keep the main callback simple** - it should read like a high-level description
+
+Example (from `useMissingFieldNavigation` refactor):
+```typescript
+// ❌ Wrong: 90-line callback with nested logic
+const handleClick = useCallback((key: string) => {
+  const el = document.querySelector(`[data-key="${key}"]`);
+  if (el) {
+    const section = el.closest('[id^="section-"]');
+    if (section) {
+      const btn = document.querySelector(`button[aria-controls="${section.id}"]`);
+      if (btn?.getAttribute('aria-expanded') === 'false') {
+        btn.click();
+      }
+    }
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // ... 50 more lines of highlighting/focusing logic
+    }, 100);
+  }
+  // ... another 30 lines for fallback
+}, []);
+
+// ✅ Right: Small helpers + simple callback
+const expandSectionIfCollapsed = (element: HTMLElement): void => { /* ... */ };
+const scrollHighlightAndFocus = (element: HTMLElement): void => { /* ... */ };
+const navigateToField = (fieldElement: HTMLElement): void => { /* ... */ };
+const navigateToSection = (checkKey: string): void => { /* ... */ };
+
+const handleClick = useCallback((key: string) => {
+  const fieldElement = document.querySelector(`[data-key="${key}"]`);
+  if (fieldElement) {
+    navigateToField(fieldElement);
+    return;
+  }
+  navigateToSection(key);
+}, []);
+```
+
 ## Pull Requests
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.

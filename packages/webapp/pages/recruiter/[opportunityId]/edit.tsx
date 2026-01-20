@@ -1,29 +1,21 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
-import { FormProvider, useWatch } from 'react-hook-form';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { FormProvider } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import type {
   ApiErrorResult,
   ApiResponseError,
   ApiZodErrorExtension,
 } from '@dailydotdev/shared/src/graphql/common';
-import { gqlClient, ApiError } from '@dailydotdev/shared/src/graphql/common';
-import { EDIT_OPPORTUNITY_MUTATION } from '@dailydotdev/shared/src/features/opportunity/graphql';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { updateOpportunityStateOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { labels } from '@dailydotdev/shared/src/lib/labels';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import type {
-  Opportunity,
-  ContentSection as ContentSectionType,
-} from '@dailydotdev/shared/src/features/opportunity/types';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
+import type { ContentSection as ContentSectionType } from '@dailydotdev/shared/src/features/opportunity/types';
 import {
   OpportunityEditProvider,
   useOpportunityEditContext,
@@ -31,21 +23,15 @@ import {
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import {
-  useOpportunityEditForm,
-  formDataToPreviewOpportunity,
   formDataToMutationPayload,
-  useScrollSync,
   getOpportunityStateLabel,
   getOpportunityStateBadgeClass,
-} from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
-import type {
-  OpportunitySideBySideEditFormData,
-  ScrollSyncSection,
+  useOpportunityEditPageSetup,
+  getValidationErrorPromptConfig,
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { useExitConfirmation } from '@dailydotdev/shared/src/hooks/useExitConfirmation';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
   useViewSize,
@@ -93,30 +79,20 @@ function EditPageContent(): ReactElement {
     Set<ContentSectionType>
   >(new Set());
 
-  const { data: opportunity, isLoading } = useQuery(
-    opportunityByIdOptions({ id: opportunityId }),
-  );
+  const {
+    opportunity,
+    isLoading,
+    previewData,
+    form,
+    isSaving,
+    saveOpportunity,
+    handleMissingClick,
+    scrollToSection,
+  } = useOpportunityEditPageSetup({ opportunityId });
 
   const { isCheckingPayment } = useRequirePayment({
     opportunity,
     opportunityId,
-  });
-
-  // Save mutation for unified form data
-  const { mutateAsync: saveOpportunity, isPending: isSaving } = useMutation({
-    mutationFn: async (payload: ReturnType<typeof formDataToMutationPayload>) =>
-      gqlClient.request<{ editOpportunity: Opportunity }>(
-        EDIT_OPPORTUNITY_MUTATION,
-        {
-          id: opportunityId,
-          payload,
-        },
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.Opportunity, null, opportunityId),
-      });
-    },
   });
 
   const onSuccess = useCallback(async () => {
@@ -129,25 +105,7 @@ function EditPageContent(): ReactElement {
     }: {
       issues: Array<{ path: PropertyKey[]; message: string }>;
     }) => {
-      await showPrompt({
-        title: labels.opportunity.requiredMissingNotice.title,
-        description: (
-          <div className="flex flex-col gap-4">
-            <span>{labels.opportunity.requiredMissingNotice.description}</span>
-            <ul className="text-text-tertiary">
-              {issues.map((issue) => {
-                const path = issue.path.join('.');
-                return <li key={path}>• {issue.message}</li>;
-              })}
-            </ul>
-          </div>
-        ),
-        okButton: {
-          className: '!w-full',
-          title: labels.opportunity.requiredMissingNotice.okButton,
-        },
-        cancelButton: null,
-      });
+      await showPrompt(getValidationErrorPromptConfig(issues));
     },
     [showPrompt],
   );
@@ -224,34 +182,10 @@ function EditPageContent(): ReactElement {
     },
   });
 
-  // Initialize form with opportunity data
-  const { form, isDirty } = useOpportunityEditForm({
-    opportunity,
-  });
-
-  // Watch form values for real-time preview
-  const formValues = useWatch({
-    control: form.control,
-  }) as OpportunitySideBySideEditFormData;
-
-  // Convert form data to preview opportunity for real-time updates
-  const previewData = useMemo(() => {
-    if (!formValues) {
-      return undefined;
-    }
-    return formDataToPreviewOpportunity(formValues);
-  }, [formValues]);
-
-  // Scroll sync between edit panel and preview
-  const { scrollToSection } = useScrollSync({
-    offset: 20,
-    behavior: 'smooth',
-  });
-
+  // Extends the shared handleSectionFocus to also expand sections in the preview
   const handleSectionFocus = useCallback(
     (sectionId: string) => {
-      scrollToSection(sectionId as ScrollSyncSection);
-      // Also expand the section in the preview (without closing others)
+      scrollToSection(sectionId as ContentSectionType);
       setExpandedSections((prev) => {
         const next = new Set(prev);
         next.add(sectionId as ContentSectionType);
@@ -261,13 +195,7 @@ function EditPageContent(): ReactElement {
     [scrollToSection],
   );
 
-  // Exit confirmation when navigating away with unsaved changes
-  useExitConfirmation({
-    message: 'You have unsaved changes. Leave anyway?',
-    onValidateAction: useCallback(() => !isDirty, [isDirty]),
-  });
-
-  // Save handler with mutation
+  // Save handler with mutation - saves and updates state to IN_REVIEW
   const handleSave = useCallback(async () => {
     const isValid = await form.trigger();
     if (!isValid) {
@@ -385,6 +313,7 @@ function EditPageContent(): ReactElement {
               <OpportunityCompletenessBar
                 opportunity={opportunity}
                 className="m-4"
+                onMissingClick={handleMissingClick}
               />
               <OpportunityEditPanel
                 opportunity={opportunity}
@@ -468,6 +397,7 @@ function EditPageContent(): ReactElement {
               <OpportunityCompletenessBar
                 opportunity={opportunity}
                 className="m-4"
+                onMissingClick={handleMissingClick}
               />
               <OpportunityEditPanel
                 opportunity={opportunity}

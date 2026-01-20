@@ -1,8 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
-import { FormProvider, useWatch } from 'react-hook-form';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { FormProvider } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
 import {
   RecruiterProgress,
   RecruiterProgressStep,
@@ -28,7 +28,6 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { opportunityEditStep1Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { labels } from '@dailydotdev/shared/src/lib/labels';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
 import { recommendOpportunityScreeningQuestionsOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
@@ -37,28 +36,16 @@ import {
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { useExitConfirmation } from '@dailydotdev/shared/src/hooks/useExitConfirmation';
-import { EDIT_OPPORTUNITY_MUTATION } from '@dailydotdev/shared/src/features/opportunity/graphql';
-import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
 import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
-import {
-  useOpportunityEditForm,
-  formDataToPreviewOpportunity,
   formDataToMutationPayload,
-  useScrollSync,
-} from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
-import type {
-  OpportunitySideBySideEditFormData,
-  ScrollSyncSection,
+  useOpportunityEditPageSetup,
+  getValidationErrorPromptConfig,
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
 import { OpportunityCompletenessBar } from '@dailydotdev/shared/src/components/opportunity/OpportunityCompletenessBar';
 import { OpportunityEditPanel } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/OpportunityEditPanel';
@@ -78,97 +65,28 @@ function PreparePageContent(): ReactElement {
   const { opportunityId } = useOpportunityEditContext();
   const { showPrompt } = usePrompt();
   const { dismissToast, displayToast, subject } = useToastNotification();
-  const queryClient = useQueryClient();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [activeTab, setActiveTab] = useState<EditPreviewTab>(
     EditPreviewTab.Edit,
   );
 
-  const { data: opportunity, isLoading } = useQuery(
-    opportunityByIdOptions({ id: opportunityId }),
-  );
+  const {
+    opportunity,
+    isLoading,
+    previewData,
+    form,
+    isDirty,
+    isSaving,
+    handleSectionFocus,
+    handleMissingClick,
+    handleSave,
+  } = useOpportunityEditPageSetup({ opportunityId });
 
   const [, updateOpportunity] = useUpdateQuery(
     opportunityByIdOptions({
       id: opportunityId,
     }),
   );
-
-  // Save mutation for unified form data
-  const { mutateAsync: saveOpportunity, isPending: isSaving } = useMutation({
-    mutationFn: async (payload: ReturnType<typeof formDataToMutationPayload>) =>
-      gqlClient.request<{ editOpportunity: Opportunity }>(
-        EDIT_OPPORTUNITY_MUTATION,
-        {
-          id: opportunityId,
-          payload,
-        },
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.Opportunity, null, opportunityId),
-      });
-    },
-  });
-
-  // Initialize form with opportunity data
-  const { form, isDirty } = useOpportunityEditForm({
-    opportunity,
-  });
-
-  // Watch form values for real-time preview
-  const formValues = useWatch({
-    control: form.control,
-  }) as OpportunitySideBySideEditFormData;
-
-  // Convert form data to preview opportunity for real-time updates
-  const previewData = useMemo(() => {
-    if (!formValues) {
-      return undefined;
-    }
-    return formDataToPreviewOpportunity(formValues);
-  }, [formValues]);
-
-  // Scroll sync between edit panel and preview
-  const { scrollToSection } = useScrollSync({
-    offset: 20,
-    behavior: 'smooth',
-  });
-
-  const handleSectionFocus = useCallback(
-    (sectionId: string) => {
-      scrollToSection(sectionId as ScrollSyncSection);
-    },
-    [scrollToSection],
-  );
-
-  // Exit confirmation when navigating away with unsaved changes
-  useExitConfirmation({
-    message: 'You have unsaved changes. Leave anyway?',
-    onValidateAction: useCallback(() => !isDirty, [isDirty]),
-  });
-
-  // Save handler
-  const handleSave = useCallback(async () => {
-    const isValid = await form.trigger();
-    if (!isValid) {
-      displayToast('Please complete all required fields');
-      return false;
-    }
-
-    try {
-      const formData = form.getValues();
-      const payload = formDataToMutationPayload(formData);
-      await saveOpportunity(payload);
-
-      displayToast('Changes saved');
-      form.reset(formData);
-      return true;
-    } catch (error) {
-      displayToast('Failed to save changes. Please try again.');
-      return false;
-    }
-  }, [form, displayToast, saveOpportunity]);
 
   const goToNextStep = async () => {
     await router.push(`${webappUrl}recruiter/${opportunityId}/questions`);
@@ -237,25 +155,7 @@ function PreparePageContent(): ReactElement {
     });
 
     if (result.error) {
-      await showPrompt({
-        title: labels.opportunity.requiredMissingNotice.title,
-        description: (
-          <div className="flex flex-col gap-4">
-            <span>{labels.opportunity.requiredMissingNotice.description}</span>
-            <ul className="text-text-tertiary">
-              {result.error.issues.map((issue) => (
-                <li key={issue.message}>• {issue.message}</li>
-              ))}
-            </ul>
-          </div>
-        ),
-        okButton: {
-          className: '!w-full',
-          title: labels.opportunity.requiredMissingNotice.okButton,
-        },
-        cancelButton: null,
-      });
-
+      await showPrompt(getValidationErrorPromptConfig(result.error.issues));
       return;
     }
 
@@ -325,6 +225,8 @@ function PreparePageContent(): ReactElement {
               <OpportunityCompletenessBar
                 opportunity={opportunity}
                 className="m-4"
+                excludeChecks={['organization']}
+                onMissingClick={handleMissingClick}
               />
               <OpportunityEditPanel
                 opportunity={opportunity}
@@ -412,6 +314,8 @@ function PreparePageContent(): ReactElement {
               <OpportunityCompletenessBar
                 opportunity={opportunity}
                 className="m-4"
+                excludeChecks={['organization']}
+                onMissingClick={handleMissingClick}
               />
               <OpportunityEditPanel
                 opportunity={opportunity}

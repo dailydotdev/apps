@@ -13,7 +13,26 @@ import type { Opportunity } from '../../features/opportunity/types';
 export interface OpportunityCompletenessBarProps {
   opportunity: Opportunity;
   className?: string;
+  excludeChecks?: string[];
+  onMissingClick?: (sectionId: string) => void;
 }
+
+const checkKeyToSectionId: Record<string, string> = {
+  title: 'roleInfo',
+  tldr: 'roleInfo',
+  keywords: 'roleInfo',
+  location: 'roleInfo',
+  employmentType: 'roleInfo',
+  teamSize: 'roleInfo',
+  seniorityLevel: 'roleInfo',
+  roleType: 'roleInfo',
+  overview: 'overview',
+  responsibilities: 'responsibilities',
+  requirements: 'requirements',
+  organization: 'company',
+  whatYoullDo: 'whatYoullDo',
+  interviewProcess: 'interviewProcess',
+};
 
 interface CompletenessCheck {
   key: string;
@@ -45,6 +64,36 @@ const getCompletenessChecks = (
       required: true,
     },
     {
+      key: 'location',
+      label: 'Location',
+      isComplete: (opportunity.locations?.length ?? 0) > 0,
+      required: true,
+    },
+    {
+      key: 'employmentType',
+      label: 'Employment type',
+      isComplete: (opportunity.meta?.employmentType ?? 0) > 0,
+      required: true,
+    },
+    {
+      key: 'teamSize',
+      label: 'Team size',
+      isComplete: (opportunity.meta?.teamSize ?? 0) > 0,
+      required: true,
+    },
+    {
+      key: 'seniorityLevel',
+      label: 'Seniority level',
+      isComplete: opportunity.meta?.seniorityLevel != null,
+      required: true,
+    },
+    {
+      key: 'roleType',
+      label: 'Role type',
+      isComplete: opportunity.meta?.roleType != null,
+      required: true,
+    },
+    {
       key: 'overview',
       label: 'Overview',
       isComplete: !!opportunity.content?.overview?.html,
@@ -66,12 +115,6 @@ const getCompletenessChecks = (
       key: 'organization',
       label: 'Company info',
       isComplete: !!opportunity.organization?.name,
-      required: true,
-    },
-    {
-      key: 'recruiter',
-      label: 'Recruiter profile',
-      isComplete: (opportunity.recruiters?.length ?? 0) > 0,
       required: true,
     },
     {
@@ -98,8 +141,12 @@ const getCompletenessChecks = (
 export const OpportunityCompletenessBar = ({
   opportunity,
   className,
+  excludeChecks = [],
+  onMissingClick,
 }: OpportunityCompletenessBarProps): ReactElement | null => {
-  const checks = getCompletenessChecks(opportunity);
+  const checks = getCompletenessChecks(opportunity).filter(
+    (c) => !excludeChecks.includes(c.key),
+  );
   const requiredChecks = checks.filter((c) => c.required);
   const completedRequired = requiredChecks.filter((c) => c.isComplete);
   const missingRequired = requiredChecks.filter((c) => !c.isComplete);
@@ -143,16 +190,35 @@ export const OpportunityCompletenessBar = ({
           >
             Missing:
           </Typography>
-          {missingRequired.map((check, index) => (
-            <Typography
-              key={check.key}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Primary}
-            >
-              {check.label}
-              {index < missingRequired.length - 1 ? ',' : ''}
-            </Typography>
-          ))}
+          {missingRequired.map((check, index) => {
+            const hasSection = checkKeyToSectionId[check.key];
+            const isClickable = onMissingClick && hasSection;
+
+            if (isClickable) {
+              return (
+                <button
+                  key={check.key}
+                  type="button"
+                  className="text-text-link underline decoration-1 underline-offset-4 typo-caption1 hover:text-text-link"
+                  onClick={() => onMissingClick(check.key)}
+                >
+                  {check.label}
+                  {index < missingRequired.length - 1 ? ',' : ''}
+                </button>
+              );
+            }
+
+            return (
+              <Typography
+                key={check.key}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Primary}
+              >
+                {check.label}
+                {index < missingRequired.length - 1 ? ',' : ''}
+              </Typography>
+            );
+          })}
         </div>
       )}
     </div>
