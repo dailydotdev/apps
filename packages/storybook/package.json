@@ -48,7 +48,7 @@
     "postcss-nesting": "^13.0.0",
     "postcss-rem-to-responsive-pixel": "^6.0.2",
     "postcss-simple-vars": "^7.0.1",
-    "storybook": "^9.1.10",
+    "storybook": "^9.1.17",
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
     "vite-plugin-svgr": "^4.2.0"
