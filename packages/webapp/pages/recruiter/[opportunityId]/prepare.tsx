@@ -2,7 +2,6 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FormProvider } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
 import {
   RecruiterProgress,
   RecruiterProgressStep,
@@ -26,15 +25,6 @@ import {
   useOpportunityEditContext,
 } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
-import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
-import { recommendOpportunityScreeningQuestionsOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '@dailydotdev/shared/src/hooks/useToastNotification';
-import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
   useViewSize,
@@ -61,7 +51,6 @@ import {
 function PreparePageContent(): ReactElement {
   const router = useRouter();
   const { opportunityId } = useOpportunityEditContext();
-  const { dismissToast, displayToast, subject } = useToastNotification();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [activeTab, setActiveTab] = useState<EditPreviewTab>(
     EditPreviewTab.Edit,
@@ -85,62 +74,7 @@ function PreparePageContent(): ReactElement {
     'organization',
   ]);
 
-  const [, updateOpportunity] = useUpdateQuery(
-    opportunityByIdOptions({
-      id: opportunityId,
-    }),
-  );
-
-  const goToNextStep = async () => {
-    await router.push(`${webappUrl}recruiter/${opportunityId}/questions`);
-  };
-
-  const {
-    mutate: onSubmit,
-    isPending: isSubmitting,
-    isSuccess,
-  } = useMutation({
-    ...recommendOpportunityScreeningQuestionsOptions(),
-    mutationFn: async ({ id }: { id: string }) => {
-      if (opportunity?.questions?.length) {
-        return opportunity.questions;
-      }
-
-      displayToast(
-        'Just a moment, generating screening questions for your job....',
-        {
-          subject: ToastSubject.OpportunityScreeningQuestions,
-          timer: 10_000,
-        },
-      );
-
-      return await recommendOpportunityScreeningQuestionsOptions().mutationFn({
-        id,
-      });
-    },
-    onSuccess: async (data) => {
-      updateOpportunity({ ...opportunity, questions: data });
-
-      await goToNextStep();
-    },
-    onError: async (error: ApiErrorResult) => {
-      if (error.response?.errors?.[0]?.extensions?.code !== ApiError.Conflict) {
-        displayToast(
-          'We could not generate questions but you can add some manually. Sorry for that!',
-          {
-            subject: null,
-          },
-        );
-      }
-
-      await goToNextStep();
-    },
-    onSettled: () => {
-      if (subject === ToastSubject.OpportunityScreeningQuestions) {
-        dismissToast();
-      }
-    },
-  });
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const handleNextStep = useCallback(async () => {
     // First save any pending changes
@@ -151,10 +85,9 @@ function PreparePageContent(): ReactElement {
       }
     }
 
-    onSubmit({
-      id: opportunity.id,
-    });
-  }, [isDirty, opportunity?.id, onSubmit, handleSave]);
+    setIsNavigating(true);
+    await router.push(`${webappUrl}recruiter/${opportunityId}/questions`);
+  }, [isDirty, handleSave, router, opportunityId]);
 
   if (isLoading || !opportunity) {
     return (
@@ -196,7 +129,7 @@ function PreparePageContent(): ReactElement {
                   variant={ButtonVariant.Primary}
                   color={ButtonColor.Cabbage}
                   onClick={handleNextStep}
-                  loading={isSaving || isSubmitting || isSuccess}
+                  loading={isSaving || isNavigating}
                   disabled={hasIncompleteFields}
                 >
                   <span className="mr-1.5">Outreach questions</span>
@@ -290,7 +223,7 @@ function PreparePageContent(): ReactElement {
                 color={ButtonColor.Cabbage}
                 size={ButtonSize.Small}
                 onClick={handleNextStep}
-                loading={isSaving || isSubmitting || isSuccess}
+                loading={isSaving || isNavigating}
                 disabled={hasIncompleteFields}
               >
                 Next
