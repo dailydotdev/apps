@@ -9,7 +9,13 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
-import { MoveToIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  InfoIcon,
+  MoveToIcon,
+  PlusIcon,
+  MagicIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useRouter } from 'next/router';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { NoOpportunity } from '@dailydotdev/shared/src/features/opportunity/components/NoOpportunity';
@@ -39,7 +45,10 @@ import {
   RecruiterProgress,
   RecruiterProgressStep,
 } from '@dailydotdev/shared/src/components/recruiter/Progress';
-import { updateOpportunityStateOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import {
+  updateOpportunityStateOptions,
+  recommendOpportunityScreeningQuestionsOptions,
+} from '@dailydotdev/shared/src/features/opportunity/mutations';
 import type {
   ApiErrorResult,
   ApiResponseError,
@@ -171,6 +180,21 @@ const QuestionsSetupPage = (): ReactElement => {
     },
   });
 
+  const { mutate: generateQuestions, isPending: isGeneratingQuestions } =
+    useMutation({
+      ...recommendOpportunityScreeningQuestionsOptions(),
+      onSuccess: async () => {
+        await queryClient.refetchQueries({
+          queryKey: opportunityByIdOptions({ id: opportunityId }).queryKey,
+        });
+      },
+      onError: () => {
+        displayToast(
+          'We could not generate questions. Please try again or add them manually.',
+        );
+      },
+    });
+
   if (!isAuthReady || isPending || !isLoggedIn) {
     return (
       <div className="flex flex-1 items-center justify-center">
@@ -233,7 +257,56 @@ const QuestionsSetupPage = (): ReactElement => {
 
       <RecruiterProgress activeStep={RecruiterProgressStep.PrepareAndLaunch} />
       <div className="flex flex-1 flex-col gap-4 bg-background-subtle py-6">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 laptop:flex-row">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 overflow-hidden px-4">
+          <div className="flex w-full items-start gap-3 rounded-12 border border-status-info bg-background-default p-4">
+            <InfoIcon
+              size={IconSize.Small}
+              className="mt-0.5 shrink-0 text-status-info"
+            />
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Tertiary}
+              className="min-w-0 shrink"
+            >
+              Our AI agent already reviews CVs for skills and experience. Use
+              these questions to learn what CVs don&apos;t cover: work
+              authorization, relocation preferences, notice period, a relevant
+              technical challenge they faced, or what draws them to this
+              specific role.
+              <br />
+              <br />
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Callout}
+                bold
+              >
+                Add up to 3 questions.
+              </Typography>
+            </Typography>
+          </div>
+          {/* Generate questions button - shown when no questions exist */}
+          {opportunity.questions.length === 0 && (
+            <div className="flex flex-col items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-6">
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+                className="text-center"
+              >
+                Let our AI generate screening questions based on your job
+                description.
+              </Typography>
+              <Button
+                type="button"
+                variant={ButtonVariant.Primary}
+                onClick={() => generateQuestions({ id: opportunity.id })}
+                loading={isGeneratingQuestions}
+                icon={<MagicIcon />}
+              >
+                Generate questions
+              </Button>
+            </div>
+          )}
+
           <div className="flex h-full min-w-0 max-w-full flex-1 flex-shrink-0 flex-col gap-4 rounded-16">
             {opportunity.questions.map((question, index) => {
               return (
