@@ -37,9 +37,9 @@ export function JobDetailsSection(): ReactElement {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
+      <div data-field-key="employmentType" className="flex flex-col gap-2">
         <Typography bold type={TypographyType.Caption1}>
-          Employment type*
+          Employment type
         </Typography>
         <Controller
           name="meta.employmentType"
@@ -69,9 +69,9 @@ export function JobDetailsSection(): ReactElement {
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div data-field-key="seniorityLevel" className="flex flex-col gap-2">
         <Typography bold type={TypographyType.Caption1}>
-          Seniority level*
+          Seniority level
         </Typography>
         <Controller
           name="meta.seniorityLevel"
@@ -96,9 +96,9 @@ export function JobDetailsSection(): ReactElement {
         />
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div data-field-key="roleType" className="flex flex-col gap-2">
         <Typography bold type={TypographyType.Caption1}>
-          Job type*
+          Job type
         </Typography>
         <Controller
           name="meta.roleType"
@@ -127,18 +127,20 @@ export function JobDetailsSection(): ReactElement {
         />
       </div>
 
-      <TextField
-        {...register('meta.teamSize', { valueAsNumber: true })}
-        className={{ container: 'max-w-32' }}
-        type="number"
-        inputId="opportunityTeamSize"
-        label="Team size*"
-        fieldType="secondary"
-        valid={!errors.meta?.teamSize}
-        hint={errors.meta?.teamSize?.message as string}
-      />
+      <div data-field-key="teamSize">
+        <TextField
+          {...register('meta.teamSize', { valueAsNumber: true })}
+          className={{ container: 'max-w-32' }}
+          type="number"
+          inputId="opportunityTeamSize"
+          label="Team size"
+          fieldType="secondary"
+          valid={!errors.meta?.teamSize}
+          hint={errors.meta?.teamSize?.message as string}
+        />
+      </div>
 
-      <div className="flex flex-col gap-2">
+      <div data-field-key="salary" className="flex flex-col gap-2">
         <Typography bold type={TypographyType.Caption1}>
           Salary range (USD)
         </Typography>

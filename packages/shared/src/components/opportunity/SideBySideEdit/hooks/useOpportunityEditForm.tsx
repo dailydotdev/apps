@@ -1,14 +1,16 @@
+import type { ReactNode } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useCallback, useEffect } from 'react';
 import type { Opportunity } from '../../../../features/opportunity/types';
 import { OpportunityState } from '../../../../features/opportunity/protobuf/opportunity';
 import {
   opportunityEditInfoSchema,
   createOpportunityEditContentSchema,
 } from '../../../../lib/schema/opportunity';
+import { labels } from '../../../../lib/labels';
 
 export function getOpportunityStateLabel(state: OpportunityState): string {
   switch (state) {
@@ -212,6 +214,49 @@ export function formDataToMutationPayload(
         ? { content: formData.content.interviewProcess.content }
         : undefined,
     },
+  };
+}
+
+export interface ValidationIssue {
+  path?: PropertyKey[];
+  message: string;
+}
+
+export interface ValidationErrorPromptConfig {
+  title: string;
+  description: ReactNode;
+  okButton: {
+    className: string;
+    title: string;
+  };
+  cancelButton: null;
+}
+
+/**
+ * Creates the prompt config for displaying validation errors.
+ * Use with `showPrompt` from `usePrompt` hook.
+ */
+export function getValidationErrorPromptConfig(
+  issues: ValidationIssue[],
+): ValidationErrorPromptConfig {
+  return {
+    title: labels.opportunity.requiredMissingNotice.title,
+    description: (
+      <div className="flex flex-col gap-4">
+        <span>{labels.opportunity.requiredMissingNotice.description}</span>
+        <ul className="text-text-tertiary">
+          {issues.map((issue) => {
+            const key = issue.path?.join('.') || issue.message;
+            return <li key={key}>• {issue.message}</li>;
+          })}
+        </ul>
+      </div>
+    ),
+    okButton: {
+      className: '!w-full',
+      title: labels.opportunity.requiredMissingNotice.okButton,
+    },
+    cancelButton: null,
   };
 }
 
