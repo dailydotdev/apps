@@ -22,8 +22,8 @@ import {
   formDataToMutationPayload,
   getOpportunityStateLabel,
   getOpportunityStateBadgeClass,
-  useOpportunityEditPageSetup,
-} from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
+} from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/hooks/useOpportunityEditForm';
+import { useOpportunityEditPageSetup } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/hooks/useOpportunityEditPageSetup';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';

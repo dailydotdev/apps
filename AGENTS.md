@@ -244,7 +244,25 @@ Example: Adding a video to the jobs page
 - SVG imports are converted to React components via `@svgr/webpack`
 - Tailwind utilities preferred over CSS-in-JS
 - GraphQL schema changes require manual TypeScript type updates
-- **Avoid index/barrel exports** - they easily cause dependency cycles; prefer direct file imports
+## No Barrel/Index Exports
+
+**NEVER create `index.ts` files that re-export from other files.** Barrel exports cause dependency cycles and hurt build performance.
+
+```typescript
+// ❌ NEVER do this - no index.ts barrel files
+// hooks/index.ts
+export * from './useAuth';
+export * from './useUser';
+
+// ❌ NEVER import from barrel
+import { useAuth } from './hooks';
+
+// ✅ ALWAYS import directly from the file
+import { useAuth } from './hooks/useAuth';
+import { useUser } from './hooks/useUser';
+```
+
+When you see an existing barrel file, delete it and update all imports to use direct paths.
 
 ## Avoiding Code Duplication
 

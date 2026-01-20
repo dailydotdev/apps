@@ -40,7 +40,7 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { useOpportunityEditPageSetup } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
+import { useOpportunityEditPageSetup } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/hooks/useOpportunityEditPageSetup';
 import {
   OpportunityCompletenessBar,
   hasMissingRequiredFields,
