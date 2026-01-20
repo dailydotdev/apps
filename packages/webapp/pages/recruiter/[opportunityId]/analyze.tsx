@@ -47,7 +47,6 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
   const [parsingComplete, setParsingComplete] = useState(false);
 
   const opportunityId = router.query.opportunityId as string;
-  const urlQueryParam = router.query.url as string | undefined;
   const isNewSubmission = opportunityId === 'new';
 
   const { mutate: parseOpportunity, isPending } = useMutation({
@@ -72,14 +71,6 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
       return;
     }
 
-    // Support URL from query param (e.g., /recruiter/new/analyze?url=https://...)
-    if (urlQueryParam) {
-      hasStartedParsing.current = true;
-      parseOpportunity({ url: urlQueryParam });
-      return;
-    }
-
-    // Fall back to pending submission from context
     if (!pendingSubmission) {
       router.push(`/recruiter?openModal=joblink`);
       return;
@@ -92,13 +83,7 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
     } else {
       parseOpportunity({ file: pendingSubmission.file });
     }
-  }, [
-    isNewSubmission,
-    urlQueryParam,
-    pendingSubmission,
-    parseOpportunity,
-    router,
-  ]);
+  }, [isNewSubmission, pendingSubmission, parseOpportunity, router]);
 
   // Consider parsing in progress if:
   // 1. The mutation is currently pending, OR
