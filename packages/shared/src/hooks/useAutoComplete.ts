@@ -19,16 +19,16 @@ export function useAutoComplete(
   return {
     selectedItemIndex,
     onKeyDown: (event) => {
-      if (event.keyCode === 40 || event.keyCode === 38) {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
         const n = items.length + 1;
         if (selectedItemIndex > -1) {
-          const step = event.keyCode === 40 ? 1 : -1;
+          const step = event.key === 'ArrowDown' ? 1 : -1;
           setSelectedItemIndex((((selectedItemIndex + step) % n) + n) % n);
         } else {
-          setSelectedItemIndex(event.keyCode === 40 ? 0 : n - 1);
+          setSelectedItemIndex(event.key === 'ArrowDown' ? 0 : n - 1);
         }
-      } else if (event.keyCode === 13) {
+      } else if (event.key === 'Enter') {
         submitQuery(selectedItemIndex > -1 && items[selectedItemIndex]);
       }
     },
