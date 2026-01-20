@@ -779,3 +779,11 @@ export const OPPORTUNITY_FEEDBACK_QUERY = gql`
   }
   ${FEEDBACK_CLASSIFICATION_FRAGMENT}
 `;
+
+export const CLAIM_OPPORTUNITIES_MUTATION = gql`
+  mutation ClaimOpportunities($identifier: String!) {
+    claimOpportunities(identifier: $identifier) {
+      ids
+    }
+  }
+`;
