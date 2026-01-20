@@ -28,11 +28,14 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
-import { recruiterPremiumPlanBg } from '@dailydotdev/shared/src/styles/custom';
 import {
+  CalendarIcon,
   CreditCardIcon,
+  StarIcon,
+  UserIcon,
   WarningIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { RadixAccordion } from '@dailydotdev/shared/src/components/accordion';
 import {
   getLayout,
   layoutProps,
@@ -189,6 +192,67 @@ type AdditionalCopy = {
   containerStyle?: React.CSSProperties;
 };
 
+const benefitWidgets = [
+  {
+    icon: CreditCardIcon,
+    title: 'No placement fees',
+    description: 'Save 15-20% per hire',
+  },
+  {
+    icon: CalendarIcon,
+    title: 'Cancel anytime',
+    description: 'Month-to-month billing',
+  },
+  {
+    icon: UserIcon,
+    title: 'Unlimited hires per role',
+    description: 'One role, no per-hire limits',
+  },
+  {
+    icon: StarIcon,
+    title: 'Quality over volume',
+    description: 'Curated matches, not mass lists',
+  },
+];
+
+const faq = [
+  {
+    title: 'Do you have developers in my target region or stack?',
+    description:
+      'daily.dev has millions of active engineers across 150+ countries, with strong coverage in the US, Europe, and LATAM. All major stacks are represented: frontend, backend, DevOps, AI/ML, mobile, and more. When you create a role, we show you the available inventory upfront so you have full clarity before you start.',
+  },
+  {
+    title: 'I just want to try it out. Where should I start?',
+    description:
+      "Start with Agent on a single role. It's designed to help you learn how the platform works and see results before scaling. You can always upgrade to Super Agent or add more roles later.",
+  },
+  {
+    title: 'Why a monthly fee instead of placement fees?',
+    description:
+      'Predictable costs, unlimited upside. With success-based models you typically pay 15-20% per hire. With us, you pay a fixed monthly rate per role. Make one hire or ten, the price stays the same.',
+  },
+  {
+    title: "What does 'per role' mean?",
+    description:
+      'You only pay for roles that are actively hiring. For example, you might have five roles on the platform but only one active at a time, so you only pay for that one. Pause or reactivate any role anytime from your dashboard.',
+  },
+  {
+    title: 'How quickly will I see introductions?',
+    description:
+      'Most customers see their first introductions within days, not weeks. Speed depends on your role specifics and how active that talent pool is on daily.dev.',
+  },
+  {
+    title: "What if I don't get quality introductions?",
+    description:
+      "Our introductions are double opt-in, so engineers only connect when genuinely interested. If you're not seeing results, our team works with you to optimize your role brief and targeting.",
+  },
+  {
+    title: 'Can I cancel anytime?',
+    description:
+      'Yes. No long-term contracts. Cancel or pause any role directly from your dashboard whenever you need to.',
+  },
+];
+
 const RecruiterPlans = (): ReactElement => {
   const router = useRouter();
 
@@ -271,10 +335,7 @@ const RecruiterPlans = (): ReactElement => {
         'Scale your hiring with 3× the reach. Tap deeper into our exclusive network of engineers who only respond here.',
       ctaText: 'Get started',
       className: {
-        container: 'border-brand-default',
-      },
-      containerStyle: {
-        background: recruiterPremiumPlanBg,
+        container: 'border-brand-default bg-brand-float',
       },
     },
   ];
@@ -292,7 +353,7 @@ const RecruiterPlans = (): ReactElement => {
   const showPaymentRequired = router.query.required === '1';
 
   return (
-    <div className="mx-auto flex w-full max-w-[48rem] flex-col gap-8 px-4 py-8 tablet:px-0">
+    <div className="mx-auto flex w-full max-w-[64rem] flex-col gap-8 px-4 py-8 tablet:px-0">
       {showPaymentRequired && (
         <div className="bg-status-warning/10 flex items-center gap-2 rounded-12 border border-status-warning p-4">
           <WarningIcon className="text-status-warning" size={IconSize.Small} />
@@ -311,16 +372,12 @@ const RecruiterPlans = (): ReactElement => {
           color={TypographyColor.Tertiary}
           center
         >
-          A new hiring channel. Reach engineers who ignore LinkedIn and never
-          apply on job boards, but are active on daily.dev every day.
+          Flat monthly rate per role. No placement fees, no contracts. Cancel
+          anytime. The way hiring should work.
         </Typography>
       </div>
 
       <div className="flex items-center gap-3 rounded-12 border-l-4 border-accent-cabbage-default bg-gradient-to-r from-action-share-float to-transparent px-4 py-3">
-        <CreditCardIcon
-          size={IconSize.Medium}
-          className="text-accent-cabbage-default"
-        />
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
@@ -377,6 +434,26 @@ const RecruiterPlans = (): ReactElement => {
         })}
       </div>
 
+      <div className="grid grid-cols-2 gap-4 laptop:grid-cols-4">
+        {benefitWidgets.map((widget) => (
+          <div
+            key={widget.title}
+            className="flex flex-col items-center gap-2 rounded-12 border border-border-subtlest-tertiary p-4 text-center"
+          >
+            <widget.icon size={IconSize.Medium} className="text-text-primary" />
+            <Typography type={TypographyType.Callout} bold>
+              {widget.title}
+            </Typography>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {widget.description}
+            </Typography>
+          </div>
+        ))}
+      </div>
+
       <div className="bg-surface-subtle flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-6 laptop:flex-row laptop:items-center laptop:justify-between">
         <div className="flex flex-1 flex-col flex-wrap gap-2">
           <Typography type={TypographyType.Title2} bold>
@@ -401,6 +478,13 @@ const RecruiterPlans = (): ReactElement => {
         >
           Talk to sales
         </Button>
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <Typography type={TypographyType.Title2} bold>
+          Frequently asked questions
+        </Typography>
+        <RadixAccordion items={faq} />
       </div>
     </div>
   );
