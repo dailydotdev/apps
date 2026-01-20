@@ -72,11 +72,21 @@ function RecruiterPage(): ReactElement {
   };
 
   const openJobLinkModal = useCallback(
-    (closeable = false) => {
+    ({
+      closeable = false,
+      initialUrl,
+      autoSubmit = false,
+    }: {
+      closeable?: boolean;
+      initialUrl?: string;
+      autoSubmit?: boolean;
+    } = {}) => {
       openModal({
         type: LazyModal.RecruiterJobLink,
         props: {
           closeable,
+          initialUrl,
+          autoSubmit,
           onSubmit: (submission: PendingSubmission) =>
             handleJobSubmitRef.current?.(submission),
         },
@@ -90,10 +100,17 @@ function RecruiterPage(): ReactElement {
 
   // Open the onboarding modal flow for new users (no opportunities)
   useEffect(() => {
-    const { openModal: openModalParam, closeable } = router.query;
+    const { openModal: openModalParam, closeable, url } = router.query;
+
+    // If url query param is present, open modal with pre-filled URL and auto-submit
+    if (url && typeof url === 'string') {
+      openJobLinkModal({ initialUrl: url, autoSubmit: true });
+      return;
+    }
+
     // If openModal=joblink query param is present, skip intro/trust modals
     if (openModalParam === 'joblink') {
-      openJobLinkModal(closeable === '1');
+      openJobLinkModal({ closeable: closeable === '1' });
       return;
     }
 
@@ -162,7 +179,7 @@ function RecruiterPage(): ReactElement {
     return (
       <DashboardView
         opportunities={opportunities}
-        onAddNew={() => openJobLinkModal(true)}
+        onAddNew={() => openJobLinkModal({ closeable: true })}
       />
     );
   }

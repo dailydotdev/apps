@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import z from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import type { ModalProps } from '../common/Modal';
@@ -30,6 +30,8 @@ const jobLinkSchema = z.url({ message: 'Please enter a valid URL' });
 export interface RecruiterJobLinkModalProps extends ModalProps {
   onSubmit: (submission: PendingSubmission) => void;
   closeable?: boolean;
+  initialUrl?: string;
+  autoSubmit?: boolean;
 }
 
 const fileValidation = {
@@ -45,11 +47,14 @@ export const RecruiterJobLinkModal = ({
   onSubmit,
   onRequestClose,
   closeable = false,
+  initialUrl,
+  autoSubmit = false,
   ...modalProps
 }: RecruiterJobLinkModalProps): ReactElement => {
-  const [jobLink, setJobLink] = useState('');
+  const [jobLink, setJobLink] = useState(initialUrl || '');
   const [error, setError] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
+  const hasAutoSubmitted = useRef(false);
 
   const { displayToast } = useToastNotification();
   const [, setPendingOpportunityId] = usePersistentContext<string | null>(
@@ -128,6 +133,14 @@ export const RecruiterJobLinkModal = ({
     setPendingOpportunityId,
     onSubmit,
   ]);
+
+  // Auto-submit when initialUrl is provided and autoSubmit is true
+  useEffect(() => {
+    if (autoSubmit && initialUrl && !hasAutoSubmitted.current) {
+      hasAutoSubmitted.current = true;
+      handleSubmit();
+    }
+  }, [autoSubmit, initialUrl, handleSubmit]);
 
   return (
     <Modal
