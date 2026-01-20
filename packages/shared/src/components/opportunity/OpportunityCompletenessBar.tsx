@@ -24,6 +24,7 @@ const checkKeyToSectionId: Record<string, string> = {
   location: 'roleInfo',
   employmentType: 'roleInfo',
   teamSize: 'roleInfo',
+  salary: 'roleInfo',
   seniorityLevel: 'roleInfo',
   roleType: 'roleInfo',
   overview: 'overview',
@@ -34,14 +35,14 @@ const checkKeyToSectionId: Record<string, string> = {
   interviewProcess: 'interviewProcess',
 };
 
-interface CompletenessCheck {
+export interface CompletenessCheck {
   key: string;
   label: string;
   isComplete: boolean;
   required: boolean;
 }
 
-const getCompletenessChecks = (
+export const getCompletenessChecks = (
   opportunity: Opportunity,
 ): CompletenessCheck[] => {
   return [
@@ -82,9 +83,18 @@ const getCompletenessChecks = (
       required: true,
     },
     {
+      key: 'salary',
+      label: 'Salary',
+      isComplete:
+        (opportunity.meta?.salary?.min ?? 0) > 0 &&
+        (opportunity.meta?.salary?.max ?? 0) > 0 &&
+        (opportunity.meta?.salary?.period ?? 0) > 0,
+      required: true,
+    },
+    {
       key: 'seniorityLevel',
       label: 'Seniority level',
-      isComplete: opportunity.meta?.seniorityLevel != null,
+      isComplete: (opportunity.meta?.seniorityLevel ?? 0) > 0,
       required: true,
     },
     {
@@ -138,6 +148,27 @@ const getCompletenessChecks = (
   ];
 };
 
+/**
+ * Check if the opportunity has missing required fields.
+ * @param opportunity - The opportunity to check
+ * @param excludeChecks - Keys to exclude from the check
+ * @returns true if there are missing required fields
+ */
+export const hasMissingRequiredFields = (
+  opportunity: Opportunity | undefined,
+  excludeChecks: string[] = [],
+): boolean => {
+  if (!opportunity) {
+    return true;
+  }
+  const checks = getCompletenessChecks(opportunity).filter(
+    (c) => !excludeChecks.includes(c.key),
+  );
+  const requiredChecks = checks.filter((c) => c.required);
+  const missingRequired = requiredChecks.filter((c) => !c.isComplete);
+  return missingRequired.length > 0;
+};
+
 export const OpportunityCompletenessBar = ({
   opportunity,
   className,
@@ -164,7 +195,7 @@ export const OpportunityCompletenessBar = ({
   return (
     <div
       className={classNames(
-        'bg-status-warning/10 flex flex-col gap-3 rounded-12 border border-status-warning p-4',
+        'sticky top-4 z-header flex flex-col gap-3 rounded-12 border border-status-warning bg-background-default p-4',
         className,
       )}
     >

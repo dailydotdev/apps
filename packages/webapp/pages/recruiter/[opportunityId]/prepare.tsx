@@ -26,8 +26,6 @@ import {
   useOpportunityEditContext,
 } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { opportunityEditStep1Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
-import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useUpdateQuery } from '@dailydotdev/shared/src/hooks/useUpdateQuery';
 import { recommendOpportunityScreeningQuestionsOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
@@ -42,12 +40,12 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useOpportunityEditPageSetup } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
 import {
-  formDataToMutationPayload,
-  useOpportunityEditPageSetup,
-  getValidationErrorPromptConfig,
-} from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
-import { OpportunityCompletenessBar } from '@dailydotdev/shared/src/components/opportunity/OpportunityCompletenessBar';
+  OpportunityCompletenessBar,
+  hasMissingRequiredFields,
+} from '@dailydotdev/shared/src/components/opportunity/OpportunityCompletenessBar';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { OpportunityEditPanel } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/OpportunityEditPanel';
 import {
   EditPreviewTabs,
@@ -63,7 +61,6 @@ import {
 function PreparePageContent(): ReactElement {
   const router = useRouter();
   const { opportunityId } = useOpportunityEditContext();
-  const { showPrompt } = usePrompt();
   const { dismissToast, displayToast, subject } = useToastNotification();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [activeTab, setActiveTab] = useState<EditPreviewTab>(
@@ -72,6 +69,7 @@ function PreparePageContent(): ReactElement {
 
   const {
     opportunity,
+    liveOpportunity,
     isLoading,
     previewData,
     form,
@@ -81,6 +79,11 @@ function PreparePageContent(): ReactElement {
     handleMissingClick,
     handleSave,
   } = useOpportunityEditPageSetup({ opportunityId });
+
+  // Check if there are missing required fields (excludes organization check for prepare page)
+  const hasIncompleteFields = hasMissingRequiredFields(liveOpportunity, [
+    'organization',
+  ]);
 
   const [, updateOpportunity] = useUpdateQuery(
     opportunityByIdOptions({
@@ -148,29 +151,10 @@ function PreparePageContent(): ReactElement {
       }
     }
 
-    // Validate the opportunity data
-    const result = opportunityEditStep1Schema.safeParse({
-      ...formDataToMutationPayload(form.getValues()),
-      organization: opportunity?.organization,
-    });
-
-    if (result.error) {
-      await showPrompt(getValidationErrorPromptConfig(result.error.issues));
-      return;
-    }
-
     onSubmit({
       id: opportunity.id,
     });
-  }, [
-    isDirty,
-    form,
-    opportunity?.organization,
-    opportunity?.id,
-    onSubmit,
-    handleSave,
-    showPrompt,
-  ]);
+  }, [isDirty, opportunity?.id, onSubmit, handleSave]);
 
   if (isLoading || !opportunity) {
     return (
@@ -203,15 +187,23 @@ function PreparePageContent(): ReactElement {
               </div>
             </div>
 
-            <Button
-              variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
-              onClick={handleNextStep}
-              loading={isSaving || isSubmitting || isSuccess}
+            <SimpleTooltip
+              content="Complete all required fields first"
+              show={hasIncompleteFields}
             >
-              <span className="mr-1.5">Outreach questions</span>
-              <MoveToIcon />
-            </Button>
+              <div>
+                <Button
+                  variant={ButtonVariant.Primary}
+                  color={ButtonColor.Cabbage}
+                  onClick={handleNextStep}
+                  loading={isSaving || isSubmitting || isSuccess}
+                  disabled={hasIncompleteFields}
+                >
+                  <span className="mr-1.5">Outreach questions</span>
+                  <MoveToIcon />
+                </Button>
+              </div>
+            </SimpleTooltip>
           </header>
 
           <RecruiterProgress
@@ -223,7 +215,7 @@ function PreparePageContent(): ReactElement {
             {/* Edit Panel - 1/3 width */}
             <div className="h-[calc(100vh-112px)] w-1/3 min-w-80 max-w-md overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default">
               <OpportunityCompletenessBar
-                opportunity={opportunity}
+                opportunity={liveOpportunity}
                 className="m-4"
                 excludeChecks={['organization']}
                 onMissingClick={handleMissingClick}
@@ -288,16 +280,24 @@ function PreparePageContent(): ReactElement {
             </div>
           </div>
 
-          <Button
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            size={ButtonSize.Small}
-            onClick={handleNextStep}
-            loading={isSaving || isSubmitting || isSuccess}
+          <SimpleTooltip
+            content="Complete all required fields first"
+            show={hasIncompleteFields}
           >
-            Next
-            <MoveToIcon size={IconSize.Small} className="ml-1" />
-          </Button>
+            <div>
+              <Button
+                variant={ButtonVariant.Primary}
+                color={ButtonColor.Cabbage}
+                size={ButtonSize.Small}
+                onClick={handleNextStep}
+                loading={isSaving || isSubmitting || isSuccess}
+                disabled={hasIncompleteFields}
+              >
+                Next
+                <MoveToIcon size={IconSize.Small} className="ml-1" />
+              </Button>
+            </div>
+          </SimpleTooltip>
         </header>
 
         <RecruiterProgress
@@ -312,7 +312,7 @@ function PreparePageContent(): ReactElement {
           {activeTab === EditPreviewTab.Edit ? (
             <div className="bg-background-default">
               <OpportunityCompletenessBar
-                opportunity={opportunity}
+                opportunity={liveOpportunity}
                 className="m-4"
                 excludeChecks={['organization']}
                 onMissingClick={handleMissingClick}

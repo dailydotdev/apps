@@ -75,7 +75,7 @@ export function RoleInfoSection({
 
       <div data-field-key="keywords" className="flex flex-col gap-2">
         <Typography bold type={TypographyType.Caption1}>
-          Preferred tech stack*
+          Preferred tech stack
         </Typography>
         <Typography
           type={TypographyType.Caption2}

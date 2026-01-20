@@ -4,11 +4,7 @@ import { useRouter } from 'next/router';
 import { FormProvider } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
-import type {
-  ApiErrorResult,
-  ApiResponseError,
-  ApiZodErrorExtension,
-} from '@dailydotdev/shared/src/graphql/common';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { updateOpportunityStateOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
@@ -27,7 +23,6 @@ import {
   getOpportunityStateLabel,
   getOpportunityStateBadgeClass,
   useOpportunityEditPageSetup,
-  getValidationErrorPromptConfig,
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -50,7 +45,11 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { RefreshIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { OpportunityCompletenessBar } from '@dailydotdev/shared/src/components/opportunity/OpportunityCompletenessBar';
+import {
+  OpportunityCompletenessBar,
+  hasMissingRequiredFields,
+} from '@dailydotdev/shared/src/components/opportunity/OpportunityCompletenessBar';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { OpportunityEditPanel } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/OpportunityEditPanel';
 import {
   EditPreviewTabs,
@@ -81,6 +80,7 @@ function EditPageContent(): ReactElement {
 
   const {
     opportunity,
+    liveOpportunity,
     isLoading,
     previewData,
     form,
@@ -95,20 +95,12 @@ function EditPageContent(): ReactElement {
     opportunityId,
   });
 
+  // Check if there are missing required fields (edit page checks all fields including organization)
+  const hasIncompleteFields = hasMissingRequiredFields(liveOpportunity);
+
   const onSuccess = useCallback(async () => {
     await router.push(`${webappUrl}recruiter/${opportunityId}/matches`);
   }, [router, opportunityId]);
-
-  const onValidationError = useCallback(
-    async ({
-      issues,
-    }: {
-      issues: Array<{ path: PropertyKey[]; message: string }>;
-    }) => {
-      await showPrompt(getValidationErrorPromptConfig(issues));
-    },
-    [showPrompt],
-  );
 
   const {
     mutateAsync: updateOpportunityState,
@@ -162,20 +154,6 @@ function EditPageContent(): ReactElement {
         return;
       }
 
-      if (
-        error.response?.errors?.[0]?.extensions?.code ===
-        ApiError.ZodValidationError
-      ) {
-        const apiError = error.response
-          .errors[0] as ApiResponseError<ApiZodErrorExtension>;
-
-        await onValidationError({
-          issues: apiError.extensions.issues,
-        });
-
-        return;
-      }
-
       displayToast(
         error.response?.errors?.[0]?.message || labels.error.generic,
       );
@@ -197,12 +175,6 @@ function EditPageContent(): ReactElement {
 
   // Save handler with mutation - saves and updates state to IN_REVIEW
   const handleSave = useCallback(async () => {
-    const isValid = await form.trigger();
-    if (!isValid) {
-      displayToast('Please complete all required fields');
-      return;
-    }
-
     try {
       const formData = form.getValues();
       const payload = formDataToMutationPayload(formData);
@@ -242,7 +214,8 @@ function EditPageContent(): ReactElement {
     return 'Submit for review';
   };
 
-  const isSaveDisabled = isSaving || isPendingOpportunityState;
+  const isSaveDisabled =
+    isSaving || isPendingOpportunityState || hasIncompleteFields;
 
   if (isLoading || !opportunity || isCheckingPayment) {
     return (
@@ -294,31 +267,37 @@ function EditPageContent(): ReactElement {
                 Re-import
               </Button>
 
-              <Button
-                variant={ButtonVariant.Primary}
-                color={ButtonColor.Cabbage}
-                size={ButtonSize.Small}
-                onClick={handleSave}
-                disabled={isSaveDisabled}
+              <SimpleTooltip
+                content="Complete all required fields first"
+                show={hasIncompleteFields}
               >
-                {getSaveButtonText()}
-              </Button>
+                <div>
+                  <Button
+                    variant={ButtonVariant.Primary}
+                    color={ButtonColor.Cabbage}
+                    size={ButtonSize.Small}
+                    onClick={handleSave}
+                    disabled={isSaveDisabled}
+                  >
+                    {getSaveButtonText()}
+                  </Button>
+                </div>
+              </SimpleTooltip>
             </div>
           </header>
 
           {/* Main content */}
           <div className="flex h-[calc(100vh-64px)]">
             {/* Edit Panel - 1/3 width */}
-            <div className="flex w-1/3 max-w-md flex-col overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default">
+            <div className="h-full w-1/3 max-w-md overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default">
               <OpportunityCompletenessBar
-                opportunity={opportunity}
+                opportunity={liveOpportunity}
                 className="m-4"
                 onMissingClick={handleMissingClick}
               />
               <OpportunityEditPanel
                 opportunity={opportunity}
                 onSectionFocus={handleSectionFocus}
-                className="flex-1"
               />
             </div>
 
@@ -376,15 +355,22 @@ function EditPageContent(): ReactElement {
             </span>
           </div>
 
-          <Button
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            size={ButtonSize.Small}
-            onClick={handleSave}
-            disabled={isSaveDisabled}
+          <SimpleTooltip
+            content="Complete all required fields first"
+            show={hasIncompleteFields}
           >
-            {getSaveButtonText()}
-          </Button>
+            <div>
+              <Button
+                variant={ButtonVariant.Primary}
+                color={ButtonColor.Cabbage}
+                size={ButtonSize.Small}
+                onClick={handleSave}
+                disabled={isSaveDisabled}
+              >
+                {getSaveButtonText()}
+              </Button>
+            </div>
+          </SimpleTooltip>
         </header>
 
         {/* Tab switcher */}
@@ -395,7 +381,7 @@ function EditPageContent(): ReactElement {
           {activeTab === EditPreviewTab.Edit ? (
             <div className="bg-background-default">
               <OpportunityCompletenessBar
-                opportunity={opportunity}
+                opportunity={liveOpportunity}
                 className="m-4"
                 onMissingClick={handleMissingClick}
               />

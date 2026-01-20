@@ -25,6 +25,8 @@ export interface UseOpportunityEditPageSetupOptions {
 export interface UseOpportunityEditPageSetupReturn {
   // Data
   opportunity: Opportunity | undefined;
+  /** Opportunity merged with current form values - use for real-time completeness checks */
+  liveOpportunity: Opportunity | undefined;
   isLoading: boolean;
   previewData: Partial<Opportunity> | undefined;
 
@@ -95,6 +97,24 @@ export function useOpportunityEditPageSetup({
     return formDataToPreviewOpportunity(formValues);
   }, [formValues]);
 
+  // Merge original opportunity with form data for real-time completeness checks
+  const liveOpportunity = useMemo(() => {
+    if (!opportunity) {
+      return undefined;
+    }
+    if (!previewData) {
+      return opportunity;
+    }
+    return {
+      ...opportunity,
+      ...previewData,
+      meta: {
+        ...opportunity.meta,
+        ...previewData.meta,
+      },
+    } as Opportunity;
+  }, [opportunity, previewData]);
+
   // Scroll sync between edit panel and preview
   const { scrollToSection } = useScrollSync({
     offset: 20,
@@ -141,6 +161,7 @@ export function useOpportunityEditPageSetup({
   return {
     // Data
     opportunity,
+    liveOpportunity,
     isLoading,
     previewData,
 
