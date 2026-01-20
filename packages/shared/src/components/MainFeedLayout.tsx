@@ -372,6 +372,12 @@ export default function MainFeedLayout({
       return null;
     }
 
+    // Wait for algorithm to load from IndexedDB before making sortable feed requests
+    // to prevent double queries (first with default, then with saved value)
+    if (isSortableFeed && !loadedAlgo) {
+      return null;
+    }
+
     if (feedNameProp === 'default' && isCustomDefaultFeed) {
       return {
         feedName: SharedFeedPage.Custom,
@@ -498,6 +504,7 @@ export default function MainFeedLayout({
     selectedPeriod,
     isExploreLatest,
     isLaptop,
+    loadedAlgo,
   ]);
 
   useEffect(() => {
