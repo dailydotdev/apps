@@ -372,9 +372,9 @@ export default function MainFeedLayout({
       return null;
     }
 
-    // Wait for algorithm to load from IndexedDB before making sortable feed requests
-    // to prevent double queries (first with default, then with saved value)
-    if (isSortableFeed && !loadedAlgo) {
+    // Wait for both algorithm (from IndexedDB) and tokenRefreshed (from boot) to load
+    // before making sortable feed requests to prevent double queries
+    if (isSortableFeed && (!loadedAlgo || !tokenRefreshed)) {
       return null;
     }
 
@@ -505,6 +505,7 @@ export default function MainFeedLayout({
     isExploreLatest,
     isLaptop,
     loadedAlgo,
+    tokenRefreshed,
   ]);
 
   useEffect(() => {
