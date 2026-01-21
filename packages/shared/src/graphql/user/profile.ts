@@ -26,6 +26,7 @@ const excludedProperties = [
   'company',
   'customLocation',
   'image',
+  'repositorySearch',
 ];
 
 const USER_EXPERIENCE_FRAGMENT = gql`
@@ -66,6 +67,12 @@ const USER_EXPERIENCE_FRAGMENT = gql`
       city
       subdivision
       country
+    }
+    repository {
+      id
+      name
+      url
+      image
     }
   }
 `;
@@ -168,6 +175,13 @@ export enum UserExperienceType {
   OpenSource = 'opensource',
 }
 
+export interface Repository {
+  id: string;
+  name: string;
+  url: string;
+  image: string;
+}
+
 export interface UserExperience {
   id: string;
   type: UserExperienceType;
@@ -184,6 +198,7 @@ export interface UserExperience {
   url?: string | null;
   verified?: boolean | null;
   customLocation?: Partial<Pick<TLocation, 'city' | 'subdivision' | 'country'>>;
+  repository?: Repository | null;
 }
 
 interface UserSkill {

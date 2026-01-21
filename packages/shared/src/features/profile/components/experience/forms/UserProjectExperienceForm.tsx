@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import ControlledTextField from '../../../../../components/fields/ControlledTextField';
 import ProfileCompany from '../../ProfileCompany';
+import ProfileGithubRepository from '../../ProfileGithubRepository';
 import { HorizontalSeparator } from '../../../../../components/utilities';
 import {
   Typography,
@@ -26,13 +27,13 @@ type FormCopy = {
 const getFormCopy = (type: UserExperienceType): FormCopy => {
   if (type === UserExperienceType.OpenSource) {
     return {
-      titlePlaceholder: 'Ex: Name of the repository',
+      titlePlaceholder: 'Ex: Contributor',
       switchLabel: 'Active open-source contribution',
       switchDescription:
         'Check if you are still actively contributing to this open-source project.',
       company: 'Repository*',
       startedtLabel: 'Active from',
-      urlLabel: 'Repository URL',
+      urlLabel: '',
     };
   }
 
@@ -62,11 +63,18 @@ const UserProjectExperienceForm = () => {
           fieldType="secondary"
           className={profileSecondaryFieldStyles}
         />
-        <ProfileCompany
-          name="customCompanyName"
-          label={copy.company}
-          type={AutocompleteType.Company}
-        />
+        {type === UserExperienceType.OpenSource ? (
+          <ProfileGithubRepository
+            name="repositorySearch"
+            label={copy.company}
+          />
+        ) : (
+          <ProfileCompany
+            name="customCompanyName"
+            label={copy.company}
+            type={AutocompleteType.Company}
+          />
+        )}
       </div>
       <HorizontalSeparator />
       <CurrentExperienceSwitch
@@ -99,13 +107,15 @@ const UserProjectExperienceForm = () => {
       </div>
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">
-        <ControlledTextField
-          name="url"
-          label={copy.urlLabel}
-          placeholder="Ex: https://github.com/username/repo"
-          fieldType="secondary"
-          className={profileSecondaryFieldStyles}
-        />
+        {type !== UserExperienceType.OpenSource && (
+          <ControlledTextField
+            name="url"
+            label={copy.urlLabel}
+            placeholder="Ex: https://github.com/username/repo"
+            fieldType="secondary"
+            className={profileSecondaryFieldStyles}
+          />
+        )}
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             Description
