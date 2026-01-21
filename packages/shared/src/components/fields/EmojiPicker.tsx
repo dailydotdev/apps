@@ -116,17 +116,19 @@ export const EmojiPicker = ({
       </Typography>
 
       <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant={!value ? ButtonVariant.Primary : ButtonVariant.Float}
-          onClick={() => {
-            onChange('');
-            setIsOpen(false);
-          }}
-          className="!size-10 shrink-0"
-        >
-          -
-        </Button>
+        {value && (
+          <Button
+            type="button"
+            variant={ButtonVariant.Float}
+            onClick={() => {
+              onChange('');
+              setIsOpen(false);
+            }}
+            className="!size-10 shrink-0"
+          >
+            -
+          </Button>
+        )}
 
         {value && (
           <div className="flex size-10 items-center justify-center rounded-10 border border-border-subtlest-tertiary bg-surface-float text-xl">
