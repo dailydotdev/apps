@@ -67,9 +67,7 @@ export const PostCardHeader = ({
 
   return (
     <>
-      {highlightBookmarkedPost && (
-        <BookmakProviderHeader className={classNames(className, 'mb-4')} />
-      )}
+      {highlightBookmarkedPost && <BookmakProviderHeader className="mb-4" />}
       <CardHeader className={className}>
         {children}
         {!!post?.author && (
