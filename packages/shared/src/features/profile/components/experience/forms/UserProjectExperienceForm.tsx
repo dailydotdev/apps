@@ -111,7 +111,7 @@ const UserProjectExperienceForm = () => {
           <ControlledTextField
             name="url"
             label={copy.urlLabel}
-            placeholder="Ex: https://github.com/username/repo"
+            placeholder="Ex: https://example.com/page"
             fieldType="secondary"
             className={profileSecondaryFieldStyles}
           />
