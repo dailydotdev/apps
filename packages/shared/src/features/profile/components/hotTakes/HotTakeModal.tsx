@@ -97,7 +97,7 @@ export function HotTakeModal({
         size={Modal.Size.Medium}
         {...rest}
       >
-        <form onSubmit={onFormSubmit} id="hot_take_form">
+        <form onSubmit={onFormSubmit} id="hot_take_form" className="w-full">
           <ModalHeader showCloseButton={!isMobile}>
             <ModalHeader.Title className="typo-title3">
               {isEditing ? 'Edit Hot Take' : 'Add Hot Take'}
