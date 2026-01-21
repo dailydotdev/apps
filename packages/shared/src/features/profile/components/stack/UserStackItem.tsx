@@ -41,36 +41,38 @@ export function UserStackItem({
   return (
     <div
       className={classNames(
-        'group relative flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-3',
+        'group relative flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary p-3',
         'hover:border-border-subtlest-secondary',
       )}
     >
-      {icon && (
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Title2}
-          className="flex-shrink-0"
-        >
-          {icon}
-        </Typography>
-      )}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Primary}
-          bold
-          truncate
-        >
-          {title}
-        </Typography>
-        {usingSince && (
+      <div className="flex items-center gap-2">
+        {icon && (
           <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
+            tag={TypographyTag.Span}
+            type={TypographyType.Title2}
+            className="flex-shrink-0"
           >
-            {usingSince}
+            {icon}
           </Typography>
         )}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Primary}
+            bold
+            truncate
+          >
+            {title}
+          </Typography>
+          {usingSince && (
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {usingSince}
+            </Typography>
+          )}
+        </div>
       </div>
       {isOwner && (
         <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
