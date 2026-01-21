@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import dynamic from 'next/dynamic';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { TextField } from '../../../../components/fields/TextField';
@@ -19,9 +20,16 @@ import type {
   DatasetStack,
 } from '../../../../graphql/user/userStack';
 import { useStackSearch } from '../../hooks/useStackSearch';
-import { EmojiPicker } from '../../../../components/fields/EmojiPicker';
 import YearSelect from '../../../../components/profile/YearSelect';
 import MonthSelect from '../../../../components/profile/MonthSelect';
+
+const EmojiPicker = dynamic(
+  () =>
+    import('../../../../components/fields/EmojiPicker').then(
+      (mod) => mod.EmojiPicker,
+    ),
+  { ssr: false },
+);
 
 const SECTION_OPTIONS = ['Primary', 'Hobby', 'Learning', 'Past'] as const;
 
