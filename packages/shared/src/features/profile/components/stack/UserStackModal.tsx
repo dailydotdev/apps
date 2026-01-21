@@ -205,6 +205,18 @@ export function UserStackModal({
               )}
             </div>
 
+            {/* Icon picker */}
+            <Controller
+              name="icon"
+              control={control}
+              render={({ field }) => (
+                <EmojiPicker
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+
             {/* Section selector */}
             <div className="flex flex-col gap-2">
               <Typography bold type={TypographyType.Callout}>
@@ -252,18 +264,6 @@ export function UserStackModal({
                 />
               )}
             </div>
-
-            {/* Icon picker */}
-            <Controller
-              name="icon"
-              control={control}
-              render={({ field }) => (
-                <EmojiPicker
-                  value={field.value || ''}
-                  onChange={field.onChange}
-                />
-              )}
-            />
 
             {/* Started at - separate year and month */}
             <div className="flex flex-col gap-2">
