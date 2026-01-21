@@ -1,7 +1,14 @@
 import React from 'react';
-import Select from '../fields/Select';
-import { ButtonSize } from '../buttons/Button';
+import { ArrowIcon } from '../icons';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
 import type { IconType } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { MenuItemProps } from '../dropdown/common';
 
 const generateYearOptions = (): { label: string; value: string }[] => {
   const currentYear = new Date().getFullYear();
@@ -18,24 +25,49 @@ const generateYearOptions = (): { label: string; value: string }[] => {
 export const YEAR_OPTIONS = generateYearOptions();
 
 type YearSelectProps = {
-  name: string;
+  name?: string;
   icon?: IconType;
   placeholder?: string;
+  value?: string;
   onSelect?: (value: string) => void;
+  disabled?: boolean;
 };
 
-const YearSelect = ({ name, icon, placeholder, onSelect }: YearSelectProps) => {
+const YearSelect = ({
+  icon,
+  placeholder,
+  value,
+  onSelect,
+  disabled,
+}: YearSelectProps) => {
+  const menuItems: MenuItemProps[] = YEAR_OPTIONS.map((opt) => ({
+    label: opt.label,
+    action: () => onSelect?.(opt.value),
+  }));
+
+  const selectedLabel = YEAR_OPTIONS.find((opt) => opt.value === value)?.label;
+
   return (
-    <Select
-      icon={icon}
-      options={YEAR_OPTIONS}
-      name={name}
-      placeholder={placeholder}
-      buttonProps={{
-        size: ButtonSize.Large,
-      }}
-      onSelect={onSelect}
-    />
+    <DropdownMenu>
+      <DropdownMenuTrigger className="w-full" asChild disabled={disabled}>
+        <Button
+          icon={icon}
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Large}
+          disabled={disabled}
+        >
+          {selectedLabel || placeholder}
+          <ArrowIcon className="ml-auto rotate-180" secondary />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        sideOffset={10}
+        className="flex max-h-64 w-[var(--radix-popper-anchor-width)] flex-col gap-1 overflow-y-auto overflow-x-hidden !p-0"
+      >
+        <DropdownMenuOptions options={menuItems} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

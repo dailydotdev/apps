@@ -82,9 +82,7 @@ export const PostCardHeader = ({
 
   return (
     <>
-      {highlightBookmarkedPost && (
-        <BookmakProviderHeader className={className} isArticleCard />
-      )}
+      {highlightBookmarkedPost && <BookmakProviderHeader />}
       <CardHeader
         className={classNames(
           className,

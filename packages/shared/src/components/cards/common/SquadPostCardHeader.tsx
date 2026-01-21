@@ -38,18 +38,10 @@ export const SquadPostCardHeader = ({
 
   return (
     <>
-      {highlightBookmarkedPost && (
-        <BookmakProviderHeader
-          className={classNames(
-            'relative my-2 flex py-2',
-            enableSourceHeader ? 'h-10' : 'h-12',
-          )}
-        />
-      )}
+      {highlightBookmarkedPost && <BookmakProviderHeader />}
       <div
         className={classNames(
-          'mx-4 mt-4',
-          'relative m-2 flex gap-2',
+          'mb-2 mt-4',
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
