@@ -6,7 +6,6 @@ import {
   Typography,
   TypographyType,
   TypographyColor,
-  TypographyTag,
 } from '../../../../components/typography/Typography';
 import {
   Button,
@@ -33,28 +32,26 @@ export function HotTakeItem({
   return (
     <div
       className={classNames(
-        'group relative flex items-start gap-3 rounded-12 border border-border-subtlest-tertiary p-3',
-        'hover:border-border-subtlest-secondary',
+        'group relative flex items-start gap-4 rounded-16 p-4',
+        'bg-surface-float',
+        'transition-all duration-200',
+        'hover:bg-surface-hover',
       )}
     >
-      <Typography
-        tag={TypographyTag.Span}
-        type={TypographyType.Title2}
-        className="flex-shrink-0"
-      >
-        {emoji}
-      </Typography>
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex size-12 flex-shrink-0 items-center justify-center rounded-14 bg-overlay-quaternary-cabbage">
+        <span className="text-2xl">{emoji}</span>
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         <Typography
-          type={TypographyType.Callout}
+          type={TypographyType.Body}
           color={TypographyColor.Primary}
           bold
         >
-          {title}
+          &ldquo;{title}&rdquo;
         </Typography>
         {subtitle && (
           <Typography
-            type={TypographyType.Caption1}
+            type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
             {subtitle}

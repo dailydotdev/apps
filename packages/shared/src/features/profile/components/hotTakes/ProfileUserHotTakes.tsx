@@ -141,7 +141,7 @@ export function ProfileUserHotTakes({
       </div>
 
       {hasItems ? (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           {hotTakes.map((item) => (
             <HotTakeItem
               key={item.id}
@@ -154,13 +154,25 @@ export function ProfileUserHotTakes({
         </div>
       ) : (
         isOwner && (
-          <div className="flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary p-6">
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Share your hot takes with the community
-            </Typography>
+          <div className="flex flex-col items-center gap-4 rounded-16 bg-surface-float p-6">
+            <div className="flex size-14 items-center justify-center rounded-full bg-overlay-quaternary-cabbage">
+              <span className="text-3xl">🔥</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 text-center">
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Primary}
+                bold
+              >
+                Share your hot takes
+              </Typography>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                What are the opinions that define you as a developer?
+              </Typography>
+            </div>
             <Button
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
