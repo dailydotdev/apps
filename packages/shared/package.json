@@ -125,7 +125,6 @@
     "@tiptap/starter-kit": "^3.14.0",
     "check-password-strength": "^2.0.10",
     "fetch-event-stream": "^0.1.5",
-    "frimousse": "^0.3.0",
     "graphql-ws": "^5.5.5",
     "jotai": "^2.12.2",
     "lottie-react": "^2.4.1",

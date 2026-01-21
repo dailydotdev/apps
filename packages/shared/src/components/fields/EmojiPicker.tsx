@@ -1,6 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useState, useCallback } from 'react';
-import { EmojiPicker as FrimousseEmojiPicker } from 'frimousse';
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+} from 'react';
+import { search as emojiSearch } from 'node-emoji';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
 import {
@@ -8,6 +14,39 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+
+const COMMON_EMOJIS = [
+  '⭐',
+  '🚀',
+  '💻',
+  '🔥',
+  '💡',
+  '🎯',
+  '✨',
+  '🛠️',
+  '📱',
+  '🌐',
+  '🔧',
+  '⚡',
+  '🎨',
+  '📊',
+  '🔒',
+  '☁️',
+  '🤖',
+  '📦',
+  '🧪',
+  '🎮',
+  '📝',
+  '💾',
+  '🔍',
+  '📈',
+  '🏗️',
+  '⚙️',
+  '🌟',
+  '💪',
+  '🎉',
+  '❤️',
+];
 
 type EmojiPickerProps = {
   value: string;
@@ -23,14 +62,33 @@ export const EmojiPicker = ({
   className,
 }: EmojiPickerProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      inputRef.current?.focus();
+    }
+  }, [isOpen]);
 
   const handleSelect = useCallback(
     (emoji: string) => {
       onChange(emoji);
       setIsOpen(false);
+      setSearchQuery('');
     },
     [onChange],
   );
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return [];
+    }
+    return emojiSearch(searchQuery.toLowerCase()).slice(0, 30);
+  }, [searchQuery]);
+
+  const emojisToShow = searchQuery.trim() ? searchResults : [];
+  const showCommon = !searchQuery.trim();
 
   return (
     <div className={classNames('flex flex-col gap-2', className)}>
@@ -72,48 +130,69 @@ export const EmojiPicker = ({
       </div>
 
       {isOpen && (
-        <div className="relative rounded-16 border border-border-subtlest-tertiary bg-background-default p-2">
-          <FrimousseEmojiPicker.Root
-            onEmojiSelect={(emoji) => handleSelect(emoji.emoji)}
-            className="flex h-72 flex-col"
-          >
-            <FrimousseEmojiPicker.Search
-              className="mb-2 w-full rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-primary placeholder:text-text-quaternary focus:border-border-subtlest-secondary focus:outline-none"
-              placeholder="Search emojis..."
-              autoFocus
-            />
-            <FrimousseEmojiPicker.Viewport className="flex-1 overflow-hidden">
-              <FrimousseEmojiPicker.Loading className="flex h-full items-center justify-center text-text-tertiary">
-                Loading emojis...
-              </FrimousseEmojiPicker.Loading>
-              <FrimousseEmojiPicker.Empty className="flex h-full items-center justify-center text-text-tertiary">
-                No emojis found
-              </FrimousseEmojiPicker.Empty>
-              <FrimousseEmojiPicker.List
-                className="select-none"
-                components={{
-                  CategoryHeader: ({ category }) => (
-                    <div className="sticky top-0 bg-background-default px-1 py-2 text-text-tertiary typo-footnote">
-                      {category.label}
-                    </div>
-                  ),
-                  Emoji: ({ emoji, ...props }) => (
-                    <button
-                      type="button"
-                      className={classNames(
-                        'flex size-9 items-center justify-center rounded-8 text-xl transition-colors hover:bg-surface-hover',
-                        value === emoji.emoji && 'bg-surface-active',
-                      )}
-                      {...props}
-                    >
-                      {emoji.emoji}
-                    </button>
-                  ),
-                  Row: ({ children }) => <div className="flex">{children}</div>,
-                }}
-              />
-            </FrimousseEmojiPicker.Viewport>
-          </FrimousseEmojiPicker.Root>
+        <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-3">
+          <input
+            ref={inputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search emojis..."
+            className="mb-3 w-full rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-primary placeholder:text-text-quaternary focus:border-border-subtlest-secondary focus:outline-none"
+          />
+
+          {showCommon && (
+            <div>
+              <Typography
+                type={TypographyType.Footnote}
+                className="mb-2 text-text-tertiary"
+              >
+                Popular
+              </Typography>
+              <div className="flex flex-wrap gap-1">
+                {COMMON_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => handleSelect(emoji)}
+                    className={classNames(
+                      'flex size-9 items-center justify-center rounded-8 text-xl transition-colors hover:bg-surface-hover',
+                      value === emoji && 'bg-surface-active',
+                    )}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {!showCommon && emojisToShow.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {emojisToShow.map((result) => (
+                <button
+                  key={result.name}
+                  type="button"
+                  onClick={() => handleSelect(result.emoji)}
+                  className={classNames(
+                    'flex size-9 items-center justify-center rounded-8 text-xl transition-colors hover:bg-surface-hover',
+                    value === result.emoji && 'bg-surface-active',
+                  )}
+                  title={result.name}
+                >
+                  {result.emoji}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!showCommon && emojisToShow.length === 0 && (
+            <Typography
+              type={TypographyType.Callout}
+              className="py-4 text-center text-text-tertiary"
+            >
+              No emojis found
+            </Typography>
+          )}
         </div>
       )}
     </div>

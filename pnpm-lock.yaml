@@ -474,9 +474,6 @@ importers:
       fetch-event-stream:
         specifier: ^0.1.5
         version: 0.1.5
-      frimousse:
-        specifier: ^0.3.0
-        version: 0.3.0(react@18.3.1)(typescript@5.6.3)
       graphql-ws:
         specifier: ^5.5.5
         version: 5.16.0(graphql@16.9.0)
@@ -5881,15 +5878,6 @@ packages:
       react:
         optional: true
       react-dom:
-        optional: true
-
-  frimousse@0.3.0:
-    resolution: {integrity: sha512-kO6LMoKY/cLAYEhXXtqLRaLIE6L/DagpFPrUZaLv3LsUa1/8Iza3HhwZcgN8eZ+weXnhv69eoclNUPohcCa/IQ==}
-    peerDependencies:
-      react: ^18 || ^19
-      typescript: '>=5.1.0'
-    peerDependenciesMeta:
-      typescript:
         optional: true
 
   fs-constants@1.0.0:
@@ -15076,12 +15064,6 @@ snapshots:
     optionalDependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-
-  frimousse@0.3.0(react@18.3.1)(typescript@5.6.3):
-    dependencies:
-      react: 18.3.1
-    optionalDependencies:
-      typescript: 5.6.3
 
   fs-constants@1.0.0: {}
 
