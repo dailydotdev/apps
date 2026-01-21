@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -18,6 +18,7 @@ import usePersistentContext, {
   PersistentContextKeys,
 } from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
   getLayout,
   layoutProps,
@@ -32,6 +33,7 @@ function RecruiterPage(): ReactElement {
   const [pendingOpportunityId, setPendingOpportunityId] = usePersistentContext<
     string | null
   >(PersistentContextKeys.PendingOpportunityId, null);
+  const [isNavigatingToAnalyze, setNavigatingToAnalyze] = useState(false);
 
   // Check if user already has opportunities (jobs)
   const { data: opportunitiesData, isLoading: isLoadingOpportunities } =
@@ -40,6 +42,8 @@ function RecruiterPage(): ReactElement {
       enabled: !!user,
     });
   const navigateToAnalyze = useCallback(async () => {
+    setNavigatingToAnalyze(true);
+
     if (pendingOpportunityId) {
       setPendingOpportunityId(null);
       await router.push(
@@ -160,6 +164,18 @@ function RecruiterPage(): ReactElement {
   ]);
 
   const opportunities = opportunitiesData?.edges.map((edge) => edge.node) || [];
+
+  if (isNavigatingToAnalyze) {
+    return (
+      <div className="relative flex flex-1">
+        <OnboardingView />
+        <Loader
+          invertColor
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        />
+      </div>
+    );
+  }
 
   // Loading state
   if ((user && isLoadingOpportunities) || loadingUser) {

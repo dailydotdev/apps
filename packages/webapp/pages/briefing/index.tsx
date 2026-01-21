@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
 import {
@@ -114,6 +114,8 @@ const Page = (): ReactElement => {
       return;
     }
 
+    document.body.classList.add('hidden-scrollbar');
+
     event.preventDefault();
 
     onOpenModal(briefIndex);
@@ -129,6 +131,18 @@ const Page = (): ReactElement => {
     firstBrief &&
     'post' in firstBrief &&
     new Date(firstBrief.post.createdAt) >= todayTime;
+
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('hidden-scrollbar');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPost) {
+      document.body.classList.remove('hidden-scrollbar');
+    }
+  }, [selectedPost]);
 
   if (!isActionsFetched) {
     return null;

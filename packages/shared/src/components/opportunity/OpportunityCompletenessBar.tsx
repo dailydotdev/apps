@@ -13,16 +13,36 @@ import type { Opportunity } from '../../features/opportunity/types';
 export interface OpportunityCompletenessBarProps {
   opportunity: Opportunity;
   className?: string;
+  excludeChecks?: string[];
+  onMissingClick?: (sectionId: string) => void;
 }
 
-interface CompletenessCheck {
+const checkKeyToSectionId: Record<string, string> = {
+  title: 'roleInfo',
+  tldr: 'roleInfo',
+  keywords: 'roleInfo',
+  location: 'roleInfo',
+  employmentType: 'roleInfo',
+  teamSize: 'roleInfo',
+  salary: 'roleInfo',
+  seniorityLevel: 'roleInfo',
+  roleType: 'roleInfo',
+  overview: 'overview',
+  responsibilities: 'responsibilities',
+  requirements: 'requirements',
+  organization: 'company',
+  whatYoullDo: 'whatYoullDo',
+  interviewProcess: 'interviewProcess',
+};
+
+export interface CompletenessCheck {
   key: string;
   label: string;
   isComplete: boolean;
   required: boolean;
 }
 
-const getCompletenessChecks = (
+export const getCompletenessChecks = (
   opportunity: Opportunity,
 ): CompletenessCheck[] => {
   return [
@@ -42,6 +62,45 @@ const getCompletenessChecks = (
       key: 'keywords',
       label: 'Tech stack / Keywords',
       isComplete: (opportunity.keywords?.length ?? 0) > 0,
+      required: true,
+    },
+    {
+      key: 'location',
+      label: 'Location',
+      isComplete: (opportunity.locations?.length ?? 0) > 0,
+      required: true,
+    },
+    {
+      key: 'employmentType',
+      label: 'Employment type',
+      isComplete: (opportunity.meta?.employmentType ?? 0) > 0,
+      required: true,
+    },
+    {
+      key: 'teamSize',
+      label: 'Team size',
+      isComplete: (opportunity.meta?.teamSize ?? 0) > 0,
+      required: true,
+    },
+    {
+      key: 'salary',
+      label: 'Salary',
+      isComplete:
+        (opportunity.meta?.salary?.min ?? 0) > 0 &&
+        (opportunity.meta?.salary?.max ?? 0) > 0 &&
+        (opportunity.meta?.salary?.period ?? 0) > 0,
+      required: true,
+    },
+    {
+      key: 'seniorityLevel',
+      label: 'Seniority level',
+      isComplete: (opportunity.meta?.seniorityLevel ?? 0) > 0,
+      required: true,
+    },
+    {
+      key: 'roleType',
+      label: 'Role type',
+      isComplete: opportunity.meta?.roleType != null,
       required: true,
     },
     {
@@ -69,12 +128,6 @@ const getCompletenessChecks = (
       required: true,
     },
     {
-      key: 'recruiter',
-      label: 'Recruiter profile',
-      isComplete: (opportunity.recruiters?.length ?? 0) > 0,
-      required: true,
-    },
-    {
       key: 'whatYoullDo',
       label: "What you'll do",
       isComplete: !!opportunity.content?.whatYoullDo?.html,
@@ -95,11 +148,36 @@ const getCompletenessChecks = (
   ];
 };
 
+/**
+ * Check if the opportunity has missing required fields.
+ * @param opportunity - The opportunity to check
+ * @param excludeChecks - Keys to exclude from the check
+ * @returns true if there are missing required fields
+ */
+export const hasMissingRequiredFields = (
+  opportunity: Opportunity | undefined,
+  excludeChecks: string[] = [],
+): boolean => {
+  if (!opportunity) {
+    return true;
+  }
+  const checks = getCompletenessChecks(opportunity).filter(
+    (c) => !excludeChecks.includes(c.key),
+  );
+  const requiredChecks = checks.filter((c) => c.required);
+  const missingRequired = requiredChecks.filter((c) => !c.isComplete);
+  return missingRequired.length > 0;
+};
+
 export const OpportunityCompletenessBar = ({
   opportunity,
   className,
+  excludeChecks = [],
+  onMissingClick,
 }: OpportunityCompletenessBarProps): ReactElement | null => {
-  const checks = getCompletenessChecks(opportunity);
+  const checks = getCompletenessChecks(opportunity).filter(
+    (c) => !excludeChecks.includes(c.key),
+  );
   const requiredChecks = checks.filter((c) => c.required);
   const completedRequired = requiredChecks.filter((c) => c.isComplete);
   const missingRequired = requiredChecks.filter((c) => !c.isComplete);
@@ -117,7 +195,7 @@ export const OpportunityCompletenessBar = ({
   return (
     <div
       className={classNames(
-        'bg-status-warning/10 flex flex-col gap-3 rounded-12 border border-status-warning p-4',
+        'sticky top-4 z-header flex flex-col gap-3 rounded-12 border border-status-warning bg-background-default p-4',
         className,
       )}
     >
@@ -143,16 +221,35 @@ export const OpportunityCompletenessBar = ({
           >
             Missing:
           </Typography>
-          {missingRequired.map((check, index) => (
-            <Typography
-              key={check.key}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Primary}
-            >
-              {check.label}
-              {index < missingRequired.length - 1 ? ',' : ''}
-            </Typography>
-          ))}
+          {missingRequired.map((check, index) => {
+            const hasSection = checkKeyToSectionId[check.key];
+            const isClickable = onMissingClick && hasSection;
+
+            if (isClickable) {
+              return (
+                <button
+                  key={check.key}
+                  type="button"
+                  className="text-text-link underline decoration-1 underline-offset-4 typo-caption1 hover:text-text-link"
+                  onClick={() => onMissingClick(check.key)}
+                >
+                  {check.label}
+                  {index < missingRequired.length - 1 ? ',' : ''}
+                </button>
+              );
+            }
+
+            return (
+              <Typography
+                key={check.key}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Primary}
+              >
+                {check.label}
+                {index < missingRequired.length - 1 ? ',' : ''}
+              </Typography>
+            );
+          })}
         </div>
       )}
     </div>
