@@ -9,11 +9,7 @@ import React, {
 import { search as emojiSearch } from 'node-emoji';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 
 const COMMON_EMOJIS = [
   '⭐',
@@ -110,10 +106,8 @@ export const EmojiPicker = ({
         </Button>
 
         {value && (
-          <div className="flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-2">
-            <Typography tag={TypographyTag.Span} type={TypographyType.Title2}>
-              {value}
-            </Typography>
+          <div className="flex size-10 items-center justify-center rounded-10 border border-border-subtlest-tertiary bg-surface-float text-xl">
+            {value}
           </div>
         )}
 
