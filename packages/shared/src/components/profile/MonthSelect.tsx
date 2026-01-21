@@ -1,8 +1,14 @@
 import React from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
-import Select from '../fields/Select';
-import { ButtonSize } from '../buttons/Button';
+import { ArrowIcon } from '../icons';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
 import type { IconType } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { MenuItemProps } from '../dropdown/common';
 
 export const MONTHS = [
   { label: 'January', value: '0' },
@@ -20,43 +26,49 @@ export const MONTHS = [
 ];
 
 type MonthSelectProps = {
-  name: string;
+  name?: string;
   icon?: IconType;
   placeholder?: string;
+  value?: string;
   onSelect?: (value: string) => void;
+  disabled?: boolean;
 };
 
 const MonthSelect = ({
-  name,
   icon,
   placeholder,
+  value,
   onSelect,
+  disabled,
 }: MonthSelectProps) => {
-  const { control } = useFormContext();
+  const menuItems: MenuItemProps[] = MONTHS.map((opt) => ({
+    label: opt.label,
+    action: () => onSelect?.(opt.value),
+  }));
+
+  const selectedLabel = MONTHS.find((opt) => opt.value === value)?.label;
+
   return (
-    <Controller
-      control={control}
-      name={name}
-      render={({ fieldState }) => (
-        <div className="flex flex-col gap-1">
-          <Select
-            icon={icon}
-            options={MONTHS}
-            name={name}
-            placeholder={placeholder}
-            buttonProps={{
-              size: ButtonSize.Large,
-            }}
-            onSelect={(value) => onSelect(value)}
-          />
-          {fieldState.error && (
-            <p className="text-sm text-status-error">
-              {fieldState.error?.message}
-            </p>
-          )}
-        </div>
-      )}
-    />
+    <DropdownMenu>
+      <DropdownMenuTrigger className="w-full" asChild disabled={disabled}>
+        <Button
+          icon={icon}
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Large}
+          disabled={disabled}
+        >
+          {selectedLabel || placeholder}
+          <ArrowIcon className="ml-auto rotate-180" secondary />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        sideOffset={10}
+        className="flex max-h-64 w-[var(--radix-popper-anchor-width)] flex-col gap-1 overflow-y-auto overflow-x-hidden !p-0"
+      >
+        <DropdownMenuOptions options={menuItems} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
