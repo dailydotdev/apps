@@ -57,6 +57,7 @@ const ProfileMonthYearSelect = ({
           <MonthSelect
             name={monthName}
             placeholder={monthPlaceholder}
+            value={month}
             onSelect={(value) => handleSelect(value, monthName)}
           />
         </div>
@@ -64,6 +65,7 @@ const ProfileMonthYearSelect = ({
           <YearSelect
             name={yearName}
             placeholder={yearPlaceholder}
+            value={year}
             onSelect={(value) => handleSelect(value, yearName)}
           />
         </div>

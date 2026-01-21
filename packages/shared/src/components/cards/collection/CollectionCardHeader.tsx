@@ -29,11 +29,7 @@ export const CollectionCardHeader = ({
 
   return (
     <>
-      {highlightBookmarkedPost && (
-        <BookmakProviderHeader
-          className={classNames('relative my-1 flex h-10 py-2')}
-        />
-      )}
+      {highlightBookmarkedPost && <BookmakProviderHeader />}
       <CollectionPillSources
         className={{
           main: classNames(
