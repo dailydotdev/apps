@@ -60,11 +60,31 @@ export const EmojiPicker = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus();
     }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+        setSearchQuery('');
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
   const handleSelect = useCallback(
@@ -87,7 +107,10 @@ export const EmojiPicker = ({
   const showCommon = !searchQuery.trim();
 
   return (
-    <div className={classNames('flex flex-col gap-2', className)}>
+    <div
+      ref={containerRef}
+      className={classNames('relative flex flex-col gap-2', className)}
+    >
       <Typography bold type={TypographyType.Callout}>
         {label}
       </Typography>
@@ -124,7 +147,7 @@ export const EmojiPicker = ({
       </div>
 
       {isOpen && (
-        <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-3">
+        <div className="absolute left-0 top-full z-3 mt-1 w-full rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2">
           <input
             ref={inputRef}
             type="text"
