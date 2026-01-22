@@ -61,6 +61,35 @@ const ProfileGithubRepository = ({
     }
   };
 
+  const handleBlur = () => {
+    const currentSearch = repositorySearch?.trim();
+    if (!currentSearch) {
+      return;
+    }
+
+    // If a GitHub repo is already selected and matches the search, keep it
+    const repoFullName = repository?.owner
+      ? `${repository.owner}/${repository.name}`
+      : repository?.name;
+    if (repository?.id && repoFullName === currentSearch) {
+      return;
+    }
+
+    // Create custom repository from the search input
+    const hasSlash = currentSearch.includes('/');
+    const [owner, repoName] = hasSlash
+      ? currentSearch.split('/', 2)
+      : [null, currentSearch];
+
+    setValue('repository', {
+      id: null,
+      owner: owner || null,
+      name: repoName || currentSearch,
+      url: null,
+      image: null,
+    });
+  };
+
   const [debouncedQuery] = useDebounceFn<string>((q) => handleSearch(q), 300);
 
   const repositoryFullName = repository?.owner
@@ -103,6 +132,7 @@ const ProfileGithubRepository = ({
         defaultValue={repositorySearch || repositoryFullName || ''}
         onChange={(value) => debouncedQuery(value)}
         onSelect={(value) => handleSelect(value)}
+        onBlur={handleBlur}
         options={options}
         selectedValue={repository?.id}
         label={label}
