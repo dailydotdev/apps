@@ -41,11 +41,13 @@ const groupListByCompany = <T extends UserExperience>(
   }
 
   const grouped = experiences.reduce((acc, node) => {
+    // For open source, group by repository owner (org name)
     const name =
       node.customCompanyName ||
       node.company?.name ||
-      node.repository?.name ||
+      node.repository?.owner ||
       node.title;
+
     if (!acc[name]) {
       acc[name] = [];
     }

@@ -70,6 +70,7 @@ const USER_EXPERIENCE_FRAGMENT = gql`
     }
     repository {
       id
+      owner
       name
       url
       image
@@ -177,6 +178,7 @@ export enum UserExperienceType {
 
 export interface Repository {
   id: string;
+  owner?: string | null;
   name: string;
   url: string;
   image: string;

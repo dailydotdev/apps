@@ -69,6 +69,8 @@ export const getAutocompleteCompanies = async (
 
 export interface GitHubRepository {
   id: string;
+  owner: string;
+  name: string;
   fullName: string;
   url: string;
   image: string;
@@ -79,6 +81,8 @@ const AUTOCOMPLETE_GITHUB_REPOSITORY_QUERY = gql`
   query AutocompleteGithubRepository($query: String!, $limit: Int) {
     autocompleteGithubRepository(query: $query, limit: $limit) {
       id
+      owner
+      name
       fullName
       url
       image
