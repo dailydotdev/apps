@@ -28,10 +28,11 @@ import useLogEventOnce from './log/useLogEventOnce';
 
 const repositorySchema = z
   .object({
-    id: z.string().min(1),
+    id: z.string().min(1).nullish(),
+    owner: z.string().max(100).nullish(),
     name: z.string().min(1).max(200),
     url: z.url(),
-    image: z.url(),
+    image: z.url().nullish(),
   })
   .nullish();
 

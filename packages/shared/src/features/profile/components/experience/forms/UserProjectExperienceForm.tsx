@@ -33,7 +33,7 @@ const getFormCopy = (type: UserExperienceType): FormCopy => {
         'Check if you are still actively contributing to this open-source project.',
       company: 'Repository*',
       startedtLabel: 'Active from',
-      urlLabel: '',
+      urlLabel: 'Repository URL',
     };
   }
 
@@ -52,7 +52,11 @@ const UserProjectExperienceForm = () => {
   const { watch } = useFormContext();
   const type = watch('type') as UserExperienceType;
   const current = watch('current');
+  const repository = watch('repository');
   const copy = useMemo(() => getFormCopy(type), [type]);
+
+  const isGitHubRepository = !!repository?.id;
+  const isOpenSource = type === UserExperienceType.OpenSource;
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -63,11 +67,21 @@ const UserProjectExperienceForm = () => {
           fieldType="secondary"
           className={profileSecondaryFieldStyles}
         />
-        {type === UserExperienceType.OpenSource ? (
-          <ProfileGithubRepository
-            name="repositorySearch"
-            label={copy.company}
-          />
+        {isOpenSource ? (
+          <>
+            <ProfileGithubRepository
+              name="repositorySearch"
+              label={copy.company}
+            />
+            <ControlledTextField
+              name="repository.url"
+              label={`${copy.urlLabel}${isGitHubRepository ? '' : '*'}`}
+              placeholder="Ex: https://github.com/owner/repo"
+              fieldType="secondary"
+              className={profileSecondaryFieldStyles}
+              readOnly={isGitHubRepository}
+            />
+          </>
         ) : (
           <ProfileCompany
             name="customCompanyName"
@@ -107,7 +121,7 @@ const UserProjectExperienceForm = () => {
       </div>
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">
-        {type !== UserExperienceType.OpenSource && (
+        {!isOpenSource && (
           <ControlledTextField
             name="url"
             label={copy.urlLabel}
