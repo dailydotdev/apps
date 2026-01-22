@@ -67,11 +67,11 @@ const PollGrid = forwardRef(function PollCard(
         onPostCardAuxClick={() => onPostAuxClick(post)}
         onPostCardClick={() => onPostClick(post)}
       />
-      <SquadPostCardHeader
-        post={post}
-        enableSourceHeader={source.type === 'squad'}
-      />
       <CardTextContainer>
+        <SquadPostCardHeader
+          post={post}
+          enableSourceHeader={source.type === 'squad'}
+        />
         <CardTitle>{title}</CardTitle>
       </CardTextContainer>
       <Container className="justify-end gap-2">
