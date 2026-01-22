@@ -132,7 +132,8 @@ const useUserInfoForm = (): UseUserInfoForm => {
           });
         } catch (e) {
           // If parsing fails, the error message is not in the expected format
-          // Just show the generic toast
+          // Log for debugging purposes
+          console.warn('Failed to parse error response:', e);
         }
         displayToast('Failed to update profile');
       } else {
