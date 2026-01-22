@@ -129,6 +129,7 @@ const useUserInfoForm = (): UseUserInfoForm => {
             message: value,
           });
         });
+        displayToast('Failed to update profile');
       } else {
         displayToast('Failed to update profile');
       }
