@@ -74,6 +74,8 @@ export function UserExperiencesGroupedList({
 
   const isCurrent = !first.endedAt;
   const isWorkExperience = experienceType === UserExperienceType.Work;
+  const isOpenSource = experienceType === UserExperienceType.OpenSource;
+  const groupTitle = isOpenSource ? first.repository?.name || company : company;
 
   const experienceForLocation = isWorkExperience
     ? experiences.find((exp) => !exp.endedAt) || first
@@ -102,7 +104,7 @@ export function UserExperiencesGroupedList({
         <div className="flex flex-1 flex-col">
           <div className="flex flex-wrap items-center gap-1">
             <Typography type={TypographyType.Subhead} bold>
-              {company}
+              {groupTitle}
             </Typography>
             {isCurrent && currentPill}
             {shouldShowVerifyButton && (

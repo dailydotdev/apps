@@ -41,7 +41,11 @@ const groupListByCompany = <T extends UserExperience>(
   }
 
   const grouped = experiences.reduce((acc, node) => {
-    const name = node.customCompanyName || node.company?.name || node.title;
+    const name =
+      node.customCompanyName ||
+      node.company?.name ||
+      node.repository?.name ||
+      node.title;
     if (!acc[name]) {
       acc[name] = [];
     }
