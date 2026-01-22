@@ -47,7 +47,7 @@ export function UserStackItem({
           <img
             src={tool.faviconUrl}
             alt=""
-            className="size-6 flex-shrink-0 rounded"
+            className="rounded size-6 flex-shrink-0"
           />
         )}
         <div className="flex min-w-0 flex-1 flex-col">

@@ -186,7 +186,7 @@ export function UserStackModal({
                         <img
                           src={suggestion.faviconUrl}
                           alt=""
-                          className="size-4 rounded"
+                          className="rounded size-4"
                         />
                       )}
                       <span className="typo-callout">{suggestion.title}</span>

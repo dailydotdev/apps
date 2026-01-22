@@ -72,7 +72,6 @@ export function UserToolModal({
   const customCategory = watch('customCategory');
 
   const { results: suggestions } = useToolSearch(title);
-  console.log(suggestions)
 
   const isCustomCategory = !CATEGORY_OPTIONS.includes(
     category as (typeof CATEGORY_OPTIONS)[number],
