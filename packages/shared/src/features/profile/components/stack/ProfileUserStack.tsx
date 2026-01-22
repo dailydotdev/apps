@@ -84,7 +84,7 @@ export function ProfileUserStack({
 
   const handleDelete = useCallback(
     async (item: UserStack) => {
-      const displayTitle = item.title ?? item.stack.title;
+      const displayTitle = item.title ?? item.tool.title;
       const confirmed = await showPrompt({
         title: 'Remove from stack?',
         description: `Are you sure you want to remove "${displayTitle}" from your stack?`,

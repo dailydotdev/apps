@@ -1,16 +1,11 @@
 import { gql } from 'graphql-request';
 import type { Connection } from '../common';
 import { gqlClient } from '../common';
-
-export interface DatasetStack {
-  id: string;
-  title: string;
-  icon: string | null;
-}
+import type { DatasetTool } from './userTool';
 
 export interface UserStack {
   id: string;
-  stack: DatasetStack;
+  tool: DatasetTool;
   section: string;
   position: number;
   startedAt: string | null;
@@ -22,7 +17,6 @@ export interface UserStack {
 export interface AddUserStackInput {
   title: string;
   section: string;
-  icon?: string;
   startedAt?: string;
 }
 
@@ -47,10 +41,10 @@ const USER_STACK_FRAGMENT = gql`
     icon
     title
     createdAt
-    stack {
+    tool {
       id
       title
-      icon
+      faviconUrl
     }
   }
 `;
@@ -77,7 +71,7 @@ const SEARCH_STACK_QUERY = gql`
     searchStack(query: $query) {
       id
       title
-      icon
+      faviconUrl
     }
   }
 `;
@@ -127,9 +121,9 @@ export const getUserStack = async (
   return result.userStack;
 };
 
-export const searchStack = async (query: string): Promise<DatasetStack[]> => {
+export const searchStack = async (query: string): Promise<DatasetTool[]> => {
   const result = await gqlClient.request<{
-    searchStack: DatasetStack[];
+    searchStack: DatasetTool[];
   }>(SEARCH_STACK_QUERY, { query });
   return result.searchStack;
 };

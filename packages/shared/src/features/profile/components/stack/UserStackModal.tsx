@@ -3,7 +3,6 @@ import React, { useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import dynamic from 'next/dynamic';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { TextField } from '../../../../components/fields/TextField';
@@ -17,19 +16,11 @@ import { useViewSize, ViewSize } from '../../../../hooks';
 import type {
   UserStack,
   AddUserStackInput,
-  DatasetStack,
 } from '../../../../graphql/user/userStack';
+import type { DatasetTool } from '../../../../graphql/user/userTool';
 import { useStackSearch } from '../../hooks/useStackSearch';
 import YearSelect from '../../../../components/profile/YearSelect';
 import MonthSelect from '../../../../components/profile/MonthSelect';
-
-const EmojiPicker = dynamic(
-  () =>
-    import('../../../../components/fields/EmojiPicker').then(
-      (mod) => mod.EmojiPicker,
-    ),
-  { ssr: false },
-);
 
 const SECTION_OPTIONS = ['Primary', 'Hobby', 'Learning', 'Past'] as const;
 
@@ -37,7 +28,6 @@ const userStackFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
   section: z.string().min(1, 'Section is required').max(100),
   customSection: z.string().max(100).optional(),
-  icon: z.string().max(50).optional(),
   startedAtYear: z.string().optional(),
   startedAtMonth: z.string().optional(),
 });
@@ -61,10 +51,9 @@ export function UserStackModal({
   const methods = useForm<UserStackFormData>({
     resolver: zodResolver(userStackFormSchema),
     defaultValues: {
-      title: existingItem?.title ?? existingItem?.stack.title ?? '',
+      title: existingItem?.title ?? existingItem?.tool.title ?? '',
       section: existingItem?.section || 'Primary',
       customSection: '',
-      icon: existingItem?.icon ?? existingItem?.stack.icon ?? '',
       startedAtYear: existingItem?.startedAt
         ? new Date(existingItem.startedAt).getUTCFullYear().toString()
         : '',
@@ -96,11 +85,8 @@ export function UserStackModal({
   const finalSection = isCustomSection ? customSection || section : section;
   const canSubmit = title.trim().length > 0 && finalSection.trim().length > 0;
 
-  const handleSelectSuggestion = (suggestion: DatasetStack) => {
+  const handleSelectSuggestion = (suggestion: DatasetTool) => {
     setValue('title', suggestion.title);
-    if (suggestion.icon) {
-      setValue('icon', suggestion.icon);
-    }
     setShowSuggestions(false);
   };
 
@@ -120,7 +106,6 @@ export function UserStackModal({
     await onSubmit({
       title: data.title.trim(),
       section: effectiveSection.trim(),
-      icon: data.icon || undefined,
       startedAt: startedAtValue,
     });
     rest.onRequestClose?.(null);
@@ -197,25 +182,19 @@ export function UserStackModal({
                       className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-surface-hover"
                       onClick={() => handleSelectSuggestion(suggestion)}
                     >
-                      {suggestion.icon && <span>{suggestion.icon}</span>}
+                      {suggestion.faviconUrl && (
+                        <img
+                          src={suggestion.faviconUrl}
+                          alt=""
+                          className="size-4 rounded"
+                        />
+                      )}
                       <span className="typo-callout">{suggestion.title}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
-
-            {/* Icon picker */}
-            <Controller
-              name="icon"
-              control={control}
-              render={({ field }) => (
-                <EmojiPicker
-                  value={field.value || ''}
-                  onChange={field.onChange}
-                />
-              )}
-            />
 
             {/* Section selector */}
             <div className="flex flex-col gap-2">

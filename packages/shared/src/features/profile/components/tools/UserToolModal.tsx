@@ -30,7 +30,6 @@ const CATEGORY_OPTIONS = [
 
 const userToolFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
-  url: z.string().url().max(2000).optional().or(z.literal('')),
   category: z.string().min(1, 'Category is required').max(100),
   customCategory: z.string().max(100).optional(),
 });
@@ -55,7 +54,6 @@ export function UserToolModal({
     resolver: zodResolver(userToolFormSchema),
     defaultValues: {
       title: existingItem?.tool.title ?? '',
-      url: existingItem?.tool.url ?? '',
       category: existingItem?.category || 'Development',
       customCategory: '',
     },
@@ -85,9 +83,6 @@ export function UserToolModal({
 
   const handleSelectSuggestion = (suggestion: DatasetTool) => {
     setValue('title', suggestion.title);
-    if (suggestion.url) {
-      setValue('url', suggestion.url);
-    }
     setShowSuggestions(false);
   };
 
@@ -98,7 +93,6 @@ export function UserToolModal({
 
     await onSubmit({
       title: data.title.trim(),
-      url: data.url || undefined,
       category: effectiveCategory.trim(),
     });
     rest.onRequestClose?.(null);
@@ -188,18 +182,6 @@ export function UserToolModal({
                 </div>
               )}
             </div>
-
-            {/* URL field */}
-            <TextField
-              {...register('url')}
-              autoComplete="off"
-              inputId="toolUrl"
-              label="Website URL (optional)"
-              placeholder="https://example.com"
-              maxLength={2000}
-              valid={!errors.url}
-              hint={errors.url?.message}
-            />
 
             {/* Category selector */}
             <div className="flex flex-col gap-2">

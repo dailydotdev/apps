@@ -5,7 +5,6 @@ import { gqlClient } from '../common';
 export interface DatasetTool {
   id: string;
   title: string;
-  url: string | null;
   faviconUrl: string | null;
 }
 
@@ -19,7 +18,6 @@ export interface UserTool {
 
 export interface AddUserToolInput {
   title: string;
-  url?: string;
   category: string;
 }
 
@@ -41,7 +39,6 @@ const USER_TOOL_FRAGMENT = gql`
     tool {
       id
       title
-      url
       faviconUrl
     }
   }
@@ -69,7 +66,6 @@ const SEARCH_TOOLS_QUERY = gql`
     searchTools(query: $query) {
       id
       title
-      url
       faviconUrl
     }
   }
