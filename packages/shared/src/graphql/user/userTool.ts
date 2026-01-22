@@ -61,9 +61,9 @@ const USER_TOOLS_QUERY = gql`
   ${USER_TOOL_FRAGMENT}
 `;
 
-const SEARCH_TOOLS_QUERY = gql`
-  query SearchTools($query: String!) {
-    searchTools(query: $query) {
+const AUTOCOMPLETE_TOOLS_QUERY = gql`
+  query AutocompleteTools($query: String!) {
+    autocompleteTools(query: $query) {
       id
       title
       faviconUrl
@@ -118,9 +118,9 @@ export const getUserTools = async (
 
 export const searchTools = async (query: string): Promise<DatasetTool[]> => {
   const result = await gqlClient.request<{
-    searchTools: DatasetTool[];
-  }>(SEARCH_TOOLS_QUERY, { query });
-  return result.searchTools;
+    autocompleteTools: DatasetTool[];
+  }>(AUTOCOMPLETE_TOOLS_QUERY, { query });
+  return result.autocompleteTools;
 };
 
 export const addUserTool = async (

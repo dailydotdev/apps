@@ -66,16 +66,6 @@ const USER_STACK_QUERY = gql`
   ${USER_STACK_FRAGMENT}
 `;
 
-const SEARCH_STACK_QUERY = gql`
-  query SearchStack($query: String!) {
-    searchStack(query: $query) {
-      id
-      title
-      faviconUrl
-    }
-  }
-`;
-
 const ADD_USER_STACK_MUTATION = gql`
   mutation AddUserStack($input: AddUserStackInput!) {
     addUserStack(input: $input) {
@@ -121,12 +111,8 @@ export const getUserStack = async (
   return result.userStack;
 };
 
-export const searchStack = async (query: string): Promise<DatasetTool[]> => {
-  const result = await gqlClient.request<{
-    searchStack: DatasetTool[];
-  }>(SEARCH_STACK_QUERY, { query });
-  return result.searchStack;
-};
+// Re-export searchTools as searchStack for backwards compatibility
+export { searchTools as searchStack } from './userTool';
 
 export const addUserStack = async (
   input: AddUserStackInput,
