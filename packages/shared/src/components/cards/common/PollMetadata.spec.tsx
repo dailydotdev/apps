@@ -15,8 +15,11 @@ jest.mock('../../../lib', () => ({
   }),
 }));
 
+const futureDate = new Date();
+futureDate.setFullYear(futureDate.getFullYear() + 1);
+
 const defaultProps: PollMetadataProps = {
-  endsAt: '2026-01-22T10:30:00.000Z',
+  endsAt: futureDate.toISOString(),
   isAuthor: false,
   numPollVotes: 5,
 };

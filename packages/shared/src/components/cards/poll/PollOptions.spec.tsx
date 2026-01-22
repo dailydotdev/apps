@@ -18,6 +18,9 @@ const mockOptions: PollOption[] = [
   },
 ];
 
+const futureDate = new Date();
+futureDate.setFullYear(futureDate.getFullYear() + 1);
+
 describe('PollOptions', () => {
   it('should render buttons when user has not voted and poll is active', () => {
     const mockOnClick = jest.fn();
@@ -28,7 +31,7 @@ describe('PollOptions', () => {
         onClick={mockOnClick}
         userVote={undefined}
         numPollVotes={77}
-        endsAt="2026-01-22T10:30:00.000Z"
+        endsAt={futureDate.toISOString()}
         shouldAnimateResults={false}
       />,
     );
@@ -50,7 +53,7 @@ describe('PollOptions', () => {
         onClick={jest.fn()}
         userVote="option-1"
         numPollVotes={77}
-        endsAt="2026-01-22T10:30:00.000Z"
+        endsAt={futureDate.toISOString()}
         shouldAnimateResults={false}
       />,
     );
