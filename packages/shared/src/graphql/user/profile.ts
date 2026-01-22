@@ -377,6 +377,7 @@ export const upsertUserWorkExperience = async (
     'subtitle',
     'grade',
     'verified',
+    'repository',
   ]);
 
   const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {
