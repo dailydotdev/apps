@@ -52,15 +52,6 @@ export function UserToolItem({
         >
           {tool.title}
         </Typography>
-        {tool.url && (
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            truncate
-          >
-            {new URL(tool.url).hostname}
-          </Typography>
-        )}
       </div>
       {isOwner && (
         <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">

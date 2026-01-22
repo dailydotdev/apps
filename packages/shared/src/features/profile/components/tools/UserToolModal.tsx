@@ -72,6 +72,7 @@ export function UserToolModal({
   const customCategory = watch('customCategory');
 
   const { results: suggestions } = useToolSearch(title);
+  console.log(suggestions)
 
   const isCustomCategory = !CATEGORY_OPTIONS.includes(
     category as (typeof CATEGORY_OPTIONS)[number],
@@ -102,9 +103,7 @@ export function UserToolModal({
     if (!showSuggestions || title.length < 1) {
       return [];
     }
-    return suggestions.filter(
-      (s) => s.title.toLowerCase() !== title.toLowerCase(),
-    );
+    return suggestions;
   }, [suggestions, showSuggestions, title]);
 
   return (
