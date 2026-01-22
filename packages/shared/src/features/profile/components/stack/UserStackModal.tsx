@@ -161,6 +161,7 @@ export function UserStackModal({
                 maxLength={255}
                 valid={!errors.title}
                 hint={errors.title?.message}
+                disabled={isEditing}
                 onChange={(e) => {
                   setValue('title', e.target.value);
                   if (!isEditing) {
