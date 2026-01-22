@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import dynamic from 'next/dynamic';
-import AuthContext from '../../../../contexts/AuthContext';
+import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ActiveOrRecomendedSquads } from './ActiveOrRecomendedSquads';
 import type { ProfileReadingData, ProfileV2 } from '../../../../graphql/users';
 import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
@@ -13,6 +13,7 @@ import { gqlClient } from '../../../../graphql/common';
 import { ReadingOverview } from './ReadingOverview';
 import { ProfileCompletion } from './ProfileCompletion';
 import { Share } from './Share';
+import { useProfileCompletionIndicator } from '../../../../hooks/profile/useProfileCompletionIndicator';
 
 const BadgesAndAwards = dynamic(() =>
   import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
@@ -28,7 +29,9 @@ export function ProfileWidgets({
   sources,
   className,
 }: ProfileWidgetsProps): ReactElement {
-  const { user: loggedUser, tokenRefreshed } = useContext(AuthContext);
+  const { user: loggedUser, tokenRefreshed } = useAuthContext();
+  const { showIndicator: showProfileCompletion } =
+    useProfileCompletionIndicator();
   const isSameUser = loggedUser?.id === user.id;
 
   const before = startOfTomorrow();
@@ -59,7 +62,9 @@ export function ProfileWidgets({
         className,
       )}
     >
-      {isSameUser && <ProfileCompletion className="hidden laptop:flex" />}
+      {isSameUser && showProfileCompletion && (
+        <ProfileCompletion className="hidden laptop:flex" />
+      )}
       {isSameUser && (
         <Share permalink={user?.permalink} className="hidden laptop:flex" />
       )}
