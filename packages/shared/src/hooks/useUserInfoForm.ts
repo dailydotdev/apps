@@ -119,16 +119,21 @@ const useUserInfoForm = (): UseUserInfoForm => {
 
     onError: (err) => {
       if (err?.response?.errors?.length) {
-        const data: ProfileFormHint = JSON.parse(
-          err.response.errors[0].message,
-        );
+        try {
+          const data: ProfileFormHint = JSON.parse(
+            err.response.errors[0].message,
+          );
 
-        Object.entries(data).forEach(([key, value]) => {
-          methods.setError(key as keyof UserProfile, {
-            type: 'manual',
-            message: value,
+          Object.entries(data).forEach(([key, value]) => {
+            methods.setError(key as keyof UserProfile, {
+              type: 'manual',
+              message: value,
+            });
           });
-        });
+        } catch (e) {
+          // If parsing fails, the error message is not in the expected format
+          // Just show the generic toast
+        }
         displayToast('Failed to update profile');
       } else {
         displayToast('Failed to update profile');
