@@ -68,7 +68,6 @@ export function ProfileUserStack({
           id: editingItem.id,
           input: {
             section: input.section,
-            icon: input.icon,
             title: input.title,
             startedAt: input.startedAt || null,
           },
