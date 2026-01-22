@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
@@ -14,58 +14,53 @@ import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { ModalHeader } from '../../../../components/modals/common/ModalHeader';
 import { useViewSize, ViewSize } from '../../../../hooks';
 import type {
-  UserStack,
-  AddUserStackInput,
-} from '../../../../graphql/user/userStack';
-import type { DatasetTool } from '../../../../graphql/user/userTool';
-import { useStackSearch } from '../../hooks/useStackSearch';
-import YearSelect from '../../../../components/profile/YearSelect';
-import MonthSelect from '../../../../components/profile/MonthSelect';
+  UserTool,
+  AddUserToolInput,
+  DatasetTool,
+} from '../../../../graphql/user/userTool';
+import { useToolSearch } from '../../hooks/useToolSearch';
 
-const SECTION_OPTIONS = ['Primary', 'Hobby', 'Learning', 'Past'] as const;
+const CATEGORY_OPTIONS = [
+  'Development',
+  'Design',
+  'Productivity',
+  'Communication',
+  'AI',
+] as const;
 
-const userStackFormSchema = z.object({
+const userToolFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
-  section: z.string().min(1, 'Section is required').max(100),
-  customSection: z.string().max(100).optional(),
-  startedAtYear: z.string().optional(),
-  startedAtMonth: z.string().optional(),
+  category: z.string().min(1, 'Category is required').max(100),
+  customCategory: z.string().max(100).optional(),
 });
 
-type UserStackFormData = z.infer<typeof userStackFormSchema>;
+type UserToolFormData = z.infer<typeof userToolFormSchema>;
 
-type UserStackModalProps = Omit<ModalProps, 'children'> & {
-  onSubmit: (input: AddUserStackInput) => Promise<void>;
-  existingItem?: UserStack;
+type UserToolModalProps = Omit<ModalProps, 'children'> & {
+  onSubmit: (input: AddUserToolInput) => Promise<void>;
+  existingItem?: UserTool;
 };
 
-export function UserStackModal({
+export function UserToolModal({
   onSubmit,
   existingItem,
   ...rest
-}: UserStackModalProps): ReactElement {
+}: UserToolModalProps): ReactElement {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isEditing = !!existingItem;
 
-  const methods = useForm<UserStackFormData>({
-    resolver: zodResolver(userStackFormSchema),
+  const methods = useForm<UserToolFormData>({
+    resolver: zodResolver(userToolFormSchema),
     defaultValues: {
-      title: existingItem?.title ?? existingItem?.tool.title ?? '',
-      section: existingItem?.section || 'Primary',
-      customSection: '',
-      startedAtYear: existingItem?.startedAt
-        ? new Date(existingItem.startedAt).getUTCFullYear().toString()
-        : '',
-      startedAtMonth: existingItem?.startedAt
-        ? new Date(existingItem.startedAt).getUTCMonth().toString()
-        : '',
+      title: existingItem?.tool.title ?? '',
+      category: existingItem?.category || 'Development',
+      customCategory: '',
     },
   });
 
   const {
     register,
-    control,
     handleSubmit,
     watch,
     setValue,
@@ -73,17 +68,18 @@ export function UserStackModal({
   } = methods;
 
   const title = watch('title');
-  const section = watch('section');
-  const customSection = watch('customSection');
-  const startedAtYear = watch('startedAtYear');
+  const category = watch('category');
+  const customCategory = watch('customCategory');
 
-  const { results: suggestions } = useStackSearch(title);
+  const { results: suggestions } = useToolSearch(title);
 
-  const isCustomSection = !SECTION_OPTIONS.includes(
-    section as (typeof SECTION_OPTIONS)[number],
+  const isCustomCategory = !CATEGORY_OPTIONS.includes(
+    category as (typeof CATEGORY_OPTIONS)[number],
   );
-  const finalSection = isCustomSection ? customSection || section : section;
-  const canSubmit = title.trim().length > 0 && finalSection.trim().length > 0;
+  const finalCategory = isCustomCategory
+    ? customCategory || category
+    : category;
+  const canSubmit = title.trim().length > 0 && finalCategory.trim().length > 0;
 
   const handleSelectSuggestion = (suggestion: DatasetTool) => {
     setValue('title', suggestion.title);
@@ -91,22 +87,13 @@ export function UserStackModal({
   };
 
   const onFormSubmit = handleSubmit(async (data) => {
-    let startedAtValue: string | undefined;
-    if (data.startedAtYear) {
-      const year = parseInt(data.startedAtYear, 10);
-      const month = data.startedAtMonth ? parseInt(data.startedAtMonth, 10) : 0;
-      const date = new Date(Date.UTC(year, month, 1, 12, 0, 0, 0));
-      startedAtValue = date.toISOString();
-    }
-
-    const effectiveSection = isCustomSection
-      ? data.customSection || data.section
-      : data.section;
+    const effectiveCategory = isCustomCategory
+      ? data.customCategory || data.category
+      : data.category;
 
     await onSubmit({
       title: data.title.trim(),
-      section: effectiveSection.trim(),
-      startedAt: startedAtValue,
+      category: effectiveCategory.trim(),
     });
     rest.onRequestClose?.(null);
   });
@@ -115,20 +102,18 @@ export function UserStackModal({
     if (!showSuggestions || title.length < 1) {
       return [];
     }
-    return suggestions.filter(
-      (s) => s.title.toLowerCase() !== title.toLowerCase(),
-    );
+    return suggestions;
   }, [suggestions, showSuggestions, title]);
 
   return (
     <FormProvider {...methods}>
       <Modal
         formProps={{
-          form: 'user_stack_form',
+          form: 'user_tool_form',
           title: (
             <div className="px-4">
               <ModalHeader.Title className="typo-title3">
-                {isEditing ? 'Edit Stack Item' : 'Add to Stack'}
+                {isEditing ? 'Edit Tool' : 'Add Tool'}
               </ModalHeader.Title>
             </div>
           ),
@@ -143,10 +128,10 @@ export function UserStackModal({
         size={Modal.Size.Small}
         {...rest}
       >
-        <form onSubmit={onFormSubmit} id="user_stack_form">
+        <form onSubmit={onFormSubmit} id="user_tool_form">
           <ModalHeader showCloseButton={!isMobile}>
             <ModalHeader.Title className="typo-title3">
-              {isEditing ? 'Edit Stack Item' : 'Add to Stack'}
+              {isEditing ? 'Edit Tool' : 'Add Tool'}
             </ModalHeader.Title>
           </ModalHeader>
           <Modal.Body className="flex flex-col gap-4">
@@ -156,8 +141,8 @@ export function UserStackModal({
                 {...register('title')}
                 autoComplete="off"
                 autoFocus
-                inputId="stackTitle"
-                label="Technology or skill"
+                inputId="toolTitle"
+                label="Tool name"
                 maxLength={255}
                 valid={!errors.title}
                 hint={errors.title?.message}
@@ -196,24 +181,24 @@ export function UserStackModal({
               )}
             </div>
 
-            {/* Section selector */}
+            {/* Category selector */}
             <div className="flex flex-col gap-2">
               <Typography bold type={TypographyType.Callout}>
-                Section
+                Category
               </Typography>
               <div className="flex flex-wrap gap-2">
-                {SECTION_OPTIONS.map((opt) => (
+                {CATEGORY_OPTIONS.map((opt) => (
                   <Button
                     key={opt}
                     type="button"
                     variant={
-                      section === opt
+                      category === opt
                         ? ButtonVariant.Primary
                         : ButtonVariant.Float
                     }
                     onClick={() => {
-                      setValue('section', opt);
-                      setValue('customSection', '');
+                      setValue('category', opt);
+                      setValue('customCategory', '');
                     }}
                   >
                     {opt}
@@ -222,62 +207,26 @@ export function UserStackModal({
                 <Button
                   type="button"
                   variant={
-                    isCustomSection
+                    isCustomCategory
                       ? ButtonVariant.Primary
                       : ButtonVariant.Float
                   }
-                  onClick={() => setValue('section', 'custom')}
+                  onClick={() => setValue('category', 'custom')}
                 >
                   Custom
                 </Button>
               </div>
-              {isCustomSection && (
+              {isCustomCategory && (
                 <TextField
-                  {...register('customSection')}
+                  {...register('customCategory')}
                   autoComplete="off"
-                  inputId="customSection"
-                  label="Custom section name"
+                  inputId="customCategory"
+                  label="Custom category name"
                   maxLength={100}
-                  valid={!errors.customSection}
-                  hint={errors.customSection?.message}
+                  valid={!errors.customCategory}
+                  hint={errors.customCategory?.message}
                 />
               )}
-            </div>
-
-            {/* Started at - separate year and month */}
-            <div className="flex flex-col gap-2">
-              <Typography bold type={TypographyType.Callout}>
-                Using since (optional)
-              </Typography>
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <Controller
-                    name="startedAtYear"
-                    control={control}
-                    render={({ field }) => (
-                      <YearSelect
-                        placeholder="Year"
-                        value={field.value}
-                        onSelect={field.onChange}
-                      />
-                    )}
-                  />
-                </div>
-                <div className="flex-1">
-                  <Controller
-                    name="startedAtMonth"
-                    control={control}
-                    render={({ field }) => (
-                      <MonthSelect
-                        placeholder="Month"
-                        value={field.value}
-                        onSelect={field.onChange}
-                        disabled={!startedAtYear}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
             </div>
 
             {!isMobile && (
@@ -287,7 +236,7 @@ export function UserStackModal({
                 loading={isSubmitting}
                 variant={ButtonVariant.Primary}
               >
-                {isEditing ? 'Save changes' : 'Add to stack'}
+                {isEditing ? 'Save changes' : 'Add tool'}
               </Button>
             )}
           </Modal.Body>

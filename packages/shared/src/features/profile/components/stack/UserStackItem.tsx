@@ -6,7 +6,6 @@ import {
   Typography,
   TypographyType,
   TypographyColor,
-  TypographyTag,
 } from '../../../../components/typography/Typography';
 import {
   Button,
@@ -29,10 +28,8 @@ export function UserStackItem({
   onEdit,
   onDelete,
 }: UserStackItemProps): ReactElement {
-  const { stack, startedAt } = item;
-  // User's title/icon overrides dataset values
-  const icon = item.icon ?? stack.icon;
-  const title = item.title ?? stack.title;
+  const { tool, startedAt } = item;
+  const title = item.title ?? tool.title;
 
   const usingSince = startedAt
     ? `Since ${formatMonthYearOnly(new Date(startedAt))}`
@@ -46,14 +43,12 @@ export function UserStackItem({
       )}
     >
       <div className="flex items-center gap-2">
-        {icon && (
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Title2}
-            className="flex-shrink-0"
-          >
-            {icon}
-          </Typography>
+        {tool.faviconUrl && (
+          <img
+            src={tool.faviconUrl}
+            alt=""
+            className="rounded size-6 flex-shrink-0"
+          />
         )}
         <div className="flex min-w-0 flex-1 flex-col">
           <Typography

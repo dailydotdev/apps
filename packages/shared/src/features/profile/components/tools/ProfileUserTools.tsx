@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
 import type { PublicProfile } from '../../../../lib/user';
-import { useUserStack } from '../../hooks/useUserStack';
+import { useUserTools } from '../../hooks/useUserTools';
 import {
   Typography,
   TypographyType,
@@ -12,54 +12,60 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { PlusIcon } from '../../../../components/icons';
-import { UserStackSection } from './UserStackSection';
-import { UserStackModal } from './UserStackModal';
+import { PlusIcon, HammerIcon } from '../../../../components/icons';
+import { UserToolSection } from './UserToolSection';
+import { UserToolModal } from './UserToolModal';
 import type {
-  UserStack,
-  AddUserStackInput,
-} from '../../../../graphql/user/userStack';
+  UserTool,
+  AddUserToolInput,
+} from '../../../../graphql/user/userTool';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { usePrompt } from '../../../../hooks/usePrompt';
 
-interface ProfileUserStackProps {
+interface ProfileUserToolsProps {
   user: PublicProfile;
 }
 
-// Predefined section order
-const SECTION_ORDER = ['Primary', 'Hobby', 'Learning', 'Past'];
+// Predefined category order
+const CATEGORY_ORDER = [
+  'Development',
+  'Design',
+  'Productivity',
+  'Communication',
+  'AI',
+];
 
-export function ProfileUserStack({
+export function ProfileUserTools({
   user,
-}: ProfileUserStackProps): ReactElement | null {
-  const { stackItems, groupedBySection, isOwner, add, update, remove } =
-    useUserStack(user);
+}: ProfileUserToolsProps): ReactElement | null {
+  const { toolItems, groupedByCategory, isOwner, add, update, remove } =
+    useUserTools(user);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<UserStack | null>(null);
+  const [editingItem, setEditingItem] = useState<UserTool | null>(null);
 
   const handleAdd = useCallback(
-    async (input: AddUserStackInput) => {
+    async (input: AddUserToolInput) => {
       try {
         await add(input);
-        displayToast('Added to your stack');
+        displayToast('Added to your tools');
       } catch (error) {
-        displayToast('Failed to add item');
+        displayToast('Failed to add tool');
         throw error;
       }
     },
     [add, displayToast],
   );
 
-  const handleEdit = useCallback((item: UserStack) => {
+  const handleEdit = useCallback((item: UserTool) => {
     setEditingItem(item);
     setIsModalOpen(true);
   }, []);
 
   const handleUpdate = useCallback(
-    async (input: AddUserStackInput) => {
+    async (input: AddUserToolInput) => {
       if (!editingItem) {
         return;
       }
@@ -67,14 +73,12 @@ export function ProfileUserStack({
         await update({
           id: editingItem.id,
           input: {
-            section: input.section,
-            title: input.title,
-            startedAt: input.startedAt || null,
+            category: input.category,
           },
         });
-        displayToast('Stack item updated');
+        displayToast('Tool updated');
       } catch (error) {
-        displayToast('Failed to update item');
+        displayToast('Failed to update tool');
         throw error;
       }
     },
@@ -82,11 +86,10 @@ export function ProfileUserStack({
   );
 
   const handleDelete = useCallback(
-    async (item: UserStack) => {
-      const displayTitle = item.title ?? item.tool.title;
+    async (item: UserTool) => {
       const confirmed = await showPrompt({
-        title: 'Remove from stack?',
-        description: `Are you sure you want to remove "${displayTitle}" from your stack?`,
+        title: 'Remove tool?',
+        description: `Are you sure you want to remove "${item.tool.title}" from your tools?`,
         okButton: { title: 'Remove', variant: ButtonVariant.Primary },
       });
       if (!confirmed) {
@@ -95,9 +98,9 @@ export function ProfileUserStack({
 
       try {
         await remove(item.id);
-        displayToast('Removed from your stack');
+        displayToast('Removed from your tools');
       } catch (error) {
-        displayToast('Failed to remove item');
+        displayToast('Failed to remove tool');
       }
     },
     [remove, displayToast, showPrompt],
@@ -108,10 +111,10 @@ export function ProfileUserStack({
     setEditingItem(null);
   }, []);
 
-  // Sort sections: predefined first, then custom alphabetically
-  const sortedSections = Object.keys(groupedBySection).sort((a, b) => {
-    const aIndex = SECTION_ORDER.indexOf(a);
-    const bIndex = SECTION_ORDER.indexOf(b);
+  // Sort categories: predefined first, then custom alphabetically
+  const sortedCategories = Object.keys(groupedByCategory).sort((a, b) => {
+    const aIndex = CATEGORY_ORDER.indexOf(a);
+    const bIndex = CATEGORY_ORDER.indexOf(b);
     if (aIndex !== -1 && bIndex !== -1) {
       return aIndex - bIndex;
     }
@@ -124,7 +127,7 @@ export function ProfileUserStack({
     return a.localeCompare(b);
   });
 
-  const hasItems = stackItems.length > 0;
+  const hasItems = toolItems.length > 0;
 
   if (!hasItems && !isOwner) {
     return null;
@@ -138,7 +141,7 @@ export function ProfileUserStack({
           color={TypographyColor.Primary}
           bold
         >
-          Stack
+          Tools
         </Typography>
         {isOwner && (
           <Button
@@ -154,11 +157,11 @@ export function ProfileUserStack({
 
       {hasItems ? (
         <div className="flex flex-col gap-4">
-          {sortedSections.map((section) => (
-            <UserStackSection
-              key={section}
-              section={section}
-              items={groupedBySection[section]}
+          {sortedCategories.map((category) => (
+            <UserToolSection
+              key={category}
+              category={category}
+              items={groupedByCategory[category]}
               isOwner={isOwner}
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -168,11 +171,14 @@ export function ProfileUserStack({
       ) : (
         isOwner && (
           <div className="flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary p-6">
+            <div className="flex size-12 items-center justify-center rounded-full bg-surface-float">
+              <HammerIcon className="text-text-tertiary" />
+            </div>
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              Share your tech stack with the community
+              Share the tools you use with the community
             </Typography>
             <Button
               variant={ButtonVariant.Secondary}
@@ -180,14 +186,14 @@ export function ProfileUserStack({
               icon={<PlusIcon />}
               onClick={() => setIsModalOpen(true)}
             >
-              Add your first item
+              Add your first tool
             </Button>
           </div>
         )
       )}
 
       {isModalOpen && (
-        <UserStackModal
+        <UserToolModal
           isOpen={isModalOpen}
           onRequestClose={handleCloseModal}
           onSubmit={editingItem ? handleUpdate : handleAdd}
