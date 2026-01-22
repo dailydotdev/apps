@@ -32,7 +32,7 @@ export function HotTakeItem({
   return (
     <div
       className={classNames(
-        'group relative flex items-start gap-4 rounded-16 p-4',
+        'group relative flex items-center gap-4 rounded-16 p-4',
         'bg-surface-float',
         'transition-all duration-200',
         'hover:bg-surface-hover',
