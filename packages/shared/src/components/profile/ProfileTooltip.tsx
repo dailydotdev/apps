@@ -122,6 +122,9 @@ export function ProfileTooltip({
     content: !isLoading && data ? <UserEntityCard user={data} /> : null,
     plugins:
       onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
+    // Only trigger on mouseenter, not focus - fixes WCAG 2.1 On Focus (3.2.1)
+    // Focus should highlight the element, not open a popup
+    trigger: 'mouseenter',
     ...tooltip,
     onShow: (instance) => {
       if (id !== userId) {
