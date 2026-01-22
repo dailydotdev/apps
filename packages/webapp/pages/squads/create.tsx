@@ -94,7 +94,7 @@ function CreatePost(): ReactElement {
     formRef,
     clearDraft,
     isUpdatingDraft,
-  } = useDiscardPost({ draftIdentifier: selectedSourceIds?.join('-') });
+  } = useDiscardPost();
   const clearFormOnSuccess = () => {
     onAskConfirmation(false);
     clearDraft();
