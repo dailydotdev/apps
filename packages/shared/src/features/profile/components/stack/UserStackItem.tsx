@@ -38,7 +38,7 @@ export function UserStackItem({
   return (
     <div
       className={classNames(
-        'group relative flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary p-3',
+        'group relative flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary px-3 pb-2.5 pt-2',
         'hover:border-border-subtlest-secondary',
       )}
     >
