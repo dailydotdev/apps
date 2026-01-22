@@ -76,6 +76,8 @@ export function UserExperienceItem({
     endedAt,
     subtitle,
     image,
+    repository,
+    type,
   } = experience;
   const { skills, location, locationType, customLocation } =
     experience as UserExperienceWork;
@@ -101,12 +103,16 @@ export function UserExperienceItem({
     isWorkExperience && isExperienceVerified && !grouped;
   const shouldSwapCopies =
     experience.type === UserExperienceType.Education && !grouped;
+  const isOpenSource = experience.type === UserExperienceType.OpenSource;
+
+  const companyOrRepoName = isOpenSource
+    ? repository?.name || company?.name || customCompanyName
+    : company?.name || customCompanyName;
+
   const primaryCopy = shouldSwapCopies
     ? company?.name || customCompanyName
     : title;
-  const secondaryCopy = shouldSwapCopies
-    ? title
-    : company?.name || customCompanyName;
+  const secondaryCopy = shouldSwapCopies ? title : companyOrRepoName;
 
   const dateRange = formatDateRange(startedAt, endedAt);
   const loc = getDisplayLocation(
@@ -128,7 +134,11 @@ export function UserExperienceItem({
         <Image
           className="h-8 w-8 rounded-max object-cover"
           type={ImageType.Organization}
-          src={company?.image || image}
+          src={
+            type === UserExperienceType.OpenSource
+              ? repository?.image || company?.image
+              : company?.image || image
+          }
         />
       )}
       {editUrl && (
@@ -189,8 +199,8 @@ export function UserExperienceItem({
               </button>
             )}
             {shouldShowVerifiedBadge && <VerifiedBadge />}
-            {url && (
-              <Link href={url} passHref>
+            {(url || repository?.url) && (
+              <Link href={repository?.url || url} passHref>
                 <a target="_blank">
                   <OpenLinkIcon className="size-4 text-text-secondary" />
                 </a>
