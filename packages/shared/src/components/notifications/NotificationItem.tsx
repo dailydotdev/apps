@@ -214,7 +214,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
         isUnread && 'bg-surface-float',
       )}
     >
-      {renderLink && (
+      {renderLink && targetUrl && (
         <Link href={targetUrl} passHref>
           <a
             role="link"

@@ -9,6 +9,8 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
+import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
+import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
@@ -81,6 +83,8 @@ const ProfilePage = ({
         )}
         {!shouldShowBanner && <div />}
         <AboutMe user={user} />
+        <ProfileUserStack user={user} />
+        <ProfileUserHotTakes user={user} />
         <Activity user={user} />
         {isUserSame && (
           <Share permalink={user?.permalink} className="laptop:hidden" />

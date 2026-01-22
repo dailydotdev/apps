@@ -107,6 +107,7 @@ export const JobInfo = ({ loadingStep }: JobInfoProps) => {
                 <Typography
                   type={TypographyType.Footnote}
                   color={TypographyColor.Tertiary}
+                  truncate
                 >
                   {item}
                 </Typography>

@@ -228,6 +228,9 @@ export enum RequestKey {
   Location = 'location',
   Autocomplete = 'autocomplete',
   UserExperience = 'user_experience',
+  UserStack = 'user_stack',
+  StackSearch = 'stack_search',
+  UserHotTakes = 'user_hot_takes',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
