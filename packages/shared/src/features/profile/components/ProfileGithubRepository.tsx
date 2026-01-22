@@ -52,7 +52,8 @@ const ProfileGithubRepository = ({
     if (selectedRepo) {
       setValue('repository', {
         id: selectedRepo.id,
-        name: selectedRepo.fullName,
+        owner: selectedRepo.owner,
+        name: selectedRepo.name,
         url: selectedRepo.url,
         image: selectedRepo.image,
       });
@@ -61,6 +62,10 @@ const ProfileGithubRepository = ({
   };
 
   const [debouncedQuery] = useDebounceFn<string>((q) => handleSearch(q), 300);
+
+  const repositoryFullName = repository?.owner
+    ? `${repository.owner}/${repository.name}`
+    : repository?.name;
 
   // Include saved repository in options so Autocomplete can display its image
   const options = useMemo(() => {
@@ -72,7 +77,7 @@ const ProfileGithubRepository = ({
       })) || [];
 
     // Add saved repository if not already in search results
-    if (repository?.id) {
+    if (repository?.id && repositoryFullName) {
       const existsInResults = searchResults.some(
         (opt) => opt.value === repository.id,
       );
@@ -80,7 +85,7 @@ const ProfileGithubRepository = ({
         return [
           {
             image: repository.image,
-            label: repository.name,
+            label: repositoryFullName,
             value: repository.id,
           },
           ...searchResults,
@@ -89,13 +94,13 @@ const ProfileGithubRepository = ({
     }
 
     return searchResults;
-  }, [data, repository]);
+  }, [data, repository, repositoryFullName]);
 
   return (
     <div className="flex flex-col gap-1">
       <Autocomplete
         name={name}
-        defaultValue={repositorySearch || repository?.name || ''}
+        defaultValue={repositorySearch || repositoryFullName || ''}
         onChange={(value) => debouncedQuery(value)}
         onSelect={(value) => handleSelect(value)}
         options={options}
