@@ -26,6 +26,15 @@ import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import useLogEventOnce from './log/useLogEventOnce';
 
+const repositorySchema = z
+  .object({
+    id: z.string().min(1),
+    name: z.string().min(1).max(200),
+    url: z.url(),
+    image: z.url(),
+  })
+  .nullish();
+
 export const userExperienceInputBaseSchema = z
   .object({
     type: z.enum(UserExperienceType),
@@ -60,6 +69,8 @@ export const userExperienceInputBaseSchema = z
       ])
       .optional()
       .default(null),
+    repository: repositorySchema,
+    repositorySearch: z.string().optional(),
   })
   .refine(
     (data) => {

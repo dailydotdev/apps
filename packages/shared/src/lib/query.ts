@@ -231,6 +231,8 @@ export enum RequestKey {
   UserStack = 'user_stack',
   StackSearch = 'stack_search',
   UserHotTakes = 'user_hot_takes',
+  UserTools = 'user_tools',
+  ToolSearch = 'tool_search',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

@@ -1,17 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import type { DatasetTool } from '../../../graphql/user/userTool';
-import { searchStack } from '../../../graphql/user/userStack';
+import { searchTools } from '../../../graphql/user/userTool';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 
-export function useStackSearch(query: string) {
+export function useToolSearch(query: string) {
   const trimmedQuery = query.trim();
   const enabled = trimmedQuery.length >= 1;
 
-  const queryKey = generateQueryKey(RequestKey.StackSearch, null, trimmedQuery);
+  const queryKey = generateQueryKey(RequestKey.ToolSearch, null, trimmedQuery);
 
   const searchQuery = useQuery<DatasetTool[]>({
     queryKey,
-    queryFn: () => searchStack(trimmedQuery),
+    queryFn: () => searchTools(trimmedQuery),
     staleTime: StaleTime.Default,
     enabled,
   });

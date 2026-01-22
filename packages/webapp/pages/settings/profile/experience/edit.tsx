@@ -140,6 +140,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
         skills: result.skills?.map((skill) => skill.value),
         location: result.location,
         externalLocationId: result.location?.externalId || '',
+        repositorySearch: result.repository?.name || '',
       },
     },
   };
