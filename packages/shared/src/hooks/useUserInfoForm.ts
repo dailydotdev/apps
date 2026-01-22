@@ -130,14 +130,16 @@ const useUserInfoForm = (): UseUserInfoForm => {
               message: value,
             });
           });
-        } catch (e) {
+        } catch (e: unknown) {
           // If parsing fails, the error message is not in the expected format
           // Log for debugging purposes with the original error message
-          console.warn(
-            'Failed to parse error response:',
-            err.response.errors[0].message,
-            e,
-          );
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn(
+              'Failed to parse error response:',
+              err.response.errors[0].message,
+              e,
+            );
+          }
         }
       }
 
