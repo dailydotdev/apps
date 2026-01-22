@@ -140,7 +140,7 @@ const useUserInfoForm = (): UseUserInfoForm => {
           );
         }
       }
-      
+
       displayToast('Failed to update profile');
     },
   });
