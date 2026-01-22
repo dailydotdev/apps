@@ -66,3 +66,34 @@ export const getAutocompleteCompanies = async (
   });
   return res.autocompleteCompany;
 };
+
+export interface GitHubRepository {
+  id: string;
+  fullName: string;
+  url: string;
+  image: string;
+  description?: string | null;
+}
+
+const AUTOCOMPLETE_GITHUB_REPOSITORY_QUERY = gql`
+  query AutocompleteGithubRepository($query: String!, $limit: Int) {
+    autocompleteGithubRepository(query: $query, limit: $limit) {
+      id
+      fullName
+      url
+      image
+      description
+    }
+  }
+`;
+
+export const getAutocompleteGithubRepositories = async (
+  query: string,
+  limit = 10,
+): Promise<GitHubRepository[]> => {
+  const res = await gqlClient.request(AUTOCOMPLETE_GITHUB_REPOSITORY_QUERY, {
+    query,
+    limit,
+  });
+  return res.autocompleteGithubRepository;
+};
