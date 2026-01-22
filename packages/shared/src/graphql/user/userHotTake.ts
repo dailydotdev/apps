@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import type { Connection } from '../common';
 import { gqlClient } from '../common';
+import type { UserVote } from '../posts';
 
 export interface UserHotTake {
   id: string;
@@ -9,6 +10,10 @@ export interface UserHotTake {
   subtitle: string | null;
   position: number;
   createdAt: string;
+  numUpvotes: number;
+  userState?: {
+    vote: UserVote;
+  };
 }
 
 export interface AddUserHotTakeInput {
@@ -36,6 +41,10 @@ const USER_HOT_TAKE_FRAGMENT = gql`
     subtitle
     position
     createdAt
+    numUpvotes
+    userState {
+      vote
+    }
   }
 `;
 

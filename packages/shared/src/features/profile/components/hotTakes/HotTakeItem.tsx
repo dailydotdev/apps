@@ -11,14 +11,21 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
+  ButtonColor,
 } from '../../../../components/buttons/Button';
-import { EditIcon, TrashIcon } from '../../../../components/icons';
+import { EditIcon, TrashIcon, UpvoteIcon } from '../../../../components/icons';
+import { UserVote } from '../../../../graphql/posts';
+import InteractionCounter from '../../../../components/InteractionCounter';
+import { IconSize } from '../../../../components/Icon';
+import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButton';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
 
 interface HotTakeItemProps {
   item: UserHotTake;
   isOwner: boolean;
   onEdit?: (item: UserHotTake) => void;
   onDelete?: (item: UserHotTake) => void;
+  onUpvoteClick?: (item: UserHotTake) => void;
 }
 
 export function HotTakeItem({
@@ -26,8 +33,10 @@ export function HotTakeItem({
   isOwner,
   onEdit,
   onDelete,
+  onUpvoteClick,
 }: HotTakeItemProps): ReactElement {
   const { emoji, title, subtitle } = item;
+  const isUpvoteActive = item.userState?.vote === UserVote.Up;
 
   return (
     <div
@@ -58,28 +67,59 @@ export function HotTakeItem({
           </Typography>
         )}
       </div>
-      {isOwner && (
-        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          {onEdit && (
-            <Button
+      <div className="flex items-center gap-1">
+        {onUpvoteClick && (
+          <Tooltip
+            content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
+            side="bottom"
+          >
+            <QuaternaryButton
+              labelClassName="!pl-[1px]"
+              className="btn-tertiary-avocado"
+              color={ButtonColor.Avocado}
+              pressed={isUpvoteActive}
+              onClick={() => onUpvoteClick(item)}
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
-              icon={<EditIcon />}
-              onClick={() => onEdit(item)}
-              aria-label="Edit hot take"
-            />
-          )}
-          {onDelete && (
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={<TrashIcon />}
-              onClick={() => onDelete(item)}
-              aria-label="Delete hot take"
-            />
-          )}
-        </div>
-      )}
+              icon={
+                <UpvoteIcon secondary={isUpvoteActive} size={IconSize.XSmall} />
+              }
+            >
+              {item.numUpvotes > 0 && (
+                <InteractionCounter
+                  className={classNames(
+                    'tabular-nums typo-footnote',
+                    !item.numUpvotes && 'invisible',
+                  )}
+                  value={item.numUpvotes}
+                />
+              )}
+            </QuaternaryButton>
+          </Tooltip>
+        )}
+        {isOwner && (
+          <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+            {onEdit && (
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                icon={<EditIcon />}
+                onClick={() => onEdit(item)}
+                aria-label="Edit hot take"
+              />
+            )}
+            {onDelete && (
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                icon={<TrashIcon />}
+                onClick={() => onDelete(item)}
+                aria-label="Delete hot take"
+              />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -21,6 +21,8 @@ import type {
 } from '../../../../graphql/user/userHotTake';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { usePrompt } from '../../../../hooks/usePrompt';
+import { useVoteHotTake } from '../../../../hooks/vote/useVoteHotTake';
+import { Origin } from '../../../../lib/log';
 
 interface ProfileUserHotTakesProps {
   user: PublicProfile;
@@ -33,6 +35,7 @@ export function ProfileUserHotTakes({
     useUserHotTakes(user);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
+  const { toggleUpvote } = useVoteHotTake();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<UserHotTake | null>(null);
@@ -112,6 +115,13 @@ export function ProfileUserHotTakes({
     setIsModalOpen(true);
   }, [canAddMore, displayToast]);
 
+  const handleUpvote = useCallback(
+    async (item: UserHotTake) => {
+      await toggleUpvote({ payload: item, origin: Origin.HotTakeList });
+    },
+    [toggleUpvote],
+  );
+
   const hasItems = hotTakes.length > 0;
 
   if (!hasItems && !isOwner) {
@@ -149,6 +159,7 @@ export function ProfileUserHotTakes({
               isOwner={isOwner}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onUpvoteClick={handleUpvote}
             />
           ))}
         </div>
