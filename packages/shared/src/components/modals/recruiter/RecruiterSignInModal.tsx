@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import {
@@ -13,6 +14,8 @@ import { AuthTriggers } from '../../../lib/auth';
 import type { AuthProps } from '../../auth/common';
 import { AuthDisplay } from '../../auth/common';
 import AuthOptions from '../../auth/AuthOptions';
+import { claimOpportunitiesMutationOptions } from '../../../features/opportunity/mutations';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 export type RecruiterSignInModalProps = ModalProps & {
   onSuccess?: () => void;
@@ -23,6 +26,12 @@ export const RecruiterSignInModal = ({
   onSuccess,
   ...modalProps
 }: RecruiterSignInModalProps): ReactElement => {
+  const { trackingId } = useAuthContext();
+  const [trackingIdState] = useState(trackingId); // save initial trackingId before login/registration
+  const { mutateAsync: claimOpportunities } = useMutation(
+    claimOpportunitiesMutationOptions(),
+  );
+
   const [authState, setAuthState] = useState<AuthProps>(() => {
     return {
       isAuthenticating: false,
@@ -42,11 +51,19 @@ export const RecruiterSignInModal = ({
     onSuccess?.();
   }, [onRequestClose, onSuccess]);
 
-  const handleSuccessfulLogin = useCallback(() => {
+  const handleSuccessfulLogin = useCallback(async () => {
+    try {
+      if (trackingIdState) {
+        await claimOpportunities({ identifier: trackingIdState });
+      }
+    } catch {
+      // if we can't claim at this time we move on
+    }
+
     // Close the modal and trigger success callback
     onRequestClose?.(null);
     onSuccess?.();
-  }, [onRequestClose, onSuccess]);
+  }, [claimOpportunities, onRequestClose, onSuccess, trackingIdState]);
 
   // Derive the display from auth state - login flow should show default display
   const authDisplay = authState.isLoginFlow
