@@ -1,14 +1,9 @@
 import { gql } from 'graphql-request';
 import type { SortCommentsBy } from './comments';
+import type { WriteFormTab } from '../components/fields/form/common';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
-
-export enum DefaultWriteTab {
-  Freeform = 'freeform',
-  Link = 'link',
-  Poll = 'poll',
-}
 
 export enum CampaignCtaPlacement {
   Header = 'header',
@@ -52,7 +47,7 @@ export type RemoteSettings = {
   customLinks?: string[];
   campaignCtaPlacement?: CampaignCtaPlacement;
   flags?: SettingsFlags;
-  defaultWriteTab?: DefaultWriteTab;
+  defaultWriteTab?: WriteFormTab;
 };
 
 export const UPDATE_USER_SETTINGS_MUTATION = gql`

@@ -38,7 +38,6 @@ import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { WriteForm } from '@dailydotdev/shared/src/contexts';
-import { DefaultWriteTab } from '@dailydotdev/shared/src/graphql/settings';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -50,20 +49,6 @@ const seo: NextSeoProps = {
   nofollow: true,
   noindex: true,
   ...defaultSeo,
-};
-
-const defaultWriteTabToFormTab = (
-  tab: DefaultWriteTab | undefined,
-): WriteFormTab => {
-  switch (tab) {
-    case DefaultWriteTab.Link:
-      return WriteFormTab.Share;
-    case DefaultWriteTab.Poll:
-      return WriteFormTab.Poll;
-    case DefaultWriteTab.Freeform:
-    default:
-      return WriteFormTab.NewPost;
-  }
 };
 
 function CreatePost(): ReactElement {
@@ -210,7 +195,7 @@ function CreatePost(): ReactElement {
       setDisplay(WriteFormTab.Poll);
     } else {
       // Use the default tab from settings if no query param is present
-      setDisplay(defaultWriteTabToFormTab(defaultWriteTab));
+      setDisplay(defaultWriteTab || WriteFormTab.NewPost);
     }
 
     const preselectedSquad =

@@ -15,9 +15,9 @@ import type {
 } from '../graphql/settings';
 import {
   CampaignCtaPlacement,
-  DefaultWriteTab,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
+import { WriteFormTab } from '../components/fields/form/common';
 import AuthContext from './AuthContext';
 import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
@@ -57,7 +57,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   loadedSettings: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
   updateSortCommentsBy: (sort: SortCommentsBy) => Promise<unknown>;
-  updateDefaultWriteTab: (tab: DefaultWriteTab) => Promise<unknown>;
+  updateDefaultWriteTab: (tab: WriteFormTab) => Promise<unknown>;
   updateFlag: (
     flag: keyof SettingsFlags,
     value: string | boolean,
@@ -131,7 +131,7 @@ const defaultSettings: RemoteSettings = {
   sortCommentsBy: SortCommentsBy.OldestFirst,
   theme: remoteThemes[ThemeMode.Dark],
   campaignCtaPlacement: CampaignCtaPlacement.Header,
-  defaultWriteTab: DefaultWriteTab.Freeform,
+  defaultWriteTab: WriteFormTab.NewPost,
   flags: {
     sidebarSquadExpanded: true,
     sidebarCustomFeedsExpanded: true,
@@ -275,7 +275,7 @@ export const SettingsContextProvider = ({
         setSettings({ ...settings, customLinks: links }),
       updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>
         setSettings({ ...settings, sortCommentsBy }),
-      updateDefaultWriteTab: (defaultWriteTab: DefaultWriteTab) =>
+      updateDefaultWriteTab: (defaultWriteTab: WriteFormTab) =>
         setSettings({ ...settings, defaultWriteTab }),
       updateFlag: (flag: keyof SettingsFlags, value: string | boolean) =>
         setSettings({

@@ -18,7 +18,7 @@ import {
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import { DefaultWriteTab } from '@dailydotdev/shared/src/graphql/settings';
+import { WriteFormTab } from '@dailydotdev/shared/src/components/fields/form/common';
 import classNames from 'classnames';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -32,10 +32,10 @@ const densities = [
   { label: 'Cozy', value: 'cozy' },
 ];
 
-const defaultWriteTabs: { label: string; value: DefaultWriteTab }[] = [
-  { label: 'Freeform', value: DefaultWriteTab.Freeform },
-  { label: 'Link', value: DefaultWriteTab.Link },
-  { label: 'Poll', value: DefaultWriteTab.Poll },
+const defaultWriteTabs: { label: string; value: WriteFormTab }[] = [
+  { label: 'Freeform', value: WriteFormTab.NewPost },
+  { label: 'Link', value: WriteFormTab.Share },
+  { label: 'Poll', value: WriteFormTab.Poll },
 ];
 
 const AccountManageSubscriptionPage = (): ReactElement => {
@@ -138,7 +138,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           <Radio
             name="default-write-tab"
             options={defaultWriteTabs}
-            value={defaultWriteTab || DefaultWriteTab.Freeform}
+            value={defaultWriteTab || WriteFormTab.NewPost}
             onChange={updateDefaultWriteTab}
             className={{
               content: 'w-full justify-between !pr-0',
