@@ -73,6 +73,7 @@ import type {
   OpportunityMeta,
   ContentSection,
 } from '@dailydotdev/shared/src/features/opportunity/types';
+import { OpportunityMatchStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
 import {
   EmploymentType,
@@ -488,7 +489,11 @@ const JobPage = ({
     size: ButtonSize,
   ): ReactElement | null => {
     // Logged in user with an existing match - show response buttons
-    if (isLoggedIn && match) {
+    if (
+      isLoggedIn &&
+      match &&
+      match.status !== OpportunityMatchStatus.CandidateApplied
+    ) {
       return (
         <ResponseButtons
           id={opportunity.id}
