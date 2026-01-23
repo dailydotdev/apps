@@ -3,6 +3,7 @@ import type { SortCommentsBy } from './comments';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
+export type DefaultWriteTab = 'freeform' | 'link' | 'poll';
 
 export enum CampaignCtaPlacement {
   Header = 'header',
@@ -46,6 +47,7 @@ export type RemoteSettings = {
   customLinks?: string[];
   campaignCtaPlacement?: CampaignCtaPlacement;
   flags?: SettingsFlags;
+  defaultWriteTab?: DefaultWriteTab;
 };
 
 export const UPDATE_USER_SETTINGS_MUTATION = gql`

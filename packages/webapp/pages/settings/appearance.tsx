@@ -18,6 +18,7 @@ import {
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
+import type { DefaultWriteTab } from '@dailydotdev/shared/src/graphql/settings';
 import classNames from 'classnames';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -29,6 +30,12 @@ const densities = [
   { label: 'Eco', value: 'eco' },
   { label: 'Roomy', value: 'roomy' },
   { label: 'Cozy', value: 'cozy' },
+];
+
+const defaultWriteTabs: { label: string; value: DefaultWriteTab }[] = [
+  { label: 'Freeform', value: 'freeform' },
+  { label: 'Link', value: 'link' },
+  { label: 'Poll', value: 'poll' },
 ];
 
 const AccountManageSubscriptionPage = (): ReactElement => {
@@ -48,6 +55,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     toggleOptOutCompanion,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
+    defaultWriteTab,
+    updateDefaultWriteTab,
   } = useSettingsContext();
 
   const onLayoutToggle = useCallback(
@@ -116,6 +125,25 @@ const AccountManageSubscriptionPage = (): ReactElement => {
                 'font-normal typo-callout',
                 insaneMode ? 'text-text-disabled' : 'text-text-secondary',
               ),
+            }}
+            reverse
+          />
+        </section>
+
+        <section className="flex flex-col gap-2">
+          <Typography bold type={TypographyType.Subhead}>
+            Default post type
+          </Typography>
+
+          <Radio
+            name="default-write-tab"
+            options={defaultWriteTabs}
+            value={defaultWriteTab || 'freeform'}
+            onChange={updateDefaultWriteTab}
+            className={{
+              content: 'w-full justify-between !pr-0',
+              container: '!gap-0',
+              label: 'font-normal text-text-secondary typo-callout',
             }}
             reverse
           />

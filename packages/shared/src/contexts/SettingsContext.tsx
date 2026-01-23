@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type {
+  DefaultWriteTab,
   RemoteSettings,
   RemoteTheme,
   SettingsFlags,
@@ -56,6 +57,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   loadedSettings: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
   updateSortCommentsBy: (sort: SortCommentsBy) => Promise<unknown>;
+  updateDefaultWriteTab: (tab: DefaultWriteTab) => Promise<unknown>;
   updateFlag: (
     flag: keyof SettingsFlags,
     value: string | boolean,
@@ -129,6 +131,7 @@ const defaultSettings: RemoteSettings = {
   sortCommentsBy: SortCommentsBy.OldestFirst,
   theme: remoteThemes[ThemeMode.Dark],
   campaignCtaPlacement: CampaignCtaPlacement.Header,
+  defaultWriteTab: 'freeform',
   flags: {
     sidebarSquadExpanded: true,
     sidebarCustomFeedsExpanded: true,
@@ -272,6 +275,8 @@ export const SettingsContextProvider = ({
         setSettings({ ...settings, customLinks: links }),
       updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>
         setSettings({ ...settings, sortCommentsBy }),
+      updateDefaultWriteTab: (defaultWriteTab: DefaultWriteTab) =>
+        setSettings({ ...settings, defaultWriteTab }),
       updateFlag: (flag: keyof SettingsFlags, value: string | boolean) =>
         setSettings({
           ...settings,

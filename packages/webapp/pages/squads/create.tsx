@@ -38,6 +38,8 @@ import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { WriteForm } from '@dailydotdev/shared/src/contexts';
+import type { DefaultWriteTab } from '@dailydotdev/shared/src/graphql/settings';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -50,6 +52,20 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
+const defaultWriteTabToFormTab = (
+  tab: DefaultWriteTab | undefined,
+): WriteFormTab => {
+  switch (tab) {
+    case 'link':
+      return WriteFormTab.Share;
+    case 'poll':
+      return WriteFormTab.Poll;
+    case 'freeform':
+    default:
+      return WriteFormTab.NewPost;
+  }
+};
+
 function CreatePost(): ReactElement {
   const client = useQueryClient();
   const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
@@ -59,6 +75,7 @@ function CreatePost(): ReactElement {
   );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const { defaultWriteTab } = useSettingsContext();
   const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([]);
   const activeSquads = useMemo(() => {
     const collator = new Intl.Collator('en');
@@ -191,6 +208,9 @@ function CreatePost(): ReactElement {
       setDisplay(WriteFormTab.Share);
     } else if (isInitialPoll) {
       setDisplay(WriteFormTab.Poll);
+    } else {
+      // Use the default tab from settings if no query param is present
+      setDisplay(defaultWriteTabToFormTab(defaultWriteTab));
     }
 
     const preselectedSquad =
@@ -220,6 +240,7 @@ function CreatePost(): ReactElement {
     activeSquads,
     selectedSourceIds.length,
     query,
+    defaultWriteTab,
   ]);
 
   useEffect(() => {
