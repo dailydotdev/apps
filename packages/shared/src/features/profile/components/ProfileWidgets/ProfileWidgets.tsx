@@ -14,6 +14,7 @@ import { ReadingOverview } from './ReadingOverview';
 import { ProfileCompletion } from './ProfileCompletion';
 import { Share } from './Share';
 import { useProfileCompletionIndicator } from '../../../../hooks/profile/useProfileCompletionIndicator';
+import { useActions } from '../../../../hooks';
 
 const BadgesAndAwards = dynamic(() =>
   import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
@@ -30,6 +31,7 @@ export function ProfileWidgets({
   className,
 }: ProfileWidgetsProps): ReactElement {
   const { user: loggedUser, tokenRefreshed } = useAuthContext();
+  const { isActionsFetched } = useActions();
   const { showIndicator: showProfileCompletion } =
     useProfileCompletionIndicator();
   const isSameUser = loggedUser?.id === user.id;
@@ -54,6 +56,10 @@ export function ProfileWidgets({
       refetchOnMount: false,
     });
   const squads = sources?.edges?.map((s) => s.node.source) ?? [];
+
+  if (isSameUser && !isActionsFetched) {
+    return null;
+  }
 
   return (
     <div
