@@ -2,6 +2,7 @@ import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import {
   Button,
   ButtonColor,
@@ -31,6 +32,7 @@ export const ShowInterestButton = ({
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
+  const router = useRouter();
 
   const { mutateAsync: applyToOpportunity, isPending } = useMutation({
     ...opportunityApplyMutationOptions(),
@@ -40,7 +42,7 @@ export const ShowInterestButton = ({
         target_type: TargetType.OpportunityInterestButton,
         target_id: opportunityId,
       });
-      window.location.href = `${opportunityUrl}/${opportunityId}/questions`;
+      router.push(`${opportunityUrl}/${opportunityId}/questions`);
     },
     onError: () => {
       displayToast('Failed to show interest. Please try again.');
