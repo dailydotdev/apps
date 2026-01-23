@@ -24,6 +24,7 @@ import { MainSection } from './sections/MainSection';
 import { ThemeSection } from './sections/ThemeSection';
 import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
 import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
+import { useActions } from '../../hooks';
 
 const ExtensionSection = dynamic(() =>
   import(
@@ -40,6 +41,7 @@ export default function ProfileMenu({
 }: ProfileMenuProps): ReactElement {
   const { events } = useRouter();
   const { user, logout } = useAuthContext();
+  const { isActionsFetched } = useActions();
   const { showIndicator: showProfileCompletion } =
     useProfileCompletionIndicator();
 
@@ -51,7 +53,7 @@ export default function ProfileMenu({
     };
   }, [events, onClose]);
 
-  if (!user) {
+  if (!user || !isActionsFetched) {
     return null;
   }
 
