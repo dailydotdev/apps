@@ -316,4 +316,110 @@ describe('useUserExperienceForm', () => {
     // Validation should fail for undefined startedAt
     expect(isValid).toBe(false);
   });
+
+  it('should validate repository with nullable id for custom repositories', async () => {
+    const openSourceExperience: BaseUserExperience & {
+      repository?: {
+        id: string | null;
+        owner: string | null;
+        name: string;
+        url: string;
+        image: string | null;
+      };
+    } = {
+      type: UserExperienceType.OpenSource,
+      title: 'Open Source Contributor',
+      description: 'Contributing to projects',
+      startedAt: new Date('2023-01-01'),
+      current: true,
+      repository: {
+        id: null, // Custom repository has null id
+        owner: 'myorg',
+        name: 'myrepo',
+        url: 'https://gitlab.com/myorg/myrepo',
+        image: null,
+      },
+    };
+
+    const { result } = renderHook(
+      () => useUserExperienceForm({ defaultValues: openSourceExperience }),
+      { wrapper: createWrapper() },
+    );
+
+    await act(async () => {
+      const isValid = await result.current.methods.trigger('repository');
+      // Should be valid even with null id
+      expect(isValid).toBe(true);
+    });
+  });
+
+  it('should validate repository with GitHub id', async () => {
+    const openSourceExperience: BaseUserExperience & {
+      repository?: {
+        id: string | null;
+        owner: string | null;
+        name: string;
+        url: string;
+        image: string | null;
+      };
+    } = {
+      type: UserExperienceType.OpenSource,
+      title: 'React Contributor',
+      description: 'Contributing to React',
+      startedAt: new Date('2023-01-01'),
+      current: true,
+      repository: {
+        id: '10270250', // GitHub repository has string id
+        owner: 'facebook',
+        name: 'react',
+        url: 'https://github.com/facebook/react',
+        image: 'https://avatars.githubusercontent.com/u/69631?v=4',
+      },
+    };
+
+    const { result } = renderHook(
+      () => useUserExperienceForm({ defaultValues: openSourceExperience }),
+      { wrapper: createWrapper() },
+    );
+
+    await act(async () => {
+      const isValid = await result.current.methods.trigger('repository');
+      expect(isValid).toBe(true);
+    });
+  });
+
+  it('should require repository URL even for custom repositories', async () => {
+    const openSourceExperience: BaseUserExperience & {
+      repository?: {
+        id: string | null;
+        owner: string | null;
+        name: string;
+        url: string | null;
+        image: string | null;
+      };
+    } = {
+      type: UserExperienceType.OpenSource,
+      title: 'Open Source Contributor',
+      startedAt: new Date('2023-01-01'),
+      current: true,
+      repository: {
+        id: null,
+        owner: 'myorg',
+        name: 'myrepo',
+        url: null, // Missing URL should fail validation
+        image: null,
+      },
+    };
+
+    const { result } = renderHook(
+      () => useUserExperienceForm({ defaultValues: openSourceExperience }),
+      { wrapper: createWrapper() },
+    );
+
+    await act(async () => {
+      const isValid = await result.current.methods.trigger('repository');
+      // Should be invalid without URL
+      expect(isValid).toBe(false);
+    });
+  });
 });

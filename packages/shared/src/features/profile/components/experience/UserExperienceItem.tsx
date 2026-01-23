@@ -105,13 +105,24 @@ export function UserExperienceItem({
     experience.type === UserExperienceType.Education && !grouped;
   const isOpenSource = experience.type === UserExperienceType.OpenSource;
 
+  // For open source, construct full name from owner/name for display
+  const repositoryFullName = repository?.owner
+    ? `${repository.owner}/${repository.name}`
+    : repository?.name;
+
   const companyOrRepoName = isOpenSource
-    ? repository?.name || company?.name || customCompanyName
+    ? repositoryFullName || company?.name || customCompanyName
     : company?.name || customCompanyName;
 
-  const primaryCopy = shouldSwapCopies
+  let primaryCopy = shouldSwapCopies
     ? company?.name || customCompanyName
     : title;
+
+  // For grouped open source items, show just the repo name as the title
+  if (grouped && isOpenSource && repository?.name) {
+    primaryCopy = repository.name;
+  }
+
   const secondaryCopy = shouldSwapCopies ? title : companyOrRepoName;
 
   const dateRange = formatDateRange(startedAt, endedAt);
