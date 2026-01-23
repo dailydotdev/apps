@@ -67,6 +67,7 @@ import {
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { JobPageIntro } from '@dailydotdev/shared/src/features/opportunity/components/JobPageIntro';
 import { ResponseButtons } from '@dailydotdev/shared/src/features/opportunity/components/ResponseButtons';
+import { AnonymousInterestButton } from '@dailydotdev/shared/src/features/opportunity/components/AnonymousInterestButton';
 import type {
   Opportunity,
   OpportunityMeta,
@@ -476,11 +477,44 @@ const JobPage = ({
     return null;
   }
 
-  if (!opportunity || !isLoggedIn) {
+  if (!opportunity) {
     return <NoOpportunity />;
   }
 
-  const showFooterNav = !!match;
+  const showFooterNav = !!match || !isLoggedIn;
+
+  const renderInterestButtons = (
+    containerClassName: string,
+    size: ButtonSize,
+  ): ReactElement | null => {
+    if (isLoggedIn && match) {
+      return (
+        <ResponseButtons
+          id={opportunity.id}
+          className={{
+            buttons: containerClassName.includes('w-full') ? 'flex-1' : '',
+            container: containerClassName,
+          }}
+          size={size}
+        />
+      );
+    }
+
+    if (!isLoggedIn) {
+      return (
+        <AnonymousInterestButton
+          opportunityId={opportunity.id}
+          className={{
+            button: containerClassName.includes('w-full') ? 'flex-1' : '',
+            container: containerClassName,
+          }}
+          size={size}
+        />
+      );
+    }
+
+    return null;
+  };
 
   return (
     <>
@@ -491,15 +525,9 @@ const JobPage = ({
       )}
       {showFooterNav && (
         <OpportunityFooter>
-          {!!match && (
-            <ResponseButtons
-              id={opportunity.id}
-              className={{
-                buttons: 'flex-1',
-                container: 'flex w-full items-center gap-4',
-              }}
-              size={ButtonSize.Medium}
-            />
+          {renderInterestButtons(
+            'flex w-full items-center gap-4',
+            ButtonSize.Medium,
           )}
         </OpportunityFooter>
       )}
@@ -515,14 +543,9 @@ const JobPage = ({
             <div className="flex min-h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary p-3">
               <GoBackButton showLogo={false} />
 
-              {!!match && (
-                <ResponseButtons
-                  id={opportunity.id}
-                  className={{
-                    container: 'hidden items-center gap-4 laptop:flex',
-                  }}
-                  size={ButtonSize.Medium}
-                />
+              {renderInterestButtons(
+                'hidden items-center gap-4 laptop:flex',
+                ButtonSize.Medium,
               )}
             </div>
           )}
