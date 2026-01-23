@@ -17,6 +17,7 @@ import {
   CampaignCtaPlacement,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
+import { WriteFormTab } from '../components/fields/form/common';
 import AuthContext from './AuthContext';
 import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
@@ -136,6 +137,7 @@ const defaultSettings: RemoteSettings = {
     sidebarResourcesExpanded: true,
     sidebarBookmarksExpanded: true,
     clickbaitShieldEnabled: true,
+    defaultWriteTab: WriteFormTab.NewPost,
   },
 };
 
