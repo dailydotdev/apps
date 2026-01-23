@@ -8,7 +8,6 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { SUBMIT_EXTERNAL_LINK_MUTATION } from '../../graphql/posts';
 import { NotificationsContextProvider } from '../../contexts/NotificationsContext';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 const createWrapper = () => {
   const client = new QueryClient({
