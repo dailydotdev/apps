@@ -33,9 +33,9 @@ const densities = [
 ];
 
 const defaultWriteTabs: { label: string; value: WriteFormTab }[] = [
-  { label: 'Freeform', value: WriteFormTab.NewPost },
-  { label: 'Link', value: WriteFormTab.Share },
-  { label: 'Poll', value: WriteFormTab.Poll },
+  { label: WriteFormTab.NewPost, value: WriteFormTab.NewPost },
+  { label: WriteFormTab.Share, value: WriteFormTab.Share },
+  { label: WriteFormTab.Poll, value: WriteFormTab.Poll },
 ];
 
 const AccountManageSubscriptionPage = (): ReactElement => {
