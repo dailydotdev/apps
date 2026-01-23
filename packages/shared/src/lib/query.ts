@@ -236,6 +236,8 @@ export enum RequestKey {
   UserTools = 'user_tools',
   ToolSearch = 'tool_search',
   UserWorkspacePhotos = 'user_workspace_photos',
+  Gear = 'gear',
+  GearSearch = 'gear_search',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
