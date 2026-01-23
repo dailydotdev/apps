@@ -1,16 +1,11 @@
 import { gql } from 'graphql-request';
 import type { Connection } from '../common';
 import { gqlClient } from '../common';
-
-export interface DatasetStack {
-  id: string;
-  title: string;
-  icon: string | null;
-}
+import type { DatasetTool } from './userTool';
 
 export interface UserStack {
   id: string;
-  stack: DatasetStack;
+  tool: DatasetTool;
   section: string;
   position: number;
   startedAt: string | null;
@@ -22,7 +17,6 @@ export interface UserStack {
 export interface AddUserStackInput {
   title: string;
   section: string;
-  icon?: string;
   startedAt?: string;
 }
 
@@ -47,10 +41,10 @@ const USER_STACK_FRAGMENT = gql`
     icon
     title
     createdAt
-    stack {
+    tool {
       id
       title
-      icon
+      faviconUrl
     }
   }
 `;
@@ -70,16 +64,6 @@ const USER_STACK_QUERY = gql`
     }
   }
   ${USER_STACK_FRAGMENT}
-`;
-
-const SEARCH_STACK_QUERY = gql`
-  query SearchStack($query: String!) {
-    searchStack(query: $query) {
-      id
-      title
-      icon
-    }
-  }
 `;
 
 const ADD_USER_STACK_MUTATION = gql`
@@ -127,12 +111,8 @@ export const getUserStack = async (
   return result.userStack;
 };
 
-export const searchStack = async (query: string): Promise<DatasetStack[]> => {
-  const result = await gqlClient.request<{
-    searchStack: DatasetStack[];
-  }>(SEARCH_STACK_QUERY, { query });
-  return result.searchStack;
-};
+// Re-export searchTools as searchStack for backwards compatibility
+export { searchTools as searchStack } from './userTool';
 
 export const addUserStack = async (
   input: AddUserStackInput,
