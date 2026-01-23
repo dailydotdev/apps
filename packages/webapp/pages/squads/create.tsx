@@ -38,7 +38,7 @@ import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { WriteForm } from '@dailydotdev/shared/src/contexts';
-import type { DefaultWriteTab } from '@dailydotdev/shared/src/graphql/settings';
+import { DefaultWriteTab } from '@dailydotdev/shared/src/graphql/settings';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -56,11 +56,11 @@ const defaultWriteTabToFormTab = (
   tab: DefaultWriteTab | undefined,
 ): WriteFormTab => {
   switch (tab) {
-    case 'link':
+    case DefaultWriteTab.Link:
       return WriteFormTab.Share;
-    case 'poll':
+    case DefaultWriteTab.Poll:
       return WriteFormTab.Poll;
-    case 'freeform':
+    case DefaultWriteTab.Freeform:
     default:
       return WriteFormTab.NewPost;
   }

@@ -3,7 +3,12 @@ import type { SortCommentsBy } from './comments';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
-export type DefaultWriteTab = 'freeform' | 'link' | 'poll';
+
+export enum DefaultWriteTab {
+  Freeform = 'freeform',
+  Link = 'link',
+  Poll = 'poll',
+}
 
 export enum CampaignCtaPlacement {
   Header = 'header',

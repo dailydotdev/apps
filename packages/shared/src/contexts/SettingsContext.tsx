@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type {
-  DefaultWriteTab,
   RemoteSettings,
   RemoteTheme,
   SettingsFlags,
@@ -16,6 +15,7 @@ import type {
 } from '../graphql/settings';
 import {
   CampaignCtaPlacement,
+  DefaultWriteTab,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
 import AuthContext from './AuthContext';
@@ -131,7 +131,7 @@ const defaultSettings: RemoteSettings = {
   sortCommentsBy: SortCommentsBy.OldestFirst,
   theme: remoteThemes[ThemeMode.Dark],
   campaignCtaPlacement: CampaignCtaPlacement.Header,
-  defaultWriteTab: 'freeform',
+  defaultWriteTab: DefaultWriteTab.Freeform,
   flags: {
     sidebarSquadExpanded: true,
     sidebarCustomFeedsExpanded: true,

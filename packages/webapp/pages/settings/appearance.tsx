@@ -18,7 +18,7 @@ import {
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import type { DefaultWriteTab } from '@dailydotdev/shared/src/graphql/settings';
+import { DefaultWriteTab } from '@dailydotdev/shared/src/graphql/settings';
 import classNames from 'classnames';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -33,9 +33,9 @@ const densities = [
 ];
 
 const defaultWriteTabs: { label: string; value: DefaultWriteTab }[] = [
-  { label: 'Freeform', value: 'freeform' },
-  { label: 'Link', value: 'link' },
-  { label: 'Poll', value: 'poll' },
+  { label: 'Freeform', value: DefaultWriteTab.Freeform },
+  { label: 'Link', value: DefaultWriteTab.Link },
+  { label: 'Poll', value: DefaultWriteTab.Poll },
 ];
 
 const AccountManageSubscriptionPage = (): ReactElement => {
@@ -138,7 +138,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           <Radio
             name="default-write-tab"
             options={defaultWriteTabs}
-            value={defaultWriteTab || 'freeform'}
+            value={defaultWriteTab || DefaultWriteTab.Freeform}
             onChange={updateDefaultWriteTab}
             className={{
               content: 'w-full justify-between !pr-0',
