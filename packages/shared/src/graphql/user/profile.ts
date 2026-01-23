@@ -70,6 +70,7 @@ const USER_EXPERIENCE_FRAGMENT = gql`
     }
     repository {
       id
+      owner
       name
       url
       image
@@ -176,10 +177,11 @@ export enum UserExperienceType {
 }
 
 export interface Repository {
-  id: string;
+  id?: string | null;
+  owner?: string | null;
   name: string;
   url: string;
-  image: string;
+  image?: string | null;
 }
 
 export interface UserExperience {
@@ -375,6 +377,7 @@ export const upsertUserWorkExperience = async (
     'subtitle',
     'grade',
     'verified',
+    'repository',
   ]);
 
   const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {

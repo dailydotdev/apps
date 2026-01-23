@@ -12,10 +12,11 @@ import { Image } from '../image/Image';
 type AutocompleteOption = { value: string; label: string; image?: string };
 
 interface AutocompleteProps
-  extends Omit<TextFieldProps, 'inputId' | 'onChange' | 'onSelect'> {
+  extends Omit<TextFieldProps, 'inputId' | 'onChange' | 'onSelect' | 'onBlur'> {
   name: string;
   onChange: (value: string) => void;
   onSelect: (value: string) => void;
+  onBlur?: () => void;
   selectedValue?: string;
   options: Array<AutocompleteOption>;
   isLoading: boolean;
@@ -29,6 +30,7 @@ const Autocomplete = ({
   label,
   onChange,
   onSelect,
+  onBlur: onBlurProp,
   selectedValue,
   defaultValue,
   resetOnBlur = true,
@@ -69,6 +71,7 @@ const Autocomplete = ({
     if (resetOnBlur) {
       setInput(options.find((opt) => opt.value === selectedValue)?.label || '');
     }
+    onBlurProp?.();
   };
 
   const isSecondaryField = restProps.fieldType === 'secondary';
