@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
+import { useMutation } from '@tanstack/react-query';
 import {
   Button,
   ButtonColor,
@@ -11,8 +12,11 @@ import { VIcon } from '../../../components/icons';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent } from '../../../lib/log';
+import { LogEvent, TargetType } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { opportunityApplyMutationOptions } from '../mutations';
+import { useToastNotification } from '../../../hooks';
+import { opportunityUrl } from '../../../lib/constants';
 
 export const ShowInterestButton = ({
   opportunityId,
@@ -26,28 +30,32 @@ export const ShowInterestButton = ({
   const { isLoggedIn } = useAuthContext();
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
 
-  const handleApply = async (): Promise<void> => {
-    logEvent({
-      event_name: LogEvent.Click,
-      target_type: 'opportunity_interest',
-      target_id: opportunityId,
-    });
-
-    // TODO: Call opportunityApply mutation here
-    // For now, redirect to questions page after applying
-    window.location.href = `/jobs/${opportunityId}/questions`;
-  };
+  const { mutateAsync: applyToOpportunity, isPending } = useMutation({
+    ...opportunityApplyMutationOptions(),
+    onSuccess: () => {
+      logEvent({
+        event_name: LogEvent.ApproveOpportunityMatch,
+        target_type: TargetType.OpportunityInterestButton,
+        target_id: opportunityId,
+      });
+      window.location.href = `${opportunityUrl}/${opportunityId}/questions`;
+    },
+    onError: () => {
+      displayToast('Failed to show interest. Please try again.');
+    },
+  });
 
   const handleClick = (): void => {
     if (isLoggedIn) {
-      handleApply();
+      applyToOpportunity({ id: opportunityId });
       return;
     }
 
     logEvent({
       event_name: LogEvent.Click,
-      target_type: 'anonymous_opportunity_interest',
+      target_type: TargetType.OpportunityInterestButton,
       target_id: opportunityId,
     });
 
@@ -56,8 +64,8 @@ export const ShowInterestButton = ({
       props: {
         opportunityId,
         onSuccess: () => {
-          // After successful signup/login, call the apply action
-          handleApply();
+          // After successful signup/login, apply to the opportunity
+          applyToOpportunity({ id: opportunityId });
         },
       },
     });
@@ -72,6 +80,8 @@ export const ShowInterestButton = ({
         variant={ButtonVariant.Primary}
         color={ButtonColor.Cabbage}
         onClick={handleClick}
+        disabled={isPending}
+        loading={isPending}
       >
         Show interest
       </Button>
