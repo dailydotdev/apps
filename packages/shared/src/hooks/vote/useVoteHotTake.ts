@@ -6,8 +6,26 @@ import { AuthTriggers } from '../../lib/auth';
 import type { UserHotTake } from '../../graphql/user/userHotTake';
 import type { Connection } from '../../graphql/common';
 import type { UseVoteProps, ToggleVoteProps } from './types';
-import { voteMutationHandlers, UserVoteEntity } from './types';
+import { UserVoteEntity } from './types';
 import { useVote } from './useVote';
+
+const hotTakeMutationHandlers: Record<
+  UserVote,
+  (hotTake: UserHotTake) => Partial<UserHotTake>
+> = {
+  [UserVote.Up]: (hotTake) => ({
+    upvotes: hotTake.upvotes + 1,
+    upvoted: true,
+  }),
+  [UserVote.Down]: (hotTake) => ({
+    upvotes: hotTake.upvoted ? hotTake.upvotes - 1 : hotTake.upvotes,
+    upvoted: false,
+  }),
+  [UserVote.None]: (hotTake) => ({
+    upvotes: hotTake.upvoted ? hotTake.upvotes - 1 : hotTake.upvotes,
+    upvoted: false,
+  }),
+};
 
 export interface UseVoteHotTakeProps extends Pick<UseVoteProps, 'onMutate'> {
   variables?: unknown;
@@ -33,7 +51,7 @@ const useVoteHotTake = ({
   const { user, showLogin } = useContext(AuthContext);
 
   const defaultOnMutate = ({ id, vote }) => {
-    const mutationHandler = voteMutationHandlers[vote];
+    const mutationHandler = hotTakeMutationHandlers[vote];
 
     if (!mutationHandler) {
       return undefined;
@@ -42,76 +60,64 @@ const useVoteHotTake = ({
     // Find and update the hot take in cache
     const queryKeys = client
       .getQueryCache()
-      .findAll({ queryKey: ['userHotTakes'] });
+      .findAll({ queryKey: ['user_hot_takes'] });
 
     let previousVote: UserVote | undefined;
 
     queryKeys.forEach((query) => {
-      const data = query.state.data as {
-        userHotTakes: Connection<UserHotTake>;
-      };
-      if (!data?.userHotTakes?.edges) {
+      const data = query.state.data as Connection<UserHotTake>;
+      if (!data?.edges) {
         return;
       }
 
-      const hotTakeEdge = data.userHotTakes.edges.find(
-        (edge) => edge.node.id === id,
-      );
+      const hotTakeEdge = data.edges.find((edge) => edge.node.id === id);
 
       if (hotTakeEdge) {
-        previousVote = hotTakeEdge.node.userState?.vote;
+        previousVote = hotTakeEdge.node.upvoted ? UserVote.Up : UserVote.None;
 
         client.setQueryData(query.queryKey, {
           ...data,
-          userHotTakes: {
-            ...data.userHotTakes,
-            edges: data.userHotTakes.edges.map((edge) =>
-              edge.node.id === id
-                ? {
-                    ...edge,
-                    node: {
-                      ...edge.node,
-                      ...mutationHandler(edge.node),
-                    },
-                  }
-                : edge,
-            ),
-          },
+          edges: data.edges.map((edge) =>
+            edge.node.id === id
+              ? {
+                  ...edge,
+                  node: {
+                    ...edge.node,
+                    ...mutationHandler(edge.node),
+                  },
+                }
+              : edge,
+          ),
         });
       }
     });
 
     return () => {
-      const rollbackMutationHandler = voteMutationHandlers[previousVote];
+      const rollbackMutationHandler = hotTakeMutationHandlers[previousVote];
 
       if (!rollbackMutationHandler) {
         return;
       }
 
       queryKeys.forEach((query) => {
-        const data = query.state.data as {
-          userHotTakes: Connection<UserHotTake>;
-        };
-        if (!data?.userHotTakes?.edges) {
+        const data = query.state.data as Connection<UserHotTake>;
+        if (!data?.edges) {
           return;
         }
 
         client.setQueryData(query.queryKey, {
           ...data,
-          userHotTakes: {
-            ...data.userHotTakes,
-            edges: data.userHotTakes.edges.map((edge) =>
-              edge.node.id === id
-                ? {
-                    ...edge,
-                    node: {
-                      ...edge.node,
-                      ...rollbackMutationHandler(edge.node),
-                    },
-                  }
-                : edge,
-            ),
-          },
+          edges: data.edges.map((edge) =>
+            edge.node.id === id
+              ? {
+                  ...edge,
+                  node: {
+                    ...edge.node,
+                    ...rollbackMutationHandler(edge.node),
+                  },
+                }
+              : edge,
+          ),
         });
       });
     };
@@ -138,7 +144,7 @@ const useVoteHotTake = ({
         return;
       }
 
-      if (hotTake?.userState?.vote === UserVote.Up) {
+      if (hotTake?.upvoted) {
         await cancelHotTakeVote({ id: hotTake.id });
         return;
       }
@@ -159,14 +165,10 @@ const useVoteHotTake = ({
         return;
       }
 
-      if (hotTake?.userState?.vote === UserVote.Down) {
-        await cancelHotTakeVote({ id: hotTake.id });
-        return;
-      }
-
-      await downvoteHotTake({ id: hotTake.id });
+      // Hot takes don't support downvotes, just cancel the vote
+      await cancelHotTakeVote({ id: hotTake.id });
     },
-    [cancelHotTakeVote, downvoteHotTake, showLogin, user],
+    [cancelHotTakeVote, showLogin, user],
   );
 
   return {

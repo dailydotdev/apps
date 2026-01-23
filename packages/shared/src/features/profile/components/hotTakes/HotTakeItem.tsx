@@ -14,7 +14,6 @@ import {
   ButtonColor,
 } from '../../../../components/buttons/Button';
 import { EditIcon, TrashIcon, UpvoteIcon } from '../../../../components/icons';
-import { UserVote } from '../../../../graphql/posts';
 import InteractionCounter from '../../../../components/InteractionCounter';
 import { IconSize } from '../../../../components/Icon';
 import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButton';
@@ -36,7 +35,7 @@ export function HotTakeItem({
   onUpvoteClick,
 }: HotTakeItemProps): ReactElement {
   const { emoji, title, subtitle } = item;
-  const isUpvoteActive = item.userState?.vote === UserVote.Up;
+  const isUpvoteActive = item.upvoted;
 
   return (
     <div
@@ -56,7 +55,7 @@ export function HotTakeItem({
           color={TypographyColor.Primary}
           bold
         >
-          &ldquo;{title}&rdquo;
+          {title}
         </Typography>
         {subtitle && (
           <Typography
@@ -68,35 +67,6 @@ export function HotTakeItem({
         )}
       </div>
       <div className="flex items-center gap-1">
-        {onUpvoteClick && (
-          <Tooltip
-            content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
-            side="bottom"
-          >
-            <QuaternaryButton
-              labelClassName="!pl-[1px]"
-              className="btn-tertiary-avocado"
-              color={ButtonColor.Avocado}
-              pressed={isUpvoteActive}
-              onClick={() => onUpvoteClick(item)}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={
-                <UpvoteIcon secondary={isUpvoteActive} size={IconSize.XSmall} />
-              }
-            >
-              {item.numUpvotes > 0 && (
-                <InteractionCounter
-                  className={classNames(
-                    'tabular-nums typo-footnote',
-                    !item.numUpvotes && 'invisible',
-                  )}
-                  value={item.numUpvotes}
-                />
-              )}
-            </QuaternaryButton>
-          </Tooltip>
-        )}
         {isOwner && (
           <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             {onEdit && (
@@ -118,6 +88,35 @@ export function HotTakeItem({
               />
             )}
           </div>
+        )}
+        {onUpvoteClick && (
+          <Tooltip
+            content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
+            side="bottom"
+          >
+            <QuaternaryButton
+              labelClassName="!pl-[1px]"
+              className="btn-tertiary-avocado"
+              color={ButtonColor.Avocado}
+              pressed={isUpvoteActive}
+              onClick={() => onUpvoteClick(item)}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={
+                <UpvoteIcon secondary={isUpvoteActive} size={IconSize.XSmall} />
+              }
+            >
+              {item.upvotes > 0 && (
+                <InteractionCounter
+                  className={classNames(
+                    'tabular-nums typo-footnote',
+                    !item.upvotes && 'invisible',
+                  )}
+                  value={item.upvotes}
+                />
+              )}
+            </QuaternaryButton>
+          </Tooltip>
         )}
       </div>
     </div>
