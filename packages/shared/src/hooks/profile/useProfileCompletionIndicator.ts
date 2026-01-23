@@ -16,16 +16,19 @@ export const useProfileCompletionIndicator =
     const profileCompletionPercentage =
       user?.profileCompletion?.percentage ?? 100;
 
-    const isDismissed =
-      isActionsFetched &&
-      checkHasCompleted(ActionType.DismissProfileCompletionIndicator);
+    const isDismissed = checkHasCompleted(
+      ActionType.DismissProfileCompletionIndicator,
+    );
 
     const dismissIndicator = useCallback(() => {
       completeAction(ActionType.DismissProfileCompletionIndicator);
     }, [completeAction]);
 
+    const showIndicator =
+      isActionsFetched && !isDismissed && profileCompletionPercentage < 100;
+
     return {
-      showIndicator: profileCompletionPercentage < 100 && !isDismissed,
+      showIndicator,
       dismissIndicator,
     };
   };

@@ -50,24 +50,26 @@ export function UserStackItem({
             className="rounded size-6 flex-shrink-0"
           />
         )}
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Primary}
-            bold
-            truncate
-          >
-            {title}
-          </Typography>
-          {usingSince && (
+        {!!title && (
+          <div className="flex min-w-0 flex-1 flex-col">
             <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
+              type={TypographyType.Callout}
+              color={TypographyColor.Primary}
+              bold
+              truncate
             >
-              {usingSince}
+              {title}
             </Typography>
-          )}
-        </div>
+            {!!usingSince && (
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+              >
+                {usingSince}
+              </Typography>
+            )}
+          </div>
+        )}
       </div>
       {isOwner && (
         <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
