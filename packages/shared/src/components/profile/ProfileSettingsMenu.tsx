@@ -31,6 +31,7 @@ import {
   JobIcon,
   TerminalIcon,
   TourIcon,
+  FeatherIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -111,6 +112,11 @@ const useAccountPageItems = () => {
               title: 'Appearance',
               icon: NewTabIcon,
               href: `${settingsUrl}/appearance`,
+            },
+            composition: {
+              title: 'Composition',
+              icon: FeatherIcon,
+              href: `${settingsUrl}/composition`,
             },
             notifications: {
               title: 'Notifications',
