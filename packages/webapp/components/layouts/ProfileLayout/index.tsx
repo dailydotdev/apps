@@ -20,7 +20,8 @@ import type { NextSeoProps } from 'next-seo';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
@@ -89,6 +90,7 @@ export default function ProfileLayout({
   const { user } = useProfile(initialUser);
   const [trackedView, setTrackedView] = useState(false);
   const { logEvent } = useLogContext();
+  const { referrerPost } = usePostReferrerContext();
 
   // Auto-collapse sidebar on small screens
   useProfileSidebarCollapse();
@@ -101,9 +103,16 @@ export default function ProfileLayout({
     logEvent({
       event_name: LogEvent.ProfileView,
       target_id: user.id,
+      ...(!!referrerPost && {
+        extra: JSON.stringify({
+          referrer_target_id: referrerPost.id,
+          referrer_target_type: TargetType.Post,
+          author: user?.id && referrerPost.author?.id === user.id ? 1 : 0,
+        }),
+      }),
     });
     setTrackedView(true);
-  }, [user, trackedView, logEvent]);
+  }, [user, trackedView, logEvent, referrerPost]);
 
   if (!isFallback && !user) {
     return <Custom404 />;
