@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
 import type { PublicProfile } from '../../../../lib/user';
-import { useUserHotTakes, MAX_HOT_TAKES } from '../../hooks/useUserHotTakes';
+import { useHotTakes, MAX_HOT_TAKES } from '../../hooks/useHotTakes';
 import {
   Typography,
   TypographyType,
@@ -32,7 +32,7 @@ export function ProfileUserHotTakes({
   user,
 }: ProfileUserHotTakesProps): ReactElement | null {
   const { hotTakes, isOwner, canAddMore, add, update, remove } =
-    useUserHotTakes(user);
+    useHotTakes(user);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { toggleUpvote } = useVoteHotTake();

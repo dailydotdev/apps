@@ -18,7 +18,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 
 export const MAX_HOT_TAKES = 5;
 
-export function useUserHotTakes(user: PublicProfile | null) {
+export const useHotTakes = (user: PublicProfile | null) => {
   const queryClient = useQueryClient();
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user?.id;
@@ -79,4 +79,4 @@ export function useUserHotTakes(user: PublicProfile | null) {
     isDeleting: deleteMutation.isPending,
     isReordering: reorderMutation.isPending,
   };
-}
+};
