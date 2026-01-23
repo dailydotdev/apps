@@ -32,7 +32,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
       <div id="compose" aria-hidden />
       <FlexCol className="gap-2">
         <Typography bold type={TypographyType.Subhead}>
-          Default post type
+          Default new post type
         </Typography>
 
         <Radio
