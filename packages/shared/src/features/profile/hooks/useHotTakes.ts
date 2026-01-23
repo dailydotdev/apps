@@ -2,23 +2,23 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useCallback } from 'react';
 import type { PublicProfile } from '../../../lib/user';
 import type {
-  AddUserHotTakeInput,
-  UpdateUserHotTakeInput,
-  ReorderUserHotTakeInput,
+  AddHotTakeInput,
+  UpdateHotTakeInput,
+  ReorderHotTakeInput,
 } from '../../../graphql/user/userHotTake';
 import {
-  getUserHotTakes,
-  addUserHotTake,
-  updateUserHotTake,
-  deleteUserHotTake,
-  reorderUserHotTakes,
+  getHotTakes,
+  addHotTake,
+  updateHotTake,
+  deleteHotTake,
+  reorderHotTakes,
 } from '../../../graphql/user/userHotTake';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
 export const MAX_HOT_TAKES = 5;
 
-export function useUserHotTakes(user: PublicProfile | null) {
+export const useHotTakes = (user: PublicProfile | null) => {
   const queryClient = useQueryClient();
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user?.id;
@@ -27,7 +27,7 @@ export function useUserHotTakes(user: PublicProfile | null) {
 
   const query = useQuery({
     queryKey,
-    queryFn: () => getUserHotTakes(user?.id as string),
+    queryFn: () => getHotTakes(user?.id as string),
     staleTime: StaleTime.Default,
     enabled: !!user?.id,
   });
@@ -44,29 +44,23 @@ export function useUserHotTakes(user: PublicProfile | null) {
   }, [queryClient, queryKey]);
 
   const addMutation = useMutation({
-    mutationFn: (input: AddUserHotTakeInput) => addUserHotTake(input),
+    mutationFn: (input: AddHotTakeInput) => addHotTake(input),
     onSuccess: invalidateQuery,
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      input,
-    }: {
-      id: string;
-      input: UpdateUserHotTakeInput;
-    }) => updateUserHotTake(id, input),
+    mutationFn: ({ id, input }: { id: string; input: UpdateHotTakeInput }) =>
+      updateHotTake(id, input),
     onSuccess: invalidateQuery,
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteUserHotTake(id),
+    mutationFn: (id: string) => deleteHotTake(id),
     onSuccess: invalidateQuery,
   });
 
   const reorderMutation = useMutation({
-    mutationFn: (items: ReorderUserHotTakeInput[]) =>
-      reorderUserHotTakes(items),
+    mutationFn: (items: ReorderHotTakeInput[]) => reorderHotTakes(items),
     onSuccess: invalidateQuery,
   });
 
@@ -85,4 +79,4 @@ export function useUserHotTakes(user: PublicProfile | null) {
     isDeleting: deleteMutation.isPending,
     isReordering: reorderMutation.isPending,
   };
-}
+};

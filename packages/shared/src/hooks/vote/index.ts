@@ -3,3 +3,4 @@ export * from './useVotePost';
 export * from './useFeedVotePost';
 export * from './useReadHistoryVotePost';
 export * from './useVoteComment';
+export * from './useVoteHotTake';
