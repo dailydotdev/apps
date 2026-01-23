@@ -115,10 +115,8 @@ export function UserStackModal({
     if (!showSuggestions || title.length < 1) {
       return [];
     }
-    return suggestions.filter(
-      (s) => s.title.toLowerCase() !== title.toLowerCase(),
-    );
-  }, [suggestions, showSuggestions, title]);
+    return suggestions;
+  }, [showSuggestions, suggestions, title.length]);
 
   return (
     <FormProvider {...methods}>
