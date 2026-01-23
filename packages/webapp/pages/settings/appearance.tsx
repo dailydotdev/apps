@@ -10,6 +10,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import type { RadioItemProps } from '@dailydotdev/shared/src/components/fields/Radio';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { ToggleRadio } from '@dailydotdev/shared/src/components/fields/ToggleRadio';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -18,18 +19,27 @@ import {
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
+import { WriteFormTab } from '@dailydotdev/shared/src/components/fields/form/common';
 import classNames from 'classnames';
+import { Divider } from '@dailydotdev/shared/src/components/utilities';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { SettingsSwitch } from '../../components/layouts/SettingsLayout/common';
 
-const densities = [
+const densities: RadioItemProps[] = [
   { label: 'Eco', value: 'eco' },
   { label: 'Roomy', value: 'roomy' },
   { label: 'Cozy', value: 'cozy' },
 ];
+
+const defaultWriteTabs: RadioItemProps[] = Object.keys(WriteFormTab).map(
+  (key) => ({
+    label: WriteFormTab[key],
+    value: key,
+  }),
+);
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -48,6 +58,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     toggleOptOutCompanion,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
+    updateFlag,
+    flags,
   } = useSettingsContext();
 
   const onLayoutToggle = useCallback(
@@ -163,6 +175,30 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           >
             Auto-hide notifications after a few seconds
           </SettingsSwitch>
+        </section>
+
+        <Divider className="bg-border-subtlest-tertiary" />
+
+        <section className="flex flex-col gap-2">
+          <div id="compose" aria-hidden />
+          <Typography bold type={TypographyType.Subhead}>
+            Default post type
+          </Typography>
+
+          <Radio
+            name="default-write-tab"
+            options={defaultWriteTabs}
+            value={flags.defaultWriteTab}
+            onChange={(value) => {
+              updateFlag('defaultWriteTab', value);
+            }}
+            className={{
+              content: 'w-full justify-between !pr-0',
+              container: '!gap-0',
+              label: 'font-normal text-text-secondary typo-callout',
+            }}
+            reverse
+          />
         </section>
       </div>
     </AccountPageContainer>

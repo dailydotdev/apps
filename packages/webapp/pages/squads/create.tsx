@@ -36,11 +36,19 @@ import { useQueryClient } from '@tanstack/react-query';
 import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll';
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { WriteForm } from '@dailydotdev/shared/src/contexts';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { SettingsIcon } from '@dailydotdev/shared/src/components/icons';
+import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
 import { getTemplatedTitle } from '../../components/layouts/utils';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Create post'),
@@ -59,6 +67,10 @@ function CreatePost(): ReactElement {
   );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const {
+    flags: { defaultWriteTab },
+    loadedSettings,
+  } = useSettingsContext();
   const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([]);
   const activeSquads = useMemo(() => {
     const collator = new Intl.Collator('en');
@@ -191,6 +203,8 @@ function CreatePost(): ReactElement {
       setDisplay(WriteFormTab.Share);
     } else if (isInitialPoll) {
       setDisplay(WriteFormTab.Poll);
+    } else if (defaultWriteTab in WriteFormTab) {
+      setDisplay(WriteFormTab[defaultWriteTab]);
     }
 
     const preselectedSquad =
@@ -220,6 +234,7 @@ function CreatePost(): ReactElement {
     activeSquads,
     selectedSourceIds.length,
     query,
+    defaultWriteTab,
   ]);
 
   useEffect(() => {
@@ -228,7 +243,7 @@ function CreatePost(): ReactElement {
     }
   }, [display, hasCheckedPollTab, completeAction]);
 
-  if (!isFetched || !isAuthReady || !isRouteReady) {
+  if (!isFetched || !isAuthReady || !isRouteReady || !loadedSettings) {
     return <WriteFreeFormSkeleton />;
   }
 
@@ -255,6 +270,28 @@ function CreatePost(): ReactElement {
           shouldMountInactive
           className={{ header: 'px-1' }}
           showHeader={isTablet}
+          extraHeaderContent={
+            !isMobile && (
+              <LinkWithTooltip
+                tooltip={{
+                  content: (
+                    <div className="max-w-48">
+                      You can change the default post type settings
+                    </div>
+                  ),
+                  placement: 'left',
+                }}
+                href={`${settingsUrl}/appearance#compose`}
+                passHref
+              >
+                <Button
+                  icon={<SettingsIcon />}
+                  size={ButtonSize.Small}
+                  className="ml-auto mr-3 self-center text-text-quaternary"
+                />
+              </LinkWithTooltip>
+            )
+          }
         >
           <Tab
             label={WriteFormTab.NewPost}
