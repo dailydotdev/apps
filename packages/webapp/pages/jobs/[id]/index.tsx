@@ -476,7 +476,7 @@ const JobPage = ({
     return null;
   }
 
-  if (!opportunity || !isLoggedIn) {
+  if (!opportunity) {
     return <NoOpportunity />;
   }
 
