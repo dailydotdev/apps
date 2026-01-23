@@ -1,5 +1,20 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
 import type { PublicProfile } from '../../../../lib/user';
 import {
   useUserWorkspacePhotos,
@@ -16,7 +31,7 @@ import {
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import { CameraIcon, PlusIcon } from '../../../../components/icons';
-import { WorkspacePhotoItem } from './WorkspacePhotoItem';
+import { SortableWorkspacePhotoItem } from './WorkspacePhotoItem';
 import { WorkspacePhotoUploadModal } from './WorkspacePhotoUploadModal';
 import type { AddUserWorkspacePhotoInput } from '../../../../graphql/user/userWorkspacePhoto';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
@@ -29,13 +44,48 @@ interface ProfileUserWorkspacePhotosProps {
 export function ProfileUserWorkspacePhotos({
   user,
 }: ProfileUserWorkspacePhotosProps): ReactElement | null {
-  const { photos, isOwner, canAddMore, add, remove } =
+  const { photos, isOwner, canAddMore, add, remove, reorder } =
     useUserWorkspacePhotos(user);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Require 8px movement before activating drag
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+
+      if (!over || active.id === over.id) {
+        return;
+      }
+
+      const oldIndex = photos.findIndex((p) => p.id === active.id);
+      const newIndex = photos.findIndex((p) => p.id === over.id);
+      const reordered = arrayMove(photos, oldIndex, newIndex);
+
+      reorder(
+        reordered.map((photo, index) => ({
+          id: photo.id,
+          position: index,
+        })),
+      ).catch(() => {
+        displayToast('Failed to reorder photos');
+      });
+    },
+    [photos, reorder, displayToast],
+  );
 
   const handleAdd = useCallback(
     async (input: AddUserWorkspacePhotoInput) => {
@@ -120,17 +170,29 @@ export function ProfileUserWorkspacePhotos({
       </div>
 
       {hasPhotos ? (
-        <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3">
-          {photos.map((photo) => (
-            <WorkspacePhotoItem
-              key={photo.id}
-              photo={photo}
-              isOwner={isOwner}
-              onDelete={handleDelete}
-              onClick={handlePhotoClick}
-            />
-          ))}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={photos.map((p) => p.id)}
+            strategy={rectSortingStrategy}
+          >
+            <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3">
+              {photos.map((photo) => (
+                <SortableWorkspacePhotoItem
+                  key={photo.id}
+                  photo={photo}
+                  isOwner={isOwner}
+                  isDraggable={isOwner && photos.length > 1}
+                  onDelete={handleDelete}
+                  onClick={handlePhotoClick}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       ) : (
         isOwner && (
           <div className="flex flex-col items-center gap-4 rounded-16 bg-surface-float p-6">
