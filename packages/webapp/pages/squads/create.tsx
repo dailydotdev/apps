@@ -281,7 +281,7 @@ function CreatePost(): ReactElement {
                   ),
                   placement: 'left',
                 }}
-                href={`${settingsUrl}/appearance#compose`}
+                href={`${settingsUrl}/composition`}
                 passHref
               >
                 <Button
