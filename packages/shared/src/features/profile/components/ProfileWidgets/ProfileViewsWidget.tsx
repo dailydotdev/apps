@@ -15,6 +15,9 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../../components/typography/Typography';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
+import { InfoIcon } from '../../../../components/icons';
+import { IconSize } from '../../../../components/Icon';
 import { gqlClient } from '../../../../graphql/common';
 import type {
   UserProfileAnalytics,
@@ -53,9 +56,14 @@ const ProfileViewsWidgetSkeleton = (): ReactElement => {
         type={TypographyType.Callout}
         color={TypographyColor.Primary}
         bold
-        className="flex items-center"
+        className="flex items-center gap-1"
       >
         Profile Activity
+        <Tooltip content="We started counting profile views from 23/01/2026">
+          <div>
+            <InfoIcon className="text-text-disabled" size={IconSize.Size16} />
+          </div>
+        </Tooltip>
       </Typography>
       <div className="my-3 flex flex-col gap-2">
         <div className="flex gap-2">
@@ -145,9 +153,14 @@ export const ProfileViewsWidget = ({
         type={TypographyType.Callout}
         color={TypographyColor.Primary}
         bold
-        className="flex items-center"
+        className="flex items-center gap-1"
       >
         Profile Activity
+        <Tooltip content="Profile views are counted from 23/01/2026">
+          <div>
+            <InfoIcon className="text-text-disabled" size={IconSize.Size16} />
+          </div>
+        </Tooltip>
       </Typography>
       <div className="my-3 flex flex-col gap-2">
         <div className="flex gap-2">
