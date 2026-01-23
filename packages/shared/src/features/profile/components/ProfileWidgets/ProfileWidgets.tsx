@@ -10,9 +10,11 @@ import type { ProfileReadingData, ProfileV2 } from '../../../../graphql/users';
 import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { gqlClient } from '../../../../graphql/common';
+import { canViewUserProfileAnalytics } from '../../../../lib/user';
 import { ReadingOverview } from './ReadingOverview';
 import { ProfileCompletion } from './ProfileCompletion';
 import { Share } from './Share';
+import { ProfileViewsWidget } from './ProfileViewsWidget';
 import { useProfileCompletionIndicator } from '../../../../hooks/profile/useProfileCompletionIndicator';
 
 const BadgesAndAwards = dynamic(() =>
@@ -68,6 +70,10 @@ export function ProfileWidgets({
       {isSameUser && (
         <Share permalink={user?.permalink} className="hidden laptop:flex" />
       )}
+      {canViewUserProfileAnalytics({
+        user: loggedUser,
+        profileUserId: user.id,
+      }) && <ProfileViewsWidget userId={user.id} />}
       <ReadingOverview
         readHistory={readingHistory?.userReadHistory}
         before={before}
