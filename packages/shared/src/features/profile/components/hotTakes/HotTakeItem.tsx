@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { UserHotTake } from '../../../../graphql/user/userHotTake';
+import type { HotTake } from '../../../../graphql/user/userHotTake';
 import {
   Typography,
   TypographyType,
@@ -20,11 +20,11 @@ import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButto
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 
 interface HotTakeItemProps {
-  item: UserHotTake;
+  item: HotTake;
   isOwner: boolean;
-  onEdit?: (item: UserHotTake) => void;
-  onDelete?: (item: UserHotTake) => void;
-  onUpvoteClick?: (item: UserHotTake) => void;
+  onEdit?: (item: HotTake) => void;
+  onDelete?: (item: HotTake) => void;
+  onUpvoteClick?: (item: HotTake) => void;
 }
 
 export function HotTakeItem({

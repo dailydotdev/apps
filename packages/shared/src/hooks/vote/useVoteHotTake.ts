@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import type { UserHotTake } from '../../graphql/user/userHotTake';
+import type { HotTake } from '../../graphql/user/userHotTake';
 import type { Connection } from '../../graphql/common';
 import type { UseVoteProps, ToggleVoteProps } from './types';
 import { UserVoteEntity } from './types';
@@ -11,7 +11,7 @@ import { useVote } from './useVote';
 
 const hotTakeMutationHandlers: Record<
   UserVote,
-  (hotTake: UserHotTake) => Partial<UserHotTake>
+  (hotTake: HotTake) => Partial<HotTake>
 > = {
   [UserVote.Up]: (hotTake) => ({
     upvotes: hotTake.upvotes + 1,
@@ -36,10 +36,10 @@ export interface UseVoteHotTake {
   downvoteHotTake: (props: { id: string }) => Promise<void>;
   cancelHotTakeVote: (props: { id: string }) => Promise<void>;
   toggleUpvote: (
-    props: Omit<ToggleVoteProps<UserHotTake>, 'entity'>,
+    props: Omit<ToggleVoteProps<HotTake>, 'entity'>,
   ) => Promise<void>;
   toggleDownvote: (
-    props: Omit<ToggleVoteProps<UserHotTake>, 'entity'>,
+    props: Omit<ToggleVoteProps<HotTake>, 'entity'>,
   ) => Promise<void>;
 }
 
@@ -65,7 +65,7 @@ const useVoteHotTake = ({
     let previousVote: UserVote | undefined;
 
     queryKeys.forEach((query) => {
-      const data = query.state.data as Connection<UserHotTake>;
+      const data = query.state.data as Connection<HotTake>;
       if (!data?.edges) {
         return;
       }
@@ -100,7 +100,7 @@ const useVoteHotTake = ({
       }
 
       queryKeys.forEach((query) => {
-        const data = query.state.data as Connection<UserHotTake>;
+        const data = query.state.data as Connection<HotTake>;
         if (!data?.edges) {
           return;
         }

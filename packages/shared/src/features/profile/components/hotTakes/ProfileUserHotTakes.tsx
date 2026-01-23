@@ -16,8 +16,8 @@ import { PlusIcon } from '../../../../components/icons';
 import { HotTakeItem } from './HotTakeItem';
 import { HotTakeModal } from './HotTakeModal';
 import type {
-  UserHotTake,
-  AddUserHotTakeInput,
+  HotTake,
+  AddHotTakeInput,
 } from '../../../../graphql/user/userHotTake';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { usePrompt } from '../../../../hooks/usePrompt';
@@ -38,10 +38,10 @@ export function ProfileUserHotTakes({
   const { toggleUpvote } = useVoteHotTake();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<UserHotTake | null>(null);
+  const [editingItem, setEditingItem] = useState<HotTake | null>(null);
 
   const handleAdd = useCallback(
-    async (input: AddUserHotTakeInput) => {
+    async (input: AddHotTakeInput) => {
       try {
         await add(input);
         displayToast('Hot take added');
@@ -53,13 +53,13 @@ export function ProfileUserHotTakes({
     [add, displayToast],
   );
 
-  const handleEdit = useCallback((item: UserHotTake) => {
+  const handleEdit = useCallback((item: HotTake) => {
     setEditingItem(item);
     setIsModalOpen(true);
   }, []);
 
   const handleUpdate = useCallback(
-    async (input: AddUserHotTakeInput) => {
+    async (input: AddHotTakeInput) => {
       if (!editingItem) {
         return;
       }
@@ -82,7 +82,7 @@ export function ProfileUserHotTakes({
   );
 
   const handleDelete = useCallback(
-    async (item: UserHotTake) => {
+    async (item: HotTake) => {
       const confirmed = await showPrompt({
         title: 'Remove hot take?',
         description: `Are you sure you want to remove "${item.title}"?`,
@@ -116,7 +116,7 @@ export function ProfileUserHotTakes({
   }, [canAddMore, displayToast]);
 
   const handleUpvote = useCallback(
-    async (item: UserHotTake) => {
+    async (item: HotTake) => {
       await toggleUpvote({ payload: item, origin: Origin.HotTakeList });
     },
     [toggleUpvote],

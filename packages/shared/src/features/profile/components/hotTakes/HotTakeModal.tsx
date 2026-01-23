@@ -11,8 +11,8 @@ import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { ModalHeader } from '../../../../components/modals/common/ModalHeader';
 import { useViewSize, ViewSize } from '../../../../hooks';
 import type {
-  UserHotTake,
-  AddUserHotTakeInput,
+  HotTake,
+  AddHotTakeInput,
 } from '../../../../graphql/user/userHotTake';
 
 const EmojiPicker = dynamic(
@@ -32,8 +32,8 @@ const hotTakeFormSchema = z.object({
 type HotTakeFormData = z.infer<typeof hotTakeFormSchema>;
 
 type HotTakeModalProps = Omit<ModalProps, 'children'> & {
-  onSubmit: (input: AddUserHotTakeInput) => Promise<void>;
-  existingItem?: UserHotTake;
+  onSubmit: (input: AddHotTakeInput) => Promise<void>;
+  existingItem?: HotTake;
 };
 
 export function HotTakeModal({

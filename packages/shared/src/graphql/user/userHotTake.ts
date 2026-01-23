@@ -2,7 +2,7 @@ import { gql } from 'graphql-request';
 import type { Connection } from '../common';
 import { gqlClient } from '../common';
 
-export interface UserHotTake {
+export interface HotTake {
   id: string;
   emoji: string;
   title: string;
@@ -13,25 +13,25 @@ export interface UserHotTake {
   upvoted?: boolean;
 }
 
-export interface AddUserHotTakeInput {
+export interface AddHotTakeInput {
   emoji: string;
   title: string;
   subtitle?: string;
 }
 
-export interface UpdateUserHotTakeInput {
+export interface UpdateHotTakeInput {
   emoji?: string;
   title?: string;
   subtitle?: string | null;
 }
 
-export interface ReorderUserHotTakeInput {
+export interface ReorderHotTakeInput {
   id: string;
   position: number;
 }
 
-const USER_HOT_TAKE_FRAGMENT = gql`
-  fragment UserHotTakeFragment on UserHotTake {
+const HOT_TAKE_FRAGMENT = gql`
+  fragment HotTakeFragment on HotTake {
     id
     emoji
     title
@@ -43,12 +43,12 @@ const USER_HOT_TAKE_FRAGMENT = gql`
   }
 `;
 
-const USER_HOT_TAKES_QUERY = gql`
-  query UserHotTakes($userId: ID!, $first: Int, $after: String) {
-    userHotTakes(userId: $userId, first: $first, after: $after) {
+const HOT_TAKES_QUERY = gql`
+  query HotTakes($userId: ID!, $first: Int, $after: String) {
+    hotTakes(userId: $userId, first: $first, after: $after) {
       edges {
         node {
-          ...UserHotTakeFragment
+          ...HotTakeFragment
         }
       }
       pageInfo {
@@ -57,82 +57,80 @@ const USER_HOT_TAKES_QUERY = gql`
       }
     }
   }
-  ${USER_HOT_TAKE_FRAGMENT}
+  ${HOT_TAKE_FRAGMENT}
 `;
 
-const ADD_USER_HOT_TAKE_MUTATION = gql`
-  mutation AddUserHotTake($input: AddUserHotTakeInput!) {
-    addUserHotTake(input: $input) {
-      ...UserHotTakeFragment
+const ADD_HOT_TAKE_MUTATION = gql`
+  mutation AddHotTake($input: AddHotTakeInput!) {
+    addHotTake(input: $input) {
+      ...HotTakeFragment
     }
   }
-  ${USER_HOT_TAKE_FRAGMENT}
+  ${HOT_TAKE_FRAGMENT}
 `;
 
-const UPDATE_USER_HOT_TAKE_MUTATION = gql`
-  mutation UpdateUserHotTake($id: ID!, $input: UpdateUserHotTakeInput!) {
-    updateUserHotTake(id: $id, input: $input) {
-      ...UserHotTakeFragment
+const UPDATE_HOT_TAKE_MUTATION = gql`
+  mutation UpdateHotTake($id: ID!, $input: UpdateHotTakeInput!) {
+    updateHotTake(id: $id, input: $input) {
+      ...HotTakeFragment
     }
   }
-  ${USER_HOT_TAKE_FRAGMENT}
+  ${HOT_TAKE_FRAGMENT}
 `;
 
-const DELETE_USER_HOT_TAKE_MUTATION = gql`
-  mutation DeleteUserHotTake($id: ID!) {
-    deleteUserHotTake(id: $id) {
+const DELETE_HOT_TAKE_MUTATION = gql`
+  mutation DeleteHotTake($id: ID!) {
+    deleteHotTake(id: $id) {
       _
     }
   }
 `;
 
-const REORDER_USER_HOT_TAKES_MUTATION = gql`
-  mutation ReorderUserHotTakes($items: [ReorderUserHotTakeInput!]!) {
-    reorderUserHotTakes(items: $items) {
-      ...UserHotTakeFragment
+const REORDER_HOT_TAKES_MUTATION = gql`
+  mutation ReorderHotTakes($items: [ReorderHotTakeInput!]!) {
+    reorderHotTakes(items: $items) {
+      ...HotTakeFragment
     }
   }
-  ${USER_HOT_TAKE_FRAGMENT}
+  ${HOT_TAKE_FRAGMENT}
 `;
 
-export const getUserHotTakes = async (
+export const getHotTakes = async (
   userId: string,
   first = 50,
-): Promise<Connection<UserHotTake>> => {
+): Promise<Connection<HotTake>> => {
   const result = await gqlClient.request<{
-    userHotTakes: Connection<UserHotTake>;
-  }>(USER_HOT_TAKES_QUERY, { userId, first });
-  return result.userHotTakes;
+    hotTakes: Connection<HotTake>;
+  }>(HOT_TAKES_QUERY, { userId, first });
+  return result.hotTakes;
 };
 
-export const addUserHotTake = async (
-  input: AddUserHotTakeInput,
-): Promise<UserHotTake> => {
+export const addHotTake = async (input: AddHotTakeInput): Promise<HotTake> => {
   const result = await gqlClient.request<{
-    addUserHotTake: UserHotTake;
-  }>(ADD_USER_HOT_TAKE_MUTATION, { input });
-  return result.addUserHotTake;
+    addHotTake: HotTake;
+  }>(ADD_HOT_TAKE_MUTATION, { input });
+  return result.addHotTake;
 };
 
-export const updateUserHotTake = async (
+export const updateHotTake = async (
   id: string,
-  input: UpdateUserHotTakeInput,
-): Promise<UserHotTake> => {
+  input: UpdateHotTakeInput,
+): Promise<HotTake> => {
   const result = await gqlClient.request<{
-    updateUserHotTake: UserHotTake;
-  }>(UPDATE_USER_HOT_TAKE_MUTATION, { id, input });
-  return result.updateUserHotTake;
+    updateHotTake: HotTake;
+  }>(UPDATE_HOT_TAKE_MUTATION, { id, input });
+  return result.updateHotTake;
 };
 
-export const deleteUserHotTake = async (id: string): Promise<void> => {
-  await gqlClient.request(DELETE_USER_HOT_TAKE_MUTATION, { id });
+export const deleteHotTake = async (id: string): Promise<void> => {
+  await gqlClient.request(DELETE_HOT_TAKE_MUTATION, { id });
 };
 
-export const reorderUserHotTakes = async (
-  items: ReorderUserHotTakeInput[],
-): Promise<UserHotTake[]> => {
+export const reorderHotTakes = async (
+  items: ReorderHotTakeInput[],
+): Promise<HotTake[]> => {
   const result = await gqlClient.request<{
-    reorderUserHotTakes: UserHotTake[];
-  }>(REORDER_USER_HOT_TAKES_MUTATION, { items });
-  return result.reorderUserHotTakes;
+    reorderHotTakes: HotTake[];
+  }>(REORDER_HOT_TAKES_MUTATION, { items });
+  return result.reorderHotTakes;
 };
