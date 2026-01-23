@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
+import { useEventListener } from '../../../../hooks/useEventListener';
 import {
   DndContext,
   closestCenter,
@@ -140,6 +141,13 @@ export function ProfileUserWorkspacePhotos({
   const handleCloseLightbox = useCallback(() => {
     setSelectedPhoto(null);
   }, []);
+
+  // Close lightbox on ESC key
+  useEventListener(globalThis, 'keydown', (event) => {
+    if (event.key === 'Escape' && selectedPhoto) {
+      handleCloseLightbox();
+    }
+  });
 
   const hasPhotos = photos.length > 0;
 
