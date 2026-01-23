@@ -323,3 +323,7 @@ export type FeedbackClassification = {
 export interface OpportunityFeedbackData {
   opportunityFeedback: Connection<FeedbackClassification>;
 }
+
+export type OpportunitiesClaim = {
+  ids: string[];
+};

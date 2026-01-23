@@ -15,6 +15,10 @@ import { OpportunityState } from '../protobuf/opportunity';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { oneMinute } from '../../../lib/dateFormat';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
+import type { ApiErrorResult } from '../../../graphql/common';
+import { ApiError } from '../../../graphql/common';
+import { getPathnameWithQuery } from '../../../lib';
+import { webappUrl } from '../../../lib/constants';
 
 export type OpportunityPreviewContextType = OpportunityPreviewResponse & {
   opportunity?: Opportunity;
@@ -47,6 +51,24 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
       ...opportunityByIdOptions({ id: opportunityIdParam || '' }),
       enabled: isValidOpportunityId && !mockData,
       refetchInterval: (query) => {
+        if (query.state.error) {
+          const errorCode = (query.state.error as unknown as ApiErrorResult)
+            .response?.errors?.[0]?.extensions?.code;
+
+          if ([ApiError.Forbidden, ApiError.NotFound].includes(errorCode)) {
+            router.push(
+              getPathnameWithQuery(
+                `${webappUrl}recruiter`,
+                new URLSearchParams({
+                  openModal: 'joblink',
+                }),
+              ),
+            );
+
+            return false;
+          }
+        }
+
         const retries = Math.max(
           query.state.dataUpdateCount,
           query.state.fetchFailureCount,
