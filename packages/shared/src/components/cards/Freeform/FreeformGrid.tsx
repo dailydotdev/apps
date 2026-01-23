@@ -57,11 +57,11 @@ export const FreeformGrid = forwardRef(function SharePostCard(
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
       />
-      <SquadPostCardHeader
-        post={post}
-        enableSourceHeader={enableSourceHeader}
-      />
       <CardTextContainer>
+        <SquadPostCardHeader
+          post={post}
+          enableSourceHeader={enableSourceHeader}
+        />
         <FreeformCardTitle
           className={classNames(
             generateTitleClamp({

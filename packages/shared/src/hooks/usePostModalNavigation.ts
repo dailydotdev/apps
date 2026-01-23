@@ -241,7 +241,9 @@ export const usePostModalNavigation = ({
     isFetchingNextPage: false,
     selectedPostIsAd,
     onCloseModal: async () => {
-      const searchParams = new URLSearchParams(window.location.search);
+      // Extract query params from baseAsPath to preserve original params like 'id'
+      const baseUrl = new URL(baseAsPath, window.location.origin);
+      const searchParams = new URLSearchParams(baseUrl.search);
 
       await router.push(
         getPathnameWithQuery(basePathname, searchParams),

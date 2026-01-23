@@ -134,6 +134,7 @@ const PersonalizedDigest = () => {
 
   const onToggleBriefing = () => {
     toggleSetting(NotificationType.BriefingReady, 'email');
+    onLogToggle(isChecked, NotificationCategory.Digest);
 
     if (isChecked) {
       if (selectedDigest?.type === UserPersonalizedDigestType.Digest) {

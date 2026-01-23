@@ -78,6 +78,7 @@ export enum Origin {
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
+  HotTakeList = 'hot take list',
 }
 
 export enum LogEvent {

@@ -32,6 +32,7 @@ const withSerwist = withSerwistInit({
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
+  allowedDevOrigins: ['app.local.fylla.dev', 'app.staging.daily.dev'],
   ...withSerwist({
     ...withBundleAnalyzer({
       i18n: {

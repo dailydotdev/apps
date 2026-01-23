@@ -26,6 +26,13 @@ const UserEducationForm = () => {
           type={AutocompleteType.School}
         />
         <ControlledTextField
+          name="customDomain"
+          label="School domain"
+          placeholder="Ex: university.edu"
+          fieldType="secondary"
+          className={profileSecondaryFieldStyles}
+        />
+        <ControlledTextField
           name="subtitle"
           label="Degree*"
           placeholder="Ex: Bachelor, Master, PhD, Diploma, Certificate"

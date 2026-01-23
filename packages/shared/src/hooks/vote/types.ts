@@ -46,6 +46,7 @@ export type UseVotePost = {
 export enum UserVoteEntity {
   Comment = 'comment',
   Post = 'post',
+  HotTake = 'hot_take',
 }
 
 export type UseVoteMutationProps = {

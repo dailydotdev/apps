@@ -93,7 +93,11 @@ export function UserExperiencesGroupedList({
         <Image
           className="h-8 w-8 rounded-max object-cover"
           type={ImageType.Organization}
-          src={first.company?.image}
+          src={
+            experienceType === UserExperienceType.OpenSource
+              ? first.repository?.image || first.company?.image || first.image
+              : first.company?.image || first.image
+          }
         />
         <div className="flex flex-1 flex-col">
           <div className="flex flex-wrap items-center gap-1">

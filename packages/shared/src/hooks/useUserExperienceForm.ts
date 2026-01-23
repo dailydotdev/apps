@@ -26,6 +26,16 @@ import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import useLogEventOnce from './log/useLogEventOnce';
 
+const repositorySchema = z
+  .object({
+    id: z.string().min(1).nullish(),
+    owner: z.string().max(100).nullish(),
+    name: z.string().min(1).max(200),
+    url: z.url(),
+    image: z.url().nullish(),
+  })
+  .nullish();
+
 export const userExperienceInputBaseSchema = z
   .object({
     type: z.enum(UserExperienceType),
@@ -44,6 +54,14 @@ export const userExperienceInputBaseSchema = z
       .nullable()
       .optional()
       .default(null),
+    customDomain: z
+      .string()
+      .trim()
+      .normalize()
+      .max(255)
+      .nullable()
+      .optional()
+      .default(null),
     url: z
       .union([
         z.url('Please enter a valid URL.').max(2000),
@@ -52,6 +70,8 @@ export const userExperienceInputBaseSchema = z
       ])
       .optional()
       .default(null),
+    repository: repositorySchema,
+    repositorySearch: z.string().optional(),
   })
   .refine(
     (data) => {

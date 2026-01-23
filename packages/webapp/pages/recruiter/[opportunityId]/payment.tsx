@@ -3,7 +3,11 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { RecruiterPaymentContext } from '@dailydotdev/shared/src/contexts/RecruiterPaymentContext/RecruiterPaymentContext';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
-import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  CreditCardIcon,
+  MoveToIcon,
+  ShareIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
   ButtonSize,
@@ -23,20 +27,43 @@ import {
 } from '@dailydotdev/shared/src/features/opportunity/context/OpportunityPreviewContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { useAutoCreateOpportunityOrganization } from '@dailydotdev/shared/src/features/opportunity/hooks/useAutoCreateOpportunityOrganization';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import RecruiterErrorFallback from '@dailydotdev/shared/src/components/errors/RecruiterErrorFallback';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { recruiterSeo } from '../../../next-seo';
 
 const RecruiterPaymentPage = (): ReactElement => {
   const router = useRouter();
   const checkoutRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuthContext();
   const { openCheckout, selectedProduct, prices } =
     useRecruiterPaymentContext();
   const { opportunity } = useOpportunityPreviewContext();
   const { displayToast } = useToastNotification();
+  const [, copyLink] = useCopyLink();
 
   useAutoCreateOpportunityOrganization(opportunity);
+
+  const handleSharePaymentLink = () => {
+    if (!opportunity?.id) {
+      return;
+    }
+    const queryParams = [
+      selectedProduct?.id && `pid=${selectedProduct.id}`,
+      user?.id && `ref=${user.id}`,
+    ]
+      .filter(Boolean)
+      .join('&');
+    const link = getPathnameWithQuery(
+      `${window.location.origin}/recruiter/pay/${opportunity.id}`,
+      queryParams,
+    );
+    copyLink({ link, message: 'Payment link copied to clipboard' });
+  };
 
   useEffect(() => {
     if (!opportunity || !opportunity.organization || !selectedProduct) {
@@ -45,7 +72,7 @@ const RecruiterPaymentPage = (): ReactElement => {
 
     openCheckout({
       priceId: selectedProduct.id,
-      customData: { opportunity_id: opportunity.id },
+      customData: { opportunity_id: opportunity.id, external_pay: true },
     });
   }, [selectedProduct, openCheckout, opportunity]);
 
@@ -201,6 +228,32 @@ const RecruiterPaymentPage = (): ReactElement => {
                   </Typography>
                 </div>
               </div>
+              <div className="relative mt-6 overflow-hidden rounded-16 border-l-4 border-accent-cabbage-default bg-gradient-to-r from-action-share-float to-transparent p-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-12 bg-action-share-float">
+                    <CreditCardIcon className="text-accent-cabbage-default" />
+                  </div>
+                  <FlexCol className="flex-1 gap-1">
+                    <Typography type={TypographyType.Body} bold>
+                      Need someone else to pay?
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Secondary}
+                    >
+                      Share a secure payment link with your finance team
+                    </Typography>
+                  </FlexCol>
+                </div>
+                <Button
+                  className="mt-4 w-full"
+                  variant={ButtonVariant.Secondary}
+                  icon={<ShareIcon />}
+                  onClick={handleSharePaymentLink}
+                >
+                  Copy payment link
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -224,6 +277,7 @@ RecruiterPaymentPage.getLayout = function getLayout(
           feature="recruiter-self-serve"
           fallback={<RecruiterErrorFallback />}
         >
+          <Toast autoDismissNotifications />
           {page}
         </ErrorBoundary>
       </RecruiterPaymentContext>

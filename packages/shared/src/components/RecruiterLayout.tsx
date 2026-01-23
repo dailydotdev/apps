@@ -1,10 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useAuthContext } from '../contexts/AuthContext';
-import { isTesting, onboardingUrl } from '../lib/constants';
-import { useGrowthBookContext } from './GrowthBookProvider';
-import { AuthTriggers } from '../lib/auth';
+import React, { useContext } from 'react';
 import type { MainLayoutProps } from './MainLayout';
 import { NoSidebarLayout } from './NoSidebarLayout';
 import { RecruiterLayoutHeader } from './layout/RecruiterLayoutHeader';
@@ -14,6 +9,7 @@ import Toast from './notifications/Toast';
 import SettingsContext from '../contexts/SettingsContext';
 import { ErrorBoundary } from './ErrorBoundary';
 import RecruiterErrorFallback from './errors/RecruiterErrorFallback';
+import { useRecruiterLayoutReady } from '../hooks/useRecruiterLayoutReady';
 
 export type RecruiterLayoutProps = Pick<
   MainLayoutProps,
@@ -27,52 +23,10 @@ export const RecruiterLayout = ({
   canGoBack,
   onLogoClick,
 }: RecruiterLayoutProps): ReactElement => {
-  const router = useRouter();
-  const { user, isAuthReady, showLogin } = useAuthContext();
-  const { growthbook } = useGrowthBookContext();
   const { autoDismissNotifications } = useContext(SettingsContext);
+  const { isPageReady } = useRecruiterLayoutReady();
 
-  const isPageReady =
-    (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
-
-  useEffect(() => {
-    if (!shouldRedirectOnboarding) {
-      return;
-    }
-
-    const entries = Object.entries(router.query);
-
-    if (entries.length === 0) {
-      router.push(onboardingUrl);
-      return;
-    }
-
-    const params = new URLSearchParams();
-
-    entries.forEach(([key, value]) => {
-      params.append(key, value as string);
-    });
-
-    params.delete('id'); // remove jobs id param
-
-    router.push(`${onboardingUrl}?${params.toString()}`);
-  }, [shouldRedirectOnboarding, router]);
-
-  const shouldShowLogin = !user && isAuthReady;
-
-  useEffect(() => {
-    if (!shouldShowLogin) {
-      return;
-    }
-
-    showLogin({
-      trigger: AuthTriggers.Opportunity,
-      options: { isLogin: true },
-    });
-  }, [shouldShowLogin, showLogin]);
-
-  if (!isPageReady || shouldRedirectOnboarding) {
+  if (!isPageReady) {
     return null;
   }
 

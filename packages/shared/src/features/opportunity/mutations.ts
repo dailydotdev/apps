@@ -10,6 +10,7 @@ import {
   ADD_OPPORTUNITY_SEATS_MUTATION,
   CANDIDATE_KEYWORD_ADD_MUTATION,
   CANDIDATE_KEYWORD_REMOVE_MUTATION,
+  CLAIM_OPPORTUNITIES_MUTATION,
   CLEAR_EMPLOYMENT_AGREEMENT_MUTATION,
   CLEAR_RECRUITER_ORGANIZATION_IMAGE_MUTATION,
   CLEAR_RESUME_MUTATION,
@@ -31,6 +32,7 @@ import {
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import type {
   Opportunity,
+  OpportunitiesClaim,
   OpportunityMatch,
   OpportunityScreeningAnswer,
   UserCandidatePreferences,
@@ -535,11 +537,29 @@ export const addOpportunitySeatsMutationOptions = () => {
       payload: z.infer<typeof addOpportunitySeatsSchema>;
     }): Promise<void> => {
       await gqlClient.request<{
-        updateOpportunityState: EmptyResponse;
+        addOpportunitySeats: EmptyResponse;
       }>(ADD_OPPORTUNITY_SEATS_MUTATION, {
         id,
         payload,
       });
+    },
+  };
+};
+
+export const claimOpportunitiesMutationOptions = (): MutationOptions<
+  OpportunitiesClaim,
+  DefaultError,
+  { identifier: string }
+> => {
+  return {
+    mutationFn: async ({ identifier }) => {
+      const result = await gqlClient.request<{
+        claimOpportunities: OpportunitiesClaim;
+      }>(CLAIM_OPPORTUNITIES_MUTATION, {
+        identifier,
+      });
+
+      return result.claimOpportunities;
     },
   };
 };

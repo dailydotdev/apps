@@ -12,11 +12,11 @@ import { IconSize } from '../Icon';
 
 const LOADING_STEPS = [
   'Analyzing your job description (this may take a minute)',
-  'Mapping skills, requirements, and intent',
-  'Scanning the daily.dev network...',
+  'Extracting skills and requirements',
+  'Finding matches in our community...',
 ];
 
-const COMPLETE_MESSAGE = 'Your hiring edge is ready';
+const COMPLETE_MESSAGE = 'Your analysis is ready';
 
 type AnalyzeStatusBarProps = {
   loadingStep: number;
