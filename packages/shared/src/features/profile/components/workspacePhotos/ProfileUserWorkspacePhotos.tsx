@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
-import { useEventListener } from '../../../../hooks/useEventListener';
 import {
   DndContext,
   closestCenter,
@@ -16,6 +15,7 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
+import { useEventListener } from '../../../../hooks/useEventListener';
 import type { PublicProfile } from '../../../../lib/user';
 import {
   useUserWorkspacePhotos,
