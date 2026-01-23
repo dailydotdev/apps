@@ -32,11 +32,12 @@ const densities = [
   { label: 'Cozy', value: 'cozy' },
 ];
 
-const defaultWriteTabs: { label: string; value: WriteFormTab }[] = [
-  { label: WriteFormTab.NewPost, value: WriteFormTab.NewPost },
-  { label: WriteFormTab.Share, value: WriteFormTab.Share },
-  { label: WriteFormTab.Poll, value: WriteFormTab.Poll },
-];
+const defaultWriteTabs: { label: string; value: WriteFormTab }[] = (
+  Object.keys(WriteFormTab) as Array<keyof typeof WriteFormTab>
+).map((key) => ({
+  label: WriteFormTab[key],
+  value: WriteFormTab[key],
+}));
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
