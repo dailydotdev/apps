@@ -49,13 +49,8 @@ export function useUserHotTakes(user: PublicProfile | null) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      input,
-    }: {
-      id: string;
-      input: UpdateHotTakeInput;
-    }) => updateHotTake(id, input),
+    mutationFn: ({ id, input }: { id: string; input: UpdateHotTakeInput }) =>
+      updateHotTake(id, input),
     onSuccess: invalidateQuery,
   });
 
