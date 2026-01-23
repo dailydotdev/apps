@@ -12,8 +12,9 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
-export const AnonymousInterestButton = ({
+export const ShowInterestButton = ({
   opportunityId,
   className,
   size = ButtonSize.Small,
@@ -22,10 +23,28 @@ export const AnonymousInterestButton = ({
   className?: { container?: string; button?: string };
   size?: ButtonSize;
 }): ReactElement => {
+  const { isLoggedIn } = useAuthContext();
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
 
+  const handleApply = async (): Promise<void> => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: 'opportunity_interest',
+      target_id: opportunityId,
+    });
+
+    // TODO: Call opportunityApply mutation here
+    // For now, redirect to questions page after applying
+    window.location.href = `/jobs/${opportunityId}/questions`;
+  };
+
   const handleClick = (): void => {
+    if (isLoggedIn) {
+      handleApply();
+      return;
+    }
+
     logEvent({
       event_name: LogEvent.Click,
       target_type: 'anonymous_opportunity_interest',
@@ -37,8 +56,8 @@ export const AnonymousInterestButton = ({
       props: {
         opportunityId,
         onSuccess: () => {
-          // After successful signup/login, the page will re-render
-          // with the user logged in, showing the regular ResponseButtons
+          // After successful signup/login, call the apply action
+          handleApply();
         },
       },
     });

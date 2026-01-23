@@ -67,7 +67,7 @@ import {
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { JobPageIntro } from '@dailydotdev/shared/src/features/opportunity/components/JobPageIntro';
 import { ResponseButtons } from '@dailydotdev/shared/src/features/opportunity/components/ResponseButtons';
-import { AnonymousInterestButton } from '@dailydotdev/shared/src/features/opportunity/components/AnonymousInterestButton';
+import { ShowInterestButton } from '@dailydotdev/shared/src/features/opportunity/components/ShowInterestButton';
 import type {
   Opportunity,
   OpportunityMeta,
@@ -481,12 +481,13 @@ const JobPage = ({
     return <NoOpportunity />;
   }
 
-  const showFooterNav = !!match || !isLoggedIn;
+  const showFooterNav = true; // Always show footer nav for interest/response buttons
 
   const renderInterestButtons = (
     containerClassName: string,
     size: ButtonSize,
   ): ReactElement | null => {
+    // Logged in user with an existing match - show response buttons
     if (isLoggedIn && match) {
       return (
         <ResponseButtons
@@ -500,20 +501,17 @@ const JobPage = ({
       );
     }
 
-    if (!isLoggedIn) {
-      return (
-        <AnonymousInterestButton
-          opportunityId={opportunity.id}
-          className={{
-            button: containerClassName.includes('w-full') ? 'flex-1' : '',
-            container: containerClassName,
-          }}
-          size={size}
-        />
-      );
-    }
-
-    return null;
+    // Anonymous user or logged in user without a match - show interest button
+    return (
+      <ShowInterestButton
+        opportunityId={opportunity.id}
+        className={{
+          button: containerClassName.includes('w-full') ? 'flex-1' : '',
+          container: containerClassName,
+        }}
+        size={size}
+      />
+    );
   };
 
   return (
