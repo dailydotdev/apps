@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
+import type {
+  Squad,
+  SourceCategory,
+} from '@dailydotdev/shared/src/graphql/sources';
 import type { Connection } from '@dailydotdev/shared/src/graphql/common';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { SOURCES_QUERY } from '@dailydotdev/shared/src/graphql/squads';
-import {
-  SOURCE_CATEGORIES_QUERY,
-  type SourceCategory,
-} from '@dailydotdev/shared/src/graphql/sources';
+import { SOURCE_CATEGORIES_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 
 interface SquadsData {
   sources: Connection<Squad>;

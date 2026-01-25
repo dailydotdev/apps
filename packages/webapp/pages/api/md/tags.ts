@@ -29,7 +29,9 @@ const handler = async (
     const tagsByLetter: Record<string, Keyword[]> = {};
     data.tags.forEach((tag) => {
       const rawLetter = tag.value[0].toLowerCase();
-      const letter = /^[a-zA-Z]$/.test(rawLetter) ? rawLetter.toUpperCase() : '#';
+      const letter = /^[a-zA-Z]$/.test(rawLetter)
+        ? rawLetter.toUpperCase()
+        : '#';
       if (!tagsByLetter[letter]) {
         tagsByLetter[letter] = [];
       }
@@ -38,8 +40,12 @@ const handler = async (
 
     // Sort letters and tags within each letter
     const sortedLetters = Object.keys(tagsByLetter).sort((a, b) => {
-      if (a === '#') return 1;
-      if (b === '#') return -1;
+      if (a === '#') {
+        return 1;
+      }
+      if (b === '#') {
+        return -1;
+      }
       return a.localeCompare(b);
     });
 
@@ -48,7 +54,9 @@ const handler = async (
         const tags = tagsByLetter[letter].sort((a, b) =>
           a.value.localeCompare(b.value),
         );
-        return `### ${letter}\n\n${tags.map((t) => `- [${t.value}](/tags/${t.value})`).join('\n')}`;
+        return `### ${letter}\n\n${tags
+          .map((t) => `- [${t.value}](/tags/${t.value})`)
+          .join('\n')}`;
       })
       .join('\n\n');
 
