@@ -1,0 +1,64 @@
+# daily.dev
+
+> Where developers grow together - the professional network for developers to learn, collaborate, and grow together.
+
+## Root URL
+https://app.daily.dev
+
+## Overview
+
+daily.dev is a professional network serving 1M+ developers worldwide. The platform curates content from 1,300+ trusted tech sources and delivers personalized developer news, tutorials, and discussions. Available as browser extensions (Chrome, Edge), Progressive Web App (PWA), and mobile apps (iOS, Android).
+
+Key capabilities:
+- Personalized feeds filtered by tech interests and stack
+- Squads: Developer communities focused on specific technologies
+- Engagement: Upvote, comment, bookmark, and discuss content
+- DevCard: Shareable developer profile cards
+- Works offline with PWA support
+
+## Core Features
+
+- [Feed](/): Personalized developer content feed with multiple views (Popular, Most Upvoted, Best Discussions)
+- [Squads](/squads/discover): Developer communities organized by topics (Languages, Web, Mobile, DevOps, AI, Career, Open Source)
+- [Sources](/sources): 1,300+ curated content sources including blogs, publications, and YouTube channels
+- [Tags](/tags): Topic-based content discovery and filtering
+- [Posts](/posts): Tech articles, videos, and community discussions
+- [Search](/search): Search across all content and discussions
+
+## Products
+
+### daily.dev Plus (Premium)
+- [Plus](/plus): Premium subscription with AI-powered features
+  - Smart Prompts: Run AI prompts on any post
+  - Presidential Briefing: AI-powered personalized daily digest
+  - Clickbait Shield: AI rewrites misleading headlines
+  - Ad-free experience
+  - Advanced custom feeds and bookmark folders
+
+### Hiring Platform
+- [Jobs](/jobs): Developer job matching with warm introductions
+- [Recruiter](https://recruiter.daily.dev): Developer-first hiring platform
+  - Access to 1M+ engineers from 13K+ companies across 150+ countries
+  - Smart matching based on developer interests and activity
+  - Trusted by NVIDIA, Apple, Google, OpenAI, Stripe, Shopify, and more
+
+### Developer Tools
+- [DevCard](/settings/customization/devcard): Generate shareable developer profile cards
+- [Browser Extension](https://daily.dev/browser-extension): New tab replacement for Chrome and Edge
+
+## Developer Resources
+
+- [GitHub Repository](https://github.com/dailydotdev/daily): Open source (AGPL-3.0)
+- [Documentation](https://docs.daily.dev): Official product documentation
+- [Changelog](https://changelog.daily.dev): Product updates and releases
+- [Contributing Guide](https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md)
+
+## Sitemaps
+
+- [Static Sitemap](/sitemap.txt): Core navigation pages
+- Dynamic Sitemaps (from API):
+  - [Posts](/api/sitemaps/posts): All published articles and discussions
+  - [Sources](/api/sitemaps/sources): Content sources and publications
+  - [Squads](/api/sitemaps/squads): Public developer communities
+  - [Tags](/api/sitemaps/tags): Topic tag pages
+  - [Users](/api/sitemaps/users): Developer profiles
