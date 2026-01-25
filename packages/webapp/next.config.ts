@@ -151,6 +151,19 @@ const nextConfig: NextConfig = {
                 },
               ],
             },
+            // Markdown versions of pages for AI agents (llms.txt spec)
+            {
+              source: '/sources.md',
+              destination: '/api/md/sources',
+            },
+            {
+              source: '/tags.md',
+              destination: '/api/md/tags',
+            },
+            {
+              source: '/squads/discover.md',
+              destination: '/api/md/squads',
+            },
           ],
           // regular rewrites
           afterFiles: rewrites,
