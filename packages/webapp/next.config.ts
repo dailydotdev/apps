@@ -285,6 +285,12 @@ const nextConfig: NextConfig = {
               { key: 'Cache-Control', value: 'public, max-age=86400' },
             ],
           },
+          {
+            source: '/:path*.md',
+            headers: [
+              { key: 'Content-Type', value: 'text/plain; charset=utf-8' },
+            ],
+          },
         ];
       },
       poweredByHeader: false,
