@@ -282,11 +282,14 @@ const nextConfig: NextConfig = {
             source: '/llms.txt',
             headers: [
               { key: 'Content-Type', value: 'text/plain; charset=utf-8' },
-              { key: 'Cache-Control', value: 'public, max-age=86400' },
+              {
+                key: 'Cache-Control',
+                value: 'public, max-age=86400, stale-while-revalidate=604800',
+              },
             ],
           },
           {
-            source: '/:path*.md',
+            source: '/:path(sources|tags|squads/discover).md',
             headers: [
               { key: 'Content-Type', value: 'text/plain; charset=utf-8' },
             ],

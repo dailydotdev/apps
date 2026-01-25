@@ -89,7 +89,7 @@ ${allTagsMarkdown}
       'public, s-maxage=3600, stale-while-revalidate=86400',
     );
     res.status(200).send(markdown);
-  } catch (error) {
+  } catch (error: unknown) {
     // eslint-disable-next-line no-console
     console.error('Error generating tags markdown:', error);
     res.status(500).send('Internal server error');

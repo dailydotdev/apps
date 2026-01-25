@@ -16,12 +16,23 @@ interface CategoriesData {
   categories: Connection<SourceCategory>;
 }
 
+/**
+ * Escapes special markdown characters in user-generated content
+ * to prevent potential XSS when AI agents parse the markdown.
+ */
+const escapeMarkdown = (text: string): string => {
+  return text.replace(/[\\`*_{}[\]()#+\-.!|]/g, '\\$&');
+};
+
 const formatSquad = (squad: Squad): string => {
-  const description = squad.description ? `: ${squad.description}` : '';
+  const name = escapeMarkdown(squad.name);
+  const description = squad.description
+    ? `: ${escapeMarkdown(squad.description)}`
+    : '';
   const members = squad.membersCount
     ? ` (${squad.membersCount.toLocaleString()} members)`
     : '';
-  return `- [${squad.name}](/squads/${squad.handle})${members}${description}`;
+  return `- [${name}](/squads/${squad.handle})${members}${description}`;
 };
 
 const handler = async (
@@ -71,7 +82,9 @@ const handler = async (
       .filter(({ squads }) => squads.length > 0)
       .map(
         ({ category, squads }) =>
-          `### ${category.title}\n\n${squads.map(formatSquad).join('\n')}`,
+          `### ${escapeMarkdown(category.title)}\n\n${squads
+            .map(formatSquad)
+            .join('\n')}`,
       )
       .join('\n\n');
 
@@ -100,7 +113,7 @@ ${categorySections}
       'public, s-maxage=3600, stale-while-revalidate=86400',
     );
     res.status(200).send(markdown);
-  } catch (error) {
+  } catch (error: unknown) {
     // eslint-disable-next-line no-console
     console.error('Error generating squads markdown:', error);
     res.status(500).send('Internal server error');

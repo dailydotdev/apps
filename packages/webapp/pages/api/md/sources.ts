@@ -10,9 +10,20 @@ interface SourceDirectoryData {
   topVideoSources: Source[];
 }
 
+/**
+ * Escapes special markdown characters in user-generated content
+ * to prevent potential XSS when AI agents parse the markdown.
+ */
+const escapeMarkdown = (text: string): string => {
+  return text.replace(/[\\`*_{}[\]()#+\-.!|]/g, '\\$&');
+};
+
 const formatSource = (source: Source): string => {
-  const description = source.description ? `: ${source.description}` : '';
-  return `- [${source.name}](/sources/${source.handle})${description}`;
+  const name = escapeMarkdown(source.name);
+  const description = source.description
+    ? `: ${escapeMarkdown(source.description)}`
+    : '';
+  return `- [${name}](/sources/${source.handle})${description}`;
 };
 
 const handler = async (
@@ -62,7 +73,7 @@ ${data.topVideoSources.map(formatSource).join('\n')}
       'public, s-maxage=3600, stale-while-revalidate=86400',
     );
     res.status(200).send(markdown);
-  } catch (error) {
+  } catch (error: unknown) {
     // eslint-disable-next-line no-console
     console.error('Error generating sources markdown:', error);
     res.status(500).send('Internal server error');
