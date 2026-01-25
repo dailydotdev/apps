@@ -53,6 +53,14 @@ Key capabilities:
 - [Changelog](https://changelog.daily.dev): Product updates and releases
 - [Contributing Guide](https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md)
 
+## Markdown Documentation
+
+Markdown versions of key pages for AI agents:
+
+- [Sources Directory](/sources.md): All content sources in markdown format
+- [Tags Directory](/tags.md): All topic tags in markdown format
+- [Squads Directory](/squads/discover.md): Public Squads in markdown format
+
 ## Sitemaps
 
 - [Static Sitemap](/sitemap.txt): Core navigation pages
