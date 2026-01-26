@@ -14,13 +14,13 @@ export interface UseProfilePreviewReturn {
  * When preview mode is active, the profile owner sees their profile as a visitor would
  */
 export function useProfilePreview(
-  user: PublicProfile,
+  user: PublicProfile | null | undefined,
 ): UseProfilePreviewReturn {
   const router = useRouter();
   const { user: loggedUser } = useAuthContext();
 
   const isPreviewMode = router.query.preview === 'true';
-  const isSameUser = loggedUser?.id === user.id;
+  const isSameUser = !!user && !!loggedUser && loggedUser.id === user.id;
 
   // When in preview mode, act as a visitor (not owner)
   const isOwner = useMemo(

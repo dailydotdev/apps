@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack:react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useCallback } from 'react';
 import type { PublicProfile } from '../../../lib/user';
 import type {
