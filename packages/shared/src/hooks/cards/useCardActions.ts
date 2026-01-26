@@ -82,7 +82,14 @@ export const useCardActions = ({
     }
 
     await onDownvoteClick?.(post);
-  }, [isDownvoteActive, onShowPanel, onInteract, onClose, onDownvoteClick, post]);
+  }, [
+    isDownvoteActive,
+    onShowPanel,
+    onInteract,
+    onClose,
+    onDownvoteClick,
+    post,
+  ]);
 
   const onToggleBookmark = useCallback(() => {
     if (!post.bookmarked) {

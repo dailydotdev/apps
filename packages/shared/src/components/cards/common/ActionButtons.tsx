@@ -87,7 +87,10 @@ const ActionButtons = ({
   }
 
   const commentButton = config.useCommentLink ? (
-    <LinkWithTooltip tooltip={{ content: 'Comment' }} href={post.commentsPermalink}>
+    <LinkWithTooltip
+      tooltip={{ content: 'Comment' }}
+      href={post.commentsPermalink}
+    >
       <QuaternaryButton
         labelClassName="!pl-0"
         id={`post-${post.id}-comment-btn`}
@@ -103,7 +106,10 @@ const ActionButtons = ({
       >
         {post?.numComments > 0 && (
           <InteractionCounter
-            className={classNames('tabular-nums', !post.numComments && 'invisible')}
+            className={classNames(
+              'tabular-nums',
+              !post.numComments && 'invisible',
+            )}
             value={post.numComments}
           />
         )}
@@ -141,7 +147,12 @@ const ActionButtons = ({
         className,
       )}
     >
-      <div className={classNames('flex items-center', variant === 'grid' && 'flex-1 justify-between')}>
+      <div
+        className={classNames(
+          'flex items-center',
+          variant === 'grid' && 'flex-1 justify-between',
+        )}
+      >
         <Tooltip
           content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           side={variant === 'grid' ? 'bottom' : undefined}
@@ -155,7 +166,12 @@ const ActionButtons = ({
             onClick={onToggleUpvote}
             variant={ButtonVariant.Tertiary}
             size={config.buttonSize}
-            icon={<UpvoteButtonIcon secondary={isUpvoteActive} size={config.iconSize} />}
+            icon={
+              <UpvoteButtonIcon
+                secondary={isUpvoteActive}
+                size={config.iconSize}
+              />
+            }
           >
             {post?.numUpvotes > 0 && (
               <InteractionCounter
@@ -177,7 +193,12 @@ const ActionButtons = ({
             className="pointer-events-auto"
             id={`post-${post.id}-downvote-btn`}
             color={ButtonColor.Ketchup}
-            icon={<DownvoteIcon secondary={isDownvoteActive} size={config.iconSize} />}
+            icon={
+              <DownvoteIcon
+                secondary={isDownvoteActive}
+                size={config.iconSize}
+              />
+            }
             pressed={isDownvoteActive}
             onClick={onToggleDownvote}
             variant={ButtonVariant.Tertiary}
@@ -200,7 +221,10 @@ const ActionButtons = ({
           }}
           iconSize={config.iconSize}
         />
-        <Tooltip content="Copy link" side={variant === 'grid' ? 'bottom' : undefined}>
+        <Tooltip
+          content="Copy link"
+          side={variant === 'grid' ? 'bottom' : undefined}
+        >
           <QuaternaryButton
             id="copy-post-btn"
             size={config.buttonSize}
