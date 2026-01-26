@@ -22,7 +22,7 @@ import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
-import ActionButtons from '../common/list/ActionButtons';
+import ActionButtons from '../common/ActionButtons';
 import { FeedbackList } from './feedback/FeedbackList';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
@@ -68,6 +68,7 @@ export const ArticleList = forwardRef(function ArticleList(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
+        variant="list"
       />
     </Container>
   );

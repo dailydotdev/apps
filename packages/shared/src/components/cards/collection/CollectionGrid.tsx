@@ -11,7 +11,7 @@ import {
   CardTextContainer,
 } from '../common/Card';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
-import ActionButtons from '../ActionsButtons/ActionButtons';
+import ActionButtons from '../common/ActionButtons';
 import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';

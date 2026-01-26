@@ -10,6 +10,7 @@ export const FeedbackGrid = ({
   post,
   onUpvoteClick,
   onDownvoteClick,
+  isVideoType: _isVideoType,
 }: FeedbackProps): ReactElement => {
   const { dismissFeedback } = usePostFeedback({ post });
 
