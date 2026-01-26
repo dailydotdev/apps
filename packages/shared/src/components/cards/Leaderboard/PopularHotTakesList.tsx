@@ -10,7 +10,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { indexToEmoji } from './common';
 
 export type PopularHotTakes = {
   score: number;
@@ -24,32 +23,29 @@ export function PopularHotTakesList({
 }: CommonLeaderboardProps<PopularHotTakes[]>): ReactElement {
   return (
     <LeaderboardList {...props}>
-      {items?.map((item, i) => {
+      {items?.map(({ hotTake, score, user }) => {
         return (
           <LeaderboardListItem
-            key={item.hotTake.id}
-            href={item.user.permalink}
-            index={item.score}
-            className="flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler"
+            key={hotTake.id}
+            href={user.permalink}
+            index={score}
+            className="flex w-full flex-row items-center rounded-8 px-2 py-2 hover:bg-accent-pepper-subtler"
           >
-            <span className="min-w-8 pl-1">{indexToEmoji(i)}</span>
-            <div className="flex size-10 flex-shrink-0 items-center justify-center rounded-14 bg-overlay-quaternary-cabbage">
-              <span className="text-2xl">{item.hotTake.emoji}</span>
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-1 p-2">
+            <span className="min-w-8 pl-1">{hotTake.emoji}</span>
+            <div className="flex min-h-10 min-w-0 flex-1 flex-col justify-center gap-1 px-2">
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Primary}
                 bold
               >
-                {item.hotTake.title}
+                {hotTake.title}
               </Typography>
-              {item.hotTake.subtitle && (
+              {hotTake.subtitle && (
                 <Typography
                   type={TypographyType.Footnote}
                   color={TypographyColor.Tertiary}
                 >
-                  {item.hotTake.subtitle}
+                  {hotTake.subtitle}
                 </Typography>
               )}
             </div>
