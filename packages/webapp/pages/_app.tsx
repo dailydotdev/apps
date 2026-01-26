@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
+import { Agentation } from 'agentation';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -306,6 +307,7 @@ export default function App(
           </BootDataProvider>
           <ReactQueryDevtools />
         </HydrationBoundary>
+        {process.env.NODE_ENV === 'development' && <Agentation />}
       </QueryClientProvider>
     </ProgressiveEnhancementContextProvider>
   );
