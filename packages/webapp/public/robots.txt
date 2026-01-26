@@ -5,3 +5,6 @@ Disallow: /error
 Disallow: /callback
 Disallow: /helloworld
 Disallow: /helloworld/
+
+# AI Agent Resources
+# LLM-friendly documentation: https://app.daily.dev/llms.txt
