@@ -462,17 +462,27 @@ const JobPage = ({
     opportunity?.organization?.customLinks?.length > 0 ||
     opportunity?.organization?.pressLinks?.length > 0;
 
+  // Log opportunity view for all users
+  // For logged-in users: wait for match query to resolve to include match_status
+  // For anonymous users: log immediately with 'no-match' status
   useEffect(() => {
-    if (!match || !id || hasLoggedRef.current) {
+    if (!opportunity || !id || hasLoggedRef.current) {
       return;
     }
+
+    // For logged-in users, wait until match query has resolved
+    // match will be undefined while loading, then either the match object or null
+    if (isLoggedIn && match === undefined) {
+      return;
+    }
+
     logRef.current({
       event_name: LogEvent.OpportunityMatchView,
       target_id: id,
-      extra: JSON.stringify({ match_status: match.status }),
+      extra: JSON.stringify({ match_status: match?.status ?? 'no-match' }),
     });
     hasLoggedRef.current = true;
-  }, [id, match]);
+  }, [id, opportunity, isLoggedIn, match]);
 
   if (!isAuthReady || isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
