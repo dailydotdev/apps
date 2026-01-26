@@ -12,6 +12,7 @@ import {
   recruiterRejectOpportunityMatchMutationOptions,
 } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import { RequestKey } from '@dailydotdev/shared/src/lib/query';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import type { OpportunityMatch } from '@dailydotdev/shared/src/features/opportunity/types';
 import { OpportunityMatchStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
@@ -311,7 +312,7 @@ const OpportunityDetailPage = (): ReactElement => {
   // Fetch opportunity details
   const { data: opportunity, isLoading: isLoadingOpportunity } = useQuery({
     ...opportunityByIdOptions({ id: id as string }),
-    refetchOnWindowFocus: false,
+    ...disabledRefetch,
   });
 
   // Require payment to view this page
@@ -325,7 +326,7 @@ const OpportunityDetailPage = (): ReactElement => {
   // Fetch opportunity matches
   const { data: matchesData, isLoading: isLoadingMatches } = useQuery({
     ...getOpportunityMatchesOptions({ opportunityId: id as string }),
-    refetchOnWindowFocus: false,
+    ...disabledRefetch,
   });
 
   const matches = matchesData?.edges.map((edge) => edge.node) || [];
