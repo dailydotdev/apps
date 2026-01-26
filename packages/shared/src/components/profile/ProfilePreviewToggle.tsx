@@ -53,7 +53,7 @@ export function ProfilePreviewToggle({
         checked={isPreviewMode}
         onToggle={onToggle}
         compact={false}
-        className="shrink-0"
+        className="shrink-0 self-center"
       />
     </div>
   );
