@@ -4,6 +4,8 @@ import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import type { Squad } from '../../graphql/sources';
 import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { isSystemModerator } from '../../lib/user';
 import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import { Origin } from '../../lib/log';
@@ -61,6 +63,7 @@ export function SquadMemberModal({
   squad,
   ...props
 }: SquadMemberModalProps): ReactElement {
+  const { user: loggedUser } = useAuthContext();
   const [roleFilter, setRoleFilter] = useState<SourceMemberRole>(null);
   const [query, setQuery] = useState('');
   const [handleSearchDebounce] = useDebounceFn(
@@ -85,10 +88,9 @@ export function SquadMemberModal({
     queryProp: 'sourceMembers',
   });
 
-  const hasPermission = verifyPermission(
-    squad,
-    SourcePermissions.ViewBlockedMembers,
-  );
+  const hasPermission =
+    isSystemModerator(loggedUser) ||
+    verifyPermission(squad, SourcePermissions.ViewBlockedMembers);
 
   const onTabClick = (tab: SquadMemberTab) => {
     switch (tab) {
