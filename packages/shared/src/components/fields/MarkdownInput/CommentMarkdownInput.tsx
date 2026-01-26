@@ -47,6 +47,7 @@ export function CommentMarkdownInputComponent(
     initialContent,
     replyTo,
     editCommentId,
+    parentCommentId,
     className = {},
     style,
     onChange,
@@ -63,7 +64,9 @@ export function CommentMarkdownInputComponent(
   const {
     mutateComment: { mutateComment, isLoading, isSuccess },
   } = useWriteCommentContext();
-  const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
+  const markdownRef = useRef<{ clearDraft: () => void }>(null);
+
+  const onSubmitForm: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
     if (isLoading || isSuccess) {
@@ -72,17 +75,31 @@ export function CommentMarkdownInputComponent(
 
     const { content } = formToJson<{ content: string }>(e.currentTarget);
 
-    return mutateComment(content);
+    const result = await mutateComment(content);
+
+    // Clear draft after successful submission
+    if (result && markdownRef.current) {
+      markdownRef.current.clearDraft();
+    }
+
+    return result;
   };
 
-  const onKeyboardSubmit: FormEventHandler<HTMLTextAreaElement> = (e) => {
+  const onKeyboardSubmit: FormEventHandler<HTMLTextAreaElement> = async (e) => {
     if (isLoading || isSuccess) {
       return null;
     }
 
     const content = e.currentTarget.value;
 
-    return mutateComment(content);
+    const result = await mutateComment(content);
+
+    // Clear draft after successful submission
+    if (result && markdownRef.current) {
+      markdownRef.current.clearDraft();
+    }
+
+    return result;
   };
 
   return (
@@ -95,10 +112,13 @@ export function CommentMarkdownInputComponent(
       ref={ref}
     >
       <MarkdownInput
-        ref={(markdownRef) => {
-          if (markdownRef && shouldFocus.current) {
-            markdownRef.textareaRef.current.focus();
-            shouldFocus.current = false;
+        ref={(markdownRefInstance) => {
+          if (markdownRefInstance) {
+            markdownRef.current = markdownRefInstance;
+            if (shouldFocus.current) {
+              markdownRefInstance.textareaRef.current.focus();
+              shouldFocus.current = false;
+            }
           }
         }}
         className={{
@@ -113,6 +133,8 @@ export function CommentMarkdownInputComponent(
         isLoading={isLoading}
         disabledSubmit={isSuccess}
         initialContent={initialContent}
+        editCommentId={editCommentId}
+        parentCommentId={parentCommentId}
         textareaProps={{
           name: 'content',
           rows: 7,
