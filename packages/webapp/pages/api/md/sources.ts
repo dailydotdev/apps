@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { escapeMarkdown } from '@dailydotdev/shared/src/lib/strings';
 
 interface SourceDirectoryData {
   trendingSources: Source[];
@@ -9,14 +10,6 @@ interface SourceDirectoryData {
   mostRecentSources: Source[];
   topVideoSources: Source[];
 }
-
-/**
- * Escapes special markdown characters in user-generated content
- * to prevent potential XSS when AI agents parse the markdown.
- */
-const escapeMarkdown = (text: string): string => {
-  return text.replace(/[\\`*_{}[\]()#+\-.!|]/g, '\\$&');
-};
 
 const formatSource = (source: Source): string => {
   const name = escapeMarkdown(source.name);

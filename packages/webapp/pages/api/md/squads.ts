@@ -7,6 +7,7 @@ import type { Connection } from '@dailydotdev/shared/src/graphql/common';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { SOURCES_QUERY } from '@dailydotdev/shared/src/graphql/squads';
 import { SOURCE_CATEGORIES_QUERY } from '@dailydotdev/shared/src/graphql/sources';
+import { escapeMarkdown } from '@dailydotdev/shared/src/lib/strings';
 
 interface SquadsData {
   sources: Connection<Squad>;
@@ -15,14 +16,6 @@ interface SquadsData {
 interface CategoriesData {
   categories: Connection<SourceCategory>;
 }
-
-/**
- * Escapes special markdown characters in user-generated content
- * to prevent potential XSS when AI agents parse the markdown.
- */
-const escapeMarkdown = (text: string): string => {
-  return text.replace(/[\\`*_{}[\]()#+\-.!|]/g, '\\$&');
-};
 
 const formatSquad = (squad: Squad): string => {
   const name = escapeMarkdown(squad.name);

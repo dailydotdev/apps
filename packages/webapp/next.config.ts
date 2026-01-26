@@ -288,12 +288,6 @@ const nextConfig: NextConfig = {
               },
             ],
           },
-          {
-            source: '/:path(sources|tags|squads/discover).md',
-            headers: [
-              { key: 'Content-Type', value: 'text/plain; charset=utf-8' },
-            ],
-          },
         ];
       },
       poweredByHeader: false,
