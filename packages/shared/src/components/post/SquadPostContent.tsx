@@ -138,7 +138,7 @@ function SquadPostContentRaw({
           <div
             className={
               isUserSource
-                ? 'flex flex-row-reverse items-center justify-between'
+                ? 'flex flex-row-reverse items-center justify-between gap-4'
                 : undefined
             }
           >
