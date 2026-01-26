@@ -15,6 +15,12 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 // Mock the hooks
 jest.mock('../../profile/hooks/useUploadCv');
 jest.mock('../../../contexts/AuthContext');
+jest.mock('../../../hooks', () => ({
+  useActions: jest.fn(() => ({
+    checkHasCompleted: jest.fn(() => false),
+    isActionsFetched: true,
+  })),
+}));
 
 // Mock the UploadCv component to make testing easier
 jest.mock('../components/UploadCv', () => ({
@@ -67,6 +73,11 @@ jest.mock('../shared/FunnelStepCtaWrapper', () => ({
 // Mock the withIsActiveGuard HOC to just return the component
 jest.mock('../shared/withActiveGuard', () => ({
   withIsActiveGuard: <T,>(Component: T): T => Component,
+}));
+
+// Mock the withShouldSkipStepGuard HOC to just return the component
+jest.mock('../shared/withShouldSkipStepGuard', () => ({
+  withShouldSkipStepGuard: <T,>(Component: T): T => Component,
 }));
 
 const createQueryClient = () =>
