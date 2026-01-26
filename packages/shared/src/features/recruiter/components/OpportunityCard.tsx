@@ -89,39 +89,41 @@ export const OpportunityCard = ({
   const { title, organization, state } = opportunity;
 
   return (
-    <Link
-      href={getCardUrl(opportunity)}
-      className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 transition-colors hover:border-border-subtlest-secondary"
-    >
-      {organization?.image && (
-        <img
-          src={organization.image}
-          alt={organization.name}
-          className="h-12 w-12 rounded-12 object-cover"
-        />
-      )}
+    <Link href={getCardUrl(opportunity)}>
+      <a className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 transition-colors hover:border-border-subtlest-secondary">
+        {organization?.image && (
+          <img
+            src={organization.image}
+            alt={organization.name}
+            className="h-12 w-12 rounded-12 object-cover"
+          />
+        )}
 
-      <div className="flex flex-1 flex-col gap-1">
-        <Typography type={TypographyType.Title3} bold>
-          {title}
-        </Typography>
-        <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
-          {organization?.name || 'Company'}
-        </Typography>
-      </div>
+        <div className="flex flex-1 flex-col gap-1">
+          <Typography type={TypographyType.Title3} bold>
+            {title}
+          </Typography>
+          <Typography
+            type={TypographyType.Body}
+            color={TypographyColor.Tertiary}
+          >
+            {organization?.name || 'Company'}
+          </Typography>
+        </div>
 
-      <div className="flex items-center justify-between">
-        <span
-          className={classNames(
-            'rounded-8 px-2 py-1 typo-caption1',
-            getStateColor(state),
-          )}
-        >
-          {getStateLabel(state)}
-        </span>
+        <div className="flex items-center justify-between">
+          <span
+            className={classNames(
+              'rounded-8 px-2 py-1 typo-caption1',
+              getStateColor(state),
+            )}
+          >
+            {getStateLabel(state)}
+          </span>
 
-        {getActionIcon(opportunity)}
-      </div>
+          {getActionIcon(opportunity)}
+        </div>
+      </a>
     </Link>
   );
 };
