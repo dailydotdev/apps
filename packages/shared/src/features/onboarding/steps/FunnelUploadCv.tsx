@@ -5,8 +5,11 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { FunnelStepCtaWrapper } from '../shared';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
+import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { UploadCv } from '../components/UploadCv';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
+import { useActions } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
 
 function FunnelUploadCvComponent({
   parameters,
@@ -44,4 +47,13 @@ function FunnelUploadCvComponent({
   );
 }
 
-export const FunnelUploadCv = withIsActiveGuard(FunnelUploadCvComponent);
+export const FunnelUploadCv = withShouldSkipStepGuard(
+  withIsActiveGuard(FunnelUploadCvComponent),
+  () => {
+    const { checkHasCompleted, isActionsFetched } = useActions();
+    const hasUploadedCv = checkHasCompleted(ActionType.UploadedCV);
+    const shouldSkip = isActionsFetched && hasUploadedCv;
+
+    return { shouldSkip };
+  },
+);
