@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
 import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
@@ -27,6 +27,7 @@ import { Header } from '@dailydotdev/shared/src/components/profile/Header';
 import classNames from 'classnames';
 import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
 import { Share } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/Share';
+import { ProfilePreviewToggle } from '@dailydotdev/shared/src/components/profile/ProfilePreviewToggle';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
@@ -51,6 +52,7 @@ const ProfilePage = ({
   );
 
   const { user, isUserSame } = useProfile(initialUser);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const { ref: stickyRef, progress: stickyProgress } =
     useDynamicHeader<HTMLDivElement>(true);
   const hideSticky = !stickyProgress;
@@ -61,23 +63,39 @@ const ProfilePage = ({
 
   const shouldShowBanner = isUserSame && shouldShow && !hasClosedBanner;
 
+  // When in preview mode, hide owner-only elements
+  const showAsVisitor = isUserSame && isPreviewMode;
+
   return (
     <div className="rounded-16 border border-t-0 border-border-subtlest-tertiary laptop:border-t">
       <NextSeo {...seo} />
       <Header
         user={user}
-        isSameUser={isUserSame}
+        isSameUser={isUserSame && !showAsVisitor}
         sticky={!hideSticky}
         className={classNames(
           'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75 laptop:hidden',
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
         )}
       />
-      {isUserSame && <ProfileCompletion className="laptop:hidden" />}
+      {isUserSame && !showAsVisitor && (
+        <ProfileCompletion className="laptop:hidden" />
+      )}
       <div ref={stickyRef} />
-      <ProfileHeader user={user} userStats={userStats} />
+      <ProfileHeader
+        user={user}
+        userStats={userStats}
+        isSameUser={isUserSame && !showAsVisitor}
+      />
       <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
-        {shouldShowBanner && (
+        {isUserSame && !showAsVisitor && (
+          <ProfilePreviewToggle
+            isPreviewMode={isPreviewMode}
+            onToggle={() => setIsPreviewMode(!isPreviewMode)}
+            className="mb-4"
+          />
+        )}
+        {shouldShowBanner && !showAsVisitor && (
           <AutofillProfileBanner
             onUpload={onUpload}
             isLoading={status === 'pending'}
@@ -90,7 +108,7 @@ const ProfilePage = ({
         <ProfileUserHotTakes user={user} />
         <ProfileUserWorkspacePhotos user={user} />
         <Activity user={user} />
-        {isUserSame && (
+        {isUserSame && !showAsVisitor && (
           <Share permalink={user?.permalink} className="laptop:hidden" />
         )}
         <div className="py-4 laptop:hidden">
