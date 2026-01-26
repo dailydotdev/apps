@@ -24,23 +24,24 @@ export function ProfilePreviewToggle({
   return (
     <div
       className={classNames(
-        'flex items-center justify-between rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
+        'flex items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
         className,
       )}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <EyeIcon
           size={IconSize.Medium}
-          className="text-text-tertiary"
+          className="shrink-0 text-text-tertiary"
           secondary
         />
-        <div className="flex flex-col gap-0.5">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <Typography type={TypographyType.Body} bold>
             Preview mode
           </Typography>
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
+            className="break-words"
           >
             See how your profile looks to others
           </Typography>
@@ -52,6 +53,7 @@ export function ProfilePreviewToggle({
         checked={isPreviewMode}
         onToggle={onToggle}
         compact={false}
+        className="shrink-0"
       />
     </div>
   );
