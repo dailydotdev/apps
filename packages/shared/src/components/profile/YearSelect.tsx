@@ -63,7 +63,7 @@ const YearSelect = ({
       <DropdownMenuContent
         align="start"
         sideOffset={10}
-        className="flex max-h-64 w-[var(--radix-popper-anchor-width)] flex-col gap-1 overflow-y-auto overflow-x-hidden !p-0"
+        className="flex w-[var(--radix-popper-anchor-width)] flex-col gap-1 !p-0"
       >
         <DropdownMenuOptions options={menuItems} />
       </DropdownMenuContent>

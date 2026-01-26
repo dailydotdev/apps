@@ -28,6 +28,7 @@ import {
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LogEvent, TargetId } from '../../lib/log';
+import { isSystemModerator } from '../../lib/user';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -193,10 +194,9 @@ export default function SquadMemberMenu({
       (role: SourceMemberRole, title: MenuItemTitle) => () =>
         onUpdateMember(role, title);
     const menu: MenuItemProps[] = [];
-    const canUpdateRole = verifyPermission(
-      squad,
-      SourcePermissions.MemberRoleUpdate,
-    );
+    const canUpdateRole =
+      isSystemModerator(user) ||
+      verifyPermission(squad, SourcePermissions.MemberRoleUpdate);
 
     if (canUpdateRole) {
       const memberOptions = getUpdateRoleOptions(member, getUpdateRoleFn);

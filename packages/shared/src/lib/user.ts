@@ -17,6 +17,10 @@ export enum Roles {
   Moderator = 'moderator',
 }
 
+export const isSystemModerator = (user?: { roles?: Roles[] }): boolean => {
+  return user?.roles?.includes(Roles.Moderator) ?? false;
+};
+
 export interface UserSocialLink {
   platform: string;
   url: string;

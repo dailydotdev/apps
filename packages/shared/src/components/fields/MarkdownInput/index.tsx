@@ -80,6 +80,8 @@ interface MarkdownInputProps
   disabledSubmit?: boolean;
   maxInputLength?: number;
   onClose?: () => void;
+  editCommentId?: string;
+  parentCommentId?: string;
 }
 
 enum CommentTab {
@@ -88,7 +90,7 @@ enum CommentTab {
 }
 
 export interface MarkdownRef
-  extends Pick<UseMarkdownInput, 'onMentionCommand'> {
+  extends Pick<UseMarkdownInput, 'onMentionCommand' | 'clearDraft'> {
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
   setInput: UseMarkdownInput['setInput'];
 }
@@ -114,6 +116,8 @@ function MarkdownInput(
     disabledSubmit,
     maxInputLength,
     onClose,
+    editCommentId,
+    parentCommentId,
   }: MarkdownInputProps,
   ref: MutableRefObject<MarkdownRef>,
 ): ReactElement {
@@ -147,6 +151,7 @@ function MarkdownInput(
     onApplyEmoji,
     onCloseEmoji,
     setInput,
+    clearDraft,
   } = useMarkdownInput({
     postId,
     sourceId,
@@ -155,12 +160,15 @@ function MarkdownInput(
     textareaRef,
     onValueUpdate,
     enabledCommand,
+    editCommentId,
+    parentCommentId,
   });
 
   useImperativeHandle(ref, () => ({
     textareaRef,
     onMentionCommand,
     setInput,
+    clearDraft,
   }));
 
   const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
