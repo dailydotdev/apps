@@ -22,10 +22,7 @@ type GearModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (input: AddGearInput) => Promise<void>;
 };
 
-export function GearModal({
-  onSubmit,
-  ...rest
-}: GearModalProps): ReactElement {
+export function GearModal({ onSubmit, ...rest }: GearModalProps): ReactElement {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const isMobile = useViewSize(ViewSize.MobileL);
 
@@ -71,34 +68,14 @@ export function GearModal({
 
   return (
     <FormProvider {...methods}>
-      <Modal
-        formProps={{
-          form: 'gear_form',
-          title: (
-            <div className="px-4">
-              <ModalHeader.Title className="typo-title3">
-                Add Gear
-              </ModalHeader.Title>
-            </div>
-          ),
-          rightButtonProps: {
-            variant: ButtonVariant.Primary,
-            disabled: !canSubmit || isSubmitting,
-            loading: isSubmitting,
-          },
-          copy: { right: 'Add' },
-        }}
-        kind={Modal.Kind.FlexibleCenter}
-        size={Modal.Size.Small}
-        {...rest}
-      >
-        <form onSubmit={onFormSubmit} id="gear_form">
+      <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Small} {...rest}>
+        <form onSubmit={onFormSubmit} id="gear_form" className="w-full">
           <ModalHeader showCloseButton={!isMobile}>
             <ModalHeader.Title className="typo-title3">
               Add Gear
             </ModalHeader.Title>
           </ModalHeader>
-          <Modal.Body className="flex flex-col gap-4">
+          <Modal.Body className="flex flex-1 flex-col gap-4">
             {/* Name with autocomplete */}
             <div className="relative">
               <TextField
