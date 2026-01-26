@@ -787,3 +787,12 @@ export const CLAIM_OPPORTUNITIES_MUTATION = gql`
     }
   }
 `;
+
+export const OPPORTUNITY_APPLY_MUTATION = gql`
+  mutation OpportunityApply($id: ID!) {
+    opportunityApply(id: $id) {
+      ...OpportunityMatchFragment
+    }
+  }
+  ${OPPORTUNITY_MATCH_FRAGMENT}
+`;

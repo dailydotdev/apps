@@ -71,7 +71,7 @@ const PreferencePage = (): ReactElement => {
   const opportunityId = id as string;
 
   return (
-    <div className="mx-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
+    <div className="mx-4 my-4 flex w-auto max-w-full flex-col gap-4 tablet:mx-auto tablet:max-w-[35rem] laptop:flex-row">
       <FlexCol className="flex-1 gap-6">
         <InnerPreferencePage
           buttons={

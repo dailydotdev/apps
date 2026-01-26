@@ -403,6 +403,7 @@ export enum TargetType {
   Post = 'post',
   Recruiter = 'recruiter',
   ProfileCompletionCard = 'profile completion card',
+  OpportunityInterestButton = 'opportunity interest button',
 }
 
 export enum TargetId {
