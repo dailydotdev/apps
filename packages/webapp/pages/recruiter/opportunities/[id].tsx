@@ -309,9 +309,10 @@ const OpportunityDetailPage = (): ReactElement => {
   >({});
 
   // Fetch opportunity details
-  const { data: opportunity, isLoading: isLoadingOpportunity } = useQuery(
-    opportunityByIdOptions({ id: id as string }),
-  );
+  const { data: opportunity, isLoading: isLoadingOpportunity } = useQuery({
+    ...opportunityByIdOptions({ id: id as string }),
+    refetchOnWindowFocus: false,
+  });
 
   // Require payment to view this page
   const { isCheckingPayment } = useRequirePayment({
@@ -322,9 +323,10 @@ const OpportunityDetailPage = (): ReactElement => {
   const isLive = opportunity?.state === OpportunityState.LIVE;
 
   // Fetch opportunity matches
-  const { data: matchesData, isLoading: isLoadingMatches } = useQuery(
-    getOpportunityMatchesOptions({ opportunityId: id as string }),
-  );
+  const { data: matchesData, isLoading: isLoadingMatches } = useQuery({
+    ...getOpportunityMatchesOptions({ opportunityId: id as string }),
+    refetchOnWindowFocus: false,
+  });
 
   const matches = matchesData?.edges.map((edge) => edge.node) || [];
 
