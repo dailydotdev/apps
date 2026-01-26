@@ -14,14 +14,13 @@ import {
   reorderHotTakes,
 } from '../../../graphql/user/userHotTake';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { useAuthContext } from '../../../contexts/AuthContext';
+import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 
 export const MAX_HOT_TAKES = 5;
 
 export const useHotTakes = (user: PublicProfile | null) => {
   const queryClient = useQueryClient();
-  const { user: loggedUser } = useAuthContext();
-  const isOwner = loggedUser?.id === user?.id;
+  const { isOwner } = useProfilePreview(user);
 
   const queryKey = generateQueryKey(RequestKey.UserHotTakes, user, 'profile');
 

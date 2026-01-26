@@ -15,12 +15,11 @@ import {
   reorderUserTools,
 } from '../../../graphql/user/userTool';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { useAuthContext } from '../../../contexts/AuthContext';
+import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 
 export function useUserTools(user: PublicProfile | null) {
   const queryClient = useQueryClient();
-  const { user: loggedUser } = useAuthContext();
-  const isOwner = loggedUser?.id === user?.id;
+  const { isOwner } = useProfilePreview(user);
 
   const queryKey = generateQueryKey(RequestKey.UserTools, user, 'profile');
 

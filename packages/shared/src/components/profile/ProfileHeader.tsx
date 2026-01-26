@@ -47,12 +47,17 @@ const ProfileActions = dynamic(
 type ProfileHeaderProps = {
   user: PublicProfile;
   userStats: Omit<UserStatsProps['stats'], 'reputation'>;
+  isSameUser?: boolean;
 };
 
-const ProfileHeader = ({ user, userStats }: ProfileHeaderProps) => {
+const ProfileHeader = ({
+  user,
+  userStats,
+  isSameUser: propIsSameUser,
+}: ProfileHeaderProps) => {
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
-  const isSameUser = loggedUser?.id === user.id;
+  const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
   return (
     <div className="relative w-full overflow-hidden laptop:rounded-t-16">
       <div className="h-36">
