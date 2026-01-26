@@ -10,6 +10,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import type { RadioItemProps } from '@dailydotdev/shared/src/components/fields/Radio';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { ToggleRadio } from '@dailydotdev/shared/src/components/fields/ToggleRadio';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -19,13 +20,14 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import classNames from 'classnames';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { SettingsSwitch } from '../../components/layouts/SettingsLayout/common';
 
-const densities = [
+const densities: RadioItemProps[] = [
   { label: 'Eco', value: 'eco' },
   { label: 'Roomy', value: 'roomy' },
   { label: 'Cozy', value: 'cozy' },
@@ -64,11 +66,11 @@ const AccountManageSubscriptionPage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Appearance">
-      <div className="flex flex-col gap-6">
+      <FlexCol className="gap-6">
         <ThemeSection />
 
         {isLaptop && (
-          <section className="flex flex-col gap-2">
+          <FlexCol className="gap-2">
             <Typography bold type={TypographyType.Subhead}>
               Layout
             </Typography>
@@ -86,10 +88,10 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               offLabel="Cards"
               onLabel="List"
             />
-          </section>
+          </FlexCol>
         )}
 
-        <section className="flex flex-col gap-2">
+        <FlexCol className="gap-2">
           <Typography bold type={TypographyType.Subhead}>
             Density
           </Typography>
@@ -119,9 +121,9 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             }}
             reverse
           />
-        </section>
+        </FlexCol>
 
-        <section className="flex flex-col gap-5">
+        <FlexCol className="gap-5">
           <Typography bold type={TypographyType.Subhead}>
             Preferences
           </Typography>
@@ -149,9 +151,9 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           >
             Show companion widget on external sites
           </SettingsSwitch>
-        </section>
+        </FlexCol>
 
-        <section className="flex flex-col gap-5">
+        <FlexCol className="gap-5">
           <Typography bold type={TypographyType.Subhead}>
             Accessibility
           </Typography>
@@ -163,8 +165,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           >
             Auto-hide notifications after a few seconds
           </SettingsSwitch>
-        </section>
-      </div>
+        </FlexCol>
+      </FlexCol>
     </AccountPageContainer>
   );
 };

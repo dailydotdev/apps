@@ -67,11 +67,13 @@ import {
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { JobPageIntro } from '@dailydotdev/shared/src/features/opportunity/components/JobPageIntro';
 import { ResponseButtons } from '@dailydotdev/shared/src/features/opportunity/components/ResponseButtons';
+import { ShowInterestButton } from '@dailydotdev/shared/src/features/opportunity/components/ShowInterestButton';
 import type {
   Opportunity,
   OpportunityMeta,
   ContentSection,
 } from '@dailydotdev/shared/src/features/opportunity/types';
+import { OpportunityMatchStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
 import {
   EmploymentType,
@@ -460,17 +462,27 @@ const JobPage = ({
     opportunity?.organization?.customLinks?.length > 0 ||
     opportunity?.organization?.pressLinks?.length > 0;
 
+  // Log opportunity view for all users
+  // For logged-in users: wait for match query to resolve to include match_status
+  // For anonymous users: log immediately with 'no-match' status
   useEffect(() => {
-    if (!match || !id || hasLoggedRef.current) {
+    if (!opportunity || !id || hasLoggedRef.current) {
       return;
     }
+
+    // For logged-in users, wait until match query has resolved
+    // match will be undefined while loading, then either the match object or null
+    if (isLoggedIn && match === undefined) {
+      return;
+    }
+
     logRef.current({
       event_name: LogEvent.OpportunityMatchView,
       target_id: id,
-      extra: JSON.stringify({ match_status: match.status }),
+      extra: JSON.stringify({ match_status: match?.status ?? 'no-match' }),
     });
     hasLoggedRef.current = true;
-  }, [id, match]);
+  }, [id, opportunity, isLoggedIn, match]);
 
   if (!isAuthReady || isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
@@ -480,7 +492,42 @@ const JobPage = ({
     return <NoOpportunity />;
   }
 
-  const showFooterNav = !!match;
+  const showFooterNav = true; // Always show footer nav for interest/response buttons
+
+  const renderInterestButtons = (
+    containerClassName: string,
+    size: ButtonSize,
+  ): ReactElement | null => {
+    // Logged in user with an existing match - show response buttons
+    if (
+      isLoggedIn &&
+      match &&
+      match.status !== OpportunityMatchStatus.CandidateApplied
+    ) {
+      return (
+        <ResponseButtons
+          id={opportunity.id}
+          className={{
+            buttons: containerClassName.includes('w-full') ? 'flex-1' : '',
+            container: containerClassName,
+          }}
+          size={size}
+        />
+      );
+    }
+
+    // Anonymous user or logged in user without a match - show interest button
+    return (
+      <ShowInterestButton
+        opportunityId={opportunity.id}
+        className={{
+          button: containerClassName.includes('w-full') ? 'flex-1' : '',
+          container: containerClassName,
+        }}
+        size={size}
+      />
+    );
+  };
 
   return (
     <>
@@ -491,15 +538,9 @@ const JobPage = ({
       )}
       {showFooterNav && (
         <OpportunityFooter>
-          {!!match && (
-            <ResponseButtons
-              id={opportunity.id}
-              className={{
-                buttons: 'flex-1',
-                container: 'flex w-full items-center gap-4',
-              }}
-              size={ButtonSize.Medium}
-            />
+          {renderInterestButtons(
+            'flex w-full items-center gap-4',
+            ButtonSize.Medium,
           )}
         </OpportunityFooter>
       )}
@@ -515,14 +556,9 @@ const JobPage = ({
             <div className="flex min-h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary p-3">
               <GoBackButton showLogo={false} />
 
-              {!!match && (
-                <ResponseButtons
-                  id={opportunity.id}
-                  className={{
-                    container: 'hidden items-center gap-4 laptop:flex',
-                  }}
-                  size={ButtonSize.Medium}
-                />
+              {renderInterestButtons(
+                'hidden items-center gap-4 laptop:flex',
+                ButtonSize.Medium,
               )}
             </div>
           )}
