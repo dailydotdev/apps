@@ -16,6 +16,7 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
+import { useEventListener } from '../../../../hooks/useEventListener';
 import type { PublicProfile } from '../../../../lib/user';
 import {
   useUserWorkspacePhotos,

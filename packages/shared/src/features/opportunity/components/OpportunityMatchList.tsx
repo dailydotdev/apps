@@ -26,6 +26,7 @@ const matchStatusLabels: Record<OpportunityMatchStatus, string> = {
   [OpportunityMatchStatus.CandidateTimeOut]: 'Expired',
   [OpportunityMatchStatus.RecruiterAccepted]: 'Matched!',
   [OpportunityMatchStatus.RecruiterRejected]: 'Recruiter declined',
+  [OpportunityMatchStatus.CandidateApplied]: 'You shown interest',
 };
 
 const matchStatusColors: Record<OpportunityMatchStatus, string> = {
@@ -39,6 +40,8 @@ const matchStatusColors: Record<OpportunityMatchStatus, string> = {
     'bg-surface-float text-text-tertiary',
   [OpportunityMatchStatus.RecruiterRejected]:
     'bg-surface-float text-text-tertiary',
+  [OpportunityMatchStatus.CandidateApplied]:
+    'bg-surface-float text-text-tertiary',
 };
 
 const AlertIcon = (
@@ -51,6 +54,7 @@ const matchStatusAlert: Record<OpportunityMatchStatus, ReactElement | null> = {
   [OpportunityMatchStatus.CandidateTimeOut]: null,
   [OpportunityMatchStatus.RecruiterAccepted]: null,
   [OpportunityMatchStatus.RecruiterRejected]: null,
+  [OpportunityMatchStatus.CandidateApplied]: null,
 };
 
 export const OpportunityMatchList = ({

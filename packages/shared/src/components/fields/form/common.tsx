@@ -1,6 +1,6 @@
 export enum WriteFormTab {
-  Share = 'Share a link',
   NewPost = 'New post',
+  Share = 'Share a link',
   Poll = 'Poll',
 }
 

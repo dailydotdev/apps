@@ -16,16 +16,20 @@ export const OpportunityProtectedLayout = ({
     push,
   } = useRouter();
   const opportunityId = id as string;
-  const { data: opportunity } = useQuery({
+  const { data: opportunity, isPending } = useQuery({
     ...opportunityByIdOptions({ id: opportunityId }),
-    enabled: false,
+    enabled: !!opportunityId,
   });
 
   useEffect(() => {
+    if (isPending) {
+      return;
+    }
+
     if (!opportunity) {
       push(`${opportunityUrl}/${opportunityId}`);
     }
-  }, [opportunity, opportunityId, push]);
+  }, [opportunity, opportunityId, push, isPending]);
 
   if (!opportunity) {
     return null;

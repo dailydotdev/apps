@@ -16,6 +16,7 @@ import {
   CLEAR_RESUME_MUTATION,
   CREATE_ORGANIZATION_FOR_OPPORTUNITY_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
+  OPPORTUNITY_APPLY_MUTATION,
   PARSE_OPPORTUNITY_MUTATION,
   REIMPORT_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
@@ -560,6 +561,24 @@ export const claimOpportunitiesMutationOptions = (): MutationOptions<
       });
 
       return result.claimOpportunities;
+    },
+  };
+};
+
+export const opportunityApplyMutationOptions = (): MutationOptions<
+  OpportunityMatch,
+  DefaultError,
+  { id: string }
+> => {
+  return {
+    mutationFn: async ({ id }) => {
+      const result = await gqlClient.request<{
+        opportunityApply: OpportunityMatch;
+      }>(OPPORTUNITY_APPLY_MUTATION, {
+        id,
+      });
+
+      return result.opportunityApply;
     },
   };
 };

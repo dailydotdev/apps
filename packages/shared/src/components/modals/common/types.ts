@@ -90,6 +90,7 @@ export enum LazyModal {
   VerifyExperience = 'verifyExperience',
   SlackChannelConfirmation = 'slackChannelConfirmation',
   RecruiterSeats = 'recruiterSeats',
+  CandidateSignIn = 'candidateSignIn',
 }
 
 export type ModalTabItem = {
