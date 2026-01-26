@@ -37,7 +37,7 @@ export const LEADERBOARD_QUERY = gql`
         emoji
       }
       user {
-        permalink
+        username
       }
     }
   }

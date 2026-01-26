@@ -10,11 +10,12 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
+import { webappUrl } from '../../../lib/constants';
 
 export type PopularHotTakes = {
   score: number;
   hotTake: Pick<HotTake, 'id' | 'title' | 'subtitle' | 'emoji'>;
-  user: Pick<LoggedUser, 'permalink'>;
+  user: Pick<LoggedUser, 'username'>;
 };
 
 export function PopularHotTakesList({
@@ -27,7 +28,7 @@ export function PopularHotTakesList({
         return (
           <LeaderboardListItem
             key={hotTake.id}
-            href={user.permalink}
+            href={`${webappUrl}${user.username}#hot-takes`}
             index={score}
             className="flex w-full flex-row items-center rounded-8 px-2 py-2 hover:bg-accent-pepper-subtler"
           >
