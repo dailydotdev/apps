@@ -28,6 +28,7 @@ import classNames from 'classnames';
 import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
 import { Share } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/Share';
 import { useRouter } from 'next/router';
+import { useProfileCompletionIndicator } from '@dailydotdev/shared/src/hooks/profile/useProfileCompletionIndicator';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
@@ -51,6 +52,8 @@ const ProfilePage = ({
     () => checkHasCompleted(ActionType.ClosedProfileBanner),
     [checkHasCompleted],
   );
+  const { showIndicator: showProfileCompletion } =
+    useProfileCompletionIndicator();
 
   const { user, isUserSame: isUserSameBase } = useProfile(initialUser);
 
@@ -85,7 +88,9 @@ const ProfilePage = ({
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
         )}
       />
-      {isSameUser && <ProfileCompletion className="laptop:hidden" />}
+      {isSameUser && showProfileCompletion && (
+        <ProfileCompletion className="laptop:hidden" />
+      )}
       <div ref={stickyRef} />
       <ProfileHeader
         user={user}
