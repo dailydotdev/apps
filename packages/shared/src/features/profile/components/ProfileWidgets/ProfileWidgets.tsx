@@ -79,10 +79,11 @@ export function ProfileWidgets({
       {isOwner && (
         <Share permalink={user?.permalink} className="hidden laptop:flex" />
       )}
-      {canViewUserProfileAnalytics({
-        user: loggedUser,
-        profileUserId: user.id,
-      }) && <ProfileViewsWidget userId={user.id} />}
+      {!isPreviewMode &&
+        canViewUserProfileAnalytics({
+          user: loggedUser,
+          profileUserId: user.id,
+        }) && <ProfileViewsWidget userId={user.id} />}
       <ReadingOverview
         readHistory={readingHistory?.userReadHistory}
         before={before}
