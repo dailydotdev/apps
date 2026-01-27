@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Import the component
 import { FunnelUploadCv } from './FunnelUploadCv';
+import type { FunnelStepUploadCv } from '../types/funnel';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -122,7 +123,7 @@ const renderComponent = (
   return render(
     <QueryClientProvider client={queryClient}>
       <FunnelUploadCv
-        parameters={parameters}
+        parameters={parameters as FunnelStepUploadCv['parameters']}
         onTransition={onTransition}
         type={FunnelStepType.UploadCv}
         id="test-id"
