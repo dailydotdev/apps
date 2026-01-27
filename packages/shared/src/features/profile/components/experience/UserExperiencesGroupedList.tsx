@@ -101,7 +101,7 @@ export function UserExperiencesGroupedList({
         />
         <div className="flex flex-1 flex-col">
           <div className="flex flex-wrap items-center gap-1">
-            <Typography type={TypographyType.Subhead} bold>
+            <Typography type={TypographyType.Subhead} bold truncate>
               {company}
             </Typography>
             {isCurrent && currentPill}

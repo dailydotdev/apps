@@ -181,12 +181,7 @@ export function UserExperienceItem({
           )}
         >
           <div className="flex flex-wrap items-center gap-1">
-            <Typography
-              className="whitespace-break-spaces"
-              truncate
-              type={TypographyType.Subhead}
-              bold
-            >
+            <Typography truncate type={TypographyType.Subhead} bold>
               {primaryCopy}
             </Typography>
             {!grouped && !endedAt && currentPill}
