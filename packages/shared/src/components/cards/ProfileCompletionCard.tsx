@@ -110,13 +110,9 @@ export const ProfileCompletionCard = ({
 
   const firstIncompleteItem = incompleteItems[0];
   const progress = profileCompletion?.percentage ?? 0;
-  const isCompleted = progress === 100;
 
   const shouldShow =
-    profileCompletion &&
-    !isCompleted &&
-    firstIncompleteItem &&
-    !showProfileCompletion;
+    profileCompletion && showProfileCompletion && firstIncompleteItem;
 
   useEffect(() => {
     if (!shouldShow || isImpressionTracked.current) {
