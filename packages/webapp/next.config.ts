@@ -99,6 +99,12 @@ const nextConfig: NextConfig = {
         // eslint-disable-next-line no-param-reassign
         config.resolve.alias['cross-fetch'] = false;
 
+        // Exclude agentation from production builds
+        if (process.env.NODE_ENV === 'production') {
+          // eslint-disable-next-line no-param-reassign
+          config.resolve.alias.agentation = false;
+        }
+
         return config;
       },
       env: {
