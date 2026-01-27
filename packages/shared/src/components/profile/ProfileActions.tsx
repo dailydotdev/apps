@@ -139,6 +139,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               icon={<DotsIcon />}
+              aria-label="Options"
             />
           </div>
         </Tooltip>
