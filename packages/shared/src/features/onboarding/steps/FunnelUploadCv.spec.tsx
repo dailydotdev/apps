@@ -11,6 +11,8 @@ import { FunnelUploadCv } from './FunnelUploadCv';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useUploadCvVariant } from '../hooks/useUploadCvVariant';
+import { uploadCvVariants } from './uploadCvVariants';
 
 // Mock the hooks
 jest.mock('../../profile/hooks/useUploadCv');
@@ -22,9 +24,6 @@ jest.mock('../../../hooks', () => ({
   })),
 }));
 jest.mock('../hooks/useUploadCvVariant');
-
-import { useUploadCvVariant } from '../hooks/useUploadCvVariant';
-import { uploadCvVariants } from './uploadCvVariants';
 
 const mockUseUploadCvVariant = useUploadCvVariant as jest.MockedFunction<
   typeof useUploadCvVariant
