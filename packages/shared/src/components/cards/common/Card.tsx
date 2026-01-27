@@ -33,10 +33,7 @@ const Title = ({
   );
 };
 
-export const FreeformCardTitle = classed(
-  'h3',
-  'mt-2 break-words multi-truncate font-bold typo-title3',
-);
+export const FreeformCardTitle = classed(Title, 'mt-2 break-words');
 
 export const CardTitle = classed(Title, 'mt-2 break-words');
 

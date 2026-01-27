@@ -209,7 +209,6 @@ export default function Feed<T>({
 
   const {
     showProfileCompletionCard,
-    isDismissed: isProfileCompletionCardDismissed,
     isLoading: isProfileCompletionCardLoading,
   } = useProfileCompletionCard({ isMyFeed });
 
@@ -217,8 +216,7 @@ export default function Feed<T>({
     isMyFeed &&
     hasNoBriefAction &&
     !showProfileCompletionCard &&
-    !isProfileCompletionCardLoading &&
-    !isProfileCompletionCardDismissed;
+    !isProfileCompletionCardLoading;
   const { value: briefCardFeatureValue } = useConditionalFeature({
     feature: briefCardFeedFeature,
     shouldEvaluate: shouldEvaluateBriefCard,
