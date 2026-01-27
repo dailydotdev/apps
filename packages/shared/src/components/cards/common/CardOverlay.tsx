@@ -10,12 +10,14 @@ interface CardOverlayProps {
   post: Pick<Post, 'commentsPermalink' | 'title' | 'id' | 'slug'>;
   onPostCardClick: (event: MouseEvent<HTMLAnchorElement>) => void;
   onPostCardAuxClick: (event: MouseEvent<HTMLAnchorElement>) => void;
+  ariaLabel?: string;
 }
 
 const CardOverlay = ({
   post,
   onPostCardClick,
   onPostCardAuxClick,
+  ariaLabel,
 }: CardOverlayProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
 
@@ -26,6 +28,7 @@ const CardOverlay = ({
   return (
     <CardLink
       title={post.title}
+      aria-label={ariaLabel || post.title}
       href={`${webappUrl}posts/${post.slug ?? post.id}`}
       rel={anchorDefaultRel}
       onClick={(event) => {
