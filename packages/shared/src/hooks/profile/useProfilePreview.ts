@@ -35,7 +35,7 @@ export function useProfilePreview(
     } else {
       newQuery.preview = 'true';
     }
-    router.push(
+    router.replace(
       {
         pathname: router.pathname,
         query: newQuery,
