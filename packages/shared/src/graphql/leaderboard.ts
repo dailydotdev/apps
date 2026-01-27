@@ -28,6 +28,18 @@ export const LEADERBOARD_QUERY = gql`
         image
       }
     }
+    popularHotTakes(limit: $limit) {
+      score
+      hotTake {
+        id
+        title
+        subtitle
+        emoji
+      }
+      user {
+        username
+      }
+    }
   }
   ${LEADERBOARD_FRAGMENT}
 `;

@@ -17,6 +17,8 @@ import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/L
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
 import { CompanyTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
+import type { PopularHotTakes } from '@dailydotdev/shared/src/components/cards/Leaderboard/PopularHotTakesList';
+import { PopularHotTakesList } from '@dailydotdev/shared/src/components/cards/Leaderboard/PopularHotTakesList';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -37,6 +39,7 @@ interface PageProps {
   mostReferrals: UserLeaderboard[];
   mostReadingDays: UserLeaderboard[];
   mostVerifiedUsers: CompanyLeaderboard[];
+  popularHotTakes: PopularHotTakes[];
 }
 
 const LeaderboardPage = ({
@@ -47,6 +50,7 @@ const LeaderboardPage = ({
   mostReferrals,
   mostReadingDays,
   mostVerifiedUsers,
+  popularHotTakes,
 }: PageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
 
@@ -119,6 +123,13 @@ const LeaderboardPage = ({
           items={mostVerifiedUsers}
           isLoading={isLoading}
         />
+        <PopularHotTakesList
+          containerProps={{
+            title: 'Most popular hot takes',
+          }}
+          items={popularHotTakes}
+          isLoading={isLoading}
+        />
       </div>
     </PageWrapperLayout>
   );
@@ -149,6 +160,7 @@ export async function getStaticProps(): Promise<
         mostReferrals: res.mostReferrals,
         mostReadingDays: res.mostReadingDays,
         mostVerifiedUsers: res.mostVerifiedUsers,
+        popularHotTakes: res.popularHotTakes,
       },
       revalidate: 3600,
     };
@@ -168,6 +180,7 @@ export async function getStaticProps(): Promise<
           mostReferrals: [],
           mostReadingDays: [],
           mostVerifiedUsers: [],
+          popularHotTakes: [],
         },
         revalidate: 60,
       };

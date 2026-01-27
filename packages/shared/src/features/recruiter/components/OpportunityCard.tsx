@@ -2,11 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import {
   Typography,
   TypographyColor,
   TypographyType,
@@ -17,15 +12,20 @@ import { webappUrl } from '../../../lib/constants';
 import type { Opportunity } from '../../opportunity/types';
 import { OpportunityState } from '../../opportunity/protobuf/opportunity';
 
-const getNextStepUrl = (opportunity: Opportunity): string => {
-  const { id, flags } = opportunity;
+const getCardUrl = (opportunity: Opportunity): string => {
+  const { id, state, flags } = opportunity;
   const isPaid = !!flags?.plan;
+  const isLive = state === OpportunityState.LIVE;
 
-  if (!isPaid) {
-    return `${webappUrl}recruiter/${id}/plans`;
+  if (isPaid && isLive) {
+    return `${webappUrl}recruiter/${id}/matches`;
   }
 
-  return `${webappUrl}recruiter/${id}/prepare`;
+  if (isPaid) {
+    return `${webappUrl}recruiter/${id}/prepare`;
+  }
+
+  return `${webappUrl}recruiter/${id}/plans`;
 };
 
 const getStateLabel = (state: OpportunityState): string => {
@@ -62,84 +62,68 @@ export type OpportunityCardProps = {
   opportunity: Opportunity;
 };
 
-export const OpportunityCard = ({
-  opportunity,
-}: OpportunityCardProps): ReactElement => {
-  const { title, organization, id, state, flags } = opportunity;
+const getActionIcon = (opportunity: Opportunity): ReactElement | null => {
+  const { state, flags } = opportunity;
   const isPaid = !!flags?.plan;
   const isLive = state === OpportunityState.LIVE;
   const isDraft = state === OpportunityState.DRAFT;
 
+  if (isPaid && isLive) {
+    return <UserIcon className="text-text-tertiary" />;
+  }
+
+  if (isPaid && !isLive) {
+    return <EditIcon className="text-text-tertiary" />;
+  }
+
+  if (!isPaid && isDraft) {
+    return <MoveToIcon className="text-text-tertiary" />;
+  }
+
+  return null;
+};
+
+export const OpportunityCard = ({
+  opportunity,
+}: OpportunityCardProps): ReactElement => {
+  const { title, organization, state } = opportunity;
+
   return (
-    <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-      {organization?.image && (
-        <img
-          src={organization.image}
-          alt={organization.name}
-          className="h-12 w-12 rounded-12 object-cover"
-        />
-      )}
+    <Link href={getCardUrl(opportunity)}>
+      <a className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 transition-colors hover:border-border-subtlest-secondary">
+        {organization?.image && (
+          <img
+            src={organization.image}
+            alt={organization.name}
+            className="h-12 w-12 rounded-12 object-cover"
+          />
+        )}
 
-      <div className="flex flex-1 flex-col gap-1">
-        <Typography type={TypographyType.Title3} bold>
-          {title}
-        </Typography>
-        <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
-          {organization?.name || 'Company'}
-        </Typography>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <span
-          className={classNames(
-            'rounded-8 px-2 py-1 typo-caption1',
-            getStateColor(state),
-          )}
-        >
-          {getStateLabel(state)}
-        </span>
-
-        <div className="flex items-center gap-1">
-          {/* Show matches button only if paid AND live */}
-          {isPaid && isLive && (
-            <Link href={`${webappUrl}recruiter/${id}/matches`} passHref>
-              <Button
-                tag="a"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                icon={<UserIcon />}
-                title="View matches"
-              />
-            </Link>
-          )}
-
-          {/* Show edit button only if paid and not live */}
-          {isPaid && !isLive && (
-            <Link href={`${webappUrl}recruiter/${id}/prepare`} passHref>
-              <Button
-                tag="a"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                icon={<EditIcon />}
-                title="Edit opportunity"
-              />
-            </Link>
-          )}
-
-          {/* Show continue button if not paid (draft needs to complete payment) */}
-          {!isPaid && isDraft && (
-            <Link href={getNextStepUrl(opportunity)} passHref>
-              <Button
-                tag="a"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                icon={<MoveToIcon />}
-                title="Continue setup"
-              />
-            </Link>
-          )}
+        <div className="flex flex-1 flex-col gap-1">
+          <Typography type={TypographyType.Title3} bold>
+            {title}
+          </Typography>
+          <Typography
+            type={TypographyType.Body}
+            color={TypographyColor.Tertiary}
+          >
+            {organization?.name || 'Company'}
+          </Typography>
         </div>
-      </div>
-    </div>
+
+        <div className="flex items-center justify-between">
+          <span
+            className={classNames(
+              'rounded-8 px-2 py-1 typo-caption1',
+              getStateColor(state),
+            )}
+          >
+            {getStateLabel(state)}
+          </span>
+
+          {getActionIcon(opportunity)}
+        </div>
+      </a>
+    </Link>
   );
 };

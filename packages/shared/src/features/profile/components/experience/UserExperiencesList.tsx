@@ -23,6 +23,7 @@ import Link from '../../../../components/utilities/Link';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { webappUrl } from '../../../../lib/constants';
 import type { PublicProfile } from '../../../../lib/user';
+import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
 
 interface UserExperienceListProps<T extends UserExperience> {
   experiences: T[];
@@ -67,7 +68,7 @@ export function UserExperienceList<T extends UserExperience>({
   user,
 }: UserExperienceListProps<T>): ReactElement {
   const { user: loggedUser } = useAuthContext();
-  const isSameUser = user?.id === loggedUser?.id;
+  const { isOwner } = useProfilePreview(user);
 
   const groupedByCompany: [string, T[]][] = useMemo(
     () => groupListByCompany(experiences),
@@ -89,7 +90,7 @@ export function UserExperienceList<T extends UserExperience>({
           <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
             {title}
           </Typography>
-          {settingsUrl && isSameUser && (
+          {settingsUrl && isOwner && (
             <Link href={settingsUrl} passHref>
               <Button
                 tag="a"
@@ -111,7 +112,7 @@ export function UserExperienceList<T extends UserExperience>({
               key={list[0].id}
               experience={list[0]}
               isExperienceVerified={experienceVerified}
-              isSameUser={isSameUser}
+              isSameUser={isOwner}
               editUrl={
                 showEditOnItems
                   ? `${editBaseUrl}?id=${list[0].id}&type=${experienceType}`
@@ -125,7 +126,7 @@ export function UserExperienceList<T extends UserExperience>({
               experiences={list}
               isExperienceVerified={experienceVerified}
               showEditOnItems={showEditOnItems}
-              isSameUser={isSameUser}
+              isSameUser={isOwner}
               experienceType={experienceType}
               editBaseUrl={editBaseUrl}
             />
