@@ -47,7 +47,7 @@ export const MatchReviewHeader = ({
             <Button
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
-              icon={<ArrowIcon className="rotate-180" />}
+              icon={<ArrowIcon className="rotate-270" />}
               onClick={onPrevious}
               disabled={!hasPrevious}
               aria-label="Previous match"
@@ -62,7 +62,7 @@ export const MatchReviewHeader = ({
             <Button
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
-              icon={<ArrowIcon />}
+              icon={<ArrowIcon className="rotate-90" />}
               onClick={onNext}
               disabled={!hasNext}
               aria-label="Next match"
