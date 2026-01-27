@@ -65,6 +65,7 @@ export const OpportunityEntryButton = () => {
             variant={ButtonVariant.Float}
             className="relative w-10 justify-center"
             tag="a"
+            aria-label="Jobs"
             onClick={logOpportunityNudgeClick}
             iconPosition={ButtonIconPosition.Top}
             icon={<JobIcon />}
