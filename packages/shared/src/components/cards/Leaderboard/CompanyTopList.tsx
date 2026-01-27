@@ -5,24 +5,12 @@ import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import type { Company } from '../../../lib/userCompany';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
+import { indexToEmoji } from './common';
 
 export interface CompanyLeaderboard {
   score: number;
   company: Company;
 }
-
-const indexToEmoji = (index: number): string => {
-  switch (index) {
-    case 0:
-      return '🏆';
-    case 1:
-      return '🥈';
-    case 2:
-      return '🥉';
-    default:
-      return '';
-  }
-};
 
 export function CompanyTopList({
   items,
