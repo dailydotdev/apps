@@ -12,7 +12,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { FlexCol, FlexRow } from '../utilities';
-import { MiniCloseIcon } from '../icons';
+import { ArrowIcon, MiniCloseIcon } from '../icons';
 
 export interface MatchReviewHeaderProps {
   currentMatch: number;
@@ -21,6 +21,10 @@ export interface MatchReviewHeaderProps {
   onReject?: () => void;
   onApprove?: () => void;
   disabled?: boolean;
+  onPrevious?: () => void;
+  onNext?: () => void;
+  hasPrevious?: boolean;
+  hasNext?: boolean;
 }
 
 export const MatchReviewHeader = ({
@@ -30,18 +34,40 @@ export const MatchReviewHeader = ({
   onReject,
   onApprove,
   disabled = false,
+  onPrevious,
+  onNext,
+  hasPrevious = false,
+  hasNext = false,
 }: MatchReviewHeaderProps): ReactElement => {
   return (
     <FlexRow className="items-center justify-between border-b border-border-subtlest-tertiary p-4">
       <FlexCol>
         {onReject && onApprove && (
-          <Typography
-            type={TypographyType.Footnote}
-            bold
-            color={TypographyColor.Tertiary}
-          >
-            {currentMatch} of {totalMatches} for review
-          </Typography>
+          <FlexRow className="items-center gap-2">
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<ArrowIcon className="rotate-180" />}
+              onClick={onPrevious}
+              disabled={!hasPrevious}
+              aria-label="Previous match"
+            />
+            <Typography
+              type={TypographyType.Footnote}
+              bold
+              color={TypographyColor.Tertiary}
+            >
+              {currentMatch} of {totalMatches} for review
+            </Typography>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<ArrowIcon />}
+              onClick={onNext}
+              disabled={!hasNext}
+              aria-label="Next match"
+            />
+          </FlexRow>
         )}
         <Typography type={TypographyType.Title3} bold>
           {name}
