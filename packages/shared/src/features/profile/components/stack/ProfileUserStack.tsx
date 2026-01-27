@@ -26,8 +26,18 @@ interface ProfileUserStackProps {
   user: PublicProfile;
 }
 
-// Predefined section order
-const SECTION_ORDER = ['Primary', 'Hobby', 'Learning', 'Past'];
+// Predefined section order - includes both stack sections and tool categories
+const SECTION_ORDER = [
+  'Primary',
+  'Hobby',
+  'Learning',
+  'Past',
+  'Development',
+  'Design',
+  'Productivity',
+  'Communication',
+  'AI',
+];
 
 export function ProfileUserStack({
   user,
@@ -138,7 +148,7 @@ export function ProfileUserStack({
           color={TypographyColor.Primary}
           bold
         >
-          Stack
+          Stack & Tools
         </Typography>
         {isOwner && (
           <Button
@@ -172,7 +182,7 @@ export function ProfileUserStack({
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              Share your tech stack with the community
+              Share your stack & tools with the community
             </Typography>
             <Button
               variant={ButtonVariant.Secondary}
