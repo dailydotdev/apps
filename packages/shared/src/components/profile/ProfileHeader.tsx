@@ -135,7 +135,9 @@ const ProfileHeader = ({
               dateFormat="MMM d. yyyy"
             />
           </div>
-          {!isSameUser && <ProfileActions user={user} isPreviewMode={isPreviewMode} />}
+          {!isSameUser && (
+            <ProfileActions user={user} isPreviewMode={isPreviewMode} />
+          )}
           <UserStats
             userId={user.id}
             stats={{ ...userStats, reputation: user.reputation }}
