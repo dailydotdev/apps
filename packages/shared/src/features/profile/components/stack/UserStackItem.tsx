@@ -12,7 +12,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { EditIcon, TrashIcon } from '../../../../components/icons';
+import { EditIcon, PlusIcon, TrashIcon } from '../../../../components/icons';
 import { formatMonthYearOnly } from '../../../../lib/dateFormat';
 
 interface UserStackItemProps {
@@ -43,12 +43,14 @@ export function UserStackItem({
       )}
     >
       <div className="flex items-center gap-2">
-        {tool.faviconUrl && (
+        {tool.faviconUrl ? (
           <img
             src={tool.faviconUrl}
             alt=""
             className="rounded size-6 flex-shrink-0"
           />
+        ) : (
+          <PlusIcon className="size-6 flex-shrink-0 text-text-tertiary" />
         )}
         {!!title && (
           <div className="flex min-w-0 flex-1 flex-col">
