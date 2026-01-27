@@ -143,6 +143,7 @@ export function UserExperiencesGroupedList({
                 <Typography
                   type={TypographyType.Footnote}
                   color={TypographyColor.Secondary}
+                  truncate
                 >
                   {locationType === LocationType.REMOTE
                     ? 'Remote'
