@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import type { DatasetTool } from '../../../graphql/user/userTool';
-import { searchTools } from '../../../graphql/user/userTool';
+import type { DatasetTool } from '../../../graphql/user/userStack';
+import { searchTools } from '../../../graphql/user/userStack';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import useDebounce from '../../../hooks/useDebounce';
 import { defaultSearchDebounceMs } from '../../../lib/func';
