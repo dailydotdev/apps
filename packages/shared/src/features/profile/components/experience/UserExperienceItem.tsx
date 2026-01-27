@@ -170,7 +170,7 @@ export function UserExperienceItem({
         </div>
       )}
       <div
-        className={classNames('flex flex-1 flex-col gap-2', {
+        className={classNames('flex min-w-0 flex-1 flex-col gap-2', {
           'pt-3': !!grouped,
         })}
       >
@@ -182,8 +182,7 @@ export function UserExperienceItem({
         >
           <div className="flex flex-wrap items-center gap-1">
             <Typography
-              className="whitespace-break-spaces"
-              truncate
+              className="max-w-full"
               type={TypographyType.Subhead}
               bold
             >
