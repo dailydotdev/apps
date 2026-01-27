@@ -22,6 +22,7 @@ import {
   profileCompletionCardBg,
   profileCompletionButtonBg,
 } from '../../styles/custom';
+import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 
 type CompletionItem = {
   label: string;
@@ -90,9 +91,12 @@ export const ProfileCompletionCard = ({
 }: ProfileCompletionCardProps): ReactElement | null => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const { completeAction } = useActions();
   const profileCompletion = user?.profileCompletion;
   const isImpressionTracked = useRef(false);
+
+  const { showIndicator: showProfileCompletion } =
+    useProfileCompletionIndicator();
 
   const items = useMemo(
     () => (profileCompletion ? getCompletionItems(profileCompletion) : []),
@@ -107,11 +111,12 @@ export const ProfileCompletionCard = ({
   const firstIncompleteItem = incompleteItems[0];
   const progress = profileCompletion?.percentage ?? 0;
   const isCompleted = progress === 100;
-  const isDismissed =
-    isActionsFetched && checkHasCompleted(ActionType.ProfileCompletionCard);
 
   const shouldShow =
-    profileCompletion && !isCompleted && firstIncompleteItem && !isDismissed;
+    profileCompletion &&
+    !isCompleted &&
+    firstIncompleteItem &&
+    !showProfileCompletion;
 
   useEffect(() => {
     if (!shouldShow || isImpressionTracked.current) {
@@ -139,7 +144,7 @@ export const ProfileCompletionCard = ({
       target_type: TargetType.ProfileCompletionCard,
       target_id: 'dismiss',
     });
-    completeAction(ActionType.ProfileCompletionCard);
+    completeAction(ActionType.DismissProfileCompletionIndicator);
   }, [logEvent, completeAction]);
 
   if (!shouldShow) {
