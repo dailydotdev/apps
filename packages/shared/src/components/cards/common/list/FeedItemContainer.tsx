@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import Link from '../../../utilities/Link';
 import type { Post } from '../../../../graphql/posts';
 import { ListCard, CardLink } from './ListCard';
-import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
+import { RaisedLabel, RaisedLabelType } from '../RaisedLabel';
 import { useFeedPreviewMode, useBookmarkProvider } from '../../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../../styles/custom';
@@ -90,6 +90,7 @@ function FeedItemContainer(
             <RaisedLabel
               type={raisedLabelType}
               description={description}
+              listMode
               focus={focus}
             />
           )}

@@ -21,7 +21,7 @@ import { PostCardHeader } from '../common/PostCardHeader';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { PostCardFooter } from '../common/PostCardFooter';
-import ActionButtons from '../ActionsButtons';
+import ActionButtons from '../common/ActionButtons';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
@@ -89,6 +89,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           post={post}
           onUpvoteClick={() => onUpvoteClick(post, Origin.FeedbackCard)}
           onDownvoteClick={() => onDownvoteClick(post, Origin.FeedbackCard)}
+          isVideoType={isVideoType}
         />
       )}
 

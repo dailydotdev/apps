@@ -17,7 +17,7 @@ import FeedItemContainer from '../common/list/FeedItemContainer';
 import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import { CardCoverList } from '../common/list/CardCover';
-import ActionButtons from '../common/list/ActionButtons';
+import ActionButtons from '../common/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
@@ -73,6 +73,7 @@ export const FreeformList = forwardRef(function SharePostCard(
           'mt-2 justify-between',
           !!image && 'laptop:mt-auto',
         )}
+        variant="list"
       />
     </Container>
   );

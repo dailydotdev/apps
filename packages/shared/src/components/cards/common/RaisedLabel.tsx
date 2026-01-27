@@ -23,6 +23,8 @@ export interface RaisedLabelProps {
   type: RaisedLabelType;
   description?: string;
   className?: string | undefined;
+  /** Used in list cards to adjust position based on focus state */
+  focus?: boolean;
 }
 
 export const RaisedLabelContainer = classed(
@@ -31,12 +33,48 @@ export const RaisedLabelContainer = classed(
   styles.cardContainer,
 );
 
+/**
+ * Grid mode (default): Label appears above the card with hover animation
+ * List mode with focus: Label appears inside the card on the right
+ */
 export function RaisedLabel({
   listMode,
   type = RaisedLabelType.Hot,
   description,
   className,
+  focus = false,
 }: RaisedLabelProps): ReactElement {
+  // List mode with focus prop uses simplified inline positioning
+  if (listMode && focus !== undefined) {
+    return (
+      <div
+        className={classNames(
+          'absolute right-3 flex flex-row group-focus:-top-0.5',
+          !focus && '-top-px',
+          focus && '-top-0.5',
+          className,
+        )}
+      >
+        <ConditionalWrapper
+          condition={description?.length > 0}
+          wrapper={(children) => (
+            <Tooltip content={description}>{children}</Tooltip>
+          )}
+        >
+          <div
+            className={classNames(
+              'relative -top-2 flex h-4 rounded-4 px-2 font-bold uppercase text-white typo-caption2',
+              typeToClassName[type],
+            )}
+          >
+            {type}
+          </div>
+        </ConditionalWrapper>
+      </div>
+    );
+  }
+
+  // Grid mode (default) or list mode without focus - uses CSS module animations
   return (
     <div
       className={classNames(
