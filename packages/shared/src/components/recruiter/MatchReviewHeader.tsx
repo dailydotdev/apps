@@ -47,7 +47,7 @@ export const MatchReviewHeader = ({
             <Button
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
-              icon={<ArrowIcon className="rotate-270" />}
+              icon={<ArrowIcon className="-rotate-90" />}
               onClick={onPrevious}
               disabled={!hasPrevious}
               aria-label="Previous match"
