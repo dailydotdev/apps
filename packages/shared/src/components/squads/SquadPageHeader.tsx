@@ -33,6 +33,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { ClickableText } from '../buttons/ClickableText';
+import { SquadStack } from './stack/SquadStack';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -177,6 +178,9 @@ export function SquadPageHeader({
             +{privilegedLength - listMax}
           </Button>
         )}
+      </div>
+      <div className={classNames('w-full', MAX_WIDTH)}>
+        <SquadStack squad={squad} />
       </div>
       <EnableNotification
         contentName={squad.name}

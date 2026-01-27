@@ -231,6 +231,7 @@ export enum RequestKey {
   Autocomplete = 'autocomplete',
   UserExperience = 'user_experience',
   UserStack = 'user_stack',
+  SourceStack = 'source_stack',
   StackSearch = 'stack_search',
   UserHotTakes = 'user_hot_takes',
   UserTools = 'user_tools',
