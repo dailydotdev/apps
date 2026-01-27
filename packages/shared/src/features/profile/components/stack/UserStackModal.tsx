@@ -127,7 +127,7 @@ export function UserStackModal({
           title: (
             <div className="px-4">
               <ModalHeader.Title className="typo-title3">
-                {isEditing ? 'Edit Stack Item' : 'Add to Stack'}
+                {isEditing ? 'Edit stack/tool' : 'Add stack/tool'}
               </ModalHeader.Title>
             </div>
           ),
@@ -145,7 +145,7 @@ export function UserStackModal({
         <form onSubmit={onFormSubmit} id="user_stack_form">
           <ModalHeader showCloseButton={!isMobile}>
             <ModalHeader.Title className="typo-title3">
-              {isEditing ? 'Edit Stack Item' : 'Add to Stack'}
+              {isEditing ? 'Edit stack/tool' : 'Add stack/tool'}
             </ModalHeader.Title>
           </ModalHeader>
           <Modal.Body className="flex flex-col gap-4">
@@ -156,7 +156,7 @@ export function UserStackModal({
                 autoComplete="off"
                 autoFocus
                 inputId="stackTitle"
-                label="Technology or skill"
+                label="Technology, tool, or skill"
                 maxLength={255}
                 valid={!errors.title}
                 hint={errors.title?.message}
