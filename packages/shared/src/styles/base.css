@@ -44,8 +44,8 @@ body {
 
 @define-mixin dark-mode {
   /* Background colors */
-  --theme-background-default: theme('colors.raw.pepper.90');
-  --theme-background-subtle: theme('colors.raw.pepper.70');
+  --theme-background-default: theme('colors.raw.pepper.80');
+  --theme-background-subtle: theme('colors.raw.pepper.60');
   --theme-background-popover: theme('colors.raw.pepper.70');
   --theme-background-post-post: theme('colors.raw.pepper.70');
   --theme-background-post-disabled: var(--theme-background-default);
@@ -331,8 +331,8 @@ body {
 
 @define-mixin light-mode {
   /* Background colors */
-  --theme-background-default: theme('colors.raw.salt.0');
-  --theme-background-subtle: theme('colors.raw.salt.10');
+  --theme-background-default: theme('colors.raw.salt.10');
+  --theme-background-subtle: theme('colors.raw.salt.20');
   --theme-background-popover: theme('colors.raw.salt.0');
   --theme-background-post-post: theme('colors.raw.salt.10');
   --theme-background-post-disabled: var(--theme-background-default);
