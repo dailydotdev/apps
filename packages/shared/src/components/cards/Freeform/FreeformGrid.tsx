@@ -15,7 +15,7 @@ import CardOverlay from '../common/CardOverlay';
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostMetadata from '../common/PostMetadata';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
-import ActionButtons from '../ActionsButtons/ActionButtons';
+import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
