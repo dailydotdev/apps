@@ -1,12 +1,10 @@
-import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { profileCompletionCardFeature } from '../../lib/featureManagement';
 import { useActions } from '../useActions';
-import { ActionType } from '../../graphql/actions';
+import { useProfileCompletionIndicator } from './useProfileCompletionIndicator';
 
 interface UseProfileCompletionCard {
   showProfileCompletionCard: boolean;
-  isDismissed: boolean;
   isLoading: boolean;
 }
 
@@ -17,17 +15,13 @@ interface UseProfileCompletionCardProps {
 export const useProfileCompletionCard = ({
   isMyFeed,
 }: UseProfileCompletionCardProps): UseProfileCompletionCard => {
-  const { user } = useAuthContext();
-  const { checkHasCompleted, isActionsFetched } = useActions();
+  const { isActionsFetched } = useActions();
+  const { showIndicator: showProfileCompletion } =
+    useProfileCompletionIndicator();
 
-  const profileCompletion = user?.profileCompletion;
-  const isCompleted = (profileCompletion?.percentage ?? 100) === 100;
-  const isDismissed =
-    isActionsFetched && checkHasCompleted(ActionType.ProfileCompletionCard);
+  const isCompleted = !showProfileCompletion;
 
-  const hasNotDismissed =
-    isActionsFetched && !checkHasCompleted(ActionType.ProfileCompletionCard);
-  const shouldEvaluate = isMyFeed && !isCompleted && hasNotDismissed;
+  const shouldEvaluate = isMyFeed && !isCompleted;
 
   const { value: featureEnabled, isLoading: isFeatureLoading } =
     useConditionalFeature({
@@ -35,14 +29,12 @@ export const useProfileCompletionCard = ({
       shouldEvaluate,
     });
 
-  const couldPotentiallyShow = isMyFeed && !isCompleted && !!profileCompletion;
+  const couldPotentiallyShow = isMyFeed && !isCompleted;
   const isLoading =
     couldPotentiallyShow && (!isActionsFetched || isFeatureLoading);
 
   return {
-    showProfileCompletionCard:
-      shouldEvaluate && featureEnabled && !!profileCompletion,
-    isDismissed,
+    showProfileCompletionCard: shouldEvaluate && featureEnabled,
     isLoading,
   };
 };
