@@ -16,6 +16,8 @@ import { ProfileCompletion } from './ProfileCompletion';
 import { Share } from './Share';
 import { ProfileViewsWidget } from './ProfileViewsWidget';
 import { useProfileCompletionIndicator } from '../../../../hooks/profile/useProfileCompletionIndicator';
+import { ProfilePreviewToggle } from '../../../../components/profile/ProfilePreviewToggle';
+import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
 
 const BadgesAndAwards = dynamic(() =>
   import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
@@ -34,6 +36,7 @@ export function ProfileWidgets({
   const { user: loggedUser, tokenRefreshed } = useAuthContext();
   const { showIndicator: showProfileCompletion } =
     useProfileCompletionIndicator();
+  const { isPreviewMode, isOwner, togglePreview } = useProfilePreview(user);
   const isSameUser = loggedUser?.id === user.id;
 
   const before = startOfTomorrow();
@@ -64,10 +67,16 @@ export function ProfileWidgets({
         className,
       )}
     >
-      {isSameUser && showProfileCompletion && (
+      {isSameUser && (
+        <ProfilePreviewToggle
+          isPreviewMode={isPreviewMode}
+          onToggle={togglePreview}
+        />
+      )}
+      {isOwner && showProfileCompletion && (
         <ProfileCompletion className="hidden laptop:flex" />
       )}
-      {isSameUser && (
+      {isOwner && (
         <Share permalink={user?.permalink} className="hidden laptop:flex" />
       )}
       {canViewUserProfileAnalytics({
@@ -82,7 +91,7 @@ export function ProfileWidgets({
         mostReadTags={readingHistory?.userMostReadTags}
         isLoading={isReadingHistoryLoading}
       />
-      {(isSameUser || squads.length > 0) && (
+      {(isOwner || squads.length > 0) && (
         <ActiveOrRecomendedSquads userId={user.id} squads={squads} />
       )}
       <BadgesAndAwards user={user} />

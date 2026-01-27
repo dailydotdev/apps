@@ -5,24 +5,12 @@ import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
 import type { LoggedUser } from '../../../lib/user';
+import { indexToEmoji } from './common';
 
 export interface UserLeaderboard {
   score: number;
   user: LoggedUser;
 }
-
-const indexToEmoji = (index: number): string => {
-  switch (index) {
-    case 0:
-      return '🏆';
-    case 1:
-      return '🥈';
-    case 2:
-      return '🥉';
-    default:
-      return '';
-  }
-};
 
 export function UserTopList({
   items,
