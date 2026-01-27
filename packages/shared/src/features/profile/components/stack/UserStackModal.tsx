@@ -16,8 +16,8 @@ import { useViewSize, ViewSize } from '../../../../hooks';
 import type {
   UserStack,
   AddUserStackInput,
+  DatasetTool,
 } from '../../../../graphql/user/userStack';
-import type { DatasetTool } from '../../../../graphql/user/userTool';
 import { useStackSearch } from '../../hooks/useStackSearch';
 import { PlusIcon } from '../../../../components/icons';
 import YearSelect from '../../../../components/profile/YearSelect';
