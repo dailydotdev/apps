@@ -19,6 +19,7 @@ import type {
 } from '../../../../graphql/user/userStack';
 import type { DatasetTool } from '../../../../graphql/user/userTool';
 import { useStackSearch } from '../../hooks/useStackSearch';
+import { PlusIcon } from '../../../../components/icons';
 import YearSelect from '../../../../components/profile/YearSelect';
 import MonthSelect from '../../../../components/profile/MonthSelect';
 
@@ -172,7 +173,7 @@ export function UserStackModal({
                   }
                 }}
               />
-              {!isEditing && filteredSuggestions.length > 0 && (
+              {!isEditing && showSuggestions && title.trim() && (
                 <div className="absolute left-0 right-0 top-full z-1 mt-1 max-h-48 overflow-auto rounded-12 border border-border-subtlest-tertiary bg-background-default shadow-2">
                   {filteredSuggestions.map((suggestion) => (
                     <button
@@ -181,16 +182,34 @@ export function UserStackModal({
                       className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-surface-hover"
                       onClick={() => handleSelectSuggestion(suggestion)}
                     >
-                      {suggestion.faviconUrl && (
+                      {suggestion.faviconUrl ? (
                         <img
                           src={suggestion.faviconUrl}
                           alt=""
                           className="rounded size-4"
                         />
+                      ) : (
+                        <PlusIcon className="size-4 text-text-tertiary" />
                       )}
                       <span className="typo-callout">{suggestion.title}</span>
                     </button>
                   ))}
+                  {filteredSuggestions.length > 0 &&
+                    !filteredSuggestions.some(
+                      (s) =>
+                        s.title.toLowerCase() === title.trim().toLowerCase(),
+                    ) && (
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-surface-hover"
+                        onClick={() => {
+                          setShowSuggestions(false);
+                        }}
+                      >
+                        <PlusIcon className="size-4 text-text-tertiary" />
+                        <span className="typo-callout">{title.trim()}</span>
+                      </button>
+                    )}
                 </div>
               )}
             </div>

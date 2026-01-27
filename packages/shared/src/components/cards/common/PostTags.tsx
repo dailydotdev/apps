@@ -50,7 +50,7 @@ export default function PostTags({
   return (
     <div
       className={classNames(
-        'flex min-h-px w-full min-w-0 flex-1 items-center gap-2 overflow-hidden',
+        'flex min-h-px w-full min-w-0 items-center gap-2 overflow-hidden',
         className,
       )}
       ref={elementRef}

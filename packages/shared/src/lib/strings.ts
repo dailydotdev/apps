@@ -103,3 +103,13 @@ export const generateNameFromEmail = (
 export const stripHtmlTags = (html: string): string => {
   return html?.replace(/<[^>]*>/g, '').trim() || '';
 };
+
+/**
+ * Escapes special markdown characters in user-generated content
+ * to prevent potential XSS when AI agents parse the markdown.
+ * @param text - The text to escape
+ * @returns The escaped text safe for use in markdown
+ */
+export const escapeMarkdown = (text: string): string => {
+  return text.replace(/[\\`*_{}[\]()#+\-.!|]/g, '\\$&');
+};

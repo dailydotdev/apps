@@ -1,5 +1,5 @@
 import type { ReactElement, Ref } from 'react';
-import React, { forwardRef, useMemo, useState } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
@@ -15,14 +15,13 @@ import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
-import ActionButtons from '../common/list/ActionButtons';
+import ActionButtons from '../common/ActionButtons';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import usePoll from '../../../hooks/usePoll';
 import PollOptions from './PollOptions';
 import PostMetadata from '../common/PostMetadata';
-import { useViewPost } from '../../../hooks/post';
+import { usePollVote } from '../../../hooks/post/usePollVote';
 
 export const PollList = forwardRef(function PollList(
   {
@@ -42,21 +41,7 @@ export const PollList = forwardRef(function PollList(
   const { className, style } = domProps;
   const { type, pinnedAt, trending } = post;
   const { user } = useAuthContext();
-  const { onVote, isCastingVote } = usePoll({ post });
-  const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
-  const onSendViewPost = useViewPost();
-
-  const handleVote = (optionId: string, text: string) => {
-    if (!isCastingVote) {
-      onVote(optionId, text);
-      setShouldAnimateResults(true);
-
-      if (!post?.id || !user?.id) {
-        return;
-      }
-      onSendViewPost(post.id);
-    }
-  };
+  const { handleVote, shouldAnimateResults } = usePollVote({ post });
 
   const onPostCardClick = () => onPostClick?.(post);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -75,6 +60,7 @@ export const PollList = forwardRef(function PollList(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
+        variant="list"
       />
     </Container>
   );

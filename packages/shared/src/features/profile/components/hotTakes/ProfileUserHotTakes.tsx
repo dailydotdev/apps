@@ -130,6 +130,8 @@ export function ProfileUserHotTakes({
 
   return (
     <div className="flex flex-col gap-4 py-4">
+      {/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
+      <a id="hot-takes" />
       <div className="flex items-center justify-between">
         <Typography
           type={TypographyType.Body}
@@ -149,7 +151,6 @@ export function ProfileUserHotTakes({
           </Button>
         )}
       </div>
-
       {hasItems ? (
         <div className="flex flex-col gap-2">
           {hotTakes.map((item) => (
@@ -195,7 +196,6 @@ export function ProfileUserHotTakes({
           </div>
         )
       )}
-
       {isModalOpen && (
         <HotTakeModal
           isOpen={isModalOpen}

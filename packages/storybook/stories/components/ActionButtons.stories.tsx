@@ -4,7 +4,7 @@ import { fn } from 'storybook/test';
 import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import post from '@dailydotdev/shared/__tests__/fixture/post';
 import ExtensionProviders from '../extension/_providers';
-import ActionButtons from '@dailydotdev/shared/src/components/cards/ActionsButtons/ActionButtons';
+import ActionButtons from '@dailydotdev/shared/src/components/cards/common/ActionButtons';
 
 const meta: Meta<typeof ActionButtons> = {
   title: 'components/ActionButtons',

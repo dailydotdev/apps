@@ -1,5 +1,5 @@
 import type { Ref } from 'react';
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef } from 'react';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
   CardTextContainer,
@@ -9,14 +9,13 @@ import {
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
-import ActionButtons from '../ActionsButtons';
+import ActionButtons from '../common/ActionButtons';
 import PollOptions from './PollOptions';
 import PostMetadata from '../common/PostMetadata';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import usePoll from '../../../hooks/usePoll';
 import CardOverlay from '../common/CardOverlay';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useViewPost } from '../../../hooks/post';
+import { usePollVote } from '../../../hooks/post/usePollVote';
 
 const PollGrid = forwardRef(function PollCard(
   {
@@ -33,21 +32,7 @@ const PollGrid = forwardRef(function PollCard(
   ref: Ref<HTMLElement>,
 ) {
   const { user } = useAuthContext();
-  const { onVote, isCastingVote } = usePoll({ post });
-  const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
-  const onSendViewPost = useViewPost();
-
-  const handleVote = (optionId: string, text: string) => {
-    if (!isCastingVote) {
-      onVote(optionId, text);
-      setShouldAnimateResults(true);
-
-      if (!post?.id || !user?.id) {
-        return;
-      }
-      onSendViewPost(post.id);
-    }
-  };
+  const { handleVote, shouldAnimateResults } = usePollVote({ post });
   const { title } = useSmartTitle(post);
 
   const { pinnedAt, trending, pollOptions, endsAt, numPollVotes, source } =

@@ -12,14 +12,13 @@ import {
   reorderUserWorkspacePhotos,
 } from '../../../graphql/user/userWorkspacePhoto';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { useAuthContext } from '../../../contexts/AuthContext';
+import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 
 export const MAX_WORKSPACE_PHOTOS = 5;
 
 export function useUserWorkspacePhotos(user: PublicProfile | null) {
   const queryClient = useQueryClient();
-  const { user: loggedUser } = useAuthContext();
-  const isOwner = loggedUser?.id === user?.id;
+  const { isOwner } = useProfilePreview(user);
 
   const queryKey = generateQueryKey(
     RequestKey.UserWorkspacePhotos,

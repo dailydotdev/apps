@@ -10,7 +10,7 @@ import {
   CardContainer,
   CardContent,
 } from '../common/list/ListCard';
-import ActionButtons from '../common/list/ActionButtons';
+import ActionButtons from '../common/ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import { CollectionPillSources } from '../../post/collection';
@@ -48,6 +48,7 @@ export const CollectionList = forwardRef(function CollectionCard(
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
         className="mt-2 justify-between tablet:mt-0"
+        variant="list"
       />
     </Container>
   );
