@@ -96,6 +96,7 @@ const ProfilePage = ({
         user={user}
         userStats={userStats}
         isSameUser={isSameUser}
+        isPreviewMode={isPreviewMode}
       />
       <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
         {shouldShowBanner && (

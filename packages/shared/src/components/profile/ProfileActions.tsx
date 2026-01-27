@@ -6,8 +6,19 @@ import type {
   PublicProfile,
   UserShortProfile,
 } from '../../lib/user';
-import { BlockIcon, FlagIcon, GiftIcon } from '../icons';
-import { ButtonVariant } from '../buttons/Button';
+import {
+  BlockIcon,
+  FlagIcon,
+  GiftIcon,
+  MedalBadgeIcon,
+  MenuIcon as DotsIcon,
+} from '../icons';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { ReferralCampaignKey } from '../../lib';
 import { FollowButton } from '../contentPreference/FollowButton';
 import {
@@ -23,15 +34,17 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
 import { AwardButton } from '../award/AwardButton';
+import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import type { MenuItemProps } from '../dropdown/common';
 
 export interface HeaderProps {
   user: PublicProfile;
+  isPreviewMode?: boolean;
 }
 
-const ProfileActions = ({ user }: HeaderProps): ReactElement => {
+const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
   const { user: loggedUser } = useAuthContext();
   const { openModal } = useLazyModal();
   const { follow, unfollow } = useContentPreference();
@@ -104,6 +117,34 @@ const ProfileActions = ({ user }: HeaderProps): ReactElement => {
         });
       },
     });
+  }
+
+  if (isPreviewMode) {
+    return (
+      <div className="flex h-12 items-center">
+        <Tooltip content="For preview purposes only" delayDuration={0}>
+          <div className="flex flex-row gap-2">
+            <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
+              Follow
+            </Button>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              color={ButtonColor.Cabbage}
+              icon={<MedalBadgeIcon secondary />}
+            >
+              Award
+            </Button>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<DotsIcon />}
+              aria-label="Options"
+            />
+          </div>
+        </Tooltip>
+      </div>
+    );
   }
 
   return (
