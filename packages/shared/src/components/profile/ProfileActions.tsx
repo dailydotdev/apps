@@ -6,7 +6,13 @@ import type {
   PublicProfile,
   UserShortProfile,
 } from '../../lib/user';
-import { BlockIcon, FlagIcon, GiftIcon, MedalBadgeIcon } from '../icons';
+import {
+  BlockIcon,
+  FlagIcon,
+  GiftIcon,
+  MedalBadgeIcon,
+  MenuIcon as DotsIcon,
+} from '../icons';
 import {
   Button,
   ButtonColor,
@@ -127,6 +133,11 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
           >
             Award
           </Button>
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<DotsIcon />}
+          />
         </div>
       </div>
     );
