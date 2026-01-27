@@ -194,22 +194,20 @@ export function UserStackModal({
                       <span className="typo-callout">{suggestion.title}</span>
                     </button>
                   ))}
-                  {filteredSuggestions.length > 0 &&
-                    !filteredSuggestions.some(
-                      (s) =>
-                        s.title.toLowerCase() === title.trim().toLowerCase(),
-                    ) && (
-                      <button
-                        type="button"
-                        className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-surface-hover"
-                        onClick={() => {
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        <PlusIcon className="size-4 text-text-tertiary" />
-                        <span className="typo-callout">{title.trim()}</span>
-                      </button>
-                    )}
+                  {!filteredSuggestions.some(
+                    (s) => s.title.toLowerCase() === title.trim().toLowerCase(),
+                  ) && (
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-surface-hover"
+                      onClick={() => {
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      <PlusIcon className="size-4 text-text-tertiary" />
+                      <span className="typo-callout">{title.trim()}</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
