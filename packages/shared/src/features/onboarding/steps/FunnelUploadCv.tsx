@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { ReactElement } from 'react';
 import type { FunnelStepUploadCv } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -10,6 +10,7 @@ import { UploadCv } from '../components/UploadCv';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { useUploadCvVariant } from '../hooks/useUploadCvVariant';
 
 function FunnelUploadCvComponent({
   parameters,
@@ -19,6 +20,16 @@ function FunnelUploadCvComponent({
   const { onUpload, status, isSuccess } = useUploadCv({
     shouldOpenModal: false,
   });
+  const variant = useUploadCvVariant();
+
+  const mergedParameters = useMemo(() => {
+    // Only override if variant has non-empty values (v1/control has empty strings)
+    return {
+      ...parameters,
+      headline: variant.headline || parameters.headline,
+      description: variant.description || parameters.description,
+    };
+  }, [parameters, variant]);
 
   if (!user) {
     return null;
@@ -39,7 +50,7 @@ function FunnelUploadCvComponent({
       containerClassName="flex w-full flex-1 flex-col items-center justify-center overflow-hidden"
     >
       <UploadCv
-        {...parameters}
+        {...mergedParameters}
         onFilesDrop={([file]) => onUpload(file)}
         status={status}
       />

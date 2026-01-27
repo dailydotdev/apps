@@ -120,3 +120,8 @@ export const featureProfileCompletionIndicator = new Feature(
   'profile_completion_indicator',
   0,
 );
+
+export const uploadCvFunnelVersion = new Feature<number>(
+  'upload_cv_funnel_version',
+  1, // Default to v1 (control)
+);

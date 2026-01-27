@@ -21,18 +21,32 @@ jest.mock('../../../hooks', () => ({
     isActionsFetched: true,
   })),
 }));
+jest.mock('../hooks/useUploadCvVariant');
+
+import { useUploadCvVariant } from '../hooks/useUploadCvVariant';
+import { uploadCvVariants } from './uploadCvVariants';
+
+const mockUseUploadCvVariant = useUploadCvVariant as jest.MockedFunction<
+  typeof useUploadCvVariant
+>;
 
 // Mock the UploadCv component to make testing easier
 jest.mock('../components/UploadCv', () => ({
   UploadCv: ({
     onFilesDrop,
     status,
+    headline,
+    description,
   }: {
     onFilesDrop: (files: File[]) => void;
     status: string;
+    headline: string;
+    description: string;
   }) => (
     <div data-testid="upload-cv-mock">
       <div data-testid="status">{status}</div>
+      <div data-testid="headline">{headline}</div>
+      <div data-testid="description">{description}</div>
       <button
         type="button"
         data-testid="file-drop-trigger"
@@ -155,6 +169,8 @@ describe('FunnelUploadCv', () => {
         },
       },
     } as never);
+    // Default to v1 (control) variant
+    mockUseUploadCvVariant.mockReturnValue(uploadCvVariants[1]);
   });
 
   const defaultParameters = {
@@ -287,6 +303,7 @@ describe('FunnelUploadCv', () => {
           shouldShow: false,
           onCloseBanner: jest.fn(),
         });
+        mockUseUploadCvVariant.mockReturnValue(uploadCvVariants[1]);
 
         const { unmount } = renderComponent(
           defaultParameters,
@@ -300,6 +317,47 @@ describe('FunnelUploadCv', () => {
 
         unmount();
       });
+    });
+  });
+
+  describe('Variant copy', () => {
+    it('should render with v1 (control) copy from parameters when variant is v1', () => {
+      mockUseUploadCvVariant.mockReturnValue(uploadCvVariants[1]);
+
+      renderComponent(defaultParameters, mockOnTransition);
+
+      expect(screen.getByTestId('headline')).toHaveTextContent(
+        defaultParameters.headline,
+      );
+      expect(screen.getByTestId('description')).toHaveTextContent(
+        defaultParameters.description,
+      );
+    });
+
+    it('should render with v2 copy when variant is v2', () => {
+      mockUseUploadCvVariant.mockReturnValue(uploadCvVariants[2]);
+
+      renderComponent(defaultParameters, mockOnTransition);
+
+      expect(screen.getByTestId('headline')).toHaveTextContent(
+        uploadCvVariants[2].headline,
+      );
+      expect(screen.getByTestId('description')).toHaveTextContent(
+        uploadCvVariants[2].description,
+      );
+    });
+
+    it('should render with v3 copy when variant is v3', () => {
+      mockUseUploadCvVariant.mockReturnValue(uploadCvVariants[3]);
+
+      renderComponent(defaultParameters, mockOnTransition);
+
+      expect(screen.getByTestId('headline')).toHaveTextContent(
+        uploadCvVariants[3].headline,
+      );
+      expect(screen.getByTestId('description')).toHaveTextContent(
+        uploadCvVariants[3].description,
+      );
     });
   });
 });
