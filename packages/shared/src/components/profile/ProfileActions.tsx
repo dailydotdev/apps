@@ -34,6 +34,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
 import { AwardButton } from '../award/AwardButton';
+import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import type { MenuItemProps } from '../dropdown/common';
@@ -121,24 +122,26 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
   if (isPreviewMode) {
     return (
       <div className="flex h-12 items-center">
-        <div className="flex flex-row gap-2">
-          <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
-            Follow
-          </Button>
-          <Button
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            color={ButtonColor.Cabbage}
-            icon={<MedalBadgeIcon secondary />}
-          >
-            Award
-          </Button>
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<DotsIcon />}
-          />
-        </div>
+        <Tooltip content="For preview purposes only" delayDuration={0}>
+          <div className="flex flex-row gap-2">
+            <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
+              Follow
+            </Button>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              color={ButtonColor.Cabbage}
+              icon={<MedalBadgeIcon secondary />}
+            >
+              Award
+            </Button>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<DotsIcon />}
+            />
+          </div>
+        </Tooltip>
       </div>
     );
   }
