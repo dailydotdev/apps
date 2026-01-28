@@ -162,6 +162,13 @@ export const CORE_PLATFORMS = {
     icon: KaggleIcon,
     urlBuilder: (u: string) => `https://kaggle.com/${u}`,
   },
+  medium: {
+    id: 'medium',
+    label: 'Medium',
+    domains: ['medium.com'],
+    icon: LinkIcon,
+    urlBuilder: (u: string) => `https://medium.com/@${u}`,
+  },
 } satisfies Record<string, PlatformConfig>;
 
 /**
@@ -178,12 +185,6 @@ export const ORG_ONLY_PLATFORMS = {
     id: 'instagram',
     label: 'Instagram',
     domains: ['instagram.com'],
-    icon: LinkIcon, // No specific icon available
-  },
-  medium: {
-    id: 'medium',
-    label: 'Medium',
-    domains: ['medium.com'],
     icon: LinkIcon, // No specific icon available
   },
   devto: {
@@ -298,8 +299,24 @@ export function detectPlatformFromUrl<T extends Record<string, PlatformConfig>>(
   }
 
   // Special case: Mastodon detection by URL pattern
+  // Only apply if no domain matched AND URL has /@username pattern
+  // This is a heuristic for federated Mastodon instances not in our known list
   if ('mastodon' in platforms && isMastodonUrl(url)) {
-    return 'mastodon' as keyof T;
+    // Don't detect as Mastodon if hostname matches any known platform's domain
+    // (even if that platform isn't in the current platforms config)
+    const allKnownDomains = [
+      ...Object.values(CORE_PLATFORMS),
+      ...Object.values(ORG_ONLY_PLATFORMS),
+      ...Object.values(USER_ONLY_PLATFORMS),
+    ].flatMap((config) => config.domains);
+
+    const isKnownDomain = allKnownDomains.some((domain) =>
+      hostname.includes(domain),
+    );
+
+    if (!isKnownDomain) {
+      return 'mastodon' as keyof T;
+    }
   }
 
   return null;
