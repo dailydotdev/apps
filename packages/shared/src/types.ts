@@ -30,6 +30,7 @@ export enum PostType {
   Collection = 'collection',
   Brief = 'brief',
   Poll = 'poll',
+  Tweet = 'tweet',
 }
 
 export const briefSourcesLimit = 6;

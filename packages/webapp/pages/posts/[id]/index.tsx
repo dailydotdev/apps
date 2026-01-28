@@ -101,6 +101,12 @@ const PollPostContent = dynamic(() =>
   ).then((module) => module.PollPostContent),
 );
 
+const TweetPostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazyTweetPostContent" */ '@dailydotdev/shared/src/components/post/tweet/TweetPostContent'
+  ).then((module) => module.TweetPostContent),
+);
+
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
@@ -117,6 +123,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   collection: CollectionPostContent,
   [PostType.Brief]: BriefPostContent,
   [PostType.Poll]: PollPostContent,
+  [PostType.Tweet]: TweetPostContent,
 };
 
 export interface PostParams extends ParsedUrlQuery {

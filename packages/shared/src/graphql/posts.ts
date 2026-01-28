@@ -28,6 +28,38 @@ export const MEGABYTE = 1024 * 1024;
 export type TocItem = { text: string; id?: string; children?: TocItem[] };
 export type Toc = TocItem[];
 
+// Tweet-specific types
+export type TweetMediaType = 'image' | 'video' | 'gif';
+
+export type TweetStatus =
+  | 'available'
+  | 'processing'
+  | 'deleted'
+  | 'private'
+  | 'unavailable'
+  | 'failed';
+
+export interface TweetMedia {
+  type: TweetMediaType;
+  url: string;
+  thumbnail?: string;
+  previewUrl?: string;
+  width?: number;
+  height?: number;
+  durationMs?: number;
+}
+
+export interface TweetData {
+  tweetId: string;
+  content: string;
+  contentHtml?: string;
+  media?: TweetMedia[];
+  createdAt: Date;
+  likeCount?: number;
+  retweetCount?: number;
+  replyCount?: number;
+}
+
 export interface SharedPost extends Post {
   __typename?: string;
   id: string;
@@ -55,6 +87,37 @@ export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
   post?.type === PostType.VideoYouTube ||
   (post?.type === PostType.Share &&
     post?.sharedPost?.type === PostType.VideoYouTube);
+
+export const isTweetPost = (post: Post | ReadHistoryPost): boolean =>
+  post?.type === PostType.Tweet ||
+  (post?.type === PostType.Share && post?.sharedPost?.type === PostType.Tweet);
+
+export const isTweetAvailable = (post: Post): boolean =>
+  isTweetPost(post) && post?.tweetStatus === 'available';
+
+export const isTweetProcessing = (post: Post): boolean =>
+  isTweetPost(post) && post?.tweetStatus === 'processing';
+
+export const isTweetError = (post: Post): boolean =>
+  isTweetPost(post) &&
+  ['deleted', 'private', 'unavailable', 'failed'].includes(
+    post?.tweetStatus || '',
+  );
+
+export const getTweetErrorMessage = (post: Post): string => {
+  switch (post?.tweetStatus) {
+    case 'deleted':
+      return 'This tweet has been deleted';
+    case 'private':
+      return 'This tweet is from a private account';
+    case 'unavailable':
+      return 'This tweet is no longer available';
+    case 'failed':
+      return post?.tweetErrorReason || 'Failed to load this tweet';
+    default:
+      return 'Unable to load this tweet';
+  }
+};
 
 export const getReadPostButtonText = (post: Post): string =>
   isVideoPost(post) ? 'Watch video' : 'Read post';
@@ -160,6 +223,24 @@ export interface Post {
   numPollVotes?: number;
   endsAt?: string;
   analytics?: Partial<Pick<PostAnalytics, 'impressions'>>;
+  // Tweet-specific fields (populated for PostType.Tweet)
+  tweetId?: string;
+  tweetAuthorUsername?: string;
+  tweetAuthorName?: string;
+  tweetAuthorAvatar?: string;
+  tweetAuthorVerified?: boolean;
+  tweetContent?: string;
+  tweetContentHtml?: string;
+  tweetMedia?: TweetMedia[];
+  tweetCreatedAt?: Date;
+  tweetLikeCount?: number;
+  tweetRetweetCount?: number;
+  tweetReplyCount?: number;
+  isThread?: boolean;
+  threadSize?: number;
+  threadTweets?: TweetData[];
+  tweetStatus?: TweetStatus;
+  tweetErrorReason?: string;
 }
 
 export type RelatedPost = Pick<

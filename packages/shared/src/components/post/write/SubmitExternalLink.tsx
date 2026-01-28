@@ -13,6 +13,11 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { WritePreviewSkeleton } from './WritePreviewSkeleton';
 import { WriteLinkPreview } from './WriteLinkPreview';
+import {
+  WriteTweetPreview,
+  isTwitterUrl,
+  extractTweetInfo,
+} from './WriteTweetPreview';
 import { useDebouncedUrl } from '../../../hooks/input';
 
 interface SubmitExternalLinkProps {
@@ -51,6 +56,20 @@ export function SubmitExternalLink({
   }
 
   if (preview) {
+    // Use Twitter-specific preview for Twitter/X URLs
+    if (isTwitterUrl(link)) {
+      const { tweetId, username } = extractTweetInfo(link);
+      return (
+        <WriteTweetPreview
+          link={link}
+          preview={preview}
+          onLinkChange={onInput}
+          tweetId={tweetId}
+          tweetUsername={username}
+        />
+      );
+    }
+
     return (
       <WriteLinkPreview link={link} preview={preview} onLinkChange={onInput} />
     );
