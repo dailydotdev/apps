@@ -97,6 +97,7 @@ export function UserExperienceList<T extends UserExperience>({
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<EditIcon />}
+                aria-label={`Edit ${title}`}
               />
             </Link>
           )}

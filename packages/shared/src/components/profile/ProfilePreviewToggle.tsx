@@ -54,6 +54,7 @@ export function ProfilePreviewToggle({
         onToggle={onToggle}
         compact={false}
         className="shrink-0 self-center"
+        aria-label="Preview mode"
       />
     </div>
   );

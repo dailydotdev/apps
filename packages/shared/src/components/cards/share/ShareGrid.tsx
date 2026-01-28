@@ -118,6 +118,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         post={post}
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
+        ariaLabel={title}
       />
 
       <>

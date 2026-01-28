@@ -150,6 +150,7 @@ export function UserExperienceItem({
               ? repository?.image || company?.image
               : company?.image || image
           }
+          alt={`${companyOrRepoName || 'Organization'} logo`}
         />
       )}
       {editUrl && (
@@ -165,6 +166,7 @@ export function UserExperienceItem({
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={<EditIcon />}
+              aria-label={`Edit ${primaryCopy || 'experience'}`}
             />
           </Link>
         </div>
@@ -211,7 +213,10 @@ export function UserExperienceItem({
             {shouldShowVerifiedBadge && <VerifiedBadge />}
             {(url || repository?.url) && (
               <Link href={repository?.url || url} passHref>
-                <a target="_blank">
+                <a
+                  target="_blank"
+                  aria-label={`Open ${primaryCopy || 'link'} in new tab`}
+                >
                   <OpenLinkIcon className="size-4 text-text-secondary" />
                 </a>
               </Link>
