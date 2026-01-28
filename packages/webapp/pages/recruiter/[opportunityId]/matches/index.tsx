@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ConnectHeader } from '@dailydotdev/shared/src/components/recruiter/ConnectHeader';
@@ -79,15 +79,43 @@ function RecruiterMatchesPage(): ReactElement {
     opportunityId: opportunityId as string,
   });
 
-  const { allMatches, isLoading, data } = useOpportunityMatches({
+  const { allMatches, isLoading } = useOpportunityMatches({
     opportunityId: opportunityId as string,
     status: 'candidate_accepted',
-    first: 1,
   });
 
-  const currentMatchIndex = allMatches.length - 1;
-  const currentMatch = allMatches[currentMatchIndex];
-  const totalMatches = data?.pages[0]?.pageInfo?.totalCount ?? 0;
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const prevMatchCountRef = useRef(allMatches.length);
+
+  // Adjust currentIndex when matches array changes (after approve/reject)
+  useEffect(() => {
+    const prevCount = prevMatchCountRef.current;
+    const newCount = allMatches.length;
+
+    if (newCount < prevCount && newCount > 0) {
+      // A match was removed - adjust index if needed
+      setCurrentIndex((prev) => Math.min(prev, newCount - 1));
+    } else if (newCount > 0 && currentIndex >= newCount) {
+      // Index is out of bounds
+      setCurrentIndex(newCount - 1);
+    }
+
+    prevMatchCountRef.current = newCount;
+  }, [allMatches.length, currentIndex]);
+
+  const currentMatch = allMatches[currentIndex];
+  const totalMatches = allMatches.length;
+
+  const handlePrevious = () => {
+    setCurrentIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => Math.min(allMatches.length - 1, prev + 1));
+  };
+
+  const hasPrevious = currentIndex > 0;
+  const hasNext = currentIndex < allMatches.length - 1;
 
   // Mutations
   const acceptMutation = useMutation({
@@ -174,7 +202,7 @@ function RecruiterMatchesPage(): ReactElement {
           {currentMatch ? (
             <MatchCard
               match={currentMatch}
-              currentMatch={currentMatchIndex + 1}
+              currentMatch={currentIndex + 1}
               totalMatches={totalMatches}
               onReject={handleReject}
               onApprove={handleApprove}
@@ -183,6 +211,10 @@ function RecruiterMatchesPage(): ReactElement {
                 acceptMutation.isPending ||
                 rejectMutation.isPending
               }
+              onPrevious={handlePrevious}
+              onNext={handleNext}
+              hasPrevious={hasPrevious}
+              hasNext={hasNext}
             />
           ) : (
             <div className="mx-auto flex flex-1 flex-col items-center justify-center gap-6 p-6">

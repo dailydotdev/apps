@@ -150,6 +150,7 @@ export function UserExperienceItem({
               ? repository?.image || company?.image
               : company?.image || image
           }
+          alt={`${companyOrRepoName || 'Organization'} logo`}
         />
       )}
       {editUrl && (
@@ -165,12 +166,13 @@ export function UserExperienceItem({
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={<EditIcon />}
+              aria-label={`Edit ${primaryCopy || 'experience'}`}
             />
           </Link>
         </div>
       )}
       <div
-        className={classNames('flex flex-1 flex-col gap-2', {
+        className={classNames('flex min-w-0 flex-1 flex-col gap-2', {
           'pt-3': !!grouped,
         })}
       >
@@ -182,8 +184,7 @@ export function UserExperienceItem({
         >
           <div className="flex flex-wrap items-center gap-1">
             <Typography
-              className="whitespace-break-spaces"
-              truncate
+              className="max-w-full"
               type={TypographyType.Subhead}
               bold
             >
@@ -212,7 +213,10 @@ export function UserExperienceItem({
             {shouldShowVerifiedBadge && <VerifiedBadge />}
             {(url || repository?.url) && (
               <Link href={repository?.url || url} passHref>
-                <a target="_blank">
+                <a
+                  target="_blank"
+                  aria-label={`Open ${primaryCopy || 'link'} in new tab`}
+                >
                   <OpenLinkIcon className="size-4 text-text-secondary" />
                 </a>
               </Link>

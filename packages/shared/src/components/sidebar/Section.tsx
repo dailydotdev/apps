@@ -62,6 +62,7 @@ export function Section({
             variant={ButtonVariant.Tertiary}
             onClick={toggleFlag}
             size={ButtonSize.XSmall}
+            aria-label={`Toggle ${title}`}
             icon={
               <ArrowIcon
                 className={isVisible.current ? 'rotate-360' : 'rotate-180'}

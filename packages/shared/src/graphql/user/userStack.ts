@@ -1,7 +1,12 @@
 import { gql } from 'graphql-request';
 import type { Connection } from '../common';
 import { gqlClient } from '../common';
-import type { DatasetTool } from './userTool';
+
+export interface DatasetTool {
+  id: string;
+  title: string;
+  faviconUrl: string | null;
+}
 
 export interface UserStack {
   id: string;
@@ -101,6 +106,16 @@ const REORDER_USER_STACK_MUTATION = gql`
   ${USER_STACK_FRAGMENT}
 `;
 
+const AUTOCOMPLETE_TOOLS_QUERY = gql`
+  query AutocompleteTools($query: String!) {
+    autocompleteTools(query: $query) {
+      id
+      title
+      faviconUrl
+    }
+  }
+`;
+
 export const getUserStack = async (
   userId: string,
   first = 50,
@@ -111,8 +126,12 @@ export const getUserStack = async (
   return result.userStack;
 };
 
-// Re-export searchTools as searchStack for backwards compatibility
-export { searchTools as searchStack } from './userTool';
+export const searchTools = async (query: string): Promise<DatasetTool[]> => {
+  const result = await gqlClient.request<{
+    autocompleteTools: DatasetTool[];
+  }>(AUTOCOMPLETE_TOOLS_QUERY, { query });
+  return result.autocompleteTools;
+};
 
 export const addUserStack = async (
   input: AddUserStackInput,

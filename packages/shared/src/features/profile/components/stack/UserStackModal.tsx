@@ -16,8 +16,8 @@ import { useViewSize, ViewSize } from '../../../../hooks';
 import type {
   UserStack,
   AddUserStackInput,
+  DatasetTool,
 } from '../../../../graphql/user/userStack';
-import type { DatasetTool } from '../../../../graphql/user/userTool';
 import { useStackSearch } from '../../hooks/useStackSearch';
 import { PlusIcon } from '../../../../components/icons';
 import YearSelect from '../../../../components/profile/YearSelect';
@@ -127,7 +127,7 @@ export function UserStackModal({
           title: (
             <div className="px-4">
               <ModalHeader.Title className="typo-title3">
-                {isEditing ? 'Edit Stack Item' : 'Add to Stack'}
+                {isEditing ? 'Edit stack/tool' : 'Add stack/tool'}
               </ModalHeader.Title>
             </div>
           ),
@@ -145,7 +145,7 @@ export function UserStackModal({
         <form onSubmit={onFormSubmit} id="user_stack_form">
           <ModalHeader showCloseButton={!isMobile}>
             <ModalHeader.Title className="typo-title3">
-              {isEditing ? 'Edit Stack Item' : 'Add to Stack'}
+              {isEditing ? 'Edit stack/tool' : 'Add stack/tool'}
             </ModalHeader.Title>
           </ModalHeader>
           <Modal.Body className="flex flex-col gap-4">
@@ -156,7 +156,7 @@ export function UserStackModal({
                 autoComplete="off"
                 autoFocus
                 inputId="stackTitle"
-                label="Technology or skill"
+                label="Technology, tool, or skill"
                 maxLength={255}
                 valid={!errors.title}
                 hint={errors.title?.message}
@@ -194,22 +194,20 @@ export function UserStackModal({
                       <span className="typo-callout">{suggestion.title}</span>
                     </button>
                   ))}
-                  {filteredSuggestions.length > 0 &&
-                    !filteredSuggestions.some(
-                      (s) =>
-                        s.title.toLowerCase() === title.trim().toLowerCase(),
-                    ) && (
-                      <button
-                        type="button"
-                        className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-surface-hover"
-                        onClick={() => {
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        <PlusIcon className="size-4 text-text-tertiary" />
-                        <span className="typo-callout">{title.trim()}</span>
-                      </button>
-                    )}
+                  {!filteredSuggestions.some(
+                    (s) => s.title.toLowerCase() === title.trim().toLowerCase(),
+                  ) && (
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-surface-hover"
+                      onClick={() => {
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      <PlusIcon className="size-4 text-text-tertiary" />
+                      <span className="typo-callout">{title.trim()}</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>

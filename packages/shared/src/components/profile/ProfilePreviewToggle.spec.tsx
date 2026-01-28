@@ -10,7 +10,9 @@ describe('ProfilePreviewToggle', () => {
       <ProfilePreviewToggle isPreviewMode={false} onToggle={mockToggle} />,
     );
 
-    expect(screen.getByText('Preview mode')).toBeInTheDocument();
+    expect(
+      screen.getByText('Preview mode', { selector: 'p' }),
+    ).toBeInTheDocument();
     expect(
       screen.getByText('See how your profile looks to others'),
     ).toBeInTheDocument();

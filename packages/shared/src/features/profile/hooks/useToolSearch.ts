@@ -1,17 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
-import type { DatasetTool } from '../../../graphql/user/userTool';
-import { searchTools } from '../../../graphql/user/userTool';
+import type { DatasetTool } from '../../../graphql/user/userStack';
+import { searchTools } from '../../../graphql/user/userStack';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import useDebounce from '../../../hooks/useDebounce';
+import { defaultSearchDebounceMs } from '../../../lib/func';
 
 export function useToolSearch(query: string) {
   const trimmedQuery = query.trim();
-  const enabled = trimmedQuery.length >= 1;
+  const debouncedQuery = useDebounce(trimmedQuery, defaultSearchDebounceMs);
+  const enabled = debouncedQuery.length >= 1;
 
-  const queryKey = generateQueryKey(RequestKey.ToolSearch, null, trimmedQuery);
+  const queryKey = generateQueryKey(
+    RequestKey.ToolSearch,
+    null,
+    debouncedQuery,
+  );
 
   const searchQuery = useQuery<DatasetTool[]>({
     queryKey,
-    queryFn: () => searchTools(trimmedQuery),
+    queryFn: () => searchTools(debouncedQuery),
     staleTime: StaleTime.Default,
     enabled,
   });

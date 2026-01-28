@@ -48,12 +48,14 @@ type ProfileHeaderProps = {
   user: PublicProfile;
   userStats: Omit<UserStatsProps['stats'], 'reputation'>;
   isSameUser?: boolean;
+  isPreviewMode?: boolean;
 };
 
 const ProfileHeader = ({
   user,
   userStats,
   isSameUser: propIsSameUser,
+  isPreviewMode,
 }: ProfileHeaderProps) => {
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
@@ -80,6 +82,7 @@ const ProfileHeader = ({
             disabled={!isSameUser}
             type={ButtonVariant.Float}
             icon={<EditIcon />}
+            aria-label="Edit profile"
           />
         </Link>
         <div className="flex items-center gap-1">
@@ -133,7 +136,9 @@ const ProfileHeader = ({
               dateFormat="MMM d. yyyy"
             />
           </div>
-          {!isSameUser && <ProfileActions user={user} />}
+          {!isSameUser && (
+            <ProfileActions user={user} isPreviewMode={isPreviewMode} />
+          )}
           <UserStats
             userId={user.id}
             stats={{ ...userStats, reputation: user.reputation }}

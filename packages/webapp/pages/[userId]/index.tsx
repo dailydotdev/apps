@@ -10,7 +10,6 @@ import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHea
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
-import { ProfileUserTools } from '@dailydotdev/shared/src/features/profile/components/tools/ProfileUserTools';
 import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
 import { ProfileUserWorkspacePhotos } from '@dailydotdev/shared/src/features/profile/components/workspacePhotos/ProfileUserWorkspacePhotos';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
@@ -28,6 +27,7 @@ import classNames from 'classnames';
 import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
 import { Share } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/Share';
 import { useRouter } from 'next/router';
+import { useProfileCompletionIndicator } from '@dailydotdev/shared/src/hooks/profile/useProfileCompletionIndicator';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
@@ -51,6 +51,8 @@ const ProfilePage = ({
     () => checkHasCompleted(ActionType.ClosedProfileBanner),
     [checkHasCompleted],
   );
+  const { showIndicator: showProfileCompletion } =
+    useProfileCompletionIndicator();
 
   const { user, isUserSame: isUserSameBase } = useProfile(initialUser);
 
@@ -85,12 +87,15 @@ const ProfilePage = ({
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
         )}
       />
-      {isSameUser && <ProfileCompletion className="laptop:hidden" />}
+      {isSameUser && showProfileCompletion && (
+        <ProfileCompletion className="laptop:hidden" />
+      )}
       <div ref={stickyRef} />
       <ProfileHeader
         user={user}
         userStats={userStats}
         isSameUser={isSameUser}
+        isPreviewMode={isPreviewMode}
       />
       <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
         {shouldShowBanner && (
@@ -102,7 +107,6 @@ const ProfilePage = ({
         {!shouldShowBanner && <div />}
         <AboutMe user={user} />
         <ProfileUserStack user={user} />
-        <ProfileUserTools user={user} />
         <ProfileUserHotTakes user={user} />
         <ProfileUserWorkspacePhotos user={user} />
         <Activity user={user} />
