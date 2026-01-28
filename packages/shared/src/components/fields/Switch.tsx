@@ -32,11 +32,13 @@ function SwitchComponent(
     compact = true,
     defaultTypo = true,
     disabled,
+    'aria-label': ariaLabel,
     ...props
   }: SwitchProps,
   ref: MutableRefObject<HTMLLabelElement>,
 ): ReactElement {
   return (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
     <label
       className={classNames(
         className,
@@ -46,7 +48,6 @@ function SwitchComponent(
           : 'cursor-pointer',
         styles.switch,
       )}
-      htmlFor={inputId}
       ref={ref}
     >
       <input
@@ -80,7 +81,7 @@ function SwitchComponent(
           )}
         />
       </span>
-      {children && (
+      {children ? (
         <span
           className={classNames(
             'ml-3 font-bold text-text-tertiary',
@@ -91,6 +92,8 @@ function SwitchComponent(
         >
           {children}
         </span>
+      ) : (
+        ariaLabel && <span className="sr-only">{ariaLabel}</span>
       )}
     </label>
   );

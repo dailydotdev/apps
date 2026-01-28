@@ -16,6 +16,7 @@ export const AdRefresh = ({
       size={size}
       icon={<RefreshIcon />}
       onClick={onClick}
+      aria-label="Refresh ad"
       {...props}
     />
   );

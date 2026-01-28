@@ -82,6 +82,7 @@ const ProfileHeader = ({
             disabled={!isSameUser}
             type={ButtonVariant.Float}
             icon={<EditIcon />}
+            aria-label="Edit profile"
           />
         </Link>
         <div className="flex items-center gap-1">
