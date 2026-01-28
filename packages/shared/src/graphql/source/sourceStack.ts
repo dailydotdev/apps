@@ -12,7 +12,6 @@ export interface SourceStackCreatedBy {
 export interface SourceStack {
   id: string;
   tool: DatasetTool;
-  section: string;
   position: number;
   icon: string | null;
   title: string | null;
@@ -22,11 +21,9 @@ export interface SourceStack {
 
 export interface AddSourceStackInput {
   title: string;
-  section: string;
 }
 
 export interface UpdateSourceStackInput {
-  section?: string;
   icon?: string;
   title?: string;
 }
@@ -39,7 +36,6 @@ export interface ReorderSourceStackInput {
 const SOURCE_STACK_FRAGMENT = gql`
   fragment SourceStackFragment on SourceStack {
     id
-    section
     position
     icon
     title

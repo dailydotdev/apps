@@ -9,7 +9,7 @@ import {
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
-import { SourceStackSection } from './SourceStackSection';
+import { SourceStackItem } from './SourceStackItem';
 import { SourceStackModal } from './SourceStackModal';
 import type {
   SourceStack,
@@ -22,21 +22,8 @@ interface SquadStackProps {
   squad: Squad;
 }
 
-// Predefined section order
-const SECTION_ORDER = [
-  'Primary',
-  'Backend',
-  'Frontend',
-  'DevOps',
-  'AI',
-  'Development',
-  'Design',
-  'Productivity',
-];
-
 export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
-  const { stackItems, groupedBySection, canEdit, add, update, remove } =
-    useSourceStack(squad);
+  const { stackItems, canEdit, add, update, remove } = useSourceStack(squad);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
 
@@ -70,7 +57,6 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
         await update({
           id: editingItem.id,
           input: {
-            section: input.section,
             title: input.title,
           },
         });
@@ -110,22 +96,6 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
     setEditingItem(null);
   }, []);
 
-  // Sort sections: predefined first, then custom alphabetically
-  const sortedSections = Object.keys(groupedBySection).sort((a, b) => {
-    const aIndex = SECTION_ORDER.indexOf(a);
-    const bIndex = SECTION_ORDER.indexOf(b);
-    if (aIndex !== -1 && bIndex !== -1) {
-      return aIndex - bIndex;
-    }
-    if (aIndex !== -1) {
-      return -1;
-    }
-    if (bIndex !== -1) {
-      return 1;
-    }
-    return a.localeCompare(b);
-  });
-
   const hasItems = stackItems.length > 0;
 
   if (!hasItems && !canEdit) {
@@ -155,12 +125,11 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
       </div>
 
       {hasItems ? (
-        <div className="flex flex-col gap-4">
-          {sortedSections.map((section) => (
-            <SourceStackSection
-              key={section}
-              section={section}
-              items={groupedBySection[section]}
+        <div className="flex flex-wrap gap-2">
+          {stackItems.map((item) => (
+            <SourceStackItem
+              key={item.id}
+              item={item}
               canEdit={canEdit}
               onEdit={handleEdit}
               onDelete={handleDelete}

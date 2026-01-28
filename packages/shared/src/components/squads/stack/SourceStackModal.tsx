@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { ModalProps } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { TextField } from '../../fields/TextField';
-import { Typography, TypographyType } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { ModalHeader } from '../../modals/common/ModalHeader';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -18,12 +17,8 @@ import type { DatasetTool } from '../../../graphql/user/userStack';
 import { useStackSearch } from '../../../features/profile/hooks/useStackSearch';
 import { PlusIcon } from '../../icons';
 
-const SECTION_OPTIONS = ['Primary', 'Backend', 'Frontend', 'DevOps', 'AI'] as const;
-
 const sourceStackFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
-  section: z.string().min(1, 'Section is required').max(100),
-  customSection: z.string().max(100).optional(),
 });
 
 type SourceStackFormData = z.infer<typeof sourceStackFormSchema>;
@@ -46,8 +41,6 @@ export function SourceStackModal({
     resolver: zodResolver(sourceStackFormSchema),
     defaultValues: {
       title: existingItem?.title ?? existingItem?.tool.title ?? '',
-      section: existingItem?.section || 'Primary',
-      customSection: '',
     },
   });
 
@@ -60,16 +53,10 @@ export function SourceStackModal({
   } = methods;
 
   const title = watch('title');
-  const section = watch('section');
-  const customSection = watch('customSection');
 
   const { results: suggestions } = useStackSearch(title);
 
-  const isCustomSection = !SECTION_OPTIONS.includes(
-    section as (typeof SECTION_OPTIONS)[number],
-  );
-  const finalSection = isCustomSection ? customSection || section : section;
-  const canSubmit = title.trim().length > 0 && finalSection.trim().length > 0;
+  const canSubmit = title.trim().length > 0;
 
   const handleSelectSuggestion = (suggestion: DatasetTool) => {
     setValue('title', suggestion.title);
@@ -77,13 +64,8 @@ export function SourceStackModal({
   };
 
   const onFormSubmit = handleSubmit(async (data) => {
-    const effectiveSection = isCustomSection
-      ? data.customSection || data.section
-      : data.section;
-
     await onSubmit({
       title: data.title.trim(),
-      section: effectiveSection.trim(),
     });
     rest.onRequestClose?.(null);
   });
@@ -118,7 +100,7 @@ export function SourceStackModal({
         size={Modal.Size.Small}
         {...rest}
       >
-        <form onSubmit={onFormSubmit} id="source_stack_form">
+        <form onSubmit={onFormSubmit} id="source_stack_form" className="w-full">
           <ModalHeader showCloseButton={!isMobile}>
             <ModalHeader.Title className="typo-title3">
               {isEditing ? 'Edit Stack Item' : 'Add to Squad Stack'}
@@ -185,54 +167,6 @@ export function SourceStackModal({
                     </button>
                   )}
                 </div>
-              )}
-            </div>
-
-            {/* Section selector */}
-            <div className="flex flex-col gap-2">
-              <Typography bold type={TypographyType.Callout}>
-                Section
-              </Typography>
-              <div className="flex flex-wrap gap-2">
-                {SECTION_OPTIONS.map((opt) => (
-                  <Button
-                    key={opt}
-                    type="button"
-                    variant={
-                      section === opt
-                        ? ButtonVariant.Primary
-                        : ButtonVariant.Float
-                    }
-                    onClick={() => {
-                      setValue('section', opt);
-                      setValue('customSection', '');
-                    }}
-                  >
-                    {opt}
-                  </Button>
-                ))}
-                <Button
-                  type="button"
-                  variant={
-                    isCustomSection
-                      ? ButtonVariant.Primary
-                      : ButtonVariant.Float
-                  }
-                  onClick={() => setValue('section', 'custom')}
-                >
-                  Custom
-                </Button>
-              </div>
-              {isCustomSection && (
-                <TextField
-                  {...register('customSection')}
-                  autoComplete="off"
-                  inputId="customSection"
-                  label="Custom section name"
-                  maxLength={100}
-                  valid={!errors.customSection}
-                  hint={errors.customSection?.message}
-                />
               )}
             </div>
 

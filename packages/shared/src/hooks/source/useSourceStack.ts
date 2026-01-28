@@ -38,18 +38,6 @@ export function useSourceStack(squad: Squad | null) {
     [query.data],
   );
 
-  // Group items by section
-  const groupedBySection = useMemo(() => {
-    const groups: Record<string, SourceStack[]> = {};
-    stackItems.forEach((item) => {
-      if (!groups[item.section]) {
-        groups[item.section] = [];
-      }
-      groups[item.section].push(item);
-    });
-    return groups;
-  }, [stackItems]);
-
   const invalidateQuery = useCallback(() => {
     queryClient.invalidateQueries({ queryKey });
   }, [queryClient, queryKey]);
@@ -80,7 +68,6 @@ export function useSourceStack(squad: Squad | null) {
   return {
     ...query,
     stackItems,
-    groupedBySection,
     canEdit,
     queryKey,
     add: addMutation.mutateAsync,
