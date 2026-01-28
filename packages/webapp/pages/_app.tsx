@@ -62,6 +62,13 @@ const CookieBanner = dynamic(
     ),
 );
 
+const Agentation =
+  process.env.NODE_ENV === 'development'
+    ? dynamic(() => import('agentation').then((mod) => mod.Agentation), {
+        ssr: false,
+      })
+    : null;
+
 interface ComponentGetLayout {
   getLayout?: (
     page: ReactNode,
@@ -306,6 +313,7 @@ export default function App(
           </BootDataProvider>
           <ReactQueryDevtools />
         </HydrationBoundary>
+        {Agentation && <Agentation />}
       </QueryClientProvider>
     </ProgressiveEnhancementContextProvider>
   );

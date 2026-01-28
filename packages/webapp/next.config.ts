@@ -42,7 +42,7 @@ const nextConfig: NextConfig = {
       compiler: {
         reactRemoveProperties: { properties: ['^data-testid$'] },
       },
-      webpack: (config) => {
+      webpack: (config, { dev }) => {
         // Grab the existing rule that handles SVG imports
         const fileLoaderRule = config.module.rules.find((rule) =>
           rule.test?.test?.('.svg'),
@@ -98,6 +98,12 @@ const nextConfig: NextConfig = {
         // as patch graphql-request manually through pnpm
         // eslint-disable-next-line no-param-reassign
         config.resolve.alias['cross-fetch'] = false;
+
+        // Exclude agentation from production builds
+        if (!dev) {
+          // eslint-disable-next-line no-param-reassign
+          config.resolve.alias.agentation = false;
+        }
 
         return config;
       },
