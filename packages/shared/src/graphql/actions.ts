@@ -55,7 +55,6 @@ export enum ActionType {
   UserPostInOpenSquadWarningSeen = 'user_post_in_open_squad_warning_seen',
   ProfileCompleted = 'profile_completed',
   ClickedOpportunityNavigation = 'click_opportunity_navigation',
-  ProfileCompletionCard = 'profile_completion_card',
   DismissProfileCompletionIndicator = 'dismiss_profile_completion_indicator',
 }
 

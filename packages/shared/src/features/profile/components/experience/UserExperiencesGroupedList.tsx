@@ -99,9 +99,13 @@ export function UserExperiencesGroupedList({
               : first.company?.image || first.image
           }
         />
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex flex-wrap items-center gap-1">
-            <Typography type={TypographyType.Subhead} bold>
+            <Typography
+              className="max-w-full"
+              type={TypographyType.Subhead}
+              bold
+            >
               {company}
             </Typography>
             {isCurrent && currentPill}
@@ -139,6 +143,7 @@ export function UserExperiencesGroupedList({
                 <Typography
                   type={TypographyType.Footnote}
                   color={TypographyColor.Secondary}
+                  truncate
                 >
                   {locationType === LocationType.REMOTE
                     ? 'Remote'

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import type { DatasetTool } from '../../../graphql/user/userTool';
-import { searchStack } from '../../../graphql/user/userStack';
+import type { DatasetTool } from '../../../graphql/user/userStack';
+import { searchTools } from '../../../graphql/user/userStack';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import useDebounce from '../../../hooks/useDebounce';
 import { defaultSearchDebounceMs } from '../../../lib/func';
@@ -18,7 +18,7 @@ export function useStackSearch(query: string) {
 
   const searchQuery = useQuery<DatasetTool[]>({
     queryKey,
-    queryFn: () => searchStack(debouncedQuery),
+    queryFn: () => searchTools(debouncedQuery),
     staleTime: StaleTime.Default,
     enabled,
   });

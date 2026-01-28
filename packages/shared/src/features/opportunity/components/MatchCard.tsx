@@ -19,6 +19,10 @@ type MatchCardProps = {
   onReject?: () => void;
   onApprove?: () => void;
   disabled?: boolean;
+  onPrevious?: () => void;
+  onNext?: () => void;
+  hasPrevious?: boolean;
+  hasNext?: boolean;
 };
 
 export const MatchCard = ({
@@ -28,6 +32,10 @@ export const MatchCard = ({
   onReject,
   onApprove,
   disabled,
+  onPrevious,
+  onNext,
+  hasPrevious,
+  hasNext,
 }: MatchCardProps): ReactElement => {
   const profile = mapMatchToProfile(match);
   const engagement = mapMatchToEngagement(match);
@@ -42,6 +50,10 @@ export const MatchCard = ({
         onReject={onReject}
         onApprove={onApprove}
         disabled={disabled}
+        onPrevious={onPrevious}
+        onNext={onNext}
+        hasPrevious={hasPrevious}
+        hasNext={hasNext}
       />
       <div className="flex gap-8 p-6">
         <div className="flex flex-1 flex-col gap-6">
