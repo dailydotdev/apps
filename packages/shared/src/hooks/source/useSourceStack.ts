@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useCallback } from 'react';
-import type { Squad, SourcePermissions } from '../../graphql/sources';
+import type { Squad } from '../../graphql/sources';
 import type {
-  SourceStack,
   AddSourceStackInput,
   UpdateSourceStackInput,
   ReorderSourceStackInput,
@@ -49,8 +48,13 @@ export function useSourceStack(squad: Squad | null) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, input }: { id: string; input: UpdateSourceStackInput }) =>
-      updateSourceStack(id, input),
+    mutationFn: ({
+      id,
+      input,
+    }: {
+      id: string;
+      input: UpdateSourceStackInput;
+    }) => updateSourceStack(id, input),
     onSuccess: invalidateQuery,
   });
 
