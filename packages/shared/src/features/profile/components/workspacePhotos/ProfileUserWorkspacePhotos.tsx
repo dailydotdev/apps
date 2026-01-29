@@ -41,6 +41,8 @@ import type { AddUserWorkspacePhotoInput } from '../../../../graphql/user/userWo
 import type { Gear, AddGearInput } from '../../../../graphql/user/gear';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { usePrompt } from '../../../../hooks/usePrompt';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent } from '../../../../lib/log';
 
 interface ProfileUserWorkspacePhotosProps {
   user: PublicProfile;
@@ -59,6 +61,7 @@ export function ProfileUserWorkspacePhotos({
   } = useGear(user);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
+  const { logEvent } = useLogContext();
 
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [isGearModalOpen, setIsGearModalOpen] = useState(false);
@@ -172,16 +175,22 @@ export function ProfileUserWorkspacePhotos({
       displayToast(`Maximum of ${MAX_WORKSPACE_PHOTOS} photos allowed`);
       return;
     }
+    logEvent({
+      event_name: LogEvent.StartAddWorkspacePhoto,
+    });
     setIsPhotoModalOpen(true);
-  }, [canAddMore, displayToast]);
+  }, [canAddMore, displayToast, logEvent]);
 
   const handleClosePhotoModal = useCallback(() => {
     setIsPhotoModalOpen(false);
   }, []);
 
   const handleOpenGearModal = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.StartAddGear,
+    });
     setIsGearModalOpen(true);
-  }, []);
+  }, [logEvent]);
 
   const handleCloseGearModal = useCallback(() => {
     setIsGearModalOpen(false);

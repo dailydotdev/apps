@@ -22,7 +22,8 @@ import type {
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { usePrompt } from '../../../../hooks/usePrompt';
 import { useVoteHotTake } from '../../../../hooks/vote/useVoteHotTake';
-import { Origin } from '../../../../lib/log';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent, Origin } from '../../../../lib/log';
 
 interface ProfileUserHotTakesProps {
   user: PublicProfile;
@@ -36,6 +37,7 @@ export function ProfileUserHotTakes({
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { toggleUpvote } = useVoteHotTake();
+  const { logEvent } = useLogContext();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<HotTake | null>(null);
@@ -112,8 +114,11 @@ export function ProfileUserHotTakes({
       displayToast(`Maximum of ${MAX_HOT_TAKES} hot takes allowed`);
       return;
     }
+    logEvent({
+      event_name: LogEvent.StartAddHotTake,
+    });
     setIsModalOpen(true);
-  }, [canAddMore, displayToast]);
+  }, [canAddMore, displayToast, logEvent]);
 
   const handleUpvote = useCallback(
     async (item: HotTake) => {

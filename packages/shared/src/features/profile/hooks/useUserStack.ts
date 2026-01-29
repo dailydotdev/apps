@@ -16,10 +16,13 @@ import {
 } from '../../../graphql/user/userStack';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 export function useUserStack(user: PublicProfile | null) {
   const queryClient = useQueryClient();
   const { isOwner } = useProfilePreview(user);
+  const { logEvent } = useLogContext();
 
   const queryKey = generateQueryKey(RequestKey.UserStack, user, 'profile');
 
@@ -53,23 +56,47 @@ export function useUserStack(user: PublicProfile | null) {
 
   const addMutation = useMutation({
     mutationFn: (input: AddUserStackInput) => addUserStack(input),
-    onSuccess: invalidateQuery,
+    onSuccess: (_, input) => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.AddUserStack,
+        extra: JSON.stringify({ section: input.section }),
+      });
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateUserStackInput }) =>
       updateUserStack(id, input),
-    onSuccess: invalidateQuery,
+    onSuccess: (_, { id }) => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.UpdateUserStack,
+        extra: JSON.stringify({ id }),
+      });
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteUserStack(id),
-    onSuccess: invalidateQuery,
+    onSuccess: (_, id) => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.RemoveUserStack,
+        extra: JSON.stringify({ id }),
+      });
+    },
   });
 
   const reorderMutation = useMutation({
     mutationFn: (items: ReorderUserStackInput[]) => reorderUserStack(items),
-    onSuccess: invalidateQuery,
+    onSuccess: (_, items) => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.ReorderUserStack,
+        extra: JSON.stringify({ count: items.length }),
+      });
+    },
   });
 
   return {

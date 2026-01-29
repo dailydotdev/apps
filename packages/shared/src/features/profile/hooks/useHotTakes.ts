@@ -15,12 +15,15 @@ import {
 } from '../../../graphql/user/userHotTake';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 export const MAX_HOT_TAKES = 5;
 
 export const useHotTakes = (user: PublicProfile | null) => {
   const queryClient = useQueryClient();
   const { isOwner } = useProfilePreview(user);
+  const { logEvent } = useLogContext();
 
   const queryKey = generateQueryKey(RequestKey.UserHotTakes, user, 'profile');
 
@@ -44,23 +47,46 @@ export const useHotTakes = (user: PublicProfile | null) => {
 
   const addMutation = useMutation({
     mutationFn: (input: AddHotTakeInput) => addHotTake(input),
-    onSuccess: invalidateQuery,
+    onSuccess: () => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.AddHotTake,
+      });
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateHotTakeInput }) =>
       updateHotTake(id, input),
-    onSuccess: invalidateQuery,
+    onSuccess: (_, { id }) => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.UpdateHotTake,
+        extra: JSON.stringify({ id }),
+      });
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteHotTake(id),
-    onSuccess: invalidateQuery,
+    onSuccess: (_, id) => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.RemoveHotTake,
+        extra: JSON.stringify({ id }),
+      });
+    },
   });
 
   const reorderMutation = useMutation({
     mutationFn: (items: ReorderHotTakeInput[]) => reorderHotTakes(items),
-    onSuccess: invalidateQuery,
+    onSuccess: (_, items) => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.ReorderHotTake,
+        extra: JSON.stringify({ count: items.length }),
+      });
+    },
   });
 
   return {

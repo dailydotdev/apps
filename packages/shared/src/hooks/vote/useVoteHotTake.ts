@@ -8,6 +8,8 @@ import type { Connection } from '../../graphql/common';
 import type { UseVoteProps, ToggleVoteProps } from './types';
 import { UserVoteEntity } from './types';
 import { useVote } from './useVote';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, Origin } from '../../lib/log';
 
 const hotTakeMutationHandlers: Record<
   UserVote,
@@ -49,6 +51,7 @@ const useVoteHotTake = ({
 }: UseVoteHotTakeProps = {}): UseVoteHotTake => {
   const client = useQueryClient();
   const { user, showLogin } = useContext(AuthContext);
+  const { logEvent } = useLogContext();
 
   const defaultOnMutate = ({ id, vote }) => {
     const mutationHandler = hotTakeMutationHandlers[vote];
@@ -134,7 +137,7 @@ const useVoteHotTake = ({
   });
 
   const toggleUpvote: UseVoteHotTake['toggleUpvote'] = useCallback(
-    async ({ payload: hotTake }) => {
+    async ({ payload: hotTake, origin }) => {
       if (!hotTake) {
         return;
       }
@@ -146,12 +149,22 @@ const useVoteHotTake = ({
 
       if (hotTake?.upvoted) {
         await cancelHotTakeVote({ id: hotTake.id });
+        logEvent({
+          event_name: LogEvent.RemoveHotTakeUpvote,
+          target_id: origin || Origin.HotTakeList,
+          extra: JSON.stringify({ id: hotTake.id }),
+        });
         return;
       }
 
       await upvoteHotTake({ id: hotTake.id });
+      logEvent({
+        event_name: LogEvent.UpvoteHotTake,
+        target_id: origin || Origin.HotTakeList,
+        extra: JSON.stringify({ id: hotTake.id }),
+      });
     },
-    [cancelHotTakeVote, showLogin, upvoteHotTake, user],
+    [cancelHotTakeVote, logEvent, showLogin, upvoteHotTake, user],
   );
 
   const toggleDownvote: UseVoteHotTake['toggleDownvote'] = useCallback(
