@@ -270,6 +270,46 @@ useEventListener('scroll', handleScroll);
 
 ## Analytics Logging Patterns
 
+### Using target_id for Identifying Information
+
+When logging analytics events, use the `target_id` field for the primary identifying information (name, title, image URL, etc.) rather than placing it in the `extra` field. This provides consistent, queryable data across all analytics events.
+
+```typescript
+// ✅ Correct: Primary identifier in target_id
+logEvent({
+  event_name: LogEvent.AddHotTake,
+  target_id: input.title,  // The hot take title
+});
+
+logEvent({
+  event_name: LogEvent.AddGear,
+  target_id: input.name,  // The gear name
+});
+
+// ✅ Correct: Use extra for supplementary context
+logEvent({
+  event_name: LogEvent.AddUserStack,
+  target_id: input.title,  // Primary identifier
+  extra: JSON.stringify({ section: input.section }),  // Additional context
+});
+
+// ❌ Wrong: Don't put identifying info in extra
+logEvent({
+  event_name: LogEvent.AddHotTake,
+  extra: JSON.stringify({ title: input.title }),
+});
+```
+
+**When to use target_id:**
+- For "add" events: the name/title/image of what's being added
+- For "update" events: the ID of what's being updated
+- For "vote" events: the title/content being voted on
+
+**When to use extra:**
+- Supplementary context (e.g., section, category, origin)
+- Data that isn't the primary subject of the event
+- Always JSON.stringify objects in extra
+
 ### useLogEventOnce - One-Time Event Logging
 
 Use `useLogEventOnce` for logging events that should fire exactly once (e.g., impressions, form open tracking). This hook follows React best practices by using refs to track logged state, avoiding `eslint-disable` comments for empty dependency arrays.

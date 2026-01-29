@@ -60,7 +60,8 @@ export function useUserStack(user: PublicProfile | null) {
       invalidateQuery();
       logEvent({
         event_name: LogEvent.AddUserStack,
-        extra: JSON.stringify({ title: input.title, section: input.section }),
+        target_id: input.title,
+        extra: JSON.stringify({ section: input.section }),
       });
     },
   });

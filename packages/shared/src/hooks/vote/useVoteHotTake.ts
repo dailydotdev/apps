@@ -151,8 +151,8 @@ const useVoteHotTake = ({
         await cancelHotTakeVote({ id: hotTake.id });
         logEvent({
           event_name: LogEvent.RemoveHotTakeUpvote,
-          target_id: origin || Origin.HotTakeList,
-          extra: JSON.stringify({ id: hotTake.id }),
+          target_id: hotTake.title,
+          extra: JSON.stringify({ origin: origin || Origin.HotTakeList }),
         });
         return;
       }
@@ -160,8 +160,8 @@ const useVoteHotTake = ({
       await upvoteHotTake({ id: hotTake.id });
       logEvent({
         event_name: LogEvent.UpvoteHotTake,
-        target_id: origin || Origin.HotTakeList,
-        extra: JSON.stringify({ id: hotTake.id }),
+        target_id: hotTake.title,
+        extra: JSON.stringify({ origin: origin || Origin.HotTakeList }),
       });
     },
     [cancelHotTakeVote, logEvent, showLogin, upvoteHotTake, user],

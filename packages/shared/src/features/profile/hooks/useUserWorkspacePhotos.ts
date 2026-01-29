@@ -54,7 +54,7 @@ export function useUserWorkspacePhotos(user: PublicProfile | null) {
       invalidateQuery();
       logEvent({
         event_name: LogEvent.AddWorkspacePhoto,
-        extra: JSON.stringify({ image: input.image }),
+        target_id: input.image,
       });
     },
   });

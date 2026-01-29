@@ -51,7 +51,7 @@ export const useHotTakes = (user: PublicProfile | null) => {
       invalidateQuery();
       logEvent({
         event_name: LogEvent.AddHotTake,
-        extra: JSON.stringify({ title: input.title }),
+        target_id: input.title,
       });
     },
   });
