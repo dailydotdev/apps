@@ -17,7 +17,7 @@ export interface LeaderboardListProps {
   concatScore?: boolean;
 }
 
-const PlaceholderList = classed(ElementPlaceholder, 'h-12 my-1.5 rounded-12');
+const PlaceholderList = classed(ElementPlaceholder, 'h-14 my-1.5 rounded-12');
 
 export function LeaderboardList({
   containerProps,
