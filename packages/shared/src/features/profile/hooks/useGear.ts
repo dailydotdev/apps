@@ -46,7 +46,7 @@ export function useGear(user: PublicProfile | null) {
       invalidateQuery();
       logEvent({
         event_name: LogEvent.AddGear,
-        extra: JSON.stringify({ gearId: input.gearId }),
+        extra: JSON.stringify({ name: input.name }),
       });
     },
   });
