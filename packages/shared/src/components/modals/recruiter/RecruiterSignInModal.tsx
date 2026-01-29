@@ -26,7 +26,7 @@ export const RecruiterSignInModal = ({
   onSuccess,
   ...modalProps
 }: RecruiterSignInModalProps): ReactElement => {
-  const { trackingId } = useAuthContext();
+  const { trackingId, user } = useAuthContext();
   const [trackingIdState] = useState(trackingId); // save initial trackingId before login/registration
   const { mutateAsync: claimOpportunities } = useMutation(
     claimOpportunitiesMutationOptions(),
@@ -53,8 +53,20 @@ export const RecruiterSignInModal = ({
 
   const handleSuccessfulLogin = useCallback(async () => {
     try {
+      // Claim opportunities with both trackingId and user email via Promise.all
+      // This ensures opportunities are claimed whether they were created with trackingId or email
+      const claimPromises: Promise<unknown>[] = [];
+
       if (trackingIdState) {
-        await claimOpportunities({ identifier: trackingIdState });
+        claimPromises.push(claimOpportunities({ identifier: trackingIdState }));
+      }
+
+      if (user?.email) {
+        claimPromises.push(claimOpportunities({ identifier: user.email }));
+      }
+
+      if (claimPromises.length > 0) {
+        await Promise.all(claimPromises);
       }
     } catch {
       // if we can't claim at this time we move on
@@ -63,7 +75,13 @@ export const RecruiterSignInModal = ({
     // Close the modal and trigger success callback
     onRequestClose?.(null);
     onSuccess?.();
-  }, [claimOpportunities, onRequestClose, onSuccess, trackingIdState]);
+  }, [
+    claimOpportunities,
+    onRequestClose,
+    onSuccess,
+    trackingIdState,
+    user?.email,
+  ]);
 
   // Derive the display from auth state - login flow should show default display
   const authDisplay = authState.isLoginFlow

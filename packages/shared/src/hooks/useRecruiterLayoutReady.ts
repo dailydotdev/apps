@@ -17,7 +17,11 @@ export const useRecruiterLayoutReady = (): UseRecruiterLayoutReadyResult => {
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
 
   const isIndexPage = router.pathname === '/recruiter';
-  const shouldRedirect = !user && isPageReady && !isTesting && !isIndexPage;
+  const isAnalyzePage =
+    router.pathname === '/recruiter/[opportunityId]/analyze';
+  const shouldRedirect =
+    // we support public access for some opportunities with public_draft flag on API side
+    !user && isPageReady && !isTesting && !isIndexPage && !isAnalyzePage;
 
   useEffect(() => {
     if (!shouldRedirect) {

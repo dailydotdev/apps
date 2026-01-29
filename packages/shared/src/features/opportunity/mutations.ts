@@ -487,13 +487,22 @@ export const getParseOpportunityMutationErrorMessage = (
 
 export const parseOpportunityMutationOptions = () => {
   return {
-    mutationFn: async ({ file, url }: { file?: File; url?: string }) => {
+    mutationFn: async ({
+      file,
+      url,
+      identifier,
+    }: {
+      file?: File;
+      url?: string;
+      identifier?: string;
+    }) => {
       const result = await gqlClient.request<{
         parseOpportunity: Opportunity;
       }>(PARSE_OPPORTUNITY_MUTATION, {
         payload: {
           file,
           url,
+          identifier,
         },
       });
 
