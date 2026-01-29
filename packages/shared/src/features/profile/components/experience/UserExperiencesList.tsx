@@ -1,11 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import type {
-  UserExperience,
-  UserExperienceType,
-} from '../../../../graphql/user/profile';
+import type { UserExperience } from '../../../../graphql/user/profile';
+import { UserExperienceType } from '../../../../graphql/user/profile';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../../../components/typography/Typography';
@@ -17,13 +16,71 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { MoveToIcon, EditIcon } from '../../../../components/icons';
+import {
+  MoveToIcon,
+  PlusIcon,
+  EditIcon,
+  JobIcon,
+  TerminalIcon,
+  TourIcon,
+} from '../../../../components/icons';
+import { GraduationIcon } from '../../../../components/icons/Graduation';
+import { MedalIcon } from '../../../../components/icons/Medal';
+import { VolunteeringIcon } from '../../../../components/icons/Volunteering';
 import { IconSize } from '../../../../components/Icon';
 import Link from '../../../../components/utilities/Link';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { webappUrl } from '../../../../lib/constants';
 import type { PublicProfile } from '../../../../lib/user';
 import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
+import type { IconProps } from '../../../../components/Icon';
+
+const experienceTypeConfig: Record<
+  UserExperienceType,
+  {
+    icon: React.FC<IconProps>;
+    label: string;
+    heading: string;
+    subheading: string;
+  }
+> = {
+  [UserExperienceType.Work]: {
+    icon: JobIcon,
+    label: 'work experience',
+    heading: 'Add your work experience',
+    subheading: "Show where you've worked and what you've accomplished",
+  },
+  [UserExperienceType.Education]: {
+    icon: GraduationIcon,
+    label: 'education',
+    heading: 'Add your education',
+    subheading: 'Share your academic background and achievements',
+  },
+  [UserExperienceType.Certification]: {
+    icon: MedalIcon,
+    label: 'certification',
+    heading: 'Add your certifications',
+    subheading: 'Showcase your professional certifications and credentials',
+  },
+  [UserExperienceType.OpenSource]: {
+    icon: TerminalIcon,
+    label: 'open source contribution',
+    heading: 'Add your open source work',
+    subheading: 'Highlight your contributions to open source projects',
+  },
+  [UserExperienceType.Project]: {
+    icon: TourIcon,
+    label: 'project',
+    heading: 'Add your projects',
+    subheading: 'Share your side projects and publications',
+  },
+  [UserExperienceType.Volunteering]: {
+    icon: VolunteeringIcon,
+    label: 'volunteering experience',
+    heading: 'Add your volunteering',
+    subheading: 'Share your community involvement and volunteer work',
+  },
+};
 
 interface UserExperienceListProps<T extends UserExperience> {
   experiences: T[];
@@ -75,13 +132,64 @@ export function UserExperienceList<T extends UserExperience>({
     [experiences],
   );
 
-  if (!user || !experiences?.length) {
+  const hasExperiences = experiences?.length > 0;
+
+  if (!user) {
+    return null;
+  }
+
+  if (!hasExperiences && !isOwner) {
     return null;
   }
 
   const showMoreUrl = `${webappUrl}${user.username}/${experienceType}`;
   const editBaseUrl = `${webappUrl}settings/profile/experience/edit`;
+  const addUrl = `${editBaseUrl}?type=${experienceType}`;
   const settingsUrl = `${webappUrl}settings/profile/experience/${experienceType}`;
+  const config = experienceTypeConfig[experienceType];
+  const IconComponent = config.icon;
+
+  if (!hasExperiences && isOwner) {
+    return (
+      <div className="flex flex-col gap-3 py-4">
+        {title && (
+          <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
+            {title}
+          </Typography>
+        )}
+        <div className="flex flex-col items-center gap-4 rounded-16 bg-surface-float p-6">
+          <div className="flex size-14 items-center justify-center rounded-full bg-overlay-quaternary-cabbage">
+            <IconComponent size={IconSize.XLarge} />
+          </div>
+          <div className="flex flex-col items-center gap-1 text-center">
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Primary}
+              bold
+            >
+              {config.heading}
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {config.subheading}
+            </Typography>
+          </div>
+          <Link href={addUrl} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+            >
+              Add your first {config.label}
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3 py-4">
@@ -90,7 +198,7 @@ export function UserExperienceList<T extends UserExperience>({
           <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
             {title}
           </Typography>
-          {settingsUrl && isOwner && (
+          {isOwner && (
             <Link href={settingsUrl} passHref>
               <Button
                 tag="a"
