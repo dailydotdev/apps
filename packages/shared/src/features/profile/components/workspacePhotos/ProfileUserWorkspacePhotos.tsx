@@ -275,7 +275,7 @@ export function ProfileUserWorkspacePhotos({
 
           {/* Gear Section */}
           {hasGear && (
-            <div className="grid grid-cols-2 gap-2 tablet:grid-cols-3">
+            <div className="flex flex-col gap-2 tablet:grid tablet:grid-cols-2">
               {gearItems.map((item) => (
                 <GearItem
                   key={item.id}
