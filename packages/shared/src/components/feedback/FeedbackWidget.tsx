@@ -9,11 +9,8 @@ import Textarea from '../fields/Textarea';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
-import {
-  FeedbackCategory,
-  submitFeedback,
-  type FeedbackInput,
-} from '../../graphql/feedback';
+import { FeedbackCategory, submitFeedback } from '../../graphql/feedback';
+import type { FeedbackInput } from '../../graphql/feedback';
 import {
   Typography,
   TypographyType,
@@ -92,10 +89,7 @@ export function FeedbackWidget({
         variant={ButtonVariant.Primary}
         size={ButtonSize.Medium}
         icon={<FeedbackIcon />}
-        className={classNames(
-          'fixed bottom-4 right-4 z-3 shadow-2',
-          className,
-        )}
+        className={classNames('fixed bottom-4 right-4 z-3 shadow-2', className)}
         onClick={() => setIsOpen(true)}
         aria-label="Send feedback"
       >
