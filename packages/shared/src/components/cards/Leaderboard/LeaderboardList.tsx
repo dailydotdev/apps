@@ -19,7 +19,7 @@ export interface LeaderboardListProps {
 
 const PlaceholderList = classed(
   ElementPlaceholder,
-  'h-[1.6875rem] my-1.5 rounded-12',
+  'h-12 my-1.5 rounded-12',
 );
 
 export function LeaderboardList({
