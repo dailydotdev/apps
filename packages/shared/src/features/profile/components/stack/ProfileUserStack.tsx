@@ -21,6 +21,8 @@ import type {
 } from '../../../../graphql/user/userStack';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { usePrompt } from '../../../../hooks/usePrompt';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent } from '../../../../lib/log';
 
 interface ProfileUserStackProps {
   user: PublicProfile;
@@ -46,6 +48,7 @@ export function ProfileUserStack({
     useUserStack(user);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
+  const { logEvent } = useLogContext();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<UserStack | null>(null);
@@ -118,6 +121,13 @@ export function ProfileUserStack({
     setEditingItem(null);
   }, []);
 
+  const handleOpenModal = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.StartAddUserStack,
+    });
+    setIsModalOpen(true);
+  }, [logEvent]);
+
   // Sort sections: predefined first, then custom alphabetically
   const sortedSections = Object.keys(groupedBySection).sort((a, b) => {
     const aIndex = SECTION_ORDER.indexOf(a);
@@ -155,7 +165,7 @@ export function ProfileUserStack({
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<PlusIcon />}
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleOpenModal}
           >
             Add
           </Button>
@@ -188,7 +198,7 @@ export function ProfileUserStack({
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleOpenModal}
             >
               Add your first item
             </Button>

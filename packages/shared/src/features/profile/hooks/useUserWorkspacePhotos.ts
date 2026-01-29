@@ -13,12 +13,15 @@ import {
 } from '../../../graphql/user/userWorkspacePhoto';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 export const MAX_WORKSPACE_PHOTOS = 5;
 
 export function useUserWorkspacePhotos(user: PublicProfile | null) {
   const queryClient = useQueryClient();
   const { isOwner } = useProfilePreview(user);
+  const { logEvent } = useLogContext();
 
   const queryKey = generateQueryKey(
     RequestKey.UserWorkspacePhotos,
@@ -47,18 +50,36 @@ export function useUserWorkspacePhotos(user: PublicProfile | null) {
   const addMutation = useMutation({
     mutationFn: (input: AddUserWorkspacePhotoInput) =>
       addUserWorkspacePhoto(input),
-    onSuccess: invalidateQuery,
+    onSuccess: (_, input) => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.AddWorkspacePhoto,
+        target_id: input.image,
+      });
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteUserWorkspacePhoto(id),
-    onSuccess: invalidateQuery,
+    onSuccess: (_, id) => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.RemoveWorkspacePhoto,
+        extra: JSON.stringify({ id }),
+      });
+    },
   });
 
   const reorderMutation = useMutation({
     mutationFn: (items: ReorderUserWorkspacePhotoInput[]) =>
       reorderUserWorkspacePhotos(items),
-    onSuccess: invalidateQuery,
+    onSuccess: (_, items) => {
+      invalidateQuery();
+      logEvent({
+        event_name: LogEvent.ReorderWorkspacePhoto,
+        extra: JSON.stringify({ count: items.length }),
+      });
+    },
   });
 
   return {
