@@ -47,10 +47,11 @@ export const useHotTakes = (user: PublicProfile | null) => {
 
   const addMutation = useMutation({
     mutationFn: (input: AddHotTakeInput) => addHotTake(input),
-    onSuccess: () => {
+    onSuccess: (_, input) => {
       invalidateQuery();
       logEvent({
         event_name: LogEvent.AddHotTake,
+        extra: JSON.stringify({ title: input.title }),
       });
     },
   });

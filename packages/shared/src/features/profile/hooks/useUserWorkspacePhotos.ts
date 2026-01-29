@@ -50,10 +50,11 @@ export function useUserWorkspacePhotos(user: PublicProfile | null) {
   const addMutation = useMutation({
     mutationFn: (input: AddUserWorkspacePhotoInput) =>
       addUserWorkspacePhoto(input),
-    onSuccess: () => {
+    onSuccess: (_, input) => {
       invalidateQuery();
       logEvent({
         event_name: LogEvent.AddWorkspacePhoto,
+        extra: JSON.stringify({ image: input.image }),
       });
     },
   });
