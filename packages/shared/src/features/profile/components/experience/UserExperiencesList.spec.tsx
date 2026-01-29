@@ -468,7 +468,7 @@ describe('UserExperiencesList', () => {
   });
 
   describe('UI interactions and navigation', () => {
-    it('should render add button when user owns the profile', () => {
+    it('should render edit button when user owns the profile', () => {
       const user = createUser();
       const experience = createExperience();
       renderComponent({
@@ -478,12 +478,14 @@ describe('UserExperiencesList', () => {
         user,
       });
 
-      // The add button is rendered as a link/button with href to edit page
-      const addButton = screen.getByRole('link', { name: 'Add' });
-      expect(addButton).toBeInTheDocument();
-      expect(addButton).toHaveAttribute(
+      // The edit button is rendered as a link/button with href to settings page
+      const editButton = screen.getByRole('link', {
+        name: 'Edit Work Experience',
+      });
+      expect(editButton).toBeInTheDocument();
+      expect(editButton).toHaveAttribute(
         'href',
-        'https://app.daily.dev/settings/profile/experience/edit?type=work',
+        'https://app.daily.dev/settings/profile/experience/work',
       );
     });
 

@@ -19,6 +19,7 @@ import {
 import {
   MoveToIcon,
   PlusIcon,
+  EditIcon,
   JobIcon,
   TerminalIcon,
   TourIcon,
@@ -144,6 +145,7 @@ export function UserExperienceList<T extends UserExperience>({
   const showMoreUrl = `${webappUrl}${user.username}/${experienceType}`;
   const editBaseUrl = `${webappUrl}settings/profile/experience/edit`;
   const addUrl = `${editBaseUrl}?type=${experienceType}`;
+  const settingsUrl = `${webappUrl}settings/profile/experience/${experienceType}`;
   const config = experienceTypeConfig[experienceType];
   const IconComponent = config.icon;
 
@@ -197,15 +199,14 @@ export function UserExperienceList<T extends UserExperience>({
             {title}
           </Typography>
           {isOwner && (
-            <Link href={addUrl} passHref>
+            <Link href={settingsUrl} passHref>
               <Button
                 tag="a"
                 variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                icon={<PlusIcon />}
-              >
-                Add
-              </Button>
+                size={ButtonSize.XSmall}
+                icon={<EditIcon />}
+                aria-label={`Edit ${title}`}
+              />
             </Link>
           )}
         </div>
