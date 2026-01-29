@@ -1,11 +1,17 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from './common';
+import type { EmptyResponse } from './emptyResponse';
 
+/**
+ * @generated from enum dailydotdev.bragi.pipelines.FeedbackCategory
+ */
 export enum FeedbackCategory {
-  Bug = 'BUG',
-  FeatureRequest = 'FEATURE_REQUEST',
-  General = 'GENERAL',
-  Other = 'OTHER',
+  Unspecified = 0,
+  BugReport = 1,
+  FeatureRequest = 2,
+  UxIssue = 3,
+  PerformanceComplaint = 4,
+  ContentQuality = 5,
 }
 
 export interface FeedbackInput {
@@ -15,25 +21,13 @@ export interface FeedbackInput {
   userAgent?: string;
 }
 
-export interface FeedbackResult {
-  success: boolean;
-  feedbackId?: string;
-}
-
-export interface SubmitFeedbackData {
-  submitFeedback: FeedbackResult;
-}
-
 export const SUBMIT_FEEDBACK_MUTATION = gql`
   mutation SubmitFeedback($input: FeedbackInput!) {
     submitFeedback(input: $input) {
-      success
-      feedbackId
+      _
     }
   }
 `;
 
-export const submitFeedback = (input: FeedbackInput): Promise<FeedbackResult> =>
-  gqlClient
-    .request<SubmitFeedbackData>(SUBMIT_FEEDBACK_MUTATION, { input })
-    .then((res) => res.submitFeedback);
+export const submitFeedback = (input: FeedbackInput): Promise<EmptyResponse> =>
+  gqlClient.request(SUBMIT_FEEDBACK_MUTATION, { input });
