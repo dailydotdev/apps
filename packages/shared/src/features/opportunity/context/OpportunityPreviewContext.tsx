@@ -38,9 +38,13 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
     const opportunityIdParam = router?.query?.opportunityId as
       | string
       | undefined;
+    const anonEmail = router?.query?.email as string | undefined;
 
     const isValidOpportunityId =
       !!opportunityIdParam && opportunityIdParam !== 'new';
+
+    // For public opportunities (anonymous access), use identifier instead of opportunityId
+    const isAnonIdentifierFlow = !user && !!anonEmail;
 
     const [, updateOpportunity] = useUpdateQuery(
       opportunityByIdOptions({ id: opportunityIdParam || '' }),
@@ -98,26 +102,27 @@ const [OpportunityPreviewProvider, useOpportunityPreviewContext] =
     const isParsing = opportunity?.state === OpportunityState.PARSING;
     const isParseError = opportunity?.state === OpportunityState.ERROR;
 
-    const [, setOpportunityPreview] = useUpdateQuery(
-      opportunityPreviewQueryOptions({
-        opportunityId: opportunityIdParam,
-        user: user || undefined,
-        enabled: !mockData,
-      }),
-    );
+    const opportunityPreviewOptions = opportunityPreviewQueryOptions({
+      opportunityId: isAnonIdentifierFlow ? undefined : opportunityIdParam,
+      identifier: isAnonIdentifierFlow ? anonEmail : undefined,
+      user: user || undefined,
+    });
+
+    const [, setOpportunityPreview] = useUpdateQuery({
+      ...opportunityPreviewOptions,
+      enabled: !mockData,
+    });
 
     // Only fetch preview once opportunity is no longer in PARSING state
+    // For public opportunities (anonymous), we can fetch immediately since we don't have opportunity data
     const { data } = useQuery({
-      ...opportunityPreviewQueryOptions({
-        opportunityId: opportunityIdParam,
-        user: user || undefined,
-        enabled:
-          !mockData &&
-          isValidOpportunityId &&
-          !!opportunity &&
-          !isParsing &&
-          !isParseError,
-      }),
+      ...opportunityPreviewOptions,
+      enabled:
+        !mockData &&
+        isValidOpportunityId &&
+        !!opportunity &&
+        !isParsing &&
+        !isParseError,
       refetchInterval: (query) => {
         if (
           query.state.data?.result?.status === OpportunityPreviewStatus.ERROR

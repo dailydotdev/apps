@@ -217,11 +217,16 @@ export const getUserOpportunityMatchesOptions = ({
 // Query Function
 export const getOpportunityPreview = async ({
   opportunityId,
+  identifier,
+}: {
+  opportunityId?: string;
+  identifier?: string;
 }): Promise<OpportunityPreviewResponse> => {
   const result = await gqlClient.request<{
     opportunityPreview: OpportunityPreviewResponse;
   }>(OPPORTUNITY_PREVIEW, {
     opportunityId,
+    identifier,
   });
 
   return result.opportunityPreview;
@@ -229,18 +234,21 @@ export const getOpportunityPreview = async ({
 
 export const opportunityPreviewQueryOptions = ({
   opportunityId,
+  identifier,
   user,
   enabled = true,
 }: {
   opportunityId?: string;
+  identifier?: string;
   user?: LoggedUser;
   enabled?: boolean;
 }) => {
   return {
     queryKey: generateQueryKey(RequestKey.OpportunityPreview, user, {
       opportunityId,
+      identifier,
     }),
-    queryFn: () => getOpportunityPreview({ opportunityId }),
+    queryFn: () => getOpportunityPreview({ opportunityId, identifier }),
     enabled: !!user && !!enabled,
     ...disabledRefetch,
     staleTime: Infinity,
