@@ -100,8 +100,25 @@ describe('UserExperiencesList', () => {
   });
 
   describe('Basic rendering', () => {
-    it('should render empty fragment when no experiences provided', () => {
+    it('should render empty state with add button for owner when no experiences provided', () => {
       const user = createUser();
+      renderComponent({
+        experiences: [],
+        title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
+      });
+
+      // Owner should see empty state with title and add button
+      expect(screen.getByText('Work Experience')).toBeInTheDocument();
+      expect(screen.getByText('Add your work experience')).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', { name: /add your first work experience/i }),
+      ).toBeInTheDocument();
+    });
+
+    it('should render empty fragment for non-owner when no experiences provided', () => {
+      const user = createUser({ id: 'otheruser', username: 'otheruser' });
       renderComponent({
         experiences: [],
         title: 'Work Experience',
@@ -451,7 +468,7 @@ describe('UserExperiencesList', () => {
   });
 
   describe('UI interactions and navigation', () => {
-    it('should render edit button when user owns the profile', () => {
+    it('should render add button when user owns the profile', () => {
       const user = createUser();
       const experience = createExperience();
       renderComponent({
@@ -461,14 +478,12 @@ describe('UserExperiencesList', () => {
         user,
       });
 
-      // The edit button is rendered as a link/button with href
-      const editLinks = screen.getAllByRole('link');
-      const editButton = editLinks.find((link) =>
-        link.getAttribute('href')?.includes('settings/profile/experience/work'),
-      );
-      expect(editButton).toBeTruthy();
-      expect(editButton?.getAttribute('href')).toBe(
-        'https://app.daily.dev/settings/profile/experience/work',
+      // The add button is rendered as a link/button with href to edit page
+      const addButton = screen.getByRole('link', { name: 'Add' });
+      expect(addButton).toBeInTheDocument();
+      expect(addButton).toHaveAttribute(
+        'href',
+        'https://app.daily.dev/settings/profile/experience/edit?type=work',
       );
     });
 

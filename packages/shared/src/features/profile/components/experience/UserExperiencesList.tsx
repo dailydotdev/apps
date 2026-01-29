@@ -174,7 +174,7 @@ export function UserExperienceList<T extends UserExperience>({
               {config.subheading}
             </Typography>
           </div>
-          <Link href={addUrl}>
+          <Link href={addUrl} passHref>
             <Button
               tag="a"
               variant={ButtonVariant.Secondary}
@@ -197,7 +197,7 @@ export function UserExperienceList<T extends UserExperience>({
             {title}
           </Typography>
           {isOwner && (
-            <Link href={addUrl}>
+            <Link href={addUrl} passHref>
               <Button
                 tag="a"
                 variant={ButtonVariant.Tertiary}
