@@ -50,6 +50,7 @@ const ProfileIndex = (): ReactElement => {
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
               disabled={isLoading}
+              loading={isLoading}
             >
               Save
             </Button>

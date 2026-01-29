@@ -39,6 +39,7 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
             variant={isLaptop ? ButtonVariant.Float : mobileVariant}
             className="relative w-10 justify-center"
             tag="a"
+            aria-label="Notifications"
             iconPosition={ButtonIconPosition.Top}
             onClick={onNavigateNotifications}
             icon={<BellIcon secondary={atNotificationsPage} />}

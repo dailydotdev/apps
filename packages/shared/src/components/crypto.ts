@@ -1,4 +1,4 @@
-import { isDevelopment } from '../lib/constants';
+import { isDevelopment, isProductionAPI } from '../lib/constants';
 
 const base64ToBuf = (b: string) =>
   Uint8Array.from(atob(b), (c) => c.charCodeAt(0));
@@ -10,7 +10,7 @@ export const decrypt = async (
   algorithmLength = 256,
   subtle = globalThis.crypto.subtle,
 ): Promise<string> => {
-  if (!subtle || isDevelopment) {
+  if (!subtle || (isDevelopment && !isProductionAPI)) {
     return input;
   }
   const keyObject = await subtle.importKey(

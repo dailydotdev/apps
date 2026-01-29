@@ -59,4 +59,5 @@ export default function usePersistentContext<T>(
 export enum PersistentContextKeys {
   AlertPushKey = 'alert_push_key',
   StreakAlertPushKey = 'streak_alert_push_key',
+  PendingOpportunityId = 'pending_opportunity_id',
 }

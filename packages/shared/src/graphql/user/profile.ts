@@ -25,6 +25,8 @@ const excludedProperties = [
   'location',
   'company',
   'customLocation',
+  'image',
+  'repositorySearch',
 ];
 
 const USER_EXPERIENCE_FRAGMENT = gql`
@@ -39,6 +41,8 @@ const USER_EXPERIENCE_FRAGMENT = gql`
     startedAt
     endedAt
     customCompanyName
+    customDomain
+    image
     employmentType
     locationType
     verified
@@ -63,6 +67,13 @@ const USER_EXPERIENCE_FRAGMENT = gql`
       city
       subdivision
       country
+    }
+    repository {
+      id
+      owner
+      name
+      url
+      image
     }
   }
 `;
@@ -165,6 +176,14 @@ export enum UserExperienceType {
   OpenSource = 'opensource',
 }
 
+export interface Repository {
+  id?: string | null;
+  owner?: string | null;
+  name: string;
+  url: string;
+  image?: string | null;
+}
+
 export interface UserExperience {
   id: string;
   type: UserExperienceType;
@@ -175,10 +194,13 @@ export interface UserExperience {
   endedAt?: string | null;
   company?: Company | null;
   customCompanyName?: string | null;
+  customDomain?: string | null;
+  image?: string | null;
   subtitle?: string | null;
   url?: string | null;
   verified?: boolean | null;
   customLocation?: Partial<Pick<TLocation, 'city' | 'subdivision' | 'country'>>;
+  repository?: Repository | null;
 }
 
 interface UserSkill {
@@ -282,6 +304,8 @@ const UPSERT_USER_GENERAL_EXPERIENCE = gql`
         name
       }
       customCompanyName
+      customDomain
+      image
       url
       grade
       externalReferenceId
@@ -325,6 +349,8 @@ const UPSERT_USER_WORK_EXPERIENCE = gql`
         name
       }
       customCompanyName
+      customDomain
+      image
       employmentType
       location {
         id
@@ -351,6 +377,7 @@ export const upsertUserWorkExperience = async (
     'subtitle',
     'grade',
     'verified',
+    'repository',
   ]);
 
   const result = await gqlClient.request(UPSERT_USER_WORK_EXPERIENCE, {

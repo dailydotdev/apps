@@ -580,11 +580,48 @@ export interface UserStreak {
   lastViewAt: Date;
 }
 
+export interface UserProfileAnalytics {
+  id: string;
+  uniqueVisitors: number;
+  updatedAt: Date;
+}
+
+export interface UserProfileAnalyticsHistory {
+  id: string;
+  date: string;
+  uniqueVisitors: number;
+  updatedAt: Date;
+}
+
 export const getReadingStreak = async (): Promise<UserStreak> => {
   const res = await gqlClient.request(USER_STREAK_QUERY);
 
   return res.userStreak;
 };
+
+export const USER_PROFILE_ANALYTICS_QUERY = gql`
+  query UserProfileAnalytics($userId: ID!) {
+    userProfileAnalytics(userId: $userId) {
+      id
+      uniqueVisitors
+      updatedAt
+    }
+  }
+`;
+
+export const USER_PROFILE_ANALYTICS_HISTORY_QUERY = gql`
+  query UserProfileAnalyticsHistory($userId: ID!, $first: Int) {
+    userProfileAnalyticsHistory(userId: $userId, first: $first) {
+      edges {
+        node {
+          id
+          date
+          uniqueVisitors
+        }
+      }
+    }
+  }
+`;
 
 export interface UserStreakRecoverData {
   canRecover: boolean;

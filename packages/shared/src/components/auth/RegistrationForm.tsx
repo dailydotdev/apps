@@ -27,7 +27,7 @@ import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import Alert, { AlertType, AlertParagraph } from '../widgets/Alert';
-import { isDevelopment } from '../../lib/constants';
+import { isDevelopment, isProductionAPI } from '../../lib/constants';
 import {
   Typography,
   TypographyTag,
@@ -224,9 +224,10 @@ const RegistrationForm = ({
         'traits.experienceLevel': 'NOT_ENGINEER',
       }),
       headers: {
-        'True-Client-Ip': isDevelopment
-          ? undefined
-          : turnstileRef?.current?.getResponse(),
+        'True-Client-Ip':
+          isDevelopment && !isProductionAPI
+            ? undefined
+            : turnstileRef?.current?.getResponse(),
       },
     });
   };

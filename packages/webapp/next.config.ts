@@ -32,6 +32,7 @@ const withSerwist = withSerwistInit({
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
+  allowedDevOrigins: ['app.local.fylla.dev', 'app.staging.daily.dev'],
   ...withSerwist({
     ...withBundleAnalyzer({
       i18n: {
@@ -150,6 +151,19 @@ const nextConfig: NextConfig = {
                 },
               ],
             },
+            // Markdown versions of pages for AI agents (llms.txt spec)
+            {
+              source: '/sources.md',
+              destination: '/api/md/sources',
+            },
+            {
+              source: '/tags.md',
+              destination: '/api/md/tags',
+            },
+            {
+              source: '/squads/discover.md',
+              destination: '/api/md/squads',
+            },
           ],
           // regular rewrites
           afterFiles: rewrites,
@@ -262,6 +276,16 @@ const nextConfig: NextConfig = {
             headers: [
               { key: 'Content-Type', value: 'application/json' },
               { key: 'Cache-Control', value: 'no-cache' },
+            ],
+          },
+          {
+            source: '/llms.txt',
+            headers: [
+              { key: 'Content-Type', value: 'text/plain; charset=utf-8' },
+              {
+                key: 'Cache-Control',
+                value: 'public, max-age=86400, stale-while-revalidate=604800',
+              },
             ],
           },
         ];

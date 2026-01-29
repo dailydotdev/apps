@@ -245,6 +245,12 @@ export const usePostToSquad = ({
         onPostSuccess(null, url);
       }
     },
+    onError: (err: ApiErrorResult) => {
+      const rateLimited = getApiError(err, ApiError.RateLimited);
+      const message = rateLimited?.message ?? DEFAULT_ERROR;
+      displayToast(message);
+      onError?.(err);
+    },
   });
 
   const isPosting =

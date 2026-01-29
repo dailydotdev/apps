@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import type { SortCommentsBy } from './comments';
+import type { WriteFormTab } from '../components/fields/form/common';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
@@ -19,6 +20,7 @@ export type SettingsFlags = {
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
   lastPrompt?: string;
+  defaultWriteTab?: WriteFormTab;
 };
 
 export enum SidebarSettingsFlags {

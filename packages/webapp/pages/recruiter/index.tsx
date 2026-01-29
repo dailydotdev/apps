@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -14,6 +14,11 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { DashboardView } from '@dailydotdev/shared/src/features/recruiter/components/DashboardView';
 import { OnboardingView } from '@dailydotdev/shared/src/features/recruiter/components/OnboardingView';
+import usePersistentContext, {
+  PersistentContextKeys,
+} from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
   getLayout,
   layoutProps,
@@ -25,6 +30,10 @@ function RecruiterPage(): ReactElement {
   const { setPendingSubmission } = usePendingSubmission();
   const { user, loadingUser } = useAuthContext();
   const hasInitializedRef = useRef(false);
+  const [pendingOpportunityId, setPendingOpportunityId] = usePersistentContext<
+    string | null
+  >(PersistentContextKeys.PendingOpportunityId, null);
+  const [isNavigatingToAnalyze, setNavigatingToAnalyze] = useState(false);
 
   // Check if user already has opportunities (jobs)
   const { data: opportunitiesData, isLoading: isLoadingOpportunities } =
@@ -32,10 +41,20 @@ function RecruiterPage(): ReactElement {
       ...getOpportunitiesOptions(),
       enabled: !!user,
     });
-  const navigateToAnalyze = useCallback(() => {
+  const navigateToAnalyze = useCallback(async () => {
+    setNavigatingToAnalyze(true);
+
+    if (pendingOpportunityId) {
+      setPendingOpportunityId(null);
+      await router.push(
+        `${webappUrl}recruiter/${pendingOpportunityId}/analyze`,
+      );
+    } else {
+      await router.push(`${webappUrl}recruiter/new/analyze`);
+    }
+
     closeModal();
-    router.push(`/recruiter/new/analyze`);
-  }, [closeModal, router]);
+  }, [closeModal, pendingOpportunityId, setPendingOpportunityId, router]);
 
   // Use a ref so the modal always calls the latest version of this function
   // This avoids stale closures since the modal captures the callback when opened
@@ -57,11 +76,21 @@ function RecruiterPage(): ReactElement {
   };
 
   const openJobLinkModal = useCallback(
-    (closeable = false) => {
+    ({
+      closeable = false,
+      initialUrl,
+      autoSubmit = false,
+    }: {
+      closeable?: boolean;
+      initialUrl?: string;
+      autoSubmit?: boolean;
+    } = {}) => {
       openModal({
         type: LazyModal.RecruiterJobLink,
         props: {
           closeable,
+          initialUrl,
+          autoSubmit,
           onSubmit: (submission: PendingSubmission) =>
             handleJobSubmitRef.current?.(submission),
         },
@@ -75,10 +104,17 @@ function RecruiterPage(): ReactElement {
 
   // Open the onboarding modal flow for new users (no opportunities)
   useEffect(() => {
-    const { openModal: openModalParam, closeable } = router.query;
+    const { openModal: openModalParam, closeable, url } = router.query;
+
+    // If url query param is present, open modal with pre-filled URL and auto-submit
+    if (url && typeof url === 'string') {
+      openJobLinkModal({ initialUrl: url, autoSubmit: true });
+      return;
+    }
+
     // If openModal=joblink query param is present, skip intro/trust modals
     if (openModalParam === 'joblink') {
-      openJobLinkModal(closeable === '1');
+      openJobLinkModal({ closeable: closeable === '1' });
       return;
     }
 
@@ -129,6 +165,18 @@ function RecruiterPage(): ReactElement {
 
   const opportunities = opportunitiesData?.edges.map((edge) => edge.node) || [];
 
+  if (isNavigatingToAnalyze) {
+    return (
+      <div className="relative flex flex-1">
+        <OnboardingView />
+        <Loader
+          invertColor
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        />
+      </div>
+    );
+  }
+
   // Loading state
   if ((user && isLoadingOpportunities) || loadingUser) {
     return (
@@ -147,7 +195,7 @@ function RecruiterPage(): ReactElement {
     return (
       <DashboardView
         opportunities={opportunities}
-        onAddNew={() => openJobLinkModal(true)}
+        onAddNew={() => openJobLinkModal({ closeable: true })}
       />
     );
   }

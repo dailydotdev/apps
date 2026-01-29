@@ -1,16 +1,22 @@
 import type { DefaultError, MutationOptions } from '@tanstack/react-query';
 import type z from 'zod';
-import { gqlClient } from '../../graphql/common';
+import type {
+  ApiErrorResult,
+  ApiZodErrorExtension,
+} from '../../graphql/common';
+import { gqlClient, ApiError } from '../../graphql/common';
 import {
   ACCEPT_OPPORTUNITY_MATCH,
   ADD_OPPORTUNITY_SEATS_MUTATION,
   CANDIDATE_KEYWORD_ADD_MUTATION,
   CANDIDATE_KEYWORD_REMOVE_MUTATION,
+  CLAIM_OPPORTUNITIES_MUTATION,
   CLEAR_EMPLOYMENT_AGREEMENT_MUTATION,
   CLEAR_RECRUITER_ORGANIZATION_IMAGE_MUTATION,
   CLEAR_RESUME_MUTATION,
   CREATE_ORGANIZATION_FOR_OPPORTUNITY_MUTATION,
   EDIT_OPPORTUNITY_MUTATION,
+  OPPORTUNITY_APPLY_MUTATION,
   PARSE_OPPORTUNITY_MUTATION,
   REIMPORT_OPPORTUNITY_MUTATION,
   RECOMMEND_OPPORTUNITY_SCREENING_QUESTIONS_MUTATION,
@@ -27,6 +33,7 @@ import {
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import type {
   Opportunity,
+  OpportunitiesClaim,
   OpportunityMatch,
   OpportunityScreeningAnswer,
   UserCandidatePreferences,
@@ -446,6 +453,38 @@ export const recruiterRejectOpportunityMatchMutationOptions =
     };
   };
 
+export const PARSE_OPPORTUNITY_ERROR_MESSAGE =
+  'We could not extract the job details from your submission. Please try a different file or URL.';
+
+export const getParseOpportunityMutationErrorMessage = (
+  error?: ApiErrorResult,
+): string => {
+  if (!error) {
+    return PARSE_OPPORTUNITY_ERROR_MESSAGE;
+  }
+
+  const isZodError =
+    error?.response?.errors?.[0]?.extensions?.code ===
+    ApiError.ZodValidationError;
+
+  if (isZodError) {
+    const zodError = error as ApiErrorResult<ApiZodErrorExtension>;
+    return (
+      zodError.response.errors[0].extensions.issues?.find(
+        (issue) => issue.code === 'custom',
+      )?.message || PARSE_OPPORTUNITY_ERROR_MESSAGE
+    );
+  }
+
+  if (error?.response?.errors?.[0]?.extensions?.code === ApiError.Unexpected) {
+    return PARSE_OPPORTUNITY_ERROR_MESSAGE;
+  }
+
+  return (
+    error?.response?.errors?.[0]?.message || PARSE_OPPORTUNITY_ERROR_MESSAGE
+  );
+};
+
 export const parseOpportunityMutationOptions = () => {
   return {
     mutationFn: async ({ file, url }: { file?: File; url?: string }) => {
@@ -499,11 +538,47 @@ export const addOpportunitySeatsMutationOptions = () => {
       payload: z.infer<typeof addOpportunitySeatsSchema>;
     }): Promise<void> => {
       await gqlClient.request<{
-        updateOpportunityState: EmptyResponse;
+        addOpportunitySeats: EmptyResponse;
       }>(ADD_OPPORTUNITY_SEATS_MUTATION, {
         id,
         payload,
       });
+    },
+  };
+};
+
+export const claimOpportunitiesMutationOptions = (): MutationOptions<
+  OpportunitiesClaim,
+  DefaultError,
+  { identifier: string }
+> => {
+  return {
+    mutationFn: async ({ identifier }) => {
+      const result = await gqlClient.request<{
+        claimOpportunities: OpportunitiesClaim;
+      }>(CLAIM_OPPORTUNITIES_MUTATION, {
+        identifier,
+      });
+
+      return result.claimOpportunities;
+    },
+  };
+};
+
+export const opportunityApplyMutationOptions = (): MutationOptions<
+  OpportunityMatch,
+  DefaultError,
+  { id: string }
+> => {
+  return {
+    mutationFn: async ({ id }) => {
+      const result = await gqlClient.request<{
+        opportunityApply: OpportunityMatch;
+      }>(OPPORTUNITY_APPLY_MUTATION, {
+        id,
+      });
+
+      return result.opportunityApply;
     },
   };
 };

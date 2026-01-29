@@ -241,11 +241,23 @@ export default {
           from: { opacity: '0', transform: 'translateY(8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        'highlight-fade': {
+          '0%': {
+            boxShadow: '0 0 0 3px var(--status-warning)',
+            backgroundColor:
+              'color-mix(in srgb, var(--status-warning) 15%, transparent)',
+          },
+          '100%': {
+            boxShadow: '0 0 0 0px transparent',
+            backgroundColor: 'transparent',
+          },
+        },
       },
       animation: {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
+        'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
       },
     },
     lineClamp: {

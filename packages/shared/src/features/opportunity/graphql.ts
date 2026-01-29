@@ -157,6 +157,21 @@ export const OPPORTUNITY_BY_ID_QUERY = gql`
   ${OPPORTUNITY_FRAGMENT}
 `;
 
+export const OPPORTUNITY_BY_ID_PUBLIC_QUERY = gql`
+  query OpportunityByIdPublic($id: ID!) {
+    opportunityByIdPublic(id: $id) {
+      id
+      title
+      organization {
+        name
+      }
+      flags {
+        plan
+      }
+    }
+  }
+`;
+
 export const OPPORTUNITY_MATCH_FRAGMENT = gql`
   fragment OpportunityMatchFragment on OpportunityMatch {
     status
@@ -568,6 +583,12 @@ export const OPPORTUNITIES_QUERY = gql`
               ...Link
             }
           }
+          flags {
+            batchSize
+            plan
+            showSlack
+            showFeedback
+          }
         }
       }
     }
@@ -757,4 +778,21 @@ export const OPPORTUNITY_FEEDBACK_QUERY = gql`
     }
   }
   ${FEEDBACK_CLASSIFICATION_FRAGMENT}
+`;
+
+export const CLAIM_OPPORTUNITIES_MUTATION = gql`
+  mutation ClaimOpportunities($identifier: String!) {
+    claimOpportunities(identifier: $identifier) {
+      ids
+    }
+  }
+`;
+
+export const OPPORTUNITY_APPLY_MUTATION = gql`
+  mutation OpportunityApply($id: ID!) {
+    opportunityApply(id: $id) {
+      ...OpportunityMatchFragment
+    }
+  }
+  ${OPPORTUNITY_MATCH_FRAGMENT}
 `;

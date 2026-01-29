@@ -19,7 +19,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22.11'
+        node-version: '22.22'
 
     - name: Install pnpm
       uses: pnpm/action-setup@v4
@@ -57,7 +57,7 @@ jobs:
         retention-days: 30
 
     - name: Report Status
-      if: always()
+      if: always() && github.run_attempt == 1
       uses: ravsamhq/notify-slack-action@v1
       with:
         status: ${{ job.status }}

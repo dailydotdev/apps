@@ -78,6 +78,8 @@ export enum Origin {
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
+  HotTakeList = 'hot take list',
+  Leaderboard = 'leaderboard',
 }
 
 export enum LogEvent {
@@ -343,6 +345,30 @@ export enum LogEvent {
   StartAddExperience = 'start add experience',
   AddExperience = 'add experience',
   RemoveExperience = 'remove experience',
+  // User Stack (profile technologies)
+  StartAddUserStack = 'start add user stack',
+  AddUserStack = 'add user stack',
+  UpdateUserStack = 'update user stack',
+  RemoveUserStack = 'remove user stack',
+  ReorderUserStack = 'reorder user stack',
+  // Hot Takes
+  StartAddHotTake = 'start add hot take',
+  AddHotTake = 'add hot take',
+  UpdateHotTake = 'update hot take',
+  RemoveHotTake = 'remove hot take',
+  ReorderHotTake = 'reorder hot take',
+  UpvoteHotTake = 'upvote hot take',
+  RemoveHotTakeUpvote = 'remove hot take upvote',
+  // My Setup - Workspace Photos
+  StartAddWorkspacePhoto = 'start add workspace photo',
+  AddWorkspacePhoto = 'add workspace photo',
+  RemoveWorkspacePhoto = 'remove workspace photo',
+  ReorderWorkspacePhoto = 'reorder workspace photo',
+  // My Setup - Gear
+  StartAddGear = 'start add gear',
+  AddGear = 'add gear',
+  RemoveGear = 'remove gear',
+  ReorderGear = 'reorder gear',
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',
@@ -402,6 +428,7 @@ export enum TargetType {
   Post = 'post',
   Recruiter = 'recruiter',
   ProfileCompletionCard = 'profile completion card',
+  OpportunityInterestButton = 'opportunity interest button',
 }
 
 export enum TargetId {

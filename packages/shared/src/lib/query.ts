@@ -212,6 +212,8 @@ export enum RequestKey {
   NotificationSettings = 'notification_settings',
   PostAnalytics = 'post_analytics',
   PostAnalyticsHistory = 'post_analytics_history',
+  ProfileAnalytics = 'profile_analytics',
+  ProfileAnalyticsHistory = 'profile_analytics_history',
   CheckLocation = 'check_location',
   GenerateBrief = 'generate_brief',
   Opportunity = 'opportunity',
@@ -228,6 +230,15 @@ export enum RequestKey {
   Location = 'location',
   Autocomplete = 'autocomplete',
   UserExperience = 'user_experience',
+  UserStack = 'user_stack',
+  SourceStack = 'source_stack',
+  StackSearch = 'stack_search',
+  UserHotTakes = 'user_hot_takes',
+  UserTools = 'user_tools',
+  ToolSearch = 'tool_search',
+  UserWorkspacePhotos = 'user_workspace_photos',
+  Gear = 'gear',
+  GearSearch = 'gear_search',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

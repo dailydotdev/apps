@@ -11,6 +11,10 @@ body {
   /* mobile viewport bug fix */
   min-height: stretch;
 
+  &.ReactModal__Body--open {
+    overflow: hidden;
+  }
+
   &.ReactModal__Body--open .ReactModal__Content,
   &.ReactModal__Body--open .ReactModal__Content > * {
     overscroll-behavior-y: none;

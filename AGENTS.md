@@ -26,7 +26,7 @@ This is a pnpm monorepo containing the daily.dev application suite:
 
 ## Technology Stack
 
-- **Node.js v22.11** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
+- **Node.js v22.22** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
 - **pnpm 9.14.4** for package management (see `package.json` `packageManager` property)
 - **TypeScript** across all packages
 - **React 18.3.1** with Next.js 15 for webapp (Pages Router, NOT App Router/Server Components)
@@ -244,7 +244,25 @@ Example: Adding a video to the jobs page
 - SVG imports are converted to React components via `@svgr/webpack`
 - Tailwind utilities preferred over CSS-in-JS
 - GraphQL schema changes require manual TypeScript type updates
-- **Avoid index/barrel exports** - they easily cause dependency cycles; prefer direct file imports
+## No Barrel/Index Exports
+
+**NEVER create `index.ts` files that re-export from other files.** Barrel exports cause dependency cycles and hurt build performance.
+
+```typescript
+// ❌ NEVER do this - no index.ts barrel files
+// hooks/index.ts
+export * from './useAuth';
+export * from './useUser';
+
+// ❌ NEVER import from barrel
+import { useAuth } from './hooks';
+
+// ✅ ALWAYS import directly from the file
+import { useAuth } from './hooks/useAuth';
+import { useUser } from './hooks/useUser';
+```
+
+When you see an existing barrel file, delete it and update all imports to use direct paths.
 
 ## Avoiding Code Duplication
 
@@ -268,6 +286,8 @@ Before implementing new functionality, always check if similar code already exis
    - If you write similar logic in multiple places, extract it to a helper
    - If the logic is used only in one package → package-specific file
    - If the logic could be used across packages → `packages/shared/src/lib/`
+   - Don't extract single-use code into separate functions - keep logic inline where it's used
+   - Only extract functions when the same logic is needed in multiple places
 
 4. **Real-world example** (from PostSEOSchema refactor):
    - ❌ **Wrong**: Duplicate author schema logic in 3 places
@@ -281,6 +301,52 @@ Before implementing new functionality, always check if similar code already exis
    - Place utilities in appropriate shared locations
    - Run lint to ensure code quality: `pnpm --filter <package> lint`
 
+## Writing Readable Hooks
+
+When a hook's callback becomes hard to follow, break it into small helper functions:
+
+1. **Extract repeated selectors** to constants
+2. **Create single-purpose helpers** - each function does one thing
+3. **Name helpers by what they do** - `expandSectionIfCollapsed`, `focusFirstInput`
+4. **Keep the main callback simple** - it should read like a high-level description
+
+Example (from `useMissingFieldNavigation` refactor):
+```typescript
+// ❌ Wrong: 90-line callback with nested logic
+const handleClick = useCallback((key: string) => {
+  const el = document.querySelector(`[data-key="${key}"]`);
+  if (el) {
+    const section = el.closest('[id^="section-"]');
+    if (section) {
+      const btn = document.querySelector(`button[aria-controls="${section.id}"]`);
+      if (btn?.getAttribute('aria-expanded') === 'false') {
+        btn.click();
+      }
+    }
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // ... 50 more lines of highlighting/focusing logic
+    }, 100);
+  }
+  // ... another 30 lines for fallback
+}, []);
+
+// ✅ Right: Small helpers + simple callback
+const expandSectionIfCollapsed = (element: HTMLElement): void => { /* ... */ };
+const scrollHighlightAndFocus = (element: HTMLElement): void => { /* ... */ };
+const navigateToField = (fieldElement: HTMLElement): void => { /* ... */ };
+const navigateToSection = (checkKey: string): void => { /* ... */ };
+
+const handleClick = useCallback((key: string) => {
+  const fieldElement = document.querySelector(`[data-key="${key}"]`);
+  if (fieldElement) {
+    navigateToField(fieldElement);
+    return;
+  }
+  navigateToSection(key);
+}, []);
+```
+
 ## Pull Requests
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
@@ -292,3 +358,15 @@ When reviewing code (or writing code that will be reviewed):
 - **Avoid confusing naming** - Don't create multiple components with the same name in different locations (e.g., two `AboutMe` components)
 - **Remove unused exports** - If a function/constant is only used internally, don't export it
 - **Clean up duplicates** - If the same interface/type is defined in multiple places, consolidate to one location and import
+
+## Node.js Version Upgrade Checklist
+
+When upgrading Node.js version, update these files:
+- `.nvmrc`
+- `Dockerfile`
+- `.github/workflows/e2e-tests.yml`
+- `.circleci/config.yml` (multiple occurrences)
+- `packages/playwright/package.json` (engines field)
+- This file (`CLAUDE.md` - Technology Stack section)
+
+After updating, run `pnpm install` to check if lock file needs updating and commit any changes.

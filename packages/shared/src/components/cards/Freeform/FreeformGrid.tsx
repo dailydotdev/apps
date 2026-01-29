@@ -15,7 +15,7 @@ import CardOverlay from '../common/CardOverlay';
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostMetadata from '../common/PostMetadata';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
-import ActionButtons from '../ActionsButtons/ActionButtons';
+import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 
@@ -57,11 +57,11 @@ export const FreeformGrid = forwardRef(function SharePostCard(
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
       />
-      <SquadPostCardHeader
-        post={post}
-        enableSourceHeader={enableSourceHeader}
-      />
       <CardTextContainer>
+        <SquadPostCardHeader
+          post={post}
+          enableSourceHeader={enableSourceHeader}
+        />
         <FreeformCardTitle
           className={classNames(
             generateTitleClamp({

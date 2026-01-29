@@ -46,6 +46,7 @@ import {
   TwitterIcon,
   YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { GoBackButton } from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Chip } from '@dailydotdev/shared/src/components/cards/common/PostTags';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
@@ -66,11 +67,13 @@ import {
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { JobPageIntro } from '@dailydotdev/shared/src/features/opportunity/components/JobPageIntro';
 import { ResponseButtons } from '@dailydotdev/shared/src/features/opportunity/components/ResponseButtons';
+import { ShowInterestButton } from '@dailydotdev/shared/src/features/opportunity/components/ShowInterestButton';
 import type {
   Opportunity,
   OpportunityMeta,
   ContentSection,
 } from '@dailydotdev/shared/src/features/opportunity/types';
+import { OpportunityMatchStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { LocationType } from '@dailydotdev/shared/src/features/opportunity/protobuf/util';
 import {
   EmploymentType,
@@ -397,7 +400,6 @@ const JobPage = ({
   const { logEvent } = useLogContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const {
-    back,
     query: { id: routerId },
   } = useRouter();
   // Use prop ID if provided (when used as component), otherwise use router query (when used as page)
@@ -460,27 +462,72 @@ const JobPage = ({
     opportunity?.organization?.customLinks?.length > 0 ||
     opportunity?.organization?.pressLinks?.length > 0;
 
+  // Log opportunity view for all users
+  // For logged-in users: wait for match query to resolve to include match_status
+  // For anonymous users: log immediately with 'no-match' status
   useEffect(() => {
-    if (!match || !id || hasLoggedRef.current) {
+    if (!opportunity || !id || hasLoggedRef.current) {
       return;
     }
+
+    // For logged-in users, wait until match query has resolved
+    // match will be undefined while loading, then either the match object or null
+    if (isLoggedIn && match === undefined) {
+      return;
+    }
+
     logRef.current({
       event_name: LogEvent.OpportunityMatchView,
       target_id: id,
-      extra: JSON.stringify({ match_status: match.status }),
+      extra: JSON.stringify({ match_status: match?.status ?? 'no-match' }),
     });
     hasLoggedRef.current = true;
-  }, [id, match]);
+  }, [id, opportunity, isLoggedIn, match]);
 
   if (!isAuthReady || isPending || (!isActionsFetched && isLoggedIn)) {
     return null;
   }
 
-  if (!opportunity || !isLoggedIn) {
+  if (!opportunity) {
     return <NoOpportunity />;
   }
 
-  const showFooterNav = !!match;
+  const showFooterNav = true; // Always show footer nav for interest/response buttons
+
+  const renderInterestButtons = (
+    containerClassName: string,
+    size: ButtonSize,
+  ): ReactElement | null => {
+    // Logged in user with an existing match - show response buttons
+    if (
+      isLoggedIn &&
+      match &&
+      match.status !== OpportunityMatchStatus.CandidateApplied
+    ) {
+      return (
+        <ResponseButtons
+          id={opportunity.id}
+          className={{
+            buttons: containerClassName.includes('w-full') ? 'flex-1' : '',
+            container: containerClassName,
+          }}
+          size={size}
+        />
+      );
+    }
+
+    // Anonymous user or logged in user without a match - show interest button
+    return (
+      <ShowInterestButton
+        opportunityId={opportunity.id}
+        className={{
+          button: containerClassName.includes('w-full') ? 'flex-1' : '',
+          container: containerClassName,
+        }}
+        size={size}
+      />
+    );
+  };
 
   return (
     <>
@@ -491,19 +538,13 @@ const JobPage = ({
       )}
       {showFooterNav && (
         <OpportunityFooter>
-          {!!match && (
-            <ResponseButtons
-              id={opportunity.id}
-              className={{
-                buttons: 'flex-1',
-                container: 'flex w-full items-center gap-4',
-              }}
-              size={ButtonSize.Medium}
-            />
+          {renderInterestButtons(
+            'flex w-full items-center gap-4',
+            ButtonSize.Medium,
           )}
         </OpportunityFooter>
       )}
-      <div className="z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 pb-safe-offset-14 tablet:pb-0 laptop:flex-row laptop:justify-center">
+      <div className="z-0 mx-auto flex w-full max-w-[69.25rem] flex-col gap-4 pb-safe-offset-14 tablet:pb-0 laptop:flex-row laptop:justify-center laptop:py-8">
         <div
           className={classNames(
             'h-full min-w-0 max-w-full flex-1 flex-shrink-0 rounded-16 border border-border-subtlest-tertiary',
@@ -513,21 +554,11 @@ const JobPage = ({
           {/* Header */}
           {!hideHeader && !previewMode && (
             <div className="flex min-h-14 items-center justify-between gap-4 border-b border-border-subtlest-tertiary p-3">
-              <Button
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-                onClick={back}
-                icon={<MoveToIcon className="rotate-180" />}
-              />
+              <GoBackButton showLogo={false} />
 
-              {!!match && (
-                <ResponseButtons
-                  id={opportunity.id}
-                  className={{
-                    container: 'hidden items-center gap-4 laptop:flex',
-                  }}
-                  size={ButtonSize.Medium}
-                />
+              {renderInterestButtons(
+                'hidden items-center gap-4 laptop:flex',
+                ButtonSize.Medium,
               )}
             </div>
           )}
@@ -736,7 +767,7 @@ const JobPage = ({
                       >
                         {companyStageMap[opportunity.organization.stage]}
                         {opportunity.organization?.category
-                          ? `• ${opportunity.organization.category}`
+                          ? ` • ${opportunity.organization.category}`
                           : null}
                       </Typography>
                     </div>

@@ -86,12 +86,27 @@ export type BootCacheData = Pick<
   | 'geo'
 > & { lastModifier?: string; isAndroidApp?: boolean };
 
-const getBootURL = (app: string, url?: string) => {
+/**
+ * Get normalized referrer type from pathname
+ * Only returns known referrer identifiers for privacy
+ */
+const getReferrerType = (pathname?: string): string | undefined => {
+  if (pathname?.startsWith('/recruiter')) {
+    return 'recruiter';
+  }
+  return undefined;
+};
+
+const getBootURL = (app: string, url?: string, pathname?: string) => {
   const appRoute = app === 'companion' ? '/companion' : '';
   const params = new URLSearchParams();
   params.append('v', process.env.CURRENT_VERSION);
   if (url) {
     params.append('url', url);
+  }
+  const referrer = getReferrerType(pathname);
+  if (referrer) {
+    params.append('referrer', referrer);
   }
 
   return `${apiUrl}/boot${appRoute}?${params}`;
@@ -108,19 +123,27 @@ const enrichBootWithFeatures = async (boot: Boot): Promise<Boot> => {
   return { ...boot, exp: { ...boot.exp, features: JSON.parse(features) } };
 };
 
-export async function getBootData(
-  app: string,
-  url?: string,
-  options?: Record<'cookies', string>,
-): Promise<Boot> {
-  const bootURL = getBootURL(app, url);
+interface GetBootDataParams {
+  app: string;
+  url?: string;
+  cookies?: string;
+  pathname?: string;
+}
+
+export async function getBootData({
+  app,
+  url,
+  cookies,
+  pathname,
+}: GetBootDataParams): Promise<Boot> {
+  const bootURL = getBootURL(app, url, pathname);
   const res = await fetch(bootURL, {
     method: 'GET',
     credentials: 'include',
     headers: {
       app,
       'Content-Type': 'application/json',
-      ...(options?.cookies && { Cookie: options.cookies }),
+      ...(cookies && { Cookie: cookies }),
     },
   });
   const result = await res.json();

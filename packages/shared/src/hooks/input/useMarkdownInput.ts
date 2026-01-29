@@ -47,6 +47,8 @@ import {
   allowedFileSize,
   uploadNotAcceptedMessage,
 } from '../../graphql/posts';
+import { generateStorageKey, StorageTopic } from '../../lib/storage';
+import { storageWrapper } from '../../lib/storageWrapper';
 
 export enum MarkdownCommand {
   Upload = 'upload',
@@ -64,6 +66,8 @@ export interface UseMarkdownInputProps
   initialContent?: string;
   onValueUpdate?: (value: string) => void;
   enabledCommand?: Partial<Record<MarkdownCommand, boolean>>;
+  editCommentId?: string;
+  parentCommentId?: string;
 }
 
 type InputCallbacks = Pick<
@@ -94,6 +98,7 @@ export interface UseMarkdownInput {
   uploadingCount: number;
   uploadedCount: number;
   setInput: Dispatch<SetStateAction<string>>;
+  clearDraft: () => void;
 }
 
 export const defaultMarkdownCommands = {
@@ -113,6 +118,8 @@ export const useMarkdownInput = ({
   onValueUpdate,
   initialContent = '',
   enabledCommand = {},
+  editCommentId,
+  parentCommentId,
 }: UseMarkdownInputProps): UseMarkdownInput => {
   const dirtyRef = useRef(false);
   const textarea = textareaRef?.current;
@@ -122,7 +129,30 @@ export const useMarkdownInput = ({
   const isEmojiEnabled = enabledCommand[MarkdownCommand.Emoji];
   const isGifEnabled = enabledCommand[MarkdownCommand.Gif];
   const [command, setCommand] = useState<TextareaCommand>();
-  const [input, setInput] = useState(initialContent);
+
+  // Generate unique storage key for this comment context
+  const draftStorageKey = useMemo(() => {
+    if (!postId) {
+      return null;
+    }
+    const identifier = editCommentId || parentCommentId || postId;
+    return generateStorageKey(StorageTopic.Comment, 'draft', identifier);
+  }, [postId, editCommentId, parentCommentId]);
+
+  // Load draft from storage or use initialContent
+  const getInitialValue = useCallback(() => {
+    if (initialContent) {
+      return initialContent;
+    }
+    if (!draftStorageKey) {
+      return '';
+    }
+
+    const savedDraft = storageWrapper.getItem(draftStorageKey);
+    return savedDraft || '';
+  }, [initialContent, draftStorageKey]);
+
+  const [input, setInput] = useState(getInitialValue);
   const [query, setQuery] = useState<string>(undefined);
   const [emojiQuery, setEmojiQuery] = useState<string>(undefined);
   const [offset, setOffset] = useState([0, 0]);
@@ -132,6 +162,7 @@ export const useMarkdownInput = ({
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
+  const saveTimeoutRef = useRef<NodeJS.Timeout>();
 
   const emojiData = useMemo(
     () =>
@@ -148,6 +179,35 @@ export const useMarkdownInput = ({
       setInput(initialContent);
     }
   }, [input, initialContent]);
+
+  // Save draft to storage with debouncing (500ms)
+  useEffect(() => {
+    if (!draftStorageKey || !dirtyRef.current) {
+      return undefined;
+    }
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new timeout to save draft
+    saveTimeoutRef.current = setTimeout(() => {
+      if (input && input.trim().length > 0) {
+        storageWrapper.setItem(draftStorageKey, input);
+      } else {
+        // Remove draft if input is empty
+        storageWrapper.removeItem(draftStorageKey);
+      }
+    }, 500);
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [input, draftStorageKey]);
 
   const onUpdate = (value: string) => {
     if (!dirtyRef.current) {
@@ -512,6 +572,13 @@ export const useMarkdownInput = ({
 
   const onCloseMention = useCallback(() => setQuery(undefined), []);
   const onCloseEmoji = useCallback(() => setEmojiQuery(undefined), []);
+
+  const clearDraft = useCallback(() => {
+    if (draftStorageKey) {
+      storageWrapper.removeItem(draftStorageKey);
+    }
+  }, [draftStorageKey]);
+
   const uploadCommands = isUploadEnabled ? { onDrop, onPaste } : {};
   const uploadProps = isUploadEnabled
     ? { uploadedCount, uploadingCount: queueCount, onUploadCommand }
@@ -558,6 +625,7 @@ export const useMarkdownInput = ({
       ...uploadCommands,
     },
     setInput,
+    clearDraft,
   };
 };
 

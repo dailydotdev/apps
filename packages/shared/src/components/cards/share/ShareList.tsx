@@ -18,7 +18,7 @@ import { ProfileImageSize } from '../../ProfilePicture';
 import { CardContent, CardTitle } from '../common/list/ListCard';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
-import ActionButtons from '../common/list/ActionButtons';
+import ActionButtons from '../common/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
@@ -63,6 +63,7 @@ export const ShareList = forwardRef(function ShareList(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
+        variant="list"
       />
     </Container>
   );

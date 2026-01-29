@@ -15,7 +15,7 @@ import { PostCardHeader } from '../common/PostCardHeader';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { PostCardFooter } from '../common/PostCardFooter';
-import ActionButtons from '../ActionsButtons';
+import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { DeletedPostId } from '../../../lib/constants';
@@ -118,6 +118,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         post={post}
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
+        ariaLabel={title}
       />
 
       <>

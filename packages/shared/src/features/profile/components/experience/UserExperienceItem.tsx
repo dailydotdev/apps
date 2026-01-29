@@ -75,6 +75,9 @@ export function UserExperienceItem({
     startedAt,
     endedAt,
     subtitle,
+    image,
+    repository,
+    type,
   } = experience;
   const { skills, location, locationType, customLocation } =
     experience as UserExperienceWork;
@@ -100,12 +103,27 @@ export function UserExperienceItem({
     isWorkExperience && isExperienceVerified && !grouped;
   const shouldSwapCopies =
     experience.type === UserExperienceType.Education && !grouped;
-  const primaryCopy = shouldSwapCopies
+  const isOpenSource = experience.type === UserExperienceType.OpenSource;
+
+  // For open source, construct full name from owner/name for display
+  const repositoryFullName = repository?.owner
+    ? `${repository.owner}/${repository.name}`
+    : repository?.name;
+
+  const companyOrRepoName = isOpenSource
+    ? repositoryFullName || company?.name || customCompanyName
+    : company?.name || customCompanyName;
+
+  let primaryCopy = shouldSwapCopies
     ? company?.name || customCompanyName
     : title;
-  const secondaryCopy = shouldSwapCopies
-    ? title
-    : company?.name || customCompanyName;
+
+  // For grouped open source items, show just the repo name as the title
+  if (grouped && isOpenSource && repository?.name) {
+    primaryCopy = repository.name;
+  }
+
+  const secondaryCopy = shouldSwapCopies ? title : companyOrRepoName;
 
   const dateRange = formatDateRange(startedAt, endedAt);
   const loc = getDisplayLocation(
@@ -127,7 +145,12 @@ export function UserExperienceItem({
         <Image
           className="h-8 w-8 rounded-max object-cover"
           type={ImageType.Organization}
-          src={company?.image}
+          src={
+            type === UserExperienceType.OpenSource
+              ? repository?.image || company?.image
+              : company?.image || image
+          }
+          alt={`${companyOrRepoName || 'Organization'} logo`}
         />
       )}
       {editUrl && (
@@ -143,12 +166,13 @@ export function UserExperienceItem({
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={<EditIcon />}
+              aria-label={`Edit ${primaryCopy || 'experience'}`}
             />
           </Link>
         </div>
       )}
       <div
-        className={classNames('flex flex-1 flex-col gap-2', {
+        className={classNames('flex min-w-0 flex-1 flex-col gap-2', {
           'pt-3': !!grouped,
         })}
       >
@@ -160,8 +184,7 @@ export function UserExperienceItem({
         >
           <div className="flex flex-wrap items-center gap-1">
             <Typography
-              className="whitespace-break-spaces"
-              truncate
+              className="max-w-full"
               type={TypographyType.Subhead}
               bold
             >
@@ -188,9 +211,12 @@ export function UserExperienceItem({
               </button>
             )}
             {shouldShowVerifiedBadge && <VerifiedBadge />}
-            {url && (
-              <Link href={url} passHref>
-                <a target="_blank">
+            {(url || repository?.url) && (
+              <Link href={repository?.url || url} passHref>
+                <a
+                  target="_blank"
+                  aria-label={`Open ${primaryCopy || 'link'} in new tab`}
+                >
                   <OpenLinkIcon className="size-4 text-text-secondary" />
                 </a>
               </Link>

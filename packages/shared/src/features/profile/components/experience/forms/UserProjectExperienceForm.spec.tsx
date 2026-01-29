@@ -40,6 +40,8 @@ const FormWrapper: React.FC<FormWrapperProps> = ({
       endedAt: null,
       url: '',
       description: '',
+      repository: null,
+      repositorySearch: '',
       ...defaultValues,
     },
   });
@@ -212,6 +214,89 @@ describe('UserProjectExperienceForm', () => {
 
     // End date field should be present when current is false
     expect(screen.getByText('End date*')).toBeInTheDocument();
+  });
+
+  it('should display Repository URL field for OpenSource type', () => {
+    const { container } = render(
+      <FormWrapper defaultValues={{ type: UserExperienceType.OpenSource }}>
+        <UserProjectExperienceForm />
+      </FormWrapper>,
+    );
+
+    // Repository URL field should be present for OpenSource
+    expect(screen.getByText('Repository URL*')).toBeInTheDocument();
+
+    // The URL field should use repository.url name
+    const urlInput = getFieldByName(container, 'repository.url');
+    expect(urlInput).toBeInTheDocument();
+  });
+
+  it('should show Repository URL as read-only when GitHub repository is selected', () => {
+    const { container } = render(
+      <FormWrapper
+        defaultValues={{
+          type: UserExperienceType.OpenSource,
+          repository: {
+            id: 'github-repo-123',
+            owner: 'facebook',
+            name: 'react',
+            url: 'https://github.com/facebook/react',
+            image: 'https://example.com/image.png',
+          },
+        }}
+      >
+        <UserProjectExperienceForm />
+      </FormWrapper>,
+    );
+
+    // Label should not have asterisk when GitHub repo is selected
+    expect(screen.getByText('Repository URL')).toBeInTheDocument();
+    expect(screen.queryByText('Repository URL*')).not.toBeInTheDocument();
+
+    // The URL field should be read-only
+    const urlInput = getFieldByName(container, 'repository.url');
+    expect(urlInput).toHaveAttribute('readonly');
+  });
+
+  it('should show Repository URL as editable when custom repository is entered', () => {
+    const { container } = render(
+      <FormWrapper
+        defaultValues={{
+          type: UserExperienceType.OpenSource,
+          repository: {
+            id: null,
+            owner: 'myorg',
+            name: 'myrepo',
+            url: null,
+            image: null,
+          },
+        }}
+      >
+        <UserProjectExperienceForm />
+      </FormWrapper>,
+    );
+
+    // Label should have asterisk for custom repo (URL is required)
+    expect(screen.getByText('Repository URL*')).toBeInTheDocument();
+
+    // The URL field should NOT be read-only
+    const urlInput = getFieldByName(container, 'repository.url');
+    expect(urlInput).not.toHaveAttribute('readonly');
+  });
+
+  it('should not show Publication URL field for OpenSource type', () => {
+    const { container } = render(
+      <FormWrapper defaultValues={{ type: UserExperienceType.OpenSource }}>
+        <UserProjectExperienceForm />
+      </FormWrapper>,
+    );
+
+    // Should not have Publication URL label
+    expect(screen.queryByText('Publication URL')).not.toBeInTheDocument();
+
+    // Should not have url field (only repository.url)
+    const urlInput = getFieldByName(container, 'url');
+    expect(urlInput).not.toBeInTheDocument();
   });
 
   it('should display all required field indicators', () => {

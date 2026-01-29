@@ -17,6 +17,10 @@ export enum Roles {
   Moderator = 'moderator',
 }
 
+export const isSystemModerator = (user?: { roles?: Roles[] }): boolean => {
+  return user?.roles?.includes(Roles.Moderator) ?? false;
+};
+
 export interface UserSocialLink {
   platform: string;
   url: string;
@@ -304,6 +308,20 @@ export const canViewPostAnalytics = ({
   }
 
   return !!user?.id && user.id === post?.author?.id;
+};
+
+export const canViewUserProfileAnalytics = ({
+  user,
+  profileUserId,
+}: {
+  user?: Pick<LoggedUser, 'id' | 'isTeamMember'>;
+  profileUserId?: string;
+}): boolean => {
+  if (user?.isTeamMember) {
+    return true;
+  }
+
+  return !!user?.id && user.id === profileUserId;
 };
 
 export const userProfileQueryOptions = ({ id }) => {

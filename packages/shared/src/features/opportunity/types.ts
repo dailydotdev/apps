@@ -20,6 +20,7 @@ export enum OpportunityMatchStatus {
   CandidateTimeOut = 'candidate_time_out',
   RecruiterAccepted = 'recruiter_accepted',
   RecruiterRejected = 'recruiter_rejected',
+  CandidateApplied = 'candidate_applied',
 }
 
 export enum RoleType {
@@ -323,3 +324,7 @@ export type FeedbackClassification = {
 export interface OpportunityFeedbackData {
   opportunityFeedback: Connection<FeedbackClassification>;
 }
+
+export type OpportunitiesClaim = {
+  ids: string[];
+};

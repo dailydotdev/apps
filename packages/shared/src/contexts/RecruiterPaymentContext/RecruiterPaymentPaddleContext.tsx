@@ -27,10 +27,18 @@ export const RecruiterPaymentPaddleContextProvider = ({
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
 
+  const { paddle, openCheckout, appliedDiscountId } = usePaddlePayment({
+    successCallback: () => {
+      router.replace(`/recruiter/${router.query.opportunityId}/prepare`);
+    },
+    priceType: PurchaseType.Recruiter,
+  });
+
   const { data: prices } = useQuery(
     recruiterPricesQueryOptions({
       user,
       isLoggedIn,
+      discountId: appliedDiscountId ?? undefined,
     }),
   );
 
@@ -53,13 +61,6 @@ export const RecruiterPaymentPaddleContextProvider = ({
     });
   }, [prices, selectedProduct, priceIdQuery]);
 
-  const { paddle, openCheckout } = usePaddlePayment({
-    successCallback: () => {
-      router.replace(`/recruiter/${router.query.opportunityId}/prepare`);
-    },
-    priceType: PurchaseType.Recruiter,
-  });
-
   const contextData = useMemo<RecruiterPaymentContextData>(
     () => ({
       paddle,
@@ -68,8 +69,9 @@ export const RecruiterPaymentPaddleContextProvider = ({
       setSelectedProduct,
       openCheckout,
       origin,
+      prices,
     }),
-    [onCompletion, openCheckout, origin, paddle, selectedProduct],
+    [onCompletion, openCheckout, origin, paddle, selectedProduct, prices],
   );
 
   return (

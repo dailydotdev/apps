@@ -149,11 +149,11 @@ const SourceCheckbox = ({
         </Tooltip>
       )}
     >
-      <div className="relative flex min-w-full items-center">
+      <div className="relative flex w-full items-center">
         <Checkbox
           {...props}
           disabled={disabled}
-          className="min-w-full flex-row-reverse gap-2 !p-0"
+          className="w-full flex-row-reverse gap-2 !p-0"
           checkmarkClassName="!mr-0 ml-2 pointer-events-auto"
           onChange={handleCheckboxChange}
         >

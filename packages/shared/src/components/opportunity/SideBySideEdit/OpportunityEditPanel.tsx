@@ -20,12 +20,12 @@ export interface OpportunityEditPanelProps {
   opportunity: Opportunity;
   onSectionFocus?: (sectionId: string) => void;
   className?: string;
+  hideLinkedProfiles?: boolean;
 }
 
 interface CollapsibleSectionProps {
   id: string;
   title: string;
-  required?: boolean;
   children: ReactNode;
   defaultExpanded?: boolean;
   onFocus?: () => void;
@@ -34,7 +34,6 @@ interface CollapsibleSectionProps {
 function CollapsibleSection({
   id,
   title,
-  required = false,
   children,
   defaultExpanded = true,
   onFocus,
@@ -58,12 +57,9 @@ function CollapsibleSection({
         aria-expanded={isExpanded}
         aria-controls={`section-${id}`}
       >
-        <div className="flex items-center gap-2">
-          <Typography type={TypographyType.Callout} bold>
-            {title}
-          </Typography>
-          {required && <span className="text-xs text-status-error">*</span>}
-        </div>
+        <Typography type={TypographyType.Callout} bold>
+          {title}
+        </Typography>
         <ArrowIcon
           size={IconSize.Small}
           className={classNames(
@@ -93,24 +89,21 @@ type ContentSectionConfig = {
     | 'whatYoullDo'
     | 'interviewProcess';
   title: string;
-  required: boolean;
   getDefaultExpanded?: (opportunity: Opportunity) => boolean;
 };
 
 const contentSections: ContentSectionConfig[] = [
-  { id: 'overview', title: 'Overview', required: true },
-  { id: 'responsibilities', title: 'Responsibilities', required: true },
-  { id: 'requirements', title: 'Requirements', required: true },
+  { id: 'overview', title: 'Overview' },
+  { id: 'responsibilities', title: 'Responsibilities' },
+  { id: 'requirements', title: 'Requirements' },
   {
     id: 'whatYoullDo',
     title: "What You'll Do",
-    required: false,
     getDefaultExpanded: (opp) => !!opp?.content?.whatYoullDo?.html,
   },
   {
     id: 'interviewProcess',
     title: 'Interview Process',
-    required: false,
     getDefaultExpanded: (opp) => !!opp?.content?.interviewProcess?.html,
   },
 ];
@@ -119,6 +112,7 @@ export function OpportunityEditPanel({
   opportunity,
   onSectionFocus,
   className,
+  hideLinkedProfiles,
 }: OpportunityEditPanelProps): ReactElement {
   const company = opportunity?.organization;
   const recruiter = opportunity?.recruiters?.[0];
@@ -138,7 +132,7 @@ export function OpportunityEditPanel({
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
         >
-          Changes are auto-saved locally. Click Save to publish.
+          Changes are not saved automatically. Make sure to submit.
         </Typography>
       </div>
 
@@ -147,7 +141,6 @@ export function OpportunityEditPanel({
         <CollapsibleSection
           id="roleInfo"
           title="Role Info"
-          required
           onFocus={() => onSectionFocus?.('roleInfo')}
         >
           <div className="flex flex-col gap-4 p-4">
@@ -162,7 +155,6 @@ export function OpportunityEditPanel({
             key={section.id}
             id={section.id}
             title={section.title}
-            required={section.required}
             defaultExpanded={section.getDefaultExpanded?.(opportunity) ?? true}
             onFocus={() => onSectionFocus?.(section.id)}
           >
@@ -174,36 +166,38 @@ export function OpportunityEditPanel({
         ))}
 
         {/* Linked profiles - flat list without collapsible wrapper */}
-        <div className="mt-4 flex flex-col gap-3 px-4">
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-            bold
-          >
-            Linked profiles
-          </Typography>
-          <LinkedProfileSection
-            type="company"
-            name={company?.name}
-            image={company?.image}
-            editUrl={`/recruiter/organizations/${company?.id}`}
-            emptyMessage="No company info added yet"
-          />
-          <LinkedProfileSection
-            type="recruiter"
-            name={recruiter?.name}
-            image={recruiter?.image}
-            subtitle={recruiter?.title}
-            editUrl={getPathnameWithQuery(
-              `${settingsUrl}/profile`,
-              new URLSearchParams({
-                redirectTo: `${webappUrl}recruiter/${opportunity.id}/edit`,
-                redirectCopy: 'Back to job posting',
-              }),
-            )}
-            emptyMessage="No recruiter info added yet"
-          />
-        </div>
+        {!hideLinkedProfiles && (
+          <div className="mt-4 flex flex-col gap-3 px-4">
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              bold
+            >
+              Linked profiles
+            </Typography>
+            <LinkedProfileSection
+              type="company"
+              name={company?.name}
+              image={company?.image}
+              editUrl={`/recruiter/organizations/${company?.id}`}
+              emptyMessage="No company info added yet"
+            />
+            <LinkedProfileSection
+              type="recruiter"
+              name={recruiter?.name}
+              image={recruiter?.image}
+              subtitle={recruiter?.title}
+              editUrl={getPathnameWithQuery(
+                `${settingsUrl}/profile`,
+                new URLSearchParams({
+                  redirectTo: `${webappUrl}recruiter/${opportunity.id}/edit`,
+                  redirectCopy: 'Back to job posting',
+                }),
+              )}
+              emptyMessage="No recruiter info added yet"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

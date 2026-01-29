@@ -1,18 +1,23 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import dynamic from 'next/dynamic';
-import AuthContext from '../../../../contexts/AuthContext';
+import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ActiveOrRecomendedSquads } from './ActiveOrRecomendedSquads';
 import type { ProfileReadingData, ProfileV2 } from '../../../../graphql/users';
 import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { gqlClient } from '../../../../graphql/common';
+import { canViewUserProfileAnalytics } from '../../../../lib/user';
 import { ReadingOverview } from './ReadingOverview';
 import { ProfileCompletion } from './ProfileCompletion';
 import { Share } from './Share';
+import { ProfileViewsWidget } from './ProfileViewsWidget';
+import { useProfileCompletionIndicator } from '../../../../hooks/profile/useProfileCompletionIndicator';
+import { ProfilePreviewToggle } from '../../../../components/profile/ProfilePreviewToggle';
+import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
 
 const BadgesAndAwards = dynamic(() =>
   import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
@@ -28,7 +33,10 @@ export function ProfileWidgets({
   sources,
   className,
 }: ProfileWidgetsProps): ReactElement {
-  const { user: loggedUser, tokenRefreshed } = useContext(AuthContext);
+  const { user: loggedUser, tokenRefreshed } = useAuthContext();
+  const { showIndicator: showProfileCompletion } =
+    useProfileCompletionIndicator();
+  const { isPreviewMode, isOwner, togglePreview } = useProfilePreview(user);
   const isSameUser = loggedUser?.id === user.id;
 
   const before = startOfTomorrow();
@@ -59,10 +67,23 @@ export function ProfileWidgets({
         className,
       )}
     >
-      {isSameUser && <ProfileCompletion className="hidden laptop:flex" />}
       {isSameUser && (
+        <ProfilePreviewToggle
+          isPreviewMode={isPreviewMode}
+          onToggle={togglePreview}
+        />
+      )}
+      {isOwner && showProfileCompletion && (
+        <ProfileCompletion className="hidden laptop:flex" />
+      )}
+      {isOwner && (
         <Share permalink={user?.permalink} className="hidden laptop:flex" />
       )}
+      {!isPreviewMode &&
+        canViewUserProfileAnalytics({
+          user: loggedUser,
+          profileUserId: user.id,
+        }) && <ProfileViewsWidget userId={user.id} />}
       <ReadingOverview
         readHistory={readingHistory?.userReadHistory}
         before={before}
@@ -71,7 +92,7 @@ export function ProfileWidgets({
         mostReadTags={readingHistory?.userMostReadTags}
         isLoading={isReadingHistoryLoading}
       />
-      {(isSameUser || squads.length > 0) && (
+      {(isOwner || squads.length > 0) && (
         <ActiveOrRecomendedSquads userId={user.id} squads={squads} />
       )}
       <BadgesAndAwards user={user} />

@@ -196,6 +196,7 @@ export const SearchPanelInput = ({
             {...inputProps}
             data-search-panel-item="true"
             placeholder={placeholder}
+            aria-label="Search"
             ref={inputRef}
             onFocus={(event) => {
               onFocus();
