@@ -59,14 +59,32 @@ export const EmojiPicker = ({
 }: EmojiPickerProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  const updateDropdownPosition = useCallback(() => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
+      updateDropdownPosition();
       inputRef.current?.focus();
     }
-  }, [isOpen]);
+  }, [isOpen, updateDropdownPosition]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -83,9 +101,20 @@ export const EmojiPicker = ({
       }
     };
 
+    const handleScroll = () => {
+      updateDropdownPosition();
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', handleScroll);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [isOpen, updateDropdownPosition]);
 
   const handleSelect = useCallback(
     (emoji: string) => {
@@ -115,7 +144,7 @@ export const EmojiPicker = ({
         {label}
       </Typography>
 
-      <div className="flex items-center gap-2">
+      <div ref={triggerRef} className="flex items-center gap-2">
         {value && (
           <Button
             type="button"
@@ -149,7 +178,15 @@ export const EmojiPicker = ({
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 top-full z-3 mt-1 w-full rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2">
+        <div
+          className="fixed z-[100] max-h-80 overflow-y-auto rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2"
+          style={{
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
+            width: `${dropdownPosition.width}px`,
+            minWidth: '300px',
+          }}
+        >
           <input
             ref={inputRef}
             type="text"
