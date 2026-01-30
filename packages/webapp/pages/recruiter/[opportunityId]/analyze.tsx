@@ -15,6 +15,9 @@ import {
 import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
 import { RecruiterHeader } from '@dailydotdev/shared/src/components/recruiter/Header';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import {
   OpportunityPreviewProvider,
   useOpportunityPreviewContext,
@@ -97,6 +100,8 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
 const RecruiterPageContent = () => {
   const router = useRouter();
   const { displayToast } = useToastNotification();
+  const { user, isAuthReady, isLoggedIn } = useAuthContext();
+  const { openModal } = useLazyModal();
   const {
     opportunity,
     result,
@@ -139,8 +144,23 @@ const RecruiterPageContent = () => {
       return;
     }
 
-    router.push(`/recruiter/${opportunity.id}/plans`);
-  }, [router, opportunity]);
+    const navigateToPlans = () => {
+      router.push(`${webappUrl}recruiter/${opportunity.id}/plans`);
+    };
+
+    if (!user) {
+      openModal({
+        type: LazyModal.RecruiterSignIn,
+        props: {
+          onSuccess: navigateToPlans,
+        },
+      });
+
+      return;
+    }
+
+    navigateToPlans();
+  }, [router, opportunity, user, openModal]);
 
   const isError = result?.status === OpportunityPreviewStatus.ERROR;
 
@@ -148,7 +168,7 @@ const RecruiterPageContent = () => {
     <div className="flex flex-1 flex-col">
       <RecruiterHeader
         headerButton={{
-          text: 'Select plan',
+          text: isAuthReady && !isLoggedIn ? 'Start hiring' : 'Select plan',
           icon: <MoveToIcon />,
           onClick: handlePrepareCampaignClick,
           disabled: !opportunity || isParsing,
