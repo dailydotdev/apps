@@ -15,6 +15,7 @@ import { useComments } from '../../hooks/post';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
 import type { Squad } from '../../graphql/sources';
 import type { Comment } from '../../graphql/comments';
+import { DiscussIcon } from '../icons';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
@@ -87,6 +88,9 @@ export default function MainComment({
     onReplyTo,
   } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useEditCommentProps();
+
+  const [isRepliesExpanded, setIsRepliesExpanded] = useState(false);
+  const replyCount = comment.children?.edges?.length ?? 0;
 
   const initialInView = !lazy;
   const { ref: inViewRef, inView } = useInView({
@@ -171,25 +175,43 @@ export default function MainComment({
           replyToCommentId={commentId}
         />
       )}
-      {inView && hasReplies && !areRepliesExpanded && (
-        <CollapsedRepliesPreview
-          replies={comment.children.edges}
-          onExpand={() => setAreRepliesExpanded(true)}
-        />
+      {inView && replyCount > 0 && !isRepliesExpanded && (
+        <button
+          type="button"
+          className="mx-4 my-2 flex cursor-pointer items-center gap-1.5 text-text-tertiary typo-callout hover:underline"
+          onClick={() => setIsRepliesExpanded(true)}
+          data-testid="view-replies-button"
+        >
+          <DiscussIcon className="text-xl" />
+          <span>
+            View {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
+          </span>
+        </button>
       )}
-      {inView &&
-        areRepliesExpanded &&
-        comment.children?.edges.map(({ node }) => (
-          <SubComment
-            {...props}
-            key={node.id}
-            comment={node}
-            parentComment={comment}
-            appendTooltipTo={appendTooltipTo}
-            className={className?.commentBox}
-            onCommented={onCommented}
-          />
-        ))}
+      {inView && isRepliesExpanded && (
+        <>
+          <button
+            type="button"
+            className="mx-4 my-2 flex cursor-pointer items-center gap-1.5 text-text-tertiary typo-callout hover:underline"
+            onClick={() => setIsRepliesExpanded(false)}
+            data-testid="hide-replies-button"
+          >
+            <DiscussIcon className="text-xl" />
+            <span>Hide replies</span>
+          </button>
+          {comment.children?.edges.map(({ node }) => (
+            <SubComment
+              {...props}
+              key={node.id}
+              comment={node}
+              parentComment={comment}
+              appendTooltipTo={appendTooltipTo}
+              className={className?.commentBox}
+              onCommented={onCommented}
+            />
+          ))}
+        </>
+      )}
       {showJoinSquadBanner && (
         <SquadCommentJoinBanner
           className={!comment.children?.edges?.length && 'mt-3'}

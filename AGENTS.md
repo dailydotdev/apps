@@ -10,6 +10,12 @@ We're a startup. We move fast, iterate quickly, and embrace change. When impleme
 - A/B experiments are common (GrowthBook integration)
 - Test coverage isn't a goal - write tests that validate functionality, not hit metrics
 
+## Code Style
+
+**Control flow:**
+- Use early returns instead of if-else blocks for cleaner, flatter code
+- Handle the errors or checks first and return early then proceed with happy path at the end of code block
+
 ## Project Architecture
 
 This is a pnpm monorepo containing the daily.dev application suite:
