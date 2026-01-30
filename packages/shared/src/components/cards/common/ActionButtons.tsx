@@ -147,12 +147,7 @@ const ActionButtons = ({
         className,
       )}
     >
-      <div
-        className={classNames(
-          'flex items-center',
-          variant === 'grid' && 'flex-1 justify-between',
-        )}
-      >
+      <div className="flex flex-1 items-center justify-between">
         <Tooltip
           content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           side={variant === 'grid' ? 'bottom' : undefined}
