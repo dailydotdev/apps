@@ -5,22 +5,15 @@ import Link from '../../../utilities/Link';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { Button } from '../../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../buttons/common';
-import { IconSize } from '../../../Icon';
-import {
-  HashtagIcon,
-  LockIcon,
-  StarIcon,
-  TrashIcon,
-  VIcon,
-} from '../../../icons';
+import { LockIcon, StarIcon, TrashIcon, VIcon } from '../../../icons';
 import {
   Typography,
   TypographyType,
-  TypographyTag,
   TypographyColor,
 } from '../../../typography/Typography';
-import { emojiOptions, webappUrl } from '../../../../lib/constants';
+import { webappUrl } from '../../../../lib/constants';
 import { TextField } from '../../../fields/TextField';
+import { EmojiPicker } from '../../../fields/EmojiPicker';
 import { Divider } from '../../../utilities';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ColorName } from '../../../../styles/colors';
@@ -100,40 +93,11 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
         )}
       </div>
       {isCustomFeed && (
-        <div className="flex flex-col gap-4">
-          <Typography bold type={TypographyType.Body}>
-            Choose an icon
-          </Typography>
-          <ul className="flex flex-wrap gap-4" role="radiogroup">
-            {emojiOptions.map((emoji) => (
-              <Button
-                type="button"
-                key={emoji}
-                onClick={() => setData({ icon: emoji })}
-                className={classNames(
-                  '!size-12',
-                  data.icon === emoji && 'border-surface-focus',
-                )}
-                variant={ButtonVariant.Float}
-                aria-checked={
-                  data.icon === emoji || (!emoji && data.icon === '')
-                }
-                role="radio"
-              >
-                {!emoji ? (
-                  <HashtagIcon size={IconSize.Large} />
-                ) : (
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Title1}
-                  >
-                    {emoji}
-                  </Typography>
-                )}
-              </Button>
-            ))}
-          </ul>
-        </div>
+        <EmojiPicker
+          value={data.icon || ''}
+          onChange={(emoji) => setData({ icon: emoji })}
+          label="Choose an icon"
+        />
       )}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">

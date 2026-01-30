@@ -1,24 +1,17 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import { Modal } from '../../modals/common/Modal';
 
 import type { CreateFeedProps } from '../../../hooks';
 import { useActions, useFeeds, useToastNotification } from '../../../hooks';
-import { emojiOptions } from '../../../lib/constants';
 import { Button } from '../../buttons/Button';
+import { EmojiPicker } from '../../fields/EmojiPicker';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { TextField } from '../../fields/TextField';
-import { IconSize } from '../../Icon';
-import { HashtagIcon } from '../../icons';
-import {
-  Typography,
-  TypographyType,
-  TypographyTag,
-} from '../../typography/Typography';
+import { Typography, TypographyType } from '../../typography/Typography';
 import { LogEvent } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { labels } from '../../../lib/labels';
@@ -235,45 +228,13 @@ export const FeedSettingsCreate = (): ReactElement => {
                 setData((current) => ({ ...current, name: value }))
               }
             />
-            <div className="flex flex-col gap-4">
-              <Typography type={TypographyType.Body}>
-                <Typography className="inline-flex" bold>
-                  Choose an icon
-                </Typography>{' '}
-                (optional)
-              </Typography>
-              <ul className="flex flex-wrap gap-4" role="radiogroup">
-                {emojiOptions.map((emoji) => (
-                  <Button
-                    type="button"
-                    key={emoji}
-                    onClick={() =>
-                      setData((current) => ({ ...current, icon: emoji }))
-                    }
-                    className={classNames(
-                      '!size-12',
-                      data.icon === emoji && 'border-surface-focus',
-                    )}
-                    variant={ButtonVariant.Float}
-                    aria-checked={
-                      data.icon === emoji || (!emoji && data.icon === '')
-                    }
-                    role="radio"
-                  >
-                    {!emoji ? (
-                      <HashtagIcon size={IconSize.Large} />
-                    ) : (
-                      <Typography
-                        tag={TypographyTag.Span}
-                        type={TypographyType.Title1}
-                      >
-                        {emoji}
-                      </Typography>
-                    )}
-                  </Button>
-                ))}
-              </ul>
-            </div>
+            <EmojiPicker
+              value={data.icon || ''}
+              onChange={(emoji) =>
+                setData((current) => ({ ...current, icon: emoji }))
+              }
+              label="Icon (optional)"
+            />
             <Button
               className="hidden tablet:flex"
               type="submit"
