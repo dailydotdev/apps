@@ -17,8 +17,12 @@ export default function CollapsedRepliesPreview({
   replies,
   onExpand,
   className,
-}: CollapsedRepliesPreviewProps): ReactElement {
+}: CollapsedRepliesPreviewProps): ReactElement | null {
   const uniqueAuthors = useMemo(() => {
+    if (!replies.length) {
+      return [];
+    }
+
     const seen = new Set<string>();
 
     return replies.reduce<Comment['author'][]>((authors, { node }) => {
@@ -37,11 +41,15 @@ export default function CollapsedRepliesPreview({
   const replyCount = replies.length;
   const replyText = replyCount === 1 ? 'reply' : 'replies';
 
+  if (!replies.length) {
+    return null;
+  }
+
   return (
     <button
       type="button"
       className={classNames(
-        'flex w-full cursor-pointer items-center gap-2 px-4 py-3 hover:bg-surface-hover',
+        'flex w-full cursor-pointer items-center gap-2 rounded-16 px-4 py-3 hover:bg-surface-hover',
         className,
       )}
       onClick={onExpand}

@@ -53,6 +53,11 @@ describe('CollapsedRepliesPreview', () => {
     jest.clearAllMocks();
   });
 
+  it('should not render when there are no replies', () => {
+    renderComponent([], onExpand);
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('should render single reply text correctly', () => {
     const replies = [createReply('r1', 'u1', 'user1')];
     renderComponent(replies, onExpand);
