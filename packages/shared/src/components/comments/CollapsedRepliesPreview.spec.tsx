@@ -5,7 +5,11 @@ import CollapsedRepliesPreview from './CollapsedRepliesPreview';
 import type { Edge } from '../../graphql/common';
 import type { Comment } from '../../graphql/comments';
 
-const createReply = (id: string, authorId: string, authorUsername: string): Edge<Comment> => ({
+const createReply = (
+  id: string,
+  authorId: string,
+  authorUsername: string,
+): Edge<Comment> => ({
   node: {
     id,
     contentHtml: '<p>reply content</p>',
@@ -24,7 +28,11 @@ const createReply = (id: string, authorId: string, authorUsername: string): Edge
   cursor: '',
 });
 
-const renderComponent = (replies: Edge<Comment>[], onExpand: () => void, className?: string) => {
+const renderComponent = (
+  replies: Edge<Comment>[],
+  onExpand: () => void,
+  className?: string,
+) => {
   const client = new QueryClient();
 
   return render(

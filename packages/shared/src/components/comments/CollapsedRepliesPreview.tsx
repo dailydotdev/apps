@@ -20,19 +20,18 @@ export default function CollapsedRepliesPreview({
 }: CollapsedRepliesPreviewProps): ReactElement {
   const uniqueAuthors = useMemo(() => {
     const seen = new Set<string>();
-    const authors: Comment['author'][] = [];
 
-    for (const { node } of replies) {
-      if (node.author && !seen.has(node.author.id)) {
+    return replies.reduce<Comment['author'][]>((authors, { node }) => {
+      if (
+        authors.length < MAX_AVATARS &&
+        node.author &&
+        !seen.has(node.author.id)
+      ) {
         seen.add(node.author.id);
-        authors.push(node.author);
-        if (authors.length >= MAX_AVATARS) {
-          break;
-        }
+        return [...authors, node.author];
       }
-    }
-
-    return authors;
+      return authors;
+    }, []);
   }, [replies]);
 
   const replyCount = replies.length;
