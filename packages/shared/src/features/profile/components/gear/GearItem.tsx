@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -10,13 +10,13 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../../../components/typography/Typography';
-import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import { TrashIcon } from '../../../../components/icons';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
 
 interface GearItemProps {
   item: Gear;
@@ -30,38 +30,17 @@ export function GearItem({
   onDelete,
 }: GearItemProps): ReactElement {
   const { gear } = item;
-  const textRef = useRef<HTMLSpanElement>(null);
-  const [isTruncated, setIsTruncated] = useState(false);
-
-  useEffect(() => {
-    const element = textRef.current;
-    if (!element) return;
-
-    const checkTruncation = () => {
-      setIsTruncated(element.scrollWidth > element.clientWidth);
-    };
-
-    checkTruncation();
-
-    const resizeObserver = new ResizeObserver(checkTruncation);
-    resizeObserver.observe(element);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [gear.name]);
 
   return (
-    <div
-      className={classNames(
-        'group relative flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-3',
-        'hover:border-border-subtlest-secondary',
-      )}
-    >
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Tooltip content={gear.name} visible={isTruncated}>
+    <Tooltip content={gear.name}>
+      <div
+        className={classNames(
+          'group relative flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-3',
+          'hover:border-border-subtlest-secondary',
+        )}
+      >
+        <div className="flex min-w-0 flex-1 flex-col">
           <Typography
-            ref={textRef}
             tag={TypographyTag.Span}
             type={TypographyType.Callout}
             color={TypographyColor.Primary}
@@ -70,20 +49,20 @@ export function GearItem({
           >
             {gear.name}
           </Typography>
-        </Tooltip>
-      </div>
-      {isOwner && onDelete && (
-        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            icon={<TrashIcon />}
-            onClick={() => onDelete(item)}
-            aria-label="Delete gear"
-          />
         </div>
-      )}
-    </div>
+        {isOwner && onDelete && (
+          <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<TrashIcon />}
+              onClick={() => onDelete(item)}
+              aria-label="Delete gear"
+            />
+          </div>
+        )}
+      </div>
+    </Tooltip>
   );
 }
 
