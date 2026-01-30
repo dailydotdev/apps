@@ -19,10 +19,10 @@ export interface LeaderboardListProps {
 const LeaderboardPlaceholderItem = (): ReactElement => (
   <li>
     <div className="flex w-full flex-row items-center rounded-8 px-2">
-      {/* Score placeholder */}
-      <ElementPlaceholder className="mr-0.5 h-4 w-14 rounded-6" />
-      {/* Emoji placeholder (min-w-8 pl-1) */}
-      <ElementPlaceholder className="ml-1 mr-1 h-6 w-6 rounded-6" />
+      {/* Score placeholder - matches LeaderboardListItem span (min-w-14) */}
+      <ElementPlaceholder className="inline-flex h-4 min-w-14 justify-center rounded-6" />
+      {/* Emoji placeholder - matches UserTopList emoji span (min-w-8 pl-1) */}
+      <ElementPlaceholder className="h-6 w-6 min-w-8 rounded-6 pl-1" />
       {/* UserHighlight wrapper equivalent (p-2) */}
       <div className="flex min-w-0 flex-shrink flex-row items-center p-2">
         {/* Profile image placeholder */}
