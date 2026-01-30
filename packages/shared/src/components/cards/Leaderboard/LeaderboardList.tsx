@@ -17,17 +17,22 @@ export interface LeaderboardListProps {
 }
 
 const LeaderboardPlaceholderItem = (): ReactElement => (
-  <li className="flex flex-row items-center px-2 py-1.5">
-    {/* Score placeholder */}
-    <ElementPlaceholder className="mr-2 h-4 w-14 rounded-6" />
-    {/* Emoji placeholder */}
-    <ElementPlaceholder className="ml-1 mr-2 h-6 w-6 rounded-6" />
-    {/* Profile image placeholder */}
-    <ElementPlaceholder className="h-8 w-8 rounded-10" />
-    {/* Text content placeholder */}
-    <div className="ml-2 flex flex-1 flex-col gap-1">
-      <ElementPlaceholder className="h-3 w-24 rounded-6" />
-      <ElementPlaceholder className="h-2.5 w-16 rounded-6" />
+  <li>
+    <div className="flex w-full flex-row items-center rounded-8 px-2">
+      {/* Score placeholder */}
+      <ElementPlaceholder className="mr-0.5 h-4 w-14 rounded-6" />
+      {/* Emoji placeholder (min-w-8 pl-1) */}
+      <ElementPlaceholder className="ml-1 mr-1 h-6 w-6 rounded-6" />
+      {/* UserHighlight wrapper equivalent (p-2) */}
+      <div className="flex min-w-0 flex-shrink flex-row items-center p-2">
+        {/* Profile image placeholder */}
+        <ElementPlaceholder className="h-8 w-8 rounded-10" />
+        {/* Text content placeholder (ml-2) */}
+        <div className="ml-2 flex flex-1 flex-col gap-1">
+          <ElementPlaceholder className="h-3 w-24 rounded-6" />
+          <ElementPlaceholder className="h-2.5 w-16 rounded-6" />
+        </div>
+      </div>
     </div>
   </li>
 );
