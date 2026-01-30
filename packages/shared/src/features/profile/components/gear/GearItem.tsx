@@ -6,9 +6,11 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Gear } from '../../../../graphql/user/gear';
 import {
   Typography,
+  TypographyTag,
   TypographyType,
   TypographyColor,
 } from '../../../../components/typography/Typography';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import {
   Button,
   ButtonSize,
@@ -37,14 +39,17 @@ export function GearItem({
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col">
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Primary}
-          bold
-          truncate
-        >
-          {gear.name}
-        </Typography>
+        <Tooltip content={gear.name}>
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Callout}
+            color={TypographyColor.Primary}
+            bold
+            truncate
+          >
+            {gear.name}
+          </Typography>
+        </Tooltip>
       </div>
       {isOwner && onDelete && (
         <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
