@@ -92,7 +92,7 @@ const BookmarkFolderModal = ({
       size={Modal.Size.Small}
       {...rest}
     >
-      <form onSubmit={handleSubmit} id="create_folder">
+      <form onSubmit={handleSubmit} id="create_folder" className="w-full">
         <ModalHeader showCloseButton={!isMobile} className="gap-2">
           <ModalTitle />
         </ModalHeader>
