@@ -179,7 +179,7 @@ export default function MainComment({
           onExpand={() => setAreRepliesExpanded(true)}
         />
       )}
-      {inView && areRepliesExpanded && (
+      {inView && replyCount > 0 && areRepliesExpanded && (
         <>
           <button
             type="button"

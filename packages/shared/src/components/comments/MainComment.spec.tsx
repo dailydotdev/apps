@@ -218,3 +218,8 @@ it('should show creator badge', async () => {
   const el = await screen.findByText('Creator');
   expect(el).toBeInTheDocument();
 });
+
+it('should not show hide replies button when there are no replies', async () => {
+  renderLayout();
+  expect(screen.queryByText('Hide replies')).not.toBeInTheDocument();
+});
