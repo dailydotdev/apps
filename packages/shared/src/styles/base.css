@@ -5,6 +5,7 @@ html, #daily-companion-wrapper {
 }
 
 body {
+  background-color: red !important;
   min-width: 20rem;
   overflow-y: scroll;
   min-height: 100vh;
