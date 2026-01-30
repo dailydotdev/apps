@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -30,6 +30,26 @@ export function GearItem({
   onDelete,
 }: GearItemProps): ReactElement {
   const { gear } = item;
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  useEffect(() => {
+    const element = textRef.current;
+    if (!element) return;
+
+    const checkTruncation = () => {
+      setIsTruncated(element.scrollWidth > element.clientWidth);
+    };
+
+    checkTruncation();
+
+    const resizeObserver = new ResizeObserver(checkTruncation);
+    resizeObserver.observe(element);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [gear.name]);
 
   return (
     <div
@@ -39,8 +59,9 @@ export function GearItem({
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col">
-        <Tooltip content={gear.name}>
+        <Tooltip content={gear.name} visible={isTruncated}>
           <Typography
+            ref={textRef}
             tag={TypographyTag.Span}
             type={TypographyType.Callout}
             color={TypographyColor.Primary}

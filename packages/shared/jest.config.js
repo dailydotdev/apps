@@ -1,6 +1,5 @@
 module.exports = {
   roots: ['<rootDir>'],
-  cacheDirectory: '<rootDir>/.jest-cache',
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
   setupFilesAfterEnv: ['./__tests__/setup.ts'],
   testPathIgnorePatterns: [
