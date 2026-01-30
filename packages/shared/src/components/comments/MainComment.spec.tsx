@@ -105,7 +105,7 @@ it('should have no subcomments', async () => {
   expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
 });
 
-it('should have subcomments', async () => {
+it('should show collapsed replies preview when has subcomments', async () => {
   renderLayout({
     comment: {
       ...comment,
@@ -123,7 +123,69 @@ it('should have subcomments', async () => {
       },
     },
   });
+  expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
+  expect(screen.getByText('View 1 reply')).toBeInTheDocument();
+});
+
+it('should expand subcomments when clicking collapsed preview', async () => {
+  renderLayout({
+    comment: {
+      ...comment,
+      children: {
+        pageInfo: {},
+        edges: [
+          {
+            node: {
+              ...comment,
+              id: 'c2',
+            },
+            cursor: '',
+          },
+        ],
+      },
+    },
+  });
+
+  const expandButton = screen.getByText('View 1 reply');
+  fireEvent.click(expandButton);
+
   expect(screen.queryAllByTestId('subcomment').length).toEqual(1);
+  expect(screen.queryByText('View 1 reply')).not.toBeInTheDocument();
+});
+
+it('should show correct count for multiple replies', async () => {
+  renderLayout({
+    comment: {
+      ...comment,
+      children: {
+        pageInfo: {},
+        edges: [
+          {
+            node: {
+              ...comment,
+              id: 'c2',
+            },
+            cursor: '',
+          },
+          {
+            node: {
+              ...comment,
+              id: 'c3',
+            },
+            cursor: '',
+          },
+          {
+            node: {
+              ...comment,
+              id: 'c4',
+            },
+            cursor: '',
+          },
+        ],
+      },
+    },
+  });
+  expect(screen.getByText('View 3 replies')).toBeInTheDocument();
 });
 
 it('should render the comment box', async () => {

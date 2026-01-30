@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import dynamic from 'next/dynamic';
@@ -7,6 +7,7 @@ import EnableNotification from '../notifications/EnableNotification';
 import type { CommentBoxProps } from './CommentBox';
 import CommentBox from './CommentBox';
 import SubComment from './SubComment';
+import CollapsedRepliesPreview from './CollapsedRepliesPreview';
 import AuthContext from '../../contexts/AuthContext';
 import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
@@ -93,6 +94,9 @@ export default function MainComment({
     initialInView,
   });
 
+  const hasReplies = comment.children?.edges?.length > 0;
+  const [areRepliesExpanded, setAreRepliesExpanded] = useState(false);
+
   const onClick = () => {
     if (!logClick && !props.linkToComment) {
       return;
@@ -167,7 +171,14 @@ export default function MainComment({
           replyToCommentId={commentId}
         />
       )}
+      {inView && hasReplies && !areRepliesExpanded && (
+        <CollapsedRepliesPreview
+          replies={comment.children.edges}
+          onExpand={() => setAreRepliesExpanded(true)}
+        />
+      )}
       {inView &&
+        areRepliesExpanded &&
         comment.children?.edges.map(({ node }) => (
           <SubComment
             {...props}
