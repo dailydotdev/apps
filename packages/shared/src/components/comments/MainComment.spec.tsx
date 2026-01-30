@@ -105,7 +105,7 @@ it('should have no subcomments', async () => {
   expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
 });
 
-it('should have subcomments', async () => {
+it('should show View replies button when comment has subcomments', async () => {
   renderLayout({
     comment: {
       ...comment,
@@ -123,7 +123,95 @@ it('should have subcomments', async () => {
       },
     },
   });
+  const viewRepliesButton = await screen.findByTestId('view-replies-button');
+  expect(viewRepliesButton).toBeInTheDocument();
+  expect(viewRepliesButton).toHaveTextContent('View 1 reply');
+  // Subcomments should be hidden by default
+  expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
+});
+
+it('should show subcomments when View replies button is clicked', async () => {
+  renderLayout({
+    comment: {
+      ...comment,
+      children: {
+        pageInfo: {},
+        edges: [
+          {
+            node: {
+              ...comment,
+              id: 'c2',
+            },
+            cursor: '',
+          },
+        ],
+      },
+    },
+  });
+  const viewRepliesButton = await screen.findByTestId('view-replies-button');
+  fireEvent.click(viewRepliesButton);
   expect(screen.queryAllByTestId('subcomment').length).toEqual(1);
+  expect(screen.queryByTestId('view-replies-button')).not.toBeInTheDocument();
+  expect(screen.getByTestId('hide-replies-button')).toBeInTheDocument();
+});
+
+it('should hide subcomments when Hide replies button is clicked', async () => {
+  renderLayout({
+    comment: {
+      ...comment,
+      children: {
+        pageInfo: {},
+        edges: [
+          {
+            node: {
+              ...comment,
+              id: 'c2',
+            },
+            cursor: '',
+          },
+        ],
+      },
+    },
+  });
+  // First expand the replies
+  const viewRepliesButton = await screen.findByTestId('view-replies-button');
+  fireEvent.click(viewRepliesButton);
+  expect(screen.queryAllByTestId('subcomment').length).toEqual(1);
+
+  // Then collapse them
+  const hideRepliesButton = await screen.findByTestId('hide-replies-button');
+  fireEvent.click(hideRepliesButton);
+  expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
+  expect(screen.getByTestId('view-replies-button')).toBeInTheDocument();
+});
+
+it('should show correct plural form for multiple replies', async () => {
+  renderLayout({
+    comment: {
+      ...comment,
+      children: {
+        pageInfo: {},
+        edges: [
+          {
+            node: {
+              ...comment,
+              id: 'c2',
+            },
+            cursor: '',
+          },
+          {
+            node: {
+              ...comment,
+              id: 'c3',
+            },
+            cursor: '',
+          },
+        ],
+      },
+    },
+  });
+  const viewRepliesButton = await screen.findByTestId('view-replies-button');
+  expect(viewRepliesButton).toHaveTextContent('View 2 replies');
 });
 
 it('should render the comment box', async () => {
