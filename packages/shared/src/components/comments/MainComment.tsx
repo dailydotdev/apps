@@ -89,7 +89,6 @@ export default function MainComment({
   } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useEditCommentProps();
 
-  const [isRepliesExpanded, setIsRepliesExpanded] = useState(false);
   const replyCount = comment.children?.edges?.length ?? 0;
 
   const initialInView = !lazy;
@@ -98,8 +97,7 @@ export default function MainComment({
     initialInView,
   });
 
-  const hasReplies = comment.children?.edges?.length > 0;
-  const [areRepliesExpanded, setAreRepliesExpanded] = useState(false);
+  const [areRepliesExpanded, setAreRepliesExpanded] = useState(true);
 
   const onClick = () => {
     if (!logClick && !props.linkToComment) {
@@ -175,25 +173,18 @@ export default function MainComment({
           replyToCommentId={commentId}
         />
       )}
-      {inView && replyCount > 0 && !isRepliesExpanded && (
-        <button
-          type="button"
-          className="mx-4 my-2 flex cursor-pointer items-center gap-1.5 text-text-tertiary typo-callout hover:underline"
-          onClick={() => setIsRepliesExpanded(true)}
-          data-testid="view-replies-button"
-        >
-          <DiscussIcon className="text-xl" />
-          <span>
-            View {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
-          </span>
-        </button>
+      {inView && replyCount > 0 && !areRepliesExpanded && (
+        <CollapsedRepliesPreview
+          replies={comment.children.edges}
+          onExpand={() => setAreRepliesExpanded(true)}
+        />
       )}
-      {inView && isRepliesExpanded && (
+      {inView && areRepliesExpanded && (
         <>
           <button
             type="button"
             className="mx-4 my-2 flex cursor-pointer items-center gap-1.5 text-text-tertiary typo-callout hover:underline"
-            onClick={() => setIsRepliesExpanded(false)}
+            onClick={() => setAreRepliesExpanded(false)}
             data-testid="hide-replies-button"
           >
             <DiscussIcon className="text-xl" />

@@ -105,7 +105,7 @@ it('should have no subcomments', async () => {
   expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
 });
 
-it('should show collapsed replies preview when has subcomments', async () => {
+it('should show expanded subcomments by default when has subcomments', async () => {
   renderLayout({
     comment: {
       ...comment,
@@ -123,37 +123,38 @@ it('should show collapsed replies preview when has subcomments', async () => {
       },
     },
   });
+  expect(screen.queryAllByTestId('subcomment').length).toEqual(1);
+  expect(screen.getByText('Hide replies')).toBeInTheDocument();
+});
+
+it('should collapse subcomments when clicking hide button', async () => {
+  renderLayout({
+    comment: {
+      ...comment,
+      children: {
+        pageInfo: {},
+        edges: [
+          {
+            node: {
+              ...comment,
+              id: 'c2',
+            },
+            cursor: '',
+          },
+        ],
+      },
+    },
+  });
+
+  const hideButton = screen.getByText('Hide replies');
+  fireEvent.click(hideButton);
+
   expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
+  expect(screen.queryByText('Hide replies')).not.toBeInTheDocument();
   expect(screen.getByText('View 1 reply')).toBeInTheDocument();
 });
 
-it('should expand subcomments when clicking collapsed preview', async () => {
-  renderLayout({
-    comment: {
-      ...comment,
-      children: {
-        pageInfo: {},
-        edges: [
-          {
-            node: {
-              ...comment,
-              id: 'c2',
-            },
-            cursor: '',
-          },
-        ],
-      },
-    },
-  });
-
-  const expandButton = screen.getByText('View 1 reply');
-  fireEvent.click(expandButton);
-
-  expect(screen.queryAllByTestId('subcomment').length).toEqual(1);
-  expect(screen.queryByText('View 1 reply')).not.toBeInTheDocument();
-});
-
-it('should show correct count for multiple replies', async () => {
+it('should show correct count for multiple replies when collapsed', async () => {
   renderLayout({
     comment: {
       ...comment,
@@ -185,6 +186,11 @@ it('should show correct count for multiple replies', async () => {
       },
     },
   });
+
+  // Comments are expanded by default, so first hide them
+  const hideButton = screen.getByText('Hide replies');
+  fireEvent.click(hideButton);
+
   expect(screen.getByText('View 3 replies')).toBeInTheDocument();
 });
 
