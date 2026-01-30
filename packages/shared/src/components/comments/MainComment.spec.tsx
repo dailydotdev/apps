@@ -105,7 +105,7 @@ it('should have no subcomments', async () => {
   expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
 });
 
-it('should show View replies button when comment has subcomments', async () => {
+it('should show expanded subcomments by default when has subcomments', async () => {
   renderLayout({
     comment: {
       ...comment,
@@ -123,39 +123,11 @@ it('should show View replies button when comment has subcomments', async () => {
       },
     },
   });
-  const viewRepliesButton = await screen.findByTestId('view-replies-button');
-  expect(viewRepliesButton).toBeInTheDocument();
-  expect(viewRepliesButton).toHaveTextContent('View 1 reply');
-  // Subcomments should be hidden by default
-  expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
-});
-
-it('should show subcomments when View replies button is clicked', async () => {
-  renderLayout({
-    comment: {
-      ...comment,
-      children: {
-        pageInfo: {},
-        edges: [
-          {
-            node: {
-              ...comment,
-              id: 'c2',
-            },
-            cursor: '',
-          },
-        ],
-      },
-    },
-  });
-  const viewRepliesButton = await screen.findByTestId('view-replies-button');
-  fireEvent.click(viewRepliesButton);
   expect(screen.queryAllByTestId('subcomment').length).toEqual(1);
-  expect(screen.queryByTestId('view-replies-button')).not.toBeInTheDocument();
-  expect(screen.getByTestId('hide-replies-button')).toBeInTheDocument();
+  expect(screen.getByText('Hide replies')).toBeInTheDocument();
 });
 
-it('should hide subcomments when Hide replies button is clicked', async () => {
+it('should collapse subcomments when clicking hide button', async () => {
   renderLayout({
     comment: {
       ...comment,
@@ -173,19 +145,16 @@ it('should hide subcomments when Hide replies button is clicked', async () => {
       },
     },
   });
-  // First expand the replies
-  const viewRepliesButton = await screen.findByTestId('view-replies-button');
-  fireEvent.click(viewRepliesButton);
-  expect(screen.queryAllByTestId('subcomment').length).toEqual(1);
 
-  // Then collapse them
-  const hideRepliesButton = await screen.findByTestId('hide-replies-button');
-  fireEvent.click(hideRepliesButton);
+  const hideButton = screen.getByText('Hide replies');
+  fireEvent.click(hideButton);
+
   expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
-  expect(screen.getByTestId('view-replies-button')).toBeInTheDocument();
+  expect(screen.queryByText('Hide replies')).not.toBeInTheDocument();
+  expect(screen.getByText('View 1 reply')).toBeInTheDocument();
 });
 
-it('should show correct plural form for multiple replies', async () => {
+it('should show correct count for multiple replies when collapsed', async () => {
   renderLayout({
     comment: {
       ...comment,
@@ -206,12 +175,23 @@ it('should show correct plural form for multiple replies', async () => {
             },
             cursor: '',
           },
+          {
+            node: {
+              ...comment,
+              id: 'c4',
+            },
+            cursor: '',
+          },
         ],
       },
     },
   });
-  const viewRepliesButton = await screen.findByTestId('view-replies-button');
-  expect(viewRepliesButton).toHaveTextContent('View 2 replies');
+
+  // Comments are expanded by default, so first hide them
+  const hideButton = screen.getByText('Hide replies');
+  fireEvent.click(hideButton);
+
+  expect(screen.getByText('View 3 replies')).toBeInTheDocument();
 });
 
 it('should render the comment box', async () => {
@@ -237,4 +217,9 @@ it('should show creator badge', async () => {
   renderLayout({ postAuthorId: 'u1' }, loggedUser);
   const el = await screen.findByText('Creator');
   expect(el).toBeInTheDocument();
+});
+
+it('should not show hide replies button when there are no replies', async () => {
+  renderLayout();
+  expect(screen.queryByText('Hide replies')).not.toBeInTheDocument();
 });
