@@ -13,7 +13,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   EditIcon,
-  FeedbackIcon,
   LinkIcon,
   PlusIcon,
   PollIcon,
@@ -21,8 +20,6 @@ import {
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { RootPortal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 
 const ActionButton = <TagName extends AllowedTags>({
   children,
@@ -46,30 +43,18 @@ export function FooterPlusButton(): ReactElement {
   const { user } = useAuthContext();
   const drawerRef = useRef<DrawerRef>();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { openModal } = useLazyModal();
   const props = user
     ? { onClick: () => setIsDrawerOpen(true) }
     : { tag: 'a' as AllowedTags, href: '/onboarding' };
 
   return (
     <>
-      <div className="absolute bottom-24 right-4 z-1 flex gap-2">
-        {user && (
-          <Button
-            icon={<FeedbackIcon />}
-            variant={ButtonVariant.Subtle}
-            className="border border-border-subtlest-tertiary"
-            onClick={() => openModal({ type: LazyModal.Feedback })}
-            aria-label="Send feedback"
-          />
-        )}
-        <Button
-          {...props}
-          icon={<PlusIcon />}
-          variant={ButtonVariant.Primary}
-          className="border border-border-subtlest-tertiary"
-        />
-      </div>
+      <Button
+        {...props}
+        icon={<PlusIcon />}
+        variant={ButtonVariant.Primary}
+        className="absolute bottom-24 right-4 z-1 ml-auto justify-self-center border border-border-subtlest-tertiary"
+      />
       <RootPortal>
         <Drawer
           ref={drawerRef}
