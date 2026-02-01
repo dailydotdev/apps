@@ -27,19 +27,20 @@ import {
   CopyIcon,
   TrashIcon,
   LockIcon,
-  BookIcon,
+  DocsIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
-import {
-  Modal,
-  ModalSize,
-} from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/types';
 import { ModalHeader } from '@dailydotdev/shared/src/components/modals/common/ModalHeader';
 import { ModalBody } from '@dailydotdev/shared/src/components/modals/common/ModalBody';
 import { ModalFooter } from '@dailydotdev/shared/src/components/modals/common/ModalFooter';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
-import { formatDate } from '@dailydotdev/shared/src/lib/dateFormat';
+import {
+  formatDate,
+  TimeFormatType,
+} from '@dailydotdev/shared/src/lib/dateFormat';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
@@ -114,17 +115,12 @@ const CreateTokenModal = ({
           <Typography type={TypographyType.Callout} bold>
             Expiration
           </Typography>
-          {ExpirationOptions.map((option) => (
-            <Radio
-              key={option.value}
-              name="expiration"
-              value={option.value}
-              checked={expiration === option.value}
-              onChange={() => setExpiration(option.value)}
-            >
-              {option.label}
-            </Radio>
-          ))}
+          <Radio
+            name="expiration"
+            value={expiration}
+            onChange={setExpiration}
+            options={ExpirationOptions}
+          />
         </div>
       </ModalBody>
       <ModalFooter>
@@ -237,8 +233,12 @@ const TokenListItem = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          Created {formatDate(createdAt)}
-          {lastUsedAt && ` | Last used ${formatDate(lastUsedAt)}`}
+          Created {formatDate({ value: createdAt, type: TimeFormatType.Post })}
+          {lastUsedAt &&
+            ` | Last used ${formatDate({
+              value: lastUsedAt,
+              type: TimeFormatType.Post,
+            })}`}
         </Typography>
       </div>
       <Button
@@ -417,7 +417,7 @@ const ApiAccessPage = (): ReactElement => {
           <Button
             variant={ButtonVariant.Secondary}
             size={ButtonSize.Small}
-            icon={<BookIcon />}
+            icon={<DocsIcon />}
             tag="a"
             href={DOCS_URL}
             target="_blank"
