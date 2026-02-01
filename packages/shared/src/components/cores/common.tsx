@@ -32,11 +32,6 @@ export const coresFAQItems: FAQItem[] = [
       'Cores are non-refundable once purchased. Please double-check your selected bundle before completing the transaction. If you run into any issues, you can always reach out to support@daily.dev and we’ll do our best to help.',
   },
   {
-    title: 'Can I convert Cores into real money?',
-    description:
-      'We’re currently experimenting with monetization. In some cases, eligible users may request withdrawals once they meet minimum thresholds. This feature may require identity verification, isn’t available in all countries, and is subject to platform policies and changes.',
-  },
-  {
     title: 'Are Cores included in the daily.dev Plus subscription?',
     description:
       'No. Cores are sold separately and are not bundled with daily.dev Plus.',
