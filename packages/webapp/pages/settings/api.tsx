@@ -1,0 +1,452 @@
+import React, { useState } from 'react';
+import type { ReactElement } from 'react';
+import type { NextSeoProps } from 'next-seo';
+import {
+  usePlusSubscription,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
+import {
+  usePersonalAccessTokens,
+  useCreatePersonalAccessToken,
+  useRevokePersonalAccessToken,
+} from '@dailydotdev/shared/src/hooks/api/usePersonalAccessTokens';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  PlusIcon,
+  CopyIcon,
+  TrashIcon,
+  LockIcon,
+  BookIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
+import {
+  Modal,
+  ModalSize,
+} from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { ModalHeader } from '@dailydotdev/shared/src/components/modals/common/ModalHeader';
+import { ModalBody } from '@dailydotdev/shared/src/components/modals/common/ModalBody';
+import { ModalFooter } from '@dailydotdev/shared/src/components/modals/common/ModalFooter';
+import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
+import { formatDate } from '@dailydotdev/shared/src/lib/dateFormat';
+import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
+import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
+import { defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
+
+const seo: NextSeoProps = {
+  ...defaultSeo,
+  title: getTemplatedTitle('API Access'),
+};
+
+const SKILL_INSTRUCTION =
+  'Read https://daily.dev/skill.md and follow the instructions to connect to daily.dev';
+const DOCS_URL = 'https://docs.daily.dev/api';
+
+const ExpirationOptions = [
+  { value: '', label: 'Never expires' },
+  { value: '30', label: '30 days' },
+  { value: '90', label: '90 days' },
+  { value: '365', label: '1 year' },
+];
+
+interface CreateTokenModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: (token: string) => void;
+}
+
+const CreateTokenModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+}: CreateTokenModalProps): ReactElement => {
+  const [name, setName] = useState('');
+  const [expiration, setExpiration] = useState('');
+  const { mutateAsync: createToken, isPending } =
+    useCreatePersonalAccessToken();
+  const { displayToast } = useToastNotification();
+
+  const handleCreate = async () => {
+    if (!name.trim()) {
+      displayToast('Please enter a token name');
+      return;
+    }
+
+    try {
+      const result = await createToken({
+        name: name.trim(),
+        expiresInDays: expiration ? parseInt(expiration, 10) : null,
+      });
+      onSuccess(result.token);
+      setName('');
+      setExpiration('');
+    } catch {
+      displayToast('Failed to create token. Please try again.');
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onRequestClose={onClose} size={ModalSize.Small}>
+      <ModalHeader title="Create API Token" />
+      <ModalBody className="flex flex-col gap-4">
+        <TextField
+          label="Token name"
+          inputId="token-name"
+          name="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g., My AI Agent"
+          maxLength={50}
+        />
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Callout} bold>
+            Expiration
+          </Typography>
+          {ExpirationOptions.map((option) => (
+            <Radio
+              key={option.value}
+              name="expiration"
+              value={option.value}
+              checked={expiration === option.value}
+              onChange={() => setExpiration(option.value)}
+            >
+              {option.label}
+            </Radio>
+          ))}
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Medium}
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Medium}
+          onClick={handleCreate}
+          loading={isPending}
+          disabled={!name.trim()}
+        >
+          Create token
+        </Button>
+      </ModalFooter>
+    </Modal>
+  );
+};
+
+interface TokenCreatedModalProps {
+  isOpen: boolean;
+  token: string;
+  onClose: () => void;
+}
+
+const TokenCreatedModal = ({
+  isOpen,
+  token,
+  onClose,
+}: TokenCreatedModalProps): ReactElement => {
+  const { displayToast } = useToastNotification();
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(token);
+      displayToast('Token copied to clipboard');
+    } catch {
+      displayToast('Failed to copy token');
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onRequestClose={onClose} size={ModalSize.Small}>
+      <ModalHeader title="Token created" />
+      <ModalBody className="flex flex-col gap-4">
+        <div className="flex items-center gap-2 rounded-12 bg-status-warning p-3">
+          <LockIcon size={IconSize.Small} />
+          <Typography type={TypographyType.Callout}>
+            This token will only be shown once. Copy it now!
+          </Typography>
+        </div>
+        <div className="flex items-center gap-2 rounded-12 bg-surface-float p-3">
+          <code className="flex-1 break-all text-text-primary">{token}</code>
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<CopyIcon />}
+            onClick={handleCopy}
+          />
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Medium}
+          onClick={onClose}
+        >
+          I&apos;ve copied my token
+        </Button>
+      </ModalFooter>
+    </Modal>
+  );
+};
+
+interface TokenListItemProps {
+  id: string;
+  name: string;
+  tokenPrefix: string;
+  createdAt: Date;
+  lastUsedAt: Date | null;
+  onRevoke: (id: string) => void;
+}
+
+const TokenListItem = ({
+  id,
+  name,
+  tokenPrefix,
+  createdAt,
+  lastUsedAt,
+  onRevoke,
+}: TokenListItemProps): ReactElement => {
+  return (
+    <div className="flex items-center justify-between rounded-12 border border-border-subtlest-tertiary p-4">
+      <div className="flex flex-col gap-1">
+        <Typography type={TypographyType.Body} bold>
+          {name}
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {tokenPrefix}...
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Created {formatDate(createdAt)}
+          {lastUsedAt && ` | Last used ${formatDate(lastUsedAt)}`}
+        </Typography>
+      </div>
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        icon={<TrashIcon />}
+        onClick={() => onRevoke(id)}
+      />
+    </div>
+  );
+};
+
+const ApiAccessPage = (): ReactElement => {
+  const { isPlus } = usePlusSubscription();
+  const { data: tokens, isLoading } = usePersonalAccessTokens();
+  const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
+  const { displayToast } = useToastNotification();
+  const isMobile = useViewSize(ViewSize.MobileL);
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createdToken, setCreatedToken] = useState<string | null>(null);
+
+  const handleCopyInstruction = async () => {
+    try {
+      await navigator.clipboard.writeText(SKILL_INSTRUCTION);
+      displayToast('Instruction copied to clipboard');
+    } catch {
+      displayToast('Failed to copy');
+    }
+  };
+
+  const handleRevoke = async (id: string) => {
+    try {
+      await revokeToken(id);
+      displayToast('Token revoked successfully');
+    } catch {
+      displayToast('Failed to revoke token');
+    }
+  };
+
+  if (!isPlus) {
+    return (
+      <AccountPageContainer title="API Access">
+        <div className="flex flex-col gap-4">
+          <Typography type={TypographyType.Body} bold>
+            Plus Feature
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            API access is available exclusively for Plus subscribers. Upgrade to
+            connect AI agents and automate your workflows.
+          </Typography>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Medium}
+            tag="a"
+            href="/plus"
+            className="self-start"
+          >
+            Upgrade to Plus
+          </Button>
+        </div>
+      </AccountPageContainer>
+    );
+  }
+
+  return (
+    <AccountPageContainer
+      title="API Access"
+      actions={
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          icon={<PlusIcon />}
+          onClick={() => setShowCreateModal(true)}
+        >
+          {isMobile ? '' : 'Create token'}
+        </Button>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Body} bold>
+            Personal Access Tokens
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Use tokens to authenticate with the daily.dev API. Tokens provide
+            read-only access to your personalized feed and posts.
+          </Typography>
+        </div>
+
+        {isLoading && (
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Loading tokens...
+          </Typography>
+        )}
+
+        {!isLoading && tokens && tokens.length > 0 && (
+          <div className="flex flex-col gap-3">
+            {tokens.map((token) => (
+              <TokenListItem
+                key={token.id}
+                id={token.id}
+                name={token.name}
+                tokenPrefix={token.tokenPrefix}
+                createdAt={new Date(token.createdAt)}
+                lastUsedAt={
+                  token.lastUsedAt ? new Date(token.lastUsedAt) : null
+                }
+                onRevoke={handleRevoke}
+              />
+            ))}
+          </div>
+        )}
+
+        {!isLoading && (!tokens || tokens.length === 0) && (
+          <div className="flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-6">
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              No tokens yet. Create one to get started.
+            </Typography>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+              onClick={() => setShowCreateModal(true)}
+            >
+              Create your first token
+            </Button>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Body} bold>
+            Connect Your AI Agent
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Copy this instruction to your AI agent to get started:
+          </Typography>
+          <div className="flex items-center gap-2 rounded-12 bg-surface-float p-3">
+            <code className="flex-1 text-text-tertiary">
+              {SKILL_INSTRUCTION}
+            </code>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<CopyIcon />}
+              onClick={handleCopyInstruction}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Body} bold>
+            Documentation
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Learn how to use the API with detailed documentation and examples.
+          </Typography>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            icon={<BookIcon />}
+            tag="a"
+            href={DOCS_URL}
+            target="_blank"
+            className="self-start"
+          >
+            API Documentation
+          </Button>
+        </div>
+      </div>
+
+      <CreateTokenModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={(token) => {
+          setShowCreateModal(false);
+          setCreatedToken(token);
+        }}
+      />
+
+      <TokenCreatedModal
+        isOpen={!!createdToken}
+        token={createdToken || ''}
+        onClose={() => setCreatedToken(null)}
+      />
+    </AccountPageContainer>
+  );
+};
+
+ApiAccessPage.getLayout = getSettingsLayout;
+ApiAccessPage.layoutProps = { seo };
+
+export default ApiAccessPage;
