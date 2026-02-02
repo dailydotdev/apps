@@ -152,7 +152,7 @@ export const UserPostsAnalyticsTable = ({
                     type={TypographyType.Callout}
                     color={TypographyColor.Primary}
                   >
-                    {largeNumberFormat(post.reputation)}
+                    {largeNumberFormat(post.analytics?.reputation ?? 0)}
                   </Typography>
                 </td>
                 <td className="py-3 text-right">
@@ -160,7 +160,7 @@ export const UserPostsAnalyticsTable = ({
                     type={TypographyType.Callout}
                     color={TypographyColor.Primary}
                   >
-                    {largeNumberFormat(post.impressions)}
+                    {largeNumberFormat(post.analytics?.impressions ?? 0)}
                   </Typography>
                 </td>
                 <td className="py-3 text-right">
@@ -168,7 +168,7 @@ export const UserPostsAnalyticsTable = ({
                     type={TypographyType.Callout}
                     color={TypographyColor.Primary}
                   >
-                    {largeNumberFormat(post.upvotes)}
+                    {largeNumberFormat(post.analytics?.upvotes ?? 0)}
                   </Typography>
                 </td>
               </tr>

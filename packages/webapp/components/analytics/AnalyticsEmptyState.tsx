@@ -5,12 +5,12 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { link } from '@dailydotdev/shared/src/lib';
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
-import { link } from '@dailydotdev/shared/src/lib/links';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 
 export const AnalyticsEmptyState = (): ReactElement => {
