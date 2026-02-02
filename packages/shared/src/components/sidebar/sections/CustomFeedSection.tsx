@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import type { SidebarMenuItem } from '../common';
-import { HashtagIcon, PlusIcon, StarIcon } from '../../icons';
+import { HashtagIcon, StarIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
 import { useFeeds } from '../../../hooks';
@@ -16,9 +17,14 @@ export const CustomFeedSection = ({
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
+  const router = useRouter();
   const { feeds } = useFeeds();
   const { defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
+
+  const handleAddFeed = useCallback(() => {
+    router.push(`${webappUrl}feeds/new`);
+  }, [router]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const customFeeds =
@@ -60,20 +66,7 @@ export const CustomFeedSection = ({
         };
       }) ?? [];
 
-    return [
-      ...customFeeds,
-      {
-        icon: () => (
-          <div className="rounded-6 bg-background-subtle">
-            <PlusIcon />
-          </div>
-        ),
-        title: 'Custom feed',
-        path: `${webappUrl}feeds/new`,
-        requiresLogin: true,
-        isForcedClickable: true,
-      },
-    ].filter(Boolean);
+    return customFeeds.filter(Boolean);
   }, [
     defaultRenderSectionProps.activePage,
     sortedFeeds,
@@ -87,6 +80,7 @@ export const CustomFeedSection = ({
       items={menuItems}
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.CustomFeedsExpanded}
+      onAdd={handleAddFeed}
     />
   );
 };
