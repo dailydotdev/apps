@@ -14,6 +14,7 @@ import {
   UserExperienceType,
 } from '../graphql/user/profile';
 import { useDirtyForm } from './useDirtyForm';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import { ApiError } from '../graphql/common';
 import type { ApiErrorResult } from '../graphql/common';
 import { labels } from '../lib/labels';
@@ -142,6 +143,10 @@ const useUserExperienceForm = ({
       methods.reset(vars);
       dirtyFormRef.current?.allowNavigation();
       qc.invalidateQueries({ queryKey: experienceQueryKey });
+      qc.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.UserExperience, user, 'profile'),
+        exact: false,
+      });
       router.push(`${webappUrl}settings/profile/experience/${type}`);
     },
     onError: (error: ApiErrorResult) => {

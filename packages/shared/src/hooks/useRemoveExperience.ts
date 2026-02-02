@@ -6,6 +6,7 @@ import { useToastNotification } from './useToastNotification';
 import { labels } from '../lib/labels';
 import { webappUrl } from '../lib/constants';
 import { useUserExperiencesByType } from '../features/profile/hooks/useUserExperiencesByType';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
@@ -30,6 +31,10 @@ const useRemoveExperience = ({ type }: { type: UserExperienceType }) => {
       });
       router.push(`${webappUrl}settings/profile/experience/${type}`);
       qc.invalidateQueries({ queryKey: experienceQueryKey });
+      qc.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.UserExperience, user, 'profile'),
+        exact: false,
+      });
     },
     onError: () => {
       displayToast(labels.error.generic || 'Failed to delete experience');
