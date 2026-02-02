@@ -6,10 +6,10 @@ import { addDays, subDays } from 'date-fns';
 import {
   ResponsivePageContainer,
   Divider,
+  pageBorders,
 } from '@dailydotdev/shared/src/components/utilities';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import classNames from 'classnames';
-import { pageBorders } from '@dailydotdev/shared/src/components/utilities';
 import {
   Typography,
   TypographyColor,
@@ -48,7 +48,6 @@ import {
   dateFormatInTimezone,
   DEFAULT_TIMEZONE,
 } from '@dailydotdev/shared/src/lib/timezones';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
 import dynamic from 'next/dynamic';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -67,7 +66,11 @@ const CombinedImpressionsChart = dynamic(
 
 const dividerClassName = 'bg-border-subtlest-tertiary';
 const SectionContainer = classed('div', 'flex flex-col gap-4');
-const SectionHeader = ({ children }: { children: React.ReactNode }): ReactElement => {
+const SectionHeader = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): ReactElement => {
   return (
     <Typography
       type={TypographyType.Body}
@@ -107,7 +110,7 @@ const Analytics = (): ReactElement => {
     user,
   );
 
-  const { data: analytics, isLoading: isLoadingAnalytics } = useQuery({
+  const { data: analytics } = useQuery({
     queryKey: analyticsQueryKey,
     queryFn: async () => {
       const result = await gqlClient.request<{
@@ -135,27 +138,24 @@ const Analytics = (): ReactElement => {
           return [];
         }
 
-        const impressionsMap = data.reduce(
-          (acc, item) => {
-            const date = dateFormatInTimezone(
-              new Date(item.date),
-              'yyyy-MM-dd',
-              userTimezone,
-            );
+        const impressionsMap = data.reduce((acc, item) => {
+          const date = dateFormatInTimezone(
+            new Date(item.date),
+            'yyyy-MM-dd',
+            userTimezone,
+          );
 
-            acc[date] = {
-              name: new Date(item.date).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-              }),
-              value: item.impressions,
-              isBoosted: item.impressionsAds > 0,
-            };
+          acc[date] = {
+            name: new Date(item.date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+            }),
+            value: item.impressions,
+            isBoosted: item.impressionsAds > 0,
+          };
 
-            return acc;
-          },
-          {} as Record<string, ImpressionNode>,
-        );
+          return acc;
+        }, {} as Record<string, ImpressionNode>);
 
         const historyCutOffDate = subDays(
           new Date(),
@@ -216,7 +216,8 @@ const Analytics = (): ReactElement => {
   });
 
   const posts = useMemo(
-    () => postsData?.pages.flatMap((page) => page.edges.map((e) => e.node)) ?? [],
+    () =>
+      postsData?.pages.flatMap((page) => page.edges.map((e) => e.node)) ?? [],
     [postsData],
   );
 
@@ -321,11 +322,15 @@ const Analytics = (): ReactElement => {
               <div className="ml-auto flex gap-2">
                 <div className="flex items-center gap-1">
                   <div className="size-2 rounded-full bg-brand-default" />
-                  <Typography type={TypographyType.Footnote}>Organic</Typography>
+                  <Typography type={TypographyType.Footnote}>
+                    Organic
+                  </Typography>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="size-2 rounded-full bg-accent-blueCheese-default" />
-                  <Typography type={TypographyType.Footnote}>Promoted</Typography>
+                  <Typography type={TypographyType.Footnote}>
+                    Promoted
+                  </Typography>
                 </div>
               </div>
             </div>

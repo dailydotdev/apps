@@ -5,20 +5,15 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { Button, ButtonVariant } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { PlusIcon, EditIcon } from '@dailydotdev/shared/src/components/icons';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { link } from '@dailydotdev/shared/src/lib/links';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 
 export const AnalyticsEmptyState = (): ReactElement => {
-  const { openModal } = useLazyModal();
-
-  const handleNewPost = () => {
-    openModal({
-      type: LazyModal.NewPost,
-    });
-  };
-
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
       <EditIcon className="size-16 text-text-disabled" />
@@ -39,13 +34,11 @@ export const AnalyticsEmptyState = (): ReactElement => {
           everything. Go on, share with us your best rant.
         </Typography>
       </div>
-      <Button
-        variant={ButtonVariant.Primary}
-        icon={<PlusIcon />}
-        onClick={handleNewPost}
-      >
-        New post
-      </Button>
+      <Link href={link.post.create} passHref prefetch={false}>
+        <Button variant={ButtonVariant.Primary} icon={<PlusIcon />} tag="a">
+          New post
+        </Button>
+      </Link>
     </div>
   );
 };

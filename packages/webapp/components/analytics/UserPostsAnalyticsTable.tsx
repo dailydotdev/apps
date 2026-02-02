@@ -1,20 +1,26 @@
 import React from 'react';
 import type { ReactElement } from 'react';
-import Link from 'next/link';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { Button, ButtonVariant } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
-import { TimeFormatType, formatDate } from '@dailydotdev/shared/src/lib/dateFormat';
+import {
+  TimeFormatType,
+  formatDate,
+} from '@dailydotdev/shared/src/lib/dateFormat';
 import type { UserPostWithAnalytics } from '@dailydotdev/shared/src/graphql/users';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
+import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
 
 export interface UserPostsAnalyticsTableProps {
   posts: UserPostWithAnalytics[];
@@ -34,7 +40,10 @@ export const UserPostsAnalyticsTable = ({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
           Loading posts...
         </Typography>
       </div>
@@ -101,11 +110,11 @@ export const UserPostsAnalyticsTable = ({
                     className="flex items-center gap-3 hover:underline"
                   >
                     <LazyImage
-                      imgSrc={post.image || fallbackImages.post}
+                      imgSrc={post.image || cloudinaryPostImageCoverPlaceholder}
                       imgAlt={post.title || 'Post image'}
                       ratio="52%"
                       className="h-10 w-16 rounded-8 object-cover"
-                      fallbackSrc={fallbackImages.post}
+                      fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                     />
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-1">
