@@ -69,7 +69,9 @@ const cardListClass = {
 export const getFeedGapPx = {
   'gap-2': 8,
   'gap-3': 12,
+  'gap-4': 16,
   'gap-5': 20,
+  'gap-6': 24,
   'gap-8': 32,
   'gap-12': 48,
   'gap-14': 56,
@@ -87,7 +89,7 @@ export const gapClass = ({
   if (isFeedLayoutList) {
     return '';
   }
-  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-4';
 };
 
 const cardClass = ({
