@@ -224,7 +224,9 @@ const Analytics = (): ReactElement => {
   const hasNoPosts = !isLoadingPosts && posts.length === 0;
 
   const hasChartData = useMemo(() => {
-    if (!historyData || historyData.length === 0) return false;
+    if (!historyData || historyData.length === 0) {
+      return false;
+    }
     return historyData.some((item) => item.value > 0);
   }, [historyData]);
 

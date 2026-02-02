@@ -11,7 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 import type { TickProp } from 'recharts/types/util/types';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
+import { largeNumberFormat } from '../../lib';
 
 type ImpressionNode = {
   name: string;

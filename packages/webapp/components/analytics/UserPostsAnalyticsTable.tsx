@@ -108,7 +108,9 @@ export const UserPostsAnalyticsTable = ({
                   <Link href={`${webappUrl}posts/${post.id}/analytics`}>
                     <div className="flex items-center gap-3 hover:underline">
                       <LazyImage
-                        imgSrc={post.image || cloudinaryPostImageCoverPlaceholder}
+                        imgSrc={
+                          post.image || cloudinaryPostImageCoverPlaceholder
+                        }
                         imgAlt={post.title || 'Post image'}
                         ratio="52%"
                         className="h-10 w-16 rounded-8 object-cover"
