@@ -92,6 +92,7 @@ export enum LazyModal {
   RecruiterSeats = 'recruiterSeats',
   CandidateSignIn = 'candidateSignIn',
   DecorationSelection = 'decorationSelection',
+  Feedback = 'feedback',
 }
 
 export type ModalTabItem = {

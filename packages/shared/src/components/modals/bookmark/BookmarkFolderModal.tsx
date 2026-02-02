@@ -1,6 +1,5 @@
 import type { FormEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
-import classNames from 'classnames';
 import {
   useConditionalFeature,
   usePlusSubscription,
@@ -17,9 +16,10 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { DevPlusIcon, FolderIcon } from '../../icons';
-import { emojiOptions, plusUrl } from '../../../lib/constants';
+import { DevPlusIcon } from '../../icons';
+import { plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { EmojiPicker } from '../../fields/EmojiPicker';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
@@ -92,7 +92,7 @@ const BookmarkFolderModal = ({
       size={Modal.Size.Small}
       {...rest}
     >
-      <form onSubmit={handleSubmit} id="create_folder">
+      <form onSubmit={handleSubmit} id="create_folder" className="w-full">
         <ModalHeader showCloseButton={!isMobile} className="gap-2">
           <ModalTitle />
         </ModalHeader>
@@ -139,39 +139,7 @@ const BookmarkFolderModal = ({
             onChange={(e) => setName(e.target.value)}
             value={name}
           />
-          <Typography bold type={TypographyType.Body}>
-            Choose an icon
-          </Typography>
-          <ul
-            className="flex flex-wrap gap-4 laptop:justify-evenly"
-            role="radiogroup"
-          >
-            {emojiOptions.map((emoji) => (
-              <Button
-                type="button"
-                key={emoji}
-                onClick={() => setIcon(emoji)}
-                className={classNames(
-                  '!size-12',
-                  icon === emoji && 'border-surface-focus',
-                )}
-                variant={ButtonVariant.Float}
-                aria-checked={icon === emoji || (!emoji && icon === '')}
-                role="radio"
-              >
-                {!emoji ? (
-                  <FolderIcon size={IconSize.Large} />
-                ) : (
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Title1}
-                  >
-                    {emoji}
-                  </Typography>
-                )}
-              </Button>
-            ))}
-          </ul>
+          <EmojiPicker value={icon} onChange={setIcon} label="Choose an icon" />
           {!isMobile &&
             (shouldUpgrade ? (
               <Link href={plusUrl} passHref>

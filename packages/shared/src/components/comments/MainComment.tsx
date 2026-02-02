@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import dynamic from 'next/dynamic';
@@ -7,6 +7,7 @@ import EnableNotification from '../notifications/EnableNotification';
 import type { CommentBoxProps } from './CommentBox';
 import CommentBox from './CommentBox';
 import SubComment from './SubComment';
+import CollapsedRepliesPreview from './CollapsedRepliesPreview';
 import AuthContext from '../../contexts/AuthContext';
 import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
@@ -14,6 +15,7 @@ import { useComments } from '../../hooks/post';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
 import type { Squad } from '../../graphql/sources';
 import type { Comment } from '../../graphql/comments';
+import { DiscussIcon } from '../icons';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
@@ -87,11 +89,15 @@ export default function MainComment({
   } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useEditCommentProps();
 
+  const replyCount = comment.children?.edges?.length ?? 0;
+
   const initialInView = !lazy;
   const { ref: inViewRef, inView } = useInView({
     triggerOnce: true,
     initialInView,
   });
+
+  const [areRepliesExpanded, setAreRepliesExpanded] = useState(true);
 
   const onClick = () => {
     if (!logClick && !props.linkToComment) {
@@ -167,18 +173,36 @@ export default function MainComment({
           replyToCommentId={commentId}
         />
       )}
-      {inView &&
-        comment.children?.edges.map(({ node }) => (
-          <SubComment
-            {...props}
-            key={node.id}
-            comment={node}
-            parentComment={comment}
-            appendTooltipTo={appendTooltipTo}
-            className={className?.commentBox}
-            onCommented={onCommented}
-          />
-        ))}
+      {inView && replyCount > 0 && !areRepliesExpanded && (
+        <CollapsedRepliesPreview
+          replies={comment.children.edges}
+          onExpand={() => setAreRepliesExpanded(true)}
+        />
+      )}
+      {inView && replyCount > 0 && areRepliesExpanded && (
+        <>
+          <button
+            type="button"
+            className="mx-4 my-2 flex cursor-pointer items-center gap-1.5 text-text-tertiary typo-callout hover:underline"
+            onClick={() => setAreRepliesExpanded(false)}
+            data-testid="hide-replies-button"
+          >
+            <DiscussIcon className="text-xl" />
+            <span>Hide replies</span>
+          </button>
+          {comment.children?.edges.map(({ node }) => (
+            <SubComment
+              {...props}
+              key={node.id}
+              comment={node}
+              parentComment={comment}
+              appendTooltipTo={appendTooltipTo}
+              className={className?.commentBox}
+              onCommented={onCommented}
+            />
+          ))}
+        </>
+      )}
       {showJoinSquadBanner && (
         <SquadCommentJoinBanner
           className={!comment.children?.edges?.length && 'mt-3'}

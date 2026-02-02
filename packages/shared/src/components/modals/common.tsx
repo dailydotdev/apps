@@ -418,6 +418,8 @@ const DecorationSelectionModal = dynamic(
     import(
       /* webpackChunkName: "decorationSelectionModal" */ './decorations/DecorationSelectionModal'
     ),
+const FeedbackModal = dynamic(
+  () => import(/* webpackChunkName: "feedbackModal" */ './FeedbackModal'),
 );
 
 export const modals = {
@@ -488,6 +490,7 @@ export const modals = {
   [LazyModal.RecruiterSeats]: RecruiterSeatsModal,
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
   [LazyModal.DecorationSelection]: DecorationSelectionModal,
+  [LazyModal.Feedback]: FeedbackModal,
 };
 
 type GetComponentProps<T> = T extends

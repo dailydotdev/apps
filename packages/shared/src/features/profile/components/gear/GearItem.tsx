@@ -6,6 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Gear } from '../../../../graphql/user/gear';
 import {
   Typography,
+  TypographyTag,
   TypographyType,
   TypographyColor,
 } from '../../../../components/typography/Typography';
@@ -15,6 +16,7 @@ import {
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import { TrashIcon } from '../../../../components/icons';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
 
 interface GearItemProps {
   item: Gear;
@@ -30,34 +32,37 @@ export function GearItem({
   const { gear } = item;
 
   return (
-    <div
-      className={classNames(
-        'group relative flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-3',
-        'hover:border-border-subtlest-secondary',
-      )}
-    >
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Primary}
-          bold
-          truncate
-        >
-          {gear.name}
-        </Typography>
-      </div>
-      {isOwner && onDelete && (
-        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            icon={<TrashIcon />}
-            onClick={() => onDelete(item)}
-            aria-label="Delete gear"
-          />
+    <Tooltip content={gear.name}>
+      <div
+        className={classNames(
+          'group relative flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-3',
+          'hover:border-border-subtlest-secondary',
+        )}
+      >
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Callout}
+            color={TypographyColor.Primary}
+            bold
+            truncate
+          >
+            {gear.name}
+          </Typography>
         </div>
-      )}
-    </div>
+        {isOwner && onDelete && (
+          <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<TrashIcon />}
+              onClick={() => onDelete(item)}
+              aria-label="Delete gear"
+            />
+          </div>
+        )}
+      </div>
+    </Tooltip>
   );
 }
 
