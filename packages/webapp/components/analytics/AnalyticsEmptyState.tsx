@@ -9,14 +9,13 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { PlusIcon, EditIcon } from '@dailydotdev/shared/src/components/icons';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 
 export const AnalyticsEmptyState = (): ReactElement => {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-      <EditIcon className="size-16 text-text-disabled" />
       <div className="flex flex-col gap-2">
         <Typography
           type={TypographyType.Title3}
@@ -34,7 +33,7 @@ export const AnalyticsEmptyState = (): ReactElement => {
           everything. Go on, share with us your best rant.
         </Typography>
       </div>
-      <Link href={link.post.create} passHref prefetch={false}>
+      <Link href={link.post.create} prefetch={false}>
         <Button variant={ButtonVariant.Primary} icon={<PlusIcon />} tag="a">
           New post
         </Button>

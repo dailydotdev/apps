@@ -56,9 +56,9 @@ import { AnalyticsEmptyState } from '../../components/analytics/AnalyticsEmptySt
 
 const CombinedImpressionsChart = dynamic(
   () =>
-    import('../../components/analytics/CombinedImpressionsChart').then(
-      (mod) => mod.CombinedImpressionsChart,
-    ),
+    import(
+      '@dailydotdev/shared/src/components/analytics/CombinedImpressionsChart'
+    ).then((mod) => mod.CombinedImpressionsChart),
   {
     loading: () => <div className="h-40 w-full" />,
   },
@@ -223,29 +223,10 @@ const Analytics = (): ReactElement => {
 
   const hasNoPosts = !isLoadingPosts && posts.length === 0;
 
-  if (hasNoPosts) {
-    return (
-      <ProtectedPage>
-        <div className="mx-auto w-full max-w-[48rem]">
-          <LayoutHeader
-            className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
-          >
-            <Typography
-              type={TypographyType.Title3}
-              bold
-              color={TypographyColor.Primary}
-              className="flex-1"
-            >
-              Analytics
-            </Typography>
-          </LayoutHeader>
-          <ResponsivePageContainer className="!mx-0 !w-full !max-w-full">
-            <AnalyticsEmptyState />
-          </ResponsivePageContainer>
-        </div>
-      </ProtectedPage>
-    );
-  }
+  const hasChartData = useMemo(() => {
+    if (!historyData || historyData.length === 0) return false;
+    return historyData.some((item) => item.value > 0);
+  }, [historyData]);
 
   return (
     <ProtectedPage>
@@ -319,33 +300,51 @@ const Analytics = (): ReactElement => {
               <Typography type={TypographyType.Footnote} bold>
                 Impressions in the last 45 days
               </Typography>
-              <div className="ml-auto flex gap-2">
-                <div className="flex items-center gap-1">
-                  <div className="size-2 rounded-full bg-brand-default" />
-                  <Typography type={TypographyType.Footnote}>
-                    Organic
-                  </Typography>
+              {hasChartData && (
+                <div className="ml-auto flex gap-2">
+                  <div className="flex items-center gap-1">
+                    <div className="size-2 rounded-full bg-brand-default" />
+                    <Typography type={TypographyType.Footnote}>
+                      Organic
+                    </Typography>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="size-2 rounded-full bg-accent-blueCheese-default" />
+                    <Typography type={TypographyType.Footnote}>
+                      Promoted
+                    </Typography>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <div className="size-2 rounded-full bg-accent-blueCheese-default" />
-                  <Typography type={TypographyType.Footnote}>
-                    Promoted
-                  </Typography>
-                </div>
-              </div>
+              )}
             </div>
-            <CombinedImpressionsChart data={historyData} />
+            {hasChartData ? (
+              <CombinedImpressionsChart data={historyData} />
+            ) : (
+              <div className="flex h-40 items-center justify-center rounded-12 border border-border-subtlest-tertiary">
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
+                  No impression data yet. Check back after your posts get some
+                  views.
+                </Typography>
+              </div>
+            )}
           </SectionContainer>
           <Divider className={dividerClassName} />
           <SectionContainer>
             <SectionHeader>Posts</SectionHeader>
-            <UserPostsAnalyticsTable
-              posts={posts}
-              isLoading={isLoadingPosts}
-              hasNextPage={hasNextPage}
-              isFetchingNextPage={isFetchingNextPage}
-              fetchNextPage={fetchNextPage}
-            />
+            {hasNoPosts ? (
+              <AnalyticsEmptyState />
+            ) : (
+              <UserPostsAnalyticsTable
+                posts={posts}
+                isLoading={isLoadingPosts}
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                fetchNextPage={fetchNextPage}
+              />
+            )}
           </SectionContainer>
         </ResponsivePageContainer>
       </div>

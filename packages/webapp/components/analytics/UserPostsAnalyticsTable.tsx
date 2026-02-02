@@ -105,32 +105,31 @@ export const UserPostsAnalyticsTable = ({
                 className="border-b border-border-subtlest-tertiary last:border-b-0"
               >
                 <td className="py-3">
-                  <Link
-                    href={`${webappUrl}posts/${post.id}/analytics`}
-                    className="flex items-center gap-3 hover:underline"
-                  >
-                    <LazyImage
-                      imgSrc={post.image || cloudinaryPostImageCoverPlaceholder}
-                      imgAlt={post.title || 'Post image'}
-                      ratio="52%"
-                      className="h-10 w-16 rounded-8 object-cover"
-                      fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                    />
-                    <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center gap-1">
-                        <Typography
-                          type={TypographyType.Callout}
-                          color={TypographyColor.Primary}
-                          className="line-clamp-1"
-                        >
-                          {post.title || 'Untitled'}
-                        </Typography>
-                        {post.isBoosted && (
-                          <BoostIcon
-                            size={IconSize.XSmall}
-                            className="text-accent-blueCheese-default"
-                          />
-                        )}
+                  <Link href={`${webappUrl}posts/${post.id}/analytics`}>
+                    <div className="flex items-center gap-3 hover:underline">
+                      <LazyImage
+                        imgSrc={post.image || cloudinaryPostImageCoverPlaceholder}
+                        imgAlt={post.title || 'Post image'}
+                        ratio="52%"
+                        className="h-10 w-16 rounded-8 object-cover"
+                        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                      />
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1">
+                          <Typography
+                            type={TypographyType.Callout}
+                            color={TypographyColor.Primary}
+                            className="line-clamp-1"
+                          >
+                            {post.title || 'Untitled'}
+                          </Typography>
+                          {post.isBoosted && (
+                            <BoostIcon
+                              size={IconSize.XSmall}
+                              className="text-accent-blueCheese-default"
+                            />
+                          )}
+                        </div>
                       </div>
                     </div>
                   </Link>
