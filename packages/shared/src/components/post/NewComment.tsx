@@ -8,11 +8,8 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import {
-  getProfilePictureClasses,
-  ProfileImageSize,
-  ProfilePicture,
-} from '../ProfilePicture';
+import { getProfilePictureClasses, ProfileImageSize } from '../ProfilePicture';
+import { ProfilePictureWithDecoration } from '../profile/ProfilePictureWithDecoration';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
@@ -138,9 +135,10 @@ function NewCommentComponent(
       onClick={() => onCommentClick(Origin.StartDiscussion)}
     >
       {user ? (
-        <ProfilePicture
+        <ProfilePictureWithDecoration
           user={user}
           size={size}
+          decoration={user.activeDecoration}
           nativeLazyLoading
           className={pictureClasses}
         />

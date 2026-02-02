@@ -12,6 +12,7 @@ import type { FeaturedAward, UserTransactionPublic } from '../graphql/njord';
 import type { Post } from '../graphql/posts';
 import type { TLocation } from '../graphql/autocomplete';
 import { generateQueryKey, RequestKey, StaleTime } from './query';
+import type { Decoration } from '../graphql/decorations';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -57,6 +58,7 @@ export interface PublicProfile {
   plusMemberSince?: Date;
   experienceLevel?: keyof typeof UserExperienceLevel;
   location?: TLocation;
+  activeDecoration?: Pick<Decoration, 'id' | 'name' | 'media'> | null;
 }
 
 export enum UserExperienceLevel {
@@ -126,6 +128,7 @@ export interface UserShortProfile
     | 'companies'
     | 'isPlus'
     | 'plusMemberSince'
+    | 'activeDecoration'
   > {
   username: string;
   permalink: string;
@@ -194,6 +197,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   clickbaitTries?: number;
   hasLocationSet?: boolean;
   profileCompletion?: ProfileCompletion;
+  activeDecoration?: Pick<Decoration, 'id' | 'name' | 'media'> | null;
 }
 
 export async function logout(reason: string): Promise<void> {

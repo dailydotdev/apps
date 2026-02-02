@@ -54,6 +54,10 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
     isPlus
     plusMemberSince
     coresRole
+    activeDecoration {
+      id
+      media
+    }
   }
 `;
 
@@ -251,6 +255,10 @@ export const FEED_POST_INFO_FRAGMENT = gql`
         status
       }
       coresRole
+      activeDecoration {
+        id
+        media
+      }
     }
     type
     tags

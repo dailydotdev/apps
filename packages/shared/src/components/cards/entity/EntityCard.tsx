@@ -5,7 +5,8 @@ import Link from '../../utilities/Link';
 import { Image } from '../../image/Image';
 
 export type EntityCardProps = {
-  image: string;
+  image?: string;
+  imageNode?: ReactNode;
   type?: 'user' | 'source' | 'squad';
   children?: ReactNode;
   entityName?: string;
@@ -22,10 +23,29 @@ const EntityCard = ({
   className,
   actionButtons,
   image,
+  imageNode,
   type,
   entityName,
   permalink,
 }: EntityCardProps) => {
+  const renderImage = () => {
+    if (imageNode) {
+      return imageNode;
+    }
+
+    return (
+      <Image
+        className="h-full w-full object-cover"
+        src={image}
+        alt={
+          type === 'user'
+            ? `${entityName}'s user avatar`
+            : `${entityName}'s image`
+        }
+      />
+    );
+  };
+
   return (
     <div
       className={classNames(
@@ -35,16 +55,13 @@ const EntityCard = ({
     >
       <div className="flex w-full items-start gap-2">
         <Link href={permalink}>
-          <a className={classNames(className?.image, 'overflow-hidden')}>
-            <Image
-              className="h-full w-full object-cover"
-              src={image}
-              alt={
-                type === 'user'
-                  ? `${entityName}'s user avatar`
-                  : `${entityName}'s image`
-              }
-            />
+          <a
+            className={classNames(
+              className?.image,
+              !imageNode && 'overflow-hidden',
+            )}
+          >
+            {renderImage()}
           </a>
         </Link>
         <div className="ml-auto flex items-center gap-2">{actionButtons}</div>
