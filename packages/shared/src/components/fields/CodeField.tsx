@@ -102,6 +102,7 @@ export function CodeField({
     if (!isNumbersOnly) {
       e.preventDefault();
     } else if (key.length === 1) {
+      e.preventDefault();
       updateCode(key, index);
 
       if (index < length - 1) {
