@@ -616,18 +616,6 @@ export interface UserPostsAnalyticsHistoryNode {
   impressionsAds: number;
 }
 
-export interface UserPostWithAnalytics {
-  id: string;
-  title: string | null;
-  image: string | null;
-  createdAt: string;
-  impressions: number;
-  upvotes: number;
-  reputation: number;
-  isBoosted: boolean;
-  commentsPermalink: string;
-}
-
 export const getReadingStreak = async (): Promise<UserStreak> => {
   const res = await gqlClient.request(USER_STREAK_QUERY);
 
@@ -959,6 +947,20 @@ export const USER_POSTS_ANALYTICS_HISTORY_QUERY = gql`
   }
 `;
 
+export interface UserPostWithAnalytics {
+  id: string;
+  title: string | null;
+  image: string | null;
+  createdAt: string;
+  commentsPermalink: string;
+  isBoosted: boolean;
+  analytics: {
+    impressions: number;
+    upvotes: number;
+    reputation: number;
+  } | null;
+}
+
 export const USER_POSTS_WITH_ANALYTICS_QUERY = gql`
   query UserPostsWithAnalytics($after: String, $first: Int) {
     userPostsWithAnalytics(after: $after, first: $first) {
@@ -969,11 +971,12 @@ export const USER_POSTS_WITH_ANALYTICS_QUERY = gql`
           title
           image
           createdAt
-          impressions
-          upvotes
-          reputation
-          isBoosted
           commentsPermalink
+          analytics {
+            impressions
+            upvotes
+            reputation
+          }
         }
       }
       pageInfo {
