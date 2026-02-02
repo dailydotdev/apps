@@ -593,6 +593,41 @@ export interface UserProfileAnalyticsHistory {
   updatedAt: Date;
 }
 
+export interface UserPostsAnalytics {
+  id: string;
+  impressions: number;
+  reach: number;
+  upvotes: number;
+  comments: number;
+  bookmarks: number;
+  awards: number;
+  profileViews: number;
+  followers: number;
+  reputation: number;
+  coresEarned: number;
+  shares: number;
+  clicks: number;
+  upvotesRatio: number;
+}
+
+export interface UserPostsAnalyticsHistoryNode {
+  date: string;
+  impressions: number;
+  impressionsAds: number;
+}
+
+export interface UserPostWithAnalytics {
+  id: string;
+  title: string | null;
+  image: string | null;
+  createdAt: string;
+  impressions: number;
+  upvotes: number;
+  reputation: number;
+  isBoosted: boolean;
+  commentsPermalink: string;
+}
+
 export const getReadingStreak = async (): Promise<UserStreak> => {
   const res = await gqlClient.request(USER_STREAK_QUERY);
 
@@ -892,3 +927,59 @@ export const updateNotificationSettings = async (
     notificationFlags,
   });
 };
+
+export const USER_POSTS_ANALYTICS_QUERY = gql`
+  query UserPostsAnalytics {
+    userPostsAnalytics {
+      id
+      impressions
+      reach
+      upvotes
+      comments
+      bookmarks
+      awards
+      profileViews
+      followers
+      reputation
+      coresEarned
+      shares
+      clicks
+      upvotesRatio
+    }
+  }
+`;
+
+export const USER_POSTS_ANALYTICS_HISTORY_QUERY = gql`
+  query UserPostsAnalyticsHistory {
+    userPostsAnalyticsHistory {
+      date
+      impressions
+      impressionsAds
+    }
+  }
+`;
+
+export const USER_POSTS_WITH_ANALYTICS_QUERY = gql`
+  query UserPostsWithAnalytics($after: String, $first: Int) {
+    userPostsWithAnalytics(after: $after, first: $first) {
+      edges {
+        cursor
+        node {
+          id
+          title
+          image
+          createdAt
+          impressions
+          upvotes
+          reputation
+          isBoosted
+          commentsPermalink
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`;
