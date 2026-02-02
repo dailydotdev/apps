@@ -52,8 +52,13 @@ const seo: NextSeoProps = {
 };
 
 const SKILL_INSTRUCTION =
-  'Read https://daily.dev/skill.md and follow the instructions to connect to daily.dev';
-const DOCS_URL = 'https://docs.daily.dev/api';
+  'Read https://api.daily.dev/public/v1/skill.md and follow the instructions to connect to daily.dev';
+const OPENAPI_URL = 'https://api.daily.dev/public/v1/docs/json';
+
+const lowercaseRelativeDate = (dateStr: string): string => {
+  const relativeDates = ['Now', 'Today', 'Yesterday'];
+  return relativeDates.includes(dateStr) ? dateStr.toLowerCase() : dateStr;
+};
 
 const ExpirationOptions = [
   { value: '', label: 'Never expires' },
@@ -172,9 +177,11 @@ const TokenCreatedModal = ({
       <ModalHeader title="Token created" />
       <ModalBody className="flex flex-col gap-4">
         <div className="flex items-center gap-2 rounded-12 bg-status-warning p-3">
-          <LockIcon size={IconSize.Small} />
+          <LockIcon size={IconSize.Small} className="shrink-0" />
           <Typography type={TypographyType.Callout}>
-            This token will only be shown once. Copy it now!
+            This token will only be shown once.
+            <br />
+            Copy it now!
           </Typography>
         </div>
         <div className="flex items-center gap-2 rounded-12 bg-surface-float p-3">
@@ -218,34 +225,42 @@ const TokenListItem = ({
   onRevoke,
 }: TokenListItemProps): ReactElement => {
   return (
-    <div className="flex items-center justify-between rounded-12 border border-border-subtlest-tertiary p-4">
-      <div className="flex flex-col gap-1">
-        <Typography type={TypographyType.Body} bold>
+    <div className="flex items-start justify-between gap-2 rounded-12 border border-border-subtlest-tertiary p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <Typography type={TypographyType.Body} bold className="truncate">
           {name}
         </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {tokenPrefix}...
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Created {formatDate({ value: createdAt, type: TimeFormatType.Post })}
-          {lastUsedAt &&
-            ` | Last used ${formatDate({
-              value: lastUsedAt,
-              type: TimeFormatType.Post,
-            })}`}
-        </Typography>
+        <div className="flex flex-wrap gap-x-1 text-text-tertiary typo-footnote">
+          <span>{tokenPrefix}...</span>
+          <span>&#x2022;</span>
+          <span>
+            Created{' '}
+            {lowercaseRelativeDate(
+              formatDate({ value: createdAt, type: TimeFormatType.Post }),
+            )}
+          </span>
+          {lastUsedAt && (
+            <>
+              <span>&#x2022;</span>
+              <span>
+                Last used{' '}
+                {lowercaseRelativeDate(
+                  formatDate({
+                    value: lastUsedAt,
+                    type: TimeFormatType.Post,
+                  }),
+                )}
+              </span>
+            </>
+          )}
+        </div>
       </div>
       <Button
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
         icon={<TrashIcon />}
         onClick={() => onRevoke(id)}
+        className="shrink-0"
       />
     </div>
   );
@@ -317,7 +332,7 @@ const ApiAccessPage = (): ReactElement => {
           icon={<PlusIcon />}
           onClick={() => setShowCreateModal(true)}
         >
-          {isMobile ? '' : 'Create token'}
+          {isMobile ? undefined : 'Create token'}
         </Button>
       }
     >
@@ -391,8 +406,8 @@ const ApiAccessPage = (): ReactElement => {
           >
             Copy this instruction to your AI agent to get started:
           </Typography>
-          <div className="flex items-center gap-2 rounded-12 bg-surface-float p-3">
-            <code className="flex-1 text-text-tertiary">
+          <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
+            <code className="min-w-0 flex-1 break-words text-text-tertiary">
               {SKILL_INSTRUCTION}
             </code>
             <Button
@@ -400,30 +415,32 @@ const ApiAccessPage = (): ReactElement => {
               size={ButtonSize.Small}
               icon={<CopyIcon />}
               onClick={handleCopyInstruction}
+              className="shrink-0"
             />
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Body} bold>
-            Documentation
+            OpenAPI
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Learn how to use the API with detailed documentation and examples.
+            View the OpenAPI specification to explore available endpoints and
+            integrate with your tools.
           </Typography>
           <Button
             variant={ButtonVariant.Secondary}
             size={ButtonSize.Small}
             icon={<DocsIcon />}
             tag="a"
-            href={DOCS_URL}
+            href={OPENAPI_URL}
             target="_blank"
             className="self-start"
           >
-            API Documentation
+            OpenAPI Reference
           </Button>
         </div>
       </div>
