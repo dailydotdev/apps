@@ -244,6 +244,11 @@ const useAccountPageItems = () => {
               icon: EmbedIcon,
               href: `${settingsUrl}/customization/integrations`,
             },
+            api: {
+              title: 'API Access',
+              icon: TerminalIcon,
+              href: `${settingsUrl}/api`,
+            },
           },
         },
         help: {
