@@ -10,7 +10,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   Typography,
-  TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
@@ -18,7 +17,6 @@ import {
   creatorsTermsOfService,
   onboardingUrl,
   webappUrl,
-  withdrawLink,
 } from '@dailydotdev/shared/src/lib/constants';
 import {
   CoreIcon,
@@ -34,22 +32,15 @@ import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/comm
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  formatCoresCurrency,
-  formatCurrency,
-} from '@dailydotdev/shared/src/lib/utils';
+import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import {
   getTransactionType,
   getTransactionLabel,
-  coreApproxValueUSD,
-  minCoresEarningsThreshold,
 } from '@dailydotdev/shared/src/lib/transaction';
-import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
   generateQueryKey,
@@ -192,10 +183,6 @@ const Wallet = (): ReactElement => {
     return null;
   }
 
-  const earningsProgressPercentage =
-    user.balance.amount / (minCoresEarningsThreshold / 100);
-  const coresValueUSD = minCoresEarningsThreshold / coreApproxValueUSD;
-
   return (
     <ProtectedPage>
       <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
@@ -259,73 +246,6 @@ const Wallet = (): ReactElement => {
                 description="Amount of cores you have spent"
                 balance={transactionSummary?.spent || 0}
               />
-            </section>
-            <Divider />
-            <section className="flex w-full flex-col gap-6">
-              <div className="flex flex-col gap-1">
-                <Typography type={TypographyType.Body}>
-                  <strong>Earn with daily.dev</strong> (beta)
-                </Typography>
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Tertiary}
-                >
-                  Earn income by engaging with the daily.dev community,
-                  contributing valuable content, and receiving Cores from
-                  others. Once you reach{' '}
-                  {formatCurrency(minCoresEarningsThreshold, {
-                    minimumFractionDigits: 0,
-                  })}{' '}
-                  Cores, you can request a withdrawal. Monetization is still in
-                  beta, so additional eligibility steps and requirements may
-                  apply.
-                </Typography>
-              </div>
-              <div className="flex gap-2">
-                <CoreIcon />
-                <div className="flex flex-1 flex-col gap-1.5">
-                  <ProgressBar
-                    shouldShowBg
-                    percentage={earningsProgressPercentage}
-                    className={{
-                      wrapper: 'h-2 rounded-8',
-                      bar: 'h-full rounded-8',
-                      barColor: 'bg-accent-bun-default',
-                    }}
-                  />
-                  <Typography type={TypographyType.Callout}>
-                    {formatCurrency(user.balance.amount, {
-                      minimumFractionDigits: 0,
-                    })}{' '}
-                    /{' '}
-                    <strong>
-                      {formatCurrency(minCoresEarningsThreshold, {
-                        minimumFractionDigits: 0,
-                      })}
-                    </strong>{' '}
-                    Cores (≈ USD $
-                    {formatCurrency(coresValueUSD, {
-                      minimumFractionDigits: 0,
-                    })}
-                    )
-                  </Typography>
-                </div>
-              </div>
-              <Button
-                tag="a"
-                variant={
-                  earningsProgressPercentage < 100
-                    ? ButtonVariant.Secondary
-                    : ButtonVariant.Primary
-                }
-                className="mr-auto"
-                disabled={earningsProgressPercentage < 100}
-                href={withdrawLink}
-                target="_blank"
-                rel={anchorDefaultRel}
-              >
-                Withdraw
-              </Button>
             </section>
             <Divider />
             <section className="flex w-full flex-col gap-6">
