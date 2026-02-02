@@ -429,7 +429,8 @@ export const mockMentions: SocialMention[] = [
     id: '4',
     source: 'twitter',
     author: '@open_source_fan',
-    content: 'Aider + Claude = perfect terminal coding setup. Open source ftw! 🎉',
+    content:
+      'Aider + Claude = perfect terminal coding setup. Open source ftw! 🎉',
     sentiment: 'positive',
     timestamp: '8h ago',
     toolId: 'aider',

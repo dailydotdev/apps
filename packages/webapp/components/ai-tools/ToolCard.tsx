@@ -25,9 +25,7 @@ interface ToolCardProps {
 }
 
 export const ToolCard = ({ tool, allTools }: ToolCardProps): ReactElement => {
-  const alternatives = allTools.filter((t) =>
-    tool.alternatives.includes(t.id),
-  );
+  const alternatives = allTools.filter((t) => tool.alternatives.includes(t.id));
 
   return (
     <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6 hover:border-border-subtlest-secondary">
@@ -42,7 +40,7 @@ export const ToolCard = ({ tool, allTools }: ToolCardProps): ReactElement => {
             >
               {tool.name}
             </Typography>
-            <span className="rounded-6 bg-theme-float px-2 py-0.5 text-xs font-bold text-text-tertiary">
+            <span className="bg-theme-float rounded-6 px-2 py-0.5 text-xs font-bold text-text-tertiary">
               v{tool.version}
             </span>
           </div>
@@ -104,7 +102,7 @@ export const ToolCard = ({ tool, allTools }: ToolCardProps): ReactElement => {
           </Typography>
           <div className="flex items-center gap-2">
             {tool.pricing.freeTier && (
-              <span className="rounded-6 bg-theme-color-cabbage px-2 py-0.5 text-xs font-bold text-white">
+              <span className="bg-theme-color-cabbage rounded-6 px-2 py-0.5 text-xs font-bold text-white">
                 FREE
               </span>
             )}
@@ -142,9 +140,12 @@ export const ToolCard = ({ tool, allTools }: ToolCardProps): ReactElement => {
       </FlexRow>
 
       {/* Trending Stats */}
-      <div className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-theme-float p-3">
+      <div className="bg-theme-float flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary p-3">
         <EyeIcon size={IconSize.Small} className="text-text-tertiary" />
-        <Typography type={TypographyType.Callout} color={TypographyColor.Primary}>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Primary}
+        >
           <span className="font-bold">{tool.trending.mentions}</span> mentions{' '}
           <span className="text-text-tertiary">
             ({tool.trending.timeframe})
@@ -176,7 +177,7 @@ export const ToolCard = ({ tool, allTools }: ToolCardProps): ReactElement => {
           {tool.topUsers.map((user) => (
             <div
               key={user.id}
-              className="flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary bg-theme-bg-tertiary p-2 hover:border-border-subtlest-secondary"
+              className="bg-theme-bg-tertiary flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary p-2 hover:border-border-subtlest-secondary"
             >
               <LazyImage
                 imgSrc={user.avatar}
@@ -219,7 +220,7 @@ export const ToolCard = ({ tool, allTools }: ToolCardProps): ReactElement => {
             {tool.pros.map((pro) => (
               <span
                 key={pro}
-                className="rounded-6 border border-theme-status-success bg-theme-bg-tertiary px-2 py-1 text-xs text-text-secondary"
+                className="border-theme-status-success bg-theme-bg-tertiary rounded-6 border px-2 py-1 text-xs text-text-secondary"
               >
                 {pro}
               </span>
@@ -239,7 +240,7 @@ export const ToolCard = ({ tool, allTools }: ToolCardProps): ReactElement => {
             {tool.cons.map((con) => (
               <span
                 key={con}
-                className="rounded-6 border border-theme-status-error bg-theme-bg-tertiary px-2 py-1 text-xs text-text-secondary"
+                className="border-theme-status-error bg-theme-bg-tertiary rounded-6 border px-2 py-1 text-xs text-text-secondary"
               >
                 {con}
               </span>
@@ -263,7 +264,7 @@ export const ToolCard = ({ tool, allTools }: ToolCardProps): ReactElement => {
             {alternatives.map((alt) => (
               <span
                 key={alt.id}
-                className="cursor-pointer rounded-8 border border-border-subtlest-tertiary bg-theme-bg-tertiary px-3 py-1 text-sm text-text-secondary hover:border-text-tertiary"
+                className="bg-theme-bg-tertiary cursor-pointer rounded-8 border border-border-subtlest-tertiary px-3 py-1 text-sm text-text-secondary hover:border-text-tertiary"
               >
                 {alt.name}
               </span>

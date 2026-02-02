@@ -16,7 +16,10 @@ import ProtectedPage from '../../components/ProtectedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { TrendingSection } from '../../components/ai-tools/TrendingSection';
 import { ToolCard } from '../../components/ai-tools/ToolCard';
-import { mockTools, trendingInsights } from '../../components/ai-tools/mockData';
+import {
+  mockTools,
+  trendingInsights,
+} from '../../components/ai-tools/mockData';
 
 const AITools = (): ReactElement => {
   return (
@@ -49,7 +52,7 @@ const AITools = (): ReactElement => {
 
           {/* Stats Overview */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-12 border border-border-subtlest-tertiary bg-theme-bg-tertiary p-4 text-center">
+            <div className="bg-theme-bg-tertiary rounded-12 border border-border-subtlest-tertiary p-4 text-center">
               <Typography
                 type={TypographyType.Title1}
                 bold
@@ -64,7 +67,7 @@ const AITools = (): ReactElement => {
                 Tools tracked
               </Typography>
             </div>
-            <div className="rounded-12 border border-border-subtlest-tertiary bg-theme-bg-tertiary p-4 text-center">
+            <div className="bg-theme-bg-tertiary rounded-12 border border-border-subtlest-tertiary p-4 text-center">
               <Typography
                 type={TypographyType.Title1}
                 bold
@@ -79,7 +82,7 @@ const AITools = (): ReactElement => {
                 Mentions today
               </Typography>
             </div>
-            <div className="rounded-12 border border-border-subtlest-tertiary bg-theme-bg-tertiary p-4 text-center">
+            <div className="bg-theme-bg-tertiary rounded-12 border border-border-subtlest-tertiary p-4 text-center">
               <Typography
                 type={TypographyType.Title1}
                 bold
