@@ -53,58 +53,52 @@ export const UserPostsAnalyticsTable = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[600px]">
-          <thead>
-            <tr className="border-b border-border-subtlest-tertiary">
-              <th className="pb-2 text-left">
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  Post
-                </Typography>
-              </th>
-              <th className="pb-2 text-left">
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  Date
-                </Typography>
-              </th>
-              <th className="pb-2 text-right">
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  Reputation
-                </Typography>
-              </th>
-              <th className="pb-2 text-right">
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  Impressions
-                </Typography>
-              </th>
-              <th className="pb-2 text-right">
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  Upvotes
-                </Typography>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+        <div className="min-w-[600px]">
+          {/* Header */}
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] gap-4 border-b border-border-subtlest-tertiary pb-2">
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              Post
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              Date
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="text-right"
+            >
+              Reputation
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="text-right"
+            >
+              Impressions
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="text-right"
+            >
+              Upvotes
+            </Typography>
+          </div>
+
+          {/* Body */}
+          <div className="flex flex-col">
             {posts.map((post) => (
-              <tr
+              <div
                 key={post.id}
-                className="border-b border-border-subtlest-tertiary last:border-b-0"
+                className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] gap-4 border-b border-border-subtlest-tertiary py-3 last:border-b-0"
               >
-                <td className="min-w-0 py-3">
+                <div className="min-w-0">
                   <Link href={`${webappUrl}posts/${post.id}/analytics`}>
                     <div className="flex min-w-0 items-center gap-3 hover:underline">
                       <LazyImage
@@ -113,7 +107,7 @@ export const UserPostsAnalyticsTable = ({
                         }
                         imgAlt={post.title || 'Post image'}
                         ratio="52%"
-                        className="h-10 w-16 rounded-8 object-cover"
+                        className="h-10 w-16 flex-shrink-0 rounded-8 object-cover"
                         fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                       />
                       <div className="flex min-w-0 flex-col gap-0.5">
@@ -128,15 +122,15 @@ export const UserPostsAnalyticsTable = ({
                           {post.isBoosted && (
                             <BoostIcon
                               size={IconSize.XSmall}
-                              className="text-accent-blueCheese-default"
+                              className="flex-shrink-0 text-accent-blueCheese-default"
                             />
                           )}
                         </div>
                       </div>
                     </div>
                   </Link>
-                </td>
-                <td className="py-3">
+                </div>
+                <div className="flex items-center">
                   <Typography
                     type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
@@ -146,35 +140,35 @@ export const UserPostsAnalyticsTable = ({
                       type: TimeFormatType.Post,
                     })}
                   </Typography>
-                </td>
-                <td className="py-3 text-right">
+                </div>
+                <div className="flex items-center justify-end">
                   <Typography
                     type={TypographyType.Callout}
                     color={TypographyColor.Primary}
                   >
                     {largeNumberFormat(post.analytics?.reputation ?? 0)}
                   </Typography>
-                </td>
-                <td className="py-3 text-right">
+                </div>
+                <div className="flex items-center justify-end">
                   <Typography
                     type={TypographyType.Callout}
                     color={TypographyColor.Primary}
                   >
                     {largeNumberFormat(post.analytics?.impressions ?? 0)}
                   </Typography>
-                </td>
-                <td className="py-3 text-right">
+                </div>
+                <div className="flex items-center justify-end">
                   <Typography
                     type={TypographyType.Callout}
                     color={TypographyColor.Primary}
                   >
                     {largeNumberFormat(post.analytics?.upvotes ?? 0)}
                   </Typography>
-                </td>
-              </tr>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
       {hasNextPage && (
         <Button
