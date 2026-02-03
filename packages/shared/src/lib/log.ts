@@ -413,6 +413,7 @@ export enum TargetType {
   Layout = 'layout',
   Theme = 'theme',
   Language = 'language',
+  FeedbackButton = 'feedback button',
   // End settings
   SocialLink = 'social link',
   Badge = 'badge',

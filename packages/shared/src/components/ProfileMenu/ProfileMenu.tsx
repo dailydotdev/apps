@@ -22,6 +22,7 @@ import { ResourceSection } from './sections/ResourceSection';
 import { AccountSection } from './sections/AccountSection';
 import { MainSection } from './sections/MainSection';
 import { ThemeSection } from './sections/ThemeSection';
+import { FeedbackButtonSection } from './sections/FeedbackButtonSection';
 import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
 import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 
@@ -79,6 +80,7 @@ export default function ProfileMenu({
         <HorizontalSeparator />
 
         <ThemeSection className="px-1" />
+        <FeedbackButtonSection className="px-1" />
 
         <HorizontalSeparator />
 
