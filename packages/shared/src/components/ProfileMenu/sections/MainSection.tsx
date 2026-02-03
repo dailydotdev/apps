@@ -2,7 +2,7 @@ import React from 'react';
 import type { ReactElement } from 'react';
 
 import { ProfileSection } from '../ProfileSection';
-import { CoinIcon, DevCardIcon, UserIcon } from '../../icons';
+import { AnalyticsIcon, CoinIcon, DevCardIcon, UserIcon } from '../../icons';
 import { settingsUrl, walletUrl, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
@@ -28,6 +28,11 @@ export const MainSection = (): ReactElement => {
           title: 'DevCard',
           href: `${settingsUrl}/customization/devcard`,
           icon: DevCardIcon,
+        },
+        {
+          title: 'Analytics',
+          href: `${webappUrl}analytics`,
+          icon: AnalyticsIcon,
         },
       ].filter(Boolean)}
     />

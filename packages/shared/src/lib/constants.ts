@@ -167,8 +167,6 @@ export const DeletedPostId = '404';
 export const BROADCAST_CHANNEL_NAME = 'dailydev_broadcast';
 export const broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
 
-export const withdrawLink = 'https://r.daily.dev/withdraw';
-
 export const coresDocsLink = 'https://r.daily.dev/cores';
 
 export const webFunnelPrefix = '/helloworld';

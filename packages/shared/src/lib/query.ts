@@ -214,6 +214,9 @@ export enum RequestKey {
   PostAnalyticsHistory = 'post_analytics_history',
   ProfileAnalytics = 'profile_analytics',
   ProfileAnalyticsHistory = 'profile_analytics_history',
+  UserPostsAnalytics = 'user_posts_analytics',
+  UserPostsAnalyticsHistory = 'user_posts_analytics_history',
+  UserPostsWithAnalytics = 'user_posts_with_analytics',
   CheckLocation = 'check_location',
   GenerateBrief = 'generate_brief',
   Opportunity = 'opportunity',
@@ -239,6 +242,7 @@ export enum RequestKey {
   UserWorkspacePhotos = 'user_workspace_photos',
   Gear = 'gear',
   GearSearch = 'gear_search',
+  PersonalAccessTokens = 'personal_access_tokens',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
