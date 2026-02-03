@@ -100,7 +100,7 @@ const ItemInnerIconTooltip = ({
   <SimpleTooltip {...tooltip} content={title} placement="right">
     <span
       className={classNames(
-        'relative flex items-center justify-center w-9 h-9',
+        'relative flex h-9 w-9 items-center justify-center',
         tooltip.visible !== undefined && 'pointer-events-none',
       )}
     >
@@ -133,7 +133,7 @@ export const ItemInner = ({
       )}
       <span
         className={classNames(
-          'flex-1 truncate text-left transition-[opacity,width] duration-300 overflow-hidden whitespace-nowrap',
+          'flex-1 overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
           shouldShowLabel ? 'opacity-100' : 'w-0 opacity-0',
           item.titleClassName,
         )}

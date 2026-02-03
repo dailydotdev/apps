@@ -25,8 +25,8 @@ export const SidebarMenuIcon = (): ReactElement => {
     >
       <span
         className={classNames(
-          'typo-callout text-text-quaternary transition-opacity duration-300 whitespace-nowrap overflow-hidden',
-          sidebarExpanded ? 'opacity-100' : 'opacity-0 w-0',
+          'overflow-hidden whitespace-nowrap text-text-quaternary transition-opacity duration-300 typo-callout',
+          sidebarExpanded ? 'opacity-100' : 'w-0 opacity-0',
         )}
       >
         Menu
@@ -41,6 +41,7 @@ export const SidebarMenuIcon = (): ReactElement => {
           onClick={logAndToggleSidebarExpanded}
           className="text-text-tertiary hover:text-text-primary"
           icon={sidebarExpanded ? <SidebarArrowLeft /> : <SidebarArrowRight />}
+          aria-label={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
         />
       </Tooltip>
     </div>

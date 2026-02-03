@@ -9,7 +9,6 @@ import type { SettingsFlags } from '../../graphql/settings';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {
@@ -64,7 +63,14 @@ export function Section({
         aria-expanded={isVisible.current}
         className="flex items-center gap-1 rounded-6 transition-colors hover:text-text-primary"
       >
-        <span className="typo-callout text-text-quaternary">{title}</span>
+        <span
+          className={classNames(
+            'text-text-quaternary typo-callout',
+            !sidebarExpanded && 'opacity-0',
+          )}
+        >
+          {title}
+        </span>
         <ArrowIcon
           className={classNames(
             'h-2.5 w-2.5 text-text-quaternary transition-transform duration-200',
@@ -88,15 +94,7 @@ export function Section({
   return (
     <NavSection className={classNames('mt-1', className)}>
       {title && (
-        <NavHeader className="hidden laptop:flex">
-          {sidebarExpanded ? (
-            headerContent
-          ) : (
-            <SimpleTooltip content={title} placement="right">
-              <div className="mx-auto my-1 h-px w-5 rounded-full bg-border-subtlest-tertiary" />
-            </SimpleTooltip>
-          )}
-        </NavHeader>
+        <NavHeader className="hidden laptop:flex">{headerContent}</NavHeader>
       )}
       <div
         className={classNames(
