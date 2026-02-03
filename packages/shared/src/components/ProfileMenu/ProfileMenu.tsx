@@ -80,7 +80,6 @@ export default function ProfileMenu({
         <HorizontalSeparator />
 
         <ThemeSection className="px-1" />
-        <FeedbackButtonSection className="px-1" />
 
         <HorizontalSeparator />
 
@@ -91,6 +90,7 @@ export default function ProfileMenu({
         <HorizontalSeparator />
 
         <ResourceSection />
+        <FeedbackButtonSection className="px-1" />
 
         <HorizontalSeparator />
 
