@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { escapeMarkdown } from '@dailydotdev/shared/src/lib/strings';
 
 interface TagDirectoryData {
   tags: Keyword[];
@@ -10,7 +11,8 @@ interface TagDirectoryData {
 }
 
 const formatTag = (tag: { value: string }): string => {
-  return `- [${tag.value}](/tags/${tag.value})`;
+  const escaped = escapeMarkdown(tag.value);
+  return `- [${escaped}](/tags/${tag.value})`;
 };
 
 const handler = async (
@@ -55,7 +57,7 @@ const handler = async (
           a.value.localeCompare(b.value),
         );
         return `### ${letter}\n\n${tags
-          .map((t) => `- [${t.value}](/tags/${t.value})`)
+          .map((t) => `- [${escapeMarkdown(t.value)}](/tags/${t.value})`)
           .join('\n')}`;
       })
       .join('\n\n');
@@ -90,14 +92,18 @@ ${allTagsMarkdown}
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader(
       'Cache-Control',
-      'public, s-maxage=3600, stale-while-revalidate=86400',
+      'public, s-maxage=86400, stale-while-revalidate=604800',
     );
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.status(200).send(markdown);
   } catch (error: unknown) {
     // eslint-disable-next-line no-console
     console.error('Error generating tags markdown:', error);
-    res.status(500).send('Internal server error');
+    res
+      .status(500)
+      .send(
+        'Unable to generate markdown. Please try again later or visit https://app.daily.dev/tags',
+      );
   }
 };
 

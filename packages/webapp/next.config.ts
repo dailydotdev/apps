@@ -4,6 +4,7 @@ import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
 import type { NextConfig } from 'next';
 import type { Rewrite } from 'next/dist/lib/load-custom-routes';
+import { getMarkdownRewrites } from './lib/markdownRoutes';
 
 const { version } = JSON.parse(
   readFileSync('../extension/package.json', 'utf8'),
@@ -152,18 +153,9 @@ const nextConfig: NextConfig = {
               ],
             },
             // Markdown versions of pages for AI agents (llms.txt spec)
-            {
-              source: '/sources.md',
-              destination: '/api/md/sources',
-            },
-            {
-              source: '/tags.md',
-              destination: '/api/md/tags',
-            },
-            {
-              source: '/squads/discover.md',
-              destination: '/api/md/squads',
-            },
+            // These enable direct URL access (e.g., /sources.md)
+            // Content negotiation via Accept header is handled by middleware.ts
+            ...getMarkdownRewrites(),
           ],
           // regular rewrites
           afterFiles: rewrites,

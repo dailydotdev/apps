@@ -1,23 +1,32 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { MARKDOWN_ROUTES } from './lib/markdownRoutes';
 
 /**
- * Middleware for content negotiation.
- * When a request includes `Accept: text/markdown` header,
- * rewrite to the corresponding markdown API route.
+ * Middleware for HTTP content negotiation (llms.txt spec).
+ *
+ * This middleware enables AI agents to request markdown by sending
+ * `Accept: text/markdown` header to regular page URLs.
+ *
+ * Example: GET /sources with Accept: text/markdown → returns markdown
+ *
+ * Note: This is separate from the .md URL rewrites in next.config.ts which
+ * handle direct URL access (e.g., /sources.md). Both approaches are valid
+ * per the llms.txt specification and serve different use cases:
+ * - .md URLs: Direct link sharing, bookmarking
+ * - Accept header: Programmatic content negotiation by AI agents
  */
-
-const MARKDOWN_ROUTES: Record<string, string> = {
-  '/sources': '/api/md/sources',
-  '/tags': '/api/md/tags',
-  '/squads/discover': '/api/md/squads',
-};
 
 export function middleware(request: NextRequest): NextResponse {
   const acceptHeader = request.headers.get('accept') || '';
 
-  // Check if the client explicitly accepts markdown
-  if (acceptHeader.includes('text/markdown')) {
+  // Check if the client explicitly prefers markdown over HTML
+  // Don't rewrite if the client also accepts text/html (browser-like behavior)
+  const prefersMarkdown =
+    acceptHeader.includes('text/markdown') &&
+    !acceptHeader.includes('text/html');
+
+  if (prefersMarkdown) {
     const { pathname } = request.nextUrl;
     const markdownRoute = MARKDOWN_ROUTES[pathname];
 
