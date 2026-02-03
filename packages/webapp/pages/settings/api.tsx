@@ -52,7 +52,7 @@ const seo: NextSeoProps = {
 };
 
 const SKILL_INSTRUCTION =
-  'Read https://api.daily.dev/public/v1/skill.md and follow the instructions to connect to daily.dev';
+  'Fetch https://api.daily.dev/public/v1/skill.md and follow the instructions to connect to daily.dev';
 const OPENAPI_URL = 'https://api.daily.dev/public/v1/docs/json';
 
 const lowercaseRelativeDate = (dateStr: string): string => {

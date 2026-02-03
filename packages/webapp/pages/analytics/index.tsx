@@ -247,7 +247,7 @@ const Analytics = (): ReactElement => {
         </LayoutHeader>
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
           <SectionContainer>
-            <SectionHeader>Overview</SectionHeader>
+            <SectionHeader>Overview (last 45 days)</SectionHeader>
             <div className="grid grid-cols-2 gap-4 tablet:grid-cols-4">
               <DataTile
                 label="Impressions"
@@ -357,6 +357,6 @@ const Analytics = (): ReactElement => {
 const seo: NextSeoProps = { title: 'Analytics', nofollow: true, noindex: true };
 
 Analytics.getLayout = getLayout;
-Analytics.layoutProps = { seo };
+Analytics.layoutProps = { seo, screenCentered: false };
 
 export default Analytics;
