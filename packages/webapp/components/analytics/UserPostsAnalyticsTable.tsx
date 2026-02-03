@@ -116,12 +116,12 @@ export const UserPostsAnalyticsTable = ({
                         className="h-10 w-16 rounded-8 object-cover"
                         fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                       />
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-1">
+                      <div className="flex min-w-0 flex-col gap-0.5">
+                        <div className="flex min-w-0 items-center gap-1">
                           <Typography
                             type={TypographyType.Callout}
                             color={TypographyColor.Primary}
-                            className="line-clamp-1"
+                            truncate
                           >
                             {post.title || 'Untitled'}
                           </Typography>
