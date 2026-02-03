@@ -76,7 +76,7 @@ function MainLayoutHeader({
   if (loadedSettings && !isLaptop) {
     if (isSearchPage) {
       return (
-        <div className="fixed top-0 z-header w-full bg-background-default tablet:pl-16">
+        <div className="sticky top-0 z-header w-full bg-background-default tablet:pl-16">
           <RenderSearchPanel />
           {!isSearch && <MobileExploreHeader path={feedName as string} />}
         </div>
@@ -93,7 +93,7 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'fixed top-0 z-header h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
+        'sticky top-0 z-header h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
         isMobileProfile ? 'hidden laptop:flex' : 'flex',
         hasBanner && 'laptop:top-8',
         isSearchPage && 'mb-16 laptop:mb-0',

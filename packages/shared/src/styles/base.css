@@ -730,7 +730,6 @@ img.lazyload:not([src]) {
   }
 }
 
-/* Scrollbar - hidden by default, visible on hover (like default macOS behavior) */
 ::-webkit-scrollbar {
   width: 0.5rem;
   background-color: transparent;
@@ -742,31 +741,15 @@ img.lazyload:not([src]) {
 
 ::-webkit-scrollbar-thumb {
   border-radius: 0.25rem;
-  background: transparent;
-  transition: background 0.2s ease;
-}
-
-/* Show scrollbar thumb on hover of scrollable container */
-*:hover::-webkit-scrollbar-thumb {
   background: var(--theme-text-tertiary);
 }
 
-*:hover::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
   background: var(--theme-text-primary);
 }
 
-*:hover::-webkit-scrollbar-thumb:active {
+::-webkit-scrollbar-thumb:active {
   background: var(--theme-text-primary);
-}
-
-/* Firefox scrollbar - auto-hide behavior */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-*:hover {
-  scrollbar-color: var(--theme-text-tertiary) transparent;
 }
 
 summary {

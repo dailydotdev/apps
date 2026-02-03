@@ -2,16 +2,12 @@
   grid-template-columns: 100%;
 }
 .container {
-  max-width: 100%;
-
-  @screen desktopL {
+  @screen laptopL {
     max-width: calc(20rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
 .cards {
-  max-width: 100%;
-
-  @screen desktopL {
+  @screen mobileL {
     max-width: calc(20rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
