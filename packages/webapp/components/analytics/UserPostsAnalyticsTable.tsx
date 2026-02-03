@@ -104,9 +104,9 @@ export const UserPostsAnalyticsTable = ({
                 key={post.id}
                 className="border-b border-border-subtlest-tertiary last:border-b-0"
               >
-                <td className="py-3">
+                <td className="min-w-0 py-3">
                   <Link href={`${webappUrl}posts/${post.id}/analytics`}>
-                    <div className="flex items-center gap-3 hover:underline">
+                    <div className="flex min-w-0 items-center gap-3 hover:underline">
                       <LazyImage
                         imgSrc={
                           post.image || cloudinaryPostImageCoverPlaceholder
