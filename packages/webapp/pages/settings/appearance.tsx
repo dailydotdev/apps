@@ -28,6 +28,20 @@ import {
   postWebKitMessage,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
+import {
+  cloudinaryAppIconMain,
+  cloudinaryAppIconV2,
+  cloudinaryAppIconV3,
+  cloudinaryAppIconV4,
+  cloudinaryAppIconV5,
+  cloudinaryAppIconV6,
+  cloudinaryAppIconV7,
+  cloudinaryAppIconV8,
+  cloudinaryAppIconV9,
+  cloudinaryAppIconV10,
+  cloudinaryAppIconV11,
+  cloudinaryAppIconV12,
+} from '@dailydotdev/shared/src/lib/image';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
@@ -45,6 +59,21 @@ type AppIconResult = {
   icons?: AppIconOption[];
   selectedName?: string | null;
   supportsAlternateIcons?: boolean;
+};
+
+const appIconPreviewMap: Record<string, string> = {
+  main: cloudinaryAppIconMain,
+  v2: cloudinaryAppIconV2,
+  v3: cloudinaryAppIconV3,
+  v4: cloudinaryAppIconV4,
+  v5: cloudinaryAppIconV5,
+  v6: cloudinaryAppIconV6,
+  v7: cloudinaryAppIconV7,
+  v8: cloudinaryAppIconV8,
+  v9: cloudinaryAppIconV9,
+  v10: cloudinaryAppIconV10,
+  v11: cloudinaryAppIconV11,
+  v12: cloudinaryAppIconV12,
 };
 
 const densities: RadioItemProps[] = [
@@ -92,10 +121,26 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   );
 
   const appIconOptions = useMemo<RadioItemProps[]>(() => {
-    return appIcons.map((icon) => ({
-      label: icon.displayName,
-      value: icon.name ?? 'default',
-    }));
+    return appIcons.map((icon) => {
+      const iconName = icon.name ?? 'main';
+      const previewUrl = appIconPreviewMap[iconName] ?? cloudinaryAppIconMain;
+      return {
+        label: (
+          <span className="flex items-center gap-2">
+            <span className="border-border-subtle h-7 w-7 overflow-hidden rounded-10 border bg-surface-primary">
+              <img
+                src={previewUrl}
+                alt={`${icon.displayName} app icon`}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+            </span>
+            <span>{icon.displayName}</span>
+          </span>
+        ),
+        value: icon.name ?? 'default',
+      };
+    });
   }, [appIcons]);
 
   const handleAppIconResult = useCallback((event: Event) => {
@@ -139,7 +184,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             message?: string;
           })
         : (rawDetail as { reason?: string; message?: string });
-    const reason = detail?.message || detail?.reason || 'Unable to update icon.';
+    const reason =
+      detail?.message || detail?.reason || 'Unable to update icon.';
 
     setAppIconError(reason);
     setAppIconLoading(false);
@@ -187,13 +233,13 @@ const AccountManageSubscriptionPage = (): ReactElement => {
 
   useEffect(() => {
     if (!supportsAppIconChange) {
-      return;
+      return undefined;
     }
+
+    requestAppIcons();
 
     window.addEventListener('app-icon-result', handleAppIconResult);
     window.addEventListener('app-icon-error', handleAppIconError);
-
-    requestAppIcons();
 
     return () => {
       window.removeEventListener('app-icon-result', handleAppIconResult);
@@ -319,7 +365,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
                   className={{
                     content: 'w-full justify-between !pr-0',
                     container: '!gap-0',
-                    label: 'font-normal typo-callout text-text-secondary',
+                    label: 'font-normal text-text-secondary typo-callout',
                   }}
                   reverse
                 />

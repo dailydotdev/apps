@@ -199,6 +199,31 @@ export const cloudinaryPWAVideo =
 export const cloudinaryPWAVideoChrome =
   'https://media.daily.dev/video/upload/s--RD5n9hm9--/v1735044247/web_-_chrome_xavter.mp4';
 
+export const cloudinaryAppIconMain =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/main';
+export const cloudinaryAppIconV2 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v2';
+export const cloudinaryAppIconV3 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v3';
+export const cloudinaryAppIconV4 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v4';
+export const cloudinaryAppIconV5 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v5';
+export const cloudinaryAppIconV6 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v6';
+export const cloudinaryAppIconV7 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v7';
+export const cloudinaryAppIconV8 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v8';
+export const cloudinaryAppIconV9 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v9';
+export const cloudinaryAppIconV10 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v10';
+export const cloudinaryAppIconV11 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v11';
+export const cloudinaryAppIconV12 =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v12';
+
 export const cloudinaryOnboardingExtension = {
   [BrowserName.Chrome]: {
     default:
