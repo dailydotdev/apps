@@ -16,6 +16,9 @@ export enum WebKitMessageHandlers {
   IAPSetAppAccountToken = 'iap-set-app-account-token',
 
   IAPCoresPurchase = 'iap-cores-purchase',
+
+  AppIconGet = 'app-icon-get',
+  AppIconSet = 'app-icon-set',
 }
 
 export const messageHandlerExists = (handler: WebKitMessageHandlers): boolean =>
@@ -27,6 +30,11 @@ export const iOSSupportsPlusPurchase = (): boolean =>
 
 export const iOSSupportsCoresPurchase = (): boolean =>
   isIOSNative() && messageHandlerExists(WebKitMessageHandlers.IAPCoresPurchase);
+
+export const iOSSupportsAppIconChange = (): boolean =>
+  isIOSNative() &&
+  messageHandlerExists(WebKitMessageHandlers.AppIconGet) &&
+  messageHandlerExists(WebKitMessageHandlers.AppIconSet);
 
 export const postWebKitMessage = <T = unknown>(
   handler: WebKitMessageHandlers,
