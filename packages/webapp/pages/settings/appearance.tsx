@@ -330,12 +330,12 @@ const AccountManageSubscriptionPage = (): ReactElement => {
                   type={TypographyType.Callout}
                   color={TypographyColor.Tertiary}
                 >
-                  Loading icons…
+                  Updating icon…
                 </Typography>
               </div>
             )}
 
-            {!appIconLoading && appIconError && (
+            {appIconError && (
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
@@ -344,7 +344,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               </Typography>
             )}
 
-            {!appIconLoading && !supportsAlternateIcons && !appIconError && (
+            {!supportsAlternateIcons && !appIconError && (
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
@@ -353,23 +353,21 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               </Typography>
             )}
 
-            {!appIconLoading &&
-              supportsAlternateIcons &&
-              appIconOptions.length > 0 && (
-                <Radio
-                  name="app-icon"
-                  options={appIconOptions}
-                  value={selectedIcon ?? 'default'}
-                  onChange={handleAppIconChange}
-                  disabled={appIconLoading}
-                  className={{
-                    content: 'w-full justify-between !pr-0',
-                    container: '!gap-0',
-                    label: 'font-normal text-text-secondary typo-callout',
-                  }}
-                  reverse
-                />
-              )}
+            {supportsAlternateIcons && appIconOptions.length > 0 && (
+              <Radio
+                name="app-icon"
+                options={appIconOptions}
+                value={selectedIcon ?? 'default'}
+                onChange={handleAppIconChange}
+                disabled={appIconLoading}
+                className={{
+                  content: 'w-full justify-between !pr-0',
+                  container: '!gap-0',
+                  label: 'font-normal text-text-secondary typo-callout',
+                }}
+                reverse
+              />
+            )}
           </FlexCol>
         )}
 
