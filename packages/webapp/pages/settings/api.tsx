@@ -57,7 +57,7 @@ const OPENAPI_URL = 'https://api.daily.dev/public/v1/docs/json';
 const CLAUDE_INSTALL_COMMAND = [
   `claude plugin marketplace add https://github.com/dailydotdev/daily.git`,
   `claude plugin install daily.dev@daily.dev`,
-  `claude "/daily.dev setup"`
+  `claude "/daily.dev setup"`,
 ];
 
 const lowercaseRelativeDate = (dateStr: string): string => {
@@ -445,7 +445,7 @@ const ApiAccessPage = (): ReactElement => {
             Add daily.dev to Claude Code as a plugin with below commands:
           </Typography>
           <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
-            <code className="min-w-0 flex-1 break-words text-text-tertiary whitespace-pre-wrap">
+            <code className="min-w-0 flex-1 whitespace-pre-wrap break-words text-text-tertiary">
               {CLAUDE_INSTALL_COMMAND.join('\n')}
             </code>
             <Button
@@ -456,11 +456,12 @@ const ApiAccessPage = (): ReactElement => {
               className="shrink-0"
             />
           </div>
-            <Typography
+          <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            After that you can use skill <strong>/daily.dev</strong> to interact with your daily.dev feed and other features.
+            After that you can use skill <strong>/daily.dev</strong> to interact
+            with your daily.dev feed and other features.
           </Typography>
         </div>
 
