@@ -76,7 +76,7 @@ function MainLayoutHeader({
   if (loadedSettings && !isLaptop) {
     if (isSearchPage) {
       return (
-        <div className="fixed top-0 z-header w-full bg-background-default tablet:pl-16">
+        <div className="sticky top-0 z-header w-full bg-background-default tablet:pl-16">
           <RenderSearchPanel />
           {!isSearch && <MobileExploreHeader path={feedName as string} />}
         </div>

@@ -127,7 +127,7 @@ function FeedNav(): ReactElement {
   return (
     <div
       className={classNames(
-        'fixed top-0 z-header w-full bg-background-default tablet:pl-16',
+        'sticky top-0 z-header w-full bg-background-default tablet:pl-16',
         scrollClassName,
       )}
     >
