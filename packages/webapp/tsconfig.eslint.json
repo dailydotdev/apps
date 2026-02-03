@@ -9,6 +9,7 @@
     "app/**/*.tsx",
     "pages/**/*.tsx",
     "pages/**/*.ts",
+    "types/**/*.ts",
     "*.js",
     "**/.eslintrc.js",
     "__tests__/**/*.ts",

@@ -45,6 +45,7 @@ export type RemoteSettings = {
   optOutCompanion: boolean;
   autoDismissNotifications: boolean;
   sortCommentsBy: SortCommentsBy;
+  showFeedbackButton: boolean;
   customLinks?: string[];
   campaignCtaPlacement?: CampaignCtaPlacement;
   flags?: SettingsFlags;

@@ -54,6 +54,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleOptOutReadingStreak: () => Promise<void>;
   toggleOptOutCompanion: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
+  toggleShowFeedbackButton: () => Promise<void>;
   loadedSettings: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
   updateSortCommentsBy: (sort: SortCommentsBy) => Promise<unknown>;
@@ -128,6 +129,7 @@ const defaultSettings: RemoteSettings = {
   optOutCompanion: false,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.OldestFirst,
+  showFeedbackButton: true,
   theme: remoteThemes[ThemeMode.Dark],
   campaignCtaPlacement: CampaignCtaPlacement.Header,
   flags: {
@@ -260,6 +262,11 @@ export const SettingsContextProvider = ({
         setSettings({
           ...settings,
           autoDismissNotifications: !settings.autoDismissNotifications,
+        }),
+      toggleShowFeedbackButton: () =>
+        setSettings({
+          ...settings,
+          showFeedbackButton: !settings.showFeedbackButton,
         }),
       onToggleHeaderPlacement: () =>
         setSettings({
