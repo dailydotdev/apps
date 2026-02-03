@@ -1,11 +1,11 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useMemo, useState, useTransition } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import { useEventListener, useFeeds, useViewSize, ViewSize } from '../../hooks';
+import { useFeeds, useViewSize, ViewSize } from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -31,7 +31,6 @@ import { SharedFeedPage } from '../utilities';
 import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
-import { useAlertsContext } from '../../contexts/AlertContext';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -52,17 +51,12 @@ const StickyNavIconWrapper = classed(
   'sticky flex h-14 pt-1 -translate-y-16 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
 );
 
-const MIN_SCROLL_BEFORE_HIDING = 60;
-
 function FeedNav(): ReactElement {
   const router = useRouter();
-  const [, startTransition] = useTransition();
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home, bookmarks } = useActiveNav(feedName);
-  const { alerts } = useAlertsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -81,8 +75,6 @@ function FeedNav(): ReactElement {
   const showStickyButton =
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
-
-  const hasOpportunityAlert = !!alerts.opportunityId;
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
     const customFeeds = sortedFeeds.reduce((acc, { node: feed }) => {
@@ -127,45 +119,16 @@ function FeedNav(): ReactElement {
     isCustomDefaultFeed,
   ]);
 
-  const previousScrollY = React.useRef(0);
-
-  useEventListener(globalThis, 'scroll', () => {
-    // when scrolled down we should hide the header
-    // when scrolled up, we should bring it back
-    const { scrollY } = window;
-    const shouldHeaderBeVisible = scrollY < previousScrollY.current;
-
-    previousScrollY.current = scrollY;
-
-    if (shouldHeaderBeVisible === isHeaderVisible) {
-      return;
-    }
-
-    if (!shouldHeaderBeVisible && scrollY < MIN_SCROLL_BEFORE_HIDING) {
-      return;
-    }
-
-    startTransition(() => {
-      setIsHeaderVisible(shouldHeaderBeVisible);
-    });
-  });
   const shouldRenderNav = home || (isMobile && bookmarks);
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }
 
-  const headerTransitionClasses =
-    isMobile && hasOpportunityAlert
-      ? '-translate-y-[7.5rem] duration-[800ms]'
-      : '-translate-y-26 duration-[800ms]';
-
   return (
     <div
       className={classNames(
-        'sticky top-0 z-header w-full transition-transform tablet:pl-16',
+        'fixed top-0 z-header w-full bg-background-default tablet:pl-16',
         scrollClassName,
-        isHeaderVisible && 'translate-y-0 duration-200',
-        !isHeaderVisible && headerTransitionClasses,
       )}
     >
       {isMobile && <MobileFeedActions />}

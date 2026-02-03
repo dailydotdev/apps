@@ -57,38 +57,52 @@ export const SidebarDesktop = ({
       <SidebarScrollWrapper>
         <Nav>
           <SidebarMenuIcon />
-          <CreatePostButton
+          {/* Primary Action */}
+          <div
             className={classNames(
-              'mb-4 !flex whitespace-nowrap',
-              sidebarExpanded ? 'mx-4' : 'mx-auto',
+              'mb-2 transition-[padding] duration-300',
+              sidebarExpanded ? 'px-2' : 'px-1',
             )}
-            compact={!sidebarExpanded}
-            size={sidebarExpanded ? ButtonSize.Small : ButtonSize.XSmall}
-            showIcon
-          />
+          >
+            <CreatePostButton
+              className={classNames(
+                '!flex w-full whitespace-nowrap',
+                sidebarExpanded ? 'justify-start' : 'justify-center',
+              )}
+              compact={!sidebarExpanded}
+              size={sidebarExpanded ? ButtonSize.Small : ButtonSize.XSmall}
+              showIcon
+            />
+          </div>
+
+          {/* Primary Navigation - Always visible */}
           <MainSection
             {...defaultRenderSectionProps}
             onNavTabClick={onNavTabClick}
             isItemsButton={isNavButtons}
           />
+
+          {/* User Content Sections */}
           <CustomFeedSection
             {...defaultRenderSectionProps}
             onNavTabClick={onNavTabClick}
-            title="Custom feeds"
+            title="Feeds"
             isItemsButton={false}
           />
           <NetworkSection
             {...defaultRenderSectionProps}
-            title="Network"
+            title="Squads"
             isItemsButton={isNavButtons}
             key="network-section"
           />
           <BookmarkSection
             {...defaultRenderSectionProps}
-            title="Bookmarks"
+            title="Saved"
             isItemsButton={false}
             key="bookmark-section"
           />
+
+          {/* Discovery Section */}
           <DiscoverSection
             {...defaultRenderSectionProps}
             title="Discover"
