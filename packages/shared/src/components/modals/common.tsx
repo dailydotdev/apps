@@ -418,6 +418,8 @@ const DecorationSelectionModal = dynamic(
     import(
       /* webpackChunkName: "decorationSelectionModal" */ './decorations/DecorationSelectionModal'
     ),
+);
+
 const FeedbackModal = dynamic(
   () => import(/* webpackChunkName: "feedbackModal" */ './FeedbackModal'),
 );
