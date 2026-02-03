@@ -67,28 +67,28 @@ export const UserPostsAnalyticsTable = ({
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
-              className="pb-2 whitespace-nowrap"
+              className="whitespace-nowrap pb-2"
             >
               Date
             </Typography>
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
-              className="pb-2 whitespace-nowrap text-right"
+              className="whitespace-nowrap pb-2 text-right"
             >
               Reputation
             </Typography>
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
-              className="pb-2 whitespace-nowrap text-right"
+              className="whitespace-nowrap pb-2 text-right"
             >
               Impressions
             </Typography>
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
-              className="pb-2 whitespace-nowrap text-right"
+              className="whitespace-nowrap pb-2 text-right"
             >
               Upvotes
             </Typography>
