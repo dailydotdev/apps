@@ -114,7 +114,7 @@ export const UserPostsAnalyticsTable = ({
                         className="h-10 w-16 flex-shrink-0 rounded-8 object-cover"
                         fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                       />
-                      <div className="flex min-w-0 flex-col gap-0.5">
+                      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                         <div className="flex min-w-0 items-center gap-1">
                           <Typography
                             type={TypographyType.Callout}
