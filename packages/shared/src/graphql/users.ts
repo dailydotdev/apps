@@ -954,6 +954,10 @@ export interface UserPostWithAnalytics {
   createdAt: string;
   commentsPermalink: string;
   isBoosted: boolean;
+  sharedPost?: {
+    title: string | null;
+    image: string | null;
+  } | null;
   analytics: {
     impressions: number;
     upvotes: number;
@@ -972,6 +976,10 @@ export const USER_POSTS_WITH_ANALYTICS_QUERY = gql`
           image
           createdAt
           commentsPermalink
+          sharedPost {
+            title
+            image
+          }
           analytics {
             impressions
             upvotes
