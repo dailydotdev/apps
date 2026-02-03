@@ -33,7 +33,11 @@ const handler = async (
       SOURCE_DIRECTORY_QUERY,
     );
 
-    const markdown = `# Sources Directory
+    const markdown = `> ## Documentation Index
+> Fetch the complete documentation index at: https://app.daily.dev/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Sources Directory
 
 > 1,300+ curated content sources on daily.dev
 
@@ -65,6 +69,7 @@ ${data.topVideoSources.map(formatSource).join('\n')}
       'Cache-Control',
       'public, s-maxage=3600, stale-while-revalidate=86400',
     );
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.status(200).send(markdown);
   } catch (error: unknown) {
     // eslint-disable-next-line no-console

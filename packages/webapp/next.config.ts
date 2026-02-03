@@ -269,6 +269,9 @@ const nextConfig: NextConfig = {
                 value:
                   'We are hiring! Check https://daily.dev/careers for more info!',
               },
+              // AI agent discovery headers (llms.txt spec)
+              { key: 'Link', value: '</llms.txt>; rel="llms-txt"' },
+              { key: 'X-Llms-Txt', value: '/llms.txt' },
             ],
           },
           {
