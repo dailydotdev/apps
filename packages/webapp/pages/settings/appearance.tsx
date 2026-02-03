@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
@@ -21,11 +21,31 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import classNames from 'classnames';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
+import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
+import {
+  iOSSupportsAppIconChange,
+  postWebKitMessage,
+  WebKitMessageHandlers,
+} from '@dailydotdev/shared/src/lib/ios';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { SettingsSwitch } from '../../components/layouts/SettingsLayout/common';
+
+type AppIconOption = {
+  name: string | null;
+  displayName: string;
+  isSelected: boolean;
+};
+
+type AppIconResult = {
+  action?: 'get' | 'set';
+  icons?: AppIconOption[];
+  selectedName?: string | null;
+  supportsAlternateIcons?: boolean;
+};
 
 const densities: RadioItemProps[] = [
   { label: 'Eco', value: 'eco' },
@@ -36,6 +56,13 @@ const densities: RadioItemProps[] = [
 const AccountManageSubscriptionPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { logEvent } = useLogContext();
+  const supportsAppIconChange =
+    typeof window !== 'undefined' && iOSSupportsAppIconChange();
+  const [appIcons, setAppIcons] = useState<AppIconOption[]>([]);
+  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
+  const [supportsAlternateIcons, setSupportsAlternateIcons] = useState(false);
+  const [appIconLoading, setAppIconLoading] = useState(false);
+  const [appIconError, setAppIconError] = useState<string | null>(null);
 
   const {
     spaciness,
@@ -63,6 +90,121 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     },
     [logEvent, toggleInsaneMode],
   );
+
+  const appIconOptions = useMemo<RadioItemProps[]>(() => {
+    return appIcons.map((icon) => ({
+      label: icon.displayName,
+      value: icon.name ?? 'default',
+    }));
+  }, [appIcons]);
+
+  const handleAppIconResult = useCallback((event: Event) => {
+    const rawDetail = (event as CustomEvent).detail as unknown;
+    const detail =
+      typeof rawDetail === 'string'
+        ? (parseOrDefault<AppIconResult>(rawDetail) as AppIconResult)
+        : (rawDetail as AppIconResult);
+
+    if (!detail || typeof detail !== 'object') {
+      return;
+    }
+
+    if (detail.action === 'get') {
+      const selected =
+        detail.selectedName ??
+        detail.icons?.find((icon) => icon.isSelected)?.name ??
+        null;
+
+      setAppIcons(detail.icons ?? []);
+      setSelectedIcon(selected);
+      setSupportsAlternateIcons(!!detail.supportsAlternateIcons);
+      setAppIconError(null);
+      setAppIconLoading(false);
+      return;
+    }
+
+    if (detail.action === 'set') {
+      setSelectedIcon(detail.selectedName ?? null);
+      setAppIconError(null);
+      setAppIconLoading(false);
+    }
+  }, []);
+
+  const handleAppIconError = useCallback((event: Event) => {
+    const rawDetail = (event as CustomEvent).detail as unknown;
+    const detail =
+      typeof rawDetail === 'string'
+        ? (parseOrDefault<{ reason?: string; message?: string }>(rawDetail) as {
+            reason?: string;
+            message?: string;
+          })
+        : (rawDetail as { reason?: string; message?: string });
+    const reason = detail?.message || detail?.reason || 'Unable to update icon.';
+
+    setAppIconError(reason);
+    setAppIconLoading(false);
+  }, []);
+
+  const requestAppIcons = useCallback(() => {
+    if (!supportsAppIconChange) {
+      return;
+    }
+
+    setAppIconLoading(true);
+    setAppIconError(null);
+
+    try {
+      postWebKitMessage(WebKitMessageHandlers.AppIconGet, null);
+    } catch (error) {
+      setAppIconError(
+        error instanceof Error ? error.message : 'Unable to load icons.',
+      );
+      setAppIconLoading(false);
+    }
+  }, [supportsAppIconChange]);
+
+  const handleAppIconChange = useCallback(
+    (value: string) => {
+      if (!supportsAppIconChange || appIconLoading) {
+        return;
+      }
+
+      const nextName = value === 'default' ? null : value;
+      setAppIconLoading(true);
+      setAppIconError(null);
+
+      try {
+        postWebKitMessage(WebKitMessageHandlers.AppIconSet, { name: nextName });
+      } catch (error) {
+        setAppIconError(
+          error instanceof Error ? error.message : 'Unable to update icon.',
+        );
+        setAppIconLoading(false);
+      }
+    },
+    [appIconLoading, supportsAppIconChange],
+  );
+
+  useEffect(() => {
+    if (!supportsAppIconChange) {
+      return;
+    }
+
+    window.addEventListener('app-icon-result', handleAppIconResult);
+    window.addEventListener('app-icon-error', handleAppIconError);
+
+    requestAppIcons();
+
+    return () => {
+      window.removeEventListener('app-icon-result', handleAppIconResult);
+      window.removeEventListener('app-icon-error', handleAppIconError);
+    };
+  }, [
+    handleAppIconError,
+    handleAppIconResult,
+    requestAppIcons,
+    supportsAppIconChange,
+  ]);
 
   return (
     <AccountPageContainer title="Appearance">
@@ -122,6 +264,68 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             reverse
           />
         </FlexCol>
+
+        {supportsAppIconChange && (
+          <FlexCol className="gap-2">
+            <Typography bold type={TypographyType.Subhead}>
+              App icon
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Choose which icon appears on your iOS Home Screen.
+            </Typography>
+
+            {appIconLoading && (
+              <div className="flex items-center gap-2">
+                <Loader className="h-4 w-4" />
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
+                  Loading icons…
+                </Typography>
+              </div>
+            )}
+
+            {!appIconLoading && appIconError && (
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                {appIconError}
+              </Typography>
+            )}
+
+            {!appIconLoading && !supportsAlternateIcons && !appIconError && (
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                Alternate icons aren&apos;t supported on this device.
+              </Typography>
+            )}
+
+            {!appIconLoading &&
+              supportsAlternateIcons &&
+              appIconOptions.length > 0 && (
+                <Radio
+                  name="app-icon"
+                  options={appIconOptions}
+                  value={selectedIcon ?? 'default'}
+                  onChange={handleAppIconChange}
+                  disabled={appIconLoading}
+                  className={{
+                    content: 'w-full justify-between !pr-0',
+                    container: '!gap-0',
+                    label: 'font-normal typo-callout text-text-secondary',
+                  }}
+                  reverse
+                />
+              )}
+          </FlexCol>
+        )}
 
         <FlexCol className="gap-5">
           <Typography bold type={TypographyType.Subhead}>
