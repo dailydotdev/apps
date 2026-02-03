@@ -60,7 +60,7 @@ export function Section({
         type="button"
         onClick={toggleFlag}
         aria-label={`Toggle ${title}`}
-        aria-expanded={isVisible.current}
+        aria-expanded={!!isVisible.current}
         className="flex items-center gap-1 rounded-6 transition-colors hover:text-text-primary"
       >
         <span

@@ -10,7 +10,7 @@ import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { SidebarMenuIcon } from './SidebarMenuIcon';
 import { CreatePostButton } from '../post/write';
-import { ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
 
@@ -71,7 +71,6 @@ export const SidebarDesktop = ({
               )}
               compact={!sidebarExpanded}
               size={sidebarExpanded ? ButtonSize.Small : ButtonSize.XSmall}
-              variant={ButtonVariant.Primary}
               showIcon
             />
           </div>
