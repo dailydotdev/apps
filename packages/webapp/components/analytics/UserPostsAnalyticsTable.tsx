@@ -103,9 +103,13 @@ export const UserPostsAnalyticsTable = ({
                     <div className="flex min-w-0 items-center gap-3 hover:underline">
                       <LazyImage
                         imgSrc={
-                          post.image || cloudinaryPostImageCoverPlaceholder
+                          post.sharedPost?.image ||
+                          post.image ||
+                          cloudinaryPostImageCoverPlaceholder
                         }
-                        imgAlt={post.title || 'Post image'}
+                        imgAlt={
+                          post.sharedPost?.title || post.title || 'Post image'
+                        }
                         ratio="52%"
                         className="h-10 w-16 flex-shrink-0 rounded-8 object-cover"
                         fallbackSrc={cloudinaryPostImageCoverPlaceholder}
@@ -117,7 +121,7 @@ export const UserPostsAnalyticsTable = ({
                             color={TypographyColor.Primary}
                             truncate
                           >
-                            {post.title || 'Untitled'}
+                            {post.sharedPost?.title || post.title || 'Untitled'}
                           </Typography>
                           {post.isBoosted && (
                             <BoostIcon
