@@ -199,8 +199,7 @@ const feedItems: FeedItem[] = [
   {
     source: 'GitHub',
     title: 'Aider 0.57 released with repo map caching',
-    excerpt:
-      'Star velocity spiked 28% in 24h, contributors +12 this week.',
+    excerpt: 'Star velocity spiked 28% in 24h, contributors +12 this week.',
     timestamp: '38m ago',
     engagement: '1.1k stars · 14 releases',
     tag: 'GitHub',
@@ -208,8 +207,7 @@ const feedItems: FeedItem[] = [
   {
     source: 'YouTube',
     title: 'Windsurf deep dive: agentic refactors in 20 minutes',
-    excerpt:
-      'Walkthrough of a multi-file refactor workflow with guardrails.',
+    excerpt: 'Walkthrough of a multi-file refactor workflow with guardrails.',
     timestamp: '1h ago',
     engagement: '62k views · 3.1k likes',
     tag: 'Video',
@@ -217,8 +215,7 @@ const feedItems: FeedItem[] = [
   {
     source: 'Newsletter',
     title: 'TLDR AI: Copilot adds inline test generation',
-    excerpt:
-      'Quick summary + rollout notes for enterprise orgs.',
+    excerpt: 'Quick summary + rollout notes for enterprise orgs.',
     timestamp: '2h ago',
     engagement: 'Top story · 18k opens',
     tag: 'Newsletter',
@@ -226,8 +223,7 @@ const feedItems: FeedItem[] = [
   {
     source: 'Blog',
     title: 'Claude Code workflows for large TypeScript monorepos',
-    excerpt:
-      'Prompt patterns for safe refactors and incremental migrations.',
+    excerpt: 'Prompt patterns for safe refactors and incremental migrations.',
     timestamp: '4h ago',
     engagement: '2.8k reads · 320 saves',
     tag: 'Guide',
@@ -366,7 +362,9 @@ const getChartY = (value: number, min: number, max: number): number => {
   const range = max - min;
   const normalized = range === 0 ? 0.5 : (value - min) / range;
 
-  return chartHeight - chartPadding - normalized * (chartHeight - chartPadding * 2);
+  return (
+    chartHeight - chartPadding - normalized * (chartHeight - chartPadding * 2)
+  );
 };
 
 const buildLinePath = (values: number[], min: number, max: number): string => {
@@ -395,9 +393,7 @@ const getTrendIcon = (trend: TrendDirection): ReactElement => {
 };
 
 const AiCodingHubPage = (): ReactElement => {
-  const { min: chartMin, max: chartMax } = getSeriesRange(
-    toolSentimentSeries,
-  );
+  const { min: chartMin, max: chartMax } = getSeriesRange(toolSentimentSeries);
 
   return (
     <>
@@ -434,7 +430,10 @@ const AiCodingHubPage = (): ReactElement => {
                   community.
                 </Typography>
                 <div className="flex flex-wrap gap-3">
-                  <Button variant={ButtonVariant.Primary} size={ButtonSize.Large}>
+                  <Button
+                    variant={ButtonVariant.Primary}
+                    size={ButtonSize.Large}
+                  >
                     Explore the feed
                   </Button>
                   <Button
@@ -552,7 +551,10 @@ const AiCodingHubPage = (): ReactElement => {
                 <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
                   7d view
                 </Button>
-                <Button variant={ButtonVariant.Tertiary} size={ButtonSize.Small}>
+                <Button
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                >
                   30d view
                 </Button>
               </ButtonGroup>
@@ -606,18 +608,22 @@ const AiCodingHubPage = (): ReactElement => {
                       ))}
 
                       {toolSentimentSeries.map((tool) =>
-                        tool.values.map((value, index) => (
-                          <circle
-                            key={`${tool.name}-${value}-${index}`}
-                            cx={getChartX(index, tool.values.length)}
-                            cy={getChartY(value, chartMin, chartMax)}
-                            r="3.5"
-                            className={classNames(
-                              'stroke-none',
-                              tool.fillClass,
-                            )}
-                          />
-                        )),
+                        tool.values.map((value, index) => {
+                          const label = sentimentSeries[index]?.label ?? value;
+
+                          return (
+                            <circle
+                              key={`${tool.name}-${label}`}
+                              cx={getChartX(index, tool.values.length)}
+                              cy={getChartY(value, chartMin, chartMax)}
+                              r="3.5"
+                              className={classNames(
+                                'stroke-none',
+                                tool.fillClass,
+                              )}
+                            />
+                          );
+                        }),
                       )}
                     </svg>
                   </div>
@@ -767,7 +773,7 @@ const AiCodingHubPage = (): ReactElement => {
                         {tool.sentiment}
                       </Typography>
                     </div>
-                    <div className="h-2 rounded-14 bg-border-subtlest-tertiary overflow-hidden">
+                    <div className="h-2 overflow-hidden rounded-14 bg-border-subtlest-tertiary">
                       <div
                         className={classNames(
                           'h-full rounded-12',
@@ -807,13 +813,22 @@ const AiCodingHubPage = (): ReactElement => {
                 <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
                   All
                 </Button>
-                <Button variant={ButtonVariant.Tertiary} size={ButtonSize.Small}>
+                <Button
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                >
                   Releases
                 </Button>
-                <Button variant={ButtonVariant.Tertiary} size={ButtonSize.Small}>
+                <Button
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                >
                   Tutorials
                 </Button>
-                <Button variant={ButtonVariant.Tertiary} size={ButtonSize.Small}>
+                <Button
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                >
                   Opinions
                 </Button>
               </ButtonGroup>
@@ -925,13 +940,19 @@ const AiCodingHubPage = (): ReactElement => {
                     className="flex gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4"
                   >
                     <div className="flex flex-col items-center gap-2 text-center">
-                      <button className="flex h-8 w-8 items-center justify-center rounded-10 border border-border-subtlest-tertiary text-text-secondary">
+                      <button
+                        type="button"
+                        className="flex h-8 w-8 items-center justify-center rounded-10 border border-border-subtlest-tertiary text-text-secondary"
+                      >
                         <UpvoteIcon size={IconSize.Size16} />
                       </button>
                       <Typography type={TypographyType.Caption1} bold>
                         {prompt.votes}
                       </Typography>
-                      <button className="flex h-8 w-8 items-center justify-center rounded-10 border border-border-subtlest-tertiary text-text-secondary">
+                      <button
+                        type="button"
+                        className="flex h-8 w-8 items-center justify-center rounded-10 border border-border-subtlest-tertiary text-text-secondary"
+                      >
                         <DownvoteIcon size={IconSize.Size16} />
                       </button>
                     </div>
@@ -993,7 +1014,7 @@ const AiCodingHubPage = (): ReactElement => {
                     Share your workflow with the community. Auth required.
                   </Typography>
                   <div className="mt-4 flex flex-col gap-3">
-                    <label className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1">
                       <Typography
                         type={TypographyType.Caption1}
                         color={TypographyColor.Tertiary}
@@ -1003,8 +1024,8 @@ const AiCodingHubPage = (): ReactElement => {
                       <div className="rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-secondary typo-callout">
                         Cursor
                       </div>
-                    </label>
-                    <label className="flex flex-col gap-1">
+                    </div>
+                    <div className="flex flex-col gap-1">
                       <Typography
                         type={TypographyType.Caption1}
                         color={TypographyColor.Tertiary}
@@ -1014,8 +1035,8 @@ const AiCodingHubPage = (): ReactElement => {
                       <div className="rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-secondary typo-callout">
                         Refactoring
                       </div>
-                    </label>
-                    <label className="flex flex-col gap-1">
+                    </div>
+                    <div className="flex flex-col gap-1">
                       <Typography
                         type={TypographyType.Caption1}
                         color={TypographyColor.Tertiary}
@@ -1031,8 +1052,8 @@ const AiCodingHubPage = (): ReactElement => {
                       >
                         Title must be at least 10 characters.
                       </Typography>
-                    </label>
-                    <label className="flex flex-col gap-1">
+                    </div>
+                    <div className="flex flex-col gap-1">
                       <Typography
                         type={TypographyType.Caption1}
                         color={TypographyColor.Tertiary}
@@ -1049,8 +1070,8 @@ const AiCodingHubPage = (): ReactElement => {
                       >
                         0 / 5000
                       </Typography>
-                    </label>
-                    <label className="flex flex-col gap-1">
+                    </div>
+                    <div className="flex flex-col gap-1">
                       <Typography
                         type={TypographyType.Caption1}
                         color={TypographyColor.Tertiary}
@@ -1060,10 +1081,13 @@ const AiCodingHubPage = (): ReactElement => {
                       <div className="rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-tertiary typo-callout">
                         https://
                       </div>
-                    </label>
+                    </div>
                   </div>
                   <div className="mt-4 flex flex-col gap-2">
-                    <Button variant={ButtonVariant.Primary} size={ButtonSize.Medium}>
+                    <Button
+                      variant={ButtonVariant.Primary}
+                      size={ButtonSize.Medium}
+                    >
                       Publish prompt
                     </Button>
                     <Typography
