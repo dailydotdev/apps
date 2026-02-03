@@ -6,7 +6,7 @@
     "dev": "storybook dev -p 6006",
     "build": "storybook build",
     "clean": "rm -rf .turbo && rm -rf node_modules",
-    "lint": "eslint ./stories/*.stories.tsx"
+    "lint": "eslint --no-error-on-unmatched-pattern ./stories/*.stories.tsx"
   },
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
@@ -38,12 +38,12 @@
     "classnames": "^2.5.1",
     "eslint-plugin-storybook": "^9.1.10",
     "msw": "^2.3.5",
-    "msw-storybook-addon": "^2.0.5",
+    "msw-storybook-addon": "^2.0.6",
     "postcss": "^8.4.47",
     "postcss-100vh-fix": "^1.0.2",
     "postcss-custom-media": "^11.0.3",
     "postcss-focus-visible": "^5.0.0",
-    "postcss-import": "^16.1.0",
+    "postcss-import": "^16.1.1",
     "postcss-mixins": "^11.0.3",
     "postcss-nesting": "^13.0.0",
     "postcss-rem-to-responsive-pixel": "^6.0.2",
