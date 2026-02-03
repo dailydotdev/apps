@@ -151,7 +151,7 @@ export const FeedContainer = ({
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
-  const { spaciness, loadedSettings } = useContext(SettingsContext);
+  const { loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
@@ -159,7 +159,7 @@ export const FeedContainer = ({
     feedName,
   });
   const router = useRouter();
-  const numCards = currentSettings.numCards[spaciness ?? 'eco'];
+  const numCards = currentSettings.numCards.eco;
   const isList =
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
@@ -169,14 +169,14 @@ export const FeedContainer = ({
       gapClass({
         isList,
         isFeedLayoutList: shouldUseListFeedLayout,
-        space: spaciness,
+        space: 'eco',
       })
     ];
   const style = {
     '--num-cards': isHorizontal && isListMode && numCards >= 2 ? 2 : numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
-  const cardContainerStyle = { ...getStyle(isList, spaciness) };
+  const cardContainerStyle = { ...getStyle(isList, 'eco') };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
 
@@ -324,7 +324,7 @@ export const FeedContainer = ({
                 gapClass({
                   isList,
                   isFeedLayoutList: shouldUseListFeedLayout,
-                  space: spaciness,
+                  space: 'eco',
                 }),
                 cardClass({ isList, numberOfCards: numCards, isHorizontal }),
               )}

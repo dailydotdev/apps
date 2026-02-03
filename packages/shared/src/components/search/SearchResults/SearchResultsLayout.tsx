@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
@@ -12,7 +12,6 @@ import { webappUrl } from '../../../lib/constants';
 import { SearchResultsTags } from './SearchResultsTags';
 import { SearchResultsSources } from './SearchResultsSources';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
-import SettingsContext from '../../../contexts/SettingsContext';
 import { gapClass } from '../../feeds/FeedContainer';
 import { useFeedLayout } from '../../../hooks';
 import { SearchResultsUsers } from './SearchResultsUsers';
@@ -26,7 +25,6 @@ export const SearchResultsLayout = (
 ): ReactElement => {
   const { children } = props;
   const { isListMode } = useFeedLayout();
-  const { spaciness } = useContext(SettingsContext);
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const {
@@ -103,7 +101,7 @@ export const SearchResultsLayout = (
               gapClass({
                 isList: true,
                 isFeedLayoutList: false,
-                space: spaciness,
+                space: 'eco',
               }),
               isListMode
                 ? `flex flex-col`

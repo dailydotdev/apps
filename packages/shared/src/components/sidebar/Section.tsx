@@ -9,6 +9,7 @@ import type { SettingsFlags } from '../../graphql/settings';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import Link from '../utilities/Link';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {
@@ -24,6 +25,7 @@ interface SectionProps extends SectionCommonProps {
   isItemsButton: boolean;
   isAlwaysOpenOnMobile?: boolean;
   onAdd?: () => void;
+  addHref?: string;
 }
 
 export function Section({
@@ -37,6 +39,7 @@ export function Section({
   flag,
   isAlwaysOpenOnMobile,
   onAdd,
+  addHref,
 }: SectionProps): ReactElement {
   const { flags, updateFlag } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
@@ -78,7 +81,17 @@ export function Section({
           )}
         />
       </button>
-      {onAdd && (
+      {addHref && (
+        <Link href={addHref}>
+          <a
+            aria-label={`Add to ${title}`}
+            className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
+          >
+            <PlusIcon className="h-4 w-4" />
+          </a>
+        </Link>
+      )}
+      {!addHref && onAdd && (
         <button
           type="button"
           onClick={onAdd}

@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
-import { useRouter } from 'next/router';
+import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { HashtagIcon, StarIcon } from '../../icons';
 import { Section } from '../Section';
@@ -17,14 +16,9 @@ export const CustomFeedSection = ({
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const router = useRouter();
   const { feeds } = useFeeds();
   const { defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
-
-  const handleAddFeed = useCallback(() => {
-    router.push(`${webappUrl}feeds/new`);
-  }, [router]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const customFeeds =
@@ -80,7 +74,7 @@ export const CustomFeedSection = ({
       items={menuItems}
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.CustomFeedsExpanded}
-      onAdd={handleAddFeed}
+      addHref={`${webappUrl}feeds/new`}
     />
   );
 };

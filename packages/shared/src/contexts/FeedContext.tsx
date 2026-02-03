@@ -1,5 +1,5 @@
 import type { ReactElement, PropsWithChildren } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
 import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
@@ -8,6 +8,9 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import type { FeedAdTemplate } from '../lib/feed';
+
+// Sidebar animation duration in ms (matches CSS transition in MainLayout)
+const SIDEBAR_TRANSITION_DURATION = 300;
 
 export type FeedContextData = {
   pageSize: number;
@@ -119,6 +122,19 @@ export function FeedLayoutProvider({
     shouldEvaluate: !isPlus,
   });
 
+  // Debounce sidebar expanded state to sync with sidebar CSS transition
+  // This prevents the feed layout from jumping mid-animation
+  const [debouncedSidebarExpanded, setDebouncedSidebarExpanded] =
+    useState(sidebarExpanded);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSidebarExpanded(sidebarExpanded);
+    }, SIDEBAR_TRANSITION_DURATION);
+
+    return () => clearTimeout(timer);
+  }, [sidebarExpanded]);
+
   const { feedSettings, defaultFeedSettings } = useMemo(() => {
     const enhancedFeedSettings = Object.entries(baseFeedSettings).reduce(
       (acc, [feedSettingsKey, feedSettingsValue]) => {
@@ -147,6 +163,7 @@ export function FeedLayoutProvider({
   }, [feedAdTemplateFeature.value]);
 
   // Generate the breakpoints for the feed settings
+  // Uses debounced sidebar state to sync layout change with sidebar animation
   const feedBreakpoints = useMemo(() => {
     const breakpoints = feedSettings.map((setting) =>
       setting.breakpoint.replace('@media ', ''),
@@ -156,7 +173,7 @@ export function FeedLayoutProvider({
       return breakpoints;
     }
 
-    if (sidebarExpanded) {
+    if (debouncedSidebarExpanded) {
       return breakpoints.map((breakpoint) =>
         replaceDigitsWithIncrement(breakpoint, sidebarOpenWidth),
       );
@@ -165,7 +182,7 @@ export function FeedLayoutProvider({
     return breakpoints.map((breakpoint) =>
       replaceDigitsWithIncrement(breakpoint, sidebarRenderedWidth),
     );
-  }, [feedSettings, sidebarExpanded, sidebarRendered]);
+  }, [feedSettings, debouncedSidebarExpanded, sidebarRendered]);
 
   const currentSettings = useMedia(
     feedBreakpoints,
