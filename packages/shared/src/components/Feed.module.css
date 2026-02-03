@@ -4,16 +4,14 @@
 .container {
   max-width: 100%;
 
-  /* Only constrain max-width on 4K+ / ultra-wide screens */
-  @media (min-width: 2560px) {
+  @screen desktopL {
     max-width: calc(20rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
 .cards {
   max-width: 100%;
 
-  /* Only constrain max-width on 4K+ / ultra-wide screens */
-  @media (min-width: 2560px) {
+  @screen desktopL {
     max-width: calc(20rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
