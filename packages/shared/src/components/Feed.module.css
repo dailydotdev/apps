@@ -2,12 +2,18 @@
   grid-template-columns: 100%;
 }
 .container {
-  @screen laptopL {
+  max-width: 100%;
+
+  /* Only constrain max-width on 4K+ / ultra-wide screens */
+  @media (min-width: 2560px) {
     max-width: calc(20rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
 .cards {
-  @screen mobileL {
+  max-width: 100%;
+
+  /* Only constrain max-width on 4K+ / ultra-wide screens */
+  @media (min-width: 2560px) {
     max-width: calc(20rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
