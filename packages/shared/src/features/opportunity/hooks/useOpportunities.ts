@@ -9,10 +9,15 @@ import {
 import { OPPORTUNITIES_QUERY } from '../graphql';
 import type { Connection } from '../../../graphql/common';
 import type { Opportunity } from '../types';
+import type { OpportunityState } from '../protobuf/opportunity';
 
 type UseOpportunitiesParams = {
-  state?: string;
+  state?: OpportunityState;
   first?: number;
+};
+
+type OpportunitiesData = {
+  opportunities: Connection<Opportunity>;
 };
 
 export const useOpportunities = ({
@@ -24,15 +29,17 @@ export const useOpportunities = ({
   const query = useInfiniteQuery({
     queryKey: generateQueryKey(RequestKey.Opportunities, null, {
       state,
+      first,
     }),
     queryFn: async ({ pageParam }) => {
-      const result = await requestMethod<{
-        opportunities: Connection<Opportunity>;
-      }>(OPPORTUNITIES_QUERY, {
-        state,
-        first,
-        after: pageParam,
-      });
+      const result = await requestMethod<OpportunitiesData>(
+        OPPORTUNITIES_QUERY,
+        {
+          state,
+          first,
+          after: pageParam,
+        },
+      );
       return result.opportunities;
     },
     initialPageParam: '',
