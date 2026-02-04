@@ -256,9 +256,9 @@ export const Sidebar = (): ReactElement => {
 
   return (
     <aside className="sticky top-0 flex h-screen w-60 flex-col border-r border-border-subtlest-tertiary">
-      <SidebarScrollWrapper>
+      <SidebarScrollWrapper className="min-h-0 flex-1">
         <Header />
-        <nav className="flex flex-col gap-2">
+        <nav className="flex flex-col gap-2 pb-2">
           <div className="px-2">
             <Button
               tag="a"
@@ -280,9 +280,8 @@ export const Sidebar = (): ReactElement => {
             />
           ))}
         </nav>
-        <div className="flex-1" />
-        <Footer />
       </SidebarScrollWrapper>
+      <Footer />
     </aside>
   );
 };
