@@ -57,6 +57,18 @@ const appIconPreviewMap: Record<string, string> = {
   v12: cloudinaryAppIconV12,
 };
 
+const appIconAliases: Record<string, string> = {
+  fog: 'v3',
+  azure: 'v4',
+  snow: 'v10',
+  neon: 'v12',
+};
+
+const resolveAppIconPreview = (name: string): string => {
+  const resolved = appIconAliases[name] ?? name;
+  return appIconPreviewMap[resolved] ?? cloudinaryAppIconMain;
+};
+
 export const IOSIconPicker = (): ReactElement => {
   const [appIcons, setAppIcons] = useState<AppIconOption[]>([]);
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
@@ -67,7 +79,7 @@ export const IOSIconPicker = (): ReactElement => {
   const appIconOptions = useMemo<RadioItemProps[]>(() => {
     return appIcons.map((icon) => {
       const iconName = icon.name ?? 'main';
-      const previewUrl = appIconPreviewMap[iconName] ?? cloudinaryAppIconMain;
+      const previewUrl = resolveAppIconPreview(iconName);
       return {
         label: (
           <span className="flex items-center gap-2">
