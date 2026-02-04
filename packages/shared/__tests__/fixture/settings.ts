@@ -1,5 +1,6 @@
 import type { SettingsContextData } from '../../src/contexts/SettingsContext';
 import { ThemeMode } from '../../src/contexts/SettingsContext';
+import { SortCommentsBy } from '../../src/graphql/comments';
 
 export const createTestSettings = (
   props: Partial<SettingsContextData> = {},
@@ -19,7 +20,9 @@ export const createTestSettings = (
   optOutCompanion: true,
   optOutReadingStreak: true,
   sidebarExpanded: true,
+  companionExpanded: false,
   sortingEnabled: true,
+  sortCommentsBy: SortCommentsBy.NewestFirst,
   showFeedbackButton: true,
   toggleShowFeedbackButton: jest.fn(),
   toggleAutoDismissNotifications: jest.fn(),
@@ -29,6 +32,13 @@ export const createTestSettings = (
   toggleSortingEnabled: jest.fn(),
   syncSettings: jest.fn(),
   updateCustomLinks: jest.fn(),
+  updateSortCommentsBy: jest.fn(),
+  updateFlag: jest.fn(),
+  updateFlagRemote: jest.fn(),
+  updatePromptFlag: jest.fn(),
+  onToggleHeaderPlacement: jest.fn(),
+  setSettings: jest.fn(),
+  applyThemeMode: jest.fn(),
   ...props,
 });
 
