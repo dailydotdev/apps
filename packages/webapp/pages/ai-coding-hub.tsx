@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import {
   Button,
   ButtonGroup,
-  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -17,10 +16,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   ArrowIcon,
-  CopyIcon,
   DocsIcon,
-  DownvoteIcon,
-  FlagIcon,
   GitHubIcon,
   HotIcon,
   MinusIcon,
@@ -28,7 +24,6 @@ import {
   TLDRIcon,
   TrendingIcon,
   TwitterIcon,
-  UpvoteIcon,
   YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -56,19 +51,22 @@ type FeedItem = {
   source: FeedSource;
   title: string;
   excerpt: string;
+  why: string;
+  impactScore: number;
   timestamp: string;
   engagement: string;
   tag: string;
 };
 
-type PromptItem = {
-  tool: string;
-  category: string;
+type BriefingItem = {
   title: string;
-  author: string;
-  timestamp: string;
-  votes: number;
-  preview: string;
+  detail: string;
+  impact: 'High' | 'Medium' | 'Low';
+};
+
+type TopicItem = {
+  label: string;
+  change: string;
 };
 
 type DataSourceStatus = {
@@ -192,6 +190,8 @@ const feedItems: FeedItem[] = [
     title: 'Cursor just shipped parallel agent mode. Ship velocity goes brr.',
     excerpt:
       'Benchmarks show 1.7x faster project bootstrapping on mid-size repos.',
+    why: 'Multi-agent support is the top migration driver. Expect adoption jumps across teams shipping faster than Copilot.',
+    impactScore: 92,
     timestamp: '12m ago',
     engagement: '4.2k likes · 640 reposts',
     tag: 'Release',
@@ -200,6 +200,8 @@ const feedItems: FeedItem[] = [
     source: 'GitHub',
     title: 'Aider 0.57 released with repo map caching',
     excerpt: 'Star velocity spiked 28% in 24h, contributors +12 this week.',
+    why: 'Repo map caching solves the #1 complaint (slow context builds). Early feedback suggests better large-repo reliability.',
+    impactScore: 81,
     timestamp: '38m ago',
     engagement: '1.1k stars · 14 releases',
     tag: 'GitHub',
@@ -208,6 +210,8 @@ const feedItems: FeedItem[] = [
     source: 'YouTube',
     title: 'Windsurf deep dive: agentic refactors in 20 minutes',
     excerpt: 'Walkthrough of a multi-file refactor workflow with guardrails.',
+    why: 'Shows a production-grade workflow: staging changes, checkpoint reviews, and safe refactor loops.',
+    impactScore: 74,
     timestamp: '1h ago',
     engagement: '62k views · 3.1k likes',
     tag: 'Video',
@@ -216,6 +220,8 @@ const feedItems: FeedItem[] = [
     source: 'Newsletter',
     title: 'TLDR AI: Copilot adds inline test generation',
     excerpt: 'Quick summary + rollout notes for enterprise orgs.',
+    why: 'Test generation narrows the tooling gap vs. Cursor; enterprise readers are watching rollout timing.',
+    impactScore: 69,
     timestamp: '2h ago',
     engagement: 'Top story · 18k opens',
     tag: 'Newsletter',
@@ -224,53 +230,41 @@ const feedItems: FeedItem[] = [
     source: 'Blog',
     title: 'Claude Code workflows for large TypeScript monorepos',
     excerpt: 'Prompt patterns for safe refactors and incremental migrations.',
+    why: 'Strong reference for multi-team repos: focuses on safe migration sequencing and contract mapping.',
+    impactScore: 64,
     timestamp: '4h ago',
     engagement: '2.8k reads · 320 saves',
     tag: 'Guide',
   },
 ];
 
-const promptItems: PromptItem[] = [
+const briefingItems: BriefingItem[] = [
   {
-    tool: 'Cursor',
-    category: 'Feature Development',
-    title: 'Build a new feature with guardrails + checkpoints',
-    author: 'sierra.codes',
-    timestamp: '26m ago',
-    votes: 214,
-    preview:
-      'You are my pair. Before writing code, outline a 3-step plan and ask me to confirm. Then implement step 1 only, run tests, and pause for review.',
+    title: 'Cursor launches multi-agent workflows',
+    detail:
+      'Mentions up 2.4x with a spike in migration threads across teams shipping faster than Copilot.',
+    impact: 'High',
   },
   {
-    tool: 'Claude Code',
-    category: 'Refactoring',
-    title: 'Safely migrate a legacy module without breaking tests',
-    author: 'matthew.r',
-    timestamp: '2h ago',
-    votes: 168,
-    preview:
-      'Scan the module for implicit contracts, list them, and propose a refactor sequence. Keep behavior identical; show diffs for each step.',
+    title: 'Copilot closes the testing gap',
+    detail:
+      'Inline test generation now rolling to enterprise; early feedback shows adoption in QA-heavy orgs.',
+    impact: 'Medium',
   },
   {
-    tool: 'Copilot',
-    category: 'Testing',
-    title: 'Generate edge-case tests from production logs',
-    author: 'leah.dev',
-    timestamp: '5h ago',
-    votes: 121,
-    preview:
-      'Here are anonymized log lines. Derive the input shapes, then write Jest tests that target the failure modes only.',
+    title: 'Windsurf refactor workflows gaining traction',
+    detail:
+      'Workflow tutorials are outperforming releases 3:1 in engagement this week.',
+    impact: 'Medium',
   },
-  {
-    tool: 'Windsurf',
-    category: 'Debugging',
-    title: 'Root-cause a flaky build with a reproduction plan',
-    author: 'kenji',
-    timestamp: '8h ago',
-    votes: 92,
-    preview:
-      'Summarize likely causes, rank by probability, then suggest minimal repro steps. Ask before applying any fixes.',
-  },
+];
+
+const trendingTopics: TopicItem[] = [
+  { label: 'Agent mode', change: '+42%' },
+  { label: 'Repo map caching', change: '+31%' },
+  { label: 'Test generation', change: '+24%' },
+  { label: 'Prompt guardrails', change: '+19%' },
+  { label: 'LLM diff review', change: '+14%' },
 ];
 
 const dataSources: DataSourceStatus[] = [
@@ -399,7 +393,7 @@ const AiCodingHubPage = (): ReactElement => {
     <>
       <NextSeo
         title="AI Coding Hub | daily.dev"
-        description="Signal, community pulse, and shared workflows for AI-assisted developers."
+        description="Signal, releases, and curated insight for AI-assisted developers."
       />
       <div className="relative mx-4 mb-20 mt-8 min-h-page max-w-[78rem] tablet:mx-auto">
         <div className="flex flex-col gap-12">
@@ -425,22 +419,22 @@ const AiCodingHubPage = (): ReactElement => {
                   AI Coding Hub
                 </Typography>
                 <Typography type={TypographyType.Title3}>
-                  The daily.dev home for AI coding assistants: sentiment
-                  snapshots, curated signal, and real workflows from the
-                  community.
+                  The aggregation layer for AI coding assistants: sentiment
+                  shifts, release velocity, and the handful of items you
+                  actually need to read today.
                 </Typography>
                 <div className="flex flex-wrap gap-3">
                   <Button
                     variant={ButtonVariant.Primary}
                     size={ButtonSize.Large}
                   >
-                    Explore the feed
+                    See what changed
                   </Button>
                   <Button
                     variant={ButtonVariant.Secondary}
                     size={ButtonSize.Large}
                   >
-                    Submit a prompt
+                    Open daily briefing
                   </Button>
                 </div>
               </div>
@@ -479,6 +473,14 @@ const AiCodingHubPage = (): ReactElement => {
                         Cursor
                       </Typography>
                     </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Typography color={TypographyColor.Tertiary}>
+                      Sources tracked
+                    </Typography>
+                    <Typography type={TypographyType.Title4} bold>
+                      42
+                    </Typography>
                   </div>
                 </div>
                 <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
@@ -520,10 +522,10 @@ const AiCodingHubPage = (): ReactElement => {
               </div>
               <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
                 <Typography type={TypographyType.Title4} bold>
-                  Community
+                  Context
                 </Typography>
                 <Typography color={TypographyColor.Tertiary}>
-                  Real prompts, workflows, and shared benchmarks from peers.
+                  Every item explains why it matters, not just what happened.
                 </Typography>
               </div>
               <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
@@ -533,6 +535,110 @@ const AiCodingHubPage = (): ReactElement => {
                 <Typography color={TypographyColor.Tertiary}>
                   Stay current without scrolling socials all day long.
                 </Typography>
+              </div>
+            </div>
+          </section>
+
+          <section className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2 laptop:flex-row laptop:items-end laptop:justify-between">
+              <div>
+                <Typography type={TypographyType.Title2} bold>
+                  Daily Briefing
+                </Typography>
+                <Typography color={TypographyColor.Tertiary}>
+                  Updated Feb 4, 2026 at 10:12 AM · 118 items scanned
+                </Typography>
+              </div>
+              <ButtonGroup>
+                <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+                  Biggest changes
+                </Button>
+                <Button
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                >
+                  Releases
+                </Button>
+                <Button
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                >
+                  Opinions
+                </Button>
+              </ButtonGroup>
+            </div>
+
+            <div className="grid gap-6 laptop:grid-cols-[1.5fr_1fr]">
+              <div className="flex flex-col gap-4 rounded-20 border border-border-subtlest-tertiary bg-surface-float p-5">
+                <div className="flex items-center gap-2">
+                  <SparkleIcon size={IconSize.Small} />
+                  <Typography type={TypographyType.Title4} bold>
+                    The 24h brief
+                  </Typography>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {briefingItems.map((item) => (
+                    <div
+                      key={item.title}
+                      className="rounded-14 border border-border-subtlest-tertiary bg-background-default p-4"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <Typography type={TypographyType.Callout} bold>
+                          {item.title}
+                        </Typography>
+                        <span className="rounded-8 bg-accent-onion-subtle px-2 py-1 text-text-secondary typo-caption1">
+                          {item.impact} impact
+                        </span>
+                      </div>
+                      <Typography
+                        className="mt-2"
+                        color={TypographyColor.Tertiary}
+                      >
+                        {item.detail}
+                      </Typography>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <div className="rounded-20 border border-border-subtlest-tertiary bg-surface-float p-5">
+                  <Typography type={TypographyType.Title4} bold>
+                    Trending topics
+                  </Typography>
+                  <Typography color={TypographyColor.Tertiary}>
+                    Fastest-growing phrases across sources.
+                  </Typography>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {trendingTopics.map((topic) => (
+                      <span
+                        key={topic.label}
+                        className="flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary bg-background-default px-3 py-1 text-text-secondary typo-caption1"
+                      >
+                        {topic.label}
+                        <span className="rounded-8 bg-accent-cabbage-subtle px-2 py-0.5 text-text-primary">
+                          {topic.change}
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-20 border border-border-subtlest-tertiary bg-background-default p-5">
+                  <Typography type={TypographyType.Title4} bold>
+                    Editorial notes
+                  </Typography>
+                  <div className="mt-3 flex flex-col gap-2">
+                    <Typography color={TypographyColor.Tertiary}>
+                      Releases outperform tutorials 2.3x this week.
+                    </Typography>
+                    <Typography color={TypographyColor.Tertiary}>
+                      Cursor coverage is 18% of total feed volume.
+                    </Typography>
+                    <Typography color={TypographyColor.Tertiary}>
+                      GitHub release velocity is the #1 driver of momentum.
+                    </Typography>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -721,13 +827,13 @@ const AiCodingHubPage = (): ReactElement => {
                   ))}
                   <div className="rounded-14 border border-border-subtlest-tertiary bg-background-default p-3">
                     <Typography type={TypographyType.Callout} bold>
-                      Community pulse
+                      Coverage note
                     </Typography>
                     <Typography
                       type={TypographyType.Caption1}
                       color={TypographyColor.Tertiary}
                     >
-                      Prompt submissions +28% over 48 hours.
+                      Reddit API lagging; showing cached content for r/cursor.
                     </Typography>
                   </div>
                 </div>
@@ -806,24 +912,24 @@ const AiCodingHubPage = (): ReactElement => {
                   Aggregated Content Feed
                 </Typography>
                 <Typography color={TypographyColor.Tertiary}>
-                  The best AI coding content across social, releases, and media.
+                  High-signal items ranked by momentum, authority, and impact.
                 </Typography>
               </div>
               <ButtonGroup>
                 <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
-                  All
+                  Biggest changes
                 </Button>
                 <Button
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
                 >
-                  Releases
+                  New releases
                 </Button>
                 <Button
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
                 >
-                  Tutorials
+                  Best workflows
                 </Button>
                 <Button
                   variant={ButtonVariant.Tertiary}
@@ -855,6 +961,9 @@ const AiCodingHubPage = (): ReactElement => {
                           <span className="rounded-8 bg-accent-burger-subtle px-2 py-1 text-text-secondary typo-caption1">
                             {item.tag}
                           </span>
+                          <span className="rounded-8 bg-accent-onion-subtle px-2 py-1 text-text-secondary typo-caption1">
+                            Impact {item.impactScore}
+                          </span>
                           <Typography
                             type={TypographyType.Caption1}
                             color={TypographyColor.Tertiary}
@@ -868,6 +977,14 @@ const AiCodingHubPage = (): ReactElement => {
                         <Typography color={TypographyColor.Tertiary}>
                           {item.excerpt}
                         </Typography>
+                        <div className="rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3">
+                          <Typography type={TypographyType.Caption1} bold>
+                            Why it matters
+                          </Typography>
+                          <Typography color={TypographyColor.Tertiary}>
+                            {item.why}
+                          </Typography>
+                        </div>
                         <Typography
                           type={TypographyType.Caption1}
                           color={TypographyColor.Tertiary}
@@ -893,229 +1010,6 @@ const AiCodingHubPage = (): ReactElement => {
                   </div>
                 );
               })}
-            </div>
-          </section>
-
-          <section className="flex flex-col gap-6">
-            <div>
-              <Typography type={TypographyType.Title2} bold>
-                Community Prompts & Workflows
-              </Typography>
-              <Typography color={TypographyColor.Tertiary}>
-                Upvote the prompts you use and contribute your own workflows.
-              </Typography>
-            </div>
-
-            <div className="grid gap-6 laptop:grid-cols-[1.6fr_1fr]">
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Typography type={TypographyType.Callout} bold>
-                    Sort by
-                  </Typography>
-                  <ButtonGroup>
-                    <Button
-                      variant={ButtonVariant.Subtle}
-                      size={ButtonSize.Small}
-                    >
-                      Hot
-                    </Button>
-                    <Button
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.Small}
-                    >
-                      Top
-                    </Button>
-                    <Button
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.Small}
-                    >
-                      New
-                    </Button>
-                  </ButtonGroup>
-                </div>
-
-                {promptItems.map((prompt) => (
-                  <div
-                    key={prompt.title}
-                    className="flex gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4"
-                  >
-                    <div className="flex flex-col items-center gap-2 text-center">
-                      <button
-                        type="button"
-                        className="flex h-8 w-8 items-center justify-center rounded-10 border border-border-subtlest-tertiary text-text-secondary"
-                      >
-                        <UpvoteIcon size={IconSize.Size16} />
-                      </button>
-                      <Typography type={TypographyType.Caption1} bold>
-                        {prompt.votes}
-                      </Typography>
-                      <button
-                        type="button"
-                        className="flex h-8 w-8 items-center justify-center rounded-10 border border-border-subtlest-tertiary text-text-secondary"
-                      >
-                        <DownvoteIcon size={IconSize.Size16} />
-                      </button>
-                    </div>
-                    <div className="flex flex-1 flex-col gap-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-8 bg-accent-cabbage-subtle px-2 py-1 text-text-primary typo-caption1">
-                          {prompt.tool}
-                        </span>
-                        <span className="rounded-8 bg-accent-water-subtle px-2 py-1 text-text-primary typo-caption1">
-                          {prompt.category}
-                        </span>
-                        <Typography
-                          type={TypographyType.Caption1}
-                          color={TypographyColor.Tertiary}
-                        >
-                          {prompt.timestamp} · @{prompt.author}
-                        </Typography>
-                      </div>
-                      <Typography type={TypographyType.Title4} bold>
-                        {prompt.title}
-                      </Typography>
-                      <div className="rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3">
-                        <Typography
-                          tag={TypographyTag.P}
-                          className="font-mono text-sm"
-                        >
-                          {prompt.preview}
-                        </Typography>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                          variant={ButtonVariant.Tertiary}
-                          size={ButtonSize.Small}
-                          icon={<CopyIcon />}
-                          iconPosition={ButtonIconPosition.Left}
-                        >
-                          Copy prompt
-                        </Button>
-                        <Button
-                          variant={ButtonVariant.Subtle}
-                          size={ButtonSize.Small}
-                          icon={<FlagIcon />}
-                          iconPosition={ButtonIconPosition.Left}
-                        >
-                          Flag
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5">
-                  <Typography type={TypographyType.Title3} bold>
-                    Submit a prompt
-                  </Typography>
-                  <Typography color={TypographyColor.Tertiary}>
-                    Share your workflow with the community. Auth required.
-                  </Typography>
-                  <div className="mt-4 flex flex-col gap-3">
-                    <div className="flex flex-col gap-1">
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                      >
-                        Tool used
-                      </Typography>
-                      <div className="rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-secondary typo-callout">
-                        Cursor
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                      >
-                        Use case
-                      </Typography>
-                      <div className="rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-secondary typo-callout">
-                        Refactoring
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                      >
-                        Title
-                      </Typography>
-                      <div className="rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-tertiary typo-callout">
-                        Short, descriptive title (max 100 chars)
-                      </div>
-                      <Typography
-                        type={TypographyType.Caption2}
-                        color={TypographyColor.StatusError}
-                      >
-                        Title must be at least 10 characters.
-                      </Typography>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                      >
-                        Prompt / workflow
-                      </Typography>
-                      <div className="rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-3 text-text-tertiary typo-callout">
-                        Paste your prompt here (50-5000 chars, markdown
-                        supported)
-                      </div>
-                      <Typography
-                        type={TypographyType.Caption2}
-                        color={TypographyColor.Tertiary}
-                      >
-                        0 / 5000
-                      </Typography>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                      >
-                        Screenshot / video URL (optional)
-                      </Typography>
-                      <div className="rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-tertiary typo-callout">
-                        https://
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex flex-col gap-2">
-                    <Button
-                      variant={ButtonVariant.Primary}
-                      size={ButtonSize.Medium}
-                    >
-                      Publish prompt
-                    </Button>
-                    <Typography
-                      type={TypographyType.Caption2}
-                      color={TypographyColor.Tertiary}
-                    >
-                      Rate limit: 5 submissions per day · Auto-flag duplicates
-                    </Typography>
-                  </div>
-                </div>
-
-                <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-5">
-                  <Typography type={TypographyType.Title4} bold>
-                    Moderation & Safety
-                  </Typography>
-                  <div className="mt-3 flex flex-col gap-2">
-                    <Typography color={TypographyColor.Tertiary}>
-                      Flag spam or unsafe content for review.
-                    </Typography>
-                    <Typography color={TypographyColor.Tertiary}>
-                      Duplicate prompts are auto-flagged for admin review.
-                    </Typography>
-                    <Typography color={TypographyColor.Tertiary}>
-                      External links in titles are rejected at submission.
-                    </Typography>
-                  </div>
-                </div>
-              </div>
             </div>
           </section>
         </div>
