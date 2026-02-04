@@ -20,6 +20,8 @@ export const createTestSettings = (
   optOutReadingStreak: true,
   sidebarExpanded: true,
   sortingEnabled: true,
+  showFeedbackButton: true,
+  toggleShowFeedbackButton: jest.fn(),
   toggleAutoDismissNotifications: jest.fn(),
   toggleOptOutCompanion: jest.fn(),
   toggleOptOutReadingStreak: jest.fn(),
