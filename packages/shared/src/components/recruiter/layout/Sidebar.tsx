@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
+import { CreditCardIcon, ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
 import HeaderLogo from '../../layout/HeaderLogo';
 import { SidebarScrollWrapper } from '../../sidebar/common';
 import { useOpportunities } from '../../../features/opportunity/hooks/useOpportunities';
@@ -63,18 +63,25 @@ const Footer = () => {
   return (
     <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary p-3">
       <ProfilePicture user={user} size={ProfileImageSize.Medium} />
-      <div>
-        <Typography type={TypographyType.Subhead} bold>
+      <div className="flex-1 overflow-hidden">
+        <Typography type={TypographyType.Subhead} bold className="truncate">
           {user?.name || 'Guest user'}
         </Typography>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
+          className="truncate"
         >
           {user?.username || '@guestuser'}
         </Typography>
       </div>
-      <div className="flex-1" />
+      <Button
+        variant={ButtonVariant.Tertiary}
+        icon={<CreditCardIcon />}
+        size={ButtonSize.XSmall}
+        href={`${webappUrl}recruiter/billing`}
+        tag="a"
+      />
       <Button
         variant={ButtonVariant.Tertiary}
         icon={<SettingsIcon />}
