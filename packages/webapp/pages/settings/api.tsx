@@ -52,7 +52,7 @@ const seo: NextSeoProps = {
 };
 
 const SKILL_INSTRUCTION =
-  'Fetch https://api.daily.dev/public/v1/skill.md and follow the instructions to connect to daily.dev';
+  'Install the daily-dev skill from clawdhub and explain my new superpowers';
 const OPENAPI_URL = 'https://api.daily.dev/public/v1/docs/json';
 const CLAUDE_INSTALL_COMMAND = [
   `claude plugin marketplace add https://github.com/dailydotdev/daily.git`,
@@ -412,13 +412,13 @@ const ApiAccessPage = (): ReactElement => {
 
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Body} bold>
-            Connect Your AI Agent
+            Connect OpenClaw
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Copy this instruction to your AI agent to get started:
+            Copy this instruction to your agent to get started:
           </Typography>
           <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
             <code className="min-w-0 flex-1 break-words text-text-tertiary">
