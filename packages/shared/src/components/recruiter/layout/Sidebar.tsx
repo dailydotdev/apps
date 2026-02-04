@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
+import { CreditCardIcon, ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
 import HeaderLogo from '../../layout/HeaderLogo';
 import { SidebarScrollWrapper } from '../../sidebar/common';
 import { useOpportunities } from '../../../features/opportunity/hooks/useOpportunities';
@@ -75,6 +75,13 @@ const Footer = () => {
         </Typography>
       </div>
       <div className="flex-1" />
+      <Button
+        variant={ButtonVariant.Tertiary}
+        icon={<CreditCardIcon />}
+        size={ButtonSize.XSmall}
+        href={`${webappUrl}recruiter/billing`}
+        tag="a"
+      />
       <Button
         variant={ButtonVariant.Tertiary}
         icon={<SettingsIcon />}
