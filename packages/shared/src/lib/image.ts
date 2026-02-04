@@ -199,30 +199,36 @@ export const cloudinaryPWAVideo =
 export const cloudinaryPWAVideoChrome =
   'https://media.daily.dev/video/upload/s--RD5n9hm9--/v1735044247/web_-_chrome_xavter.mp4';
 
-export const cloudinaryAppIconMain =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/main';
-export const cloudinaryAppIconV2 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v2';
-export const cloudinaryAppIconV3 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v3';
-export const cloudinaryAppIconV4 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v4';
-export const cloudinaryAppIconV5 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v5';
-export const cloudinaryAppIconV6 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v6';
-export const cloudinaryAppIconV7 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v7';
-export const cloudinaryAppIconV8 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v8';
-export const cloudinaryAppIconV9 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v9';
-export const cloudinaryAppIconV10 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v10';
-export const cloudinaryAppIconV11 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v11';
-export const cloudinaryAppIconV12 =
-  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp/v12';
+const APP_ICON_BASE_URL =
+  'https://media.daily.dev/image/upload/f_auto/v1770141925/webapp';
+
+export const cloudinaryAppIcons = [
+  { name: 'main', url: `${APP_ICON_BASE_URL}/main` },
+  { name: 'v2', url: `${APP_ICON_BASE_URL}/v2` },
+  { name: 'v3', url: `${APP_ICON_BASE_URL}/v3` },
+  { name: 'v4', url: `${APP_ICON_BASE_URL}/v4` },
+  { name: 'v5', url: `${APP_ICON_BASE_URL}/v5` },
+  { name: 'v6', url: `${APP_ICON_BASE_URL}/v6` },
+  { name: 'v7', url: `${APP_ICON_BASE_URL}/v7` },
+  { name: 'v8', url: `${APP_ICON_BASE_URL}/v8` },
+  { name: 'v9', url: `${APP_ICON_BASE_URL}/v9` },
+  { name: 'v10', url: `${APP_ICON_BASE_URL}/v10` },
+  { name: 'v11', url: `${APP_ICON_BASE_URL}/v11` },
+  { name: 'v12', url: `${APP_ICON_BASE_URL}/v12` },
+] as const;
+
+export const cloudinaryAppIconMain = cloudinaryAppIcons[0].url;
+export const cloudinaryAppIconV2 = cloudinaryAppIcons[1].url;
+export const cloudinaryAppIconV3 = cloudinaryAppIcons[2].url;
+export const cloudinaryAppIconV4 = cloudinaryAppIcons[3].url;
+export const cloudinaryAppIconV5 = cloudinaryAppIcons[4].url;
+export const cloudinaryAppIconV6 = cloudinaryAppIcons[5].url;
+export const cloudinaryAppIconV7 = cloudinaryAppIcons[6].url;
+export const cloudinaryAppIconV8 = cloudinaryAppIcons[7].url;
+export const cloudinaryAppIconV9 = cloudinaryAppIcons[8].url;
+export const cloudinaryAppIconV10 = cloudinaryAppIcons[9].url;
+export const cloudinaryAppIconV11 = cloudinaryAppIcons[10].url;
+export const cloudinaryAppIconV12 = cloudinaryAppIcons[11].url;
 
 export const cloudinaryOnboardingExtension = {
   [BrowserName.Chrome]: {

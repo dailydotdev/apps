@@ -143,47 +143,55 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     });
   }, [appIcons]);
 
+  const parseEventDetail = <T,>(rawDetail: unknown): T | null => {
+    if (typeof rawDetail === 'string') {
+      return parseOrDefault<T>(rawDetail) as T;
+    }
+    return rawDetail as T;
+  };
+
+  const handleGetIconResult = (detail: AppIconResult): void => {
+    const selected =
+      detail.selectedName ??
+      detail.icons?.find((icon) => icon.isSelected)?.name ??
+      null;
+
+    setAppIcons(detail.icons ?? []);
+    setSelectedIcon(selected);
+    setSupportsAlternateIcons(!!detail.supportsAlternateIcons);
+    setAppIconError(null);
+    setAppIconLoading(false);
+  };
+
+  const handleSetIconResult = (detail: AppIconResult): void => {
+    setSelectedIcon(detail.selectedName ?? null);
+    setAppIconError(null);
+    setAppIconLoading(false);
+  };
+
   const handleAppIconResult = useCallback((event: Event) => {
-    const rawDetail = (event as CustomEvent).detail as unknown;
-    const detail =
-      typeof rawDetail === 'string'
-        ? (parseOrDefault<AppIconResult>(rawDetail) as AppIconResult)
-        : (rawDetail as AppIconResult);
+    const detail = parseEventDetail<AppIconResult>(
+      (event as CustomEvent).detail,
+    );
 
     if (!detail || typeof detail !== 'object') {
       return;
     }
 
     if (detail.action === 'get') {
-      const selected =
-        detail.selectedName ??
-        detail.icons?.find((icon) => icon.isSelected)?.name ??
-        null;
-
-      setAppIcons(detail.icons ?? []);
-      setSelectedIcon(selected);
-      setSupportsAlternateIcons(!!detail.supportsAlternateIcons);
-      setAppIconError(null);
-      setAppIconLoading(false);
+      handleGetIconResult(detail);
       return;
     }
 
     if (detail.action === 'set') {
-      setSelectedIcon(detail.selectedName ?? null);
-      setAppIconError(null);
-      setAppIconLoading(false);
+      handleSetIconResult(detail);
     }
   }, []);
 
   const handleAppIconError = useCallback((event: Event) => {
-    const rawDetail = (event as CustomEvent).detail as unknown;
-    const detail =
-      typeof rawDetail === 'string'
-        ? (parseOrDefault<{ reason?: string; message?: string }>(rawDetail) as {
-            reason?: string;
-            message?: string;
-          })
-        : (rawDetail as { reason?: string; message?: string });
+    const detail = parseEventDetail<{ reason?: string; message?: string }>(
+      (event as CustomEvent).detail,
+    );
     const reason =
       detail?.message || detail?.reason || 'Unable to update icon.';
 
