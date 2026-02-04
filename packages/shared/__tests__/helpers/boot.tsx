@@ -12,6 +12,7 @@ import type { NotificationsContextProviderProps } from '../../src/contexts/Notif
 import { NotificationsContextProvider } from '../../src/contexts/NotificationsContext';
 import type { SettingsContextData } from '../../src/contexts/SettingsContext';
 import SettingsContext, { ThemeMode } from '../../src/contexts/SettingsContext';
+import { SortCommentsBy } from '../../src/graphql/comments';
 import type { AlertContextProviderProps } from '../../src/contexts/AlertContext';
 import { AlertContextProvider } from '../../src/contexts/AlertContext';
 import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
@@ -46,8 +47,10 @@ export const settingsContext: SettingsContextData = {
   setSpaciness: jest.fn(),
   setTheme: jest.fn(),
   showTopSites: true,
+  showFeedbackButton: true,
   sidebarExpanded: true,
   sortingEnabled: false,
+  sortCommentsBy: SortCommentsBy.OldestFirst,
   spaciness: 'eco',
   syncSettings: jest.fn(),
   themeMode: ThemeMode.Dark,
@@ -57,9 +60,15 @@ export const settingsContext: SettingsContextData = {
   toggleOptOutCompanion: jest.fn(),
   toggleOptOutReadingStreak: jest.fn(),
   toggleShowTopSites: jest.fn(),
+  toggleShowFeedbackButton: jest.fn(),
   toggleSidebarExpanded: jest.fn(),
   toggleSortingEnabled: jest.fn(),
   updateCustomLinks: jest.fn(),
+  updateSortCommentsBy: jest.fn(),
+  updateFlag: jest.fn(),
+  updateFlagRemote: jest.fn(),
+  updatePromptFlag: jest.fn(),
+  applyThemeMode: jest.fn(),
 };
 
 export const defaultLogContextData: LogContextData = {
