@@ -122,7 +122,7 @@ const Analytics = (): ReactElement => {
     enabled: !!user,
   });
 
-  const { data: historyData } = useQuery({
+  const { data: historyData, isLoading: isLoadingHistory } = useQuery({
     queryKey: historyQueryKey,
     queryFn: async () => {
       const result = await gqlClient.request<{
@@ -221,7 +221,7 @@ const Analytics = (): ReactElement => {
     [postsData],
   );
 
-  const hasNoPosts = !isLoadingPosts && posts.length === 0;
+  const hasNoPosts = !isLoadingPosts && !!postsData && posts.length === 0;
 
   const hasChartData = useMemo(() => {
     if (!historyData || historyData.length === 0) {
@@ -319,9 +319,11 @@ const Analytics = (): ReactElement => {
                 </div>
               )}
             </div>
-            {hasChartData ? (
+            {isLoadingHistory && <div className="h-40 w-full" />}
+            {!isLoadingHistory && hasChartData && (
               <CombinedImpressionsChart data={historyData} />
-            ) : (
+            )}
+            {!isLoadingHistory && !hasChartData && (
               <div className="flex h-40 items-center justify-center rounded-12 border border-border-subtlest-tertiary">
                 <Typography
                   type={TypographyType.Callout}
