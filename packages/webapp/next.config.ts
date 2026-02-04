@@ -4,7 +4,7 @@ import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
 import type { NextConfig } from 'next';
 import type { Rewrite } from 'next/dist/lib/load-custom-routes';
-import { getMarkdownRewrites } from './lib/markdownRoutes';
+import { getMarkdownRewrites, MARKDOWN_ROUTES } from './lib/markdownRoutes';
 
 const { version } = JSON.parse(
   readFileSync('../extension/package.json', 'utf8'),
@@ -163,6 +163,26 @@ const nextConfig: NextConfig = {
         };
       },
       redirects: async () => {
+        // Content negotiation redirects for AI agents (llms.txt spec)
+        // When Accept: text/markdown (without text/html), redirect to markdown API
+        const markdownRedirects = Object.entries(MARKDOWN_ROUTES).map(
+          ([source]) => {
+            const destination = `${source}.md`;
+
+            return {
+              source,
+              has: [
+                { type: 'header', key: 'Accept', value: '.*text/markdown.*' },
+              ],
+              missing: [
+                { type: 'header', key: 'Accept', value: '.*text/html.*' },
+              ],
+              destination,
+              permanent: false,
+            };
+          },
+        );
+
         const oldPublicAssets = [
           'dailydev.svg',
           'google.svg',
@@ -171,6 +191,7 @@ const nextConfig: NextConfig = {
         ];
 
         return [
+          ...markdownRedirects,
           ...oldPublicAssets.map((asset) => ({
             source: `/${asset}`,
             destination: `${

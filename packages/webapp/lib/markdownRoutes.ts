@@ -1,13 +1,13 @@
 /**
  * Shared route mappings for markdown versions of pages.
  *
- * These routes are used in two places:
- * 1. next.config.ts rewrites: Maps .md URLs (e.g., /sources.md → /api/md/sources)
+ * These routes are used in next.config.ts for:
+ * 1. Rewrites: Maps .md URLs (e.g., /sources.md → /api/md/sources)
  *    This allows direct access via URL like https://app.daily.dev/sources.md
  *
- * 2. middleware.ts: Content negotiation for Accept: text/markdown header
- *    This allows clients to request markdown by sending Accept: text/markdown
- *    to the regular URL (e.g., /sources with Accept: text/markdown → /api/md/sources)
+ * 2. Redirects: Content negotiation for Accept: text/markdown header
+ *    When clients send Accept: text/markdown (without text/html), they get
+ *    redirected to the markdown API endpoint.
  *
  * Both approaches follow the llms.txt specification for AI agent discoverability.
  */
