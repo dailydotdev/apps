@@ -319,11 +319,11 @@ const Analytics = (): ReactElement => {
                 </div>
               )}
             </div>
-            {isLoadingHistory ? (
-              <div className="h-40 w-full" />
-            ) : hasChartData ? (
+            {isLoadingHistory && <div className="h-40 w-full" />}
+            {!isLoadingHistory && hasChartData && (
               <CombinedImpressionsChart data={historyData} />
-            ) : (
+            )}
+            {!isLoadingHistory && !hasChartData && (
               <div className="flex h-40 items-center justify-center rounded-12 border border-border-subtlest-tertiary">
                 <Typography
                   type={TypographyType.Callout}
