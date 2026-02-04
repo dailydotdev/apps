@@ -119,13 +119,10 @@ export const revokePreviewUrl = (url: string): void => {
 /**
  * Validate that a file is an allowed image type for screenshot upload.
  */
-export const isValidImageType = (file: File): boolean => [
-	'image/png',
-	'image/jpeg',
-	'image/jpg',
-	'image/webp',
-	'image/gif',
-].includes(file.type);
+export const isValidImageType = (file: File): boolean =>
+  ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'].includes(
+    file.type,
+  );
 
 /**
  * Maximum file size for screenshot upload (5MB).

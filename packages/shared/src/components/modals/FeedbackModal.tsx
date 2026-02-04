@@ -12,11 +12,10 @@ import { Modal } from './common/Modal';
 import { ModalSize } from './common/types';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import Textarea from '../fields/Textarea';
-import { Checkbox } from '../fields/Checkbox';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { useCaptureConsoleLogs } from '../../hooks/useCaptureConsoleLogs';
 import { FeedbackCategory, submitFeedback } from '../../graphql/feedback';
 import type { FeedbackInput } from '../../graphql/feedback';
+import { uploadContentImage } from '../../graphql/posts';
 import {
   Typography,
   TypographyType,
@@ -50,7 +49,6 @@ const FeedbackModal = ({
   ...props
 }: ModalProps): ReactElement => {
   const { displayToast } = useToastNotification();
-  const { getLogsJson } = useCaptureConsoleLogs();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [category, setCategory] = useState<FeedbackCategory>(
@@ -61,7 +59,6 @@ const FeedbackModal = ({
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(
     null,
   );
-  const [includeConsoleLogs, setIncludeConsoleLogs] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
 
   const canCaptureScreen = useMemo(() => supportsScreenCapture(), []);
@@ -142,6 +139,8 @@ const FeedbackModal = ({
     handleScreenshotChange(null);
   }, [handleScreenshotChange]);
 
+  const [isUploading, setIsUploading] = useState(false);
+
   const { mutate: submitMutation, isPending } = useMutation({
     mutationFn: (input: FeedbackInput) => submitFeedback(input),
     onSuccess: () => {
@@ -153,10 +152,24 @@ const FeedbackModal = ({
     },
   });
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (!description.trim()) {
       displayToast('Please enter your feedback');
       return;
+    }
+
+    let screenshotUrl: string | undefined;
+
+    if (screenshot) {
+      setIsUploading(true);
+      try {
+        screenshotUrl = await uploadContentImage(screenshot);
+      } catch {
+        displayToast('Failed to upload screenshot. Please try again.');
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
     }
 
     submitMutation({
@@ -165,20 +178,12 @@ const FeedbackModal = ({
       pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
       userAgent:
         typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
-      screenshot: screenshot || undefined,
-      consoleLogs: includeConsoleLogs ? getLogsJson() : undefined,
+      screenshotUrl,
     });
-  }, [
-    category,
-    description,
-    screenshot,
-    includeConsoleLogs,
-    getLogsJson,
-    submitMutation,
-    displayToast,
-  ]);
+  }, [category, description, screenshot, submitMutation, displayToast]);
 
-  const isSubmitDisabled = !description.trim() || isPending || isCapturing;
+  const isSubmitDisabled =
+    !description.trim() || isPending || isCapturing || isUploading;
 
   return (
     <Modal
@@ -186,7 +191,7 @@ const FeedbackModal = ({
       onRequestClose={onRequestClose}
       isDrawerOnMobile
       size={ModalSize.Small}
-      shouldCloseOnOverlayClick={!isPending && !isCapturing}
+      shouldCloseOnOverlayClick={!isPending && !isCapturing && !isUploading}
     >
       <Modal.Header title="Send Feedback" />
       <Modal.Body className="flex flex-col gap-4">
@@ -217,7 +222,7 @@ const FeedbackModal = ({
                 }
                 size={ButtonSize.Small}
                 onClick={() => setCategory(option.value)}
-                disabled={isPending || isCapturing}
+                disabled={isPending || isCapturing || isUploading}
               >
                 {option.label}
               </Button>
@@ -235,7 +240,7 @@ const FeedbackModal = ({
           maxLength={FEEDBACK_MAX_LENGTH}
           rows={6}
           fieldType="tertiary"
-          disabled={isPending || isCapturing}
+          disabled={isPending || isCapturing || isUploading}
           className={{
             baseField: 'min-h-[150px]',
           }}
@@ -258,7 +263,7 @@ const FeedbackModal = ({
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Small}
                 onClick={handleCaptureScreenshot}
-                disabled={isPending || isCapturing}
+                disabled={isPending || isCapturing || isUploading}
                 icon={<CameraIcon />}
               >
                 {isCapturing ? 'Capturing...' : 'Capture Screenshot'}
@@ -268,7 +273,7 @@ const FeedbackModal = ({
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
               onClick={() => fileInputRef.current?.click()}
-              disabled={isPending || isCapturing}
+              disabled={isPending || isCapturing || isUploading}
               icon={<ImageIcon />}
             >
               Upload Image
@@ -302,18 +307,6 @@ const FeedbackModal = ({
               />
             </div>
           )}
-
-          {/* Console logs checkbox */}
-          <Checkbox
-            name="includeConsoleLogs"
-            checked={includeConsoleLogs}
-            onToggleCallback={setIncludeConsoleLogs}
-            disabled={isPending || isCapturing}
-          >
-            <span className="text-text-secondary">
-              Include console logs (helps debug issues)
-            </span>
-          </Checkbox>
         </div>
 
         {/* Submit button */}
@@ -321,7 +314,7 @@ const FeedbackModal = ({
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
           onClick={handleSubmit}
-          loading={isPending}
+          loading={isPending || isUploading}
           disabled={isSubmitDisabled}
           className="w-full"
         >

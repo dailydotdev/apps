@@ -19,8 +19,7 @@ export interface FeedbackInput {
   description: string;
   pageUrl?: string;
   userAgent?: string;
-  screenshot?: File;
-  consoleLogs?: string;
+  screenshotUrl?: string;
 }
 
 export const SUBMIT_FEEDBACK_MUTATION = gql`
