@@ -1,6 +1,7 @@
-import React, { lazy, Suspense, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
+import dynamic from 'next/dynamic';
 
 import { ThemeSection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/ThemeSection';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -28,10 +29,12 @@ import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { SettingsSwitch } from '../../components/layouts/SettingsLayout/common';
 
-const IOSIconPicker = lazy(() =>
-  import('../../components/IOSIconPicker').then((module) => ({
-    default: module.IOSIconPicker,
-  })),
+const IOSIconPicker = dynamic(
+  () =>
+    import('../../components/IOSIconPicker').then(
+      (module) => module.IOSIconPicker,
+    ),
+  { ssr: false },
 );
 
 const densities: RadioItemProps[] = [
@@ -132,11 +135,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           />
         </FlexCol>
 
-        {supportsAppIconChange && (
-          <Suspense fallback={null}>
-            <IOSIconPicker />
-          </Suspense>
-        )}
+        {supportsAppIconChange && <IOSIconPicker />}
 
         <FlexCol className="gap-5">
           <Typography bold type={TypographyType.Subhead}>
