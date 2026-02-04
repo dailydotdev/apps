@@ -13,17 +13,7 @@ const processSalaryValue = (val: unknown) => {
   return val;
 };
 
-export const opportunityEditInfoSchema = z.object({
-  title: z.string().nonempty('Add a job title').max(240),
-  tldr: z.string().nonempty('Add a short description').max(480),
-  keywords: z
-    .array(
-      z.object({
-        keyword: z.string().nonempty(),
-      }),
-    )
-    .min(1, 'Add at least one skill')
-    .max(100),
+const locationEntrySchema = z.object({
   externalLocationId: z.string().optional(),
   locationType: z.number().optional(),
   locationData: z
@@ -35,6 +25,22 @@ export const opportunityEditInfoSchema = z.object({
     })
     .nullable()
     .optional(),
+});
+
+export type LocationEntry = z.infer<typeof locationEntrySchema>;
+
+export const opportunityEditInfoSchema = z.object({
+  title: z.string().nonempty('Add a job title').max(240),
+  tldr: z.string().nonempty('Add a short description').max(480),
+  keywords: z
+    .array(
+      z.object({
+        keyword: z.string().nonempty(),
+      }),
+    )
+    .min(1, 'Add at least one skill')
+    .max(100),
+  locations: z.array(locationEntrySchema).optional().default([]),
   meta: z.object({
     employmentType: z.coerce.number().min(1, 'Select an employment type'),
     teamSize: z
