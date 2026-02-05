@@ -304,5 +304,131 @@
     "topics": ["news", "opencode", "coverage"],
     "priority": "low",
     "notes": "Tech news coverage of AI coding tools"
+  },
+  {
+    "username": "GitHubCopilot",
+    "name": "GitHub Copilot",
+    "role": "Official Account",
+    "affiliation": "GitHub",
+    "topics": ["copilot", "official", "features"],
+    "priority": "high",
+    "notes": "Official GitHub Copilot account, feature announcements, Agents HQ updates"
+  },
+  {
+    "username": "WindsurfAI",
+    "name": "Windsurf",
+    "role": "Official Account",
+    "affiliation": "Codeium",
+    "topics": ["windsurf", "official", "features"],
+    "priority": "high",
+    "notes": "Official Windsurf account (Codeium's agentic IDE)"
+  },
+  {
+    "username": "AiderCode",
+    "name": "Aider",
+    "role": "Official Account",
+    "affiliation": "Aider",
+    "topics": ["aider", "official", "releases"],
+    "priority": "high",
+    "notes": "Official Aider account, release notes, tips"
+  },
+  {
+    "username": "ContinueDev",
+    "name": "Continue",
+    "role": "Official Account",
+    "affiliation": "Continue",
+    "topics": ["continue", "open_source", "official"],
+    "priority": "high",
+    "notes": "Open-source AI code assistant, VS Code/JetBrains"
+  },
+  {
+    "username": "caborned",
+    "name": "Cline",
+    "role": "Official Account",
+    "affiliation": "Cline",
+    "topics": ["cline", "official", "vscode"],
+    "priority": "high",
+    "notes": "VS Code AI coding agent, autonomous coding"
+  },
+  {
+    "username": "sourcegraph",
+    "name": "Sourcegraph",
+    "role": "Official Account",
+    "affiliation": "Sourcegraph",
+    "topics": ["cody", "official", "code_search"],
+    "priority": "high",
+    "notes": "Cody AI assistant, code intelligence platform"
+  },
+  {
+    "username": "ThePrimeagen",
+    "name": "ThePrimeagen",
+    "role": "Content Creator",
+    "affiliation": "Netflix/YouTube",
+    "topics": ["commentary", "hot_takes", "tutorials", "vim"],
+    "priority": "high",
+    "notes": "Massive dev audience, AI coding takes, entertaining commentary"
+  },
+  {
+    "username": "fireship_dev",
+    "name": "Fireship",
+    "role": "Content Creator",
+    "affiliation": "YouTube",
+    "topics": ["news", "tutorials", "fast_updates", "100_seconds"],
+    "priority": "high",
+    "notes": "Fast news coverage, '100 seconds' format, AI tools reviews"
+  },
+  {
+    "username": "paul_gauthier",
+    "name": "Paul Gauthier",
+    "role": "Aider Creator",
+    "affiliation": "Aider",
+    "topics": ["aider", "tips", "releases", "benchmarks"],
+    "priority": "high",
+    "notes": "Creator of Aider, detailed tips, benchmark results"
+  },
+  {
+    "username": "simonw",
+    "name": "Simon Willison",
+    "role": "Developer/Builder",
+    "affiliation": "Independent",
+    "topics": ["llm_cli", "sqlite", "practical_ai", "tools"],
+    "priority": "high",
+    "notes": "LLM CLI creator, Datasette, pragmatic AI takes, highly respected"
+  },
+  {
+    "username": "mckaywrigley",
+    "name": "McKay Wrigley",
+    "role": "Builder",
+    "affiliation": "Takeoff",
+    "topics": ["ai_coding", "tutorials", "chatbot_ui"],
+    "priority": "medium",
+    "notes": "Chatbot UI creator, AI coding tutorials, builds in public"
+  },
+  {
+    "username": "jxnlco",
+    "name": "Jason Liu",
+    "role": "AI Engineer",
+    "affiliation": "Independent",
+    "topics": ["ai_engineering", "instructor", "structured_output"],
+    "priority": "medium",
+    "notes": "instructor library creator, structured outputs, AI engineering patterns"
+  },
+  {
+    "username": "nickscamara_",
+    "name": "Nick Scamara",
+    "role": "Builder",
+    "affiliation": "Firecrawl",
+    "topics": ["firecrawl", "mcp", "web_scraping"],
+    "priority": "medium",
+    "notes": "Firecrawl creator, MCP integrations, web data for AI"
+  },
+  {
+    "username": "IndyDevDan",
+    "name": "IndyDevDan",
+    "role": "Content Creator",
+    "affiliation": "YouTube",
+    "topics": ["claude_code", "tutorials", "workflows"],
+    "priority": "medium",
+    "notes": "Claude Code tutorials, practical workflow videos"
   }
 ]
