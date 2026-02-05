@@ -1,11 +1,5 @@
 import type { ReactElement, ChangeEvent } from 'react';
-import React, {
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-  useEffect,
-} from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -25,7 +19,6 @@ import { CameraIcon } from '../icons/Camera';
 import { ImageIcon } from '../icons/Image';
 import { TrashIcon } from '../icons/Trash';
 import {
-  supportsScreenCapture,
   captureScreenshot,
   createPreviewUrl,
   revokePreviewUrl,
@@ -60,8 +53,6 @@ const FeedbackModal = ({
     null,
   );
   const [isCapturing, setIsCapturing] = useState(false);
-
-  const canCaptureScreen = useMemo(() => supportsScreenCapture(), []);
 
   // Clean up preview URL when component unmounts or screenshot changes
   useEffect(() => {
@@ -109,14 +100,34 @@ const FeedbackModal = ({
 
   const handleCaptureScreenshot = useCallback(async () => {
     setIsCapturing(true);
+
+    // Hide modal during capture by setting opacity to 0
+    const modalOverlay = document.querySelector(
+      '.ReactModal__Overlay',
+    ) as HTMLElement | null;
+    const originalOpacity = modalOverlay?.style.opacity;
+
     try {
+      if (modalOverlay) {
+        modalOverlay.style.opacity = '0';
+        // Wait for repaint
+        await new Promise((resolve) => {
+          requestAnimationFrame(resolve);
+        });
+      }
+
       const file = await captureScreenshot();
       if (file) {
         handleScreenshotChange(file);
       }
-    } catch (error) {
+      // If file is null, user likely cancelled - no error toast needed
+    } catch {
       displayToast('Failed to capture screenshot. Please try again.');
     } finally {
+      // Restore modal visibility
+      if (modalOverlay) {
+        modalOverlay.style.opacity = originalOpacity || '';
+      }
       setIsCapturing(false);
     }
   }, [handleScreenshotChange, displayToast]);
@@ -258,17 +269,15 @@ const FeedbackModal = ({
 
           {/* Screenshot buttons */}
           <div className="flex flex-wrap gap-2">
-            {canCaptureScreen && (
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                onClick={handleCaptureScreenshot}
-                disabled={isPending || isCapturing || isUploading}
-                icon={<CameraIcon />}
-              >
-                {isCapturing ? 'Capturing...' : 'Capture Screenshot'}
-              </Button>
-            )}
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              onClick={handleCaptureScreenshot}
+              disabled={isPending || isCapturing || isUploading}
+              icon={<CameraIcon />}
+            >
+              {isCapturing ? 'Capturing...' : 'Capture Screenshot'}
+            </Button>
             <Button
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}

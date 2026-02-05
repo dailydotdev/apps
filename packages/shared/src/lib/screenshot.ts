@@ -1,37 +1,29 @@
 /**
- * Check if the browser supports screen capture via getDisplayMedia API.
- * This is used to determine whether to show the "Capture Screenshot" button.
- */
-export const supportsScreenCapture = (): boolean => {
-  if (typeof navigator === 'undefined') {
-    return false;
-  }
-
-  return (
-    'mediaDevices' in navigator && 'getDisplayMedia' in navigator.mediaDevices
-  );
-};
-
-/**
- * Capture a screenshot using the Screen Capture API (getDisplayMedia).
- * The user will be prompted to select which screen/window/tab to capture.
+ * Capture a screenshot using the Screen Capture API.
+ * Uses preferCurrentTab to pre-select the current tab in the picker.
  *
  * @returns A File object containing the screenshot as a PNG, or null if cancelled/failed.
  */
 export const captureScreenshot = async (): Promise<File | null> => {
-  if (!supportsScreenCapture()) {
+  if (
+    typeof navigator === 'undefined' ||
+    !('mediaDevices' in navigator) ||
+    !('getDisplayMedia' in navigator.mediaDevices)
+  ) {
     return null;
   }
 
   let stream: MediaStream | null = null;
 
   try {
-    // Request screen capture - user will see a selection dialog
+    // Request screen capture with preferCurrentTab to pre-select current tab
     stream = await navigator.mediaDevices.getDisplayMedia({
       video: {
         displaySurface: 'browser',
       } as MediaTrackConstraints,
       audio: false,
+      // @ts-expect-error preferCurrentTab is not in TypeScript types yet
+      preferCurrentTab: true,
     });
 
     const track = stream.getVideoTracks()[0];
@@ -53,7 +45,9 @@ export const captureScreenshot = async (): Promise<File | null> => {
     });
 
     // Give the video a moment to render
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 100);
+    });
 
     // Create canvas and draw the video frame
     const canvas = document.createElement('canvas');
@@ -78,20 +72,17 @@ export const captureScreenshot = async (): Promise<File | null> => {
 
     // Create a File from the blob
     const timestamp = Date.now();
-    const file = new File([blob], `screenshot-${timestamp}.png`, {
+    return new File([blob], `screenshot-${timestamp}.png`, {
       type: 'image/png',
     });
-
-    return file;
   } catch (error) {
-    // User cancelled or permission denied - this is expected behavior
+    // User cancelled or permission denied
     if (
       error instanceof Error &&
       (error.name === 'NotAllowedError' || error.name === 'AbortError')
     ) {
       return null;
     }
-    // Re-throw unexpected errors
     throw error;
   } finally {
     // Always stop all tracks to clean up
@@ -103,7 +94,7 @@ export const captureScreenshot = async (): Promise<File | null> => {
 
 /**
  * Create an object URL for a File object to display a preview.
- * Remember to call URL.revokeObjectURL() when done to free memory.
+ * Remember to call revokePreviewUrl() when done to free memory.
  */
 export const createPreviewUrl = (file: File): string => {
   return URL.createObjectURL(file);
