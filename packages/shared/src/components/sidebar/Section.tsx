@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useRef, useCallback } from 'react';
+import React, { useRef } from 'react';
 import type { ItemInnerProps, SidebarMenuItem } from './common';
 import { NavHeader, NavSection } from './common';
 import { SidebarItem } from './SidebarItem';
@@ -47,10 +47,10 @@ export function Section({
   const isVisible = useRef(
     isNullOrUndefined(flags?.[flag]) ? true : flags[flag],
   );
-  const toggleFlag = useCallback(() => {
+  const toggleFlag = () => {
     updateFlag(flag, !isVisible.current);
     isVisible.current = !isVisible.current;
-  }, [updateFlag, flag]);
+  };
 
   return (
     <NavSection className={classNames('mt-1', className)}>
@@ -58,7 +58,7 @@ export function Section({
         <NavHeader className="hidden laptop:flex">
           <div
             className={classNames(
-              'group/section flex w-full items-center justify-between px-2 py-1.5 transition-opacity duration-300',
+              'group/section flex min-h-9 w-full items-center justify-between px-2 py-1.5 transition-opacity duration-300',
               sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
