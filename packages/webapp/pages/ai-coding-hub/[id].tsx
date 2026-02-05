@@ -143,16 +143,34 @@ const SignalDetailPage = (): ReactElement => {
           <span
             className={classNames(
               'rounded-4 px-2 py-0.5 text-xs font-bold uppercase tracking-wide',
-              item.category === 'mindset_shift' &&
-                'bg-accent-onion-subtle text-accent-onion-default',
-              item.category === 'tips' &&
-                'bg-accent-cabbage-subtle text-accent-cabbage-default',
-              item.category === 'product_launch' &&
-                'bg-accent-water-subtle text-accent-water-default',
-              item.category === 'workflow' &&
-                'bg-accent-bun-subtle text-accent-bun-default',
+              item.category === 'leak' && 'bg-accent-onion-default text-white',
+              item.category === 'milestone' &&
+                'bg-accent-avocado-default text-white',
+              item.category === 'release' &&
+                'bg-accent-water-default text-white',
+              item.category === 'hot_take' &&
+                'bg-accent-bacon-default text-white',
+              item.category === 'thread' && 'bg-accent-bun-default text-white',
+              item.category === 'feature' &&
+                'bg-accent-blueCheese-default text-white',
+              item.category === 'endorsement' &&
+                'bg-accent-lettuce-default text-white',
               item.category === 'announcement' &&
-                'bg-accent-cheese-subtle text-accent-cheese-default',
+                'bg-accent-cheese-default text-white',
+              item.category === 'drama' &&
+                'bg-accent-ketchup-default text-white',
+              item.category === 'insight' &&
+                'bg-accent-salt-default text-white',
+              item.category === 'data' &&
+                'bg-accent-lettuce-default text-white',
+              item.category === 'product_launch' &&
+                'bg-accent-water-default text-white',
+              item.category === 'tips' &&
+                'bg-accent-cabbage-default text-white',
+              item.category === 'standard' &&
+                'bg-accent-bun-default text-white',
+              item.category === 'commentary' &&
+                'bg-accent-pepper-default text-white',
             )}
           >
             {categoryLabels[item.category]}
@@ -175,18 +193,6 @@ const SignalDetailPage = (): ReactElement => {
         >
           {item.summary}
         </Typography>
-
-        {/* Why it matters */}
-        <div className="border-accent-cabbage-default/30 bg-accent-cabbage-subtle/50 mb-8 rounded-12 border px-4 py-4">
-          <div className="mb-2 flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-accent-cabbage-default">
-              Why it matters
-            </span>
-          </div>
-          <Typography type={TypographyType.Body} className="text-text-primary">
-            {item.why_it_matters}
-          </Typography>
-        </div>
 
         {/* Tags */}
         <div className="mb-8 flex flex-wrap gap-2">
@@ -252,16 +258,36 @@ const SignalDetailPage = (): ReactElement => {
                       <span
                         className={classNames(
                           'rounded-4 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
-                          related.category === 'mindset_shift' &&
-                            'bg-accent-onion-subtle text-accent-onion-default',
-                          related.category === 'tips' &&
-                            'bg-accent-cabbage-subtle text-accent-cabbage-default',
-                          related.category === 'product_launch' &&
-                            'bg-accent-water-subtle text-accent-water-default',
-                          related.category === 'workflow' &&
-                            'bg-accent-bun-subtle text-accent-bun-default',
+                          related.category === 'leak' &&
+                            'bg-accent-onion-default text-white',
+                          related.category === 'milestone' &&
+                            'bg-accent-avocado-default text-white',
+                          related.category === 'release' &&
+                            'bg-accent-water-default text-white',
+                          related.category === 'hot_take' &&
+                            'bg-accent-bacon-default text-white',
+                          related.category === 'thread' &&
+                            'bg-accent-bun-default text-white',
+                          related.category === 'feature' &&
+                            'bg-accent-blueCheese-default text-white',
+                          related.category === 'endorsement' &&
+                            'bg-accent-lettuce-default text-white',
                           related.category === 'announcement' &&
-                            'bg-accent-cheese-subtle text-accent-cheese-default',
+                            'bg-accent-cheese-default text-white',
+                          related.category === 'drama' &&
+                            'bg-accent-ketchup-default text-white',
+                          related.category === 'insight' &&
+                            'bg-accent-salt-default text-white',
+                          related.category === 'data' &&
+                            'bg-accent-lettuce-default text-white',
+                          related.category === 'product_launch' &&
+                            'bg-accent-water-default text-white',
+                          related.category === 'tips' &&
+                            'bg-accent-cabbage-default text-white',
+                          related.category === 'standard' &&
+                            'bg-accent-bun-default text-white',
+                          related.category === 'commentary' &&
+                            'bg-accent-pepper-default text-white',
                         )}
                       >
                         {categoryLabels[related.category]}
