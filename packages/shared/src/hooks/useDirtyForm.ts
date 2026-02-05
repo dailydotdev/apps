@@ -72,6 +72,35 @@ export const useDirtyForm = (
   }, [isDirty, router, openModal, handleDiscard, handleSave]);
 
   useEffect(() => {
+    const handleBeforePopState = ({ url }: { url: string }) => {
+      if (allowNavigationRef.current || !isDirty) {
+        allowNavigationRef.current = false;
+        return true;
+      }
+
+      // Store the URL we're trying to navigate to
+      pendingUrlRef.current = url;
+
+      openModal({
+        type: LazyModal.DirtyForm,
+        props: {
+          onDiscard: handleDiscard,
+          onSave: handleSave,
+        },
+      });
+
+      // Prevent the navigation
+      return false;
+    };
+
+    router.beforePopState(handleBeforePopState);
+
+    return () => {
+      router.beforePopState(() => true);
+    };
+  }, [isDirty, router, openModal, handleDiscard, handleSave]);
+
+  useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isDirty) {
         e.preventDefault();
