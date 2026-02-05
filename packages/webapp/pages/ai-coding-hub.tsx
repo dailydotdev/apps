@@ -24,7 +24,7 @@ import {
   categoryLabels,
   getRelativeDate,
 } from '../data/aiCodingHubData';
-import type { FeedItem, Category } from '../data/aiCodingHubData';
+import type { FeedItem } from '../data/aiCodingHubData';
 
 const SignalCard = ({ item }: { item: FeedItem }): ReactElement => {
   const tweetUrl = `https://twitter.com/i/web/status/${item.source_tweet_id}`;
@@ -36,16 +36,28 @@ const SignalCard = ({ item }: { item: FeedItem }): ReactElement => {
         <span
           className={classNames(
             'rounded-4 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
-            item.category === 'mindset_shift' &&
-              'bg-accent-onion-subtle text-accent-onion-default',
-            item.category === 'tips' &&
-              'bg-accent-cabbage-subtle text-accent-cabbage-default',
-            item.category === 'product_launch' &&
-              'bg-accent-water-subtle text-accent-water-default',
-            item.category === 'workflow' &&
-              'bg-accent-bun-subtle text-accent-bun-default',
+            item.category === 'leak' && 'bg-accent-onion-default text-white',
+            item.category === 'milestone' &&
+              'bg-accent-cabbage-default text-white',
+            item.category === 'release' && 'bg-accent-water-default text-white',
+            item.category === 'hot_take' &&
+              'bg-accent-bacon-default text-white',
+            item.category === 'thread' && 'bg-accent-bun-default text-white',
+            item.category === 'feature' &&
+              'bg-accent-blueCheese-default text-white',
+            item.category === 'endorsement' &&
+              'bg-accent-avocado-default text-white',
             item.category === 'announcement' &&
-              'bg-accent-cheese-subtle text-accent-cheese-default',
+              'bg-accent-cheese-default text-raw-pepper-90',
+            item.category === 'drama' && 'bg-accent-ketchup-default text-white',
+            item.category === 'insight' && 'bg-accent-salt-default text-white',
+            item.category === 'data' && 'bg-accent-lettuce-default text-white',
+            item.category === 'product_launch' &&
+              'bg-accent-burger-default text-white',
+            item.category === 'tips' && 'bg-accent-cabbage-default text-white',
+            item.category === 'standard' && 'bg-accent-bun-default text-white',
+            item.category === 'commentary' &&
+              'bg-accent-salt-default text-white',
           )}
         >
           {categoryLabels[item.category]}
@@ -67,40 +79,27 @@ const SignalCard = ({ item }: { item: FeedItem }): ReactElement => {
         </a>
       </Link>
 
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        className="line-clamp-3 leading-relaxed"
-      >
-        {item.summary}
-      </Typography>
-
-      {/* WHY IT MATTERS - The FOMO hook */}
-      <div className="border-accent-cabbage-default/30 bg-accent-cabbage-subtle/50 mt-1 rounded-8 border px-3 py-2">
-        <div className="flex items-start gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-accent-cabbage-default">
-            Why it matters
-          </span>
-        </div>
+      {item.summary && (
         <Typography
-          type={TypographyType.Caption1}
-          className="mt-1 font-medium text-text-primary"
+          type={TypographyType.Callout}
+          color={TypographyColor.Secondary}
+          className="line-clamp-3 leading-relaxed"
         >
-          {item.why_it_matters}
+          {item.summary}
         </Typography>
-      </div>
+      )}
 
       <div className="flex items-center justify-between">
-        <div className="flex flex-wrap gap-1.5">
+        <ul className="flex flex-wrap gap-1.5" aria-label="Tags">
           {item.tags.slice(0, 3).map((tag) => (
-            <span
+            <li
               key={tag}
-              className="rounded-4 bg-surface-float px-2 py-0.5 text-[10px] text-text-tertiary"
+              className="list-none rounded-4 border border-border-subtlest-tertiary bg-transparent px-2 py-0.5 text-xs text-text-secondary"
             >
               #{tag.replace(/_/g, '')}
-            </span>
+            </li>
           ))}
-        </div>
+        </ul>
         <a
           href={tweetUrl}
           target="_blank"
@@ -115,8 +114,17 @@ const SignalCard = ({ item }: { item: FeedItem }): ReactElement => {
   );
 };
 
+type FilterCategory =
+  | 'ALL'
+  | 'product_launch'
+  | 'feature'
+  | 'tips'
+  | 'announcement'
+  | 'drama'
+  | 'hot_take';
+
 const AiCodingHubPage = (): ReactElement => {
-  const [activeCategory, setActiveCategory] = useState<Category | 'ALL'>('ALL');
+  const [activeCategory, setActiveCategory] = useState<FilterCategory>('ALL');
 
   const filteredFeedItems = useMemo(() => {
     if (activeCategory === 'ALL') {
@@ -208,30 +216,6 @@ const AiCodingHubPage = (): ReactElement => {
           </Button>
           <Button
             variant={
-              activeCategory === 'tips'
-                ? ButtonVariant.Subtle
-                : ButtonVariant.Tertiary
-            }
-            size={ButtonSize.XSmall}
-            onClick={() => setActiveCategory('tips')}
-            className="flex-shrink-0"
-          >
-            Quick Wins
-          </Button>
-          <Button
-            variant={
-              activeCategory === 'workflow'
-                ? ButtonVariant.Subtle
-                : ButtonVariant.Tertiary
-            }
-            size={ButtonSize.XSmall}
-            onClick={() => setActiveCategory('workflow')}
-            className="flex-shrink-0"
-          >
-            Workflows
-          </Button>
-          <Button
-            variant={
               activeCategory === 'product_launch'
                 ? ButtonVariant.Subtle
                 : ButtonVariant.Tertiary
@@ -244,15 +228,27 @@ const AiCodingHubPage = (): ReactElement => {
           </Button>
           <Button
             variant={
-              activeCategory === 'mindset_shift'
+              activeCategory === 'feature'
                 ? ButtonVariant.Subtle
                 : ButtonVariant.Tertiary
             }
             size={ButtonSize.XSmall}
-            onClick={() => setActiveCategory('mindset_shift')}
+            onClick={() => setActiveCategory('feature')}
             className="flex-shrink-0"
           >
-            Mindset
+            Features
+          </Button>
+          <Button
+            variant={
+              activeCategory === 'tips'
+                ? ButtonVariant.Subtle
+                : ButtonVariant.Tertiary
+            }
+            size={ButtonSize.XSmall}
+            onClick={() => setActiveCategory('tips')}
+            className="flex-shrink-0"
+          >
+            Tips
           </Button>
           <Button
             variant={
@@ -265,6 +261,30 @@ const AiCodingHubPage = (): ReactElement => {
             className="flex-shrink-0"
           >
             News
+          </Button>
+          <Button
+            variant={
+              activeCategory === 'drama'
+                ? ButtonVariant.Subtle
+                : ButtonVariant.Tertiary
+            }
+            size={ButtonSize.XSmall}
+            onClick={() => setActiveCategory('drama')}
+            className="flex-shrink-0"
+          >
+            Drama
+          </Button>
+          <Button
+            variant={
+              activeCategory === 'hot_take'
+                ? ButtonVariant.Subtle
+                : ButtonVariant.Tertiary
+            }
+            size={ButtonSize.XSmall}
+            onClick={() => setActiveCategory('hot_take')}
+            className="flex-shrink-0"
+          >
+            Hot Takes
           </Button>
         </div>
 
