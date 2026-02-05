@@ -70,30 +70,30 @@ const FeedbackModal = ({
         revokePreviewUrl(screenshotPreview);
       }
 
-      if (file) {
-        // Validate file type
-        if (!isValidImageType(file)) {
-          displayToast('Invalid image type. Use PNG, JPG, WebP, or GIF.');
-          return;
-        }
-
-        // Validate file size
-        if (!isValidFileSize(file)) {
-          displayToast(
-            `File too large. Maximum size is ${
-              MAX_SCREENSHOT_SIZE / 1024 / 1024
-            }MB.`,
-          );
-          return;
-        }
-
-        setScreenshot(file);
-        setScreenshotPreview(createPreviewUrl(file));
-      } else {
+      if (!file) {
         setScreenshot(null);
         setScreenshotPreview(null);
+        return;
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+
+      // Validate file type
+      if (!isValidImageType(file)) {
+        displayToast('Invalid image type. Use PNG, JPG, WebP, or GIF.');
+        return;
+      }
+
+      // Validate file size
+      if (!isValidFileSize(file)) {
+        displayToast(
+          `File too large. Maximum size is ${
+            MAX_SCREENSHOT_SIZE / 1024 / 1024
+          }MB.`,
+        );
+        return;
+      }
+
+      setScreenshot(file);
+      setScreenshotPreview(createPreviewUrl(file));
     },
     [screenshotPreview, displayToast],
   );
@@ -193,8 +193,8 @@ const FeedbackModal = ({
     });
   }, [category, description, screenshot, submitMutation, displayToast]);
 
-  const isSubmitDisabled =
-    !description.trim() || isPending || isCapturing || isUploading;
+  const isOperationInProgress = isPending || isCapturing || isUploading;
+  const isSubmitDisabled = !description.trim() || isOperationInProgress;
 
   return (
     <Modal
@@ -202,7 +202,7 @@ const FeedbackModal = ({
       onRequestClose={onRequestClose}
       isDrawerOnMobile
       size={ModalSize.Small}
-      shouldCloseOnOverlayClick={!isPending && !isCapturing && !isUploading}
+      shouldCloseOnOverlayClick={!isOperationInProgress}
     >
       <Modal.Header title="Send Feedback" />
       <Modal.Body className="flex flex-col gap-4">
@@ -233,7 +233,7 @@ const FeedbackModal = ({
                 }
                 size={ButtonSize.Small}
                 onClick={() => setCategory(option.value)}
-                disabled={isPending || isCapturing || isUploading}
+                disabled={isOperationInProgress}
               >
                 {option.label}
               </Button>
@@ -251,7 +251,7 @@ const FeedbackModal = ({
           maxLength={FEEDBACK_MAX_LENGTH}
           rows={6}
           fieldType="tertiary"
-          disabled={isPending || isCapturing || isUploading}
+          disabled={isOperationInProgress}
           className={{
             baseField: 'min-h-[150px]',
           }}
@@ -273,7 +273,7 @@ const FeedbackModal = ({
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
               onClick={handleCaptureScreenshot}
-              disabled={isPending || isCapturing || isUploading}
+              disabled={isOperationInProgress}
               icon={<CameraIcon />}
             >
               {isCapturing ? 'Capturing...' : 'Capture Screenshot'}
@@ -282,7 +282,7 @@ const FeedbackModal = ({
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
               onClick={() => fileInputRef.current?.click()}
-              disabled={isPending || isCapturing || isUploading}
+              disabled={isOperationInProgress}
               icon={<ImageIcon />}
             >
               Upload Image

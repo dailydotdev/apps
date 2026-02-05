@@ -123,6 +123,5 @@ export const MAX_SCREENSHOT_SIZE = 5 * 1024 * 1024;
 /**
  * Validate that a file is within the size limit.
  */
-export const isValidFileSize = (file: File): boolean => {
-  return file.size <= MAX_SCREENSHOT_SIZE;
-};
+export const isValidFileSize = (file: File): boolean =>
+  file.size <= MAX_SCREENSHOT_SIZE;
