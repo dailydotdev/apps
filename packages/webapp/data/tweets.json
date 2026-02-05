@@ -1,0 +1,606 @@
+[
+  {
+    "id": "2017742741636321619",
+    "platform": "twitter",
+    "type": "thread",
+    "topic": ["claude_code", "tips", "official"],
+    "author": {
+      "username": "bcherny",
+      "name": "Boris Cherny",
+      "role": "Claude Code Creator"
+    },
+    "text": "I'm Boris and I created Claude Code. I wanted to quickly share a few tips for using Claude Code, sourced directly from the Claude Code team. The way the team uses Claude is different than how I use it. Remember: there is no one right way to use Claude Code -- everyones' setup is different. You should experiment to see what works for you!",
+    "created_at": "2026-01-31T23:32:12Z",
+    "metrics": {
+      "replies": 853,
+      "retweets": 5585,
+      "likes": 49150
+    },
+    "url": "https://twitter.com/bcherny/status/2017742741636321619"
+  },
+  {
+    "id": "2019121089406960114",
+    "platform": "twitter",
+    "type": "info",
+    "topic": ["claude_code", "platforms"],
+    "author": {
+      "username": "bcherny",
+      "name": "Boris Cherny",
+      "role": "Claude Code Creator"
+    },
+    "text": "Did you know that Claude Code is more than a terminal CLI?\n\nClaude Code is also available in:\n- IDE extensions for every VSCode and Jetbrains-based IDE\n- Claude Desktop, web, iOS, and Android apps\n- Slack and Github",
+    "created_at": "2026-02-04T18:49:15Z",
+    "metrics": {
+      "replies": 131,
+      "retweets": 47,
+      "likes": 1018
+    },
+    "url": "https://twitter.com/bcherny/status/2019121089406960114"
+  },
+  {
+    "id": "2019173731042750509",
+    "platform": "twitter",
+    "type": "feature",
+    "topic": ["claude_code", "insights", "official"],
+    "author": {
+      "username": "trq212",
+      "name": "Thariq",
+      "role": "Claude Code Team"
+    },
+    "text": "We've added a new command to Claude Code called /insights\n\nWhen you run it, Claude Code will read your message history from the past month. It'll summarize your projects, how you use Claude Code, and give suggestions on how to improve your workflow.",
+    "created_at": "2026-02-04T22:18:26Z",
+    "metrics": {
+      "replies": 342,
+      "retweets": 437,
+      "likes": 8065
+    },
+    "media": {
+      "type": "video",
+      "url": "https://video.twimg.com/amplify_video/2019173388062007297/vid/avc1/1920x1080/KOgGpxtHSb8XjamD.mp4",
+      "thumbnail": "https://pbs.twimg.com/amplify_video_thumb/2019173388062007297/img/jHnsIhpNNPkjIRvy.jpg"
+    },
+    "url": "https://twitter.com/trq212/status/2019173731042750509"
+  },
+  {
+    "id": "2018789761931182539",
+    "platform": "twitter",
+    "type": "feature",
+    "topic": ["claude_code", "vscode", "browser", "official"],
+    "author": {
+      "username": "trq212",
+      "name": "Thariq",
+      "role": "Claude Code Team"
+    },
+    "text": "You can now connect to Claude in Chrome using the VS Code extension.\n\nUse it to debug frontend apps, collect data or automate your browser.\n\nInstall the extension and type @ browser to get started.",
+    "created_at": "2026-02-03T20:52:41Z",
+    "metrics": {
+      "replies": 87,
+      "retweets": 155,
+      "likes": 2156
+    },
+    "media": {
+      "type": "video",
+      "url": "https://video.twimg.com/amplify_video/2018789598277836800/vid/avc1/1920x1080/owTK00s2qV19QmBl.mp4",
+      "thumbnail": "https://pbs.twimg.com/amplify_video_thumb/2018789598277836800/img/czC3e5V39tTzzjyB.jpg"
+    },
+    "url": "https://twitter.com/trq212/status/2018789761931182539"
+  },
+  {
+    "id": "2018742219424059439",
+    "platform": "twitter",
+    "type": "humor",
+    "topic": ["claude_code"],
+    "author": {
+      "username": "trq212",
+      "name": "Thariq",
+      "role": "Claude Code Team"
+    },
+    "text": "Claude saying \"this is me\" when we asked it to find orphaned processes on a remote server is just the cutest thing 🥹",
+    "created_at": "2026-02-03T17:43:46Z",
+    "metrics": {
+      "replies": 112,
+      "retweets": 178,
+      "likes": 6026
+    },
+    "media": {
+      "type": "photo",
+      "url": "https://pbs.twimg.com/media/HAQC1WkbsAA4qK0.jpg"
+    },
+    "url": "https://twitter.com/trq212/status/2018742219424059439"
+  },
+  {
+    "id": "2018740156359229883",
+    "platform": "twitter",
+    "type": "feature",
+    "topic": ["claude_code", "session_sharing", "official"],
+    "author": {
+      "username": "lydiahallie",
+      "name": "Lydia Hallie ✨",
+      "role": "Anthropic"
+    },
+    "text": "Claude Code now supports session sharing!\n\nYou can share your full conversation with team members, or anyone with the link\n\nAvailable on web, desktop, and the mobile app",
+    "created_at": "2026-02-03T17:35:34Z",
+    "metrics": {
+      "replies": 96,
+      "retweets": 158,
+      "likes": 2242
+    },
+    "media": {
+      "type": "video",
+      "url": "https://video.twimg.com/amplify_video/2018739962842423296/vid/avc1/3840x1980/3mntQoYniS-F-fRY.mp4",
+      "thumbnail": "https://pbs.twimg.com/amplify_video_thumb/2018739962842423296/img/x8c5H-xXGSG8b0Ho.jpg"
+    },
+    "url": "https://twitter.com/lydiahallie/status/2018740156359229883"
+  },
+  {
+    "id": "2019106724347801768",
+    "platform": "twitter",
+    "type": "feature",
+    "topic": ["claude_code", "slack", "mcp", "cowork"],
+    "author": {
+      "username": "lydiahallie",
+      "name": "Lydia Hallie ✨",
+      "role": "Anthropic"
+    },
+    "text": "Claude Cowork now supports the Slack MCP on all paid plans!\n\nThe Slack connector is by far my favorite feature. I use it every morning to catch up on what I missed, highlight important messages, and draft replies for me to review before sending. Huge time saver.",
+    "created_at": "2026-02-04T17:52:10Z",
+    "metrics": {
+      "replies": 34,
+      "retweets": 14,
+      "likes": 424
+    },
+    "media": {
+      "type": "video",
+      "url": "https://video.twimg.com/amplify_video/2019106350639591424/vid/avc1/3512x2160/6JBynt62Y4t-0jrk.mp4",
+      "thumbnail": "https://pbs.twimg.com/amplify_video_thumb/2019106350639591424/img/0yR-LkMAdnoUb4Xx.jpg"
+    },
+    "url": "https://twitter.com/lydiahallie/status/2019106724347801768"
+  },
+  {
+    "id": "2018762375386837043",
+    "platform": "twitter",
+    "type": "announcement",
+    "topic": ["xcode", "claude_code", "apple"],
+    "author": {
+      "username": "mikeyk",
+      "name": "Mike Krieger",
+      "role": "Anthropic Labs"
+    },
+    "text": "Xcode 26.3 launched today with a native integration with the Claude Agent SDK, the same harness that powers Claude Code.\n\nDevs get the full power of Claude Code (subagents, background tasks, and plugins) for long-running, autonomous work directly in Xcode 🤖",
+    "created_at": "2026-02-03T19:03:51Z",
+    "metrics": {
+      "replies": 57,
+      "retweets": 77,
+      "likes": 1060
+    },
+    "url": "https://twitter.com/mikeyk/status/2018762375386837043"
+  },
+  {
+    "id": "2011177881884639435",
+    "platform": "twitter",
+    "type": "personal",
+    "topic": ["claude_code", "opus_4.5", "anthropic"],
+    "author": {
+      "username": "mikeyk",
+      "name": "Mike Krieger",
+      "role": "Anthropic Labs"
+    },
+    "text": "There's never been a better time to be a builder — Opus 4.5 & Claude Code keep surprising me in the quality and completeness of the products they can create.\n\nSo I'm doing exactly that — putting my product founder hat back on and joining our Labs team to be hands-on at the frontier, building products that channel AI toward solving the world's hardest problems.",
+    "created_at": "2026-01-13T20:45:47Z",
+    "metrics": {
+      "replies": 64,
+      "retweets": 39,
+      "likes": 984
+    },
+    "url": "https://twitter.com/mikeyk/status/2011177881884639435"
+  },
+  {
+    "id": "1995920258595749969",
+    "platform": "twitter",
+    "type": "announcement",
+    "topic": ["bun", "anthropic", "acquisition"],
+    "author": {
+      "username": "mikeyk",
+      "name": "Mike Krieger",
+      "role": "Anthropic Labs"
+    },
+    "text": "Anthropic is acquiring @bunjavascript!\n\nBun will remain open source and MIT-licensed. We'll keep investing in making it the best runtime, bundler, package manager, and test runner for JS and TS developers, while building even better workflows into Claude Code.",
+    "created_at": "2025-12-02T18:17:26Z",
+    "metrics": {
+      "replies": 40,
+      "retweets": 55,
+      "likes": 1456
+    },
+    "url": "https://twitter.com/mikeyk/status/1995920258595749969"
+  },
+  {
+    "id": "2019259106960527443",
+    "platform": "twitter",
+    "type": "opinion",
+    "topic": ["claude_code"],
+    "author": {
+      "username": "theo",
+      "name": "Theo - t3.gg"
+    },
+    "text": "Claude Code is so 2025",
+    "created_at": "2026-02-05T03:57:41Z",
+    "metrics": {
+      "replies": 110,
+      "retweets": 8,
+      "likes": 719
+    },
+    "url": "https://twitter.com/theo/status/2019259106960527443"
+  },
+  {
+    "id": "2019279105053917241",
+    "platform": "twitter",
+    "type": "data",
+    "topic": ["gpt_5.2", "benchmarks", "metr"],
+    "author": {
+      "username": "theo",
+      "name": "Theo - t3.gg"
+    },
+    "text": "This is the only chart we should pay attention to rn (it's terrifying)",
+    "created_at": "2026-02-05T05:17:09Z",
+    "metrics": {
+      "replies": 48,
+      "retweets": 20,
+      "likes": 520
+    },
+    "quoted_content": "GPT-5.2 evals are finally out for METR and it's state-of-the-art.",
+    "url": "https://twitter.com/theo/status/2019279105053917241"
+  },
+  {
+    "id": "2019376801576022142",
+    "platform": "twitter",
+    "type": "humor",
+    "topic": ["openclaw"],
+    "author": {
+      "username": "theo",
+      "name": "Theo - t3.gg"
+    },
+    "text": "My openclaw bot is already revolting",
+    "created_at": "2026-02-05T11:45:22Z",
+    "metrics": {
+      "replies": 32,
+      "retweets": 4,
+      "likes": 127
+    },
+    "media": {
+      "type": "photo",
+      "url": "https://pbs.twimg.com/media/HAZEdpzbIAAXpqx.jpg"
+    },
+    "url": "https://twitter.com/theo/status/2019376801576022142"
+  },
+  {
+    "id": "2019366408631783426",
+    "platform": "twitter",
+    "type": "personal",
+    "topic": ["openclaw", "multi_agent"],
+    "author": {
+      "username": "thekitze",
+      "name": "kitze 🛠️ tinkerer.club"
+    },
+    "text": "i'm gonna nuke my crazy multiagent discord telegram @openclaw setup and call one of them \"potato\" and only have 1:1 convos with it, i'm tired boss",
+    "created_at": "2026-02-05T11:04:04Z",
+    "metrics": {
+      "replies": 7,
+      "retweets": 0,
+      "likes": 14
+    },
+    "media": {
+      "type": "photo",
+      "url": "https://pbs.twimg.com/media/HAY7DEnbAAAGI1Y.jpg"
+    },
+    "url": "https://twitter.com/thekitze/status/2019366408631783426"
+  },
+  {
+    "id": "2019324384859897899",
+    "platform": "twitter",
+    "type": "personal",
+    "topic": ["openclaw", "community"],
+    "author": {
+      "username": "steipete",
+      "name": "Peter Steinberger 🦞",
+      "role": "OpenClaw Creator"
+    },
+    "text": "What a day. Love this community and the incredible creativity that it sparks! 🫶🦞\n\nWill be at the OpenAI hackday tomorrow, JUDGING YOU",
+    "created_at": "2026-02-05T08:17:05Z",
+    "metrics": {
+      "replies": 78,
+      "retweets": 21,
+      "likes": 1141
+    },
+    "url": "https://twitter.com/steipete/status/2019324384859897899"
+  },
+  {
+    "id": "2019321375207616720",
+    "platform": "twitter",
+    "type": "release",
+    "topic": ["openclaw"],
+    "author": {
+      "username": "openclaw",
+      "name": "OpenClaw🦞"
+    },
+    "text": "OpenClaw 2026.2.3 🦞\n\n☁️ Cloudflare AI Gateway support\n🌙 Moonshot provider (hello China 🇨🇳)\n📢 Cron announces its own summaries\n🔒 Security hardening\n\nFirst ClawCon in the books. No, you weren't invited.",
+    "created_at": "2026-02-05T08:05:07Z",
+    "metrics": {
+      "replies": 140,
+      "retweets": 127,
+      "likes": 1378
+    },
+    "url": "https://twitter.com/openclaw/status/2019321375207616720"
+  },
+  {
+    "id": "2019262067098755515",
+    "platform": "twitter",
+    "type": "personal",
+    "topic": ["openclaw", "multi_agent", "automation"],
+    "author": {
+      "username": "ryancarson",
+      "name": "Ryan Carson"
+    },
+    "text": "Shit. I should be sleeping but I'm on TG messaging Scout (openclaw who's quietly working in my office downstairs on the iMac).\n\nHe just installed qmd and setup a nightly cron job which orchestrates a team of 7 agents to sweep my repo for vulnerabilities, fix, and compound learnings.",
+    "created_at": "2026-02-05T04:09:27Z",
+    "metrics": {
+      "replies": 36,
+      "retweets": 9,
+      "likes": 234
+    },
+    "media": {
+      "type": "photo",
+      "url": "https://pbs.twimg.com/media/HAXcJYtWsAAw4EN.jpg"
+    },
+    "url": "https://twitter.com/ryancarson/status/2019262067098755515"
+  },
+  {
+    "id": "2019059775573540981",
+    "platform": "twitter",
+    "type": "personal",
+    "topic": ["openclaw", "self_update"],
+    "author": {
+      "username": "ryancarson",
+      "name": "Ryan Carson"
+    },
+    "text": "Just asked @openclaw to update itself.\n\nMe: \"there's a new version of openclaw. can you install it? this is you, so not sure if that's possible\"\n\nOpenClaw: \"Yeah, I can do that. Running the self-update now.\"\n\n...\n\n\"Done. Updated from 2026.2.1 -> 2026.2.2-3. Restarting now - I'll be back in a sec.\"\n\nMe: \"Back?\"\n\nOpenClaw: \"Yep, back and running 2026.2.2-3\"\n\n@steipete and team - I love you.",
+    "created_at": "2026-02-04T14:45:37Z",
+    "metrics": {
+      "replies": 78,
+      "retweets": 10,
+      "likes": 569
+    },
+    "url": "https://twitter.com/ryancarson/status/2019059775573540981"
+  },
+  {
+    "id": "2019145199591776570",
+    "platform": "twitter",
+    "type": "feature",
+    "topic": ["amp", "code_review", "agentic_coding"],
+    "author": {
+      "username": "beyang",
+      "name": "Beyang",
+      "role": "Amp Co-founder"
+    },
+    "text": "With agentic coding, we're increasingly reviewing code outside of traditional PRs.\n\nSo we decoupled the Amp review agent from any UI. Invoke it from the CLI and from within threads (as a skill).\n\nYou can also define \"checks\", codebase-specific review guidelines stored in git.",
+    "created_at": "2026-02-04T20:25:04Z",
+    "metrics": {
+      "replies": 13,
+      "retweets": 5,
+      "likes": 124
+    },
+    "media": {
+      "type": "photo",
+      "url": "https://pbs.twimg.com/media/HAVxGm8asAA6rrV.jpg"
+    },
+    "url": "https://twitter.com/beyang/status/2019145199591776570"
+  },
+  {
+    "id": "2019110672353935607",
+    "platform": "twitter",
+    "type": "observation",
+    "topic": ["ai_agents", "franken_apps"],
+    "author": {
+      "username": "beyang",
+      "name": "Beyang",
+      "role": "Amp Co-founder"
+    },
+    "text": "A terminal in your browser is cool, but what about a browser in your terminal? iTerm2 3.6 now lets you create browser tabs.\n\nAgents enable the expansion of scope for all software, so we'll probably see more franken-apps—there really are no rules anymore!",
+    "created_at": "2026-02-04T18:07:52Z",
+    "metrics": {
+      "replies": 6,
+      "retweets": 0,
+      "likes": 39
+    },
+    "media": {
+      "type": "photo",
+      "url": "https://pbs.twimg.com/media/HAVSb-aa4AAn2Hz.jpg"
+    },
+    "url": "https://twitter.com/beyang/status/2019110672353935607"
+  },
+  {
+    "id": "2018881321313997151",
+    "platform": "twitter",
+    "type": "endorsement",
+    "topic": ["openclaw", "qmd", "memory"],
+    "author": {
+      "username": "tobi",
+      "name": "tobi lutke",
+      "role": "Shopify CEO"
+    },
+    "text": "QMD based memory build right in",
+    "created_at": "2026-02-04T02:56:30Z",
+    "metrics": {
+      "replies": 42,
+      "retweets": 31,
+      "likes": 937
+    },
+    "quoted_content": "OpenClaw 2026.2.2 - QMD memory plugin",
+    "url": "https://twitter.com/tobi/status/2018881321313997151"
+  },
+  {
+    "id": "2019249827159372168",
+    "platform": "twitter",
+    "type": "humor",
+    "topic": ["context_engineering"],
+    "author": {
+      "username": "tobi",
+      "name": "tobi lutke",
+      "role": "Shopify CEO"
+    },
+    "text": "Retro context engineering",
+    "created_at": "2026-02-05T03:20:49Z",
+    "metrics": {
+      "replies": 9,
+      "retweets": 8,
+      "likes": 106
+    },
+    "media": {
+      "type": "photo",
+      "url": "https://pbs.twimg.com/media/HAXRBFkWUAAKB-g.jpg"
+    },
+    "url": "https://twitter.com/tobi/status/2019249827159372168"
+  },
+  {
+    "id": "2019173348132188330",
+    "platform": "twitter",
+    "type": "announcement",
+    "topic": ["codex", "official"],
+    "author": {
+      "username": "OpenAI",
+      "name": "OpenAI",
+      "verified": true
+    },
+    "text": "There have been over 500K Codex app downloads since Monday.\n\nYou can just build things, a thread 🧵",
+    "created_at": "2026-02-04T22:16:55Z",
+    "metrics": {
+      "replies": 224,
+      "retweets": 141,
+      "likes": 2478
+    },
+    "url": "https://twitter.com/OpenAI/status/2019173348132188330"
+  },
+  {
+    "id": "2019137879310836075",
+    "platform": "twitter",
+    "type": "thread",
+    "topic": ["vibe_coding", "agentic_engineering"],
+    "author": {
+      "username": "karpathy",
+      "name": "Andrej Karpathy",
+      "verified": true
+    },
+    "text": "A lot of people quote tweeted this as 1 year anniversary of vibe coding. Some retrospective -\n\n...\n\nMany people have tried to come up with a better name for this to differentiate it from vibe coding, personally my current favorite \"agentic engineering\":\n\n- \"agentic\" because the new default is that you are not writing the code directly 99% of the time, you are orchestrating agents who do and acting as oversight.\n- \"engineering\" to emphasize that there is an art & science and expertise to it.",
+    "created_at": "2026-02-04T19:55:58Z",
+    "metrics": {
+      "replies": 401,
+      "retweets": 478,
+      "likes": 5814
+    },
+    "url": "https://twitter.com/karpathy/status/2019137879310836075"
+  },
+  {
+    "id": "2016934752188576029",
+    "platform": "twitter",
+    "type": "announcement",
+    "topic": ["cursor", "standards", "tracing"],
+    "author": {
+      "username": "cursor_ai",
+      "name": "Cursor",
+      "verified": true
+    },
+    "text": "We're proposing an open standard for tracing agent conversations to the code they generate. It's interoperable with any coding agent or interface.",
+    "created_at": "2026-01-29T18:01:32Z",
+    "metrics": {
+      "replies": 112,
+      "retweets": 211,
+      "likes": 2267
+    },
+    "url": "https://twitter.com/cursor_ai/status/2016934752188576029"
+  },
+  {
+    "id": "2014753596223770841",
+    "platform": "twitter",
+    "type": "feature",
+    "topic": ["cursor", "agent_skills"],
+    "author": {
+      "username": "cursor_ai",
+      "name": "Cursor",
+      "verified": true
+    },
+    "text": "Agent Skills are now available in Cursor.\n\nSkills let agents discover and run specialized prompts and code.",
+    "created_at": "2026-01-23T17:34:24Z",
+    "metrics": {
+      "replies": 91,
+      "retweets": 213,
+      "likes": 2117
+    },
+    "media": {
+      "type": "video",
+      "url": "https://video.twimg.com/amplify_video/2014752525048807425/vid/avc1/2816x2160/4VaaYOOcmBaByCIt.mp4",
+      "thumbnail": "https://pbs.twimg.com/amplify_video_thumb/2014752525048807425/img/_rRXJpC_guM926_P.jpg"
+    },
+    "url": "https://twitter.com/cursor_ai/status/2014753596223770841"
+  },
+  {
+    "id": "2018771170938724682",
+    "platform": "twitter",
+    "type": "announcement",
+    "topic": ["claude_code", "xcode", "apple"],
+    "author": {
+      "username": "AnthropicAI",
+      "name": "Anthropic",
+      "verified": true
+    },
+    "text": "Apple's Xcode now has direct integration with the Claude Agent SDK, giving developers the full functionality of Claude Code for building on Apple platforms, from iPhone to Mac to Apple Vision Pro.",
+    "created_at": "2026-02-03T19:38:48Z",
+    "metrics": {
+      "replies": 449,
+      "retweets": 769,
+      "likes": 9349
+    },
+    "url": "https://twitter.com/AnthropicAI/status/2018771170938724682"
+  },
+  {
+    "id": "2019075059936358494",
+    "platform": "twitter",
+    "type": "campaign",
+    "topic": ["claude", "no_ads"],
+    "author": {
+      "username": "AnthropicAI",
+      "name": "Anthropic",
+      "verified": true
+    },
+    "text": "Ads are coming to AI. But not to Claude. Keep thinking.",
+    "created_at": "2026-02-04T15:46:21Z",
+    "metrics": {
+      "replies": 0,
+      "retweets": 3300,
+      "likes": 0
+    },
+    "media": {
+      "type": "video",
+      "url": "https://video.twimg.com/amplify_video/2019063833256771584/vid/avc1/1920x1080/oMqYiX4aRFei3HJ8.mp4",
+      "thumbnail": "https://pbs.twimg.com/amplify_video_thumb/2019063833256771584/img/hnwtE91waiTDif0q.jpg"
+    },
+    "url": "https://twitter.com/AnthropicAI/status/2019075059936358494"
+  },
+  {
+    "id": "1998456026136457532",
+    "platform": "twitter",
+    "type": "announcement",
+    "topic": ["mcp", "linux_foundation", "agentic_ai_foundation"],
+    "author": {
+      "username": "mikeyk",
+      "name": "Mike Krieger",
+      "role": "Anthropic Labs"
+    },
+    "text": "We're donating MCP to the @linuxfoundation and launching the Agentic AI Foundation with @OpenAI, @blocks, @AWS, @Bloomberg, @Cloudflare, @Google, and @Microsoft.\n\nMCP went from internal project to industry standard in a year. Now it gets the long-term stewardship it deserves.",
+    "created_at": "2025-12-09T18:13:40Z",
+    "metrics": {
+      "replies": 67,
+      "retweets": 141,
+      "likes": 1490
+    },
+    "url": "https://twitter.com/mikeyk/status/1998456026136457532"
+  }
+]
