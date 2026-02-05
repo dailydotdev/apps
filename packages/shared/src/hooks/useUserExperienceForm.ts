@@ -127,7 +127,7 @@ const useUserExperienceForm = ({
     { condition: isNewExperience },
   );
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: UserExperience | UserExperienceWork) =>
       type === UserExperienceType.Work
         ? upsertUserWorkExperience(data as UserExperienceWork, id)
@@ -166,9 +166,9 @@ const useUserExperienceForm = ({
     },
   });
   const dirtyForm = useDirtyForm(methods.formState.isDirty, {
-    onSave: () => {
+    onSave: async () => {
       const formData = methods.getValues();
-      mutate(formData);
+      await mutateAsync(formData);
     },
     onDiscard: () => {
       methods.reset();

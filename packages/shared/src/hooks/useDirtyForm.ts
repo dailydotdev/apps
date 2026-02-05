@@ -4,7 +4,7 @@ import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 
 export interface UseDirtyFormOptions {
-  onSave: () => void;
+  onSave: () => void | Promise<void>;
   onDiscard?: () => void;
 }
 
