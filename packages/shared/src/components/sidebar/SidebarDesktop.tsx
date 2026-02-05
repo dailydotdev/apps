@@ -60,17 +60,17 @@ export const SidebarDesktop = ({
           {/* Primary Action */}
           <div
             className={classNames(
-              'mb-2 flex min-h-8 items-center transition-[padding] duration-300',
+              'mb-2 flex items-center justify-center transition-[padding] duration-300',
               sidebarExpanded ? 'px-2' : 'px-1',
             )}
           >
             <CreatePostButton
               className={classNames(
-                '!flex w-full whitespace-nowrap',
-                sidebarExpanded ? 'justify-start' : 'justify-center',
+                '!flex whitespace-nowrap',
+                sidebarExpanded ? 'w-full justify-start' : 'justify-center',
               )}
               compact={!sidebarExpanded}
-              size={sidebarExpanded ? ButtonSize.Small : ButtonSize.XSmall}
+              size={ButtonSize.Small}
               showIcon
             />
           </div>
