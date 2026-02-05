@@ -55,10 +55,20 @@ export function Section({
   return (
     <NavSection className={classNames('mt-1', className)}>
       {title && (
-        <NavHeader className="hidden laptop:flex">
+        <NavHeader className="relative hidden laptop:flex">
+          {/* Divider shown when sidebar is collapsed */}
           <div
             className={classNames(
-              'group/section flex h-full w-full items-center justify-between px-2 transition-opacity duration-300',
+              'absolute inset-x-0 flex items-center justify-center px-2 transition-opacity duration-300',
+              sidebarExpanded ? 'opacity-0' : 'opacity-100',
+            )}
+          >
+            <hr className="w-full border-t border-border-subtlest-tertiary" />
+          </div>
+          {/* Header content shown when sidebar is expanded */}
+          <div
+            className={classNames(
+              'group/section flex min-h-9 w-full items-center justify-between px-2 py-1.5 transition-opacity duration-300',
               sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
@@ -84,28 +94,26 @@ export function Section({
                 )}
               />
             </button>
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-              {addHref && (
-                <Link href={addHref}>
-                  <a
-                    aria-label={`Add to ${title}`}
-                    className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                  </a>
-                </Link>
-              )}
-              {!addHref && onAdd && (
-                <button
-                  type="button"
-                  onClick={onAdd}
+            {addHref && (
+              <Link href={addHref}>
+                <a
                   aria-label={`Add to ${title}`}
-                  className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                  className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
                 >
                   <PlusIcon className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+                </a>
+              </Link>
+            )}
+            {!addHref && onAdd && (
+              <button
+                type="button"
+                onClick={onAdd}
+                aria-label={`Add to ${title}`}
+                className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
+              >
+                <PlusIcon className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </NavHeader>
       )}
