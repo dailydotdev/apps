@@ -1,0 +1,308 @@
+[
+  {
+    "username": "sama",
+    "name": "Sam Altman",
+    "role": "OpenAI CEO",
+    "affiliation": "OpenAI",
+    "topics": ["codex", "openai", "ai_strategy", "competition"],
+    "priority": "high",
+    "notes": "Official Codex announcements, competitive takes on Anthropic"
+  },
+  {
+    "username": "bcherny",
+    "name": "Boris Cherny",
+    "role": "Claude Code Creator",
+    "affiliation": "Anthropic",
+    "topics": ["claude_code", "official", "tips"],
+    "priority": "high",
+    "notes": "Creator of Claude Code, shares tips and feature announcements"
+  },
+  {
+    "username": "thdxr",
+    "name": "Dax",
+    "role": "OpenCode Creator",
+    "affiliation": "OpenCode",
+    "topics": ["opencode", "codex", "open_source", "philosophy"],
+    "priority": "high",
+    "notes": "Creator of OpenCode, great takes on team size, cross-platform, AI workflow"
+  },
+  {
+    "username": "steipete",
+    "name": "Peter Steinberger",
+    "role": "OpenClaw Creator",
+    "affiliation": "OpenClaw",
+    "topics": ["openclaw", "clawdbot", "agents"],
+    "priority": "high",
+    "notes": "Creator of OpenClaw/Clawdbot, community updates"
+  },
+  {
+    "username": "mntruell",
+    "name": "Michael Truell",
+    "role": "Cursor CEO",
+    "affiliation": "Cursor",
+    "topics": ["cursor", "official", "tips", "subagents", "architecture"],
+    "priority": "high",
+    "notes": "Cursor CEO, detailed tips thread (3K likes), built browser in a week demo, swarm agents"
+  },
+  {
+    "username": "amanrsanger",
+    "name": "Aman Sanger",
+    "role": "Cursor Co-founder",
+    "affiliation": "Cursor",
+    "topics": ["cursor", "official", "research", "context"],
+    "priority": "high",
+    "notes": "Cursor co-founder, technical insights on context, intelligence thresholds, review bottleneck"
+  },
+  {
+    "username": "leerob",
+    "name": "Lee Robinson",
+    "role": "Cursor",
+    "affiliation": "Cursor",
+    "topics": ["cursor", "skills", "tips", "workflow"],
+    "priority": "high",
+    "notes": "Cursor team, practical tips, feature announcements, skills workflows"
+  },
+  {
+    "username": "ryolu_",
+    "name": "Ryo Lu",
+    "role": "Cursor Designer",
+    "affiliation": "Cursor",
+    "topics": ["cursor", "systems_thinking", "design", "philosophy"],
+    "priority": "high",
+    "notes": "Cursor design, 'software is still about thinking' manifesto, product philosophy"
+  },
+  {
+    "username": "thsottiaux",
+    "name": "Tibo",
+    "role": "Codex Team Lead",
+    "affiliation": "OpenAI",
+    "topics": ["codex", "official", "features", "xcode"],
+    "priority": "high",
+    "notes": "Codex team lead, architecture blog posts, 'xcodex', personality feature"
+  },
+  {
+    "username": "dickson_tsai",
+    "name": "Dickson Tsai",
+    "role": "Claude Code Team",
+    "affiliation": "Anthropic",
+    "topics": ["claude_code", "official", "features", "workflow"],
+    "priority": "high",
+    "notes": "Claude Code team, SPACE rubric, /debug feature, technical insights"
+  },
+  {
+    "username": "trq212",
+    "name": "Thariq",
+    "role": "Claude Code Team",
+    "affiliation": "Anthropic",
+    "topics": ["claude_code", "official", "features"],
+    "priority": "high",
+    "notes": "Claude Code team, feature announcements (/insights, browser integration)"
+  },
+  {
+    "username": "lydiahallie",
+    "name": "Lydia Hallie",
+    "role": "Anthropic",
+    "affiliation": "Anthropic",
+    "topics": ["claude_code", "cowork", "mcp", "official"],
+    "priority": "high",
+    "notes": "Anthropic, Claude Code/Cowork features, session sharing"
+  },
+  {
+    "username": "alexalbert__",
+    "name": "Alex Albert",
+    "role": "Anthropic MCP Lead",
+    "affiliation": "Anthropic",
+    "topics": ["mcp", "mcp_apps", "claude", "official"],
+    "priority": "high",
+    "notes": "MCP Apps launch, vibe coding anniversary, Mars rover Claude story"
+  },
+  {
+    "username": "mikeyk",
+    "name": "Mike Krieger",
+    "role": "Anthropic Labs",
+    "affiliation": "Anthropic",
+    "topics": ["claude_code", "xcode", "mcp", "strategy"],
+    "priority": "high",
+    "notes": "Instagram co-founder at Anthropic, Xcode integration, MCP foundation"
+  },
+  {
+    "username": "karpathy",
+    "name": "Andrej Karpathy",
+    "role": "AI Researcher",
+    "affiliation": "Independent",
+    "topics": ["vibe_coding", "agentic_engineering", "ai_philosophy"],
+    "priority": "high",
+    "notes": "Coined 'vibe coding', 'agentic engineering' terminology"
+  },
+  {
+    "username": "tobi",
+    "name": "Tobi Lutke",
+    "role": "Shopify CEO",
+    "affiliation": "Shopify",
+    "topics": ["openclaw", "clawdbot", "qmd", "agents", "malleable_software"],
+    "priority": "high",
+    "notes": "Shopify CEO, QMD creator, Pi/Clawdbot insights, 'malleable software'"
+  },
+  {
+    "username": "naval",
+    "name": "Naval Ravikant",
+    "role": "Investor/Philosopher",
+    "affiliation": "AngelList",
+    "topics": ["vibe_coding", "ai_philosophy", "hot_takes"],
+    "priority": "high",
+    "notes": "'Vibe coding is the new product management' (20K+ likes)"
+  },
+  {
+    "username": "rauchg",
+    "name": "Guillermo Rauch",
+    "role": "Vercel CEO",
+    "affiliation": "Vercel",
+    "topics": ["agents", "sandboxes", "infrastructure", "natural_language"],
+    "priority": "high",
+    "notes": "Vercel CEO, agent infrastructure, Sandbox, 'AI is the software' takes"
+  },
+  {
+    "username": "patrickc",
+    "name": "Patrick Collison",
+    "role": "Stripe CEO",
+    "affiliation": "Stripe",
+    "topics": ["cursor", "ai_breakthroughs"],
+    "priority": "high",
+    "notes": "Called Cursor 'coolest AI breakthrough since GPT-4', high-signal endorsements"
+  },
+  {
+    "username": "swyx",
+    "name": "Shawn Wang",
+    "role": "AI Engineer / Latent Space",
+    "affiliation": "Latent Space",
+    "topics": ["openclaw", "clawcon", "ai_engineering", "community"],
+    "priority": "high",
+    "notes": "Latent Space podcast, ClawCon coverage, AI engineering community"
+  },
+  {
+    "username": "theo",
+    "name": "Theo",
+    "role": "Content Creator",
+    "affiliation": "t3.gg",
+    "topics": ["claude_code", "openclaw", "commentary"],
+    "priority": "medium",
+    "notes": "Tech YouTuber, hot takes, 'Claude Code is so 2025'"
+  },
+  {
+    "username": "mattpocockuk",
+    "name": "Matt Pocock",
+    "role": "TypeScript Educator",
+    "affiliation": "Total TypeScript",
+    "topics": ["claude_code", "skills", "typescript", "onboarding"],
+    "priority": "high",
+    "notes": "TypeScript wizard, Claude Code onboarding guide (5K likes), skills creator"
+  },
+  {
+    "username": "yacineMTB",
+    "name": "Kache",
+    "role": "Developer/Builder",
+    "affiliation": "Independent",
+    "topics": ["codex", "claude_code", "hot_takes"],
+    "priority": "medium",
+    "notes": "Quoted by sama, 'good coders switched to codex' take, robotics/AI builder"
+  },
+  {
+    "username": "koenbok",
+    "name": "Koen Bok",
+    "role": "Framer Founder",
+    "affiliation": "Framer",
+    "topics": ["ai_design", "cursor", "agents"],
+    "priority": "medium",
+    "notes": "Framer founder, 'kubernetes for agents' observation, AI product design perspective"
+  },
+  {
+    "username": "thekitze",
+    "name": "Kitze",
+    "role": "Developer/Creator",
+    "affiliation": "Tinkerer.club",
+    "topics": ["openclaw", "multi_agent"],
+    "priority": "medium",
+    "notes": "Multi-agent setup experiences, relatable frustrations"
+  },
+  {
+    "username": "ryancarson",
+    "name": "Ryan Carson",
+    "role": "Entrepreneur",
+    "affiliation": "Independent",
+    "topics": ["openclaw", "automation", "self_update"],
+    "priority": "medium",
+    "notes": "OpenClaw power user, multi-agent orchestration stories"
+  },
+  {
+    "username": "beyang",
+    "name": "Beyang Liu",
+    "role": "Amp Co-founder",
+    "affiliation": "Amp (Sourcegraph)",
+    "topics": ["agentic_coding", "code_review", "amp"],
+    "priority": "medium",
+    "notes": "Amp coding agent, code review workflows"
+  },
+  {
+    "username": "cursor_ai",
+    "name": "Cursor",
+    "role": "Official Account",
+    "affiliation": "Cursor",
+    "topics": ["cursor", "official", "features", "skills"],
+    "priority": "high",
+    "notes": "Official Cursor account, feature announcements"
+  },
+  {
+    "username": "OpenAI",
+    "name": "OpenAI",
+    "role": "Official Account",
+    "affiliation": "OpenAI",
+    "topics": ["codex", "official"],
+    "priority": "high",
+    "notes": "Official OpenAI account, Codex announcements"
+  },
+  {
+    "username": "OpenAIDevs",
+    "name": "OpenAI Developers",
+    "role": "Official Account",
+    "affiliation": "OpenAI",
+    "topics": ["codex", "official", "community"],
+    "priority": "high",
+    "notes": "OpenAI developer relations, Codex ambassador program"
+  },
+  {
+    "username": "AnthropicAI",
+    "name": "Anthropic",
+    "role": "Official Account",
+    "affiliation": "Anthropic",
+    "topics": ["claude", "claude_code", "official"],
+    "priority": "high",
+    "notes": "Official Anthropic account, Claude/Claude Code announcements"
+  },
+  {
+    "username": "claudeai",
+    "name": "Claude",
+    "role": "Official Account",
+    "affiliation": "Anthropic",
+    "topics": ["claude", "claude_code", "cowork", "official"],
+    "priority": "high",
+    "notes": "Official Claude product account, feature launches"
+  },
+  {
+    "username": "openclaw",
+    "name": "OpenClaw",
+    "role": "Official Account",
+    "affiliation": "OpenClaw",
+    "topics": ["openclaw", "official", "releases"],
+    "priority": "high",
+    "notes": "Official OpenClaw account, release notes"
+  },
+  {
+    "username": "InfoQ",
+    "name": "InfoQ",
+    "role": "Tech Media",
+    "affiliation": "InfoQ",
+    "topics": ["news", "opencode", "coverage"],
+    "priority": "low",
+    "notes": "Tech news coverage of AI coding tools"
+  }
+]
