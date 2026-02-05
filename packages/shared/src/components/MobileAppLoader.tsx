@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import LogoIcon from '../svg/LogoIcon';
+import { cloudinaryAppIconMain } from '../lib/image';
 import { Loader } from './Loader';
 
 interface MobileAppLoaderProps {
@@ -14,14 +14,16 @@ export function MobileAppLoader({
   return (
     <div
       className={classNames(
-        'z-50 fixed inset-0 flex flex-col items-center justify-center gap-6 bg-background-default',
+        'fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-background-default',
         className,
       )}
     >
-      <div className="float-animation rounded-14 bg-surface-float p-4">
-        <LogoIcon className={{ container: 'h-12 w-auto' }} />
-      </div>
-      <Loader className="h-5 w-5" />
+      <img
+        src={cloudinaryAppIconMain}
+        alt="daily.dev"
+        className="float-animation size-20 rounded-[22%]"
+      />
+      <Loader className="size-5" />
     </div>
   );
 }

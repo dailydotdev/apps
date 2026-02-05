@@ -28,6 +28,7 @@ import {
   useActiveFeedNameContext,
 } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { isPWA } from '../lib/func';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
@@ -92,7 +93,6 @@ function MainLayoutComponent({
   const { isCustomFeed } = useFeedName({ feedName });
   const { plusEntryAnnouncementBar } = usePlusEntry();
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
-  const isMobile = useViewSize(ViewSize.MobileL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
@@ -167,7 +167,7 @@ function MainLayoutComponent({
     (!isPageReady && isPageApplicableForOnboarding) ||
     shouldRedirectOnboarding
   ) {
-    if (isMobile) {
+    if (isPWA()) {
       return <MobileAppLoader />;
     }
     return null;
