@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useRef, useMemo, useCallback } from 'react';
+import React, { useRef, useCallback } from 'react';
 import type { ItemInnerProps, SidebarMenuItem } from './common';
 import { NavHeader, NavSection } from './common';
 import { SidebarItem } from './SidebarItem';
@@ -52,65 +52,60 @@ export function Section({
     isVisible.current = !isVisible.current;
   }, [updateFlag, flag]);
 
-  const headerContent = useMemo(
-    () => (
-      <div
-        className={classNames(
-          'group/section flex w-full items-center justify-between px-2 py-1.5 transition-opacity duration-300',
-          sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
-        )}
-      >
-        <button
-          type="button"
-          onClick={toggleFlag}
-          aria-label={`Toggle ${title}`}
-          aria-expanded={!!isVisible.current}
-          className="flex items-center gap-1 rounded-6 transition-colors hover:text-text-primary"
-        >
-          <span
-            className={classNames(
-              'text-text-quaternary typo-callout',
-              !sidebarExpanded && 'opacity-0',
-            )}
-          >
-            {title}
-          </span>
-          <ArrowIcon
-            className={classNames(
-              'h-2.5 w-2.5 text-text-quaternary transition-transform duration-200',
-              isVisible.current ? 'rotate-180' : 'rotate-90',
-            )}
-          />
-        </button>
-        {addHref && (
-          <Link href={addHref}>
-            <a
-              aria-label={`Add to ${title}`}
-              className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
-            >
-              <PlusIcon className="h-4 w-4" />
-            </a>
-          </Link>
-        )}
-        {!addHref && onAdd && (
-          <button
-            type="button"
-            onClick={onAdd}
-            aria-label={`Add to ${title}`}
-            className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
-          >
-            <PlusIcon className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-    ),
-    [sidebarExpanded, title, isVisible, addHref, onAdd, toggleFlag],
-  );
-
   return (
     <NavSection className={classNames('mt-1', className)}>
       {title && (
-        <NavHeader className="hidden laptop:flex">{headerContent}</NavHeader>
+        <NavHeader className="hidden laptop:flex">
+          <div
+            className={classNames(
+              'group/section flex w-full items-center justify-between px-2 py-1.5 transition-opacity duration-300',
+              sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
+            )}
+          >
+            <button
+              type="button"
+              onClick={toggleFlag}
+              aria-label={`Toggle ${title}`}
+              aria-expanded={!!isVisible.current}
+              className="flex items-center gap-1 rounded-6 transition-colors hover:text-text-primary"
+            >
+              <span
+                className={classNames(
+                  'text-text-quaternary typo-callout',
+                  !sidebarExpanded && 'opacity-0',
+                )}
+              >
+                {title}
+              </span>
+              <ArrowIcon
+                className={classNames(
+                  'h-2.5 w-2.5 text-text-quaternary transition-transform duration-200',
+                  isVisible.current ? 'rotate-180' : 'rotate-90',
+                )}
+              />
+            </button>
+            {addHref && (
+              <Link href={addHref}>
+                <a
+                  aria-label={`Add to ${title}`}
+                  className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
+                >
+                  <PlusIcon className="h-4 w-4" />
+                </a>
+              </Link>
+            )}
+            {!addHref && onAdd && (
+              <button
+                type="button"
+                onClick={onAdd}
+                aria-label={`Add to ${title}`}
+                className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
+              >
+                <PlusIcon className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </NavHeader>
       )}
       <div
         className={classNames(
