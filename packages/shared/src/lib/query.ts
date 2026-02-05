@@ -243,6 +243,7 @@ export enum RequestKey {
   Gear = 'gear',
   GearSearch = 'gear_search',
   PersonalAccessTokens = 'personal_access_tokens',
+  UserAchievements = 'user_achievements',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
