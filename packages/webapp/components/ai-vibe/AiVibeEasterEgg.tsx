@@ -699,30 +699,30 @@ export default function AiVibeEasterEgg(): ReactElement | null {
             </div>
           ))}
           {notice && (
-            <div className="absolute left-1/2 top-4 -translate-x-1/2 rounded-12 border border-border-subtlest-tertiary bg-text-primary px-4 py-2 text-background-default shadow-2 typo-callout">
+            <div className="absolute left-1/2 top-4 -translate-x-1/2 rounded-12 border border-border-subtlest-tertiary bg-surface-primary px-4 py-2 text-surface-invert shadow-2 typo-callout">
               {notice}
             </div>
           )}
           {status !== 'playing' && (
             <div className="absolute inset-0 flex items-center justify-center bg-surface-primary bg-opacity-90">
-              <div className="flex w-full max-w-[30rem] flex-col items-center gap-4 rounded-24 border border-border-subtlest-tertiary bg-text-primary p-6 text-center text-background-default shadow-2">
-                <p className="typo-title2 font-bold text-background-default">
+              <div className="flex w-full max-w-[30rem] flex-col items-center gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-primary p-6 text-center text-surface-invert shadow-2">
+                <p className="typo-title2 font-bold">
                   {status === 'won'
                     ? 'Max tokens achieved.'
                     : 'Speedrun complete.'}
                 </p>
-                <p className="text-background-default opacity-80 typo-body">
+                <p className="opacity-70 typo-body">
                   {status === 'won'
                     ? 'You shipped the AI vibes. The hub is safe (for now).'
                     : 'Time is up. The model survived. For now.'}
                 </p>
                 <div className="grid w-full gap-3 tablet:grid-cols-2">
-                  <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 text-left text-text-primary">
-                    <p className="text-text-tertiary typo-caption1">Final score</p>
+                  <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-left text-surface-primary">
+                    <p className="opacity-70 typo-caption1">Final score</p>
                     <p className="font-bold typo-title3">{score}</p>
                   </div>
-                  <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 text-left text-text-primary">
-                    <p className="text-text-tertiary typo-caption1">Rank</p>
+                  <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-left text-surface-primary">
+                    <p className="opacity-70 typo-caption1">Rank</p>
                     <p className="font-bold typo-title3">
                       {yourRank ? `#${yourRank}` : '—'}
                     </p>
@@ -750,12 +750,12 @@ export default function AiVibeEasterEgg(): ReactElement | null {
         </div>
 
         <div className="mt-4 grid gap-4 laptop:grid-cols-[1.5fr_0.7fr]">
-          <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 shadow-2">
+          <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-3 shadow-2 text-surface-invert">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-text-tertiary typo-caption1">
+              <p className="opacity-70 typo-caption1">
                 Type the falling AI vibe words to rack up max tokens.
               </p>
-              <p className="text-text-tertiary typo-caption1">
+              <p className="opacity-70 typo-caption1">
                 Shortcut: Cmd/Ctrl + Shift + K
               </p>
             </div>
@@ -776,10 +776,10 @@ export default function AiVibeEasterEgg(): ReactElement | null {
             />
           </div>
 
-          <aside className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-text-primary p-3 text-background-default shadow-2">
+          <aside className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-surface-primary shadow-2">
             <div className="flex items-center justify-between">
               <p className="font-semibold typo-callout">Leaderboard</p>
-              <span className="rounded-12 border border-border-subtlest-tertiary bg-background-default px-2 py-1 text-text-tertiary typo-caption2">
+              <span className="rounded-12 border border-border-subtlest-tertiary bg-surface-primary px-2 py-1 text-surface-invert typo-caption2">
                 mocked
               </span>
             </div>
@@ -788,9 +788,9 @@ export default function AiVibeEasterEgg(): ReactElement | null {
                 <div
                   key={`${entry.rank}-${entry.name}`}
                   className={classNames(
-                    'flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2 text-text-primary',
+                    'flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-primary px-3 py-2 text-surface-invert',
                     {
-                      'border-accent-cabbage-default bg-text-primary text-background-default':
+                      'border-accent-cabbage-default bg-surface-invert text-surface-primary':
                         entry.isYou,
                     },
                   )}
@@ -802,9 +802,9 @@ export default function AiVibeEasterEgg(): ReactElement | null {
                     {entry.name}
                   </span>
                   <span
-                    className={classNames('typo-caption1', {
-                      'text-text-tertiary': !entry.isYou,
-                      'text-background-default opacity-80': entry.isYou,
+                    className={classNames('typo-caption1 opacity-70', {
+                      'text-surface-invert': !entry.isYou,
+                      'text-surface-primary': entry.isYou,
                     })}
                   >
                     {entry.score}
