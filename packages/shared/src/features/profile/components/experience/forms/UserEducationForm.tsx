@@ -12,8 +12,13 @@ import ControlledTextarea from '../../../../../components/fields/ControlledTexta
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
 import { profileSecondaryFieldStyles } from '../../../common';
 import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
+import type { Company } from '../../../../../lib/userCompany';
 
-const UserEducationForm = () => {
+type UserEducationFormProps = {
+  company?: Company | null;
+};
+
+const UserEducationForm = ({ company }: UserEducationFormProps) => {
   const { watch } = useFormContext();
   const current = watch('current');
 
@@ -24,6 +29,8 @@ const UserEducationForm = () => {
           name="customCompanyName"
           label="School*"
           type={AutocompleteType.School}
+          company={company}
+          entityLabel="school"
         />
         <ControlledTextField
           name="customDomain"
