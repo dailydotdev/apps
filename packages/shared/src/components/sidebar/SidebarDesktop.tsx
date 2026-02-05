@@ -60,7 +60,7 @@ export const SidebarDesktop = ({
           {/* Primary Action */}
           <div
             className={classNames(
-              'mb-2 transition-[padding] duration-300',
+              'mb-2 flex min-h-8 items-center transition-[padding] duration-300',
               sidebarExpanded ? 'px-2' : 'px-1',
             )}
           >
