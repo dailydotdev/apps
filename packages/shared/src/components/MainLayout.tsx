@@ -167,7 +167,7 @@ function MainLayoutComponent({
     (!isPageReady && isPageApplicableForOnboarding) ||
     shouldRedirectOnboarding
   ) {
-    if (isPWA()) {
+    if (typeof window !== 'undefined' && isPWA()) {
       return <MobileAppLoader />;
     }
     return null;
