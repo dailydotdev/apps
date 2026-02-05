@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import PromotionalBanner from './PromotionalBanner';
+import { MobileAppLoader } from './MobileAppLoader';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { useLogContext } from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -91,6 +92,7 @@ function MainLayoutComponent({
   const { isCustomFeed } = useFeedName({ feedName });
   const { plusEntryAnnouncementBar } = usePlusEntry();
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
@@ -165,6 +167,9 @@ function MainLayoutComponent({
     (!isPageReady && isPageApplicableForOnboarding) ||
     shouldRedirectOnboarding
   ) {
+    if (isMobile) {
+      return <MobileAppLoader />;
+    }
     return null;
   }
 
