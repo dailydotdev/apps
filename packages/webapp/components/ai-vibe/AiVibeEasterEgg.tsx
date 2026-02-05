@@ -1,5 +1,11 @@
 import type { ChangeEvent, ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -74,6 +80,9 @@ const NORMAL_SPAWN_INTERVAL_MS = 900;
 const TOKEN_DROP_PENALTY = 6;
 const INCIDENT_BONUS = 18;
 
+const VERTICAL_GRID_LINES = [9, 18, 27, 36, 45, 54, 63, 72, 81, 90];
+const HORIZONTAL_GRID_LINES = [14, 28, 42, 56, 70, 84];
+
 const MOCK_LEADERBOARD = [
   { name: 'VectorVera', score: 980 },
   { name: 'LatencyLiam', score: 910 },
@@ -123,19 +132,12 @@ const findBestMatch = (
     return null;
   }
 
-  let bestMatch: FallingToken | null = null;
-
-  for (const token of tokens) {
-    if (!token.word.startsWith(value)) {
-      continue;
-    }
-
-    if (!bestMatch || token.y > bestMatch.y) {
-      bestMatch = token;
-    }
-  }
-
-  return bestMatch;
+  return tokens
+    .filter((token) => token.word.startsWith(value))
+    .reduce<FallingToken | null>(
+      (best, token) => (!best || token.y > best.y ? token : best),
+      null,
+    );
 };
 
 export default function AiVibeEasterEgg(): ReactElement | null {
@@ -203,7 +205,8 @@ export default function AiVibeEasterEgg(): ReactElement | null {
         x: overrides.x ?? randomBetween(8, 92),
         y: overrides.y ?? randomBetween(-18, -8),
         speed:
-          overrides.speed ?? randomBetween(BASE_SPEED_RANGE[0], BASE_SPEED_RANGE[1]),
+          overrides.speed ??
+          randomBetween(BASE_SPEED_RANGE[0], BASE_SPEED_RANGE[1]),
         isIncident: overrides.isIncident ?? false,
       };
     },
@@ -234,7 +237,10 @@ export default function AiVibeEasterEgg(): ReactElement | null {
         createToken({
           word,
           isIncident: true,
-          speed: randomBetween(BASE_SPEED_RANGE[0] + 2, BASE_SPEED_RANGE[1] + 4),
+          speed: randomBetween(
+            BASE_SPEED_RANGE[0] + 2,
+            BASE_SPEED_RANGE[1] + 4,
+          ),
         }),
       ]);
       showNotice('Service down! Hyper mode engaged.');
@@ -309,7 +315,7 @@ export default function AiVibeEasterEgg(): ReactElement | null {
 
   useEffect(() => {
     if (!isOpen) {
-      return;
+      return undefined;
     }
 
     inputRef.current?.focus();
@@ -327,7 +333,7 @@ export default function AiVibeEasterEgg(): ReactElement | null {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
-      return;
+      return undefined;
     }
 
     const step = (time: number): void => {
@@ -379,13 +385,15 @@ export default function AiVibeEasterEgg(): ReactElement | null {
 
         if (dropped > 0) {
           setStreak(0);
-          setMaxTokens((value) => Math.max(0, value - dropped * TOKEN_DROP_PENALTY));
+          setMaxTokens((value) =>
+            Math.max(0, value - dropped * TOKEN_DROP_PENALTY),
+          );
         }
 
         return updated;
       });
 
-      if (maxTokensProgress >= 1 && status !== 'won') {
+      if (maxTokensProgress >= 1) {
         setStatus('won');
         showNotice('Max tokens reached. Ship it!');
         return;
@@ -436,10 +444,7 @@ export default function AiVibeEasterEgg(): ReactElement | null {
       setInput('');
       setScore((value) => value + basePoints * incidentBoost + streakBonus);
       setMaxTokens((value) =>
-        Math.min(
-          MAX_TOKENS_TARGET,
-          value + basePoints + (incident ? 6 : 0),
-        ),
+        Math.min(MAX_TOKENS_TARGET, value + basePoints + (incident ? 6 : 0)),
       );
       setStreak((value) => value + 1);
 
@@ -504,6 +509,7 @@ export default function AiVibeEasterEgg(): ReactElement | null {
   }
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       className="fixed inset-0 z-max flex h-full w-full flex-col bg-gradient-to-br from-accent-pepper-subtler via-background-default to-accent-blueCheese-subtler text-text-primary"
       onMouseDown={() => {
@@ -513,18 +519,18 @@ export default function AiVibeEasterEgg(): ReactElement | null {
       aria-modal="true"
       aria-label="AI vibes typing game"
     >
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -left-24 -top-16 size-80 rounded-full bg-accent-cabbage-bolder opacity-25 blur-3xl" />
-        <div className="absolute -bottom-24 -right-16 size-96 rounded-full bg-accent-bacon-bolder opacity-20 blur-3xl" />
-        <div className="absolute left-1/2 top-1/3 size-72 -translate-x-1/2 rounded-full bg-accent-onion-bolder opacity-20 blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="opacity-25 absolute -left-24 -top-16 size-80 rounded-full bg-accent-cabbage-bolder blur-3xl" />
+        <div className="opacity-20 absolute -bottom-24 -right-16 size-96 rounded-full bg-accent-bacon-bolder blur-3xl" />
+        <div className="opacity-20 absolute left-1/2 top-1/3 size-72 -translate-x-1/2 rounded-full bg-accent-onion-bolder blur-3xl" />
       </div>
 
-      <header className="relative z-10 flex flex-col gap-4 p-4 tablet:p-6">
+      <header className="z-10 relative flex flex-col gap-4 p-4 tablet:p-6">
         <div className="flex flex-col gap-2">
           <p className="text-text-tertiary typo-caption1">
             secret mode // ai hub overload
           </p>
-          <p className="typo-mega1 font-black uppercase tracking-wide text-transparent bg-gradient-to-r from-accent-cabbage-default via-accent-blueCheese-default to-accent-onion-default bg-clip-text">
+          <p className="bg-gradient-to-r from-accent-cabbage-default via-accent-blueCheese-default to-accent-onion-default bg-clip-text font-black uppercase tracking-wide text-transparent typo-mega1">
             Vibe Overdrive
           </p>
           <p className="max-w-[42rem] text-text-secondary typo-callout">
@@ -535,8 +541,8 @@ export default function AiVibeEasterEgg(): ReactElement | null {
 
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex flex-wrap items-stretch gap-4">
-            <div className="flex min-w-[14rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-3 shadow-2 min-h-[9rem] text-surface-invert">
-              <p className="opacity-70 typo-caption1">Objective</p>
+            <div className="flex min-h-[9rem] min-w-[14rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-text-primary shadow-2">
+              <p className="text-text-tertiary typo-caption1">Objective</p>
               <p className="font-bold typo-title3">Max Tokens</p>
               <div className="mt-2">
                 <ProgressBar
@@ -550,13 +556,13 @@ export default function AiVibeEasterEgg(): ReactElement | null {
                   }}
                 />
               </div>
-              <p className="mt-1 opacity-70 typo-footnote">
+              <p className="mt-1 text-text-tertiary typo-footnote">
                 {maxTokens}/{MAX_TOKENS_TARGET} tokens
               </p>
             </div>
 
-            <div className="flex min-w-[12rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-3 shadow-2 min-h-[9rem] text-surface-invert">
-              <p className="opacity-70 typo-caption1">Speedrun</p>
+            <div className="flex min-h-[9rem] min-w-[12rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-text-primary shadow-2">
+              <p className="text-text-tertiary typo-caption1">Speedrun</p>
               <p
                 className={classNames('font-bold typo-title3', {
                   'text-accent-ketchup-default': isTimeCritical,
@@ -576,21 +582,21 @@ export default function AiVibeEasterEgg(): ReactElement | null {
                   }}
                 />
               </div>
-              <p className="mt-1 opacity-70 typo-footnote">
+              <p className="mt-1 text-text-tertiary typo-footnote">
                 1 run · no pause
               </p>
             </div>
 
-            <div className="flex min-w-[12rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-3 shadow-2 min-h-[9rem] text-surface-invert">
-              <p className="opacity-70 typo-caption1">Score</p>
+            <div className="flex min-h-[9rem] min-w-[12rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-text-primary shadow-2">
+              <p className="text-text-tertiary typo-caption1">Score</p>
               <p className="font-bold typo-title3">{score}</p>
-              <p className="mt-1 opacity-70 typo-footnote">
+              <p className="mt-1 text-text-tertiary typo-footnote">
                 Streak x{streak}
               </p>
             </div>
 
-            <div className="flex min-w-[14rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-3 shadow-2 min-h-[9rem] text-surface-invert">
-              <p className="opacity-70 typo-caption1">Status</p>
+            <div className="flex min-h-[9rem] min-w-[14rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-text-primary shadow-2">
+              <p className="text-text-tertiary typo-caption1">Status</p>
               <p
                 className={classNames('font-bold typo-title3', {
                   'text-accent-bacon-default': isHyper,
@@ -598,8 +604,10 @@ export default function AiVibeEasterEgg(): ReactElement | null {
               >
                 {isHyper ? 'Hyper Mode' : 'Stable'}
               </p>
-              <p className="mt-1 opacity-70 typo-footnote">
-                {isHyper ? `Fix: ${incident?.word ?? ''}` : 'All services green'}
+              <p className="mt-1 text-text-tertiary typo-footnote">
+                {isHyper
+                  ? `Fix: ${incident?.word ?? ''}`
+                  : 'All services green'}
               </p>
             </div>
           </div>
@@ -616,21 +624,21 @@ export default function AiVibeEasterEgg(): ReactElement | null {
         </div>
       </header>
 
-      <div className="relative z-10 flex flex-1 flex-col overflow-hidden px-4 pb-4 tablet:px-6">
+      <div className="z-10 relative flex flex-1 flex-col overflow-hidden px-4 pb-4 tablet:px-6">
         <div className="relative flex-1 overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-primary">
-          <div className="pointer-events-none absolute inset-0 opacity-30">
-            {Array.from({ length: 10 }).map((_, index) => (
+          <div className="opacity-30 pointer-events-none absolute inset-0">
+            {VERTICAL_GRID_LINES.map((position) => (
               <span
-                key={`grid-v-${index}`}
+                key={`grid-v-${position}`}
                 className="absolute top-0 h-full w-px bg-border-subtlest-tertiary"
-                style={{ left: `${(index + 1) * 9}%` }}
+                style={{ left: `${position}%` }}
               />
             ))}
-            {Array.from({ length: 6 }).map((_, index) => (
+            {HORIZONTAL_GRID_LINES.map((position) => (
               <span
-                key={`grid-h-${index}`}
-                className="absolute left-0 w-full h-px bg-border-subtlest-tertiary"
-                style={{ top: `${(index + 1) * 14}%` }}
+                key={`grid-h-${position}`}
+                className="absolute left-0 h-px w-full bg-border-subtlest-tertiary"
+                style={{ top: `${position}%` }}
               />
             ))}
           </div>
@@ -659,9 +667,9 @@ export default function AiVibeEasterEgg(): ReactElement | null {
               >
                 <div
                   className={classNames(
-                    'flex items-center gap-2 rounded-full border px-3 py-1 text-surface-primary',
+                    'flex items-center gap-2 rounded-full border px-3 py-1 text-text-primary',
                     {
-                      'border-accent-ketchup-default bg-accent-ketchup-default animate-pulse':
+                      'border-accent-ketchup-default bg-accent-ketchup-default animate-pulse text-white':
                         token.isIncident,
                       'border-border-subtlest-secondary bg-surface-invert':
                         !token.isIncident,
@@ -679,18 +687,18 @@ export default function AiVibeEasterEgg(): ReactElement | null {
                       },
                     )}
                   >
-                    <span className="absolute inset-1 rounded-full bg-surface-invert opacity-70" />
-                    <span className="absolute right-1 top-1 size-1.5 rounded-full bg-accent-blueCheese-default opacity-80" />
-                    <span className="relative z-10 size-2 rounded-full bg-accent-cabbage-default" />
+                    <span className="opacity-70 absolute inset-1 rounded-full bg-surface-invert" />
+                    <span className="opacity-80 absolute right-1 top-1 size-1.5 rounded-full bg-accent-blueCheese-default" />
+                    <span className="z-10 relative size-2 rounded-full bg-accent-cabbage-default" />
                   </span>
-                  <span className="typo-callout font-semibold tracking-wide">
+                  <span className="font-semibold tracking-wide typo-callout">
                     {token.word}
                   </span>
                   {activeToken?.id === token.id && (
-                    <span className="typo-caption2 opacity-80">locked</span>
+                    <span className="opacity-80 typo-caption2">locked</span>
                   )}
                   {token.isIncident && (
-                    <span className="typo-caption2 font-semibold text-surface-invert">
+                    <span className="font-semibold text-white typo-caption2">
                       incident
                     </span>
                   )}
@@ -699,30 +707,34 @@ export default function AiVibeEasterEgg(): ReactElement | null {
             </div>
           ))}
           {notice && (
-            <div className="absolute left-1/2 top-4 -translate-x-1/2 rounded-12 border border-border-subtlest-tertiary bg-surface-primary px-4 py-2 text-surface-invert shadow-2 typo-callout">
+            <div className="absolute left-1/2 top-4 -translate-x-1/2 rounded-12 border border-border-subtlest-tertiary bg-surface-invert px-4 py-2 text-text-primary shadow-2 typo-callout">
               {notice}
             </div>
           )}
           {status !== 'playing' && (
-            <div className="absolute inset-0 flex items-center justify-center bg-surface-primary bg-opacity-90">
-              <div className="flex w-full max-w-[30rem] flex-col items-center gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-primary p-6 text-center text-surface-invert shadow-2">
-                <p className="typo-title2 font-bold">
+            <div className="absolute inset-0 flex items-center justify-center bg-overlay-dark-dark2">
+              <div className="flex w-full max-w-[30rem] flex-col items-center gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-invert p-6 text-center text-text-primary shadow-2">
+                <p className="font-bold typo-title2">
                   {status === 'won'
                     ? 'Max tokens achieved.'
                     : 'Speedrun complete.'}
                 </p>
-                <p className="opacity-70 typo-body">
+                <p className="text-text-tertiary typo-body">
                   {status === 'won'
                     ? 'You shipped the AI vibes. The hub is safe (for now).'
                     : 'Time is up. The model survived. For now.'}
                 </p>
                 <div className="grid w-full gap-3 tablet:grid-cols-2">
-                  <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-left text-surface-primary">
-                    <p className="opacity-70 typo-caption1">Final score</p>
+                  <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-3 text-left text-surface-invert">
+                    <p className="opacity-70 text-surface-invert typo-caption1">
+                      Final score
+                    </p>
                     <p className="font-bold typo-title3">{score}</p>
                   </div>
-                  <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-left text-surface-primary">
-                    <p className="opacity-70 typo-caption1">Rank</p>
+                  <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-3 text-left text-surface-invert">
+                    <p className="opacity-70 text-surface-invert typo-caption1">
+                      Rank
+                    </p>
                     <p className="font-bold typo-title3">
                       {yourRank ? `#${yourRank}` : '—'}
                     </p>
@@ -750,12 +762,12 @@ export default function AiVibeEasterEgg(): ReactElement | null {
         </div>
 
         <div className="mt-4 grid gap-4 laptop:grid-cols-[1.5fr_0.7fr]">
-          <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-3 shadow-2 text-surface-invert">
+          <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-text-primary shadow-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="opacity-70 typo-caption1">
+              <p className="text-text-tertiary typo-caption1">
                 Type the falling AI vibe words to rack up max tokens.
               </p>
-              <p className="opacity-70 typo-caption1">
+              <p className="text-text-tertiary typo-caption1">
                 Shortcut: Cmd/Ctrl + Shift + K
               </p>
             </div>
@@ -766,7 +778,7 @@ export default function AiVibeEasterEgg(): ReactElement | null {
               onKeyDown={handleInputKeyDown}
               placeholder="type to stabilize the vibes"
               className={classNames(
-                'w-full rounded-12 border bg-surface-invert px-4 py-3 text-surface-primary typo-body outline-none transition-colors',
+                'w-full rounded-12 border bg-surface-primary px-4 py-3 text-surface-invert outline-none transition-colors typo-body',
                 {
                   'border-accent-ketchup-default': !hasMatch,
                   'border-accent-cabbage-default': isHyper,
@@ -776,7 +788,7 @@ export default function AiVibeEasterEgg(): ReactElement | null {
             />
           </div>
 
-          <aside className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-surface-primary shadow-2">
+          <aside className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-invert p-3 text-text-primary shadow-2">
             <div className="flex items-center justify-between">
               <p className="font-semibold typo-callout">Leaderboard</p>
               <span className="rounded-12 border border-border-subtlest-tertiary bg-surface-primary px-2 py-1 text-surface-invert typo-caption2">
@@ -790,7 +802,7 @@ export default function AiVibeEasterEgg(): ReactElement | null {
                   className={classNames(
                     'flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-primary px-3 py-2 text-surface-invert',
                     {
-                      'border-accent-cabbage-default bg-surface-invert text-surface-primary':
+                      'border-accent-cabbage-default ring-1 ring-accent-cabbage-default':
                         entry.isYou,
                     },
                   )}
@@ -801,12 +813,7 @@ export default function AiVibeEasterEgg(): ReactElement | null {
                   <span className="flex-1 font-semibold typo-callout">
                     {entry.name}
                   </span>
-                  <span
-                    className={classNames('typo-caption1 opacity-70', {
-                      'text-surface-invert': !entry.isYou,
-                      'text-surface-primary': entry.isYou,
-                    })}
-                  >
+                  <span className="opacity-70 text-surface-invert typo-caption1">
                     {entry.score}
                   </span>
                 </div>
