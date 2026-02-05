@@ -528,7 +528,10 @@ const ApiAccessPage = (): ReactElement => {
             Add daily.dev as a remote skill in Cursor:
           </Typography>
           <ol className="list-inside list-decimal text-text-tertiary typo-callout">
-            <li>Open Cursor Settings → Rules</li>
+            <li>
+              Open Cursor Settings → Rules (Cmd+Shift+J on Mac, Ctrl+Shift+J on
+              Windows/Linux)
+            </li>
             <li>
               Click &quot;Add Rule&quot; → &quot;Remote Rule (Github)&quot;
             </li>
