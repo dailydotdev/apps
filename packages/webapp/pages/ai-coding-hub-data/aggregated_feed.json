@@ -1,153 +1,266 @@
 [
   {
-    "id": "news-agentic-engineering-era",
+    "id": "news-opus-46-spotted",
     "type": "news_item",
-    "headline": "Vibe coding is dead. Agentic engineering is here.",
-    "summary": "Karpathy just dropped the new meta: stop 'vibing' and start orchestrating. The builders shipping fastest aren't writing code - they're designing agent memory, context windows, guardrails, and fallback logic. One dev: 'Went from vibing on weekends → agents that run overnight, review PRs, and ship while I sleep.' The engineering part is real. The leverage is insane.",
+    "headline": "Opus 4.6 spotted in Perplexity APIs",
+    "summary": "Testing Catalog caught Claude Opus 4.6 in Perplexity's API responses. No official announcement yet.",
     "date": "2026-02-05",
-    "category": "mindset_shift",
-    "tags": ["agentic_engineering", "vibe_coding", "karpathy", "workflow"],
-    "source_tweet_id": "2019399908110082254",
-    "related_tweet_ids": [
-      "2019137879310836075",
-      "2019401387465957677",
-      "2019397970085675417",
-      "2019186348310032624"
-    ],
-    "why_it_matters": "If you're still 'vibing' with prompts, you're already behind. The game is orchestration now."
+    "category": "leak",
+    "tags": ["opus_4.6", "anthropic", "models"],
+    "source_tweet_id": "2019401691402240228",
+    "related_tweet_ids": []
   },
   {
-    "id": "news-10-claude-code-tips",
+    "id": "news-codex-1m-users",
     "type": "news_item",
-    "headline": "10 Claude Code tips from the team that builds it",
-    "summary": "Boris Cherny dropped 10 tips that changed how people work: (1) Multiple git worktrees for parallel tasks (2) Plan first, execute second (3) Update Claude's docs after corrections (4) Create reusable skills for common actions (5) Let Claude auto-fix via logs (6) Challenge Claude for elegant solutions (7) Optimize terminal setup (8) Use subagents for complex problems (9) Data analysis via BigQuery CLI (10) Use for learning with diagrams. Thread got 49K likes.",
+    "headline": "Codex crossed 1M active users",
+    "summary": "Sam Altman announced Codex hit 1M users, up from 500K downloads on Monday. 'Codex is going to win.'",
     "date": "2026-02-05",
-    "category": "tips",
-    "tags": ["claude_code", "tips", "workflow", "productivity"],
-    "source_tweet_id": "2019396346747187442",
-    "related_tweet_ids": [
-      "2019377023953612837",
-      "2018789761931182539"
-    ],
-    "why_it_matters": "10 quick wins you can implement today. No fluff, straight from the source."
+    "category": "milestone",
+    "tags": ["codex", "openai", "milestone"],
+    "source_tweet_id": "2019219967250669741",
+    "related_tweet_ids": ["2019173348132188330"]
   },
   {
-    "id": "news-codex-macos-app",
+    "id": "news-openclaw-release",
     "type": "news_item",
-    "headline": "Codex app hit 1M users in 3 days. Here's why everyone switched.",
-    "summary": "OpenAI's Codex desktop app went from 0 to 1M users faster than any dev tool in history. The killer feature: run multiple agents in parallel on different worktrees while you sleep. Skills system lets you automate repetitive tasks. Sandboxed execution means agents can't brick your machine. Windows devs in shambles.",
-    "date": "2026-02-02",
-    "category": "product_launch",
-    "tags": ["codex", "openai", "macos", "desktop_app", "parallel_agents"],
-    "source_tweet_id": "2019173348132188330",
-    "related_tweet_ids": [
-      "2019366643500019887",
-      "2019349346995847533",
-      "2019401942309716453"
-    ],
-    "why_it_matters": "The people shipping fastest right now are running parallel agents overnight. This is the tool."
-  },
-  {
-    "id": "news-cursor-vs-claude-workflow",
-    "type": "news_item",
-    "headline": "Cursor vs Claude Code: devs share what they use each for",
-    "summary": "The consensus emerging: Cursor for UI iteration (fast visual feedback), Claude Code for complex reasoning and CLI workflows. Many devs running both: 'I architect with ChatGPT, generate with Cursor, review in Claude Code, deploy on Vercel.' One dev: 'Switched to Claude Code and my workflow diverged so much I can't go back.' No single tool wins - it's about the stack.",
+    "headline": "OpenClaw 2026.2.3 released at ClawCon",
+    "summary": "Cloudflare AI Gateway support, Moonshot provider for China, cron summaries, security hardening. Also announced: ClawHub marketplace.",
     "date": "2026-02-05",
-    "category": "workflow",
-    "tags": ["cursor", "claude_code", "workflow", "comparison"],
-    "source_tweet_id": "2019402893150023773",
-    "related_tweet_ids": [
-      "2019383160593871317",
-      "2019374680751370728",
-      "2019368028467519859",
-      "2019326338382110911"
-    ],
-    "why_it_matters": "Stop asking 'which is best' - the answer is both. Here's how people are stacking them."
+    "category": "release",
+    "tags": ["openclaw", "clawdbot", "release"],
+    "source_tweet_id": "2019321375207616720",
+    "related_tweet_ids": ["2019324384859897899", "2019243280962331012"]
   },
   {
-    "id": "news-xcode-claude-codex",
+    "id": "news-naval-vibe-research",
     "type": "news_item",
-    "headline": "Xcode 26.3 just shipped with Claude + Codex built in",
-    "summary": "Apple went all-in: native Claude Agent SDK and Codex integration in Xcode. Subagents, background tasks, MCP plugins - first-class features, not extensions. First major IDE vendor to ship multi-agent as default. iOS devs who've been watching from the sidelines just got full agentic capabilities without switching tools.",
-    "date": "2026-02-03",
-    "category": "product_launch",
-    "tags": ["xcode", "claude_code", "codex", "apple", "ios"],
-    "source_tweet_id": "2018771170938724682",
-    "related_tweet_ids": [
-      "2018762375386837043",
-      "2019395742071177235"
-    ],
-    "why_it_matters": "iOS devs: your workflow just changed. Everyone else: this is where the industry is heading."
+    "headline": "Naval: 'Vibe coding is here. Vibe research is next.'",
+    "summary": "",
+    "date": "2026-02-05",
+    "category": "hot_take",
+    "tags": ["naval", "vibe_coding", "ai_future"],
+    "source_tweet_id": "2019430858248347951",
+    "related_tweet_ids": []
   },
   {
-    "id": "news-cursor-commands-tip",
+    "id": "news-opencode-arch-linux",
     "type": "news_item",
-    "headline": "Cursor tip: Commands you're probably not using",
-    "summary": "If you're using Cursor without commands, you're leaving speed on the table. Quick wins: /deslop removes AI code bloat, /create-pr opens PRs from editor, /weekly-review summarizes your week, /fix-merge-conflict resolves conflicts in current branch. Commands = reusable prompts. Stop typing the same context every day.",
-    "date": "2026-02-03",
-    "category": "tips",
-    "tags": ["cursor", "commands", "tips", "productivity"],
-    "source_tweet_id": "2018610560745746833",
-    "related_tweet_ids": [],
-    "why_it_matters": "4 commands that instantly speed up your Cursor workflow. Add them now."
+    "headline": "OpenCode added to official Arch Linux repos",
+    "summary": "dax's open-source coding agent is now in the official Arch repositories. The team is 2.5 people.",
+    "date": "2026-02-05",
+    "category": "milestone",
+    "tags": ["opencode", "open_source", "arch_linux"],
+    "source_tweet_id": "2019069945804439885",
+    "related_tweet_ids": ["2018699572772573355"]
   },
   {
-    "id": "news-github-agents-hq",
+    "id": "news-karpathy-agentic-engineering",
     "type": "news_item",
-    "headline": "GitHub Agents HQ: run Claude, Codex, and Copilot in one repo",
-    "summary": "GitHub just unified the agent wars. Agents HQ lets you run Claude, Codex, and Copilot as in-repo agents - parallel runs, session history, PR-style review, enterprise governance. 'The IDE war is over. The orchestration war just started.' Available for Copilot Pro+ and Enterprise.",
+    "headline": "Karpathy pushing 'agentic engineering' over 'vibe coding'",
+    "summary": "One year after coining vibe coding: 'agentic' because you're orchestrating agents 99% of the time, 'engineering' because there's art and science to it.",
     "date": "2026-02-04",
-    "category": "product_launch",
-    "tags": ["github", "copilot", "claude_code", "codex", "agents_hq"],
-    "source_tweet_id": "2019109138173947995",
-    "related_tweet_ids": [
-      "2019093909981257849",
-      "2019101467119087905"
-    ],
-    "why_it_matters": "No more picking sides. Run all agents, compare outputs, ship faster."
+    "category": "thread",
+    "tags": ["karpathy", "agentic_engineering", "vibe_coding"],
+    "source_tweet_id": "2019137879310836075",
+    "related_tweet_ids": ["2018323563414163476"]
   },
   {
-    "id": "news-workflow-2026",
+    "id": "news-claude-insights-command",
     "type": "news_item",
-    "headline": "The 2026 AI coding workflow that's actually working",
-    "summary": "Pattern emerging from top builders: (1) Architect with ChatGPT/Claude (2) Generate boilerplate with Cursor (3) Complex reasoning with Claude Code (4) Review + refactor manually (5) Deploy on Vercel/Amplify. Another stack: GitHub for planning, Lovable for initial UX, Cursor Agent for implementation, GPT-5.2 Agent for code review. The key: different tools for different phases.",
-    "date": "2026-02-05",
-    "category": "workflow",
-    "tags": ["workflow", "best_practices", "cursor", "claude_code", "codex"],
-    "source_tweet_id": "2019367717539848624",
-    "related_tweet_ids": [
-      "2019356704337711451",
-      "2019338551024889971"
-    ],
-    "why_it_matters": "Stop using one tool for everything. Here's the multi-tool workflow that's shipping fastest."
+    "headline": "Claude Code ships /insights command",
+    "summary": "Reads your past month of usage, summarizes projects, gives workflow suggestions. Also new: /debug for troubleshooting sessions.",
+    "date": "2026-02-04",
+    "category": "feature",
+    "tags": ["claude_code", "insights", "official"],
+    "source_tweet_id": "2019173731042750509",
+    "related_tweet_ids": ["2019314348632555651"]
   },
   {
-    "id": "news-claude-no-ads",
+    "id": "news-primeagen-kimi",
     "type": "news_item",
-    "headline": "Anthropic: Claude will never have ads. Here's why it matters.",
-    "summary": "Anthropic committed to ad-free Claude and roasted ChatGPT in a Super Bowl ad. The reasoning: 'Users shouldn't second-guess whether an AI is genuinely helping them or subtly steering the conversation.' With ChatGPT ads incoming, Claude is betting trust beats monetization. Your AI assistant's incentives matter.",
+    "headline": "ThePrimeagen switched to Kimi K2.5 for debugging",
+    "summary": "'I have turned into a kimi k2.5 boi.' Used it to debug a Cloudflare R2 issue - found the problem in 2 minutes.",
+    "date": "2026-02-04",
+    "category": "endorsement",
+    "tags": ["kimi_k2.5", "primeagen", "debugging"],
+    "source_tweet_id": "2019081195321982998",
+    "related_tweet_ids": ["2019420522946195791", "2019170982619939222"]
+  },
+  {
+    "id": "news-gpt-52-faster",
+    "type": "news_item",
+    "headline": "GPT-5.2 is 40% faster",
+    "summary": "OpenAI optimized inference for all API customers. Same model, same weights, lower latency.",
     "date": "2026-02-04",
     "category": "announcement",
-    "tags": ["claude", "anthropic", "advertising", "openai", "trust"],
-    "source_tweet_id": "2019024565398299074",
-    "related_tweet_ids": [
-      "2019075059936358494",
-      "2019039874771550516"
-    ],
-    "why_it_matters": "When you ask Claude for a tool recommendation, it won't be because someone paid. That matters."
+    "tags": ["gpt_5.2", "openai", "performance"],
+    "source_tweet_id": "2018838297221726482",
+    "related_tweet_ids": []
   },
   {
-    "id": "news-prompt-engineering-dead",
+    "id": "news-chatgpt-mcp-apps",
     "type": "news_item",
-    "headline": "Prompt engineering is a dead end. Here's what replaced it.",
-    "summary": "The hierarchy of value shifted: (1) System Architecture / Orchestration (2) Evaluation Pipelines / Testing (3) Context Management / Data ... (99) Tweaking prompts. In 2024 you wrote poems for ChatGPT. In 2026 you write Python for agentic workflows. Stop talking to the bot. Build the bot.",
-    "date": "2026-02-05",
-    "category": "mindset_shift",
-    "tags": ["prompt_engineering", "agentic_engineering", "workflow", "skills"],
-    "source_tweet_id": "2019401387465957677",
-    "related_tweet_ids": [
-      "2019399908110082254"
-    ],
-    "why_it_matters": "If 'prompt engineer' is on your LinkedIn, update it. The skill that matters now is orchestration."
+    "headline": "ChatGPT now supports MCP Apps",
+    "summary": "OpenAI worked with the MCP committee. Apps that adhere to the spec work in both Claude and ChatGPT.",
+    "date": "2026-02-04",
+    "category": "announcement",
+    "tags": ["chatgpt", "mcp", "openai"],
+    "source_tweet_id": "2019185727934984384",
+    "related_tweet_ids": []
+  },
+  {
+    "id": "news-sam-anthropic-drama",
+    "type": "news_item",
+    "headline": "Sam Altman responds to Anthropic Super Bowl ad",
+    "summary": "'The good part: they are funny. But I wonder why Anthropic would go for something so clearly dishonest.' Claims 500K Codex downloads since Monday.",
+    "date": "2026-02-04",
+    "category": "drama",
+    "tags": ["openai", "anthropic", "codex", "competition"],
+    "source_tweet_id": "2019139174339928189",
+    "related_tweet_ids": ["2019139765015310773"]
+  },
+  {
+    "id": "news-systems-thinking",
+    "type": "news_item",
+    "headline": "Ryo Lu: AI amplifies the cost of bad architecture",
+    "summary": "'Coding with AI creates a new trap: the illusion of speed without structure. You can generate code fast, but without clear system architecture, you end up with a pile that works until it doesn't.'",
+    "date": "2026-02-04",
+    "category": "insight",
+    "tags": ["cursor", "architecture", "systems_thinking"],
+    "source_tweet_id": "2019089085034586239",
+    "related_tweet_ids": []
+  },
+  {
+    "id": "news-xcode-claude-integration",
+    "type": "news_item",
+    "headline": "Xcode 26.3 ships with native Claude Agent SDK",
+    "summary": "Full Claude Code functionality - subagents, background tasks, plugins - directly in Xcode for Apple platforms.",
+    "date": "2026-02-03",
+    "category": "product_launch",
+    "tags": ["xcode", "claude_code", "apple"],
+    "source_tweet_id": "2018771170938724682",
+    "related_tweet_ids": ["2018762375386837043"]
+  },
+  {
+    "id": "news-xcode-codex-integration",
+    "type": "news_item",
+    "headline": "Codex also available in Xcode 26.3",
+    "summary": "Internally called 'xcodex'. Can break down tasks, search Apple docs, explore files, update settings, capture Previews.",
+    "date": "2026-02-03",
+    "category": "product_launch",
+    "tags": ["xcode", "codex", "apple"],
+    "source_tweet_id": "2018796432443244897",
+    "related_tweet_ids": ["2018862624080064985"]
+  },
+  {
+    "id": "news-claude-session-sharing",
+    "type": "news_item",
+    "headline": "Claude Code adds session sharing",
+    "summary": "Share full conversations with team members or anyone with the link. Works on web, desktop, and mobile.",
+    "date": "2026-02-03",
+    "category": "feature",
+    "tags": ["claude_code", "session_sharing", "official"],
+    "source_tweet_id": "2018740156359229883",
+    "related_tweet_ids": []
+  },
+  {
+    "id": "news-claude-browser-vscode",
+    "type": "news_item",
+    "headline": "Claude Code VS Code extension gets browser control",
+    "summary": "Connect to Chrome from the extension. Debug frontend apps, collect data, automate browser. Type @ browser to start.",
+    "date": "2026-02-03",
+    "category": "feature",
+    "tags": ["claude_code", "vscode", "browser"],
+    "source_tweet_id": "2018789761931182539",
+    "related_tweet_ids": []
+  },
+  {
+    "id": "news-claude-slack-cowork",
+    "type": "news_item",
+    "headline": "Slack MCP now on all paid Claude plans",
+    "summary": "Search workspace channels, prep for meetings, draft replies. Lydia Hallie: 'I use it every morning to catch up on what I missed.'",
+    "date": "2026-02-03",
+    "category": "feature",
+    "tags": ["claude", "slack", "cowork", "mcp"],
+    "source_tweet_id": "2018819905630634171",
+    "related_tweet_ids": ["2019106724347801768"]
+  },
+  {
+    "id": "news-skills-standard-petition",
+    "type": "news_item",
+    "headline": "Petition for Claude Code to support .agents/skills",
+    "summary": "Standard is in amp, Codex CLI, Gemini CLI, Copilot, OpenCode, VS Code, and more. Cursor adding support next release.",
+    "date": "2026-02-03",
+    "category": "standard",
+    "tags": ["skills", "claude_code", "interoperability"],
+    "source_tweet_id": "2018760297368932726",
+    "related_tweet_ids": ["2018770085956010119"]
+  },
+  {
+    "id": "news-codex-app-launch",
+    "type": "news_item",
+    "headline": "Codex desktop app launched for macOS",
+    "summary": "Sam Altman: 'I am surprised by how much I love it; it is a bigger step forward than I imagined.' 200K downloads first day, 2x rate limits for paid plans.",
+    "date": "2026-02-02",
+    "category": "product_launch",
+    "tags": ["codex", "openai", "macos"],
+    "source_tweet_id": "2018385565289267236",
+    "related_tweet_ids": ["2018414858015039504", "2018437537103269909", "2018734731437985930"]
+  },
+  {
+    "id": "news-sam-felt-useless",
+    "type": "news_item",
+    "headline": "Sam Altman: 'I felt a little useless and it was sad'",
+    "summary": "Built an app with Codex, then asked it for feature ideas. 'At least a couple of them were better than I was thinking of.'",
+    "date": "2026-02-02",
+    "category": "commentary",
+    "tags": ["codex", "sam_altman", "ai_future"],
+    "source_tweet_id": "2018444309750862333",
+    "related_tweet_ids": []
+  },
+  {
+    "id": "news-enterprise-claude-switch",
+    "type": "news_item",
+    "headline": "600-engineer company switched Copilot → Cursor → Claude Code in 9 months",
+    "summary": "Gergely Orosz: 'I hear this exact transition story, a LOT.'",
+    "date": "2026-02-02",
+    "category": "data",
+    "tags": ["enterprise", "claude_code", "cursor", "copilot"],
+    "source_tweet_id": "2018432706892476842",
+    "related_tweet_ids": []
+  },
+  {
+    "id": "news-boris-tips",
+    "type": "news_item",
+    "headline": "Boris Cherny shares Claude Code team's tips",
+    "summary": "Worktrees for parallel tasks, plan before execute, update docs after corrections, create reusable skills, use subagents. 49K likes.",
+    "date": "2026-01-31",
+    "category": "tips",
+    "tags": ["claude_code", "tips", "official"],
+    "source_tweet_id": "2017742741636321619",
+    "related_tweet_ids": []
+  },
+  {
+    "id": "news-vercel-sandbox-ga",
+    "type": "news_item",
+    "headline": "Vercel Sandbox is GA",
+    "summary": "API to give agents a computer. Powering blackbox, roocode, v0. New: snapshotting for clone/fork/resume, open-source SDK.",
+    "date": "2026-01-31",
+    "category": "product_launch",
+    "tags": ["vercel", "sandbox", "agents"],
+    "source_tweet_id": "2017423825152184772",
+    "related_tweet_ids": []
+  },
+  {
+    "id": "news-cowork-plugins",
+    "type": "news_item",
+    "headline": "Cowork adds plugins",
+    "summary": "Bundle skills, connectors, slash commands, and sub-agents together. Turn Claude into a specialist for your role, team, or company.",
+    "date": "2026-01-30",
+    "category": "feature",
+    "tags": ["cowork", "claude", "plugins"],
+    "source_tweet_id": "2017299749309976915",
+    "related_tweet_ids": []
   }
 ]

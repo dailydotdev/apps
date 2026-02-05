@@ -23,8 +23,11 @@ import {
   feedItems,
   categoryLabels,
   getRelativeDate,
+  getBreakingItems,
+  getMilestoneItems,
+  getTrendingTools,
 } from '../data/aiCodingHubData';
-import type { FeedItem } from '../data/aiCodingHubData';
+import type { FeedItem, Category } from '../data/aiCodingHubData';
 
 const SignalCard = ({ item }: { item: FeedItem }): ReactElement => {
   const tweetUrl = `https://twitter.com/i/web/status/${item.source_tweet_id}`;
@@ -114,6 +117,99 @@ const SignalCard = ({ item }: { item: FeedItem }): ReactElement => {
   );
 };
 
+type StatusSignal = {
+  icon: string;
+  label: string;
+  text: string;
+  priority: number;
+};
+
+const getSignalIcon = (category: Category): string => {
+  if (category === 'drama') {
+    return '🚨';
+  }
+  if (category === 'leak') {
+    return '🔍';
+  }
+  return '🌶️';
+};
+
+const SmartStatusBar = (): ReactElement | null => {
+  const signals = useMemo((): StatusSignal[] => {
+    const result: StatusSignal[] = [];
+
+    const breaking = getBreakingItems(feedItems);
+    breaking.forEach((item) => {
+      result.push({
+        icon: getSignalIcon(item.category),
+        label: categoryLabels[item.category],
+        text: item.headline,
+        priority: 1,
+      });
+    });
+
+    const milestones = getMilestoneItems(feedItems);
+    milestones.slice(0, 2).forEach((item) => {
+      result.push({
+        icon: '📈',
+        label: 'MILESTONE',
+        text: item.headline,
+        priority: 2,
+      });
+    });
+
+    const trending = getTrendingTools(feedItems);
+    if (trending.length > 0) {
+      const top = trending[0];
+      result.push({
+        icon: '🔥',
+        label: 'TRENDING',
+        text: `${top.name.replace(/_/g, ' ')} (${top.count} mentions)`,
+        priority: 3,
+      });
+    }
+
+    return result.sort((a, b) => a.priority - b.priority);
+  }, []);
+
+  if (signals.length === 0) {
+    return null;
+  }
+
+  const renderSignal = (signal: StatusSignal, prefix: string) => (
+    <span
+      key={`${prefix}-${signal.text}`}
+      className="inline-flex items-center gap-1.5"
+    >
+      <span>{signal.icon}</span>
+      <span className="font-bold text-accent-cheese-default">
+        {signal.text}
+      </span>
+      <span className="mx-6 text-text-quaternary">•</span>
+    </span>
+  );
+
+  return (
+    <div className="relative w-full overflow-hidden">
+      <style>
+        {`
+          @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+        `}
+      </style>
+      <div
+        className="inline-flex whitespace-nowrap"
+        style={{ animation: 'ticker 30s linear infinite' }}
+      >
+        {signals.map((signal) => renderSignal(signal, 'a'))}
+        {signals.map((signal) => renderSignal(signal, 'b'))}
+      </div>
+    </div>
+  );
+};
+
 type FilterCategory =
   | 'ALL'
   | 'product_launch'
@@ -175,27 +271,10 @@ const AiCodingHubPage = (): ReactElement => {
         </div>
       </header>
 
-      {/* Quick Stats */}
+      {/* Smart Status Bar */}
       <div className="border-b border-border-subtlest-tertiary bg-surface-float">
-        <div className="no-scrollbar mx-auto flex max-w-4xl items-center gap-4 overflow-x-auto px-4 py-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="text-text-quaternary">SIGNALS</span>
-            <span className="font-bold text-text-primary">
-              {feedItems.length}
-            </span>
-          </div>
-          <span className="text-border-subtlest-tertiary">│</span>
-          <div className="flex items-center gap-2">
-            <span className="text-text-quaternary">TODAY</span>
-            <span className="font-bold text-status-success">{todayCount}</span>
-          </div>
-          <span className="text-border-subtlest-tertiary">│</span>
-          <div className="flex items-center gap-2">
-            <span className="text-text-quaternary">FOCUS</span>
-            <span className="font-bold text-accent-cheese-default">
-              Agentic workflows
-            </span>
-          </div>
+        <div className="mx-auto max-w-4xl overflow-hidden px-4 py-2 text-xs">
+          <SmartStatusBar />
         </div>
       </div>
 
