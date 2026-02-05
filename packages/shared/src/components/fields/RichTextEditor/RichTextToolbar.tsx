@@ -1,4 +1,4 @@
-import type { ReactElement, Ref } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
 import React, {
   useState,
   useCallback,
@@ -23,6 +23,8 @@ import { LinkModal } from './LinkModal';
 export interface RichTextToolbarProps {
   editor: Editor;
   onLinkAdd: (url: string, label?: string) => void;
+  inlineActions?: ReactNode;
+  rightActions?: ReactNode;
 }
 
 export interface RichTextToolbarRef {
@@ -63,7 +65,7 @@ const ToolbarButton = ({
 };
 
 function RichTextToolbarComponent(
-  { editor, onLinkAdd }: RichTextToolbarProps,
+  { editor, onLinkAdd, inlineActions, rightActions }: RichTextToolbarProps,
   ref: Ref<RichTextToolbarRef>,
 ): ReactElement {
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
@@ -152,6 +154,12 @@ function RichTextToolbarComponent(
           isActive={editor.isActive('link')}
           onClick={openLinkModal}
         />
+        {inlineActions && (
+          <>
+            <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
+            <div className="flex items-center gap-1">{inlineActions}</div>
+          </>
+        )}
         {(editor.can().undo() || editor.can().redo()) && (
           <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
         )}
@@ -169,6 +177,9 @@ function RichTextToolbarComponent(
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo()}
         />
+        {rightActions && (
+          <div className="ml-auto flex items-center gap-1">{rightActions}</div>
+        )}
       </div>
       <LinkModal
         isOpen={isLinkModalOpen}

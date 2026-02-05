@@ -453,6 +453,9 @@ importers:
       '@tiptap/extension-character-count':
         specifier: ^3.14.0
         version: 3.14.0(@tiptap/extensions@3.14.0(@tiptap/core@3.15.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0))
+      '@tiptap/extension-image':
+        specifier: ^3.14.0
+        version: 3.19.0(@tiptap/core@3.15.0(@tiptap/pm@3.14.0))
       '@tiptap/extension-link':
         specifier: ^3.14.0
         version: 3.14.0(@tiptap/core@3.15.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0)
@@ -3607,6 +3610,11 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.14.0
       '@tiptap/pm': ^3.14.0
+
+  '@tiptap/extension-image@3.19.0':
+    resolution: {integrity: sha512-/rGl8nBziBPVJJ/9639eQWFDKcI3RQsDM3s+cqYQMFQfMqc7sQB9h4o4sHCBpmKxk3Y0FV/0NjnjLbBVm8OKdQ==}
+    peerDependencies:
+      '@tiptap/core': ^3.19.0
 
   '@tiptap/extension-italic@3.14.0':
     resolution: {integrity: sha512-Arl5EaG4wdyipwvKjsI7Krlk3OkmqvLfF0YfGwsd5AVDxTiYuiDGgz7RF8J2kttbBeiUTqwME5xpkryQK3F+fg==}
@@ -12679,6 +12687,10 @@ snapshots:
       '@tiptap/core': 3.15.0(@tiptap/pm@3.14.0)
       '@tiptap/pm': 3.14.0
 
+  '@tiptap/extension-image@3.19.0(@tiptap/core@3.15.0(@tiptap/pm@3.14.0))':
+    dependencies:
+      '@tiptap/core': 3.15.0(@tiptap/pm@3.14.0)
+
   '@tiptap/extension-italic@3.14.0(@tiptap/core@3.15.0(@tiptap/pm@3.14.0))':
     dependencies:
       '@tiptap/core': 3.15.0(@tiptap/pm@3.14.0)
@@ -16544,7 +16556,11 @@ snapshots:
       pretty-format: 26.6.2
       throat: 5.0.0
     transitivePeerDependencies:
+      - bufferutil
+      - canvas
       - supports-color
+      - ts-node
+      - utf-8-validate
 
   jest-junit@12.3.0:
     dependencies:
