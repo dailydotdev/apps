@@ -47,8 +47,10 @@ const ProfileCompany = ({
   const storedCustomCompanyName = watch('storedCustomCompanyName');
 
   const handleUnlink = () => {
-    setValue('companyId', '');
-    setValue(name, storedCustomCompanyName || company?.name || '');
+    setValue('companyId', '', { shouldDirty: true });
+    setValue(name, storedCustomCompanyName || company?.name || '', {
+      shouldDirty: true,
+    });
   };
   const { data, isLoading } = useQuery({
     queryKey: generateQueryKey(
