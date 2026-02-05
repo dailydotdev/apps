@@ -30,6 +30,17 @@ export const useDirtyForm = (
     }
   }, [onDiscard, router]);
 
+  const handleSave = useCallback(async () => {
+    await onSave();
+
+    allowNavigationRef.current = true;
+
+    if (pendingUrlRef.current) {
+      router.push(pendingUrlRef.current);
+      pendingUrlRef.current = null;
+    }
+  }, [onSave, router]);
+
   useEffect(() => {
     const handleRouteChangeStart = (url: string) => {
       if (allowNavigationRef.current || !isDirty || url === router.asPath) {
@@ -43,7 +54,7 @@ export const useDirtyForm = (
         type: LazyModal.DirtyForm,
         props: {
           onDiscard: handleDiscard,
-          onSave,
+          onSave: handleSave,
         },
       });
 
@@ -58,7 +69,7 @@ export const useDirtyForm = (
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
-  }, [isDirty, router, openModal, handleDiscard, onSave]);
+  }, [isDirty, router, openModal, handleDiscard, handleSave]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -89,6 +100,6 @@ export const useDirtyForm = (
     },
     hasPendingNavigation: () => pendingUrlRef.current !== null,
     navigateToPending,
-    save: onSave,
+    save: handleSave,
   };
 };

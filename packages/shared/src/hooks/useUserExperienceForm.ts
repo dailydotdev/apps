@@ -147,7 +147,11 @@ const useUserExperienceForm = ({
         queryKey: generateQueryKey(RequestKey.UserExperience, user, 'profile'),
         exact: false,
       });
-      router.push(`${webappUrl}settings/profile/experience/${type}`);
+
+      // Only navigate to default location if there's no pending navigation from dirty form
+      if (!dirtyFormRef.current?.hasPendingNavigation()) {
+        router.push(`${webappUrl}settings/profile/experience/${type}`);
+      }
     },
     onError: (error: ApiErrorResult) => {
       if (
