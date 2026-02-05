@@ -19,14 +19,14 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import Link from 'next/link';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 import {
   feedItems,
   categoryLabels,
   getRelativeDate,
-  type FeedItem,
 } from '../../data/aiCodingHubData';
+import type { FeedItem } from '../../data/aiCodingHubData';
 
 const TweetEmbed = ({ tweetId }: { tweetId: string }): ReactElement => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -93,8 +93,10 @@ const SignalDetailPage = (): ReactElement => {
         <Typography type={TypographyType.Title2} className="mb-4">
           Signal not found
         </Typography>
-        <Link href="/ai-coding-hub">
-          <Button variant={ButtonVariant.Primary}>Back to AI Pulse</Button>
+        <Link href="/ai-coding-hub" passHref>
+          <Button tag="a" variant={ButtonVariant.Primary}>
+            Back to AI Pulse
+          </Button>
         </Link>
       </div>
     );
@@ -110,10 +112,11 @@ const SignalDetailPage = (): ReactElement => {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-border-subtlest-tertiary bg-background-default/95 backdrop-blur-sm">
+      <header className="z-20 bg-background-default/95 sticky top-0 border-b border-border-subtlest-tertiary backdrop-blur-sm">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3">
-          <Link href="/ai-coding-hub">
+          <Link href="/ai-coding-hub" passHref>
             <Button
+              tag="a"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               icon={<ArrowIcon className="rotate-180" size={IconSize.Small} />}
@@ -174,7 +177,7 @@ const SignalDetailPage = (): ReactElement => {
         </Typography>
 
         {/* Why it matters */}
-        <div className="mb-8 rounded-12 border border-accent-cabbage-default/30 bg-accent-cabbage-subtle/50 px-4 py-4">
+        <div className="border-accent-cabbage-default/30 bg-accent-cabbage-subtle/50 mb-8 rounded-12 border px-4 py-4">
           <div className="mb-2 flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-accent-cabbage-default">
               Why it matters
@@ -242,33 +245,35 @@ const SignalDetailPage = (): ReactElement => {
                 <Link
                   key={related.id}
                   href={`/ai-coding-hub/${related.id}`}
-                  className="block rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 transition-colors hover:bg-surface-hover"
+                  passHref
                 >
-                  <div className="mb-2 flex items-center gap-2">
-                    <span
-                      className={classNames(
-                        'rounded-4 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
-                        related.category === 'mindset_shift' &&
-                          'bg-accent-onion-subtle text-accent-onion-default',
-                        related.category === 'tips' &&
-                          'bg-accent-cabbage-subtle text-accent-cabbage-default',
-                        related.category === 'product_launch' &&
-                          'bg-accent-water-subtle text-accent-water-default',
-                        related.category === 'workflow' &&
-                          'bg-accent-bun-subtle text-accent-bun-default',
-                        related.category === 'announcement' &&
-                          'bg-accent-cheese-subtle text-accent-cheese-default',
-                      )}
-                    >
-                      {categoryLabels[related.category]}
-                    </span>
-                    <span className="text-xs text-text-quaternary">
-                      {getRelativeDate(related.date)}
-                    </span>
-                  </div>
-                  <Typography type={TypographyType.Body} bold>
-                    {related.headline}
-                  </Typography>
+                  <a className="block rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 transition-colors hover:bg-surface-hover">
+                    <div className="mb-2 flex items-center gap-2">
+                      <span
+                        className={classNames(
+                          'rounded-4 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
+                          related.category === 'mindset_shift' &&
+                            'bg-accent-onion-subtle text-accent-onion-default',
+                          related.category === 'tips' &&
+                            'bg-accent-cabbage-subtle text-accent-cabbage-default',
+                          related.category === 'product_launch' &&
+                            'bg-accent-water-subtle text-accent-water-default',
+                          related.category === 'workflow' &&
+                            'bg-accent-bun-subtle text-accent-bun-default',
+                          related.category === 'announcement' &&
+                            'bg-accent-cheese-subtle text-accent-cheese-default',
+                        )}
+                      >
+                        {categoryLabels[related.category]}
+                      </span>
+                      <span className="text-xs text-text-quaternary">
+                        {getRelativeDate(related.date)}
+                      </span>
+                    </div>
+                    <Typography type={TypographyType.Body} bold>
+                      {related.headline}
+                    </Typography>
+                  </a>
                 </Link>
               ))}
           </div>

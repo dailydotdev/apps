@@ -17,15 +17,14 @@ import {
   TwitterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import Link from 'next/link';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../components/layouts/NoSidebarLayout';
 import {
   feedItems,
   categoryLabels,
   getRelativeDate,
-  type FeedItem,
-  type Category,
 } from '../data/aiCodingHubData';
+import type { FeedItem, Category } from '../data/aiCodingHubData';
 
 const SignalCard = ({ item }: { item: FeedItem }): ReactElement => {
   const tweetUrl = `https://twitter.com/i/web/status/${item.source_tweet_id}`;
@@ -56,14 +55,16 @@ const SignalCard = ({ item }: { item: FeedItem }): ReactElement => {
         </span>
       </div>
 
-      <Link href={detailUrl} className="block">
-        <Typography
-          type={TypographyType.Body}
-          bold
-          className="line-clamp-2 leading-snug transition-colors group-hover:text-accent-cabbage-default"
-        >
-          {item.headline}
-        </Typography>
+      <Link href={detailUrl} passHref>
+        <a className="block">
+          <Typography
+            type={TypographyType.Body}
+            bold
+            className="line-clamp-2 leading-snug transition-colors group-hover:text-accent-cabbage-default"
+          >
+            {item.headline}
+          </Typography>
+        </a>
       </Link>
 
       <Typography
@@ -106,7 +107,7 @@ const SignalCard = ({ item }: { item: FeedItem }): ReactElement => {
           rel="noopener noreferrer"
           className="flex items-center gap-1 text-xs text-text-quaternary transition-colors hover:text-text-secondary"
         >
-          <TwitterIcon size={IconSize.Size12} />
+          <TwitterIcon size={IconSize.XXSmall} />
           <span>source</span>
         </a>
       </div>
