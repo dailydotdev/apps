@@ -1,8 +1,5 @@
 const escapeHtml = (value: string): string =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 const escapeAttribute = (value: string): string =>
   value.replace(/"/g, '&quot;');
@@ -129,7 +126,17 @@ export const markdownToHtmlBasic = (markdown: string): string => {
   return htmlParts.join('');
 };
 
-const serializeInline = (node: Node): string => {
+// Mutually recursive functions for inline serialization
+function serializeChildren(node: Element): string {
+  return (
+    Array.from(node.childNodes)
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      .map((child) => serializeInline(child))
+      .join('')
+  );
+}
+
+function serializeInline(node: Node): string {
   if (node.nodeType === Node.TEXT_NODE) {
     return normalizeText(node.textContent || '');
   }
@@ -168,12 +175,7 @@ const serializeInline = (node: Node): string => {
     default:
       return serializeChildren(node);
   }
-};
-
-const serializeChildren = (node: Element): string =>
-  Array.from(node.childNodes)
-    .map((child) => serializeInline(child))
-    .join('');
+}
 
 const serializeList = (node: Element, ordered: boolean): string => {
   const items = Array.from(node.children).filter(
@@ -240,7 +242,10 @@ export const htmlToMarkdownBasic = (html: string): string => {
     })
     .filter(Boolean);
 
-  return blocks.join('\n\n').replace(/\n{3,}/g, '\n\n').trim();
+  return blocks
+    .join('\n\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 };
 
 export default markdownToHtmlBasic;

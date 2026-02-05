@@ -16,7 +16,6 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { useQuery } from '@tanstack/react-query';
 import type { Editor } from '@tiptap/react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { Extension } from '@tiptap/core';
@@ -25,7 +24,6 @@ import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
 import Image from '@tiptap/extension-image';
-import { search as emojiSearch } from 'node-emoji';
 import { ImageIcon, AtIcon } from '../icons';
 import { GifIcon } from '../icons/Gif';
 import {
@@ -35,7 +33,6 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
-import type { UserShortProfile } from '../../lib/user';
 import { SavingLabel } from './MarkdownInput/SavingLabel';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Loader } from '../Loader';
@@ -45,23 +42,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import CloseButton from '../CloseButton';
 import GifPopover from '../popover/GifPopover';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import type { RecommendedMentionsData } from '../../graphql/comments';
-import { RECOMMEND_MENTIONS_QUERY } from '../../graphql/comments';
-import { handleRegex } from '../../graphql/users';
-import { isValidHttpUrl } from '../../lib';
-import {
-  UploadState,
-  useSyncUploader,
-} from '../../hooks/input/useSyncUploader';
-import {
-  allowedContentImage,
-  allowedFileSize,
-  uploadNotAcceptedMessage,
-} from '../../graphql/posts';
-import { useToastNotification } from '../../hooks/useToastNotification';
-import { generateStorageKey, StorageTopic } from '../../lib/storage';
-import { storageWrapper } from '../../lib/storageWrapper';
+import { allowedContentImage } from '../../graphql/posts';
 import {
   htmlToMarkdownBasic,
   markdownToHtmlBasic,
@@ -70,6 +51,10 @@ import { MarkdownCommand } from '../../hooks/input/useMarkdownInput';
 import type { RichTextToolbarRef } from './RichTextEditor/RichTextToolbar';
 import { RichTextToolbar } from './RichTextEditor/RichTextToolbar';
 import { MarkdownInputRules } from './RichTextEditor/markdownInputRules';
+import { useMentionAutocomplete } from './RichTextEditor/useMentionAutocomplete';
+import { useEmojiAutocomplete } from './RichTextEditor/useEmojiAutocomplete';
+import { useImageUpload } from './RichTextEditor/useImageUpload';
+import { useDraftStorage } from './RichTextEditor/useDraftStorage';
 import styles from './RichTextEditor/richtext.module.css';
 
 const RecommendedEmojiTooltip = dynamic(
@@ -111,16 +96,12 @@ interface RichTextInputProps {
   parentCommentId?: string;
 }
 
-type EditorRange = { from: number; to: number } | null;
-
 export interface RichTextInputRef {
   onMentionCommand?: () => void;
   clearDraft: () => void;
   setInput: (value: string) => void;
   focus: () => void;
 }
-
-const specialCharsRegex = new RegExp(/[^A-Za-z0-9_.]/);
 
 function RichTextInput(
   {
@@ -149,76 +130,31 @@ function RichTextInput(
   const shouldShowSubmit = !!submitCopy;
   const { user } = useAuthContext();
   const { parentSelector } = usePopupSelector();
-  const { displayToast } = useToastNotification();
-  const { requestMethod } = useRequestProtocol();
   const toolbarRef = useRef<RichTextToolbarRef>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Editor | null>(null);
-  const uploadRef = useRef<HTMLInputElement>(null);
   const dirtyRef = useRef(false);
   const isSyncingRef = useRef(false);
   const inputRef = useRef('');
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
-  const mentionRangeRef = useRef<EditorRange>(null);
-  const emojiRangeRef = useRef<EditorRange>(null);
-  const mentionsRef = useRef<UserShortProfile[]>([]);
-  const emojiDataRef = useRef<Array<{ emoji: string; name: string }>>([]);
-  const emojiQueryRef = useRef<string>(undefined);
-  const queryRef = useRef<string>(undefined);
-  const selectedRef = useRef(0);
-  const selectedEmojiRef = useRef(0);
+  const [offset, setOffset] = useState([0, 0]);
+
   const isUploadEnabled = enabledCommand[MarkdownCommand.Upload];
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
   const isEmojiEnabled = enabledCommand[MarkdownCommand.Emoji];
   const isGifEnabled = enabledCommand[MarkdownCommand.Gif];
-
   const headerActionSize = ButtonSize.XSmall;
-
-  const draftStorageKey = useMemo(() => {
-    if (!postId) {
-      return null;
-    }
-    const identifier = editCommentId || parentCommentId || postId;
-    return generateStorageKey(StorageTopic.Comment, 'draft', identifier);
-  }, [postId, editCommentId, parentCommentId]);
-
-  const getInitialValue = useCallback(() => {
-    if (initialContent) {
-      return initialContent;
-    }
-    if (!draftStorageKey) {
-      return '';
-    }
-
-    return storageWrapper.getItem(draftStorageKey) || '';
-  }, [initialContent, draftStorageKey]);
-
-  const [input, setInput] = useState(getInitialValue);
-  const [query, setQuery] = useState<string>(undefined);
-  const [emojiQuery, setEmojiQuery] = useState<string>(undefined);
-  const [offset, setOffset] = useState([0, 0]);
-  const [selected, setSelected] = useState(0);
-  const [selectedEmoji, setSelectedEmoji] = useState(0);
-
-  inputRef.current = input;
-
   const maxLength = maxInputLength ?? textareaProps.maxLength;
 
-  const LinkShortcut = useMemo(
-    () =>
-      Extension.create({
-        name: 'linkShortcut',
-        addKeyboardShortcuts() {
-          return {
-            'Mod-k': () => {
-              toolbarRef.current?.openLinkModal();
-              return true;
-            },
-          };
-        },
-      }),
-    [],
-  );
+  const { getInitialValue, clearDraft } = useDraftStorage({
+    postId,
+    editCommentId,
+    parentCommentId,
+    content: inputRef.current,
+    isDirty: dirtyRef.current,
+  });
+
+  const [input, setInput] = useState(() => getInitialValue(initialContent));
+  inputRef.current = input;
 
   const updateInput = useCallback(
     (
@@ -240,69 +176,32 @@ function RichTextInput(
     [onValueUpdate],
   );
 
-  const emojiData = useMemo(
-    () =>
-      emojiQuery ? emojiSearch(emojiQuery.toLowerCase()).slice(0, 20) : [],
-    [emojiQuery],
-  );
+  const updateOffset = useCallback((currentEditor: Editor | null) => {
+    if (!currentEditor?.view?.dom) {
+      return;
+    }
 
-  const key = ['user', query, postId, sourceId];
-  const { data = { recommendedMentions: [] } } =
-    useQuery<RecommendedMentionsData>({
-      queryKey: key,
-      queryFn: () =>
-        requestMethod(
-          RECOMMEND_MENTIONS_QUERY,
-          { postId, query, sourceId },
-          { requestKey: JSON.stringify(key) },
-        ),
-      enabled: !!user && typeof query !== 'undefined',
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-    });
+    const coords = currentEditor.view.coordsAtPos(
+      currentEditor.state.selection.from,
+    );
+    const rect =
+      editorContainerRef.current?.getBoundingClientRect() ||
+      currentEditor.view.dom.getBoundingClientRect();
+    setOffset([coords.left - rect.left, coords.top - rect.top]);
+  }, []);
 
-  const mentions = data?.recommendedMentions;
+  const mention = useMentionAutocomplete({
+    enabled: isMentionEnabled,
+    postId,
+    sourceId,
+    userId: user?.id,
+    onOffsetUpdate: updateOffset,
+  });
 
-  useEffect(() => {
-    queryRef.current = query;
-  }, [query]);
-
-  useEffect(() => {
-    mentionsRef.current = mentions || [];
-  }, [mentions]);
-
-  useEffect(() => {
-    emojiDataRef.current = emojiData;
-  }, [emojiData]);
-
-  useEffect(() => {
-    emojiQueryRef.current = emojiQuery;
-  }, [emojiQuery]);
-
-  useEffect(() => {
-    selectedRef.current = selected;
-  }, [selected]);
-
-  useEffect(() => {
-    selectedEmojiRef.current = selectedEmoji;
-  }, [selectedEmoji]);
-
-  const updateOffset = useCallback(
-    (currentEditor: Editor | null) => {
-      if (!currentEditor?.view?.dom) {
-        return;
-      }
-
-      const coords = currentEditor.view.coordsAtPos(
-        currentEditor.state.selection.from,
-      );
-      const rect =
-        editorContainerRef.current?.getBoundingClientRect() ||
-        currentEditor.view.dom.getBoundingClientRect();
-      setOffset([coords.left - rect.left, coords.top - rect.top]);
-    },
-    [],
-  );
+  const emoji = useEmojiAutocomplete({
+    enabled: isEmojiEnabled,
+    onOffsetUpdate: updateOffset,
+  });
 
   const updateSuggestionsFromEditor = useCallback(
     (currentEditor: Editor | null) => {
@@ -311,118 +210,32 @@ function RichTextInput(
       }
 
       if (!currentEditor.state.selection.empty) {
-        setQuery(undefined);
-        setEmojiQuery(undefined);
-        mentionRangeRef.current = null;
-        emojiRangeRef.current = null;
+        mention.clearMention();
+        emoji.clearEmoji();
         return;
       }
 
-      const { $from } = currentEditor.state.selection;
-      const parentText = $from.parent.textBetween(
-        0,
-        $from.parent.content.size,
-        '\n',
-        '\n',
-      );
-      const cursorOffset = $from.parentOffset;
-      const textBefore = parentText.slice(0, cursorOffset);
-      const wordMatch = /(?:^|\s)(\S+)$/.exec(textBefore);
-      const word = wordMatch?.[1] || '';
-
-      if (isMentionEnabled && word.startsWith('@')) {
-        const mention = word.slice(1);
-        const isValid = mention.length === 0 || handleRegex.test(mention);
-        const looksLikeUrl =
-          isValidHttpUrl(word) ||
-          word.startsWith('www.') ||
-          /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+/i.test(word);
-
-        if (isValid && !looksLikeUrl && !currentEditor.isActive('link')) {
-          if (typeof queryRef.current === 'undefined') {
-            updateOffset(currentEditor);
-            setSelected(0);
-          }
-
-          const from = currentEditor.state.selection.from - word.length;
-          mentionRangeRef.current = {
-            from,
-            to: currentEditor.state.selection.from,
-          };
-          queryRef.current = mention;
-          setQuery(mention);
-        } else if (typeof queryRef.current !== 'undefined') {
-          queryRef.current = undefined;
-          setQuery(undefined);
-          mentionRangeRef.current = null;
-        }
-      } else if (typeof queryRef.current !== 'undefined') {
-        queryRef.current = undefined;
-        setQuery(undefined);
-        mentionRangeRef.current = null;
-      }
-
-      if (isEmojiEnabled && word.startsWith(':')) {
-        const emojiValue = word.slice(1);
-        if (!specialCharsRegex.test(emojiValue)) {
-          if (typeof emojiQueryRef.current === 'undefined') {
-            updateOffset(currentEditor);
-            setSelectedEmoji(0);
-          }
-
-          const from = currentEditor.state.selection.from - word.length;
-          emojiRangeRef.current = {
-            from,
-            to: currentEditor.state.selection.from,
-          };
-          emojiQueryRef.current = emojiValue;
-          setEmojiQuery(emojiValue);
-          return;
-        }
-      }
-
-      if (typeof emojiQueryRef.current !== 'undefined') {
-        emojiQueryRef.current = undefined;
-        setEmojiQuery(undefined);
-        emojiRangeRef.current = null;
-      }
+      mention.updateFromEditor(currentEditor);
+      emoji.updateFromEditor(currentEditor);
     },
-    [isEmojiEnabled, isMentionEnabled, updateOffset],
+    [mention, emoji],
   );
 
-  const onApplyMention = useCallback((mention: UserShortProfile) => {
-    const currentEditor = editorRef.current;
-    if (!currentEditor || !mentionRangeRef.current) {
-      return;
-    }
-
-    currentEditor
-      .chain()
-      .focus()
-      .insertContentAt(mentionRangeRef.current, `@${mention.username} `)
-      .run();
-
-    queryRef.current = undefined;
-    setQuery(undefined);
-    mentionRangeRef.current = null;
-  }, []);
-
-  const onApplyEmoji = useCallback((emoji: string) => {
-    const currentEditor = editorRef.current;
-    if (!currentEditor || !emojiRangeRef.current) {
-      return;
-    }
-
-    currentEditor
-      .chain()
-      .focus()
-      .insertContentAt(emojiRangeRef.current, `${emoji} `)
-      .run();
-
-    emojiQueryRef.current = undefined;
-    setEmojiQuery(undefined);
-    emojiRangeRef.current = null;
-  }, []);
+  const LinkShortcut = useMemo(
+    () =>
+      Extension.create({
+        name: 'linkShortcut',
+        addKeyboardShortcuts() {
+          return {
+            'Mod-k': () => {
+              toolbarRef.current?.openLinkModal();
+              return true;
+            },
+          };
+        },
+      }),
+    [],
+  );
 
   const editor = useEditor({
     extensions: [
@@ -463,11 +276,11 @@ function RichTextInput(
       handleKeyDown: (_view, event) => {
         const isSpecialKey = event.ctrlKey || event.metaKey;
         const hasMentions =
-          typeof queryRef.current !== 'undefined' &&
-          (mentionsRef.current?.length ?? 0) > 0;
+          typeof mention.queryRef.current !== 'undefined' &&
+          (mention.mentionsRef.current?.length ?? 0) > 0;
         const hasEmojis =
-          typeof emojiQueryRef.current !== 'undefined' &&
-          (emojiDataRef.current?.length ?? 0) > 0;
+          typeof emoji.emojiQueryRef.current !== 'undefined' &&
+          (emoji.emojiDataRef.current?.length ?? 0) > 0;
 
         if (isSpecialKey && event.key === 'Enter' && inputRef.current?.length) {
           event.preventDefault();
@@ -493,16 +306,16 @@ function RichTextInput(
 
         if (isArrowUp || isArrowDown) {
           if (hasMentions) {
-            setSelected((prev) => {
-              const total = mentionsRef.current?.length ?? 1;
+            mention.setSelected((prev) => {
+              const total = mention.mentionsRef.current?.length ?? 1;
               if (isArrowUp) {
                 return (prev - 1 + total) % total;
               }
               return (prev + 1) % total;
             });
           } else if (hasEmojis) {
-            setSelectedEmoji((prev) => {
-              const total = emojiDataRef.current?.length || 1;
+            emoji.setSelectedEmoji((prev) => {
+              const total = emoji.emojiDataRef.current?.length || 1;
               if (isArrowUp) {
                 return (prev - 1 + total) % total;
               }
@@ -514,15 +327,17 @@ function RichTextInput(
         }
 
         if (isEnter) {
-          if (hasMentions) {
-            const mention = mentionsRef.current?.[selectedRef.current];
-            if (mention) {
-              onApplyMention(mention);
+          if (hasMentions && editorRef.current) {
+            const selectedMention =
+              mention.mentionsRef.current?.[mention.selectedRef.current];
+            if (selectedMention) {
+              mention.applyMention(editorRef.current, selectedMention);
             }
-          } else if (hasEmojis) {
-            const emoji = emojiDataRef.current?.[selectedEmojiRef.current];
-            if (emoji) {
-              onApplyEmoji(emoji.emoji);
+          } else if (hasEmojis && editorRef.current) {
+            const selectedEmoji =
+              emoji.emojiDataRef.current?.[emoji.selectedEmojiRef.current];
+            if (selectedEmoji) {
+              emoji.applyEmoji(editorRef.current, selectedEmoji.emoji);
             }
           }
         }
@@ -537,6 +352,15 @@ function RichTextInput(
     editorRef.current = editor;
   }, [editor]);
 
+  const upload = useImageUpload({
+    enabled: isUploadEnabled,
+    editorRef,
+  });
+
+  const onGifCommand = async (gifUrl: string, altText: string) => {
+    upload.insertImage(gifUrl, altText);
+  };
+
   useImperativeHandle(ref, () => ({
     onMentionCommand: () => {
       if (!editor) {
@@ -545,11 +369,7 @@ function RichTextInput(
       editor.chain().focus().insertContent('@').run();
       updateSuggestionsFromEditor(editor);
     },
-    clearDraft: () => {
-      if (draftStorageKey) {
-        storageWrapper.removeItem(draftStorageKey);
-      }
-    },
+    clearDraft,
     setInput: (value: string) => {
       updateInput(value, { notify: true, markDirty: true });
       if (!editor) {
@@ -587,116 +407,8 @@ function RichTextInput(
     }
   }, [editor, initialContent, input, updateInput]);
 
-  useEffect(() => {
-    if (!draftStorageKey || !dirtyRef.current) {
-      return undefined;
-    }
-
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-
-    saveTimeoutRef.current = setTimeout(() => {
-      if (input && input.trim().length > 0) {
-        storageWrapper.setItem(draftStorageKey, input);
-      } else {
-        storageWrapper.removeItem(draftStorageKey);
-      }
-    }, 500);
-
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, [input, draftStorageKey]);
-
-  const insertImage = useCallback((url: string, altText: string) => {
-    const currentEditor = editorRef.current;
-    if (!currentEditor) {
-      return;
-    }
-
-    currentEditor.chain().focus().setImage({ src: url, alt: altText }).run();
-  }, []);
-
-  const { uploadedCount, queueCount, pushUpload, startUploading } =
-    useSyncUploader({
-      onStarted: () => {},
-      onFinish: (status, file, url) => {
-        if (status === UploadState.Failed || !url) {
-          displayToast(uploadNotAcceptedMessage);
-          return;
-        }
-
-        insertImage(url, file.name);
-      },
-    });
-
-  const verifyFile = useCallback(
-    (file: File) => {
-      const isValidType = allowedContentImage.includes(file.type);
-
-      if (file.size > allowedFileSize || !isValidType) {
-        displayToast(uploadNotAcceptedMessage);
-        return;
-      }
-
-      pushUpload(file);
-    },
-    [displayToast, pushUpload],
-  );
-
-  const onUpload: FormEventHandler<HTMLInputElement> = (event) => {
-    if (!isUploadEnabled) {
-      return;
-    }
-
-    const files = (event.currentTarget as HTMLInputElement).files;
-    if (!files?.length) {
-      return;
-    }
-
-    Array.from(files).forEach(verifyFile);
-    startUploading();
-  };
-
-  const onGifCommand = async (gifUrl: string, altText: string) => {
-    insertImage(gifUrl, altText);
-  };
-
-  const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
-    if (!isUploadEnabled) {
-      return;
-    }
-
-    event.preventDefault();
-    const files = event.dataTransfer.files;
-    if (!files?.length) {
-      return;
-    }
-
-    Array.from(files).forEach(verifyFile);
-    startUploading();
-  };
-
-  const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-    if (!isUploadEnabled) {
-      return;
-    }
-
-    const files = event.clipboardData.files;
-    if (!files?.length) {
-      return;
-    }
-
-    event.preventDefault();
-    Array.from(files).forEach(verifyFile);
-    startUploading();
-  };
-
   const actionIcon =
-    queueCount === 0 ? (
+    upload.queueCount === 0 ? (
       <ImageIcon />
     ) : (
       <Loader
@@ -718,9 +430,9 @@ function RichTextInput(
         <Button
           size={headerActionSize}
           variant={ButtonVariant.Tertiary}
-          color={queueCount ? ButtonColor.Cabbage : undefined}
+          color={upload.queueCount ? ButtonColor.Cabbage : undefined}
           icon={actionIcon}
-          onClick={() => uploadRef?.current?.click()}
+          onClick={() => upload.uploadRef?.current?.click()}
           type="button"
         />
       )}
@@ -815,9 +527,9 @@ function RichTextInput(
               showUserAvatar && 'ml-3',
             )}
             ref={editorContainerRef}
-            onDrop={handleDrop}
+            onDrop={upload.handleDrop}
             onDragOver={(event) => event.preventDefault()}
-            onPaste={handlePaste}
+            onPaste={upload.handlePaste}
           >
             <RichTextToolbar
               ref={toolbarRef}
@@ -849,9 +561,9 @@ function RichTextInput(
                 type="file"
                 className="hidden"
                 name="content_upload"
-                ref={uploadRef}
+                ref={upload.uploadRef}
                 accept={allowedContentImage.join(',')}
-                onInput={onUpload}
+                onInput={upload.onUpload}
               />
             )}
             <EditorContent
@@ -872,34 +584,34 @@ function RichTextInput(
       <RecommendedMentionTooltip
         elementRef={editorContainerRef}
         offset={offset}
-        mentions={mentions}
-        selected={selected}
-        query={query}
-        onMentionClick={onApplyMention}
-        onClickOutside={() => {
-          queryRef.current = undefined;
-          setQuery(undefined);
-          mentionRangeRef.current = null;
+        mentions={mention.mentions}
+        selected={mention.selected}
+        query={mention.query}
+        onMentionClick={(m) => {
+          if (editorRef.current) {
+            mention.applyMention(editorRef.current, m);
+          }
         }}
+        onClickOutside={mention.clearMention}
         appendTo={parentSelector}
       />
       <RecommendedEmojiTooltip
         elementRef={editorContainerRef}
-        search={emojiQuery}
-        emojiData={emojiData}
+        search={emoji.emojiQuery}
+        emojiData={emoji.emojiData}
         offset={offset}
-        selected={selectedEmoji}
-        onSelect={onApplyEmoji}
-        onClickOutside={() => {
-          emojiQueryRef.current = undefined;
-          setEmojiQuery(undefined);
-          emojiRangeRef.current = null;
+        selected={emoji.selectedEmoji}
+        onSelect={(e) => {
+          if (editorRef.current) {
+            emoji.applyEmoji(editorRef.current, e);
+          }
         }}
+        onClickOutside={emoji.clearEmoji}
       />
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:border-t">
           {hasUploadHint && (
-            <span className="typo-caption1 text-text-quaternary">
+            <span className="text-text-quaternary typo-caption1">
               Drag and drop images to attach
             </span>
           )}
