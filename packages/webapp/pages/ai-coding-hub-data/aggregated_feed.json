@@ -1,13 +1,68 @@
 [
   {
-    "id": "news-opus-46-spotted",
+    "id": "news-gpt-53-codex-release",
     "type": "news_item",
-    "headline": "Opus 4.6 spotted in Perplexity APIs",
-    "summary": "Testing Catalog caught Claude Opus 4.6 in Perplexity's API responses. No official announcement yet.",
+    "headline": "GPT-5.3-Codex released with record benchmarks",
+    "summary": "57% SWE-Bench Pro, 76% TerminalBench 2.0, 64% OSWorld. Half the tokens of 5.2, 25% faster per token. Sam: 'It feels like more of a step forward than the benchmarks suggest.'",
+    "date": "2026-02-05",
+    "category": "product_launch",
+    "tags": ["codex", "gpt_5.3", "openai", "benchmarks"],
+    "source_tweet_id": "2019474754529321247",
+    "related_tweet_ids": ["2019475551719977453", "2019475805726744808", "2019473740040429590"]
+  },
+  {
+    "id": "news-opus-46-release",
+    "type": "news_item",
+    "headline": "Opus 4.6 officially released",
+    "summary": "New SOTA on ARC-AGI-2 benchmark (68.8%). Boris Cherny: 'More agentic, more intelligent, runs for longer, more careful and exhaustive.' Also: tune thinking effort with /model.",
+    "date": "2026-02-05",
+    "category": "product_launch",
+    "tags": ["opus_4.6", "anthropic", "claude_code", "benchmarks"],
+    "source_tweet_id": "2019471487833706769",
+    "related_tweet_ids": ["2019464256836501534", "2019469403989967160", "2019510064860844107"]
+  },
+  {
+    "id": "news-openai-frontier-platform",
+    "type": "news_item",
+    "headline": "OpenAI launches Frontier platform for agent management",
+    "summary": "Sam: 'People will manage teams of agents to do very complex things.' Frontier uses Codex to power agents and securely manage access.",
+    "date": "2026-02-05",
+    "category": "product_launch",
+    "tags": ["openai", "frontier", "agents", "codex"],
+    "source_tweet_id": "2019441198734209374",
+    "related_tweet_ids": ["2019441201120763920"]
+  },
+  {
+    "id": "news-claude-code-teams",
+    "type": "news_item",
+    "headline": "Claude Code ships Teams (Agent Swarms)",
+    "summary": "Experimental feature for parallel agent work. Uses a lot of tokens. Boris: 'Let us know what you think!'",
+    "date": "2026-02-05",
+    "category": "feature",
+    "tags": ["claude_code", "swarms", "agents", "official"],
+    "source_tweet_id": "2019472394696683904",
+    "related_tweet_ids": []
+  },
+  {
+    "id": "news-codex-cli-097",
+    "type": "news_item",
+    "headline": "Codex CLI 0.97 ships live skill detection",
+    "summary": "Skill file changes picked up without restarting. Ian Nuttall: 'I really needed this!'",
+    "date": "2026-02-05",
+    "category": "release",
+    "tags": ["codex", "cli", "skills"],
+    "source_tweet_id": "2019298842567655678",
+    "related_tweet_ids": []
+  },
+  {
+    "id": "news-claude-knowledge-bases",
+    "type": "news_item",
+    "headline": "Claude Knowledge Bases spotted in testing",
+    "summary": "New 'Save to knowledge base' button found. Prompt saves reusable info to /mnt/knowledge/ for future conversations.",
     "date": "2026-02-05",
     "category": "leak",
-    "tags": ["opus_4.6", "anthropic", "models"],
-    "source_tweet_id": "2019401691402240228",
+    "tags": ["claude", "knowledge_bases", "anthropic"],
+    "source_tweet_id": "2019546350875238883",
     "related_tweet_ids": []
   },
   {
