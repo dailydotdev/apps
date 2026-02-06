@@ -2,21 +2,23 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { fn } from 'storybook/test';
-import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   Card,
   CardHeader,
-  CardSpace,
   CardTextContainer,
   CardTitle,
 } from '@dailydotdev/shared/src/components/cards/common/Card';
 import { Container, getGroupedHoverContainer } from '@dailydotdev/shared/src/components/cards/common/common';
 import PostMetadata from '@dailydotdev/shared/src/components/cards/common/PostMetadata';
 import ActionButtons from '@dailydotdev/shared/src/components/cards/common/ActionButtons';
-import { ReadArticleButton } from '@dailydotdev/shared/src/components/cards/common/ReadArticleButton';
 import SourceButton from '@dailydotdev/shared/src/components/cards/common/SourceButton';
-import { RefreshIcon } from '@dailydotdev/shared/src/components/icons';
+import { TwitterIcon } from '@dailydotdev/shared/src/components/icons';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import { PostOptionButton } from '@dailydotdev/shared/src/features/posts/PostOptionButton';
@@ -27,10 +29,10 @@ import ExtensionProviders from '../../extension/_providers';
 interface TwitterMockCardProps {
   post: Post;
   tweetUrl: string;
-  repostContext?: string;
+  body?: ReactNode;
   detail?: ReactNode;
   titleLineClamp?: `line-clamp-${number}`;
-  metadataPosition?: 'bottom' | 'afterTitle';
+  showEmptyPlaceholder?: boolean;
 }
 
 const HeaderActions = getGroupedHoverContainer('span');
@@ -91,10 +93,10 @@ const buildPost = (overrides: Partial<Post>): Post =>
 const TwitterMockCard = ({
   post,
   tweetUrl,
-  repostContext,
+  body,
   detail,
   titleLineClamp = 'line-clamp-4',
-  metadataPosition = 'bottom',
+  showEmptyPlaceholder = false,
 }: TwitterMockCardProps): ReactElement => (
   <Card className="group min-h-card max-h-card max-w-[20rem] overflow-hidden">
     <CardTextContainer>
@@ -106,41 +108,43 @@ const TwitterMockCard = ({
             user={post.author}
           />
         )}
-        <HeaderActions className="ml-auto flex flex-row">
-          <ReadArticleButton
-            className="mr-2"
-            content="See tweet"
-            href={tweetUrl}
-            openNewTab
-            variant={ButtonVariant.Primary}
-          />
-          <PostOptionButton post={post} />
-        </HeaderActions>
+        <div className="ml-auto relative flex min-h-8 min-w-[4.5rem] items-center justify-end">
+          <HeaderActions className="absolute inset-y-0 right-0 flex flex-row items-center justify-end">
+            <Button
+              className="mr-2"
+              icon={<TwitterIcon size={IconSize.Size16} />}
+              size={ButtonSize.Small}
+              tag="a"
+              href={tweetUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+              variant={ButtonVariant.Primary}
+            />
+            <PostOptionButton post={post} />
+          </HeaderActions>
+        </div>
       </CardHeader>
-
-      {repostContext ? (
-        <p className="mt-1 flex w-full min-w-0 items-center gap-1.5 rounded-8 border border-border-subtlest-tertiary bg-background-default px-2 py-1 text-text-tertiary typo-footnote">
-          <RefreshIcon className="shrink-0" size={IconSize.Size16} />
-          <span className="min-w-0 flex-1 truncate whitespace-nowrap">
-            {repostContext}
-          </span>
-        </p>
-      ) : null}
 
       <CardTitle lineClamp={titleLineClamp}>{post.title}</CardTitle>
     </CardTextContainer>
 
-    <Container>
-      {metadataPosition === 'bottom' ? <CardSpace /> : null}
-      <PostMetadata
-        className={metadataPosition === 'afterTitle' ? 'mx-4 mt-2' : 'mx-4'}
-        createdAt={post.createdAt}
-        readTime={post.readTime}
-      />
-    </Container>
+    <PostMetadata
+      className="mx-4 mt-1 line-clamp-1 break-words"
+      createdAt={post.createdAt}
+      readTime={post.readTime}
+    />
 
     <Container>
+      {body ? (
+        <p className="mx-4 mt-1 line-clamp-6 whitespace-pre-line break-words text-text-primary typo-callout">
+          {body}
+        </p>
+      ) : null}
+      <div className={'flex flex-1'}></div>
       {detail}
+      {!detail && showEmptyPlaceholder ? (
+        <div className="mx-1 mb-1 mt-2 h-40" />
+      ) : null}
       <ActionButtons
         className="mt-auto"
         onBookmarkClick={actionHandlers.onBookmarkClick}
@@ -182,24 +186,8 @@ const mediaDetail = (
   </div>
 );
 
-const threadDetail = (
-  <div className="mx-4 mb-2 mt-2 rounded-12 border border-border-subtlest-tertiary bg-background-default p-2.5">
-    <div className="space-y-1.5">
-      <p className="line-clamp-1 rounded-8 border border-border-subtlest-tertiary bg-background-default px-2 py-1 text-text-secondary typo-footnote">
-        (1/3) Canary release with automatic rollback on error budget drain.
-      </p>
-      <p className="line-clamp-1 rounded-8 border border-border-subtlest-tertiary bg-background-default px-2 py-1 text-text-secondary typo-footnote">
-        (2/3) Shift traffic by region and validate interaction latency.
-      </p>
-      <p className="line-clamp-1 rounded-8 border border-border-subtlest-tertiary bg-background-default px-2 py-1 text-text-secondary typo-footnote">
-        (3/3) Keep runbooks versioned with deploy commits.
-      </p>
-    </div>
-  </div>
-);
-
-const quoteDetail = (
-  <div className="mx-4 mb-2 mt-2 rounded-12 border border-border-subtlest-tertiary p-3">
+const repostDetail = (
+  <div className="mx-1 mb-1 mt-2 h-40 rounded-12 border border-border-subtlest-tertiary p-3">
     <p className="truncate text-text-primary typo-footnote font-bold">
       DevRel Weekly
     </p>
@@ -211,30 +199,9 @@ const quoteDetail = (
   </div>
 );
 
-const strictLongDetail = (
-  <div className="mx-4 mb-2 mt-2 rounded-12 border border-border-subtlest-tertiary p-3">
-    <p className="truncate text-text-primary typo-footnote font-bold">
-      Extremely Long Account Name For Demonstration Purposes
-    </p>
-    <p className="truncate text-text-tertiary typo-footnote">
-      @very_very_very_long_handle_name_for_stress_testing
-    </p>
-    <p className="mt-1 line-clamp-2 text-text-secondary typo-footnote">
-      This quoted tweet is intentionally verbose to confirm readability under
-      fixed-height constraints.
-    </p>
-  </div>
-);
-
 const smartLongDetail = (
-  <div className="mx-4 mb-2 mt-2 space-y-1.5 rounded-12 border border-border-subtlest-tertiary bg-background-default p-2.5">
-    <p className="line-clamp-1 rounded-8 border border-border-subtlest-tertiary bg-background-default px-2 py-1 text-text-secondary typo-footnote">
-      (1/12) Gate deployment on synthetic + real-user error budgets.
-    </p>
-    <p className="line-clamp-1 rounded-8 border border-border-subtlest-tertiary bg-background-default px-2 py-1 text-text-secondary typo-footnote">
-      (2/12) Shift traffic by region and validate p95 interaction latency.
-    </p>
-    <p className="rounded-8 border border-border-subtlest-tertiary px-2 py-1 text-text-tertiary typo-footnote">
+  <div className="mx-4 mb-2 mt-1">
+    <p className="text-text-tertiary typo-footnote">
       + 10 more posts hidden. View full thread.
     </p>
   </div>
@@ -266,12 +233,13 @@ const TwitterCardsMockShowcase = (): ReactElement => (
         >
           <Section title="Normal text" description="Default tweet card.">
             <TwitterMockCard
+              detail={mediaDetail}
               post={buildPost({
                 id: 'tweet-normal',
                 title:
                   'Shipped our performance pass today. Largest Contentful Paint dropped from 3.8s to 1.9s on slow 4G.',
               })}
-              metadataPosition="afterTitle"
+              showEmptyPlaceholder
               tweetUrl="https://x.com/mayadev/status/1900000000000000001"
             />
           </Section>
@@ -292,31 +260,30 @@ const TwitterCardsMockShowcase = (): ReactElement => (
 
           <Section
             title="Retweet / repost"
-            description="Repost context inside body."
+            description="Repost variant with quoted original tweet."
           >
             <TwitterMockCard
-              detail={quoteDetail}
+              detail={repostDetail}
               post={buildPost({
                 id: 'tweet-repost',
                 title:
                   'Strong point on optimizing interaction latency, not only page load metrics.',
               })}
-              repostContext="Reposted by Elena Park"
               tweetUrl="https://x.com/jonahm/status/1900000000000000003"
             />
           </Section>
 
           <Section
             title="Thread"
-            description="Single card with compact thread preview."
+            description="Freeform style: main tweet as title, body as thread."
           >
             <TwitterMockCard
-              detail={threadDetail}
               post={buildPost({
                 id: 'tweet-thread',
-                title:
-                  'Thread: 3 deployment practices that reduced our rollback rate last quarter.',
+                title: '3 deployment practices that reduced rollbacks',
               })}
+              body={`(1/3) Canary release with automatic rollback on error budget drain.\n(2/3) Shift traffic by region and validate interaction latency.\n(3/3) Keep runbooks versioned with deploy commits.`}
+              showEmptyPlaceholder
               tweetUrl="https://x.com/saraibrahim/status/1900000000000000004"
             />
           </Section>
@@ -326,18 +293,32 @@ const TwitterCardsMockShowcase = (): ReactElement => (
             description="Clamp aggressively to keep layout stable."
           >
             <TwitterMockCard
-              detail={strictLongDetail}
               post={buildPost({
                 id: 'tweet-long-strict',
                 title:
-                  'We rewrote our rendering pipeline and now track scheduler starvation, hydration gaps, and interaction latency budgets in one dashboard. The unexpected finding: tiny synchronous work in edge handlers created most regressions.',
+                  'We now track scheduler starvation, hydration gaps, and interaction latency budgets in one dashboard. Tiny synchronous work in edge handlers created most regressions.',
                 author: {
                   ...author,
                   name: 'Alexandria Catherine-Montgomery the Third',
                   username: 'very_long_engineering_handle_that_keeps_going',
                 },
               })}
-              repostContext="Reposted from the distributed-systems-performance working group weekly digest"
+              detail={
+                <div className="mx-1 mb-1 mt-2 h-40 rounded-12 border border-border-subtlest-tertiary p-3">
+                  <p className="truncate text-text-primary typo-footnote font-bold">
+                    Extremely Long Account Name For Demonstration Purposes
+                  </p>
+                  <p className="truncate text-text-tertiary typo-footnote">
+                    @very_very_very_long_handle_name_for_stress_testing
+                  </p>
+                  <p className="mt-1 line-clamp-5 text-text-secondary typo-footnote">
+                    This quoted tweet is intentionally verbose to confirm readability under
+                    fixed-height constraints. This quoted tweet is intentionally verbose to confirm readability under
+                    fixed-height constraints. This quoted tweet is intentionally verbose to confirm readability under
+                    fixed-height constraints.
+                  </p>
+                </div>
+              }
               tweetUrl="https://x.com/very_long_engineering_handle_that_keeps_going/status/1900000000000000007"
             />
           </Section>
@@ -347,17 +328,17 @@ const TwitterCardsMockShowcase = (): ReactElement => (
             description="Show summary and hide deep thread entries."
           >
             <TwitterMockCard
-              detail={smartLongDetail}
               post={buildPost({
                 id: 'tweet-long-smart',
-                title:
-                  'Thread summary: rollout checklist for high-risk infra deploys across multiple regions, providers, and compliance boundaries.',
+                title: 'Rollout checklist for high-risk infra deploys',
                 author: {
                   ...author,
                   name: 'Platform Reliability Guild',
                   username: 'platform_reliability_global_updates',
                 },
               })}
+              body={`(1/12) Gate deployment on synthetic + real-user error budgets.\n(2/12) Shift traffic by region and validate p95 interaction latency.\n(3/12) Validate rollback pathways for partial-region incidents.`}
+              showEmptyPlaceholder
               tweetUrl="https://x.com/platform_reliability_global_updates/status/1900000000000000008"
             />
           </Section>
