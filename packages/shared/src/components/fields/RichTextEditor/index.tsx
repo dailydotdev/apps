@@ -16,6 +16,7 @@ import CharacterCount from '@tiptap/extension-character-count';
 import classNames from 'classnames';
 import type { RichTextToolbarRef } from './RichTextToolbar';
 import { RichTextToolbar } from './RichTextToolbar';
+import { MarkdownInputRules } from './markdownInputRules';
 import styles from './richtext.module.css';
 
 export interface RichTextRef {
@@ -69,11 +70,8 @@ function RichTextEditorComponent(
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: false,
-        codeBlock: false,
         blockquote: false,
         horizontalRule: false,
-        code: false,
       }),
       Link.configure({
         openOnClick: false,
@@ -88,6 +86,7 @@ function RichTextEditorComponent(
       CharacterCount.configure({
         limit: maxLength,
       }),
+      MarkdownInputRules,
       LinkShortcut,
     ],
     content: initialContent,

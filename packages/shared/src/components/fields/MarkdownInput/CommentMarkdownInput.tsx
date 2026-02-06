@@ -8,7 +8,8 @@ import type {
 import React, { forwardRef, useRef } from 'react';
 import classNames from 'classnames';
 import { defaultMarkdownCommands } from '../../../hooks/input';
-import MarkdownInput from './index';
+import type { RichTextInputRef } from '../RichTextInput';
+import RichTextInput from '../RichTextInput';
 import type { Comment } from '../../../graphql/comments';
 import { formToJson } from '../../../lib/form';
 import type { Post } from '../../../graphql/posts';
@@ -64,7 +65,7 @@ export function CommentMarkdownInputComponent(
   const {
     mutateComment: { mutateComment, isLoading, isSuccess },
   } = useWriteCommentContext();
-  const markdownRef = useRef<{ clearDraft: () => void }>(null);
+  const richTextRef = useRef<RichTextInputRef>(null);
 
   const onSubmitForm: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -78,8 +79,8 @@ export function CommentMarkdownInputComponent(
     const result = await mutateComment(content);
 
     // Clear draft after successful submission
-    if (result && markdownRef.current) {
-      markdownRef.current.clearDraft();
+    if (result && richTextRef.current) {
+      richTextRef.current.clearDraft();
     }
 
     return result;
@@ -95,8 +96,8 @@ export function CommentMarkdownInputComponent(
     const result = await mutateComment(content);
 
     // Clear draft after successful submission
-    if (result && markdownRef.current) {
-      markdownRef.current.clearDraft();
+    if (result && richTextRef.current) {
+      richTextRef.current.clearDraft();
     }
 
     return result;
@@ -111,21 +112,20 @@ export function CommentMarkdownInputComponent(
       style={style}
       ref={ref}
     >
-      <MarkdownInput
-        ref={(markdownRefInstance) => {
-          if (markdownRefInstance) {
-            markdownRef.current = markdownRefInstance;
+      <RichTextInput
+        ref={(richTextRefInstance) => {
+          if (richTextRefInstance) {
+            richTextRef.current = richTextRefInstance;
             if (shouldFocus.current) {
-              markdownRefInstance.textareaRef.current.focus();
+              richTextRefInstance.focus();
               shouldFocus.current = false;
             }
           }
         }}
         className={{
-          tab: classNames('!min-h-16', className?.tab),
+          container: classNames('!min-h-16', className?.markdownContainer),
           input: classNames(className?.input, replyTo && 'mt-0'),
           profile: replyTo && '!mt-0',
-          container: className?.markdownContainer,
         }}
         postId={postId}
         sourceId={sourceId}

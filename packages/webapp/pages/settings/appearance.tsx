@@ -8,11 +8,8 @@ import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsCon
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import {
   Typography,
-  TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import type { RadioItemProps } from '@dailydotdev/shared/src/components/fields/Radio';
-import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { ToggleRadio } from '@dailydotdev/shared/src/components/fields/ToggleRadio';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
@@ -20,7 +17,6 @@ import {
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import classNames from 'classnames';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
@@ -37,12 +33,6 @@ const IOSIconPicker = dynamic(
   { ssr: false },
 );
 
-const densities: RadioItemProps[] = [
-  { label: 'Eco', value: 'eco' },
-  { label: 'Roomy', value: 'roomy' },
-  { label: 'Cozy', value: 'cozy' },
-];
-
 const AccountManageSubscriptionPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { logEvent } = useLogContext();
@@ -50,8 +40,6 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     typeof window !== 'undefined' && iOSSupportsAppIconChange();
 
   const {
-    spaciness,
-    setSpaciness,
     openNewTab,
     toggleOpenNewTab,
     insaneMode,
@@ -102,38 +90,6 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             />
           </FlexCol>
         )}
-
-        <FlexCol className="gap-2">
-          <Typography bold type={TypographyType.Subhead}>
-            Density
-          </Typography>
-
-          {insaneMode && (
-            <Typography
-              type={TypographyType.Subhead}
-              color={TypographyColor.Tertiary}
-            >
-              Not available in list layout
-            </Typography>
-          )}
-
-          <Radio
-            name="density"
-            options={densities}
-            value={spaciness}
-            onChange={setSpaciness}
-            disabled={insaneMode}
-            className={{
-              content: 'w-full justify-between !pr-0',
-              container: '!gap-0',
-              label: classNames(
-                'font-normal typo-callout',
-                insaneMode ? 'text-text-disabled' : 'text-text-secondary',
-              ),
-            }}
-            reverse
-          />
-        </FlexCol>
 
         {supportsAppIconChange && <IOSIconPicker />}
 

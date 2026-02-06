@@ -14,17 +14,27 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../../components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import type { Company } from '../../../lib/userCompany';
 
 type ProfileCompanyProps = {
   name: string;
   label?: string;
   type?: AutocompleteType;
+  company?: Company | null;
+  entityLabel?: string;
 };
 
 const ProfileCompany = ({
   name,
   label = 'Company',
   type = AutocompleteType.Company,
+  company,
+  entityLabel = 'company',
 }: ProfileCompanyProps) => {
   const { user } = useAuthContext();
   const {
@@ -34,6 +44,14 @@ const ProfileCompany = ({
   } = useFormContext();
   const customCompanyName = watch(name);
   const companyId = watch('companyId');
+  const storedCustomCompanyName = watch('storedCustomCompanyName');
+
+  const handleUnlink = () => {
+    setValue('companyId', '', { shouldDirty: true });
+    setValue(name, storedCustomCompanyName || company?.name || '', {
+      shouldDirty: true,
+    });
+  };
   const { data, isLoading } = useQuery({
     queryKey: generateQueryKey(
       RequestKey.Autocomplete,
@@ -53,7 +71,7 @@ const ProfileCompany = ({
   };
 
   const handleSelect = (value: string) => {
-    const selectedCompany = data?.find((company) => company.id === value);
+    const selectedCompany = data?.find((item) => item.id === value);
     if (selectedCompany) {
       setValue('companyId', selectedCompany.id);
     }
@@ -69,10 +87,10 @@ const ProfileCompany = ({
         onChange={(value) => debouncedQuery(value)}
         onSelect={(value) => handleSelect(value)}
         options={
-          data?.map((company) => ({
-            image: company?.image,
-            label: company.name,
-            value: company.id,
+          data?.map((item) => ({
+            image: item?.image,
+            label: item.name,
+            value: item.id,
           })) || []
         }
         selectedValue={companyId}
@@ -87,6 +105,17 @@ const ProfileCompany = ({
         >
           {errors[name]?.message as string}
         </Typography>
+      )}
+      {company && companyId && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          className="mt-2 self-start"
+          onClick={handleUnlink}
+        >
+          Unlink {entityLabel}
+        </Button>
       )}
     </div>
   );

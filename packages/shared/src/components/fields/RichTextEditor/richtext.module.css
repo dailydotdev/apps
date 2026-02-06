@@ -29,8 +29,48 @@
     @apply font-bold;
   }
 
+  & :where(h1) {
+    @apply my-3 text-text-primary typo-title1 font-bold;
+  }
+
+  & :where(h2) {
+    @apply my-3 text-text-primary typo-title2 font-bold;
+  }
+
+  & :where(h3) {
+    @apply my-3 text-text-primary typo-title3 font-bold;
+  }
+
+  & :where(h4) {
+    @apply my-3 text-text-primary typo-body font-bold;
+  }
+
+  & :where(h5) {
+    @apply my-2 text-text-primary typo-body font-bold;
+  }
+
+  & :where(h6) {
+    @apply my-2 text-text-primary typo-callout font-bold;
+  }
+
   & :where(em) {
     @apply italic;
+  }
+
+  & :where(code) {
+    @apply rounded-6 bg-surface-float px-1 py-0.5 font-mono text-text-primary;
+  }
+
+  & :where(pre) {
+    @apply my-3 overflow-x-auto rounded-12 bg-surface-float p-3;
+  }
+
+  & :where(pre code) {
+    @apply bg-transparent p-0;
+  }
+
+  & :where(img) {
+    @apply max-w-full rounded-8;
   }
 
   /* Placeholder styling */

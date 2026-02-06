@@ -119,6 +119,7 @@
     "@tippyjs/react": "^4.2.6",
     "@tiptap/core": "^3.15.0",
     "@tiptap/extension-character-count": "^3.14.0",
+    "@tiptap/extension-image": "^3.14.0",
     "@tiptap/extension-link": "^3.14.0",
     "@tiptap/extension-placeholder": "^3.14.0",
     "@tiptap/react": "^3.14.0",
