@@ -252,12 +252,22 @@ export default {
             backgroundColor: 'transparent',
           },
         },
+        breathe: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.5)', opacity: '0.6' },
+        },
+        'glow-ring': {
+          '0%': { transform: 'scale(1)', opacity: '0.7' },
+          '100%': { transform: 'scale(2.5)', opacity: '0' },
+        },
       },
       animation: {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
+        breathe: 'breathe 3s ease-in-out infinite',
+        'glow-ring': 'glow-ring 2s ease-out infinite',
       },
     },
     lineClamp: {
