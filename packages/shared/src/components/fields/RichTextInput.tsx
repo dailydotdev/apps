@@ -664,9 +664,7 @@ function RichTextInput(
                       .insertContent({
                         type: 'text',
                         text: linkText,
-                        marks: [
-                          { type: 'link', attrs: { href: url } },
-                        ],
+                        marks: [{ type: 'link', attrs: { href: url } }],
                       })
                       .run();
                   }}

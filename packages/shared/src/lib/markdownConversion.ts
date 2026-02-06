@@ -29,6 +29,18 @@ const inlineMarkdownToHtml = (value: string): string => {
   return result;
 };
 
+/**
+ * Converts markdown to HTML using basic markdown syntax.
+ * Supports headings, lists (ordered/unordered), code blocks, inline code,
+ * bold, italic, links, and images.
+ *
+ * @param markdown - The markdown string to convert
+ * @returns HTML string representation of the markdown
+ *
+ * @example
+ * markdownToHtmlBasic('**bold** and _italic_')
+ * // Returns: '<p><strong>bold</strong> and <em>italic</em></p>'
+ */
 export const markdownToHtmlBasic = (markdown: string): string => {
   if (!markdown) {
     return '';
@@ -191,6 +203,18 @@ const serializeList = (node: Element, ordered: boolean): string => {
     .join('\n');
 };
 
+/**
+ * Converts HTML to markdown using basic markdown syntax.
+ * Supports headings, lists (ordered/unordered), code blocks, inline code,
+ * bold, italic, links, and images.
+ *
+ * @param html - The HTML string to convert
+ * @returns Markdown string representation of the HTML
+ *
+ * @example
+ * htmlToMarkdownBasic('<p><strong>bold</strong> and <em>italic</em></p>')
+ * // Returns: '**bold** and _italic_'
+ */
 export const htmlToMarkdownBasic = (html: string): string => {
   if (!html) {
     return '';

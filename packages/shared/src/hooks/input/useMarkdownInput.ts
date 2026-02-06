@@ -49,6 +49,7 @@ import {
 } from '../../graphql/posts';
 import { generateStorageKey, StorageTopic } from '../../lib/storage';
 import { storageWrapper } from '../../lib/storageWrapper';
+import { specialCharsRegex } from '../../lib/strings';
 
 export enum MarkdownCommand {
   Upload = 'upload',
@@ -107,8 +108,6 @@ export const defaultMarkdownCommands = {
   emoji: true,
   gif: true,
 };
-
-const specialCharsRegex = new RegExp(/[^A-Za-z0-9_.]/);
 
 export const useMarkdownInput = ({
   textareaRef,

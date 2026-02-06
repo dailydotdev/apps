@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import { search as emojiSearch } from 'node-emoji';
+import { specialCharsRegex } from '../../../lib/strings';
 
 type EditorRange = { from: number; to: number } | null;
-
-const specialCharsRegex = new RegExp(/[^A-Za-z0-9_.]/);
 
 interface UseEmojiAutocompleteProps {
   enabled: boolean;
