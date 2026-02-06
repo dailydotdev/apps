@@ -19,6 +19,7 @@ export interface Achievement {
   image: string;
   type: AchievementType;
   criteria?: AchievementCriteria;
+  points: number;
 }
 
 export interface UserAchievement {
@@ -46,6 +47,7 @@ const ACHIEVEMENT_FRAGMENT = gql`
     criteria {
       targetCount
     }
+    points
   }
 `;
 

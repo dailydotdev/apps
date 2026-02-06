@@ -72,6 +72,17 @@ export function AchievementCard({
             {achievement.description}
           </Typography>
         </div>
+        <div className="flex shrink-0 items-center self-center">
+          <Typography
+            type={TypographyType.Callout}
+            color={
+              isUnlocked ? TypographyColor.Primary : TypographyColor.Tertiary
+            }
+            bold
+          >
+            {achievement.points}
+          </Typography>
+        </div>
       </div>
 
       {showProgress && (
