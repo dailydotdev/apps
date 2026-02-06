@@ -17,7 +17,7 @@ export function useDraftStorage({
   content,
   isDirty,
 }: UseDraftStorageProps) {
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const draftStorageKey = useMemo(() => {
     if (!postId) {

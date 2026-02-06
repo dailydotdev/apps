@@ -47,6 +47,7 @@ import {
   htmlToMarkdownBasic,
   markdownToHtmlBasic,
 } from '../../lib/markdownConversion';
+import { looksLikeMarkdown } from '../../lib/markdown';
 import { MarkdownCommand } from '../../hooks/input/useMarkdownInput';
 import type { RichTextToolbarRef } from './RichTextEditor/RichTextToolbar';
 import { RichTextToolbar } from './RichTextEditor/RichTextToolbar';
@@ -56,12 +57,6 @@ import { useEmojiAutocomplete } from './RichTextEditor/useEmojiAutocomplete';
 import { useImageUpload } from './RichTextEditor/useImageUpload';
 import { useDraftStorage } from './RichTextEditor/useDraftStorage';
 import styles from './RichTextEditor/richtext.module.css';
-
-const markdownPasteRegex =
-  /(^|\n)\s{0,3}(#{1,6}\s|[-*]\s|\d+\.\s|```)|\[[^\]]+\]\([^)]+\)|!\[[^\]]*]\([^)]+\)|`[^`]+`|\*\*[^*]+\*\*/;
-
-const isLikelyMarkdown = (value: string): boolean =>
-  markdownPasteRegex.test(value);
 
 const RecommendedEmojiTooltip = dynamic(
   () =>
@@ -288,7 +283,7 @@ function RichTextInput(
         }
 
         const text = event.clipboardData?.getData('text/plain')?.trim();
-        if (!text || !isLikelyMarkdown(text)) {
+        if (!text || !looksLikeMarkdown(text)) {
           return false;
         }
 
