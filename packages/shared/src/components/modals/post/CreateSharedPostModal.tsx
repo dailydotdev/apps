@@ -3,8 +3,8 @@ import React, { useRef, useState } from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import type { ExternalLinkPreview } from '../../../graphql/posts';
-import type { MarkdownRef } from '../../fields/MarkdownInput';
-import MarkdownInput from '../../fields/MarkdownInput';
+import type { RichTextInputRef } from '../../fields/RichTextInput';
+import RichTextInput from '../../fields/RichTextInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
 import { usePostToSquad } from '../../../hooks';
 import {
@@ -36,7 +36,7 @@ export function CreateSharedPostModal({
   onRequestClose,
   ...props
 }: CreateSharedPostModalProps): ReactElement {
-  const markdownRef = useRef<MarkdownRef>();
+  const richTextRef = useRef<RichTextInputRef>();
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
@@ -81,7 +81,7 @@ export function CreateSharedPostModal({
         icon={<AtIcon />}
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
-        onClick={markdownRef?.current?.onMentionCommand}
+        onClick={richTextRef?.current?.onMentionCommand}
       />
       <Divider vertical />
       <SourceButton source={squad} size={ProfileImageSize.Small} />
@@ -119,12 +119,11 @@ export function CreateSharedPostModal({
         onSubmit={onFormSubmit}
         id="share_post"
       >
-        <MarkdownInput
-          ref={markdownRef}
+        <RichTextInput
+          ref={richTextRef}
           showUserAvatar
           textareaProps={{ rows: 5, name: 'commentary' }}
           sourceId={squad?.id}
-          allowPreview={false}
           enabledCommand={{ mention: true }}
           footer={
             isLoadingPreview ? (

@@ -4,6 +4,13 @@ import { CursorType, isFalsyOrSpace } from './textarea';
 const urlText = 'url';
 const getUrlText = (content = '', url = urlText) => `[${content}](${url})`;
 
+// Fast check used to detect whether plain text likely contains markdown syntax.
+const markdownSyntaxRegex =
+  /(^|\n)\s{0,3}(#{1,6}\s|[-*]\s|\d+\.\s|```)|\[[^\]]+\]\([^)]+\)|!\[[^\]]*]\([^)]+\)|`[^`]+`|\*\*[^*]+\*\*/;
+
+export const looksLikeMarkdown = (value: string): boolean =>
+  markdownSyntaxRegex.test(value);
+
 /**
  * Checks if the selected text is already within a markdown link structure
  * Returns true if the selection is inside a pattern like [text](url) or [](url)
