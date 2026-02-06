@@ -5,6 +5,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
+import { useEditorState } from '@tiptap/react';
 import type { Editor } from '@tiptap/react';
 import { getMarkRange } from '@tiptap/core';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -119,39 +120,52 @@ function RichTextToolbarComponent(
     setIsLinkModalOpen(false);
   }, []);
 
+  const editorState = useEditorState({
+    editor,
+    selector: ({ editor: currentEditor }) => ({
+      isBold: currentEditor.isActive('bold'),
+      isItalic: currentEditor.isActive('italic'),
+      isBulletList: currentEditor.isActive('bulletList'),
+      isOrderedList: currentEditor.isActive('orderedList'),
+      isLink: currentEditor.isActive('link'),
+      canUndo: currentEditor.can().undo(),
+      canRedo: currentEditor.can().redo(),
+    }),
+  });
+
   return (
     <>
       <div className="flex items-center gap-1 border-b border-border-subtlest-tertiary p-2">
         <ToolbarButton
           tooltip="Bold (⌘B)"
           icon={<BoldIcon />}
-          isActive={editor.isActive('bold')}
+          isActive={editorState.isBold}
           onClick={() => editor.chain().focus().toggleBold().run()}
         />
         <ToolbarButton
           tooltip="Italic (⌘I)"
           icon={<ItalicIcon />}
-          isActive={editor.isActive('italic')}
+          isActive={editorState.isItalic}
           onClick={() => editor.chain().focus().toggleItalic().run()}
         />
         <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
         <ToolbarButton
           tooltip="Bullet list (⌘⇧8)"
           icon={<BulletListIcon />}
-          isActive={editor.isActive('bulletList')}
+          isActive={editorState.isBulletList}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
         />
         <ToolbarButton
           tooltip="Numbered list (⌘⇧7)"
           icon={<NumberedListIcon />}
-          isActive={editor.isActive('orderedList')}
+          isActive={editorState.isOrderedList}
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
         />
         <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
         <ToolbarButton
-          tooltip={editor.isActive('link') ? 'Edit link (⌘K)' : 'Add link (⌘K)'}
+          tooltip={editorState.isLink ? 'Edit link (⌘K)' : 'Add link (⌘K)'}
           icon={<LinkIcon />}
-          isActive={editor.isActive('link')}
+          isActive={editorState.isLink}
           onClick={openLinkModal}
         />
         {inlineActions && (
@@ -160,7 +174,7 @@ function RichTextToolbarComponent(
             <div className="flex items-center gap-1">{inlineActions}</div>
           </>
         )}
-        {(editor.can().undo() || editor.can().redo()) && (
+        {(editorState.canUndo || editorState.canRedo) && (
           <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
         )}
         <ToolbarButton
@@ -168,14 +182,14 @@ function RichTextToolbarComponent(
           icon={<UndoIcon />}
           isActive={false}
           onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
+          disabled={!editorState.canUndo}
         />
         <ToolbarButton
           tooltip="Redo (⌘⇧Z)"
           icon={<RedoIcon />}
           isActive={false}
           onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
+          disabled={!editorState.canRedo}
         />
         {rightActions && (
           <div className="ml-auto flex items-center gap-1">{rightActions}</div>

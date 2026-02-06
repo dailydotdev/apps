@@ -57,6 +57,12 @@ import { useImageUpload } from './RichTextEditor/useImageUpload';
 import { useDraftStorage } from './RichTextEditor/useDraftStorage';
 import styles from './RichTextEditor/richtext.module.css';
 
+const markdownPasteRegex =
+  /(^|\n)\s{0,3}(#{1,6}\s|[-*]\s|\d+\.\s|```)|\[[^\]]+\]\([^)]+\)|!\[[^\]]*]\([^)]+\)|`[^`]+`|\*\*[^*]+\*\*/;
+
+const isLikelyMarkdown = (value: string): boolean =>
+  markdownPasteRegex.test(value);
+
 const RecommendedEmojiTooltip = dynamic(
   () =>
     import(
@@ -133,10 +139,12 @@ function RichTextInput(
   const toolbarRef = useRef<RichTextToolbarRef>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Editor | null>(null);
+  const markdownTextareaRef = useRef<HTMLTextAreaElement>(null);
   const dirtyRef = useRef(false);
   const isSyncingRef = useRef(false);
   const inputRef = useRef('');
   const [offset, setOffset] = useState([0, 0]);
+  const [isMarkdownMode, setIsMarkdownMode] = useState(false);
 
   const isUploadEnabled = enabledCommand[MarkdownCommand.Upload];
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
@@ -273,6 +281,26 @@ function RichTextInput(
       updateSuggestionsFromEditor(updatedEditor);
     },
     editorProps: {
+      handlePaste: (_view, event) => {
+        const hasFiles = (event.clipboardData?.files?.length ?? 0) > 0;
+        if (hasFiles) {
+          return false;
+        }
+
+        const text = event.clipboardData?.getData('text/plain')?.trim();
+        if (!text || !isLikelyMarkdown(text)) {
+          return false;
+        }
+
+        const convertedHtml = markdownToHtmlBasic(text);
+        if (!convertedHtml) {
+          return false;
+        }
+
+        event.preventDefault();
+        editorRef.current?.chain().focus().insertContent(convertedHtml).run();
+        return true;
+      },
       handleKeyDown: (_view, event) => {
         const isSpecialKey = event.ctrlKey || event.metaKey;
         const hasMentions =
@@ -361,6 +389,47 @@ function RichTextInput(
     upload.insertImage(gifUrl, altText);
   };
 
+  const switchToMarkdownMode = useCallback(() => {
+    if (editorRef.current) {
+      const markdown = htmlToMarkdownBasic(editorRef.current.getHTML());
+      updateInput(markdown);
+    }
+    setIsMarkdownMode(true);
+  }, [updateInput]);
+
+  const switchToRichMode = useCallback(() => {
+    if (editorRef.current) {
+      isSyncingRef.current = true;
+      editorRef.current.commands.setContent(
+        markdownToHtmlBasic(inputRef.current),
+      );
+    }
+    setIsMarkdownMode(false);
+  }, []);
+
+  const onMarkdownInput = useCallback(
+    (event: React.FormEvent<HTMLTextAreaElement>) => {
+      const { value } = event.currentTarget;
+      updateInput(value);
+    },
+    [updateInput],
+  );
+
+  const onMarkdownKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      const isSpecialKey = event.ctrlKey || event.metaKey;
+      if (!isSpecialKey || event.key !== 'Enter' || !inputRef.current?.length) {
+        return;
+      }
+
+      event.preventDefault();
+      onSubmit?.({
+        currentTarget: { value: inputRef.current },
+      } as React.FormEvent<HTMLTextAreaElement>);
+    },
+    [onSubmit],
+  );
+
   useImperativeHandle(ref, () => ({
     onMentionCommand: () => {
       if (!editor) {
@@ -379,6 +448,11 @@ function RichTextInput(
       editor.commands.setContent(markdownToHtmlBasic(value));
     },
     focus: () => {
+      if (isMarkdownMode) {
+        markdownTextareaRef.current?.focus();
+        return;
+      }
+
       editor?.commands.focus();
     },
   }));
@@ -418,8 +492,11 @@ function RichTextInput(
     );
 
   const remainingCharacters =
-    maxLength && editor?.storage.characterCount
-      ? maxLength - editor.storage.characterCount.characters()
+    maxLength && (isMarkdownMode || editor?.storage.characterCount)
+      ? maxLength -
+        (isMarkdownMode
+          ? input.length
+          : editor?.storage.characterCount.characters() ?? input.length)
       : null;
 
   const hasToolbarActions = isUploadEnabled || isMentionEnabled || isGifEnabled;
@@ -527,90 +604,153 @@ function RichTextInput(
               showUserAvatar && 'ml-3',
             )}
             ref={editorContainerRef}
-            onDrop={upload.handleDrop}
-            onDragOver={(event) => event.preventDefault()}
-            onPaste={upload.handlePaste}
+            onDrop={isMarkdownMode ? undefined : upload.handleDrop}
+            onDragOver={
+              isMarkdownMode ? undefined : (event) => event.preventDefault()
+            }
+            onPaste={isMarkdownMode ? undefined : upload.handlePaste}
           >
-            <RichTextToolbar
-              ref={toolbarRef}
-              editor={editor}
-              onLinkAdd={(url, label) => {
-                if (!editor) {
-                  return;
-                }
-                if (!editor.state.selection.empty) {
-                  editor.chain().focus().setLink({ href: url }).run();
-                } else {
-                  const linkText = label || url;
-                  editor
-                    .chain()
-                    .focus()
-                    .insertContent(`<a href="${url}">${linkText}</a>`)
-                    .run();
-                }
-              }}
-              inlineActions={hasToolbarActions ? toolbarActions : null}
-              rightActions={
-                onClose ? (
-                  <CloseButton size={ButtonSize.Small} onClick={onClose} />
-                ) : null
-              }
-            />
-            {isUploadEnabled && (
-              <input
-                type="file"
-                className="hidden"
-                name="content_upload"
-                ref={upload.uploadRef}
-                accept={allowedContentImage.join(',')}
-                onInput={upload.onUpload}
-              />
+            {isMarkdownMode ? (
+              <>
+                <div className="flex items-center justify-between border-b border-border-subtlest-tertiary p-2">
+                  <span className="px-2 text-text-tertiary typo-caption1">
+                    Markdown editor
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant={ButtonVariant.Tertiary}
+                      size={ButtonSize.XSmall}
+                      onClick={switchToRichMode}
+                    >
+                      Switch to Rich Text Editor
+                    </Button>
+                    {onClose && (
+                      <CloseButton size={ButtonSize.Small} onClick={onClose} />
+                    )}
+                  </div>
+                </div>
+                <textarea
+                  {...textareaProps}
+                  name={undefined}
+                  ref={markdownTextareaRef}
+                  value={input}
+                  maxLength={maxLength}
+                  className={classNames(
+                    'min-h-[8rem] resize-y bg-transparent p-4 outline-none',
+                    className?.input,
+                  )}
+                  onInput={onMarkdownInput}
+                  onKeyDown={onMarkdownKeyDown}
+                />
+              </>
+            ) : (
+              <>
+                <RichTextToolbar
+                  ref={toolbarRef}
+                  editor={editor}
+                  onLinkAdd={(url, label) => {
+                    if (!editor) {
+                      return;
+                    }
+                    if (!editor.state.selection.empty) {
+                      editor.chain().focus().setLink({ href: url }).run();
+                      return;
+                    }
+                    const linkText = label || url;
+                    editor
+                      .chain()
+                      .focus()
+                      .insertContent({
+                        type: 'text',
+                        text: linkText,
+                        marks: [
+                          { type: 'link', attrs: { href: url } },
+                        ],
+                      })
+                      .run();
+                  }}
+                  inlineActions={hasToolbarActions ? toolbarActions : null}
+                  rightActions={
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant={ButtonVariant.Tertiary}
+                        size={ButtonSize.XSmall}
+                        onClick={switchToMarkdownMode}
+                      >
+                        Switch to Markdown Editor
+                      </Button>
+                      {onClose && (
+                        <CloseButton
+                          size={ButtonSize.Small}
+                          onClick={onClose}
+                        />
+                      )}
+                    </div>
+                  }
+                />
+                {isUploadEnabled && (
+                  <input
+                    type="file"
+                    className="hidden"
+                    name="content_upload"
+                    ref={upload.uploadRef}
+                    accept={allowedContentImage.join(',')}
+                    onInput={upload.onUpload}
+                  />
+                )}
+                <EditorContent
+                  editor={editor}
+                  className={classNames(
+                    styles.editor,
+                    'min-h-[8rem] p-4',
+                    showUserAvatar ? 'ml-0' : '',
+                    className?.input,
+                  )}
+                />
+              </>
             )}
-            <EditorContent
-              editor={editor}
-              className={classNames(
-                styles.editor,
-                'min-h-[8rem] p-4',
-                showUserAvatar ? 'ml-0' : '',
-                className?.input,
-              )}
-            />
             {textareaProps.name && (
               <input type="hidden" name={textareaProps.name} value={input} />
             )}
           </div>
         </ConditionalWrapper>
       </ConditionalWrapper>
-      <RecommendedMentionTooltip
-        elementRef={editorContainerRef}
-        offset={offset}
-        mentions={mention.mentions}
-        selected={mention.selected}
-        query={mention.query}
-        onMentionClick={(m) => {
-          if (editorRef.current) {
-            mention.applyMention(editorRef.current, m);
-          }
-        }}
-        onClickOutside={mention.clearMention}
-        appendTo={parentSelector}
-      />
-      <RecommendedEmojiTooltip
-        elementRef={editorContainerRef}
-        search={emoji.emojiQuery}
-        emojiData={emoji.emojiData}
-        offset={offset}
-        selected={emoji.selectedEmoji}
-        onSelect={(e) => {
-          if (editorRef.current) {
-            emoji.applyEmoji(editorRef.current, e);
-          }
-        }}
-        onClickOutside={emoji.clearEmoji}
-      />
+      {!isMarkdownMode && (
+        <RecommendedMentionTooltip
+          elementRef={editorContainerRef}
+          offset={offset}
+          mentions={mention.mentions}
+          selected={mention.selected}
+          query={mention.query}
+          onMentionClick={(m) => {
+            if (editorRef.current) {
+              mention.applyMention(editorRef.current, m);
+            }
+          }}
+          onClickOutside={mention.clearMention}
+          appendTo={parentSelector}
+        />
+      )}
+      {!isMarkdownMode && (
+        <RecommendedEmojiTooltip
+          elementRef={editorContainerRef}
+          search={emoji.emojiQuery}
+          emojiData={emoji.emojiData}
+          offset={offset}
+          selected={emoji.selectedEmoji}
+          onSelect={(e) => {
+            if (editorRef.current) {
+              emoji.applyEmoji(editorRef.current, e);
+            }
+          }}
+          onClickOutside={emoji.clearEmoji}
+        />
+      )}
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:border-t">
-          {hasUploadHint && (
+          {hasUploadHint && !isMarkdownMode && (
             <span className="text-text-quaternary typo-caption1">
               Drag and drop images to attach
             </span>
