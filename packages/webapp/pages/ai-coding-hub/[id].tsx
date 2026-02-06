@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import classNames from 'classnames';
@@ -29,42 +29,53 @@ import {
 import type { FeedItem } from '../../data/aiCodingHubData';
 
 const TweetEmbed = ({ tweetId }: { tweetId: string }): ReactElement => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const renderTweet = useCallback(() => {
+    const container = containerRef.current;
+    if (!container || !window.twttr) {
+      return;
+    }
+
+    container.innerHTML = '';
+    window.twttr.widgets.createTweet(tweetId, container, { theme: 'dark' });
+  }, [tweetId]);
 
   useEffect(() => {
+    if (window.twttr) {
+      renderTweet();
+      return undefined;
+    }
+
+    const existingScript = document.querySelector(
+      'script[src="https://platform.twitter.com/widgets.js"]',
+    );
+    if (existingScript) {
+      existingScript.addEventListener('load', renderTweet);
+      return () => existingScript.removeEventListener('load', renderTweet);
+    }
+
     const script = document.createElement('script');
     script.src = 'https://platform.twitter.com/widgets.js';
     script.async = true;
-    script.onload = () => setIsLoaded(true);
+    script.onload = renderTweet;
     document.body.appendChild(script);
 
-    return () => {
-      const existingScript = document.querySelector(
-        'script[src="https://platform.twitter.com/widgets.js"]',
-      );
-      if (existingScript) {
-        existingScript.remove();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isLoaded && window.twttr) {
-      window.twttr.widgets.load();
-    }
-  }, [isLoaded, tweetId]);
+    return undefined;
+  }, [renderTweet]);
 
   return (
     <div className="flex justify-center">
-      <blockquote className="twitter-tweet" data-theme="dark">
+      <div ref={containerRef}>
         <a
           href={`https://twitter.com/i/web/status/${tweetId}`}
           target="_blank"
           rel="noopener noreferrer"
+          className="text-text-quaternary text-sm"
         >
           Loading tweet...
         </a>
-      </blockquote>
+      </div>
     </div>
   );
 };
@@ -74,6 +85,11 @@ declare global {
     twttr?: {
       widgets: {
         load: () => void;
+        createTweet: (
+          id: string,
+          el: HTMLElement,
+          options?: Record<string, string>,
+        ) => Promise<HTMLElement>;
       };
     };
   }
@@ -230,7 +246,12 @@ const SignalDetailPage = (): ReactElement => {
             </a>
           </div>
 
-          <TweetEmbed tweetId={item.source_tweet_id} />
+          <div className="flex flex-col gap-4 laptop:flex-row laptop:overflow-x-auto">
+            <TweetEmbed tweetId={item.source_tweet_id} />
+            {item.related_tweet_ids.map((relatedTweetId) => (
+              <TweetEmbed key={relatedTweetId} tweetId={relatedTweetId} />
+            ))}
+          </div>
         </div>
 
         {/* Related Signals */}
