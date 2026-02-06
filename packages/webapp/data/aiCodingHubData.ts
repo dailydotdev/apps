@@ -68,22 +68,36 @@ export const getTodayDateString = (): string => {
   return new Date().toISOString().split('T')[0];
 };
 
+export const getRecentDateStrings = (): string[] => {
+  const dates: string[] = [];
+  for (let i = 0; i < 2; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    dates.push(date.toISOString().split('T')[0]);
+  }
+  return dates;
+};
+
 export const getBreakingItems = (items: FeedItem[]): FeedItem[] => {
-  const today = getTodayDateString();
-  return items.filter(
-    (item) =>
-      item.date === today &&
-      ['drama', 'leak', 'hot_take'].includes(item.category),
-  );
+  const recentDates = getRecentDateStrings();
+  return items
+    .filter(
+      (item) =>
+        recentDates.includes(item.date) &&
+        ['drama', 'leak', 'hot_take'].includes(item.category),
+    )
+    .slice(0, 3);
 };
 
 export const getMilestoneItems = (items: FeedItem[]): FeedItem[] => {
-  const today = getTodayDateString();
-  return items.filter(
-    (item) =>
-      item.date === today &&
-      ['milestone', 'product_launch'].includes(item.category),
-  );
+  const recentDates = getRecentDateStrings();
+  return items
+    .filter(
+      (item) =>
+        recentDates.includes(item.date) &&
+        ['milestone', 'product_launch'].includes(item.category),
+    )
+    .slice(0, 3);
 };
 
 export const getTrendingTools = (
@@ -100,6 +114,10 @@ export const getTrendingTools = (
     'openai',
     'anthropic',
     'kimi',
+    'opus_4.6',
+    'gpt_5.3',
+    'opencode',
+    'aider',
   ];
 
   items.forEach((item) => {
