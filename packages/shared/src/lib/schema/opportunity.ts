@@ -15,7 +15,6 @@ const processSalaryValue = (val: unknown) => {
 
 const locationEntrySchema = z.object({
   externalLocationId: z.string().optional(),
-  locationType: z.number().optional(),
   locationData: z
     .object({
       id: z.string(),
@@ -40,6 +39,7 @@ export const opportunityEditInfoSchema = z.object({
     )
     .min(1, 'Add at least one skill')
     .max(100),
+  locationType: z.number().optional(),
   locations: z.array(locationEntrySchema).optional().default([]),
   meta: z.object({
     employmentType: z.coerce.number().min(1, 'Select an employment type'),

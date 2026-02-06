@@ -75,10 +75,10 @@ export function opportunityToFormData(
     title: opportunity.title || '',
     tldr: opportunity.tldr || '',
     keywords: opportunity.keywords?.map((k) => ({ keyword: k.keyword })) || [],
+    locationType: opportunity.locations?.[0]?.type,
     locations:
       opportunity.locations?.map((loc) => ({
         externalLocationId: undefined,
-        locationType: loc.type,
         locationData: loc.location
           ? {
               id: '',
@@ -127,18 +127,16 @@ export function formDataToPreviewOpportunity(
     tldr: formData.tldr,
     keywords: formData.keywords,
     locations:
-      formData.locations
-        ?.filter((loc) => loc.locationType)
-        .map((loc) => ({
-          type: loc.locationType,
-          location: loc.locationData
-            ? {
-                city: loc.locationData.city,
-                country: loc.locationData.country,
-                subdivision: loc.locationData.subdivision,
-              }
-            : null,
-        })) || [],
+      formData.locations?.map((loc) => ({
+        type: formData.locationType,
+        location: loc.locationData
+          ? {
+              city: loc.locationData.city,
+              country: loc.locationData.country,
+              subdivision: loc.locationData.subdivision,
+            }
+          : null,
+      })) || [],
     meta: formData.meta
       ? {
           employmentType: formData.meta.employmentType,
@@ -188,15 +186,13 @@ export function formDataToMutationPayload(
     title: formData.title,
     tldr: formData.tldr,
     keywords: formData.keywords,
-    location: formData.locations
-      ?.filter((loc) => loc.locationType)
-      .map((loc) => ({
-        externalLocationId: loc.externalLocationId,
-        type: loc.locationType,
-        city: loc.locationData?.city,
-        country: loc.locationData?.country,
-        subdivision: loc.locationData?.subdivision,
-      })),
+    location: formData.locations?.map((loc) => ({
+      externalLocationId: loc.externalLocationId,
+      type: formData.locationType,
+      city: loc.locationData?.city,
+      country: loc.locationData?.country,
+      subdivision: loc.locationData?.subdivision,
+    })),
     meta: {
       employmentType: formData.meta.employmentType,
       teamSize: formData.meta.teamSize,

@@ -19,6 +19,7 @@ import { PlusIcon } from '../../../icons/Plus';
 import { TrashIcon } from '../../../icons/Trash';
 import { IconSize } from '../../../Icon';
 import { LocationType } from '../../../../features/opportunity/protobuf/util';
+import { Radio } from '../../../fields/Radio';
 
 export interface RoleInfoSectionProps {
   opportunity: Opportunity;
@@ -31,6 +32,7 @@ export function RoleInfoSection({
     register,
     control,
     setValue,
+    watch,
     formState: { errors },
   } = useFormContext<OpportunitySideBySideEditFormData>();
 
@@ -62,8 +64,16 @@ export function RoleInfoSection({
     [setValue],
   );
 
+  const locationType = watch('locationType');
+
+  const locationTypeOptions = [
+    { label: 'Remote', value: `${LocationType.REMOTE}` },
+    { label: 'Hybrid', value: `${LocationType.HYBRID}` },
+    { label: 'On-site', value: `${LocationType.OFFICE}` },
+  ];
+
   const handleAddLocation = useCallback(() => {
-    append({ locationType: LocationType.REMOTE });
+    append({});
   }, [append]);
 
   const handleRemoveLocation = useCallback(
@@ -140,12 +150,20 @@ export function RoleInfoSection({
         <Typography bold type={TypographyType.Caption1}>
           Locations
         </Typography>
+        <Radio
+          name="locationType"
+          options={locationTypeOptions}
+          value={`${locationType}`}
+          onChange={(val) =>
+            setValue('locationType', Number(val), { shouldDirty: true })
+          }
+          className={{ container: '!flex-row' }}
+        />
         {fields.map((field, index) => (
           <div key={field.id} className="flex items-start gap-2">
             <div className="flex-1">
               <ProfileLocation
                 locationName={`locations.${index}.externalLocationId`}
-                typeName={`locations.${index}.locationType`}
                 dataset={LocationDataset.Internal}
                 defaultValue={
                   opportunity?.locations?.[index]?.location
@@ -156,7 +174,6 @@ export function RoleInfoSection({
                           opportunity.locations[index].location.country || '',
                         subdivision:
                           opportunity.locations[index].location.subdivision,
-                        type: opportunity.locations[index].type,
                       }
                     : undefined
                 }
