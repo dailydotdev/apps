@@ -14,7 +14,7 @@ export function MobileAppLoader({
   return (
     <div
       className={classNames(
-        'fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-background-default',
+        'z-50 fixed inset-0 flex flex-col items-center justify-center gap-6 bg-background-default',
         className,
       )}
     >
