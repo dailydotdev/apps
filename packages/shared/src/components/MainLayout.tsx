@@ -28,7 +28,7 @@ import {
   useActiveFeedNameContext,
 } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
-import { isPWA } from '../lib/func';
+import { isIOSNative, isPWA } from '../lib/func';
 import { BootPopups } from './modals/BootPopups';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
@@ -82,7 +82,7 @@ function MainLayoutComponent({
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { user, isAuthReady, showLogin } = useAuthContext();
+  const { user, isAuthReady, showLogin, isAndroidApp } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
@@ -167,7 +167,7 @@ function MainLayoutComponent({
     (!isPageReady && isPageApplicableForOnboarding) ||
     shouldRedirectOnboarding
   ) {
-    if (typeof window !== 'undefined' && isPWA()) {
+    if (typeof window !== 'undefined' && (isPWA() || isIOSNative() || isAndroidApp)) {
       return <MobileAppLoader />;
     }
     return null;
