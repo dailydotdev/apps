@@ -78,6 +78,7 @@ export function opportunityToFormData(
     locationType: opportunity.locations?.[0]?.type,
     locations:
       opportunity.locations?.map((loc) => ({
+        locationId: loc.locationId || undefined,
         externalLocationId: undefined,
         locationData: loc.location
           ? {
@@ -187,6 +188,7 @@ export function formDataToMutationPayload(
     tldr: formData.tldr,
     keywords: formData.keywords,
     location: formData.locations?.map((loc) => ({
+      locationId: loc.locationId,
       externalLocationId: loc.externalLocationId,
       type: formData.locationType,
       city: loc.locationData?.city,

@@ -14,6 +14,7 @@ const processSalaryValue = (val: unknown) => {
 };
 
 const locationEntrySchema = z.object({
+  locationId: z.string().optional(),
   externalLocationId: z.string().optional(),
   locationData: z
     .object({
@@ -171,6 +172,7 @@ export interface LocationInput {
   city?: string;
   subdivision?: string;
   type?: number;
+  locationId?: string;
   externalLocationId?: string;
 }
 
