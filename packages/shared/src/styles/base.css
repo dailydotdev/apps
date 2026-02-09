@@ -48,7 +48,7 @@ body {
 
 @define-mixin dark-mode {
   /* Background colors */
-  --theme-background-default: #000000;
+  --theme-background-default: theme('colors.raw.salt.0');
   --theme-background-subtle: theme('colors.raw.pepper.70');
   --theme-background-popover: theme('colors.raw.pepper.70');
   --theme-background-post-post: theme('colors.raw.pepper.70');

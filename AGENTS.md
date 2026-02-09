@@ -223,6 +223,7 @@ Is it used by both webapp AND extension?
 - **Typography**: Use `typo-*` classes (typo-title1, typo-body, typo-callout)
 - **Responsive**: mobileL, mobileXL, tablet, laptop, laptopL, desktop
 - **ESLint enforces** `no-custom-color` rule - use design system tokens
+- **Theme edits**: When changing theme variables, confirm intended values per mode (light vs dark) and only alter those explicitly requested
 
 ## Testing Approach
 
