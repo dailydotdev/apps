@@ -13,6 +13,22 @@ const processSalaryValue = (val: unknown) => {
   return val;
 };
 
+const locationEntrySchema = z.object({
+  locationId: z.string().optional(),
+  externalLocationId: z.string().optional(),
+  locationData: z
+    .object({
+      id: z.string(),
+      city: z.string().nullish(),
+      country: z.string(),
+      subdivision: z.string().nullish(),
+    })
+    .nullable()
+    .optional(),
+});
+
+export type LocationEntry = z.infer<typeof locationEntrySchema>;
+
 export const opportunityEditInfoSchema = z.object({
   title: z.string().nonempty('Add a job title').max(240),
   tldr: z.string().nonempty('Add a short description').max(480),
@@ -24,17 +40,8 @@ export const opportunityEditInfoSchema = z.object({
     )
     .min(1, 'Add at least one skill')
     .max(100),
-  externalLocationId: z.string().optional(),
   locationType: z.number().optional(),
-  locationData: z
-    .object({
-      id: z.string(),
-      city: z.string().nullish(),
-      country: z.string(),
-      subdivision: z.string().nullish(),
-    })
-    .nullable()
-    .optional(),
+  locations: z.array(locationEntrySchema).optional().default([]),
   meta: z.object({
     employmentType: z.coerce.number().min(1, 'Select an employment type'),
     teamSize: z
@@ -165,6 +172,7 @@ export interface LocationInput {
   city?: string;
   subdivision?: string;
   type?: number;
+  locationId?: string;
   externalLocationId?: string;
 }
 

@@ -75,16 +75,20 @@ export function opportunityToFormData(
     title: opportunity.title || '',
     tldr: opportunity.tldr || '',
     keywords: opportunity.keywords?.map((k) => ({ keyword: k.keyword })) || [],
-    externalLocationId: opportunity.locations?.[0]?.location?.city || undefined,
     locationType: opportunity.locations?.[0]?.type,
-    locationData: opportunity.locations?.[0]?.location
-      ? {
-          id: '',
-          city: opportunity.locations[0].location.city,
-          country: opportunity.locations[0].location.country || '',
-          subdivision: opportunity.locations[0].location.subdivision,
-        }
-      : undefined,
+    locations:
+      opportunity.locations?.map((loc) => ({
+        locationId: loc.locationId || undefined,
+        externalLocationId: undefined,
+        locationData: loc.location
+          ? {
+              id: '',
+              city: loc.location.city,
+              country: loc.location.country || '',
+              subdivision: loc.location.subdivision,
+            }
+          : undefined,
+      })) || [],
     meta: {
       employmentType: opportunity.meta?.employmentType ?? 0,
       teamSize: opportunity.meta?.teamSize ?? 1,
@@ -123,20 +127,17 @@ export function formDataToPreviewOpportunity(
     title: formData.title,
     tldr: formData.tldr,
     keywords: formData.keywords,
-    locations: formData.locationType
-      ? [
-          {
-            type: formData.locationType,
-            location: formData.locationData
-              ? {
-                  city: formData.locationData.city,
-                  country: formData.locationData.country,
-                  subdivision: formData.locationData.subdivision,
-                }
-              : null,
-          },
-        ]
-      : undefined,
+    locations:
+      formData.locations?.map((loc) => ({
+        type: formData.locationType,
+        location: loc.locationData
+          ? {
+              city: loc.locationData.city,
+              country: loc.locationData.country,
+              subdivision: loc.locationData.subdivision,
+            }
+          : null,
+      })) || [],
     meta: formData.meta
       ? {
           employmentType: formData.meta.employmentType,
@@ -186,8 +187,14 @@ export function formDataToMutationPayload(
     title: formData.title,
     tldr: formData.tldr,
     keywords: formData.keywords,
-    externalLocationId: formData.externalLocationId,
-    locationType: formData.locationType,
+    location: formData.locations?.map((loc) => ({
+      locationId: loc.locationId,
+      externalLocationId: loc.externalLocationId,
+      type: formData.locationType,
+      city: loc.locationData?.city,
+      country: loc.locationData?.country,
+      subdivision: loc.locationData?.subdivision,
+    })),
     meta: {
       employmentType: formData.meta.employmentType,
       teamSize: formData.meta.teamSize,

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { TextField } from '../../../fields/TextField';
 import Textarea from '../../../fields/Textarea';
 import {
@@ -14,6 +14,12 @@ import type { TLocation } from '../../../../graphql/autocomplete';
 import { LocationDataset } from '../../../../graphql/autocomplete';
 import type { Opportunity } from '../../../../features/opportunity/types';
 import type { OpportunitySideBySideEditFormData } from '../hooks/useOpportunityEditForm';
+import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import { PlusIcon } from '../../../icons/Plus';
+import { TrashIcon } from '../../../icons/Trash';
+import { IconSize } from '../../../Icon';
+import { LocationType } from '../../../../features/opportunity/protobuf/util';
+import { Radio } from '../../../fields/Radio';
 
 export interface RoleInfoSectionProps {
   opportunity: Opportunity;
@@ -26,13 +32,24 @@ export function RoleInfoSection({
     register,
     control,
     setValue,
+    watch,
     formState: { errors },
   } = useFormContext<OpportunitySideBySideEditFormData>();
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'locations',
+  });
+
   const handleLocationSelect = useCallback(
-    (location: TLocation | null) => {
+    (location: TLocation | null, index: number) => {
       setValue(
-        'locationData',
+        `locations.${index}.externalLocationId`,
+        location?.id || undefined,
+        { shouldDirty: true },
+      );
+      setValue(
+        `locations.${index}.locationData`,
         location
           ? {
               id: location.id,
@@ -45,6 +62,25 @@ export function RoleInfoSection({
       );
     },
     [setValue],
+  );
+
+  const locationType = watch('locationType');
+
+  const locationTypeOptions = [
+    { label: 'Remote', value: `${LocationType.REMOTE}` },
+    { label: 'Hybrid', value: `${LocationType.HYBRID}` },
+    { label: 'On-site', value: `${LocationType.OFFICE}` },
+  ];
+
+  const handleAddLocation = useCallback(() => {
+    append({});
+  }, [append]);
+
+  const handleRemoveLocation = useCallback(
+    (index: number) => {
+      remove(index);
+    },
+    [remove],
   );
 
   return (
@@ -110,24 +146,63 @@ export function RoleInfoSection({
         />
       </div>
 
-      <div data-field-key="location">
-        <ProfileLocation
-          locationName="externalLocationId"
-          typeName="locationType"
-          dataset={LocationDataset.Internal}
-          defaultValue={
-            opportunity?.locations?.[0]?.location
-              ? {
-                  id: '',
-                  city: opportunity.locations[0].location.city,
-                  country: opportunity.locations[0].location.country || '',
-                  subdivision: opportunity.locations[0].location.subdivision,
-                  type: opportunity.locations[0].type,
-                }
-              : undefined
+      <div data-field-key="locations" className="flex flex-col gap-3">
+        <Typography bold type={TypographyType.Caption1}>
+          Locations
+        </Typography>
+        <Radio
+          name="locationType"
+          options={locationTypeOptions}
+          value={`${locationType}`}
+          onChange={(val) =>
+            setValue('locationType', Number(val), { shouldDirty: true })
           }
-          onLocationSelect={handleLocationSelect}
+          className={{ container: '!flex-row' }}
         />
+        {fields.map((field, index) => (
+          <div key={field.id} className="flex items-start gap-2">
+            <div className="flex-1">
+              <ProfileLocation
+                locationName={`locations.${index}.externalLocationId`}
+                dataset={LocationDataset.Internal}
+                defaultValue={
+                  opportunity?.locations?.[index]?.location
+                    ? {
+                        id: '',
+                        city: opportunity.locations[index].location.city,
+                        country:
+                          opportunity.locations[index].location.country || '',
+                        subdivision:
+                          opportunity.locations[index].location.subdivision,
+                      }
+                    : undefined
+                }
+                onLocationSelect={(location) =>
+                  handleLocationSelect(location, index)
+                }
+              />
+            </div>
+            {fields.length > 1 && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<TrashIcon size={IconSize.Small} />}
+                onClick={() => handleRemoveLocation(index)}
+                className="mt-6"
+              />
+            )}
+          </div>
+        ))}
+        <Button
+          type="button"
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          icon={<PlusIcon size={IconSize.Small} />}
+          onClick={handleAddLocation}
+        >
+          Add location
+        </Button>
       </div>
     </div>
   );
