@@ -224,6 +224,7 @@ Is it used by both webapp AND extension?
 - **Responsive**: mobileL, mobileXL, tablet, laptop, laptopL, desktop
 - **ESLint enforces** `no-custom-color` rule - use design system tokens
 - **Theme edits**: When changing theme variables, confirm intended values per mode (light vs dark) and only alter those explicitly requested
+- **Ambiguous requests**: If a request is vague (e.g., "random colors"), clarify scope and which variables/modes should change before editing
 
 ## Testing Approach
 
