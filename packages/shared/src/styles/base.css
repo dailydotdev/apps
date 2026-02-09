@@ -335,7 +335,7 @@ body {
 
 @define-mixin light-mode {
   /* Background colors */
-  --theme-background-default: #f4c24d;
+  --theme-background-default: theme('colors.raw.salt.0');
   --theme-background-subtle: theme('colors.raw.salt.10');
   --theme-background-popover: theme('colors.raw.salt.0');
   --theme-background-post-post: theme('colors.raw.salt.10');

@@ -225,6 +225,7 @@ Is it used by both webapp AND extension?
 - **ESLint enforces** `no-custom-color` rule - use design system tokens
 - **Theme edits**: When changing theme variables, confirm intended values per mode (light vs dark) and only alter those explicitly requested
 - **Ambiguous requests**: If a request is vague (e.g., "random colors"), clarify scope and which variables/modes should change before editing
+- **Review feedback**: When a reviewer specifies an exact value, apply it precisely and avoid alternative interpretations
 
 ## Testing Approach
 
