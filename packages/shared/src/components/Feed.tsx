@@ -179,9 +179,9 @@ export default function Feed<T>({
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const { isFallback, query: routerQuery } = useRouter();
-  const { openNewTab, loadedSettings } = useContext(SettingsContext);
+  const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
   const { isListMode } = useFeedLayout();
-  const numCards = currentSettings.numCards.eco;
+  const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const { shouldUseListFeedLayout } = useFeedLayout();
   const trackedFeedFinish = useRef(false);

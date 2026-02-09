@@ -1,8 +1,13 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { DefaultSquadIcon, SourceIcon, TimerIcon } from '../../icons';
+import {
+  DefaultSquadIcon,
+  NewSquadIcon,
+  SourceIcon,
+  TimerIcon,
+} from '../../icons';
 import { Section } from '../Section';
 import { Origin } from '../../../lib/log';
 import { useSquadNavigation } from '../../../hooks';
@@ -24,10 +29,6 @@ export const NetworkSection = ({
   const { count, isModeratorInAnySquad } = useSquadPendingPosts({
     status: [SourcePostModerationStatus.Pending],
   });
-
-  const handleAddSquad = useCallback(() => {
-    openNewSquad({ origin: Origin.Sidebar });
-  }, [openNewSquad]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const squadItems =
@@ -69,8 +70,14 @@ export const NetworkSection = ({
         isForcedLink: true,
       },
       ...squadItems,
+      {
+        icon: () => <NewSquadIcon />,
+        title: 'New Squad',
+        action: () => openNewSquad({ origin: Origin.Sidebar }),
+        requiresLogin: true,
+      },
     ].filter(Boolean);
-  }, [squads, isModeratorInAnySquad, count]);
+  }, [squads, isModeratorInAnySquad, count, openNewSquad]);
 
   return (
     <Section
@@ -78,7 +85,6 @@ export const NetworkSection = ({
       items={menuItems}
       isItemsButton={false}
       flag={SidebarSettingsFlags.SquadExpanded}
-      onAdd={handleAddSquad}
     />
   );
 };
