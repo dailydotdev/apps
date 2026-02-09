@@ -135,64 +135,68 @@ function RichTextToolbarComponent(
 
   return (
     <>
-      <div className="flex items-center gap-1 border-b border-border-subtlest-tertiary p-2">
-        <ToolbarButton
-          tooltip="Bold (⌘B)"
-          icon={<BoldIcon />}
-          isActive={editorState.isBold}
-          onClick={() => editor.chain().focus().toggleBold().run()}
-        />
-        <ToolbarButton
-          tooltip="Italic (⌘I)"
-          icon={<ItalicIcon />}
-          isActive={editorState.isItalic}
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-        />
-        <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
-        <ToolbarButton
-          tooltip="Bullet list (⌘⇧8)"
-          icon={<BulletListIcon />}
-          isActive={editorState.isBulletList}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-        />
-        <ToolbarButton
-          tooltip="Numbered list (⌘⇧7)"
-          icon={<NumberedListIcon />}
-          isActive={editorState.isOrderedList}
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        />
-        <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
-        <ToolbarButton
-          tooltip={editorState.isLink ? 'Edit link (⌘K)' : 'Add link (⌘K)'}
-          icon={<LinkIcon />}
-          isActive={editorState.isLink}
-          onClick={openLinkModal}
-        />
-        {inlineActions && (
-          <>
-            <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
-            <div className="flex items-center gap-1">{inlineActions}</div>
-          </>
-        )}
-        {(editorState.canUndo || editorState.canRedo) && (
+      <div className="flex flex-col gap-2 border-b border-border-subtlest-tertiary p-2 tablet:flex-row tablet:items-center tablet:gap-1">
+        <div className="flex flex-wrap items-center gap-1 tablet:flex-1">
+          <ToolbarButton
+            tooltip="Bold (⌘B)"
+            icon={<BoldIcon />}
+            isActive={editorState.isBold}
+            onClick={() => editor.chain().focus().toggleBold().run()}
+          />
+          <ToolbarButton
+            tooltip="Italic (⌘I)"
+            icon={<ItalicIcon />}
+            isActive={editorState.isItalic}
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+          />
           <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
-        )}
-        <ToolbarButton
-          tooltip="Undo (⌘Z)"
-          icon={<UndoIcon />}
-          isActive={false}
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editorState.canUndo}
-        />
-        <ToolbarButton
-          tooltip="Redo (⌘⇧Z)"
-          icon={<RedoIcon />}
-          isActive={false}
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editorState.canRedo}
-        />
+          <ToolbarButton
+            tooltip="Bullet list (⌘⇧8)"
+            icon={<BulletListIcon />}
+            isActive={editorState.isBulletList}
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+          />
+          <ToolbarButton
+            tooltip="Numbered list (⌘⇧7)"
+            icon={<NumberedListIcon />}
+            isActive={editorState.isOrderedList}
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          />
+          <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
+          <ToolbarButton
+            tooltip={editorState.isLink ? 'Edit link (⌘K)' : 'Add link (⌘K)'}
+            icon={<LinkIcon />}
+            isActive={editorState.isLink}
+            onClick={openLinkModal}
+          />
+          {inlineActions && (
+            <>
+              <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
+              <div className="flex items-center gap-1">{inlineActions}</div>
+            </>
+          )}
+          {(editorState.canUndo || editorState.canRedo) && (
+            <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
+          )}
+          <ToolbarButton
+            tooltip="Undo (⌘Z)"
+            icon={<UndoIcon />}
+            isActive={false}
+            onClick={() => editor.chain().focus().undo().run()}
+            disabled={!editorState.canUndo}
+          />
+          <ToolbarButton
+            tooltip="Redo (⌘⇧Z)"
+            icon={<RedoIcon />}
+            isActive={false}
+            onClick={() => editor.chain().focus().redo().run()}
+            disabled={!editorState.canRedo}
+          />
+        </div>
         {rightActions && (
-          <div className="ml-auto flex items-center gap-1">{rightActions}</div>
+          <div className="flex items-center justify-end gap-1 tablet:ml-auto">
+            {rightActions}
+          </div>
         )}
       </div>
       <LinkModal
