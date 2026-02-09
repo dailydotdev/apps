@@ -57,52 +57,38 @@ export const SidebarDesktop = ({
       <SidebarScrollWrapper>
         <Nav>
           <SidebarMenuIcon />
-          {/* Primary Action */}
-          <div
+          <CreatePostButton
             className={classNames(
-              'mb-2 flex items-center justify-center transition-[padding] duration-300',
-              sidebarExpanded ? 'px-2' : 'px-1',
+              'mb-4 !flex whitespace-nowrap',
+              sidebarExpanded ? 'mx-4' : 'mx-auto',
             )}
-          >
-            <CreatePostButton
-              className={classNames(
-                '!flex whitespace-nowrap',
-                sidebarExpanded ? 'w-full justify-start' : 'justify-center',
-              )}
-              compact={!sidebarExpanded}
-              size={ButtonSize.Small}
-              showIcon
-            />
-          </div>
-
-          {/* Primary Navigation - Always visible */}
+            compact={!sidebarExpanded}
+            size={sidebarExpanded ? ButtonSize.Small : ButtonSize.XSmall}
+            showIcon
+          />
           <MainSection
             {...defaultRenderSectionProps}
             onNavTabClick={onNavTabClick}
             isItemsButton={isNavButtons}
           />
-
-          {/* User Content Sections */}
           <CustomFeedSection
             {...defaultRenderSectionProps}
             onNavTabClick={onNavTabClick}
-            title="Feeds"
+            title="Custom feeds"
             isItemsButton={false}
           />
           <NetworkSection
             {...defaultRenderSectionProps}
-            title="Squads"
+            title="Network"
             isItemsButton={isNavButtons}
             key="network-section"
           />
           <BookmarkSection
             {...defaultRenderSectionProps}
-            title="Saved"
+            title="Bookmarks"
             isItemsButton={false}
             key="bookmark-section"
           />
-
-          {/* Discovery Section */}
           <DiscoverSection
             {...defaultRenderSectionProps}
             title="Discover"

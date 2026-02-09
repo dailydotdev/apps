@@ -69,9 +69,7 @@ const cardListClass = {
 export const getFeedGapPx = {
   'gap-2': 8,
   'gap-3': 12,
-  'gap-4': 16,
   'gap-5': 20,
-  'gap-6': 24,
   'gap-8': 32,
   'gap-12': 48,
   'gap-14': 56,
@@ -89,7 +87,7 @@ export const gapClass = ({
   if (isFeedLayoutList) {
     return '';
   }
-  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-4';
+  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
 };
 
 const cardClass = ({
@@ -151,7 +149,7 @@ export const FeedContainer = ({
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
-  const { loadedSettings } = useContext(SettingsContext);
+  const { spaciness, loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
@@ -159,7 +157,7 @@ export const FeedContainer = ({
     feedName,
   });
   const router = useRouter();
-  const numCards = currentSettings.numCards.eco;
+  const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isList =
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
@@ -169,14 +167,14 @@ export const FeedContainer = ({
       gapClass({
         isList,
         isFeedLayoutList: shouldUseListFeedLayout,
-        space: 'eco',
+        space: spaciness,
       })
     ];
   const style = {
     '--num-cards': isHorizontal && isListMode && numCards >= 2 ? 2 : numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
-  const cardContainerStyle = { ...getStyle(isList, 'eco') };
+  const cardContainerStyle = { ...getStyle(isList, spaciness) };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
 
@@ -324,7 +322,7 @@ export const FeedContainer = ({
                 gapClass({
                   isList,
                   isFeedLayoutList: shouldUseListFeedLayout,
-                  space: 'eco',
+                  space: spaciness,
                 }),
                 cardClass({ isList, numberOfCards: numCards, isHorizontal }),
               )}

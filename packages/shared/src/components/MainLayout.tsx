@@ -196,14 +196,14 @@ function MainLayoutComponent({
       />
       <main
         className={classNames(
-          'flex flex-col transition-[padding] duration-300 ease-in-out laptop:pt-16',
+          'flex flex-col',
           showSidebar && 'tablet:pl-16 laptop:pl-11',
           className,
           isAuthReady &&
             !isScreenCentered &&
             sidebarExpanded &&
             'laptop:!pl-60',
-          isBannerAvailable && 'laptop:pt-24',
+          isBannerAvailable && 'laptop:pt-8',
         )}
       >
         {isAuthReady && showSidebar && (

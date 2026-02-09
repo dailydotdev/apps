@@ -4,12 +4,12 @@ import React, { useRef } from 'react';
 import type { ItemInnerProps, SidebarMenuItem } from './common';
 import { NavHeader, NavSection } from './common';
 import { SidebarItem } from './SidebarItem';
-import { ArrowIcon, PlusIcon } from '../icons';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ArrowIcon } from '../icons';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import Link from '../utilities/Link';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {
@@ -24,8 +24,6 @@ interface SectionProps extends SectionCommonProps {
   items: SidebarMenuItem[];
   isItemsButton: boolean;
   isAlwaysOpenOnMobile?: boolean;
-  onAdd?: () => void;
-  addHref?: string;
 }
 
 export function Section({
@@ -38,8 +36,6 @@ export function Section({
   className,
   flag,
   isAlwaysOpenOnMobile,
-  onAdd,
-  addHref,
 }: SectionProps): ReactElement {
   const { flags, updateFlag } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
@@ -53,79 +49,30 @@ export function Section({
   };
 
   return (
-    <NavSection className={classNames('mt-1', className)}>
+    <NavSection className={className}>
       {title && (
-        <NavHeader className="relative hidden laptop:flex">
-          {/* Divider shown when sidebar is collapsed */}
-          <div
-            className={classNames(
-              'absolute inset-x-0 flex items-center justify-center px-2 transition-opacity duration-300',
-              sidebarExpanded ? 'opacity-0' : 'opacity-100',
-            )}
-          >
-            <hr className="w-full border-t border-border-subtlest-tertiary" />
-          </div>
-          {/* Header content shown when sidebar is expanded */}
-          <div
-            className={classNames(
-              'group/section flex min-h-9 w-full items-center justify-between px-2 py-1.5 transition-opacity duration-300',
-              sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
-            )}
-          >
-            <button
-              type="button"
-              onClick={toggleFlag}
-              aria-label={`Toggle ${title}`}
-              aria-expanded={!!isVisible.current}
-              className="flex items-center gap-1 rounded-6 transition-colors hover:text-text-primary"
-            >
-              <span
-                className={classNames(
-                  'text-text-quaternary typo-callout',
-                  !sidebarExpanded && 'opacity-0',
-                )}
-              >
-                {title}
-              </span>
+        <NavHeader
+          className={classNames(
+            'hidden justify-between laptop:flex',
+            sidebarExpanded ? 'px-3 opacity-100' : 'px-0 opacity-0',
+          )}
+        >
+          {title}
+          <Button
+            variant={ButtonVariant.Tertiary}
+            onClick={toggleFlag}
+            size={ButtonSize.XSmall}
+            aria-label={`Toggle ${title}`}
+            icon={
               <ArrowIcon
-                className={classNames(
-                  'h-2.5 w-2.5 text-text-quaternary transition-transform duration-200',
-                  isVisible.current ? 'rotate-180' : 'rotate-90',
-                )}
+                className={isVisible.current ? 'rotate-360' : 'rotate-180'}
               />
-            </button>
-            {addHref && (
-              <Link href={addHref}>
-                <a
-                  aria-label={`Add to ${title}`}
-                  className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
-                >
-                  <PlusIcon className="h-4 w-4" />
-                </a>
-              </Link>
-            )}
-            {!addHref && onAdd && (
-              <button
-                type="button"
-                onClick={onAdd}
-                aria-label={`Add to ${title}`}
-                className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
-              >
-                <PlusIcon className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+            }
+          />
         </NavHeader>
       )}
-      <div
-        className={classNames(
-          'flex flex-col overflow-hidden transition-all duration-300',
-          isVisible.current || shouldAlwaysBeVisible
-            ? 'max-h-[2000px] opacity-100' // Using large max-height for CSS transition animation
-            : 'max-h-0 opacity-0',
-        )}
-      >
-        {items.map((item) => (
+      {(isVisible.current || shouldAlwaysBeVisible) &&
+        items.map((item) => (
           <SidebarItem
             key={`${item.title}-${item.path}`}
             item={item}
@@ -134,7 +81,6 @@ export function Section({
             shouldShowLabel={shouldShowLabel}
           />
         ))}
-      </div>
     </NavSection>
   );
 }
