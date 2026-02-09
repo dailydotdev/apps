@@ -106,87 +106,84 @@ const aiFluencyTierByKey = aiFluencyTiers.reduce((acc, tier) => {
 export const aiFluencyQuestions: AiFluencyQuestion[] = [
   {
     id: 'task-start',
-    prompt: 'How do you typically start a new task with AI?',
+    prompt: 'How do you start a new task with AI?',
     options: [
       {
         id: 'task-start-quick-answer',
-        label: 'I ask for a quick answer or snippet and copy parts of it.',
+        label: 'I ask for a quick answer and copy what I need.',
         tier: 'casualUser',
       },
       {
         id: 'task-start-prompt-template',
-        label: 'I use reusable prompt templates and iterate from there.',
+        label: 'I start with a reusable prompt and refine it.',
         tier: 'promptDeveloper',
       },
       {
         id: 'task-start-plan-workflow',
-        label: 'I ask AI to break tasks into steps and execute with context.',
+        label: 'I ask AI to break work into steps and keep context.',
         tier: 'agenticDeveloper',
       },
       {
         id: 'task-start-evals',
         label:
-          'I define success criteria, edge cases, and evaluation checks before implementation.',
+          'Before building, I define success checks, edge cases, and evals.',
         tier: 'aiEngineer',
       },
       {
         id: 'task-start-systems',
-        label:
-          'I decide how the task fits into system-wide AI architecture and governance.',
+        label: 'I plan how this fits our AI architecture and governance.',
         tier: 'aiSystemArchitect',
       },
     ],
   },
   {
     id: 'context-management',
-    prompt: 'How do you manage context across longer AI sessions?',
+    prompt: 'How do you keep context in longer AI sessions?',
     options: [
       {
         id: 'context-management-none',
-        label: 'I usually start fresh each time.',
+        label: 'I usually start a new chat each time.',
         tier: 'casualUser',
       },
       {
         id: 'context-management-manual',
-        label: 'I manually paste prior context when needed.',
+        label: 'I paste prior context manually when needed.',
         tier: 'promptDeveloper',
       },
       {
         id: 'context-management-structured',
-        label: 'I maintain a structured brief and reuse it between prompts.',
+        label: 'I keep a structured brief and reuse it between prompts.',
         tier: 'agenticDeveloper',
       },
       {
         id: 'context-management-state',
-        label:
-          'I use memory/state patterns so AI can reliably continue multi-step work.',
+        label: 'I use memory/state patterns for reliable multi-step work.',
         tier: 'aiEngineer',
       },
       {
         id: 'context-management-platform',
-        label:
-          'I manage shared context standards so teams and tools can interoperate.',
+        label: 'I define shared context standards for teams and tools.',
         tier: 'aiPlatformDeveloper',
       },
     ],
   },
   {
     id: 'quality-check',
-    prompt: 'How do you verify AI-generated output quality?',
+    prompt: 'How do you check AI output quality?',
     options: [
       {
         id: 'quality-check-skim',
-        label: 'I do a quick skim and ship if it looks right.',
+        label: 'I do a quick scan and move on if it looks right.',
         tier: 'casualUser',
       },
       {
         id: 'quality-check-manual',
-        label: 'I manually test obvious cases and fix issues as they appear.',
+        label: 'I manually test obvious cases and fix issues as they come up.',
         tier: 'promptDeveloper',
       },
       {
         id: 'quality-check-checklist',
-        label: 'I use a checklist for correctness, security, and style.',
+        label: 'I use a checklist for accuracy, security, and style.',
         tier: 'agenticDeveloper',
       },
       {
@@ -196,57 +193,54 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'quality-check-org-standard',
-        label: 'I define org-wide evaluation frameworks and guardrails.',
+        label: 'I set org-wide eval standards and guardrails.',
         tier: 'aiSystemArchitect',
       },
     ],
   },
   {
     id: 'tooling',
-    prompt: 'Which best describes your AI tooling setup?',
+    prompt: 'Which best describes your AI tools setup?',
     options: [
       {
         id: 'tooling-single-chat',
-        label: 'Mostly one chat tool, ad hoc use.',
+        label: 'Mostly one chat tool, used ad hoc.',
         tier: 'casualUser',
       },
       {
         id: 'tooling-multi-tool',
-        label: 'A few tools with lightweight workflows.',
+        label: 'A few tools with a lightweight workflow.',
         tier: 'promptDeveloper',
       },
       {
         id: 'tooling-agent-workflow',
-        label:
-          'Toolchains with defined roles (research, draft, review, refine).',
+        label: 'A toolchain with clear roles (research, draft, review).',
         tier: 'agenticDeveloper',
       },
       {
         id: 'tooling-service-integration',
-        label:
-          'Integrated AI services with monitoring and fallback strategies.',
+        label: 'Integrated AI services with monitoring and fallbacks.',
         tier: 'aiEngineer',
       },
       {
         id: 'tooling-platform',
-        label:
-          'Internal platform enables reusable AI capabilities across teams.',
+        label: 'An internal platform teams can reuse across the org.',
         tier: 'aiPlatformDeveloper',
       },
     ],
   },
   {
     id: 'automation',
-    prompt: 'How far do you automate AI-assisted workflows?',
+    prompt: 'How much do you automate AI workflows?',
     options: [
       {
         id: 'automation-none',
-        label: 'Almost none, mostly manual prompts.',
+        label: 'Very little, mostly manual prompts.',
         tier: 'casualUser',
       },
       {
         id: 'automation-basic',
-        label: 'Simple scripts/macros for repetitive prompts.',
+        label: 'Simple scripts for repeated prompts.',
         tier: 'promptDeveloper',
       },
       {
@@ -262,24 +256,23 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'automation-program',
-        label:
-          'Enterprise-grade automation standards adopted by multiple teams.',
+        label: 'Enterprise automation standards used by multiple teams.',
         tier: 'aiSystemArchitect',
       },
     ],
   },
   {
     id: 'collaboration',
-    prompt: 'How do you collaborate with teammates on AI work?',
+    prompt: 'How do you work with teammates on AI tasks?',
     options: [
       {
         id: 'collaboration-solo',
-        label: 'Mostly individual and informal.',
+        label: 'Mostly solo and informal.',
         tier: 'casualUser',
       },
       {
         id: 'collaboration-share-prompts',
-        label: 'I share useful prompts and examples in docs/chat.',
+        label: 'I share useful prompts and examples in docs or chat.',
         tier: 'promptDeveloper',
       },
       {
@@ -289,23 +282,23 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'collaboration-review-process',
-        label: 'I run structured review for AI outputs and prompt logic.',
+        label: 'I run structured review for AI output and prompt logic.',
         tier: 'aiEngineer',
       },
       {
         id: 'collaboration-enable-org',
-        label: 'I lead enablement programs and standards for AI adoption.',
+        label: 'I lead enablement and standards for AI adoption.',
         tier: 'aiPlatformDeveloper',
       },
     ],
   },
   {
     id: 'risk-and-safety',
-    prompt: 'How do you handle AI-related risk and safety?',
+    prompt: 'How do you handle AI risk and safety?',
     options: [
       {
         id: 'risk-and-safety-reactive',
-        label: 'I handle issues only when they appear.',
+        label: 'I fix issues only when they appear.',
         tier: 'casualUser',
       },
       {
@@ -315,7 +308,7 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'risk-and-safety-scenarios',
-        label: 'I test likely failure scenarios and document mitigations.',
+        label: 'I test common failure cases and document fixes.',
         tier: 'agenticDeveloper',
       },
       {
@@ -326,7 +319,7 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       {
         id: 'risk-and-safety-frontier',
         label:
-          'I help define advanced safety practices for emerging model behaviors.',
+          'I help define advanced safety practices for new model behavior.',
         tier: 'aiPioneer',
       },
     ],
@@ -337,29 +330,29 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'measurement-feel',
-        label: 'I rely on intuition and personal productivity gains.',
+        label: 'I rely on gut feel and personal productivity gains.',
         tier: 'casualUser',
       },
       {
         id: 'measurement-basic-metrics',
-        label: 'I track a few manual metrics (time saved, output volume).',
+        label: 'I track a few simple metrics manually (time saved, output).',
         tier: 'promptDeveloper',
       },
       {
         id: 'measurement-team-metrics',
-        label: 'I track team-level outcomes tied to specific workflows.',
+        label: 'I track team outcomes tied to specific workflows.',
         tier: 'agenticDeveloper',
       },
       {
         id: 'measurement-product-metrics',
         label:
-          'I connect model quality and user/business metrics in production dashboards.',
+          'I track model quality with product and business metrics in dashboards.',
         tier: 'aiEngineer',
       },
       {
         id: 'measurement-strategy',
         label:
-          'I define strategic KPIs for AI programs across products and teams.',
+          'I define strategic KPIs for AI programs across teams and products.',
         tier: 'aiSystemArchitect',
       },
     ],
@@ -375,7 +368,7 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'infrastructure-light',
-        label: 'I pick tools and models for my own workflow.',
+        label: 'I pick tools and models for my own work.',
         tier: 'promptDeveloper',
       },
       {
@@ -387,24 +380,24 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       {
         id: 'infrastructure-production',
         label:
-          'I design reliable infrastructure for model orchestration and lifecycle management.',
+          'I design reliable infrastructure for model orchestration and lifecycle.',
         tier: 'aiPlatformDeveloper',
       },
       {
         id: 'infrastructure-frontier',
         label:
-          'I drive novel infrastructure approaches for next-generation AI systems.',
+          'I drive new infrastructure approaches for next-generation AI systems.',
         tier: 'aiPioneer',
       },
     ],
   },
   {
     id: 'future-readiness',
-    prompt: 'How do you stay ahead as AI capabilities change quickly?',
+    prompt: 'How do you stay current as AI changes quickly?',
     options: [
       {
         id: 'future-readiness-occasional',
-        label: 'I follow updates occasionally.',
+        label: 'I check updates once in a while.',
         tier: 'casualUser',
       },
       {
@@ -414,19 +407,18 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'future-readiness-deliberate',
-        label: 'I run intentional experiments and capture lessons learned.',
+        label: 'I run planned experiments and capture what I learn.',
         tier: 'agenticDeveloper',
       },
       {
         id: 'future-readiness-roadmap',
-        label:
-          'I maintain a roadmap for adopting advanced capabilities safely.',
+        label: 'I maintain a roadmap to adopt advanced capabilities safely.',
         tier: 'aiSystemArchitect',
       },
       {
         id: 'future-readiness-shape-market',
         label:
-          'I publish, prototype, and influence how others adopt emerging AI paradigms.',
+          'I publish and prototype, and shape how others adopt new AI patterns.',
         tier: 'aiPioneer',
       },
     ],

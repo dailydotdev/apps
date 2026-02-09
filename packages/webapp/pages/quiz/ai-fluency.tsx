@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -31,9 +31,13 @@ import {
   getAiFluencyTierByKey,
   getAiFluencyTierFromAnswers,
 } from '../../components/quiz/aiFluencyQuiz';
+import type { AiFluencyTierKey } from '../../components/quiz/aiFluencyQuiz';
 import { defaultSeo } from '../../next-seo';
 
 const quizPathname = '/quiz/ai-fluency';
+const quizCompletionSessionKey = 'ai_fluency_quiz_completion';
+const tipsFadeDelayMs = 30;
+const tiersFadeOutDurationMs = 420;
 
 const seo: NextSeoProps = {
   ...defaultSeo,
@@ -62,6 +66,20 @@ const AiFluencyQuizPage = (): ReactElement => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [localTierKey, setLocalTierKey] = useState<string>();
+  const [slotActiveTierKey, setSlotActiveTierKey] =
+    useState<AiFluencyTierKey>();
+  const [isBlinkingLandingTier, setIsBlinkingLandingTier] = useState(false);
+  const [isLandingBlinkVisible, setIsLandingBlinkVisible] = useState(false);
+  const [shouldPlayResultAnimation, setShouldPlayResultAnimation] =
+    useState(false);
+  const [hasCheckedResultAnimation, setHasCheckedResultAnimation] =
+    useState(false);
+  const [isAnimatingResult, setIsAnimatingResult] = useState(false);
+  const [didAnimateResult, setDidAnimateResult] = useState(false);
+  const [showTips, setShowTips] = useState(false);
+  const [isTipsVisible, setIsTipsVisible] = useState(false);
+  const [isFadingOutTiers, setIsFadingOutTiers] = useState(false);
+  const [hideNonAchievedTiers, setHideNonAchievedTiers] = useState(false);
   const displayQuestions = useMemo(
     () =>
       aiFluencyQuestions.map((question) => ({
@@ -79,8 +97,9 @@ const AiFluencyQuizPage = (): ReactElement => {
   const hasSharedResult = Boolean(sharedUserId && sharedTier);
   const localTier = getAiFluencyTierByKey(localTierKey);
   const resolvedTier = sharedTier || localTier;
+  const resolvedTierKey = resolvedTier?.key;
   const resolvedUserId = hasSharedResult ? sharedUserId : user?.id;
-  const shouldShowTips = Boolean(resolvedTier);
+  const shouldShowTips = Boolean(resolvedTier && showTips);
   const { data: sharedResultUser } = useUserShortByIdQuery({
     id: resolvedUserId || '',
   });
@@ -91,20 +110,170 @@ const AiFluencyQuizPage = (): ReactElement => {
     ? `@${resultUser.username}`
     : undefined;
 
-  const nextTier = resolvedTier
-    ? getAiFluencyNextTier(resolvedTier.key)
+  const nextTier = resolvedTierKey
+    ? getAiFluencyNextTier(resolvedTierKey)
     : undefined;
 
+  useEffect(() => {
+    if (!resolvedTierKey || !resolvedUserId || typeof window === 'undefined') {
+      return;
+    }
+
+    setHasCheckedResultAnimation(false);
+    setShouldPlayResultAnimation(false);
+    setIsAnimatingResult(false);
+    setDidAnimateResult(false);
+    setSlotActiveTierKey(undefined);
+    setIsBlinkingLandingTier(false);
+    setIsLandingBlinkVisible(false);
+    setShowTips(false);
+    setIsTipsVisible(false);
+    setIsFadingOutTiers(false);
+    setHideNonAchievedTiers(false);
+
+    let shouldAnimate = false;
+    const storedCompletion = window.sessionStorage.getItem(
+      quizCompletionSessionKey,
+    );
+
+    if (storedCompletion) {
+      try {
+        const parsedCompletion = JSON.parse(storedCompletion) as {
+          userId?: string;
+          tier?: string;
+        };
+
+        shouldAnimate =
+          parsedCompletion.userId === resolvedUserId &&
+          parsedCompletion.tier === resolvedTierKey;
+      } catch (error) {
+        shouldAnimate = false;
+      }
+    }
+
+    setShouldPlayResultAnimation(shouldAnimate);
+    setHasCheckedResultAnimation(true);
+
+    if (!shouldAnimate) {
+      setHideNonAchievedTiers(true);
+      setShowTips(true);
+      setIsTipsVisible(true);
+    }
+  }, [resolvedTierKey, resolvedUserId]);
+
+  useEffect(() => {
+    if (
+      !resolvedTierKey ||
+      !hasCheckedResultAnimation ||
+      !shouldPlayResultAnimation ||
+      typeof window === 'undefined'
+    ) {
+      return undefined;
+    }
+
+    const targetTierIndex = aiFluencyTiers.findIndex(
+      ({ key }) => key === resolvedTierKey,
+    );
+
+    if (targetTierIndex < 0) {
+      setShouldPlayResultAnimation(false);
+      setShowTips(true);
+      setIsTipsVisible(true);
+      return undefined;
+    }
+
+    window.sessionStorage.removeItem(quizCompletionSessionKey);
+
+    setDidAnimateResult(true);
+    setIsAnimatingResult(true);
+
+    const spinLoopCount = 4;
+    const totalSteps =
+      aiFluencyTiers.length * spinLoopCount + targetTierIndex + 1;
+
+    let currentStep = 0;
+    let currentIndex = -1;
+    let spinTimeout: ReturnType<typeof setTimeout>;
+    let blinkInterval: ReturnType<typeof setInterval>;
+    let tiersFadeTimeout: ReturnType<typeof setTimeout>;
+    let tipsFadeTimeout: ReturnType<typeof setTimeout>;
+
+    const finishAnimation = () => {
+      setIsAnimatingResult(false);
+      setIsBlinkingLandingTier(false);
+      setIsLandingBlinkVisible(false);
+      setSlotActiveTierKey(undefined);
+      setIsFadingOutTiers(true);
+
+      tiersFadeTimeout = setTimeout(() => {
+        setHideNonAchievedTiers(true);
+        setIsFadingOutTiers(false);
+        setIsTipsVisible(false);
+        setShowTips(true);
+        tipsFadeTimeout = setTimeout(() => {
+          setIsTipsVisible(true);
+          setShouldPlayResultAnimation(false);
+        }, tipsFadeDelayMs);
+      }, tiersFadeOutDurationMs);
+    };
+
+    const startLandingBlink = () => {
+      let blinkTick = 0;
+      const maxBlinkTicks = 6;
+
+      setSlotActiveTierKey(resolvedTierKey);
+      setIsBlinkingLandingTier(true);
+      setIsLandingBlinkVisible(true);
+
+      blinkInterval = setInterval(() => {
+        blinkTick += 1;
+        setIsLandingBlinkVisible((prev) => !prev);
+
+        if (blinkTick < maxBlinkTicks) {
+          return;
+        }
+
+        clearInterval(blinkInterval);
+        finishAnimation();
+      }, 180);
+    };
+
+    const spinToResult = () => {
+      currentIndex = (currentIndex + 1) % aiFluencyTiers.length;
+      currentStep += 1;
+
+      setSlotActiveTierKey(aiFluencyTiers[currentIndex].key);
+
+      if (currentStep >= totalSteps) {
+        startLandingBlink();
+        return;
+      }
+
+      const progress = currentStep / totalSteps;
+      const delay = 70 + progress ** 2 * 260;
+      spinTimeout = setTimeout(spinToResult, delay);
+    };
+
+    spinToResult();
+
+    return () => {
+      clearTimeout(spinTimeout);
+      clearInterval(blinkInterval);
+      clearTimeout(tiersFadeTimeout);
+      clearTimeout(tipsFadeTimeout);
+    };
+  }, [hasCheckedResultAnimation, resolvedTierKey, shouldPlayResultAnimation]);
+
   const shareLink = useMemo(() => {
-    if (!resolvedTier || !resolvedUserId || typeof window === 'undefined') {
+    if (!resolvedTierKey || !resolvedUserId || typeof window === 'undefined') {
       return '';
     }
 
     return `${window.location.origin}${getResultUrl(
       resolvedUserId,
-      resolvedTier.key,
+      resolvedTierKey,
     )}`;
-  }, [resolvedTier, resolvedUserId]);
+  }, [resolvedTierKey, resolvedUserId]);
 
   const [copyingShareLink, copyShareLink] = useCopyLink(() => shareLink);
 
@@ -156,6 +325,16 @@ const AiFluencyQuizPage = (): ReactElement => {
     setStarted(false);
 
     if (user?.id) {
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem(
+          quizCompletionSessionKey,
+          JSON.stringify({
+            userId: user.id,
+            tier: tier.key,
+            completedAt: Date.now(),
+          }),
+        );
+      }
       await router.replace(getResultUrl(user.id, tier.key));
     }
 
@@ -179,7 +358,7 @@ const AiFluencyQuizPage = (): ReactElement => {
   };
 
   const onShareResult = async () => {
-    if (!shareLink || !resolvedTier || !resolvedUserId) {
+    if (!shareLink || !resolvedTierKey || !resolvedUserId) {
       return;
     }
 
@@ -190,7 +369,7 @@ const AiFluencyQuizPage = (): ReactElement => {
     logEvent({
       event_name: LogEvent.ShareAiFluencyQuiz,
       extra: JSON.stringify({
-        tier: resolvedTier.key,
+        tier: resolvedTierKey,
         userId: resolvedUserId,
       }),
     });
@@ -198,6 +377,9 @@ const AiFluencyQuizPage = (): ReactElement => {
 
   const onRetake = async () => {
     resetQuizState();
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.removeItem(quizCompletionSessionKey);
+    }
     await router.replace(quizPathname);
   };
 
@@ -310,7 +492,7 @@ const AiFluencyQuizPage = (): ReactElement => {
 
       {resolvedTier && (
         <section className="rounded-16 border border-border-subtlest-secondary bg-background-subtle p-6 laptop:p-8">
-          <div className="space-y-2">
+          <div className="space-y-4">
             <div className="flex items-center gap-3">
               {resultUser && (
                 <ProfilePicture
@@ -333,16 +515,87 @@ const AiFluencyQuizPage = (): ReactElement => {
                 )}
               </div>
             </div>
-            <h2 className="font-bold text-text-primary typo-title2">
-              {resolvedTier.label}
-            </h2>
-            <p className="text-text-secondary typo-body">
-              {resolvedTier.summary}
-            </p>
+            <div className="flex flex-col gap-2">
+              {aiFluencyTiers.map((tier) => {
+                const isAchievedTier = tier.key === resolvedTierKey;
+                if (hideNonAchievedTiers && !isAchievedTier) {
+                  return null;
+                }
+
+                const isSlotHighlightedTier = slotActiveTierKey === tier.key;
+                const shouldShowAnimatedHighlight =
+                  isSlotHighlightedTier &&
+                  (!isBlinkingLandingTier || isLandingBlinkVisible);
+                const shouldShowDefaultAchievedHighlight =
+                  isAchievedTier && !isAnimatingResult && !didAnimateResult;
+                const shouldUseGreenBackground =
+                  shouldShowAnimatedHighlight ||
+                  shouldShowDefaultAchievedHighlight;
+                const shouldUseGreenBorder =
+                  isSlotHighlightedTier ||
+                  (isAchievedTier && !isAnimatingResult);
+                const shouldFadeTier =
+                  isFadingOutTiers && !isAchievedTier && didAnimateResult;
+                let tierTitleColorClassName = 'text-text-secondary';
+                if (shouldUseGreenBackground) {
+                  tierTitleColorClassName = 'text-action-upvote-default';
+                } else if (isAchievedTier) {
+                  tierTitleColorClassName = 'text-text-primary';
+                }
+
+                let tierSummaryColorClassName = 'text-text-tertiary';
+                if (shouldUseGreenBackground) {
+                  tierSummaryColorClassName = 'text-action-upvote-default';
+                } else if (isAchievedTier) {
+                  tierSummaryColorClassName = 'text-text-secondary';
+                }
+
+                const tierTitleClassName = classNames(
+                  'font-bold typo-callout',
+                  tierTitleColorClassName,
+                );
+                const tierSummaryClassName = classNames(
+                  'mt-1 typo-footnote',
+                  tierSummaryColorClassName,
+                );
+
+                return (
+                  <div
+                    key={tier.key}
+                    className={classNames(
+                      'overflow-hidden transition-all duration-500',
+                      shouldFadeTier
+                        ? 'max-h-0 opacity-0'
+                        : 'max-h-40 opacity-100',
+                    )}
+                  >
+                    <div
+                      className={classNames(
+                        'rounded-10 border px-3 py-3',
+                        shouldUseGreenBorder
+                          ? 'border-action-upvote-default'
+                          : 'border-border-subtlest-tertiary',
+                        shouldUseGreenBackground
+                          ? 'bg-action-upvote-float'
+                          : 'bg-background-default',
+                      )}
+                    >
+                      <p className={tierTitleClassName}>{tier.label}</p>
+                      <p className={tierSummaryClassName}>{tier.summary}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {shouldShowTips && (
-            <div className="mt-6 rounded-12 border border-border-subtlest-secondary bg-background-default p-4">
+            <div
+              className={classNames(
+                'mt-6 rounded-12 border border-border-subtlest-secondary bg-background-default p-4 transition-opacity duration-500',
+                isTipsVisible ? 'opacity-100' : 'opacity-0',
+              )}
+            >
               <h3 className="font-bold text-text-primary typo-title3">
                 {nextTier
                   ? `How to reach ${nextTier.label}`
