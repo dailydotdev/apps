@@ -28,10 +28,10 @@ describe('aiFluencyQuiz', () => {
     expect(getAiFluencyTierFromAnswers(answers).key).toBe('aiPioneer');
   });
 
-  it('returns Agentic Developer for middle option selections', () => {
+  it('returns AI Engineer for middle option selections', () => {
     const answers = getAnswersByOptionIndex(2);
 
-    expect(getAiFluencyTierFromAnswers(answers).key).toBe('agenticDeveloper');
+    expect(getAiFluencyTierFromAnswers(answers).key).toBe('aiEngineer');
   });
 
   it('returns undefined for unknown tiers', () => {

@@ -88,7 +88,7 @@ export const aiFluencyTiers: AiFluencyTier[] = [
     key: 'aiPlatformDeveloper',
     label: 'AI Platform Developer',
     summary:
-      'Creates reusable AI platforms, internal tooling, and scalable enablement for teams.',
+      'Creates reusable AI platforms, internal tooling, and scalable training for teams.',
   },
   {
     key: 'aiPioneer',
@@ -120,25 +120,26 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'task-start-plan-workflow',
-        label: 'I ask AI to break work into steps and keep context.',
+        label: 'I ask AI to break tasks into steps and keep context.',
         tier: 'agenticDeveloper',
       },
       {
         id: 'task-start-evals',
         label:
-          'Before building, I define success checks, edge cases, and evals.',
+          'Before building, I define success criteria, edge cases, and repeatable tests.',
         tier: 'aiEngineer',
       },
       {
         id: 'task-start-systems',
-        label: 'I plan how this fits our AI architecture and governance.',
+        label:
+          'I evaluate how the task fits into our existing AI architecture before starting.',
         tier: 'aiSystemArchitect',
       },
     ],
   },
   {
     id: 'context-management',
-    prompt: 'How do you keep context in longer AI sessions?',
+    prompt: 'How do you manage context across longer AI sessions?',
     options: [
       {
         id: 'context-management-none',
@@ -152,7 +153,8 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'context-management-structured',
-        label: 'I keep a structured brief and reuse it between prompts.',
+        label:
+          'I use tools or techniques to keep context fresh across longer workflows.',
         tier: 'agenticDeveloper',
       },
       {
@@ -188,7 +190,8 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'quality-check-evals',
-        label: 'I run repeatable evals and track pass/fail trends over time.',
+        label:
+          'I run repeatable quality checks and track pass/fail trends over time.',
         tier: 'aiEngineer',
       },
       {
@@ -204,7 +207,7 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'tooling-single-chat',
-        label: 'Mostly one chat tool, used ad hoc.',
+        label: 'Mostly one chat tool, used as needed.',
         tier: 'casualUser',
       },
       {
@@ -251,7 +254,7 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       {
         id: 'automation-production',
         label:
-          'Reliable production automation with observability and rollback.',
+          'Reliable production automation with monitoring and the ability to undo changes.',
         tier: 'aiEngineer',
       },
       {
@@ -282,12 +285,13 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'collaboration-review-process',
-        label: 'I run structured review for AI output and prompt logic.',
+        label:
+          'I lead code reviews that cover AI output quality and prompt logic.',
         tier: 'aiEngineer',
       },
       {
         id: 'collaboration-enable-org',
-        label: 'I lead enablement and standards for AI adoption.',
+        label: 'I lead training and standards for AI adoption across teams.',
         tier: 'aiPlatformDeveloper',
       },
     ],
@@ -312,8 +316,15 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
         tier: 'agenticDeveloper',
       },
       {
+        id: 'risk-and-safety-production',
+        label:
+          'I build safety checks and content filters into production features.',
+        tier: 'aiEngineer',
+      },
+      {
         id: 'risk-and-safety-guardrails',
-        label: 'I implement guardrails, red teaming, and escalation paths.',
+        label:
+          'I set up safety rules, stress-test for failures, and define escalation paths.',
         tier: 'aiSystemArchitect',
       },
       {
@@ -352,42 +363,44 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       {
         id: 'measurement-strategy',
         label:
-          'I define strategic KPIs for AI programs across teams and products.',
+          'I define success metrics for AI programs across teams and products.',
         tier: 'aiSystemArchitect',
       },
     ],
   },
   {
-    id: 'infrastructure',
-    prompt: 'How involved are you in AI infrastructure decisions?',
+    id: 'ai-mistakes',
+    prompt: 'How do you deal with AI getting things wrong?',
     options: [
       {
-        id: 'infrastructure-none',
-        label: 'Not involved.',
+        id: 'ai-mistakes-trust',
+        label:
+          'I usually trust the output and fix things if I notice a mistake.',
         tier: 'casualUser',
       },
       {
-        id: 'infrastructure-light',
-        label: 'I pick tools and models for my own work.',
+        id: 'ai-mistakes-rephrase',
+        label:
+          "I double-check important output and rephrase my prompt if it's off.",
         tier: 'promptDeveloper',
       },
       {
-        id: 'infrastructure-team',
+        id: 'ai-mistakes-model-selection',
         label:
-          'I help choose shared tools and integration patterns for my team.',
+          'I pick the right model for the job and structure prompts to reduce errors.',
         tier: 'agenticDeveloper',
       },
       {
-        id: 'infrastructure-production',
+        id: 'ai-mistakes-automated-checks',
         label:
-          'I design reliable infrastructure for model orchestration and lifecycle.',
-        tier: 'aiPlatformDeveloper',
+          'I build automated checks that catch bad output before it reaches users.',
+        tier: 'aiEngineer',
       },
       {
-        id: 'infrastructure-frontier',
+        id: 'ai-mistakes-containment',
         label:
-          'I drive new infrastructure approaches for next-generation AI systems.',
-        tier: 'aiPioneer',
+          "I design systems where AI failures are contained and don't cascade.",
+        tier: 'aiSystemArchitect',
       },
     ],
   },
@@ -458,7 +471,7 @@ export const aiFluencyTipsByTier: Record<AiFluencyTierKey, string[]> = {
     'Start measuring quality and time saved for your most frequent workflows.',
   ],
   agenticDeveloper: [
-    'Add lightweight evals to verify outputs across common scenarios.',
+    'Add lightweight quality checks to verify outputs across common scenarios.',
     'Introduce guardrails for security, privacy, and hallucination risks.',
     'Automate repetitive AI workflows with clear human approval points.',
   ],
