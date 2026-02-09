@@ -110,12 +110,14 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'task-start-quick-answer',
-        label: 'I ask for a quick answer and copy what I need.',
+        label:
+          'I open a new chat, ask a quick question, and copy whatever looks useful.',
         tier: 'casualUser',
       },
       {
         id: 'task-start-prompt-template',
-        label: 'I start with a reusable prompt and refine it.',
+        label:
+          'I pick a prompt from my library or saved project, then iterate until the output is solid.',
         tier: 'promptDeveloper',
       },
       {
@@ -143,12 +145,14 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'context-management-none',
-        label: 'I usually start a new chat each time.',
+        label:
+          "I usually start a fresh chat each time — I don't carry over previous conversations.",
         tier: 'casualUser',
       },
       {
         id: 'context-management-manual',
-        label: 'I paste prior context manually when needed.',
+        label:
+          'I copy-paste relevant context from earlier chats or docs into my prompt when needed.',
         tier: 'promptDeveloper',
       },
       {
@@ -175,7 +179,8 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'quality-check-skim',
-        label: 'I do a quick scan and move on if it looks right.',
+        label:
+          'I skim the output and use it if it looks reasonable — I rarely verify details.',
         tier: 'casualUser',
       },
       {
@@ -196,7 +201,8 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       },
       {
         id: 'quality-check-org-standard',
-        label: 'I set org-wide eval standards and guardrails.',
+        label:
+          'I define org-wide evaluation standards, guardrails, and service-level indicators for AI quality.',
         tier: 'aiSystemArchitect',
       },
     ],
@@ -207,12 +213,14 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'tooling-single-chat',
-        label: 'Mostly one chat tool, used as needed.',
+        label:
+          'I use one chat tool like ChatGPT or Copilot whenever something comes up.',
         tier: 'casualUser',
       },
       {
         id: 'tooling-multi-tool',
-        label: 'A few tools with a lightweight workflow.',
+        label:
+          'I use a few tools (chat, code assistant, maybe a local model) with a loose workflow between them.',
         tier: 'promptDeveloper',
       },
       {
@@ -238,12 +246,14 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'automation-none',
-        label: 'Very little, mostly manual prompts.',
+        label:
+          "Almost none — I type prompts by hand each time and don't reuse or script anything.",
         tier: 'casualUser',
       },
       {
         id: 'automation-basic',
-        label: 'Simple scripts for repeated prompts.',
+        label:
+          'I have simple scripts or saved templates that handle my most repeated prompts automatically.',
         tier: 'promptDeveloper',
       },
       {
@@ -270,7 +280,8 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'collaboration-solo',
-        label: 'Mostly solo and informal.',
+        label:
+          'I use AI on my own — if I find something useful, I might mention it in passing.',
         tier: 'casualUser',
       },
       {
@@ -302,12 +313,14 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'risk-and-safety-reactive',
-        label: 'I fix issues only when they appear.',
+        label:
+          "I don't think about AI risk upfront — I just fix problems if and when they show up.",
         tier: 'casualUser',
       },
       {
         id: 'risk-and-safety-basic-checks',
-        label: 'I run basic checks for sensitive output.',
+        label:
+          'I double-check sensitive output and watch for obvious hallucinations before using it.',
         tier: 'promptDeveloper',
       },
       {
@@ -410,12 +423,14 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'future-readiness-occasional',
-        label: 'I check updates once in a while.',
+        label:
+          "I hear about new AI tools through social media or coworkers, but I don't actively track changes.",
         tier: 'casualUser',
       },
       {
         id: 'future-readiness-routine',
-        label: 'I test new techniques as they become popular.',
+        label:
+          'I try out new models and prompting techniques when they gain traction, and adopt what works.',
         tier: 'promptDeveloper',
       },
       {
