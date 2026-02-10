@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import classNames from 'classnames';
 import type { ModalProps } from '../common/Modal';
@@ -43,7 +43,7 @@ const HotTakeCard = ({
   const scale = isTop ? 1 : 1 - offset * 0.05;
   const translateY = isTop ? 0 : offset * 8;
 
-  const getSwipeDirection = () => {
+  const getSwipeDirection = (): 'right' | 'left' | null => {
     if (Math.abs(swipeDelta) <= 20) {
       return null;
     }
@@ -207,7 +207,6 @@ const HotTakeTinderModal = ({
   const { user } = useAuthContext();
   const [swipeDelta, setSwipeDelta] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   const handleDismiss = useCallback(
     (direction: 'left' | 'right') => {
@@ -243,27 +242,22 @@ const HotTakeTinderModal = ({
     [currentTake, isAnimating, dismissCurrent, toggleUpvote, logEvent],
   );
 
+  const handleSwiped = (direction: 'left' | 'right') => {
+    if (Math.abs(swipeDelta) > SWIPE_THRESHOLD) {
+      handleDismiss(direction);
+    } else {
+      setSwipeDelta(0);
+    }
+  };
+
   const handlers = useSwipeable({
     onSwiping: (e) => {
-      if (isAnimating) {
-        return;
-      }
-      setSwipeDelta(e.deltaX);
-    },
-    onSwipedLeft: () => {
-      if (Math.abs(swipeDelta) > SWIPE_THRESHOLD) {
-        handleDismiss('left');
-      } else {
-        setSwipeDelta(0);
+      if (!isAnimating) {
+        setSwipeDelta(e.deltaX);
       }
     },
-    onSwipedRight: () => {
-      if (Math.abs(swipeDelta) > SWIPE_THRESHOLD) {
-        handleDismiss('right');
-      } else {
-        setSwipeDelta(0);
-      }
-    },
+    onSwipedLeft: () => handleSwiped('left'),
+    onSwipedRight: () => handleSwiped('right'),
     trackMouse: true,
     preventScrollOnSwipe: true,
   });
@@ -296,7 +290,6 @@ const HotTakeTinderModal = ({
           <>
             <div
               {...handlers}
-              ref={cardRef}
               className="relative mx-4 mt-2"
               style={{ height: '22rem' }}
             >
