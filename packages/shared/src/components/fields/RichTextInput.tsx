@@ -24,7 +24,8 @@ import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
 import Image from '@tiptap/extension-image';
-import { ImageIcon, AtIcon } from '../icons';
+import { ImageIcon, AtIcon, MarkdownIcon } from '../icons';
+import { EditIcon } from '../icons/Edit';
 import { GifIcon } from '../icons/Gif';
 import {
   Button,
@@ -33,6 +34,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SavingLabel } from './MarkdownInput/SavingLabel';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Loader } from '../Loader';
@@ -612,14 +614,15 @@ function RichTextInput(
                     Markdown editor
                   </span>
                   <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.XSmall}
-                      onClick={switchToRichMode}
-                    >
-                      Switch to Rich Text Editor
-                    </Button>
+                    <SimpleTooltip content="Switch to Rich Text Editor">
+                      <Button
+                        type="button"
+                        variant={ButtonVariant.Tertiary}
+                        size={ButtonSize.XSmall}
+                        icon={<EditIcon />}
+                        onClick={switchToRichMode}
+                      />
+                    </SimpleTooltip>
                     {onClose && (
                       <CloseButton size={ButtonSize.Small} onClick={onClose} />
                     )}
@@ -666,14 +669,15 @@ function RichTextInput(
                   inlineActions={hasToolbarActions ? toolbarActions : null}
                   rightActions={
                     <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant={ButtonVariant.Tertiary}
-                        size={ButtonSize.XSmall}
-                        onClick={switchToMarkdownMode}
-                      >
-                        Switch to Markdown Editor
-                      </Button>
+                      <SimpleTooltip content="Switch to Markdown Editor">
+                        <Button
+                          type="button"
+                          variant={ButtonVariant.Tertiary}
+                          size={ButtonSize.XSmall}
+                          icon={<MarkdownIcon />}
+                          onClick={switchToMarkdownMode}
+                        />
+                      </SimpleTooltip>
                       {onClose && (
                         <CloseButton
                           size={ButtonSize.Small}
