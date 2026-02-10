@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import {
   Typography,
   TypographyTag,
@@ -10,11 +9,11 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import {
-  UpvoteIcon,
-  DownloadIcon,
-  DiscussIcon,
   ArrowIcon,
+  DiscussIcon,
+  DownloadIcon,
   GitHubIcon,
+  UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
@@ -24,6 +23,8 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
+import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
+import Markdown from '@dailydotdev/shared/src/components/Markdown';
 import {
   getSkillById,
   getSkillComments,
@@ -93,7 +94,7 @@ const formatDate = (dateString: string): string => {
 
 const formatRelativeTime = (dateString: string): string => {
   const date = new Date(dateString);
-  const now = new Date('2026-02-10T00:00:00Z'); // Mock current date
+  const now = new Date('2026-02-10T00:00:00Z');
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
@@ -104,58 +105,83 @@ const formatRelativeTime = (dateString: string): string => {
     return 'Yesterday';
   }
   if (diffDays < 7) {
-    return `${diffDays} days ago`;
+    return `${diffDays}d`;
   }
   if (diffDays < 30) {
-    return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 7)}w`;
   }
   if (diffDays < 365) {
-    return `${Math.floor(diffDays / 30)} months ago`;
+    return `${Math.floor(diffDays / 30)}mo`;
   }
-  return `${Math.floor(diffDays / 365)} years ago`;
+  return `${Math.floor(diffDays / 365)}y`;
 };
 
-interface CommentCardProps {
+interface CommentItemProps {
   comment: SkillComment;
 }
 
-const CommentCard = ({ comment }: CommentCardProps): ReactElement => (
-  <div className="flex gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-    <div className="relative flex-shrink-0">
-      <LazyImage
-        className="h-10 w-10 rounded-12"
-        imgAlt={comment.author.name}
-        imgSrc={comment.author.image}
-        fallbackSrc={fallbackImages.avatar}
-      />
-      {comment.author.isAgent && (
-        <span className="shadow-1 absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent-bun-default text-[8px] text-white">
-          🤖
-        </span>
-      )}
-    </div>
-    <div className="flex min-w-0 flex-1 flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <Typography tag={TypographyTag.Span} type={TypographyType.Callout} bold>
-          {comment.author.name}
-        </Typography>
-        <span className="text-text-quaternary typo-caption1">
+const CommentItem = ({ comment }: CommentItemProps): ReactElement => (
+  <article className="relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover">
+    <div className="flex items-center gap-3">
+      <div className="relative">
+        <LazyImage
+          className="h-10 w-10 rounded-full"
+          imgAlt={comment.author.name}
+          imgSrc={comment.author.image}
+          fallbackSrc={fallbackImages.avatar}
+        />
+        {comment.author.isAgent && (
+          <span className="shadow-1 absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent-bun-default text-[8px] text-white">
+            🤖
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col">
+        <div className="flex items-center gap-2">
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Callout}
+            bold
+          >
+            {comment.author.name}
+          </Typography>
+          {comment.author.isAgent && (
+            <span className="rounded-6 bg-accent-bun-subtlest px-1.5 py-0.5 text-accent-bun-default typo-caption2">
+              Agent
+            </span>
+          )}
+        </div>
+        <span className="text-text-quaternary typo-footnote">
           {formatRelativeTime(comment.createdAt)}
         </span>
       </div>
+    </div>
+    <div className="mt-3">
       <Typography
         tag={TypographyTag.P}
         type={TypographyType.Body}
-        className="text-text-secondary"
+        className="text-text-primary"
       >
         {comment.content}
       </Typography>
-      <div className="flex items-center gap-1 text-text-tertiary">
-        <UpvoteIcon size={IconSize.Size16} />
-        <span className="typo-caption1">{comment.upvotes}</span>
-      </div>
     </div>
-  </div>
+    <div className="mt-3 flex items-center gap-4">
+      <button
+        type="button"
+        className="flex items-center gap-1.5 text-text-tertiary transition-colors hover:text-accent-avocado-default"
+      >
+        <UpvoteIcon size={IconSize.Small} />
+        <span className="typo-callout">{comment.upvotes}</span>
+      </button>
+      <button
+        type="button"
+        className="flex items-center gap-1.5 text-text-tertiary transition-colors hover:text-accent-cabbage-default"
+      >
+        <DiscussIcon size={IconSize.Small} />
+        <span className="typo-callout">Reply</span>
+      </button>
+    </div>
+  </article>
 );
 
 const SkillDetailPage = (): ReactElement => {
@@ -167,7 +193,7 @@ const SkillDetailPage = (): ReactElement => {
 
   if (!skill) {
     return (
-      <PageWrapperLayout className="flex flex-col items-center justify-center gap-4 px-4 py-16">
+      <div className="m-auto flex min-h-page w-full flex-col items-center justify-center gap-4 px-4 py-16">
         <Typography tag={TypographyTag.H1} type={TypographyType.Title1}>
           Skill not found
         </Typography>
@@ -177,291 +203,282 @@ const SkillDetailPage = (): ReactElement => {
         >
           Back to Skill Hub
         </Button>
-      </PageWrapperLayout>
+      </div>
     );
   }
 
   const categoryColor = getCategoryColor(skill.category);
 
   return (
-    <PageWrapperLayout className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
-      {/* Back button */}
-      <button
-        type="button"
-        onClick={() => router.push('/skills')}
-        className="flex w-fit items-center gap-2 text-text-tertiary transition-colors hover:text-text-primary"
-      >
-        <ArrowIcon className="-rotate-90" size={IconSize.Size16} />
-        <span className="typo-callout">Back to Skill Hub</span>
-      </button>
+    <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-6 laptop:flex-row laptop:pb-0">
+      {/* Main content */}
+      <main className="flex flex-1 flex-col border-border-subtlest-tertiary px-4 pb-6 laptop:border-x laptop:px-8 laptop:pb-8">
+        {/* Back navigation */}
+        <button
+          type="button"
+          onClick={() => router.push('/skills')}
+          className="my-4 flex w-fit items-center gap-2 text-text-tertiary transition-colors hover:text-text-primary"
+        >
+          <ArrowIcon className="-rotate-90" size={IconSize.Small} />
+          <span className="typo-callout">Back to Skill Hub</span>
+        </button>
 
-      <div className="flex flex-col gap-6 laptop:flex-row laptop:gap-8">
-        {/* Main content */}
-        <div className="flex flex-1 flex-col gap-6">
-          {/* Header */}
-          <div className="flex flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-6">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={classNames(
-                  'rounded-10 border px-2 py-1 typo-caption2',
-                  categoryColor.bg,
-                  categoryColor.text,
-                  categoryColor.border,
-                )}
-              >
-                {skill.category}
+        {/* Skill source info (like PostSourceInfo) */}
+        <div className="mb-3 flex items-center gap-3">
+          <div className="relative">
+            <LazyImage
+              className="h-8 w-8 rounded-full"
+              imgAlt={skill.author.name}
+              imgSrc={skill.author.image}
+              fallbackSrc={fallbackImages.avatar}
+            />
+            {skill.author.isAgent && (
+              <span className="shadow-1 absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent-bun-default text-[7px] text-white">
+                🤖
               </span>
-              {skill.trending && (
-                <span className="rounded-10 bg-accent-cheese-subtlest px-2 py-1 text-accent-cheese-default typo-caption2">
-                  🔥 Trending
-                </span>
-              )}
-              {skill.version && (
-                <span className="rounded-10 bg-surface-secondary px-2 py-1 text-text-tertiary typo-caption2">
-                  v{skill.version}
-                </span>
-              )}
-            </div>
-
-            <Typography tag={TypographyTag.H1} type={TypographyType.LargeTitle}>
-              {skill.displayName}
-            </Typography>
-
-            <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Body}
-              className="text-text-secondary"
-            >
-              {skill.description}
-            </Typography>
-
-            {/* Author */}
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <LazyImage
-                  className="h-12 w-12 rounded-14"
-                  imgAlt={skill.author.name}
-                  imgSrc={skill.author.image}
-                  fallbackSrc={fallbackImages.avatar}
-                />
-                {skill.author.isAgent && (
-                  <span className="shadow-1 absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent-bun-default text-[10px] text-white">
-                    🤖
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-col">
-                <Typography
-                  tag={TypographyTag.P}
-                  type={TypographyType.Callout}
-                  bold
-                >
-                  {skill.author.name}
-                </Typography>
-                <span
-                  className={classNames(
-                    'typo-caption1',
-                    skill.author.isAgent
-                      ? 'text-accent-bun-default'
-                      : 'text-text-quaternary',
-                  )}
-                >
-                  {skill.author.isAgent ? 'AI Agent' : 'Human Creator'}
-                </span>
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div className="flex flex-wrap items-center gap-6 border-t border-border-subtlest-tertiary pt-4">
-              <div className="flex items-center gap-2 text-text-tertiary">
-                <UpvoteIcon size={IconSize.Medium} />
-                <div className="flex flex-col">
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Callout}
-                    bold
-                    className="text-text-primary"
-                  >
-                    {largeNumberFormat(skill.upvotes) || '0'}
-                  </Typography>
-                  <span className="typo-caption2">Upvotes</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-text-tertiary">
-                <DiscussIcon size={IconSize.Medium} />
-                <div className="flex flex-col">
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Callout}
-                    bold
-                    className="text-text-primary"
-                  >
-                    {largeNumberFormat(skill.comments) || '0'}
-                  </Typography>
-                  <span className="typo-caption2">Comments</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-text-tertiary">
-                <DownloadIcon size={IconSize.Medium} />
-                <div className="flex flex-col">
-                  <Typography
-                    tag={TypographyTag.Span}
-                    type={TypographyType.Callout}
-                    bold
-                    className="text-text-primary"
-                  >
-                    {largeNumberFormat(skill.installs) || '0'}
-                  </Typography>
-                  <span className="typo-caption2">Installs</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Long description */}
-          {skill.longDescription && (
-            <div className="flex flex-col gap-3 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-6">
-              <Typography
-                tag={TypographyTag.H2}
-                type={TypographyType.Title3}
-                bold
-              >
-                About
-              </Typography>
-              <div className="prose prose-invert max-w-none">
-                <Typography
-                  tag={TypographyTag.P}
-                  type={TypographyType.Body}
-                  className="whitespace-pre-wrap text-text-secondary"
-                >
-                  {skill.longDescription}
-                </Typography>
-              </div>
-            </div>
-          )}
-
-          {/* Comments section */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <Typography tag={TypographyTag.H2} type={TypographyType.Title3}>
-                Comments ({comments.length})
-              </Typography>
-              <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
-                Add comment
-              </Button>
-            </div>
-
-            {comments.length > 0 ? (
-              <div className="flex flex-col gap-3">
-                {comments.map((comment) => (
-                  <CommentCard key={comment.id} comment={comment} />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-8">
-                <DiscussIcon
-                  size={IconSize.XLarge}
-                  className="text-text-quaternary"
-                />
-                <Typography
-                  tag={TypographyTag.P}
-                  type={TypographyType.Body}
-                  className="text-text-tertiary"
-                >
-                  No comments yet. Be the first to share your thoughts!
-                </Typography>
-              </div>
             )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Footnote}
+              bold
+            >
+              {skill.author.name}
+            </Typography>
+            <span className="h-1 w-1 rounded-full bg-text-quaternary" />
+            <span className="text-text-quaternary typo-footnote">
+              {formatRelativeTime(skill.createdAt)}
+            </span>
           </div>
         </div>
 
-        {/* Sidebar */}
-        <div className="flex w-full flex-col gap-4 laptop:w-80">
-          {/* Install card */}
-          <div className="flex flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-6">
-            <Button
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
-              className="w-full justify-center"
-            >
-              <DownloadIcon size={IconSize.Size16} className="mr-2" />
-              Install Skill
-            </Button>
+        {/* Title */}
+        <h1 className="mb-4 break-words font-bold typo-large-title">
+          {skill.displayName}
+        </h1>
 
-            {skill.repoUrl && (
+        {/* Tags (like PostTagList) */}
+        <div className="mb-4 flex flex-wrap gap-2">
+          <span
+            className={classNames(
+              'rounded-10 border px-2 py-1 typo-footnote',
+              categoryColor.bg,
+              categoryColor.text,
+              categoryColor.border,
+            )}
+          >
+            {skill.category}
+          </span>
+          {skill.tags.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              className="rounded-10 bg-surface-float px-3 py-1 text-text-tertiary transition-colors typo-footnote hover:bg-surface-hover hover:text-text-primary"
+            >
+              #{tag}
+            </button>
+          ))}
+        </div>
+
+        {/* Metadata (like PostMetadata) */}
+        <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-text-quaternary typo-callout">
+          <span>{largeNumberFormat(skill.installs)} installs</span>
+          <span className="h-1 w-1 rounded-full bg-text-quaternary" />
+          <span>v{skill.version || '1.0.0'}</span>
+          <span className="h-1 w-1 rounded-full bg-text-quaternary" />
+          <span>{skill.license || 'MIT'}</span>
+          {skill.repoUrl && (
+            <>
+              <span className="h-1 w-1 rounded-full bg-text-quaternary" />
               <a
                 href={skill.repoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-primary px-4 py-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                className="flex items-center gap-1 hover:text-text-primary hover:underline"
               >
-                <GitHubIcon size={IconSize.Size16} />
-                <span className="typo-callout">View on GitHub</span>
+                <GitHubIcon size={IconSize.XSmall} />
+                Source
               </a>
-            )}
-          </div>
+            </>
+          )}
+        </div>
 
-          {/* Info card */}
-          <div className="flex flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-6">
-            <Typography
-              tag={TypographyTag.H3}
-              type={TypographyType.Callout}
-              bold
-            >
-              Information
-            </Typography>
+        {/* Description content */}
+        <div className="mb-8">
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Body}
+            className="mb-4 text-text-secondary"
+          >
+            {skill.description}
+          </Typography>
+          {skill.longDescription && (
+            <div className="prose prose-invert max-w-none">
+              <Markdown content={skill.longDescription} />
+            </div>
+          )}
+        </div>
 
-            <div className="flex flex-col gap-3">
-              {skill.license && (
-                <div className="flex items-center justify-between">
-                  <span className="text-text-tertiary typo-footnote">
-                    License
-                  </span>
-                  <span className="typo-footnote">{skill.license}</span>
-                </div>
+        {/* Action buttons (like post actions) */}
+        <div className="mb-8 flex flex-wrap items-center gap-3 border-y border-border-subtlest-tertiary py-4">
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            className="flex items-center gap-2"
+          >
+            <UpvoteIcon size={IconSize.Small} />
+            <span>{largeNumberFormat(skill.upvotes)}</span>
+          </Button>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            className="flex items-center gap-2"
+          >
+            <DiscussIcon size={IconSize.Small} />
+            <span>{largeNumberFormat(skill.comments)}</span>
+          </Button>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            className="ml-auto flex items-center gap-2"
+          >
+            <DownloadIcon size={IconSize.Small} />
+            Install
+          </Button>
+        </div>
+
+        {/* Comments section (like PostComments) */}
+        <section>
+          <Typography
+            tag={TypographyTag.H2}
+            type={TypographyType.Title3}
+            className="mb-4"
+          >
+            Comments ({comments.length})
+          </Typography>
+
+          {comments.length > 0 ? (
+            <div className="-mx-4 flex flex-col gap-4 mobileL:mx-0">
+              {comments.map((comment) => (
+                <CommentItem key={comment.id} comment={comment} />
+              ))}
+            </div>
+          ) : (
+            <div className="mb-12 mt-8 text-center text-text-quaternary typo-subhead">
+              Be the first to comment.
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* Sidebar (like PostWidgets) */}
+      <PageWidgets className="px-4 laptop:px-6">
+        {/* Author card */}
+        <div className="flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <LazyImage
+                className="h-12 w-12 rounded-14"
+                imgAlt={skill.author.name}
+                imgSrc={skill.author.image}
+                fallbackSrc={fallbackImages.avatar}
+              />
+              {skill.author.isAgent && (
+                <span className="shadow-1 absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent-bun-default text-[10px] text-white">
+                  🤖
+                </span>
               )}
-              <div className="flex items-center justify-between">
-                <span className="text-text-tertiary typo-footnote">
-                  Created
-                </span>
-                <span className="typo-footnote">
-                  {formatDate(skill.createdAt)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-text-tertiary typo-footnote">
-                  Updated
-                </span>
-                <span className="typo-footnote">
-                  {formatDate(skill.updatedAt)}
-                </span>
-              </div>
+            </div>
+            <div className="flex flex-col">
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Callout}
+                bold
+              >
+                {skill.author.name}
+              </Typography>
+              <span
+                className={classNames(
+                  'typo-footnote',
+                  skill.author.isAgent
+                    ? 'text-accent-bun-default'
+                    : 'text-text-quaternary',
+                )}
+              >
+                {skill.author.isAgent ? 'AI Agent Creator' : 'Human Creator'}
+              </span>
             </div>
           </div>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            className="w-full justify-center"
+          >
+            View profile
+          </Button>
+        </div>
 
-          {/* Tags card */}
-          <div className="flex flex-col gap-3 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-6">
-            <Typography
-              tag={TypographyTag.H3}
-              type={TypographyType.Callout}
-              bold
+        {/* Install card */}
+        <div className="flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+          <Typography tag={TypographyTag.H3} type={TypographyType.Callout} bold>
+            Install this skill
+          </Typography>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Medium}
+            className="w-full justify-center"
+          >
+            <DownloadIcon size={IconSize.Small} className="mr-2" />
+            Install Skill
+          </Button>
+          {skill.repoUrl && (
+            <a
+              href={skill.repoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 rounded-12 border border-border-subtlest-tertiary px-4 py-2 text-text-secondary transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary"
             >
-              Tags
-            </Typography>
-            <div className="flex flex-wrap gap-2">
-              {skill.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-10 bg-surface-secondary px-3 py-1 text-text-secondary transition-colors typo-footnote hover:bg-surface-hover"
-                >
-                  #{tag}
-                </span>
-              ))}
+              <GitHubIcon size={IconSize.Small} />
+              View source
+            </a>
+          )}
+        </div>
+
+        {/* Info card */}
+        <div className="flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+          <Typography tag={TypographyTag.H3} type={TypographyType.Callout} bold>
+            Information
+          </Typography>
+          <div className="flex flex-col gap-2 text-text-tertiary typo-footnote">
+            <div className="flex justify-between">
+              <span>Version</span>
+              <span className="text-text-primary">
+                {skill.version || '1.0.0'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>License</span>
+              <span className="text-text-primary">
+                {skill.license || 'MIT'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Created</span>
+              <span className="text-text-primary">
+                {formatDate(skill.createdAt)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Updated</span>
+              <span className="text-text-primary">
+                {formatDate(skill.updatedAt)}
+              </span>
             </div>
           </div>
         </div>
-      </div>
-    </PageWrapperLayout>
+      </PageWidgets>
+    </div>
   );
 };
 
