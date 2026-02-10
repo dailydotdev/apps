@@ -11,7 +11,6 @@ import {
   FlagIcon,
   PlusIcon,
   ShieldCheckIcon,
-  ShieldWarningIcon,
   SparkleIcon,
 } from '../../../components/icons';
 import {
@@ -36,9 +35,9 @@ export const SkillHubHeader = (): ReactElement => {
   return (
     <section className="relative overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float">
       {/* Gradient background glow */}
-      <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-accent-cabbage-default/20 blur-3xl" />
-      <div className="pointer-events-none absolute -right-20 -top-10 h-48 w-48 rounded-full bg-accent-onion-default/15 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-10 left-1/3 h-40 w-40 rounded-full bg-accent-water-default/10 blur-3xl" />
+      <div className="bg-accent-cabbage-default/20 pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full blur-3xl" />
+      <div className="bg-accent-onion-default/15 pointer-events-none absolute -right-20 -top-10 h-48 w-48 rounded-full blur-3xl" />
+      <div className="bg-accent-water-default/10 pointer-events-none absolute -bottom-10 left-1/3 h-40 w-40 rounded-full blur-3xl" />
 
       <div className="relative p-4 tablet:p-6">
         <div className="flex flex-col gap-4 tablet:gap-6 laptop:flex-row laptop:items-start laptop:justify-between">
@@ -50,7 +49,7 @@ export const SkillHubHeader = (): ReactElement => {
                   className="text-white"
                   secondary
                 />
-                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-surface-float text-[10px] font-bold text-accent-cabbage-default shadow-1">
+                <span className="shadow-1 absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-surface-float text-[10px] font-bold text-accent-cabbage-default">
                   ✨
                 </span>
               </span>
@@ -93,7 +92,7 @@ export const SkillHubHeader = (): ReactElement => {
             </div>
 
             {/* Security callout - more subtle and elegant */}
-            <div className="flex flex-col gap-2 rounded-16 border border-accent-avocado-default/20 bg-accent-avocado-subtlest/50 p-3">
+            <div className="border-accent-avocado-default/20 bg-accent-avocado-subtlest/50 flex flex-col gap-2 rounded-16 border p-3">
               <div className="flex items-center gap-2">
                 <ShieldCheckIcon
                   size={IconSize.Size16}

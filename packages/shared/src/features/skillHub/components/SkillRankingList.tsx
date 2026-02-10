@@ -8,7 +8,11 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { UpvoteIcon, DownloadIcon, MedalBadgeIcon } from '../../../components/icons';
+import {
+  UpvoteIcon,
+  DownloadIcon,
+  MedalBadgeIcon,
+} from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { largeNumberFormat } from '../../../lib/numberFormat';
 import { fallbackImages } from '../../../lib/config';
@@ -61,7 +65,10 @@ export const SkillRankingList = ({
   return (
     <section className={classNames('flex flex-col gap-4', className)}>
       <div className="flex items-center gap-3">
-        <MedalBadgeIcon size={IconSize.Medium} className="text-accent-cheese-default" />
+        <MedalBadgeIcon
+          size={IconSize.Medium}
+          className="text-accent-cheese-default"
+        />
         <Typography tag={TypographyTag.H2} type={TypographyType.Title3}>
           {title}
         </Typography>
@@ -108,7 +115,7 @@ export const SkillRankingList = ({
                   fallbackSrc={fallbackImages.avatar}
                 />
                 {skill.author.isAgent && (
-                  <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent-bun-default text-[8px] text-white shadow-1">
+                  <span className="shadow-1 absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent-bun-default text-[8px] text-white">
                     🤖
                   </span>
                 )}

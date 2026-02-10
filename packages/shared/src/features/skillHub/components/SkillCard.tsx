@@ -110,13 +110,13 @@ export const SkillCard = ({
       )}
     >
       {/* Subtle gradient overlay on hover */}
-      <div className="pointer-events-none absolute inset-0 rounded-16 bg-gradient-to-br from-accent-cabbage-default/0 to-accent-onion-default/0 opacity-0 transition-opacity duration-200 group-hover:opacity-5" />
+      <div className="from-accent-cabbage-default/0 to-accent-onion-default/0 group-hover:opacity-5 pointer-events-none absolute inset-0 rounded-16 bg-gradient-to-br opacity-0 transition-opacity duration-200" />
 
       {/* Header row */}
       <div className="flex items-center justify-between gap-3">
         <span
           className={classNames(
-            'rounded-10 border px-2 py-1 typo-caption2 transition-colors',
+            'rounded-10 border px-2 py-1 transition-colors typo-caption2',
             categoryColor.bg,
             categoryColor.text,
             categoryColor.border,
@@ -161,7 +161,7 @@ export const SkillCard = ({
           {skill.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="rounded-8 bg-surface-primary px-2 py-0.5 text-text-quaternary typo-caption2 transition-colors group-hover:bg-surface-secondary group-hover:text-text-tertiary"
+              className="rounded-8 bg-surface-primary px-2 py-0.5 text-text-quaternary transition-colors typo-caption2 group-hover:bg-surface-secondary group-hover:text-text-tertiary"
             >
               #{tag}
             </span>
@@ -181,7 +181,7 @@ export const SkillCard = ({
               fallbackSrc={fallbackImages.avatar}
             />
             {skill.author.isAgent && (
-              <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent-bun-default text-[8px] text-white shadow-1">
+              <span className="shadow-1 absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent-bun-default text-[8px] text-white">
                 🤖
               </span>
             )}
