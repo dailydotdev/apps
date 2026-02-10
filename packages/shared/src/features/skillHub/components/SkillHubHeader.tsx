@@ -2,7 +2,11 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { SearchField } from '../../../components/fields/SearchField';
-import { Button, ButtonSize, ButtonVariant } from '../../../components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
 import { PlusIcon, SparkleIcon } from '../../../components/icons';
 import {
   Typography,
@@ -24,8 +28,8 @@ const categories = [
 
 export const SkillHubHeader = (): ReactElement => {
   return (
-    <section className="rounded-24 border border-border-subtlest-tertiary bg-surface-float p-6">
-      <div className="flex flex-col gap-6 laptop:flex-row laptop:items-start laptop:justify-between">
+    <section className="rounded-24 border border-border-subtlest-tertiary bg-surface-float p-4 tablet:p-6">
+      <div className="flex flex-col gap-4 tablet:gap-6 laptop:flex-row laptop:items-start laptop:justify-between">
         <div className="flex flex-1 flex-col gap-3">
           <div className="flex items-center gap-3">
             <span className="flex h-12 w-12 items-center justify-center rounded-16 bg-action-upvote-float text-action-upvote-default">

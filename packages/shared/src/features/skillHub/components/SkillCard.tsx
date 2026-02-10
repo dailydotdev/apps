@@ -8,7 +8,11 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { UpvoteIcon, DownloadIcon, DiscussIcon } from '../../../components/icons';
+import {
+  UpvoteIcon,
+  DownloadIcon,
+  DiscussIcon,
+} from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { largeNumberFormat } from '../../../lib/numberFormat';
 import { fallbackImages } from '../../../lib/config';
@@ -35,7 +39,10 @@ const formatCount = (value: number): string => {
   return largeNumberFormat(value) || '0';
 };
 
-export const SkillCard = ({ skill, className }: SkillCardProps): ReactElement => {
+export const SkillCard = ({
+  skill,
+  className,
+}: SkillCardProps): ReactElement => {
   const newBadge = isNewSkill(skill.createdAt);
 
   return (
@@ -43,7 +50,7 @@ export const SkillCard = ({ skill, className }: SkillCardProps): ReactElement =>
       type="button"
       aria-label={`Open ${skill.displayName}`}
       className={classNames(
-        'group flex h-full w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left transition',
+        'group flex h-full w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left transition tablet:gap-4 tablet:p-4',
         'hover:border-border-subtlest-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2',
         'focus-visible:ring-accent-bun-default focus-visible:ring-offset-2',
         className,

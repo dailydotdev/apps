@@ -24,10 +24,7 @@ export const SkillRankingList = ({
   className,
 }: SkillRankingListProps): ReactElement => {
   return (
-    <LeaderboardList
-      containerProps={{ title, className }}
-      isLoading={false}
-    >
+    <LeaderboardList containerProps={{ title, className }} isLoading={false}>
       {skills.map((skill, index) => (
         <LeaderboardListItem
           key={skill.id}
@@ -54,7 +51,10 @@ export const SkillRankingList = ({
             </div>
             <div className="flex items-center gap-1 text-text-tertiary">
               <UpvoteIcon size={IconSize.Size16} />
-              <Typography tag={TypographyTag.Span} type={TypographyType.Caption1}>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+              >
                 {largeNumberFormat(skill.upvotes) || '0'}
               </Typography>
             </div>

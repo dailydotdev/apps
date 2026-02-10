@@ -33,7 +33,7 @@ const SkillsPage = (): ReactElement => {
     .slice(0, 9);
 
   return (
-    <PageWrapperLayout className="flex flex-col gap-8 py-6">
+    <PageWrapperLayout className="flex flex-col gap-6 px-4 py-6 tablet:gap-8">
       <SkillHubHeader />
       <SkillRankingList title="Top Skills" skills={topSkills} />
       <SkillGrid title="Trending Skills" skills={trendingSkills} />
