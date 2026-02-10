@@ -70,7 +70,7 @@
   }
 
   & :where(img) {
-    @apply max-w-full rounded-8;
+    @apply my-2 max-h-64 max-w-full rounded-8 object-contain tablet:max-h-[28rem];
   }
 
   /* Placeholder styling */
