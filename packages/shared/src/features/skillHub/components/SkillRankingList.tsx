@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
+import Link from '../../../components/utilities/Link';
 import type { Skill } from '../types';
-import { SkillDetailModal } from './SkillDetailModal';
 import { LazyImage } from '../../../components/LazyImage';
 import {
   Typography,
@@ -10,9 +10,9 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
-  UpvoteIcon,
   DownloadIcon,
   MedalBadgeIcon,
+  UpvoteIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { largeNumberFormat } from '../../../lib/numberFormat';
@@ -63,40 +63,28 @@ export const SkillRankingList = ({
   skills,
   className,
 }: SkillRankingListProps): ReactElement => {
-  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
-
-  const handleSkillClick = (skill: Skill) => {
-    setSelectedSkill(skill);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedSkill(null);
-  };
-
   return (
-    <>
-      <section className={classNames('flex flex-col gap-4', className)}>
-        <div className="flex items-center gap-3">
-          <MedalBadgeIcon
-            size={IconSize.Medium}
-            className="text-accent-cheese-default"
-          />
-          <Typography tag={TypographyTag.H2} type={TypographyType.Title3}>
-            {title}
-          </Typography>
-        </div>
+    <section className={classNames('flex flex-col gap-4', className)}>
+      <div className="flex items-center gap-3">
+        <MedalBadgeIcon
+          size={IconSize.Medium}
+          className="text-accent-cheese-default"
+        />
+        <Typography tag={TypographyTag.H2} type={TypographyType.Title3}>
+          {title}
+        </Typography>
+      </div>
 
-        <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
-          {skills.map((skill, index) => {
+      <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+        {skills.map((skill, index) => {
           const rankStyle = getRankStyle(index);
           const isTopThree = index < 3;
 
           return (
-            <button
+            <Link
               key={skill.id}
-              type="button"
+              href={`/skills/${skill.id}`}
               aria-label={`View ${skill.displayName}`}
-              onClick={() => handleSkillClick(skill)}
               className={classNames(
                 'group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
                 'hover:bg-surface-hover',
@@ -193,18 +181,10 @@ export const SkillRankingList = ({
                   </Typography>
                 </div>
               </div>
-            </button>
+            </Link>
           );
         })}
-        </div>
-      </section>
-      {selectedSkill && (
-        <SkillDetailModal
-          skill={selectedSkill}
-          isOpen={Boolean(selectedSkill)}
-          onRequestClose={handleCloseModal}
-        />
-      )}
-    </>
+      </div>
+    </section>
   );
 };

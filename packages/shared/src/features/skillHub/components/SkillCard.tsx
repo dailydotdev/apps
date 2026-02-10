@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import Link from '../../../components/utilities/Link';
 import type { Skill } from '../types';
 import { LazyImage } from '../../../components/LazyImage';
 import {
@@ -9,10 +10,10 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
-  UpvoteIcon,
-  DownloadIcon,
   DiscussIcon,
+  DownloadIcon,
   SparkleIcon,
+  UpvoteIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { largeNumberFormat } from '../../../lib/numberFormat';
@@ -34,7 +35,6 @@ const isNewSkill = (createdAt: string): boolean => {
 interface SkillCardProps {
   skill: Skill;
   className?: string;
-  onClick?: () => void;
 }
 
 const formatCount = (value: number): string => {
@@ -94,16 +94,14 @@ const getCategoryColor = (
 export const SkillCard = ({
   skill,
   className,
-  onClick,
 }: SkillCardProps): ReactElement => {
   const newBadge = isNewSkill(skill.createdAt);
   const categoryColor = getCategoryColor(skill.category);
 
   return (
-    <button
-      type="button"
-      aria-label={`Open ${skill.displayName}`}
-      onClick={onClick}
+    <Link
+      href={`/skills/${skill.id}`}
+      aria-label={`View ${skill.displayName}`}
       className={classNames(
         'group relative flex h-full w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left',
         'transition-all duration-200 ease-out',
@@ -164,7 +162,7 @@ export const SkillCard = ({
           {skill.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="rounded-8 bg-surface-secondary px-2 py-0.5 text-text-secondary transition-colors typo-caption2 group-hover:bg-surface-tertiary group-hover:text-text-primary"
+              className="group-hover:bg-surface-tertiary rounded-8 bg-surface-secondary px-2 py-0.5 text-text-secondary transition-colors typo-caption2 group-hover:text-text-primary"
             >
               #{tag}
             </span>
@@ -212,19 +210,19 @@ export const SkillCard = ({
 
         {/* Stats */}
         <div className="flex items-center gap-4 text-text-tertiary">
-          <div className="flex items-center gap-1.5 transition-colors hover:text-accent-avocado-default">
+          <div className="flex items-center gap-1.5">
             <UpvoteIcon size={IconSize.Size16} />
             <Typography tag={TypographyTag.Span} type={TypographyType.Caption1}>
               {formatCount(skill.upvotes)}
             </Typography>
           </div>
-          <div className="flex items-center gap-1.5 transition-colors hover:text-accent-blueCheese-default">
+          <div className="flex items-center gap-1.5">
             <DiscussIcon size={IconSize.Size16} />
             <Typography tag={TypographyTag.Span} type={TypographyType.Caption1}>
               {formatCount(skill.comments)}
             </Typography>
           </div>
-          <div className="flex items-center gap-1.5 transition-colors hover:text-accent-cabbage-default">
+          <div className="flex items-center gap-1.5">
             <DownloadIcon size={IconSize.Size16} />
             <Typography tag={TypographyTag.Span} type={TypographyType.Caption1}>
               {formatCount(skill.installs)}
@@ -232,6 +230,6 @@ export const SkillCard = ({
           </div>
         </div>
       </div>
-    </button>
+    </Link>
   );
 };

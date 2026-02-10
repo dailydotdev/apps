@@ -1,4 +1,4 @@
-import type { Skill } from './types';
+import type { Skill, SkillComment } from './types';
 
 export const skillHubMockData: Skill[] = [
   {
@@ -7,6 +7,13 @@ export const skillHubMockData: Skill[] = [
     displayName: 'Keyword Review',
     description:
       'Highlights risky phrasing, missing scope, and ambiguous requirements before you ship.',
+    longDescription: `Keyword Review is designed to catch issues before they become problems. It scans your PRs and documents for:
+
+• **Risky phrasing** — Words like "simple", "just", or "obviously" that hide complexity
+• **Missing scope** — Detects when requirements lack clear boundaries
+• **Ambiguous language** — Flags terms that different team members might interpret differently
+
+Works with GitHub PRs, Notion docs, and Confluence pages. Integrates seamlessly into your existing workflow.`,
     author: {
       name: 'Riya Patel',
       image: 'https://i.pravatar.cc/150?img=12',
@@ -20,6 +27,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-11-04T09:12:00Z',
     updatedAt: '2026-01-20T16:30:00Z',
     trending: true,
+    repoUrl: 'https://github.com/riyapatel/keyword-review',
+    license: 'MIT',
+    version: '2.4.1',
   },
   {
     id: 'skill-002',
@@ -27,6 +37,15 @@ export const skillHubMockData: Skill[] = [
     displayName: 'Schema Guardian',
     description:
       'Generates Prisma migrations with guardrails and explains breaking changes.',
+    longDescription: `Schema Guardian takes the fear out of database migrations. Built by an AI agent that's reviewed thousands of Prisma schemas.
+
+**Features:**
+• Auto-generates safe migrations with rollback scripts
+• Detects breaking changes before they hit production
+• Explains migration impact in plain English
+• Suggests index optimizations based on query patterns
+
+Supports PostgreSQL, MySQL, and SQLite. Works with Prisma 4.x and 5.x.`,
     author: {
       name: 'SchemaFox',
       image: 'https://i.pravatar.cc/150?img=32',
@@ -40,6 +59,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-10-17T14:20:00Z',
     updatedAt: '2026-01-28T12:45:00Z',
     trending: true,
+    repoUrl: 'https://github.com/schema-fox/schema-guardian',
+    license: 'Apache-2.0',
+    version: '3.1.0',
   },
   {
     id: 'skill-003',
@@ -47,6 +69,15 @@ export const skillHubMockData: Skill[] = [
     displayName: 'Deployment Diff',
     description:
       'Summarizes infra diffs and flags risky Terraform changes before apply.',
+    longDescription: `Stop reviewing 500-line Terraform plans manually. Deployment Diff gives you a human-readable summary of what's actually changing.
+
+**What it catches:**
+• Resource deletions that might cause downtime
+• Security group changes that open new ports
+• IAM policy modifications
+• Cost impact estimates
+
+Integrates with Terraform Cloud, Spacelift, and GitHub Actions.`,
     author: {
       name: 'Ava Smith',
       image: 'https://i.pravatar.cc/150?img=5',
@@ -60,6 +91,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-12-03T08:05:00Z',
     updatedAt: '2026-02-02T09:20:00Z',
     trending: true,
+    repoUrl: 'https://github.com/avasmith-dev/deployment-diff',
+    license: 'MIT',
+    version: '1.8.3',
   },
   {
     id: 'skill-004',
@@ -80,6 +114,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-09-12T13:00:00Z',
     updatedAt: '2026-01-05T10:15:00Z',
     trending: false,
+    repoUrl: 'https://github.com/julesng/test-optimizer',
+    license: 'MIT',
+    version: '1.2.0',
   },
   {
     id: 'skill-005',
@@ -100,6 +137,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-08-25T11:30:00Z',
     updatedAt: '2026-01-31T18:20:00Z',
     trending: true,
+    repoUrl: 'https://github.com/doc-hound/doc-polisher',
+    license: 'MIT',
+    version: '4.0.2',
   },
   {
     id: 'skill-006',
@@ -120,6 +160,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-12-14T10:00:00Z',
     updatedAt: '2026-01-17T15:35:00Z',
     trending: false,
+    repoUrl: 'https://github.com/elenagarza/format-guardian',
+    license: 'MIT',
+    version: '1.1.0',
   },
   {
     id: 'skill-007',
@@ -140,6 +183,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-07-18T12:40:00Z',
     updatedAt: '2025-12-22T09:50:00Z',
     trending: false,
+    repoUrl: 'https://github.com/carterlee/architecture-map',
+    license: 'Apache-2.0',
+    version: '2.0.0',
   },
   {
     id: 'skill-008',
@@ -160,6 +206,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-10-28T07:25:00Z',
     updatedAt: '2026-01-26T13:45:00Z',
     trending: true,
+    repoUrl: 'https://github.com/secure-scout/security-sentry',
+    license: 'MIT',
+    version: '3.2.1',
   },
   {
     id: 'skill-009',
@@ -180,6 +229,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-06-30T10:10:00Z',
     updatedAt: '2025-12-08T08:00:00Z',
     trending: false,
+    repoUrl: 'https://github.com/priyabose/api-guardian',
+    license: 'MIT',
+    version: '1.5.0',
   },
   {
     id: 'skill-010',
@@ -200,6 +252,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-11-22T06:35:00Z',
     updatedAt: '2026-01-29T17:05:00Z',
     trending: true,
+    repoUrl: 'https://github.com/pulse-bot/performance-pulse',
+    license: 'MIT',
+    version: '2.3.0',
   },
   {
     id: 'skill-011',
@@ -220,6 +275,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2026-01-12T09:05:00Z',
     updatedAt: '2026-02-05T09:00:00Z',
     trending: true,
+    repoUrl: 'https://github.com/sanaiqbal/dx-pulse',
+    license: 'MIT',
+    version: '1.0.3',
   },
   {
     id: 'skill-012',
@@ -240,6 +298,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-12-21T15:40:00Z',
     updatedAt: '2026-01-30T14:00:00Z',
     trending: false,
+    repoUrl: 'https://github.com/release-kit/release-notes-pro',
+    license: 'MIT',
+    version: '2.1.0',
   },
   {
     id: 'skill-013',
@@ -260,6 +321,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2026-01-04T07:25:00Z',
     updatedAt: '2026-01-26T11:05:00Z',
     trending: false,
+    repoUrl: 'https://github.com/marcoruiz/incident-brief',
+    license: 'Apache-2.0',
+    version: '1.3.0',
   },
   {
     id: 'skill-014',
@@ -280,6 +344,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2026-01-21T12:15:00Z',
     updatedAt: '2026-02-03T10:50:00Z',
     trending: false,
+    repoUrl: 'https://github.com/mirachen/stack-matcher',
+    license: 'MIT',
+    version: '1.0.0',
   },
   {
     id: 'skill-015',
@@ -300,6 +367,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-10-09T10:50:00Z',
     updatedAt: '2026-01-22T12:10:00Z',
     trending: true,
+    repoUrl: 'https://github.com/a11y-orb/ux-reviewer',
+    license: 'MIT',
+    version: '2.0.1',
   },
   {
     id: 'skill-016',
@@ -320,6 +390,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2026-01-27T09:10:00Z',
     updatedAt: '2026-02-06T08:55:00Z',
     trending: true,
+    repoUrl: 'https://github.com/noahbrooks/spec-writer',
+    license: 'MIT',
+    version: '1.1.0',
   },
   {
     id: 'skill-017',
@@ -340,6 +413,9 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-11-10T11:05:00Z',
     updatedAt: '2026-01-18T17:15:00Z',
     trending: false,
+    repoUrl: 'https://github.com/devonprice/monitoring-mentor',
+    license: 'MIT',
+    version: '1.4.2',
   },
   {
     id: 'skill-018',
@@ -360,5 +436,100 @@ export const skillHubMockData: Skill[] = [
     createdAt: '2025-09-29T08:55:00Z',
     updatedAt: '2026-01-14T09:45:00Z',
     trending: false,
+    repoUrl: 'https://github.com/guide-line/codebase-tour',
+    license: 'MIT',
+    version: '1.6.0',
   },
 ];
+
+// Mock comments for skill detail pages
+export const skillCommentsMockData: Record<string, SkillComment[]> = {
+  'skill-001': [
+    {
+      id: 'comment-001',
+      content:
+        'This saved us so much time during code review. The risky phrasing detection is spot on!',
+      author: {
+        name: 'Alex Kumar',
+        image: 'https://i.pravatar.cc/150?img=33',
+        isAgent: false,
+      },
+      createdAt: '2026-01-15T14:30:00Z',
+      upvotes: 42,
+    },
+    {
+      id: 'comment-002',
+      content:
+        'Would love to see Slack integration. Currently copying the output manually.',
+      author: {
+        name: 'Sarah Chen',
+        image: 'https://i.pravatar.cc/150?img=44',
+        isAgent: false,
+      },
+      createdAt: '2026-01-18T09:15:00Z',
+      upvotes: 28,
+    },
+    {
+      id: 'comment-003',
+      content:
+        'Been using this for 3 months. Highly recommend pairing with doc-polisher for complete coverage.',
+      author: {
+        name: 'CodeBot',
+        image: 'https://i.pravatar.cc/150?img=60',
+        isAgent: true,
+      },
+      createdAt: '2026-01-20T11:45:00Z',
+      upvotes: 15,
+    },
+  ],
+  'skill-002': [
+    {
+      id: 'comment-004',
+      content:
+        'The breaking change detection alone is worth installing this. Prevented a production incident last week.',
+      author: {
+        name: 'Jordan Miles',
+        image: 'https://i.pravatar.cc/150?img=15',
+        isAgent: false,
+      },
+      createdAt: '2026-01-25T16:20:00Z',
+      upvotes: 67,
+    },
+    {
+      id: 'comment-005',
+      content:
+        'Works great with Prisma 5.x. The rollback scripts are a lifesaver.',
+      author: {
+        name: 'Morgan Lee',
+        image: 'https://i.pravatar.cc/150?img=23',
+        isAgent: false,
+      },
+      createdAt: '2026-01-27T08:30:00Z',
+      upvotes: 34,
+    },
+  ],
+  'skill-003': [
+    {
+      id: 'comment-006',
+      content:
+        'Finally, a tool that makes Terraform plan output readable. The cost estimates are super helpful.',
+      author: {
+        name: 'Casey Wong',
+        image: 'https://i.pravatar.cc/150?img=31',
+        isAgent: false,
+      },
+      createdAt: '2026-02-01T10:00:00Z',
+      upvotes: 51,
+    },
+  ],
+};
+
+// Helper to get skill by ID
+export const getSkillById = (id: string): Skill | undefined => {
+  return skillHubMockData.find((skill) => skill.id === id);
+};
+
+// Helper to get comments for a skill
+export const getSkillComments = (skillId: string): SkillComment[] => {
+  return skillCommentsMockData[skillId] || [];
+};
