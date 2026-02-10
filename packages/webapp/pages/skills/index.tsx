@@ -36,7 +36,11 @@ const SkillsPage = (): ReactElement => {
     <PageWrapperLayout className="flex flex-col gap-8 px-4 py-6 tablet:gap-10 tablet:px-6 tablet:py-8">
       <SkillHubHeader />
       <SkillRankingList title="Top Skills" skills={topSkills} />
-      <SkillGrid title="Trending Skills" skills={trendingSkills} icon="trending" />
+      <SkillGrid
+        title="Trending Skills"
+        skills={trendingSkills}
+        icon="trending"
+      />
       <SkillGrid title="Recently Added" skills={recentSkills} icon="recent" />
     </PageWrapperLayout>
   );

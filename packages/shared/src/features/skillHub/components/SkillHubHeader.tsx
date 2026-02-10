@@ -128,7 +128,7 @@ export const SkillHubHeader = (): ReactElement => {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <FlagIcon
-                    size={IconSize.Size12}
+                    size={IconSize.Size16}
                     className="text-text-tertiary"
                   />
                   <Typography

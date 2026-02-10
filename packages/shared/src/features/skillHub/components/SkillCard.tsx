@@ -127,7 +127,7 @@ export const SkillCard = ({
         <div className="flex items-center gap-2">
           {skill.trending && (
             <span className="flex items-center gap-1 rounded-10 bg-accent-cheese-subtlest px-2 py-1 text-accent-cheese-default typo-caption2">
-              <SparkleIcon size={IconSize.Size12} />
+              <SparkleIcon size={IconSize.Size16} />
               Hot
             </span>
           )}
