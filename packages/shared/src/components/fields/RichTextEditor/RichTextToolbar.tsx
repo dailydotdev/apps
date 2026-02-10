@@ -135,8 +135,8 @@ function RichTextToolbarComponent(
 
   return (
     <>
-      <div className="flex flex-col gap-2 border-b border-border-subtlest-tertiary p-2 tablet:flex-row tablet:items-center tablet:gap-1">
-        <div className="flex flex-wrap items-center gap-1 tablet:flex-1">
+      <div className="flex flex-row flex-wrap items-center gap-1 border-b border-border-subtlest-tertiary p-2">
+        <div className="flex flex-1 flex-wrap items-center gap-1">
           <ToolbarButton
             tooltip="Bold (⌘B)"
             icon={<BoldIcon />}
@@ -194,9 +194,7 @@ function RichTextToolbarComponent(
           />
         </div>
         {rightActions && (
-          <div className="flex items-center justify-end gap-1 tablet:ml-auto">
-            {rightActions}
-          </div>
+          <div className="flex shrink-0 items-center gap-1">{rightActions}</div>
         )}
       </div>
       <LinkModal
