@@ -275,7 +275,7 @@ const AiFluencyQuizPage = (): ReactElement => {
     )}`;
   }, [resolvedTierKey, resolvedUserId]);
 
-  const [copyingShareLink, copyShareLink] = useCopyLink(() => shareLink);
+  const [copyingShareLink, copyShareLink] = useCopyLink(() => shareLink, true);
 
   const currentQuestion = displayQuestions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === displayQuestions.length - 1;
