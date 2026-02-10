@@ -611,7 +611,7 @@ function RichTextInput(
           >
             {isMarkdownMode ? (
               <>
-                <div className="flex items-center justify-between border-b border-border-subtlest-tertiary p-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtlest-tertiary p-2">
                   <span className="px-2 text-text-tertiary typo-caption1">
                     Markdown editor
                   </span>
@@ -752,7 +752,7 @@ function RichTextInput(
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:border-t">
           {hasUploadHint && !isMarkdownMode && (
-            <span className="text-text-quaternary typo-caption1">
+            <span className="hidden text-text-quaternary typo-caption1 tablet:inline">
               Drag and drop images to attach
             </span>
           )}
