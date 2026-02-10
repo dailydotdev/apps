@@ -417,6 +417,13 @@ const FeedbackModal = dynamic(
   () => import(/* webpackChunkName: "feedbackModal" */ './FeedbackModal'),
 );
 
+const HotTakeTinderModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "hotTakeTinderModal" */ './hotTakes/HotTakeTinderModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -485,6 +492,7 @@ export const modals = {
   [LazyModal.RecruiterSeats]: RecruiterSeatsModal,
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
   [LazyModal.Feedback]: FeedbackModal,
+  [LazyModal.HotTakeTinder]: HotTakeTinderModal,
 };
 
 type GetComponentProps<T> = T extends

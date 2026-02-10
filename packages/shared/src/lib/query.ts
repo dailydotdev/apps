@@ -237,6 +237,7 @@ export enum RequestKey {
   SourceStack = 'source_stack',
   StackSearch = 'stack_search',
   UserHotTakes = 'user_hot_takes',
+  DiscoverHotTakes = 'discover_hot_takes',
   UserTools = 'user_tools',
   ToolSearch = 'tool_search',
   UserWorkspacePhotos = 'user_workspace_photos',

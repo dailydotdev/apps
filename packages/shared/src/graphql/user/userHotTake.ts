@@ -1,6 +1,8 @@
 import { gql } from 'graphql-request';
 import type { Connection } from '../common';
 import { gqlClient } from '../common';
+import { USER_SHORT_INFO_FRAGMENT } from '../fragments';
+import type { UserShortProfile } from '../../lib/user';
 
 export interface HotTake {
   id: string;
@@ -11,6 +13,7 @@ export interface HotTake {
   createdAt: string;
   upvotes: number;
   upvoted?: boolean;
+  user?: UserShortProfile;
 }
 
 export interface AddHotTakeInput {
@@ -133,4 +136,24 @@ export const reorderHotTakes = async (
     reorderHotTakes: HotTake[];
   }>(REORDER_HOT_TAKES_MUTATION, { items });
   return result.reorderHotTakes;
+};
+
+const DISCOVER_HOT_TAKES_QUERY = gql`
+  query DiscoverHotTakes($first: Int) {
+    discoverHotTakes(first: $first) {
+      ...HotTakeFragment
+      user {
+        ...UserShortInfo
+      }
+    }
+  }
+  ${HOT_TAKE_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
+
+export const getDiscoverHotTakes = async (first = 20): Promise<HotTake[]> => {
+  const result = await gqlClient.request<{
+    discoverHotTakes: HotTake[];
+  }>(DISCOVER_HOT_TAKES_QUERY, { first });
+  return result.discoverHotTakes;
 };
