@@ -553,6 +553,15 @@ function RichTextInput(
     );
   }
 
+  const savingLabel =
+    typeof isUpdatingDraft !== 'undefined' ? (
+      <SavingLabel
+        className="h-6 rounded-8"
+        isUpdating={isUpdatingDraft}
+        isUptoDate={initialContent === input}
+      />
+    ) : null;
+
   return (
     <div
       className={classNames(
@@ -560,13 +569,6 @@ function RichTextInput(
         className?.container,
       )}
     >
-      {typeof isUpdatingDraft !== 'undefined' && (
-        <SavingLabel
-          className="absolute right-4 top-3"
-          isUpdating={isUpdatingDraft}
-          isUptoDate={initialContent === input}
-        />
-      )}
       <ConditionalWrapper
         condition={!!timeline}
         wrapper={(component) => (
@@ -614,6 +616,7 @@ function RichTextInput(
                     Markdown editor
                   </span>
                   <div className="flex items-center gap-2">
+                    {savingLabel}
                     <SimpleTooltip content="Switch to Rich Text Editor">
                       <Button
                         type="button"
@@ -669,6 +672,7 @@ function RichTextInput(
                   inlineActions={hasToolbarActions ? toolbarActions : null}
                   rightActions={
                     <div className="flex items-center gap-2">
+                      {savingLabel}
                       <SimpleTooltip content="Switch to Markdown Editor">
                         <Button
                           type="button"
