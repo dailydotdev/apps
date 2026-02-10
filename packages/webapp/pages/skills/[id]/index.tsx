@@ -10,9 +10,12 @@ import {
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import {
   ArrowIcon,
+  BookmarkIcon,
   DiscussIcon,
   DownloadIcon,
   GitHubIcon,
+  LinkIcon,
+  ShareIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -21,6 +24,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
@@ -121,7 +125,7 @@ interface CommentItemProps {
 }
 
 const CommentItem = ({ comment }: CommentItemProps): ReactElement => (
-  <article className="relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover">
+  <article className="relative flex flex-col rounded-16 p-4 hover:bg-surface-hover">
     <div className="flex items-center gap-3">
       <div className="relative">
         <LazyImage
@@ -150,13 +154,13 @@ const CommentItem = ({ comment }: CommentItemProps): ReactElement => (
               Agent
             </span>
           )}
+          <span className="text-text-quaternary typo-footnote">
+            · {formatRelativeTime(comment.createdAt)}
+          </span>
         </div>
-        <span className="text-text-quaternary typo-footnote">
-          {formatRelativeTime(comment.createdAt)}
-        </span>
       </div>
     </div>
-    <div className="mt-3">
+    <div className="mt-3 pl-[52px]">
       <Typography
         tag={TypographyTag.P}
         type={TypographyType.Body}
@@ -164,22 +168,16 @@ const CommentItem = ({ comment }: CommentItemProps): ReactElement => (
       >
         {comment.content}
       </Typography>
-    </div>
-    <div className="mt-3 flex items-center gap-4">
-      <button
-        type="button"
-        className="flex items-center gap-1.5 text-text-tertiary transition-colors hover:text-accent-avocado-default"
-      >
-        <UpvoteIcon size={IconSize.Small} />
-        <span className="typo-callout">{comment.upvotes}</span>
-      </button>
-      <button
-        type="button"
-        className="flex items-center gap-1.5 text-text-tertiary transition-colors hover:text-accent-cabbage-default"
-      >
-        <DiscussIcon size={IconSize.Small} />
-        <span className="typo-callout">Reply</span>
-      </button>
+      <div className="mt-3 flex items-center gap-4">
+        <QuaternaryButton id="upvote-btn" className="btn-tertiary-avocado">
+          <UpvoteIcon size={IconSize.Small} />
+          <span className="ml-1">{comment.upvotes}</span>
+        </QuaternaryButton>
+        <QuaternaryButton id="reply-btn" className="btn-tertiary">
+          <DiscussIcon size={IconSize.Small} />
+          <span className="ml-1">Reply</span>
+        </QuaternaryButton>
+      </div>
     </div>
   </article>
 );
@@ -211,58 +209,67 @@ const SkillDetailPage = (): ReactElement => {
 
   return (
     <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-6 laptop:flex-row laptop:pb-0">
-      {/* Main content */}
+      {/* Main content - matching PostContent structure */}
       <main className="flex flex-1 flex-col border-border-subtlest-tertiary px-4 pb-6 laptop:border-x laptop:px-8 laptop:pb-8">
-        {/* Back navigation */}
-        <button
-          type="button"
-          onClick={() => router.push('/skills')}
-          className="my-4 flex w-fit items-center gap-2 text-text-tertiary transition-colors hover:text-text-primary"
-        >
-          <ArrowIcon className="-rotate-90" size={IconSize.Small} />
-          <span className="typo-callout">Back to Skill Hub</span>
-        </button>
+        {/* Mobile back header */}
+        <div className="-mx-4 flex h-12 items-center justify-between border-b border-border-subtlest-tertiary bg-background-subtle px-4 laptop:hidden">
+          <button
+            type="button"
+            onClick={() => router.push('/skills')}
+            className="flex items-center gap-2 text-text-tertiary"
+          >
+            <ArrowIcon className="-rotate-90" size={IconSize.Small} />
+            <span className="typo-callout">Back</span>
+          </button>
+          <div className="flex items-center gap-2">
+            <QuaternaryButton id="share-btn">
+              <ShareIcon size={IconSize.Small} />
+            </QuaternaryButton>
+            <QuaternaryButton id="bookmark-btn">
+              <BookmarkIcon size={IconSize.Small} />
+            </QuaternaryButton>
+          </div>
+        </div>
 
-        {/* Skill source info (like PostSourceInfo) */}
-        <div className="mb-3 flex items-center gap-3">
+        {/* Post source info style header */}
+        <div className="my-6 flex items-center gap-3">
           <div className="relative">
             <LazyImage
-              className="h-8 w-8 rounded-full"
+              className="h-10 w-10 rounded-full"
               imgAlt={skill.author.name}
               imgSrc={skill.author.image}
               fallbackSrc={fallbackImages.avatar}
             />
             {skill.author.isAgent && (
-              <span className="shadow-1 absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent-bun-default text-[7px] text-white">
+              <span className="shadow-1 absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent-bun-default text-[8px] text-white">
                 🤖
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col">
             <Typography
               tag={TypographyTag.Span}
-              type={TypographyType.Footnote}
+              type={TypographyType.Callout}
               bold
             >
               {skill.author.name}
             </Typography>
-            <span className="h-1 w-1 rounded-full bg-text-quaternary" />
             <span className="text-text-quaternary typo-footnote">
               {formatRelativeTime(skill.createdAt)}
             </span>
           </div>
         </div>
 
-        {/* Title */}
+        {/* Title - like post title */}
         <h1 className="mb-4 break-words font-bold typo-large-title">
           {skill.displayName}
         </h1>
 
-        {/* Tags (like PostTagList) */}
+        {/* Tags - like PostTagList */}
         <div className="mb-4 flex flex-wrap gap-2">
           <span
             className={classNames(
-              'rounded-10 border px-2 py-1 typo-footnote',
+              'rounded-10 border px-3 py-1.5 typo-subhead',
               categoryColor.bg,
               categoryColor.text,
               categoryColor.border,
@@ -274,23 +281,23 @@ const SkillDetailPage = (): ReactElement => {
             <button
               key={tag}
               type="button"
-              className="rounded-10 bg-surface-float px-3 py-1 text-text-tertiary transition-colors typo-footnote hover:bg-surface-hover hover:text-text-primary"
+              className="rounded-10 bg-surface-float px-3 py-1.5 text-text-tertiary transition-colors typo-subhead hover:bg-surface-hover hover:text-text-primary"
             >
               #{tag}
             </button>
           ))}
         </div>
 
-        {/* Metadata (like PostMetadata) */}
-        <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-text-quaternary typo-callout">
+        {/* Metadata - like PostMetadata */}
+        <div className="mb-8 flex flex-wrap items-center gap-2 text-text-quaternary typo-callout">
           <span>{largeNumberFormat(skill.installs)} installs</span>
-          <span className="h-1 w-1 rounded-full bg-text-quaternary" />
+          <span className="h-0.5 w-0.5 rounded-full bg-text-quaternary" />
           <span>v{skill.version || '1.0.0'}</span>
-          <span className="h-1 w-1 rounded-full bg-text-quaternary" />
+          <span className="h-0.5 w-0.5 rounded-full bg-text-quaternary" />
           <span>{skill.license || 'MIT'}</span>
           {skill.repoUrl && (
             <>
-              <span className="h-1 w-1 rounded-full bg-text-quaternary" />
+              <span className="h-0.5 w-0.5 rounded-full bg-text-quaternary" />
               <a
                 href={skill.repoUrl}
                 target="_blank"
@@ -298,13 +305,13 @@ const SkillDetailPage = (): ReactElement => {
                 className="flex items-center gap-1 hover:text-text-primary hover:underline"
               >
                 <GitHubIcon size={IconSize.XSmall} />
-                Source
+                View source
               </a>
             </>
           )}
         </div>
 
-        {/* Description content */}
+        {/* Content */}
         <div className="mb-8">
           <Typography
             tag={TypographyTag.P}
@@ -320,46 +327,44 @@ const SkillDetailPage = (): ReactElement => {
           )}
         </div>
 
-        {/* Action buttons (like post actions) */}
-        <div className="mb-8 flex flex-wrap items-center gap-3 border-y border-border-subtlest-tertiary py-4">
-          <Button
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            className="flex items-center gap-2"
-          >
-            <UpvoteIcon size={IconSize.Small} />
-            <span>{largeNumberFormat(skill.upvotes)}</span>
-          </Button>
-          <Button
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            className="flex items-center gap-2"
-          >
-            <DiscussIcon size={IconSize.Small} />
-            <span>{largeNumberFormat(skill.comments)}</span>
-          </Button>
+        {/* Post actions bar - like PostActions */}
+        <div className="mb-6 flex items-center justify-between border-y border-border-subtlest-tertiary py-3">
+          <div className="flex items-center gap-2">
+            <QuaternaryButton id="upvote-btn" className="btn-tertiary-avocado">
+              <UpvoteIcon />
+              <span className="ml-1">{largeNumberFormat(skill.upvotes)}</span>
+            </QuaternaryButton>
+            <QuaternaryButton id="comment-btn" className="btn-tertiary">
+              <DiscussIcon />
+              <span className="ml-1">{largeNumberFormat(skill.comments)}</span>
+            </QuaternaryButton>
+            <QuaternaryButton id="bookmark-btn" className="btn-tertiary">
+              <BookmarkIcon />
+            </QuaternaryButton>
+            <QuaternaryButton id="link-btn" className="btn-tertiary">
+              <LinkIcon />
+            </QuaternaryButton>
+          </div>
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
-            className="ml-auto flex items-center gap-2"
+            className="flex items-center gap-2"
           >
             <DownloadIcon size={IconSize.Small} />
             Install
           </Button>
         </div>
 
-        {/* Comments section (like PostComments) */}
+        {/* Comments section - like PostComments */}
         <section>
-          <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Title3}
-            className="mb-4"
-          >
-            Comments ({comments.length})
-          </Typography>
+          <div className="mb-4 flex items-center justify-between">
+            <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
+              Comments
+            </Typography>
+          </div>
 
           {comments.length > 0 ? (
-            <div className="-mx-4 flex flex-col gap-4 mobileL:mx-0">
+            <div className="-mx-4 flex flex-col mobileL:mx-0">
               {comments.map((comment) => (
                 <CommentItem key={comment.id} comment={comment} />
               ))}
@@ -372,14 +377,14 @@ const SkillDetailPage = (): ReactElement => {
         </section>
       </main>
 
-      {/* Sidebar (like PostWidgets) */}
+      {/* Sidebar - like PostWidgets */}
       <PageWidgets className="px-4 laptop:px-6">
-        {/* Author card */}
-        <div className="flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+        {/* Author card - like SourceEntityCard */}
+        <div className="flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-transparent p-4">
           <div className="flex items-center gap-3">
             <div className="relative">
               <LazyImage
-                className="h-12 w-12 rounded-14"
+                className="h-14 w-14 rounded-full"
                 imgAlt={skill.author.name}
                 imgSrc={skill.author.image}
                 fallbackSrc={fallbackImages.avatar}
@@ -406,7 +411,7 @@ const SkillDetailPage = (): ReactElement => {
                     : 'text-text-quaternary',
                 )}
               >
-                {skill.author.isAgent ? 'AI Agent Creator' : 'Human Creator'}
+                {skill.author.isAgent ? 'AI Agent' : 'Skill Creator'}
               </span>
             </div>
           </div>
@@ -419,11 +424,8 @@ const SkillDetailPage = (): ReactElement => {
           </Button>
         </div>
 
-        {/* Install card */}
-        <div className="flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-          <Typography tag={TypographyTag.H3} type={TypographyType.Callout} bold>
-            Install this skill
-          </Typography>
+        {/* Install CTA */}
+        <div className="flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-transparent p-4">
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
@@ -440,37 +442,42 @@ const SkillDetailPage = (): ReactElement => {
               className="flex items-center justify-center gap-2 rounded-12 border border-border-subtlest-tertiary px-4 py-2 text-text-secondary transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary"
             >
               <GitHubIcon size={IconSize.Small} />
-              View source
+              View on GitHub
             </a>
           )}
         </div>
 
         {/* Info card */}
-        <div className="flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-          <Typography tag={TypographyTag.H3} type={TypographyType.Callout} bold>
-            Information
+        <div className="flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-transparent p-4">
+          <Typography
+            tag={TypographyTag.H3}
+            type={TypographyType.Footnote}
+            bold
+            className="text-text-tertiary"
+          >
+            ABOUT
           </Typography>
-          <div className="flex flex-col gap-2 text-text-tertiary typo-footnote">
+          <div className="flex flex-col gap-2 typo-callout">
             <div className="flex justify-between">
-              <span>Version</span>
+              <span className="text-text-tertiary">Version</span>
               <span className="text-text-primary">
                 {skill.version || '1.0.0'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span>License</span>
+              <span className="text-text-tertiary">License</span>
               <span className="text-text-primary">
                 {skill.license || 'MIT'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Created</span>
+              <span className="text-text-tertiary">Created</span>
               <span className="text-text-primary">
                 {formatDate(skill.createdAt)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Updated</span>
+              <span className="text-text-tertiary">Updated</span>
               <span className="text-text-primary">
                 {formatDate(skill.updatedAt)}
               </span>
