@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import type { Skill } from '../types';
+import { SkillDetailModal } from './SkillDetailModal';
 import { LazyImage } from '../../../components/LazyImage';
 import {
   Typography,
@@ -62,20 +63,31 @@ export const SkillRankingList = ({
   skills,
   className,
 }: SkillRankingListProps): ReactElement => {
-  return (
-    <section className={classNames('flex flex-col gap-4', className)}>
-      <div className="flex items-center gap-3">
-        <MedalBadgeIcon
-          size={IconSize.Medium}
-          className="text-accent-cheese-default"
-        />
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title3}>
-          {title}
-        </Typography>
-      </div>
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
 
-      <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
-        {skills.map((skill, index) => {
+  const handleSkillClick = (skill: Skill) => {
+    setSelectedSkill(skill);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedSkill(null);
+  };
+
+  return (
+    <>
+      <section className={classNames('flex flex-col gap-4', className)}>
+        <div className="flex items-center gap-3">
+          <MedalBadgeIcon
+            size={IconSize.Medium}
+            className="text-accent-cheese-default"
+          />
+          <Typography tag={TypographyTag.H2} type={TypographyType.Title3}>
+            {title}
+          </Typography>
+        </div>
+
+        <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+          {skills.map((skill, index) => {
           const rankStyle = getRankStyle(index);
           const isTopThree = index < 3;
 
@@ -84,6 +96,7 @@ export const SkillRankingList = ({
               key={skill.id}
               type="button"
               aria-label={`View ${skill.displayName}`}
+              onClick={() => handleSkillClick(skill)}
               className={classNames(
                 'group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
                 'hover:bg-surface-hover',
@@ -166,7 +179,7 @@ export const SkillRankingList = ({
                   className={classNames(
                     'flex items-center gap-1.5 rounded-8 px-2 py-1',
                     isTopThree
-                      ? 'bg-accent-avocado-subtlest text-accent-avocado-default'
+                      ? 'bg-accent-avocado-default text-white'
                       : 'text-text-tertiary',
                   )}
                 >
@@ -183,7 +196,15 @@ export const SkillRankingList = ({
             </button>
           );
         })}
-      </div>
-    </section>
+        </div>
+      </section>
+      {selectedSkill && (
+        <SkillDetailModal
+          skill={selectedSkill}
+          isOpen={Boolean(selectedSkill)}
+          onRequestClose={handleCloseModal}
+        />
+      )}
+    </>
   );
 };

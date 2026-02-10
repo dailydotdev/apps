@@ -34,6 +34,7 @@ const isNewSkill = (createdAt: string): boolean => {
 interface SkillCardProps {
   skill: Skill;
   className?: string;
+  onClick?: () => void;
 }
 
 const formatCount = (value: number): string => {
@@ -93,6 +94,7 @@ const getCategoryColor = (
 export const SkillCard = ({
   skill,
   className,
+  onClick,
 }: SkillCardProps): ReactElement => {
   const newBadge = isNewSkill(skill.createdAt);
   const categoryColor = getCategoryColor(skill.category);
@@ -101,6 +103,7 @@ export const SkillCard = ({
     <button
       type="button"
       aria-label={`Open ${skill.displayName}`}
+      onClick={onClick}
       className={classNames(
         'group relative flex h-full w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left',
         'transition-all duration-200 ease-out',
@@ -161,7 +164,7 @@ export const SkillCard = ({
           {skill.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="rounded-8 bg-surface-primary px-2 py-0.5 text-text-quaternary transition-colors typo-caption2 group-hover:bg-surface-secondary group-hover:text-text-tertiary"
+              className="rounded-8 bg-surface-secondary px-2 py-0.5 text-text-secondary transition-colors typo-caption2 group-hover:bg-surface-tertiary group-hover:text-text-primary"
             >
               #{tag}
             </span>
