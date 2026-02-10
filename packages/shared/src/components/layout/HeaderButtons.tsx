@@ -7,6 +7,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
+import { AgentStatusIndicator } from '../../features/agentStatus/components/AgentStatusIndicator';
 
 interface HeaderButtonsProps {
   additionalButtons?: ReactNode;
@@ -40,6 +41,7 @@ export function HeaderButtons({
   return (
     <Container>
       <OpportunityEntryButton />
+      <AgentStatusIndicator />
       {additionalButtons}
       <NotificationsBell />
       <ProfileButton className="hidden laptop:flex" />
