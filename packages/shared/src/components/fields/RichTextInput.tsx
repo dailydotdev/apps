@@ -24,7 +24,8 @@ import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
 import Image from '@tiptap/extension-image';
-import { ImageIcon, AtIcon } from '../icons';
+import { ImageIcon, AtIcon, MarkdownIcon } from '../icons';
+import { EditIcon } from '../icons/Edit';
 import { GifIcon } from '../icons/Gif';
 import {
   Button,
@@ -33,6 +34,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SavingLabel } from './MarkdownInput/SavingLabel';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Loader } from '../Loader';
@@ -551,6 +553,15 @@ function RichTextInput(
     );
   }
 
+  const savingLabel =
+    typeof isUpdatingDraft !== 'undefined' ? (
+      <SavingLabel
+        className="h-6 rounded-8"
+        isUpdating={isUpdatingDraft}
+        isUptoDate={initialContent === input}
+      />
+    ) : null;
+
   return (
     <div
       className={classNames(
@@ -558,13 +569,6 @@ function RichTextInput(
         className?.container,
       )}
     >
-      {typeof isUpdatingDraft !== 'undefined' && (
-        <SavingLabel
-          className="absolute right-4 top-3"
-          isUpdating={isUpdatingDraft}
-          isUptoDate={initialContent === input}
-        />
-      )}
       <ConditionalWrapper
         condition={!!timeline}
         wrapper={(component) => (
@@ -611,25 +615,17 @@ function RichTextInput(
                   <span className="px-2 text-text-tertiary typo-caption1">
                     Markdown editor
                   </span>
-                  <div className="ml-auto flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.XSmall}
-                      className="mobileXL:hidden"
-                      onClick={switchToRichMode}
-                    >
-                      Rich
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.XSmall}
-                      className="hidden mobileXL:inline-flex"
-                      onClick={switchToRichMode}
-                    >
-                      Switch to Rich Text Editor
-                    </Button>
+                  <div className="flex items-center gap-2">
+                    {savingLabel}
+                    <SimpleTooltip content="Switch to Rich Text Editor">
+                      <Button
+                        type="button"
+                        variant={ButtonVariant.Tertiary}
+                        size={ButtonSize.XSmall}
+                        icon={<EditIcon />}
+                        onClick={switchToRichMode}
+                      />
+                    </SimpleTooltip>
                     {onClose && (
                       <CloseButton size={ButtonSize.Small} onClick={onClose} />
                     )}
@@ -676,24 +672,16 @@ function RichTextInput(
                   inlineActions={hasToolbarActions ? toolbarActions : null}
                   rightActions={
                     <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant={ButtonVariant.Tertiary}
-                        size={ButtonSize.XSmall}
-                        className="mobileXL:hidden"
-                        onClick={switchToMarkdownMode}
-                      >
-                        Markdown
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={ButtonVariant.Tertiary}
-                        size={ButtonSize.XSmall}
-                        className="hidden mobileXL:inline-flex"
-                        onClick={switchToMarkdownMode}
-                      >
-                        Switch to Markdown Editor
-                      </Button>
+                      {savingLabel}
+                      <SimpleTooltip content="Switch to Markdown Editor">
+                        <Button
+                          type="button"
+                          variant={ButtonVariant.Tertiary}
+                          size={ButtonSize.XSmall}
+                          icon={<MarkdownIcon />}
+                          onClick={switchToMarkdownMode}
+                        />
+                      </SimpleTooltip>
                       {onClose && (
                         <CloseButton
                           size={ButtonSize.Small}
