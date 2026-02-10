@@ -572,9 +572,9 @@ export const getAiFluencyTierFromAnswers = (
     maxPossibleScore === minPossibleScore
       ? 1
       : ((totalScore - minPossibleScore) /
-        (maxPossibleScore - minPossibleScore)) *
-      6 +
-      1;
+          (maxPossibleScore - minPossibleScore)) *
+          6 +
+        1;
   const roundedScore = Math.round(normalizedScore);
   const tierIndex = Math.min(
     aiFluencyTiers.length - 1,
