@@ -145,8 +145,7 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
     options: [
       {
         id: 'context-management-none',
-        label:
-          "I usually start a fresh chat each time — I don't carry over previous conversations.",
+        label: 'I usually start a fresh chat each time.',
         tier: 'casualUser',
       },
       {
@@ -180,7 +179,7 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       {
         id: 'quality-check-skim',
         label:
-          'I skim the output and use it if it looks reasonable — I rarely verify details.',
+          'I skim the output and use it if it looks reasonable. I rarely verify details.',
         tier: 'casualUser',
       },
       {
@@ -247,7 +246,7 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       {
         id: 'automation-none',
         label:
-          "Almost none — I type prompts by hand each time and don't reuse or script anything.",
+          "Almost none. I type prompts by hand each time and don't reuse or script anything.",
         tier: 'casualUser',
       },
       {
@@ -281,7 +280,7 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       {
         id: 'collaboration-solo',
         label:
-          'I use AI on my own — if I find something useful, I might mention it in passing.',
+          'I use AI on my own. If I find something useful, I might mention it in passing.',
         tier: 'casualUser',
       },
       {
@@ -314,7 +313,7 @@ export const aiFluencyQuestions: AiFluencyQuestion[] = [
       {
         id: 'risk-and-safety-reactive',
         label:
-          "I don't think about AI risk upfront — I just fix problems if and when they show up.",
+          "I don't think about AI risk upfront. I just fix problems if and when they show up.",
         tier: 'casualUser',
       },
       {
@@ -573,9 +572,9 @@ export const getAiFluencyTierFromAnswers = (
     maxPossibleScore === minPossibleScore
       ? 1
       : ((totalScore - minPossibleScore) /
-          (maxPossibleScore - minPossibleScore)) *
-          6 +
-        1;
+        (maxPossibleScore - minPossibleScore)) *
+      6 +
+      1;
   const roundedScore = Math.round(normalizedScore);
   const tierIndex = Math.min(
     aiFluencyTiers.length - 1,
