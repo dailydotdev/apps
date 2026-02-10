@@ -115,7 +115,11 @@ const UserEntityCard = ({ user, className }: Props) => {
     });
   }
 
-  const showActionBtns = !isLoading && !isSameUser;
+  const showActionBtns = !!user && !isLoading && !isSameUser;
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <EntityCard

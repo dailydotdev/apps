@@ -101,6 +101,12 @@ const PollPostContent = dynamic(() =>
   ).then((module) => module.PollPostContent),
 );
 
+const SocialTwitterPostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazySocialTwitterPostContent" */ '@dailydotdev/shared/src/components/post/SocialTwitterPostContent'
+  ).then((module) => module.SocialTwitterPostContent),
+);
+
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
@@ -117,6 +123,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   collection: CollectionPostContent,
   [PostType.Brief]: BriefPostContent,
   [PostType.Poll]: PollPostContent,
+  [PostType.SocialTwitter]: SocialTwitterPostContent,
 };
 
 export interface PostParams extends ParsedUrlQuery {
@@ -162,7 +169,12 @@ export const PostPage = ({
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
-    [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
+    [
+      PostType.Share,
+      PostType.Welcome,
+      PostType.Freeform,
+      PostType.SocialTwitter,
+    ].includes(post?.type),
     featureTheme && 'bg-transparent',
   );
   useSharedByToast();

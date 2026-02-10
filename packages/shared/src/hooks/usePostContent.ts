@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Post, PostsEngaged, SharedPost } from '../graphql/posts';
-import { POSTS_ENGAGED_SUBSCRIPTION, PostType } from '../graphql/posts';
+import { isShareLikePost, POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
 import { useLogContext } from '../contexts/LogContext';
 import { useActiveFeedContext } from '../contexts';
 import { postLogEvent } from '../lib/feed';
@@ -111,10 +111,9 @@ const usePostContent = ({
     logEvent(
       postLogEvent(`${origin} view`, post, {
         extra: {
-          clickbait_badge:
-            post.type === PostType.Share
-              ? post.sharedPost.clickbaitTitleDetected
-              : post.clickbaitTitleDetected,
+          clickbait_badge: isShareLikePost(post)
+            ? post.sharedPost?.clickbaitTitleDetected
+            : post.clickbaitTitleDetected,
         },
         ...(logOpts && logOpts),
       }),

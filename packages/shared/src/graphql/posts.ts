@@ -42,6 +42,7 @@ export const internalReadTypes: PostType[] = [
   PostType.Welcome,
   PostType.Freeform,
   PostType.Collection,
+  PostType.SocialTwitter,
 ];
 
 export const isInternalReadType = (post: Post): boolean =>
@@ -55,6 +56,38 @@ export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
   post?.type === PostType.VideoYouTube ||
   (post?.type === PostType.Share &&
     post?.sharedPost?.type === PostType.VideoYouTube);
+
+export const isSocialTwitterPost = (
+  post: Pick<Post, 'type'> | undefined | null,
+): boolean => post?.type === PostType.SocialTwitter;
+
+export const isSocialTwitterShareLike = (
+  post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
+): boolean => {
+  if (!isSocialTwitterPost(post)) {
+    return false;
+  }
+
+  if (!post.sharedPost) {
+    return false;
+  }
+
+  return ['quote', 'repost'].includes(post.subType || '');
+};
+
+export const getSocialTwitterPostType = (
+  post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
+): PostType | undefined => {
+  if (!isSocialTwitterPost(post)) {
+    return post?.type;
+  }
+
+  return isSocialTwitterShareLike(post) ? PostType.Share : PostType.Freeform;
+};
+
+export const isShareLikePost = (
+  post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
+): boolean => post?.type === PostType.Share || isSocialTwitterShareLike(post);
 
 export const getReadPostButtonText = (post: Post): string =>
   isVideoPost(post) ? 'Watch video' : 'Read post';
@@ -138,6 +171,7 @@ export interface Post {
   isScout?: number;
   sharedPost?: SharedPost;
   type: PostType;
+  subType?: string;
   private?: boolean;
   feedMeta?: string;
   downvoted?: boolean;

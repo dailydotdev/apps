@@ -11,43 +11,60 @@ const useUserMenuProps = ({
   user,
   feedId,
 }: {
-  user: UserShortProfile;
+  user?: UserShortProfile | null;
   feedId?: string;
 }) => {
   const router = useRouter();
   const { follow, unfollow } = useContentPreference();
+  const userId = user?.id;
+  const username = user?.username;
+  const permalink = user?.permalink;
 
   const onCreateNewFeed = () => {
+    if (!userId) {
+      return;
+    }
+
     router.push(
-      `${webappUrl}feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
+      `${webappUrl}feeds/new?entityId=${userId}&entityType=${ContentPreferenceType.User}`,
     );
   };
 
   const onUndo = () => {
+    if (!userId || !username) {
+      return;
+    }
+
     unfollow({
-      id: user.id,
+      id: userId,
       entity: ContentPreferenceType.User,
-      entityName: user.username,
+      entityName: username,
       feedId,
     });
   };
 
   const onAdd = () => {
+    if (!userId || !username) {
+      return;
+    }
+
     follow({
-      id: user.id,
+      id: userId,
       entity: ContentPreferenceType.User,
-      entityName: user.username,
+      entityName: username,
       feedId,
     });
   };
 
   const shareProps: UseShareOrCopyLinkProps = {
-    text: `Check out ${user.username} on daily.dev`,
-    link: user.permalink,
+    text: username
+      ? `Check out ${username} on daily.dev`
+      : 'Check out this developer on daily.dev',
+    link: permalink || webappUrl,
     cid: ReferralCampaignKey.ShareProfile,
     logObject: () => ({
       event_name: LogEvent.ShareProfile,
-      target_id: user.id,
+      ...(userId ? { target_id: userId } : {}),
     }),
   };
 

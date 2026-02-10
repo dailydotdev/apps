@@ -253,6 +253,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       coresRole
     }
     type
+    subType
     tags
     source {
       id
@@ -339,6 +340,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       ...UserAuthor
     }
     type
+    subType
     tags
     source {
       ...SourceBaseInfo
@@ -552,6 +554,7 @@ export const FEED_POST_FRAGMENT = gql`
       commentsPermalink
       createdAt
       type
+      subType
       tags
       private
       yggdrasilId

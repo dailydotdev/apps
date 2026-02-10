@@ -38,12 +38,14 @@ export function SquadPostWidgets({
           origin={origin}
         />
       )}
-      <UserEntityCard
-        className={{
-          container: cardClasses,
-        }}
-        user={post.author as UserShortProfile}
-      />
+      {!!post.author && (
+        <UserEntityCard
+          className={{
+            container: cardClasses,
+          }}
+          user={post.author as UserShortProfile}
+        />
+      )}
       {isPublicSquad && (
         <>
           <ShareBar post={post} />
