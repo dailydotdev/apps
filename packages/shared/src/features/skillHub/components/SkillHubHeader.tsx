@@ -2,12 +2,14 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { SearchField } from '../../../components/fields/SearchField';
+import { Button, ButtonSize, ButtonVariant } from '../../../components/buttons/Button';
 import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import { PlusIcon, SparkleIcon } from '../../../components/icons';
+  FlagIcon,
+  PlusIcon,
+  ShieldCheckIcon,
+  ShieldWarningIcon,
+  SparkleIcon,
+} from '../../../components/icons';
 import {
   Typography,
   TypographyTag,
@@ -63,6 +65,31 @@ export const SkillHubHeader = (): ReactElement => {
                 {category}
               </Button>
             ))}
+          </div>
+          <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-primary p-4">
+            <Typography tag={TypographyTag.P} type={TypographyType.Callout} bold>
+              Security layer
+            </Typography>
+            <div className="flex flex-wrap gap-3 text-text-tertiary">
+              <div className="flex items-center gap-2">
+                <ShieldCheckIcon size={IconSize.Size16} />
+                <Typography tag={TypographyTag.Span} type={TypographyType.Caption1}>
+                  Verified publishers
+                </Typography>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldWarningIcon size={IconSize.Size16} />
+                <Typography tag={TypographyTag.Span} type={TypographyType.Caption1}>
+                  Automated scans
+                </Typography>
+              </div>
+              <div className="flex items-center gap-2">
+                <FlagIcon size={IconSize.Size16} />
+                <Typography tag={TypographyTag.Span} type={TypographyType.Caption1}>
+                  Report suspicious skills
+                </Typography>
+              </div>
+            </div>
           </div>
         </div>
         <div className="flex w-full flex-col gap-3 laptop:w-[22rem]">
