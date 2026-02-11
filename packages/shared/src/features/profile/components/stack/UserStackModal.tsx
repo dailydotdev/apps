@@ -46,21 +46,32 @@ type UserStackModalProps = Omit<ModalProps, 'children' | 'onRequestClose'> & {
   onRequestClose?: LazyModalCommonProps['onRequestClose'];
   onSubmit: (input: AddUserStackInput) => Promise<void>;
   existingItem?: UserStack;
+  /** Pre-fill the title without enabling edit mode */
+  defaultTitle?: string;
+  /** Custom modal title */
+  modalTitle?: string;
 };
 
 export function UserStackModal({
   onSubmit,
   existingItem,
+  defaultTitle,
+  modalTitle,
   ...rest
 }: UserStackModalProps): ReactElement {
+  // Don't show suggestions initially if we have a pre-selected title
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [hasSelectedFromDefault, setHasSelectedFromDefault] = useState(
+    !!defaultTitle,
+  );
   const isMobile = useViewSize(ViewSize.MobileL);
   const isEditing = !!existingItem;
 
   const methods = useForm<UserStackFormData>({
     resolver: zodResolver(userStackFormSchema),
     defaultValues: {
-      title: existingItem?.title ?? existingItem?.tool.title ?? '',
+      title:
+        existingItem?.title ?? existingItem?.tool.title ?? defaultTitle ?? '',
       section: existingItem?.section || 'Primary',
       customSection: '',
       startedAtYear: existingItem?.startedAt
@@ -135,7 +146,8 @@ export function UserStackModal({
           title: (
             <div className="px-4">
               <ModalHeader.Title className="typo-title3">
-                {isEditing ? 'Edit stack/tool' : 'Add stack/tool'}
+                {modalTitle ||
+                  (isEditing ? 'Edit stack/tool' : 'Add stack/tool')}
               </ModalHeader.Title>
             </div>
           ),
@@ -153,7 +165,7 @@ export function UserStackModal({
         <form onSubmit={onFormSubmit} id="user_stack_form">
           <ModalHeader showCloseButton={!isMobile}>
             <ModalHeader.Title className="typo-title3">
-              {isEditing ? 'Edit stack/tool' : 'Add stack/tool'}
+              {modalTitle || (isEditing ? 'Edit stack/tool' : 'Add stack/tool')}
             </ModalHeader.Title>
           </ModalHeader>
           <Modal.Body className="flex flex-col gap-4">
@@ -203,6 +215,36 @@ export function UserStackModal({
                   }}
                 />
               </ConditionalWrapper>
+              <TextField
+                {...register('title')}
+                autoComplete="off"
+                autoFocus={!defaultTitle}
+                inputId="stackTitle"
+                label="Technology, tool, or skill"
+                maxLength={255}
+                valid={!errors.title}
+                hint={errors.title?.message}
+                disabled={isEditing}
+                onChange={(e) => {
+                  setValue('title', e.target.value);
+                  if (!isEditing) {
+                    // If user changes the pre-selected title, enable suggestions
+                    if (
+                      hasSelectedFromDefault &&
+                      e.target.value !== defaultTitle
+                    ) {
+                      setHasSelectedFromDefault(false);
+                    }
+                    setShowSuggestions(true);
+                  }
+                }}
+                onFocus={() => {
+                  // Don't show suggestions if we have a pre-selected default title
+                  if (!isEditing && !hasSelectedFromDefault) {
+                    setShowSuggestions(true);
+                  }
+                }}
+              />
               {!isEditing && showSuggestions && title.trim() && (
                 <div className="absolute left-0 right-0 top-full z-1 mt-1 max-h-48 overflow-auto rounded-12 border border-border-subtlest-tertiary bg-background-default shadow-2">
                   {filteredSuggestions.map((suggestion) => (

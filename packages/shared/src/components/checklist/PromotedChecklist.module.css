@@ -1,0 +1,279 @@
+/* PromotedChecklist - Branded task checklist styles */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+/* Hero Header with large centered logo */
+.heroHeader {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem 1rem;
+  margin: -1rem -1rem 0;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--brand-primary, #6e40c9) 20%, transparent) 0%,
+    transparent 100%
+  );
+  overflow: hidden;
+}
+
+.coinsContainer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.coin {
+  position: absolute;
+  top: -24px;
+  opacity: 0;
+  animation: fallDown 4s ease-in-out infinite;
+}
+
+.coin:nth-child(1) { left: 8%; animation-delay: 0s; animation-duration: 3.5s; }
+.coin:nth-child(2) { left: 25%; animation-delay: 0.8s; animation-duration: 4s; }
+.coin:nth-child(3) { left: 45%; animation-delay: 1.6s; animation-duration: 3.2s; }
+.coin:nth-child(4) { left: 65%; animation-delay: 2.4s; animation-duration: 4.2s; }
+.coin:nth-child(5) { left: 82%; animation-delay: 0.4s; animation-duration: 3.8s; }
+
+@keyframes fallDown {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  5% { opacity: 0.2; }
+  50% { opacity: 0.3; }
+  95% { opacity: 0.15; }
+  100% { transform: translateY(120px) rotate(180deg); opacity: 0; }
+}
+
+.brandLogo {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 24px var(--brand-primary, #6e40c9);
+  border: 3px solid color-mix(in srgb, var(--brand-primary, #6e40c9) 40%, transparent);
+  z-index: 1;
+  animation: logoFlip 0.6s ease-out;
+}
+
+@keyframes logoFlip {
+  0% {
+    transform: rotateY(90deg) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: rotateY(-10deg) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  z-index: 1;
+}
+
+.heroTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.coresDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--theme-surface-float);
+  border-radius: 20px;
+  border: 1px solid var(--theme-border-subtlest-tertiary);
+}
+
+.progressBarWrapper {
+  width: 100%;
+  max-width: 200px;
+}
+
+/* Legacy header - hidden */
+.header {
+  display: none;
+}
+
+.headerText {
+  display: none;
+}
+
+.headerTop {
+  display: none;
+}
+
+/* Progress Section - now in hero */
+.progressSection {
+  display: none;
+}
+
+.progressHeader {
+  display: none;
+}
+
+.progressBar {
+  background: var(--brand-primary, #6e40c9) !important;
+}
+
+.coresProgress {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.coresEarned {
+  font-weight: 700;
+}
+
+/* Task List */
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.taskItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: var(--theme-surface-float);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.taskItem:hover {
+  border-color: var(--brand-primary, #6e40c9);
+  background: color-mix(in srgb, var(--brand-primary, #6e40c9) 8%, var(--theme-surface-float));
+}
+
+.taskCompleted {
+  opacity: 0.6;
+}
+
+.taskCompleted:hover {
+  opacity: 0.6;
+  border-color: transparent;
+  background: var(--theme-surface-float);
+}
+
+.taskIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: var(--brand-primary, #6e40c9);
+  color: white;
+  flex-shrink: 0;
+}
+
+.taskContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.taskReward {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.125rem;
+}
+
+.taskAction {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.arrowButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.arrowButton:hover {
+  background: color-mix(in srgb, var(--brand-primary, #6e40c9) 15%, transparent);
+  transform: translateX(2px);
+}
+
+.completedBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  color: white;
+  animation: completeBounce 0.5s ease-out;
+}
+
+@keyframes completeBounce {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Completion Banner */
+.completionBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid;
+  text-align: center;
+  animation: bannerFadeIn 0.5s ease-out;
+}
+
+@keyframes bannerFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -12,7 +12,6 @@ import {
   DiscussIcon,
   HashtagIcon,
   MiniCloseIcon as XIcon,
-  OpenLinkIcon,
   PlusIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -65,10 +64,6 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { cloudinarySourceRoadmap } from '@dailydotdev/shared/src/lib/image';
-import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
 import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
@@ -78,6 +73,7 @@ import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPrefe
 import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
 import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
+import { SponsoredTagHero } from '@dailydotdev/shared/src/components/brand/SponsoredTagHero';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -285,7 +281,6 @@ const TagPage = ({
   topContributors,
 }: TagPageProps): ReactElement => {
   const { push } = useRouter();
-  const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
     () => ({
@@ -394,6 +389,7 @@ const TagPage = ({
         className="mx-4"
       />
       <PageInfoHeader className="mx-4 !w-auto">
+        <SponsoredTagHero tag={tag} className="mx-4 mb-4" />
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 w-fit typo-title2">{title}</h1>
@@ -501,34 +497,6 @@ const TagPage = ({
             blockedTags={feedSettings?.blockedTags}
             initialTags={recommendedTags}
           />
-        )}
-        {showRoadmap && initialData?.flags?.roadmap && (
-          <Link href={initialData.flags.roadmap} passHref prefetch={false}>
-            <a
-              target="_blank"
-              rel={anchorDefaultRel}
-              className="mr-auto flex w-auto cursor-pointer items-center rounded-12 border border-border-subtlest-tertiary p-4"
-            >
-              <img
-                src={cloudinarySourceRoadmap}
-                alt="roadmap.sh logo"
-                className="size-10 rounded-full"
-              />
-              <div className="mx-3 flex-1">
-                <p className="font-bold typo-callout">
-                  Comprehensive roadmap for {tag}
-                </p>
-                <p className="text-text-tertiary typo-footnote">
-                  By roadmap.sh
-                </p>
-              </div>
-              <Button
-                icon={<OpenLinkIcon />}
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-              />
-            </a>
-          </Link>
         )}
       </PageInfoHeader>
       <TagTopSources tag={tag} />

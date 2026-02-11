@@ -15,6 +15,7 @@ import { SourceType } from '../../graphql/sources';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
+import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -95,6 +96,7 @@ export function PostWidgets({
         postId={post.id}
         className={{ container: cardClasses }}
       />
+      <MentionedToolsWidget postTags={post.tags || []} />
       <ShareBar post={post} />
       <ShareMobile
         post={post}

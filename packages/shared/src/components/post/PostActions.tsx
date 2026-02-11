@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
-  UpvoteIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
@@ -40,6 +39,8 @@ import {
 } from '../../graphql/contentPreference';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
+import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
+import { UpvoteButtonIcon } from '../cards/common/UpvoteButtonIcon';
 
 interface PostActionsProps {
   post: Post;
@@ -77,10 +78,28 @@ export function PostActions({
   });
   const shouldRenderNotificationCta =
     isNotificationCtaExperimentEnabled && showNotificationCta;
+  const { getUpvoteAnimation } = useBrandSponsorship();
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
+
+  // Get brand animation config if post has sponsored tags
+  const brandAnimation = useMemo(() => {
+    const animationResult = getUpvoteAnimation(post.tags || []);
+    if (
+      !animationResult.shouldAnimate ||
+      !animationResult.colors ||
+      !animationResult.config
+    ) {
+      return null;
+    }
+    return {
+      colors: animationResult.colors,
+      config: animationResult.config,
+      brandLogo: animationResult.brandLogo,
+    };
+  }, [getUpvoteAnimation, post.tags]);
 
   const { toggleBookmark } = useBookmarkPost();
 
@@ -257,7 +276,12 @@ export function PostActions({
               id="upvote-post-btn"
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
-              icon={<UpvoteIcon secondary={isUpvoteActive} />}
+              icon={
+                <UpvoteButtonIcon
+                  secondary={isUpvoteActive}
+                  brandAnimation={brandAnimation}
+                />
+              }
               aria-label="Upvote"
               variant={ButtonVariant.Tertiary}
               color={ButtonColor.Avocado}
