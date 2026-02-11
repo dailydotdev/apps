@@ -21,6 +21,9 @@ export const LEADERBOARD_QUERY = gql`
     mostReadingDays(limit: $limit) {
       ...LeaderboardFragment
     }
+    mostAchievementPoints(limit: $limit) {
+      ...LeaderboardFragment
+    }
     mostVerifiedUsers(limit: $limit) {
       score
       company {
