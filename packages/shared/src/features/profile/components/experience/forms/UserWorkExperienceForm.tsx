@@ -15,8 +15,17 @@ import ProfileSkills from '../../ProfileSkills';
 import type { TLocation } from '../../../../../graphql/autocomplete';
 import { profileSecondaryFieldStyles } from '../../../common';
 import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
+import type { Company } from '../../../../../lib/userCompany';
 
-const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
+type UserWorkExperienceFormProps = {
+  location?: TLocation;
+  company?: Company | null;
+};
+
+const UserWorkExperienceForm = ({
+  location,
+  company,
+}: UserWorkExperienceFormProps) => {
   const { watch } = useFormContext();
   const current = watch('current');
 
@@ -38,6 +47,8 @@ const UserWorkExperienceForm = ({ location }: { location?: TLocation }) => {
         <ProfileCompany
           label="Company or organization*"
           name="customCompanyName"
+          company={company}
+          entityLabel="company"
         />
         <ControlledTextField
           name="customDomain"

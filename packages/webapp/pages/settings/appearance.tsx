@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
+import dynamic from 'next/dynamic';
 
 import { ThemeSection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/ThemeSection';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -21,11 +22,20 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import classNames from 'classnames';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { SettingsSwitch } from '../../components/layouts/SettingsLayout/common';
+
+const IOSIconPicker = dynamic(
+  () =>
+    import('../../components/IOSIconPicker').then(
+      (module) => module.IOSIconPicker,
+    ),
+  { ssr: false },
+);
 
 const densities: RadioItemProps[] = [
   { label: 'Eco', value: 'eco' },
@@ -36,6 +46,8 @@ const densities: RadioItemProps[] = [
 const AccountManageSubscriptionPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { logEvent } = useLogContext();
+  const supportsAppIconChange =
+    typeof window !== 'undefined' && iOSSupportsAppIconChange();
 
   const {
     spaciness,
@@ -122,6 +134,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             reverse
           />
         </FlexCol>
+
+        {supportsAppIconChange && <IOSIconPicker />}
 
         <FlexCol className="gap-5">
           <Typography bold type={TypographyType.Subhead}>

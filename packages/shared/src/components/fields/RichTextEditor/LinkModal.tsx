@@ -33,11 +33,12 @@ export const LinkModal = ({
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
+      e.stopPropagation();
+
       if (!url.trim()) {
         return;
       }
 
-      // Add https:// if no protocol specified
       let finalUrl = url.trim();
       if (!/^https?:\/\//i.test(finalUrl)) {
         finalUrl = `https://${finalUrl}`;

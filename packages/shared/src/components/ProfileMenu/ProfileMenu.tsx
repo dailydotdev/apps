@@ -22,6 +22,7 @@ import { ResourceSection } from './sections/ResourceSection';
 import { AccountSection } from './sections/AccountSection';
 import { MainSection } from './sections/MainSection';
 import { ThemeSection } from './sections/ThemeSection';
+import { FeedbackButtonSection } from './sections/FeedbackButtonSection';
 import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
 import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 
@@ -60,7 +61,7 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
-      className="flex w-full max-w-80 flex-col gap-3 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+      className="flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
       {showProfileCompletion && <ProfileCompletion />}
       <ProfileMenuHeader />
@@ -89,6 +90,7 @@ export default function ProfileMenu({
         <HorizontalSeparator />
 
         <ResourceSection />
+        <FeedbackButtonSection className="px-1" />
 
         <HorizontalSeparator />
 

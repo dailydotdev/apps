@@ -240,6 +240,10 @@ export enum LogEvent {
   // End post snippets
   TopReaderModalClose = 'close badge',
   TopReaderBadgeDownload = 'download badge',
+  // AI quiz
+  StartAiFluencyQuiz = 'start ai fluency quiz',
+  CompleteAiFluencyQuiz = 'complete ai fluency quiz',
+  ShareAiFluencyQuiz = 'share ai fluency quiz',
   // Plus subscription
   UpgradeSubscription = 'upgrade subscription',
   ManageSubscription = 'manage subscription',
@@ -413,6 +417,7 @@ export enum TargetType {
   Layout = 'layout',
   Theme = 'theme',
   Language = 'language',
+  FeedbackButton = 'feedback button',
   // End settings
   SocialLink = 'social link',
   Badge = 'badge',

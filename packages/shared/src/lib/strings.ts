@@ -113,3 +113,10 @@ export const stripHtmlTags = (html: string): string => {
 export const escapeMarkdown = (text: string): string => {
   return text.replace(/[\\`*_{}[\]()#+\-.!|]/g, '\\$&');
 };
+
+/**
+ * Regex to test if a string contains special characters.
+ * Matches any character that is NOT alphanumeric, underscore, or dot.
+ * Used for validating user input like emoji shortcuts or mentions.
+ */
+export const specialCharsRegex = /[^A-Za-z0-9_.]/;

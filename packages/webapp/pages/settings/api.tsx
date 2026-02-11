@@ -52,8 +52,16 @@ const seo: NextSeoProps = {
 };
 
 const SKILL_INSTRUCTION =
-  'Read https://api.daily.dev/public/v1/skill.md and follow the instructions to connect to daily.dev';
+  'Install the daily-dev skill from clawdhub and explain my new superpowers';
 const OPENAPI_URL = 'https://api.daily.dev/public/v1/docs/json';
+const CLAUDE_INSTALL_COMMAND = [
+  `claude plugin marketplace add https://github.com/dailydotdev/daily.git`,
+  `claude plugin install daily.dev@daily.dev`,
+  `claude "/daily.dev setup"`,
+];
+
+const CURSOR_REPO_URL = 'https://github.com/dailydotdev/daily.git';
+const CODEX_INSTALL_COMMAND = `$skill-installer install the daily.dev skill from ${CURSOR_REPO_URL}`;
 
 const lowercaseRelativeDate = (dateStr: string): string => {
   const relativeDates = ['Now', 'Today', 'Yesterday'];
@@ -285,6 +293,33 @@ const ApiAccessPage = (): ReactElement => {
     }
   };
 
+  const handleCopyClaudeCommand = async () => {
+    try {
+      await navigator.clipboard.writeText(CLAUDE_INSTALL_COMMAND.join(' && '));
+      displayToast('Command copied to clipboard');
+    } catch {
+      displayToast('Failed to copy');
+    }
+  };
+
+  const handleCopyCodexCommand = async () => {
+    try {
+      await navigator.clipboard.writeText(CODEX_INSTALL_COMMAND);
+      displayToast('Command copied to clipboard');
+    } catch {
+      displayToast('Failed to copy');
+    }
+  };
+
+  const handleCopyCursorUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(CURSOR_REPO_URL);
+      displayToast('URL copied to clipboard');
+    } catch {
+      displayToast('Failed to copy');
+    }
+  };
+
   const handleRevoke = async (id: string) => {
     try {
       await revokeToken(id);
@@ -398,13 +433,13 @@ const ApiAccessPage = (): ReactElement => {
 
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Body} bold>
-            Connect Your AI Agent
+            Connect OpenClaw
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Copy this instruction to your AI agent to get started:
+            Copy this instruction to your agent to get started:
           </Typography>
           <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
             <code className="min-w-0 flex-1 break-words text-text-tertiary">
@@ -422,26 +457,139 @@ const ApiAccessPage = (): ReactElement => {
 
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Body} bold>
-            OpenAPI
+            Claude Code Integration
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            View the OpenAPI specification to explore available endpoints and
-            integrate with your tools.
+            Add daily.dev to Claude Code as a plugin with below commands:
           </Typography>
-          <Button
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            icon={<DocsIcon />}
-            tag="a"
-            href={OPENAPI_URL}
-            target="_blank"
-            className="self-start"
+          <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
+            <code className="min-w-0 flex-1 whitespace-pre-wrap break-words text-text-tertiary">
+              {CLAUDE_INSTALL_COMMAND.join('\n')}
+            </code>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<CopyIcon />}
+              onClick={handleCopyClaudeCommand}
+              className="shrink-0"
+            />
+          </div>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
           >
-            OpenAPI Reference
-          </Button>
+            After that you can use skill <strong>/daily.dev</strong> to interact
+            with your daily.dev feed and other features.
+          </Typography>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Body} bold>
+            Codex Integration
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Install the daily.dev skill in Codex with this command:
+          </Typography>
+          <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
+            <code className="min-w-0 flex-1 break-words text-text-tertiary">
+              {CODEX_INSTALL_COMMAND}
+            </code>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<CopyIcon />}
+              onClick={handleCopyCodexCommand}
+              className="shrink-0"
+            />
+          </div>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Restart Codex after installation, then use{' '}
+            <strong>$daily.dev</strong> to interact with your feed.
+          </Typography>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Body} bold>
+            Cursor Integration
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Add daily.dev as a remote skill in Cursor:
+          </Typography>
+          <ol className="list-inside list-decimal text-text-tertiary typo-callout">
+            <li>
+              Open Cursor Settings → Rules (Cmd+Shift+J on Mac, Ctrl+Shift+J on
+              Windows/Linux)
+            </li>
+            <li>
+              Click &quot;Add Rule&quot; → &quot;Remote Rule (Github)&quot;
+            </li>
+            <li>Enter the repository URL below</li>
+          </ol>
+          <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
+            <code className="min-w-0 flex-1 break-words text-text-tertiary">
+              {CURSOR_REPO_URL}
+            </code>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<CopyIcon />}
+              onClick={handleCopyCursorUrl}
+              className="shrink-0"
+            />
+          </div>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Use <strong>/daily.dev</strong> in Agent chat to interact with your
+            feed.
+          </Typography>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Body} bold>
+            Documentation
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Learn how to use the API and explore available endpoints.
+          </Typography>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<DocsIcon />}
+              tag="a"
+              href="https://docs.daily.dev/docs/plus/public-api"
+              target="_blank"
+            >
+              API Docs
+            </Button>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<DocsIcon />}
+              tag="a"
+              href={OPENAPI_URL}
+              target="_blank"
+            >
+              OpenAPI Reference
+            </Button>
+          </div>
         </div>
       </div>
 
