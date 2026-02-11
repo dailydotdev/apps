@@ -19,7 +19,7 @@ interface AchievementSyncPromptModalProps extends ModalProps {
 }
 
 const coverImage =
-  'https://daily-now-res.cloudinary.com/image/upload/s--Ydea6nW7--/q_auto/v1770804029/achievements/coverart';
+  'https://daily-now-res.cloudinary.com/image/upload/s---oy6SJlM--/q_auto/v1770807150/achievements/coverart';
 
 export const AchievementSyncPromptModal = ({
   onSync,
