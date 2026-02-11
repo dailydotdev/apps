@@ -102,6 +102,42 @@ jobs:
           working_directory: packages/shared
       - store_test_results:
           path: ./test-results
+  strict_typecheck_report:
+    docker:
+      - image: cimg/node:22.22
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
+      - run:
+          name: Strict Typecheck Report (non-blocking)
+          command: |
+            mkdir -p strict-typecheck
+            set +e
+
+            npm run typecheck:strict --prefix packages/shared > strict-typecheck/shared.log 2>&1
+            SHARED_EXIT=$?
+            npm run typecheck:strict --prefix packages/webapp > strict-typecheck/webapp.log 2>&1
+            WEBAPP_EXIT=$?
+            npm run typecheck:strict --prefix packages/extension > strict-typecheck/extension.log 2>&1
+            EXTENSION_EXIT=$?
+
+            echo "shared exit code: ${SHARED_EXIT}"
+            echo "webapp exit code: ${WEBAPP_EXIT}"
+            echo "extension exit code: ${EXTENSION_EXIT}"
+
+            for file in strict-typecheck/shared.log strict-typecheck/webapp.log strict-typecheck/extension.log; do
+              echo "--- ${file} ---"
+              grep -Eo 'error TS[0-9]+' "${file}" | sort | uniq -c | sort -nr | head -10 || true
+              echo "total errors: $(grep -Ec 'error TS[0-9]+' "${file}" || true)"
+            done
+
+            exit 0
+      - store_artifacts:
+          path: strict-typecheck
   build_extension:
     docker:
       - image: cimg/node:22.22
@@ -134,6 +170,9 @@ workflows:
           requires:
             - install_deps
       - test_shared:
+          requires:
+            - install_deps
+      - strict_typecheck_report:
           requires:
             - install_deps
       - build_extension:
