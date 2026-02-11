@@ -24,7 +24,7 @@ export function ProfilePreviewToggle({
   return (
     <div
       className={classNames(
-        'flex items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
+        'hidden items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 laptop:flex',
         className,
       )}
     >
