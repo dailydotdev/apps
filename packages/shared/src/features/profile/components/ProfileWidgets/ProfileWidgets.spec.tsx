@@ -16,15 +16,34 @@ import { gqlClient } from '../../../../graphql/common';
 
 const LogContext = getLogContextStatic();
 
+jest.mock('./AchievementsWidget', () => ({
+  AchievementsWidget: () => null,
+}));
+
+jest.mock('./AchievementSyncPromptCheck', () => ({
+  AchievementSyncPromptCheck: () => null,
+}));
+
 jest.mock('next/dynamic', () => ({
   __esModule: true,
-  default: () => {
-    // Synchronously require the actual component
-    const mod =
-      jest.requireActual<Record<string, React.ComponentType>>(
+  default: (importFn: () => Promise<Record<string, React.ComponentType>>) => {
+    const fnStr = importFn.toString();
+    if (fnStr.includes('BadgesAndAwards')) {
+      return jest.requireActual<Record<string, React.ComponentType>>(
         './BadgesAndAwards',
-      );
-    return mod.BadgesAndAwards;
+      ).BadgesAndAwards;
+    }
+    if (fnStr.includes('AchievementsWidget')) {
+      return jest.requireMock<Record<string, React.ComponentType>>(
+        './AchievementsWidget',
+      ).AchievementsWidget;
+    }
+    if (fnStr.includes('AchievementSyncPromptCheck')) {
+      return jest.requireMock<Record<string, React.ComponentType>>(
+        './AchievementSyncPromptCheck',
+      ).AchievementSyncPromptCheck;
+    }
+    return () => null;
   },
 }));
 
