@@ -38,6 +38,7 @@ interface PageProps {
   mostUpvoted: UserLeaderboard[];
   mostReferrals: UserLeaderboard[];
   mostReadingDays: UserLeaderboard[];
+  mostAchievementPoints: UserLeaderboard[];
   mostVerifiedUsers: CompanyLeaderboard[];
   popularHotTakes: PopularHotTakes[];
 }
@@ -49,6 +50,7 @@ const LeaderboardPage = ({
   mostUpvoted,
   mostReferrals,
   mostReadingDays,
+  mostAchievementPoints,
   mostVerifiedUsers,
   popularHotTakes,
 }: PageProps): ReactElement => {
@@ -115,6 +117,14 @@ const LeaderboardPage = ({
           items={mostReadingDays}
           isLoading={isLoading}
         />
+        <UserTopList
+          containerProps={{
+            title: 'Most achievement points',
+            titleHref: `/users/${LeaderboardType.MostAchievementPoints}`,
+          }}
+          items={mostAchievementPoints}
+          isLoading={isLoading}
+        />
         <CompanyTopList
           containerProps={{
             title: 'Most verified employees',
@@ -159,6 +169,7 @@ export async function getStaticProps(): Promise<
         mostUpvoted: res.mostUpvoted,
         mostReferrals: res.mostReferrals,
         mostReadingDays: res.mostReadingDays,
+        mostAchievementPoints: res.mostAchievementPoints,
         mostVerifiedUsers: res.mostVerifiedUsers,
         popularHotTakes: res.popularHotTakes,
       },
@@ -166,6 +177,7 @@ export async function getStaticProps(): Promise<
     };
   } catch (err: unknown) {
     const error = err as GraphQLError;
+
     if (
       [ApiError.NotFound, ApiError.Forbidden].includes(
         error?.response?.errors?.[0]?.extensions?.code,
@@ -179,6 +191,7 @@ export async function getStaticProps(): Promise<
           mostUpvoted: [],
           mostReferrals: [],
           mostReadingDays: [],
+          mostAchievementPoints: [],
           mostVerifiedUsers: [],
           popularHotTakes: [],
         },
