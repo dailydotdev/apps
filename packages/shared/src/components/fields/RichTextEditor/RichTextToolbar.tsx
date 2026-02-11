@@ -1,10 +1,11 @@
-import type { ReactElement, Ref } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
 import React, {
   useState,
   useCallback,
   forwardRef,
   useImperativeHandle,
 } from 'react';
+import { useEditorState } from '@tiptap/react';
 import type { Editor } from '@tiptap/react';
 import { getMarkRange } from '@tiptap/core';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -23,6 +24,8 @@ import { LinkModal } from './LinkModal';
 export interface RichTextToolbarProps {
   editor: Editor;
   onLinkAdd: (url: string, label?: string) => void;
+  inlineActions?: ReactNode;
+  rightActions?: ReactNode;
 }
 
 export interface RichTextToolbarRef {
@@ -63,7 +66,7 @@ const ToolbarButton = ({
 };
 
 function RichTextToolbarComponent(
-  { editor, onLinkAdd }: RichTextToolbarProps,
+  { editor, onLinkAdd, inlineActions, rightActions }: RichTextToolbarProps,
   ref: Ref<RichTextToolbarRef>,
 ): ReactElement {
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
@@ -117,58 +120,82 @@ function RichTextToolbarComponent(
     setIsLinkModalOpen(false);
   }, []);
 
+  const editorState = useEditorState({
+    editor,
+    selector: ({ editor: currentEditor }) => ({
+      isBold: currentEditor.isActive('bold'),
+      isItalic: currentEditor.isActive('italic'),
+      isBulletList: currentEditor.isActive('bulletList'),
+      isOrderedList: currentEditor.isActive('orderedList'),
+      isLink: currentEditor.isActive('link'),
+      canUndo: currentEditor.can().undo(),
+      canRedo: currentEditor.can().redo(),
+    }),
+  });
+
   return (
     <>
-      <div className="flex items-center gap-1 border-b border-border-subtlest-tertiary p-2">
-        <ToolbarButton
-          tooltip="Bold (⌘B)"
-          icon={<BoldIcon />}
-          isActive={editor.isActive('bold')}
-          onClick={() => editor.chain().focus().toggleBold().run()}
-        />
-        <ToolbarButton
-          tooltip="Italic (⌘I)"
-          icon={<ItalicIcon />}
-          isActive={editor.isActive('italic')}
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-        />
-        <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
-        <ToolbarButton
-          tooltip="Bullet list (⌘⇧8)"
-          icon={<BulletListIcon />}
-          isActive={editor.isActive('bulletList')}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-        />
-        <ToolbarButton
-          tooltip="Numbered list (⌘⇧7)"
-          icon={<NumberedListIcon />}
-          isActive={editor.isActive('orderedList')}
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        />
-        <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
-        <ToolbarButton
-          tooltip={editor.isActive('link') ? 'Edit link (⌘K)' : 'Add link (⌘K)'}
-          icon={<LinkIcon />}
-          isActive={editor.isActive('link')}
-          onClick={openLinkModal}
-        />
-        {(editor.can().undo() || editor.can().redo()) && (
+      <div className="flex flex-row flex-wrap items-center gap-1 border-b border-border-subtlest-tertiary p-2">
+        <div className="flex flex-1 flex-wrap items-center gap-1">
+          <ToolbarButton
+            tooltip="Bold (⌘B)"
+            icon={<BoldIcon />}
+            isActive={editorState.isBold}
+            onClick={() => editor.chain().focus().toggleBold().run()}
+          />
+          <ToolbarButton
+            tooltip="Italic (⌘I)"
+            icon={<ItalicIcon />}
+            isActive={editorState.isItalic}
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+          />
           <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
+          <ToolbarButton
+            tooltip="Bullet list (⌘⇧8)"
+            icon={<BulletListIcon />}
+            isActive={editorState.isBulletList}
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+          />
+          <ToolbarButton
+            tooltip="Numbered list (⌘⇧7)"
+            icon={<NumberedListIcon />}
+            isActive={editorState.isOrderedList}
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          />
+          <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
+          <ToolbarButton
+            tooltip={editorState.isLink ? 'Edit link (⌘K)' : 'Add link (⌘K)'}
+            icon={<LinkIcon />}
+            isActive={editorState.isLink}
+            onClick={openLinkModal}
+          />
+          {inlineActions && (
+            <>
+              <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
+              <div className="flex items-center gap-1">{inlineActions}</div>
+            </>
+          )}
+          {(editorState.canUndo || editorState.canRedo) && (
+            <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
+          )}
+          <ToolbarButton
+            tooltip="Undo (⌘Z)"
+            icon={<UndoIcon />}
+            isActive={false}
+            onClick={() => editor.chain().focus().undo().run()}
+            disabled={!editorState.canUndo}
+          />
+          <ToolbarButton
+            tooltip="Redo (⌘⇧Z)"
+            icon={<RedoIcon />}
+            isActive={false}
+            onClick={() => editor.chain().focus().redo().run()}
+            disabled={!editorState.canRedo}
+          />
+        </div>
+        {rightActions && (
+          <div className="flex shrink-0 items-center gap-1">{rightActions}</div>
         )}
-        <ToolbarButton
-          tooltip="Undo (⌘Z)"
-          icon={<UndoIcon />}
-          isActive={false}
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
-        />
-        <ToolbarButton
-          tooltip="Redo (⌘⇧Z)"
-          icon={<RedoIcon />}
-          isActive={false}
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
-        />
       </div>
       <LinkModal
         isOpen={isLinkModalOpen}

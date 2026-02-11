@@ -125,7 +125,11 @@ export type Opportunity = {
   };
   meta: OpportunityMeta;
   recruiters: RecruiterProfile[];
-  locations: Array<{ location: OpportunityLocation; type?: ProtoEnumValue }>;
+  locations: Array<{
+    location: OpportunityLocation;
+    type?: ProtoEnumValue;
+    locationId?: string;
+  }>;
   keywords?: Keyword[];
   questions?: OpportunityScreeningQuestion[];
   feedbackQuestions?: OpportunityFeedbackQuestion[];

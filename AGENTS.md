@@ -131,6 +131,33 @@ import ControlledTextarea from '@dailydotdev/shared/src/components/fields/Contro
 import ControlledSwitch from '@dailydotdev/shared/src/components/fields/ControlledSwitch';
 ```
 
+**IMPORTANT - Zod Type Inference:**
+- **ALWAYS use `z.infer` to derive TypeScript types from Zod schemas**
+- **NEVER manually define types that duplicate Zod schema structure**
+
+```typescript
+// ❌ WRONG: Manual type definition that duplicates schema
+const userSchema = z.object({
+  name: z.string(),
+  age: z.number(),
+});
+
+interface User {
+  name: string;
+  age: number;
+}
+
+// ✅ RIGHT: Infer type from schema
+const userSchema = z.object({
+  name: z.string(),
+  age: z.number(),
+});
+
+export type User = z.infer<typeof userSchema>;
+```
+
+This ensures type safety, reduces duplication, and keeps types automatically in sync with schemas.
+
 ## Quick Commands
 
 ```bash

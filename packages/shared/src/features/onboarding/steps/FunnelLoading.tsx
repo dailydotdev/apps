@@ -18,7 +18,7 @@ const FunnelLoading = ({
 }: FunnelStepLoading): ReactElement => {
   const [percentage, setPercentage] = useState(0);
   const animationRef = useRef<number>();
-  const pauseTimeoutRef = useRef<NodeJS.Timeout>();
+  const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const hasStarted = useRef(false);
 
   useEffect(() => {

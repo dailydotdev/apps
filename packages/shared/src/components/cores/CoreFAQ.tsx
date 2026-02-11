@@ -29,7 +29,6 @@ export const CoreFAQ = (): ReactElement => {
       <div className="w-xl mx-auto flex max-w-full flex-1 flex-col gap-4">
         <RadixAccordion items={coresFAQItems} />
       </div>
-      items
       <Typography
         className="mt-10 text-center"
         color={TypographyColor.Tertiary}

@@ -21,6 +21,6 @@
     "node": ">=22.22.0"
   },
   "dependencies": {
-    "dotenv": "^17.2.1"
+    "dotenv": "^17.2.3"
   }
 }
