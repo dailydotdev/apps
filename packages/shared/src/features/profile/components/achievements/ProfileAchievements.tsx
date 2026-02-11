@@ -108,7 +108,7 @@ export function ProfileAchievements({
           ({unlockedCount}/{totalCount})
         </Typography>
       </div>
-      <AchievementsList achievements={achievements} />
+      <AchievementsList achievements={achievements} user={user} />
     </div>
   );
 }

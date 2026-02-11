@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import classNames from 'classnames';
-import type { UserAchievement } from '../../../../graphql/user/achievements';
+import type {
+  AchievementSyncResult,
+  UserAchievement,
+} from '../../../../graphql/user/achievements';
 import { getTargetCount } from '../../../../graphql/user/achievements';
 import { AchievementCard } from './AchievementCard';
 import {
@@ -9,7 +12,18 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  Button,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
+import type { PublicProfile } from '../../../../lib/user';
+import { useAuthContext } from '../../../../contexts/AuthContext';
+import { useAchievementSync } from '../../../../hooks/profile/useAchievementSync';
+import { AchievementSyncModal } from '../ProfileWidgets/AchievementSyncModal';
+import { useActions } from '../../../../hooks';
+import { useLazyModal } from '../../../../hooks/useLazyModal';
+import { ActionType } from '../../../../graphql/actions';
+import { LazyModal } from '../../../../components/modals/common/types';
 
 type FilterType = 'all' | 'unlocked' | 'locked';
 
@@ -25,14 +39,77 @@ const getEmptyMessage = (filter: FilterType): string => {
 
 interface AchievementsListProps {
   achievements: UserAchievement[];
+  user: PublicProfile;
   className?: string;
 }
 
 export function AchievementsList({
   achievements,
+  user,
   className,
 }: AchievementsListProps): ReactElement {
   const [filter, setFilter] = useState<FilterType>('all');
+  const { user: loggedUser } = useAuthContext();
+  const isOwner = loggedUser?.id === user.id;
+  const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
+    useAchievementSync(user);
+  const [syncResult, setSyncResult] = useState<AchievementSyncResult | null>(
+    null,
+  );
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const { isActionsFetched, checkHasCompleted } = useActions();
+  const { openModal } = useLazyModal();
+
+  const syncButtonTitle = (() => {
+    if (!syncStatus) {
+      return undefined;
+    }
+
+    return syncStatus.canSync
+      ? 'One-time sync available'
+      : 'One-time sync already used';
+  })();
+
+  const handleSync = useCallback(async () => {
+    if (!isOwner || isSyncing || syncStatus?.canSync === false) {
+      return;
+    }
+
+    setSyncResult(null);
+    setIsSyncModalOpen(true);
+
+    try {
+      const result = await syncAchievements();
+      setSyncResult(result);
+    } catch {
+      setIsSyncModalOpen(false);
+    }
+  }, [isOwner, isSyncing, syncAchievements, syncStatus?.canSync]);
+
+  useEffect(() => {
+    if (
+      !isActionsFetched ||
+      !isOwner ||
+      isStatusPending ||
+      !syncStatus?.canSync ||
+      checkHasCompleted(ActionType.AchievementSyncPrompt)
+    ) {
+      return;
+    }
+
+    openModal({
+      type: LazyModal.AchievementSyncPrompt,
+      props: { onSync: handleSync },
+    });
+  }, [
+    isActionsFetched,
+    isOwner,
+    isStatusPending,
+    syncStatus?.canSync,
+    checkHasCompleted,
+    openModal,
+    handleSync,
+  ]);
 
   const filteredAchievements = useMemo(() => {
     const sorted = [...achievements].sort((a, b) => {
@@ -79,29 +156,30 @@ export function AchievementsList({
 
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
-      <div className="flex gap-2">
-        {filters.map(({ type, label, count }) => (
-          <Button
-            key={type}
-            variant={
-              filter === type ? ButtonVariant.Primary : ButtonVariant.Subtle
-            }
-            onClick={() => setFilter(type)}
-            className="flex items-center gap-1.5"
-          >
-            {label}
-            <Typography
-              type={TypographyType.Footnote}
-              color={
-                filter === type
-                  ? TypographyColor.Primary
-                  : TypographyColor.Tertiary
+      <div className="flex items-center justify-between">
+        <div className="flex gap-2">
+          {filters.map(({ type, label, count }) => (
+            <Button
+              key={type}
+              variant={
+                filter === type ? ButtonVariant.Primary : ButtonVariant.Subtle
               }
+              onClick={() => setFilter(type)}
             >
-              ({count})
-            </Typography>
+              {label} ({count})
+            </Button>
+          ))}
+        </div>
+        {isOwner && syncStatus?.canSync && (
+          <Button
+            variant={ButtonVariant.Secondary}
+            disabled={isSyncing || isStatusPending}
+            onClick={handleSync}
+            title={syncButtonTitle}
+          >
+            {isSyncing ? 'Syncing...' : 'Sync'}
           </Button>
-        ))}
+        )}
       </div>
 
       {filteredAchievements.length === 0 ? (
@@ -122,6 +200,14 @@ export function AchievementsList({
             />
           ))}
         </div>
+      )}
+      {isSyncModalOpen && (
+        <AchievementSyncModal
+          isOpen={isSyncModalOpen}
+          onRequestClose={() => setIsSyncModalOpen(false)}
+          result={syncResult}
+          isPending={isSyncing}
+        />
       )}
     </div>
   );
