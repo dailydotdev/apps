@@ -39,9 +39,12 @@ export function AchievementCard({
       )}
     >
       <div className="flex items-start gap-3">
-        <div
+        <a
+          href={achievement.image}
+          target="_blank"
+          rel="noopener noreferrer"
           className={classNames(
-            'relative flex size-12 shrink-0 items-center justify-center rounded-12',
+            'relative flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-12',
             !isUnlocked && 'opacity-50 grayscale',
           )}
         >
@@ -51,7 +54,7 @@ export function AchievementCard({
             className="size-12 rounded-12 object-cover"
             fallbackSrc="https://daily.dev/default-achievement.png"
           />
-        </div>
+        </a>
         <div className="flex min-w-0 flex-1 flex-col">
           <Typography
             type={TypographyType.Callout}

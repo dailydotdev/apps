@@ -13,6 +13,7 @@ import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchi
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import { MedalBadgeIcon } from '../../../../components/icons';
 import { LazyImage } from '../../../../components/LazyImage';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
 
 interface AchievementsWidgetProps {
   user: PublicProfile;
@@ -55,18 +56,31 @@ function RecentAchievements({
     return (
       <div className="mt-3 flex gap-2">
         {recentUnlocked.map((ua) => (
-          <div
+          <Tooltip
             key={ua.achievement.id}
-            className="size-10 overflow-hidden rounded-10"
-            title={ua.achievement.name}
+            content={
+              <img
+                src={ua.achievement.image}
+                alt={ua.achievement.name}
+                className="size-52 rounded-10 object-cover"
+              />
+            }
+            className="overflow-hidden !bg-transparent !p-0"
           >
-            <LazyImage
-              imgSrc={ua.achievement.image}
-              imgAlt={ua.achievement.name}
-              className="size-full object-cover"
-              fallbackSrc="https://daily.dev/default-achievement.png"
-            />
-          </div>
+            <a
+              href={ua.achievement.image}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="size-10 cursor-pointer overflow-hidden rounded-10"
+            >
+              <LazyImage
+                imgSrc={ua.achievement.image}
+                imgAlt={ua.achievement.name}
+                className="size-full object-cover"
+                fallbackSrc="https://daily.dev/default-achievement.png"
+              />
+            </a>
+          </Tooltip>
         ))}
       </div>
     );
