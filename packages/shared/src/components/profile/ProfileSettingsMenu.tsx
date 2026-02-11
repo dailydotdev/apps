@@ -17,6 +17,7 @@ import {
   BlockIcon,
   CoinIcon,
   CreditCardIcon,
+  GiftIcon,
   HashtagIcon,
   HotIcon,
   InviteIcon,
@@ -128,6 +129,12 @@ const useAccountPageItems = () => {
               icon: InviteIcon,
               href: `${settingsUrl}/invite`,
             },
+            // TODO: Re-enable when ready
+            // coupons: {
+            //   title: 'Coupons',
+            //   icon: GiftIcon,
+            //   href: `${settingsUrl}/coupons`,
+            // },
           },
         },
         career: {

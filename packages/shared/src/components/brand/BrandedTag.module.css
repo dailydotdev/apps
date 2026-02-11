@@ -1,0 +1,100 @@
+/* BrandedTag - Micro-interaction animations for sponsored tags */
+
+.brandedTag {
+  cursor: pointer;
+  will-change: transform, border-color, background;
+}
+
+.brandedTag:hover {
+  transform: scale(1.02);
+}
+
+/* Tag content animations */
+.tagContent {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tagContent.fadeOut {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* Branded content animations */
+.brandedContent {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.brandedContent.fadeIn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Brand logo pulse effect */
+.brandLogo {
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 4px currentColor);
+  }
+}
+
+/* Brand text */
+.brandText {
+  white-space: nowrap;
+}
+
+/* Animated state - glow effect */
+.animated {
+  animation: tagGlow 2s ease-in-out infinite;
+}
+
+@keyframes tagGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 8px 0 var(--brand-primary, #6e40c9);
+  }
+}
+
+/* Shimmer effect during transition */
+.shimmer {
+  position: absolute;
+  inset: 0;
+  animation: shimmerMove 0.8s ease-out forwards;
+}
+
+@keyframes shimmerMove {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Entry animation for the whole tag */
+.brandedTag.animated {
+  animation: tagEntrance 0.5s ease-out forwards, tagGlow 2s ease-in-out 0.5s infinite;
+}
+
+@keyframes tagEntrance {
+  0% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

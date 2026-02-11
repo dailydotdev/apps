@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { ClickableText } from '../../buttons/ClickableText';
 import { useToggle } from '../../../hooks/useToggle';
+import { HighlightedText } from '../../brand/HighlightedWord';
 
 export type ShowMoreContentEnding = 'ellipsis' | 'punctuation' | 'none';
 
@@ -81,7 +82,7 @@ export default function ShowMoreContent({
         data-testid="tldr-container"
       >
         {contentPrefix}
-        {shownContent}
+        <HighlightedText text={shownContent} />
         {showMore.isVisible && (
           <ClickableText
             className="inline-flex !text-text-link"

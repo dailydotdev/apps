@@ -21,12 +21,12 @@ export default function CardWelcome({
   const { user } = useAuthContext();
   const [isMounted, setIsMounted] = useState(false);
 
+  // Get the user's first name (or username as fallback)
+  const displayName = user?.name?.split(' ')[0] || user?.username || 'Dev';
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  // Get the user's first name (or username as fallback)
-  const displayName = user?.name?.split(' ')[0] || user?.username || 'Dev';
 
   // Before mount, hide elements that should animate in
   const hidden = { opacity: 0, y: 20 };

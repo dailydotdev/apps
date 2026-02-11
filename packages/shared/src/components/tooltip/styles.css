@@ -1,4 +1,10 @@
 [data-radix-popper-content-wrapper] { min-width: auto!important; }
+
+/* Hide arrow for transparent tooltips */
+.TooltipContent.no-arrow .TooltipArrow,
+.TooltipContent.no-arrow > svg {
+  display: none !important;
+}
 .TooltipContent {
   user-select: none;
   animation-duration: 400ms;

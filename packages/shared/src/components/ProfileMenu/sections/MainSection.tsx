@@ -2,7 +2,7 @@ import React from 'react';
 import type { ReactElement } from 'react';
 
 import { ProfileSection } from '../ProfileSection';
-import { CoinIcon, DevCardIcon, UserIcon } from '../../icons';
+import { CoinIcon, DevCardIcon, GiftIcon, UserIcon } from '../../icons';
 import { settingsUrl, walletUrl, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
@@ -29,6 +29,12 @@ export const MainSection = (): ReactElement => {
           href: `${settingsUrl}/customization/devcard`,
           icon: DevCardIcon,
         },
+        // TODO: Re-enable when ready
+        // {
+        //   title: 'Coupons',
+        //   href: `${settingsUrl}/coupons`,
+        //   icon: GiftIcon,
+        // },
       ].filter(Boolean)}
     />
   );

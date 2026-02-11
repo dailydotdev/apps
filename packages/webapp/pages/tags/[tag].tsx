@@ -67,6 +67,7 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
 import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
+import { SponsoredTagHero } from '@dailydotdev/shared/src/components/brand/SponsoredTagHero';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
@@ -224,6 +225,10 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
 
   return (
     <FeedPageLayoutComponent>
+      <SponsoredTagHero
+        tag={tag}
+        className={shouldUseListFeedLayout ? 'mx-4 mb-4' : 'mb-4'}
+      />
       <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
@@ -289,34 +294,6 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
             tag={tag}
             blockedTags={feedSettings?.blockedTags}
           />
-        )}
-        {showRoadmap && initialData?.flags?.roadmap && (
-          <Link href={initialData.flags.roadmap} passHref prefetch={false}>
-            <a
-              target="_blank"
-              rel={anchorDefaultRel}
-              className="mr-auto flex w-auto cursor-pointer items-center rounded-12 border border-border-subtlest-tertiary p-4"
-            >
-              <img
-                src={cloudinarySourceRoadmap}
-                alt="roadmap.sh logo"
-                className="size-10 rounded-full"
-              />
-              <div className="mx-3 flex-1">
-                <p className="font-bold typo-callout">
-                  Comprehensive roadmap for {tag}
-                </p>
-                <p className="text-text-tertiary typo-footnote">
-                  By roadmap.sh
-                </p>
-              </div>
-              <Button
-                icon={<OpenLinkIcon />}
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-              />
-            </a>
-          </Link>
         )}
       </PageInfoHeader>
       <TagTopSources tag={tag} />

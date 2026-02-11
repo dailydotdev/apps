@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { useFollowPostTags } from '../../../hooks/feed/useFollowPostTags';
@@ -16,6 +16,8 @@ import { Button, ButtonSize } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
+import { BrandedTag } from '../../brand/BrandedTag';
+import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 
 interface PostTagListProps {
   post: Post;
@@ -25,6 +27,7 @@ interface PostTagItemProps {
   isFollowed?: boolean;
   onFollow?: (tag: string) => void;
   tag: string;
+  disableBranding?: boolean;
 }
 
 const Chip = <T extends TypographyTag>({
@@ -50,29 +53,34 @@ const PostTagItem = ({
   isFollowed,
   onFollow,
   tag,
+  disableBranding,
 }: PostTagItemProps): ReactElement => {
   if (isFollowed) {
     return (
       <Link href={getTagPageLink(tag)} passHref prefetch={false}>
-        <Chip
-          className="border px-2 py-1 hover:bg-border-subtlest-tertiary"
-          role="listitem"
-          tag={TypographyTag.Link}
-          title={`Check all #${tag} posts`}
-        >
-          #{tag}
-        </Chip>
+        <a title={`Check all #${tag} posts`}>
+          <BrandedTag
+            tag={tag}
+            asSpan
+            disableBranding={disableBranding}
+            className="border px-2 py-1 hover:bg-border-subtlest-tertiary"
+          />
+        </a>
       </Link>
     );
   }
 
   return (
     <Chip className="flex items-center bg-surface-float" role="listitem">
-      <Link href={getTagPageLink(tag)} passHref>
-        <a
-          className="inline-block px-2 py-1"
-          title={`Check all #${tag} posts`}
-        >{`#${tag}`}</a>
+      <Link href={getTagPageLink(tag)} passHref prefetch={false}>
+        <a title={`Check all #${tag} posts`}>
+          <BrandedTag
+            tag={tag}
+            asSpan
+            disableBranding={disableBranding}
+            className="!border-0 !bg-transparent !h-auto py-1"
+          />
+        </a>
       </Link>
       <span
         className="h-3 translate-y-px rounded-2 border border-border-subtlest-tertiary"
@@ -91,6 +99,12 @@ const PostTagItem = ({
 
 export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
   const { onFollowTag, tags } = useFollowPostTags({ post });
+  const { isTagSponsored } = useBrandSponsorship();
+
+  // Only allow one tag to show branding - find the first sponsored tag
+  const firstSponsoredTag = useMemo(() => {
+    return tags.all.find((tag) => isTagSponsored(tag)) || null;
+  }, [tags.all, isTagSponsored]);
 
   if (!tags.all.length) {
     return null;
@@ -99,7 +113,12 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
   return (
     <ul aria-label="Post tags" className="flex flex-wrap items-center gap-2">
       {tags.followed.map((tag) => (
-        <PostTagItem key={`followed-${tag}`} tag={tag} isFollowed />
+        <PostTagItem
+          key={`followed-${tag}`}
+          tag={tag}
+          isFollowed
+          disableBranding={tag !== firstSponsoredTag}
+        />
       ))}
       {tags.notFollowed.map((tag) => (
         <PostTagItem
@@ -107,6 +126,7 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
           key={`notFollowed-${tag}`}
           onFollow={onFollowTag}
           tag={tag}
+          disableBranding={tag !== firstSponsoredTag}
         />
       ))}
     </ul>

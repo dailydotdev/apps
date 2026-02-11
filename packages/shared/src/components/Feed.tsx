@@ -137,6 +137,7 @@ const ProfileCompletionCard = dynamic(
     ),
 );
 
+
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
 const calculateColumn = (index: number, numCards: number): number =>

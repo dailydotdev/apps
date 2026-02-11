@@ -1,0 +1,66 @@
+/* Falling coins animation container */
+.coinsContainer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Individual falling coin */
+.coin {
+  position: absolute;
+  top: -24px;
+  opacity: 0;
+  animation: fallDown 4s ease-in-out infinite;
+}
+
+.coin:nth-child(1) {
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 3.5s;
+}
+
+.coin:nth-child(2) {
+  left: 30%;
+  animation-delay: 0.8s;
+  animation-duration: 4s;
+}
+
+.coin:nth-child(3) {
+  left: 50%;
+  animation-delay: 1.6s;
+  animation-duration: 3.2s;
+}
+
+.coin:nth-child(4) {
+  left: 70%;
+  animation-delay: 2.4s;
+  animation-duration: 4.2s;
+}
+
+.coin:nth-child(5) {
+  left: 85%;
+  animation-delay: 0.4s;
+  animation-duration: 3.8s;
+}
+
+@keyframes fallDown {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.18;
+  }
+  95% {
+    opacity: 0.1;
+  }
+  100% {
+    transform: translateY(80px) rotate(180deg);
+    opacity: 0;
+  }
+}

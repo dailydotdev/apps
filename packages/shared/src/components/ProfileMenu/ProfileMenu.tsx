@@ -25,6 +25,14 @@ import { ThemeSection } from './sections/ThemeSection';
 import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
 import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 
+const PromotedChecklistMenuItem = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "promotedChecklistMenuItem" */ '../checklist/PromotedChecklistMenuItem'
+    ).then((mod) => mod.PromotedChecklistMenuItem),
+  { ssr: false },
+);
+
 const ExtensionSection = dynamic(() =>
   import(
     /* webpackChunkName: "extensionSection" */ './sections/ExtensionSection'
@@ -70,6 +78,8 @@ export default function ProfileMenu({
         size={ButtonSize.Small}
         className="flex-initial"
       />
+
+      {/* TODO: Re-enable when ready - <PromotedChecklistMenuItem /> */}
 
       <HorizontalSeparator />
 
