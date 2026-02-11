@@ -30,4 +30,18 @@ describe('markdownConversion', () => {
 
     expect(markdown).toBe('```\nconst a = 1;\n```');
   });
+
+  it('should preserve images while converting html and markdown', () => {
+    const html = '<img src="https://cdn.daily.dev/image.png" alt="Preview" />';
+
+    const markdown = htmlToMarkdownBasic(html);
+
+    expect(markdown).toBe('![Preview](https://cdn.daily.dev/image.png)');
+
+    const convertedHtml = markdownToHtmlBasic(markdown);
+
+    expect(convertedHtml).toContain(
+      '<img src="https://cdn.daily.dev/image.png" alt="Preview" />',
+    );
+  });
 });

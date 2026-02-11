@@ -56,6 +56,7 @@ export enum ActionType {
   ProfileCompleted = 'profile_completed',
   ClickedOpportunityNavigation = 'click_opportunity_navigation',
   DismissProfileCompletionIndicator = 'dismiss_profile_completion_indicator',
+  AchievementSyncPrompt = 'achievement_sync_prompt',
 }
 
 export const cvActions = [
