@@ -116,7 +116,10 @@ const onMutateAdvancedSettings = async (
   if (!currentSettings) {
     return noopRollback;
   }
-  const newData = manipulate(normalizeFeedSettings(currentSettings), advancedSettings);
+  const newData = manipulate(
+    normalizeFeedSettings(currentSettings),
+    advancedSettings,
+  );
   const keys = [queryKey, queryKey];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
@@ -182,12 +185,12 @@ const clearNotificationPreference = async ({
 }: {
   queryClient: QueryClient;
   user?: LoggedUser;
-}) => {
+}): Promise<void> => {
   if (!user) {
     return;
   }
 
-  return queryClient.invalidateQueries({
+  await queryClient.invalidateQueries({
     queryKey: generateQueryKey(RequestKey.NotificationPreference, user),
   });
 };
