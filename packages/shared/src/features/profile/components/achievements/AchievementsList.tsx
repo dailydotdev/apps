@@ -12,10 +12,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import {
-  Button,
-  ButtonVariant,
-} from '../../../../components/buttons/Button';
+import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import type { PublicProfile } from '../../../../lib/user';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useAchievementSync } from '../../../../hooks/profile/useAchievementSync';
