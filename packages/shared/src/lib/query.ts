@@ -354,23 +354,23 @@ export const updateCachedPage = (
 
 export const updateCachedPagePost =
   (feedQueryKey: QueryKey, queryClient: QueryClient) =>
-    (pageIndex: number, index: number, post: Post): void => {
-      updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
-        // eslint-disable-next-line no-param-reassign
-        page.edges[index].node = post;
-        return page;
-      });
-    };
+  (pageIndex: number, index: number, post: Post): void => {
+    updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
+      // eslint-disable-next-line no-param-reassign
+      page.edges[index].node = post;
+      return page;
+    });
+  };
 
 export const removeCachedPagePost =
   (feedQueryKey: QueryKey, queryClient: QueryClient) =>
-    (pageIndex: number, index: number): void => {
-      updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
-        // eslint-disable-next-line no-param-reassign
-        page.edges.splice(index, 1);
-        return page;
-      });
-    };
+  (pageIndex: number, index: number): void => {
+    updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
+      // eslint-disable-next-line no-param-reassign
+      page.edges.splice(index, 1);
+      return page;
+    });
+  };
 
 export const updateReadingHistoryListPost = ({
   queryKey,
