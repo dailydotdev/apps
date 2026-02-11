@@ -177,12 +177,11 @@ export async function getStaticProps(): Promise<
     };
   } catch (err: unknown) {
     const error = err as GraphQLError;
-    const errorCode = error?.response?.errors?.[0]?.extensions?.code;
 
-    // Handle API errors and GraphQL validation errors (for fields not yet in backend)
     if (
-      [ApiError.NotFound, ApiError.Forbidden].includes(errorCode) ||
-      errorCode === 'GRAPHQL_VALIDATION_FAILED'
+      [ApiError.NotFound, ApiError.Forbidden].includes(
+        error?.response?.errors?.[0]?.extensions?.code,
+      )
     ) {
       return {
         props: {
