@@ -188,7 +188,7 @@ export default function useFeed<T>(
     const hasStaleCursor = pages.some((p) => p.page.pageInfo.staleCursor);
     if (hasStaleCursor) {
       isResettingRef.current = true;
-      queryClient.resetQueries({ queryKey: feedQueryKey }).then(() => {
+      queryClient.resetQueries({ queryKey: feedQueryKey }).finally(() => {
         isResettingRef.current = false;
       });
     }
