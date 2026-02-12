@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useRef } from 'react';
 import type { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
@@ -127,6 +127,8 @@ export default function useFeed<T>(
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
+  // Track seen post IDs to prevent duplicates when feed cache regenerates mid-session
+  const seenPostIdsRef = useRef<Set<string>>(new Set());
   const { fetchTranslations } = useTranslation({
     queryKey: feedQueryKey,
     queryType: 'feed',
@@ -296,17 +298,17 @@ export default function useFeed<T>(
     const marketingCtaAsFirstCard = settings?.marketingCta?.flags?.asFirstCard;
     const plusEntryAsFirstCard = settings?.plusEntry?.flags?.asFirstCard;
 
-    // Track seen post IDs to prevent duplicates when feed cache regenerates mid-session
-    const seenPostIds = new Set<string>();
+    // Clear and rebuild seen post IDs when feed data changes
+    seenPostIdsRef.current.clear();
 
     if (feedQuery.data) {
       newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
         page.edges.forEach(({ node }, index) => {
           // Skip duplicate posts (can occur when feed cache regenerates mid-session)
-          if (seenPostIds.has(node.id)) {
+          if (seenPostIdsRef.current.has(node.id)) {
             return;
           }
-          seenPostIds.add(node.id);
+          seenPostIdsRef.current.add(node.id);
           const adIndex = acc.length;
           const adItem = getAd({ index: adIndex });
 
