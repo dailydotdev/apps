@@ -224,7 +224,7 @@ const mainConfig = {
     // Split chunks to reduce newtab bundle size and avoid "Invalid array length" errors
     splitChunks: {
       chunks: 'all',
-      maxSize: 244000, // ~240KB max chunk size to avoid V8 limits
+      maxSize: 244000, // ~238KB max chunk size to avoid V8 limits
       cacheGroups: {
         defaultVendors: {
           test: /[\\/]node_modules[\\/]/,
