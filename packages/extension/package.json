@@ -3,7 +3,7 @@
   "version": "3.42.5",
   "scripts": {
     "dev": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --watch",
-    "build": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome webpack",
+    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome webpack",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --fix",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -107,7 +107,7 @@
     "resolve-url-loader": "^5.0.0",
     "sass": "^1.53.0",
     "tailwindcss": "^3.4.14",
-    "terser-webpack-plugin": "^4.2.3",
+    "terser-webpack-plugin": "^5.3.10",
     "ts-jest": "^26.5.4",
     "typescript": "5.6.3",
     "webpack": "^5.72.0",
