@@ -296,9 +296,17 @@ export default function useFeed<T>(
     const marketingCtaAsFirstCard = settings?.marketingCta?.flags?.asFirstCard;
     const plusEntryAsFirstCard = settings?.plusEntry?.flags?.asFirstCard;
 
+    // Track seen post IDs to prevent duplicates when feed cache regenerates mid-session
+    const seenPostIds = new Set<string>();
+
     if (feedQuery.data) {
       newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
         page.edges.forEach(({ node }, index) => {
+          // Skip duplicate posts (can occur when feed cache regenerates mid-session)
+          if (seenPostIds.has(node.id)) {
+            return;
+          }
+          seenPostIds.add(node.id);
           const adIndex = acc.length;
           const adItem = getAd({ index: adIndex });
 
