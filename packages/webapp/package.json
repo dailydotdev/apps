@@ -10,6 +10,8 @@
     "start": "next start",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --fix",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck:strict": "tsc -p tsconfig.strict.json --noEmit",
     "pretest": "npm run lint",
     "test": "jest --runInBand",
     "deploy": "vercel"

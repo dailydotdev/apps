@@ -17,6 +17,26 @@ interface UseImageUploadProps {
   editorRef: React.MutableRefObject<Editor | null>;
 }
 
+export const ensureTrailingParagraphForImage = (editor: Editor): void => {
+  const lastNodeType = editor.state.doc.lastChild?.type?.name;
+
+  if (lastNodeType !== 'image') {
+    editor.commands.focus('end');
+    return;
+  }
+
+  const paragraph = editor.state.schema.nodes.paragraph?.create();
+  if (!paragraph) {
+    editor.commands.focus('end');
+    return;
+  }
+
+  const insertPosition = editor.state.doc.content.size;
+  const transaction = editor.state.tr.insert(insertPosition, paragraph);
+  editor.view.dispatch(transaction);
+  editor.commands.focus('end');
+};
+
 export function useImageUpload({ enabled, editorRef }: UseImageUploadProps) {
   const { displayToast } = useToastNotification();
   const uploadRef = useRef<HTMLInputElement>(null);
@@ -29,6 +49,7 @@ export function useImageUpload({ enabled, editorRef }: UseImageUploadProps) {
       }
 
       editor.chain().focus().setImage({ src: url, alt: altText }).run();
+      ensureTrailingParagraphForImage(editor);
     },
     [editorRef],
   );

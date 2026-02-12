@@ -24,7 +24,8 @@ import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
 import Image from '@tiptap/extension-image';
-import { ImageIcon, AtIcon } from '../icons';
+import { ImageIcon, AtIcon, MarkdownIcon } from '../icons';
+import { EditIcon } from '../icons/Edit';
 import { GifIcon } from '../icons/Gif';
 import {
   Button,
@@ -33,6 +34,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SavingLabel } from './MarkdownInput/SavingLabel';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Loader } from '../Loader';
@@ -551,6 +553,15 @@ function RichTextInput(
     );
   }
 
+  const savingLabel =
+    typeof isUpdatingDraft !== 'undefined' ? (
+      <SavingLabel
+        className="h-6 rounded-8"
+        isUpdating={isUpdatingDraft}
+        isUptoDate={initialContent === input}
+      />
+    ) : null;
+
   return (
     <div
       className={classNames(
@@ -558,13 +569,6 @@ function RichTextInput(
         className?.container,
       )}
     >
-      {typeof isUpdatingDraft !== 'undefined' && (
-        <SavingLabel
-          className="absolute right-4 top-3"
-          isUpdating={isUpdatingDraft}
-          isUptoDate={initialContent === input}
-        />
-      )}
       <ConditionalWrapper
         condition={!!timeline}
         wrapper={(component) => (
@@ -607,19 +611,21 @@ function RichTextInput(
           >
             {isMarkdownMode ? (
               <>
-                <div className="flex items-center justify-between border-b border-border-subtlest-tertiary p-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtlest-tertiary p-2">
                   <span className="px-2 text-text-tertiary typo-caption1">
                     Markdown editor
                   </span>
                   <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.XSmall}
-                      onClick={switchToRichMode}
-                    >
-                      Switch to Rich Text Editor
-                    </Button>
+                    {savingLabel}
+                    <SimpleTooltip content="Switch to Rich Text Editor">
+                      <Button
+                        type="button"
+                        variant={ButtonVariant.Tertiary}
+                        size={ButtonSize.XSmall}
+                        icon={<EditIcon />}
+                        onClick={switchToRichMode}
+                      />
+                    </SimpleTooltip>
                     {onClose && (
                       <CloseButton size={ButtonSize.Small} onClick={onClose} />
                     )}
@@ -666,14 +672,16 @@ function RichTextInput(
                   inlineActions={hasToolbarActions ? toolbarActions : null}
                   rightActions={
                     <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant={ButtonVariant.Tertiary}
-                        size={ButtonSize.XSmall}
-                        onClick={switchToMarkdownMode}
-                      >
-                        Switch to Markdown Editor
-                      </Button>
+                      {savingLabel}
+                      <SimpleTooltip content="Switch to Markdown Editor">
+                        <Button
+                          type="button"
+                          variant={ButtonVariant.Tertiary}
+                          size={ButtonSize.XSmall}
+                          icon={<MarkdownIcon />}
+                          onClick={switchToMarkdownMode}
+                        />
+                      </SimpleTooltip>
                       {onClose && (
                         <CloseButton
                           size={ButtonSize.Small}
@@ -744,7 +752,7 @@ function RichTextInput(
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:border-t">
           {hasUploadHint && !isMarkdownMode && (
-            <span className="text-text-quaternary typo-caption1">
+            <span className="hidden text-text-quaternary typo-caption1 tablet:inline">
               Drag and drop images to attach
             </span>
           )}
