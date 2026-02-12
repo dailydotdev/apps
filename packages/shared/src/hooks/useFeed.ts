@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import type { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
@@ -127,8 +127,8 @@ export default function useFeed<T>(
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
-  // Track seen post IDs to prevent duplicates when feed cache regenerates mid-session
-  const seenPostIdsRef = useRef<Set<string>>(new Set());
+  // Track if we're currently resetting due to stale cursor to prevent infinite loops
+  const isResettingRef = useRef(false);
   const { fetchTranslations } = useTranslation({
     queryKey: feedQueryKey,
     queryType: 'feed',
@@ -176,6 +176,23 @@ export default function useFeed<T>(
     initialPageParam: '',
     getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
   });
+
+  // Reset feed when staleCursor is detected (feed cache regenerated mid-session)
+  useEffect(() => {
+    const pages = feedQuery.data?.pages;
+    if (!pages?.length || isResettingRef.current) {
+      return;
+    }
+
+    // Check if any page has staleCursor set
+    const hasStaleCursor = pages.some((p) => p.page.pageInfo.staleCursor);
+    if (hasStaleCursor) {
+      isResettingRef.current = true;
+      queryClient.resetQueries({ queryKey: feedQueryKey }).then(() => {
+        isResettingRef.current = false;
+      });
+    }
+  }, [feedQuery.data?.pages, feedQueryKey, queryClient]);
 
   const clientError = feedQuery?.error as ClientError;
 
@@ -298,17 +315,9 @@ export default function useFeed<T>(
     const marketingCtaAsFirstCard = settings?.marketingCta?.flags?.asFirstCard;
     const plusEntryAsFirstCard = settings?.plusEntry?.flags?.asFirstCard;
 
-    // Clear and rebuild seen post IDs when feed data changes
-    seenPostIdsRef.current.clear();
-
     if (feedQuery.data) {
       newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
         page.edges.forEach(({ node }, index) => {
-          // Skip duplicate posts (can occur when feed cache regenerates mid-session)
-          if (seenPostIdsRef.current.has(node.id)) {
-            return;
-          }
-          seenPostIdsRef.current.add(node.id);
           const adIndex = acc.length;
           const adItem = getAd({ index: adIndex });
 
