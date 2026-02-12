@@ -127,8 +127,10 @@ const baseConfig = {
   plugins: [
     // Plugin to not generate js bundle for manifest entry
     new WextManifestWebpackPlugin(),
-    // Generate sourcemaps
-    new webpack.SourceMapDevToolPlugin({ filename: false }),
+    // Generate sourcemaps (disabled in production due to very large bundle sizes)
+    ...(process.env.NODE_ENV === 'production'
+      ? []
+      : [new webpack.SourceMapDevToolPlugin({ filename: false })]),
     new ForkTsCheckerWebpackPlugin(),
     // environmental variables
     new webpack.EnvironmentPlugin(['NODE_ENV', 'TARGET_BROWSER']),
@@ -173,45 +175,7 @@ const baseConfig = {
     }),
   ],
 
-  optimization:
-    process.env.NODE_ENV === 'production'
-      ? {
-          minimize: true,
-          minimizer: [
-            new TerserPlugin({
-              parallel: true,
-              terserOptions: {
-                format: {
-                  comments: false,
-                },
-              },
-              extractComments: false,
-            }),
-            new CssMinimizerPlugin({
-              minimizerOptions: {
-                preset: ['default', { discardComments: { removeAll: true } }],
-              },
-            }),
-            new FilemanagerPlugin({
-              events: {
-                onEnd: {
-                  archive: [
-                    {
-                      format: 'zip',
-                      source: path.join(destPath, targetBrowser),
-                      destination: `${path.join(
-                        destPath,
-                        targetBrowser,
-                      )}.${getExtensionFileType(targetBrowser)}`,
-                      options: { zlib: { level: 6 } },
-                    },
-                  ],
-                },
-              },
-            }),
-          ],
-        }
-      : {},
+  optimization: process.env.NODE_ENV === 'production' ? {} : {},
 };
 
 const backgroundConfig = {
@@ -229,6 +193,53 @@ const mainConfig = {
     content: path.join(sourcePath, 'content'),
     companion: path.join(sourcePath, 'companion', 'index.tsx'),
     newtab: path.join(sourcePath, 'newtab', 'index.tsx'),
+  },
+  plugins: [
+    ...baseConfig.plugins,
+    // Add FilemanagerPlugin only to mainConfig (last config) to create archive after all builds complete
+    ...(process.env.NODE_ENV === 'production'
+      ? [
+          new FilemanagerPlugin({
+            events: {
+              onEnd: {
+                archive: [
+                  {
+                    format: 'zip',
+                    source: path.join(destPath, targetBrowser),
+                    destination: `${path.join(
+                      destPath,
+                      targetBrowser,
+                    )}.${getExtensionFileType(targetBrowser)}`,
+                    options: { zlib: { level: 6 } },
+                  },
+                ],
+              },
+            },
+          }),
+        ]
+      : []),
+  ],
+  optimization: {
+    ...baseConfig.optimization,
+    // Enable runtime chunk to reduce individual bundle sizes
+    runtimeChunk: 'single',
+    // Split chunks to reduce newtab bundle size and avoid "Invalid array length" errors
+    splitChunks: {
+      chunks: 'all',
+      maxSize: 244000, // ~240KB max chunk size to avoid V8 limits
+      cacheGroups: {
+        defaultVendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          reuseExistingChunk: true,
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true,
+        },
+      },
+    },
   },
 };
 
