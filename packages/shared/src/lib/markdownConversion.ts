@@ -5,6 +5,7 @@ const escapeAttribute = (value: string): string =>
   value.replace(/"/g, '&quot;');
 
 const normalizeText = (value: string): string => value.replace(/\u00a0/g, ' ');
+const EMPTY_PARAGRAPH_MARKER = '__EMPTY_PARAGRAPH__';
 
 const inlineMarkdownToHtml = (value: string): string => {
   let result = escapeHtml(value);
@@ -52,6 +53,8 @@ export const markdownToHtmlBasic = (markdown: string): string => {
   let listItems: string[] = [];
   let isInCodeBlock = false;
   let codeBlockLines: string[] = [];
+  let hasRenderedBlock = false;
+  let pendingBlankLines = 0;
 
   const flushList = () => {
     if (!listType || listItems.length === 0) {
@@ -61,8 +64,21 @@ export const markdownToHtmlBasic = (markdown: string): string => {
     }
 
     htmlParts.push(`<${listType}>${listItems.join('')}</${listType}>`);
+    hasRenderedBlock = true;
     listType = null;
     listItems = [];
+  };
+
+  const flushPendingEmptyParagraphs = () => {
+    if (!hasRenderedBlock || pendingBlankLines === 0) {
+      return;
+    }
+
+    for (let i = 1; i < pendingBlankLines; i += 1) {
+      htmlParts.push('<p></p>');
+    }
+
+    pendingBlankLines = 0;
   };
 
   lines.forEach((line) => {
@@ -70,12 +86,15 @@ export const markdownToHtmlBasic = (markdown: string): string => {
 
     if (trimmed.startsWith('```')) {
       if (isInCodeBlock) {
+        flushPendingEmptyParagraphs();
         const codeContent = escapeHtml(codeBlockLines.join('\n'));
         htmlParts.push(`<pre><code>${codeContent}</code></pre>`);
         codeBlockLines = [];
         isInCodeBlock = false;
+        hasRenderedBlock = true;
       } else {
         flushList();
+        flushPendingEmptyParagraphs();
         isInCodeBlock = true;
       }
       return;
@@ -93,6 +112,7 @@ export const markdownToHtmlBasic = (markdown: string): string => {
     if (unorderedMatch) {
       if (listType !== 'ul') {
         flushList();
+        flushPendingEmptyParagraphs();
         listType = 'ul';
       }
       listItems.push(`<li>${inlineMarkdownToHtml(unorderedMatch[1])}</li>`);
@@ -102,6 +122,7 @@ export const markdownToHtmlBasic = (markdown: string): string => {
     if (orderedMatch) {
       if (listType !== 'ol') {
         flushList();
+        flushPendingEmptyParagraphs();
         listType = 'ol';
       }
       listItems.push(`<li>${inlineMarkdownToHtml(orderedMatch[2])}</li>`);
@@ -110,20 +131,27 @@ export const markdownToHtmlBasic = (markdown: string): string => {
 
     if (headingMatch) {
       flushList();
+      flushPendingEmptyParagraphs();
       const level = headingMatch[1].length;
       htmlParts.push(
         `<h${level}>${inlineMarkdownToHtml(headingMatch[2])}</h${level}>`,
       );
+      hasRenderedBlock = true;
       return;
     }
 
     if (!trimmed) {
       flushList();
+      if (hasRenderedBlock) {
+        pendingBlankLines += 1;
+      }
       return;
     }
 
     flushList();
+    flushPendingEmptyParagraphs();
     htmlParts.push(`<p>${inlineMarkdownToHtml(line)}</p>`);
+    hasRenderedBlock = true;
   });
 
   if (isInCodeBlock) {
@@ -158,14 +186,24 @@ function serializeInline(node: Node): string {
   }
 
   const tagName = node.tagName.toLowerCase();
+  const wrapLines = (value: string, marker: '**' | '_') => {
+    if (!value.includes('\n')) {
+      return `${marker}${value}${marker}`;
+    }
+
+    return value
+      .split('\n')
+      .map((line) => (line ? `${marker}${line}${marker}` : ''))
+      .join('\n');
+  };
 
   switch (tagName) {
     case 'strong':
     case 'b':
-      return `**${serializeChildren(node)}**`;
+      return wrapLines(serializeChildren(node), '**');
     case 'em':
     case 'i':
-      return `_${serializeChildren(node)}_`;
+      return wrapLines(serializeChildren(node), '_');
     case 'a': {
       const href = node.getAttribute('href') || '';
       const label = serializeChildren(node) || href;
@@ -226,18 +264,21 @@ export const htmlToMarkdownBasic = (html: string): string => {
   const blocks = Array.from(doc.body.childNodes)
     .map((node) => {
       if (node.nodeType === Node.TEXT_NODE) {
-        return normalizeText(node.textContent || '').trim();
+        const normalized = normalizeText(node.textContent || '').trim();
+        return normalized || null;
       }
 
       if (!(node instanceof Element)) {
-        return '';
+        return null;
       }
 
       const tagName = node.tagName.toLowerCase();
 
       switch (tagName) {
-        case 'p':
-          return serializeChildren(node).trim();
+        case 'p': {
+          const content = serializeChildren(node).trim();
+          return content || EMPTY_PARAGRAPH_MARKER;
+        }
         case 'pre': {
           const code = node.textContent ?? '';
           return `\`\`\`\n${normalizeText(code).trim()}\n\`\`\``;
@@ -264,11 +305,12 @@ export const htmlToMarkdownBasic = (html: string): string => {
           return serializeChildren(node).trim();
       }
     })
-    .filter(Boolean);
+    .filter((block): block is string => block !== null);
 
   return blocks
     .join('\n\n')
-    .replace(/\n{3,}/g, '\n\n')
+    .replaceAll(EMPTY_PARAGRAPH_MARKER, '')
+    .replace(/\n{4,}/g, '\n\n\n')
     .trim();
 };
 

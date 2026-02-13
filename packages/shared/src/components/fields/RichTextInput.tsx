@@ -58,6 +58,7 @@ import { useMentionAutocomplete } from './RichTextEditor/useMentionAutocomplete'
 import { useEmojiAutocomplete } from './RichTextEditor/useEmojiAutocomplete';
 import { useImageUpload } from './RichTextEditor/useImageUpload';
 import { useDraftStorage } from './RichTextEditor/useDraftStorage';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import styles from './RichTextEditor/richtext.module.css';
 
 const RecommendedEmojiTooltip = dynamic(
@@ -132,6 +133,7 @@ function RichTextInput(
 ): ReactElement {
   const shouldShowSubmit = !!submitCopy;
   const { user } = useAuthContext();
+  const { displayToast } = useToastNotification();
   const { parentSelector } = usePopupSelector();
   const toolbarRef = useRef<RichTextToolbarRef>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -284,19 +286,61 @@ function RichTextInput(
           return false;
         }
 
-        const text = event.clipboardData?.getData('text/plain')?.trim();
-        if (!text || !looksLikeMarkdown(text)) {
+        const clipboardText = event.clipboardData?.getData('text/plain');
+        if (!clipboardText) {
           return false;
         }
 
-        const convertedHtml = markdownToHtmlBasic(text);
-        if (!convertedHtml) {
-          return false;
+        const currentCharacters =
+          editorRef.current?.storage.characterCount.characters() ??
+          inputRef.current.length;
+        const remainingCharacters =
+          typeof maxLength === 'number' ? maxLength - currentCharacters : null;
+
+        if (remainingCharacters !== null && remainingCharacters <= 0) {
+          event.preventDefault();
+          displayToast('Character limit reached');
+          return true;
         }
 
-        event.preventDefault();
-        editorRef.current?.chain().focus().insertContent(convertedHtml).run();
-        return true;
+        const exceededLimit =
+          remainingCharacters !== null &&
+          clipboardText.length > remainingCharacters;
+        const limitedText = exceededLimit
+          ? clipboardText.slice(0, remainingCharacters)
+          : clipboardText;
+        const trimmedText = limitedText.trim();
+        const shouldHandleMarkdown =
+          trimmedText && looksLikeMarkdown(trimmedText);
+
+        if (shouldHandleMarkdown) {
+          const convertedHtml = markdownToHtmlBasic(trimmedText);
+          if (convertedHtml) {
+            event.preventDefault();
+            editorRef.current
+              ?.chain()
+              .focus()
+              .insertContent(convertedHtml)
+              .run();
+            if (exceededLimit) {
+              displayToast(
+                'Pasted content was truncated to fit the character limit',
+              );
+            }
+            return true;
+          }
+        }
+
+        if (exceededLimit) {
+          event.preventDefault();
+          editorRef.current?.chain().focus().insertContent(limitedText).run();
+          displayToast(
+            'Pasted content was truncated to fit the character limit',
+          );
+          return true;
+        }
+
+        return false;
       },
       handleKeyDown: (_view, event) => {
         const isSpecialKey = event.ctrlKey || event.metaKey;
@@ -425,6 +469,50 @@ function RichTextInput(
       } as React.FormEvent<HTMLTextAreaElement>);
     },
     [onSubmit],
+  );
+
+  const onMarkdownPaste = useCallback(
+    (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      if (!maxLength) {
+        return;
+      }
+
+      const pastedText = event.clipboardData.getData('text/plain');
+      if (!pastedText) {
+        return;
+      }
+
+      const textarea = event.currentTarget;
+      const selectionStart = textarea.selectionStart ?? 0;
+      const selectionEnd = textarea.selectionEnd ?? selectionStart;
+      const selectedLength = Math.max(0, selectionEnd - selectionStart);
+      const availableCharacters =
+        maxLength - (inputRef.current.length - selectedLength);
+
+      if (availableCharacters >= pastedText.length) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (availableCharacters <= 0) {
+        displayToast('Character limit reached');
+        return;
+      }
+
+      const truncatedText = pastedText.slice(0, availableCharacters);
+      const valueBefore = inputRef.current.slice(0, selectionStart);
+      const valueAfter = inputRef.current.slice(selectionEnd);
+      const nextValue = `${valueBefore}${truncatedText}${valueAfter}`;
+      updateInput(nextValue);
+      displayToast('Pasted content was truncated to fit the character limit');
+
+      const nextCursor = selectionStart + truncatedText.length;
+      requestAnimationFrame(() => {
+        markdownTextareaRef.current?.setSelectionRange(nextCursor, nextCursor);
+      });
+    },
+    [displayToast, maxLength, updateInput],
   );
 
   useImperativeHandle(ref, () => ({
@@ -636,12 +724,12 @@ function RichTextInput(
                   name={undefined}
                   ref={markdownTextareaRef}
                   value={input}
-                  maxLength={maxLength}
                   className={classNames(
                     'min-h-[8rem] resize-y bg-transparent p-4 outline-none',
                     className?.input,
                   )}
                   onInput={onMarkdownInput}
+                  onPaste={onMarkdownPaste}
                   onKeyDown={onMarkdownKeyDown}
                 />
               </>
