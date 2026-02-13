@@ -1,8 +1,13 @@
 import { useMemo } from 'react';
+import { PostType } from '../../graphql/posts';
 import type { Post } from '../../graphql/posts';
 
 export const usePostImage = (post: Post): string =>
   useMemo(() => {
+    if (post?.type === PostType.SocialTwitter && post?.subType === 'thread') {
+      return undefined;
+    }
+
     const baseImage = post?.sharedPost?.image ?? post?.image;
 
     if (baseImage) {
@@ -17,4 +22,10 @@ export const usePostImage = (post: Post): string =>
     }
 
     return undefined;
-  }, [post?.contentHtml, post?.image, post?.sharedPost?.image]);
+  }, [
+    post?.contentHtml,
+    post?.image,
+    post?.sharedPost?.image,
+    post?.subType,
+    post?.type,
+  ]);

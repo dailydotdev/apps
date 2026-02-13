@@ -30,11 +30,12 @@ interface SquadPostAuthorProps {
     handle: string;
     details: string;
   }>;
-  author: Author;
+  author?: Author | null;
   role?: SourceMemberRole;
   size?: ProfileImageSize;
   date?: string;
   isUserSource?: boolean;
+  showSkeletonWhenMissing?: boolean;
 }
 
 const SquadPostAuthorSkeleton = ({
@@ -61,13 +62,15 @@ function SquadPostAuthor({
   size = ProfileImageSize.XXXLarge,
   date,
   isUserSource = false,
+  showSkeletonWhenMissing = true,
 }: SquadPostAuthorProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileXL);
+  const authorId = author?.id || '';
   const { data, status } = useContentPreferenceStatusQuery({
-    id: author.id,
+    id: authorId,
     entity: ContentPreferenceType.User,
     queryOptions: {
-      enabled: !!author && isMobile,
+      enabled: !!authorId && isMobile,
     },
   });
   const [showFollowButton, setShowFollowButton] = useState(false);
@@ -84,10 +87,14 @@ function SquadPostAuthor({
   }, [status, data?.status, showFollowButton, isMobile]);
 
   if (!author) {
+    if (!showSkeletonWhenMissing) {
+      return null;
+    }
+
     return <SquadPostAuthorSkeleton className={className} size={size} />;
   }
 
-  const showFollow = author && isMobile && showFollowButton;
+  const showFollow = !!authorId && isMobile && showFollowButton;
 
   return (
     <span

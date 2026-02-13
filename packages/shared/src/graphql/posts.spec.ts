@@ -4,9 +4,12 @@ import {
   DELETE_POST_MUTATION,
   banPost,
   deletePost,
+  getSocialTwitterPostType,
   getLatestChangelogPost,
   LATEST_CHANGELOG_POST_QUERY,
   PostType,
+  isShareLikePost,
+  isSocialTwitterShareLike,
   isVideoPost,
   getReadPostButtonText,
 } from './posts';
@@ -172,5 +175,69 @@ describe('function getReadPostButtonText', () => {
     } as Post;
 
     expect(getReadPostButtonText(post)).toEqual('Watch video');
+  });
+});
+
+describe('social twitter helpers', () => {
+  it('should map social twitter quote to share type', () => {
+    const post = {
+      type: PostType.SocialTwitter,
+      subType: 'quote',
+      sharedPost: {
+        id: 'shared-post',
+      },
+    } as Post;
+
+    expect(getSocialTwitterPostType(post)).toBe(PostType.Share);
+    expect(isSocialTwitterShareLike(post)).toBeTruthy();
+    expect(isShareLikePost(post)).toBeTruthy();
+  });
+
+  it('should map social twitter repost to share type', () => {
+    const post = {
+      type: PostType.SocialTwitter,
+      subType: 'repost',
+      sharedPost: {
+        id: 'shared-post',
+      },
+    } as Post;
+
+    expect(getSocialTwitterPostType(post)).toBe(PostType.Share);
+    expect(isSocialTwitterShareLike(post)).toBeTruthy();
+    expect(isShareLikePost(post)).toBeTruthy();
+  });
+
+  it('should map social twitter tweet to freeform type', () => {
+    const post = {
+      type: PostType.SocialTwitter,
+      subType: 'tweet',
+      sharedPost: null,
+    } as Post;
+
+    expect(getSocialTwitterPostType(post)).toBe(PostType.Freeform);
+    expect(isSocialTwitterShareLike(post)).toBeFalsy();
+    expect(isShareLikePost(post)).toBeFalsy();
+  });
+
+  it('should map social twitter thread to freeform type', () => {
+    const post = {
+      type: PostType.SocialTwitter,
+      subType: 'thread',
+      sharedPost: null,
+    } as Post;
+
+    expect(getSocialTwitterPostType(post)).toBe(PostType.Freeform);
+    expect(isSocialTwitterShareLike(post)).toBeFalsy();
+    expect(isShareLikePost(post)).toBeFalsy();
+  });
+
+  it('should treat regular shares as share-like', () => {
+    const post = {
+      type: PostType.Share,
+    } as Post;
+
+    expect(getSocialTwitterPostType(post)).toBe(PostType.Share);
+    expect(isSocialTwitterShareLike(post)).toBeFalsy();
+    expect(isShareLikePost(post)).toBeTruthy();
   });
 });

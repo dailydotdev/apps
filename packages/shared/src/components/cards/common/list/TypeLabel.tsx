@@ -21,6 +21,7 @@ const excludedTypes = new Set<PostType>([
   PostType.Article,
   PostType.Freeform,
   PostType.Share,
+  PostType.SocialTwitter,
   PostType.Welcome,
 ]);
 
