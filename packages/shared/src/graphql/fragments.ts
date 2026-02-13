@@ -551,6 +551,7 @@ export const FEED_POST_FRAGMENT = gql`
       id
       title
       image
+      creatorTwitter
       readTime
       permalink
       commentsPermalink
@@ -563,9 +564,14 @@ export const FEED_POST_FRAGMENT = gql`
       source {
         id
         handle
+        name
         permalink
         image
         type
+      }
+      author {
+        id
+        username
       }
       slug
       clickbaitTitleDetected
