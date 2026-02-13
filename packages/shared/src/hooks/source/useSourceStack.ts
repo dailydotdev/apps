@@ -7,6 +7,7 @@ import type {
   ReorderSourceStackInput,
 } from '../../graphql/source/sourceStack';
 import {
+  MAX_STACK_ITEMS,
   getSourceStack,
   addSourceStack,
   updateSourceStack,
@@ -16,7 +17,6 @@ import {
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions as SourcePermissionsEnum } from '../../graphql/sources';
-import { MAX_STACK_ITEMS } from '../../features/profile/hooks/useUserStack';
 
 export function useSourceStack(squad: Squad | null) {
   const queryClient = useQueryClient();

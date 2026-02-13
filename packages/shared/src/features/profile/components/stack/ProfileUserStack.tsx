@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
 import type { PublicProfile } from '../../../../lib/user';
-import { useUserStack, MAX_STACK_ITEMS } from '../../hooks/useUserStack';
+import { MAX_STACK_ITEMS } from '../../../../graphql/user/userStack';
+import { useUserStack } from '../../hooks/useUserStack';
 import {
   Typography,
   TypographyType,

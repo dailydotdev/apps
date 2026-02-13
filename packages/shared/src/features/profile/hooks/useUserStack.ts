@@ -8,6 +8,7 @@ import type {
   ReorderUserStackInput,
 } from '../../../graphql/user/userStack';
 import {
+  MAX_STACK_ITEMS,
   getUserStack,
   addUserStack,
   updateUserStack,
@@ -18,8 +19,6 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
-
-export const MAX_STACK_ITEMS = 100;
 
 export function useUserStack(user: PublicProfile | null) {
   const queryClient = useQueryClient();

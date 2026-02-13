@@ -15,9 +15,9 @@ import type {
   SourceStack,
   AddSourceStackInput,
 } from '../../../graphql/source/sourceStack';
+import { MAX_STACK_ITEMS } from '../../../graphql/source/sourceStack';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { usePrompt } from '../../../hooks/usePrompt';
-import { MAX_STACK_ITEMS } from '../../../features/profile/hooks/useUserStack';
 
 interface SquadStackProps {
   squad: Squad;

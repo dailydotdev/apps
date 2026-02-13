@@ -2,6 +2,9 @@ import { gql } from 'graphql-request';
 import type { Connection } from '../common';
 import { gqlClient } from '../common';
 import type { DatasetTool } from '../user/userStack';
+import { MAX_STACK_ITEMS as USER_STACK_MAX_ITEMS } from '../user/userStack';
+
+export const MAX_STACK_ITEMS = USER_STACK_MAX_ITEMS;
 
 export interface SourceStackCreatedBy {
   id: string;
@@ -110,7 +113,7 @@ const REORDER_SOURCE_STACK_MUTATION = gql`
 
 export const getSourceStack = async (
   sourceId: string,
-  first = 100,
+  first = MAX_STACK_ITEMS,
 ): Promise<Connection<SourceStack>> => {
   const result = await gqlClient.request<{
     sourceStack: Connection<SourceStack>;
