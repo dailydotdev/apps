@@ -5,7 +5,6 @@ const escapeAttribute = (value: string): string =>
   value.replace(/"/g, '&quot;');
 
 const normalizeText = (value: string): string => value.replace(/\u00a0/g, ' ');
-const EMPTY_PARAGRAPH_MARKER = '__EMPTY_PARAGRAPH__';
 
 const inlineMarkdownToHtml = (value: string): string => {
   let result = escapeHtml(value);
@@ -277,7 +276,7 @@ export const htmlToMarkdownBasic = (html: string): string => {
       switch (tagName) {
         case 'p': {
           const content = serializeChildren(node).trim();
-          return content || EMPTY_PARAGRAPH_MARKER;
+          return content;
         }
         case 'pre': {
           const code = node.textContent ?? '';
@@ -309,7 +308,6 @@ export const htmlToMarkdownBasic = (html: string): string => {
 
   return blocks
     .join('\n\n')
-    .replaceAll(EMPTY_PARAGRAPH_MARKER, '')
     .replace(/\n{4,}/g, '\n\n\n')
     .trim();
 };

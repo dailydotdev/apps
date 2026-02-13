@@ -69,6 +69,10 @@ const RecommendedEmojiTooltip = dynamic(
   { ssr: false },
 );
 
+const PASTE_TRUNCATED_MESSAGE =
+  'Pasted content was truncated to fit the character limit';
+const CHARACTER_LIMIT_REACHED_MESSAGE = 'Character limit reached';
+
 interface ClassName {
   container?: string;
   input?: string;
@@ -294,12 +298,24 @@ function RichTextInput(
         const currentCharacters =
           editorRef.current?.storage.characterCount.characters() ??
           inputRef.current.length;
+        const selection =
+          editorRef.current?.state.selection ?? editor?.state.selection ?? null;
+        const selectedCharacters = selection
+          ? editorRef.current?.state.doc.textBetween(
+              selection.from,
+              selection.to,
+              '',
+              '',
+            ).length ?? 0
+          : 0;
         const remainingCharacters =
-          typeof maxLength === 'number' ? maxLength - currentCharacters : null;
+          typeof maxLength === 'number'
+            ? maxLength - (currentCharacters - selectedCharacters)
+            : null;
 
         if (remainingCharacters !== null && remainingCharacters <= 0) {
           event.preventDefault();
-          displayToast('Character limit reached');
+          displayToast(CHARACTER_LIMIT_REACHED_MESSAGE);
           return true;
         }
 
@@ -323,9 +339,7 @@ function RichTextInput(
               .insertContent(convertedHtml)
               .run();
             if (exceededLimit) {
-              displayToast(
-                'Pasted content was truncated to fit the character limit',
-              );
+              displayToast(PASTE_TRUNCATED_MESSAGE);
             }
             return true;
           }
@@ -334,9 +348,7 @@ function RichTextInput(
         if (exceededLimit) {
           event.preventDefault();
           editorRef.current?.chain().focus().insertContent(limitedText).run();
-          displayToast(
-            'Pasted content was truncated to fit the character limit',
-          );
+          displayToast(PASTE_TRUNCATED_MESSAGE);
           return true;
         }
 
@@ -496,7 +508,7 @@ function RichTextInput(
       event.preventDefault();
 
       if (availableCharacters <= 0) {
-        displayToast('Character limit reached');
+        displayToast(CHARACTER_LIMIT_REACHED_MESSAGE);
         return;
       }
 
@@ -505,7 +517,7 @@ function RichTextInput(
       const valueAfter = inputRef.current.slice(selectionEnd);
       const nextValue = `${valueBefore}${truncatedText}${valueAfter}`;
       updateInput(nextValue);
-      displayToast('Pasted content was truncated to fit the character limit');
+      displayToast(PASTE_TRUNCATED_MESSAGE);
 
       const nextCursor = selectionStart + truncatedText.length;
       requestAnimationFrame(() => {

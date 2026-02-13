@@ -102,4 +102,12 @@ describe('markdownConversion', () => {
 
     expect(markdown).toBe('first\n\nsecond');
   });
+
+  it('should keep paragraph text that matches internal marker-like content', () => {
+    const markdown = htmlToMarkdownBasic(
+      '<p>__EMPTY_PARAGRAPH__</p><p>next</p>',
+    );
+
+    expect(markdown).toBe('__EMPTY_PARAGRAPH__\n\nnext');
+  });
 });
