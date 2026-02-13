@@ -329,6 +329,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     numUpvotes
     numComments
     numAwards
+    numReposts
     videoId
     yggdrasilId
     creatorTwitter
