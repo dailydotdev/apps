@@ -19,7 +19,12 @@ import {
   submitExternalLink,
 } from '../../graphql/posts';
 import type { ApiErrorResult } from '../../graphql/common';
-import { ApiError, DEFAULT_ERROR, getApiError } from '../../graphql/common';
+import {
+  ApiError,
+  DEFAULT_ERROR,
+  getApiError,
+  gqlClient,
+} from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
 import type { SourcePostModeration } from '../../graphql/squads';
 import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
@@ -35,7 +40,7 @@ import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
 
 interface UsePostToSquad {
-  preview: ExternalLinkPreview;
+  preview?: ExternalLinkPreview;
   isSuccess: boolean;
   isPosting: boolean;
   isLoadingPreview: boolean;
@@ -69,9 +74,17 @@ interface UsePostToSquadProps {
   onSourcePostModerationSuccess?: (data: SourcePostModeration) => void;
   onExternalLinkSuccess?: (data: ExternalLinkPreview, url: string) => void;
   initialPreview?: ExternalLinkPreview;
-  onMutate?: (data) => void;
+  onMutate?: (data: unknown) => void;
   onError?: (error: ApiErrorResult) => void;
 }
+
+const getSquadIdOrThrow = (squad: Squad): string => {
+  if (!squad.id) {
+    throw new Error('Missing squad id in usePostToSquad');
+  }
+
+  return squad.id;
+};
 
 export const usePostToSquad = ({
   onPostSuccess,
@@ -86,8 +99,22 @@ export const usePostToSquad = ({
   const { user } = useAuthContext();
   const client = useQueryClient();
   const { completeAction } = useActions();
-  const [preview, setPreview] = useState(initialPreview);
-  const { requestMethod } = useRequestProtocol();
+  const [preview, setPreview] = useState<ExternalLinkPreview>(
+    initialPreview ?? {},
+  );
+  const { requestMethod: requestMethodContext } = useRequestProtocol();
+  const requestMethod = requestMethodContext ?? gqlClient.request;
+
+  const handlePostSuccess = useCallback(
+    (post: Post): void => {
+      if (!onPostSuccess) {
+        return;
+      }
+
+      onPostSuccess(post, post?.permalink ?? '');
+    },
+    [onPostSuccess],
+  );
 
   const {
     mutateAsync: onCreatePost,
@@ -97,7 +124,7 @@ export const usePostToSquad = ({
     mutationFn: createPost,
     onMutate,
     onError,
-    onSuccess: onPostSuccess,
+    onSuccess: handlePostSuccess,
   });
   const {
     mutateAsync: editPostMutation,
@@ -106,7 +133,7 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: editPost,
     onMutate,
-    onSuccess: onPostSuccess,
+    onSuccess: handlePostSuccess,
     onError,
   });
 
@@ -117,7 +144,7 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: createPollPost,
     onMutate,
-    onSuccess: (data, vars) => {
+    onSuccess: (data) => {
       if (!getGroupStatus('pollResult', 'inApp')) {
         displayToast('Enable push notification to get poll updates', {
           action: {
@@ -131,7 +158,7 @@ export const usePostToSquad = ({
           },
         });
       }
-      onPostSuccess?.(data, vars);
+      handlePostSuccess(data);
     },
     onError,
   });
@@ -169,20 +196,22 @@ export const usePostToSquad = ({
   const onEditFreeformPost = useCallback<UsePostToSquad['onEditFreeformPost']>(
     async (editedPost: EditPostProps, squad: Squad): Promise<void> => {
       if (isEditLoading || isEditPostSuccess) {
-        return null;
+        return;
       }
 
       if (moderationRequired(squad)) {
-        onCreatePostModeration({
+        const squadId = getSquadIdOrThrow(squad);
+
+        await onCreatePostModeration({
           ...editedPost,
           type: PostType.Freeform,
           postId: editedPost.id,
-          sourceId: squad.id,
+          sourceId: squadId,
         });
-      } else {
-        editPostMutation(editedPost);
+        return;
       }
-      return null;
+
+      await editPostMutation(editedPost);
     },
     [
       editPostMutation,
@@ -199,7 +228,7 @@ export const usePostToSquad = ({
         : 'This post has been shared to your squad',
     );
     await client.invalidateQueries({
-      queryKey: ['sourceFeed', user.id],
+      queryKey: ['sourceFeed', user?.id],
     });
     completeAction(ActionType.SquadFirstPost);
   };
@@ -212,9 +241,7 @@ export const usePostToSquad = ({
     mutationFn: addPostToSquad(requestMethod),
     onSuccess: (data) => {
       onSharedPostSuccessfully();
-      if (onPostSuccess) {
-        onPostSuccess(data, data?.permalink);
-      }
+      handlePostSuccess(data);
     },
   });
 
@@ -226,9 +253,7 @@ export const usePostToSquad = ({
     mutationFn: updateSquadPost(requestMethod),
     onSuccess: (data) => {
       onSharedPostSuccessfully(true);
-      if (onPostSuccess) {
-        onPostSuccess(data, data?.permalink);
-      }
+      handlePostSuccess(data);
     },
   });
 
@@ -241,9 +266,10 @@ export const usePostToSquad = ({
       submitExternalLink(params, requestMethod),
     onSuccess: (_, { url }) => {
       onSharedPostSuccessfully();
-      if (onPostSuccess) {
-        onPostSuccess(null, url);
+      if (!url) {
+        throw new Error('Missing external link url in usePostToSquad');
       }
+      onExternalLinkSuccess?.(preview, url);
     },
     onError: (err: ApiErrorResult) => {
       const rateLimited = getApiError(err, ApiError.RateLimited);
@@ -273,51 +299,57 @@ export const usePostToSquad = ({
     isEditPostSuccess;
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
-    (e, squad, commentary) => {
+    async (e, squad, commentary) => {
       e?.preventDefault();
       if (isPosting) {
-        return null;
+        return Promise.resolve();
       }
 
+      const squadId = getSquadIdOrThrow(squad);
+
       if (preview.id) {
-        return moderationRequired(squad)
-          ? onCreatePostModeration({
-              type: PostType.Share,
-              sourceId: squad.id,
-              sharedPostId: preview.id,
-              title: commentary,
-            })
-          : onPost({
-              id: preview.id,
-              sourceId: squad.id,
-              commentary,
-            });
+        if (moderationRequired(squad)) {
+          return onCreatePostModeration({
+            type: PostType.Share,
+            sourceId: squadId,
+            sharedPostId: preview.id,
+            title: commentary,
+          });
+        }
+
+        return onPost({
+          id: preview.id,
+          sourceId: squadId,
+          commentary,
+        });
       }
 
       const { title, image } = preview;
       const url = preview.finalUrl ?? preview.url;
 
-      if (!title) {
+      if (!title || !url) {
         displayToast('Invalid link');
-        return null;
+        return Promise.resolve();
       }
 
-      return moderationRequired(squad)
-        ? onCreatePostModeration({
-            externalLink: url,
-            title,
-            imageUrl: image,
-            type: PostType.Share,
-            sourceId: squad.id,
-            content: commentary,
-          })
-        : onSubmitLink({
-            url,
-            title,
-            image,
-            sourceId: squad.id,
-            commentary,
-          });
+      if (moderationRequired(squad)) {
+        return onCreatePostModeration({
+          externalLink: url,
+          title,
+          imageUrl: image,
+          type: PostType.Share,
+          sourceId: squadId,
+          content: commentary,
+        });
+      }
+
+      return onSubmitLink({
+        url,
+        title,
+        image,
+        sourceId: squadId,
+        commentary,
+      });
     },
     [
       preview,
@@ -330,24 +362,28 @@ export const usePostToSquad = ({
   );
 
   const onUpdateSharePost = useCallback<UsePostToSquad['onUpdateSharePost']>(
-    (e, postId, commentary, squad) => {
+    async (e, postId, commentary, squad) => {
       e.preventDefault();
 
       if (isUpdating) {
-        return null;
+        return Promise.resolve();
       }
 
-      return moderationRequired(squad)
-        ? onCreatePostModeration({
-            postId,
-            type: PostType.Share,
-            sourceId: squad.id,
-            title: commentary,
-          })
-        : updatePost({
-            id: postId,
-            commentary,
-          });
+      const squadId = getSquadIdOrThrow(squad);
+
+      if (moderationRequired(squad)) {
+        return onCreatePostModeration({
+          postId,
+          type: PostType.Share,
+          sourceId: squadId,
+          title: commentary,
+        });
+      }
+
+      return updatePost({
+        id: postId,
+        commentary,
+      });
     },
     [updatePost, isUpdating, onCreatePostModeration],
   );
@@ -355,42 +391,49 @@ export const usePostToSquad = ({
   const onSubmitFreeformPost = useCallback<
     UsePostToSquad['onSubmitFreeformPost']
   >(
-    (post: CreatePostProps, squad: Squad) => {
+    async (post: CreatePostProps, squad: Squad): Promise<void> => {
+      const squadId = getSquadIdOrThrow(squad);
+
       if (moderationRequired(squad)) {
-        onCreatePostModeration({
+        await onCreatePostModeration({
           ...post,
-          sourceId: squad.id,
+          sourceId: squadId,
           type: PostType.Freeform,
         });
       } else {
-        onCreatePost({ ...post, sourceId: squad.id });
+        const freeformPostPayload = {
+          ...post,
+          sourceId: squadId,
+        } as Parameters<typeof onCreatePost>[0];
+        await onCreatePost(freeformPostPayload);
       }
-      return null;
     },
     [onCreatePost, onCreatePostModeration],
   );
 
   const onSubmitPollPost = useCallback<UsePostToSquad['onSubmitPollPost']>(
     async ({ options, ...post }, squad) => {
+      const squadId = getSquadIdOrThrow(squad);
       const orderedOpts = options.map((text, index) => ({
         text,
         order: index,
       }));
 
       if (moderationRequired(squad)) {
-        onCreatePostModeration({
+        await onCreatePostModeration({
           ...post,
           pollOptions: orderedOpts,
-          sourceId: squad.id,
+          sourceId: squadId,
           type: PostType.Poll,
         });
       } else {
-        createPollPostMutation({
+        const pollPostPayload = {
           ...post,
           options: orderedOpts,
-          sourceId: squad.id,
+          sourceId: squadId,
           type: PostType.Poll,
-        });
+        } as Parameters<typeof createPollPostMutation>[0];
+        await createPollPostMutation(pollPostPayload);
       }
     },
     [createPollPostMutation, onCreatePostModeration],
