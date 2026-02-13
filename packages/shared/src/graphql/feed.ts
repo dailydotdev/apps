@@ -75,6 +75,7 @@ const getFeedPostFragment = (fields = '') => gql`
     pageInfo {
       hasNextPage
       endCursor
+      staleCursor
     }
     edges {
       node {
