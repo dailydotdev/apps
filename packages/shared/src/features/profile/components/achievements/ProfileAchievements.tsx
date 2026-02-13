@@ -45,22 +45,28 @@ export function ProfileAchievements({
   user,
   className,
 }: ProfileAchievementsProps): ReactElement {
-  const { achievements, unlockedCount, totalCount, isPending, isError } =
-    useProfileAchievements(user);
+  const {
+    achievements,
+    unlockedCount,
+    totalCount,
+    totalPoints,
+    isPending,
+    isError,
+  } = useProfileAchievements(user);
 
   if (isPending) {
     return (
       <div className={classNames('flex flex-col gap-4', className)}>
-        <div className="flex items-center gap-2">
-          <MedalBadgeIcon className="size-5 text-text-primary" />
+        <div className="flex flex-col items-center gap-1">
           <Typography
-            type={TypographyType.Body}
-            tag={TypographyTag.H2}
+            type={TypographyType.Title1}
+            tag={TypographyTag.H1}
             color={TypographyColor.Primary}
             bold
           >
             Achievements
           </Typography>
+          <div className="h-5 w-32 animate-pulse rounded-8 bg-surface-float" />
         </div>
         <AchievementsSkeleton />
       </div>
@@ -91,22 +97,34 @@ export function ProfileAchievements({
 
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
-      <div className="flex items-center gap-2">
-        <MedalBadgeIcon className="size-5 text-text-primary" />
+      <div className="flex flex-col items-center gap-1">
         <Typography
-          type={TypographyType.Body}
-          tag={TypographyTag.H2}
+          type={TypographyType.Title1}
+          tag={TypographyTag.H1}
           color={TypographyColor.Primary}
           bold
         >
           Achievements
         </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          ({unlockedCount}/{totalCount})
-        </Typography>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <MedalBadgeIcon className="size-6 text-text-primary" />
+            <Typography
+              type={TypographyType.Title3}
+              tag={TypographyTag.H2}
+              color={TypographyColor.Primary}
+              bold
+            >
+              {totalPoints.toLocaleString()}
+            </Typography>
+          </div>
+          <Typography
+            type={TypographyType.Body}
+            color={TypographyColor.Tertiary}
+          >
+            ({unlockedCount}/{totalCount})
+          </Typography>
+        </div>
       </div>
       <AchievementsList achievements={achievements} user={user} />
     </div>
