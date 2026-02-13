@@ -65,8 +65,6 @@ type ReturnType = {
   updateFeedFilters: (feedSettings: FeedSettings) => Promise<unknown>;
 };
 
-const noopRollback = async (): Promise<void> => undefined;
-
 const normalizeFeedSettings = (
   feedSettings: FeedSettings,
 ): FeedSettingsWithDefaults => ({
@@ -77,6 +75,25 @@ const normalizeFeedSettings = (
   excludeSources: feedSettings.excludeSources ?? [],
   advancedSettings: feedSettings.advancedSettings ?? [],
 });
+
+const getCachedFeedSettingsOrThrow = (
+  queryClient: QueryClient,
+  queryKey: string[],
+  mutationType: 'advanced_settings' | 'tags' | 'sources',
+): FeedSettings => {
+  const feedSettingsData = queryClient.getQueryData<FeedSettingsData>(queryKey);
+  const currentSettings = feedSettingsData?.feedSettings;
+
+  if (!currentSettings) {
+    throw new Error(
+      `[useMutateFilters] Missing feed settings cache for ${mutationType} mutation (${JSON.stringify(
+        queryKey,
+      )})`,
+    );
+  }
+
+  return currentSettings;
+};
 
 async function updateQueryData(
   queryClient: QueryClient,
@@ -111,11 +128,11 @@ const onMutateAdvancedSettings = async (
   feedId: string | undefined,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user, feedId);
-  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
-  const currentSettings = feedSettings?.feedSettings;
-  if (!currentSettings) {
-    return noopRollback;
-  }
+  const currentSettings = getCachedFeedSettingsOrThrow(
+    queryClient,
+    queryKey,
+    'advanced_settings',
+  );
   const newData = manipulate(
     normalizeFeedSettings(currentSettings),
     advancedSettings,
@@ -140,11 +157,11 @@ const onMutateTagsSettings = async (
   feedId: string | undefined,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user, feedId);
-  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
-  const currentSettings = feedSettings?.feedSettings;
-  if (!currentSettings) {
-    return noopRollback;
-  }
+  const currentSettings = getCachedFeedSettingsOrThrow(
+    queryClient,
+    queryKey,
+    'tags',
+  );
   const newData = manipulate(normalizeFeedSettings(currentSettings), tags);
   const keys = [queryKey, getFeedSettingsQueryKey(user, feedId)];
   await updateQueryData(queryClient, newData, keys);
@@ -166,11 +183,11 @@ const onMutateSourcesSettings = async (
   feedId: string | undefined,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user, feedId);
-  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
-  const currentSettings = feedSettings?.feedSettings;
-  if (!currentSettings) {
-    return noopRollback;
-  }
+  const currentSettings = getCachedFeedSettingsOrThrow(
+    queryClient,
+    queryKey,
+    'sources',
+  );
   const newData = manipulate(normalizeFeedSettings(currentSettings), source);
   const keys = [queryKey, getFeedSettingsQueryKey(user, feedId)];
   await updateQueryData(queryClient, newData, keys);
