@@ -37,16 +37,12 @@ export function RepostsModal({
   });
 
   const reposts: PostItem[] =
-    queryResult.data?.pages.reduce((acc, page) => {
-      page?.postReposts.edges.forEach(({ node }) => {
-        acc.push({
-          post: node,
-          timestamp: node.createdAt ? new Date(node.createdAt) : undefined,
-        });
-      });
-
-      return acc;
-    }, []) ?? [];
+    queryResult.data?.pages.flatMap((page) =>
+      page.postReposts.edges.map(({ node }) => ({
+        post: node,
+        timestamp: node.createdAt ? new Date(node.createdAt) : undefined,
+      })),
+    ) ?? [];
 
   return (
     <Modal {...props} kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium}>

@@ -15,6 +15,8 @@ import { AnalyticsIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import { POST_REPOSTS_BY_ID_QUERY } from '../../graphql/posts';
 
+const DEFAULT_REPOSTS_PER_PAGE = 20;
+
 interface PostUpvotesCommentsCountProps {
   post: Post;
   onUpvotesClick?: (upvotes: number) => unknown;
@@ -31,6 +33,21 @@ export function PostUpvotesCommentsCount({
   const awards = post.numAwards || 0;
   const reposts = post.numReposts || 0;
   const hasAccessToCores = useHasAccessToCores();
+  const onRepostsClick = () =>
+    openModal({
+      type: LazyModal.RepostsPopup,
+      props: {
+        requestQuery: {
+          queryKey: ['postReposts', post.id],
+          query: POST_REPOSTS_BY_ID_QUERY,
+          params: {
+            id: post.id,
+            first: DEFAULT_REPOSTS_PER_PAGE,
+            supportedTypes: ['share'],
+          },
+        },
+      },
+    });
 
   return (
     <div
@@ -55,24 +72,7 @@ export function PostUpvotesCommentsCount({
         </span>
       )}
       {reposts > 0 && (
-        <ClickableText
-          onClick={() => {
-            openModal({
-              type: LazyModal.RepostsPopup,
-              props: {
-                requestQuery: {
-                  queryKey: ['postReposts', post.id],
-                  query: POST_REPOSTS_BY_ID_QUERY,
-                  params: {
-                    id: post.id,
-                    first: 20,
-                    supportedTypes: ['share'],
-                  },
-                },
-              },
-            });
-          }}
-        >
+        <ClickableText onClick={onRepostsClick}>
           {largeNumberFormat(reposts)} Repost{reposts > 1 ? 's' : ''}
         </ClickableText>
       )}
