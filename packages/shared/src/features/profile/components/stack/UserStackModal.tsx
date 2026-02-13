@@ -158,7 +158,10 @@ export function UserStackModal({
               <ConditionalWrapper
                 condition={isEditing}
                 wrapper={(component) => (
-                  <Tooltip content={STACK_TITLE_LOCKED_TOOLTIP} enableMobileClick>
+                  <Tooltip
+                    content={STACK_TITLE_LOCKED_TOOLTIP}
+                    enableMobileClick
+                  >
                     <div className="cursor-not-allowed">{component}</div>
                   </Tooltip>
                 )}
@@ -173,7 +176,11 @@ export function UserStackModal({
                   showMaxLength={!isEditing}
                   valid={!errors.title}
                   hint={errors.title?.message}
-                  rightIcon={isEditing ? <LockIcon className="text-text-disabled" /> : undefined}
+                  rightIcon={
+                    isEditing ? (
+                      <LockIcon className="text-text-disabled" />
+                    ) : undefined
+                  }
                   disabled={isEditing}
                   readOnly={isEditing}
                   className={{
