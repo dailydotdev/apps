@@ -11,7 +11,10 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import ConditionalWrapper from '../../../../components/ConditionalWrapper';
+import { LockIcon, PlusIcon } from '../../../../components/icons';
 import { ModalHeader } from '../../../../components/modals/common/ModalHeader';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useViewSize, ViewSize } from '../../../../hooks';
 import type {
   UserStack,
@@ -19,11 +22,12 @@ import type {
   DatasetTool,
 } from '../../../../graphql/user/userStack';
 import { useStackSearch } from '../../hooks/useStackSearch';
-import { PlusIcon } from '../../../../components/icons';
 import YearSelect from '../../../../components/profile/YearSelect';
 import MonthSelect from '../../../../components/profile/MonthSelect';
 
 const SECTION_OPTIONS = ['Primary', 'Hobby', 'Learning', 'Past'] as const;
+const STACK_TITLE_LOCKED_TOOLTIP =
+  "Stack/tool name can't be edited. Delete this entry and add it again to change it.";
 
 const userStackFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
@@ -151,28 +155,50 @@ export function UserStackModal({
           <Modal.Body className="flex flex-col gap-4">
             {/* Title with autocomplete */}
             <div className="relative">
-              <TextField
-                {...register('title')}
-                autoComplete="off"
-                autoFocus
-                inputId="stackTitle"
-                label="Technology, tool, or skill"
-                maxLength={255}
-                valid={!errors.title}
-                hint={errors.title?.message}
-                disabled={isEditing}
-                onChange={(e) => {
-                  setValue('title', e.target.value);
-                  if (!isEditing) {
-                    setShowSuggestions(true);
+              <ConditionalWrapper
+                condition={isEditing}
+                wrapper={(component) => (
+                  <Tooltip
+                    content={STACK_TITLE_LOCKED_TOOLTIP}
+                    enableMobileClick
+                  >
+                    <div className="cursor-not-allowed">{component}</div>
+                  </Tooltip>
+                )}
+              >
+                <TextField
+                  {...register('title')}
+                  autoComplete="off"
+                  autoFocus={!isEditing}
+                  inputId="stackTitle"
+                  label="Technology, tool, or skill"
+                  maxLength={255}
+                  showMaxLength={!isEditing}
+                  valid={!errors.title}
+                  hint={errors.title?.message}
+                  rightIcon={
+                    isEditing ? (
+                      <LockIcon className="text-text-disabled" />
+                    ) : undefined
                   }
-                }}
-                onFocus={() => {
-                  if (!isEditing) {
-                    setShowSuggestions(true);
-                  }
-                }}
-              />
+                  disabled={isEditing}
+                  readOnly={isEditing}
+                  className={{
+                    container: isEditing ? 'pointer-events-none' : undefined,
+                  }}
+                  onChange={(e) => {
+                    setValue('title', e.target.value);
+                    if (!isEditing) {
+                      setShowSuggestions(true);
+                    }
+                  }}
+                  onFocus={() => {
+                    if (!isEditing) {
+                      setShowSuggestions(true);
+                    }
+                  }}
+                />
+              </ConditionalWrapper>
               {!isEditing && showSuggestions && title.trim() && (
                 <div className="absolute left-0 right-0 top-full z-1 mt-1 max-h-48 overflow-auto rounded-12 border border-border-subtlest-tertiary bg-background-default shadow-2">
                   {filteredSuggestions.map((suggestion) => (
