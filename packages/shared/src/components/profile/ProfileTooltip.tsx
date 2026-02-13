@@ -122,6 +122,8 @@ export function ProfileTooltip({
     content: !isLoading && data ? <UserEntityCard user={data} /> : null,
     plugins:
       onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
+    // Remove focus from trigger to prevent keyboard accessibility issues
+    trigger: 'mouseenter',
     ...tooltip,
     onShow: (instance) => {
       if (id !== userId) {
