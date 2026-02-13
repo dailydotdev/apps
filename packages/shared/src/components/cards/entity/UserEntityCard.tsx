@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Link from '../../utilities/Link';
 import type { UserShortProfile } from '../../../lib/user';
 import EntityCard from './EntityCard';
@@ -8,12 +9,20 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { BlockIcon, DevPlusIcon, FlagIcon, GiftIcon } from '../../icons';
+import {
+  BlockIcon,
+  DevPlusIcon,
+  FlagIcon,
+  GiftIcon,
+  MedalBadgeIcon,
+} from '../../icons';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { IconSize } from '../../Icon';
 import JoinedDate from '../../profile/JoinedDate';
+import { getUserAchievementStats } from '../../../graphql/user/achievements';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import {
   ContentPreferenceStatus,
@@ -43,6 +52,17 @@ type Props = {
 const UserEntityCard = ({ user, className }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user?.id;
+  const { data: achievementStats } = useQuery({
+    queryKey: generateQueryKey(
+      RequestKey.UserAchievementStats,
+      user,
+      'entity-card',
+    ),
+    queryFn: () => getUserAchievementStats(user?.id),
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id,
+  });
+  const totalPoints = achievementStats?.totalPoints ?? 0;
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
@@ -192,6 +212,17 @@ const UserEntityCard = ({ user, className }: Props) => {
                 }}
                 user={user}
               />
+            </div>
+          )}
+          {totalPoints > 0 && (
+            <div className="flex items-center gap-1 rounded-8 border border-border-subtlest-tertiary px-2">
+              <MedalBadgeIcon size={IconSize.Small} />
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                {totalPoints} pts
+              </Typography>
             </div>
           )}
           <VerifiedCompanyUserBadge
