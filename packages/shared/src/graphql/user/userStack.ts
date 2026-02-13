@@ -118,7 +118,7 @@ const AUTOCOMPLETE_TOOLS_QUERY = gql`
 
 export const getUserStack = async (
   userId: string,
-  first = 50,
+  first = 100,
 ): Promise<Connection<UserStack>> => {
   const result = await gqlClient.request<{
     userStack: Connection<UserStack>;

@@ -19,6 +19,8 @@ import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
+export const MAX_STACK_ITEMS = 100;
+
 export function useUserStack(user: PublicProfile | null) {
   const queryClient = useQueryClient();
   const { isOwner } = useProfilePreview(user);
@@ -37,6 +39,7 @@ export function useUserStack(user: PublicProfile | null) {
     () => query.data?.edges?.map(({ node }) => node) ?? [],
     [query.data],
   );
+  const canAddMore = stackItems.length < MAX_STACK_ITEMS;
 
   // Group items by section
   const groupedBySection = useMemo(() => {
@@ -105,6 +108,7 @@ export function useUserStack(user: PublicProfile | null) {
     stackItems,
     groupedBySection,
     isOwner,
+    canAddMore,
     queryKey,
     add: addMutation.mutateAsync,
     update: updateMutation.mutateAsync,

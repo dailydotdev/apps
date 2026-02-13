@@ -17,13 +17,15 @@ import type {
 } from '../../../graphql/source/sourceStack';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { usePrompt } from '../../../hooks/usePrompt';
+import { MAX_STACK_ITEMS } from '../../../features/profile/hooks/useUserStack';
 
 interface SquadStackProps {
   squad: Squad;
 }
 
 export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
-  const { stackItems, canEdit, add, update, remove } = useSourceStack(squad);
+  const { stackItems, canEdit, canAddMore, add, update, remove } =
+    useSourceStack(squad);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
 
@@ -96,6 +98,14 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
     setEditingItem(null);
   }, []);
 
+  const handleOpenModal = useCallback(() => {
+    if (!canAddMore) {
+      displayToast(`Maximum of ${MAX_STACK_ITEMS} stack items allowed`);
+      return;
+    }
+    setIsModalOpen(true);
+  }, [canAddMore, displayToast]);
+
   const hasItems = stackItems.length > 0;
 
   if (!hasItems && !canEdit) {
@@ -112,12 +122,12 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
         >
           Stack & Tools
         </Typography>
-        {canEdit && (
+        {canEdit && canAddMore && (
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<PlusIcon />}
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleOpenModal}
           >
             Add
           </Button>
@@ -149,7 +159,7 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleOpenModal}
             >
               Add your first item
             </Button>

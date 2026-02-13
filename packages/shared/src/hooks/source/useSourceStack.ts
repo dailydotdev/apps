@@ -16,6 +16,7 @@ import {
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions as SourcePermissionsEnum } from '../../graphql/sources';
+import { MAX_STACK_ITEMS } from '../../features/profile/hooks/useUserStack';
 
 export function useSourceStack(squad: Squad | null) {
   const queryClient = useQueryClient();
@@ -36,6 +37,7 @@ export function useSourceStack(squad: Squad | null) {
     () => query.data?.edges?.map(({ node }) => node) ?? [],
     [query.data],
   );
+  const canAddMore = stackItems.length < MAX_STACK_ITEMS;
 
   const invalidateQuery = useCallback(() => {
     queryClient.invalidateQueries({ queryKey });
@@ -73,6 +75,7 @@ export function useSourceStack(squad: Squad | null) {
     ...query,
     stackItems,
     canEdit,
+    canAddMore,
     queryKey,
     add: addMutation.mutateAsync,
     update: updateMutation.mutateAsync,

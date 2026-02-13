@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
 import type { PublicProfile } from '../../../../lib/user';
-import { useUserStack } from '../../hooks/useUserStack';
+import { useUserStack, MAX_STACK_ITEMS } from '../../hooks/useUserStack';
 import {
   Typography,
   TypographyType,
@@ -44,8 +44,15 @@ const SECTION_ORDER = [
 export function ProfileUserStack({
   user,
 }: ProfileUserStackProps): ReactElement | null {
-  const { stackItems, groupedBySection, isOwner, add, update, remove } =
-    useUserStack(user);
+  const {
+    stackItems,
+    groupedBySection,
+    isOwner,
+    canAddMore,
+    add,
+    update,
+    remove,
+  } = useUserStack(user);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
@@ -122,11 +129,15 @@ export function ProfileUserStack({
   }, []);
 
   const handleOpenModal = useCallback(() => {
+    if (!canAddMore) {
+      displayToast(`Maximum of ${MAX_STACK_ITEMS} stack items allowed`);
+      return;
+    }
     logEvent({
       event_name: LogEvent.StartAddUserStack,
     });
     setIsModalOpen(true);
-  }, [logEvent]);
+  }, [canAddMore, displayToast, logEvent]);
 
   // Sort sections: predefined first, then custom alphabetically
   const sortedSections = Object.keys(groupedBySection).sort((a, b) => {
@@ -160,7 +171,7 @@ export function ProfileUserStack({
         >
           Stack & Tools
         </Typography>
-        {isOwner && (
+        {isOwner && canAddMore && (
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}

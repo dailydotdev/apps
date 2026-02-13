@@ -110,7 +110,7 @@ const REORDER_SOURCE_STACK_MUTATION = gql`
 
 export const getSourceStack = async (
   sourceId: string,
-  first = 50,
+  first = 100,
 ): Promise<Connection<SourceStack>> => {
   const result = await gqlClient.request<{
     sourceStack: Connection<SourceStack>;
