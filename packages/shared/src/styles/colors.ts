@@ -31,9 +31,11 @@ type MandatoryColorLevels =
   | '80'
   | '90';
 type OptionalColorLevels = '0';
-type ColorLevels = MandatoryColorLevels & Partial<OptionalColorLevels>;
-type Color = Record<ColorLevels, string>;
-type ColorPalette = Record<ColorName, Color>;
+type ColorLevels = MandatoryColorLevels | OptionalColorLevels;
+type Color = Record<MandatoryColorLevels, string>;
+type SaltColor = Record<ColorLevels, string>;
+type ColorPalette = Record<Exclude<ColorName, ColorName.Salt>, Color> &
+  Record<ColorName.Salt, SaltColor>;
 
 const colors: ColorPalette = {
   burger: {
