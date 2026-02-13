@@ -2,6 +2,8 @@ import { gql } from 'graphql-request';
 import type { Connection } from '../common';
 import { gqlClient } from '../common';
 
+export const MAX_STACK_ITEMS = 100;
+
 export interface DatasetTool {
   id: string;
   title: string;
@@ -118,7 +120,7 @@ const AUTOCOMPLETE_TOOLS_QUERY = gql`
 
 export const getUserStack = async (
   userId: string,
-  first = 50,
+  first = MAX_STACK_ITEMS,
 ): Promise<Connection<UserStack>> => {
   const result = await gqlClient.request<{
     userStack: Connection<UserStack>;
