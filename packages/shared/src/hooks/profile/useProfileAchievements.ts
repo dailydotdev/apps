@@ -8,6 +8,7 @@ interface UseProfileAchievementsResult {
   achievements: UserAchievement[] | undefined;
   unlockedCount: number;
   totalCount: number;
+  totalPoints: number;
   isPending: boolean;
   isError: boolean;
 }
@@ -28,13 +29,19 @@ export function useProfileAchievements(
     enabled: !!user?.id,
   });
 
-  const unlockedCount = data?.filter((a) => a.unlockedAt !== null).length ?? 0;
+  const unlocked = data?.filter((a) => a.unlockedAt !== null) ?? [];
+  const unlockedCount = unlocked.length;
   const totalCount = data?.length ?? 0;
+  const totalPoints = unlocked.reduce(
+    (sum, a) => sum + (a.achievement.points ?? 0),
+    0,
+  );
 
   return {
     achievements: data,
     unlockedCount,
     totalCount,
+    totalPoints,
     isPending,
     isError,
   };
