@@ -50,6 +50,7 @@ export default function FurtherReading({
               PostType.Article,
               PostType.Share,
               PostType.Freeform,
+              PostType.SocialTwitter,
             ],
           },
         );
