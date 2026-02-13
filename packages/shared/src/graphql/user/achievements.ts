@@ -244,11 +244,11 @@ export const getShowcasedAchievements = async (
 };
 
 export const getUserAchievementStats = async (
-  userId: string,
+  userId?: string,
 ): Promise<UserAchievementStats> => {
   const result = await gqlClient.request<UserAchievementStatsData>(
     USER_ACHIEVEMENT_STATS_QUERY,
-    { userId },
+    userId ? { userId } : {},
   );
   return result.userAchievementStats;
 };

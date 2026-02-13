@@ -53,13 +53,9 @@ const UserEntityCard = ({ user, className }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user?.id;
   const { data: achievementStats } = useQuery({
-    queryKey: generateQueryKey(
-      RequestKey.UserAchievementStats,
-      user,
-      'entity-card',
-    ),
+    queryKey: generateQueryKey(RequestKey.UserAchievementStats, user),
     queryFn: () => getUserAchievementStats(user?.id),
-    staleTime: StaleTime.Default,
+    staleTime: StaleTime.OneHour,
     enabled: !!user?.id,
   });
   const totalPoints = achievementStats?.totalPoints ?? 0;

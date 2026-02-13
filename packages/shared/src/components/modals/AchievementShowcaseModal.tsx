@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
@@ -43,14 +43,26 @@ const AchievementShowcaseModal = ({
     [allAchievements],
   );
 
-  const initialSelected = useMemo(
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (currentShowcased && !initialized) {
+      setSelected(new Set(currentShowcased.map((a) => a.achievement.id)));
+      setInitialized(true);
+    }
+  }, [currentShowcased, initialized]);
+
+  const initialIds = useMemo(
     () => new Set(currentShowcased?.map((a) => a.achievement.id) ?? []),
     [currentShowcased],
   );
 
-  const [selected, setSelected] = useState<Set<string>>(initialSelected);
+  const hasChanged =
+    selected.size !== initialIds.size ||
+    Array.from(selected).some((id) => !initialIds.has(id));
 
-  const toggleSelection = useCallback((id: string) => {
+  const toggleSelection = (id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -60,24 +72,18 @@ const AchievementShowcaseModal = ({
       }
       return next;
     });
-  }, []);
-
-  const hasChanged = useMemo(() => {
-    if (selected.size !== initialSelected.size) {
-      return true;
-    }
-    return Array.from(selected).some((id) => !initialSelected.has(id));
-  }, [selected, initialSelected]);
+  };
 
   const { mutate: saveShowcase, isPending: isSaving } = useMutation({
     mutationFn: () => updateShowcasedAchievements(Array.from(selected)),
     onSuccess: () => {
-      const queryKey = generateQueryKey(
-        RequestKey.ShowcasedAchievements,
-        user,
-        'profile',
-      );
-      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({
+        queryKey: generateQueryKey(
+          RequestKey.ShowcasedAchievements,
+          user,
+          'profile',
+        ),
+      });
       displayToast('Achievement showcase updated');
     },
     onError: () => {
@@ -87,9 +93,7 @@ const AchievementShowcaseModal = ({
 
   const handleConfirm = (e: MouseEvent) => {
     saveShowcase(undefined, {
-      onSuccess: () => {
-        onRequestClose(e);
-      },
+      onSuccess: () => onRequestClose(e),
     });
   };
 
@@ -153,9 +157,7 @@ const AchievementShowcaseModal = ({
                       ? 'cursor-not-allowed opacity-50'
                       : 'cursor-pointer hover:border-border-subtlest-secondary',
                   )}
-                  onClick={() =>
-                    !isDisabled && toggleSelection(ua.achievement.id)
-                  }
+                  onClick={() => toggleSelection(ua.achievement.id)}
                   disabled={isDisabled}
                 >
                   <div className="relative flex size-10 shrink-0 items-center justify-center">
