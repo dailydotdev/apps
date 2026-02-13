@@ -127,7 +127,7 @@ const useUserExperienceForm = ({
     { condition: isNewExperience },
   );
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: UserExperience | UserExperienceWork) =>
       type === UserExperienceType.Work
         ? upsertUserWorkExperience(data as UserExperienceWork, id)
@@ -147,7 +147,11 @@ const useUserExperienceForm = ({
         queryKey: generateQueryKey(RequestKey.UserExperience, user, 'profile'),
         exact: false,
       });
-      router.push(`${webappUrl}settings/profile/experience/${type}`);
+
+      // Only navigate to default location if there's no pending navigation from dirty form
+      if (!dirtyFormRef.current?.hasPendingNavigation()) {
+        router.push(`${webappUrl}settings/profile/experience/${type}`);
+      }
     },
     onError: (error: ApiErrorResult) => {
       if (
@@ -166,9 +170,9 @@ const useUserExperienceForm = ({
     },
   });
   const dirtyForm = useDirtyForm(methods.formState.isDirty, {
-    onSave: () => {
+    onSave: async () => {
       const formData = methods.getValues();
-      mutate(formData);
+      await mutateAsync(formData);
     },
     onDiscard: () => {
       methods.reset();

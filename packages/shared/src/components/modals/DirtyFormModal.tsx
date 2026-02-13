@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import type { LazyModalCommonProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -12,7 +12,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 
 interface DirtyFormModalProps extends LazyModalCommonProps {
   onDiscard: () => void;
-  onSave: () => void;
+  onSave: () => void | Promise<void>;
 }
 
 export default function DirtyFormModal({
@@ -22,12 +22,23 @@ export default function DirtyFormModal({
   onSave,
 }: DirtyFormModalProps): ReactElement {
   const { closeModal } = useLazyModal();
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    if (onSave) {
-      onSave();
+  const handleSave = async () => {
+    if (!onSave) {
+      closeModal();
+      return;
     }
-    closeModal();
+
+    setIsSaving(true);
+    try {
+      await onSave();
+      closeModal();
+    } catch {
+      // Error handled by caller's onError - keep modal open
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDiscard = () => {
@@ -67,6 +78,7 @@ export default function DirtyFormModal({
             variant={ButtonVariant.Secondary}
             size={ButtonSize.Medium}
             onClick={handleDiscard}
+            disabled={isSaving}
           >
             Discard
           </Button>
@@ -75,6 +87,8 @@ export default function DirtyFormModal({
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
             onClick={handleSave}
+            loading={isSaving}
+            disabled={isSaving}
           >
             Save changes
           </Button>

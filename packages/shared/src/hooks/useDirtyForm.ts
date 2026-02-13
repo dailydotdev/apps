@@ -4,7 +4,7 @@ import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 
 export interface UseDirtyFormOptions {
-  onSave: () => void;
+  onSave: () => void | Promise<void>;
   onDiscard?: () => void;
 }
 
@@ -30,6 +30,17 @@ export const useDirtyForm = (
     }
   }, [onDiscard, router]);
 
+  const handleSave = useCallback(async () => {
+    await onSave();
+
+    allowNavigationRef.current = true;
+
+    if (pendingUrlRef.current) {
+      router.push(pendingUrlRef.current);
+      pendingUrlRef.current = null;
+    }
+  }, [onSave, router]);
+
   useEffect(() => {
     const handleRouteChangeStart = (url: string) => {
       if (allowNavigationRef.current || !isDirty || url === router.asPath) {
@@ -43,7 +54,7 @@ export const useDirtyForm = (
         type: LazyModal.DirtyForm,
         props: {
           onDiscard: handleDiscard,
-          onSave,
+          onSave: handleSave,
         },
       });
 
@@ -58,7 +69,36 @@ export const useDirtyForm = (
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
-  }, [isDirty, router, openModal, handleDiscard, onSave]);
+  }, [isDirty, router, openModal, handleDiscard, handleSave]);
+
+  useEffect(() => {
+    const handleBeforePopState = ({ url }: { url: string }) => {
+      if (allowNavigationRef.current || !isDirty) {
+        allowNavigationRef.current = false;
+        return true;
+      }
+
+      // Store the URL we're trying to navigate to
+      pendingUrlRef.current = url;
+
+      openModal({
+        type: LazyModal.DirtyForm,
+        props: {
+          onDiscard: handleDiscard,
+          onSave: handleSave,
+        },
+      });
+
+      // Prevent the navigation
+      return false;
+    };
+
+    router.beforePopState(handleBeforePopState);
+
+    return () => {
+      router.beforePopState(() => true);
+    };
+  }, [isDirty, router, openModal, handleDiscard, handleSave]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -89,6 +129,6 @@ export const useDirtyForm = (
     },
     hasPendingNavigation: () => pendingUrlRef.current !== null,
     navigateToPending,
-    save: onSave,
+    save: handleSave,
   };
 };
