@@ -298,8 +298,7 @@ function RichTextInput(
         const currentCharacters =
           editorRef.current?.storage.characterCount.characters() ??
           inputRef.current.length;
-        const selection =
-          editorRef.current?.state.selection ?? editor?.state.selection ?? null;
+        const selection = editorRef.current?.state.selection ?? null;
         const selectedCharacters = selection
           ? editorRef.current?.state.doc.textBetween(
               selection.from,
