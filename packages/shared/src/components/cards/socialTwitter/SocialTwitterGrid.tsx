@@ -27,6 +27,7 @@ import { stripHtmlTags } from '../../../lib/strings';
 
 const HeaderActions = getGroupedHoverContainer('span');
 const quoteLikeSubTypes = ['quote', 'repost'];
+const UNKNOWN_SOURCE_ID = 'unknown';
 
 const normalizeThreadBody = ({
   title,
@@ -98,7 +99,12 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         })
       : undefined;
   const tweetUrl = post.permalink || post.commentsPermalink;
-  const quotedHandle = post.sharedPost?.source?.handle;
+  const quotedHandle =
+    post.sharedPost?.source?.id === UNKNOWN_SOURCE_ID
+      ? post.sharedPost?.creatorTwitter ||
+        post.creatorTwitter ||
+        post.sharedPost?.author?.username
+      : post.sharedPost?.source?.handle;
 
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);

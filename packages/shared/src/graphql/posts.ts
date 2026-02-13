@@ -42,7 +42,6 @@ export const internalReadTypes: PostType[] = [
   PostType.Welcome,
   PostType.Freeform,
   PostType.Collection,
-  PostType.SocialTwitter,
 ];
 
 export const isInternalReadType = (post: Post): boolean =>
@@ -89,8 +88,17 @@ export const isShareLikePost = (
   post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
 ): boolean => post?.type === PostType.Share || isSocialTwitterShareLike(post);
 
-export const getReadPostButtonText = (post: Post): string =>
-  isVideoPost(post) ? 'Watch video' : 'Read post';
+export const getReadPostButtonText = (post: Post): string => {
+  if (isVideoPost(post)) {
+    return 'Watch video';
+  }
+
+  if (isSocialTwitterPost(post)) {
+    return 'View on X';
+  }
+
+  return 'Read post';
+};
 
 export const translateablePostFields = [
   'title',
@@ -187,6 +195,7 @@ export interface Post {
   translation?: PostTranslation;
   language?: string;
   yggdrasilId?: string;
+  creatorTwitter?: string;
   featuredAward?: {
     award?: FeaturedAward;
   };

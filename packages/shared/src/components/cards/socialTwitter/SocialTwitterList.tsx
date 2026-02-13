@@ -24,6 +24,8 @@ import PostTags from '../common/PostTags';
 import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
 
+const UNKNOWN_SOURCE_ID = 'unknown';
+
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
   {
     post,
@@ -75,7 +77,12 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const metadata = useMemo(() => {
     const authorName = post?.author?.name;
     const sourceName = post?.source?.name;
-    const sharedHandle = post?.sharedPost?.source?.handle;
+    const sharedHandle =
+      post?.sharedPost?.source?.id === UNKNOWN_SOURCE_ID
+        ? post?.sharedPost?.creatorTwitter ||
+          post?.creatorTwitter ||
+          post?.sharedPost?.author?.username
+        : post?.sharedPost?.source?.handle;
 
     if (isUserSource) {
       return {
@@ -100,6 +107,10 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     isSharedTwitter,
     isUserSource,
     post?.author?.name,
+    post?.creatorTwitter,
+    post?.sharedPost?.creatorTwitter,
+    post?.sharedPost?.author?.username,
+    post?.sharedPost?.source?.id,
     post?.sharedPost?.source?.handle,
     post?.source?.name,
   ]);

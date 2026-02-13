@@ -120,6 +120,35 @@ it('should render quote/repost detail from shared post', async () => {
   ).toBeInTheDocument();
 });
 
+it('should use creatorTwitter when shared source is unknown', async () => {
+  renderComponent({
+    post: {
+      ...basePost,
+      subType: 'quote',
+      creatorTwitter: 'root_creator',
+      sharedPost: {
+        ...sharePost.sharedPost,
+        title: 'Referenced tweet content',
+        creatorTwitter: 'shared_creator',
+        source: {
+          ...sharePost.sharedPost.source,
+          id: 'unknown',
+          name: 'Referenced post',
+          handle: 'unknown',
+        },
+        author: {
+          ...(sharePost.sharedPost.author || { id: 'author-id' }),
+          username: 'creator_twitter',
+        },
+      },
+    },
+  });
+
+  expect(await screen.findByText('@shared_creator')).toBeInTheDocument();
+  expect(screen.queryByText('@creator_twitter')).not.toBeInTheDocument();
+  expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
+});
+
 it('should keep actions visible when there is no media and no shared post detail', async () => {
   renderComponent({
     post: {
