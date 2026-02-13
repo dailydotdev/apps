@@ -245,6 +245,8 @@ export enum RequestKey {
   PersonalAccessTokens = 'personal_access_tokens',
   UserAchievements = 'user_achievements',
   AchievementSyncStatus = 'achievement_sync_status',
+  ShowcasedAchievements = 'showcased_achievements',
+  UserAchievementStats = 'user_achievement_stats',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

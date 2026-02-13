@@ -10,6 +10,7 @@ import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHea
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
+import { ProfileAchievementShowcase } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievementShowcase';
 import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
 import { ProfileUserWorkspacePhotos } from '@dailydotdev/shared/src/features/profile/components/workspacePhotos/ProfileUserWorkspacePhotos';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
@@ -106,6 +107,7 @@ const ProfilePage = ({
         )}
         {!shouldShowBanner && <div />}
         <AboutMe user={user} />
+        <ProfileAchievementShowcase user={user} />
         <ProfileUserStack user={user} />
         <ProfileUserHotTakes user={user} />
         <ProfileUserWorkspacePhotos user={user} />

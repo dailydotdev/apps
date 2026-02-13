@@ -52,6 +52,25 @@ export interface AchievementSyncResult extends AchievementSyncStatus {
   closeAchievements: UserAchievement[];
 }
 
+export interface UserAchievementStats {
+  totalAchievements: number;
+  unlockedCount: number;
+  lockedCount: number;
+  totalPoints: number;
+}
+
+export interface UserAchievementStatsData {
+  userAchievementStats: UserAchievementStats;
+}
+
+export interface ShowcasedAchievementsData {
+  showcasedAchievements: UserAchievement[];
+}
+
+export interface UpdateShowcasedAchievementsData {
+  updateShowcasedAchievements: UserAchievement[];
+}
+
 export interface AchievementSyncStatusData {
   achievementSyncStatus: AchievementSyncStatus;
 }
@@ -141,6 +160,47 @@ export const SYNC_ACHIEVEMENTS_MUTATION = gql`
   ${ACHIEVEMENT_FRAGMENT}
 `;
 
+export const USER_ACHIEVEMENT_STATS_QUERY = gql`
+  query UserAchievementStats($userId: ID) {
+    userAchievementStats(userId: $userId) {
+      totalAchievements
+      unlockedCount
+      lockedCount
+      totalPoints
+    }
+  }
+`;
+
+export const SHOWCASED_ACHIEVEMENTS_QUERY = gql`
+  query ShowcasedAchievements($userId: ID!) {
+    showcasedAchievements(userId: $userId) {
+      achievement {
+        ...AchievementFragment
+      }
+      progress
+      unlockedAt
+      createdAt
+      updatedAt
+    }
+  }
+  ${ACHIEVEMENT_FRAGMENT}
+`;
+
+export const UPDATE_SHOWCASED_ACHIEVEMENTS_MUTATION = gql`
+  mutation UpdateShowcasedAchievements($achievementIds: [ID!]!) {
+    updateShowcasedAchievements(achievementIds: $achievementIds) {
+      achievement {
+        ...AchievementFragment
+      }
+      progress
+      unlockedAt
+      createdAt
+      updatedAt
+    }
+  }
+  ${ACHIEVEMENT_FRAGMENT}
+`;
+
 export const getAchievements = async (): Promise<Achievement[]> => {
   const result = await gqlClient.request<AchievementsData>(ACHIEVEMENTS_QUERY);
   return result.achievements;
@@ -171,6 +231,36 @@ export const syncAchievements = async (): Promise<AchievementSyncResult> => {
   );
 
   return result.syncAchievements;
+};
+
+export const getShowcasedAchievements = async (
+  userId: string,
+): Promise<UserAchievement[]> => {
+  const result = await gqlClient.request<ShowcasedAchievementsData>(
+    SHOWCASED_ACHIEVEMENTS_QUERY,
+    { userId },
+  );
+  return result.showcasedAchievements;
+};
+
+export const getUserAchievementStats = async (
+  userId?: string,
+): Promise<UserAchievementStats> => {
+  const result = await gqlClient.request<UserAchievementStatsData>(
+    USER_ACHIEVEMENT_STATS_QUERY,
+    userId ? { userId } : {},
+  );
+  return result.userAchievementStats;
+};
+
+export const updateShowcasedAchievements = async (
+  achievementIds: string[],
+): Promise<UserAchievement[]> => {
+  const result = await gqlClient.request<UpdateShowcasedAchievementsData>(
+    UPDATE_SHOWCASED_ACHIEVEMENTS_MUTATION,
+    { achievementIds },
+  );
+  return result.updateShowcasedAchievements;
 };
 
 // Helper to get target count from achievement criteria
