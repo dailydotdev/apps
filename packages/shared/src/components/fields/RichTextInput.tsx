@@ -73,6 +73,48 @@ const PASTE_TRUNCATED_MESSAGE =
   'Pasted content was truncated to fit the character limit';
 const CHARACTER_LIMIT_REACHED_MESSAGE = 'Character limit reached';
 
+/**
+ * Calculates available characters and truncates text if needed
+ * @returns null if paste should proceed normally, or an object with truncated text and whether limit was exceeded
+ */
+const calculatePasteLimits = (
+  pastedText: string,
+  currentLength: number,
+  selectedLength: number,
+  maxLength: number | undefined,
+): { limitedText: string; exceededLimit: boolean } | null => {
+  if (typeof maxLength !== 'number') {
+    return null;
+  }
+
+  const availableCharacters = maxLength - (currentLength - selectedLength);
+
+  if (availableCharacters <= 0) {
+    return { limitedText: '', exceededLimit: true };
+  }
+
+  const exceededLimit = pastedText.length > availableCharacters;
+  const limitedText = exceededLimit
+    ? pastedText.slice(0, availableCharacters)
+    : pastedText;
+
+  return { limitedText, exceededLimit };
+};
+
+/**
+ * Gets the length of the current selection in the editor
+ */
+const getSelectedLength = (editor: Editor | null): number => {
+  const selection = editor?.state.selection;
+  if (!selection) {
+    return 0;
+  }
+  return (
+    editor?.state.doc.textBetween(selection.from, selection.to, '', '')
+      .length ?? 0
+  );
+};
+
 interface ClassName {
   container?: string;
   input?: string;
@@ -298,37 +340,25 @@ function RichTextInput(
         const currentCharacters =
           editorRef.current?.storage.characterCount.characters() ??
           inputRef.current.length;
-        const selection = editorRef.current?.state.selection ?? null;
-        const selectedCharacters = selection
-          ? editorRef.current?.state.doc.textBetween(
-              selection.from,
-              selection.to,
-              '',
-              '',
-            ).length ?? 0
-          : 0;
-        const remainingCharacters =
-          typeof maxLength === 'number'
-            ? maxLength - (currentCharacters - selectedCharacters)
-            : null;
+        const selectedCharacters = getSelectedLength(editorRef.current);
 
-        if (remainingCharacters !== null && remainingCharacters <= 0) {
+        const limits = calculatePasteLimits(
+          clipboardText,
+          currentCharacters,
+          selectedCharacters,
+          maxLength,
+        );
+
+        if (limits?.limitedText === '') {
           event.preventDefault();
           displayToast(CHARACTER_LIMIT_REACHED_MESSAGE);
           return true;
         }
 
-        const exceededLimit =
-          remainingCharacters !== null &&
-          clipboardText.length > remainingCharacters;
-        const limitedText = exceededLimit
-          ? clipboardText.slice(0, remainingCharacters)
-          : clipboardText;
-        const trimmedText = limitedText.trim();
-        const shouldHandleMarkdown =
-          trimmedText && looksLikeMarkdown(trimmedText);
+        const textToInsert = limits?.limitedText ?? clipboardText;
+        const trimmedText = textToInsert.trim();
 
-        if (shouldHandleMarkdown) {
+        if (trimmedText && looksLikeMarkdown(trimmedText)) {
           const convertedHtml = markdownToHtmlBasic(trimmedText);
           if (convertedHtml) {
             event.preventDefault();
@@ -337,16 +367,16 @@ function RichTextInput(
               .focus()
               .insertContent(convertedHtml)
               .run();
-            if (exceededLimit) {
+            if (limits?.exceededLimit) {
               displayToast(PASTE_TRUNCATED_MESSAGE);
             }
             return true;
           }
         }
 
-        if (exceededLimit) {
+        if (limits?.exceededLimit) {
           event.preventDefault();
-          editorRef.current?.chain().focus().insertContent(limitedText).run();
+          editorRef.current?.chain().focus().insertContent(textToInsert).run();
           displayToast(PASTE_TRUNCATED_MESSAGE);
           return true;
         }
@@ -484,10 +514,6 @@ function RichTextInput(
 
   const onMarkdownPaste = useCallback(
     (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
-      if (!maxLength) {
-        return;
-      }
-
       const pastedText = event.clipboardData.getData('text/plain');
       if (!pastedText) {
         return;
@@ -497,28 +523,35 @@ function RichTextInput(
       const selectionStart = textarea.selectionStart ?? 0;
       const selectionEnd = textarea.selectionEnd ?? selectionStart;
       const selectedLength = Math.max(0, selectionEnd - selectionStart);
-      const availableCharacters =
-        maxLength - (inputRef.current.length - selectedLength);
 
-      if (availableCharacters >= pastedText.length) {
+      const limits = calculatePasteLimits(
+        pastedText,
+        inputRef.current.length,
+        selectedLength,
+        maxLength,
+      );
+
+      if (!limits) {
         return;
       }
 
       event.preventDefault();
 
-      if (availableCharacters <= 0) {
+      if (limits.limitedText === '') {
         displayToast(CHARACTER_LIMIT_REACHED_MESSAGE);
         return;
       }
 
-      const truncatedText = pastedText.slice(0, availableCharacters);
       const valueBefore = inputRef.current.slice(0, selectionStart);
       const valueAfter = inputRef.current.slice(selectionEnd);
-      const nextValue = `${valueBefore}${truncatedText}${valueAfter}`;
+      const nextValue = `${valueBefore}${limits.limitedText}${valueAfter}`;
       updateInput(nextValue);
-      displayToast(PASTE_TRUNCATED_MESSAGE);
 
-      const nextCursor = selectionStart + truncatedText.length;
+      if (limits.exceededLimit) {
+        displayToast(PASTE_TRUNCATED_MESSAGE);
+      }
+
+      const nextCursor = selectionStart + limits.limitedText.length;
       requestAnimationFrame(() => {
         markdownTextareaRef.current?.setSelectionRange(nextCursor, nextCursor);
       });
