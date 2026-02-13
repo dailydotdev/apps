@@ -14,6 +14,8 @@ import {
 } from '../../../../components/typography/Typography';
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { LazyImage } from '../../../../components/LazyImage';
+import HoverCard from '../../../../components/cards/common/HoverCard';
+import { anchorDefaultRel } from '../../../../lib/strings';
 
 interface AchievementCardProps {
   userAchievement: UserAchievement;
@@ -39,19 +41,33 @@ export function AchievementCard({
       )}
     >
       <div className="flex items-start gap-3">
-        <div
-          className={classNames(
-            'relative flex size-12 shrink-0 items-center justify-center rounded-12',
-            !isUnlocked && 'opacity-50 grayscale',
-          )}
+        <HoverCard
+          sideOffset={8}
+          openDelay={500}
+          trigger={
+            <div
+              className={classNames(
+                'relative flex size-12 shrink-0 items-center justify-center rounded-12',
+                !isUnlocked && 'opacity-50 grayscale',
+              )}
+            >
+              <LazyImage
+                imgSrc={achievement.image}
+                imgAlt={achievement.name}
+                className="size-12 rounded-12 object-cover"
+                fallbackSrc="https://daily.dev/default-achievement.png"
+              />
+            </div>
+          }
         >
-          <LazyImage
-            imgSrc={achievement.image}
-            imgAlt={achievement.name}
-            className="size-12 rounded-12 object-cover"
-            fallbackSrc="https://daily.dev/default-achievement.png"
-          />
-        </div>
+          <a href={achievement.image} target="_blank" rel={anchorDefaultRel}>
+            <img
+              src={achievement.image}
+              alt={achievement.name}
+              className="size-60 cursor-pointer rounded-16 border border-border-subtlest-tertiary bg-background-popover p-2"
+            />
+          </a>
+        </HoverCard>
         <div className="flex min-w-0 flex-1 flex-col">
           <Typography
             type={TypographyType.Callout}
