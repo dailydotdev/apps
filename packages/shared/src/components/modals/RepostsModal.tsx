@@ -8,10 +8,10 @@ import { Modal } from './common/Modal';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '../containers/InfiniteScrolling';
-import type { PostItem, PostRepostsData } from '../../graphql/posts';
-import PostItemCard from '../post/PostItemCard';
+import type { Post, PostRepostsData } from '../../graphql/posts';
 import { getNextPageParam } from '../../lib/query';
 import { FlexCentered } from '../utilities';
+import { RepostListItem } from './RepostListItem';
 
 export interface RepostsModalProps extends ModalProps {
   requestQuery: RequestQuery<PostRepostsData>;
@@ -36,12 +36,9 @@ export function RepostsModal({
       getNextPageParam(postReposts?.pageInfo),
   });
 
-  const reposts: PostItem[] =
+  const reposts: Post[] =
     queryResult.data?.pages.flatMap((page) =>
-      page.postReposts.edges.map(({ node }) => ({
-        post: node,
-        timestamp: node.createdAt ? new Date(node.createdAt) : undefined,
-      })),
+      page.postReposts.edges.map(({ node }) => node),
     ) ?? [];
 
   return (
@@ -53,13 +50,11 @@ export function RepostsModal({
           isFetchingNextPage={queryResult.isFetchingNextPage}
           fetchNextPage={queryResult.fetchNextPage}
         >
-          {reposts.map((postItem) => (
-            <PostItemCard
-              key={`${postItem.post.id}-${postItem.timestamp?.toISOString()}`}
-              postItem={postItem}
-              showButtons={false}
-            />
-          ))}
+          <div className="divide-y divide-border-subtlest-tertiary">
+            {reposts.map((post) => (
+              <RepostListItem key={post.id} post={post} />
+            ))}
+          </div>
         </InfiniteScrolling>
         {!queryResult.isPending && reposts.length === 0 && (
           <FlexCentered className="p-10 text-text-tertiary typo-callout">

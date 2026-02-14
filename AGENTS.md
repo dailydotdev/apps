@@ -395,6 +395,7 @@ When reviewing code (or writing code that will be reviewed):
 - **Avoid confusing naming** - Don't create multiple components with the same name in different locations (e.g., two `AboutMe` components)
 - **Remove unused exports** - If a function/constant is only used internally, don't export it
 - **Clean up duplicates** - If the same interface/type is defined in multiple places, consolidate to one location and import
+- **Activity list modals should be metadata-first** - For lists like reposts/upvotes/history in modals, prefer compact rows that emphasize source/author and engagement. Avoid large content images that dominate the layout unless image content is the primary purpose.
 
 ## Node.js Version Upgrade Checklist
 
