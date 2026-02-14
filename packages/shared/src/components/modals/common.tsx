@@ -413,6 +413,13 @@ const CandidateSignInModal = dynamic(
     ),
 );
 
+const DecorationSelectionModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "decorationSelectionModal" */ './decorations/DecorationSelectionModal'
+    ),
+);
+
 const FeedbackModal = dynamic(
   () => import(/* webpackChunkName: "feedbackModal" */ './FeedbackModal'),
 );
@@ -491,6 +498,7 @@ export const modals = {
   [LazyModal.SlackChannelConfirmation]: SlackChannelConfirmationModal,
   [LazyModal.RecruiterSeats]: RecruiterSeatsModal,
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
+  [LazyModal.DecorationSelection]: DecorationSelectionModal,
   [LazyModal.Feedback]: FeedbackModal,
   [LazyModal.AchievementSyncPrompt]: AchievementSyncPromptModal,
 };
