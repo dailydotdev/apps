@@ -50,11 +50,9 @@ export function RepostsModal({
           isFetchingNextPage={queryResult.isFetchingNextPage}
           fetchNextPage={queryResult.fetchNextPage}
         >
-          <div className="divide-y divide-border-subtlest-tertiary">
-            {reposts.map((post) => (
-              <RepostListItem key={post.id} post={post} />
-            ))}
-          </div>
+          {reposts.map((post) => (
+            <RepostListItem key={post.id} post={post} />
+          ))}
         </InfiniteScrolling>
         {!queryResult.isPending && reposts.length === 0 && (
           <FlexCentered className="p-10 text-text-tertiary typo-callout">

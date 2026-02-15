@@ -1,12 +1,14 @@
 import type { ReactElement } from 'react';
-import React from 'react';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { SourceAvatar } from '../profile/source/SourceAvatar';
+import React, { useMemo } from 'react';
 import Link from '../utilities/Link';
 import type { Post } from '../../graphql/posts';
 import { isSourceUserSource } from '../../graphql/sources';
-import { DiscussIcon, UpvoteIcon } from '../icons';
-import { largeNumberFormat } from '../../lib/numberFormat';
+import FeedItemContainer from '../cards/common/list/FeedItemContainer';
+import { CardContainer, CardTitle } from '../cards/common/list/ListCard';
+import { PostCardHeader } from '../cards/common/list/PostCardHeader';
+import SourceButton from '../cards/common/SourceButton';
+import { ProfileImageSize } from '../ProfilePicture';
+import { PostEngagementCounts } from '../cards/SimilarPosts';
 
 interface RepostListItemProps {
   post: Post;
@@ -14,64 +16,59 @@ interface RepostListItemProps {
 
 export function RepostListItem({ post }: RepostListItemProps): ReactElement {
   const isUserSource = isSourceUserSource(post.source);
-  const upvotes = post.numUpvotes ?? 0;
-  const comments = post.numComments ?? 0;
+  const title = post.title ?? post.sharedPost?.title;
 
-  const content = (
-    <article className="p-4 hover:bg-surface-hover">
-      <div className="flex min-w-0 flex-wrap items-center gap-2 typo-footnote">
-        {!isUserSource && post.source && (
-          <>
-            <SourceAvatar
-              source={post.source}
-              size={ProfileImageSize.XSmall}
-              className="!mr-0"
-            />
-            <Link href={post.source.permalink}>
-              <a className="truncate text-text-secondary">{post.source.name}</a>
-            </Link>
-          </>
-        )}
-        {post.author && (
-          <>
-            {!isUserSource && <span className="text-text-tertiary">/</span>}
-            <ProfilePicture
-              user={post.author}
-              size={ProfileImageSize.XSmall}
-              rounded="full"
-              nativeLazyLoading
-            />
-            <Link href={post.author.permalink}>
-              <a className="truncate text-text-secondary">{post.author.name}</a>
-            </Link>
-          </>
-        )}
-      </div>
-      {!!post.title && (
-        <p className="mt-2 line-clamp-2 text-text-primary typo-callout">
-          {post.title}
-        </p>
-      )}
-      <div className="mt-2 flex items-center gap-4 text-text-tertiary typo-footnote">
-        <span className="flex items-center gap-1">
-          <UpvoteIcon className="size-4" />
-          {largeNumberFormat(upvotes)}
-        </span>
-        <span className="flex items-center gap-1">
-          <DiscussIcon className="size-4" />
-          {largeNumberFormat(comments)}
-        </span>
-      </div>
-    </article>
-  );
+  const metadata = useMemo(() => {
+    if (isUserSource) {
+      return {
+        topLabel: post.author?.name,
+      };
+    }
 
-  if (!post.commentsPermalink) {
-    return content;
-  }
+    return {
+      topLabel: post.source?.permalink ? (
+        <Link href={post.source.permalink}>
+          <a className="relative z-1">{post.source.name}</a>
+        </Link>
+      ) : (
+        post.source?.name
+      ),
+      bottomLabel: post.author?.name,
+    };
+  }, [
+    isUserSource,
+    post.author?.name,
+    post.source?.name,
+    post.source?.permalink,
+  ]);
 
   return (
-    <Link href={post.commentsPermalink}>
-      <a>{content}</a>
-    </Link>
+    <FeedItemContainer
+      domProps={{ className: 'px-4 py-3 first:border-t-0' }}
+      linkProps={{ href: post.commentsPermalink, title: title || undefined }}
+      bookmarked={post.bookmarked}
+    >
+      <CardContainer>
+        <PostCardHeader post={post} metadata={metadata}>
+          {!isUserSource && post.source && (
+            <SourceButton
+              size={ProfileImageSize.Large}
+              source={post.source}
+              className="relative"
+            />
+          )}
+        </PostCardHeader>
+        {!!title && (
+          <CardTitle className="mt-2 line-clamp-2 typo-callout">
+            {title}
+          </CardTitle>
+        )}
+        <PostEngagementCounts
+          upvotes={post.numUpvotes ?? 0}
+          comments={post.numComments ?? 0}
+          className="mt-2 text-text-tertiary"
+        />
+      </CardContainer>
+    </FeedItemContainer>
   );
 }
