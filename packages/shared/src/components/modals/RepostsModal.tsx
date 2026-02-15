@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { RequestQuery } from '../../graphql/common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
@@ -21,6 +21,8 @@ export function RepostsModal({
   requestQuery: { queryKey, query, params, options = {} },
   ...props
 }: RepostsModalProps): ReactElement {
+  const container = useRef<HTMLElement>(null);
+  const [modalRef, setModalRef] = useState<HTMLElement>(null);
   const { requestMethod } = useRequestProtocol();
   const queryResult = useInfiniteQuery({
     queryKey,
@@ -42,16 +44,26 @@ export function RepostsModal({
     ) ?? [];
 
   return (
-    <Modal {...props} kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium}>
+    <Modal
+      {...props}
+      contentRef={(e) => setModalRef(e)}
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Medium}
+    >
       <Modal.Header title="Reposts" />
-      <Modal.Body className="!p-0">
+      <Modal.Body className="!p-0" ref={container}>
         <InfiniteScrolling
           canFetchMore={checkFetchMore(queryResult)}
           isFetchingNextPage={queryResult.isFetchingNextPage}
           fetchNextPage={queryResult.fetchNextPage}
         >
           {reposts.map((post) => (
-            <RepostListItem key={post.id} post={post} />
+            <RepostListItem
+              key={post.id}
+              post={post}
+              scrollingContainer={container.current}
+              appendTooltipTo={modalRef}
+            />
           ))}
         </InfiniteScrolling>
         {!queryResult.isPending && reposts.length === 0 && (

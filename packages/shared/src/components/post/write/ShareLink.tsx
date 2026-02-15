@@ -119,6 +119,11 @@ export function ShareLink({
       return onUpdateSubmit(e);
     }
 
+    if (!preview) {
+      displayToast('Please provide a valid link first');
+      return null;
+    }
+
     const isLinkAlreadyShared = preview.relatedPublicPosts?.length > 0;
     const proceedSharingLink =
       !isPostingOnMySource ||

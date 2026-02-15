@@ -291,7 +291,7 @@ export async function getStaticProps({
     const post = initialData.post as Post;
     const topComments = commentsData.topComments || [];
     const seo: NextSeoProps = {
-      canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
+      canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : null,
       title: getTemplatedTitle(seoTitle(post)),
       description: getSeoDescription(post),
       noindex: post?.author ? post.author.reputation <= 10 : false,
@@ -305,12 +305,12 @@ export async function getStaticProps({
           },
         ],
         article: {
-          publishedTime: post?.createdAt,
-          modifiedTime: post?.updatedAt,
-          tags: post?.tags,
+          publishedTime: post?.createdAt ?? null,
+          modifiedTime: post?.updatedAt ?? null,
+          tags: post?.tags ?? null,
           authors: post?.author?.permalink
             ? [post.author.permalink]
-            : undefined,
+            : null,
         },
         locale: post?.language || 'en',
       },
