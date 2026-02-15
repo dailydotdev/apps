@@ -166,6 +166,7 @@ export interface Post {
   numUpvotes?: number;
   numComments?: number;
   numAwards?: number;
+  numReposts?: number;
   author?: Author;
   scout?: Scout;
   read?: boolean;
@@ -265,6 +266,10 @@ export interface PostData {
   relatedCollectionPosts?: Connection<RelatedPost>;
 }
 
+export interface PostRepostsData {
+  postReposts: Connection<Post>;
+}
+
 export const RELATED_POSTS_PER_PAGE_DEFAULT = 5;
 
 export const POST_BY_ID_QUERY = gql`
@@ -339,6 +344,33 @@ export const POST_UPVOTES_BY_ID_QUERY = gql`
   }
 `;
 
+export const POST_REPOSTS_BY_ID_QUERY = gql`
+  query PostReposts(
+    $id: String!
+    $after: String
+    $first: Int
+    $supportedTypes: [String!]
+  ) {
+    postReposts(
+      id: $id
+      after: $after
+      first: $first
+      supportedTypes: $supportedTypes
+    ) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...SharedPostInfo
+        }
+      }
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+`;
+
 export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
@@ -354,6 +386,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       numUpvotes
       numComments
       numAwards
+      numReposts
       source {
         ...SourceShortInfo
       }

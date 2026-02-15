@@ -13,6 +13,9 @@ const UpvotedPopupModal = dynamic(
   () =>
     import(/* webpackChunkName: "upvotedPopupModal" */ './UpvotedPopupModal'),
 );
+const RepostsModal = dynamic(
+  () => import(/* webpackChunkName: "repostsModal" */ './RepostsModal'),
+);
 const UserFollowersModal = dynamic(
   () =>
     import(/* webpackChunkName: "userFollowersModal" */ './UserFollowersModal'),
@@ -427,6 +430,7 @@ const AchievementSyncPromptModal = dynamic(
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
+  [LazyModal.RepostsPopup]: RepostsModal,
   [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,

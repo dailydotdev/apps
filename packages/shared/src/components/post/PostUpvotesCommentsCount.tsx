@@ -13,6 +13,9 @@ import Link from '../utilities/Link';
 import { Button, ButtonSize } from '../buttons/Button';
 import { AnalyticsIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
+import { POST_REPOSTS_BY_ID_QUERY } from '../../graphql/posts';
+
+const DEFAULT_REPOSTS_PER_PAGE = 20;
 
 interface PostUpvotesCommentsCountProps {
   post: Post;
@@ -28,7 +31,23 @@ export function PostUpvotesCommentsCount({
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
+  const reposts = post.numReposts || 0;
   const hasAccessToCores = useHasAccessToCores();
+  const onRepostsClick = () =>
+    openModal({
+      type: LazyModal.RepostsPopup,
+      props: {
+        requestQuery: {
+          queryKey: ['postReposts', post.id],
+          query: POST_REPOSTS_BY_ID_QUERY,
+          params: {
+            id: post.id,
+            first: DEFAULT_REPOSTS_PER_PAGE,
+            supportedTypes: ['share'],
+          },
+        },
+      },
+    });
 
   return (
     <div
@@ -51,6 +70,11 @@ export function PostUpvotesCommentsCount({
           {largeNumberFormat(comments)}
           {` Comment${comments === 1 ? '' : 's'}`}
         </span>
+      )}
+      {reposts > 0 && (
+        <ClickableText onClick={onRepostsClick}>
+          {largeNumberFormat(reposts)} Repost{reposts > 1 ? 's' : ''}
+        </ClickableText>
       )}
       {hasAccessToCores && awards > 0 && (
         <ClickableText
