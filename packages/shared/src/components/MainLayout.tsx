@@ -77,6 +77,7 @@ function MainLayoutComponent({
   onLogoClick,
   onNavTabClick,
   canGoBack,
+  forceDesktopHeaderOnMobile,
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -193,13 +194,15 @@ function MainLayoutComponent({
         sidebarRendered={sidebarRendered}
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
+        forceDesktopHeaderOnMobile={forceDesktopHeaderOnMobile}
       />
       <main
         className={classNames(
           'flex flex-col',
           showSidebar && 'tablet:pl-16 laptop:pl-11',
           className,
-          isAuthReady &&
+          showSidebar &&
+            isAuthReady &&
             !isScreenCentered &&
             sidebarExpanded &&
             'laptop:!pl-60',

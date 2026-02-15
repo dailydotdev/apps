@@ -8,7 +8,37 @@
     "category": "product_launch",
     "tags": ["codex", "gpt_5.3", "openai", "benchmarks"],
     "source_tweet_id": "2019474754529321247",
-    "related_tweet_ids": ["2019475551719977453", "2019475805726744808", "2019473740040429590"]
+    "related_tweet_ids": ["2019475551719977453", "2019475805726744808", "2019473740040429590"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
+  },
+  {
+    "id": "news-dummy-high-mentions",
+    "type": "news_item",
+    "headline": "Dummy post: multi-source buzz around agent routing",
+    "summary": "Synthetic feed item used for UI testing of high-mention cards and pagination behavior.",
+    "date": "2026-02-05",
+    "category": "announcement",
+    "tags": ["dummy", "testing", "agents"],
+    "source_tweet_id": "2990000000000000001",
+    "related_tweet_ids": [
+      "2990000000000000002",
+      "2990000000000000003",
+      "2990000000000000004",
+      "2990000000000000005",
+      "2990000000000000006",
+      "2990000000000000007",
+      "2990000000000000008",
+      "2990000000000000009",
+      "2990000000000000010",
+      "2990000000000000011",
+      "2990000000000000012",
+      "2990000000000000013"
+    ],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-opus-46-release",
@@ -19,7 +49,10 @@
     "category": "product_launch",
     "tags": ["opus_4.6", "anthropic", "claude_code", "benchmarks"],
     "source_tweet_id": "2019471487833706769",
-    "related_tweet_ids": ["2019464256836501534", "2019469403989967160", "2019510064860844107"]
+    "related_tweet_ids": ["2019464256836501534", "2019469403989967160", "2019510064860844107"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-openai-frontier-platform",
@@ -30,7 +63,10 @@
     "category": "product_launch",
     "tags": ["openai", "frontier", "agents", "codex"],
     "source_tweet_id": "2019441198734209374",
-    "related_tweet_ids": ["2019441201120763920"]
+    "related_tweet_ids": ["2019441201120763920"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-claude-code-teams",
@@ -41,7 +77,10 @@
     "category": "feature",
     "tags": ["claude_code", "swarms", "agents", "official"],
     "source_tweet_id": "2019472394696683904",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-codex-cli-097",
@@ -52,7 +91,10 @@
     "category": "release",
     "tags": ["codex", "cli", "skills"],
     "source_tweet_id": "2019298842567655678",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-claude-knowledge-bases",
@@ -63,7 +105,10 @@
     "category": "leak",
     "tags": ["claude", "knowledge_bases", "anthropic"],
     "source_tweet_id": "2019546350875238883",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-codex-1m-users",
@@ -74,7 +119,10 @@
     "category": "milestone",
     "tags": ["codex", "openai", "milestone"],
     "source_tweet_id": "2019219967250669741",
-    "related_tweet_ids": ["2019173348132188330"]
+    "related_tweet_ids": ["2019173348132188330"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-openclaw-release",
@@ -85,7 +133,10 @@
     "category": "release",
     "tags": ["openclaw", "clawdbot", "release"],
     "source_tweet_id": "2019321375207616720",
-    "related_tweet_ids": ["2019324384859897899", "2019243280962331012"]
+    "related_tweet_ids": ["2019324384859897899", "2019243280962331012"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-naval-vibe-research",
@@ -96,7 +147,10 @@
     "category": "hot_take",
     "tags": ["naval", "vibe_coding", "ai_future"],
     "source_tweet_id": "2019430858248347951",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-opencode-arch-linux",
@@ -107,7 +161,10 @@
     "category": "milestone",
     "tags": ["opencode", "open_source", "arch_linux"],
     "source_tweet_id": "2019069945804439885",
-    "related_tweet_ids": ["2018699572772573355"]
+    "related_tweet_ids": ["2018699572772573355"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-karpathy-agentic-engineering",
@@ -118,7 +175,10 @@
     "category": "thread",
     "tags": ["karpathy", "agentic_engineering", "vibe_coding"],
     "source_tweet_id": "2019137879310836075",
-    "related_tweet_ids": ["2018323563414163476"]
+    "related_tweet_ids": ["2018323563414163476"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-claude-insights-command",
@@ -129,7 +189,10 @@
     "category": "feature",
     "tags": ["claude_code", "insights", "official"],
     "source_tweet_id": "2019173731042750509",
-    "related_tweet_ids": ["2019314348632555651"]
+    "related_tweet_ids": ["2019314348632555651"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-primeagen-kimi",
@@ -140,7 +203,10 @@
     "category": "endorsement",
     "tags": ["kimi_k2.5", "primeagen", "debugging"],
     "source_tweet_id": "2019081195321982998",
-    "related_tweet_ids": ["2019420522946195791", "2019170982619939222"]
+    "related_tweet_ids": ["2019420522946195791", "2019170982619939222"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-gpt-52-faster",
@@ -151,7 +217,10 @@
     "category": "announcement",
     "tags": ["gpt_5.2", "openai", "performance"],
     "source_tweet_id": "2018838297221726482",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-chatgpt-mcp-apps",
@@ -162,7 +231,10 @@
     "category": "announcement",
     "tags": ["chatgpt", "mcp", "openai"],
     "source_tweet_id": "2019185727934984384",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-sam-anthropic-drama",
@@ -173,7 +245,10 @@
     "category": "drama",
     "tags": ["openai", "anthropic", "codex", "competition"],
     "source_tweet_id": "2019139174339928189",
-    "related_tweet_ids": ["2019139765015310773"]
+    "related_tweet_ids": ["2019139765015310773"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-systems-thinking",
@@ -184,7 +259,10 @@
     "category": "insight",
     "tags": ["cursor", "architecture", "systems_thinking"],
     "source_tweet_id": "2019089085034586239",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-xcode-claude-integration",
@@ -195,7 +273,10 @@
     "category": "product_launch",
     "tags": ["xcode", "claude_code", "apple"],
     "source_tweet_id": "2018771170938724682",
-    "related_tweet_ids": ["2018762375386837043"]
+    "related_tweet_ids": ["2018762375386837043"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-xcode-codex-integration",
@@ -206,7 +287,10 @@
     "category": "product_launch",
     "tags": ["xcode", "codex", "apple"],
     "source_tweet_id": "2018796432443244897",
-    "related_tweet_ids": ["2018862624080064985"]
+    "related_tweet_ids": ["2018862624080064985"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-claude-session-sharing",
@@ -217,7 +301,10 @@
     "category": "feature",
     "tags": ["claude_code", "session_sharing", "official"],
     "source_tweet_id": "2018740156359229883",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-claude-browser-vscode",
@@ -228,7 +315,10 @@
     "category": "feature",
     "tags": ["claude_code", "vscode", "browser"],
     "source_tweet_id": "2018789761931182539",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-claude-slack-cowork",
@@ -239,7 +329,10 @@
     "category": "feature",
     "tags": ["claude", "slack", "cowork", "mcp"],
     "source_tweet_id": "2018819905630634171",
-    "related_tweet_ids": ["2019106724347801768"]
+    "related_tweet_ids": ["2019106724347801768"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-skills-standard-petition",
@@ -250,7 +343,10 @@
     "category": "standard",
     "tags": ["skills", "claude_code", "interoperability"],
     "source_tweet_id": "2018760297368932726",
-    "related_tweet_ids": ["2018770085956010119"]
+    "related_tweet_ids": ["2018770085956010119"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-codex-app-launch",
@@ -261,7 +357,10 @@
     "category": "product_launch",
     "tags": ["codex", "openai", "macos"],
     "source_tweet_id": "2018385565289267236",
-    "related_tweet_ids": ["2018414858015039504", "2018437537103269909", "2018734731437985930"]
+    "related_tweet_ids": ["2018414858015039504", "2018437537103269909", "2018734731437985930"],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-sam-felt-useless",
@@ -272,7 +371,10 @@
     "category": "commentary",
     "tags": ["codex", "sam_altman", "ai_future"],
     "source_tweet_id": "2018444309750862333",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-enterprise-claude-switch",
@@ -283,7 +385,10 @@
     "category": "data",
     "tags": ["enterprise", "claude_code", "cursor", "copilot"],
     "source_tweet_id": "2018432706892476842",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-boris-tips",
@@ -294,7 +399,10 @@
     "category": "tips",
     "tags": ["claude_code", "tips", "official"],
     "source_tweet_id": "2017742741636321619",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-vercel-sandbox-ga",
@@ -305,7 +413,10 @@
     "category": "product_launch",
     "tags": ["vercel", "sandbox", "agents"],
     "source_tweet_id": "2017423825152184772",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   },
   {
     "id": "news-cowork-plugins",
@@ -316,6 +427,9 @@
     "category": "feature",
     "tags": ["cowork", "claude", "plugins"],
     "source_tweet_id": "2017299749309976915",
-    "related_tweet_ids": []
+    "related_tweet_ids": [],
+    "author_username": "",
+    "author_name": "",
+    "author_avatar_url": ""
   }
 ]

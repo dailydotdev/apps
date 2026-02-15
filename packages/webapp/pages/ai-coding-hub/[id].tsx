@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import classNames from 'classnames';
@@ -10,90 +10,199 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   ArrowIcon,
-  TerminalIcon,
   TwitterIcon,
+  UpvoteIcon,
+  DiscussIcon,
+  BookmarkIcon,
+  ShareIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../components/layouts/NoSidebarLayout';
 import {
   feedItems,
   categoryLabels,
-  getRelativeDate,
+  getMentionsLabel,
+  isViralFeedItem,
 } from '../../data/aiCodingHubData';
 import type { FeedItem } from '../../data/aiCodingHubData';
 
-const TweetEmbed = ({ tweetId }: { tweetId: string }): ReactElement => {
-  const containerRef = useRef<HTMLDivElement>(null);
+const normalizeTag = (tag: string): string => tag.replace(/_/g, '');
 
-  const renderTweet = useCallback(() => {
-    const container = containerRef.current;
-    if (!container || !window.twttr) {
-      return;
-    }
-
-    container.innerHTML = '';
-    window.twttr.widgets.createTweet(tweetId, container, { theme: 'dark' });
-  }, [tweetId]);
-
-  useEffect(() => {
-    if (window.twttr) {
-      renderTweet();
-      return undefined;
-    }
-
-    const existingScript = document.querySelector(
-      'script[src="https://platform.twitter.com/widgets.js"]',
-    );
-    if (existingScript) {
-      existingScript.addEventListener('load', renderTweet);
-      return () => existingScript.removeEventListener('load', renderTweet);
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://platform.twitter.com/widgets.js';
-    script.async = true;
-    script.onload = renderTweet;
-    document.body.appendChild(script);
-
-    return undefined;
-  }, [renderTweet]);
+const SourceTweetCard = ({
+  item,
+  tweetId,
+  index,
+}: {
+  item: FeedItem;
+  tweetId: string;
+  index: number;
+}): ReactElement => {
+  const label = index === 0 ? 'Original' : `Mention ${index}`;
+  const link = `https://twitter.com/i/web/status/${tweetId}`;
+  const sourceHandle = `@${item.author_username}`;
+  const sourceName = item.author_name;
+  const avatarUrl = item.author_avatar_url;
 
   return (
-    <div className="flex justify-center">
-      <div ref={containerRef}>
+    <article className="rounded-12 bg-surface-float px-3 py-3">
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <img
+            src={avatarUrl}
+            alt={`${sourceName} profile`}
+            className="h-8 w-8 rounded-full bg-background-default"
+          />
+          <div className="leading-tight">
+            <p className="font-bold text-text-primary" style={{ fontSize: '15px' }}>
+              {sourceName}
+            </p>
+            <p className="text-xs text-text-quaternary">{sourceHandle}</p>
+          </div>
+        </div>
+        <span className="rounded-4 bg-background-default px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none text-text-tertiary">
+          {label}
+        </span>
+      </div>
+
+      <p className="font-bold leading-snug text-text-primary" style={{ fontSize: '15px' }}>
+        {item.headline}
+      </p>
+
+      <p className="mt-2 leading-normal text-text-secondary" style={{ fontSize: '15px', lineHeight: '20px' }}>
+        {item.summary}
+      </p>
+
+      <div className="mt-3 flex items-center justify-between">
+        <div className="flex flex-wrap items-center gap-1 text-text-quaternary" style={{ fontSize: '15px' }}>
+          {item.tags.slice(0, 2).map((tag) => (
+            <span key={`${tweetId}-${tag}`} className="rounded-4 bg-background-default px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none text-text-tertiary">
+              #{normalizeTag(tag)}
+            </span>
+          ))}
+        </div>
         <a
-          href={`https://twitter.com/i/web/status/${tweetId}`}
+          href={link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-text-quaternary text-sm"
+          className="inline-flex items-center gap-1 text-[15px] text-text-quaternary transition-colors hover:text-text-secondary"
         >
-          Loading tweet...
+          <span>Open on</span>
+          <TwitterIcon size={IconSize.XXSmall} />
         </a>
       </div>
-    </div>
+    </article>
   );
 };
 
-declare global {
-  interface Window {
-    twttr?: {
-      widgets: {
-        load: () => void;
-        createTweet: (
-          id: string,
-          el: HTMLElement,
-          options?: Record<string, string>,
-        ) => Promise<HTMLElement>;
-      };
-    };
-  }
-}
+const FeedSignalCard = ({
+  item,
+  isClickable = true,
+  showActions = true,
+}: {
+  item: FeedItem;
+  isClickable?: boolean;
+  showActions?: boolean;
+}): ReactElement => {
+  const router = useRouter();
+  const detailUrl = `/ai-coding-hub/${item.id}`;
+  const isViral = isViralFeedItem(item);
+
+  return (
+    <article
+      className={classNames(
+        'group border-b border-border-subtlest-quaternary bg-background-default transition-all hover:bg-surface-hover',
+        isClickable && 'cursor-pointer',
+      )}
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onClick={isClickable ? () => router.push(detailUrl) : undefined}
+      onKeyDown={
+        isClickable
+          ? (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              router.push(detailUrl);
+            }
+          }
+          : undefined
+      }
+    >
+      <div className="flex flex-col gap-1 px-8 py-3">
+        <div
+          className="flex items-center gap-1 text-text-quaternary"
+          style={{ fontSize: '15px' }}
+        >
+          {isViral && (
+            <>
+              <span className="rounded-4 bg-accent-bacon-default px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none text-text-primary">
+                Viral
+              </span>
+              <span>·</span>
+            </>
+          )}
+          <span>{categoryLabels[item.category]}</span>
+          <span>·</span>
+          <span className="inline-flex items-center gap-1">
+            <span>{`${getMentionsLabel(item)} on`}</span>
+            <TwitterIcon size={IconSize.XXSmall} />
+          </span>
+        </div>
+
+        <p
+          className="line-clamp-2 font-bold leading-snug"
+          style={{ fontSize: '15px', color: '#EAEAEA' }}
+        >
+          {item.headline}
+        </p>
+
+        {item.summary && (
+          <p
+            className="leading-normal"
+            style={{ fontSize: '15px', lineHeight: '20px', color: '#EAEAEA' }}
+          >
+            {item.summary}
+          </p>
+        )}
+
+        {showActions && (
+          <div className="flex items-center justify-between text-text-quaternary">
+            <button
+              type="button"
+              className="flex items-center gap-1 transition-colors hover:text-text-secondary"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <UpvoteIcon size={IconSize.XSmall} />
+              {item.upvotes > 0 && <span className="text-xs">{item.upvotes}</span>}
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-1 transition-colors hover:text-text-secondary"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <DiscussIcon size={IconSize.XSmall} />
+              {item.comments > 0 && <span className="text-xs">{item.comments}</span>}
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-1 transition-colors hover:text-text-secondary"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <BookmarkIcon size={IconSize.XSmall} />
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-1 transition-colors hover:text-text-secondary"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ShareIcon size={IconSize.XSmall} />
+            </button>
+          </div>
+        )}
+      </div>
+    </article>
+  );
+};
 
 const SignalDetailPage = (): ReactElement => {
   const router = useRouter();
@@ -110,219 +219,170 @@ const SignalDetailPage = (): ReactElement => {
           Signal not found
         </Typography>
         <Link href="/ai-coding-hub" passHref>
-          <Button tag="a" variant={ButtonVariant.Primary}>
-            Back to AI Pulse
-          </Button>
+          <a className="rounded-10 bg-surface-float px-4 py-2 text-sm font-bold text-text-primary transition-colors hover:bg-surface-hover">
+            Back to Sentinel
+          </a>
         </Link>
       </div>
     );
   }
 
-  const tweetUrl = `https://twitter.com/i/web/status/${item.source_tweet_id}`;
+  const tweetIds = [
+    item.source_tweet_id,
+    ...item.related_tweet_ids.filter(
+      (relatedTweetId) => relatedTweetId !== item.source_tweet_id,
+    ),
+  ];
+  const tweetsScrollerRef = useRef<HTMLDivElement>(null);
+  const [activeTweetIndex, setActiveTweetIndex] = useState(0);
+
+  const handleTweetsScroll = useCallback(() => {
+    if (!tweetsScrollerRef.current) {
+      return;
+    }
+
+    const { scrollLeft, clientWidth } = tweetsScrollerRef.current;
+    const nextIndex = Math.round(scrollLeft / clientWidth);
+    setActiveTweetIndex(Math.min(Math.max(nextIndex, 0), tweetIds.length - 1));
+  }, [tweetIds.length]);
+
+  const scrollToTweet = useCallback((index: number) => {
+    if (!tweetsScrollerRef.current) {
+      return;
+    }
+
+    tweetsScrollerRef.current.scrollTo({
+      left: tweetsScrollerRef.current.clientWidth * index,
+      behavior: 'smooth',
+    });
+    setActiveTweetIndex(index);
+  }, []);
+
+  const relatedFeedItems = feedItems
+    .filter(
+      (feedItem) =>
+        feedItem.id !== item.id &&
+        (feedItem.category === item.category ||
+          feedItem.tags.some((tag) => item.tags.includes(tag))),
+    )
+    .slice(0, 6);
 
   return (
-    <div className="relative min-h-page w-full max-w-full overflow-x-hidden bg-background-default">
+    <div className="relative mx-auto min-h-page w-full max-w-[540px] bg-background-default">
       <NextSeo
-        title={`${item.headline} // AI Pulse`}
+        title={`${item.headline} // Sentinel`}
         description={item.summary}
       />
 
       {/* Header */}
-      <header className="z-20 bg-background-default/95 sticky top-0 border-b border-border-subtlest-tertiary backdrop-blur-sm">
-        <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3">
+      <header className="sticky top-0 z-[80] border-b border-border-subtlest-tertiary bg-background-default backdrop-blur-sm">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
           <Link href="/ai-coding-hub" passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<ArrowIcon className="rotate-180" size={IconSize.Small} />}
-            >
-              Back
-            </Button>
+            <a className="flex items-center gap-1 text-text-quaternary transition-colors hover:text-text-secondary">
+              <ArrowIcon className="-rotate-90" size={IconSize.Small} />
+              <span className="text-sm">Back</span>
+            </a>
           </Link>
-          <div className="flex items-center gap-2">
-            <TerminalIcon
-              size={IconSize.Medium}
-              className="text-accent-cabbage-default"
-            />
-            <Typography type={TypographyType.Body} bold>
-              AI Pulse
-            </Typography>
-          </div>
+          <Typography type={TypographyType.Title3} bold>
+            Sentinel
+          </Typography>
+          <div className="w-12" />
         </div>
       </header>
 
-      {/* Content */}
-      <main className="mx-auto max-w-4xl px-4 py-6">
-        {/* Category and Date */}
-        <div className="mb-4 flex items-center gap-3">
-          <span
-            className={classNames(
-              'rounded-4 px-2 py-0.5 text-xs font-bold uppercase tracking-wide',
-              item.category === 'leak' && 'bg-accent-onion-default text-white',
-              item.category === 'milestone' &&
-                'bg-accent-avocado-default text-white',
-              item.category === 'release' &&
-                'bg-accent-water-default text-white',
-              item.category === 'hot_take' &&
-                'bg-accent-bacon-default text-white',
-              item.category === 'thread' && 'bg-accent-bun-default text-white',
-              item.category === 'feature' &&
-                'bg-accent-blueCheese-default text-white',
-              item.category === 'endorsement' &&
-                'bg-accent-lettuce-default text-white',
-              item.category === 'announcement' &&
-                'bg-accent-cheese-default text-white',
-              item.category === 'drama' &&
-                'bg-accent-ketchup-default text-white',
-              item.category === 'insight' &&
-                'bg-accent-salt-default text-white',
-              item.category === 'data' &&
-                'bg-accent-lettuce-default text-white',
-              item.category === 'product_launch' &&
-                'bg-accent-water-default text-white',
-              item.category === 'tips' &&
-                'bg-accent-cabbage-default text-white',
-              item.category === 'standard' &&
-                'bg-accent-bun-default text-white',
-              item.category === 'commentary' &&
-                'bg-accent-pepper-default text-white',
-            )}
+      <main className="mx-auto max-w-4xl">
+        {/* Selected post in feed style */}
+        <div className="mx-auto max-w-[540px] overflow-x-hidden">
+          <FeedSignalCard item={item} isClickable={false} showActions={false} />
+        </div>
+
+        {/* Source tweets */}
+        <div className="border-b border-border-subtlest-tertiary py-2 pl-8">
+          <div
+            ref={tweetsScrollerRef}
+            className="no-scrollbar flex gap-6 snap-x snap-mandatory overflow-x-auto pl-14 pr-0"
+            onScroll={handleTweetsScroll}
           >
-            {categoryLabels[item.category]}
-          </span>
-          <span className="text-sm text-text-quaternary">
-            {getRelativeDate(item.date)}
-          </span>
-        </div>
-
-        {/* Headline */}
-        <Typography type={TypographyType.LargeTitle} bold className="mb-4">
-          {item.headline}
-        </Typography>
-
-        {/* Summary */}
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-          className="mb-6 leading-relaxed"
-        >
-          {item.summary}
-        </Typography>
-
-        {/* Tags */}
-        <div className="mb-8 flex flex-wrap gap-2">
-          {item.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-8 bg-surface-float px-3 py-1 text-sm text-text-tertiary"
-            >
-              #{tag.replace(/_/g, '')}
-            </span>
-          ))}
-        </div>
-
-        {/* Tweet Section */}
-        <div className="border-t border-border-subtlest-tertiary pt-6">
-          <div className="mb-4 flex items-center justify-between">
-            <Typography
-              type={TypographyType.Title3}
-              bold
-              className="flex items-center gap-2"
-            >
-              <TwitterIcon
-                size={IconSize.Medium}
-                className="text-text-tertiary"
-              />
-              Source Tweet
-            </Typography>
-            <a
-              href={tweetUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-text-quaternary transition-colors hover:text-text-secondary"
-            >
-              Open on Twitter
-            </a>
-          </div>
-
-          <div className="flex flex-col gap-4 laptop:flex-row laptop:overflow-x-auto">
-            <TweetEmbed tweetId={item.source_tweet_id} />
-            {item.related_tweet_ids.map((relatedTweetId) => (
-              <TweetEmbed key={relatedTweetId} tweetId={relatedTweetId} />
+            {tweetIds.map((tweetId, index) => (
+              <div
+                key={tweetId}
+                className="w-full flex-shrink-0 snap-start rounded-12 bg-background-default p-0"
+              >
+                <SourceTweetCard
+                  item={item}
+                  tweetId={tweetId}
+                  index={index}
+                />
+              </div>
             ))}
           </div>
+
+          {tweetIds.length > 1 && (
+            <div className="mt-2 flex items-center justify-center gap-1.5">
+              {tweetIds.map((tweetId, index) => (
+                <button
+                  key={tweetId}
+                  type="button"
+                  aria-label={`Go to tweet ${index + 1}`}
+                  className={classNames(
+                    'h-2 w-2 rounded-full transition-colors',
+                    activeTweetIndex === index
+                      ? 'bg-text-primary'
+                      : 'bg-border-subtlest-tertiary',
+                  )}
+                  onClick={() => scrollToTweet(index)}
+                />
+              ))}
+            </div>
+          )}
+
+          <div className="mt-2 flex items-center justify-between pb-2 pr-8 pl-0 text-text-quaternary">
+            <button
+              type="button"
+              className="flex items-center gap-1 transition-colors hover:text-text-secondary"
+            >
+              <UpvoteIcon size={IconSize.XSmall} />
+              {item.upvotes > 0 && <span className="text-xs">{item.upvotes}</span>}
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-1 transition-colors hover:text-text-secondary"
+            >
+              <DiscussIcon size={IconSize.XSmall} />
+              {item.comments > 0 && <span className="text-xs">{item.comments}</span>}
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-1 transition-colors hover:text-text-secondary"
+            >
+              <BookmarkIcon size={IconSize.XSmall} />
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-1 transition-colors hover:text-text-secondary"
+            >
+              <ShareIcon size={IconSize.XSmall} />
+            </button>
+          </div>
         </div>
 
-        {/* Related Signals */}
-        <div className="mt-8 border-t border-border-subtlest-tertiary pt-6">
-          <Typography type={TypographyType.Title3} bold className="mb-4">
-            Related Signals
-          </Typography>
-          <div className="flex flex-col gap-3">
-            {feedItems
-              .filter(
-                (related) =>
-                  related.id !== item.id &&
-                  (related.category === item.category ||
-                    related.tags.some((tag) => item.tags.includes(tag))),
-              )
-              .slice(0, 3)
-              .map((related) => (
-                <Link
-                  key={related.id}
-                  href={`/ai-coding-hub/${related.id}`}
-                  passHref
-                >
-                  <a className="block rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 transition-colors hover:bg-surface-hover">
-                    <div className="mb-2 flex items-center gap-2">
-                      <span
-                        className={classNames(
-                          'rounded-4 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
-                          related.category === 'leak' &&
-                            'bg-accent-onion-default text-white',
-                          related.category === 'milestone' &&
-                            'bg-accent-avocado-default text-white',
-                          related.category === 'release' &&
-                            'bg-accent-water-default text-white',
-                          related.category === 'hot_take' &&
-                            'bg-accent-bacon-default text-white',
-                          related.category === 'thread' &&
-                            'bg-accent-bun-default text-white',
-                          related.category === 'feature' &&
-                            'bg-accent-blueCheese-default text-white',
-                          related.category === 'endorsement' &&
-                            'bg-accent-lettuce-default text-white',
-                          related.category === 'announcement' &&
-                            'bg-accent-cheese-default text-white',
-                          related.category === 'drama' &&
-                            'bg-accent-ketchup-default text-white',
-                          related.category === 'insight' &&
-                            'bg-accent-salt-default text-white',
-                          related.category === 'data' &&
-                            'bg-accent-lettuce-default text-white',
-                          related.category === 'product_launch' &&
-                            'bg-accent-water-default text-white',
-                          related.category === 'tips' &&
-                            'bg-accent-cabbage-default text-white',
-                          related.category === 'standard' &&
-                            'bg-accent-bun-default text-white',
-                          related.category === 'commentary' &&
-                            'bg-accent-pepper-default text-white',
-                        )}
-                      >
-                        {categoryLabels[related.category]}
-                      </span>
-                      <span className="text-xs text-text-quaternary">
-                        {getRelativeDate(related.date)}
-                      </span>
-                    </div>
-                    <Typography type={TypographyType.Body} bold>
-                      {related.headline}
-                    </Typography>
-                  </a>
-                </Link>
-              ))}
+        {/* Related posts */}
+        <div className="mx-auto max-w-[540px]">
+          <div className="border-b border-border-subtlest-tertiary px-4 py-3">
+            <Typography type={TypographyType.Callout} bold>
+              Related posts
+            </Typography>
+          </div>
+          {relatedFeedItems.map((feedItem) => (
+              <FeedSignalCard key={feedItem.id} item={feedItem} />
+          ))}
+          <div className="border-t border-border-subtlest-tertiary px-4 py-4">
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Quaternary}
+            >
+              Curated from Twitter, GitHub, and the dev community. Updated daily.
+            </Typography>
           </div>
         </div>
       </main>
