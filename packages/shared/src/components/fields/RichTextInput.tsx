@@ -587,8 +587,7 @@ function RichTextInput(
   }));
 
   useEffect(() => {
-    const content = inputRef.current;
-    if (!content || !editor) {
+    if (!editor) {
       return;
     }
 
