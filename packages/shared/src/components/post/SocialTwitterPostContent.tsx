@@ -9,8 +9,6 @@ import {
   isVideoPost,
   PostType,
 } from '../../graphql/posts';
-import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
-import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
 import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
@@ -20,8 +18,6 @@ import ShareYouTubeContent from './ShareYouTubeContent';
 import { useViewPost } from '../../hooks/post';
 import { withPostById } from './withPostById';
 import PostSourceInfo from './PostSourceInfo';
-import { isSourceUserSource } from '../../graphql/sources';
-import { ProfileImageSize } from '../ProfilePicture';
 import { BoostNewPostStrip } from '../../features/boost/BoostNewPostStrip';
 import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
@@ -34,7 +30,7 @@ const ContentMap = {
   [PostType.VideoYouTube]: ShareYouTubeContent,
 };
 
-function SquadPostContentRaw({
+function SocialTwitterPostContentRaw({
   post,
   isFallback,
   shouldOnboardAuthor,
@@ -67,10 +63,6 @@ function SquadPostContentRaw({
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onCopyPostLink } = engagementActions;
-  const { role } = useMemberRoleForSource({
-    source: post?.source,
-    user: post?.author,
-  });
   const navigationProps: PostNavigationProps = {
     post,
     onPreviousPost,
@@ -79,7 +71,6 @@ function SquadPostContentRaw({
     onClose,
     inlineActions,
   };
-  const isUserSource = isSourceUserSource(post?.source);
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
@@ -93,7 +84,7 @@ function SquadPostContentRaw({
   const finalType = isVideoPost(post)
     ? PostType.VideoYouTube
     : socialTwitterType || post?.type;
-  const Content = ContentMap[finalType];
+  const Content = ContentMap[finalType] || MarkdownPostContent;
 
   return (
     <PostContentContainer
@@ -142,42 +133,13 @@ function SquadPostContentRaw({
           {shouldShowBanner && !isLaptop && (
             <BoostNewPostStrip className="-mt-2 mb-4" />
           )}
-          <div
-            className={
-              isUserSource
-                ? 'flex flex-row-reverse items-center justify-between gap-4'
-                : undefined
-            }
-          >
-            <PostSourceInfo
-              post={post}
-              onClose={onClose}
-              onReadArticle={onReadArticle}
-              className={
-                !isUserSource &&
-                (shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6')
-              }
-            />
-            {shouldShowBanner && !isUserSource && isLaptop && (
-              <BoostNewPostStrip />
-            )}
-            {(post?.author || isFallback) && (
-              <SquadPostAuthor
-                author={post?.author}
-                role={role}
-                date={post.createdAt}
-                className={{
-                  container: !isUserSource ? 'mt-3' : 'shrink truncate',
-                }}
-                isUserSource={isUserSource}
-                size={ProfileImageSize.Large}
-                showSkeletonWhenMissing={isFallback}
-              />
-            )}
-          </div>
-          {shouldShowBanner && isUserSource && isLaptop && (
-            <BoostNewPostStrip className="mt-2" />
-          )}
+          <PostSourceInfo
+            post={post}
+            onClose={onClose}
+            onReadArticle={onReadArticle}
+            className={shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6'}
+          />
+          {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
           <Content post={post} onReadArticle={onReadArticle} />
         </BasePostContent>
       </div>
@@ -193,4 +155,6 @@ function SquadPostContentRaw({
   );
 }
 
-export const SquadPostContent = withPostById(SquadPostContentRaw);
+export const SocialTwitterPostContent = withPostById(
+  SocialTwitterPostContentRaw,
+);

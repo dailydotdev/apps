@@ -4,7 +4,7 @@ import { adLogEvent, feedLogExtra, usePostLogEvent } from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import type { FeedItem } from '../useFeed';
-import { PostType } from '../../graphql/posts';
+import { isShareLikePost, PostType } from '../../graphql/posts';
 
 export enum ImpressionStatus {
   LOGGING = 1,
@@ -43,10 +43,9 @@ export default function useLogImpression(
               ...feedLogExtra(feedName, ranking, {
                 scroll_y: window.scrollY,
               }).extra,
-              clickbait_badge:
-                item.post.type === PostType.Share
-                  ? item.post.sharedPost.clickbaitTitleDetected
-                  : item.post.clickbaitTitleDetected,
+              clickbait_badge: isShareLikePost(item.post)
+                ? item.post.sharedPost?.clickbaitTitleDetected
+                : item.post.clickbaitTitleDetected,
               feedback: item.post.type === PostType.Article ? true : undefined,
             },
           }),

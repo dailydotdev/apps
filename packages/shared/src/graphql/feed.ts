@@ -14,6 +14,7 @@ export const baseFeedSupportedTypes = [
   PostType.Article,
   PostType.Share,
   PostType.Freeform,
+  PostType.SocialTwitter,
   PostType.VideoYouTube,
   PostType.Collection,
   PostType.Poll,

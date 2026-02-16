@@ -73,6 +73,7 @@ const createFeedMock = (
     ranking: 'TIME',
     supportedTypes: [
       PostType.Article,
+      PostType.SocialTwitter,
       PostType.VideoYouTube,
       PostType.Collection,
     ],
@@ -234,6 +235,7 @@ it('should show login popup when logged-out on add to feed click', async () => {
         ranking: 'TIME',
         supportedTypes: [
           PostType.Article,
+          PostType.SocialTwitter,
           PostType.VideoYouTube,
           PostType.Collection,
         ],

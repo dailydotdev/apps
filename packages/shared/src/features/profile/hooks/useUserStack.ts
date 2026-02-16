@@ -8,6 +8,7 @@ import type {
   ReorderUserStackInput,
 } from '../../../graphql/user/userStack';
 import {
+  MAX_STACK_ITEMS,
   getUserStack,
   addUserStack,
   updateUserStack,
@@ -37,6 +38,7 @@ export function useUserStack(user: PublicProfile | null) {
     () => query.data?.edges?.map(({ node }) => node) ?? [],
     [query.data],
   );
+  const canAddMore = stackItems.length < MAX_STACK_ITEMS;
 
   // Group items by section
   const groupedBySection = useMemo(() => {
@@ -105,6 +107,7 @@ export function useUserStack(user: PublicProfile | null) {
     stackItems,
     groupedBySection,
     isOwner,
+    canAddMore,
     queryKey,
     add: addMutation.mutateAsync,
     update: updateMutation.mutateAsync,

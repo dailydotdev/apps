@@ -229,6 +229,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     numAwards
     summary
     yggdrasilId
+    creatorTwitter
     flags {
       campaignId
     }
@@ -253,6 +254,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       coresRole
     }
     type
+    subType
     tags
     source {
       id
@@ -329,6 +331,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     numAwards
     videoId
     yggdrasilId
+    creatorTwitter
     bookmark {
       remindAt
     }
@@ -339,6 +342,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       ...UserAuthor
     }
     type
+    subType
     tags
     source {
       ...SourceBaseInfo
@@ -547,20 +551,27 @@ export const FEED_POST_FRAGMENT = gql`
       id
       title
       image
+      creatorTwitter
       readTime
       permalink
       commentsPermalink
       createdAt
       type
+      subType
       tags
       private
       yggdrasilId
       source {
         id
         handle
+        name
         permalink
         image
         type
+      }
+      author {
+        id
+        username
       }
       slug
       clickbaitTitleDetected
