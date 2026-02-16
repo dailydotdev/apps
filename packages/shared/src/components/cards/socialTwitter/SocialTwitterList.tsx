@@ -20,6 +20,7 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
+import { PostType } from '../../../graphql/posts';
 import PostTags from '../common/PostTags';
 import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
@@ -57,7 +58,14 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
   const postForTags = post.tags?.length ? post : post.sharedPost || post;
-  const isSharedTwitter = !!post.sharedPost;
+  const showReferenceTweet = post.sharedPost?.type === PostType.SocialTwitter;
+  const showMediaCover = !!image && !showReferenceTweet;
+  const referenceHandle =
+    post.sharedPost?.source?.id === UNKNOWN_SOURCE_ID
+      ? post.sharedPost?.creatorTwitter ||
+        post.creatorTwitter ||
+        post.sharedPost?.author?.username
+      : post.sharedPost?.source?.handle;
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -77,12 +85,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const metadata = useMemo(() => {
     const authorName = post?.author?.name;
     const sourceName = post?.source?.name;
-    const sharedHandle =
-      post?.sharedPost?.source?.id === UNKNOWN_SOURCE_ID
-        ? post?.sharedPost?.creatorTwitter ||
-          post?.creatorTwitter ||
-          post?.sharedPost?.author?.username
-        : post?.sharedPost?.source?.handle;
 
     if (isUserSource) {
       return {
@@ -99,19 +101,11 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
 
     return {
       topLabel: sourceName || authorName,
-      bottomLabel:
-        isSharedTwitter && sharedHandle ? `@${sharedHandle}` : undefined,
     };
   }, [
     enableSourceHeader,
-    isSharedTwitter,
     isUserSource,
     post?.author?.name,
-    post?.creatorTwitter,
-    post?.sharedPost?.creatorTwitter,
-    post?.sharedPost?.author?.username,
-    post?.sharedPost?.source?.id,
-    post?.sharedPost?.source?.handle,
     post?.source?.name,
   ]);
 
@@ -153,11 +147,26 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
               {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
               <PostTags post={postForTags} />
             </div>
+            {showReferenceTweet && (
+              <div className="mt-4 rounded-12 border border-border-subtlest-tertiary p-3">
+                <p className="truncate font-bold text-text-primary typo-footnote">
+                  {post.sharedPost?.source?.name || 'Referenced post'}
+                </p>
+                {!!referenceHandle && (
+                  <p className="truncate text-text-tertiary typo-footnote">
+                    @{referenceHandle}
+                  </p>
+                )}
+                <p className="mt-1 line-clamp-4 whitespace-pre-line break-words text-text-secondary typo-footnote">
+                  {post.sharedPost?.title}
+                </p>
+              </div>
+            )}
             <div className="hidden flex-1 tablet:flex" />
             {!isMobile && actionButtons}
           </div>
 
-          {image && (
+          {showMediaCover && (
             <CardCoverList
               onShare={onShare}
               post={post}
