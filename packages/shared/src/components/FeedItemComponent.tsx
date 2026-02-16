@@ -1,4 +1,4 @@
-import type { FunctionComponent, ReactElement } from 'react';
+import type { ElementType, ReactElement } from 'react';
 import React from 'react';
 import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
@@ -9,7 +9,7 @@ import { PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
-import { Origin, TargetType } from '../lib/log';
+import { Origin, TargetId, TargetType } from '../lib/log';
 import type { UseVotePost } from '../hooks';
 import { useFeedLayout } from '../hooks';
 import { CollectionList } from './cards/collection/CollectionList';
@@ -18,6 +18,7 @@ import { MarketingCtaList } from './marketingCta/MarketingCtaList';
 import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
+import type { AdCardProps } from './cards/ad/common/common';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
 import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
@@ -97,26 +98,30 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
   }
 }
 
-const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
+const BriefFeedCard = (): ReactElement => (
+  <BriefCard targetId={TargetId.Feed} />
+);
+
+const PostTypeToTagCard: Record<PostType, ElementType> = {
   [PostType.Article]: ArticleGrid,
   [PostType.Share]: ShareGrid,
   [PostType.Welcome]: FreeformGrid,
   [PostType.Freeform]: FreeformGrid,
   [PostType.VideoYouTube]: ArticleGrid,
   [PostType.Collection]: CollectionGrid,
-  [PostType.Brief]: BriefCard,
+  [PostType.Brief]: BriefFeedCard,
   [PostType.Poll]: PollGrid,
   [PostType.SocialTwitter]: SocialTwitterGrid,
 };
 
-const PostTypeToTagList: Record<PostType, FunctionComponent> = {
+const PostTypeToTagList: Record<PostType, ElementType> = {
   [PostType.Article]: ArticleList,
   [PostType.Share]: ShareList,
   [PostType.Welcome]: FreeformList,
   [PostType.Freeform]: FreeformList,
   [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,
-  [PostType.Brief]: BriefCard,
+  [PostType.Brief]: BriefFeedCard,
   [PostType.Poll]: PollList,
   [PostType.SocialTwitter]: SocialTwitterList,
 };
@@ -135,17 +140,25 @@ type GetTagsProps = {
   postType: PostType;
 };
 
+type FeedTags = {
+  PostTag: ElementType;
+  SquadAdTag: typeof SquadAdList | typeof SquadAdGrid;
+  PlaceholderTag: typeof PlaceholderList | typeof PlaceholderGrid;
+  MarketingCtaTag: typeof MarketingCtaList | typeof MarketingCtaCard;
+  PlusGridTag: typeof PlusGrid;
+  AcquisitionFormTag: typeof AcquisitionFormList | typeof AcquisitionFormGrid;
+};
+
 const getTags = ({
   isListFeedLayout,
   shouldUseListMode,
   postType,
-}: GetTagsProps) => {
+}: GetTagsProps): FeedTags => {
   const useListCards = isListFeedLayout || shouldUseListMode;
   return {
     PostTag: useListCards
       ? PostTypeToTagList[postType] ?? ArticleList
       : PostTypeToTagCard[postType] ?? ArticleGrid,
-    AdTag: useListCards ? AdList : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
     PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
@@ -232,7 +245,7 @@ function FeedItemComponent({
   onCommentClick,
   onReadArticleClick,
   virtualizedNumCards,
-}: FeedItemComponentProps): ReactElement {
+}: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression(
     item,
@@ -248,7 +261,6 @@ function FeedItemComponent({
   const { boostedBy } = useFeedCardContext();
   const {
     PostTag,
-    AdTag,
     SquadAdTag,
     PlaceholderTag,
     MarketingCtaTag,
@@ -287,6 +299,10 @@ function FeedItemComponent({
     const itemPost =
       item.type === FeedItemType.Post ? item.post : item.ad.data?.post;
 
+    if (!itemPost) {
+      return null;
+    }
+
     if (
       !!itemPost.pinnedAt &&
       itemPost.source?.currentMember?.flags?.collapsePinnedPosts
@@ -303,7 +319,7 @@ function FeedItemComponent({
           ref={inViewRef}
           post={{ ...itemPost }}
           data-testid="postItem"
-          onUpvoteClick={(post, origin = Origin.Feed) => {
+          onUpvoteClick={(post: Post, origin = Origin.Feed) => {
             toggleUpvote({
               payload: post,
               origin,
@@ -314,7 +330,7 @@ function FeedItemComponent({
               },
             });
           }}
-          onDownvoteClick={(post, origin = Origin.Feed) => {
+          onDownvoteClick={(post: Post, origin = Origin.Feed) => {
             toggleDownvote({
               payload: post,
               origin,
@@ -325,13 +341,15 @@ function FeedItemComponent({
               },
             });
           }}
-          onPostClick={(post) => onPostClick(post, index, row, column)}
-          onPostAuxClick={(post) => onPostClick(post, index, row, column, true)}
+          onPostClick={(post: Post) => onPostClick(post, index, row, column)}
+          onPostAuxClick={(post: Post) =>
+            onPostClick(post, index, row, column, true)
+          }
           onReadArticleClick={() =>
             onReadArticleClick(itemPost, index, row, column)
           }
-          onShare={(post) => onShare(post, row, column)}
-          onBookmarkClick={(post, origin = Origin.Feed) => {
+          onShare={(post: Post) => onShare(post, row, column)}
+          onBookmarkClick={(post: Post, origin = Origin.Feed) => {
             toggleBookmark({
               post,
               origin,
@@ -344,12 +362,14 @@ function FeedItemComponent({
           }}
           openNewTab={openNewTab}
           enableMenu={!!user}
-          onMenuClick={(event) => onMenuClick(event, index, row, column)}
-          onCopyLinkClick={(event, post) =>
+          onMenuClick={(event: React.MouseEvent) =>
+            onMenuClick(event, index, row, column)
+          }
+          onCopyLinkClick={(event: React.MouseEvent, post: Post) =>
             onCopyLinkClick(event, post, index, row, column)
           }
           menuOpened={postMenuIndex === index}
-          onCommentClick={(post) =>
+          onCommentClick={(post: Post) =>
             onCommentClick(post, index, row, column, !!boostedBy)
           }
           eagerLoadImage={row === 0 && column === 0}
@@ -361,17 +381,38 @@ function FeedItemComponent({
   }
 
   switch (item.type) {
-    case FeedItemType.Ad:
+    case FeedItemType.Ad: {
+      const AdListTag = AdList as React.ForwardRefExoticComponent<
+        AdCardProps & React.RefAttributes<Element>
+      >;
+      const AdGridTag = AdGrid as React.ForwardRefExoticComponent<
+        AdCardProps & React.RefAttributes<Element>
+      >;
+
+      if (shouldUseListFeedLayout || shouldUseListMode) {
+        return (
+          <AdListTag
+            ref={inViewRef}
+            ad={item.ad}
+            index={item.index}
+            feedIndex={index}
+            onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
+            onRefresh={(ad: Ad) => onAdAction(AdActions.Refresh, ad)}
+          />
+        );
+      }
+
       return (
-        <AdTag
+        <AdGridTag
           ref={inViewRef}
           ad={item.ad}
           index={item.index}
           feedIndex={index}
-          onLinkClick={(ad) => onAdAction(AdActions.Click, ad)}
-          onRefresh={(ad) => onAdAction(AdActions.Refresh, ad)}
+          onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
+          onRefresh={(ad: Ad) => onAdAction(AdActions.Refresh, ad)}
         />
       );
+    }
     case FeedItemType.UserAcquisition:
       return <AcquisitionFormTag key="user-acquisition-card" />;
     case FeedItemType.MarketingCta:
