@@ -40,7 +40,7 @@ export function SharedPostPreview({
     <div
       data-testid="shared-post-preview"
       className={classNames(
-        'relative h-40 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default',
+        'relative mb-1 mt-2 h-40 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default',
         className,
       )}
     >
@@ -51,7 +51,7 @@ export function SharedPostPreview({
           !!overlay && 'opacity-16',
         )}
       >
-        <div className="relative min-h-0 flex-1 overflow-hidden border-t border-border-subtlest-tertiary">
+        <div className="relative min-h-0 flex-1 overflow-hidden">
           <Image
             {...imageProps}
             type={ImageType.Post}
