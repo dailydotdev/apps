@@ -1,7 +1,27 @@
 import { BrowserName } from './func';
 
+const DAILY_MEDIA_HOST = 'media.daily.dev';
+const PLACEHOLDER_IMAGE_PATTERN = /placeholder/i;
+
 export const cloudinaryPostImageCoverPlaceholder =
   'https://media.daily.dev/image/upload/s--P4t4XyoV--/f_auto/v1722860399/public/Placeholder%2001';
+
+export const isPlaceholderImage = (url?: string | null): boolean => {
+  if (!url) {
+    return false;
+  }
+
+  try {
+    const parsedUrl = new URL(url);
+    if (!parsedUrl.hostname.includes(DAILY_MEDIA_HOST)) {
+      return false;
+    }
+
+    return PLACEHOLDER_IMAGE_PATTERN.test(parsedUrl.pathname);
+  } catch {
+    return false;
+  }
+};
 
 export const cloudinaryFeedFiltersYourFeedDark =
   'https://media.daily.dev/image/upload/s--_0r3L1f9--/v1689662930/Your_feed_dark_ord3s0.png';
