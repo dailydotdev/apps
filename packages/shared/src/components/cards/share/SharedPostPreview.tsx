@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import type { Source } from '../../../graphql/sources';
+import { apiUrl } from '../../../lib/config';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { Image, ImageType } from '../../image/Image';
@@ -36,6 +37,14 @@ export function SharedPostPreview({
 }: SharedPostPreviewProps): ReactElement {
   const { overlay } = useCardCover({ post, onShare });
   const isUnknownSource = post.sharedPost.source.id === 'unknown';
+  const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
+  const iconSize = Math.round(16 * pixelRatio);
+  const sourceImage =
+    isUnknownSource && post.sharedPost.domain
+      ? `${apiUrl}/icon?url=${encodeURIComponent(
+          post.sharedPost.domain,
+        )}&size=${iconSize}`
+      : source?.image;
 
   return (
     <div
@@ -62,11 +71,11 @@ export function SharedPostPreview({
           />
           <div className="absolute inset-x-0 top-0 ">
             <div className="flex flex-col gap-2 rounded-t-8 bg-background-subtle p-2">
-              {source?.image && source.handle && (
+              {sourceImage && (source?.handle || isUnknownSource) && (
                 <div className="flex min-w-0 items-center gap-1">
                   <SourceAvatar
                     source={{
-                      image: source.image,
+                      image: sourceImage,
                       handle: isUnknownSource
                         ? post.sharedPost.domain
                         : source.handle,
