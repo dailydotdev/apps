@@ -575,6 +575,7 @@ export const FEED_POST_FRAGMENT = gql`
       }
       slug
       clickbaitTitleDetected
+      domain
       translation {
         ...PostTranslateableFields
       }
