@@ -45,6 +45,7 @@ import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
 import { MarketingCtaYearInReview } from './marketingCta/MarketingCtaYearInReview';
 import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
+import { TweetGrid } from './cards/tweet/TweetGrid';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -95,8 +96,9 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
   }
 }
 
+// TODO: Temporary - swap ArticleGrid → TweetGrid to prototype tweet cards in feed
 const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
-  [PostType.Article]: ArticleGrid,
+  [PostType.Article]: TweetGrid,
   [PostType.Share]: ShareGrid,
   [PostType.Welcome]: FreeformGrid,
   [PostType.Freeform]: FreeformGrid,
