@@ -397,6 +397,8 @@ When reviewing code (or writing code that will be reviewed):
 - **Clean up duplicates** - If the same interface/type is defined in multiple places, consolidate to one location and import
 - **Activity list modals should be metadata-first** - For lists like reposts/upvotes/history in modals, prefer compact rows that emphasize source/author and engagement. Avoid large content images that dominate the layout unless image content is the primary purpose.
 - **Reuse feed/list card primitives first** - Before adding modal-specific list item components, check existing card building blocks (`FeedItemContainer`, `PostCardHeader`, list card primitives) and compose with them.
+- **Do not hide accessible data using presentation heuristics** - In UI lists, avoid masking content based on flags like `source.public`; rely on backend access controls and render the data returned by the query.
+- **Keep scope tight in design iterations** - When adjusting UI, avoid unrelated behavioral/SEO changes in the same commit unless explicitly requested.
 
 ## Node.js Version Upgrade Checklist
 

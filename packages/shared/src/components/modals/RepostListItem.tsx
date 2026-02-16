@@ -12,8 +12,8 @@ import { TimeFormatType, formatDate } from '../../lib/dateFormat';
 
 interface RepostListItemProps {
   post: Post;
-  scrollingContainer?: HTMLElement;
-  appendTooltipTo?: HTMLElement;
+  scrollingContainer?: HTMLElement | null;
+  appendTooltipTo?: HTMLElement | null;
 }
 
 export function RepostListItem({
@@ -104,31 +104,30 @@ export function RepostListItem({
       {renderUserInfo()}
 
       {/* Post text content */}
-      {isPrivateSquad ? (
-        <p className="mt-3 text-text-quaternary typo-callout">
-          This post was shared in a private squad
-        </p>
-      ) : (
-        post.title && (
+      {!!post.title &&
+        (post.commentsPermalink ? (
+          <Link href={post.commentsPermalink}>
+            <a className="mt-3 line-clamp-3 block text-text-primary typo-body hover:underline">
+              {post.title}
+            </a>
+          </Link>
+        ) : (
           <p className="mt-3 line-clamp-3 text-text-primary typo-body">
             {post.title}
           </p>
-        )
-      )}
+        ))}
 
       {/* Upvotes and comments */}
-      {!isPrivateSquad && (
-        <div className="mt-3 flex items-center gap-4 text-text-quaternary typo-callout">
-          <span className="flex items-center gap-1.5">
-            <UpvoteIcon className="size-4" />
-            {largeNumberFormat(upvotes)}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <DiscussIcon className="size-4" />
-            {largeNumberFormat(comments)}
-          </span>
-        </div>
-      )}
+      <div className="mt-3 flex items-center gap-4 text-text-quaternary typo-callout">
+        <span className="flex items-center gap-1.5">
+          <UpvoteIcon className="size-4" />
+          {largeNumberFormat(upvotes)}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <DiscussIcon className="size-4" />
+          {largeNumberFormat(comments)}
+        </span>
+      </div>
     </div>
   );
 }

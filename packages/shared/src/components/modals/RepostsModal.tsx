@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { RequestQuery } from '../../graphql/common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
@@ -22,7 +22,7 @@ export function RepostsModal({
   ...props
 }: RepostsModalProps): ReactElement {
   const container = useRef<HTMLElement>(null);
-  const [modalRef, setModalRef] = useState<HTMLElement>(null);
+  const modalRef = useRef<HTMLElement>(null);
   const { requestMethod } = useRequestProtocol();
   const queryResult = useInfiniteQuery({
     queryKey,
@@ -46,7 +46,9 @@ export function RepostsModal({
   return (
     <Modal
       {...props}
-      contentRef={(e) => setModalRef(e)}
+      contentRef={(element) => {
+        modalRef.current = element;
+      }}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Medium}
     >
@@ -62,7 +64,7 @@ export function RepostsModal({
               key={post.id}
               post={post}
               scrollingContainer={container.current}
-              appendTooltipTo={modalRef}
+              appendTooltipTo={modalRef.current}
             />
           ))}
         </InfiniteScrolling>
