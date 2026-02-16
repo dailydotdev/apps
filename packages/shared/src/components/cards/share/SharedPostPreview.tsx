@@ -35,6 +35,7 @@ export function SharedPostPreview({
   imageProps,
 }: SharedPostPreviewProps): ReactElement {
   const { overlay } = useCardCover({ post, onShare });
+  const isUnknownSource = post.sharedPost.source.id === 'unknown';
 
   return (
     <div
@@ -62,9 +63,14 @@ export function SharedPostPreview({
           <div className="absolute inset-x-0 top-0 ">
             <div className="flex flex-col gap-2 rounded-t-8 bg-background-subtle p-2">
               {source?.image && source.handle && (
-                <div className="flex min-w-0 items-center gap-2">
+                <div className="flex min-w-0 items-center gap-1">
                   <SourceAvatar
-                    source={{ image: source.image, handle: source.handle }}
+                    source={{
+                      image: source.image,
+                      handle: isUnknownSource
+                        ? post.sharedPost.domain
+                        : source.handle,
+                    }}
                     size={ProfileImageSize.Size16}
                     className="shrink-0"
                   />
