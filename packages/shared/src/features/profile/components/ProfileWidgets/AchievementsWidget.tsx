@@ -63,24 +63,24 @@ function RecentAchievements({
         {recentUnlocked.map((ua) => {
           const rarityTier = getAchievementRarityTier(ua.achievement.rarity);
           return (
-          <div
-            key={ua.achievement.id}
-            className={classNames(
-              'relative size-10 rounded-10',
-              rarityTier
-                ? ['overflow-visible border', rarityGlowClasses[rarityTier]]
-                : 'overflow-hidden',
-            )}
-            title={ua.achievement.name}
-          >
-            {rarityTier && <RaritySparkles tier={rarityTier} />}
-            <LazyImage
-              imgSrc={ua.achievement.image}
-              imgAlt={ua.achievement.name}
-              className="size-full rounded-10 object-cover"
-              fallbackSrc="https://daily.dev/default-achievement.png"
-            />
-          </div>
+            <div
+              key={ua.achievement.id}
+              className={classNames(
+                'relative size-10 rounded-10',
+                rarityTier
+                  ? ['overflow-visible border', rarityGlowClasses[rarityTier]]
+                  : 'overflow-hidden',
+              )}
+              title={ua.achievement.name}
+            >
+              {rarityTier && <RaritySparkles tier={rarityTier} />}
+              <LazyImage
+                imgSrc={ua.achievement.image}
+                imgAlt={ua.achievement.name}
+                className="size-full rounded-10 object-cover"
+                fallbackSrc="https://daily.dev/default-achievement.png"
+              />
+            </div>
           );
         })}
       </div>

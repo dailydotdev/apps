@@ -8,11 +8,21 @@ export enum AchievementRarityTier {
 export const getAchievementRarityTier = (
   rarity: number | null | undefined,
 ): AchievementRarityTier | null => {
-  if (rarity == null) return null;
-  if (rarity <= 1) return AchievementRarityTier.Emerald;
-  if (rarity <= 5) return AchievementRarityTier.Gold;
-  if (rarity <= 10) return AchievementRarityTier.Silver;
-  if (rarity <= 15) return AchievementRarityTier.Bronze;
+  if (rarity == null) {
+    return null;
+  }
+  if (rarity <= 1) {
+    return AchievementRarityTier.Emerald;
+  }
+  if (rarity <= 5) {
+    return AchievementRarityTier.Gold;
+  }
+  if (rarity <= 10) {
+    return AchievementRarityTier.Silver;
+  }
+  if (rarity <= 15) {
+    return AchievementRarityTier.Bronze;
+  }
   return null;
 };
 

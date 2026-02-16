@@ -54,9 +54,7 @@ const generateParticles = (count: number): Particle[] => {
   });
 };
 
-const getParticleStyle = (
-  p: Particle,
-): React.CSSProperties => {
+const getParticleStyle = (p: Particle): React.CSSProperties => {
   const base: React.CSSProperties = {
     position: 'absolute',
     width: p.size,
@@ -97,16 +95,18 @@ export const RaritySparkles = ({
   return (
     <>
       <style>{keyframesStyle}</style>
-      {particles.map((p, i) => (
+      {particles.map((p) => (
         <span
-          key={i}
-          style={{
-            ...getParticleStyle(p),
-            '--rdx': `${p.dx}px`,
-            '--rdy': `${p.dy}px`,
-            backgroundColor: `rgba(${color},0.8)`,
-            animation: `rarity-particle ${p.duration}s ease-out ${p.delay}s infinite`,
-          } as React.CSSProperties}
+          key={`${p.edge}-${p.pos}`}
+          style={
+            {
+              ...getParticleStyle(p),
+              '--rdx': `${p.dx}px`,
+              '--rdy': `${p.dy}px`,
+              backgroundColor: `rgba(${color},0.8)`,
+              animation: `rarity-particle ${p.duration}s ease-out ${p.delay}s infinite`,
+            } as React.CSSProperties
+          }
         />
       ))}
     </>
