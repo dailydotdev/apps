@@ -133,6 +133,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
       source: source?.id,
       supportedTypes: [
         PostType.Article,
+        PostType.SocialTwitter,
         PostType.VideoYouTube,
         PostType.Collection,
       ],
@@ -153,6 +154,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
       ranking: 'TIME',
       supportedTypes: [
         PostType.Article,
+        PostType.SocialTwitter,
         PostType.VideoYouTube,
         PostType.Collection,
       ],

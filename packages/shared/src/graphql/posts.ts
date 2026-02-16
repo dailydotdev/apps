@@ -56,8 +56,49 @@ export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
   (post?.type === PostType.Share &&
     post?.sharedPost?.type === PostType.VideoYouTube);
 
-export const getReadPostButtonText = (post: Post): string =>
-  isVideoPost(post) ? 'Watch video' : 'Read post';
+export const isSocialTwitterPost = (
+  post: Pick<Post, 'type'> | undefined | null,
+): boolean => post?.type === PostType.SocialTwitter;
+
+export const isSocialTwitterShareLike = (
+  post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
+): boolean => {
+  if (!isSocialTwitterPost(post)) {
+    return false;
+  }
+
+  if (!post.sharedPost) {
+    return false;
+  }
+
+  return ['quote', 'repost'].includes(post.subType || '');
+};
+
+export const getSocialTwitterPostType = (
+  post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
+): PostType | undefined => {
+  if (!isSocialTwitterPost(post)) {
+    return post?.type;
+  }
+
+  return isSocialTwitterShareLike(post) ? PostType.Share : PostType.Freeform;
+};
+
+export const isShareLikePost = (
+  post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
+): boolean => post?.type === PostType.Share || isSocialTwitterShareLike(post);
+
+export const getReadPostButtonText = (post: Post): string => {
+  if (isVideoPost(post)) {
+    return 'Watch video';
+  }
+
+  if (isSocialTwitterPost(post)) {
+    return 'View on X';
+  }
+
+  return 'Read post';
+};
 
 export const translateablePostFields = [
   'title',
@@ -138,6 +179,7 @@ export interface Post {
   isScout?: number;
   sharedPost?: SharedPost;
   type: PostType;
+  subType?: string;
   private?: boolean;
   feedMeta?: string;
   downvoted?: boolean;
@@ -153,6 +195,7 @@ export interface Post {
   translation?: PostTranslation;
   language?: string;
   yggdrasilId?: string;
+  creatorTwitter?: string;
   featuredAward?: {
     award?: FeaturedAward;
   };
