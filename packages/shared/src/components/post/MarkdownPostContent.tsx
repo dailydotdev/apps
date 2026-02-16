@@ -42,7 +42,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
   return (
     <>
       <div className="my-6">
-        <h1 className="whitespace-pre-line text-[2rem] font-bold leading-[1.3]">
+        <h1 className="whitespace-pre-line break-words text-[2rem] font-bold leading-[1.3]">
           {title}
         </h1>
         {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
@@ -77,7 +77,10 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
       )}
       <Markdown
         content={post.contentHtml}
-        className={post.type !== PostType.Welcome && 'mb-5'}
+        className={classNames(
+          'break-words',
+          post.type !== PostType.Welcome && 'mb-5',
+        )}
       />
       {post.type === PostType.Welcome && post.image && (
         <MarkdownPostImage imgSrc={post.image} className="mb-5 mt-8" />

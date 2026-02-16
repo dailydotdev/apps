@@ -89,7 +89,7 @@ function SocialTwitterPostContentRaw({
   return (
     <PostContentContainer
       className={classNames(
-        'relative flex-1 flex-col laptop:flex-row laptop:pb-0',
+        'relative flex-1 flex-col overflow-x-hidden laptop:flex-row laptop:pb-0',
         className?.container,
       )}
       hasNavigation={hasNavigation}
