@@ -6,7 +6,10 @@ import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import type { RegistrationFormValues } from './RegistrationForm';
-import type { RegistrationError } from '../../lib/auth';
+import type {
+  RegistrationError,
+  SocialRegistrationParameters,
+} from '../../lib/auth';
 import {
   isNativeAuthSupported,
   AuthEventNames,
@@ -138,7 +141,7 @@ function AuthOptionsInner({
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
   const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
-    storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
+    storage.getItem?.(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
       ? AuthDisplay.SignBack
       : defaultDisplay,
   );
@@ -152,16 +155,26 @@ function AuthOptionsInner({
   };
 
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
-  const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
-  const [chosenProvider, setChosenProvider] = usePersistentState(
+  const [handleLoginCheck, setHandleLoginCheck] = useState<boolean | null>(
+    null,
+  );
+  const [chosenProvider, setChosenProvider] = usePersistentState<string | null>(
     CHOSEN_PROVIDER_KEY,
     null,
   );
   const [isRegistration, setIsRegistration] = useState(false);
-  const windowPopup = useRef<Window>(null);
+  const windowPopup = useRef<Window | null>(null);
+
+  const refetchBootOrThrow = async () => {
+    if (!refetchBoot) {
+      throw new Error('Missing refetchBoot in AuthOptionsInner');
+    }
+
+    return refetchBoot();
+  };
 
   const checkForOnboardedUser = async (data: LoggedUser) => {
-    onAuthStateUpdate({ isLoading: true });
+    onAuthStateUpdate?.({ isLoading: true });
     const isOnboardingPage = router?.pathname?.startsWith('/onboarding');
 
     if (isOnboardingPage) {
@@ -188,7 +201,7 @@ function AuthOptionsInner({
       }
     }
 
-    onAuthStateUpdate({ isLoading: false });
+    onAuthStateUpdate?.({ isLoading: false });
     return false;
   };
 
@@ -206,10 +219,14 @@ function AuthOptionsInner({
     },
     onInvalidRegistration: setRegistrationHints,
     onRedirectFail: () => {
-      windowPopup.current.close();
+      windowPopup.current?.close();
       windowPopup.current = null;
     },
     onRedirect: (redirect) => {
+      if (!windowPopup.current) {
+        throw new Error('Missing social auth popup in AuthOptionsInner');
+      }
+
       windowPopup.current.location.href = redirect;
     },
     keepSession: isOnboardingOrFunnel,
@@ -220,22 +237,22 @@ function AuthOptionsInner({
   ) => {
     setIsRegistration(true);
     const { redirect, setSignBack = true } = options;
-    const { data } = await refetchBoot();
+    const { data } = await refetchBootOrThrow();
 
-    const isLoggedUser = 'infoConfirmed' in data.user;
-    if (!isLoggedUser) {
+    if (!data?.user || !('infoConfirmed' in data.user)) {
       return;
     }
 
-    if (data.user && setSignBack) {
+    const loggedUser = data.user;
+
+    if (setSignBack) {
       const provider = chosenProvider || 'password';
-      onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
+      onSignBackLogin(loggedUser, provider as SignBackProvider);
     }
 
     logEvent({
       event_name: AuthEventNames.SignupSuccessfully,
     });
-    const loggedUser = data?.user as LoggedUser;
     trackSignup(loggedUser);
 
     // if redirect is set, move before modal close
@@ -243,8 +260,8 @@ function AuthOptionsInner({
       await router.push(redirect);
     }
 
-    onSuccessfulRegistration?.(data?.user);
-    onClose?.(null, true);
+    onSuccessfulRegistration?.(loggedUser);
+    onClose?.({} as React.FormEvent, true);
   };
   const {
     updateUserProfile,
@@ -306,7 +323,7 @@ function AuthOptionsInner({
       // Check for claimable items on login (e.g., Plus subscription)
       claimClaimableItem().then((hasClaimed) => {
         if (hasClaimed) {
-          refetchBoot();
+          refetchBoot?.();
         }
       });
 
@@ -316,6 +333,11 @@ function AuthOptionsInner({
       }
     } else if (trigger === AuthTriggers.RecruiterSelfServe) {
       // For RecruiterSelfServe, auto-complete profile without showing the form
+      if (!user.email) {
+        displayToast(labels.auth.error.generic);
+        return;
+      }
+
       await autoCompleteProfileForRecruiter(user.email, user.name);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
@@ -337,11 +359,15 @@ function AuthOptionsInner({
     onSuccessfulLogin: onLoginCheck,
     ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
     trigger,
-    provider: chosenProvider,
+    provider: chosenProvider ?? undefined,
     onLoginError: () => {
       return displayToast(labels.auth.error.generic);
     },
   });
+
+  const fallbackLoginHint = useState('') as ReturnType<typeof useState>;
+  const resolvedLoginHint: ReturnType<typeof useState> =
+    loginHint ?? fallbackLoginHint;
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
   const onProviderClick = async (provider: string, login = true) => {
@@ -355,9 +381,15 @@ function AuthOptionsInner({
     });
     // Only web auth requires a popup
     if (!isNativeAuthSupported(provider)) {
-      windowPopup.current = window.open();
+      windowPopup.current = window.open() ?? null;
     }
     await setChosenProvider(provider);
+    if (!onSocialRegistration) {
+      throw new Error(
+        'Missing social registration handler in AuthOptionsInner',
+      );
+    }
+
     await onSocialRegistration(provider);
     onAuthStateUpdate?.({ isLoading: true });
   };
@@ -373,9 +405,10 @@ function AuthOptionsInner({
   };
 
   const handleLoginMessage = async () => {
-    const { data: boot } = await refetchBoot();
+    const { data: boot } = await refetchBootOrThrow();
+    const bootUser = boot?.user;
 
-    if (!boot.user || !('email' in boot.user)) {
+    if (!bootUser || !('email' in bootUser)) {
       logEvent({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
@@ -387,9 +420,10 @@ function AuthOptionsInner({
     }
 
     // If user is confirmed we can proceed with logging them in
-    if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
-      await onSignBackLogin(boot.user, chosenProvider as SignBackProvider);
-      const isAlreadyOnboarded = await checkForOnboardedUser(boot.user);
+    if ('infoConfirmed' in bootUser && bootUser.infoConfirmed) {
+      const provider = (chosenProvider || 'password') as SignBackProvider;
+      await onSignBackLogin(bootUser, provider);
+      const isAlreadyOnboarded = await checkForOnboardedUser(bootUser);
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
       }
@@ -398,13 +432,18 @@ function AuthOptionsInner({
 
     // For RecruiterSelfServe, auto-complete profile without showing the form
     if (trigger === AuthTriggers.RecruiterSelfServe) {
-      const loggedUser = boot.user as LoggedUser;
+      const loggedUser = bootUser as LoggedUser;
+      if (!loggedUser.email) {
+        displayToast(labels.auth.error.generic);
+        return;
+      }
+
       await autoCompleteProfileForRecruiter(loggedUser.email, loggedUser.name);
       return;
     }
 
     await setChosenProvider(chosenProvider || 'password');
-    onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
+    onAuthStateUpdate?.({ defaultDisplay: AuthDisplay.SocialRegistration });
     onSetActiveDisplay(AuthDisplay.SocialRegistration);
   };
 
@@ -431,12 +470,14 @@ function AuthOptionsInner({
         }),
       });
 
+      const errorId = connected?.ui?.messages?.[0]?.id;
       if (
+        errorId &&
         [
           KRATOS_ERROR.NO_STRATEGY_TO_LOGIN,
           KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP,
           KRATOS_ERROR.EXISTING_USER,
-        ].includes(connected?.ui?.messages?.[0]?.id)
+        ].includes(errorId)
       ) {
         const registerUser = {
           name: getNodeValue('traits.name', connected.ui.nodes),
@@ -446,8 +487,15 @@ function AuthOptionsInner({
         // Native auth doesn't return traits, so we must validate that it exists
         if (registerUser.email) {
           const { result } = await getKratosProviders(connected.id);
+          const provider = result[0];
+          if (!provider) {
+            throw new Error(
+              'Missing social provider result in AuthOptionsInner',
+            );
+          }
+
           setIsConnected(true);
-          await onSignBackLogin(registerUser, result[0] as SignBackProvider);
+          await onSignBackLogin(registerUser, provider as SignBackProvider);
           return onSetActiveDisplay(AuthDisplay.SignBack);
         }
         onSetActiveDisplay(AuthDisplay.SignBack);
@@ -462,7 +510,7 @@ function AuthOptionsInner({
 
   useEventListener(broadcastChannel, 'message', onProviderMessage);
 
-  useEventListener(globalThis, 'message', onProviderMessage);
+  useEventListener(globalThis?.window, 'message', onProviderMessage);
 
   const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exist
@@ -470,8 +518,15 @@ function AuthOptionsInner({
     setEmail(emailAd);
   };
 
-  const onSocialCompletion = async (params) => {
-    updateUserProfile({ ...params });
+  const onSocialCompletion = async (params: SocialRegistrationParameters) => {
+    const profileParams: Parameters<typeof updateUserProfile>[0] = {
+      name: params.name,
+      username: params.username,
+      acceptedMarketing: params.acceptedMarketing,
+      experienceLevel: params.experienceLevel as LoggedUser['experienceLevel'],
+      language: params.language,
+    };
+    updateUserProfile(profileParams);
     await syncSettings();
   };
 
@@ -488,7 +543,7 @@ function AuthOptionsInner({
       event_name: 'click',
       target_type: AuthEventNames.ForgotPassword,
     });
-    setEmail(withEmail);
+    setEmail(withEmail ?? '');
     onSetActiveDisplay(AuthDisplay.ForgotPassword);
   };
 
@@ -524,7 +579,7 @@ function AuthOptionsInner({
             isLoading={isPasswordLoginLoading}
             isLoginFlow={isForgotPasswordReturn || isLoginFlow}
             isReady={isReady}
-            loginHint={loginHint}
+            loginHint={resolvedLoginHint}
             onForgotPassword={onForgotPassword}
             onPasswordLogin={onEmailLogin}
             onProviderClick={onProviderClick}
@@ -537,7 +592,7 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.SocialRegistration}>
           <SocialRegistrationForm
             formRef={formRef}
-            provider={chosenProvider}
+            provider={chosenProvider ?? undefined}
             onSignup={onSocialCompletion}
             hints={hint}
             isLoading={isProfileUpdateLoading}
@@ -560,19 +615,19 @@ function AuthOptionsInner({
                 : undefined
             }
             onBackToIntro={() => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: undefined,
                 defaultDisplay: AuthDisplay.OnboardingSignup,
               });
             }}
             onExistingEmailLoginClick={() => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isLoginFlow: true,
               });
               setActiveDisplay(AuthDisplay.Default);
             }}
             onSignup={(params) => {
-              setEmail(params['traits.email']);
+              setEmail(params['traits.email'] ?? '');
               onRegister(params);
             }}
             onUpdateHints={setRegistrationHints}
@@ -587,20 +642,20 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.OnboardingSignup}>
           <OnboardingRegistrationForm
             onContinueWithEmail={() => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 defaultDisplay: AuthDisplay.Registration,
               });
             }}
             onSignup={(signupEmail) => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 email: signupEmail,
                 defaultDisplay: AuthDisplay.Registration,
               });
             }}
             onExistingEmail={(existingEmail) => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 isLoginFlow: true,
                 email: existingEmail,
@@ -637,7 +692,7 @@ function AuthOptionsInner({
             }}
             loginFormProps={{
               isReady,
-              loginHint,
+              loginHint: resolvedLoginHint,
               onPasswordLogin,
               onForgotPassword,
               isLoading: isPasswordLoginLoading,
@@ -672,7 +727,7 @@ function AuthOptionsInner({
           <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
           <AuthHeader simplified={simplified} title="Verify your email" />
           <EmailCodeVerification
-            flowId={verificationFlowId}
+            flowId={verificationFlowId ?? ''}
             onSubmit={onProfileSuccess}
           />
         </Tab>
