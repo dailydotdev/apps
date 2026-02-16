@@ -17,6 +17,14 @@ describe('isPlaceholderImage', () => {
     ).toBe(true);
   });
 
+  it('returns true for capitalized Placeholder in URL', () => {
+    expect(
+      isPlaceholderImage(
+        'https://media.daily.dev/image/upload/f_auto/v1/public/Placeholder-image',
+      ),
+    ).toBe(true);
+  });
+
   it('returns false for non-placeholder images', () => {
     expect(
       isPlaceholderImage(
