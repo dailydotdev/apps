@@ -24,6 +24,9 @@ import classed from '../../../lib/classed';
 import { BlockIcon, EarthIcon } from '../../icons';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { IconSize } from '../../Icon';
+import { useFeature } from '../../GrowthBookProvider';
+import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
+import { SharedPostPreview } from './SharedPostPreview';
 
 const EmptyStateContainer = classed(
   'div',
@@ -52,12 +55,16 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const { title } = useSmartTitle(post);
-  const isDeleted = post?.sharedPost?.id === DeletedPostId;
-  const { private: sharedPostPrivate, source: sharedPostSource } =
-    post?.sharedPost;
+  if (!post.sharedPost) {
+    throw new Error('ShareGrid expects post.sharedPost to be defined');
+  }
+  const { sharedPost } = post;
+  const isDeleted = sharedPost.id === DeletedPostId;
+  const { private: sharedPostPrivate, source: sharedPostSource } = sharedPost;
   const isPrivate =
     sharedPostPrivate && sharedPostSource?.type === SourceType.Squad;
   const isVideoType = isVideoPost(post);
+  const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
 
   const footer = useMemo(() => {
     if (isDeleted) {
@@ -84,9 +91,21 @@ export const ShareGrid = forwardRef(function ShareGrid(
       );
     }
 
+    if (isSharedPostPreviewEnabled) {
+      return (
+        <SharedPostPreview
+          post={post}
+          source={sharedPost.source}
+          title={post.title ? sharedPost.title : undefined}
+          image={sharedPost.image}
+          className="mx-1 my-2"
+        />
+      );
+    }
+
     const footerPost = {
       ...post,
-      image: post.sharedPost.image,
+      image: sharedPost.image,
     };
 
     return (
@@ -98,7 +117,16 @@ export const ShareGrid = forwardRef(function ShareGrid(
         }}
       />
     );
-  }, [isDeleted, isPrivate, openNewTab, post]);
+  }, [
+    isDeleted,
+    isPrivate,
+    isSharedPostPreviewEnabled,
+    openNewTab,
+    post,
+    sharedPost.image,
+    sharedPost.source,
+    sharedPost.title,
+  ]);
 
   return (
     <FeedItemContainer
@@ -128,7 +156,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
             className="flex"
             openNewTab={openNewTab}
             source={post.source}
-            postLink={post.sharedPost.permalink}
+            postLink={sharedPost.permalink}
             onReadArticleClick={onReadArticleClick}
           />
           <CardTitle>{title}</CardTitle>
@@ -136,14 +164,14 @@ export const ShareGrid = forwardRef(function ShareGrid(
         <Container>
           <CardSpace />
           <div className="mx-4 flex items-center">
-            {!post.title && post.sharedPost.clickbaitTitleDetected && (
+            {!post.title && sharedPost.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
-            <PostTags post={post.sharedPost} />
+            <PostTags post={sharedPost} />
           </div>
           <PostMetadata
             createdAt={post.createdAt}
-            readTime={post.sharedPost.readTime}
+            readTime={sharedPost.readTime}
             isVideoType={isVideoType}
             className="mx-4"
           />
