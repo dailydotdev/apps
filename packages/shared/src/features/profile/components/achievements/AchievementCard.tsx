@@ -17,6 +17,7 @@ import { LazyImage } from '../../../../components/LazyImage';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import {
+  AchievementRarityTier,
   getAchievementRarityTier,
   rarityGlowClasses,
 } from './achievementRarity';
@@ -38,6 +39,10 @@ export function AchievementCard({
   const rarityTier = isUnlocked
     ? getAchievementRarityTier(achievement.rarity)
     : null;
+  const rarityLabel =
+    rarityTier === AchievementRarityTier.Emerald
+      ? '<1%'
+      : `${Math.round(achievement.rarity ?? 0)}%`;
 
   return (
     <div
@@ -151,7 +156,7 @@ export function AchievementCard({
               color={TypographyColor.Quaternary}
               className="mt-1"
             >
-              Earned by {Math.round(achievement.rarity)}% of users
+              Earned by {rarityLabel} of users
             </Typography>
           )}
         </div>

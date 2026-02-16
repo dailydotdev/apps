@@ -44,12 +44,27 @@ function RecentAchievements({
 }): ReactElement | null {
   const { achievements, isPending } = useProfileAchievements(user);
 
-  const recentUnlocked = achievements
+  const rarestUnlocked = achievements
     ?.filter((a) => a.unlockedAt !== null)
     .sort((a, b) => {
-      const dateA = a.unlockedAt ? new Date(a.unlockedAt).getTime() : 0;
-      const dateB = b.unlockedAt ? new Date(b.unlockedAt).getTime() : 0;
-      return dateB - dateA;
+      const rarityA = a.achievement.rarity ?? Infinity;
+      const rarityB = b.achievement.rarity ?? Infinity;
+      if (rarityA !== rarityB) {
+        return rarityA - rarityB;
+      }
+
+      const pointsDelta = b.achievement.points - a.achievement.points;
+      if (pointsDelta !== 0) {
+        return pointsDelta;
+      }
+
+      const unlockedDateA = a.unlockedAt ? new Date(a.unlockedAt).getTime() : 0;
+      const unlockedDateB = b.unlockedAt ? new Date(b.unlockedAt).getTime() : 0;
+      if (unlockedDateA !== unlockedDateB) {
+        return unlockedDateB - unlockedDateA;
+      }
+
+      return a.achievement.id.localeCompare(b.achievement.id);
     })
     .slice(0, 5);
 
@@ -57,10 +72,10 @@ function RecentAchievements({
     return <AchievementsSkeleton />;
   }
 
-  if (recentUnlocked && recentUnlocked.length > 0) {
+  if (rarestUnlocked && rarestUnlocked.length > 0) {
     return (
       <div className="mt-3 flex gap-2">
-        {recentUnlocked.map((ua) => {
+        {rarestUnlocked.map((ua) => {
           const rarityTier = getAchievementRarityTier(ua.achievement.rarity);
           return (
             <div
@@ -73,7 +88,9 @@ function RecentAchievements({
               )}
               title={ua.achievement.name}
             >
-              {rarityTier && <RaritySparkles tier={rarityTier} />}
+              {rarityTier && (
+                <RaritySparkles tier={rarityTier} size="compact" />
+              )}
               <LazyImage
                 imgSrc={ua.achievement.image}
                 imgAlt={ua.achievement.name}
