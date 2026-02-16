@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import Link from '../../../../components/utilities/Link';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import {
@@ -13,6 +14,11 @@ import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchi
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import { MedalBadgeIcon } from '../../../../components/icons';
 import { LazyImage } from '../../../../components/LazyImage';
+import {
+  getAchievementRarityTier,
+  rarityGlowClasses,
+} from '../achievements/achievementRarity';
+import { RaritySparkles } from '../achievements/RaritySparkles';
 
 interface AchievementsWidgetProps {
   user: PublicProfile;
@@ -54,20 +60,29 @@ function RecentAchievements({
   if (recentUnlocked && recentUnlocked.length > 0) {
     return (
       <div className="mt-3 flex gap-2">
-        {recentUnlocked.map((ua) => (
+        {recentUnlocked.map((ua) => {
+          const rarityTier = getAchievementRarityTier(ua.achievement.rarity);
+          return (
           <div
             key={ua.achievement.id}
-            className="size-10 overflow-hidden rounded-10"
+            className={classNames(
+              'relative size-10 rounded-10',
+              rarityTier
+                ? ['overflow-visible border', rarityGlowClasses[rarityTier]]
+                : 'overflow-hidden',
+            )}
             title={ua.achievement.name}
           >
+            {rarityTier && <RaritySparkles tier={rarityTier} />}
             <LazyImage
               imgSrc={ua.achievement.image}
               imgAlt={ua.achievement.name}
-              className="size-full object-cover"
+              className="size-full rounded-10 object-cover"
               fallbackSrc="https://daily.dev/default-achievement.png"
             />
           </div>
-        ))}
+          );
+        })}
       </div>
     );
   }
