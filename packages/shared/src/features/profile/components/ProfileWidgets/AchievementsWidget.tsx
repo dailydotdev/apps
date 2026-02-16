@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import Link from '../../../../components/utilities/Link';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import {
@@ -13,6 +14,11 @@ import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchi
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import { MedalBadgeIcon } from '../../../../components/icons';
 import { LazyImage } from '../../../../components/LazyImage';
+import {
+  getAchievementRarityTier,
+  rarityGlowClasses,
+} from '../achievements/achievementRarity';
+import { RaritySparkles } from '../achievements/RaritySparkles';
 
 interface AchievementsWidgetProps {
   user: PublicProfile;
@@ -38,12 +44,27 @@ function RecentAchievements({
 }): ReactElement | null {
   const { achievements, isPending } = useProfileAchievements(user);
 
-  const recentUnlocked = achievements
+  const rarestUnlocked = achievements
     ?.filter((a) => a.unlockedAt !== null)
     .sort((a, b) => {
-      const dateA = a.unlockedAt ? new Date(a.unlockedAt).getTime() : 0;
-      const dateB = b.unlockedAt ? new Date(b.unlockedAt).getTime() : 0;
-      return dateB - dateA;
+      const rarityA = a.achievement.rarity ?? Infinity;
+      const rarityB = b.achievement.rarity ?? Infinity;
+      if (rarityA !== rarityB) {
+        return rarityA - rarityB;
+      }
+
+      const pointsDelta = b.achievement.points - a.achievement.points;
+      if (pointsDelta !== 0) {
+        return pointsDelta;
+      }
+
+      const unlockedDateA = a.unlockedAt ? new Date(a.unlockedAt).getTime() : 0;
+      const unlockedDateB = b.unlockedAt ? new Date(b.unlockedAt).getTime() : 0;
+      if (unlockedDateA !== unlockedDateB) {
+        return unlockedDateB - unlockedDateA;
+      }
+
+      return a.achievement.id.localeCompare(b.achievement.id);
     })
     .slice(0, 5);
 
@@ -51,23 +72,34 @@ function RecentAchievements({
     return <AchievementsSkeleton />;
   }
 
-  if (recentUnlocked && recentUnlocked.length > 0) {
+  if (rarestUnlocked && rarestUnlocked.length > 0) {
     return (
       <div className="mt-3 flex gap-2">
-        {recentUnlocked.map((ua) => (
-          <div
-            key={ua.achievement.id}
-            className="size-10 overflow-hidden rounded-10"
-            title={ua.achievement.name}
-          >
-            <LazyImage
-              imgSrc={ua.achievement.image}
-              imgAlt={ua.achievement.name}
-              className="size-full object-cover"
-              fallbackSrc="https://daily.dev/default-achievement.png"
-            />
-          </div>
-        ))}
+        {rarestUnlocked.map((ua) => {
+          const rarityTier = getAchievementRarityTier(ua.achievement.rarity);
+          return (
+            <div
+              key={ua.achievement.id}
+              className={classNames(
+                'relative size-10 rounded-10',
+                rarityTier
+                  ? ['overflow-visible border', rarityGlowClasses[rarityTier]]
+                  : 'overflow-hidden',
+              )}
+              title={ua.achievement.name}
+            >
+              {rarityTier && (
+                <RaritySparkles tier={rarityTier} size="compact" />
+              )}
+              <LazyImage
+                imgSrc={ua.achievement.image}
+                imgAlt={ua.achievement.name}
+                className="size-full rounded-10 object-cover"
+                fallbackSrc="https://daily.dev/default-achievement.png"
+              />
+            </div>
+          );
+        })}
       </div>
     );
   }

@@ -16,6 +16,12 @@ import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { LazyImage } from '../../../../components/LazyImage';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import {
+  AchievementRarityTier,
+  getAchievementRarityTier,
+  rarityGlowClasses,
+} from './achievementRarity';
+import { RaritySparkles } from './RaritySparkles';
 
 interface AchievementCardProps {
   userAchievement: UserAchievement;
@@ -30,16 +36,25 @@ export function AchievementCard({
   const progressPercentage = Math.min((progress / targetCount) * 100, 100);
   const showProgress =
     achievement.type === AchievementType.Milestone && !isUnlocked;
+  const rarityTier = isUnlocked
+    ? getAchievementRarityTier(achievement.rarity)
+    : null;
+  const rarityLabel =
+    rarityTier === AchievementRarityTier.Emerald
+      ? '<1%'
+      : `${Math.round(achievement.rarity ?? 0)}%`;
 
   return (
     <div
       className={classNames(
-        'flex flex-col rounded-16 border p-4 transition-colors',
-        isUnlocked
-          ? 'border-border-subtlest-tertiary bg-surface-float'
-          : 'bg-surface-subtle border-border-subtlest-tertiary',
+        'relative flex flex-col rounded-16 border p-4 transition-colors',
+        isUnlocked ? 'bg-surface-float' : 'bg-surface-subtle',
+        rarityTier
+          ? ['overflow-visible', rarityGlowClasses[rarityTier]]
+          : 'border-border-subtlest-tertiary',
       )}
     >
+      {rarityTier && <RaritySparkles tier={rarityTier} />}
       <div className="flex items-start gap-3">
         <HoverCard
           sideOffset={8}
@@ -127,14 +142,24 @@ export function AchievementCard({
       )}
 
       {isUnlocked && unlockedAt && (
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Quaternary}
-          className="mt-3"
-        >
-          Unlocked{' '}
-          {formatDate({ value: unlockedAt, type: TimeFormatType.Post })}
-        </Typography>
+        <div className="mt-3 flex flex-col">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Quaternary}
+          >
+            Unlocked{' '}
+            {formatDate({ value: unlockedAt, type: TimeFormatType.Post })}
+          </Typography>
+          {achievement.rarity != null && (
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Quaternary}
+              className="mt-1"
+            >
+              Earned by {rarityLabel} of users
+            </Typography>
+          )}
+        </div>
       )}
     </div>
   );
