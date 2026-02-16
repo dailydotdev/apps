@@ -51,9 +51,6 @@ export const ShareList = forwardRef(function ShareList(
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
-  if (!post.sharedPost) {
-    throw new Error('ShareList expects post.sharedPost to be defined');
-  }
   const { sharedPost } = post;
   const isVideoType = isVideoPost(post);
   const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
@@ -95,7 +92,7 @@ export const ShareList = forwardRef(function ShareList(
       ),
       bottomLabel: enableSourceHeader
         ? post.author.name
-        : `@${sharedPost.source.handle}`,
+        : `@${sharedPost?.source?.handle}`,
     };
   }, [
     enableSourceHeader,
@@ -103,7 +100,7 @@ export const ShareList = forwardRef(function ShareList(
     post.author.name,
     post.source.name,
     post.source.permalink,
-    sharedPost.source.handle,
+    sharedPost?.source?.handle,
   ]);
 
   return (
@@ -126,12 +123,12 @@ export const ShareList = forwardRef(function ShareList(
       <PostCardHeader
         post={{
           ...post,
-          type: sharedPost.type,
+          type: sharedPost?.type || post.type,
         }}
         openNewTab={openNewTab}
         onReadArticleClick={onReadArticleClick}
         metadata={metadata}
-        postLink={sharedPost.permalink}
+        postLink={sharedPost?.permalink}
       >
         {!isUserSource && (
           <SourceButton
@@ -151,7 +148,7 @@ export const ShareList = forwardRef(function ShareList(
           </CardTitle>
           <div className="flex flex-1 tablet:hidden" />
           <div className="flex items-center">
-            {!post.title && sharedPost.clickbaitTitleDetected && (
+            {!post.title && sharedPost?.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
             <PostTags post={post} />
@@ -164,9 +161,9 @@ export const ShareList = forwardRef(function ShareList(
             className="mt-4 w-full mobileXL:mt-0 mobileXL:w-40 mobileXL:self-start mobileXXL:w-56"
             post={post}
             onShare={onShare}
-            source={sharedPost.source}
-            title={post.title ? sharedPost.title : undefined}
-            image={sharedPost.image}
+            source={sharedPost?.source}
+            title={post.title ? sharedPost?.title : undefined}
+            image={sharedPost?.image}
             imageProps={
               eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : { loading: 'lazy' }
             }
@@ -186,7 +183,7 @@ export const ShareList = forwardRef(function ShareList(
               ...(eagerLoadImage
                 ? HIGH_PRIORITY_IMAGE_PROPS
                 : { loading: 'lazy' }),
-              src: sharedPost.image,
+              src: sharedPost?.image,
             }}
             videoProps={{
               className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',

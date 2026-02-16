@@ -55,12 +55,10 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const { title } = useSmartTitle(post);
-  if (!post.sharedPost) {
-    throw new Error('ShareGrid expects post.sharedPost to be defined');
-  }
   const { sharedPost } = post;
-  const isDeleted = sharedPost.id === DeletedPostId;
-  const { private: sharedPostPrivate, source: sharedPostSource } = sharedPost;
+  const isDeleted = sharedPost?.id === DeletedPostId;
+  const { private: sharedPostPrivate, source: sharedPostSource } =
+    sharedPost || {};
   const isPrivate =
     sharedPostPrivate && sharedPostSource?.type === SourceType.Squad;
   const isVideoType = isVideoPost(post);
@@ -95,9 +93,9 @@ export const ShareGrid = forwardRef(function ShareGrid(
       return (
         <SharedPostPreview
           post={post}
-          source={sharedPost.source}
-          title={post.title ? sharedPost.title : undefined}
-          image={sharedPost.image}
+          source={sharedPost?.source}
+          title={post.title ? sharedPost?.title : undefined}
+          image={sharedPost?.image}
           className="mx-1 my-2"
         />
       );
@@ -105,7 +103,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
 
     const footerPost = {
       ...post,
-      image: sharedPost.image,
+      image: sharedPost?.image,
     };
 
     return (
@@ -123,9 +121,9 @@ export const ShareGrid = forwardRef(function ShareGrid(
     isSharedPostPreviewEnabled,
     openNewTab,
     post,
-    sharedPost.image,
-    sharedPost.source,
-    sharedPost.title,
+    sharedPost?.image,
+    sharedPost?.source,
+    sharedPost?.title,
   ]);
 
   return (
@@ -156,7 +154,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
             className="flex"
             openNewTab={openNewTab}
             source={post.source}
-            postLink={sharedPost.permalink}
+            postLink={sharedPost?.permalink}
             onReadArticleClick={onReadArticleClick}
           />
           <CardTitle>{title}</CardTitle>
@@ -164,14 +162,14 @@ export const ShareGrid = forwardRef(function ShareGrid(
         <Container>
           <CardSpace />
           <div className="mx-4 flex items-center">
-            {!post.title && sharedPost.clickbaitTitleDetected && (
+            {!post.title && sharedPost?.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
-            <PostTags post={sharedPost} />
+            <PostTags post={sharedPost || post} />
           </div>
           <PostMetadata
             createdAt={post.createdAt}
-            readTime={sharedPost.readTime}
+            readTime={sharedPost?.readTime}
             isVideoType={isVideoType}
             className="mx-4"
           />

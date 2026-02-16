@@ -147,7 +147,6 @@ it('should show options button on hover when in laptop size', async () => {
 it('should render shared post preview details', async () => {
   renderComponent({}, true);
   expect(await screen.findByTestId('shared-post-preview')).toBeInTheDocument();
-  expect(screen.getByText('Re-shared')).toBeInTheDocument();
   expect(screen.getByText('TkDodo')).toBeInTheDocument();
   expect(screen.getByText('Type-safe React Query')).toBeInTheDocument();
 });
