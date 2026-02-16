@@ -147,21 +147,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
               {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
               <PostTags post={postForTags} />
             </div>
-            {showReferenceTweet && (
-              <div className="mt-4 rounded-12 border border-border-subtlest-tertiary p-3">
-                <p className="truncate font-bold text-text-primary typo-footnote">
-                  {post.sharedPost?.source?.name || 'Referenced post'}
-                </p>
-                {!!referenceHandle && (
-                  <p className="truncate text-text-tertiary typo-footnote">
-                    @{referenceHandle}
-                  </p>
-                )}
-                <p className="mt-1 line-clamp-4 whitespace-pre-line break-words text-text-secondary typo-footnote">
-                  {post.sharedPost?.title}
-                </p>
-              </div>
-            )}
             <div className="hidden flex-1 tablet:flex" />
             {!isMobile && actionButtons}
           </div>
@@ -179,6 +164,21 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 src: image,
               }}
             />
+          )}
+          {showReferenceTweet && (
+            <div className="mt-4 w-full rounded-12 border border-border-subtlest-tertiary p-3 mobileXL:w-60">
+              <p className="truncate font-bold text-text-primary typo-footnote">
+                {post.sharedPost?.source?.name || 'Referenced post'}
+              </p>
+              {!!referenceHandle && (
+                <p className="truncate text-text-tertiary typo-footnote">
+                  @{referenceHandle}
+                </p>
+              )}
+              <p className="mt-1 line-clamp-4 whitespace-pre-line break-words text-text-secondary typo-footnote">
+                {post.sharedPost?.title}
+              </p>
+            </div>
           )}
         </CardContent>
       </CardContainer>
