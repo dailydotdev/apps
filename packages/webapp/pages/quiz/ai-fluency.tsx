@@ -20,6 +20,7 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
+import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import {
@@ -32,7 +33,6 @@ import {
   getAiFluencyTierFromAnswers,
 } from '../../components/quiz/aiFluencyQuiz';
 import type { AiFluencyTierKey } from '../../components/quiz/aiFluencyQuiz';
-import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { defaultSeo } from '../../next-seo';
 
 const quizPathname = '/quiz/ai-fluency';
