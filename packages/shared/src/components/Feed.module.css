@@ -9,7 +9,7 @@
 .containerV2 {
   max-width: 100%;
 
-  @screen laptop {
+  @screen tablet {
     max-width: calc(21.25rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
@@ -21,7 +21,7 @@
 .cardsV2 {
   max-width: 100%;
 
-  @screen laptop {
+  @screen tablet {
     max-width: calc(21.25rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
