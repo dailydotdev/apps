@@ -15,6 +15,35 @@ interface MarkdownPostContentProps {
   post: Post;
 }
 
+const UNKNOWN_SOURCE_ID = 'unknown';
+
+const removeHandlePrefixFromTitle = ({
+  title,
+  sourceHandle,
+  authorHandle,
+}: {
+  title?: string;
+  sourceHandle?: string;
+  authorHandle?: string;
+}): string | undefined => {
+  if (!title) {
+    return title;
+  }
+
+  const handlePrefixes = [sourceHandle, authorHandle]
+    .filter(Boolean)
+    .map((handle) => `@${handle}:`);
+
+  const matchedPrefix = handlePrefixes.find((prefix) =>
+    title.startsWith(prefix),
+  );
+  if (matchedPrefix) {
+    return title.slice(matchedPrefix.length).trim();
+  }
+
+  return title.replace(/^@[A-Za-z0-9_]+:\s*/, '').trim();
+};
+
 export const MarkdownPostImage = ({
   imgSrc,
   className,
@@ -38,13 +67,31 @@ export const MarkdownPostImage = ({
 function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
   const { title } = useSmartTitle(post);
   const hasVideo = !!post.flags?.coverVideo;
+  const sourceHandle =
+    post.source?.id === UNKNOWN_SOURCE_ID
+      ? post.creatorTwitter || post.author?.username
+      : post.source?.handle;
+  const cleanedTitle =
+    post.type === PostType.SocialTwitter
+      ? removeHandlePrefixFromTitle({
+          title,
+          sourceHandle,
+          authorHandle: post.author?.username,
+        })
+      : title;
 
   return (
     <>
       <div className="my-6">
-        <h1 className="whitespace-pre-line break-words text-[2rem] font-bold leading-[1.3]">
-          {title}
-        </h1>
+        {post.type === PostType.SocialTwitter ? (
+          <p className="whitespace-pre-line break-words typo-markdown">
+            {cleanedTitle}
+          </p>
+        ) : (
+          <h1 className="whitespace-pre-line break-words text-[2rem] font-bold leading-[1.3]">
+            {cleanedTitle}
+          </h1>
+        )}
         {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
       </div>
       {post.type === PostType.Freeform && (

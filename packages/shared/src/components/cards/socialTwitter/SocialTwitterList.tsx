@@ -26,8 +26,18 @@ import SourceButton from '../common/SourceButton';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
+import { fallbackImages } from '../../../lib/config';
+import { cloudinarySquadsImageFallback } from '../../../lib/image';
 
 const UNKNOWN_SOURCE_ID = 'unknown';
+const EMBEDDED_TWEET_AVATAR_FALLBACK = fallbackImages.avatar.replace(
+  't_logo,',
+  '',
+);
+const isSquadPlaceholderAvatar = (image?: string): boolean =>
+  !!image &&
+  (image === cloudinarySquadsImageFallback ||
+    image.includes('squad_placeholder'));
 
 const getPostText = ({
   content,
@@ -41,6 +51,13 @@ const getPostText = ({
   const trimmedText = rawText?.trim();
   return trimmedText?.length ? trimmedText : undefined;
 };
+
+const formatHandleAsDisplayName = (handle: string): string =>
+  handle
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 
 const removeHandlePrefixFromTitle = ({
   title,
@@ -141,20 +158,31 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     !isUnknownQuotedSourceName && quotedSourceName
       ? quotedSourceName
       : post.sharedPost?.author?.name;
+  const embeddedTweetDisplayName =
+    embeddedTweetName ||
+    (referenceHandle && formatHandleAsDisplayName(referenceHandle));
+  const embeddedTweetSourceAvatar = isSquadPlaceholderAvatar(
+    post.sharedPost?.source?.image,
+  )
+    ? undefined
+    : post.sharedPost?.source?.image;
   const embeddedTweetAvatar =
-    post.sharedPost?.author?.image || post.sharedPost?.source?.image;
-  const embeddedTweetAvatarUser = embeddedTweetAvatar
-    ? {
-        id:
-          post.sharedPost?.author?.id ||
-          post.sharedPost?.source?.id ||
-          referenceHandle ||
-          'shared-post-avatar',
-        image: embeddedTweetAvatar,
-        username: referenceHandle,
-        name: embeddedTweetName,
-      }
-    : null;
+    post.sharedPost?.author?.image ||
+    embeddedTweetSourceAvatar ||
+    EMBEDDED_TWEET_AVATAR_FALLBACK;
+  const embeddedTweetAvatarUser = {
+    id:
+      post.sharedPost?.author?.id ||
+      post.sharedPost?.source?.id ||
+      referenceHandle ||
+      'shared-post-avatar',
+    image: embeddedTweetAvatar,
+    username: referenceHandle,
+    name: embeddedTweetName,
+  };
+  const embeddedTweetTextColorClass = post.read
+    ? 'text-text-tertiary'
+    : 'text-text-primary';
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -220,11 +248,15 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
           post={post}
           metadata={{
             ...metadata,
+            dateFirst: true,
             bottomLabel: metadataHandles.length ? (
               <>
                 {metadataHandles.map((handle, index) => (
                   <React.Fragment key={handle}>
                     {index > 0 && <Separator />}@{handle}
+                    {post.subType === 'repost' && index === 0
+                      ? ' reposted'
+                      : ''}
                   </React.Fragment>
                 ))}
               </>
@@ -271,19 +303,29 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                   {!!embeddedTweetAvatarUser && (
                     <ProfilePicture
                       user={embeddedTweetAvatarUser}
-                      size={ProfileImageSize.XSmall}
+                      size={ProfileImageSize.Medium}
                       rounded="full"
                       nativeLazyLoading
                     />
                   )}
                   <div className="min-w-0">
-                    {!!embeddedTweetName && (
-                      <p className="truncate font-bold text-text-primary typo-footnote">
-                        {embeddedTweetName}
+                    {!!embeddedTweetDisplayName && (
+                      <p
+                        className={classNames(
+                          'truncate font-bold typo-callout',
+                          embeddedTweetTextColorClass,
+                        )}
+                      >
+                        {embeddedTweetDisplayName}
                       </p>
                     )}
                     {!!referenceHandle && (
-                      <p className="truncate font-bold text-text-primary typo-callout">
+                      <p
+                        className={classNames(
+                          'truncate font-bold typo-callout',
+                          embeddedTweetTextColorClass,
+                        )}
+                      >
                         @{referenceHandle}
                       </p>
                     )}
@@ -291,7 +333,8 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 </div>
                 <p
                   className={classNames(
-                    'mt-1 whitespace-pre-line break-words text-text-primary typo-callout',
+                    'mt-1 whitespace-pre-line break-words typo-callout',
+                    embeddedTweetTextColorClass,
                     quoteDetailsTextClampClass,
                   )}
                 >

@@ -1,14 +1,15 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { OpenLinkIcon } from '../icons';
+import { OpenLinkIcon, TwitterIcon } from '../icons';
 import {
   getReadPostButtonText,
+  isSocialTwitterPost,
   isInternalReadType,
   PostType,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
 import type { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
@@ -18,6 +19,7 @@ import { useViewSizeClient, ViewSize } from '../../hooks';
 import { BoostPostButton } from '../../features/boost/BoostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
+import { IconSize } from '../Icon';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -34,7 +36,20 @@ export function PostHeaderActions({
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileXL);
-  const readButtonText = getReadPostButtonText(post);
+  const isSocialTwitter =
+    isSocialTwitterPost(post) ||
+    post.sharedPost?.type === PostType.SocialTwitter;
+  const readButtonText = isSocialTwitter
+    ? 'Read on'
+    : getReadPostButtonText(post);
+  const readButtonHref = isSocialTwitter
+    ? post.commentsPermalink
+    : post.sharedPost?.permalink ?? post.permalink;
+  const readButtonIcon = isSocialTwitter ? (
+    <TwitterIcon size={IconSize.Size16} />
+  ) : (
+    <OpenLinkIcon />
+  );
   const isCollection = post?.type === PostType.Collection;
   const isInternalReadTyped = isInternalReadType(post);
   const isBoostButtonVisible = useShowBoostButton({ post });
@@ -55,9 +70,12 @@ export function PostHeaderActions({
                 : ButtonVariant.Secondary
             }
             tag="a"
-            href={post.sharedPost?.permalink ?? post.permalink}
+            href={readButtonHref}
             target={openNewTab ? '_blank' : '_self'}
-            icon={<OpenLinkIcon />}
+            icon={readButtonIcon}
+            iconPosition={
+              isSocialTwitter ? ButtonIconPosition.Right : undefined
+            }
             onClick={onReadArticle}
             data-testid="postActionsRead"
             size={buttonSize}

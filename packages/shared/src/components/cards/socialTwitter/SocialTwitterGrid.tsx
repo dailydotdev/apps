@@ -29,10 +29,20 @@ import { TwitterIcon } from '../../icons';
 import { useFeedPreviewMode } from '../../../hooks';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { stripHtmlTags } from '../../../lib/strings';
+import { fallbackImages } from '../../../lib/config';
+import { cloudinarySquadsImageFallback } from '../../../lib/image';
 
 const HeaderActions = getGroupedHoverContainer('span');
 const quoteLikeSubTypes = ['quote', 'repost'];
 const UNKNOWN_SOURCE_ID = 'unknown';
+const EMBEDDED_TWEET_AVATAR_FALLBACK = fallbackImages.avatar.replace(
+  't_logo,',
+  '',
+);
+const isSquadPlaceholderAvatar = (image?: string): boolean =>
+  !!image &&
+  (image === cloudinarySquadsImageFallback ||
+    image.includes('squad_placeholder'));
 
 const normalizeThreadBody = ({
   title,
@@ -81,6 +91,13 @@ const getPostText = ({
   const trimmedText = rawText?.trim();
   return trimmedText?.length ? trimmedText : undefined;
 };
+
+const formatHandleAsDisplayName = (handle: string): string =>
+  handle
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 
 const removeHandlePrefixFromTitle = ({
   title,
@@ -170,20 +187,28 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     !isUnknownQuotedSourceName && quotedSourceName
       ? quotedSourceName
       : post.sharedPost?.author?.name;
+  const embeddedTweetDisplayName =
+    embeddedTweetName ||
+    (quotedHandle && formatHandleAsDisplayName(quotedHandle));
+  const embeddedTweetSourceAvatar = isSquadPlaceholderAvatar(
+    post.sharedPost?.source?.image,
+  )
+    ? undefined
+    : post.sharedPost?.source?.image;
   const embeddedTweetAvatar =
-    post.sharedPost?.author?.image || post.sharedPost?.source?.image;
-  const embeddedTweetAvatarUser = embeddedTweetAvatar
-    ? {
-        id:
-          post.sharedPost?.author?.id ||
-          post.sharedPost?.source?.id ||
-          quotedHandle ||
-          'shared-post-avatar',
-        image: embeddedTweetAvatar,
-        username: quotedHandle,
-        name: embeddedTweetName,
-      }
-    : null;
+    post.sharedPost?.author?.image ||
+    embeddedTweetSourceAvatar ||
+    EMBEDDED_TWEET_AVATAR_FALLBACK;
+  const embeddedTweetAvatarUser = {
+    id:
+      post.sharedPost?.author?.id ||
+      post.sharedPost?.source?.id ||
+      quotedHandle ||
+      'shared-post-avatar',
+    image: embeddedTweetAvatar,
+    username: quotedHandle,
+    name: embeddedTweetName,
+  };
   const sourceHandle =
     post.source?.id === UNKNOWN_SOURCE_ID
       ? post.creatorTwitter || post.author?.username
@@ -197,6 +222,9 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     post.subType === 'repost'
       ? [sourceHandle].filter(Boolean)
       : [...new Set([sourceHandle, quotedHandle].filter(Boolean))];
+  const embeddedTweetTextColorClass = post.read
+    ? 'text-text-tertiary'
+    : 'text-text-primary';
 
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
@@ -265,6 +293,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         {metadataHandles.map((handle, index) => (
           <React.Fragment key={handle}>
             {(!!post.createdAt || index > 0) && <Separator />}@{handle}
+            {post.subType === 'repost' && index === 0 ? ' reposted' : ''}
           </React.Fragment>
         ))}
       </PostMetadata>
@@ -280,19 +309,27 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
               {!!embeddedTweetAvatarUser && (
                 <ProfilePicture
                   user={embeddedTweetAvatarUser}
-                  size={ProfileImageSize.XSmall}
+                  size={ProfileImageSize.Medium}
                   rounded="full"
                   nativeLazyLoading
                 />
               )}
               <div className="min-w-0">
-                {!!embeddedTweetName && (
-                  <p className="truncate font-bold text-text-primary typo-footnote">
-                    {embeddedTweetName}
+                {!!embeddedTweetDisplayName && (
+                  <p
+                    className={`
+                      truncate font-bold typo-callout ${embeddedTweetTextColorClass}
+                    `}
+                  >
+                    {embeddedTweetDisplayName}
                   </p>
                 )}
                 {!!quotedHandle && (
-                  <p className="truncate font-bold text-text-primary typo-callout">
+                  <p
+                    className={`
+                      truncate font-bold typo-callout ${embeddedTweetTextColorClass}
+                    `}
+                  >
                     @{quotedHandle}
                   </p>
                 )}
@@ -300,7 +337,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
             </div>
             <p
               className={`
-                mt-1 whitespace-pre-line break-words text-text-primary typo-callout
+                mt-1 whitespace-pre-line break-words typo-callout ${embeddedTweetTextColorClass}
                 ${quoteDetailsTextClampClass}
               `}
             >

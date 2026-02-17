@@ -9,7 +9,7 @@ import {
   isVideoPost,
   PostType,
 } from '../../graphql/posts';
-import SharePostContent from './SharePostContent';
+import SharePostContent, { CommonSharePostContent } from './SharePostContent';
 import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -22,6 +22,7 @@ import { BoostNewPostStrip } from '../../features/boost/BoostNewPostStrip';
 import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
+import { Origin } from '../../lib/log';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -84,6 +85,10 @@ function SocialTwitterPostContentRaw({
   const finalType = isVideoPost(post)
     ? PostType.VideoYouTube
     : socialTwitterType || post?.type;
+  const shouldShowLinkedPreview =
+    finalType !== PostType.Share &&
+    !!post.sharedPost &&
+    post.sharedPost.type !== PostType.SocialTwitter;
   const Content = ContentMap[finalType] || MarkdownPostContent;
 
   return (
@@ -140,7 +145,26 @@ function SocialTwitterPostContentRaw({
             className={shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6'}
           />
           {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
-          <Content post={post} onReadArticle={onReadArticle} />
+          {finalType === PostType.Share ? (
+            <SharePostContent
+              post={post}
+              onReadArticle={onReadArticle}
+              origin={origin}
+            />
+          ) : (
+            <>
+              <Content post={post} onReadArticle={onReadArticle} />
+              {shouldShowLinkedPreview && (
+                <CommonSharePostContent
+                  post={post}
+                  onReadArticle={onReadArticle}
+                  source={post.source}
+                  sharedPost={post.sharedPost}
+                  isArticleModal={origin === Origin.ArticleModal}
+                />
+              )}
+            </>
+          )}
         </BasePostContent>
       </div>
       <SquadPostWidgets
