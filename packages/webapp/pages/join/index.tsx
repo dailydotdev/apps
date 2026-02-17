@@ -28,6 +28,18 @@ const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
   [ReferralCampaignKey.ShareTag]: Referral,
 };
 
+const referralCampaignValues = new Set<string>(
+  Object.values(ReferralCampaignKey),
+);
+
+const getFirstQueryParam = (
+  queryParam: string | string[] | undefined,
+): string | undefined =>
+  Array.isArray(queryParam) ? queryParam[0] : queryParam;
+
+const isReferralCampaignKey = (value: string): value is ReferralCampaignKey =>
+  referralCampaignValues.has(value);
+
 const Page = ({
   referringUser,
   campaign,
@@ -90,21 +102,21 @@ const Page = ({
   );
 };
 
-interface QueryParams {
-  ctoken?: string;
-  userid: string;
-  cid: ReferralCampaignKey;
-}
-
 export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
   query,
   res,
 }) => {
   const validateUserId = (value: string) => !!value && value !== '404';
-  const params = query as unknown as QueryParams;
-  const { userid: userId, cid: campaign, ctoken: token = null } = params;
+  const userId = getFirstQueryParam(query.userid);
+  const campaignValue = getFirstQueryParam(query.cid);
+  const token = getFirstQueryParam(query.ctoken) ?? null;
 
-  if (!validateUserId(userId as string) || !campaign) {
+  if (
+    !userId ||
+    !validateUserId(userId) ||
+    !campaignValue ||
+    !isReferralCampaignKey(campaignValue)
+  ) {
     return {
       redirect: {
         destination: '/',
@@ -112,6 +124,8 @@ export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
       },
     };
   }
+
+  const campaign = campaignValue;
 
   const result = await gqlClient.request<{
     user: JoinPageProps['referringUser'];

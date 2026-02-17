@@ -32,6 +32,11 @@ import { InfoIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Custom404Seo from '../404';
 
+const getFirstQueryParam = (
+  queryParam: string | string[] | undefined,
+): string | undefined =>
+  Array.isArray(queryParam) ? queryParam[0] : queryParam;
+
 const Page = ({
   token,
   organization,
@@ -193,18 +198,13 @@ const Page = ({
   );
 };
 
-interface QueryParams {
-  token: string;
-  orgId: string;
-}
-
 export const getServerSideProps: GetServerSideProps<{
   token: string;
   organization: Omit<Organization, 'members'>;
   user: Author;
 }> = async ({ query, res }) => {
-  const params = query as unknown as QueryParams;
-  const { token, orgId } = params;
+  const token = getFirstQueryParam(query.token);
+  const orgId = getFirstQueryParam(query.orgId);
 
   if (!token || !orgId) {
     return {
