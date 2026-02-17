@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
@@ -38,8 +38,14 @@ const SentimentPopupModal = ({
   const [isSelecting, setIsSelecting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Shuffle emoji order on mount to prevent positional bias
   const shuffledEmojis = useMemo(() => shuffleArray(emojis), []);
+
+  useEffect(() => {
+    logEvent({
+      event_name: LogEvent.OpenFeedSentiment,
+      target_type: TargetType.FeedSentiment,
+    });
+  }, [logEvent]);
 
   const { mutate: submitMutation, isPending } = useMutation({
     mutationFn: (sentiment: FeedSentiment) => submitFeedSentiment(sentiment),
@@ -62,7 +68,6 @@ const SentimentPopupModal = ({
       setSelectedSentiment(sentiment);
       setIsSelecting(true);
 
-      // Log the sentiment selection
       logEvent({
         event_name: LogEvent.SubmitFeedSentiment,
         target_type: TargetType.FeedSentiment,
@@ -134,11 +139,9 @@ const SentimentPopupModal = ({
                 'active:scale-95 active:rotate-0',
                 'disabled:pointer-events-none',
                 'animate-pop-in',
-                // Staggered animation delays
                 index === 0 && 'animation-delay-300',
                 index === 1 && 'animation-delay-380',
                 index === 2 && 'animation-delay-460',
-                // Glow ring effects
                 'before:absolute before:-inset-1 before:rounded-full before:opacity-0',
                 'before:transition-opacity before:duration-300',
                 'hover:before:opacity-30',
@@ -157,11 +160,6 @@ const SentimentPopupModal = ({
                   selectedSentiment !== item.sentiment &&
                   'animate-emoji-disappear',
               )}
-              style={
-                {
-                  '--animation-delay': `${300 + index * 80}ms`,
-                } as React.CSSProperties
-              }
             >
               <span className="relative z-10">{item.emoji}</span>
             </button>
