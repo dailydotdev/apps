@@ -219,11 +219,17 @@ const mainConfig = {
   ],
   optimization: {
     ...baseConfig.optimization,
-    // Enable runtime chunk to reduce individual bundle sizes
-    runtimeChunk: 'single',
-    // Split chunks to reduce newtab bundle size and avoid "Invalid array length" errors
+    // Only extract runtime for newtab; content scripts must stay self-contained
+    runtimeChunk: {
+      name(entrypoint) {
+        return entrypoint.name === 'newtab' ? 'runtime' : false;
+      },
+    },
+    // Only split newtab chunks; content scripts must remain single bundles
     splitChunks: {
-      chunks: 'all',
+      chunks(chunk) {
+        return !['content', 'companion', 'manifest'].includes(chunk.name);
+      },
       maxSize: 244000, // ~238KB max chunk size to avoid V8 limits
       cacheGroups: {
         defaultVendors: {

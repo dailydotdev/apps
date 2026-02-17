@@ -120,3 +120,8 @@ export const featureProfileCompletionIndicator = new Feature(
   'profile_completion_indicator',
   0,
 );
+
+export const sharedPostPreviewFeature = new Feature(
+  'shared_post_preview',
+  false,
+);
