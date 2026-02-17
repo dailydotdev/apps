@@ -20,6 +20,7 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
+import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import {
@@ -45,11 +46,6 @@ const seo: NextSeoProps = {
   description:
     'Assess your AI fluency tier and get actionable tips to improve your workflow.',
 };
-
-const getFirstQueryParam = (
-  queryParam: string | string[] | undefined,
-): string | undefined =>
-  Array.isArray(queryParam) ? queryParam[0] : queryParam;
 
 const getResultUrl = (userId: string, tier: string): string => {
   const params = new URLSearchParams({ userId, tier });

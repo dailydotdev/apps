@@ -30,6 +30,7 @@ import { useRouter } from 'next/router';
 import { getOrganizationSettingsUrl } from '@dailydotdev/shared/src/features/organizations/utils';
 import { InfoIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import Custom404Seo from '../404';
 
 const Page = ({
@@ -193,18 +194,13 @@ const Page = ({
   );
 };
 
-interface QueryParams {
-  token: string;
-  orgId: string;
-}
-
 export const getServerSideProps: GetServerSideProps<{
   token: string;
   organization: Omit<Organization, 'members'>;
   user: Author;
 }> = async ({ query, res }) => {
-  const params = query as unknown as QueryParams;
-  const { token, orgId } = params;
+  const token = getFirstQueryParam(query.token);
+  const orgId = getFirstQueryParam(query.orgId);
 
   if (!token || !orgId) {
     return {

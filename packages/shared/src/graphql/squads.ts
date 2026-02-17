@@ -20,6 +20,7 @@ import type {
 import type { PollOption, Post } from './posts';
 import type { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
+import { RequestKey, StaleTime } from '../lib/query';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
 import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
@@ -253,6 +254,34 @@ export const SQUAD_QUERY = gql`
   ${SQUAD_BASE_FRAGMENT}
 `;
 
+export const SQUAD_ANALYTICS_QUERY = gql`
+  query SquadAnalytics($sourceId: ID!) {
+    squadAnalytics(sourceId: $sourceId) {
+      id
+      impressions
+      reach
+      upvotes
+      downvotes
+      comments
+      bookmarks
+      awards
+      shares
+      clicks
+      upvotesRatio
+    }
+  }
+`;
+
+export const SQUAD_ANALYTICS_HISTORY_QUERY = gql`
+  query SquadAnalyticsHistory($sourceId: ID!) {
+    squadAnalyticsHistory(sourceId: $sourceId) {
+      date
+      impressions
+      impressionsAds
+    }
+  }
+`;
+
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
@@ -442,6 +471,44 @@ export async function getSquad(handle: string): Promise<Squad> {
   return res.source;
 }
 
+export const squadAnalyticsQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => {
+  return {
+    queryKey: [RequestKey.SquadAnalytics, sourceId],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        squadAnalytics: SquadAnalytics;
+      }>(SQUAD_ANALYTICS_QUERY, { sourceId });
+
+      return result.squadAnalytics;
+    },
+    enabled: !!sourceId,
+    staleTime: StaleTime.Default,
+  };
+};
+
+export const squadAnalyticsHistoryQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => {
+  return {
+    queryKey: [RequestKey.SquadAnalyticsHistory, sourceId],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        squadAnalyticsHistory: SquadAnalyticsHistoryNode[];
+      }>(SQUAD_ANALYTICS_HISTORY_QUERY, { sourceId });
+
+      return result.squadAnalyticsHistory;
+    },
+    enabled: !!sourceId,
+    staleTime: StaleTime.Default,
+  };
+};
+
 export async function getSquadMembers(
   id: string,
 ): Promise<BasicSourceMember[]> {
@@ -457,6 +524,26 @@ export async function getSquadMembers(
 
 export interface SquadInvitation {
   member: SourceMember;
+}
+
+export interface SquadAnalytics {
+  id: string;
+  impressions: number;
+  reach: number;
+  upvotes: number;
+  downvotes: number;
+  comments: number;
+  bookmarks: number;
+  awards: number;
+  shares: number;
+  clicks: number;
+  upvotesRatio: number;
+}
+
+export interface SquadAnalyticsHistoryNode {
+  date: Date;
+  impressions: number;
+  impressionsAds: number;
 }
 
 export interface SquadInvitationProps {

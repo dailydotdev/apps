@@ -10,6 +10,7 @@ import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { defaultOpenGraph } from '../../next-seo';
 import type { JoinPageProps } from '../../components/invite/common';
 import { AISearchInvite } from '../../components/invite/AISearchInvite';
@@ -27,6 +28,13 @@ const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
   [ReferralCampaignKey.ShareSource]: Referral,
   [ReferralCampaignKey.ShareTag]: Referral,
 };
+
+const referralCampaignValues = new Set<string>(
+  Object.values(ReferralCampaignKey),
+);
+
+const isReferralCampaignKey = (value: string): value is ReferralCampaignKey =>
+  referralCampaignValues.has(value);
 
 const Page = ({
   referringUser,
@@ -90,21 +98,21 @@ const Page = ({
   );
 };
 
-interface QueryParams {
-  ctoken?: string;
-  userid: string;
-  cid: ReferralCampaignKey;
-}
-
 export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
   query,
   res,
 }) => {
   const validateUserId = (value: string) => !!value && value !== '404';
-  const params = query as unknown as QueryParams;
-  const { userid: userId, cid: campaign, ctoken: token = null } = params;
+  const userId = getFirstQueryParam(query.userid);
+  const campaignValue = getFirstQueryParam(query.cid);
+  const token = getFirstQueryParam(query.ctoken) ?? null;
 
-  if (!validateUserId(userId as string) || !campaign) {
+  if (
+    !userId ||
+    !validateUserId(userId) ||
+    !campaignValue ||
+    !isReferralCampaignKey(campaignValue)
+  ) {
     return {
       redirect: {
         destination: '/',
@@ -112,6 +120,8 @@ export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
       },
     };
   }
+
+  const campaign = campaignValue;
 
   const result = await gqlClient.request<{
     user: JoinPageProps['referringUser'];
