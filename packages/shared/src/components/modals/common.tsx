@@ -427,6 +427,13 @@ const AchievementSyncPromptModal = dynamic(
     ),
 );
 
+const FeedSentimentModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedSentimentModal" */ './SentimentPopupModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -497,6 +504,7 @@ export const modals = {
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
   [LazyModal.Feedback]: FeedbackModal,
   [LazyModal.AchievementSyncPrompt]: AchievementSyncPromptModal,
+  [LazyModal.FeedSentiment]: FeedSentimentModal,
 };
 
 type GetComponentProps<T> = T extends

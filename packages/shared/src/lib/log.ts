@@ -377,6 +377,9 @@ export enum LogEvent {
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',
+  // Feed Sentiment
+  OpenFeedSentiment = 'open feed sentiment',
+  SubmitFeedSentiment = 'submit feed sentiment',
 }
 
 export enum TargetType {
@@ -435,6 +438,7 @@ export enum TargetType {
   Recruiter = 'recruiter',
   ProfileCompletionCard = 'profile completion card',
   OpportunityInterestButton = 'opportunity interest button',
+  FeedSentiment = 'feed sentiment',
 }
 
 export enum TargetId {
