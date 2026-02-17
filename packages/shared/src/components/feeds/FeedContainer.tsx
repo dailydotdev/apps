@@ -83,15 +83,17 @@ export const gapClass = ({
   isList,
   isFeedLayoutList,
   space,
+  defaultGridGap = 'gap-8',
 }: {
   isList: boolean;
   isFeedLayoutList: boolean;
   space: Spaciness;
+  defaultGridGap?: string;
 }): string => {
   if (isFeedLayoutList) {
     return '';
   }
-  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? defaultGridGap;
 };
 
 const cardClass = ({
@@ -171,12 +173,14 @@ export const FeedContainer = ({
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
       : (isListMode && numCards > 1) || shouldUseListFeedLayout;
+  const v2GridGap = isFeedLayoutV2 ? 'gap-4' : undefined;
   const feedGapPx =
     getFeedGapPx[
       gapClass({
         isList,
         isFeedLayoutList: shouldUseListFeedLayout,
         space: effectiveSpaciness,
+        defaultGridGap: v2GridGap,
       })
     ];
   const style = {
@@ -332,6 +336,7 @@ export const FeedContainer = ({
                   isList,
                   isFeedLayoutList: shouldUseListFeedLayout,
                   space: effectiveSpaciness,
+                  defaultGridGap: v2GridGap,
                 }),
                 cardClass({ isList, numberOfCards: numCards, isHorizontal }),
               )}
