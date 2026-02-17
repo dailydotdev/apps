@@ -32,8 +32,10 @@ export const SidebarItem = ({
       active={isActive(item)}
       ref={item.navItemRef}
       color={item.color}
+      disableDefaultBackground={item.disableDefaultBackground}
       className={classNames(
         'mx-1 rounded-10',
+        item.itemClassName,
         !shouldShowLabel && 'justify-center',
       )}
     >

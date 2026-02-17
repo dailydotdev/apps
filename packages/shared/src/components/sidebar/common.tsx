@@ -14,6 +14,7 @@ export interface SidebarMenuItem {
   icon: ((active: boolean) => ReactElement) | ReactNode;
   title: string;
   titleClassName?: string;
+  itemClassName?: string;
   rightIcon?: (active: boolean) => ReactElement;
   path?: string;
   onClick?: () => unknown;
@@ -29,6 +30,7 @@ export interface SidebarMenuItem {
   tooltip?: TooltipProps;
   navItemRef?: MutableRefObject<HTMLElement>;
   color?: string;
+  disableDefaultBackground?: boolean;
 }
 
 interface ListIconProps {
@@ -45,6 +47,7 @@ interface NavItemProps {
   active?: boolean;
   children?: ReactNode;
   className?: string;
+  disableDefaultBackground?: boolean;
 }
 
 export const navBtnClass =
@@ -153,10 +156,18 @@ export const ItemInner = ({
 };
 
 export const NavItem = forwardRef<HTMLElement, NavItemProps>(
-  ({ className, color, active, children }, ref): ReactElement => {
+  (
+    { className, color, active, children, disableDefaultBackground },
+    ref,
+  ): ReactElement => {
     const baseClasses = active
       ? 'text-text-primary'
       : 'hover:text-text-primary text-text-tertiary';
+    const backgroundClasses = disableDefaultBackground
+      ? undefined
+      : active
+        ? 'bg-surface-hover'
+        : 'hover:bg-surface-hover';
 
     return (
       <RawNavItem
@@ -164,7 +175,7 @@ export const NavItem = forwardRef<HTMLElement, NavItemProps>(
         className={classNames(
           className,
           color || baseClasses,
-          active ? 'bg-surface-hover' : 'hover:bg-surface-hover',
+          backgroundClasses,
         )}
       >
         {children}

@@ -79,8 +79,9 @@ export const MainSection = ({
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,
-          color:
-            'text-accent-avocado-default hover:!bg-action-upvote-float !bg-action-upvote-float/50',
+          color: 'text-accent-avocado-default',
+          itemClassName: 'bg-action-upvote-float/50 hover:bg-action-upvote-float',
+          disableDefaultBackground: true,
         }
       : undefined;
 
