@@ -26,7 +26,7 @@ import {
   cloudinarySquadsImageFallback,
 } from '../../lib/image';
 import { SharePostTitle } from './share/SharePostTitle';
-import { BlockIcon, EarthIcon } from '../icons';
+import { BlockIcon, EarthIcon, TwitterIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -210,8 +210,19 @@ export function CommonSharePostContent({
     post?.source?.id === UNKNOWN_SOURCE_ID
       ? post?.creatorTwitter || post?.author?.username
       : post?.source?.handle;
+  const repostSourceName = post?.source?.name;
+  const isUnknownRepostSourceName =
+    repostSourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
+  const repostedByName =
+    (!isUnknownRepostSourceName && repostSourceName) ||
+    post?.author?.name ||
+    (repostingHandle && formatHandleAsDisplayName(repostingHandle));
   const shouldShowRepostingHandle =
     isArticleModal && post?.subType === 'repost' && !!repostingHandle;
+  const repostIconClassName = isArticleModal
+    ? 'text-text-primary'
+    : 'relative top-px text-text-tertiary';
+  const repostIconSize = isArticleModal ? IconSize.Size16 : IconSize.XXSmall;
   const quotedSourceName = sharedPost?.source?.name;
   const isUnknownQuotedSourceName =
     quotedSourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
@@ -222,6 +233,10 @@ export function CommonSharePostContent({
   const embeddedTweetDisplayName =
     embeddedTweetName ||
     (referenceHandle && formatHandleAsDisplayName(referenceHandle));
+  const embeddedTweetIdentity = [embeddedTweetDisplayName, referenceHandle]
+    .filter(Boolean)
+    .map((value, index) => (index === 1 ? `@${value}` : value))
+    .join(' ');
   const embeddedTweetSourceAvatar = isSquadPlaceholderAvatar(
     sharedPost?.source?.image,
   )
@@ -247,7 +262,13 @@ export function CommonSharePostContent({
       <>
         {shouldShowRepostingHandle && (
           <p className="mt-2 text-text-primary typo-markdown">
-            @{repostingHandle} reposted
+            <span className="inline-flex h-[18px] items-center gap-1 align-middle leading-[18px]">
+              <TwitterIcon
+                className={repostIconClassName}
+                size={repostIconSize}
+              />
+              <span>{repostedByName} reposted</span>
+            </span>
           </p>
         )}
         <SharedLinkContainer
@@ -264,24 +285,19 @@ export function CommonSharePostContent({
             onGoToLinkProps={combinedClicks(openArticle)}
             className="block p-4"
           >
-            <div className="mb-2 flex items-start gap-2">
+            <div className="mb-2 flex items-center justify-start gap-2">
               {!!embeddedTweetAvatarUser && (
                 <ProfilePicture
                   user={embeddedTweetAvatarUser}
-                  size={ProfileImageSize.Medium}
+                  size={ProfileImageSize.Small}
                   rounded="full"
                   nativeLazyLoading
                 />
               )}
               <div className="min-w-0">
-                {!!embeddedTweetDisplayName && (
-                  <p className="truncate font-bold text-text-primary typo-markdown">
-                    {embeddedTweetDisplayName}
-                  </p>
-                )}
-                {!!referenceHandle && (
-                  <p className="truncate font-bold text-text-primary typo-markdown">
-                    @{referenceHandle}
+                {!!embeddedTweetIdentity && (
+                  <p className="truncate text-text-tertiary typo-footnote">
+                    {embeddedTweetIdentity}
                   </p>
                 )}
               </div>

@@ -81,10 +81,11 @@ it('should render top action link using post comments permalink', async () => {
   expect(link).toHaveAttribute('href', basePost.commentsPermalink);
 });
 
-it('should render source handle next to metadata date', async () => {
+it('should render source name next to metadata date for regular tweets', async () => {
   renderComponent();
 
-  expect((await screen.findAllByText(/@avengers/)).length).toBeGreaterThan(0);
+  expect(await screen.findByText(/Avengers/i)).toBeInTheDocument();
+  expect(screen.queryByText(/Avengers reposted/i)).not.toBeInTheDocument();
 });
 
 it('should render thread content without duplicating title line', async () => {
@@ -130,7 +131,9 @@ it('should render quote/repost detail from shared post', async () => {
   expect((await screen.findAllByText(/@devrelweekly/)).length).toBeGreaterThan(
     0,
   );
-  expect(await screen.findByText('DevRel Weekly')).toBeInTheDocument();
+  expect(
+    await screen.findByText(/DevRel Weekly @devrelweekly/i),
+  ).toBeInTheDocument();
   expect(
     await screen.findByAltText("devrelweekly's profile"),
   ).toBeInTheDocument();
@@ -170,7 +173,7 @@ it('should use creatorTwitter when shared source is unknown', async () => {
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
 });
 
-it('should use creatorTwitter when source is unknown for metadata handle', async () => {
+it('should prefer source name when source id is unknown', async () => {
   renderComponent({
     post: {
       ...basePost,
@@ -183,9 +186,8 @@ it('should use creatorTwitter when source is unknown for metadata handle', async
     },
   });
 
-  expect((await screen.findAllByText(/@root_creator/)).length).toBeGreaterThan(
-    0,
-  );
+  expect(await screen.findByText('Avengers')).toBeInTheDocument();
+  expect(screen.queryByText('@root_creator')).not.toBeInTheDocument();
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
 });
 
@@ -217,11 +219,10 @@ it('should hide headline and tags for repost cards without repost text', async (
     ),
   ).not.toBeInTheDocument();
   expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
-  expect(await screen.findByText('@avengers')).toBeInTheDocument();
-  expect(await screen.findByText('Y Combinator')).toBeInTheDocument();
-  expect((await screen.findAllByText(/@ycombinator/)).length).toBeGreaterThan(
-    0,
-  );
+  expect(await screen.findByText(/Avengers reposted/i)).toBeInTheDocument();
+  expect(
+    await screen.findByText(/Y Combinator @ycombinator/i),
+  ).toBeInTheDocument();
   expect(
     await screen.findByText('Referenced tweet content'),
   ).toBeInTheDocument();

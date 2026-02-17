@@ -142,6 +142,13 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     post.source?.id === UNKNOWN_SOURCE_ID
       ? post.creatorTwitter || post.author?.username
       : post.source?.handle;
+  const repostSourceName = post.source?.name;
+  const isUnknownSourceName =
+    repostSourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
+  const repostedByName =
+    (!isUnknownSourceName && repostSourceName) ||
+    post.author?.name ||
+    (sourceHandle && formatHandleAsDisplayName(sourceHandle));
   const metadataHandles =
     post.subType === 'repost'
       ? [sourceHandle].filter(Boolean)
@@ -151,6 +158,12 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     sourceHandle,
     authorHandle: post.author?.username,
   });
+  const cardLinkTitle =
+    post.subType === 'repost' && repostedByName
+      ? `${repostedByName} reposted on X. ${
+          cleanedTitle || post.title || ''
+        }`.trim()
+      : cleanedTitle || post.title;
   const quotedSourceName = post.sharedPost?.source?.name;
   const isUnknownQuotedSourceName =
     quotedSourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
@@ -161,6 +174,10 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const embeddedTweetDisplayName =
     embeddedTweetName ||
     (referenceHandle && formatHandleAsDisplayName(referenceHandle));
+  const embeddedTweetIdentity = [embeddedTweetDisplayName, referenceHandle]
+    .filter(Boolean)
+    .map((value, index) => (index === 1 ? `@${value}` : value))
+    .join(' ');
   const embeddedTweetSourceAvatar = isSquadPlaceholderAvatar(
     post.sharedPost?.source?.image,
   )
@@ -198,7 +215,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
       />
     </Container>
   );
-
   const metadata = useMemo(() => {
     const authorName = post?.author?.name;
     const sourceName = post?.source?.name;
@@ -225,6 +241,40 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     post?.author?.name,
     post?.source?.name,
   ]);
+  let metadataBottomLabel = metadata.bottomLabel;
+  if (metadataHandles.length) {
+    if (post.subType === 'repost') {
+      metadataBottomLabel = (
+        <span className="inline-flex h-[18px] items-center gap-1 align-middle leading-[18px]">
+          <TwitterIcon
+            className="relative top-px text-text-tertiary"
+            size={IconSize.XXSmall}
+          />
+          <span>{repostedByName} reposted</span>
+        </span>
+      );
+    } else if (metadataHandles.length === 1 && repostedByName) {
+      metadataBottomLabel = (
+        <span className="inline-flex h-[18px] items-center gap-1 align-middle leading-[18px]">
+          <TwitterIcon
+            className="relative top-px text-text-tertiary"
+            size={IconSize.XXSmall}
+          />
+          <span>{repostedByName}</span>
+        </span>
+      );
+    } else {
+      metadataBottomLabel = (
+        <>
+          {metadataHandles.map((handle, index) => (
+            <React.Fragment key={handle}>
+              {index > 0 && <Separator />}@{handle}
+            </React.Fragment>
+          ))}
+        </>
+      );
+    }
+  }
 
   return (
     <FeedItemContainer
@@ -236,7 +286,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
       flagProps={{ pinnedAt, trending, type: postType }}
       linkProps={
         !isFeedPreview && {
-          title: post.title,
+          title: cardLinkTitle,
           onClick: onPostCardClick,
           href: post.commentsPermalink,
         }
@@ -249,20 +299,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
           metadata={{
             ...metadata,
             dateFirst: true,
-            bottomLabel: metadataHandles.length ? (
-              <>
-                {metadataHandles.map((handle, index) => (
-                  <React.Fragment key={handle}>
-                    {index > 0 && <Separator />}@{handle}
-                    {post.subType === 'repost' && index === 0
-                      ? ' reposted'
-                      : ''}
-                  </React.Fragment>
-                ))}
-              </>
-            ) : (
-              metadata.bottomLabel
-            ),
+            bottomLabel: metadataBottomLabel,
           }}
           postLink={post.commentsPermalink}
           openNewTab={openNewTab}
@@ -299,34 +336,19 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
             )}
             {showReferenceTweet && (
               <div className="mt-4 w-full rounded-12 border border-border-subtlest-tertiary p-3">
-                <div className="mb-2 flex items-start gap-2">
+                <div className="mb-2 flex items-center justify-start gap-2">
                   {!!embeddedTweetAvatarUser && (
                     <ProfilePicture
                       user={embeddedTweetAvatarUser}
-                      size={ProfileImageSize.Medium}
+                      size={ProfileImageSize.Small}
                       rounded="full"
                       nativeLazyLoading
                     />
                   )}
                   <div className="min-w-0">
-                    {!!embeddedTweetDisplayName && (
-                      <p
-                        className={classNames(
-                          'truncate font-bold typo-callout',
-                          embeddedTweetTextColorClass,
-                        )}
-                      >
-                        {embeddedTweetDisplayName}
-                      </p>
-                    )}
-                    {!!referenceHandle && (
-                      <p
-                        className={classNames(
-                          'truncate font-bold typo-callout',
-                          embeddedTweetTextColorClass,
-                        )}
-                      >
-                        @{referenceHandle}
+                    {!!embeddedTweetIdentity && (
+                      <p className="truncate text-text-tertiary typo-footnote">
+                        {embeddedTweetIdentity}
                       </p>
                     )}
                   </div>

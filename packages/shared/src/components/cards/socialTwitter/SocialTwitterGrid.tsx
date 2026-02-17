@@ -1,4 +1,4 @@
-import type { ReactElement, Ref } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import type { PostCardProps } from '../common/common';
 import {
@@ -190,6 +190,10 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   const embeddedTweetDisplayName =
     embeddedTweetName ||
     (quotedHandle && formatHandleAsDisplayName(quotedHandle));
+  const embeddedTweetIdentity = [embeddedTweetDisplayName, quotedHandle]
+    .filter(Boolean)
+    .map((value, index) => (index === 1 ? `@${value}` : value))
+    .join(' ');
   const embeddedTweetSourceAvatar = isSquadPlaceholderAvatar(
     post.sharedPost?.source?.image,
   )
@@ -213,11 +217,21 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     post.source?.id === UNKNOWN_SOURCE_ID
       ? post.creatorTwitter || post.author?.username
       : post.source?.handle;
+  const sourceName = post.source?.name;
+  const isUnknownSourceName = sourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
+  const repostedByName =
+    (!isUnknownSourceName && sourceName) ||
+    post.author?.name ||
+    (sourceHandle && formatHandleAsDisplayName(sourceHandle));
   const title = removeHandlePrefixFromTitle({
     title: rawTitle,
     sourceHandle,
     authorHandle: post.author?.username,
   });
+  const cardOverlayLabel =
+    post.subType === 'repost' && repostedByName
+      ? `${repostedByName} reposted on X. ${title || post.title || ''}`.trim()
+      : title;
   const metadataHandles =
     post.subType === 'repost'
       ? [sourceHandle].filter(Boolean)
@@ -225,6 +239,40 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   const embeddedTweetTextColorClass = post.read
     ? 'text-text-tertiary'
     : 'text-text-primary';
+  let metadataContent: ReactNode;
+  if (post.subType === 'repost') {
+    metadataContent = (
+      <>
+        {!!post.createdAt && <Separator />}
+        <span className="inline-flex h-[18px] items-center gap-1 align-middle leading-[18px]">
+          <TwitterIcon
+            className="relative top-px text-text-tertiary"
+            size={IconSize.XXSmall}
+          />
+          <span>{repostedByName} reposted</span>
+        </span>
+      </>
+    );
+  } else if (metadataHandles.length === 1 && repostedByName) {
+    metadataContent = (
+      <>
+        {!!post.createdAt && <Separator />}
+        <span className="inline-flex h-[18px] items-center gap-1 align-middle leading-[18px]">
+          <TwitterIcon
+            className="relative top-px text-text-tertiary"
+            size={IconSize.XXSmall}
+          />
+          <span>{repostedByName}</span>
+        </span>
+      </>
+    );
+  } else {
+    metadataContent = metadataHandles.map((handle, index) => (
+      <React.Fragment key={handle}>
+        {(!!post.createdAt || index > 0) && <Separator />}@{handle}
+      </React.Fragment>
+    ));
+  }
 
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
@@ -247,7 +295,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         post={post}
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
-        ariaLabel={title}
+        ariaLabel={cardOverlayLabel}
       />
       <CardTextContainer>
         <CardHeader>
@@ -290,12 +338,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         createdAt={post.createdAt}
         readTime={post.readTime}
       >
-        {metadataHandles.map((handle, index) => (
-          <React.Fragment key={handle}>
-            {(!!post.createdAt || index > 0) && <Separator />}@{handle}
-            {post.subType === 'repost' && index === 0 ? ' reposted' : ''}
-          </React.Fragment>
-        ))}
+        {metadataContent}
       </PostMetadata>
       <Container>
         {threadBody && (
@@ -305,32 +348,19 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         )}
         {showQuoteDetail ? (
           <div className={`${quoteDetailsContainerClass} flex flex-col`}>
-            <div className="mb-2 flex items-start gap-2">
+            <div className="mb-2 flex items-center justify-start gap-2">
               {!!embeddedTweetAvatarUser && (
                 <ProfilePicture
                   user={embeddedTweetAvatarUser}
-                  size={ProfileImageSize.Medium}
+                  size={ProfileImageSize.Small}
                   rounded="full"
                   nativeLazyLoading
                 />
               )}
               <div className="min-w-0">
-                {!!embeddedTweetDisplayName && (
-                  <p
-                    className={`
-                      truncate font-bold typo-callout ${embeddedTweetTextColorClass}
-                    `}
-                  >
-                    {embeddedTweetDisplayName}
-                  </p>
-                )}
-                {!!quotedHandle && (
-                  <p
-                    className={`
-                      truncate font-bold typo-callout ${embeddedTweetTextColorClass}
-                    `}
-                  >
-                    @{quotedHandle}
+                {!!embeddedTweetIdentity && (
+                  <p className="truncate text-text-tertiary typo-footnote">
+                    {embeddedTweetIdentity}
                   </p>
                 )}
               </div>

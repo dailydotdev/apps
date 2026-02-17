@@ -78,8 +78,9 @@ it('should hide image and show referenced tweet block for shared social tweets',
     },
   });
 
-  expect(await screen.findByText('Referenced post')).toBeInTheDocument();
-  expect(await screen.findByText('@devrelweekly')).toBeInTheDocument();
+  expect(
+    await screen.findByText(/Referenced post @devrelweekly/i),
+  ).toBeInTheDocument();
   expect(
     await screen.findByAltText("devrelweekly's profile"),
   ).toBeInTheDocument();
@@ -125,9 +126,8 @@ it('should hide headline and tags for repost cards without repost text', async (
     ),
   ).not.toBeInTheDocument();
   expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
-  expect(await screen.findByText('@avengers')).toBeInTheDocument();
-  expect(await screen.findByText('Y Combinator')).toBeInTheDocument();
-  expect((await screen.findAllByText(/@ycombinator/)).length).toBeGreaterThan(
-    0,
-  );
+  expect(await screen.findByText(/Avengers reposted/i)).toBeInTheDocument();
+  expect(
+    await screen.findByText(/Y Combinator @ycombinator/i),
+  ).toBeInTheDocument();
 });
