@@ -13,6 +13,11 @@ body {
 
   &.ReactModal__Body--open {
     overflow: hidden;
+
+    /* Compensate for scrollbar removal to prevent layout shift */
+    @screen laptop {
+      padding-right: 0.5rem;
+    }
   }
 
   &.ReactModal__Body--open .ReactModal__Content,
