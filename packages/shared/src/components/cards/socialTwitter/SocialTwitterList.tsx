@@ -241,7 +241,8 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     post?.author?.name,
     post?.source?.name,
   ]);
-  let metadataBottomLabel = metadata.bottomLabel;
+  let metadataBottomLabel: ReactElement | string | undefined =
+    metadata.bottomLabel;
   if (metadataHandles.length) {
     if (post.subType === 'repost') {
       metadataBottomLabel = (
