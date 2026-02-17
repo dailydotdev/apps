@@ -222,17 +222,13 @@ const mainConfig = {
     // Only extract runtime for newtab; content scripts must stay self-contained
     runtimeChunk: {
       name(entrypoint) {
-        if (entrypoint.name === 'newtab') {
-          return 'runtime';
-        }
-
-        return false;
+        return entrypoint.name === 'newtab' ? 'runtime' : false;
       },
     },
     // Only split newtab chunks; content scripts must remain single bundles
     splitChunks: {
       chunks(chunk) {
-        return chunk.name === 'newtab';
+        return !['content', 'companion', 'manifest'].includes(chunk.name);
       },
       maxSize: 244000, // ~238KB max chunk size to avoid V8 limits
       cacheGroups: {
