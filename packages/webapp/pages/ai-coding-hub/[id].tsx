@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import classNames from 'classnames';
@@ -71,7 +71,7 @@ const TweetEmbed = ({ tweetId }: { tweetId: string }): ReactElement => {
           href={`https://twitter.com/i/web/status/${tweetId}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-text-quaternary text-sm"
+          className="text-sm text-text-quaternary"
         >
           Loading tweet...
         </a>

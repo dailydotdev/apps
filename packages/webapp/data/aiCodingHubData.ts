@@ -70,7 +70,7 @@ export const getTodayDateString = (): string => {
 
 export const getRecentDateStrings = (): string[] => {
   const dates: string[] = [];
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 2; i += 1) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     dates.push(date.toISOString().split('T')[0]);
