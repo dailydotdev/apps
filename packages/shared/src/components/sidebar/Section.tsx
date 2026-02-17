@@ -77,7 +77,8 @@ export function Section({
               onClick={toggleFlag}
               aria-label={`Toggle ${title}`}
               aria-expanded={!!isVisible.current}
-              className="flex items-center gap-1 rounded-6 transition-colors hover:text-text-primary"
+              aria-controls={flag ? `section-${flag}` : undefined}
+              className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
             >
               <span
                 className={classNames(
@@ -118,6 +119,7 @@ export function Section({
         </NavHeader>
       )}
       <div
+        id={flag ? `section-${flag}` : undefined}
         className={classNames(
           'flex flex-col overflow-hidden transition-all duration-300',
           isVisible.current || shouldAlwaysBeVisible
