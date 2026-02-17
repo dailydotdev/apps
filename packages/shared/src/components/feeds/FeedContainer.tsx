@@ -8,6 +8,7 @@ import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
 import type { FeedPagesWithMobileLayoutType } from '../../hooks';
 import {
+  useConditionalFeature,
   useFeedLayout,
   ToastSubject,
   useToastNotification,
@@ -16,6 +17,7 @@ import {
   useFeeds,
   useBoot,
 } from '../../hooks';
+import { featureFeedLayoutV2 } from '../../lib/featureManagement';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { SharedFeedPage } from '../utilities';
@@ -69,7 +71,9 @@ const cardListClass = {
 export const getFeedGapPx = {
   'gap-2': 8,
   'gap-3': 12,
+  'gap-4': 16,
   'gap-5': 20,
+  'gap-6': 24,
   'gap-8': 32,
   'gap-12': 48,
   'gap-14': 56,
@@ -150,6 +154,10 @@ export const FeedContainer = ({
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
   const { spaciness, loadedSettings } = useContext(SettingsContext);
+  const { value: isFeedLayoutV2 } = useConditionalFeature({
+    feature: featureFeedLayoutV2,
+    shouldEvaluate: true,
+  });
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
@@ -157,7 +165,8 @@ export const FeedContainer = ({
     feedName,
   });
   const router = useRouter();
-  const numCards = currentSettings.numCards[spaciness ?? 'eco'];
+  const effectiveSpaciness = isFeedLayoutV2 ? 'eco' : (spaciness ?? 'eco');
+  const numCards = currentSettings.numCards[effectiveSpaciness];
   const isList =
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
@@ -167,14 +176,14 @@ export const FeedContainer = ({
       gapClass({
         isList,
         isFeedLayoutList: shouldUseListFeedLayout,
-        space: spaciness,
+        space: effectiveSpaciness,
       })
     ];
   const style = {
     '--num-cards': isHorizontal && isListMode && numCards >= 2 ? 2 : numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
-  const cardContainerStyle = { ...getStyle(isList, spaciness) };
+  const cardContainerStyle = { ...getStyle(isList, effectiveSpaciness) };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
 
@@ -222,7 +231,7 @@ export const FeedContainer = ({
     <div
       className={classNames(
         'relative flex w-full flex-col laptopL:mx-auto',
-        styles.container,
+        isFeedLayoutV2 ? styles.containerV2 : styles.container,
         className,
       )}
     >
@@ -264,7 +273,7 @@ export const FeedContainer = ({
           className={classNames(
             'relative mx-auto w-full',
             styles.feed,
-            !isList && styles.cards,
+            !isList && (isFeedLayoutV2 ? styles.cardsV2 : styles.cards),
           )}
           style={cardContainerStyle}
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
@@ -322,7 +331,7 @@ export const FeedContainer = ({
                 gapClass({
                   isList,
                   isFeedLayoutList: shouldUseListFeedLayout,
-                  space: spaciness,
+                  space: effectiveSpaciness,
                 }),
                 cardClass({ isList, numberOfCards: numCards, isHorizontal }),
               )}

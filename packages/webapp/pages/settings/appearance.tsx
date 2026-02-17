@@ -5,7 +5,12 @@ import dynamic from 'next/dynamic';
 
 import { ThemeSection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/ThemeSection';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
+import { featureFeedLayoutV2 } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   Typography,
   TypographyColor,
@@ -46,6 +51,10 @@ const densities: RadioItemProps[] = [
 const AccountManageSubscriptionPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { logEvent } = useLogContext();
+  const { value: isFeedLayoutV2 } = useConditionalFeature({
+    feature: featureFeedLayoutV2,
+    shouldEvaluate: true,
+  });
   const supportsAppIconChange =
     typeof window !== 'undefined' && iOSSupportsAppIconChange();
 
@@ -103,37 +112,39 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           </FlexCol>
         )}
 
-        <FlexCol className="gap-2">
-          <Typography bold type={TypographyType.Subhead}>
-            Density
-          </Typography>
-
-          {insaneMode && (
-            <Typography
-              type={TypographyType.Subhead}
-              color={TypographyColor.Tertiary}
-            >
-              Not available in list layout
+        {!isFeedLayoutV2 && (
+          <FlexCol className="gap-2">
+            <Typography bold type={TypographyType.Subhead}>
+              Density
             </Typography>
-          )}
 
-          <Radio
-            name="density"
-            options={densities}
-            value={spaciness}
-            onChange={setSpaciness}
-            disabled={insaneMode}
-            className={{
-              content: 'w-full justify-between !pr-0',
-              container: '!gap-0',
-              label: classNames(
-                'font-normal typo-callout',
-                insaneMode ? 'text-text-disabled' : 'text-text-secondary',
-              ),
-            }}
-            reverse
-          />
-        </FlexCol>
+            {insaneMode && (
+              <Typography
+                type={TypographyType.Subhead}
+                color={TypographyColor.Tertiary}
+              >
+                Not available in list layout
+              </Typography>
+            )}
+
+            <Radio
+              name="density"
+              options={densities}
+              value={spaciness}
+              onChange={setSpaciness}
+              disabled={insaneMode}
+              className={{
+                content: 'w-full justify-between !pr-0',
+                container: '!gap-0',
+                label: classNames(
+                  'font-normal typo-callout',
+                  insaneMode ? 'text-text-disabled' : 'text-text-secondary',
+                ),
+              }}
+              reverse
+            />
+          </FlexCol>
+        )}
 
         {supportsAppIconChange && <IOSIconPicker />}
 

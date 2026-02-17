@@ -125,3 +125,5 @@ export const sharedPostPreviewFeature = new Feature(
   'shared_post_preview',
   false,
 );
+
+export const featureFeedLayoutV2 = new Feature('feed_layout_v2', false);
