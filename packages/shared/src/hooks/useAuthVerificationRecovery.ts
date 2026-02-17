@@ -4,10 +4,9 @@ import { useCallback, useContext, useEffect } from 'react';
 import type { InitializationData } from '../lib/kratos';
 import { AuthFlow, getKratosFlow, KRATOS_ERROR } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
-import { disabledRefetch } from '../lib/func';
+import { disabledRefetch, getFirstQueryParam } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
-import { getFirstQueryParam } from '../lib/func';
 import { stripLinkParameters } from '../lib/links';
 
 export function useAuthVerificationRecovery(): void {
