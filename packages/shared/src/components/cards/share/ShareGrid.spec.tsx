@@ -2,6 +2,7 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
@@ -48,9 +49,26 @@ beforeEach(() => {
   );
 });
 
-const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
+const getGrowthBook = (isSharedPostPreviewEnabled = false): GrowthBook => {
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    shared_post_preview: {
+      defaultValue: isSharedPostPreviewEnabled,
+    },
+  });
+
+  return gb;
+};
+
+const renderComponent = (
+  props: Partial<PostCardProps> = {},
+  isSharedPostPreviewEnabled = false,
+): RenderResult => {
   return render(
-    <TestBootProvider client={new QueryClient()}>
+    <TestBootProvider
+      client={new QueryClient()}
+      gb={getGrowthBook(isSharedPostPreviewEnabled)}
+    >
       <ShareGrid {...defaultProps} {...props} />
     </TestBootProvider>,
   );
@@ -126,8 +144,21 @@ it('should show options button on hover when in laptop size', async () => {
   );
 });
 
-it('should show cover image with play icon when post is video:youtube type', async () => {
+it('should render shared post preview details', async () => {
+  renderComponent({}, true);
+  expect(await screen.findByTestId('shared-post-preview')).toBeInTheDocument();
+  expect(screen.getByText('tkdodo')).toBeInTheDocument();
+  expect(screen.getByText('Type-safe React Query')).toBeInTheDocument();
+});
+
+it('should keep shared post preview for video:youtube type when feature enabled', async () => {
+  renderComponent(videoPostTypeComponentProps, true);
+  expect(await screen.findByTestId('shared-post-preview')).toBeInTheDocument();
+  expect(screen.queryByTestId('playIconVideoPost')).not.toBeInTheDocument();
+});
+
+it('should keep legacy image footer for video:youtube type when feature disabled', async () => {
   renderComponent(videoPostTypeComponentProps);
-  const image = await screen.findByTestId('playIconVideoPost');
-  expect(image).toBeInTheDocument();
+  expect(await screen.findByTestId('playIconVideoPost')).toBeInTheDocument();
+  expect(screen.queryByTestId('shared-post-preview')).not.toBeInTheDocument();
 });

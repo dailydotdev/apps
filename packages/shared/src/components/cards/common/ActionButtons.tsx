@@ -44,8 +44,8 @@ const variantConfig = {
     useCommentLink: false,
   },
   list: {
-    buttonSize: undefined, // Default size
-    iconSize: IconSize.Medium,
+    buttonSize: ButtonSize.Small,
+    iconSize: IconSize.XSmall,
     containerClassName: '',
     showTagsPanel: true,
     useCommentLink: true,
