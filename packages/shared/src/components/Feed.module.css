@@ -30,7 +30,8 @@
   padding-bottom: var(--feed-gap);
 }
 
-.cards .feedRow {
+.cards .feedRow,
+.cardsV2 .feedRow {
   grid-template-columns: repeat(var(--num-cards), 1fr);
   grid-gap: var(--feed-gap);
 

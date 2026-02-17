@@ -126,4 +126,4 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureFeedLayoutV2 = new Feature('feed_layout_v2', false);
+export const featureFeedLayoutV2 = new Feature('feed_layout_v2', isDevelopment);
