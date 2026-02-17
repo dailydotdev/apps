@@ -1,11 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { SidebarArrowLeft, SidebarArrowRight } from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -24,36 +19,29 @@ export const SidebarMenuIcon = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'flex h-12 items-center',
-        sidebarExpanded ? undefined : 'justify-center',
+        'flex h-9 items-center justify-between px-2 transition-[padding,justify-content] duration-300',
+        !sidebarExpanded && 'justify-center px-1',
       )}
     >
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Quaternary}
-        bold
+      <span
         className={classNames(
-          'transition-all',
-          sidebarExpanded
-            ? 'w-auto pl-4 opacity-100 delay-150'
-            : 'hidden opacity-0',
+          'overflow-hidden whitespace-nowrap text-text-quaternary transition-opacity duration-300 typo-callout',
+          sidebarExpanded ? 'opacity-100' : 'w-0 opacity-0',
         )}
       >
         Menu
-      </Typography>
+      </span>
       <Tooltip
         side="right"
-        content={`${sidebarExpanded ? 'Close' : 'Open'} sidebar`}
+        content={`${sidebarExpanded ? 'Collapse' : 'Expand'} sidebar`}
       >
         <Button
           variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
+          size={ButtonSize.XSmall}
           onClick={logAndToggleSidebarExpanded}
-          className={classNames(
-            'z-1',
-            sidebarExpanded ? 'ml-auto mr-2' : undefined,
-          )}
+          className="text-text-tertiary hover:text-text-primary"
           icon={sidebarExpanded ? <SidebarArrowLeft /> : <SidebarArrowRight />}
+          aria-label={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
         />
       </Tooltip>
     </div>
