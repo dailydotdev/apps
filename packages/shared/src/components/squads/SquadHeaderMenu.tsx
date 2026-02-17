@@ -90,7 +90,6 @@ export default function SquadHeaderMenu({
       squad,
       SourcePermissions.ViewAnalytics,
     );
-    console.log('canViewAnalytics', canViewAnalytics);
     const canDeleteSquad =
       verifyPermission(squad, SourcePermissions.Delete) && showDeletion;
 
