@@ -85,6 +85,16 @@ function NotificationItemAvatar({
     );
   }
 
+  if (type === NotificationAvatarType.Achievement) {
+    return (
+      <Image
+        className="size-8 rounded-full object-cover"
+        src={image}
+        alt={`${name} achievement`}
+      />
+    );
+  }
+
   return null;
 }
 

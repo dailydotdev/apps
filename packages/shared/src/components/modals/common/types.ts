@@ -28,6 +28,7 @@ export enum LazyModal {
   SquadMember = 'squadMember',
   SquadTour = 'squadTour',
   UpvotedPopup = 'upvotedPopup',
+  RepostsPopup = 'repostsPopup',
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
   CreateSharedPost = 'createSharedPost',
