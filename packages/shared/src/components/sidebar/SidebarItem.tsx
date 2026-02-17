@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
+import classNames from 'classnames';
 import { ClickableNavItem } from './ClickableNavItem';
 import type { AuthTriggersType } from '../../lib/auth';
 import type { SidebarMenuItem } from './common';
@@ -27,7 +28,15 @@ export const SidebarItem = ({
   };
 
   return (
-    <NavItem active={isActive(item)} ref={item.navItemRef} color={item.color}>
+    <NavItem
+      active={isActive(item)}
+      ref={item.navItemRef}
+      color={item.color}
+      className={classNames(
+        'mx-1 rounded-10',
+        !shouldShowLabel && 'justify-center',
+      )}
+    >
       <ClickableNavItem
         item={item}
         showLogin={
