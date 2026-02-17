@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
@@ -9,15 +8,19 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
+import { CreditCardIcon, ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
 import HeaderLogo from '../../layout/HeaderLogo';
 import { SidebarScrollWrapper } from '../../sidebar/common';
-import { getOpportunitiesOptions } from '../../../features/opportunity/queries';
+import { useOpportunities } from '../../../features/opportunity/hooks/useOpportunities';
 import type { Opportunity } from '../../../features/opportunity/types';
 import { OpportunityState } from '../../../features/opportunity/protobuf/opportunity';
 import { settingsUrl, webappUrl } from '../../../lib/constants';
 import { getPathnameWithQuery } from '../../../lib/links';
 import { LogoutReason } from '../../../lib/user';
+import InfiniteScrolling, {
+  checkFetchMore,
+} from '../../containers/InfiniteScrolling';
+import { Loader } from '../../Loader';
 
 const Header = () => (
   <div className="p-4">
@@ -60,18 +63,25 @@ const Footer = () => {
   return (
     <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary p-3">
       <ProfilePicture user={user} size={ProfileImageSize.Medium} />
-      <div>
-        <Typography type={TypographyType.Subhead} bold>
+      <div className="flex-1 overflow-hidden">
+        <Typography type={TypographyType.Subhead} bold className="truncate">
           {user?.name || 'Guest user'}
         </Typography>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
+          className="truncate"
         >
           {user?.username || '@guestuser'}
         </Typography>
       </div>
-      <div className="flex-1" />
+      <Button
+        variant={ButtonVariant.Tertiary}
+        icon={<CreditCardIcon />}
+        size={ButtonSize.XSmall}
+        href={`${webappUrl}recruiter/billing`}
+        tag="a"
+      />
       <Button
         variant={ButtonVariant.Tertiary}
         icon={<SettingsIcon />}
@@ -206,13 +216,12 @@ const STATE_KEYS: Record<OpportunityState, keyof StateGroup | null> = {
 };
 
 export const Sidebar = (): ReactElement => {
-  // Fetch all opportunities
-  const { data: opportunitiesData } = useQuery(getOpportunitiesOptions());
+  // Fetch all opportunities with infinite scroll
+  const opportunitiesQuery = useOpportunities();
+  const { allOpportunities, isLoading } = opportunitiesQuery;
 
   // Group opportunities by organization and state
   const opportunitiesByOrg = useMemo(() => {
-    const opportunities =
-      opportunitiesData?.edges.map((edge) => edge.node) || [];
     const grouped = new Map<
       string,
       {
@@ -223,7 +232,7 @@ export const Sidebar = (): ReactElement => {
       }
     >();
 
-    opportunities.forEach((opportunity) => {
+    allOpportunities.forEach((opportunity) => {
       const orgId = opportunity.organization?.id || 'no-org';
       const orgName = opportunity.organization?.name || 'No Organization';
       const orgImage = opportunity.organization?.image;
@@ -252,37 +261,46 @@ export const Sidebar = (): ReactElement => {
     });
 
     return grouped;
-  }, [opportunitiesData]);
+  }, [allOpportunities]);
+
+  const canFetchMore = checkFetchMore(opportunitiesQuery);
 
   return (
     <aside className="sticky top-0 flex h-screen w-60 flex-col border-r border-border-subtlest-tertiary">
-      <SidebarScrollWrapper>
+      <SidebarScrollWrapper className="min-h-0 flex-1">
         <Header />
-        <nav className="flex flex-col gap-2">
-          <div className="px-2">
-            <Button
-              tag="a"
-              href={`${webappUrl}recruiter?openModal=joblink&closeable=1`}
-              variant={ButtonVariant.Option}
-              className="w-full px-2"
-              size={ButtonSize.Small}
-            >
-              <PlusIcon /> New job
-            </Button>
-          </div>
-          {Array.from(opportunitiesByOrg.values()).map((org) => (
-            <SidebarSection
-              key={org.id}
-              orgId={org.id}
-              orgName={org.name}
-              orgImage={org.image}
-              opportunitiesByState={org.opportunitiesByState}
-            />
-          ))}
-        </nav>
-        <div className="flex-1" />
-        <Footer />
+        <InfiniteScrolling
+          canFetchMore={canFetchMore}
+          fetchNextPage={opportunitiesQuery.fetchNextPage}
+          isFetchingNextPage={opportunitiesQuery.isFetchingNextPage}
+          placeholder={<Loader />}
+        >
+          <nav className="flex flex-col gap-2 pb-2">
+            <div className="px-2">
+              <Button
+                tag="a"
+                href={`${webappUrl}recruiter?openModal=joblink&closeable=1`}
+                variant={ButtonVariant.Option}
+                className="w-full px-2"
+                size={ButtonSize.Small}
+              >
+                <PlusIcon /> New job
+              </Button>
+            </div>
+            {isLoading && <Loader />}
+            {Array.from(opportunitiesByOrg.values()).map((org) => (
+              <SidebarSection
+                key={org.id}
+                orgId={org.id}
+                orgName={org.name}
+                orgImage={org.image}
+                opportunitiesByState={org.opportunitiesByState}
+              />
+            ))}
+          </nav>
+        </InfiniteScrolling>
       </SidebarScrollWrapper>
+      <Footer />
     </aside>
   );
 };

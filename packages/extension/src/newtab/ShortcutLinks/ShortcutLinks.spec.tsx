@@ -92,6 +92,7 @@ const defaultSettings: RemoteSettings = {
   optOutCompanion: true,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.NewestFirst,
+  showFeedbackButton: true,
   customLinks: [
     'http://custom1.com',
     'http://custom2.com',

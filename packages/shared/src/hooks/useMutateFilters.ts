@@ -44,6 +44,14 @@ type UpdateAdvancedSettings = (
   params: AdvancedSettingsMutationProps,
 ) => Promise<unknown>;
 
+type FeedSettingsWithDefaults = FeedSettings & {
+  includeTags: string[];
+  blockedTags: string[];
+  includeSources: Source[];
+  excludeSources: Source[];
+  advancedSettings: FeedAdvancedSettings[];
+};
+
 type ReturnType = {
   followTags: FollowTags;
   unfollowTags: FollowTags;
@@ -55,6 +63,36 @@ type ReturnType = {
   blockSource: FollowSource;
   updateAdvancedSettings: UpdateAdvancedSettings;
   updateFeedFilters: (feedSettings: FeedSettings) => Promise<unknown>;
+};
+
+const normalizeFeedSettings = (
+  feedSettings: FeedSettings,
+): FeedSettingsWithDefaults => ({
+  ...feedSettings,
+  includeTags: feedSettings.includeTags ?? [],
+  blockedTags: feedSettings.blockedTags ?? [],
+  includeSources: feedSettings.includeSources ?? [],
+  excludeSources: feedSettings.excludeSources ?? [],
+  advancedSettings: feedSettings.advancedSettings ?? [],
+});
+
+const getCachedFeedSettingsOrThrow = (
+  queryClient: QueryClient,
+  queryKey: string[],
+  mutationType: 'advanced_settings' | 'tags' | 'sources',
+): FeedSettings => {
+  const feedSettingsData = queryClient.getQueryData<FeedSettingsData>(queryKey);
+  const currentSettings = feedSettingsData?.feedSettings;
+
+  if (!currentSettings) {
+    throw new Error(
+      `[useMutateFilters] Missing feed settings cache for ${mutationType} mutation (${JSON.stringify(
+        queryKey,
+      )})`,
+    );
+  }
+
+  return currentSettings;
 };
 
 async function updateQueryData(
@@ -86,16 +124,23 @@ const onMutateAdvancedSettings = async (
   advancedSettings: FeedAdvancedSettings[],
   queryClient: QueryClient,
   manipulate: ManipulateAdvancedSettingsFunc,
-  user: LoggedUser,
+  user: LoggedUser | undefined,
   feedId: string | undefined,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user, feedId);
-  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
-  const newData = manipulate(feedSettings.feedSettings, advancedSettings);
+  const currentSettings = getCachedFeedSettingsOrThrow(
+    queryClient,
+    queryKey,
+    'advanced_settings',
+  );
+  const newData = manipulate(
+    normalizeFeedSettings(currentSettings),
+    advancedSettings,
+  );
   const keys = [queryKey, queryKey];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
-    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
+    await updateQueryData(queryClient, currentSettings, keys);
   };
 };
 
@@ -108,16 +153,20 @@ const onMutateTagsSettings = async (
   tags: Array<string>,
   queryClient: QueryClient,
   manipulate: ManipulateTagFunc,
-  user: LoggedUser,
+  user: LoggedUser | undefined,
   feedId: string | undefined,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user, feedId);
-  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
-  const newData = manipulate(feedSettings.feedSettings, tags);
+  const currentSettings = getCachedFeedSettingsOrThrow(
+    queryClient,
+    queryKey,
+    'tags',
+  );
+  const newData = manipulate(normalizeFeedSettings(currentSettings), tags);
   const keys = [queryKey, getFeedSettingsQueryKey(user, feedId)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
-    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
+    await updateQueryData(queryClient, currentSettings, keys);
   };
 };
 
@@ -130,16 +179,20 @@ const onMutateSourcesSettings = async (
   source: Source,
   queryClient: QueryClient,
   manipulate: ManipulateSourceFunc,
-  user: LoggedUser,
+  user: LoggedUser | undefined,
   feedId: string | undefined,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user, feedId);
-  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
-  const newData = manipulate(feedSettings.feedSettings, source);
+  const currentSettings = getCachedFeedSettingsOrThrow(
+    queryClient,
+    queryKey,
+    'sources',
+  );
+  const newData = manipulate(normalizeFeedSettings(currentSettings), source);
   const keys = [queryKey, getFeedSettingsQueryKey(user, feedId)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
-    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
+    await updateQueryData(queryClient, currentSettings, keys);
   };
 };
 
@@ -148,9 +201,13 @@ const clearNotificationPreference = async ({
   user,
 }: {
   queryClient: QueryClient;
-  user: LoggedUser;
-}) => {
-  return queryClient.invalidateQueries({
+  user?: LoggedUser;
+}): Promise<void> => {
+  if (!user) {
+    return;
+  }
+
+  await queryClient.invalidateQueries({
     queryKey: generateQueryKey(RequestKey.NotificationPreference, user),
   });
 };
@@ -191,7 +248,7 @@ export default function useMutateFilters(
         advancedSettings,
         queryClient,
         (feedSettings, feedAdvancedSettings) => {
-          const newData = structuredClone(feedSettings);
+          const newData = normalizeFeedSettings(structuredClone(feedSettings));
           feedAdvancedSettings.forEach((feedAdvancedSetting) => {
             const index = newData.advancedSettings.findIndex(
               (settings) => settings.id === feedAdvancedSetting.id,
@@ -223,7 +280,7 @@ export default function useMutateFilters(
         settings,
       }),
     onMutate: onAdvancedSettingsUpdate,
-    onError: (err, _, rollback) => rollback(),
+    onError: (_err, _vars, rollback) => rollback?.(),
   });
 
   const onFollowTags = useCallback(
@@ -232,7 +289,7 @@ export default function useMutateFilters(
         tags,
         queryClient,
         (feedSettings, manipulateTags) => {
-          const newData = structuredClone(feedSettings);
+          const newData = normalizeFeedSettings(structuredClone(feedSettings));
           newData.includeTags = newData.includeTags.concat(manipulateTags);
           return newData;
         },
@@ -257,7 +314,7 @@ export default function useMutateFilters(
       }),
 
     onMutate: onFollowTags,
-    onError: (err, _, rollback) => rollback(),
+    onError: (_err, _vars, rollback) => rollback?.(),
   });
 
   const onBlockTags = useCallback(
@@ -266,7 +323,7 @@ export default function useMutateFilters(
         tags,
         queryClient,
         (feedSettings, manipulateTags) => {
-          const newData = structuredClone(feedSettings);
+          const newData = normalizeFeedSettings(structuredClone(feedSettings));
           newData.blockedTags = [
             ...Array.from(new Set(newData.blockedTags.concat(manipulateTags))),
           ];
@@ -297,7 +354,7 @@ export default function useMutateFilters(
       }),
 
     onMutate: onBlockTags,
-    onError: (err, _, rollback) => rollback(),
+    onError: (_err, _vars, rollback) => rollback?.(),
   });
 
   const onUnfollowTags = useCallback(
@@ -306,7 +363,7 @@ export default function useMutateFilters(
         tags,
         queryClient,
         (feedSettings, manipulateTags) => {
-          const newData = structuredClone(feedSettings);
+          const newData = normalizeFeedSettings(structuredClone(feedSettings));
           newData.includeTags = newData.includeTags.filter(
             (value) => manipulateTags.indexOf(value) < 0,
           );
@@ -333,7 +390,7 @@ export default function useMutateFilters(
       }),
 
     onMutate: onUnfollowTags,
-    onError: (err, _, rollback) => rollback(),
+    onError: (_err, _vars, rollback) => rollback?.(),
   });
 
   const onUnblockTags = useCallback(
@@ -342,7 +399,7 @@ export default function useMutateFilters(
         tags,
         queryClient,
         (feedSettings, manipulateTags) => {
-          const newData = structuredClone(feedSettings);
+          const newData = normalizeFeedSettings(structuredClone(feedSettings));
           newData.blockedTags = newData.blockedTags.filter(
             (value) => manipulateTags.indexOf(value) < 0,
           );
@@ -369,7 +426,7 @@ export default function useMutateFilters(
       }),
 
     onMutate: onUnblockTags,
-    onError: (err, _, rollback) => rollback(),
+    onError: (_err, _vars, rollback) => rollback?.(),
   });
 
   const onUnblockSource = useCallback(
@@ -378,7 +435,7 @@ export default function useMutateFilters(
         source,
         queryClient,
         (feedSettings, manipulateSource) => {
-          const newData = structuredClone(feedSettings);
+          const newData = normalizeFeedSettings(structuredClone(feedSettings));
           const index = newData.excludeSources.findIndex(
             (s) => s.id === manipulateSource.id,
           );
@@ -407,7 +464,7 @@ export default function useMutateFilters(
         },
       }),
     onMutate: onUnblockSource,
-    onError: (err, _, rollback) => rollback(),
+    onError: (_err, _vars, rollback) => rollback?.(),
   });
 
   const onFollowSource = useCallback(
@@ -416,7 +473,7 @@ export default function useMutateFilters(
         source,
         queryClient,
         (feedSettings, manipulateSource) => {
-          const newData = structuredClone(feedSettings);
+          const newData = normalizeFeedSettings(structuredClone(feedSettings));
           newData.includeSources.push(manipulateSource);
           return newData;
         },
@@ -440,7 +497,7 @@ export default function useMutateFilters(
         },
       }),
     onMutate: onFollowSource,
-    onError: (err, _, rollback) => rollback(),
+    onError: (_err, _vars, rollback) => rollback?.(),
   });
 
   const onUnfollowSource = useCallback(
@@ -449,7 +506,7 @@ export default function useMutateFilters(
         source,
         queryClient,
         (feedSettings, manipulateSource) => {
-          const newData = structuredClone(feedSettings);
+          const newData = normalizeFeedSettings(structuredClone(feedSettings));
           newData.includeSources = newData.includeSources.filter(
             (s) => s.id !== manipulateSource?.id,
           );
@@ -475,7 +532,7 @@ export default function useMutateFilters(
         },
       }),
     onMutate: onUnfollowSource,
-    onError: (err, _, rollback) => rollback(),
+    onError: (_err, _vars, rollback) => rollback?.(),
   });
 
   const onBlockSource = useCallback(
@@ -484,7 +541,7 @@ export default function useMutateFilters(
         source,
         queryClient,
         (feedSettings, manipulateSource) => {
-          const newData = structuredClone(feedSettings);
+          const newData = normalizeFeedSettings(structuredClone(feedSettings));
           newData.excludeSources.push(manipulateSource);
           return newData;
         },
@@ -509,7 +566,7 @@ export default function useMutateFilters(
       }),
     onMutate: onBlockSource,
     onSuccess: () => clearNotificationPreference({ queryClient, user }),
-    onError: (err, _, rollback) => rollback(),
+    onError: (_err, _vars, rollback) => rollback?.(),
   });
 
   return useMemo(

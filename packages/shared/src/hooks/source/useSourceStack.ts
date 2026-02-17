@@ -7,6 +7,7 @@ import type {
   ReorderSourceStackInput,
 } from '../../graphql/source/sourceStack';
 import {
+  MAX_STACK_ITEMS,
   getSourceStack,
   addSourceStack,
   updateSourceStack,
@@ -36,6 +37,7 @@ export function useSourceStack(squad: Squad | null) {
     () => query.data?.edges?.map(({ node }) => node) ?? [],
     [query.data],
   );
+  const canAddMore = stackItems.length < MAX_STACK_ITEMS;
 
   const invalidateQuery = useCallback(() => {
     queryClient.invalidateQueries({ queryKey });
@@ -73,6 +75,7 @@ export function useSourceStack(squad: Squad | null) {
     ...query,
     stackItems,
     canEdit,
+    canAddMore,
     queryKey,
     add: addMutation.mutateAsync,
     update: updateMutation.mutateAsync,

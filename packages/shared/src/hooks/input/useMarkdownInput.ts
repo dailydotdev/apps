@@ -49,6 +49,7 @@ import {
 } from '../../graphql/posts';
 import { generateStorageKey, StorageTopic } from '../../lib/storage';
 import { storageWrapper } from '../../lib/storageWrapper';
+import { specialCharsRegex } from '../../lib/strings';
 
 export enum MarkdownCommand {
   Upload = 'upload',
@@ -108,8 +109,6 @@ export const defaultMarkdownCommands = {
   gif: true,
 };
 
-const specialCharsRegex = new RegExp(/[^A-Za-z0-9_.]/);
-
 export const useMarkdownInput = ({
   textareaRef,
   postId,
@@ -162,7 +161,7 @@ export const useMarkdownInput = ({
   const key = ['user', query, postId, sourceId];
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const emojiData = useMemo(
     () =>

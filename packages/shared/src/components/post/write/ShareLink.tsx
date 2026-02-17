@@ -4,7 +4,7 @@ import z from 'zod';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { Squad } from '../../../graphql/sources';
-import MarkdownInput from '../../fields/MarkdownInput';
+import RichTextInput from '../../fields/RichTextInput';
 import { WriteFooter } from './WriteFooter';
 import { SubmitExternalLink } from './SubmitExternalLink';
 import { usePostToSquad, useToastNotification } from '../../../hooks';
@@ -119,6 +119,11 @@ export function ShareLink({
       return onUpdateSubmit(e);
     }
 
+    if (!preview) {
+      displayToast('Please provide a valid link first');
+      return null;
+    }
+
     const isLinkAlreadyShared = preview.relatedPublicPosts?.length > 0;
     const proceedSharingLink =
       !isPostingOnMySource ||
@@ -170,10 +175,9 @@ export function ShareLink({
         />
       )}
 
-      <MarkdownInput
+      <RichTextInput
         initialContent={commentary || fetchedPost?.title || ''}
         enabledCommand={{ mention: true }}
-        showMarkdownGuide={false}
         onValueUpdate={setCommentary}
         maxInputLength={MAX_TITLE_LENGTH}
       />

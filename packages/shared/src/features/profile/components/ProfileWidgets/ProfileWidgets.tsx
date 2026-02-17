@@ -23,6 +23,16 @@ const BadgesAndAwards = dynamic(() =>
   import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
 );
 
+const AchievementsWidget = dynamic(() =>
+  import('./AchievementsWidget').then((mod) => mod.AchievementsWidget),
+);
+
+const AchievementSyncPromptCheck = dynamic(() =>
+  import('./AchievementSyncPromptCheck').then(
+    (mod) => mod.AchievementSyncPromptCheck,
+  ),
+);
+
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
   enableSticky?: boolean;
@@ -96,6 +106,8 @@ export function ProfileWidgets({
         <ActiveOrRecomendedSquads userId={user.id} squads={squads} />
       )}
       <BadgesAndAwards user={user} />
+      <AchievementsWidget user={user} />
+      <AchievementSyncPromptCheck user={user} />
     </div>
   );
 }

@@ -43,6 +43,7 @@ export function PostShortInfo({
         PostType.Freeform,
         PostType.Welcome,
         PostType.Poll,
+        PostType.SocialTwitter,
       ].includes(post.type)
     ) {
       return `${webappUrl}posts/${post.slug || post.id}`;

@@ -6,6 +6,7 @@ import { UserExperienceList } from '../../features/profile/components/experience
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PublicProfile } from '../../lib/user';
 import { ExperienceEmptyState } from './ExperienceEmptyState';
+import { UserExperienceItemSkeleton } from '../../features/profile/components/experience/UserExperienceItemSkeleton';
 
 type ExperienceSettingsProps = {
   experienceType: UserExperienceType;
@@ -17,7 +18,18 @@ export const ExperienceSettings = ({
   emptyStateMessage,
 }: ExperienceSettingsProps): ReactElement => {
   const { user } = useAuthContext();
-  const { experiences } = useUserExperiencesByType(experienceType, user?.id);
+  const { experiences, isPending } = useUserExperiencesByType(
+    experienceType,
+    user?.id,
+  );
+
+  if (isPending) {
+    return (
+      <div className="flex flex-col gap-4">
+        <UserExperienceItemSkeleton count={2} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">

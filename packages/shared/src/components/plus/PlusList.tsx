@@ -66,6 +66,18 @@ export const defaultFeatureList: Array<PlusItem> = [
 
 export const plusFeatureList: Array<PlusItem> = [
   {
+    id: 'ai-agent-integration',
+    label: 'Power your AI agents',
+    status: PlusItemStatus.Ready,
+    tooltip: `Connect daily.dev to OpenClaw, Claude Code or your favorite agents. Let them fetch relevant dev content, search articles, and supercharge your workflows.`,
+  },
+  {
+    id: 'public-api',
+    label: 'Public API access',
+    status: PlusItemStatus.Ready,
+    tooltip: `Build custom integrations, and access your personalized feed programmatically. Full API access to feeds, bookmarks, search, and more.`,
+  },
+  {
     id: 'presidential-briefing',
     label: 'Unlimited presidential briefings',
     status: PlusItemStatus.Ready,

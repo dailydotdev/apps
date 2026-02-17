@@ -7,6 +7,7 @@ import { SharedCardCover } from '../SharedCardCover';
 import { CardImage } from './ListCard';
 import { useViewSize, ViewSize } from '../../../../hooks';
 import type { ImageProps } from '../../../image/Image';
+import { isPlaceholderImage } from '../../../../lib/image';
 
 interface CardCoverProps extends ReusedCardCoverProps {
   className?: string;
@@ -16,8 +17,10 @@ export function CardCoverList({
   className,
   imageProps,
   ...props
-}: CardCoverProps): ReactElement {
+}: CardCoverProps): ReactElement | null {
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const shouldHidePlaceholder = !isLaptop && isPlaceholderImage(imageProps.src);
+
   const optimizedImageProps: ImageProps = useMemo(() => {
     const { src } = imageProps;
     const mobileSrc = src?.replace('/f_auto,q_auto/', '/t_mobile_feed/');
@@ -31,6 +34,10 @@ export function CardCoverList({
         }),
     };
   }, [imageProps, isLaptop]);
+
+  if (shouldHidePlaceholder) {
+    return null;
+  }
 
   return (
     <SharedCardCover

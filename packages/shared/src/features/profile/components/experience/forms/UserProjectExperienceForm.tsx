@@ -14,6 +14,7 @@ import { AutocompleteType } from '../../../../../graphql/autocomplete';
 import { UserExperienceType } from '../../../../../graphql/user/profile';
 import { profileSecondaryFieldStyles } from '../../../common';
 import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
+import type { Company } from '../../../../../lib/userCompany';
 
 type FormCopy = {
   titlePlaceholder: string;
@@ -48,7 +49,13 @@ const getFormCopy = (type: UserExperienceType): FormCopy => {
   };
 };
 
-const UserProjectExperienceForm = () => {
+type UserProjectExperienceFormProps = {
+  company?: Company | null;
+};
+
+const UserProjectExperienceForm = ({
+  company,
+}: UserProjectExperienceFormProps) => {
   const { watch } = useFormContext();
   const type = watch('type') as UserExperienceType;
   const current = watch('current');
@@ -87,6 +94,8 @@ const UserProjectExperienceForm = () => {
             name="customCompanyName"
             label={copy.company}
             type={AutocompleteType.Company}
+            company={company}
+            entityLabel="publisher"
           />
         )}
       </div>

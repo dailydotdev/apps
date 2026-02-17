@@ -60,6 +60,7 @@ export enum Origin {
   UserFollowingList = 'user following list',
   UserFollowersList = 'user followers list',
   UserUpvotesList = 'user upvotes list',
+  UserRepostsList = 'user reposts list',
   FollowFilter = 'follow filter',
   PostSharedBy = 'post shared by',
   // Marketing
@@ -240,6 +241,10 @@ export enum LogEvent {
   // End post snippets
   TopReaderModalClose = 'close badge',
   TopReaderBadgeDownload = 'download badge',
+  // AI quiz
+  StartAiFluencyQuiz = 'start ai fluency quiz',
+  CompleteAiFluencyQuiz = 'complete ai fluency quiz',
+  ShareAiFluencyQuiz = 'share ai fluency quiz',
   // Plus subscription
   UpgradeSubscription = 'upgrade subscription',
   ManageSubscription = 'manage subscription',

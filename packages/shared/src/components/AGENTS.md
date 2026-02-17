@@ -281,6 +281,9 @@ Some components use compound patterns for flexibility:
 </HorizontalScroll>
 ```
 
+### Toolbar Actions
+When adding icon-only buttons in toolbars, keep any adjacent status labels inline and match the control height (e.g., `ButtonSize.XSmall` uses `h-6`). This avoids overlap and keeps action rows visually aligned.
+
 ### classed() Utility
 For simple styled wrappers:
 ```typescript

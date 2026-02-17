@@ -38,7 +38,7 @@ const PollResults = ({
   );
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
 
     if (shouldAnimate) {
       timer = setTimeout(() => {

@@ -12,8 +12,13 @@ import ControlledTextarea from '../../../../../components/fields/ControlledTexta
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
 import { profileSecondaryFieldStyles } from '../../../common';
 import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
+import type { Company } from '../../../../../lib/userCompany';
 
-const UserCertificationForm = () => {
+type UserCertificationFormProps = {
+  company?: Company | null;
+};
+
+const UserCertificationForm = ({ company }: UserCertificationFormProps) => {
   const { watch } = useFormContext();
   const current = watch('current');
 
@@ -31,6 +36,8 @@ const UserCertificationForm = () => {
           name="customCompanyName"
           label="Issuing Organization*"
           type={AutocompleteType.Company}
+          company={company}
+          entityLabel="organization"
         />
       </div>
       <HorizontalSeparator />

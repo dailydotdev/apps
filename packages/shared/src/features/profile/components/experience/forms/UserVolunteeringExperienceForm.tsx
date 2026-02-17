@@ -11,8 +11,15 @@ import ProfileMonthYearSelect from '../../../../../components/profile/ProfileMon
 import { AutocompleteType } from '../../../../../graphql/autocomplete';
 import { profileSecondaryFieldStyles } from '../../../common';
 import CurrentExperienceSwitch from '../../CurrentExperienceSwitch';
+import type { Company } from '../../../../../lib/userCompany';
 
-const UserVolunteeringExperienceForm = () => {
+type UserVolunteeringExperienceFormProps = {
+  company?: Company | null;
+};
+
+const UserVolunteeringExperienceForm = ({
+  company,
+}: UserVolunteeringExperienceFormProps) => {
   const { watch } = useFormContext();
   const current = watch('current');
 
@@ -23,6 +30,8 @@ const UserVolunteeringExperienceForm = () => {
           name="customCompanyName"
           label="Organization*"
           type={AutocompleteType.Company}
+          company={company}
+          entityLabel="organization"
         />
         <ControlledTextField
           name="title"

@@ -81,7 +81,11 @@ const handler = async (
       )
       .join('\n\n');
 
-    const markdown = `# Squads Directory
+    const markdown = `> ## Documentation Index
+> Fetch the complete documentation index at: https://app.daily.dev/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Squads Directory
 
 > Developer communities on daily.dev
 
@@ -103,13 +107,18 @@ ${categorySections}
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader(
       'Cache-Control',
-      'public, s-maxage=3600, stale-while-revalidate=86400',
+      'public, s-maxage=86400, stale-while-revalidate=604800',
     );
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.status(200).send(markdown);
   } catch (error: unknown) {
     // eslint-disable-next-line no-console
     console.error('Error generating squads markdown:', error);
-    res.status(500).send('Internal server error');
+    res
+      .status(500)
+      .send(
+        'Unable to generate markdown. Please try again later or visit https://app.daily.dev/squads/discover',
+      );
   }
 };
 

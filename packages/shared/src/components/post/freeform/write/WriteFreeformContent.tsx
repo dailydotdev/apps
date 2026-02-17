@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import ImageInput from '../../../fields/ImageInput';
 import { CameraIcon } from '../../../icons';
 import { TextField } from '../../../fields/TextField';
-import MarkdownInput from '../../../fields/MarkdownInput';
+import RichTextInput from '../../../fields/RichTextInput';
 import { WritePageMain } from './common';
 import type { EditPostProps } from '../../../../graphql/posts';
 import { imageSizeLimitMB, PostType } from '../../../../graphql/posts';
@@ -157,7 +157,7 @@ export function WriteFreeformContent({
           maxLength={MAX_TITLE_LENGTH}
         />
       </AlertPointer>
-      <MarkdownInput
+      <RichTextInput
         sourceId={squad?.id}
         onValueUpdate={onFormUpdate}
         initialContent={draft?.content ?? fetchedPost?.content ?? ''}

@@ -23,6 +23,9 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
+import { useFeature } from '../../GrowthBookProvider';
+import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
+import { SharedPostPreview } from './SharedPostPreview';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -48,7 +51,9 @@ export const ShareList = forwardRef(function ShareList(
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
+  const { sharedPost } = post;
   const isVideoType = isVideoPost(post);
+  const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
@@ -87,15 +92,15 @@ export const ShareList = forwardRef(function ShareList(
       ),
       bottomLabel: enableSourceHeader
         ? post.author.name
-        : `@${post.sharedPost?.source.handle}`,
+        : `@${sharedPost?.source?.handle}`,
     };
   }, [
     enableSourceHeader,
     isUserSource,
-    post?.author?.name,
-    post?.sharedPost?.source?.handle,
-    post?.source?.name,
-    post?.source?.permalink,
+    post.author.name,
+    post.source.name,
+    post.source.permalink,
+    sharedPost?.source?.handle,
   ]);
 
   return (
@@ -118,12 +123,12 @@ export const ShareList = forwardRef(function ShareList(
       <PostCardHeader
         post={{
           ...post,
-          type: post.sharedPost.type,
+          type: sharedPost?.type || post.type,
         }}
         openNewTab={openNewTab}
         onReadArticleClick={onReadArticleClick}
         metadata={metadata}
-        postLink={post.sharedPost.permalink}
+        postLink={sharedPost?.permalink}
       >
         {!isUserSource && (
           <SourceButton
@@ -143,7 +148,7 @@ export const ShareList = forwardRef(function ShareList(
           </CardTitle>
           <div className="flex flex-1 tablet:hidden" />
           <div className="flex items-center">
-            {!post.title && post.sharedPost.clickbaitTitleDetected && (
+            {!post.title && sharedPost?.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
             )}
             <PostTags post={post} />
@@ -151,27 +156,40 @@ export const ShareList = forwardRef(function ShareList(
           <div className="hidden flex-1 tablet:flex" />
           {!isMobile && actionButtons}
         </div>
-
-        <CardCoverList
-          data-testid="postImage"
-          isVideoType={isVideoType}
-          onShare={onShare}
-          post={post}
-          imageProps={{
-            alt: 'Post Cover image',
-            className: classNames(
-              'mobileXXL:self-start',
-              !isVideoType && 'mt-4',
-            ),
-            ...(eagerLoadImage
-              ? HIGH_PRIORITY_IMAGE_PROPS
-              : { loading: 'lazy' }),
-            src: post.sharedPost.image,
-          }}
-          videoProps={{
-            className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
-          }}
-        />
+        {isSharedPostPreviewEnabled ? (
+          <SharedPostPreview
+            className="mt-4 w-full mobileXL:mt-0 mobileXL:w-40 mobileXL:self-start mobileXXL:w-56"
+            post={post}
+            onShare={onShare}
+            source={sharedPost?.source}
+            title={post.title ? sharedPost?.title : undefined}
+            image={sharedPost?.image}
+            imageProps={
+              eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : { loading: 'lazy' }
+            }
+          />
+        ) : (
+          <CardCoverList
+            data-testid="postImage"
+            isVideoType={isVideoType}
+            onShare={onShare}
+            post={post}
+            imageProps={{
+              alt: 'Post Cover image',
+              className: classNames(
+                'mobileXXL:self-start',
+                !isVideoType && 'mt-4',
+              ),
+              ...(eagerLoadImage
+                ? HIGH_PRIORITY_IMAGE_PROPS
+                : { loading: 'lazy' }),
+              src: sharedPost?.image,
+            }}
+            videoProps={{
+              className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
+            }}
+          />
+        )}
       </CardContent>
       {isMobile && actionButtons}
       {children}

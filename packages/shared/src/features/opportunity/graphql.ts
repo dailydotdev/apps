@@ -121,6 +121,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
       equity
     }
     locations {
+      locationId
       type
       location {
         city

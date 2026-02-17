@@ -28,6 +28,7 @@ export enum LazyModal {
   SquadMember = 'squadMember',
   SquadTour = 'squadTour',
   UpvotedPopup = 'upvotedPopup',
+  RepostsPopup = 'repostsPopup',
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
   CreateSharedPost = 'createSharedPost',
@@ -92,6 +93,7 @@ export enum LazyModal {
   RecruiterSeats = 'recruiterSeats',
   CandidateSignIn = 'candidateSignIn',
   Feedback = 'feedback',
+  AchievementSyncPrompt = 'achievementSyncPrompt',
 }
 
 export type ModalTabItem = {

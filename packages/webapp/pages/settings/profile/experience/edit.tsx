@@ -21,6 +21,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/user/profile';
 import type { GetServerSideProps } from 'next';
 import type { TLocation } from '@dailydotdev/shared/src/graphql/autocomplete';
+import type { Company } from '@dailydotdev/shared/src/lib/userCompany';
 import { useRouter } from 'next/router';
 import { getCookiesAndHeadersFromRequest } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
@@ -49,6 +50,8 @@ type DefaultValues = UserExperience & {
   endedAtYear: string;
   skills?: string[];
   location?: TLocation;
+  storedCustomCompanyName?: string | null;
+  company?: Company | null;
 };
 
 type PageProps = {
@@ -132,6 +135,8 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
         ...result,
         companyId: result.company?.id || '',
         customCompanyName: result.company?.name || result.customCompanyName,
+        storedCustomCompanyName: result.customCompanyName,
+        company: result.company,
         startedAtMonth,
         startedAtYear,
         endedAtMonth,
@@ -150,18 +155,27 @@ const renderExperienceForm = (
   type?: UserExperienceType,
   experience?: DefaultValues,
 ) => {
+  const companyProps = {
+    company: experience?.company,
+  };
+
   switch (type) {
     case UserExperienceType.Education:
-      return <UserEducationForm />;
+      return <UserEducationForm {...companyProps} />;
     case UserExperienceType.Certification:
-      return <UserCertificationForm />;
+      return <UserCertificationForm {...companyProps} />;
     case UserExperienceType.Volunteering:
-      return <UserVolunteeringExperienceForm />;
+      return <UserVolunteeringExperienceForm {...companyProps} />;
     case UserExperienceType.Project:
     case UserExperienceType.OpenSource:
-      return <UserProjectExperienceForm />;
+      return <UserProjectExperienceForm {...companyProps} />;
     default:
-      return <UserWorkExperienceForm location={experience?.location} />;
+      return (
+        <UserWorkExperienceForm
+          location={experience?.location}
+          {...companyProps}
+        />
+      );
   }
 };
 

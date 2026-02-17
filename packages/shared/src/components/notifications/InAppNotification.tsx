@@ -28,7 +28,7 @@ const Container = classed(
   ),
 );
 
-let timeoutId: number | NodeJS.Timeout = 0;
+let timeoutId: ReturnType<typeof setTimeout> | 0 = 0;
 
 export function InAppNotificationElement(): ReactElement {
   const router = useRouter();

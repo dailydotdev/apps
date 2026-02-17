@@ -27,6 +27,7 @@ const excludedProperties = [
   'customLocation',
   'image',
   'repositorySearch',
+  'storedCustomCompanyName',
 ];
 
 const USER_EXPERIENCE_FRAGMENT = gql`

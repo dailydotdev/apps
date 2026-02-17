@@ -12,6 +12,7 @@ export enum NotificationAvatarType {
   TopReaderBadge = 'top_reader_badge',
   Organization = 'organization',
   Brief = 'brief',
+  Achievement = 'achievement',
 }
 
 export interface NotificationAvatar extends WithClassNameProps {

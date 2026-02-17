@@ -42,6 +42,7 @@ import {
   reputation,
   settingsUrl,
   walletUrl,
+  webappUrl,
 } from '../../lib/constants';
 
 import type {
@@ -65,6 +66,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../lib/log';
 import { VolunteeringIcon } from '../icons/Volunteering';
 import { GraduationIcon } from '../icons/Graduation';
+import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
 
 type MenuItems = Record<
@@ -80,6 +82,7 @@ const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 const useAccountPageItems = () => {
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
 
   return useMemo(
     () =>
@@ -107,6 +110,11 @@ const useAccountPageItems = () => {
                   target_id: TargetId.ProfileSettingsMenu,
                 });
               },
+            },
+            achievements: {
+              title: 'Achievements',
+              icon: MedalBadgeIcon,
+              href: `${webappUrl}${user?.username}/achievements`,
             },
             appearance: {
               title: 'Appearance',
@@ -302,7 +310,7 @@ const useAccountPageItems = () => {
           },
         },
       }),
-    [logEvent, openModal],
+    [logEvent, openModal, user?.username],
   );
 };
 

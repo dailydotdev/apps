@@ -4,7 +4,11 @@ import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
-import { isVideoPost, PostType } from '../../graphql/posts';
+import {
+  getSocialTwitterPostType,
+  isVideoPost,
+  PostType,
+} from '../../graphql/posts';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
@@ -85,7 +89,10 @@ function SquadPostContentRaw({
     onSendViewPost(post.id);
   }, [post.id, onSendViewPost, user?.id]);
 
-  const finalType = isVideoPost(post) ? PostType.VideoYouTube : post?.type;
+  const socialTwitterType = getSocialTwitterPostType(post);
+  const finalType = isVideoPost(post)
+    ? PostType.VideoYouTube
+    : socialTwitterType || post?.type;
   const Content = ContentMap[finalType];
 
   return (
@@ -154,16 +161,19 @@ function SquadPostContentRaw({
             {shouldShowBanner && !isUserSource && isLaptop && (
               <BoostNewPostStrip />
             )}
-            <SquadPostAuthor
-              author={post?.author}
-              role={role}
-              date={post.createdAt}
-              className={{
-                container: !isUserSource ? 'mt-3' : 'shrink truncate',
-              }}
-              isUserSource={isUserSource}
-              size={ProfileImageSize.Large}
-            />
+            {(post?.author || isFallback) && (
+              <SquadPostAuthor
+                author={post?.author}
+                role={role}
+                date={post.createdAt}
+                className={{
+                  container: !isUserSource ? 'mt-3' : 'shrink truncate',
+                }}
+                isUserSource={isUserSource}
+                size={ProfileImageSize.Large}
+                showSkeletonWhenMissing={isFallback}
+              />
+            )}
           </div>
           {shouldShowBanner && isUserSource && isLaptop && (
             <BoostNewPostStrip className="mt-2" />

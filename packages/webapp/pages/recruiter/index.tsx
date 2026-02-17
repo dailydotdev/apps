@@ -1,13 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useQuery } from '@tanstack/react-query';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import type { PendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { usePendingSubmission } from '@dailydotdev/shared/src/features/opportunity/context/PendingSubmissionContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { getOpportunitiesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import {
   Typography,
   TypographyColor,
@@ -19,6 +17,8 @@ import usePersistentContext, {
 } from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
+import { useOpportunities } from '@dailydotdev/shared/src/features/opportunity/hooks/useOpportunities';
+import type { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import {
   getLayout,
   layoutProps,
@@ -34,13 +34,22 @@ function RecruiterPage(): ReactElement {
     string | null
   >(PersistentContextKeys.PendingOpportunityId, null);
   const [isNavigatingToAnalyze, setNavigatingToAnalyze] = useState(false);
+  const [stateFilter, setStateFilter] = useState<OpportunityState | undefined>(
+    undefined,
+  );
 
-  // Check if user already has opportunities (jobs)
-  const { data: opportunitiesData, isLoading: isLoadingOpportunities } =
-    useQuery({
-      ...getOpportunitiesOptions(),
-      enabled: !!user,
-    });
+  // Use infinite query for opportunities with state filtering
+  const {
+    allOpportunities: opportunities,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isLoading: isLoadingOpportunities,
+  } = useOpportunities({
+    state: stateFilter,
+    first: 20,
+  });
+
   const navigateToAnalyze = useCallback(async () => {
     setNavigatingToAnalyze(true);
 
@@ -99,8 +108,7 @@ function RecruiterPage(): ReactElement {
     [openModal],
   );
 
-  const hasExistingOpportunities =
-    opportunitiesData?.edges && opportunitiesData.edges.length > 0;
+  const hasExistingOpportunities = opportunities && opportunities.length > 0;
 
   // Open the onboarding modal flow for new users (no opportunities)
   useEffect(() => {
@@ -163,8 +171,6 @@ function RecruiterPage(): ReactElement {
     loadingUser,
   ]);
 
-  const opportunities = opportunitiesData?.edges.map((edge) => edge.node) || [];
-
   if (isNavigatingToAnalyze) {
     return (
       <div className="relative flex flex-1">
@@ -196,6 +202,11 @@ function RecruiterPage(): ReactElement {
       <DashboardView
         opportunities={opportunities}
         onAddNew={() => openJobLinkModal({ closeable: true })}
+        stateFilter={stateFilter}
+        onStateFilterChange={setStateFilter}
+        hasNextPage={hasNextPage}
+        onLoadMore={() => fetchNextPage()}
+        isLoadingMore={isFetchingNextPage}
       />
     );
   }
