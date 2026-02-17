@@ -30,12 +30,8 @@ import { useRouter } from 'next/router';
 import { getOrganizationSettingsUrl } from '@dailydotdev/shared/src/features/organizations/utils';
 import { InfoIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import Custom404Seo from '../404';
-
-const getFirstQueryParam = (
-  queryParam: string | string[] | undefined,
-): string | undefined =>
-  Array.isArray(queryParam) ? queryParam[0] : queryParam;
 
 const Page = ({
   token,

@@ -10,6 +10,7 @@ import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { defaultOpenGraph } from '../../next-seo';
 import type { JoinPageProps } from '../../components/invite/common';
 import { AISearchInvite } from '../../components/invite/AISearchInvite';
@@ -31,11 +32,6 @@ const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
 const referralCampaignValues = new Set<string>(
   Object.values(ReferralCampaignKey),
 );
-
-const getFirstQueryParam = (
-  queryParam: string | string[] | undefined,
-): string | undefined =>
-  Array.isArray(queryParam) ? queryParam[0] : queryParam;
 
 const isReferralCampaignKey = (value: string): value is ReferralCampaignKey =>
   referralCampaignValues.has(value);

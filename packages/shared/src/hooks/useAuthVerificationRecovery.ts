@@ -7,12 +7,8 @@ import { useToastNotification } from './useToastNotification';
 import { disabledRefetch } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
+import { getFirstQueryParam } from '../lib/func';
 import { stripLinkParameters } from '../lib/links';
-
-const getFirstQueryParam = (
-  queryParam: string | string[] | undefined,
-): string | undefined =>
-  Array.isArray(queryParam) ? queryParam[0] : queryParam;
 
 export function useAuthVerificationRecovery(): void {
   const router = useRouter();

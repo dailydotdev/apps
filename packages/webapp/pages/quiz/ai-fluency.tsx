@@ -32,6 +32,7 @@ import {
   getAiFluencyTierFromAnswers,
 } from '../../components/quiz/aiFluencyQuiz';
 import type { AiFluencyTierKey } from '../../components/quiz/aiFluencyQuiz';
+import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { defaultSeo } from '../../next-seo';
 
 const quizPathname = '/quiz/ai-fluency';
@@ -45,11 +46,6 @@ const seo: NextSeoProps = {
   description:
     'Assess your AI fluency tier and get actionable tips to improve your workflow.',
 };
-
-const getFirstQueryParam = (
-  queryParam: string | string[] | undefined,
-): string | undefined =>
-  Array.isArray(queryParam) ? queryParam[0] : queryParam;
 
 const getResultUrl = (userId: string, tier: string): string => {
   const params = new URLSearchParams({ userId, tier });

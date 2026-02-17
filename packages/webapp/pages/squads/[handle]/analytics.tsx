@@ -47,6 +47,7 @@ import {
   dateFormatInTimezone,
   DEFAULT_TIMEZONE,
 } from '@dailydotdev/shared/src/lib/timezones';
+import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
 const SectionContainer = classed('div', 'flex flex-col gap-4');
@@ -75,7 +76,7 @@ const SectionHeader = ({ children }: { children: React.ReactNode }) => {
 const SquadAnalyticsPage = (): ReactElement => {
   const router = useRouter();
   const routeHandle = router.query?.handle;
-  const handle = Array.isArray(routeHandle) ? routeHandle[0] : routeHandle;
+  const handle = getFirstQueryParam(routeHandle);
   const { user } = useAuthContext();
   const userTimezone = user?.timezone || DEFAULT_TIMEZONE;
   const { squad, isLoading, isFetched } = useSquad({ handle: handle || '' });
