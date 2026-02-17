@@ -329,6 +329,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     numUpvotes
     numComments
     numAwards
+    numReposts
     videoId
     yggdrasilId
     creatorTwitter
@@ -575,6 +576,7 @@ export const FEED_POST_FRAGMENT = gql`
       }
       slug
       clickbaitTitleDetected
+      domain
       translation {
         ...PostTranslateableFields
       }

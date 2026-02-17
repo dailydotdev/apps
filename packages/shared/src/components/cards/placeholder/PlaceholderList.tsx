@@ -34,7 +34,7 @@ export const PlaceholderList = forwardRef(function PlaceholderCard(
             <Text className="mt-2 h-4 w-1/2" />
             <CardSpace className="flex" />
           </CardSpace>
-          <ElementPlaceholder className="mt-4 h-auto max-h-[12.5rem] min-h-[10rem] w-full rounded-16 mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56" />
+          <ElementPlaceholder className="mt-4 hidden h-auto max-h-[12.5rem] min-h-[10rem] w-full rounded-16 mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56 laptop:block" />
         </CardSpace>
         <Text className="mt-4 h-10 w-56" />
       </CardSpace>
