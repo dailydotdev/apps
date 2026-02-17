@@ -13,6 +13,7 @@ import { settingsContext } from '../../../../../__tests__/helpers/boot';
 import SettingsContext from '../../../../contexts/SettingsContext';
 import { getLogContextStatic } from '../../../../contexts/LogContext';
 import { gqlClient } from '../../../../graphql/common';
+import { DayOfWeek } from '../../../../lib/date';
 
 const LogContext = getLogContextStatic();
 
@@ -85,7 +86,7 @@ const defaultLoggedUser: LoggedUser = {
   image: 'https://daily.dev/ido.png',
   createdAt: '2020-07-26T13:04:35.000Z',
   permalink: 'https://daily.dev/ido',
-  bluesky: 'https://bsky.app/profile/dailydotdev.bsky.social',
+  balance: { amount: 0 },
 };
 
 const defaultProfile: PublicProfile = {
@@ -97,7 +98,6 @@ const defaultProfile: PublicProfile = {
   cover: 'https://daily.dev/cover.png',
   createdAt: '2020-08-26T13:04:35.000Z',
   permalink: 'https://daily.dev/dailydotdev',
-  bluesky: 'dailydotdev.bsky.social',
 };
 
 const defaultMemberships: Connection<SourceMember> = {
@@ -145,9 +145,14 @@ const defaultReadingHistory: ProfileReadingData = {
     max: 10,
     total: 50,
     current: 5,
+    weekStart: DayOfWeek.Sunday,
     lastViewAt: new Date('2024-01-15'),
   },
-  userMostReadTags: ['javascript', 'typescript', 'react'],
+  userMostReadTags: [
+    { value: 'javascript', count: 20 },
+    { value: 'typescript', count: 15 },
+    { value: 'react', count: 10 },
+  ],
 };
 
 const logEvent = jest.fn();

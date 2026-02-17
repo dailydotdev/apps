@@ -8,6 +8,7 @@ const comment: Comment = {
   author,
   createdAt: new Date(2017, 1, 10, 0, 0).toISOString(),
   permalink: 'https://daily.dev',
+  numAwards: 0,
   numUpvotes: 0,
 };
 
