@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect } from 'react';
-import type { ErrorData, InitializationData } from '../lib/kratos';
+import type { InitializationData } from '../lib/kratos';
 import { AuthFlow, getKratosFlow, KRATOS_ERROR } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
-import { disabledRefetch } from '../lib/func';
+import { disabledRefetch, getFirstQueryParam } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import { stripLinkParameters } from '../lib/links';
@@ -12,7 +12,9 @@ import { stripLinkParameters } from '../lib/links';
 export function useAuthVerificationRecovery(): void {
   const router = useRouter();
   const { showLogin } = useContext(AuthContext);
-  const couldBeVerified = !!router?.query.flow && !router?.query.recovery;
+  const flowId = getFirstQueryParam(router?.query.flow);
+  const recoveryId = getFirstQueryParam(router?.query.recovery);
+  const couldBeVerified = !!flowId && !recoveryId;
   const { displayToast } = useToastNotification();
 
   const displayErrorMessage = useCallback(
@@ -26,9 +28,8 @@ export function useAuthVerificationRecovery(): void {
 
   const checkErrorMessage = useCallback(
     (data: InitializationData, flow?: AuthFlow) => {
-      if ('error' in data) {
-        const errorData = data as unknown as ErrorData;
-        displayErrorMessage(errorData.error.message);
+      if (data.error) {
+        displayErrorMessage(data.error.message);
         return;
       }
 
@@ -53,18 +54,18 @@ export function useAuthVerificationRecovery(): void {
   );
 
   const { data: recovery } = useQuery({
-    queryKey: [{ type: 'recovery', flow: router?.query.flow as string }],
+    queryKey: [{ type: 'recovery', flow: flowId ?? '' }],
     queryFn: ({ queryKey: [{ flow }] }) =>
       getKratosFlow(AuthFlow.Recovery, flow),
-    enabled: !!router?.query.recovery && !!router?.query.flow,
+    enabled: !!recoveryId && !!flowId,
   });
 
   const { data: verification } = useQuery({
-    queryKey: [{ type: 'verification', flow: router?.query.flow as string }],
+    queryKey: [{ type: 'verification', flow: flowId ?? '' }],
     queryFn: ({ queryKey: [{ flow }] }) =>
       getKratosFlow(AuthFlow.Verification, flow),
     ...disabledRefetch,
-    enabled: !!router?.query.flow && !router?.query.recovery,
+    enabled: !!flowId && !recoveryId,
   });
 
   useEffect(() => {

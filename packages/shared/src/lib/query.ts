@@ -217,6 +217,8 @@ export enum RequestKey {
   UserPostsAnalytics = 'user_posts_analytics',
   UserPostsAnalyticsHistory = 'user_posts_analytics_history',
   UserPostsWithAnalytics = 'user_posts_with_analytics',
+  SquadAnalytics = 'squad_analytics',
+  SquadAnalyticsHistory = 'squad_analytics_history',
   CheckLocation = 'check_location',
   GenerateBrief = 'generate_brief',
   Opportunity = 'opportunity',

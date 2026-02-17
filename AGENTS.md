@@ -303,6 +303,8 @@ When you see an existing barrel file, delete it and update all imports to use di
 
 ## Avoiding Code Duplication
 
+**NEVER copy-paste utility functions into multiple files.** If a helper is needed in more than one place, add it to a shared utility file and import it. Do not define the same function locally in each file that needs it.
+
 Before implementing new functionality, always check if similar code already exists:
 
 1. **Search for existing utilities** - Use Grep/Glob to find similar patterns:
@@ -315,8 +317,9 @@ Before implementing new functionality, always check if similar code already exis
    ```
 
 2. **Check shared libraries first**:
+   - `packages/shared/src/lib/func.ts` - General utility functions
    - `packages/shared/src/lib/strings.ts` - String manipulation, text utilities
-   - `packages/shared/src/lib/utils.ts` - General utility functions
+   - `packages/shared/src/lib/links.ts` - URL and link utilities
    - `packages/shared/src/lib/[domain].ts` - Domain-specific utilities
 
 3. **Extract reusable functions**:
