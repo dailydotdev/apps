@@ -30,7 +30,7 @@ export const iconSizeToClassName: Record<IconSize, string> = {
   [IconSize.Size80]: 'w-20 h-20',
 };
 
-export type IconItemType = React.ComponentType<{ className: string }>;
+export type IconItemType = React.ComponentType<{ className?: string }>;
 
 export interface IconProps extends ComponentProps<'svg'> {
   secondary?: boolean;
