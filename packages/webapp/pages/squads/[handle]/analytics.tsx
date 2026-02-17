@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
-import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { addDays, subDays } from 'date-fns';
@@ -54,10 +53,6 @@ const SectionContainer = classed('div', 'flex flex-col gap-4');
 const dividerClassName = 'bg-border-subtlest-tertiary';
 const HISTORY_LIMIT = 45;
 
-type SquadAnalyticsPageProps = {
-  handle: string | null;
-};
-
 type ImpressionNode = {
   name: string;
   value: number;
@@ -77,23 +72,13 @@ const SectionHeader = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<
-  SquadAnalyticsPageProps
-> = async ({ params }) => {
-  return {
-    props: {
-      handle: (params?.handle as string) || null,
-    },
-  };
-};
-
-const SquadAnalyticsPage = ({
-  handle,
-}: SquadAnalyticsPageProps): ReactElement => {
+const SquadAnalyticsPage = (): ReactElement => {
   const router = useRouter();
+  const routeHandle = router.query?.handle;
+  const handle = Array.isArray(routeHandle) ? routeHandle[0] : routeHandle;
   const { user } = useAuthContext();
   const userTimezone = user?.timezone || DEFAULT_TIMEZONE;
-  const { squad, isLoading, isFetched } = useSquad({ handle });
+  const { squad, isLoading, isFetched } = useSquad({ handle: handle || '' });
   const canViewAnalytics = verifyPermission(
     squad,
     SourcePermissions.ViewAnalytics,
@@ -115,7 +100,7 @@ const SquadAnalyticsPage = ({
     }
 
     if (!squad || !canViewAnalytics) {
-      router.replace(`/squads/${handle}`);
+      router.replace(handle ? `/squads/${handle}` : '/');
     }
   }, [canViewAnalytics, handle, isFetched, isLoading, router, squad]);
 
