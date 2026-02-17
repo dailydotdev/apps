@@ -307,3 +307,8 @@ export const getPercentage = (total: number, part: number): number => {
   }
   return Math.round((part / total) * 100);
 };
+
+export const getFirstQueryParam = (
+  queryParam: string | string[] | undefined,
+): string | undefined =>
+  Array.isArray(queryParam) ? queryParam[0] : queryParam;
