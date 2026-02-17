@@ -2,7 +2,7 @@ import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
-import { Container } from '../common/common';
+import { Container, Separator } from '../common/common';
 import {
   useFeedPreviewMode,
   useTruncatedSummary,
@@ -23,9 +23,51 @@ import { isSourceUserSource } from '../../../graphql/sources';
 import { PostType } from '../../../graphql/posts';
 import PostTags from '../common/PostTags';
 import SourceButton from '../common/SourceButton';
-import { ProfileImageSize } from '../../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
+import { IconSize } from '../../Icon';
+import { TwitterIcon } from '../../icons';
 
 const UNKNOWN_SOURCE_ID = 'unknown';
+
+const getPostText = ({
+  content,
+  contentHtml,
+}: {
+  content?: string;
+  contentHtml?: string;
+}): string | undefined => {
+  const rawText =
+    content || (contentHtml ? sanitizeMessage(contentHtml, []) : null);
+  const trimmedText = rawText?.trim();
+  return trimmedText?.length ? trimmedText : undefined;
+};
+
+const removeHandlePrefixFromTitle = ({
+  title,
+  sourceHandle,
+  authorHandle,
+}: {
+  title?: string;
+  sourceHandle?: string;
+  authorHandle?: string;
+}): string | undefined => {
+  if (!title) {
+    return title;
+  }
+
+  const handlePrefixes = [sourceHandle, authorHandle]
+    .filter(Boolean)
+    .map((handle) => `@${handle}:`);
+
+  const matchedPrefix = handlePrefixes.find((prefix) =>
+    title.startsWith(prefix),
+  );
+  if (matchedPrefix) {
+    return title.slice(matchedPrefix.length).trim();
+  }
+
+  return title.replace(/^@[A-Za-z0-9_]+:\s*/, '').trim();
+};
 
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
   {
@@ -38,6 +80,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     onBookmarkClick,
     onShare,
     children,
+    openNewTab,
     enableSourceHeader = false,
     domProps = {},
     eagerLoadImage = false,
@@ -60,12 +103,58 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const postForTags = post.tags?.length ? post : post.sharedPost || post;
   const showReferenceTweet = post.sharedPost?.type === PostType.SocialTwitter;
   const showMediaCover = !!image && !showReferenceTweet;
+  const repostText =
+    post.subType === 'repost'
+      ? getPostText({
+          content: post.content,
+          contentHtml: post.contentHtml,
+        })
+      : undefined;
+  const shouldHideRepostHeadlineAndTags =
+    post.subType === 'repost' && !repostText;
+  const quoteDetailsTextClampClass = shouldHideRepostHeadlineAndTags
+    ? 'line-clamp-8'
+    : 'line-clamp-4';
   const referenceHandle =
     post.sharedPost?.source?.id === UNKNOWN_SOURCE_ID
       ? post.sharedPost?.creatorTwitter ||
         post.creatorTwitter ||
         post.sharedPost?.author?.username
       : post.sharedPost?.source?.handle;
+  const sourceHandle =
+    post.source?.id === UNKNOWN_SOURCE_ID
+      ? post.creatorTwitter || post.author?.username
+      : post.source?.handle;
+  const metadataHandles =
+    post.subType === 'repost'
+      ? [sourceHandle].filter(Boolean)
+      : [...new Set([sourceHandle, referenceHandle].filter(Boolean))];
+  const cleanedTitle = removeHandlePrefixFromTitle({
+    title: truncatedTitle,
+    sourceHandle,
+    authorHandle: post.author?.username,
+  });
+  const quotedSourceName = post.sharedPost?.source?.name;
+  const isUnknownQuotedSourceName =
+    quotedSourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
+  const embeddedTweetName =
+    !isUnknownQuotedSourceName && quotedSourceName
+      ? quotedSourceName
+      : post.sharedPost?.author?.name;
+  const embeddedTweetAvatar =
+    post.sharedPost?.author?.image || post.sharedPost?.source?.image;
+  const embeddedTweetAvatarUser = embeddedTweetAvatar
+    ? {
+        id:
+          post.sharedPost?.author?.id ||
+          post.sharedPost?.source?.id ||
+          referenceHandle ||
+          'shared-post-avatar',
+        image: embeddedTweetAvatar,
+        username: referenceHandle,
+        name: embeddedTweetName,
+      }
+    : null;
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -127,7 +216,27 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
       bookmarked={post.bookmarked}
     >
       <CardContainer>
-        <PostCardHeader post={post} metadata={metadata}>
+        <PostCardHeader
+          post={post}
+          metadata={{
+            ...metadata,
+            bottomLabel: metadataHandles.length ? (
+              <>
+                {metadataHandles.map((handle, index) => (
+                  <React.Fragment key={handle}>
+                    {index > 0 && <Separator />}@{handle}
+                  </React.Fragment>
+                ))}
+              </>
+            ) : (
+              metadata.bottomLabel
+            ),
+          }}
+          postLink={post.commentsPermalink}
+          openNewTab={openNewTab}
+          readButtonContent="Read on"
+          readButtonIcon={<TwitterIcon size={IconSize.Size16} />}
+        >
           {!isUserSource && !!post?.source && (
             <SourceButton
               size={ProfileImageSize.Large}
@@ -138,15 +247,58 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
         </PostCardHeader>
 
         <CardContent>
-          <div className="mr-4 flex flex-1 flex-col">
-            <CardTitle className={!!post.read && 'text-text-tertiary'}>
-              {truncatedTitle}
-            </CardTitle>
+          <div
+            className={classNames(
+              'flex flex-1 flex-col',
+              showReferenceTweet ? 'mr-0' : 'mr-4',
+            )}
+          >
+            {!shouldHideRepostHeadlineAndTags && (
+              <CardTitle className={!!post.read && 'text-text-tertiary'}>
+                {cleanedTitle}
+              </CardTitle>
+            )}
             <div className="flex flex-1 tablet:hidden" />
-            <div className="flex items-center">
-              {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
-              <PostTags post={postForTags} />
-            </div>
+            {!shouldHideRepostHeadlineAndTags && (
+              <div className="flex items-center">
+                {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
+                <PostTags post={postForTags} />
+              </div>
+            )}
+            {showReferenceTweet && (
+              <div className="mt-4 w-full rounded-12 border border-border-subtlest-tertiary p-3">
+                <div className="mb-2 flex items-start gap-2">
+                  {!!embeddedTweetAvatarUser && (
+                    <ProfilePicture
+                      user={embeddedTweetAvatarUser}
+                      size={ProfileImageSize.XSmall}
+                      rounded="full"
+                      nativeLazyLoading
+                    />
+                  )}
+                  <div className="min-w-0">
+                    {!!embeddedTweetName && (
+                      <p className="truncate font-bold text-text-primary typo-footnote">
+                        {embeddedTweetName}
+                      </p>
+                    )}
+                    {!!referenceHandle && (
+                      <p className="truncate font-bold text-text-primary typo-callout">
+                        @{referenceHandle}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <p
+                  className={classNames(
+                    'mt-1 whitespace-pre-line break-words text-text-primary typo-callout',
+                    quoteDetailsTextClampClass,
+                  )}
+                >
+                  {post.sharedPost?.title}
+                </p>
+              </div>
+            )}
             <div className="hidden flex-1 tablet:flex" />
             {!isMobile && actionButtons}
           </div>
@@ -164,21 +316,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 src: image,
               }}
             />
-          )}
-          {showReferenceTweet && (
-            <div className="mt-4 w-full rounded-12 border border-border-subtlest-tertiary p-3 mobileXL:w-60">
-              <p className="truncate font-bold text-text-primary typo-footnote">
-                {post.sharedPost?.source?.name || 'Referenced post'}
-              </p>
-              {!!referenceHandle && (
-                <p className="truncate text-text-tertiary typo-footnote">
-                  @{referenceHandle}
-                </p>
-              )}
-              <p className="mt-1 line-clamp-4 whitespace-pre-line break-words text-text-secondary typo-footnote">
-                {post.sharedPost?.title}
-              </p>
-            </div>
           )}
         </CardContent>
       </CardContainer>

@@ -26,6 +26,13 @@ jest.mock('../../../hooks', () => {
   };
 });
 
+jest.mock('../common/PostTags', () => ({
+  __esModule: true,
+  default: ({ post }: { post: { tags?: string[] } }) => (
+    <div data-testid="post-tags">{post.tags?.join(',')}</div>
+  ),
+}));
+
 const basePost: Post = {
   ...sharePost,
   type: PostType.SocialTwitter,
@@ -67,11 +74,17 @@ const renderComponent = (props: Partial<PostCardProps> = {}) =>
     </TestBootProvider>,
   );
 
-it('should render twitter action link using post permalink', async () => {
+it('should render top action link using post comments permalink', async () => {
   renderComponent();
 
-  const link = await screen.findByLabelText('View tweet on X');
-  expect(link).toHaveAttribute('href', basePost.permalink);
+  const link = await screen.findByRole('link', { name: 'Read on' });
+  expect(link).toHaveAttribute('href', basePost.commentsPermalink);
+});
+
+it('should render source handle next to metadata date', async () => {
+  renderComponent();
+
+  expect((await screen.findAllByText(/@avengers/)).length).toBeGreaterThan(0);
 });
 
 it('should render thread content without duplicating title line', async () => {
@@ -113,8 +126,14 @@ it('should render quote/repost detail from shared post', async () => {
     },
   });
 
+  expect((await screen.findAllByText(/@avengers/)).length).toBeGreaterThan(0);
+  expect((await screen.findAllByText(/@devrelweekly/)).length).toBeGreaterThan(
+    0,
+  );
   expect(await screen.findByText('DevRel Weekly')).toBeInTheDocument();
-  expect(await screen.findByText('@devrelweekly')).toBeInTheDocument();
+  expect(
+    await screen.findByAltText("devrelweekly's profile"),
+  ).toBeInTheDocument();
   expect(
     await screen.findByText('Referenced tweet content'),
   ).toBeInTheDocument();
@@ -144,9 +163,89 @@ it('should use creatorTwitter when shared source is unknown', async () => {
     },
   });
 
-  expect(await screen.findByText('@shared_creator')).toBeInTheDocument();
+  expect(
+    (await screen.findAllByText(/@shared_creator/)).length,
+  ).toBeGreaterThan(0);
   expect(screen.queryByText('@creator_twitter')).not.toBeInTheDocument();
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
+});
+
+it('should use creatorTwitter when source is unknown for metadata handle', async () => {
+  renderComponent({
+    post: {
+      ...basePost,
+      source: {
+        ...basePost.source,
+        id: 'unknown',
+        handle: 'unknown',
+      },
+      creatorTwitter: 'root_creator',
+    },
+  });
+
+  expect((await screen.findAllByText(/@root_creator/)).length).toBeGreaterThan(
+    0,
+  );
+  expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
+});
+
+it('should hide headline and tags for repost cards without repost text', async () => {
+  renderComponent({
+    post: {
+      ...basePost,
+      subType: 'repost',
+      title:
+        '@bcherny: RT @ycombinator: Today, startups are not winning by hiring faster',
+      content: null,
+      contentHtml: null,
+      tags: ['tagaa', 'tagbb'],
+      sharedPost: {
+        ...sharePost.sharedPost,
+        source: {
+          ...sharePost.sharedPost.source,
+          name: 'Y Combinator',
+          handle: 'ycombinator',
+        },
+        title: 'Referenced tweet content',
+      },
+    },
+  });
+
+  expect(
+    screen.queryByText(
+      '@bcherny: RT @ycombinator: Today, startups are not winning by hiring faster',
+    ),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
+  expect(await screen.findByText('@avengers')).toBeInTheDocument();
+  expect(await screen.findByText('Y Combinator')).toBeInTheDocument();
+  expect((await screen.findAllByText(/@ycombinator/)).length).toBeGreaterThan(
+    0,
+  );
+  expect(
+    await screen.findByText('Referenced tweet content'),
+  ).toBeInTheDocument();
+});
+
+it('should keep headline and tags for repost cards with repost text', async () => {
+  renderComponent({
+    post: {
+      ...basePost,
+      subType: 'repost',
+      title: '@bcherny: RT @ycombinator: Repost with context',
+      content: 'My thoughts on this',
+      tags: ['tagaa', 'tagbb'],
+      sharedPost: {
+        ...sharePost.sharedPost,
+        title: 'Referenced tweet content',
+      },
+    },
+  });
+
+  expect(
+    await screen.findByText('RT @ycombinator: Repost with context'),
+  ).toBeInTheDocument();
+  expect(await screen.findByTestId('post-tags')).toBeInTheDocument();
 });
 
 it('should keep actions visible when there is no media and no shared post detail', async () => {
