@@ -173,7 +173,7 @@ export const FeedContainer = ({
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
       : (isListMode && numCards > 1) || shouldUseListFeedLayout;
-  const v2GridGap = isFeedLayoutV2 ? 'gap-6' : undefined;
+  const v2GridGap = isFeedLayoutV2 ? 'gap-4' : undefined;
   const feedGapPx =
     getFeedGapPx[
       gapClass({
