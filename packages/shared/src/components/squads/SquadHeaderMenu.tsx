@@ -19,8 +19,8 @@ import {
   ExitIcon,
   FlagIcon,
   HashtagIcon,
-  EyeIcon,
   MenuIcon,
+  AnalyticsIcon,
 } from '../icons';
 import { squadFeedback } from '../../lib/constants';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
@@ -90,6 +90,7 @@ export default function SquadHeaderMenu({
       squad,
       SourcePermissions.ViewAnalytics,
     );
+    console.log('canViewAnalytics', canViewAnalytics);
     const canDeleteSquad =
       verifyPermission(squad, SourcePermissions.Delete) && showDeletion;
 
@@ -134,7 +135,7 @@ export default function SquadHeaderMenu({
 
     if (canViewAnalytics) {
       list.push({
-        icon: <IconWrapper Icon={EyeIcon} />,
+        icon: <IconWrapper Icon={AnalyticsIcon} />,
         action: () => router.push(`/squads/${squad.handle}/analytics`),
         label: 'Analytics',
       });
