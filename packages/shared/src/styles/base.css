@@ -796,6 +796,32 @@ details.right-icon {
   background: radial-gradient(circle at 50% 100%, var(--theme-accent-cabbage-default) 0%, color-mix(in srgb, var(--theme-accent-onion-default), transparent 28%) 9.6%, color-mix(in srgb, var(--theme-accent-onion-default), transparent 100%) 100%), var(--theme-background-default);
 }
 
+@keyframes viral-badge-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.viral-gradient-badge {
+  background: linear-gradient(
+    120deg,
+    var(--theme-accent-bacon-subtle) 0%,
+    var(--theme-accent-bacon-bolder) 35%,
+    var(--theme-accent-onion-default) 68%,
+    var(--theme-accent-bacon-default) 100%
+  );
+  background-size: 220% 220%;
+  animation: viral-badge-gradient-shift 2.4s ease-in-out infinite;
+}
+
 @keyframes pulse {
   0% {
     width: 100%;
@@ -881,6 +907,28 @@ meter::-webkit-meter-bar {
   }
 }
 
+/* Shockwave pulse text animation */
+@keyframes shockwave-text-flash {
+  0% {
+    text-shadow: 0 0 0 transparent;
+  }
+  15% {
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.7), 0 0 30px rgba(255, 255, 255, 0.3);
+  }
+  40% {
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+  }
+  100% {
+    text-shadow: 0 0 0 transparent;
+  }
+}
+
+.shockwave-pulse {
+  position: relative;
+  display: inline-block;
+  animation: shockwave-text-flash 1.2s ease-out forwards;
+}
+
 @layer utilities {
   @keyframes full-sequence {
     0% {
@@ -915,5 +963,95 @@ meter::-webkit-meter-bar {
 
   .float-animation {
     animation: float 1.5s ease-in-out infinite;
+  }
+
+  /* Black hole pull-to-refresh */
+  @keyframes blackhole-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes blackhole-pulse {
+    0%, 100% { box-shadow: 0 0 8px 2px rgba(255,255,255,0.15), inset 0 0 6px rgba(255,255,255,0.1); }
+    50% { box-shadow: 0 0 16px 4px rgba(255,255,255,0.25), inset 0 0 10px rgba(255,255,255,0.15); }
+  }
+
+  @keyframes emoji-spiral {
+    0% {
+      opacity: 1;
+      transform: translate(var(--start-x), var(--start-y)) scale(1.6) rotate(0deg);
+    }
+    30% {
+      opacity: 1;
+      transform: translate(calc(var(--start-x) * 0.5), calc(var(--start-y) * 0.5)) scale(1.2) rotate(120deg);
+    }
+    70% {
+      opacity: 0.7;
+      transform: translate(2px, 2px) scale(0.4) rotate(270deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(0px, 0px) scale(0) rotate(360deg);
+    }
+  }
+
+  @keyframes refresh-flash {
+    0% { opacity: 0; }
+    30% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .blackhole-core {
+    animation: blackhole-spin 3s linear infinite, blackhole-pulse 2s ease-in-out infinite;
+  }
+
+  .emoji-particle {
+    position: absolute;
+    animation: emoji-spiral 1s ease-in forwards;
+    pointer-events: none;
+  }
+
+  .refresh-flash-overlay {
+    animation: refresh-flash 0.4s ease-out forwards;
+  }
+
+  @keyframes logo-glow {
+    0% {
+      text-shadow: 0 0 0 transparent;
+      filter: brightness(1);
+    }
+    30% {
+      text-shadow: 0 0 16px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.4);
+      filter: brightness(1.3);
+    }
+    100% {
+      text-shadow: 0 0 0 transparent;
+      filter: brightness(1);
+    }
+  }
+
+  .logo-glow-pulse {
+    animation: logo-glow 0.8s ease-out forwards;
+  }
+
+  @keyframes tab-glow-burst {
+    0% {
+      opacity: 0;
+      transform: scaleX(0.3) scaleY(0.2);
+    }
+    20% {
+      opacity: 1;
+      transform: scaleX(1) scaleY(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scaleX(1.2) scaleY(1.5);
+    }
+  }
+
+  .tab-glow-explosion {
+    background: radial-gradient(ellipse at center top, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.08) 40%, transparent 70%);
+    animation: tab-glow-burst 0.5s ease-out forwards;
+    transform-origin: center top;
   }
 }

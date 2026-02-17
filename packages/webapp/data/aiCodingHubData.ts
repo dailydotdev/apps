@@ -27,50 +27,139 @@ export type FeedItem = {
   tags: string[];
   source_tweet_id: string;
   related_tweet_ids: string[];
+  author_username: string;
+  author_name: string;
+  author_avatar_url: string;
+  upvotes: number;
+  comments: number;
 };
 
-export const feedItems: FeedItem[] = aggregatedFeed as FeedItem[];
+type AggregatedFeedItem = Omit<
+  FeedItem,
+  | 'upvotes'
+  | 'comments'
+  | 'author_username'
+  | 'author_name'
+  | 'author_avatar_url'
+> & {
+  author_username?: string;
+  author_name?: string;
+  author_avatar_url?: string;
+};
+
+const normalizeTag = (tag: string): string => tag.replace(/_/g, '');
+
+const toTitleCase = (value: string): string =>
+  value
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(' ');
+
+const getAuthorFromItem = (
+  item: AggregatedFeedItem,
+): Pick<FeedItem, 'author_username' | 'author_name' | 'author_avatar_url'> => {
+  const sourceTag = item.tags[0] || 'source';
+  const fallbackUsername = normalizeTag(sourceTag).toLowerCase();
+  const fallbackName = toTitleCase(normalizeTag(sourceTag).replace(/-/g, ' '));
+  const fallbackAvatar = `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(
+    `${fallbackUsername}-${item.source_tweet_id}`,
+  )}`;
+
+  return {
+    author_username: item.author_username || fallbackUsername,
+    author_name: item.author_name || fallbackName,
+    author_avatar_url: item.author_avatar_url || fallbackAvatar,
+  };
+};
+
+const getHashInteractionCounts = (
+  id: string,
+): { upvotes: number; comments: number } => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i += 1) {
+    // eslint-disable-next-line no-bitwise
+    hash = (hash << 5) - hash + id.charCodeAt(i);
+    // eslint-disable-next-line no-bitwise
+    hash |= 0;
+  }
+  const upvotes = (Math.abs(hash) % 50) + 5;
+  // eslint-disable-next-line no-bitwise
+  const comments = Math.abs(hash >> 2) % 20;
+  return { upvotes, comments };
+};
+
+export const feedItems: FeedItem[] = (
+  aggregatedFeed as AggregatedFeedItem[]
+).map((item) => {
+  const counts = getHashInteractionCounts(item.id);
+  return {
+    ...item,
+    ...getAuthorFromItem(item),
+    upvotes: counts.upvotes,
+    comments: counts.comments,
+  };
+});
 
 export const categoryLabels: Record<Category, string> = {
-  leak: 'LEAK',
-  milestone: 'MILESTONE',
-  release: 'RELEASE',
-  hot_take: 'HOT TAKE',
-  thread: 'THREAD',
-  feature: 'FEATURE',
-  endorsement: 'ENDORSEMENT',
-  announcement: 'NEWS',
-  drama: 'DRAMA',
-  insight: 'INSIGHT',
-  data: 'DATA',
-  product_launch: 'LAUNCH',
-  tips: 'TIP',
-  standard: 'STANDARD',
-  commentary: 'COMMENTARY',
+  leak: 'Leak',
+  milestone: 'Milestone',
+  release: 'Release',
+  hot_take: 'Hot take',
+  thread: 'Thread',
+  feature: 'Feature',
+  endorsement: 'Endorsement',
+  announcement: 'News',
+  drama: 'Drama',
+  insight: 'Insight',
+  data: 'Data',
+  product_launch: 'Launch',
+  tips: 'Tip',
+  standard: 'Standard',
+  commentary: 'Commentary',
 };
 
-export const getRelativeDate = (dateString: string): string => {
+export const VIRAL_MENTIONS_THRESHOLD = 8;
+
+export const getMentionsCount = (item: FeedItem): number => {
+  const uniqueTweetIds = new Set(
+    [item.source_tweet_id, ...item.related_tweet_ids].filter(Boolean),
+  );
+  return uniqueTweetIds.size;
+};
+
+export const getMentionsLabel = (item: FeedItem): string =>
+  `${getMentionsCount(item)} mentions`;
+
+export const isViralFeedItem = (item: FeedItem): boolean =>
+  getMentionsCount(item) >= VIRAL_MENTIONS_THRESHOLD;
+
+export const getRelativeTime = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
-  const diffTime = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const diffMs = now.getTime() - date.getTime();
 
-  if (diffDays === 0) {
-    return 'today';
+  if (diffMs < 0) {
+    return '0m';
   }
-  if (diffDays === 1) {
-    return 'yesterday';
+
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  if (diffMinutes < 60) {
+    return `${Math.max(1, diffMinutes)}m`;
   }
-  return `${diffDays}d ago`;
+
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  if (diffHours < 24) {
+    return `${diffHours}h`;
+  }
+
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return `${diffDays}d`;
 };
 
-export const getTodayDateString = (): string => {
-  return new Date().toISOString().split('T')[0];
-};
-
-export const getRecentDateStrings = (): string[] => {
+const getRecentDateStrings = (): string[] => {
   const dates: string[] = [];
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 2; i += 1) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     dates.push(date.toISOString().split('T')[0]);

@@ -20,6 +20,7 @@ export interface MainLayoutHeaderProps {
   sidebarRendered?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  forceDesktopHeaderOnMobile?: boolean;
 }
 
 const SearchPanel = dynamic(
@@ -39,6 +40,7 @@ function MainLayoutHeader({
   sidebarRendered,
   additionalButtons,
   onLogoClick,
+  forceDesktopHeaderOnMobile = false,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
@@ -74,6 +76,9 @@ function MainLayoutHeader({
   );
 
   if (loadedSettings && !isLaptop) {
+    if (forceDesktopHeaderOnMobile) {
+      return null;
+    }
     if (isSearchPage) {
       return (
         <div className="sticky top-0 z-header w-full bg-background-default tablet:pl-16">
