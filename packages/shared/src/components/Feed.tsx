@@ -194,7 +194,7 @@ export default function Feed<T>({
     shouldEvaluate: true,
   });
   const { isListMode } = useFeedLayout();
-  const effectiveSpaciness = isFeedLayoutV2 ? 'eco' : (spaciness ?? 'eco');
+  const effectiveSpaciness = isFeedLayoutV2 ? 'eco' : spaciness ?? 'eco';
   const numCards = currentSettings.numCards[effectiveSpaciness];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const { shouldUseListFeedLayout } = useFeedLayout();

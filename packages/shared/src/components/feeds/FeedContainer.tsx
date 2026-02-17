@@ -93,7 +93,9 @@ export const gapClass = ({
   if (isFeedLayoutList) {
     return '';
   }
-  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? defaultGridGap;
+  return isList
+    ? listGaps[space] ?? 'gap-2'
+    : gridGaps[space] ?? defaultGridGap;
 };
 
 const cardClass = ({
@@ -167,7 +169,7 @@ export const FeedContainer = ({
     feedName,
   });
   const router = useRouter();
-  const effectiveSpaciness = isFeedLayoutV2 ? 'eco' : (spaciness ?? 'eco');
+  const effectiveSpaciness = isFeedLayoutV2 ? 'eco' : spaciness ?? 'eco';
   const numCards = currentSettings.numCards[effectiveSpaciness];
   const isList =
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
