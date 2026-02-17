@@ -163,11 +163,15 @@ export const NavItem = forwardRef<HTMLElement, NavItemProps>(
     const baseClasses = active
       ? 'text-text-primary'
       : 'hover:text-text-primary text-text-tertiary';
-    const backgroundClasses = disableDefaultBackground
-      ? undefined
-      : active
-        ? 'bg-surface-hover'
-        : 'hover:bg-surface-hover';
+
+    let backgroundClasses: string | undefined;
+    if (disableDefaultBackground) {
+      backgroundClasses = undefined;
+    } else if (active) {
+      backgroundClasses = 'bg-surface-hover';
+    } else {
+      backgroundClasses = 'hover:bg-surface-hover';
+    }
 
     return (
       <RawNavItem
