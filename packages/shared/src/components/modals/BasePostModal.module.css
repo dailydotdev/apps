@@ -7,7 +7,7 @@
     bottom: 0;
     min-height: 100vh;
     padding: 0;
-    overflow-y: scroll;
+    overflow-y: auto;
     z-index: 100;
   }
 }
