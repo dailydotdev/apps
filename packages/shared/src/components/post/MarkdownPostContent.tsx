@@ -42,15 +42,9 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
   return (
     <>
       <div className="my-6">
-        {post.type === PostType.SocialTwitter ? (
-          <p className="whitespace-pre-line break-words typo-markdown">
-            {title}
-          </p>
-        ) : (
-          <h1 className="whitespace-pre-line break-words text-[2rem] font-bold leading-[1.3]">
-            {title}
-          </h1>
-        )}
+        <h1 className="whitespace-pre-line break-words text-[2rem] font-bold leading-[1.3]">
+          {title}
+        </h1>
         {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
       </div>
       {post.type === PostType.Freeform && (
