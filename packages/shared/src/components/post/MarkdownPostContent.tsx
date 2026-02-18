@@ -9,10 +9,6 @@ import type { LazyImageProps } from '../LazyImage';
 import { LazyImage, LazyVideo } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
-import {
-  removeHandlePrefixFromTitle,
-  UNKNOWN_SOURCE_ID,
-} from '../../lib/socialTwitter';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 
 interface MarkdownPostContentProps {
@@ -42,29 +38,17 @@ export const MarkdownPostImage = ({
 function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
   const { title } = useSmartTitle(post);
   const hasVideo = !!post.flags?.coverVideo;
-  const sourceHandle =
-    post.source?.id === UNKNOWN_SOURCE_ID
-      ? post.creatorTwitter || post.author?.username
-      : post.source?.handle;
-  const cleanedTitle =
-    post.type === PostType.SocialTwitter
-      ? removeHandlePrefixFromTitle({
-          title,
-          sourceHandle,
-          authorHandle: post.author?.username,
-        })
-      : title;
 
   return (
     <>
       <div className="my-6">
         {post.type === PostType.SocialTwitter ? (
           <p className="whitespace-pre-line break-words typo-markdown">
-            {cleanedTitle}
+            {title}
           </p>
         ) : (
           <h1 className="whitespace-pre-line break-words text-[2rem] font-bold leading-[1.3]">
-            {cleanedTitle}
+            {title}
           </h1>
         )}
         {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}

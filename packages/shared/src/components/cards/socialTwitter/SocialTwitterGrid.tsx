@@ -29,14 +29,7 @@ import { TwitterIcon } from '../../icons';
 import { useFeedPreviewMode } from '../../../hooks';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { stripHtmlTags } from '../../../lib/strings';
-import {
-  EMBEDDED_TWEET_AVATAR_FALLBACK,
-  formatHandleAsDisplayName,
-  getSocialPostText,
-  isSquadPlaceholderAvatar,
-  removeHandlePrefixFromTitle,
-  UNKNOWN_SOURCE_ID,
-} from '../../../lib/socialTwitter';
+import { UNKNOWN_SOURCE_ID } from '../../../lib/utils';
 
 const HeaderActions = getGroupedHoverContainer('span');
 const quoteLikeSubTypes = ['quote', 'repost'];
@@ -100,12 +93,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   const showQuoteDetail = isQuoteLike;
   const showMediaDetail = !isQuoteLike && !shouldHideMedia && !!post.image;
   const repostText =
-    post.subType === 'repost'
-      ? getSocialPostText({
-          content: post.content,
-          contentHtml: post.contentHtml,
-        })
-      : undefined;
+    post.subType === 'repost' ? post.content?.trim() || undefined : undefined;
   const shouldHideRepostHeadlineAndTags =
     post.subType === 'repost' && !repostText;
   const quoteDetailsContainerClass = shouldHideRepostHeadlineAndTags
@@ -139,20 +127,16 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
       : post.sharedPost?.author?.name;
   const embeddedTweetDisplayName =
     embeddedTweetName ||
-    (quotedHandle && formatHandleAsDisplayName(quotedHandle));
+    post.sharedPost?.creatorTwitterName ||
+    post.creatorTwitterName;
   const embeddedTweetIdentity = [embeddedTweetDisplayName, quotedHandle]
     .filter(Boolean)
     .map((value, index) => (index === 1 ? `@${value}` : value))
     .join(' ');
-  const embeddedTweetSourceAvatar = isSquadPlaceholderAvatar(
-    post.sharedPost?.source?.image,
-  )
-    ? undefined
-    : post.sharedPost?.source?.image;
   const embeddedTweetAvatar =
     post.sharedPost?.author?.image ||
-    embeddedTweetSourceAvatar ||
-    EMBEDDED_TWEET_AVATAR_FALLBACK;
+    post.sharedPost?.source?.image ||
+    post.sharedPost?.creatorTwitterImage;
   const embeddedTweetAvatarUser = {
     id:
       post.sharedPost?.author?.id ||
@@ -172,12 +156,8 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   const repostedByName =
     (!isUnknownSourceName && sourceName) ||
     post.author?.name ||
-    (sourceHandle && formatHandleAsDisplayName(sourceHandle));
-  const title = removeHandlePrefixFromTitle({
-    title: rawTitle,
-    sourceHandle,
-    authorHandle: post.author?.username,
-  });
+    post.creatorTwitterName;
+  const title = rawTitle;
   const cardOverlayLabel =
     post.subType === 'repost' && repostedByName
       ? `${repostedByName} reposted on X. ${title || post.title || ''}`.trim()

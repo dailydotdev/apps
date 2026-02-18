@@ -33,14 +33,7 @@ import { DeletedPostId } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import { SourceType } from '../../graphql/sources';
 import { Origin } from '../../lib/log';
-import {
-  EMBEDDED_TWEET_AVATAR_FALLBACK,
-  formatHandleAsDisplayName,
-  getSocialPostText,
-  isSquadPlaceholderAvatar,
-  removeHandlePrefixFromTitle,
-  UNKNOWN_SOURCE_ID,
-} from '../../lib/socialTwitter';
+import { UNKNOWN_SOURCE_ID } from '../../lib/utils';
 
 export interface CommonSharePostContentProps {
   post?: Post;
@@ -163,7 +156,7 @@ export function CommonSharePostContent({
   const repostedByName =
     (!isUnknownRepostSourceName && repostSourceName) ||
     post?.author?.name ||
-    (repostingHandle && formatHandleAsDisplayName(repostingHandle));
+    post?.creatorTwitterName;
   const shouldShowRepostingHandle =
     isArticleModal && post?.subType === 'repost' && !!repostingHandle;
   const repostIconClassName = isArticleModal
@@ -179,20 +172,16 @@ export function CommonSharePostContent({
       : sharedPost?.author?.name;
   const embeddedTweetDisplayName =
     embeddedTweetName ||
-    (referenceHandle && formatHandleAsDisplayName(referenceHandle));
+    sharedPost?.creatorTwitterName ||
+    post?.creatorTwitterName;
   const embeddedTweetIdentity = [embeddedTweetDisplayName, referenceHandle]
     .filter(Boolean)
     .map((value, index) => (index === 1 ? `@${value}` : value))
     .join(' ');
-  const embeddedTweetSourceAvatar = isSquadPlaceholderAvatar(
-    sharedPost?.source?.image,
-  )
-    ? undefined
-    : sharedPost?.source?.image;
   const embeddedTweetAvatar =
     sharedPost?.author?.image ||
-    embeddedTweetSourceAvatar ||
-    EMBEDDED_TWEET_AVATAR_FALLBACK;
+    sharedPost?.source?.image ||
+    sharedPost?.creatorTwitterImage;
   const embeddedTweetAvatarUser = {
     id:
       sharedPost?.author?.id ||
@@ -345,24 +334,11 @@ const SharePostContent = ({
   const isSocialTwitterContent =
     post.type === PostType.SocialTwitter ||
     post.sharedPost?.type === PostType.SocialTwitter;
-  const sourceHandle =
-    post.source?.id === UNKNOWN_SOURCE_ID
-      ? post.creatorTwitter || post.author?.username
-      : post.source?.handle;
   const shouldHideSocialTitle =
     isSocialTwitterContent &&
     post.subType === 'repost' &&
-    !getSocialPostText({
-      content: post.content,
-      contentHtml: post.contentHtml,
-    });
-  const title = isSocialTwitterContent
-    ? removeHandlePrefixFromTitle({
-        title: post.title,
-        sourceHandle,
-        authorHandle: post.author?.username,
-      })
-    : post.title;
+    !post.content?.trim();
+  const { title } = post;
 
   return (
     <>

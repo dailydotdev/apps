@@ -26,14 +26,7 @@ import SourceButton from '../common/SourceButton';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
-import {
-  EMBEDDED_TWEET_AVATAR_FALLBACK,
-  formatHandleAsDisplayName,
-  getSocialPostText,
-  isSquadPlaceholderAvatar,
-  removeHandlePrefixFromTitle,
-  UNKNOWN_SOURCE_ID,
-} from '../../../lib/socialTwitter';
+import { UNKNOWN_SOURCE_ID } from '../../../lib/utils';
 
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
   {
@@ -70,12 +63,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const showReferenceTweet = post.sharedPost?.type === PostType.SocialTwitter;
   const showMediaCover = !!image && !showReferenceTweet;
   const repostText =
-    post.subType === 'repost'
-      ? getSocialPostText({
-          content: post.content,
-          contentHtml: post.contentHtml,
-        })
-      : undefined;
+    post.subType === 'repost' ? post.content?.trim() || undefined : undefined;
   const shouldHideRepostHeadlineAndTags =
     post.subType === 'repost' && !repostText;
   const quoteDetailsTextClampClass = shouldHideRepostHeadlineAndTags
@@ -97,16 +85,12 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const repostedByName =
     (!isUnknownSourceName && repostSourceName) ||
     post.author?.name ||
-    (sourceHandle && formatHandleAsDisplayName(sourceHandle));
+    post.creatorTwitterName;
   const metadataHandles =
     post.subType === 'repost'
       ? [sourceHandle].filter(Boolean)
       : [...new Set([sourceHandle, referenceHandle].filter(Boolean))];
-  const cleanedTitle = removeHandlePrefixFromTitle({
-    title: truncatedTitle,
-    sourceHandle,
-    authorHandle: post.author?.username,
-  });
+  const cleanedTitle = truncatedTitle;
   const cardLinkTitle =
     post.subType === 'repost' && repostedByName
       ? `${repostedByName} reposted on X. ${
@@ -122,20 +106,16 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
       : post.sharedPost?.author?.name;
   const embeddedTweetDisplayName =
     embeddedTweetName ||
-    (referenceHandle && formatHandleAsDisplayName(referenceHandle));
+    post.sharedPost?.creatorTwitterName ||
+    post.creatorTwitterName;
   const embeddedTweetIdentity = [embeddedTweetDisplayName, referenceHandle]
     .filter(Boolean)
     .map((value, index) => (index === 1 ? `@${value}` : value))
     .join(' ');
-  const embeddedTweetSourceAvatar = isSquadPlaceholderAvatar(
-    post.sharedPost?.source?.image,
-  )
-    ? undefined
-    : post.sharedPost?.source?.image;
   const embeddedTweetAvatar =
     post.sharedPost?.author?.image ||
-    embeddedTweetSourceAvatar ||
-    EMBEDDED_TWEET_AVATAR_FALLBACK;
+    post.sharedPost?.source?.image ||
+    post.sharedPost?.creatorTwitterImage;
   const embeddedTweetAvatarUser = {
     id:
       post.sharedPost?.author?.id ||
