@@ -5,7 +5,11 @@ import dynamic from 'next/dynamic';
 
 import { ThemeSection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/ThemeSection';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useViewSize,
+  ViewSize,
+  useConditionalFeature,
+} from '@dailydotdev/shared/src/hooks';
 import {
   Typography,
   TypographyColor,
@@ -23,7 +27,6 @@ import {
 import classNames from 'classnames';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import { featureFeedLayoutV2 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
