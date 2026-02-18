@@ -149,9 +149,7 @@ function FeedNav(): ReactElement {
   }
 
   return (
-    <div
-      className="w-full tablet:pl-16"
-    >
+    <div className="w-full tablet:pl-16">
       {isMobile && <MobileFeedActions />}
       {showAiNewsCarousel && (
         <section className="border-t border-border-subtlest-tertiary bg-gradient-to-b from-background-subtle via-background-default to-background-default px-3 pb-5 pt-3">
@@ -214,7 +212,7 @@ function FeedNav(): ReactElement {
       )}
       <div
         className={classNames(
-          'h-11 bg-background-default relative',
+          'relative h-11 bg-background-default',
           scrollClassName,
         )}
       >
@@ -230,8 +228,7 @@ function FeedNav(): ReactElement {
             tabListProps={{
               className: {
                 indicator: 'hidden',
-              item:
-                '!p-1 !py-1 !text-[12px] !font-semibold tablet:last-of-type:mr-12',
+                item: '!p-1 !py-1 !text-[12px] !font-semibold tablet:last-of-type:mr-12',
               },
               autoScrollActive: true,
             }}
