@@ -14,10 +14,11 @@ import { SearchResultsSources } from './SearchResultsSources';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { gapClass } from '../../feeds/FeedContainer';
-import { useFeedLayout } from '../../../hooks';
+import { useConditionalFeature, useFeedLayout } from '../../../hooks';
 import { SearchResultsUsers } from './SearchResultsUsers';
 import SearchFilterTimeButton from '../SearchFilterTimeButton';
 import SearchFilterPostTypeButton from '../SearchFilterPostTypeButton';
+import { featureFeedLayoutV2 } from '../../../lib/featureManagement';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -27,6 +28,11 @@ export const SearchResultsLayout = (
   const { children } = props;
   const { isListMode } = useFeedLayout();
   const { spaciness } = useContext(SettingsContext);
+  const { value: isFeedLayoutV2 } = useConditionalFeature({
+    feature: featureFeedLayoutV2,
+    shouldEvaluate: true,
+  });
+  const effectiveSpaciness = isFeedLayoutV2 ? 'eco' : spaciness;
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const {
@@ -103,7 +109,7 @@ export const SearchResultsLayout = (
               gapClass({
                 isList: true,
                 isFeedLayoutList: false,
-                space: spaciness,
+                space: effectiveSpaciness,
               }),
               isListMode
                 ? `flex flex-col`
