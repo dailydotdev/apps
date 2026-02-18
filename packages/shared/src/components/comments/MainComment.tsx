@@ -15,11 +15,12 @@ import { useComments } from '../../hooks/post';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
 import type { Squad } from '../../graphql/sources';
 import type { Comment } from '../../graphql/comments';
-import { DiscussIcon } from '../icons';
+import { DiscussIcon, ThreadIcon } from '../icons';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import { useLogContext } from '../../contexts/LogContext';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -42,6 +43,7 @@ export interface MainCommentProps
   lazy?: boolean;
   logImpression?: boolean;
   logClick?: boolean;
+  isModalThread?: boolean;
 }
 
 const shouldShowBannerOnComment = (
@@ -61,6 +63,7 @@ export default function MainComment({
   lazy = false,
   logImpression,
   logClick,
+  isModalThread = false,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -98,6 +101,7 @@ export default function MainComment({
   });
 
   const [areRepliesExpanded, setAreRepliesExpanded] = useState(true);
+  const showThreadRepliesToggle = isModalThread && replyCount > 0;
 
   const onClick = () => {
     if (!logClick && !props.linkToComment) {
@@ -116,9 +120,12 @@ export default function MainComment({
     <section
       ref={inViewRef}
       className={classNames(
-        'flex scroll-mt-16 flex-col items-stretch rounded-16 border-border-subtlest-tertiary',
+        'flex scroll-mt-16 flex-col items-stretch border-border-subtlest-tertiary',
+        isModalThread
+          ? 'relative rounded-none border-0 bg-transparent'
+          : 'rounded-16',
         className?.container,
-        inView && 'border',
+        !isModalThread && inView && 'border',
       )}
       data-testid="comment"
       style={{
@@ -126,27 +133,61 @@ export default function MainComment({
       }}
     >
       {!editProps && (logImpression || inView) && (
-        <CommentBox
-          {...props}
-          comment={comment}
-          parentId={comment.id}
-          className={{
-            container: comment.children?.edges?.length > 0 && 'border-b',
-            ...className?.commentBox,
-          }}
-          appendTooltipTo={appendTooltipTo}
-          onComment={(selected, parentId) =>
-            onReplyTo({
-              username: selected.author.username,
-              parentCommentId: parentId,
-              commentId: selected.id,
-            })
-          }
-          onEdit={({ id, lastUpdatedAt }) =>
-            onEdit({ commentId: id, lastUpdatedAt })
-          }
-          onClick={onClick}
-        />
+        <div className="relative">
+          {isModalThread && replyCount > 0 && (
+            <div className="pointer-events-none absolute left-5 top-0 bottom-[33px] w-px bg-accent-pepper-subtle" />
+          )}
+          <CommentBox
+            {...props}
+            comment={comment}
+            parentId={comment.id}
+            className={{
+              container: classNames(
+                comment.children?.edges?.length > 0 &&
+                  !isModalThread &&
+                  'border-b',
+                isModalThread &&
+                  'rounded-none border-0 bg-transparent px-0 pt-0 pb-0 hover:bg-transparent',
+              ),
+            content: classNames(isModalThread && 'ml-[52px] mt-1'),
+            markdown: classNames(
+              isModalThread &&
+                '!text-[15px] [&_p]:!text-[15px] [&_li]:!text-[15px] [&_a]:!text-[15px]',
+            ),
+              ...className?.commentBox,
+            }}
+            appendTooltipTo={appendTooltipTo}
+            onComment={(selected, parentId) =>
+              onReplyTo({
+                username: selected.author.username,
+                parentCommentId: parentId,
+                commentId: selected.id,
+              })
+            }
+            onEdit={({ id, lastUpdatedAt }) =>
+              onEdit({ commentId: id, lastUpdatedAt })
+            }
+            onClick={onClick}
+            isModalThread={isModalThread}
+            threadRepliesControl={
+              showThreadRepliesToggle && (
+                <Button
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                  iconSecondaryOnHover
+                  icon={<ThreadIcon open={areRepliesExpanded} />}
+                  className="z-10"
+                  onClick={() => setAreRepliesExpanded((expanded) => !expanded)}
+                  aria-label={
+                    areRepliesExpanded
+                      ? 'Collapse replies thread'
+                      : 'Expand replies thread'
+                  }
+                />
+              )
+            }
+          />
+        </div>
       )}
       {editProps && (
         <CommentInputOrModal
@@ -177,20 +218,28 @@ export default function MainComment({
         <CollapsedRepliesPreview
           replies={comment.children.edges}
           onExpand={() => setAreRepliesExpanded(true)}
+          isThreadStyle={isModalThread}
+          className={isModalThread ? 'ml-12 mt-3' : undefined}
         />
       )}
       {inView && replyCount > 0 && areRepliesExpanded && (
-        <>
-          <button
-            type="button"
-            className="mx-4 my-2 flex cursor-pointer items-center gap-1.5 text-text-tertiary typo-callout hover:underline"
-            onClick={() => setAreRepliesExpanded(false)}
-            data-testid="hide-replies-button"
-          >
-            <DiscussIcon className="text-xl" />
-            <span>Hide replies</span>
-          </button>
-          {comment.children?.edges.map(({ node }) => (
+        <div
+          className={classNames(
+            isModalThread ? 'relative mt-1 flex flex-col pl-12' : '',
+          )}
+        >
+          {!isModalThread && (
+            <button
+              type="button"
+              className="mx-4 my-2 flex cursor-pointer items-center gap-1.5 text-text-tertiary typo-callout hover:underline"
+              onClick={() => setAreRepliesExpanded(false)}
+              data-testid="hide-replies-button"
+            >
+              <DiscussIcon className="text-xl" />
+              <span>Hide replies</span>
+            </button>
+          )}
+          {comment.children?.edges.map(({ node }, index) => (
             <SubComment
               {...props}
               key={node.id}
@@ -199,9 +248,11 @@ export default function MainComment({
               appendTooltipTo={appendTooltipTo}
               className={className?.commentBox}
               onCommented={onCommented}
+              isModalThread={isModalThread}
+              isLast={index === comment.children.edges.length - 1}
             />
           ))}
-        </>
+        </div>
       )}
       {showJoinSquadBanner && (
         <SquadCommentJoinBanner

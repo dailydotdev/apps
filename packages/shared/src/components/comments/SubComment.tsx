@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import type { Comment } from '../../graphql/comments';
 import type { CommentBoxProps } from './CommentBox';
@@ -19,6 +20,8 @@ export interface SubCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   parentComment: Comment;
   onCommented: CommentMarkdownInputProps['onCommented'];
+  isModalThread?: boolean;
+  isLast?: boolean;
 }
 
 function SubComment({
@@ -26,6 +29,8 @@ function SubComment({
   parentComment,
   className,
   onCommented,
+  isModalThread = false,
+  isLast = false,
   ...props
 }: SubCommentProps): ReactElement {
   const { inputProps, commentId, onReplyTo } = useComments(props.post);
@@ -46,7 +51,19 @@ function SubComment({
               parentCommentId: parentComment.id,
             })
           }
-          className={{ container: 'relative', content: 'ml-14' }}
+          className={{
+            container: classNames(
+              'relative',
+              isModalThread &&
+                'rounded-none bg-transparent px-0 py-2 hover:bg-transparent',
+              isModalThread && !isLast && 'mb-1',
+            ),
+            content: classNames('ml-[52px]', isModalThread && 'mt-1'),
+            markdown: classNames(
+              isModalThread &&
+                '!text-[15px] [&_p]:!text-[15px] [&_li]:!text-[15px] [&_a]:!text-[15px]',
+            ),
+          }}
           onComment={(selected, parent) =>
             onReplyTo({
               username: comment.author.username,
@@ -54,11 +71,22 @@ function SubComment({
               commentId: selected.id,
             })
           }
+          isModalThread={isModalThread}
         >
-          <div
-            className="absolute bottom-0 left-9 top-0 -ml-px w-0.5 bg-surface-float"
-            data-testid="subcomment"
-          />
+          {!isModalThread && (
+            <div
+              className="absolute bottom-0 left-9 top-0 -ml-px w-0.5 bg-surface-float"
+              data-testid="subcomment"
+            />
+          )}
+          {isModalThread && (
+            <>
+              <div className="absolute -left-7 -top-1 h-9 w-7 rounded-bl-[10px] border-b border-l border-accent-pepper-subtle" />
+              {!isLast && (
+                <div className="absolute -left-7 top-4 -bottom-0.5 w-px bg-accent-pepper-subtle" />
+              )}
+            </>
+          )}
         </CommentBox>
       )}
       {editProps && (

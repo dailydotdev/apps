@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
@@ -74,6 +74,8 @@ export interface Props extends CommentActionProps {
   origin: Origin;
   parentId: string | null;
   className?: string;
+  isModalThread?: boolean;
+  threadRepliesControl?: ReactNode;
 }
 
 export default function CommentActionButtons({
@@ -82,6 +84,7 @@ export default function CommentActionButtons({
   origin,
   parentId,
   className,
+  threadRepliesControl,
   onComment,
   onShare,
   onDelete,
@@ -308,7 +311,18 @@ export default function CommentActionButtons({
   }
 
   return (
-    <div className={classNames('flex flex-row items-center', className)}>
+    <div
+      className={classNames(
+        'flex flex-row items-center',
+        threadRepliesControl && 'relative',
+        className,
+      )}
+    >
+      {threadRepliesControl && (
+        <div className="absolute -left-12 top-1/2 -translate-y-1/2">
+          {threadRepliesControl}
+        </div>
+      )}
       <Tooltip content="Upvote">
         <Button
           id={`comment-${comment.id}-upvote-btn`}

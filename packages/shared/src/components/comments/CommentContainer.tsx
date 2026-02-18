@@ -27,6 +27,7 @@ import { isSourceUserSource } from '../../graphql/sources';
 
 interface ClassName extends CommentClassName {
   content?: string;
+  markdown?: string;
 }
 
 export interface CommentContainerProps {
@@ -166,6 +167,7 @@ export default function CommentContainer({
         )}
       >
         <Markdown
+          className={className.markdown}
           content={comment.contentHtml}
           appendTooltipTo={appendTooltipTo}
         />
