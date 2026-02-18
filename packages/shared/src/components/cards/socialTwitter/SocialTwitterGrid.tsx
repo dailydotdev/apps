@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode, Ref } from 'react';
+import type { ReactElement, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import type { PostCardProps } from '../common/common';
 import {
@@ -20,7 +20,7 @@ import PostMetadata from '../common/PostMetadata';
 import ActionButtons from '../common/ActionButtons';
 import PostTags from '../common/PostTags';
 import { ReadArticleButton } from '../common/ReadArticleButton';
-import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
+import { ProfileImageSize } from '../../ProfilePicture';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import { ButtonVariant } from '../../buttons/Button';
@@ -29,7 +29,11 @@ import { TwitterIcon } from '../../icons';
 import { useFeedPreviewMode } from '../../../hooks';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { stripHtmlTags } from '../../../lib/strings';
-import { getSocialTwitterMetadata } from './socialTwitterHelpers';
+import {
+  getSocialTwitterMetadata,
+  getSocialTwitterMetadataLabel,
+} from './socialTwitterHelpers';
+import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
 const HeaderActions = getGroupedHoverContainer('span');
 const quoteLikeSubTypes = ['quote', 'repost'];
@@ -95,8 +99,8 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   const shouldHideRepostHeadlineAndTags =
     post.subType === 'repost' && !post.content?.trim();
   const quoteDetailsContainerClass = shouldHideRepostHeadlineAndTags
-    ? 'mx-1 mb-1 mt-2 min-h-[13.5rem] flex-1 rounded-12 border border-border-subtlest-tertiary p-3'
-    : 'mx-1 mb-1 mt-2 h-40 rounded-12 border border-border-subtlest-tertiary p-3';
+    ? 'mx-1 mb-1 mt-2 min-h-[13.5rem] flex-1'
+    : 'mx-1 mb-1 mt-2 h-40';
   const quoteDetailsTextClampClass = shouldHideRepostHeadlineAndTags
     ? 'line-clamp-[10]'
     : 'line-clamp-5';
@@ -122,40 +126,17 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
           rawTitle || post.title || ''
         }`.trim()
       : rawTitle;
-  let metadataContent: ReactNode;
-  if (post.subType === 'repost') {
-    metadataContent = (
-      <>
-        {!!post.createdAt && <Separator />}
-        <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
-          <span>{repostedByName} reposted</span>
-          <TwitterIcon
-            className="relative top-px text-text-tertiary"
-            size={IconSize.XXSmall}
-          />
-        </span>
-      </>
-    );
-  } else if (metadataHandles.length === 1 && repostedByName) {
-    metadataContent = (
-      <>
-        {!!post.createdAt && <Separator />}
-        <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
-          <span>{repostedByName}</span>
-          <TwitterIcon
-            className="relative top-px text-text-tertiary"
-            size={IconSize.XXSmall}
-          />
-        </span>
-      </>
-    );
-  } else {
-    metadataContent = metadataHandles.map((handle, index) => (
-      <React.Fragment key={handle}>
-        {(!!post.createdAt || index > 0) && <Separator />}@{handle}
-      </React.Fragment>
-    ));
-  }
+  const metadataLabel = getSocialTwitterMetadataLabel({
+    subType: post.subType,
+    repostedByName,
+    metadataHandles,
+  });
+  const metadataContent = (
+    <>
+      {!!post.createdAt && <Separator />}
+      {metadataLabel}
+    </>
+  );
 
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
@@ -230,33 +211,13 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
           </p>
         )}
         {showQuoteDetail ? (
-          <div className={`${quoteDetailsContainerClass} flex flex-col`}>
-            <div className="flex min-w-0 items-center gap-1">
-              <ProfilePicture
-                user={embeddedTweetAvatarUser}
-                size={ProfileImageSize.Size16}
-                rounded="full"
-                className="shrink-0"
-                nativeLazyLoading
-              />
-              <div className="min-w-0">
-                {!!embeddedTweetIdentity && (
-                  <p className="truncate font-bold text-text-primary typo-caption1">
-                    {embeddedTweetIdentity}
-                  </p>
-                )}
-              </div>
-            </div>
-            <p
-              className={`
-                mt-1 whitespace-pre-line break-words typo-callout
-                ${post.read ? 'text-text-tertiary' : 'text-text-primary'}
-                ${quoteDetailsTextClampClass}
-              `}
-            >
-              {post.sharedPost?.title}
-            </p>
-          </div>
+          <EmbeddedTweetPreview
+            post={post}
+            embeddedTweetAvatarUser={embeddedTweetAvatarUser}
+            embeddedTweetIdentity={embeddedTweetIdentity}
+            className={`${quoteDetailsContainerClass} flex flex-col`}
+            textClampClass={quoteDetailsTextClampClass}
+          />
         ) : null}
         {showMediaDetail && (
           <div className="mx-1 mb-1 mt-2 h-40 overflow-hidden rounded-12 border border-border-subtlest-tertiary">

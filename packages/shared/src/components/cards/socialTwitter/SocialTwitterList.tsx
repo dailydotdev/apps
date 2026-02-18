@@ -2,7 +2,7 @@ import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
-import { Container, Separator } from '../common/common';
+import { Container } from '../common/common';
 import {
   useFeedPreviewMode,
   useTruncatedSummary,
@@ -23,10 +23,14 @@ import { isSourceUserSource } from '../../../graphql/sources';
 import { PostType } from '../../../graphql/posts';
 import PostTags from '../common/PostTags';
 import SourceButton from '../common/SourceButton';
-import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
+import { ProfileImageSize } from '../../ProfilePicture';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
-import { getSocialTwitterMetadata } from './socialTwitterHelpers';
+import {
+  getSocialTwitterMetadata,
+  getSocialTwitterMetadataLabel,
+} from './socialTwitterHelpers';
+import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
   {
@@ -120,41 +124,13 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     post?.author?.name,
     post?.source?.name,
   ]);
-  let metadataBottomLabel: ReactElement | string | undefined =
-    metadata.bottomLabel;
-  if (metadataHandles.length) {
-    if (post.subType === 'repost') {
-      metadataBottomLabel = (
-        <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
-          <span>{repostedByName} reposted</span>
-          <TwitterIcon
-            className="relative top-px text-text-tertiary"
-            size={IconSize.XXSmall}
-          />
-        </span>
-      );
-    } else if (metadataHandles.length === 1 && repostedByName) {
-      metadataBottomLabel = (
-        <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
-          <span>{repostedByName}</span>
-          <TwitterIcon
-            className="relative top-px text-text-tertiary"
-            size={IconSize.XXSmall}
-          />
-        </span>
-      );
-    } else {
-      metadataBottomLabel = (
-        <>
-          {metadataHandles.map((handle, index) => (
-            <React.Fragment key={handle}>
-              {index > 0 && <Separator />}@{handle}
-            </React.Fragment>
-          ))}
-        </>
-      );
-    }
-  }
+  const metadataBottomLabel = metadataHandles.length
+    ? (getSocialTwitterMetadataLabel({
+        subType: post.subType,
+        repostedByName,
+        metadataHandles,
+      }) as ReactElement)
+    : metadata.bottomLabel;
 
   return (
     <FeedItemContainer
@@ -215,33 +191,13 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
               </div>
             )}
             {showReferenceTweet && (
-              <div className="mt-4 w-full rounded-12 border border-border-subtlest-tertiary p-3">
-                <div className="flex min-w-0 items-center gap-1">
-                  <ProfilePicture
-                    user={embeddedTweetAvatarUser}
-                    size={ProfileImageSize.Size16}
-                    rounded="full"
-                    className="shrink-0"
-                    nativeLazyLoading
-                  />
-                  <div className="min-w-0">
-                    {!!embeddedTweetIdentity && (
-                      <p className="truncate font-bold text-text-primary typo-caption1">
-                        {embeddedTweetIdentity}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <p
-                  className={classNames(
-                    'mt-1 whitespace-pre-line break-words typo-callout',
-                    post.read ? 'text-text-tertiary' : 'text-text-primary',
-                    quoteDetailsTextClampClass,
-                  )}
-                >
-                  {post.sharedPost?.title}
-                </p>
-              </div>
+              <EmbeddedTweetPreview
+                post={post}
+                embeddedTweetAvatarUser={embeddedTweetAvatarUser}
+                embeddedTweetIdentity={embeddedTweetIdentity}
+                className="mt-4 w-full"
+                textClampClass={quoteDetailsTextClampClass}
+              />
             )}
             <div className="hidden flex-1 tablet:flex" />
             {!isMobile && actionButtons}
