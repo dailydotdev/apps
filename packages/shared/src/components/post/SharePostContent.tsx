@@ -352,7 +352,10 @@ const SharePostContent = ({
   const shouldHideSocialTitle =
     isSocialTwitterContent &&
     post.subType === 'repost' &&
-    !getSocialPostText({ content: post.content, contentHtml: post.contentHtml });
+    !getSocialPostText({
+      content: post.content,
+      contentHtml: post.contentHtml,
+    });
   const title = isSocialTwitterContent
     ? removeHandlePrefixFromTitle({
         title: post.title,
