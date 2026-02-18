@@ -225,7 +225,7 @@ export default function MainComment({
       {inView && replyCount > 0 && areRepliesExpanded && (
         <div
           className={classNames(
-            isModalThread ? 'relative mt-1 flex flex-col pl-12' : '',
+            isModalThread ? 'relative mt-1 flex flex-col' : '',
           )}
         >
           {!isModalThread && (

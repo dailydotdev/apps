@@ -69,7 +69,7 @@ function CommentBox({
             threadRepliesControl={threadRepliesControl}
             className={
               isModalThread
-                ? 'pointer-events-auto mt-1 w-fit gap-0.5'
+                ? 'pointer-events-auto mt-1 w-full gap-0.5'
                 : 'pointer-events-auto mt-3'
             }
           />

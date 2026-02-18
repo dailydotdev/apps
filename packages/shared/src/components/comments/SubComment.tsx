@@ -81,9 +81,8 @@ function SubComment({
           )}
           {isModalThread && (
             <>
-              <div className="absolute -left-7 -top-1 h-9 w-7 rounded-bl-[10px] border-b border-l border-accent-pepper-subtle" />
               {!isLast && (
-                <div className="absolute -left-7 top-4 -bottom-0.5 w-px bg-accent-pepper-subtle" />
+                <div className="absolute left-5 top-10 -bottom-3 w-px bg-accent-pepper-subtle" />
               )}
             </>
           )}
