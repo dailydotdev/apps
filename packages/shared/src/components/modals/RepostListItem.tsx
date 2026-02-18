@@ -75,10 +75,7 @@ export function RepostListItem({
           />
           {post.source.permalink ? (
             <Link href={post.source.permalink}>
-              <a
-                className="truncate text-text-secondary typo-callout !no-underline hover:!no-underline"
-                style={{ textDecoration: 'none' }}
-              >
+              <a className="truncate text-text-secondary typo-callout !no-underline hover:!no-underline">
                 {post.source.name}
               </a>
             </Link>
@@ -111,10 +108,7 @@ export function RepostListItem({
       {!!post.title &&
         (post.commentsPermalink ? (
           <Link href={post.commentsPermalink}>
-            <a
-              className="mt-3 block line-clamp-3 text-text-primary typo-body !no-underline hover:!no-underline"
-              style={{ textDecoration: 'none' }}
-            >
+            <a className="mt-3 line-clamp-3 block text-text-primary typo-body !no-underline hover:!no-underline">
               {post.title}
             </a>
           </Link>
