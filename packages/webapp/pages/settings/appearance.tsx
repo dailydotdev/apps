@@ -23,6 +23,8 @@ import {
 import classNames from 'classnames';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { featureFeedLayoutV2 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
@@ -63,6 +65,11 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     autoDismissNotifications,
     toggleAutoDismissNotifications,
   } = useSettingsContext();
+
+  const { value: isFeedLayoutV2 } = useConditionalFeature({
+    feature: featureFeedLayoutV2,
+    shouldEvaluate: true,
+  });
 
   const onLayoutToggle = useCallback(
     async (enabled: boolean) => {
