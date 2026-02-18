@@ -16,6 +16,10 @@ We're a startup. We move fast, iterate quickly, and embrace change. When impleme
 - Use early returns instead of if-else blocks for cleaner, flatter code
 - Handle the errors or checks first and return early then proceed with happy path at the end of code block
 
+**Invariant handling:**
+- Do not silently ignore impossible states (for example, no-op rollback fallbacks in mutation/cache flows)
+- Fail fast with a clear thrown error message when an internal invariant is violated
+
 ## Project Architecture
 
 This is a pnpm monorepo containing the daily.dev application suite:
@@ -299,6 +303,8 @@ When you see an existing barrel file, delete it and update all imports to use di
 
 ## Avoiding Code Duplication
 
+**NEVER copy-paste utility functions into multiple files.** If a helper is needed in more than one place, add it to a shared utility file and import it. Do not define the same function locally in each file that needs it.
+
 Before implementing new functionality, always check if similar code already exists:
 
 1. **Search for existing utilities** - Use Grep/Glob to find similar patterns:
@@ -311,8 +317,9 @@ Before implementing new functionality, always check if similar code already exis
    ```
 
 2. **Check shared libraries first**:
+   - `packages/shared/src/lib/func.ts` - General utility functions
    - `packages/shared/src/lib/strings.ts` - String manipulation, text utilities
-   - `packages/shared/src/lib/utils.ts` - General utility functions
+   - `packages/shared/src/lib/links.ts` - URL and link utilities
    - `packages/shared/src/lib/[domain].ts` - Domain-specific utilities
 
 3. **Extract reusable functions**:
@@ -391,6 +398,10 @@ When reviewing code (or writing code that will be reviewed):
 - **Avoid confusing naming** - Don't create multiple components with the same name in different locations (e.g., two `AboutMe` components)
 - **Remove unused exports** - If a function/constant is only used internally, don't export it
 - **Clean up duplicates** - If the same interface/type is defined in multiple places, consolidate to one location and import
+- **Activity list modals should be metadata-first** - For lists like reposts/upvotes/history in modals, prefer compact rows that emphasize source/author and engagement. Avoid large content images that dominate the layout unless image content is the primary purpose.
+- **Reuse feed/list card primitives first** - Before adding modal-specific list item components, check existing card building blocks (`FeedItemContainer`, `PostCardHeader`, list card primitives) and compose with them.
+- **Do not hide accessible data using presentation heuristics** - In UI lists, avoid masking content based on flags like `source.public`; rely on backend access controls and render the data returned by the query.
+- **Keep scope tight in design iterations** - When adjusting UI, avoid unrelated behavioral/SEO changes in the same commit unless explicitly requested.
 
 ## Node.js Version Upgrade Checklist
 

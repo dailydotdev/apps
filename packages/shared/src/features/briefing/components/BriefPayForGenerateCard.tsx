@@ -22,6 +22,7 @@ import { BuyCoresModal } from '../../../components/modals/award/BuyCoresModal';
 import { useToggle } from '../../../hooks/useToggle';
 import { LogEvent, Origin } from '../../../lib/log';
 import type { Product } from '../../../graphql/njord';
+import { ProductType } from '../../../graphql/njord';
 import { useFeature } from '../../../components/GrowthBookProvider';
 import { briefGeneratePricing } from '../../../lib/featureManagement';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -36,8 +37,13 @@ const OPTIONS = [
 ] as const satisfies RadioProps['options'];
 
 function createCoresProduct(id: string, name: string, value: number): Product {
-  // Minimal shape required by BuyCoresModal; value is what matters.
-  return { id, name, value } as unknown as Product;
+  return {
+    id,
+    name,
+    value,
+    type: ProductType.Award,
+    image: '',
+  };
 }
 
 function BuyCores({

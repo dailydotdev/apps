@@ -45,6 +45,8 @@ import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
 import { MarketingCtaYearInReview } from './marketingCta/MarketingCtaYearInReview';
 import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
+import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
+import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -104,6 +106,7 @@ const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.Collection]: CollectionGrid,
   [PostType.Brief]: BriefCard,
   [PostType.Poll]: PollGrid,
+  [PostType.SocialTwitter]: SocialTwitterGrid,
 };
 
 const PostTypeToTagList: Record<PostType, FunctionComponent> = {
@@ -115,6 +118,15 @@ const PostTypeToTagList: Record<PostType, FunctionComponent> = {
   [PostType.Collection]: CollectionList,
   [PostType.Brief]: BriefCard,
   [PostType.Poll]: PollList,
+  [PostType.SocialTwitter]: SocialTwitterList,
+};
+
+const getPostTypeForCard = (post?: Post): PostType => {
+  if (!post) {
+    return PostType.Article;
+  }
+
+  return post.type;
 };
 
 type GetTagsProps = {
@@ -245,9 +257,9 @@ function FeedItemComponent({
   } = getTags({
     isListFeedLayout: shouldUseListFeedLayout,
     shouldUseListMode,
-    postType: isBoostedPostAd(item)
-      ? item.ad.data?.post?.type
-      : (item as PostItem).post?.type,
+    postType: getPostTypeForCard(
+      isBoostedPostAd(item) ? item.ad.data?.post : (item as PostItem).post,
+    ),
   });
 
   const onAdAction = (action: AdActions, ad: Ad) => {

@@ -60,6 +60,7 @@ export enum Origin {
   UserFollowingList = 'user following list',
   UserFollowersList = 'user followers list',
   UserUpvotesList = 'user upvotes list',
+  UserRepostsList = 'user reposts list',
   FollowFilter = 'follow filter',
   PostSharedBy = 'post shared by',
   // Marketing

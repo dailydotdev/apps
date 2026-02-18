@@ -2,7 +2,13 @@ import React from 'react';
 import type { ReactElement } from 'react';
 
 import { ProfileSection } from '../ProfileSection';
-import { AnalyticsIcon, CoinIcon, DevCardIcon, UserIcon } from '../../icons';
+import {
+  AnalyticsIcon,
+  CoinIcon,
+  DevCardIcon,
+  MedalBadgeIcon,
+  UserIcon,
+} from '../../icons';
 import { settingsUrl, walletUrl, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
@@ -23,6 +29,11 @@ export const MainSection = (): ReactElement => {
           title: 'Core wallet',
           href: walletUrl,
           icon: CoinIcon,
+        },
+        {
+          title: 'Achievements',
+          href: `${webappUrl}${user.username}/achievements`,
+          icon: MedalBadgeIcon,
         },
         {
           title: 'DevCard',

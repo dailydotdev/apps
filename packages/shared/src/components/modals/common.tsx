@@ -13,6 +13,9 @@ const UpvotedPopupModal = dynamic(
   () =>
     import(/* webpackChunkName: "upvotedPopupModal" */ './UpvotedPopupModal'),
 );
+const RepostsModal = dynamic(
+  () => import(/* webpackChunkName: "repostsModal" */ './RepostsModal'),
+);
 const UserFollowersModal = dynamic(
   () =>
     import(/* webpackChunkName: "userFollowersModal" */ './UserFollowersModal'),
@@ -421,12 +424,19 @@ const HotTakeTinderModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "hotTakeTinderModal" */ './hotTakes/HotTakeTinderModal'
+      ),
+  );
+const AchievementSyncPromptModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "achievementSyncPromptModal" */ './AchievementSyncPromptModal'
     ),
 );
 
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
+  [LazyModal.RepostsPopup]: RepostsModal,
   [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,
@@ -492,7 +502,7 @@ export const modals = {
   [LazyModal.RecruiterSeats]: RecruiterSeatsModal,
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
   [LazyModal.Feedback]: FeedbackModal,
-  [LazyModal.HotTakeTinder]: HotTakeTinderModal,
+  [LazyModal.AchievementSyncPrompt]: AchievementSyncPromptModal,
 };
 
 type GetComponentProps<T> = T extends
