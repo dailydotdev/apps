@@ -14,13 +14,21 @@ import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
-import type { Origin } from '../../lib/log';
+import { Origin } from '../../lib/log';
 import type { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
 import { lazyCommentThreshold } from '../utilities';
 import { isNullOrUndefined } from '../../lib/func';
 import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
 import { generateCommentsQueryKey } from '../../lib/query';
+
+const threadCommentOrigins = new Set<Origin>([
+  Origin.ArticleModal,
+  Origin.ArticlePage,
+  Origin.CollectionModal,
+  Origin.BriefModal,
+  Origin.BriefPage,
+]);
 
 interface PostCommentsProps {
   post: Post;
@@ -49,6 +57,9 @@ export function PostComments({
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const container = useRef<HTMLDivElement>();
+  const isModalThread =
+    threadCommentOrigins.has(origin) ||
+    !!globalThis?.document?.getElementById('post-modal');
   const { tokenRefreshed } = useContext(AuthContext);
   const { requestMethod } = useRequestProtocol();
   const queryKey = generateCommentsQueryKey({ postId: id, sortBy });
@@ -96,11 +107,16 @@ export function PostComments({
 
   return (
     <div
-      className="-mx-4 mb-12 mt-6 flex flex-col gap-4 mobileL:mx-0"
+      className={
+        isModalThread
+          ? 'mb-12 mt-6 flex flex-col gap-4'
+          : 'mb-12 mt-6 flex flex-col gap-4'
+      }
       ref={container}
     >
       {comments.postComments.edges.map((e, index) => (
         <MainComment
+          isModalThread={isModalThread}
           className={{ commentBox: className }}
           post={post}
           origin={origin}
