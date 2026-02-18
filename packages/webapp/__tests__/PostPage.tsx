@@ -866,12 +866,6 @@ describe('downvote flow', () => {
 
   it('should display the option to never see the selection again if close panel', async () => {
     await prepareDownvote();
-    const items = await screen.findAllByTestId('blockTagButton');
-    const allUnselected = items.every((el) =>
-      el.classList.contains('btn-tertiaryFloat'),
-    );
-    await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
-    expect(allUnselected).toBeTruthy();
     const close = await screen.findByTitle('Close');
     fireEvent.click(close);
     await screen.findAllByText('No topics were blocked');

@@ -42,6 +42,7 @@ const renderLayout = (
     onDelete,
     postAuthorId: null,
     postScoutId: null,
+    onCommented: jest.fn(),
     onShare: jest.fn(),
     onShowUpvotes: jest.fn(),
     origin: Origin.PostCommentButton,
@@ -56,8 +57,11 @@ const renderLayout = (
           user,
           shouldShowLogin: false,
           showLogin: jest.fn(),
+          isLoggedIn: !!user,
           logout: jest.fn(),
           updateUser: jest.fn(),
+          closeLogin: jest.fn(),
+          getRedirectUri: jest.fn(),
           tokenRefreshed: true,
         }}
       >

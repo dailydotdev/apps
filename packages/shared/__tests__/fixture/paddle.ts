@@ -4,12 +4,15 @@ export const dummyPaddleProductItemYen: PaddleProductLineItem = {
   price: {
     id: 'pri_01jkzj0n2jf89kts09xztfr47b',
     description: 'Annual Special',
-    type: 'standard',
     name: 'Annual Special',
     productId: 'pro_01jbscajqw49t56megcgba21jv',
     billingCycle: {
       interval: 'year',
       frequency: 1,
+    },
+    trialPeriod: {
+      interval: 'day',
+      frequency: 7,
     },
     taxMode: 'account_setting',
     unitPrice: {
@@ -290,7 +293,7 @@ export const dummyPaddleProductItemYen: PaddleProductLineItem = {
         countryCodes: ['VN'],
         unitPrice: {
           amount: '379000',
-          currencyCode: 'VND',
+          currencyCode: 'USD',
         },
       },
       {
@@ -384,10 +387,8 @@ export const dummyPaddleProductItemYen: PaddleProductLineItem = {
       minimum: 1,
       maximum: 1,
     },
-    status: 'active',
-    createdAt: '2025-02-13T11:44:56.402139Z',
-    updatedAt: '2025-02-23T10:19:28.166407Z',
     importMeta: null,
+    status: 'active',
   },
   quantity: 1,
   taxRate: '0.1',
@@ -434,12 +435,15 @@ export const dummyPaddleProductItemDollar: PaddleProductLineItem = {
   price: {
     id: 'pri_01jkzj0n2jf89kts09xztfr47b',
     description: 'Annual Special',
-    type: 'standard',
     name: 'Annual Special',
     productId: 'pro_01jbscajqw49t56megcgba21jv',
     billingCycle: {
       interval: 'year',
       frequency: 1,
+    },
+    trialPeriod: {
+      interval: 'day',
+      frequency: 7,
     },
     taxMode: 'account_setting',
     unitPrice: {
@@ -720,7 +724,7 @@ export const dummyPaddleProductItemDollar: PaddleProductLineItem = {
         countryCodes: ['VN'],
         unitPrice: {
           amount: '379000',
-          currencyCode: 'VND',
+          currencyCode: 'USD',
         },
       },
       {
@@ -814,10 +818,8 @@ export const dummyPaddleProductItemDollar: PaddleProductLineItem = {
       minimum: 1,
       maximum: 1,
     },
-    status: 'active',
-    createdAt: '2025-02-13T11:44:56.402139Z',
-    updatedAt: '2025-02-23T10:19:28.166407Z',
     importMeta: null,
+    status: 'active',
   },
   quantity: 1,
   taxRate: '0',
@@ -864,7 +866,6 @@ export const dummyPaddleProductItemBrl: PaddleProductLineItem = {
   price: {
     id: 'pri_01jkzsv60eym5qdm16n0przb47',
     description: 'Annual Special (7-Day Trial)',
-    type: 'standard',
     name: 'Annual Special',
     product_id: 'pro_01jbscajqw49t56megcgba21jv',
     billing_cycle: {
@@ -1291,7 +1292,6 @@ export const dummyPaddleProductItemBrl: PaddleProductLineItem = {
     name: 'Plus',
     description:
       'daily.dev Plus is the premium upgrade for developers who want a cleaner, smarter, and more focused reading experience. Get advanced tools to filter distractions, personalize your feed, and streamline your learning—so you can spend less time sorting through content and more time gaining insights.',
-    type: 'standard',
     tax_category: 'standard',
     image_url: '',
     custom_data: null,
@@ -1301,4 +1301,4 @@ export const dummyPaddleProductItemBrl: PaddleProductLineItem = {
     updated_at: '2025-02-21T14:29:26.297Z',
   },
   discounts: [],
-};
+} as unknown as PaddleProductLineItem;

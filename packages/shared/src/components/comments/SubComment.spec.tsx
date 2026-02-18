@@ -58,6 +58,7 @@ const renderLayout = (
           user,
           shouldShowLogin: false,
           showLogin: jest.fn(),
+          isLoggedIn: !!user,
           logout: jest.fn(),
           updateUser: jest.fn(),
           closeLogin: jest.fn(),
