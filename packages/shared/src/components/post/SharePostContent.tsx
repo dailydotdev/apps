@@ -21,10 +21,7 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TruncateText } from '../utilities';
 import { LazyImage } from '../LazyImage';
-import {
-  cloudinaryPostImageCoverPlaceholder,
-  cloudinarySquadsImageFallback,
-} from '../../lib/image';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { SharePostTitle } from './share/SharePostTitle';
 import { BlockIcon, EarthIcon, TwitterIcon } from '../icons';
 import {
@@ -35,9 +32,15 @@ import {
 import { DeletedPostId } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import { SourceType } from '../../graphql/sources';
-import { stripHtmlTags } from '../../lib/strings';
 import { Origin } from '../../lib/log';
-import { fallbackImages } from '../../lib/config';
+import {
+  EMBEDDED_TWEET_AVATAR_FALLBACK,
+  formatHandleAsDisplayName,
+  getSocialPostText,
+  isSquadPlaceholderAvatar,
+  removeHandlePrefixFromTitle,
+  UNKNOWN_SOURCE_ID,
+} from '../../lib/socialTwitter';
 
 export interface CommonSharePostContentProps {
   post?: Post;
@@ -46,62 +49,6 @@ export interface CommonSharePostContentProps {
   onReadArticle: () => Promise<void>;
   isArticleModal?: boolean;
 }
-
-const UNKNOWN_SOURCE_ID = 'unknown';
-const EMBEDDED_TWEET_AVATAR_FALLBACK = fallbackImages.avatar.replace(
-  't_logo,',
-  '',
-);
-const isSquadPlaceholderAvatar = (image?: string): boolean =>
-  !!image &&
-  (image === cloudinarySquadsImageFallback ||
-    image.includes('squad_placeholder'));
-
-const getPostText = ({
-  content,
-  contentHtml,
-}: {
-  content?: string;
-  contentHtml?: string;
-}): string | undefined => {
-  const rawText = content || (contentHtml ? stripHtmlTags(contentHtml) : null);
-  const trimmedText = rawText?.trim();
-  return trimmedText?.length ? trimmedText : undefined;
-};
-
-const formatHandleAsDisplayName = (handle: string): string =>
-  handle
-    .replace(/[_-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-
-const removeHandlePrefixFromTitle = ({
-  title,
-  sourceHandle,
-  authorHandle,
-}: {
-  title?: string;
-  sourceHandle?: string;
-  authorHandle?: string;
-}): string | undefined => {
-  if (!title) {
-    return title;
-  }
-
-  const handlePrefixes = [sourceHandle, authorHandle]
-    .filter(Boolean)
-    .map((handle) => `@${handle}:`);
-
-  const matchedPrefix = handlePrefixes.find((prefix) =>
-    title.startsWith(prefix),
-  );
-  if (matchedPrefix) {
-    return title.slice(matchedPrefix.length).trim();
-  }
-
-  return title.replace(/^@[A-Za-z0-9_]+:\s*/, '').trim();
-};
 
 const SharePostContentSkeleton = () => (
   <>
@@ -405,7 +352,7 @@ const SharePostContent = ({
   const shouldHideSocialTitle =
     isSocialTwitterContent &&
     post.subType === 'repost' &&
-    !getPostText({ content: post.content, contentHtml: post.contentHtml });
+    !getSocialPostText({ content: post.content, contentHtml: post.contentHtml });
   const title = isSocialTwitterContent
     ? removeHandlePrefixFromTitle({
         title: post.title,

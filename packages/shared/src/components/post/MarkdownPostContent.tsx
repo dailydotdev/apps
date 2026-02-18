@@ -9,40 +9,15 @@ import type { LazyImageProps } from '../LazyImage';
 import { LazyImage, LazyVideo } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
+import {
+  removeHandlePrefixFromTitle,
+  UNKNOWN_SOURCE_ID,
+} from '../../lib/socialTwitter';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 
 interface MarkdownPostContentProps {
   post: Post;
 }
-
-const UNKNOWN_SOURCE_ID = 'unknown';
-
-const removeHandlePrefixFromTitle = ({
-  title,
-  sourceHandle,
-  authorHandle,
-}: {
-  title?: string;
-  sourceHandle?: string;
-  authorHandle?: string;
-}): string | undefined => {
-  if (!title) {
-    return title;
-  }
-
-  const handlePrefixes = [sourceHandle, authorHandle]
-    .filter(Boolean)
-    .map((handle) => `@${handle}:`);
-
-  const matchedPrefix = handlePrefixes.find((prefix) =>
-    title.startsWith(prefix),
-  );
-  if (matchedPrefix) {
-    return title.slice(matchedPrefix.length).trim();
-  }
-
-  return title.replace(/^@[A-Za-z0-9_]+:\s*/, '').trim();
-};
 
 export const MarkdownPostImage = ({
   imgSrc,

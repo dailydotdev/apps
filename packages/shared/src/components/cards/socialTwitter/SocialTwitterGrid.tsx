@@ -29,21 +29,17 @@ import { TwitterIcon } from '../../icons';
 import { useFeedPreviewMode } from '../../../hooks';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { stripHtmlTags } from '../../../lib/strings';
-import { fallbackImages } from '../../../lib/config';
-import { cloudinarySquadsImageFallback } from '../../../lib/image';
+import {
+  EMBEDDED_TWEET_AVATAR_FALLBACK,
+  formatHandleAsDisplayName,
+  getSocialPostText,
+  isSquadPlaceholderAvatar,
+  removeHandlePrefixFromTitle,
+  UNKNOWN_SOURCE_ID,
+} from '../../../lib/socialTwitter';
 
 const HeaderActions = getGroupedHoverContainer('span');
 const quoteLikeSubTypes = ['quote', 'repost'];
-const UNKNOWN_SOURCE_ID = 'unknown';
-const EMBEDDED_TWEET_AVATAR_FALLBACK = fallbackImages.avatar.replace(
-  't_logo,',
-  '',
-);
-const isSquadPlaceholderAvatar = (image?: string): boolean =>
-  !!image &&
-  (image === cloudinarySquadsImageFallback ||
-    image.includes('squad_placeholder'));
-
 const normalizeThreadBody = ({
   title,
   content,
@@ -80,52 +76,6 @@ const normalizeThreadBody = ({
   return bodyWithoutTitle || undefined;
 };
 
-const getPostText = ({
-  content,
-  contentHtml,
-}: {
-  content?: string;
-  contentHtml?: string;
-}): string | undefined => {
-  const rawText = content || (contentHtml ? stripHtmlTags(contentHtml) : null);
-  const trimmedText = rawText?.trim();
-  return trimmedText?.length ? trimmedText : undefined;
-};
-
-const formatHandleAsDisplayName = (handle: string): string =>
-  handle
-    .replace(/[_-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-
-const removeHandlePrefixFromTitle = ({
-  title,
-  sourceHandle,
-  authorHandle,
-}: {
-  title?: string;
-  sourceHandle?: string;
-  authorHandle?: string;
-}): string | undefined => {
-  if (!title) {
-    return title;
-  }
-
-  const handlePrefixes = [sourceHandle, authorHandle]
-    .filter(Boolean)
-    .map((handle) => `@${handle}:`);
-
-  const matchedPrefix = handlePrefixes.find((prefix) =>
-    title.startsWith(prefix),
-  );
-  if (matchedPrefix) {
-    return title.slice(matchedPrefix.length).trim();
-  }
-
-  return title.replace(/^@[A-Za-z0-9_]+:\s*/, '').trim();
-};
-
 export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   {
     post,
@@ -151,7 +101,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   const showMediaDetail = !isQuoteLike && !shouldHideMedia && !!post.image;
   const repostText =
     post.subType === 'repost'
-      ? getPostText({
+      ? getSocialPostText({
           content: post.content,
           contentHtml: post.contentHtml,
         })

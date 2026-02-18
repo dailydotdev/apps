@@ -26,65 +26,14 @@ import SourceButton from '../common/SourceButton';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
-import { fallbackImages } from '../../../lib/config';
-import { cloudinarySquadsImageFallback } from '../../../lib/image';
-
-const UNKNOWN_SOURCE_ID = 'unknown';
-const EMBEDDED_TWEET_AVATAR_FALLBACK = fallbackImages.avatar.replace(
-  't_logo,',
-  '',
-);
-const isSquadPlaceholderAvatar = (image?: string): boolean =>
-  !!image &&
-  (image === cloudinarySquadsImageFallback ||
-    image.includes('squad_placeholder'));
-
-const getPostText = ({
-  content,
-  contentHtml,
-}: {
-  content?: string;
-  contentHtml?: string;
-}): string | undefined => {
-  const rawText =
-    content || (contentHtml ? sanitizeMessage(contentHtml, []) : null);
-  const trimmedText = rawText?.trim();
-  return trimmedText?.length ? trimmedText : undefined;
-};
-
-const formatHandleAsDisplayName = (handle: string): string =>
-  handle
-    .replace(/[_-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-
-const removeHandlePrefixFromTitle = ({
-  title,
-  sourceHandle,
-  authorHandle,
-}: {
-  title?: string;
-  sourceHandle?: string;
-  authorHandle?: string;
-}): string | undefined => {
-  if (!title) {
-    return title;
-  }
-
-  const handlePrefixes = [sourceHandle, authorHandle]
-    .filter(Boolean)
-    .map((handle) => `@${handle}:`);
-
-  const matchedPrefix = handlePrefixes.find((prefix) =>
-    title.startsWith(prefix),
-  );
-  if (matchedPrefix) {
-    return title.slice(matchedPrefix.length).trim();
-  }
-
-  return title.replace(/^@[A-Za-z0-9_]+:\s*/, '').trim();
-};
+import {
+  EMBEDDED_TWEET_AVATAR_FALLBACK,
+  formatHandleAsDisplayName,
+  getSocialPostText,
+  isSquadPlaceholderAvatar,
+  removeHandlePrefixFromTitle,
+  UNKNOWN_SOURCE_ID,
+} from '../../../lib/socialTwitter';
 
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
   {
@@ -122,7 +71,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const showMediaCover = !!image && !showReferenceTweet;
   const repostText =
     post.subType === 'repost'
-      ? getPostText({
+      ? getSocialPostText({
           content: post.content,
           contentHtml: post.contentHtml,
         })
