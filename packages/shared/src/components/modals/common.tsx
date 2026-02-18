@@ -420,12 +420,12 @@ const FeedbackModal = dynamic(
   () => import(/* webpackChunkName: "feedbackModal" */ './FeedbackModal'),
 );
 
-const HotTakeTinderModal = dynamic(
+const HotAndColdModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "hotTakeTinderModal" */ './hotTakes/HotTakeTinderModal'
-      ),
-  );
+      /* webpackChunkName: "hotAndColdModal" */ './hotTakes/HotAndColdModal'
+    ),
+);
 const AchievementSyncPromptModal = dynamic(
   () =>
     import(
@@ -503,6 +503,7 @@ export const modals = {
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
   [LazyModal.Feedback]: FeedbackModal,
   [LazyModal.AchievementSyncPrompt]: AchievementSyncPromptModal,
+  [LazyModal.HotAndCold]: HotAndColdModal,
 };
 
 type GetComponentProps<T> = T extends

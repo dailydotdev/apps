@@ -70,9 +70,9 @@ export const DiscoverSection = ({
         ),
         title: 'Hot Takes',
         requiresLogin: true,
-        onClick: () => {
-          logEvent({ event_name: LogEvent.OpenHotTakeTinder });
-          openModal({ type: LazyModal.HotTakeTinder });
+        action: () => {
+          logEvent({ event_name: LogEvent.OpenHotAndCold });
+          openModal({ type: LazyModal.HotAndCold });
         },
       },
     ].filter(Boolean);
