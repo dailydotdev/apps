@@ -33,6 +33,17 @@ export const DiscoverSection = ({
     return [
       {
         icon: (active: boolean) => (
+          <ListIcon Icon={() => <HotIcon secondary={active} />} />
+        ),
+        title: 'Hot Takes',
+        requiresLogin: true,
+        action: () => {
+          logEvent({ event_name: LogEvent.OpenHotAndCold });
+          openModal({ type: LazyModal.HotAndCold });
+        },
+      },
+      {
+        icon: (active: boolean) => (
           <ListIcon Icon={() => <HashtagIcon secondary={active} />} />
         ),
         title: 'Tags',
@@ -62,17 +73,6 @@ export const DiscoverSection = ({
           if (user) {
             completeAction(ActionType.CommentFeed);
           }
-        },
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <HotIcon secondary={active} />} />
-        ),
-        title: 'Hot Takes',
-        requiresLogin: true,
-        action: () => {
-          logEvent({ event_name: LogEvent.OpenHotAndCold });
-          openModal({ type: LazyModal.HotAndCold });
         },
       },
     ].filter(Boolean);

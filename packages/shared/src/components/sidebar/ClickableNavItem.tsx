@@ -50,7 +50,12 @@ export function ClickableNavItem({
   }
 
   return (
-    <button {...props} type="button" className={navBtnClass} onClick={onClick}>
+    <button
+      {...props}
+      type="button"
+      className={classNames(navBtnClass, props.className)}
+      onClick={onClick}
+    >
       {children}
     </button>
   );
