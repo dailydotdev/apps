@@ -1,6 +1,7 @@
 import type { Ad } from '../../src/graphql/posts';
 
 const ad: Ad = {
+  company: 'daily.dev',
   description: 'I am an ad!',
   image: 'https://daily.dev/daily.png',
   link: 'https://daily.dev',

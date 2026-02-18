@@ -1,6 +1,7 @@
 import nock from 'nock';
 import { authUrl, heimdallUrl } from '../../src/lib/constants';
 import type {
+  ContinueWithAction,
   EmptyObjectLiteral,
   Identity,
   InitializationData,
@@ -278,6 +279,16 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
     created_at: '2022-07-31T11:55:35.083416Z',
     updated_at: '2022-07-31T11:55:35.083416Z',
   },
+  continue_with: [
+    {
+      action: 'show_verification_ui' as ContinueWithAction,
+      flow: {
+        id: 'verify-flow-id',
+        url: `${authUrl}/self-service/verification/browser?flow=verify-flow-id`,
+        verifiable_address: 'leeeee@daily.dev',
+      },
+    },
+  ],
 };
 
 export const passwordLoginFlowMockData: InitializationData = {
