@@ -54,7 +54,7 @@ export function RepostsModal({
     >
       <Modal.Header title="Reposts" />
       <Modal.Body
-        className="!p-0 [&_a]:!no-underline [&_a:hover]:!no-underline"
+        className="!p-0 [&_a:hover]:!no-underline [&_a]:!no-underline"
         ref={container}
       >
         <InfiniteScrolling
