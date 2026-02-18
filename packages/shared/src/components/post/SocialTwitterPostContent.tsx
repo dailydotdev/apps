@@ -22,7 +22,6 @@ import { BoostNewPostStrip } from '../../features/boost/BoostNewPostStrip';
 import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
-import { Origin } from '../../lib/log';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -146,21 +145,15 @@ function SocialTwitterPostContentRaw({
           />
           {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
           {finalType === PostType.Share ? (
-            <SharePostContent
-              post={post}
-              onReadArticle={onReadArticle}
-              origin={origin}
-            />
+            <SharePostContent post={post} onReadArticle={onReadArticle} />
           ) : (
             <>
               <Content post={post} onReadArticle={onReadArticle} />
               {shouldShowLinkedPreview && (
                 <CommonSharePostContent
-                  post={post}
                   onReadArticle={onReadArticle}
                   source={post.source}
                   sharedPost={post.sharedPost}
-                  isArticleModal={origin === Origin.ArticleModal}
                 />
               )}
             </>

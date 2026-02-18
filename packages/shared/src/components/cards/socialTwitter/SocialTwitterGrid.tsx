@@ -29,7 +29,7 @@ import { TwitterIcon } from '../../icons';
 import { useFeedPreviewMode } from '../../../hooks';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { stripHtmlTags } from '../../../lib/strings';
-import { UNKNOWN_SOURCE_ID } from '../../../lib/utils';
+import { getSocialTwitterMetadata } from './socialTwitterHelpers';
 
 const HeaderActions = getGroupedHoverContainer('span');
 const quoteLikeSubTypes = ['quote', 'repost'];
@@ -92,10 +92,8 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   const shouldHideMedia = post.subType === 'thread';
   const showQuoteDetail = isQuoteLike;
   const showMediaDetail = !isQuoteLike && !shouldHideMedia && !!post.image;
-  const repostText =
-    post.subType === 'repost' ? post.content?.trim() || undefined : undefined;
   const shouldHideRepostHeadlineAndTags =
-    post.subType === 'repost' && !repostText;
+    post.subType === 'repost' && !post.content?.trim();
   const quoteDetailsContainerClass = shouldHideRepostHeadlineAndTags
     ? 'mx-1 mb-1 mt-2 min-h-[13.5rem] flex-1 rounded-12 border border-border-subtlest-tertiary p-3'
     : 'mx-1 mb-1 mt-2 h-40 rounded-12 border border-border-subtlest-tertiary p-3';
@@ -112,63 +110,18 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
           contentHtml: post.contentHtml,
         })
       : undefined;
-  const quotedHandle =
-    post.sharedPost?.source?.id === UNKNOWN_SOURCE_ID
-      ? post.sharedPost?.creatorTwitter ||
-        post.creatorTwitter ||
-        post.sharedPost?.author?.username
-      : post.sharedPost?.source?.handle;
-  const quotedSourceName = post.sharedPost?.source?.name;
-  const isUnknownQuotedSourceName =
-    quotedSourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
-  const embeddedTweetName =
-    !isUnknownQuotedSourceName && quotedSourceName
-      ? quotedSourceName
-      : post.sharedPost?.author?.name;
-  const embeddedTweetDisplayName =
-    embeddedTweetName ||
-    post.sharedPost?.creatorTwitterName ||
-    post.creatorTwitterName;
-  const embeddedTweetIdentity = [embeddedTweetDisplayName, quotedHandle]
-    .filter(Boolean)
-    .map((value, index) => (index === 1 ? `@${value}` : value))
-    .join(' ');
-  const embeddedTweetAvatar =
-    post.sharedPost?.author?.image ||
-    post.sharedPost?.source?.image ||
-    post.sharedPost?.creatorTwitterImage;
-  const embeddedTweetAvatarUser = {
-    id:
-      post.sharedPost?.author?.id ||
-      post.sharedPost?.source?.id ||
-      quotedHandle ||
-      'shared-post-avatar',
-    image: embeddedTweetAvatar,
-    username: quotedHandle,
-    name: embeddedTweetName,
-  };
-  const sourceHandle =
-    post.source?.id === UNKNOWN_SOURCE_ID
-      ? post.creatorTwitter || post.author?.username
-      : post.source?.handle;
-  const sourceName = post.source?.name;
-  const isUnknownSourceName = sourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
-  const repostedByName =
-    (!isUnknownSourceName && sourceName) ||
-    post.author?.name ||
-    post.creatorTwitterName;
-  const title = rawTitle;
+  const {
+    repostedByName,
+    metadataHandles,
+    embeddedTweetIdentity,
+    embeddedTweetAvatarUser,
+  } = getSocialTwitterMetadata(post);
   const cardOverlayLabel =
     post.subType === 'repost' && repostedByName
-      ? `${repostedByName} reposted on X. ${title || post.title || ''}`.trim()
-      : title;
-  const metadataHandles =
-    post.subType === 'repost'
-      ? [sourceHandle].filter(Boolean)
-      : [...new Set([sourceHandle, quotedHandle].filter(Boolean))];
-  const embeddedTweetTextColorClass = post.read
-    ? 'text-text-tertiary'
-    : 'text-text-primary';
+      ? `${repostedByName} reposted on X. ${
+          rawTitle || post.title || ''
+        }`.trim()
+      : rawTitle;
   let metadataContent: ReactNode;
   if (post.subType === 'repost') {
     metadataContent = (
@@ -256,7 +209,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         </CardHeader>
         {!shouldHideRepostHeadlineAndTags && (
           <CardTitle className="min-h-[4.5rem]" lineClamp="line-clamp-3">
-            {title}
+            {rawTitle}
           </CardTitle>
         )}
       </CardTextContainer>
@@ -279,15 +232,13 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         {showQuoteDetail ? (
           <div className={`${quoteDetailsContainerClass} flex flex-col`}>
             <div className="flex min-w-0 items-center gap-1">
-              {!!embeddedTweetAvatarUser && (
-                <ProfilePicture
-                  user={embeddedTweetAvatarUser}
-                  size={ProfileImageSize.Size16}
-                  rounded="full"
-                  className="shrink-0"
-                  nativeLazyLoading
-                />
-              )}
+              <ProfilePicture
+                user={embeddedTweetAvatarUser}
+                size={ProfileImageSize.Size16}
+                rounded="full"
+                className="shrink-0"
+                nativeLazyLoading
+              />
               <div className="min-w-0">
                 {!!embeddedTweetIdentity && (
                   <p className="truncate font-bold text-text-primary typo-caption1">
@@ -298,7 +249,8 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
             </div>
             <p
               className={`
-                mt-1 whitespace-pre-line break-words typo-callout ${embeddedTweetTextColorClass}
+                mt-1 whitespace-pre-line break-words typo-callout
+                ${post.read ? 'text-text-tertiary' : 'text-text-primary'}
                 ${quoteDetailsTextClampClass}
               `}
             >

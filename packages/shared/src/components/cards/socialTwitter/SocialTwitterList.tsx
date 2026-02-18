@@ -26,7 +26,7 @@ import SourceButton from '../common/SourceButton';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
-import { UNKNOWN_SOURCE_ID } from '../../../lib/utils';
+import { getSocialTwitterMetadata } from './socialTwitterHelpers';
 
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
   {
@@ -62,73 +62,23 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const postForTags = post.tags?.length ? post : post.sharedPost || post;
   const showReferenceTweet = post.sharedPost?.type === PostType.SocialTwitter;
   const showMediaCover = !!image && !showReferenceTweet;
-  const repostText =
-    post.subType === 'repost' ? post.content?.trim() || undefined : undefined;
   const shouldHideRepostHeadlineAndTags =
-    post.subType === 'repost' && !repostText;
+    post.subType === 'repost' && !post.content?.trim();
   const quoteDetailsTextClampClass = shouldHideRepostHeadlineAndTags
     ? 'line-clamp-8'
     : 'line-clamp-4';
-  const referenceHandle =
-    post.sharedPost?.source?.id === UNKNOWN_SOURCE_ID
-      ? post.sharedPost?.creatorTwitter ||
-        post.creatorTwitter ||
-        post.sharedPost?.author?.username
-      : post.sharedPost?.source?.handle;
-  const sourceHandle =
-    post.source?.id === UNKNOWN_SOURCE_ID
-      ? post.creatorTwitter || post.author?.username
-      : post.source?.handle;
-  const repostSourceName = post.source?.name;
-  const isUnknownSourceName =
-    repostSourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
-  const repostedByName =
-    (!isUnknownSourceName && repostSourceName) ||
-    post.author?.name ||
-    post.creatorTwitterName;
-  const metadataHandles =
-    post.subType === 'repost'
-      ? [sourceHandle].filter(Boolean)
-      : [...new Set([sourceHandle, referenceHandle].filter(Boolean))];
-  const cleanedTitle = truncatedTitle;
+  const {
+    repostedByName,
+    metadataHandles,
+    embeddedTweetIdentity,
+    embeddedTweetAvatarUser,
+  } = getSocialTwitterMetadata(post);
   const cardLinkTitle =
     post.subType === 'repost' && repostedByName
       ? `${repostedByName} reposted on X. ${
-          cleanedTitle || post.title || ''
+          truncatedTitle || post.title || ''
         }`.trim()
-      : cleanedTitle || post.title;
-  const quotedSourceName = post.sharedPost?.source?.name;
-  const isUnknownQuotedSourceName =
-    quotedSourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
-  const embeddedTweetName =
-    !isUnknownQuotedSourceName && quotedSourceName
-      ? quotedSourceName
-      : post.sharedPost?.author?.name;
-  const embeddedTweetDisplayName =
-    embeddedTweetName ||
-    post.sharedPost?.creatorTwitterName ||
-    post.creatorTwitterName;
-  const embeddedTweetIdentity = [embeddedTweetDisplayName, referenceHandle]
-    .filter(Boolean)
-    .map((value, index) => (index === 1 ? `@${value}` : value))
-    .join(' ');
-  const embeddedTweetAvatar =
-    post.sharedPost?.author?.image ||
-    post.sharedPost?.source?.image ||
-    post.sharedPost?.creatorTwitterImage;
-  const embeddedTweetAvatarUser = {
-    id:
-      post.sharedPost?.author?.id ||
-      post.sharedPost?.source?.id ||
-      referenceHandle ||
-      'shared-post-avatar',
-    image: embeddedTweetAvatar,
-    username: referenceHandle,
-    name: embeddedTweetName,
-  };
-  const embeddedTweetTextColorClass = post.read
-    ? 'text-text-tertiary'
-    : 'text-text-primary';
+      : truncatedTitle || post.title;
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -254,7 +204,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
           >
             {!shouldHideRepostHeadlineAndTags && (
               <CardTitle className={!!post.read && 'text-text-tertiary'}>
-                {cleanedTitle}
+                {truncatedTitle}
               </CardTitle>
             )}
             <div className="flex flex-1 tablet:hidden" />
@@ -267,15 +217,13 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
             {showReferenceTweet && (
               <div className="mt-4 w-full rounded-12 border border-border-subtlest-tertiary p-3">
                 <div className="flex min-w-0 items-center gap-1">
-                  {!!embeddedTweetAvatarUser && (
-                    <ProfilePicture
-                      user={embeddedTweetAvatarUser}
-                      size={ProfileImageSize.Size16}
-                      rounded="full"
-                      className="shrink-0"
-                      nativeLazyLoading
-                    />
-                  )}
+                  <ProfilePicture
+                    user={embeddedTweetAvatarUser}
+                    size={ProfileImageSize.Size16}
+                    rounded="full"
+                    className="shrink-0"
+                    nativeLazyLoading
+                  />
                   <div className="min-w-0">
                     {!!embeddedTweetIdentity && (
                       <p className="truncate font-bold text-text-primary typo-caption1">
@@ -287,7 +235,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 <p
                   className={classNames(
                     'mt-1 whitespace-pre-line break-words typo-callout',
-                    embeddedTweetTextColorClass,
+                    post.read ? 'text-text-tertiary' : 'text-text-primary',
                     quoteDetailsTextClampClass,
                   )}
                 >

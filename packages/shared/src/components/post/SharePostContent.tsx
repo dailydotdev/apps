@@ -8,7 +8,6 @@ import {
   getReadPostButtonText,
   isInternalReadType,
   isSharedPostSquadPost,
-  PostType,
 } from '../../graphql/posts';
 import SettingsContext, {
   useSettingsContext,
@@ -18,12 +17,12 @@ import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
 import { ButtonVariant } from '../buttons/Button';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize } from '../ProfilePicture';
 import { TruncateText } from '../utilities';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { SharePostTitle } from './share/SharePostTitle';
-import { BlockIcon, EarthIcon, TwitterIcon } from '../icons';
+import { BlockIcon, EarthIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -32,15 +31,11 @@ import {
 import { DeletedPostId } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import { SourceType } from '../../graphql/sources';
-import { Origin } from '../../lib/log';
-import { UNKNOWN_SOURCE_ID } from '../../lib/utils';
 
 export interface CommonSharePostContentProps {
-  post?: Post;
   sharedPost: SharedPost;
   source: Post['source'];
   onReadArticle: () => Promise<void>;
-  isArticleModal?: boolean;
 }
 
 const SharePostContentSkeleton = () => (
@@ -107,11 +102,9 @@ const PrivatePost = ({
 );
 
 export function CommonSharePostContent({
-  post,
   sharedPost,
   source,
   onReadArticle,
-  isArticleModal,
 }: CommonSharePostContentProps): ReactElement {
   const { sidebarExpanded } = useSettingsContext();
   const { openNewTab } = useContext(SettingsContext);
@@ -137,114 +130,6 @@ export function CommonSharePostContent({
 
   if (isPrivate && type === SourceType.Squad) {
     return <PrivatePost post={sharedPost} openArticle={openArticle} />;
-  }
-
-  const isSocialTwitter = sharedPost?.type === PostType.SocialTwitter;
-  const referenceHandle =
-    sharedPost?.source?.id === UNKNOWN_SOURCE_ID
-      ? sharedPost?.creatorTwitter ||
-        post?.creatorTwitter ||
-        sharedPost?.author?.username
-      : sharedPost?.source?.handle;
-  const repostingHandle =
-    post?.source?.id === UNKNOWN_SOURCE_ID
-      ? post?.creatorTwitter || post?.author?.username
-      : post?.source?.handle;
-  const repostSourceName = post?.source?.name;
-  const isUnknownRepostSourceName =
-    repostSourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
-  const repostedByName =
-    (!isUnknownRepostSourceName && repostSourceName) ||
-    post?.author?.name ||
-    post?.creatorTwitterName;
-  const shouldShowRepostingHandle =
-    isArticleModal && post?.subType === 'repost' && !!repostingHandle;
-  const repostIconClassName = isArticleModal
-    ? 'text-text-primary'
-    : 'relative top-px text-text-tertiary';
-  const repostIconSize = isArticleModal ? IconSize.Size16 : IconSize.XXSmall;
-  const quotedSourceName = sharedPost?.source?.name;
-  const isUnknownQuotedSourceName =
-    quotedSourceName?.toLowerCase() === UNKNOWN_SOURCE_ID;
-  const embeddedTweetName =
-    !isUnknownQuotedSourceName && quotedSourceName
-      ? quotedSourceName
-      : sharedPost?.author?.name;
-  const embeddedTweetDisplayName =
-    embeddedTweetName ||
-    sharedPost?.creatorTwitterName ||
-    post?.creatorTwitterName;
-  const embeddedTweetIdentity = [embeddedTweetDisplayName, referenceHandle]
-    .filter(Boolean)
-    .map((value, index) => (index === 1 ? `@${value}` : value))
-    .join(' ');
-  const embeddedTweetAvatar =
-    sharedPost?.author?.image ||
-    sharedPost?.source?.image ||
-    sharedPost?.creatorTwitterImage;
-  const embeddedTweetAvatarUser = {
-    id:
-      sharedPost?.author?.id ||
-      sharedPost?.source?.id ||
-      referenceHandle ||
-      'shared-post-avatar',
-    image: embeddedTweetAvatar,
-    username: referenceHandle,
-    name: embeddedTweetName,
-  };
-
-  if (isSocialTwitter) {
-    return (
-      <>
-        {shouldShowRepostingHandle && (
-          <p className="mt-2 text-text-primary typo-markdown">
-            <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
-              <span>{repostedByName} reposted</span>
-              <TwitterIcon
-                className={repostIconClassName}
-                size={repostIconSize}
-              />
-            </span>
-          </p>
-        )}
-        <SharedLinkContainer
-          post={sharedPost}
-          summary={sharedPost.summary}
-          className={classNames(
-            'mb-5',
-            shouldShowRepostingHandle ? 'mt-2' : 'mt-8',
-          )}
-        >
-          <SharedPostLink
-            source={source}
-            sharedPost={sharedPost}
-            onGoToLinkProps={combinedClicks(openArticle)}
-            className="block p-4"
-          >
-            <div className="mb-2 flex items-center justify-start gap-2">
-              {!!embeddedTweetAvatarUser && (
-                <ProfilePicture
-                  user={embeddedTweetAvatarUser}
-                  size={ProfileImageSize.Small}
-                  rounded="full"
-                  nativeLazyLoading
-                />
-              )}
-              <div className="min-w-0">
-                {!!embeddedTweetIdentity && (
-                  <p className="truncate text-text-tertiary typo-footnote">
-                    {embeddedTweetIdentity}
-                  </p>
-                )}
-              </div>
-            </div>
-            <p className="mt-1 line-clamp-8 whitespace-pre-line break-words text-text-primary typo-markdown">
-              {sharedPost.title}
-            </p>
-          </SharedPostLink>
-        </SharedLinkContainer>
-      </>
-    );
   }
 
   return (
@@ -323,37 +208,20 @@ export function CommonSharePostContent({
 interface SharePostContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
-  origin?: Origin;
 }
 
 const SharePostContent = ({
   post,
   onReadArticle,
-  origin,
-}: SharePostContentProps): ReactElement => {
-  const isSocialTwitterContent =
-    post.type === PostType.SocialTwitter ||
-    post.sharedPost?.type === PostType.SocialTwitter;
-  const shouldHideSocialTitle =
-    isSocialTwitterContent &&
-    post.subType === 'repost' &&
-    !post.content?.trim();
-  const { title } = post;
-
-  return (
-    <>
-      {!shouldHideSocialTitle && (
-        <SharePostTitle title={title} titleHtml={post?.titleHtml} />
-      )}
-      <CommonSharePostContent
-        post={post}
-        onReadArticle={onReadArticle}
-        source={post.source}
-        sharedPost={post.sharedPost}
-        isArticleModal={origin === Origin.ArticleModal}
-      />
-    </>
-  );
-};
+}: SharePostContentProps): ReactElement => (
+  <>
+    <SharePostTitle title={post?.title} titleHtml={post?.titleHtml} />
+    <CommonSharePostContent
+      onReadArticle={onReadArticle}
+      source={post.source}
+      sharedPost={post.sharedPost}
+    />
+  </>
+);
 
 export default SharePostContent;
