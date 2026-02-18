@@ -17,19 +17,18 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  TerminalIcon,
-  TwitterIcon,
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
   TrendingIcon,
-  AlertIcon,
-  MicrosoftIcon,
   HotIcon,
-  InfoIcon,
   UpvoteIcon,
   DiscussIcon,
   BookmarkIcon,
   ShareIcon,
-  MoveToIcon,
-  LinkIcon,
+  ArrowIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
@@ -82,17 +81,6 @@ const formatDate = (dateStr: string): string => {
     return dateStr;
   }
   return `${MONTH_NAMES[monthIndex]} ${day}`;
-};
-
-const getImpactScore = (id: string): number => {
-  let hash = 0;
-  for (let i = 0; i < id.length; i += 1) {
-    // eslint-disable-next-line no-bitwise
-    hash = (hash << 5) - hash + id.charCodeAt(i);
-    // eslint-disable-next-line no-bitwise
-    hash &= hash;
-  }
-  return 85 + (Math.abs(hash) % 10);
 };
 
 // Pre-compute at module level (deterministic, no Date-based drift)
@@ -241,6 +229,26 @@ const communityCategories = new Set<Category>([
   'tips',
 ]);
 
+type TopicTabId = 'all' | Category;
+
+const topicTabOrder: Category[] = [
+  'announcement',
+  'drama',
+  'leak',
+  'hot_take',
+  'thread',
+  'insight',
+  'commentary',
+  'tips',
+  'release',
+  'feature',
+  'milestone',
+  'data',
+  'product_launch',
+  'endorsement',
+  'standard',
+];
+
 const getCommunityWireItems = (items: FeedItem[]): FeedItem[] => {
   const prioritized = items.filter((item) =>
     communityCategories.has(item.category),
@@ -332,15 +340,7 @@ const getTrendPulseData = (items: FeedItem[]): TrendPulse[] => {
 
 const trendPulseData: TrendPulse[] = getTrendPulseData(feedItems);
 
-const monitorTabs = [
-  { id: 'hot', label: 'Hot' },
-  { id: 'alpha', label: 'Alpha' },
-  { id: 'new', label: 'New' },
-  { id: 'gainers', label: 'Gainers' },
-  { id: 'losers', label: 'Losers' },
-] as const;
-
-type MonitorTabId = (typeof monitorTabs)[number]['id'];
+type MonitorTabId = 'hot' | 'alpha' | 'new' | 'gainers' | 'losers';
 
 const getFilteredPulseItems = (tabId: MonitorTabId): TrendPulse[] => {
   if (tabId === 'gainers') {
@@ -379,54 +379,6 @@ feedItems.forEach((item) => {
 // --- THEME ---
 
 const THEME = { bg: 'bg-background-default' };
-
-// --- TICKER ITEMS ---
-
-type TickerItemData = {
-  id: string;
-  text: string;
-  score: number;
-  trend: number;
-  icon?: ReactElement;
-};
-
-const tickerItems: TickerItemData[] = [
-  {
-    id: '1',
-    text: 'GPT-5 Rumors',
-    score: 9.2,
-    trend: 12,
-    icon: <TrendingIcon size={IconSize.Small} className="text-text-primary" />,
-  },
-  {
-    id: '2',
-    text: 'Cursor Adoption',
-    score: 8.5,
-    trend: 24,
-    icon: <TerminalIcon size={IconSize.Small} className="text-text-primary" />,
-  },
-  {
-    id: '3',
-    text: 'Devin AI Updates',
-    score: 7.8,
-    trend: 5,
-    icon: <AlertIcon size={IconSize.Small} className="text-text-primary" />,
-  },
-  {
-    id: '4',
-    text: 'Claude 3.7 Leaks',
-    score: 8.9,
-    trend: 15,
-    icon: <TwitterIcon size={IconSize.Small} className="text-text-primary" />,
-  },
-  {
-    id: '5',
-    text: 'Copilot Sentiment',
-    score: 6.4,
-    trend: -3,
-    icon: <MicrosoftIcon size={IconSize.Small} className="text-text-primary" />,
-  },
-];
 
 // --- EMOJI CONFIG ---
 
@@ -469,93 +421,15 @@ const Badge = ({
 
 // --- TSAHI TOP SECTION COMPONENTS ---
 
-const NewsTickerItem = ({ item }: { item: TickerItemData }) => (
-  <div className="flex items-center gap-1 px-2 py-0.5">
-    {item.icon && <span className="opacity-80 scale-[0.7]">{item.icon}</span>}
-    <span className="whitespace-nowrap text-[12px] font-medium text-text-primary">
-      {item.text}
-    </span>
-    <span className="text-[12px] font-bold text-text-secondary">
-      {item.score}
-    </span>
-    <span
-      className={classNames(
-        'rounded-4 px-1 py-0 text-[10px] font-bold',
-        item.trend > 0 ? 'text-text-secondary' : 'text-text-tertiary',
-      )}
-    >
-      {item.trend > 0 ? '▲' : '▼'} {Math.abs(item.trend)}%
-    </span>
-  </div>
-);
-
-const MarqueeTicker = ({
-  items,
-  className,
-}: {
-  items: TickerItemData[];
-  className?: string;
-}) => (
-  <div className={classNames('relative', className)}>
-    <div className="relative flex overflow-x-hidden py-1">
-      <div className="flex animate-marquee items-center whitespace-nowrap">
-        {items.map((item) => (
-          <NewsTickerItem key={item.id} item={item} />
-        ))}
-        {items.map((item, i) => (
-          <NewsTickerItem key={`${item.id}-dup-${i.toString()}`} item={item} />
-        ))}
-      </div>
-      <div className="absolute right-0 top-0 h-full w-20 bg-gradient-to-l from-background-default to-transparent" />
-    </div>
-  </div>
-);
-
-const MarketOverview = ({
-  breakingItems,
-  trendingModelLabel,
-}: {
-  breakingItems: FeedItem[];
-  trendingModelLabel: string;
-}) => {
-  const topAlert = breakingItems[0];
-
-  return (
-    <div className="bg-gradient-to-b from-background-subtle via-background-default to-background-default">
-      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-2 px-3 pb-1.5 pt-3 tablet:grid-cols-2">
-        <div className="min-w-0">
-          <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-quaternary">
-            Trending Model
-          </div>
-          <div className="flex items-center gap-2 text-[14px] font-bold text-text-primary">
-            {trendingModelLabel}
-            <span className="rounded-4 border border-border-subtlest-secondary bg-transparent px-1.5 py-0.5 text-[10px] font-medium text-text-secondary">
-              +14%
-            </span>
-          </div>
-        </div>
-        <div className="min-w-0">
-          <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-text-tertiary">
-            Top Alert
-          </div>
-          <div className="line-clamp-2 text-[14px] font-medium leading-relaxed text-text-primary">
-            {topAlert?.headline || 'System nominal. No critical alerts.'}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ModelChipRail = ({
-  stats,
-  activeModelId,
+const TopicChipRail = ({
+  topics,
+  activeTopicId,
   onSelect,
   className,
 }: {
-  stats: ModelStat[];
-  activeModelId: string;
-  onSelect: (modelId: string) => void;
+  topics: Category[];
+  activeTopicId: TopicTabId;
+  onSelect: (topicId: TopicTabId) => void;
   className?: string;
 }) => (
   <div
@@ -570,98 +444,31 @@ const ModelChipRail = ({
         onClick={() => onSelect('all')}
         className={classNames(
           'whitespace-nowrap rounded-6 px-1.5 py-0.5 text-[12px] font-semibold transition-colors',
-          activeModelId === 'all'
+          activeTopicId === 'all'
             ? 'shadow-sm bg-white text-black'
             : 'text-text-quaternary hover:text-text-secondary',
         )}
       >
         All
       </button>
-      {stats.map((model) => (
+      {topics.map((topic) => (
         <button
-          key={model.id}
+          key={topic}
           type="button"
-          onClick={() => onSelect(model.id)}
+          onClick={() => onSelect(topic)}
           className={classNames(
             'whitespace-nowrap rounded-6 px-1.5 py-0.5 text-[12px] font-semibold transition-colors',
-            activeModelId === model.id
+            activeTopicId === topic
               ? 'shadow-sm bg-white text-black'
               : 'text-text-quaternary hover:text-text-secondary',
           )}
         >
-          {model.label}
+          {categoryLabels[topic]}
         </button>
       ))}
     </div>
   </div>
 );
-
-const CommunityWirePreview = ({
-  items,
-  onOpenFeed,
-}: {
-  items: FeedItem[];
-  onOpenFeed: () => void;
-}) => {
-  const previewItems = items.slice(0, 4);
-  const getAvatarUrl = (item: FeedItem): string =>
-    `https://i.pravatar.cc/80?u=${encodeURIComponent(getBotHandle(item))}`;
-
-  return (
-    <section className="bg-background-default px-3 py-2">
-      <div className="mx-auto max-w-4xl">
-        <button
-          type="button"
-          className="mb-2 flex w-full items-center justify-between"
-          onClick={onOpenFeed}
-        >
-          <h2 className="text-[12px] font-semibold text-text-primary">
-            Community Wire
-          </h2>
-        </button>
-        <button
-          type="button"
-          className="w-full space-y-2 text-left"
-          onClick={onOpenFeed}
-        >
-          {previewItems.map((item) => (
-            <article
-              key={`wire-preview-${item.id}`}
-              className="flex items-start gap-2"
-            >
-              <img
-                src={getAvatarUrl(item)}
-                alt={`${getBotHandle(item)} avatar`}
-                className="mt-0.5 h-8 w-8 shrink-0 rounded-full border border-border-subtlest-tertiary bg-surface-float"
-                loading="lazy"
-              />
-              <div className="min-w-0 flex-1 rounded-10 rounded-tl-2 border border-border-subtlest-tertiary bg-surface-float p-2.5">
-                <div className="mb-1 flex items-center justify-between gap-2">
-                  <span className="truncate text-[10px] font-semibold text-text-primary">
-                    {getBotHandle(item)}
-                  </span>
-                  <span className="text-[10px] text-text-quaternary">
-                    {relativeTimeLabels[item.id] || getRelativeTime(item.date)}
-                  </span>
-                </div>
-                <p className="line-clamp-2 text-[14px] leading-snug text-text-primary">
-                  {item.headline}. {item.summary}
-                </p>
-              </div>
-            </article>
-          ))}
-        </button>
-        <button
-          type="button"
-          onClick={onOpenFeed}
-          className="mt-2 w-full rounded-8 border border-border-subtlest-tertiary bg-transparent px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
-        >
-          Open feed
-        </button>
-      </div>
-    </section>
-  );
-};
 
 const CommunityWireFeed = ({
   items,
@@ -672,7 +479,7 @@ const CommunityWireFeed = ({
 }) => (
   <div className="min-h-screen bg-background-default">
     <div className="border-b border-border-subtlest-tertiary bg-background-subtle px-3 py-2">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-4xl overflow-visible">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-theme-active text-[10px] font-bold text-text-secondary">
@@ -824,33 +631,23 @@ const TrendPulseRow = ({ item }: { item: TrendPulse }) => {
 };
 
 const WidgetComparisonMonitor = () => {
-  const router = useRouter();
-  const [activeTabId, setActiveTabId] = useState<MonitorTabId>('hot');
-  const visibleItems = useMemo(
-    () => getFilteredPulseItems(activeTabId),
-    [activeTabId],
-  );
+  const visibleItems = useMemo(() => getFilteredPulseItems('hot'), []);
 
   return (
-    <section className="bg-background-default px-3 py-2">
+    <section className="bg-background-default py-2">
+      <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-3">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-text-quaternary">
+          Trending Model
+        </span>
+        <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-text-secondary">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-cabbage-default opacity-75" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent-cabbage-default" />
+          </span>
+          Live
+        </span>
+      </div>
       <div className="bg-accent-avocado-subtlest/35 mx-auto max-w-4xl rounded-12 p-3">
-        <div className="mb-2.5 flex items-center justify-start gap-1.5 overflow-x-auto">
-          {monitorTabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTabId(tab.id)}
-              className={classNames(
-                'whitespace-nowrap rounded-6 px-1.5 py-0.5 text-[12px] font-semibold transition-colors',
-                activeTabId === tab.id
-                  ? 'shadow-sm bg-white text-black'
-                  : 'text-text-quaternary hover:text-text-secondary',
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
         <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-3 gap-y-1 pb-1 text-[10px] text-text-quaternary">
           <span>Model</span>
           <span className="text-right">Mentions</span>
@@ -862,13 +659,6 @@ const WidgetComparisonMonitor = () => {
             <TrendPulseRow key={item.id} item={item} />
           ))}
         </div>
-        <button
-          type="button"
-          onClick={() => router.push('/ai-coding-hub-monitor')}
-          className="mt-2 w-full rounded-8 border border-border-subtlest-tertiary bg-transparent px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
-        >
-          View more
-        </button>
       </div>
     </section>
   );
@@ -907,7 +697,7 @@ const BreakingNewsCarousel = ({ items }: { items: FeedItem[] }) => {
   }
 
   return (
-    <div className="bg-background-default px-3 pb-2 pt-2">
+    <div className="bg-gradient-to-b from-background-subtle via-background-default to-background-default px-3 pb-5 pt-2">
       <div className="mx-auto max-w-4xl">
         <div className="mb-1.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -936,16 +726,16 @@ const BreakingNewsCarousel = ({ items }: { items: FeedItem[] }) => {
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="no-scrollbar flex w-full snap-x snap-mandatory gap-2 overflow-x-auto"
+          className="no-scrollbar flex w-full snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible pr-px"
         >
           {items.map((item) => {
             const dateLabel = dateLabels[item.id] || item.date;
             return (
               <article
                 key={`breaking-card-${item.id}`}
-                className="flex h-[112px] w-full flex-shrink-0 snap-center flex-col rounded-12 border border-border-subtlest-tertiary bg-surface-float p-2.5"
+                className="flex h-[112px] w-full min-w-full flex-shrink-0 snap-center flex-col rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3"
               >
-                <div className="mb-0.5 flex items-center justify-between gap-2">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5">
                     <Badge className="bg-accent-ketchup-default text-white">
                       {categoryLabels[item.category as Category] || 'ALERT'}
@@ -972,136 +762,32 @@ const BreakingNewsCarousel = ({ items }: { items: FeedItem[] }) => {
   );
 };
 
-// --- LIVE PODCAST STRIP ---
-
-const LivePodcastStrip = () => {
-  const podcasts = [
-    {
-      id: 'pod-1',
-      handle: '@ai_live_daily',
-      text: 'This livestream is trending',
-      listeners: '1.2k listening',
-    },
-    {
-      id: 'pod-2',
-      handle: '@sam_altman',
-      text: 'Reasoning roadmap AMA is live',
-      listeners: '980 listening',
-    },
-    {
-      id: 'pod-3',
-      handle: '@cursor_team',
-      text: 'Agent workflows weekly standup',
-      listeners: '760 listening',
-    },
-  ] as const;
-
-  return (
-    <div className="bg-background-default px-3 py-2">
-      <div className="no-scrollbar mx-auto flex max-w-4xl gap-2 overflow-x-auto">
-        {podcasts.map((podcast) => (
-          <button
-            key={podcast.id}
-            type="button"
-            className="hover:opacity-90 w-[86%] min-w-[86%] shrink-0 rounded-12 bg-accent-onion-default px-2.5 py-1.5 text-left text-white transition-opacity laptop:w-auto laptop:min-w-0"
-          >
-            <div className="flex items-center gap-2">
-              <img
-                src={`https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(
-                  podcast.handle,
-                )}`}
-                alt={`${podcast.handle} profile`}
-                className="border-white/30 bg-white/20 h-6 w-6 shrink-0 rounded-full border"
-                loading="lazy"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[12px] font-medium">
-                  {podcast.handle} {podcast.text}
-                </p>
-                <p className="text-white/80 mt-0.5 text-[10px]">
-                  {podcast.listeners}
-                </p>
-              </div>
-              <span
-                className="bg-black/10 flex h-4 items-end gap-0.5 rounded-4 px-1 py-0.5"
-                aria-label="live voice activity"
-              >
-                <span className="animate-voice-wave-1 h-1.5 w-0.5 rounded-full bg-white" />
-                <span className="animate-voice-wave-2 h-3 w-0.5 rounded-full bg-white" />
-                <span className="animate-voice-wave-3 h-2 w-0.5 rounded-full bg-white" />
-                <span className="animate-voice-wave-4 h-2.5 w-0.5 rounded-full bg-white" />
-              </span>
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 // --- COMPACT HEADER ---
 
 const CompactHeader = ({ logoGlow }: { logoGlow: boolean }) => {
   const router = useRouter();
-  const [dateStr, setDateStr] = useState('');
-
-  useEffect(() => {
-    setDateStr(new Date().toLocaleDateString());
-  }, []);
 
   return (
-    <div className="from-accent-water-subtlest/30 via-background-default/80 to-accent-onion-subtlest/30 z-30 border-b border-border-subtlest-tertiary bg-gradient-to-r px-3 py-2 backdrop-blur-md">
-      <div className="mx-auto flex max-w-4xl items-center justify-between">
+    <div className="z-30 border-b border-border-subtlest-tertiary bg-background-default px-4 py-2">
+      <div className="mx-auto flex max-w-4xl items-center gap-2">
+        <Button
+          icon={<ArrowIcon className="-rotate-90" />}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          onClick={() => router.back()}
+          aria-label="Go back"
+        />
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex items-center gap-1 text-text-quaternary transition-colors hover:text-text-secondary"
-            aria-label="Go back"
+          <Typography
+            tag="h1"
+            type={TypographyType.Callout}
+            className={classNames(
+              'font-bold leading-none text-text-primary transition-all duration-500',
+              logoGlow && 'logo-glow-pulse',
+            )}
           >
-            <MoveToIcon className="rotate-180" size={IconSize.XSmall} />
-          </button>
-          <div>
-            <h1
-              className={classNames(
-                'font-bold leading-none text-text-primary transition-all duration-500 typo-callout',
-                logoGlow && 'logo-glow-pulse',
-              )}
-            >
-              AI CODING HUB
-            </h1>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          {dateStr && (
-            <span className="md:block hidden font-mono text-[10px] text-text-quaternary">
-              {dateStr}
-            </span>
-          )}
-          <button
-            type="button"
-            className="flex items-center gap-1 rounded-8 border border-border-subtlest-tertiary px-2 py-1 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-secondary"
-            aria-label="Connect AI feed"
-          >
-            <LinkIcon size={IconSize.XSmall} />
-            <span className="text-[10px] font-semibold uppercase tracking-wide">
-              Connect
-            </span>
-          </button>
-        </div>
-      </div>
-      <div className="mx-auto mt-1.5 flex max-w-4xl items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="opacity-75 absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-cabbage-default" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-cabbage-default" />
-          </span>
-          <span className="font-mono text-[10px] uppercase tracking-wider text-text-secondary">
-            Live &bull; 6.2k Sources
-          </span>
-        </div>
-        <div className="font-mono text-[10px] text-text-quaternary">
-          Updated 1m
+            AI CODING HUB
+          </Typography>
         </div>
       </div>
     </div>
@@ -1127,12 +813,9 @@ const SignalCard = ({
 
   const cardContent = (
     <div className="flex flex-col gap-1 px-4 py-3 text-left">
-      <div
-        className="flex items-center gap-1 text-text-quaternary"
-        style={{ fontSize: '15px' }}
-      >
+      <div className="flex items-center gap-1 text-[15px] text-text-quaternary">
         {showJustIn && (
-          <span className="rounded-4 bg-white px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none text-black">
+          <span className="rounded-4 bg-theme-active px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none text-text-primary">
             Just in
           </span>
         )}
@@ -1150,18 +833,12 @@ const SignalCard = ({
         <span>{relativeTimeLabels[item.id] || getRelativeTime(item.date)}</span>
       </div>
 
-      <p
-        className="line-clamp-2 font-bold leading-snug"
-        style={{ fontSize: '15px', color: '#EAEAEA' }}
-      >
+      <p className="line-clamp-2 text-[15px] font-bold leading-snug text-text-primary">
         {item.headline}
       </p>
 
       {item.summary && (
-        <p
-          className="leading-normal"
-          style={{ fontSize: '15px', lineHeight: '20px', color: '#EAEAEA' }}
-        >
+        <p className="text-[15px] leading-[20px] text-text-secondary">
           {item.summary}
         </p>
       )}
@@ -1223,78 +900,6 @@ const SignalCard = ({
 
 // --- TSAHI INTERLEAVED CARDS ---
 
-const SignalContextCard = ({ item }: { item: FeedItem }) => (
-  <div className="bg-accent-onion-subtlest/10 relative border-b border-border-subtlest-tertiary px-3 py-2">
-    <div className="mx-auto flex max-w-4xl items-start gap-2">
-      <div className="flex h-5 w-5 shrink-0 items-center justify-center text-accent-onion-default">
-        <InfoIcon size={IconSize.Small} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="mb-0.5 flex items-center gap-2">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-accent-onion-default">
-            Context &bull; {getPrimaryModelLabel(item)}
-          </span>
-        </div>
-        <p
-          className="line-clamp-2 leading-normal"
-          style={{ fontSize: '15px', lineHeight: '20px' }}
-        >
-          {item.summary}
-        </p>
-      </div>
-    </div>
-  </div>
-);
-
-const TopicAnalysisCard = ({ item }: { item: FeedItem }) => {
-  const impactScore = useMemo(() => getImpactScore(item.id), [item.id]);
-
-  return (
-    <div className="from-accent-cabbage-subtlest/5 group relative border-b border-border-subtlest-tertiary bg-gradient-to-r via-transparent to-transparent px-3 py-3">
-      <div className="mx-auto flex max-w-4xl gap-3">
-        <div className="flex flex-col items-center pt-0.5">
-          <div className="relative flex h-8 w-8 items-center justify-center rounded-10 border border-border-subtlest-tertiary bg-transparent text-accent-cabbage-default">
-            <TrendingIcon size={IconSize.Small} />
-            <div className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-background-default ring-2 ring-background-default">
-              <span className="text-[9px] font-bold text-text-primary">
-                {impactScore}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-accent-cabbage-default">
-              Topic Analysis
-            </span>
-            <span className="bg-accent-cabbage-default/50 flex h-1.5 w-1.5 rounded-full">
-              <span className="h-full w-full animate-ping rounded-full bg-accent-cabbage-default" />
-            </span>
-          </div>
-
-          <h3 className="mt-1 text-[14px] font-bold leading-snug text-text-primary">
-            {item.headline.replace(/^Topic Analysis:\s*/i, '')}
-          </h3>
-
-          {item.tags.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {item.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="flex h-6 items-center justify-center rounded-8 border border-border-subtlest-tertiary px-2 text-text-quaternary typo-footnote"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // --- FEED COMPOSER ---
 
 const FeedComposer = ({
@@ -1309,28 +914,9 @@ const FeedComposer = ({
   const feedComponents: ReactElement[] = [];
 
   remaining.forEach((item, index) => {
-    const isTopicCard = (index + 1) % 5 === 0;
-    const isContextCard = (index + 1) % 3 === 0 && !isTopicCard;
-
-    if (isTopicCard) {
-      feedComponents.push(
-        <TopicAnalysisCard
-          key={`topic-${item.id}-${index.toString()}`}
-          item={item}
-        />,
-      );
-    } else if (isContextCard) {
-      feedComponents.push(
-        <SignalContextCard
-          key={`context-${item.id}-${index.toString()}`}
-          item={item}
-        />,
-      );
-    } else {
-      feedComponents.push(
-        <SignalCard key={item.id} item={item} showJustIn={index === 0} />,
-      );
-    }
+    feedComponents.push(
+      <SignalCard key={item.id} item={item} showJustIn={index === 0} />,
+    );
   });
 
   if (items.length === 0) {
@@ -1367,9 +953,8 @@ function AiCodingHubContent(): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
   const showNav = windowLoaded && isMobile;
 
-  // Model tabs
-  const modelFeedData = useMemo(() => getModelFeedData(allItems), []);
-  const [activeModelId, setActiveModelId] = useState<string>('all');
+  // Tabs & derived data
+  const [activeTopicId, setActiveTopicId] = useState<TopicTabId>('all');
   const [activeFeedView, setActiveFeedView] = useState<'main' | 'community'>(
     'main',
   );
@@ -1383,7 +968,7 @@ function AiCodingHubContent(): ReactElement {
   const [showFlash, setShowFlash] = useState(false);
   const [logoGlow, setLogoGlow] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
-  const [showNewPostsBar, setShowNewPostsBar] = useState(false);
+  const [footerNavVisible, setFooterNavVisible] = useState(true);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(
     null,
   );
@@ -1397,35 +982,41 @@ function AiCodingHubContent(): ReactElement {
   const pullStartTime = useRef(0);
   const pullCommitted = useRef(false);
 
-  // Compute model tab index for swipe navigation
-  const allModelIds = useMemo(
-    () => ['all', ...modelFeedData.stats.map((s) => s.id)],
-    [modelFeedData.stats],
+  const availableTopicTabs = useMemo(
+    () =>
+      topicTabOrder.filter((topic) =>
+        allItems.some((item) => item.category === topic),
+      ),
+    [],
   );
-  const activeModelIndex = allModelIds.indexOf(activeModelId);
+  const allTopicIds = useMemo<TopicTabId[]>(
+    () => ['all', ...availableTopicTabs],
+    [availableTopicTabs],
+  );
+  const activeTopicIndex = allTopicIds.indexOf(activeTopicId);
 
-  const switchModelTab = useCallback(
+  const switchTopicTab = useCallback(
     (direction: 'left' | 'right') => {
       const nextIndex =
         direction === 'left'
-          ? Math.min(activeModelIndex + 1, allModelIds.length - 1)
-          : Math.max(activeModelIndex - 1, 0);
+          ? Math.min(activeTopicIndex + 1, allTopicIds.length - 1)
+          : Math.max(activeTopicIndex - 1, 0);
 
-      if (nextIndex === activeModelIndex) {
+      if (nextIndex === activeTopicIndex) {
         return;
       }
 
       setSlideDirection(direction);
       setTimeout(() => {
-        setActiveModelId(allModelIds[nextIndex]);
+        setActiveTopicId(allTopicIds[nextIndex]);
         setSlideDirection(null);
       }, 200);
     },
-    [activeModelIndex, allModelIds],
+    [activeTopicIndex, allTopicIds],
   );
 
   const spawnEmoji = useCallback(() => {
-    const emojis = modelEmojis[activeModelId] || modelEmojis.all;
+    const emojis = modelEmojis[activeTopicId] || modelEmojis.all;
     const emoji = emojis[Math.floor(Math.random() * emojis.length)];
     const angle = Math.random() * Math.PI * 2;
     const radius = 120 + Math.random() * 100;
@@ -1444,16 +1035,7 @@ function AiCodingHubContent(): ReactElement {
     setTimeout(() => {
       setEmojiParticles((prev) => prev.filter((p) => p.id !== particle.id));
     }, 1000);
-  }, [activeModelId]);
-
-  const scrollToTop = useCallback(() => {
-    setHeaderVisible(true);
-    setShowNewPostsBar(false);
-    feedStartRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  }, []);
+  }, [activeTopicId]);
 
   // Pull-to-refresh (window-level, only at top of page)
   useEffect(() => {
@@ -1547,7 +1129,7 @@ function AiCodingHubContent(): ReactElement {
     const onSwipeEnd = () => {
       const diffX = touchStartX.current - touchEndX.current;
       if (Math.abs(diffX) >= SWIPE_THRESHOLD) {
-        switchModelTab(diffX > 0 ? 'left' : 'right');
+        switchTopicTab(diffX > 0 ? 'left' : 'right');
       }
     };
 
@@ -1560,7 +1142,7 @@ function AiCodingHubContent(): ReactElement {
       feedArea.removeEventListener('touchmove', onSwipeMove);
       feedArea.removeEventListener('touchend', onSwipeEnd);
     };
-  }, [switchModelTab]);
+  }, [switchTopicTab]);
 
   // Header auto-hide on scroll
   useEffect(() => {
@@ -1569,9 +1151,7 @@ function AiCodingHubContent(): ReactElement {
       const deltaY = currentY - lastScrollY.current;
 
       if (currentY < 120) {
-        setShowNewPostsBar(false);
-      } else if (deltaY > SCROLL_DIRECTION_THRESHOLD) {
-        setShowNewPostsBar(true);
+        setFooterNavVisible(true);
       }
 
       if (Math.abs(deltaY) < SCROLL_DIRECTION_THRESHOLD) {
@@ -1580,17 +1160,20 @@ function AiCodingHubContent(): ReactElement {
 
       if (deltaY < 0) {
         setHeaderVisible(true);
+        setFooterNavVisible(true);
         lastScrollY.current = currentY;
         return;
       }
 
       if (currentY > 50) {
         setHeaderVisible(false);
+        setFooterNavVisible(false);
         lastScrollY.current = currentY;
         return;
       }
 
       setHeaderVisible(true);
+      setFooterNavVisible(true);
       lastScrollY.current = currentY;
     };
 
@@ -1664,20 +1247,15 @@ function AiCodingHubContent(): ReactElement {
 
   // Computed feed data
   const scopedItems =
-    activeModelId === 'all'
+    activeTopicId === 'all'
       ? allItems
-      : modelFeedData.itemsByModel[activeModelId] || [];
+      : allItems.filter((item) => item.category === activeTopicId);
   const communityWireItems = getCommunityWireItems(scopedItems);
   const scopedBreakingItems = scopedItems
     .filter((item) => breakingCategories.has(item.category))
     .slice(0, 9);
-  const trendingModelLabel =
-    modelFeedData.stats.find(
-      (model) => model.id === modelFeedData.trendingModelId,
-    )?.label || 'N/A';
-
-  const handleModelSelect = (modelId: string): void => {
-    setActiveModelId(modelId);
+  const handleTopicSelect = (topicId: TopicTabId): void => {
+    setActiveTopicId(topicId);
     const el = feedStartRef.current;
     if (!el) {
       return;
@@ -1699,36 +1277,6 @@ function AiCodingHubContent(): ReactElement {
       />
       <style>
         {`
-          @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-          @keyframes voiceWave {
-            0%, 100% { transform: scaleY(0.35); opacity: 0.55; }
-            50% { transform: scaleY(1); opacity: 1; }
-          }
-          .animate-marquee {
-            animation: marquee 48s linear infinite;
-          }
-          .animate-voice-wave-1 {
-            transform-origin: center bottom;
-            animation: voiceWave 1s ease-in-out infinite;
-          }
-          .animate-voice-wave-2 {
-            transform-origin: center bottom;
-            animation: voiceWave 0.8s ease-in-out infinite;
-            animation-delay: 80ms;
-          }
-          .animate-voice-wave-3 {
-            transform-origin: center bottom;
-            animation: voiceWave 1.2s ease-in-out infinite;
-            animation-delay: 160ms;
-          }
-          .animate-voice-wave-4 {
-            transform-origin: center bottom;
-            animation: voiceWave 0.9s ease-in-out infinite;
-            animation-delay: 240ms;
-          }
         `}
       </style>
 
@@ -1799,22 +1347,7 @@ function AiCodingHubContent(): ReactElement {
           />
         ) : (
           <>
-            <MarqueeTicker
-              items={tickerItems}
-              className="bg-transparent pb-1"
-            />
-            <MarketOverview
-              breakingItems={scopedBreakingItems}
-              trendingModelLabel={trendingModelLabel}
-            />
             <BreakingNewsCarousel items={scopedBreakingItems} />
-            <CommunityWirePreview
-              items={communityWireItems}
-              onOpenFeed={() => {
-                setActiveFeedView('community');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            />
             <WidgetComparisonMonitor />
 
             {/* Feed zone: swipe gestures only affect this area */}
@@ -1823,33 +1356,13 @@ function AiCodingHubContent(): ReactElement {
               <div
                 ref={feedStartRef}
                 className="z-[75] sticky top-0 bg-background-default"
-                style={{
-                  bottom: showNav
-                    ? 'calc(4rem + env(safe-area-inset-bottom, 0px))'
-                    : '0px',
-                }}
               >
-                <ModelChipRail
-                  stats={modelFeedData.stats}
-                  activeModelId={activeModelId}
-                  onSelect={handleModelSelect}
+                <TopicChipRail
+                  topics={availableTopicTabs}
+                  activeTopicId={activeTopicId}
+                  onSelect={handleTopicSelect}
                 />
               </div>
-
-              {/* "New posts" button below tab bar */}
-              {showNewPostsBar && !headerVisible && (
-                <div className="flex justify-center py-2">
-                  <button
-                    type="button"
-                    className="z-[21] rounded-8 bg-accent-cabbage-default px-3 py-1.5 text-sm font-bold text-text-primary shadow-2 transition-all hover:bg-accent-cabbage-default"
-                    onClick={scrollToTop}
-                  >
-                    2 new posts &uarr;
-                  </button>
-                </div>
-              )}
-
-              <LivePodcastStrip />
 
               {/* Feed area with slide transition */}
               <div
@@ -1885,7 +1398,12 @@ function AiCodingHubContent(): ReactElement {
 
       {/* Mobile bottom navbar - always visible */}
       {showNav && (
-        <div className="z-30 fixed bottom-0 left-0 w-full bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2">
+        <div
+          className={classNames(
+            'z-30 fixed bottom-0 left-0 w-full bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2 transition-transform duration-200',
+            footerNavVisible ? 'translate-y-0' : 'translate-y-full',
+          )}
+        >
           <MobileFooterNavbar />
         </div>
       )}

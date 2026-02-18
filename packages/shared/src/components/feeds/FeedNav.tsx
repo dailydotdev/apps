@@ -1,11 +1,11 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useMemo, useState, useTransition } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import { useEventListener, useFeeds, useViewSize, ViewSize } from '../../hooks';
+import { useFeeds, useViewSize, ViewSize } from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -22,7 +22,6 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
-import classed from '../../lib/classed';
 import { OtherFeedPage } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
@@ -31,7 +30,6 @@ import { SharedFeedPage } from '../utilities';
 import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
-import { useAlertsContext } from '../../contexts/AlertContext';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -47,22 +45,41 @@ enum FeedNavTab {
   Following = 'Following',
 }
 
-const StickyNavIconWrapper = classed(
-  'div',
-  'sticky flex h-14 pt-1 -translate-y-16 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
-);
-
-const MIN_SCROLL_BEFORE_HIDING = 60;
+const aiBreakingItems = [
+  {
+    id: 'news-claude-knowledge-bases',
+    label: 'Leak',
+    date: 'Feb 5',
+    model: 'Opus',
+    headline: 'Claude Knowledge Bases spotted in testing',
+    summary:
+      "New 'Save to knowledge base' button found. Prompt saves reusable info to /mnt/knowledge/ for future conversations.",
+  },
+  {
+    id: 'news-naval-vibe-research',
+    label: 'Hot take',
+    date: 'Feb 5',
+    model: 'General AI',
+    headline: "Naval: 'Vibe coding is here. Vibe research is next.'",
+    summary: '',
+  },
+  {
+    id: 'news-sam-anthropic-drama',
+    label: 'Drama',
+    date: 'Feb 4',
+    model: 'Codex',
+    headline: 'Sam Altman responds to Anthropic Super Bowl ad',
+    summary:
+      "'The good part: they are funny. But I wonder why Anthropic would go for something so clearly dishonest.' Claims 500K Codex downloads since Monday.",
+  },
+] as const;
 
 function FeedNav(): ReactElement {
   const router = useRouter();
-  const [, startTransition] = useTransition();
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home, bookmarks } = useActiveNav(feedName);
-  const { alerts } = useAlertsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -81,8 +98,6 @@ function FeedNav(): ReactElement {
   const showStickyButton =
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
-
-  const hasOpportunityAlert = !!alerts.opportunityId;
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
     const customFeeds = sortedFeeds.reduce((acc, { node: feed }) => {
@@ -127,111 +142,159 @@ function FeedNav(): ReactElement {
     isCustomDefaultFeed,
   ]);
 
-  const previousScrollY = React.useRef(0);
-
-  useEventListener(globalThis, 'scroll', () => {
-    // when scrolled down we should hide the header
-    // when scrolled up, we should bring it back
-    const { scrollY } = window;
-    const shouldHeaderBeVisible = scrollY < previousScrollY.current;
-
-    previousScrollY.current = scrollY;
-
-    if (shouldHeaderBeVisible === isHeaderVisible) {
-      return;
-    }
-
-    if (!shouldHeaderBeVisible && scrollY < MIN_SCROLL_BEFORE_HIDING) {
-      return;
-    }
-
-    startTransition(() => {
-      setIsHeaderVisible(shouldHeaderBeVisible);
-    });
-  });
   const shouldRenderNav = home || (isMobile && bookmarks);
+  const showAiNewsCarousel = isMobile && isForYouTab;
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }
 
-  const headerTransitionClasses =
-    isMobile && hasOpportunityAlert
-      ? '-translate-y-[7.5rem] duration-[800ms]'
-      : '-translate-y-26 duration-[800ms]';
-
   return (
     <div
-      className={classNames(
-        'sticky top-0 z-header w-full transition-transform tablet:pl-16',
-        scrollClassName,
-        isHeaderVisible && 'translate-y-0 duration-200',
-        !isHeaderVisible && headerTransitionClasses,
-      )}
+      className="w-full tablet:pl-16"
     >
       {isMobile && <MobileFeedActions />}
-      <div className="mb-4 h-[3.25rem] tablet:mb-0">
-        <TabContainer
-          controlledActive={urlToTab[router.asPath] ?? ''}
-          shouldMountInactive
-          className={{
-            header: classNames(
-              'no-scrollbar overflow-x-auto px-2',
-              isSortableFeed && sortingEnabled && 'pr-28',
-            ),
-          }}
-          tabListProps={{
-            className: {
-              indicator: '!w-6',
-              item: 'px-1 tablet:last-of-type:mr-12',
-            },
-            autoScrollActive: true,
-          }}
-          renderTab={({ label }) => {
-            if (label === FeedNavTab.NewFeed) {
-              return (
-                <div className="flex size-6 items-center justify-center rounded-6 bg-background-subtle">
-                  <PlusIcon />
-                </div>
-              );
-            }
-
-            return null;
-          }}
-        >
-          {Object.entries(urlToTab).map(([url, label]) => (
-            <Tab key={`${label}-${url}`} label={label} url={url} />
-          ))}
-        </TabContainer>
-
-        {showStickyButton && (
-          <StickyNavIconWrapper
-            className={classNames(
-              'translate-x-[calc(100vw-100%)]',
-              sortingEnabled && isSortableFeed ? 'w-32' : 'w-20',
-            )}
-          >
-            {sortingEnabled && isSortableFeed && (
-              <Dropdown
-                className={{
-                  label: 'hidden',
-                  chevron: 'hidden',
-                  button: '!px-1',
-                }}
-                shouldIndicateSelected
-                buttonSize={ButtonSize.Small}
-                buttonVariant={ButtonVariant.Tertiary}
-                icon={<SortIcon />}
-                iconOnly
-                selectedIndex={selectedAlgo}
-                options={algorithmsList}
-                onChange={(_, index) => setSelectedAlgo(index)}
-                drawerProps={{ displayCloseButton: true }}
-              />
-            )}
-
-            <MyFeedHeading />
-          </StickyNavIconWrapper>
+      {showAiNewsCarousel && (
+        <section className="border-t border-border-subtlest-tertiary bg-gradient-to-b from-background-subtle via-background-default to-background-default px-3 pb-5 pt-3">
+          <div className="mx-auto max-w-4xl overflow-visible">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-1.5 w-1.5 rounded-full bg-accent-ketchup-default" />
+                <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-accent-ketchup-default">
+                  Breaking
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                {aiBreakingItems.map((item, index) => (
+                  <span
+                    key={`ai-news-dot-${item.id}`}
+                    className={classNames(
+                      'h-1.5 w-1.5 rounded-full border',
+                      index === 0
+                        ? 'border-text-secondary bg-text-secondary'
+                        : 'border-border-subtlest-secondary bg-transparent',
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="no-scrollbar flex w-full snap-x snap-mandatory gap-2 overflow-x-auto overflow-y-visible pr-px">
+              {aiBreakingItems.map((item) => (
+                <article
+                  key={item.id}
+                  className="flex h-[112px] w-full min-w-full flex-shrink-0 snap-center flex-col rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3"
+                >
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="rounded-4 bg-accent-ketchup-default px-1 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">
+                        {item.label}
+                      </span>
+                      <span className="font-mono text-[10px] text-text-quaternary">
+                        {item.date}
+                      </span>
+                    </div>
+                    <span className="rounded-4 border border-border-subtlest-secondary bg-transparent px-1 py-0.5 text-[10px] text-text-tertiary">
+                      {item.model}
+                    </span>
+                  </div>
+                  <p className="line-clamp-3 text-[14px] text-text-primary">
+                    {item.headline} {item.summary}
+                  </p>
+                </article>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push('/ai-coding-hub')}
+              className="mt-3 w-full rounded-8 border border-border-subtlest-tertiary bg-transparent px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              See all AI news
+            </button>
+          </div>
+        </section>
+      )}
+      <div
+        className={classNames(
+          'h-11 bg-background-default relative',
+          scrollClassName,
         )}
+      >
+        <div className="sticky top-0 z-header flex h-11 items-center border-b border-border-subtlest-tertiary bg-background-default">
+          <TabContainer
+            controlledActive={urlToTab[router.asPath] ?? ''}
+            shouldMountInactive
+            showBorder={false}
+            className={{
+              container: 'min-w-0 flex-1',
+              header: 'no-scrollbar overflow-x-auto px-2',
+            }}
+            tabListProps={{
+              className: {
+                indicator: 'hidden',
+              item:
+                '!p-0.5 !py-1 !text-[12px] !font-semibold tablet:last-of-type:mr-8',
+              },
+              autoScrollActive: true,
+            }}
+            renderTab={({ label, isActive }) => {
+              if (label === FeedNavTab.NewFeed) {
+                return (
+                  <div
+                    className={classNames(
+                      'flex size-6 items-center justify-center rounded-6 transition-colors',
+                      isActive
+                        ? 'shadow-sm bg-white text-black'
+                        : 'bg-background-subtle text-text-quaternary hover:text-text-secondary',
+                    )}
+                  >
+                    <PlusIcon />
+                  </div>
+                );
+              }
+
+              return (
+                <span
+                  className={classNames(
+                    'whitespace-nowrap rounded-6 px-1 py-0.5 text-[12px] font-semibold transition-colors',
+                    isActive
+                      ? 'shadow-sm bg-white text-black'
+                      : 'text-text-quaternary hover:text-text-secondary',
+                  )}
+                >
+                  {label}
+                </span>
+              );
+            }}
+          >
+            {Object.entries(urlToTab).map(([url, label]) => (
+              <Tab key={`${label}-${url}`} label={label} url={url} />
+            ))}
+          </TabContainer>
+
+          {showStickyButton && (
+            <div className="flex shrink-0 items-center gap-1 px-2">
+              {sortingEnabled && isSortableFeed && (
+                <Dropdown
+                  className={{
+                    label: 'hidden',
+                    chevron: 'hidden',
+                    button: '!px-1',
+                  }}
+                  shouldIndicateSelected
+                  buttonSize={ButtonSize.Small}
+                  buttonVariant={ButtonVariant.Tertiary}
+                  icon={<SortIcon />}
+                  iconOnly
+                  selectedIndex={selectedAlgo}
+                  options={algorithmsList}
+                  onChange={(_, index) => setSelectedAlgo(index)}
+                  drawerProps={{ displayCloseButton: true }}
+                />
+              )}
+
+              <MyFeedHeading />
+            </div>
+          )}
+        </div>
         <div className="absolute right-0 top-0 hidden h-[3.25rem] items-center bg-background-default tablet:flex laptop:hidden">
           <NotificationsBell compact />
         </div>
