@@ -8,7 +8,7 @@ import { mocked } from 'ts-jest/utils';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import type { LoggedUser, AnonymousUser } from '../lib/user';
-import { deleteAccount } from '../lib/user';
+import { deleteAccount, LogoutReason } from '../lib/user';
 import SettingsContext, {
   remoteThemes,
   ThemeMode,
@@ -22,20 +22,29 @@ import type { RemoteSettings, Spaciness } from '../graphql/settings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '../graphql/settings';
 import { BootDataProvider } from './BootProvider';
 import type { Boot, BootCacheData } from '../lib/boot';
-import { getBootData } from '../lib/boot';
+import { BootApp, getBootData } from '../lib/boot';
 import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
 import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
+import { SortCommentsBy } from '../graphql/comments';
 
-jest.mock('../lib/boot', () => ({
-  ...jest.requireActual('../lib/boot'),
-  getBootData: jest.fn(),
-}));
+jest.mock('../lib/boot', () => {
+  const actual = jest.requireActual('../lib/boot');
 
-jest.mock('../lib/user', () => ({
-  ...jest.requireActual('../lib/user'),
-  deleteAccount: jest.fn(),
-}));
+  return {
+    ...actual,
+    getBootData: jest.fn(),
+  };
+});
+
+jest.mock('../lib/user', () => {
+  const actual = jest.requireActual('../lib/user');
+
+  return {
+    ...actual,
+    deleteAccount: jest.fn(),
+  };
+});
 
 const getRedirectUriMock = jest.fn();
 
@@ -58,6 +67,8 @@ const defaultSettings: RemoteSettings = {
   optOutReadingStreak: true,
   autoDismissNotifications: true,
   optOutCompanion: false,
+  sortCommentsBy: SortCommentsBy.NewestFirst,
+  showFeedbackButton: true,
 };
 
 const defaultBootData: BootCacheData = {
@@ -65,6 +76,9 @@ const defaultBootData: BootCacheData = {
   user: defaultUser,
   settings: defaultSettings,
   notifications: { unreadNotificationsCount: 0 },
+  squads: [],
+  feeds: [],
+  geo: {},
 };
 
 const getBootMock = (bootMock: BootCacheData): Boot => ({
@@ -78,11 +92,17 @@ const renderComponent = (
   bootData = defaultBootData,
 ): RenderResult => {
   const queryClient = new QueryClient();
-  const app = 'extension';
+  const app = BootApp.Extension;
   mocked(getBootData).mockResolvedValue(getBootMock(bootData));
   return render(
     <QueryClientProvider client={queryClient}>
-      <BootDataProvider app={app} getRedirectUri={getRedirectUriMock}>
+      <BootDataProvider
+        app={app}
+        version="test-version"
+        deviceId="test-device"
+        getPage={() => '/'}
+        getRedirectUri={getRedirectUriMock}
+      >
         {children}
       </BootDataProvider>
     </QueryClientProvider>,
@@ -380,7 +400,7 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
       <button onClick={deleteUserAccount} type="button">
         Delete
       </button>
-      <button onClick={logout} type="button">
+      <button onClick={() => logout(LogoutReason.ManualLogout)} type="button">
         Logout
       </button>
       <button

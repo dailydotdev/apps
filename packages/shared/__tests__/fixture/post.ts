@@ -1,5 +1,6 @@
 import type { Post } from '../../src/graphql/posts';
 import { PostType } from '../../src/graphql/posts';
+import { SourceMemberRole, SourceType } from '../../src/graphql/sources';
 import { author } from './loggedUser';
 
 const post: Post = {
@@ -14,12 +15,10 @@ const post: Post = {
     name: 'Towards Data Science',
     permalink: 'permalink/tds',
     image: 'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/tds',
-  },
+  } as unknown as Post['source'],
   readTime: 8,
   image:
     'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
-  placeholder:
-    'data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAOAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABwQF/8QAJRAAAQMCBQQDAAAAAAAAAAAAAQIDBBEhAAUSIjEGFEGBExZR/8QAFQEBAQAAAAAAAAAAAAAAAAAAAwb/xAAeEQABAwQDAAAAAAAAAAAAAAACAQMRAAQFYSHw8f/aAAwDAQACEQMRAD8AvyKMIOdTJzSURmESVBsPrUXAAq6iQQNHu9L/ALhSiZpIdiMuFDJK0JUSkilx43cYCvt8eT2rMxD6GVDelltPsC4qK+OMaLHUoDDfasuiPpHxha06gmlq7eaYn8hhyuyQphe7pQvH3VUnY1x7X//Z',
   commentsPermalink: 'https://daily.dev',
   author,
   tags: ['webdev', 'javascript'],
@@ -40,8 +39,14 @@ export const sharePost: Post = {
     description: "Earth's mightiest developers ",
     image:
       'https://media.daily.dev/image/upload/v1675852969/squads/c0457b66-e89b-4fc0-b06d-48f920c7caa2.jpg',
-    type: 'squad',
+    type: SourceType.Squad,
     active: true,
+    public: true,
+    membersCount: 1,
+    memberPostingRole: SourceMemberRole.Member,
+    memberInviteRole: SourceMemberRole.Member,
+    moderationRequired: false,
+    moderationPostCount: 0,
   },
   sharedPost: {
     id: 'pzSLBZHa1',
@@ -58,8 +63,13 @@ export const sharePost: Post = {
     scout: null,
     author: {
       id: 'oHt34Q_Zn',
+      name: 'TkDodo',
+      image:
+        'https://media.daily.dev/image/upload/t_logo,f_auto/v1656338366/logos/tkdodo',
+      permalink: 'https://app.daily.dev/tkdodo',
+      username: 'tkdodo',
     },
-    type: 'article',
+    type: PostType.Article,
     tags: ['backend', 'typescript', 'react-query'],
     source: {
       id: 'tkdodo',
@@ -69,8 +79,8 @@ export const sharePost: Post = {
       description: null,
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1656338366/logos/tkdodo',
-      type: 'machine',
-      active: true,
+      type: SourceType.Machine,
+      public: true,
     },
   },
   permalink: 'https://api.daily.dev/r/5nLQHVNHi',
@@ -89,7 +99,7 @@ export const sharePost: Post = {
   },
   trending: null,
   tags: [],
-  type: 'share',
+  type: PostType.Share,
   private: true,
   read: true,
   upvoted: false,
