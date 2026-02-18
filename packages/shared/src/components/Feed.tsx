@@ -14,6 +14,7 @@ import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
+import type { Spaciness } from '../graphql/settings';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -203,7 +204,9 @@ export default function Feed<T>({
     shouldEvaluate: true,
   });
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
-  const effectiveSpaciness = isFeedLayoutV2 ? 'eco' : spaciness ?? 'eco';
+  const effectiveSpaciness: Spaciness = isFeedLayoutV2
+    ? 'eco'
+    : spaciness ?? 'eco';
   const numCards = currentSettings.numCards[effectiveSpaciness];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const trackedFeedFinish = useRef(false);

@@ -80,6 +80,10 @@ export const getFeedGapPx = {
   'gap-14': 56,
 };
 
+/**
+ * Returns the appropriate gap class based on layout mode and spaciness.
+ * @param defaultGridGap - Optional override for grid gap (used by feature flags like feed_layout_v2)
+ */
 export const gapClass = ({
   isList,
   isFeedLayoutList,
@@ -173,7 +177,9 @@ export const FeedContainer = ({
     feedName,
   });
   const router = useRouter();
-  const effectiveSpaciness = isFeedLayoutV2 ? 'eco' : spaciness ?? 'eco';
+  const effectiveSpaciness: Spaciness = isFeedLayoutV2
+    ? 'eco'
+    : spaciness ?? 'eco';
   const numCards = currentSettings.numCards[effectiveSpaciness];
   const isList =
     (isHorizontal || isListMode) && !shouldUseListFeedLayout

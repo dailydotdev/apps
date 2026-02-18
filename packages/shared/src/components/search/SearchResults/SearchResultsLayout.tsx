@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
 import type { SearchSuggestion } from '../../../graphql/search';
 import { SearchProviderEnum } from '../../../graphql/search';
+import type { Spaciness } from '../../../graphql/settings';
 import { useSearchResultsLayout } from '../../../hooks/search/useSearchResultsLayout';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -32,7 +33,8 @@ export const SearchResultsLayout = (
     feature: featureFeedLayoutV2,
     shouldEvaluate: true,
   });
-  const effectiveSpaciness = isFeedLayoutV2 ? 'eco' : spaciness;
+  const effectiveSpaciness: Spaciness = isFeedLayoutV2 ? 'eco' : spaciness;
+  const v2GridGap = isFeedLayoutV2 ? 'gap-4' : undefined;
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const {
@@ -110,6 +112,7 @@ export const SearchResultsLayout = (
                 isList: true,
                 isFeedLayoutList: false,
                 space: effectiveSpaciness,
+                defaultGridGap: v2GridGap,
               }),
               isListMode
                 ? `flex flex-col`
