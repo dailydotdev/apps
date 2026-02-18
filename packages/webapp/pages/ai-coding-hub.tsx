@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
@@ -22,7 +23,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  TrendingIcon,
   HotIcon,
   UpvoteIcon,
   DiscussIcon,
@@ -104,19 +104,6 @@ type ModelDefinition = {
   keywords: string[];
 };
 
-type ModelStat = {
-  id: string;
-  label: string;
-  count: number;
-  latestDate: number;
-};
-
-type ModelFeedData = {
-  stats: ModelStat[];
-  itemsByModel: Record<string, FeedItem[]>;
-  trendingModelId: string | null;
-};
-
 const modelDefinitions: ModelDefinition[] = [
   {
     id: 'codex',
@@ -160,51 +147,6 @@ const getItemModelIds = (item: FeedItem): string[] => {
       ),
     )
     .map((model) => model.id);
-};
-
-const getModelFeedData = (items: FeedItem[]): ModelFeedData => {
-  const itemsByModel: Record<string, FeedItem[]> = {};
-  const latestDateByModel: Record<string, number> = {};
-
-  modelDefinitions.forEach((model) => {
-    itemsByModel[model.id] = [];
-    latestDateByModel[model.id] = 0;
-  });
-
-  items.forEach((item) => {
-    const modelIds = getItemModelIds(item);
-    if (modelIds.length === 0) {
-      return;
-    }
-    const itemDate = new Date(item.date).getTime() || 0;
-    modelIds.forEach((modelId) => {
-      itemsByModel[modelId].push(item);
-      if (itemDate > latestDateByModel[modelId]) {
-        latestDateByModel[modelId] = itemDate;
-      }
-    });
-  });
-
-  const stats = modelDefinitions
-    .map((model) => ({
-      id: model.id,
-      label: model.label,
-      count: itemsByModel[model.id].length,
-      latestDate: latestDateByModel[model.id],
-    }))
-    .filter((model) => model.count > 0)
-    .sort((a, b) => {
-      if (b.count !== a.count) {
-        return b.count - a.count;
-      }
-      return b.latestDate - a.latestDate;
-    });
-
-  return {
-    stats,
-    itemsByModel,
-    trendingModelId: stats[0]?.id || null,
-  };
 };
 
 const getPrimaryModelLabel = (item: FeedItem): string => {
@@ -641,7 +583,7 @@ const WidgetComparisonMonitor = () => {
         </span>
         <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-text-secondary">
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-cabbage-default opacity-75" />
+            <span className="opacity-75 absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-cabbage-default" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent-cabbage-default" />
           </span>
           Live
@@ -697,7 +639,7 @@ const BreakingNewsCarousel = ({ items }: { items: FeedItem[] }) => {
   }
 
   return (
-    <div className="bg-gradient-to-b from-background-subtle via-background-default to-background-default px-3 pb-5 pt-2">
+    <div className="bg-gradient-to-b from-background-subtle from-70% via-background-default to-background-default px-3 pb-5 pt-2">
       <div className="mx-auto max-w-4xl">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -779,7 +721,7 @@ const CompactHeader = ({ logoGlow }: { logoGlow: boolean }) => {
         />
         <div className="flex items-center gap-2">
           <Typography
-            tag="h1"
+            tag={TypographyTag.H1}
             type={TypographyType.Callout}
             className={classNames(
               'font-bold leading-none text-text-primary transition-all duration-500',
@@ -967,7 +909,6 @@ function AiCodingHubContent(): ReactElement {
   const [emojiParticles, setEmojiParticles] = useState<EmojiParticle[]>([]);
   const [showFlash, setShowFlash] = useState(false);
   const [logoGlow, setLogoGlow] = useState(false);
-  const [headerVisible, setHeaderVisible] = useState(true);
   const [footerNavVisible, setFooterNavVisible] = useState(true);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(
     null,
@@ -1159,20 +1100,17 @@ function AiCodingHubContent(): ReactElement {
       }
 
       if (deltaY < 0) {
-        setHeaderVisible(true);
         setFooterNavVisible(true);
         lastScrollY.current = currentY;
         return;
       }
 
       if (currentY > 50) {
-        setHeaderVisible(false);
         setFooterNavVisible(false);
         lastScrollY.current = currentY;
         return;
       }
 
-      setHeaderVisible(true);
       setFooterNavVisible(true);
       lastScrollY.current = currentY;
     };
@@ -1355,7 +1293,7 @@ function AiCodingHubContent(): ReactElement {
               {/* Model chip rail - sticks above footer initially, then sticks to top when pushed there */}
               <div
                 ref={feedStartRef}
-                className="z-[75] sticky top-0 bg-background-default"
+                className="sticky top-0 z-[75] bg-background-default"
               >
                 <TopicChipRail
                   topics={availableTopicTabs}
