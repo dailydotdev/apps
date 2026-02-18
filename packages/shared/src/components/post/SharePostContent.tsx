@@ -262,12 +262,12 @@ export function CommonSharePostContent({
       <>
         {shouldShowRepostingHandle && (
           <p className="mt-2 text-text-primary typo-markdown">
-            <span className="inline-flex h-[18px] items-center gap-1 align-middle leading-[18px]">
+            <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
+              <span>{repostedByName} reposted</span>
               <TwitterIcon
                 className={repostIconClassName}
                 size={repostIconSize}
               />
-              <span>{repostedByName} reposted</span>
             </span>
           </p>
         )}

@@ -246,22 +246,22 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   if (metadataHandles.length) {
     if (post.subType === 'repost') {
       metadataBottomLabel = (
-        <span className="inline-flex h-[18px] items-center gap-1 align-middle leading-[18px]">
+        <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
+          <span>{repostedByName} reposted</span>
           <TwitterIcon
             className="relative top-px text-text-tertiary"
             size={IconSize.XXSmall}
           />
-          <span>{repostedByName} reposted</span>
         </span>
       );
     } else if (metadataHandles.length === 1 && repostedByName) {
       metadataBottomLabel = (
-        <span className="inline-flex h-[18px] items-center gap-1 align-middle leading-[18px]">
+        <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
+          <span>{repostedByName}</span>
           <TwitterIcon
             className="relative top-px text-text-tertiary"
             size={IconSize.XXSmall}
           />
-          <span>{repostedByName}</span>
         </span>
       );
     } else {
@@ -337,18 +337,19 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
             )}
             {showReferenceTweet && (
               <div className="mt-4 w-full rounded-12 border border-border-subtlest-tertiary p-3">
-                <div className="mb-2 flex items-center justify-start gap-2">
+                <div className="flex min-w-0 items-center gap-1">
                   {!!embeddedTweetAvatarUser && (
                     <ProfilePicture
                       user={embeddedTweetAvatarUser}
-                      size={ProfileImageSize.Small}
+                      size={ProfileImageSize.Size16}
                       rounded="full"
+                      className="shrink-0"
                       nativeLazyLoading
                     />
                   )}
                   <div className="min-w-0">
                     {!!embeddedTweetIdentity && (
-                      <p className="truncate text-text-tertiary typo-footnote">
+                      <p className="truncate font-bold text-text-primary typo-caption1">
                         {embeddedTweetIdentity}
                       </p>
                     )}
