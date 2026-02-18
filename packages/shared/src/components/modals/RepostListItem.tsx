@@ -36,6 +36,7 @@ export function RepostListItem({
     const userShortInfoProps = {
       user: author,
       showDescription: false,
+      disableTooltip: true,
       scrollingContainer,
       appendTooltipTo,
     };
@@ -63,7 +64,7 @@ export function RepostListItem({
   };
 
   return (
-    <div className="border-b border-border-subtlest-tertiary px-6 py-5 last:border-b-0">
+    <div className="border-b border-border-subtlest-tertiary px-6 py-5 last:border-b-0 hover:bg-surface-hover">
       {/* Squad name + lock + date */}
       {showSquadPreview && (
         <div className="mb-3 flex items-center gap-1">
@@ -74,7 +75,7 @@ export function RepostListItem({
           />
           {post.source.permalink ? (
             <Link href={post.source.permalink}>
-              <a className="truncate text-text-secondary typo-callout hover:underline">
+              <a className="truncate text-text-secondary !no-underline typo-callout hover:!no-underline">
                 {post.source.name}
               </a>
             </Link>
@@ -107,7 +108,7 @@ export function RepostListItem({
       {!!post.title &&
         (post.commentsPermalink ? (
           <Link href={post.commentsPermalink}>
-            <a className="mt-3 line-clamp-3 block text-text-primary typo-body hover:underline">
+            <a className="mt-3 line-clamp-3 block text-text-primary !no-underline typo-body hover:!no-underline">
               {post.title}
             </a>
           </Link>
