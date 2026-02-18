@@ -3,7 +3,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ActiveOrRecomendedSquads } from './ActiveOrRecomendedSquads';
 import type { Squad } from '../../../../graphql/sources';
-import { SourceType } from '../../../../graphql/sources';
+import { SourceMemberRole, SourceType } from '../../../../graphql/sources';
 import AuthContext from '../../../../contexts/AuthContext';
 import type { LoggedUser } from '../../../../lib/user';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
@@ -11,6 +11,12 @@ import { labels } from '../../../../lib';
 import { getLogContextStatic } from '../../../../contexts/LogContext';
 
 const LogContext = getLogContextStatic();
+const squadDefaults = {
+  memberPostingRole: SourceMemberRole.Member,
+  memberInviteRole: SourceMemberRole.Member,
+  moderationRequired: false,
+  moderationPostCount: 0,
+} as const;
 
 const mockSquad1: Squad = {
   id: 's1',
@@ -23,6 +29,7 @@ const mockSquad1: Squad = {
   active: true,
   public: true,
   description: 'JavaScript enthusiasts',
+  ...squadDefaults,
 };
 
 const mockSquad2: Squad = {
@@ -36,6 +43,7 @@ const mockSquad2: Squad = {
   active: true,
   public: true,
   description: 'React developers community',
+  ...squadDefaults,
 };
 
 const mockSquad3: Squad = {
@@ -49,6 +57,7 @@ const mockSquad3: Squad = {
   active: true,
   public: true,
   description: 'TypeScript lovers',
+  ...squadDefaults,
 };
 
 const mockSquad4: Squad = {
@@ -62,6 +71,7 @@ const mockSquad4: Squad = {
   active: true,
   public: true,
   description: 'Vue.js developers',
+  ...squadDefaults,
 };
 
 const mockSquad5: Squad = {
@@ -75,6 +85,7 @@ const mockSquad5: Squad = {
   active: true,
   public: true,
   description: 'Node.js backend developers',
+  ...squadDefaults,
 };
 
 const mockSquad6: Squad = {
@@ -88,6 +99,7 @@ const mockSquad6: Squad = {
   active: true,
   public: true,
   description: 'Python enthusiasts',
+  ...squadDefaults,
 };
 
 const createMockSquads = (count: number): Squad[] => {
