@@ -53,6 +53,7 @@ const renderComponent = (
     onComment,
     onDelete,
     onEdit,
+    onShare: jest.fn(),
     onShowUpvotes,
   };
 
@@ -66,8 +67,11 @@ const renderComponent = (
           user,
           shouldShowLogin: false,
           showLogin,
+          isLoggedIn: !!user,
           logout: jest.fn(),
           updateUser: jest.fn(),
+          closeLogin: jest.fn(),
+          getRedirectUri: jest.fn(),
           tokenRefreshed: true,
         }}
       >
@@ -173,6 +177,7 @@ it('should send cancel upvote mutation', async () => {
     {
       userState: {
         vote: UserVote.Up,
+        awarded: false,
       },
     },
     loggedUser,
@@ -338,6 +343,7 @@ it('should send cancel downvote mutation', async () => {
     {
       userState: {
         vote: UserVote.Down,
+        awarded: false,
       },
     },
     loggedUser,

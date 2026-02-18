@@ -53,7 +53,10 @@ export function RepostsModal({
       size={Modal.Size.Medium}
     >
       <Modal.Header title="Reposts" />
-      <Modal.Body className="!p-0" ref={container}>
+      <Modal.Body
+        className="!p-0 [&_a:hover]:!no-underline [&_a]:!no-underline"
+        ref={container}
+      >
         <InfiniteScrolling
           canFetchMore={checkFetchMore(queryResult)}
           isFetchingNextPage={queryResult.isFetchingNextPage}

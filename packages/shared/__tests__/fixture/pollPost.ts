@@ -1,5 +1,6 @@
 import type { Post } from '../../src/graphql/posts';
 import { PostType, UserVote } from '../../src/graphql/posts';
+import { SourceType } from '../../src/graphql/sources';
 import { author } from './loggedUser';
 
 export const pollPost: Post = {
@@ -15,7 +16,8 @@ export const pollPost: Post = {
     permalink: 'permalink/dev-poll',
     image:
       'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/dev-poll',
-    type: 'squad',
+    type: SourceType.Machine,
+    public: true,
   },
   readTime: null,
   image:

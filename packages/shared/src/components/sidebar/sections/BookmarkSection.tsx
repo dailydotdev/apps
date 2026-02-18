@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { ArrowIcon, BookmarkIcon, BriefIcon, PlusIcon } from '../../icons';
+import { ArrowIcon, BookmarkIcon, BriefIcon } from '../../icons';
 import { Section } from '../Section';
 import { briefingUrl, webappUrl } from '../../../lib/constants';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
@@ -31,10 +31,7 @@ export const BookmarkSection = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const rightIcon = !isLaptop && (() => <ArrowIcon className="rotate-90" />);
 
-  const onAddFolderClick = (
-    event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
+  const handleAddFolder = useCallback(() => {
     openModal({
       type: LazyModal.BookmarkFolder,
       props: {
@@ -44,7 +41,7 @@ export const BookmarkSection = ({
         },
       },
     });
-  };
+  }, [openModal, closeModal, createFolder]);
 
   const menuItems: SidebarMenuItem[] = [
     briefUIFeatureValue && {
@@ -89,16 +86,6 @@ export const BookmarkSection = ({
       requiresLogin: true,
       rightIcon,
     })),
-    {
-      icon: () => (
-        <div className="rounded-6 bg-background-subtle">
-          <PlusIcon aria-label="Add" />
-        </div>
-      ),
-      title: 'New folder',
-      requiresLogin: true,
-      action: onAddFolderClick,
-    },
   ].filter(Boolean);
 
   return (
@@ -108,6 +95,7 @@ export const BookmarkSection = ({
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.BookmarksExpanded}
       isAlwaysOpenOnMobile
+      onAdd={handleAddFolder}
     />
   );
 };

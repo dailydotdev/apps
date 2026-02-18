@@ -6,6 +6,7 @@ import { ListIcon } from '../common';
 import {
   DevPlusIcon,
   EyeIcon,
+  HomeIcon,
   HotIcon,
   SquadIcon,
   YearInReviewIcon,
@@ -60,7 +61,14 @@ export const MainSection = ({
             <ProfilePicture size={ProfileImageSize.XSmall} user={user} />
           ),
         }
-      : undefined;
+      : {
+          title: 'Home',
+          path: '/',
+          action: () => onNavTabClick?.('/'),
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <HomeIcon secondary={active} />} />
+          ),
+        };
 
     const plusButton = !isPlus
       ? {
@@ -71,7 +79,10 @@ export const MainSection = ({
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,
-          color: 'text-accent-avocado-default !bg-action-upvote-float mb-4',
+          color: 'text-accent-avocado-default',
+          itemClassName:
+            'bg-action-upvote-float/50 hover:bg-action-upvote-float',
+          disableDefaultBackground: true,
         }
       : undefined;
 
@@ -80,15 +91,13 @@ export const MainSection = ({
           icon: () => <ListIcon Icon={() => <YearInReviewIcon />} />,
           title: 'Your 2025 in Review',
           titleClassName:
-            'text-transparent bg-clip-text bg-gradient-to-b from-accent-lettuce-default to-accent-cabbage-default',
+            'text-transparent bg-clip-text bg-gradient-to-b from-accent-lettuce-default to-accent-cabbage-default font-bold',
           path: `${webappUrl}log`,
           isForcedLink: true,
         }
       : undefined;
 
     return [
-      plusButton,
-      yearInReview,
       myFeed,
       {
         title: 'Following',
@@ -117,6 +126,8 @@ export const MainSection = ({
         isForcedLink: true,
         requiresLogin: true,
       },
+      yearInReview,
+      plusButton,
     ].filter(Boolean);
   }, [
     ctaCopy,
