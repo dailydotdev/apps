@@ -231,7 +231,7 @@ function FeedNav(): ReactElement {
               className: {
                 indicator: 'hidden',
               item:
-                '!p-0.5 !py-1 !text-[12px] !font-semibold tablet:last-of-type:mr-8',
+                '!p-1 !py-1 !text-[12px] !font-semibold tablet:last-of-type:mr-12',
               },
               autoScrollActive: true,
             }}
@@ -254,7 +254,7 @@ function FeedNav(): ReactElement {
               return (
                 <span
                   className={classNames(
-                    'whitespace-nowrap rounded-6 px-1 py-0.5 text-[12px] font-semibold transition-colors',
+                    'whitespace-nowrap rounded-6 px-1.5 py-0.5 text-[12px] font-semibold transition-colors',
                     isActive
                       ? 'shadow-sm bg-white text-black'
                       : 'text-text-quaternary hover:text-text-secondary',

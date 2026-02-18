@@ -699,7 +699,7 @@ const BreakingNewsCarousel = ({ items }: { items: FeedItem[] }) => {
   return (
     <div className="bg-gradient-to-b from-background-subtle via-background-default to-background-default px-3 pb-5 pt-2">
       <div className="mx-auto max-w-4xl">
-        <div className="mb-1.5 flex items-center justify-between">
+        <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-1.5 w-1.5 rounded-full bg-accent-ketchup-default" />
             <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-accent-ketchup-default">
