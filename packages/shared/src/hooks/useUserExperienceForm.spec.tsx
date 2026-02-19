@@ -353,6 +353,41 @@ describe('useUserExperienceForm', () => {
     });
   });
 
+  it('should validate custom repository with inferred GitHub URL', async () => {
+    const openSourceExperience: BaseUserExperience & {
+      repository?: {
+        id: string | null;
+        owner: string | null;
+        name: string;
+        url: string;
+        image: string | null;
+      };
+    } = {
+      type: UserExperienceType.OpenSource,
+      title: 'Open Source Contributor',
+      description: 'Contributing to projects',
+      startedAt: new Date('2023-01-01'),
+      current: true,
+      repository: {
+        id: null,
+        owner: 'myorg',
+        name: 'myrepo',
+        url: 'https://github.com/myorg/myrepo',
+        image: null,
+      },
+    };
+
+    const { result } = renderHook(
+      () => useUserExperienceForm({ defaultValues: openSourceExperience }),
+      { wrapper: createWrapper() },
+    );
+
+    await act(async () => {
+      const isValid = await result.current.methods.trigger('repository');
+      expect(isValid).toBe(true);
+    });
+  });
+
   it('should validate repository with GitHub id', async () => {
     const openSourceExperience: BaseUserExperience & {
       repository?: {
