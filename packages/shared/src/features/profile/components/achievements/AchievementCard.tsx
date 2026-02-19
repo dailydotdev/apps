@@ -34,7 +34,7 @@ interface AchievementCardProps {
   isOwner?: boolean;
   isTracked?: boolean;
   isTrackPending?: boolean;
-  onTrack?: (achievementId: string) => Promise<unknown>;
+  onTrack?: (achievementId: string) => Promise<void>;
 }
 
 export function AchievementCard({

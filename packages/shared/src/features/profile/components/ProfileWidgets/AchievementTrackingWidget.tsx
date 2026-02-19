@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import { LazyImage } from '../../../../components/LazyImage';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
@@ -9,7 +9,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { PinIcon, SparkleIcon } from '../../../../components/icons';
+import { PinIcon } from '../../../../components/icons';
 import { AchievementPickerModal } from '../../../../components/modals/AchievementPickerModal';
 import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchievements';
 import { useTrackedAchievement } from '../../../../hooks/profile/useTrackedAchievement';
@@ -24,9 +24,6 @@ export const AchievementTrackingWidget = ({
   user,
 }: AchievementTrackingWidgetProps): ReactElement => {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const [showCompletedState, setShowCompletedState] = useState(false);
-  const previousTrackedAchievementId = useRef<string | null>(null);
-  const isManualUntrack = useRef(false);
 
   const { achievements, isPending: isAchievementsPending } =
     useProfileAchievements(user);
@@ -39,29 +36,8 @@ export const AchievementTrackingWidget = ({
     isUntrackPending,
   } = useTrackedAchievement(user.id);
 
-  useEffect(() => {
-    const previousId = previousTrackedAchievementId.current;
-    const currentId = trackedAchievement?.achievement.id ?? null;
-
-    if (previousId && !currentId) {
-      if (isManualUntrack.current) {
-        isManualUntrack.current = false;
-      } else {
-        setShowCompletedState(true);
-      }
-    }
-
-    if (currentId) {
-      setShowCompletedState(false);
-      isManualUntrack.current = false;
-    }
-
-    previousTrackedAchievementId.current = currentId;
-  }, [trackedAchievement?.achievement.id]);
-
   const handleTrack = async (achievementId: string) => {
     await trackAchievement(achievementId);
-    setShowCompletedState(false);
     setIsPickerOpen(false);
   };
 
@@ -150,10 +126,7 @@ export const AchievementTrackingWidget = ({
               <Button
                 variant={ButtonVariant.Subtle}
                 disabled={isBusy}
-                onClick={() => {
-                  isManualUntrack.current = true;
-                  return untrackAchievement();
-                }}
+                onClick={untrackAchievement}
               >
                 Stop tracking
               </Button>
@@ -161,32 +134,7 @@ export const AchievementTrackingWidget = ({
           </div>
         )}
 
-        {!trackedAchievement && showCompletedState && (
-          <div className="relative mt-3 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4">
-            <div className="opacity-20 pointer-events-none absolute -right-3 -top-3">
-              <SparkleIcon className="size-14" />
-            </div>
-            <Typography type={TypographyType.Callout} bold>
-              Completed!
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              className="mt-1"
-            >
-              Choose your next achievement to keep the momentum.
-            </Typography>
-            <Button
-              className="mt-3"
-              variant={ButtonVariant.Primary}
-              onClick={() => setIsPickerOpen(true)}
-            >
-              Choose next achievement
-            </Button>
-          </div>
-        )}
-
-        {!trackedAchievement && !showCompletedState && (
+        {!trackedAchievement && (
           <div className="mt-3 flex flex-col gap-3">
             <Typography type={TypographyType.Callout} bold>
               Track an achievement

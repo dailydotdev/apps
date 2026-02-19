@@ -50,7 +50,7 @@ export function AchievementsList({
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
   const { trackedAchievement, trackAchievement, isTrackPending } =
-    useTrackedAchievement(user.id);
+    useTrackedAchievement(user.id, isOwner);
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
   const [syncResult, setSyncResult] = useState<AchievementSyncResult | null>(

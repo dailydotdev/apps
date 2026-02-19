@@ -13,7 +13,7 @@ interface UseTrackedAchievementResult {
   trackedAchievement: UserAchievement | null | undefined;
   isPending: boolean;
   isError: boolean;
-  trackAchievement: (achievementId: string) => Promise<UserAchievement>;
+  trackAchievement: (achievementId: string) => Promise<void>;
   untrackAchievement: () => Promise<void>;
   isTrackPending: boolean;
   isUntrackPending: boolean;
@@ -21,6 +21,7 @@ interface UseTrackedAchievementResult {
 
 export const useTrackedAchievement = (
   profileUserId?: string,
+  shouldQuery = true,
 ): UseTrackedAchievementResult => {
   const queryClient = useQueryClient();
   const { user: loggedUser } = useAuthContext();
@@ -43,7 +44,7 @@ export const useTrackedAchievement = (
     queryKey: trackedAchievementQueryKey,
     queryFn: getTrackedAchievement,
     staleTime: StaleTime.Default,
-    enabled: !!loggedUser?.id,
+    enabled: shouldQuery && !!loggedUser?.id,
   });
 
   const { mutateAsync: trackMutation, isPending: isTrackPending } = useMutation(
@@ -77,7 +78,7 @@ export const useTrackedAchievement = (
         throw new Error('Only authenticated users can track achievements.');
       }
 
-      return trackMutation(achievementId);
+      await trackMutation(achievementId);
     },
     [loggedUser?.id, trackMutation],
   );
