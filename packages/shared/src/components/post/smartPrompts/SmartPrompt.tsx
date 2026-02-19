@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import type { Post } from '../../../graphql/posts';
@@ -18,9 +19,11 @@ import { useLogContext } from '../../../contexts/LogContext';
 export const SmartPrompt = ({
   post,
   isContainedView,
+  className,
 }: {
   post: Post;
   isContainedView?: boolean;
+  className?: string;
 }): ReactElement => {
   const { logEvent } = useLogContext();
   const { logOpts } = useActiveFeedContext();
@@ -68,7 +71,10 @@ export const SmartPrompt = ({
 
   return (
     <div
-      className="mb-6 flex flex-col gap-3 text-text-secondary"
+      className={classNames(
+        'mb-6 flex flex-col gap-3 text-text-secondary',
+        className,
+      )}
       ref={(element) => {
         if (element) {
           setWidth(element.getBoundingClientRect().width);

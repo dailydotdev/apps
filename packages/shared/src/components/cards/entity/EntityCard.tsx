@@ -33,7 +33,7 @@ const EntityCard = ({
         className?.container,
       )}
     >
-      <div className="flex w-full items-start gap-2">
+      <div className="flex w-full items-start justify-between gap-2">
         <Link href={permalink}>
           <a className={classNames(className?.image, 'overflow-hidden')}>
             <Image
@@ -47,8 +47,7 @@ const EntityCard = ({
             />
           </a>
         </Link>
-        <div className="ml-auto flex items-center gap-2">{actionButtons}</div>
-        <div />
+        <div className="flex items-center gap-2">{actionButtons}</div>
       </div>
       {children}
     </div>
