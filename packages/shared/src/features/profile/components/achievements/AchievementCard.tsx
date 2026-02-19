@@ -61,7 +61,7 @@ export function AchievementCard({
   return (
     <div
       className={classNames(
-        'relative flex flex-col rounded-16 border p-4 transition-colors',
+        'group relative flex flex-col rounded-16 border p-4 transition-colors',
         isUnlocked ? 'bg-surface-float' : 'bg-surface-subtle',
         rarityTier
           ? ['overflow-visible', rarityGlowClasses[rarityTier]]
@@ -155,16 +155,16 @@ export function AchievementCard({
         </div>
       )}
 
-      {!isUnlocked && isOwner && onTrack && (
+      {!isUnlocked && isOwner && onTrack && !isTracked && (
         <Button
-          className="mt-3 self-start"
+          className="mt-3 self-start tablet:opacity-0 tablet:transition-opacity tablet:group-hover:opacity-100"
           size={ButtonSize.XSmall}
-          variant={isTracked ? ButtonVariant.Secondary : ButtonVariant.Primary}
+          variant={ButtonVariant.Subtle}
           icon={<PinIcon />}
-          disabled={isTrackPending || isTracked}
+          disabled={isTrackPending}
           onClick={() => onTrack(achievement.id)}
         >
-          {isTracked ? 'Tracking' : 'Track this'}
+          Track
         </Button>
       )}
 

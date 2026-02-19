@@ -22,6 +22,8 @@ import { useActions } from '../../../../hooks';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { ActionType } from '../../../../graphql/actions';
 import { LazyModal } from '../../../../components/modals/common/types';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
+import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 
 type FilterType = 'all' | 'unlocked' | 'locked';
 
@@ -47,6 +49,7 @@ export function AchievementsList({
   className,
 }: AchievementsListProps): ReactElement {
   const [filter, setFilter] = useState<FilterType>('all');
+  const [trackingId, setTrackingId] = useState<string | null>(null);
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
   const { trackedAchievement, trackAchievement, isTrackPending } =
@@ -58,7 +61,11 @@ export function AchievementsList({
   );
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const { isActionsFetched, checkHasCompleted } = useActions();
-  const { openModal } = useLazyModal();
+  const { openModal, closeModal } = useLazyModal();
+  const { value: isAchievementTrackingEnabled } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: isOwner,
+  });
 
   const syncButtonTitle = (() => {
     if (!syncStatus) {
@@ -111,6 +118,18 @@ export function AchievementsList({
     handleSync,
   ]);
 
+  const handleTrack = useCallback(
+    async (achievementId: string) => {
+      setTrackingId(achievementId);
+      try {
+        await trackAchievement(achievementId);
+      } finally {
+        setTrackingId(null);
+      }
+    },
+    [trackAchievement],
+  );
+
   const filteredAchievements = useMemo(() => {
     const sorted = [...achievements].sort((a, b) => {
       // Unlocked achievements come first
@@ -159,6 +178,23 @@ export function AchievementsList({
 
   const trackedAchievementId = trackedAchievement?.achievement.id;
 
+  const openPicker = useCallback(() => {
+    openModal({
+      type: LazyModal.AchievementPicker,
+      props: {
+        achievements,
+        trackedAchievementId,
+        onTrack: async (id: string) => {
+          await handleTrack(id);
+          closeModal();
+        },
+      },
+    });
+  }, [openModal, achievements, trackedAchievementId, handleTrack, closeModal]);
+
+  const showTrackingCta =
+    isOwner && isAchievementTrackingEnabled && !trackedAchievementId && lockedCount > 0;
+
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
       <div className="flex items-center justify-between">
@@ -187,6 +223,30 @@ export function AchievementsList({
         )}
       </div>
 
+      {showTrackingCta && (
+        <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+          <div>
+            <Typography type={TypographyType.Callout} bold>
+              Track an achievement
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="mt-0.5"
+            >
+              Pick an in-progress achievement to focus on.
+            </Typography>
+          </div>
+          <Button
+            variant={ButtonVariant.Primary}
+            className="self-start"
+            onClick={openPicker}
+          >
+            Choose achievement
+          </Button>
+        </div>
+      )}
+
       {filteredAchievements.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
           <Typography
@@ -206,8 +266,10 @@ export function AchievementsList({
               isTracked={
                 trackedAchievementId === userAchievement.achievement.id
               }
-              isTrackPending={isTrackPending}
-              onTrack={trackAchievement}
+              isTrackPending={
+                isTrackPending && trackingId === userAchievement.achievement.id
+              }
+              onTrack={handleTrack}
             />
           ))}
         </div>
