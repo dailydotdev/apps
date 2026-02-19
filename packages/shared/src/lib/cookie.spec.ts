@@ -82,10 +82,7 @@ describe('cookie', () => {
     expect(() => setCookie('', 'bar')).toThrow();
     expect(() => setCookie('foo', '')).toThrow();
     expect(() =>
-      setCookie(
-        undefined as unknown as string,
-        undefined as unknown as string,
-      ),
+      setCookie(undefined as unknown as string, undefined as unknown as string),
     ).toThrow();
   });
 
