@@ -61,6 +61,7 @@ function PollPostContentRaw({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
+  const isCompactModalSpacing = !isPostPage;
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onCopyPostLink } = engagementActions;
   const { role } = useMemberRoleForSource({
@@ -78,6 +79,18 @@ function PollPostContentRaw({
     inlineActions,
   };
   const isUserSource = isSourceUserSource(post?.source);
+  let sourceInfoClassName: string | false = false;
+  if (!isUserSource) {
+    if (shouldShowBanner && isLaptop) {
+      sourceInfoClassName = isCompactModalSpacing ? 'mb-3' : 'mb-4';
+    } else {
+      sourceInfoClassName = isCompactModalSpacing ? 'mb-4' : 'mb-6';
+    }
+  }
+  const pollTitleClassName = isCompactModalSpacing ? 'mt-4' : 'mt-6';
+  const pollMetaWrapperClassName = isCompactModalSpacing
+    ? 'mb-4 mt-3'
+    : 'mb-5 mt-4';
 
   const handleVote = (optionId: string, text: string) => {
     if (!isCastingVote) {
@@ -164,10 +177,7 @@ function PollPostContentRaw({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
-              className={
-                !isUserSource &&
-                (shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6')
-              }
+              className={sourceInfoClassName}
             />
             {shouldShowBanner && !isUserSource && isLaptop && (
               <BoostNewPostStrip />
@@ -186,7 +196,7 @@ function PollPostContentRaw({
           {shouldShowBanner && isUserSource && isLaptop && (
             <BoostNewPostStrip className="mt-2" />
           )}
-          <div className="mt-6">
+          <div className={pollTitleClassName}>
             <Typography
               type={TypographyType.LargeTitle}
               bold
@@ -194,8 +204,7 @@ function PollPostContentRaw({
             >
               {post?.title}
             </Typography>
-            <PostTagList post={post} />
-            <div className="mb-5 mt-4">
+            <div className={pollMetaWrapperClassName}>
               <PostMetadata
                 pollMetadata={{
                   endsAt: post?.endsAt,
@@ -205,6 +214,7 @@ function PollPostContentRaw({
                 createdAt={post.createdAt}
                 className="mb-6"
               />
+              <PostTagList post={post} />
               <PollOptions
                 options={post.pollOptions}
                 onClick={handleVote}
@@ -241,7 +251,7 @@ function PollPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
+        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />

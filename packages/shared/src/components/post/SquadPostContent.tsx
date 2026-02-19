@@ -65,6 +65,7 @@ function SquadPostContentRaw({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
+  const isCompactModalSpacing = !isPostPage;
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onCopyPostLink } = engagementActions;
   const { role } = useMemberRoleForSource({
@@ -80,6 +81,14 @@ function SquadPostContentRaw({
     inlineActions,
   };
   const isUserSource = isSourceUserSource(post?.source);
+  let sourceInfoClassName: string | false = false;
+  if (!isUserSource) {
+    if (shouldShowBanner && isLaptop) {
+      sourceInfoClassName = isCompactModalSpacing ? 'mb-3' : 'mb-4';
+    } else {
+      sourceInfoClassName = isCompactModalSpacing ? 'mb-4' : 'mb-6';
+    }
+  }
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
@@ -153,10 +162,7 @@ function SquadPostContentRaw({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
-              className={
-                !isUserSource &&
-                (shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6')
-              }
+              className={sourceInfoClassName}
             />
             {shouldShowBanner && !isUserSource && isLaptop && (
               <BoostNewPostStrip />
@@ -178,14 +184,18 @@ function SquadPostContentRaw({
           {shouldShowBanner && isUserSource && isLaptop && (
             <BoostNewPostStrip className="mt-2" />
           )}
-          <Content post={post} onReadArticle={onReadArticle} />
+          <Content
+            post={post}
+            onReadArticle={onReadArticle}
+            isCompactSpacing={isCompactModalSpacing}
+          />
         </BasePostContent>
       </div>
       <SquadPostWidgets
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
+        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />
