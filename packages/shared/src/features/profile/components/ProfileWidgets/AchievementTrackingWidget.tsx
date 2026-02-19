@@ -16,6 +16,8 @@ import { getTargetCount } from '../../../../graphql/user/achievements';
 import type { PublicProfile } from '../../../../lib/user';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent } from '../../../../lib/log';
 
 interface AchievementTrackingWidgetProps {
   user: PublicProfile;
@@ -25,6 +27,7 @@ export const AchievementTrackingWidget = ({
   user,
 }: AchievementTrackingWidgetProps): ReactElement => {
   const { openModal, closeModal } = useLazyModal();
+  const { logEvent } = useLogContext();
 
   const { achievements, isPending: isAchievementsPending } =
     useProfileAchievements(user);
@@ -39,10 +42,18 @@ export const AchievementTrackingWidget = ({
 
   const handleTrack = async (achievementId: string) => {
     await trackAchievement(achievementId);
+    logEvent({
+      event_name: LogEvent.TrackAchievement,
+      target_id: achievementId,
+    });
     closeModal();
   };
 
   const openPicker = () => {
+    logEvent({
+      event_name: LogEvent.OpenAchievementPickerModal,
+    });
+
     openModal({
       type: LazyModal.AchievementPicker,
       props: {
@@ -137,7 +148,15 @@ export const AchievementTrackingWidget = ({
             <Button
               variant={ButtonVariant.Subtle}
               disabled={isBusy}
-              onClick={untrackAchievement}
+              onClick={async () => {
+                await untrackAchievement();
+                logEvent({
+                  event_name: LogEvent.UntrackAchievement,
+                  extra: JSON.stringify({
+                    achievement_id: trackedAchievement.achievement.id,
+                  }),
+                });
+              }}
             >
               Stop tracking
             </Button>

@@ -377,6 +377,16 @@ export enum LogEvent {
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',
+  // Achievements
+  TrackAchievement = 'track achievement',
+  UntrackAchievement = 'untrack achievement',
+  OpenAchievementPickerModal = 'open achievement picker modal',
+  SyncAchievements = 'sync achievements',
+  CompleteSyncAchievements = 'complete sync achievements',
+  ClickAchievementTrackerButton = 'click achievement tracker button',
+  FilterAchievements = 'filter achievements',
+  ImpressionAchievementSyncPrompt = 'impression achievement sync prompt',
+  DismissAchievementSyncPrompt = 'dismiss achievement sync prompt',
 }
 
 export enum TargetType {
@@ -435,6 +445,8 @@ export enum TargetType {
   Recruiter = 'recruiter',
   ProfileCompletionCard = 'profile completion card',
   OpportunityInterestButton = 'opportunity interest button',
+  AchievementTracker = 'achievement tracker',
+  AchievementCard = 'achievement card',
 }
 
 export enum TargetId {

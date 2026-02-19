@@ -24,6 +24,8 @@ import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { ActionType } from '../../../../graphql/actions';
 import { LazyModal } from '../../../../components/modals/common/types';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent } from '../../../../lib/log';
 
 type FilterType = 'all' | 'unlocked' | 'locked';
 
@@ -69,6 +71,7 @@ export function AchievementsList({
   );
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
+  const { logEvent } = useLogContext();
   const [syncResult, setSyncResult] = useState<AchievementSyncResult | null>(
     null,
   );
@@ -91,16 +94,27 @@ export function AchievementsList({
       return;
     }
 
+    logEvent({
+      event_name: LogEvent.SyncAchievements,
+    });
+
     setSyncResult(null);
     setIsSyncModalOpen(true);
 
     try {
       const result = await syncAchievements();
       setSyncResult(result);
+      logEvent({
+        event_name: LogEvent.CompleteSyncAchievements,
+        extra: JSON.stringify({
+          points_gained: result.pointsGained,
+          newly_unlocked: result.newlyUnlockedAchievements.length,
+        }),
+      });
     } catch {
       setIsSyncModalOpen(false);
     }
-  }, [isOwner, isSyncing, syncAchievements, syncStatus?.canSync]);
+  }, [isOwner, isSyncing, logEvent, syncAchievements, syncStatus?.canSync]);
 
   useEffect(() => {
     if (
@@ -132,11 +146,15 @@ export function AchievementsList({
       setTrackingId(achievementId);
       try {
         await trackAchievement(achievementId);
+        logEvent({
+          event_name: LogEvent.TrackAchievement,
+          target_id: achievementId,
+        });
       } finally {
         setTrackingId(null);
       }
     },
-    [trackAchievement],
+    [logEvent, trackAchievement],
   );
 
   const filteredAchievements = useMemo(() => {
@@ -197,7 +215,13 @@ export function AchievementsList({
               variant={
                 filter === type ? ButtonVariant.Primary : ButtonVariant.Subtle
               }
-              onClick={() => setFilter(type)}
+              onClick={() => {
+                setFilter(type);
+                logEvent({
+                  event_name: LogEvent.FilterAchievements,
+                  target_id: type,
+                });
+              }}
             >
               {label} ({count})
             </Button>

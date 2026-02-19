@@ -13,6 +13,8 @@ import {
 } from '../typography/Typography';
 import type { UserAchievement } from '../../graphql/user/achievements';
 import { getTargetCount } from '../../graphql/user/achievements';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 
 export interface AchievementPickerModalProps extends ModalProps {
   achievements: UserAchievement[];
@@ -38,6 +40,7 @@ export const AchievementPickerModal = ({
   ...props
 }: AchievementPickerModalProps): ReactElement => {
   const [isTracking, setIsTracking] = useState(false);
+  const { logEvent } = useLogContext();
 
   const lockedAchievements = useMemo(() => {
     return achievements
@@ -60,6 +63,11 @@ export const AchievementPickerModal = ({
     setIsTracking(true);
     try {
       await onTrack(achievementId);
+      logEvent({
+        event_name: LogEvent.TrackAchievement,
+        target_id: achievementId,
+        extra: JSON.stringify({ origin: 'picker_modal' }),
+      });
     } finally {
       setIsTracking(false);
     }
