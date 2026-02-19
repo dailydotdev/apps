@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MedalBadgeIcon } from '../icons';
 import { AlertColor, AlertDot } from '../AlertDot';
@@ -79,15 +79,12 @@ export function AchievementTrackerButton(): ReactElement | null {
       : `${progressValue} of ${targetCount}`;
   })();
 
-  const handleTrack = useCallback(
-    async (achievementId: string) => {
-      await trackAchievement(achievementId);
-      closeModal();
-    },
-    [closeModal, trackAchievement],
-  );
+  const handleTrack = async (achievementId: string) => {
+    await trackAchievement(achievementId);
+    closeModal();
+  };
 
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     openModal({
       type: LazyModal.AchievementPicker,
       props: {
@@ -96,7 +93,7 @@ export function AchievementTrackerButton(): ReactElement | null {
         onTrack: handleTrack,
       },
     });
-  }, [openModal, achievements, trackedAchievement, handleTrack]);
+  };
 
   if (
     !user ||
