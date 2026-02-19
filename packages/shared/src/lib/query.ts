@@ -246,6 +246,7 @@ export enum RequestKey {
   GearSearch = 'gear_search',
   PersonalAccessTokens = 'personal_access_tokens',
   UserAchievements = 'user_achievements',
+  TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
 }
 

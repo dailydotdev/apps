@@ -121,6 +121,11 @@ export const featureProfileCompletionIndicator = new Feature(
   0,
 );
 
+export const achievementTrackingWidgetFeature = new Feature(
+  'achievement_tracking_widget',
+  false,
+);
+
 export const sharedPostPreviewFeature = new Feature(
   'shared_post_preview',
   false,
