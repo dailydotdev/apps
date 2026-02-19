@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import type { Origin } from '../../lib/log';
@@ -15,6 +15,8 @@ export interface CommentBoxProps
     CommentActionProps {
   origin: Origin;
   parentId?: string;
+  isModalThread?: boolean;
+  threadRepliesControl?: ReactNode;
 }
 
 function CommentBox({
@@ -27,6 +29,8 @@ function CommentBox({
   onDelete,
   onEdit,
   onShowUpvotes,
+  isModalThread = false,
+  threadRepliesControl,
   children,
   ...props
 }: CommentBoxProps): ReactElement {
@@ -61,7 +65,13 @@ function CommentBox({
             onDelete={onDelete}
             onEdit={onEdit}
             onShowUpvotes={onShowUpvotes}
-            className="pointer-events-auto mt-3"
+            isModalThread={isModalThread}
+            threadRepliesControl={threadRepliesControl}
+            className={
+              isModalThread
+                ? 'pointer-events-auto mt-1 w-full gap-0.5'
+                : 'pointer-events-auto mt-3'
+            }
           />
         }
         {...props}
