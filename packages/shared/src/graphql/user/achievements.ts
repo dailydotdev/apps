@@ -21,6 +21,7 @@ export interface Achievement {
   criteria?: AchievementCriteria;
   points: number;
   rarity: number | null;
+  unit: string | null;
 }
 
 export interface UserAchievement {
@@ -37,6 +38,10 @@ export interface AchievementsData {
 
 export interface UserAchievementsData {
   userAchievements: UserAchievement[];
+}
+
+export interface TrackedAchievementData {
+  trackedAchievement: UserAchievement | null;
 }
 
 export interface AchievementSyncStatus {
@@ -61,6 +66,16 @@ export interface SyncAchievementsData {
   syncAchievements: AchievementSyncResult;
 }
 
+export interface TrackAchievementData {
+  trackAchievement: UserAchievement;
+}
+
+export interface UntrackAchievementData {
+  untrackAchievement: {
+    _: boolean | null;
+  };
+}
+
 const ACHIEVEMENT_FRAGMENT = gql`
   fragment AchievementFragment on Achievement {
     id
@@ -73,6 +88,7 @@ const ACHIEVEMENT_FRAGMENT = gql`
     }
     points
     rarity
+    unit
   }
 `;
 
@@ -98,6 +114,44 @@ export const USER_ACHIEVEMENTS_QUERY = gql`
     }
   }
   ${ACHIEVEMENT_FRAGMENT}
+`;
+
+export const TRACKED_ACHIEVEMENT_QUERY = gql`
+  query TrackedAchievement {
+    trackedAchievement {
+      achievement {
+        ...AchievementFragment
+      }
+      progress
+      unlockedAt
+      createdAt
+      updatedAt
+    }
+  }
+  ${ACHIEVEMENT_FRAGMENT}
+`;
+
+export const TRACK_ACHIEVEMENT_MUTATION = gql`
+  mutation TrackAchievement($achievementId: ID!) {
+    trackAchievement(achievementId: $achievementId) {
+      achievement {
+        ...AchievementFragment
+      }
+      progress
+      unlockedAt
+      createdAt
+      updatedAt
+    }
+  }
+  ${ACHIEVEMENT_FRAGMENT}
+`;
+
+export const UNTRACK_ACHIEVEMENT_MUTATION = gql`
+  mutation UntrackAchievement {
+    untrackAchievement {
+      _
+    }
+  }
 `;
 
 export const ACHIEVEMENT_SYNC_STATUS_QUERY = gql`
@@ -156,6 +210,30 @@ export const getUserAchievements = async (
     { userId },
   );
   return result.userAchievements;
+};
+
+export const getTrackedAchievement =
+  async (): Promise<UserAchievement | null> => {
+    const result = await gqlClient.request<TrackedAchievementData>(
+      TRACKED_ACHIEVEMENT_QUERY,
+    );
+
+    return result.trackedAchievement;
+  };
+
+export const trackAchievement = async (
+  achievementId: string,
+): Promise<UserAchievement> => {
+  const result = await gqlClient.request<TrackAchievementData>(
+    TRACK_ACHIEVEMENT_MUTATION,
+    { achievementId },
+  );
+
+  return result.trackAchievement;
+};
+
+export const untrackAchievement = async (): Promise<void> => {
+  await gqlClient.request<UntrackAchievementData>(UNTRACK_ACHIEVEMENT_MUTATION);
 };
 
 export const getAchievementSyncStatus =

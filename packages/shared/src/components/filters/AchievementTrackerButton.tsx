@@ -1,0 +1,132 @@
+import type { ReactElement } from 'react';
+import React, { useCallback } from 'react';
+import { useRouter } from 'next/router';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { MedalBadgeIcon } from '../icons';
+import { AlertColor, AlertDot } from '../AlertDot';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
+import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
+import { getTargetCount } from '../../graphql/user/achievements';
+import { useViewSize, ViewSize } from '../../hooks';
+import { webappUrl } from '../../lib/constants';
+import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
+import { shouldShowAchievementTracker } from '../../lib/achievements';
+import { LazyImage } from '../LazyImage';
+
+export function AchievementTrackerButton(): ReactElement | null {
+  const { push } = useRouter();
+  const { user } = useAuthContext();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const {
+    value: isAchievementTrackingWidgetEnabled,
+    isLoading: isAchievementTrackingWidgetLoading,
+  } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: !!user,
+  });
+  const {
+    unlockedCount,
+    totalCount,
+    isPending: isAchievementsPending,
+  } = useProfileAchievements(user, isAchievementTrackingWidgetEnabled === true);
+
+  const shouldRender = shouldShowAchievementTracker({
+    isExperimentEnabled: isAchievementTrackingWidgetEnabled === true,
+    unlockedCount,
+    totalCount,
+  });
+  const shouldQueryTrackedAchievement =
+    !!user &&
+    !isAchievementTrackingWidgetLoading &&
+    (isAchievementTrackingWidgetEnabled !== true || !isAchievementsPending) &&
+    shouldRender;
+  const {
+    trackedAchievement,
+    isPending: isTrackedAchievementPending,
+    isTrackPending,
+    isUntrackPending,
+  } = useTrackedAchievement(undefined, shouldQueryTrackedAchievement);
+
+  const isTrackingAchievement =
+    !!trackedAchievement && !trackedAchievement.unlockedAt;
+  const targetCount = isTrackingAchievement
+    ? getTargetCount(trackedAchievement.achievement)
+    : 1;
+  const progressValue = isTrackingAchievement
+    ? Math.min(trackedAchievement.progress, targetCount)
+    : 0;
+  const showAttentionDot =
+    !isTrackedAchievementPending && !isTrackingAchievement;
+  const isTrackerUpdating = isTrackPending || isUntrackPending;
+
+  const buttonLabel = (() => {
+    if (!isTrackingAchievement) {
+      return 'Track achievement';
+    }
+
+    if (targetCount <= 1) {
+      return trackedAchievement.achievement?.unit;
+    }
+
+    const { unit } = trackedAchievement.achievement;
+
+    return unit
+      ? `${progressValue} of ${targetCount} ${unit}`
+      : `${progressValue} of ${targetCount}`;
+  })();
+
+  const handleClick = useCallback(() => {
+    if (!user?.username) {
+      throw new Error(
+        'Achievement tracker button requires an authenticated user with a username.',
+      );
+    }
+
+    return push(`${webappUrl}${user.username}/achievements`);
+  }, [push, user?.username]);
+
+  if (
+    !user ||
+    isAchievementTrackingWidgetLoading ||
+    (isAchievementTrackingWidgetEnabled === true && isAchievementsPending) ||
+    !shouldRender
+  ) {
+    return null;
+  }
+
+  return (
+    <div className="relative">
+      <Button
+        size={ButtonSize.Medium}
+        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+        icon={isTrackingAchievement ? undefined : <MedalBadgeIcon />}
+        onClick={handleClick}
+        disabled={isTrackerUpdating}
+        aria-label={
+          isTrackingAchievement
+            ? `${trackedAchievement.achievement.name}${
+                targetCount > 1 ? ` (${progressValue} of ${targetCount})` : ''
+              }`
+            : 'Track an achievement'
+        }
+      >
+        {isTrackingAchievement && (
+          <LazyImage
+            imgSrc={trackedAchievement.achievement.image}
+            imgAlt={trackedAchievement.achievement.name}
+            className="mr-2 size-5 rounded-6 object-cover"
+          />
+        )}
+        {buttonLabel}
+      </Button>
+      {showAttentionDot && (
+        <AlertDot
+          color={AlertColor.Bun}
+          className="pointer-events-none right-2 top-2 border border-background-default"
+        />
+      )}
+    </div>
+  );
+}

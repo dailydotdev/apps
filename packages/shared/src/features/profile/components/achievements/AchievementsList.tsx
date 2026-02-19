@@ -16,11 +16,14 @@ import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import type { PublicProfile } from '../../../../lib/user';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useAchievementSync } from '../../../../hooks/profile/useAchievementSync';
+import { useTrackedAchievement } from '../../../../hooks/profile/useTrackedAchievement';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { AchievementSyncModal } from '../ProfileWidgets/AchievementSyncModal';
 import { useActions } from '../../../../hooks';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { ActionType } from '../../../../graphql/actions';
 import { LazyModal } from '../../../../components/modals/common/types';
+import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 
 type FilterType = 'all' | 'unlocked' | 'locked';
 
@@ -46,8 +49,24 @@ export function AchievementsList({
   className,
 }: AchievementsListProps): ReactElement {
   const [filter, setFilter] = useState<FilterType>('all');
+  const [trackingId, setTrackingId] = useState<string | null>(null);
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
+  const {
+    value: isAchievementTrackingWidgetEnabled,
+    isLoading: isAchievementTrackingWidgetLoading,
+  } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: isOwner,
+  });
+  const canTrackAchievements =
+    isOwner &&
+    !isAchievementTrackingWidgetLoading &&
+    isAchievementTrackingWidgetEnabled === true;
+  const { trackedAchievement, trackAchievement } = useTrackedAchievement(
+    user.id,
+    canTrackAchievements,
+  );
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
   const [syncResult, setSyncResult] = useState<AchievementSyncResult | null>(
@@ -108,6 +127,18 @@ export function AchievementsList({
     handleSync,
   ]);
 
+  const handleTrack = useCallback(
+    async (achievementId: string) => {
+      setTrackingId(achievementId);
+      try {
+        await trackAchievement(achievementId);
+      } finally {
+        setTrackingId(null);
+      }
+    },
+    [trackAchievement],
+  );
+
   const filteredAchievements = useMemo(() => {
     const sorted = [...achievements].sort((a, b) => {
       // Unlocked achievements come first
@@ -154,6 +185,8 @@ export function AchievementsList({
     { type: 'locked', label: 'Locked', count: lockedCount },
   ];
 
+  const trackedAchievementId = trackedAchievement?.achievement.id;
+
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
       <div className="flex items-center justify-between">
@@ -197,6 +230,15 @@ export function AchievementsList({
             <AchievementCard
               key={userAchievement.achievement.id}
               userAchievement={userAchievement}
+              isOwner={isOwner}
+              isTracked={
+                trackedAchievementId === userAchievement.achievement.id
+              }
+              isTrackPending={
+                canTrackAchievements &&
+                trackingId === userAchievement.achievement.id
+              }
+              onTrack={canTrackAchievements ? handleTrack : undefined}
             />
           ))}
         </div>

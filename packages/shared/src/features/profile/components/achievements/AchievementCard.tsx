@@ -12,10 +12,16 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../../components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { LazyImage } from '../../../../components/LazyImage';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import { PinIcon } from '../../../../components/icons';
 import {
   AchievementRarityTier,
   getAchievementRarityTier,
@@ -25,10 +31,18 @@ import { RaritySparkles } from './RaritySparkles';
 
 interface AchievementCardProps {
   userAchievement: UserAchievement;
+  isOwner?: boolean;
+  isTracked?: boolean;
+  isTrackPending?: boolean;
+  onTrack?: (achievementId: string) => Promise<void>;
 }
 
 export function AchievementCard({
   userAchievement,
+  isOwner = false,
+  isTracked = false,
+  isTrackPending = false,
+  onTrack,
 }: AchievementCardProps): ReactElement {
   const { achievement, progress, unlockedAt } = userAchievement;
   const targetCount = getTargetCount(achievement);
@@ -43,6 +57,8 @@ export function AchievementCard({
     rarityTier === AchievementRarityTier.Emerald
       ? '<1%'
       : `${Math.round(achievement.rarity ?? 0)}%`;
+  const statusPillClassName =
+    'inline-flex h-8 items-center gap-1 rounded-10 border border-border-subtlest-primary bg-surface-hover px-3';
 
   return (
     <div
@@ -138,6 +154,34 @@ export function AchievementCard({
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
+        </div>
+      )}
+
+      {!isUnlocked && isOwner && onTrack && (
+        <div className="mt-3 flex min-h-8 items-center">
+          {isTracked ? (
+            <div className={statusPillClassName}>
+              <PinIcon className="size-4 text-text-secondary" />
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+                bold
+              >
+                Tracking
+              </Typography>
+            </div>
+          ) : (
+            <Button
+              className="self-start"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Secondary}
+              icon={<PinIcon />}
+              disabled={isTrackPending}
+              onClick={() => onTrack(achievement.id)}
+            >
+              Track
+            </Button>
+          )}
         </div>
       )}
 
