@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import type { PublicProfile } from '../../../../lib/user';
 import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchievements';
 import { AchievementsList } from './AchievementsList';
@@ -12,6 +13,15 @@ import {
 } from '../../../../components/typography/Typography';
 import { ProfileEmptyScreen } from '../../../../components/profile/ProfileEmptyScreen';
 import { MedalBadgeIcon } from '../../../../components/icons';
+import { useAuthContext } from '../../../../contexts/AuthContext';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
+import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
+
+const AchievementTrackingWidget = dynamic(() =>
+  import('../ProfileWidgets/AchievementTrackingWidget').then(
+    (mod) => mod.AchievementTrackingWidget,
+  ),
+);
 
 interface ProfileAchievementsProps {
   user: PublicProfile;
@@ -45,6 +55,12 @@ export function ProfileAchievements({
   user,
   className,
 }: ProfileAchievementsProps): ReactElement {
+  const { user: loggedUser } = useAuthContext();
+  const isOwner = loggedUser?.id === user.id;
+  const { value: isAchievementTrackingWidgetEnabled } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: isOwner,
+  });
   const {
     achievements,
     unlockedCount,
@@ -126,6 +142,9 @@ export function ProfileAchievements({
           </Typography>
         </div>
       </div>
+      {isOwner && isAchievementTrackingWidgetEnabled && (
+        <AchievementTrackingWidget user={user} />
+      )}
       <AchievementsList achievements={achievements} user={user} />
     </div>
   );
