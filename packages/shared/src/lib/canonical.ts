@@ -10,9 +10,7 @@ export const parsedQueryToString = (query: ParsedUrlQuery): string => {
   return `?${keys.map((key) => `${key}=${query[key]}`).join('&')}`;
 };
 
-export const canonicalFromRouter = (
-  router: BaseRouter,
-): string | undefined => {
+export const canonicalFromRouter = (router: BaseRouter): string | undefined => {
   const [path] = router.asPath.split('?');
   if ((router as NextRouter)?.isFallback) {
     return undefined;

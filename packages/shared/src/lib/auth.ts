@@ -199,9 +199,8 @@ export const getNodeByKey = (
 export const getNodeValue = (
   key: string,
   nodes: InitializationNode[],
-): string =>
-  nodes?.find(({ attributes }) => attributes.name === key)?.attributes?.value ??
-  '';
+): string | undefined =>
+  nodes?.find(({ attributes }) => attributes.name === key)?.attributes?.value;
 
 export const isNativeAuthSupported = (provider: string): boolean =>
   messageHandlerExists(WebKitMessageHandlers.NativeAuth) &&

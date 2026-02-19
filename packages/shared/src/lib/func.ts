@@ -241,7 +241,7 @@ export const promisifyEventListener = <T, E = any>(
     if (!runtimeWindow.eventControllers) {
       runtimeWindow.eventControllers = {};
     }
-    const eventControllers = runtimeWindow.eventControllers;
+    const { eventControllers } = runtimeWindow;
 
     if (eventControllers[type]) {
       eventControllers[type].abort();

@@ -3,7 +3,10 @@ import type { GraphQLError } from './errors';
 import type { ApiResponseError, ApiZodErrorExtension } from '../graphql/common';
 import { ApiError } from '../graphql/common';
 
-type FormFieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+type FormFieldElement =
+  | HTMLInputElement
+  | HTMLTextAreaElement
+  | HTMLSelectElement;
 type FormValue = string | string[] | boolean | FileList | null;
 type FormValues = Record<string, FormValue>;
 
@@ -18,46 +21,52 @@ export function formToJson<T extends Record<string, unknown>>(
 ): T {
   const initialData = (initialValue ?? {}) as FormValues;
 
-  const values = Array.from(form.elements).reduce<FormValues>((acc, element) => {
-    if (!isFormFieldElement(element) || element.name === '') {
-      return acc;
-    }
-
-    // Handle fields that end with [] as arrays.
-    if (element.name.endsWith('[]')) {
-      const fieldName = element.name.slice(0, -2);
-      const existingValue = acc[fieldName];
-      const existingArray = Array.isArray(existingValue) ? existingValue : [];
-
-      if (element.value && element.value.trim().length > 0) {
-        return { ...acc, [fieldName]: [...existingArray, element.value] };
+  const values = Array.from(form.elements).reduce<FormValues>(
+    (acc, element) => {
+      if (!isFormFieldElement(element) || element.name === '') {
+        return acc;
       }
 
-      return acc;
-    }
+      // Handle fields that end with [] as arrays.
+      if (element.name.endsWith('[]')) {
+        const fieldName = element.name.slice(0, -2);
+        const existingValue = acc[fieldName];
+        const existingArray = Array.isArray(existingValue) ? existingValue : [];
 
-    if (element instanceof HTMLInputElement && element.type === 'checkbox') {
-      return { ...acc, [element.name]: element.checked };
-    }
+        if (element.value && element.value.trim().length > 0) {
+          return { ...acc, [fieldName]: [...existingArray, element.value] };
+        }
 
-    if (
-      element instanceof HTMLInputElement &&
-      element.type === 'radio' &&
-      !element.checked
-    ) {
-      return acc;
-    }
+        return acc;
+      }
 
-    if (element instanceof HTMLInputElement && element.type === 'file') {
-      const files = element.files;
-      return { ...acc, [element.name]: !files || files.length === 0 ? null : files };
-    }
+      if (element instanceof HTMLInputElement && element.type === 'checkbox') {
+        return { ...acc, [element.name]: element.checked };
+      }
 
-    return {
-      ...acc,
-      [element.name]: element.value.length ? element.value : null,
-    };
-  }, initialData);
+      if (
+        element instanceof HTMLInputElement &&
+        element.type === 'radio' &&
+        !element.checked
+      ) {
+        return acc;
+      }
+
+      if (element instanceof HTMLInputElement && element.type === 'file') {
+        const { files } = element;
+        return {
+          ...acc,
+          [element.name]: !files || files.length === 0 ? null : files,
+        };
+      }
+
+      return {
+        ...acc,
+        [element.name]: element.value.length ? element.value : null,
+      };
+    },
+    initialData,
+  );
 
   return values as unknown as T;
 }

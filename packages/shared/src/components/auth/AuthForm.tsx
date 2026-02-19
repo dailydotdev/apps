@@ -1,9 +1,5 @@
 import classNames from 'classnames';
-import type {
-  FormHTMLAttributes,
-  ForwardedRef,
-  ReactElement,
-} from 'react';
+import type { FormHTMLAttributes, ForwardedRef, ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 
 function AuthForm(
