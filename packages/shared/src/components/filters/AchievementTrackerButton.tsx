@@ -13,6 +13,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { webappUrl } from '../../lib/constants';
 import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
+import { LazyImage } from '../LazyImage';
 
 export function AchievementTrackerButton(): ReactElement | null {
   const { push } = useRouter();
@@ -56,12 +57,25 @@ export function AchievementTrackerButton(): ReactElement | null {
   const progressValue = isTrackingAchievement
     ? Math.min(trackedAchievement.progress, targetCount)
     : 0;
-  const progressLabel = isTrackingAchievement
-    ? `${progressValue}/${targetCount}`
-    : null;
   const showAttentionDot =
     !isTrackedAchievementPending && !isTrackingAchievement;
   const isTrackerUpdating = isTrackPending || isUntrackPending;
+
+  const buttonLabel = (() => {
+    if (!isTrackingAchievement) {
+      return 'Track achievement';
+    }
+
+    if (targetCount <= 1) {
+      return trackedAchievement.achievement?.unit;
+    }
+
+    const { unit } = trackedAchievement.achievement;
+
+    return unit
+      ? `${progressValue} of ${targetCount} ${unit}`
+      : `${progressValue} of ${targetCount}`;
+  })();
 
   const handleClick = useCallback(() => {
     if (!user?.username) {
@@ -87,16 +101,25 @@ export function AchievementTrackerButton(): ReactElement | null {
       <Button
         size={ButtonSize.Medium}
         variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        icon={<MedalBadgeIcon />}
+        icon={isTrackingAchievement ? undefined : <MedalBadgeIcon />}
         onClick={handleClick}
         disabled={isTrackerUpdating}
         aria-label={
-          progressLabel
-            ? `Achievement tracker (${progressLabel})`
-            : 'Achievement tracker'
+          isTrackingAchievement
+            ? `${trackedAchievement.achievement.name}${
+                targetCount > 1 ? ` (${progressValue} of ${targetCount})` : ''
+              }`
+            : 'Track an achievement'
         }
       >
-        {progressLabel}
+        {isTrackingAchievement && (
+          <LazyImage
+            imgSrc={trackedAchievement.achievement.image}
+            imgAlt={trackedAchievement.achievement.name}
+            className="mr-2 size-5 rounded-6 object-cover"
+          />
+        )}
+        {buttonLabel}
       </Button>
       {showAttentionDot && (
         <AlertDot

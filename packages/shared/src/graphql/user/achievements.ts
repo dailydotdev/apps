@@ -21,6 +21,7 @@ export interface Achievement {
   criteria?: AchievementCriteria;
   points: number;
   rarity: number | null;
+  unit: string | null;
 }
 
 export interface UserAchievement {
@@ -87,6 +88,7 @@ const ACHIEVEMENT_FRAGMENT = gql`
     }
     points
     rarity
+    unit
   }
 `;
 
