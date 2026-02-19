@@ -82,14 +82,20 @@ function SubComment({
             />
           )}
           {isModalThread && (
-            <>
+            // Wrapper carries the testid for the modal-thread connector segments.
+            // All children use absolute positioning relative to the nearest CommentBox (position: relative) ancestor.
+            <div data-testid="subcomment">
               {isFirst && (
+                // Bridges the 8px gap (-top-2 = -8px) between the parent connector line and this reply's avatar.
+                // h-3 (12px) ensures overlap so there's no visual gap.
                 <div className="absolute -top-2 left-5 h-3 w-px bg-accent-pepper-subtle" />
               )}
               {!isLast && (
+                // Starts below avatar (top-10 = 40px = avatar height) and extends into next sibling's gap (-bottom-3 = -12px).
+                // left-5 = avatar lane center (20px).
                 <div className="absolute -bottom-3 left-5 top-10 w-px bg-accent-pepper-subtle" />
               )}
-            </>
+            </div>
           )}
         </CommentBox>
       )}

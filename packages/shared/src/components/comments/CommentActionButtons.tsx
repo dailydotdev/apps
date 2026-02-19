@@ -319,6 +319,8 @@ export default function CommentActionButtons({
       )}
     >
       {threadRepliesControl && (
+        // -left-12 (48px) escapes the action bar bounding box to place the toggle button in the avatar lane.
+        // This offset is tied to avatar width (40px) + 8px spacing; update if avatar size changes.
         <div className="absolute -left-12 top-1/2 -translate-y-1/2">
           {threadRepliesControl}
         </div>

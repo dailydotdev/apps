@@ -60,9 +60,7 @@ export function PostComments({
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const container = useRef<HTMLDivElement>();
-  const isModalThread =
-    threadCommentOrigins.has(origin) ||
-    !!globalThis?.document?.getElementById('post-modal');
+  const isModalThread = threadCommentOrigins.has(origin);
   const { tokenRefreshed } = useContext(AuthContext);
   const { requestMethod } = useRequestProtocol();
   const queryKey = generateCommentsQueryKey({ postId: id, sortBy });

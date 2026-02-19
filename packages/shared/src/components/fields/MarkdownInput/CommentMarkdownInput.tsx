@@ -64,14 +64,14 @@ export function CommentMarkdownInputComponent(
   const postId = post?.id;
   const sourceId = post?.source?.id;
   const {
-    mutateComment: { mutateComment, isLoading },
+    mutateComment: { mutateComment, isLoading, isSuccess },
   } = useWriteCommentContext();
   const richTextRef = useRef<RichTextInputRef>(null);
 
   const onSubmitForm: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    if (isLoading) {
+    if (isLoading || isSuccess) {
       return null;
     }
 
@@ -88,7 +88,7 @@ export function CommentMarkdownInputComponent(
   };
 
   const onKeyboardSubmit: FormEventHandler<HTMLTextAreaElement> = async (e) => {
-    if (isLoading) {
+    if (isLoading || isSuccess) {
       return null;
     }
 
@@ -132,6 +132,7 @@ export function CommentMarkdownInputComponent(
         sourceId={sourceId}
         showUserAvatar={showUserAvatar}
         isLoading={isLoading}
+        disabledSubmit={isSuccess}
         submitButtonVariant={ButtonVariant.Primary}
         initialContent={initialContent}
         editCommentId={editCommentId}
