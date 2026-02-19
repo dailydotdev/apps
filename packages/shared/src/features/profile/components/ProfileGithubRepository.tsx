@@ -79,12 +79,15 @@ const ProfileGithubRepository = ({
     const githubRepoMatch = /^([^/\s]+)\/([^/\s]+)$/.exec(currentSearch);
     const owner = githubRepoMatch?.[1] || null;
     const repoName = githubRepoMatch?.[2] || currentSearch;
-    const inferredUrl = owner
-      ? `https://github.com/${owner}/${repoName}`
-      : repository?.url || null;
+    const shouldPreserveUrl = !owner && repository?.id == null;
+    let inferredUrl = null;
+    if (owner) {
+      inferredUrl = `https://github.com/${owner}/${repoName}`;
+    } else if (shouldPreserveUrl) {
+      inferredUrl = repository?.url || null;
+    }
 
     setValue('repository', {
-      ...repository,
       id: null,
       owner,
       name: repoName,
