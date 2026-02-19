@@ -57,8 +57,6 @@ export const SocialShareButton = ({
       className="group flex w-16 cursor-pointer flex-col items-center"
       onClick={onWrapperClick}
       onKeyDown={onWrapperKeyDown}
-      role="button"
-      tabIndex={0}
     >
       <Button
         {...buttonProps}
@@ -70,10 +68,9 @@ export const SocialShareButton = ({
       />
       <ShareText
         className={classNames(
-          'mt-1.5 max-w-16 cursor-pointer overflow-hidden overflow-ellipsis text-center text-text-tertiary transition-colors hover:text-text-primary group-hover:text-text-primary',
+          'mt-1.5 max-w-16 overflow-hidden overflow-ellipsis text-center transition-colors hover:text-text-primary group-hover:text-text-primary',
           sizeToText[size],
         )}
-        onClick={() => button?.current?.click()}
       >
         {label}
       </ShareText>

@@ -23,7 +23,8 @@ function FixedPostNavigation({
       contextMenuId="fixed-post-navigation-context"
       className={{
         container: classNames(
-          'fixed z-postNavigation ml-0 w-full px-4',
+          'fixed z-postNavigation ml-0 w-full border-b border-border-subtlest-tertiary px-4 laptop:border laptop:px-6',
+          'max-w-full laptop:left-[unset]',
           isBannerVisible ? 'top-14' : 'top-0',
           className?.container,
         ),

@@ -25,6 +25,12 @@ interface ShareBarProps {
   post: Post;
 }
 
+const visibleRows = 2;
+const columns = 4;
+const fixedOptions = 4;
+const maxVisibleOptions = visibleRows * columns;
+const maxVisibleSquadsWhenCollapsed = maxVisibleOptions - fixedOptions;
+
 export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const [isExpanded, setIsExpanded] = useState(false);
   const href = post.commentsPermalink;
@@ -35,12 +41,6 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const { openModal } = useLazyModal();
   const { logOpts } = useContext(ActiveFeedContext);
   const { squads } = useAuthContext();
-
-  const visibleRows = 2;
-  const columns = 4;
-  const fixedOptions = 4;
-  const maxVisibleOptions = visibleRows * columns;
-  const maxVisibleSquadsWhenCollapsed = maxVisibleOptions - fixedOptions;
 
   const shareableSquadsCount = useMemo(
     () => getShareableSquads(squads).length,
@@ -144,7 +144,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
           size={ButtonSize.Small}
           variant={ButtonVariant.Subtle}
         >
-          {isExpanded ? 'Show less' : 'Show all'}
+          {isExpanded ? 'Show fewer options' : 'Show more options'}
         </Button>
       )}
     </WidgetContainer>
