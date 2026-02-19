@@ -63,8 +63,10 @@ export function AchievementsList({
     isOwner &&
     !isAchievementTrackingWidgetLoading &&
     isAchievementTrackingWidgetEnabled === true;
-  const { trackedAchievement, trackAchievement } =
-    useTrackedAchievement(user.id, canTrackAchievements);
+  const { trackedAchievement, trackAchievement } = useTrackedAchievement(
+    user.id,
+    canTrackAchievements,
+  );
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
   const [syncResult, setSyncResult] = useState<AchievementSyncResult | null>(

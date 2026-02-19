@@ -155,9 +155,7 @@ export function ProfileAchievements({
           </Typography>
         </div>
       </div>
-      {shouldShowTrackingWidget && (
-        <AchievementTrackingWidget user={user} />
-      )}
+      {shouldShowTrackingWidget && <AchievementTrackingWidget user={user} />}
       <AchievementsList achievements={achievements} user={user} />
     </div>
   );

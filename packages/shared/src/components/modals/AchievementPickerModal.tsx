@@ -140,7 +140,9 @@ export const AchievementPickerModal = ({
                           : ButtonVariant.Primary
                       }
                       disabled={isTracking || isTracked}
-                      onClick={() => handleTrack(userAchievement.achievement.id)}
+                      onClick={() =>
+                        handleTrack(userAchievement.achievement.id)
+                      }
                     >
                       {isTracked ? 'Tracking' : 'Track'}
                     </Button>

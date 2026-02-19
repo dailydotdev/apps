@@ -137,9 +137,7 @@ export function ProfileWidgets({
         mostReadTags={readingHistory?.userMostReadTags}
         isLoading={isReadingHistoryLoading}
       />
-      {shouldShowTrackingWidget && (
-        <AchievementTrackingWidget user={user} />
-      )}
+      {shouldShowTrackingWidget && <AchievementTrackingWidget user={user} />}
       {(isOwner || squads.length > 0) && (
         <ActiveOrRecomendedSquads userId={user.id} squads={squads} />
       )}
