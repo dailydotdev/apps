@@ -17,11 +17,13 @@ import type { PublicProfile } from '../../../../lib/user';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useAchievementSync } from '../../../../hooks/profile/useAchievementSync';
 import { useTrackedAchievement } from '../../../../hooks/profile/useTrackedAchievement';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { AchievementSyncModal } from '../ProfileWidgets/AchievementSyncModal';
 import { useActions } from '../../../../hooks';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { ActionType } from '../../../../graphql/actions';
 import { LazyModal } from '../../../../components/modals/common/types';
+import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 
 type FilterType = 'all' | 'unlocked' | 'locked';
 
@@ -50,8 +52,19 @@ export function AchievementsList({
   const [trackingId, setTrackingId] = useState<string | null>(null);
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
+  const {
+    value: isAchievementTrackingWidgetEnabled,
+    isLoading: isAchievementTrackingWidgetLoading,
+  } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: isOwner,
+  });
+  const canTrackAchievements =
+    isOwner &&
+    !isAchievementTrackingWidgetLoading &&
+    isAchievementTrackingWidgetEnabled === true;
   const { trackedAchievement, trackAchievement } =
-    useTrackedAchievement(user.id, isOwner);
+    useTrackedAchievement(user.id, canTrackAchievements);
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
   const [syncResult, setSyncResult] = useState<AchievementSyncResult | null>(
@@ -219,8 +232,11 @@ export function AchievementsList({
               isTracked={
                 trackedAchievementId === userAchievement.achievement.id
               }
-              isTrackPending={trackingId === userAchievement.achievement.id}
-              onTrack={handleTrack}
+              isTrackPending={
+                canTrackAchievements &&
+                trackingId === userAchievement.achievement.id
+              }
+              onTrack={canTrackAchievements ? handleTrack : undefined}
             />
           ))}
         </div>

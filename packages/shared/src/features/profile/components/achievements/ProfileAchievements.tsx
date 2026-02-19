@@ -16,6 +16,7 @@ import { MedalBadgeIcon } from '../../../../components/icons';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
+import { shouldShowAchievementTracker } from '../../../../lib/achievements';
 
 const AchievementTrackingWidget = dynamic(() =>
   import('../ProfileWidgets/AchievementTrackingWidget').then(
@@ -57,7 +58,10 @@ export function ProfileAchievements({
 }: ProfileAchievementsProps): ReactElement {
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
-  const { value: isAchievementTrackingWidgetEnabled } = useConditionalFeature({
+  const {
+    value: isAchievementTrackingWidgetEnabled,
+    isLoading: isAchievementTrackingWidgetLoading,
+  } = useConditionalFeature({
     feature: achievementTrackingWidgetFeature,
     shouldEvaluate: isOwner,
   });
@@ -69,6 +73,15 @@ export function ProfileAchievements({
     isPending,
     isError,
   } = useProfileAchievements(user);
+  const shouldRenderTrackingWidget = shouldShowAchievementTracker({
+    isExperimentEnabled: isAchievementTrackingWidgetEnabled === true,
+    unlockedCount,
+    totalCount,
+  });
+  const shouldShowTrackingWidget =
+    isOwner &&
+    !isAchievementTrackingWidgetLoading &&
+    shouldRenderTrackingWidget;
 
   if (isPending) {
     return (
@@ -142,7 +155,7 @@ export function ProfileAchievements({
           </Typography>
         </div>
       </div>
-      {isOwner && isAchievementTrackingWidgetEnabled && (
+      {shouldShowTrackingWidget && (
         <AchievementTrackingWidget user={user} />
       )}
       <AchievementsList achievements={achievements} user={user} />

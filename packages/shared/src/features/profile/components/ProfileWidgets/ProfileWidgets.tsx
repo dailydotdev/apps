@@ -20,6 +20,8 @@ import { ProfilePreviewToggle } from '../../../../components/profile/ProfilePrev
 import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
 import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
+import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchievements';
+import { shouldShowAchievementTracker } from '../../../../lib/achievements';
 
 const BadgesAndAwards = dynamic(() =>
   import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
@@ -56,10 +58,31 @@ export function ProfileWidgets({
     useProfileCompletionIndicator();
   const { isPreviewMode, isOwner, togglePreview } = useProfilePreview(user);
   const isSameUser = loggedUser?.id === user.id;
-  const { value: isAchievementTrackingWidgetEnabled } = useConditionalFeature({
+  const {
+    value: isAchievementTrackingWidgetEnabled,
+    isLoading: isAchievementTrackingWidgetLoading,
+  } = useConditionalFeature({
     feature: achievementTrackingWidgetFeature,
     shouldEvaluate: isOwner,
   });
+  const {
+    unlockedCount,
+    totalCount,
+    isPending: isAchievementsPending,
+  } = useProfileAchievements(
+    isOwner ? user : null,
+    isOwner && isAchievementTrackingWidgetEnabled === true,
+  );
+  const shouldRenderTrackingWidget = shouldShowAchievementTracker({
+    isExperimentEnabled: isAchievementTrackingWidgetEnabled === true,
+    unlockedCount,
+    totalCount,
+  });
+  const shouldShowTrackingWidget =
+    isOwner &&
+    !isAchievementTrackingWidgetLoading &&
+    !isAchievementsPending &&
+    shouldRenderTrackingWidget;
 
   const before = startOfTomorrow();
   const after = subMonths(subDays(before, 2), 5);
@@ -114,7 +137,7 @@ export function ProfileWidgets({
         mostReadTags={readingHistory?.userMostReadTags}
         isLoading={isReadingHistoryLoading}
       />
-      {isOwner && isAchievementTrackingWidgetEnabled && (
+      {shouldShowTrackingWidget && (
         <AchievementTrackingWidget user={user} />
       )}
       {(isOwner || squads.length > 0) && (

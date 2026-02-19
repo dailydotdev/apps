@@ -14,7 +14,8 @@ interface UseProfileAchievementsResult {
 }
 
 export function useProfileAchievements(
-  user: PublicProfile,
+  user?: PublicProfile | null,
+  shouldQuery = true,
 ): UseProfileAchievementsResult {
   const queryKey = generateQueryKey(
     RequestKey.UserAchievements,
@@ -24,9 +25,15 @@ export function useProfileAchievements(
 
   const { data, isPending, isError } = useQuery({
     queryKey,
-    queryFn: () => getUserAchievements(user.id),
+    queryFn: () => {
+      if (!user?.id) {
+        throw new Error('Cannot load profile achievements without a user id.');
+      }
+
+      return getUserAchievements(user.id);
+    },
     staleTime: StaleTime.Default,
-    enabled: !!user?.id,
+    enabled: !!user?.id && shouldQuery,
   });
 
   const unlocked = data?.filter((a) => a.unlockedAt !== null) ?? [];
