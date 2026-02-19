@@ -69,12 +69,12 @@ export const AchievementPickerModal = ({
     <Modal
       {...props}
       kind={Modal.Kind.FlexibleCenter}
-      size={Modal.Size.Medium}
+      size={Modal.Size.Small}
       onRequestClose={onRequestClose}
       isDrawerOnMobile
     >
       <ModalClose className="top-2" onClick={onRequestClose} />
-      <div className="flex flex-col gap-4 p-6">
+      <Modal.Body className="flex flex-col gap-4">
         <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
           Choose an achievement to track
         </Typography>
@@ -95,7 +95,7 @@ export const AchievementPickerModal = ({
         )}
 
         {lockedAchievements.length > 0 && (
-          <div className="flex max-h-[22rem] flex-col gap-2 overflow-y-auto pr-1">
+          <div className="flex flex-col gap-2">
             {lockedAchievements.map((userAchievement) => {
               const target = getTargetCount(userAchievement.achievement);
               const progressPercentage = Math.min(
@@ -171,7 +171,7 @@ export const AchievementPickerModal = ({
             })}
           </div>
         )}
-      </div>
+      </Modal.Body>
     </Modal>
   );
 };
