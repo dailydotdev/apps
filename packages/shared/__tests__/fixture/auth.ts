@@ -1307,7 +1307,7 @@ export const verifiedLoginData = {
 
 export const mockVerificationValidation = (
   params: Partial<EmptyObjectLiteral>,
-  result: unknown = successfulSettingsFlowData,
+  result: nock.ReplyBody = successfulSettingsFlowData,
   code = 200,
 ): void => {
   nock(authUrl)
@@ -1320,16 +1320,20 @@ export const mockVerificationValidation = (
 
 export const mockSettingsValidation = (
   params: Partial<EmptyObjectLiteral>,
-  result: unknown = successfulSettingsFlowData,
+  result: nock.ReplyBody = successfulSettingsFlowData,
   code = 200,
 ): nock.Scope => {
   const url = new URL(settingsFlowMockData.ui.action);
+  const reqheaders: Record<string, nock.RequestHeaderMatcher> = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+  if (params.csrf_token) {
+    reqheaders['X-CSRF-Token'] = params.csrf_token;
+  }
+
   return nock(authUrl, {
-    reqheaders: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': params.csrf_token,
-      Accept: 'application/json',
-    },
+    reqheaders,
   })
     .post(url.pathname + url.search, params)
     .reply(code, result);
@@ -1337,16 +1341,20 @@ export const mockSettingsValidation = (
 
 export const mockKratosPost = <T = EmptyObjectLiteral>(
   { params, action }: KratosFormParams<Partial<T> & { csrf_token: string }>,
-  result: unknown,
+  result: nock.ReplyBody,
   code = 200,
 ): void => {
   const url = new URL(action);
+  const reqheaders: Record<string, nock.RequestHeaderMatcher> = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+  if (params.csrf_token) {
+    reqheaders['X-CSRF-Token'] = params.csrf_token;
+  }
+
   nock(authUrl, {
-    reqheaders: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': params.csrf_token,
-      Accept: 'application/json',
-    },
+    reqheaders,
   })
     .post(url.pathname + url.search, params)
     .reply(code, result);

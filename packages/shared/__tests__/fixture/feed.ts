@@ -138,7 +138,7 @@ const feed: Connection<Post> = {
         title: 'Star night',
         createdAt: '2020-05-16T14:23:10.000Z',
         image: 'https://media.daily.dev/image/upload/f_auto/v1/placeholders/7',
-        readTime: null,
+        readTime: 0,
         source: {
           id: 'codepen',
           handle: 'codepen',
@@ -168,7 +168,7 @@ const feed: Connection<Post> = {
         createdAt: '2020-05-16T14:18:17.000Z',
         image:
           'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/7bd48c25940a571c7f7af6089795fac3',
-        readTime: null,
+        readTime: 0,
         source: {
           id: 'andpol',
           handle: 'andpol',
