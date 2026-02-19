@@ -76,17 +76,20 @@ const ProfileGithubRepository = ({
     }
 
     // Create custom repository from the search input
-    const hasSlash = currentSearch.includes('/');
-    const [owner, repoName] = hasSlash
-      ? currentSearch.split('/', 2)
-      : [null, currentSearch];
+    const githubRepoMatch = /^([^/\s]+)\/([^/\s]+)$/.exec(currentSearch);
+    const owner = githubRepoMatch?.[1] || null;
+    const repoName = githubRepoMatch?.[2] || currentSearch;
+    const inferredUrl = owner
+      ? `https://github.com/${owner}/${repoName}`
+      : repository?.url || null;
 
     setValue('repository', {
+      ...repository,
       id: null,
-      owner: owner || null,
-      name: repoName || currentSearch,
-      url: null,
-      image: null,
+      owner,
+      name: repoName,
+      url: inferredUrl,
+      image: repository?.image || null,
     });
   };
 
