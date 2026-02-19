@@ -43,7 +43,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     onBookmarkClick,
     onShare,
     children,
-    openNewTab,
     enableSourceHeader = false,
     domProps = {},
     eagerLoadImage = false,
@@ -157,8 +156,8 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
             dateFirst: true,
             bottomLabel: metadataBottomLabel,
           }}
-          postLink={post.commentsPermalink}
-          openNewTab={openNewTab}
+          postLink={post.permalink}
+          openNewTab
           readButtonContent="Read on"
           readButtonIcon={<TwitterIcon size={IconSize.Size16} />}
         >

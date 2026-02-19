@@ -83,7 +83,6 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     onCommentClick,
     onCopyLinkClick,
     onBookmarkClick,
-    openNewTab,
     children,
     domProps = {},
   }: PostCardProps,
@@ -179,9 +178,9 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
                   content="Read on"
                   className="relative z-1 mr-2"
                   icon={<TwitterIcon size={IconSize.Size16} />}
-                  href={post.commentsPermalink}
+                  href={post.permalink}
                   variant={ButtonVariant.Primary}
-                  openNewTab={openNewTab}
+                  openNewTab
                 />
               )}
               <PostOptionButton post={post} />
