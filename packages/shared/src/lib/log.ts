@@ -380,13 +380,13 @@ export enum LogEvent {
   // Achievements
   TrackAchievement = 'track achievement',
   UntrackAchievement = 'untrack achievement',
-  OpenAchievementPickerModal = 'open achievement picker modal',
+  OpenAchievementPickerModal = 'open achievement picker',
   SyncAchievements = 'sync achievements',
   CompleteSyncAchievements = 'complete sync achievements',
-  ClickAchievementTrackerButton = 'click achievement tracker button',
+  ClickAchievementTrackerButton = 'click achievement tracker',
   FilterAchievements = 'filter achievements',
-  ImpressionAchievementSyncPrompt = 'impression achievement sync prompt',
-  DismissAchievementSyncPrompt = 'dismiss achievement sync prompt',
+  ImpressionAchievementSyncPrompt = 'impression achievement sync',
+  DismissAchievementSyncPrompt = 'dismiss achievement sync',
 }
 
 export enum TargetType {
