@@ -13,6 +13,7 @@ import { PostClickbaitShield } from './common/PostClickbaitShield';
 
 interface MarkdownPostContentProps {
   post: Post;
+  isCompactSpacing?: boolean;
 }
 
 export const MarkdownPostImage = ({
@@ -35,13 +36,18 @@ export const MarkdownPostImage = ({
   </div>
 );
 
-function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
+function MarkdownPostContent({
+  post,
+  isCompactSpacing,
+}: MarkdownPostContentProps): ReactElement {
   const { title } = useSmartTitle(post);
   const hasVideo = !!post.flags?.coverVideo;
+  const headerClassName = isCompactSpacing ? 'my-4' : 'my-6';
+  const mediaMarginClassName = isCompactSpacing ? 'mb-7' : 'mb-10';
 
   return (
     <>
-      <div className="my-6">
+      <div className={headerClassName}>
         <h1 className="whitespace-pre-line break-words text-[2rem] font-bold leading-[1.3]">
           {title}
         </h1>
@@ -58,7 +64,10 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
                   ratio="52%"
                   imgSrc={post.image}
                   imgAlt="Post cover image"
-                  className="mb-10 h-auto max-h-[62.5rem] w-full rounded-12 object-cover"
+                  className={classNames(
+                    mediaMarginClassName,
+                    'h-auto max-h-[62.5rem] w-full rounded-12 object-cover',
+                  )}
                   fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                 />
               </a>
@@ -70,7 +79,10 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
               ratio="52%"
               videoSrc={post.flags.coverVideo}
               poster={post.image}
-              className="mb-10 h-auto max-h-[62.5rem] w-full rounded-12 object-cover"
+              className={classNames(
+                mediaMarginClassName,
+                'h-auto max-h-[62.5rem] w-full rounded-12 object-cover',
+              )}
             />
           )}
         </>

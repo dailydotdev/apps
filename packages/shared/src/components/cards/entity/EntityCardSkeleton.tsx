@@ -21,15 +21,14 @@ const EntityCardSkeleton = ({
       )}
       aria-busy
     >
-      <div className="flex w-full items-start gap-2">
+      <div className="flex w-full items-start justify-between gap-2">
         <div className={classNames(className?.image, 'overflow-hidden')}>
           <ElementPlaceholder className="h-12 w-12 rounded-full" />
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <ElementPlaceholder className="h-8 w-8 rounded-8" />
           <ElementPlaceholder className="h-8 w-8 rounded-8" />
         </div>
-        <div />
       </div>
       <div className="mt-4 flex w-full flex-col gap-2">
         <ElementPlaceholder className="h-5 w-32 rounded-8" />

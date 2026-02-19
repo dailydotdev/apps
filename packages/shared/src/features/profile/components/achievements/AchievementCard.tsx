@@ -57,11 +57,13 @@ export function AchievementCard({
     rarityTier === AchievementRarityTier.Emerald
       ? '<1%'
       : `${Math.round(achievement.rarity ?? 0)}%`;
+  const statusPillClassName =
+    'inline-flex h-8 items-center gap-1 rounded-10 border border-border-subtlest-primary bg-surface-hover px-3';
 
   return (
     <div
       className={classNames(
-        'group relative flex flex-col rounded-16 border p-4 transition-colors',
+        'relative flex flex-col rounded-16 border p-4 transition-colors',
         isUnlocked ? 'bg-surface-float' : 'bg-surface-subtle',
         rarityTier
           ? ['overflow-visible', rarityGlowClasses[rarityTier]]
@@ -155,17 +157,32 @@ export function AchievementCard({
         </div>
       )}
 
-      {!isUnlocked && isOwner && onTrack && !isTracked && (
-        <Button
-          className="mt-3 self-start tablet:opacity-0 tablet:transition-opacity tablet:group-hover:opacity-100"
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Subtle}
-          icon={<PinIcon />}
-          disabled={isTrackPending}
-          onClick={() => onTrack(achievement.id)}
-        >
-          Track
-        </Button>
+      {!isUnlocked && isOwner && onTrack && (
+        <div className="mt-3 flex min-h-8 items-center">
+          {isTracked ? (
+            <div className={statusPillClassName}>
+              <PinIcon className="size-4 text-text-secondary" />
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+                bold
+              >
+                Tracking
+              </Typography>
+            </div>
+          ) : (
+            <Button
+              className="self-start"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Secondary}
+              icon={<PinIcon />}
+              disabled={isTrackPending}
+              onClick={() => onTrack(achievement.id)}
+            >
+              Track
+            </Button>
+          )}
+        </div>
       )}
 
       {isUnlocked && unlockedAt && (
