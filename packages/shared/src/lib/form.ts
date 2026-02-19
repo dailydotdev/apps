@@ -15,7 +15,7 @@ const isFormFieldElement = (element: Element): element is FormFieldElement =>
   element instanceof HTMLTextAreaElement ||
   element instanceof HTMLSelectElement;
 
-export function formToJson<T extends Record<string, unknown>>(
+export function formToJson<T extends object>(
   form: HTMLFormElement,
   initialValue?: T,
 ): T {
