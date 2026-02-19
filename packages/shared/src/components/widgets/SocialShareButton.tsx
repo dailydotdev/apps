@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import React, { useRef } from 'react';
 import classNames from 'classnames';
 import type { ButtonProps } from '../buttons/Button';
@@ -25,6 +25,24 @@ export const SocialShareButton = ({
   ...props
 }: SocialShareButtonProps): ReactElement => {
   const button = useRef<HTMLButtonElement>();
+  const onWrapperClick = (event: MouseEvent<HTMLDivElement>): void => {
+    if ((event.target as HTMLElement).closest('button, a')) {
+      return;
+    }
+    button?.current?.click();
+  };
+  const onWrapperKeyDown = (
+    event: React.KeyboardEvent<HTMLDivElement>,
+  ): void => {
+    if ((event.target as HTMLElement).closest('button, a')) {
+      return;
+    }
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+    event.preventDefault();
+    button?.current?.click();
+  };
   const buttonProps =
     href &&
     ({
@@ -35,7 +53,13 @@ export const SocialShareButton = ({
     } as ButtonProps<'a'>);
 
   return (
-    <div className="flex w-16 flex-col items-center">
+    <div
+      className="group flex w-16 cursor-pointer flex-col items-center"
+      onClick={onWrapperClick}
+      onKeyDown={onWrapperKeyDown}
+      role="button"
+      tabIndex={0}
+    >
       <Button
         {...buttonProps}
         {...props}
@@ -46,7 +70,7 @@ export const SocialShareButton = ({
       />
       <ShareText
         className={classNames(
-          'mt-1.5 max-w-16 overflow-hidden overflow-ellipsis text-center',
+          'mt-1.5 max-w-16 cursor-pointer overflow-hidden overflow-ellipsis text-center text-text-tertiary transition-colors hover:text-text-primary group-hover:text-text-primary',
           sizeToText[size],
         )}
         onClick={() => button?.current?.click()}

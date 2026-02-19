@@ -27,8 +27,6 @@ export type BestDiscussionsProps = {
   className?: string;
 };
 
-const Separator = <div className="h-px bg-border-subtlest-tertiary" />;
-
 type PostProps = {
   post: Post;
   onLinkClick: (post: Post) => unknown;
@@ -37,7 +35,7 @@ type PostProps = {
 const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
   <article
     className={classNames(
-      'group relative flex flex-col items-start px-4 py-3 hover:bg-surface-hover',
+      'group relative -mx-4 flex flex-col items-start px-4 py-3 hover:bg-surface-hover',
       styles.card,
     )}
   >
@@ -64,7 +62,10 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-12 my-0.5');
 
 const ListItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="relative flex flex-col items-start px-4 py-3">
+  <article
+    aria-busy
+    className="relative -mx-4 flex flex-col items-start px-4 py-3"
+  >
     <TextPlaceholder style={{ width: '80%' }} />
     <TextPlaceholder style={{ width: '80%' }} />
     <TextPlaceholder style={{ width: '40%' }} />
@@ -73,7 +74,7 @@ const ListItemPlaceholder = (): ReactElement => (
 
 export const BestDiscussionsContainer = classed(
   WidgetContainer,
-  'flex flex-col',
+  'flex flex-col p-4',
 );
 
 export default function BestDiscussions({
@@ -97,10 +98,9 @@ export default function BestDiscussions({
 
   return (
     <BestDiscussionsContainer className={className}>
-      <h4 className="my-0.5 px-4 py-3 text-text-tertiary typo-body">
+      <h4 className="font-bold text-text-primary typo-callout">
         Best discussions
       </h4>
-      {Separator}
       {isLoading ? (
         <>
           <ListItemPlaceholder />
@@ -114,8 +114,6 @@ export default function BestDiscussions({
           ))}
         </>
       )}
-
-      {Separator}
       <Link
         href={posts?.[0]?.commentsPermalink ?? '/'}
         prefetch={false}
@@ -123,7 +121,7 @@ export default function BestDiscussions({
       >
         <Button
           variant={ButtonVariant.Tertiary}
-          className="my-2 ml-2 self-start"
+          className="mt-2 self-start"
           size={ButtonSize.Small}
           tag="a"
           icon={<ArrowIcon className="rotate-90" />}
