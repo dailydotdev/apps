@@ -422,6 +422,7 @@ export enum TargetType {
   // End settings
   SocialLink = 'social link',
   Badge = 'badge',
+  AchievementCompletion = 'achievement completion',
   Plus = 'plus',
   // Browsers
   Chrome = 'chrome',

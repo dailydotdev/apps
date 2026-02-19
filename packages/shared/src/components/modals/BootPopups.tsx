@@ -286,6 +286,26 @@ export const BootPopups = (): ReactElement => {
   }, [alerts.showTopReader, logEvent, updateAlerts, updateLastBootPopup]);
 
   /**
+   * Boot popup for achievement unlock celebration
+   */
+  useEffect(() => {
+    if (!alerts?.showAchievementUnlock) {
+      return;
+    }
+
+    addBootPopup({
+      type: LazyModal.AchievementCompletion,
+      props: {
+        achievementId: alerts.showAchievementUnlock,
+        onAfterClose: () => {
+          updateLastBootPopup();
+          updateAlerts({ showAchievementUnlock: null });
+        },
+      },
+    });
+  }, [alerts?.showAchievementUnlock, updateAlerts, updateLastBootPopup]);
+
+  /**
    * Job opportunity modal
    */
   useEffect(() => {
