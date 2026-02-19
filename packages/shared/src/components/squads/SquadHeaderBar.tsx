@@ -11,7 +11,13 @@ import { Origin } from '../../lib/log';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
 import { SquadActionButton } from './SquadActionButton';
-import { AddUserIcon, BellIcon, SlackIcon, TimerIcon } from '../icons';
+import {
+  AddUserIcon,
+  AnalyticsIcon,
+  BellIcon,
+  SlackIcon,
+  TimerIcon,
+} from '../icons';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useSourceIntegrationQuery } from '../../hooks/integrations/useSourceIntegrationQuery';
@@ -147,6 +153,33 @@ const SquadUserNotifications = ({
   );
 };
 
+const SquadAnalyticsButton = ({
+  squad,
+}: Pick<SquadMemberShortListProps, 'squad'>) => {
+  const canViewAnalytics = verifyPermission(
+    squad,
+    SourcePermissions.ViewAnalytics,
+  );
+
+  if (!canViewAnalytics) {
+    return null;
+  }
+
+  return (
+    <Tooltip content="Squad analytics">
+      <Button
+        aria-label="Squad analytics"
+        tag="a"
+        href={`/squads/${squad.handle}/analytics`}
+        className="order-4 tablet:order-5"
+        icon={<AnalyticsIcon />}
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Float}
+      />
+    </Tooltip>
+  );
+};
+
 const SquadModerationButton = ({ squad }: SquadBarButtonProps<'a'>) => {
   const count = squad.moderationPostCount;
   const postLabel = count === 1 ? 'post' : 'posts';
@@ -250,6 +283,7 @@ export function SquadHeaderBar({
           squad={squad}
         />
       )}
+      <SquadAnalyticsButton squad={squad} />
       <SquadHeaderMenu squad={squad} />
     </div>
   );

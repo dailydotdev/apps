@@ -20,7 +20,6 @@ import {
   FlagIcon,
   HashtagIcon,
   MenuIcon,
-  AnalyticsIcon,
 } from '../icons';
 import { squadFeedback } from '../../lib/constants';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
@@ -86,10 +85,6 @@ export default function SquadHeaderMenu({
 
   const items = useMemo(() => {
     const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
-    const canViewAnalytics = verifyPermission(
-      squad,
-      SourcePermissions.ViewAnalytics,
-    );
     const canDeleteSquad =
       verifyPermission(squad, SourcePermissions.Delete) && showDeletion;
 
@@ -129,14 +124,6 @@ export default function SquadHeaderMenu({
         icon: <IconWrapper Icon={SettingsIcon} />,
         action: () => editSquad({ handle: squad.handle }),
         label: 'Squad settings',
-      });
-    }
-
-    if (canViewAnalytics) {
-      list.push({
-        icon: <IconWrapper Icon={AnalyticsIcon} />,
-        action: () => router.push(`/squads/${squad.handle}/analytics`),
-        label: 'Analytics',
       });
     }
 
