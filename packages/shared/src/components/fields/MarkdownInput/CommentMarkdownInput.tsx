@@ -14,6 +14,7 @@ import type { Comment } from '../../../graphql/comments';
 import { formToJson } from '../../../lib/form';
 import type { Post } from '../../../graphql/posts';
 import { useWriteCommentContext } from '../../../contexts/WriteCommentContext';
+import { ButtonVariant } from '../../buttons/Button';
 
 export interface CommentClassName {
   container?: string;
@@ -125,13 +126,13 @@ export function CommentMarkdownInputComponent(
         className={{
           container: classNames('!min-h-16', className?.markdownContainer),
           input: classNames(className?.input, replyTo && 'mt-0'),
-          profile: replyTo && '!mt-0',
         }}
         postId={postId}
         sourceId={sourceId}
         showUserAvatar={showUserAvatar}
         isLoading={isLoading}
         disabledSubmit={isSuccess}
+        submitButtonVariant={ButtonVariant.Primary}
         initialContent={initialContent}
         editCommentId={editCommentId}
         parentCommentId={parentCommentId}
@@ -145,7 +146,7 @@ export function CommentMarkdownInputComponent(
         submitCopy={showSubmit && (editCommentId ? 'Update' : 'Comment')}
         timeline={
           replyTo ? (
-            <span className="py-2 pl-12 text-text-tertiary typo-caption1">
+            <span className="py-1.5 pl-12 text-text-tertiary typo-caption1">
               Reply to
               <span className="ml-2 font-bold text-text-primary">
                 {replyTo}

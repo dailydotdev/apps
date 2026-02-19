@@ -69,6 +69,7 @@ function PostEngagements({
     useState<string>();
   const [joinNotificationCommentId, setJoinNotificationCommentId] =
     useState<string>();
+  const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(logOrigin);
   const [isJoinSquadBannerDismissed] = usePersistentContext(
@@ -126,7 +127,7 @@ function PostEngagements({
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
       {linkClicked && <SocialBar post={post} className="mt-6" />}
-      <span className="mt-6 flex flex-row items-center">
+      <span className="mt-3 flex flex-row items-center">
         <Typography type={TypographyType.Callout}>Sort:</Typography>
         <Button
           className="ml-1 !px-0"
@@ -152,10 +153,11 @@ function PostEngagements({
         </Button>
       </span>
       <NewComment
-        className={{ container: 'mt-6 flex' }}
+        className={{ container: 'mt-3 flex' }}
         post={post}
         ref={commentRef}
         onCommented={onCommented}
+        onComposerOpenChange={setIsComposerOpen}
         shouldHandleCommentQuery
         CommentInputOrModal={CommentInputOrModal}
       />
@@ -164,6 +166,7 @@ function PostEngagements({
         post={post}
         sortBy={sortBy}
         origin={logOrigin}
+        isComposerOpen={isComposerOpen}
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
         permissionNotificationCommentId={permissionNotificationCommentId}

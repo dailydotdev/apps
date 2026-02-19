@@ -3,38 +3,72 @@ import type { GraphQLError } from './errors';
 import type { ApiResponseError, ApiZodErrorExtension } from '../graphql/common';
 import { ApiError } from '../graphql/common';
 
-export function formToJson<T>(form: HTMLFormElement, initialValue?: T): T {
-  return Array.from(form.elements).reduce((acc, val: HTMLInputElement) => {
-    if (val.name === '') {
-      return acc;
-    }
+type FormFieldElement =
+  | HTMLInputElement
+  | HTMLTextAreaElement
+  | HTMLSelectElement;
+type FormValue = string | string[] | boolean | FileList | null;
+type FormValues = Record<string, FormValue>;
 
-    // Handle fields that end with [] as arrays.
-    if (val.name.endsWith('[]')) {
-      const fieldName = val.name.slice(0, -2); // Remove []
-      const existingArray = acc[fieldName] || [];
+const isFormFieldElement = (element: Element): element is FormFieldElement =>
+  element instanceof HTMLInputElement ||
+  element instanceof HTMLTextAreaElement ||
+  element instanceof HTMLSelectElement;
 
-      if (val.value && val.value.trim().length > 0) {
-        return { ...acc, [fieldName]: [...existingArray, val.value] };
+export function formToJson<T extends Record<string, unknown>>(
+  form: HTMLFormElement,
+  initialValue?: T,
+): T {
+  const initialData = (initialValue ?? {}) as FormValues;
+
+  const values = Array.from(form.elements).reduce<FormValues>(
+    (acc, element) => {
+      if (!isFormFieldElement(element) || element.name === '') {
+        return acc;
       }
 
-      return acc;
-    }
+      // Handle fields that end with [] as arrays.
+      if (element.name.endsWith('[]')) {
+        const fieldName = element.name.slice(0, -2);
+        const existingValue = acc[fieldName];
+        const existingArray = Array.isArray(existingValue) ? existingValue : [];
 
-    if (val.type === 'checkbox') {
-      return { ...acc, [val.name]: val.checked };
-    }
-    if (val.type === 'radio' && !val.checked) {
-      return acc;
-    }
-    if (val.type === 'file') {
-      return { ...acc, [val.name]: val.files.length === 0 ? null : val.files };
-    }
-    return {
-      ...acc,
-      [val.name]: val.value.length ? val.value : null,
-    };
-  }, initialValue);
+        if (element.value && element.value.trim().length > 0) {
+          return { ...acc, [fieldName]: [...existingArray, element.value] };
+        }
+
+        return acc;
+      }
+
+      if (element instanceof HTMLInputElement && element.type === 'checkbox') {
+        return { ...acc, [element.name]: element.checked };
+      }
+
+      if (
+        element instanceof HTMLInputElement &&
+        element.type === 'radio' &&
+        !element.checked
+      ) {
+        return acc;
+      }
+
+      if (element instanceof HTMLInputElement && element.type === 'file') {
+        const { files } = element;
+        return {
+          ...acc,
+          [element.name]: !files || files.length === 0 ? null : files,
+        };
+      }
+
+      return {
+        ...acc,
+        [element.name]: element.value.length ? element.value : null,
+      };
+    },
+    initialData,
+  );
+
+  return values as unknown as T;
 }
 
 export const applyZodErrorsToForm = ({

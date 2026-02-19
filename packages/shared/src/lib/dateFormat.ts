@@ -231,7 +231,7 @@ export const getLastActivityDateFormat = (
   });
 };
 
-const publishExperienceTime = (start: Date, end: Date): string => {
+const publishExperienceTime = (start: Date, end?: Date): string => {
   const difference =
     new Date(end || Date.now()).getTime() - new Date(start).getTime();
   const differenceInMonths = Math.floor(difference / oneMonth);

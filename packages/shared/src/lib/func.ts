@@ -5,6 +5,13 @@ import { BROADCAST_CHANNEL_NAME, isBrave, isTesting } from './constants';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 
 export type EmptyPromise = () => Promise<void>;
+type RuntimeWindow = Window & {
+  reactModalInit?: boolean;
+  eventControllers?: Record<string, AbortController | null>;
+  webkit?: {
+    messageHandlers?: Record<string, unknown>;
+  };
+};
 
 export const nextTick = (): Promise<unknown> =>
   new Promise((resolve) => setTimeout(resolve));
@@ -72,10 +79,14 @@ export const isAppleDevice = (): boolean => {
 export const isIOS = (): boolean =>
   /iPhone|iPad/i.test(globalThis?.navigator.userAgent);
 
-export const isIOSNative = (): boolean =>
-  globalThis.webkit &&
-  !!globalThis.webkit.messageHandlers &&
-  document.documentElement.classList.contains('ios');
+export const isIOSNative = (): boolean => {
+  const runtimeWindow = globalThis as unknown as RuntimeWindow;
+  return (
+    !!runtimeWindow.webkit &&
+    !!runtimeWindow.webkit.messageHandlers &&
+    document.documentElement.classList.contains('ios')
+  );
+};
 
 export enum ArrowKeyEnum {
   Up = 'ArrowUp',
@@ -181,11 +192,13 @@ export const initReactModal = ({
   appElement: string | HTMLElement;
   defaultStyles?: ReactModal.Styles;
 }): void => {
+  const runtimeWindow = globalThis as unknown as RuntimeWindow;
+
   if (isTesting) {
     return;
   }
 
-  if (globalThis.reactModalInit) {
+  if (runtimeWindow.reactModalInit) {
     return;
   }
 
@@ -193,7 +206,7 @@ export const initReactModal = ({
   // eslint-disable-next-line no-param-reassign
   modalObject.defaultStyles = defaultStyles || {};
 
-  globalThis.reactModalInit = true;
+  runtimeWindow.reactModalInit = true;
 };
 
 export const isMobile = (): boolean =>
@@ -222,26 +235,30 @@ export const promisifyEventListener = <T, E = any>(
   listener: (event: CustomEvent<E>) => T | Promise<T>,
   options?: { once?: boolean },
 ): Promise<T> => {
+  const runtimeWindow = globalThis as unknown as RuntimeWindow;
   const { once = true } = options || {};
   return new Promise((resolve) => {
-    if (!globalThis?.eventControllers) {
-      globalThis.eventControllers = {};
+    if (!runtimeWindow.eventControllers) {
+      runtimeWindow.eventControllers = {};
     }
-    if (globalThis.eventControllers[type]) {
-      globalThis.eventControllers[type].abort();
+    const { eventControllers } = runtimeWindow;
+
+    if (eventControllers[type]) {
+      eventControllers[type].abort();
     }
 
     const controller = new AbortController();
-    globalThis.eventControllers[type] = controller;
+    eventControllers[type] = controller;
 
-    globalThis.addEventListener(
-      type,
-      async (event: CustomEvent) => {
-        globalThis.eventControllers[type] = null;
-        resolve(await listener(event));
-      },
-      { once, signal: controller.signal },
-    );
+    const eventListener: EventListener = async (event: Event) => {
+      eventControllers[type] = null;
+      resolve(await listener(event as CustomEvent<E>));
+    };
+
+    globalThis.addEventListener(type, eventListener, {
+      once,
+      signal: controller.signal,
+    });
   });
 };
 
@@ -258,7 +275,7 @@ export const safeContextHookExport = <Args extends unknown[], R>(
     try {
       return hook(...props) as SafeContextHook<R>;
     } catch (error) {
-      if (errorMessage === error.message) {
+      if (error instanceof Error && errorMessage === error.message) {
         return defaultReturn;
       }
 
