@@ -25,9 +25,10 @@ import { ActionType } from '../../../../graphql/actions';
 import { LazyModal } from '../../../../components/modals/common/types';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 import { useLogContext } from '../../../../contexts/LogContext';
-import { LogEvent } from '../../../../lib/log';
+import { LogEvent, TargetType } from '../../../../lib/log';
 
 type FilterType = 'all' | 'unlocked' | 'locked';
+type SyncOrigin = 'achievements_list' | 'sync_prompt_modal';
 
 const getEmptyMessage = (filter: FilterType): string => {
   if (filter === 'unlocked') {
@@ -89,32 +90,29 @@ export function AchievementsList({
       : 'One-time sync already used';
   })();
 
-  const handleSync = useCallback(async () => {
-    if (!isOwner || isSyncing || syncStatus?.canSync === false) {
-      return;
-    }
+  const handleSync = useCallback(
+    async (origin: SyncOrigin) => {
+      if (!isOwner || isSyncing || syncStatus?.canSync === false) {
+        return;
+      }
 
-    logEvent({
-      event_name: LogEvent.SyncAchievements,
-    });
-
-    setSyncResult(null);
-    setIsSyncModalOpen(true);
-
-    try {
-      const result = await syncAchievements();
-      setSyncResult(result);
       logEvent({
-        event_name: LogEvent.CompleteSyncAchievements,
-        extra: JSON.stringify({
-          points_gained: result.pointsGained,
-          newly_unlocked: result.newlyUnlockedAchievements.length,
-        }),
+        event_name: LogEvent.SyncAchievements,
+        extra: JSON.stringify({ origin }),
       });
-    } catch {
-      setIsSyncModalOpen(false);
-    }
-  }, [isOwner, isSyncing, logEvent, syncAchievements, syncStatus?.canSync]);
+
+      setSyncResult(null);
+      setIsSyncModalOpen(true);
+
+      try {
+        const result = await syncAchievements();
+        setSyncResult(result);
+      } catch {
+        setIsSyncModalOpen(false);
+      }
+    },
+    [isOwner, isSyncing, logEvent, syncAchievements, syncStatus?.canSync],
+  );
 
   useEffect(() => {
     if (
@@ -129,7 +127,7 @@ export function AchievementsList({
 
     openModal({
       type: LazyModal.AchievementSyncPrompt,
-      props: { onSync: handleSync },
+      props: { onSync: () => handleSync('sync_prompt_modal') },
     });
   }, [
     isActionsFetched,
@@ -148,6 +146,7 @@ export function AchievementsList({
         await trackAchievement(achievementId);
         logEvent({
           event_name: LogEvent.TrackAchievement,
+          target_type: TargetType.AchievementCard,
           target_id: achievementId,
         });
       } finally {
@@ -231,7 +230,7 @@ export function AchievementsList({
           <Button
             variant={ButtonVariant.Secondary}
             disabled={isSyncing || isStatusPending}
-            onClick={handleSync}
+            onClick={() => handleSync('achievements_list')}
             title={syncButtonTitle}
           >
             {isSyncing ? 'Syncing...' : 'Sync'}

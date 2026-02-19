@@ -14,7 +14,7 @@ import {
 import type { UserAchievement } from '../../graphql/user/achievements';
 import { getTargetCount } from '../../graphql/user/achievements';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 
 export interface AchievementPickerModalProps extends ModalProps {
   achievements: UserAchievement[];
@@ -65,6 +65,7 @@ export const AchievementPickerModal = ({
       await onTrack(achievementId);
       logEvent({
         event_name: LogEvent.TrackAchievement,
+        target_type: TargetType.AchievementCard,
         target_id: achievementId,
         extra: JSON.stringify({ origin: 'picker_modal' }),
       });

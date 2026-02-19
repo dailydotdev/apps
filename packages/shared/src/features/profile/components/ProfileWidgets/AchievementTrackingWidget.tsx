@@ -42,10 +42,6 @@ export const AchievementTrackingWidget = ({
 
   const handleTrack = async (achievementId: string) => {
     await trackAchievement(achievementId);
-    logEvent({
-      event_name: LogEvent.TrackAchievement,
-      target_id: achievementId,
-    });
     closeModal();
   };
 

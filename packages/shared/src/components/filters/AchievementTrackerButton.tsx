@@ -15,7 +15,7 @@ import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
 import { LazyImage } from '../LazyImage';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 
 export function AchievementTrackerButton(): ReactElement | null {
   const { push } = useRouter();
@@ -89,6 +89,7 @@ export function AchievementTrackerButton(): ReactElement | null {
 
     logEvent({
       event_name: LogEvent.ClickAchievementTrackerButton,
+      target_type: TargetType.AchievementTracker,
       extra: JSON.stringify({
         has_tracked_achievement: isTrackingAchievement,
       }),
