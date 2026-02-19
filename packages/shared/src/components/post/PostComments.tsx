@@ -116,10 +116,7 @@ export function PostComments({
               'mb-12 flex flex-col gap-4',
               isComposerOpen ? 'mt-2' : 'mt-5',
             )
-          : classNames(
-              'mb-12 flex flex-col gap-4',
-              isComposerOpen ? 'mt-2' : 'mt-5',
-            )
+          : '-mx-4 mb-12 mt-6 flex flex-col gap-4 mobileL:mx-0'
       }
       ref={container}
     >

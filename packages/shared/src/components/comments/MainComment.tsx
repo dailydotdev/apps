@@ -149,11 +149,11 @@ export default function MainComment({
                 isModalThread &&
                   'rounded-none border-0 bg-transparent px-0 pt-0 pb-0 hover:bg-transparent',
               ),
-            content: classNames(isModalThread && 'ml-[52px] mt-1'),
-            markdown: classNames(
-              isModalThread &&
-                '!text-[15px] [&_p]:!text-[15px] [&_li]:!text-[15px] [&_a]:!text-[15px] [&_p]:!leading-[1.55] [&_li]:!leading-[1.55]',
-            ),
+              content: classNames(isModalThread && 'ml-[52px] mt-1'),
+              markdown: classNames(
+                isModalThread &&
+                  '!text-[15px] [&_p]:!text-[15px] [&_li]:!text-[15px] [&_a]:!text-[15px] [&_p]:!leading-[1.55] [&_li]:!leading-[1.55]',
+              ),
               ...className?.commentBox,
             }}
             appendTooltipTo={appendTooltipTo}
