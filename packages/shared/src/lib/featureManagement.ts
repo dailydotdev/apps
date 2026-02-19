@@ -40,7 +40,7 @@ export const plusTakeoverContent = new Feature<{
   cta: string;
   shouldShowRefund: boolean;
   shouldShowReviews: boolean;
-}>('plus_takeover_content', null);
+}>('plus_takeover_content');
 
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   full: 'Level Up with Plus',

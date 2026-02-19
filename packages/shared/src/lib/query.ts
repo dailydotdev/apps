@@ -105,7 +105,7 @@ export const generateStorageKey = (
   key: RequestKey,
   ...params: string[]
 ): string =>
-  (generateQueryKey(key, null, ...params) as Array<string>).join(':');
+  (generateQueryKey(key, undefined, ...params) as Array<string>).join(':');
 
 export enum RequestKey {
   DevCard = 'devcard',
