@@ -168,6 +168,7 @@ const SquadAnalyticsButton = ({
   return (
     <Tooltip content="Squad analytics">
       <Button
+        aria-label="Squad analytics"
         tag="a"
         href={`/squads/${squad.handle}/analytics`}
         className="order-4 tablet:order-5"

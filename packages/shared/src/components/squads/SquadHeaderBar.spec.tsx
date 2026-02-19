@@ -32,13 +32,6 @@ const renderComponent = (options?: {
   );
 };
 
-const getAnalyticsLink = (handle: string) =>
-  screen
-    .queryAllByRole('link')
-    .find(
-      (link) => link.getAttribute('href') === `/squads/${handle}/analytics`,
-    );
-
 describe('Member list', () => {
   it('should render the squad header bar with the correct number of members', async () => {
     renderComponent();
@@ -91,8 +84,14 @@ describe('Analytics button', () => {
     });
     renderComponent({ props: { squad } });
 
-    const analyticsLink = getAnalyticsLink(squad.handle);
-    expect(analyticsLink).toBeInTheDocument();
+    const analyticsLink = screen.getByRole('link', {
+      name: 'Squad analytics',
+    });
+
+    expect(analyticsLink).toHaveAttribute(
+      'href',
+      `/squads/${squad.handle}/analytics`,
+    );
   });
 
   it('should not render analytics button when user does not have ViewAnalytics permission', () => {
@@ -104,7 +103,8 @@ describe('Analytics button', () => {
     });
     renderComponent({ props: { squad } });
 
-    const analyticsLink = getAnalyticsLink(squad.handle);
-    expect(analyticsLink).toBeUndefined();
+    expect(
+      screen.queryByRole('link', { name: 'Squad analytics' }),
+    ).not.toBeInTheDocument();
   });
 });
