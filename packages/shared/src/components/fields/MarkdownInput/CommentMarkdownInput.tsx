@@ -14,6 +14,7 @@ import type { Comment } from '../../../graphql/comments';
 import { formToJson } from '../../../lib/form';
 import type { Post } from '../../../graphql/posts';
 import { useWriteCommentContext } from '../../../contexts/WriteCommentContext';
+import { ButtonVariant } from '../../buttons/Button';
 
 export interface CommentClassName {
   container?: string;
@@ -63,14 +64,14 @@ export function CommentMarkdownInputComponent(
   const postId = post?.id;
   const sourceId = post?.source?.id;
   const {
-    mutateComment: { mutateComment, isLoading, isSuccess },
+    mutateComment: { mutateComment, isLoading },
   } = useWriteCommentContext();
   const richTextRef = useRef<RichTextInputRef>(null);
 
   const onSubmitForm: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    if (isLoading || isSuccess) {
+    if (isLoading) {
       return null;
     }
 
@@ -87,7 +88,7 @@ export function CommentMarkdownInputComponent(
   };
 
   const onKeyboardSubmit: FormEventHandler<HTMLTextAreaElement> = async (e) => {
-    if (isLoading || isSuccess) {
+    if (isLoading) {
       return null;
     }
 
@@ -131,7 +132,7 @@ export function CommentMarkdownInputComponent(
         sourceId={sourceId}
         showUserAvatar={showUserAvatar}
         isLoading={isLoading}
-        disabledSubmit={isSuccess}
+        submitButtonVariant={ButtonVariant.Primary}
         initialContent={initialContent}
         editCommentId={editCommentId}
         parentCommentId={parentCommentId}

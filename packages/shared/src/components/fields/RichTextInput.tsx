@@ -129,6 +129,7 @@ interface RichTextInputProps {
     'className'
   >;
   submitCopy?: string;
+  submitButtonVariant?: ButtonVariant;
   showUserAvatar?: boolean;
   isUpdatingDraft?: boolean;
   timeline?: ReactNode;
@@ -159,6 +160,7 @@ function RichTextInput(
     footer,
     textareaProps = {},
     submitCopy,
+    submitButtonVariant = ButtonVariant.Float,
     showUserAvatar,
     isUpdatingDraft,
     timeline,
@@ -208,6 +210,7 @@ function RichTextInput(
 
   const [input, setInput] = useState(() => getInitialValue(initialContent));
   inputRef.current = input;
+  const isInputEmpty = input.trim() === '';
 
   const updateInput = useCallback(
     (
@@ -894,9 +897,9 @@ function RichTextInput(
               className={
                 maxLength && remainingCharacters !== null ? '' : 'ml-auto'
               }
-              variant={ButtonVariant.Float}
+              variant={submitButtonVariant}
               type="submit"
-              disabled={isLoading || disabledSubmit || input === ''}
+              disabled={isLoading || disabledSubmit || isInputEmpty}
               loading={isLoading}
             >
               {submitCopy}
