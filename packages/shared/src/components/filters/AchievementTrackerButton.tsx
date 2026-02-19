@@ -14,10 +14,13 @@ import { webappUrl } from '../../lib/constants';
 import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
 import { LazyImage } from '../LazyImage';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
 
 export function AchievementTrackerButton(): ReactElement | null {
   const { push } = useRouter();
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const {
     value: isAchievementTrackingWidgetEnabled,
@@ -84,8 +87,16 @@ export function AchievementTrackerButton(): ReactElement | null {
       );
     }
 
+    logEvent({
+      event_name: LogEvent.ClickAchievementTrackerButton,
+      target_type: TargetType.AchievementTracker,
+      extra: JSON.stringify({
+        has_tracked_achievement: isTrackingAchievement,
+      }),
+    });
+
     return push(`${webappUrl}${user.username}/achievements`);
-  }, [push, user?.username]);
+  }, [isTrackingAchievement, logEvent, push, user?.username]);
 
   if (
     !user ||

@@ -13,6 +13,9 @@ import {
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import OrDivider from '../auth/OrDivider';
+import { useLogContext } from '../../contexts/LogContext';
+import useLogEventOnce from '../../hooks/log/useLogEventOnce';
+import { LogEvent } from '../../lib/log';
 
 interface AchievementSyncPromptModalProps extends ModalProps {
   onSync: () => void;
@@ -27,14 +30,27 @@ export const AchievementSyncPromptModal = ({
   ...modalProps
 }: AchievementSyncPromptModalProps): ReactElement => {
   const { completeAction } = useActions();
+  const { logEvent } = useLogContext();
+
+  useLogEventOnce(() => ({
+    event_name: LogEvent.ImpressionAchievementSyncPrompt,
+  }));
+
+  const completePromptAction = () => {
+    completeAction(ActionType.AchievementSyncPrompt);
+  };
 
   const handleClose = (event: MouseEvent) => {
-    completeAction(ActionType.AchievementSyncPrompt);
+    completePromptAction();
+    logEvent({
+      event_name: LogEvent.DismissAchievementSyncPrompt,
+    });
     onRequestClose(event);
   };
 
   const handleSync = (event: MouseEvent) => {
-    handleClose(event);
+    completePromptAction();
+    onRequestClose(event);
     onSync();
   };
 
