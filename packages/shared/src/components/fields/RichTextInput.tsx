@@ -825,7 +825,7 @@ function RichTextInput(
                   className={classNames(
                     styles.editor,
                     'min-h-[8rem] min-w-0 p-4 flex-1',
-                    showUserAvatar && 'ml-3 flex-1 tablet:ml-0',
+                    showUserAvatar && 'ml-3 tablet:ml-0',
                     className?.input,
                   )}
                 />
