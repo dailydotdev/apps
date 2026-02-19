@@ -80,7 +80,24 @@ describe('getShareLink tests', () => {
       text,
     });
     expect(result).toEqual(
-      `mailto:?subject=${text}&body=${encodeURIComponent(link)}`,
+      `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(
+        link,
+      )}`,
+    );
+  });
+
+  it('should return Email share link with summary in body', () => {
+    const summary = 'A short summary';
+    const result = getShareLink({
+      provider: ShareProvider.Email,
+      link,
+      text,
+      emailSummary: summary,
+    });
+    expect(result).toEqual(
+      `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(
+        `${summary}\n\n${link}`,
+      )}`,
     );
   });
 });
