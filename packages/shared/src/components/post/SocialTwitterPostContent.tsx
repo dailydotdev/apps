@@ -6,6 +6,7 @@ import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import {
   getSocialTwitterPostType,
+  isSocialTwitterShareLike,
   isVideoPost,
   PostType,
 } from '../../graphql/posts';
@@ -22,6 +23,18 @@ import { BoostNewPostStrip } from '../../features/boost/BoostNewPostStrip';
 import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
+import PostMetadata from '../cards/common/PostMetadata';
+import {
+  getSocialTwitterMetadata,
+  getSocialTwitterMetadataLabel,
+} from '../cards/socialTwitter/socialTwitterHelpers';
+import { Separator } from '../cards/common/common';
+import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
+import { SharePostTitle } from './share/SharePostTitle';
+import { PostTagList } from './tags/PostTagList';
+import { LazyImage } from '../LazyImage';
+import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
+import { usePostImage } from '../../hooks/post/usePostImage';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -84,11 +97,30 @@ function SocialTwitterPostContentRaw({
   const finalType = isVideoPost(post)
     ? PostType.VideoYouTube
     : socialTwitterType || post?.type;
+  const isShareLike = isSocialTwitterShareLike(post);
+  const hasEmbeddedTweet =
+    isShareLike && post.sharedPost?.type === PostType.SocialTwitter;
   const shouldShowLinkedPreview =
     finalType !== PostType.Share &&
     !!post.sharedPost &&
     post.sharedPost.type !== PostType.SocialTwitter;
   const Content = ContentMap[finalType] || MarkdownPostContent;
+
+  const {
+    repostedByName,
+    metadataHandles,
+    embeddedTweetIdentity,
+    embeddedTweetAvatarUser,
+  } = getSocialTwitterMetadata(post);
+  const metadataLabel = getSocialTwitterMetadataLabel({
+    subType: post.subType,
+    repostedByName,
+    metadataHandles,
+  });
+
+  const postImage = usePostImage(post);
+  const showPostImage = !isShareLike && !hasEmbeddedTweet && !!postImage;
+  const tagPost = post.tags?.length ? post : post.sharedPost || post;
 
   return (
     <PostContentContainer
@@ -144,9 +176,22 @@ function SocialTwitterPostContentRaw({
             className={shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6'}
           />
           {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
-          {finalType === PostType.Share ? (
+          {hasEmbeddedTweet && (
+            <>
+              <SharePostTitle title={post.title} titleHtml={post.titleHtml} />
+              <EmbeddedTweetPreview
+                post={post}
+                embeddedTweetAvatarUser={embeddedTweetAvatarUser}
+                embeddedTweetIdentity={embeddedTweetIdentity}
+                className="mt-4"
+                textClampClass=""
+              />
+            </>
+          )}
+          {finalType === PostType.Share && !hasEmbeddedTweet && (
             <SharePostContent post={post} onReadArticle={onReadArticle} />
-          ) : (
+          )}
+          {finalType !== PostType.Share && !isShareLike && (
             <>
               <Content post={post} onReadArticle={onReadArticle} />
               {shouldShowLinkedPreview && (
@@ -157,6 +202,30 @@ function SocialTwitterPostContentRaw({
                 />
               )}
             </>
+          )}
+          <PostTagList post={tagPost} />
+          <PostMetadata
+            className="mb-8 mt-4 !typo-callout"
+            createdAt={post.createdAt}
+            readTime={post.readTime}
+          >
+            {!!post.createdAt && <Separator />}
+            {metadataLabel}
+          </PostMetadata>
+          {showPostImage && (
+            <div
+              className="mb-10 block cursor-pointer overflow-hidden rounded-16"
+              style={{ maxWidth: '25.625rem' }}
+            >
+              <LazyImage
+                imgSrc={postImage}
+                imgAlt="Post cover image"
+                ratio="49%"
+                eager
+                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                fetchPriority="high"
+              />
+            </div>
           )}
         </BasePostContent>
       </div>
