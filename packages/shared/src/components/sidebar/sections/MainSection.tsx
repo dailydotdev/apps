@@ -9,6 +9,7 @@ import {
   HomeIcon,
   HotIcon,
   SquadIcon,
+  TerminalIcon,
   YearInReviewIcon,
 } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -123,6 +124,15 @@ export const MainSection = ({
         ),
         title: 'History',
         path: `${webappUrl}history`,
+        isForcedLink: true,
+        requiresLogin: true,
+      },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
+        ),
+        title: 'Agents',
+        path: `${webappUrl}settings/api`,
         isForcedLink: true,
         requiresLogin: true,
       },
