@@ -89,7 +89,7 @@ export function SharedPostPreview({
                     color={TypographyColor.Primary}
                     className="truncate font-bold"
                   >
-                    {isUnknownSource ? post.sharedPost.domain : source.handle}
+                    {isUnknownSource ? post.sharedPost.domain : source.name}
                   </Typography>
                 </div>
               )}
