@@ -30,35 +30,46 @@ export const getLinkedInShareLink = (link: string): string =>
   )}`;
 export const getTelegramShareLink = (link: string, text: string): string =>
   `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
-export const getEmailShareLink = (link: string, subject: string): string =>
-  `mailto:?subject=${subject}&body=${encodeURIComponent(link)}`;
+export const getEmailShareLink = (
+  link: string,
+  subject: string,
+  summary?: string,
+): string => {
+  const body = summary ? `${summary}\n\n${link}` : link;
+
+  return `mailto:?subject=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`;
+};
 
 interface GetShareLinkParams {
   provider: ShareProvider;
   link: string;
   text?: string;
+  emailSummary?: string;
 }
 
 export const getShareLink = ({
   provider,
   link,
-  text,
+  text = '',
+  emailSummary,
 }: GetShareLinkParams): string => {
   switch (provider) {
     case ShareProvider.WhatsApp:
       return getWhatsappShareLink(link);
     case ShareProvider.Twitter:
-      return getTwitterShareLink(link, text ?? '');
+      return getTwitterShareLink(link, text);
     case ShareProvider.Facebook:
       return getFacebookShareLink(link);
     case ShareProvider.Reddit:
-      return getRedditShareLink(link, text ?? '');
+      return getRedditShareLink(link, text);
     case ShareProvider.LinkedIn:
       return getLinkedInShareLink(link);
     case ShareProvider.Telegram:
-      return getTelegramShareLink(link, text ?? '');
+      return getTelegramShareLink(link, text);
     case ShareProvider.Email:
-      return getEmailShareLink(link, text ?? '');
+      return getEmailShareLink(link, text, emailSummary);
     default:
       return link;
   }
