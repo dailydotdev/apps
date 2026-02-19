@@ -63,7 +63,7 @@ function SubComment({
             content: classNames('ml-[52px]', isModalThread && 'mt-1'),
             markdown: classNames(
               isModalThread &&
-                '!text-[15px] [&_a]:!text-[15px] [&_li]:!text-[15px] [&_li]:!leading-[1.55] [&_p]:!text-[15px] [&_p]:!leading-[1.55]',
+                '!text-[0.9375rem] [&_a]:!text-[0.9375rem] [&_li]:!text-[0.9375rem] [&_li]:!leading-[1.55] [&_p]:!text-[0.9375rem] [&_p]:!leading-[1.55]',
             ),
           }}
           onComment={(selected, parent) =>

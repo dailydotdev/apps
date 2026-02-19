@@ -61,9 +61,9 @@ export default function CollapsedRepliesPreview({
     >
       {isThreadStyle && (
         <>
-          {/* Elbow connector: left-[-28px] reaches avatar lane center (offset from ml-12 parent).
-              top-[-6px] / h-[18px] / w-7 (28px) form the L-shape that meets the parent thread line. */}
-          <div className="absolute left-[-28px] top-[-6px] h-[18px] w-7 rounded-bl-[10px] border-b border-l border-accent-pepper-subtle" />
+          {/* Elbow connector: -left-7 (1.75rem = 28px) reaches avatar lane center (offset from ml-12 parent).
+              -top-1.5 (0.375rem = 6px) / h-[1.125rem] (18px) / w-7 (28px) form the L-shape that meets the parent thread line. */}
+          <div className="absolute -left-7 -top-1.5 h-[1.125rem] w-7 rounded-bl-[0.625rem] border-b border-l border-accent-pepper-subtle" />
         </>
       )}
       <div

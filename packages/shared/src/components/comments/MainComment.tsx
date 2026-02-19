@@ -135,8 +135,9 @@ export default function MainComment({
       {!editProps && (logImpression || inView) && (
         <div className="relative">
           {isModalThread && replyCount > 0 && (
-            // Vertical connector starts at avatar bottom and ends at action row.
-            <div className="pointer-events-none absolute bottom-[33px] left-5 top-10 w-px bg-accent-pepper-subtle" />
+            // Vertical connector starts at avatar bottom (top-10 = 2.5rem = 40px) and ends above action row.
+            // bottom-8 = 2rem = 32px stops just above the ~32px action row.
+            <div className="pointer-events-none absolute bottom-8 left-5 top-10 w-px bg-accent-pepper-subtle" />
           )}
           <CommentBox
             {...props}
@@ -153,7 +154,7 @@ export default function MainComment({
               content: classNames(isModalThread && 'ml-[52px] mt-1'),
               markdown: classNames(
                 isModalThread &&
-                  '!text-[15px] [&_a]:!text-[15px] [&_li]:!text-[15px] [&_li]:!leading-[1.55] [&_p]:!text-[15px] [&_p]:!leading-[1.55]',
+                  '!text-[0.9375rem] [&_a]:!text-[0.9375rem] [&_li]:!text-[0.9375rem] [&_li]:!leading-[1.55] [&_p]:!text-[0.9375rem] [&_p]:!leading-[1.55]',
               ),
               ...className?.commentBox,
             }}
