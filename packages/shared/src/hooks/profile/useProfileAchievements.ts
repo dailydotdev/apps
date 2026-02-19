@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import type { PublicProfile } from '../../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { UserAchievement } from '../../graphql/user/achievements';
 import { getUserAchievements } from '../../graphql/user/achievements';
@@ -14,7 +13,7 @@ interface UseProfileAchievementsResult {
 }
 
 export function useProfileAchievements(
-  user?: PublicProfile | null,
+  user?: { id: string } | null,
   shouldQuery = true,
 ): UseProfileAchievementsResult {
   const queryKey = generateQueryKey(
