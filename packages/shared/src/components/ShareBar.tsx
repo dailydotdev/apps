@@ -144,7 +144,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
           size={ButtonSize.Small}
           variant={ButtonVariant.Subtle}
         >
-          {isExpanded ? 'Show fewer options' : 'Show more options'}
+          {isExpanded ? 'Show less' : 'Show all'}
         </Button>
       )}
     </WidgetContainer>
