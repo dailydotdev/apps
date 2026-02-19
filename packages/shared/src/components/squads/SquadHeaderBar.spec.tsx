@@ -9,6 +9,7 @@ import {
   generateTestSquad,
 } from '../../../__tests__/fixture/squads';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { SourcePermissions } from '../../graphql/sources';
 
 const client = new QueryClient();
 const mock = {
@@ -30,6 +31,13 @@ const renderComponent = (options?: {
     </TestBootProvider>,
   );
 };
+
+const getAnalyticsLink = (handle: string) =>
+  screen
+    .queryAllByRole('link')
+    .find(
+      (link) => link.getAttribute('href') === `/squads/${handle}/analytics`,
+    );
 
 describe('Member list', () => {
   it('should render the squad header bar with the correct number of members', async () => {
@@ -70,5 +78,33 @@ describe('Moderation button', () => {
     });
     renderComponent({ props: { squad } });
     await screen.findByText('1 Pending post');
+  });
+});
+
+describe('Analytics button', () => {
+  it('should render analytics button when user has ViewAnalytics permission', () => {
+    const squad = generateTestSquad({
+      currentMember: {
+        ...mock.squad.currentMember,
+        permissions: [SourcePermissions.ViewAnalytics],
+      },
+    });
+    renderComponent({ props: { squad } });
+
+    const analyticsLink = getAnalyticsLink(squad.handle);
+    expect(analyticsLink).toBeInTheDocument();
+  });
+
+  it('should not render analytics button when user does not have ViewAnalytics permission', () => {
+    const squad = generateTestSquad({
+      currentMember: {
+        ...mock.squad.currentMember,
+        permissions: [SourcePermissions.Post],
+      },
+    });
+    renderComponent({ props: { squad } });
+
+    const analyticsLink = getAnalyticsLink(squad.handle);
+    expect(analyticsLink).toBeUndefined();
   });
 });
