@@ -135,9 +135,8 @@ export default function MainComment({
       {!editProps && (logImpression || inView) && (
         <div className="relative">
           {isModalThread && replyCount > 0 && (
-            // Vertical connector from avatar lane top down to action row.
-            // bottom-[33px] = action row height; left-5 = avatar lane center (20px from padding edge).
-            <div className="pointer-events-none absolute bottom-[33px] left-5 top-0 w-px bg-accent-pepper-subtle" />
+            // Vertical connector starts at avatar bottom and ends at action row.
+            <div className="pointer-events-none absolute bottom-[33px] left-5 top-10 w-px bg-accent-pepper-subtle" />
           )}
           <CommentBox
             {...props}
