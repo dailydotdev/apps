@@ -65,15 +65,21 @@ export const getShareLink = ({
 };
 export interface AddLinkShareLogQueryParams {
   link: string | undefined;
-  userId: string | undefined;
+  userId: string | null | undefined;
   cid: ReferralCampaignKey;
 }
 
-export const addLogQueryParams = ({
+export function addLogQueryParams(
+  params: Omit<AddLinkShareLogQueryParams, 'link'> & { link: string },
+): string;
+export function addLogQueryParams(
+  params: AddLinkShareLogQueryParams,
+): string | undefined;
+export function addLogQueryParams({
   link,
   userId,
   cid,
-}: AddLinkShareLogQueryParams): string => {
+}: AddLinkShareLogQueryParams): string | undefined {
   // return link as is if not provided
   if (!link || !userId || !cid) {
     return link;
@@ -84,4 +90,4 @@ export const addLogQueryParams = ({
   url.searchParams.set('cid', cid);
 
   return url.toString();
-};
+}

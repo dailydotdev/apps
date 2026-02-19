@@ -92,7 +92,7 @@ export default function AlertPointer({
   isAlertDisabled,
   onClose,
 }: AlertPointerProps): ReactElement {
-  const pointerRef = useRef<HTMLDivElement>();
+  const pointerRef = useRef<HTMLDivElement | null>(null);
   const rect = pointerRef?.current?.getBoundingClientRect?.();
 
   if (isAlertDisabled) {

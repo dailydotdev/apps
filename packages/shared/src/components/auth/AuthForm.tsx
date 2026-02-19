@@ -1,10 +1,14 @@
 import classNames from 'classnames';
-import type { FormHTMLAttributes, MutableRefObject, ReactElement } from 'react';
+import type {
+  FormHTMLAttributes,
+  ForwardedRef,
+  ReactElement,
+} from 'react';
 import React, { forwardRef } from 'react';
 
 function AuthForm(
   { children, className, ...props }: FormHTMLAttributes<HTMLFormElement>,
-  ref: MutableRefObject<HTMLFormElement>,
+  ref: ForwardedRef<HTMLFormElement>,
 ): ReactElement {
   return (
     <form

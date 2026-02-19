@@ -193,14 +193,15 @@ export const getErrorMessage = (errors: KratosMessage[]): string => {
 export const getNodeByKey = (
   key: string,
   nodes: InitializationNode[],
-): InitializationNode =>
+): InitializationNode | undefined =>
   nodes?.find(({ attributes }) => attributes.name === key);
 
 export const getNodeValue = (
   key: string,
   nodes: InitializationNode[],
 ): string =>
-  nodes?.find(({ attributes }) => attributes.name === key)?.attributes?.value;
+  nodes?.find(({ attributes }) => attributes.name === key)?.attributes?.value ??
+  '';
 
 export const isNativeAuthSupported = (provider: string): boolean =>
   messageHandlerExists(WebKitMessageHandlers.NativeAuth) &&
