@@ -81,7 +81,7 @@ function SquadPostContentRaw({
     inlineActions,
   };
   const isUserSource = isSourceUserSource(post?.source);
-  let sourceInfoClassName: string | false = false;
+  let sourceInfoClassName: string | undefined;
   if (!isUserSource) {
     if (shouldShowBanner && isLaptop) {
       sourceInfoClassName = isCompactModalSpacing ? 'mb-3' : 'mb-4';
