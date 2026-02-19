@@ -726,12 +726,12 @@ export const EDIT_POST_MUTATION = gql`
   ${SHARED_POST_INFO_FRAGMENT}
 `;
 
-export interface EditPostProps {
+export type EditPostProps = {
   id: string;
   title: string;
   content: string;
   image?: File;
-}
+};
 
 export type CreatePostProps = Pick<
   EditPostProps,
