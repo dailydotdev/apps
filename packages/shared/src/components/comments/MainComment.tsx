@@ -135,7 +135,7 @@ export default function MainComment({
       {!editProps && (logImpression || inView) && (
         <div className="relative">
           {isModalThread && replyCount > 0 && (
-            <div className="pointer-events-none absolute left-5 top-0 bottom-[33px] w-px bg-accent-pepper-subtle" />
+            <div className="pointer-events-none absolute bottom-[33px] left-5 top-0 w-px bg-accent-pepper-subtle" />
           )}
           <CommentBox
             {...props}
@@ -147,12 +147,12 @@ export default function MainComment({
                   !isModalThread &&
                   'border-b',
                 isModalThread &&
-                  'rounded-none border-0 bg-transparent px-0 pt-0 pb-0 hover:bg-transparent',
+                  'rounded-none border-0 bg-transparent px-0 pb-0 pt-0 hover:bg-transparent',
               ),
               content: classNames(isModalThread && 'ml-[52px] mt-1'),
               markdown: classNames(
                 isModalThread &&
-                  '!text-[15px] [&_p]:!text-[15px] [&_li]:!text-[15px] [&_a]:!text-[15px] [&_p]:!leading-[1.55] [&_li]:!leading-[1.55]',
+                  '!text-[15px] [&_a]:!text-[15px] [&_li]:!text-[15px] [&_li]:!leading-[1.55] [&_p]:!text-[15px] [&_p]:!leading-[1.55]',
               ),
               ...className?.commentBox,
             }}

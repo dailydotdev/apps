@@ -63,7 +63,7 @@ function SubComment({
             content: classNames('ml-[52px]', isModalThread && 'mt-1'),
             markdown: classNames(
               isModalThread &&
-                '!text-[15px] [&_p]:!text-[15px] [&_li]:!text-[15px] [&_a]:!text-[15px] [&_p]:!leading-[1.55] [&_li]:!leading-[1.55]',
+                '!text-[15px] [&_a]:!text-[15px] [&_li]:!text-[15px] [&_li]:!leading-[1.55] [&_p]:!text-[15px] [&_p]:!leading-[1.55]',
             ),
           }}
           onComment={(selected, parent) =>
@@ -84,10 +84,10 @@ function SubComment({
           {isModalThread && (
             <>
               {isFirst && (
-                <div className="absolute left-5 -top-2 h-3 w-px bg-accent-pepper-subtle" />
+                <div className="absolute -top-2 left-5 h-3 w-px bg-accent-pepper-subtle" />
               )}
               {!isLast && (
-                <div className="absolute left-5 top-10 -bottom-3 w-px bg-accent-pepper-subtle" />
+                <div className="absolute -bottom-3 left-5 top-10 w-px bg-accent-pepper-subtle" />
               )}
             </>
           )}

@@ -68,7 +68,7 @@ export default function CollapsedRepliesPreview({
         className={classNames(
           'flex items-center',
           isThreadStyle &&
-            'gap-3 rounded-8 pl-1 pr-2 py-0.5 group-hover:bg-surface-hover',
+            'gap-3 rounded-8 py-0.5 pl-1 pr-2 group-hover:bg-surface-hover',
         )}
       >
         <div className="flex items-center">
