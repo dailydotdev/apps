@@ -242,7 +242,7 @@ export const generateTestMember = (
     source: null,
     referralToken: `${token}${i}`,
     role: SourceMemberRole.Member,
-  } as SourceMember);
+  } as unknown as SourceMember);
 
 export const generateTestSquad = (props: Partial<Squad> = {}): Squad => {
   const squad = {
@@ -262,8 +262,17 @@ export const generateTestSquad = (props: Partial<Squad> = {}): Squad => {
       referralToken: '3ZvloDmEbgiCKLF_eDg72JKLRPgp6MOpGDkh6qTRFr8',
       user: {
         id: 'u1',
+        name: 'Test member',
+        image: 'https://media.daily.dev/image/upload/f_auto/v1/placeholders/1',
+        permalink: 'https://app.daily.dev/test-member',
+        username: 'test-member',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        reputation: 0,
       },
-      permissions: ['post'],
+      source: {
+        id: '343f82f0-85f0-4f10-a666-aa331d8d7a1b',
+      } as Squad,
+      permissions: [SourcePermissions.Post],
     },
     ...props,
   };
@@ -276,11 +285,11 @@ export const generateTestSquad = (props: Partial<Squad> = {}): Squad => {
     }
   }
 
-  return squad;
+  return squad as Squad;
 };
 
 export const generateForbiddenSquadResult = (): GraphQLResult<SquadData> => ({
-  data: { source: null },
+  data: { source: null as unknown as Squad },
   errors: [
     {
       message: 'Access denied!',
@@ -292,7 +301,7 @@ export const generateForbiddenSquadResult = (): GraphQLResult<SquadData> => ({
 });
 
 export const generateNotFoundSquadResult = (): GraphQLResult<SquadData> => ({
-  data: { source: null },
+  data: { source: null as unknown as Squad },
   errors: [
     {
       message: 'Entity not found',
