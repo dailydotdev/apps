@@ -45,15 +45,13 @@ export function SocialShareList({
   const openShareLink = async (provider: ShareProvider) => {
     onClickSocial(provider);
 
+    const isEmailShare = provider === ShareProvider.Email;
     const shortLink = shortenUrl ? await getShortUrl(link) : link;
     const shareLink = getShareLink({
       provider,
       link: shortLink,
-      text:
-        provider === ShareProvider.Email
-          ? emailTitle ?? description
-          : description,
-      emailSummary: provider === ShareProvider.Email ? emailSummary : undefined,
+      text: isEmailShare ? emailTitle ?? description : description,
+      emailSummary,
     });
     window.open(shareLink, '_blank');
   };
