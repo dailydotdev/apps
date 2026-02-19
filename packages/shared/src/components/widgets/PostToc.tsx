@@ -58,7 +58,7 @@ export default function PostToc({
     </>
   );
 
-  const desktopTitleClass = 'typo-callout font-bold text-text-primary';
+  const desktopTitleClass = 'mb-2 typo-callout font-bold text-text-primary';
   if (collapsible) {
     return (
       <details

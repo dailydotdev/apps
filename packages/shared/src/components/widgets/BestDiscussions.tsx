@@ -98,7 +98,7 @@ export default function BestDiscussions({
 
   return (
     <BestDiscussionsContainer className={className}>
-      <h4 className="font-bold text-text-primary typo-callout">
+      <h4 className="mb-2 font-bold text-text-primary typo-callout">
         Best discussions
       </h4>
       {isLoading ? (

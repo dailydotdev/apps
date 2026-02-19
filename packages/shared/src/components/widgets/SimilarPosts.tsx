@@ -131,7 +131,7 @@ export default function SimilarPosts({
         className,
       )}
     >
-      <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+      <h4 className="mb-2 font-bold text-text-primary typo-callout">{title}</h4>
       {isLoading ? (
         <>
           <ListItem.Placeholder />
