@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { HTMLAttributes, MutableRefObject } from 'react';
+import type { ForwardedRef, HTMLAttributes } from 'react';
 import React, { forwardRef } from 'react';
 import classed from '../../lib/classed';
 
@@ -7,7 +7,7 @@ const Container = classed('div', 'flex flex-col gap-3 self-center mt-6 w-full');
 
 function AuthContainer(
   { className, children, ...props }: HTMLAttributes<HTMLDivElement>,
-  ref: MutableRefObject<HTMLDivElement>,
+  ref: ForwardedRef<HTMLDivElement>,
 ) {
   return (
     <Container

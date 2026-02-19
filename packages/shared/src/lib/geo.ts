@@ -21,9 +21,13 @@ const geoWithPrefix = [
 
 export const geoToCountry = (geo: string): string => {
   const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
-  const country = displayNames.of(geo.toUpperCase());
+  const normalizedGeo = geo.toUpperCase();
+  const country = displayNames.of(normalizedGeo);
+  if (!country) {
+    return normalizedGeo;
+  }
 
-  if (geoWithPrefix.includes(geo)) {
+  if (geoWithPrefix.includes(normalizedGeo)) {
     return `The ${country}`;
   }
 
