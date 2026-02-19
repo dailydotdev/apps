@@ -131,14 +131,12 @@ function classed<T, P extends Record<string, unknown>>(
 ): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>> {
   return forwardRef<T, P>(function Classed(props, ref) {
     if (typeof className === 'string') {
+      const inputClassName =
+        typeof props.className === 'string' ? props.className : undefined;
+
       return React.createElement(type, {
         ...props,
-        className: classNames(
-          // eslint-disable-next-line react/prop-types
-          props?.className,
-          className,
-          ...classes,
-        ),
+        className: classNames(inputClassName, className, ...classes),
         ref,
       });
     }

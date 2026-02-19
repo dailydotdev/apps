@@ -22,7 +22,7 @@ export const getTransactionType = ({
     return 'receive';
   }
 
-  if (transaction.sender.id === user.id) {
+  if (transaction.sender?.id === user.id) {
     return 'send';
   }
 
@@ -79,7 +79,7 @@ export const getTransactionLabel = ({
       );
     }
 
-    if (['Streak restore'].includes(transaction.flags.note)) {
+    if (transaction.flags.note === 'Streak restore') {
       return transaction.flags.note;
     }
   }

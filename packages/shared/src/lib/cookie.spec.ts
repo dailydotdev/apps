@@ -81,7 +81,12 @@ describe('cookie', () => {
   it('should throw if name or value is not provided', () => {
     expect(() => setCookie('', 'bar')).toThrow();
     expect(() => setCookie('foo', '')).toThrow();
-    expect(() => setCookie(undefined, undefined)).toThrow();
+    expect(() =>
+      setCookie(
+        undefined as unknown as string,
+        undefined as unknown as string,
+      ),
+    ).toThrow();
   });
 
   it('should expire cookie', () => {
