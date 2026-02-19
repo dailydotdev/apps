@@ -21,6 +21,7 @@ interface SocialShareListProps {
   link: string;
   description: string;
   emailTitle?: string;
+  emailSummary?: string;
   isCopying?: boolean;
   onCopy?(): void;
   onNativeShare(): void;
@@ -31,6 +32,7 @@ interface SocialShareListProps {
 export function SocialShareList({
   link,
   emailTitle,
+  emailSummary,
   description,
   isCopying,
   onCopy,
@@ -51,6 +53,7 @@ export function SocialShareList({
         provider === ShareProvider.Email
           ? emailTitle ?? description
           : description,
+      emailSummary: provider === ShareProvider.Email ? emailSummary : undefined,
     });
     window.open(shareLink, '_blank');
   };
