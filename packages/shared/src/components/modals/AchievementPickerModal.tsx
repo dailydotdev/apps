@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
@@ -14,10 +14,9 @@ import {
 import type { UserAchievement } from '../../graphql/user/achievements';
 import { getTargetCount } from '../../graphql/user/achievements';
 
-interface AchievementPickerModalProps extends ModalProps {
+export interface AchievementPickerModalProps extends ModalProps {
   achievements: UserAchievement[];
   trackedAchievementId?: string | null;
-  isTracking: boolean;
   onTrack: (achievementId: string) => Promise<void>;
 }
 
@@ -34,11 +33,12 @@ const getProgressRatio = (achievement: UserAchievement): number => {
 export const AchievementPickerModal = ({
   achievements,
   trackedAchievementId,
-  isTracking,
   onTrack,
   onRequestClose,
   ...props
 }: AchievementPickerModalProps): ReactElement => {
+  const [isTracking, setIsTracking] = useState(false);
+
   const lockedAchievements = useMemo(() => {
     return achievements
       .filter((achievement) => !achievement.unlockedAt)
@@ -55,6 +55,15 @@ export const AchievementPickerModal = ({
         return b.achievement.points - a.achievement.points;
       });
   }, [achievements]);
+
+  const handleTrack = async (achievementId: string) => {
+    setIsTracking(true);
+    try {
+      await onTrack(achievementId);
+    } finally {
+      setIsTracking(false);
+    }
+  };
 
   return (
     <Modal
@@ -131,7 +140,7 @@ export const AchievementPickerModal = ({
                           : ButtonVariant.Primary
                       }
                       disabled={isTracking || isTracked}
-                      onClick={() => onTrack(userAchievement.achievement.id)}
+                      onClick={() => handleTrack(userAchievement.achievement.id)}
                     >
                       {isTracked ? 'Tracking' : 'Track'}
                     </Button>
