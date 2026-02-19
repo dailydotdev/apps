@@ -15,6 +15,7 @@ import { ProfileImageSize } from '../ProfilePicture';
 interface ShareYouTubeContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
+  isCompactSpacing?: boolean;
 }
 
 function ShareYouTubeContent({

@@ -65,6 +65,17 @@ export function PostContentRaw({
   const { title } = useSmartTitle(post);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
+  const isCompactModalSpacing = !isPostPage;
+  let metadataMarginClassName = 'mb-8';
+  if (isVideoType) {
+    metadataMarginClassName = isCompactModalSpacing ? 'mb-3' : 'mb-4';
+  } else if (isCompactModalSpacing) {
+    metadataMarginClassName = 'mb-6';
+  }
+  const metadataClassName = classNames(
+    isCompactModalSpacing ? 'mt-3 !typo-callout' : 'mt-4 !typo-callout',
+    metadataMarginClassName,
+  );
   const containerClass = classNames(
     'laptop:flex-row laptop:pb-0',
     className?.container,
@@ -150,7 +161,7 @@ export function PostContentRaw({
           origin={origin}
           post={post}
         >
-          <div className="my-6">
+          <div className={isCompactModalSpacing ? 'my-4' : 'my-6'}>
             <PostSourceInfo
               className="mb-3"
               post={post}
@@ -172,16 +183,18 @@ export function PostContentRaw({
               className="mb-7"
             />
           )}
-          {post.summary && <SmartPrompt post={post} />}
+          {post.summary && (
+            <SmartPrompt
+              post={post}
+              className={isCompactModalSpacing ? 'mb-4 gap-2' : undefined}
+            />
+          )}
           <PostTagList post={post} />
           <PostMetadata
             createdAt={post.createdAt}
             readTime={post.readTime}
             isVideoType={isVideoType}
-            className={classNames(
-              'mt-4 !typo-callout',
-              isVideoType ? 'mb-4' : 'mb-8',
-            )}
+            className={metadataClassName}
             domain={
               !isVideoType &&
               post.domain?.length > 0 && (
@@ -196,7 +209,10 @@ export function PostContentRaw({
           />
           {!isVideoType && (
             <ArticleLink
-              className="mb-10 block cursor-pointer overflow-hidden rounded-16"
+              className={classNames(
+                'block cursor-pointer overflow-hidden rounded-16',
+                isCompactModalSpacing ? 'mb-4' : 'mb-10',
+              )}
               style={{ maxWidth: '25.625rem' }}
             >
               <LazyImage
@@ -217,14 +233,17 @@ export function PostContentRaw({
             />
           )}
           {showCodeSnippets && (
-            <PostCodeSnippets className="mb-6" post={post} />
+            <PostCodeSnippets
+              className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
+              post={post}
+            />
           )}
         </BasePostContent>
       </PostContainer>
       <PostWidgets
         onReadArticle={onReadArticle}
         post={post}
-        className="pb-8 pt-4"
+        className="!gap-2 pb-8 pt-4"
         onClose={onClose}
         origin={origin}
         onCopyPostLink={onCopyPostLink}

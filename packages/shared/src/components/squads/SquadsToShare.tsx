@@ -17,25 +17,29 @@ interface SquadsToShareProps {
   onClick: (e: MouseEvent, squad: Squad) => void;
   size?: ButtonSize;
   squadAvatarSize?: ProfileImageSize;
+  maxItems?: number;
 }
+
+export const getShareableSquads = (squads?: Squad[]): Squad[] =>
+  squads?.filter(
+    (squadItem) =>
+      squadItem.active && verifyPermission(squadItem, SourcePermissions.Post),
+  ) ?? [];
 
 export function SquadsToShare({
   isLoading,
   onClick,
   size = ButtonSize.Large,
   squadAvatarSize = ProfileImageSize.XLarge,
+  maxItems,
 }: SquadsToShareProps): ReactElement {
   const { squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();
 
   const list = useMemo(
     () =>
-      squads
-        ?.filter(
-          (squadItem) =>
-            squadItem.active &&
-            verifyPermission(squadItem, SourcePermissions.Post),
-        )
+      getShareableSquads(squads)
+        .slice(0, maxItems)
         .map((squad) => (
           <SocialShareButton
             key={squad.id}
@@ -47,8 +51,8 @@ export function SquadsToShare({
             label={`@${squad.handle}`}
             disabled={isLoading}
           />
-        )) ?? [],
-    [squads, isLoading, onClick, size, squadAvatarSize],
+        )),
+    [squads, isLoading, onClick, size, squadAvatarSize, maxItems],
   );
 
   if (list.length) {

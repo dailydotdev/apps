@@ -36,6 +36,7 @@ export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
   source: Post['source'];
   onReadArticle: () => Promise<void>;
+  isCompactSpacing?: boolean;
 }
 
 const SharePostContentSkeleton = () => (
@@ -53,8 +54,8 @@ const SharePostContentSkeleton = () => (
   </>
 );
 
-const DeletedPost = () => (
-  <SharedLinkContainer className="mb-5 mt-8">
+const DeletedPost = ({ isCompactSpacing }: { isCompactSpacing?: boolean }) => (
+  <SharedLinkContainer className={isCompactSpacing ? 'mb-4 mt-6' : 'mb-5 mt-8'}>
     <div className="flex flex-row items-center gap-1 px-5 py-4">
       <BlockIcon />
       <Typography
@@ -72,11 +73,13 @@ const DeletedPost = () => (
 const PrivatePost = ({
   post,
   openArticle,
+  isCompactSpacing,
 }: {
   post: Post;
   openArticle: (e: React.MouseEvent) => void;
+  isCompactSpacing?: boolean;
 }) => (
-  <SharedLinkContainer className="mb-5 mt-8">
+  <SharedLinkContainer className={isCompactSpacing ? 'mb-4 mt-6' : 'mb-5 mt-8'}>
     <div className="flex flex-row items-center gap-1 px-5 py-4">
       <div className="flex size-6 items-center justify-center rounded-full bg-surface-secondary">
         <EarthIcon size={IconSize.Size16} />
@@ -105,6 +108,7 @@ export function CommonSharePostContent({
   sharedPost,
   source,
   onReadArticle,
+  isCompactSpacing,
 }: CommonSharePostContentProps): ReactElement {
   const { sidebarExpanded } = useSettingsContext();
   const { openNewTab } = useContext(SettingsContext);
@@ -123,20 +127,27 @@ export function CommonSharePostContent({
   const isDeleted = sharedPost.id === DeletedPostId;
   const { private: isPrivate, source: sharedPostSource } = sharedPost;
   const { type } = sharedPostSource;
+  const sharedContainerClassName = isCompactSpacing ? 'mb-4 mt-6' : 'mb-5 mt-8';
 
   if (isDeleted) {
-    return <DeletedPost />;
+    return <DeletedPost isCompactSpacing={isCompactSpacing} />;
   }
 
   if (isPrivate && type === SourceType.Squad) {
-    return <PrivatePost post={sharedPost} openArticle={openArticle} />;
+    return (
+      <PrivatePost
+        post={sharedPost}
+        openArticle={openArticle}
+        isCompactSpacing={isCompactSpacing}
+      />
+    );
   }
 
   return (
     <SharedLinkContainer
       post={sharedPost}
       summary={sharedPost.summary}
-      className="mb-5 mt-8"
+      className={sharedContainerClassName}
     >
       <div
         className={classNames(
@@ -208,18 +219,25 @@ export function CommonSharePostContent({
 interface SharePostContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
+  isCompactSpacing?: boolean;
 }
 
 const SharePostContent = ({
   post,
   onReadArticle,
+  isCompactSpacing,
 }: SharePostContentProps): ReactElement => (
   <>
-    <SharePostTitle title={post?.title} titleHtml={post?.titleHtml} />
+    <SharePostTitle
+      title={post?.title}
+      titleHtml={post?.titleHtml}
+      isCompactSpacing={isCompactSpacing}
+    />
     <CommonSharePostContent
       onReadArticle={onReadArticle}
       source={post.source}
       sharedPost={post.sharedPost}
+      isCompactSpacing={isCompactSpacing}
     />
   </>
 );
