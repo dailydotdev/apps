@@ -38,7 +38,6 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SavingLabel } from './MarkdownInput/SavingLabel';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Loader } from '../Loader';
-import { Divider } from '../utilities';
 import { usePopupSelector } from '../../hooks/usePopupSelector';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -197,7 +196,7 @@ function RichTextInput(
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
   const isEmojiEnabled = enabledCommand[MarkdownCommand.Emoji];
   const isGifEnabled = enabledCommand[MarkdownCommand.Gif];
-  const headerActionSize = ButtonSize.XSmall;
+  const headerActionSize = ButtonSize.Small;
   const maxLength = maxInputLength ?? textareaProps.maxLength;
 
   const { getInitialValue, clearDraft } = useDraftStorage({
@@ -707,10 +706,7 @@ function RichTextInput(
         condition={!!timeline}
         wrapper={(component) => (
           <span className="relative flex flex-col">
-            <Divider
-              className="absolute left-8 !h-10 !bg-border-subtlest-tertiary"
-              vertical
-            />
+            <div className="absolute left-5 top-0 h-[14px] w-6 rounded-bl-[10px] border-b border-l border-accent-pepper-subtle" />
             {timeline}
             {component}
           </span>
@@ -737,7 +733,7 @@ function RichTextInput(
                     <Button
                       type="button"
                       variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.XSmall}
+                      size={ButtonSize.Small}
                       icon={<EditIcon />}
                       onClick={switchToRichMode}
                     />
@@ -787,13 +783,13 @@ function RichTextInput(
                 }}
                 inlineActions={hasToolbarActions ? toolbarActions : null}
                 rightActions={
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-0">
                     {savingLabel}
                     <SimpleTooltip content="Switch to Markdown Editor">
                       <Button
                         type="button"
                         variant={ButtonVariant.Tertiary}
-                        size={ButtonSize.XSmall}
+                      size={ButtonSize.Small}
                         icon={<MarkdownIcon />}
                         onClick={switchToMarkdownMode}
                       />

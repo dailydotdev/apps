@@ -204,17 +204,19 @@ export default function MainComment({
         />
       )}
       {commentId === comment.id && (
-        <CommentInputOrModal
-          {...replyProps}
-          post={props.post}
-          onCommented={(...params) => {
-            onReplyTo(null);
-            onCommented(...params);
-          }}
-          onClose={() => onReplyTo(null)}
-          className={{ input: className?.commentBox }}
-          replyToCommentId={commentId}
-        />
+        <div className={classNames(isModalThread && 'mt-2')}>
+          <CommentInputOrModal
+            {...replyProps}
+            post={props.post}
+            onCommented={(...params) => {
+              onReplyTo(null);
+              onCommented(...params);
+            }}
+            onClose={() => onReplyTo(null)}
+            className={{ input: className?.commentBox }}
+            replyToCommentId={commentId}
+          />
+        </div>
       )}
       {inView && replyCount > 0 && !areRepliesExpanded && (
         <CollapsedRepliesPreview
@@ -228,6 +230,7 @@ export default function MainComment({
         <div
           className={classNames(
             isModalThread ? 'relative mt-1 flex flex-col' : '',
+            isModalThread && commentId === comment.id && 'mt-2',
           )}
         >
           {!isModalThread && (
@@ -253,6 +256,7 @@ export default function MainComment({
               isModalThread={isModalThread}
               isFirst={index === 0}
               isLast={index === comment.children.edges.length - 1}
+              extendTopConnector={isModalThread && commentId === comment.id}
             />
           ))}
         </div>

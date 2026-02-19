@@ -23,6 +23,7 @@ export interface SubCommentProps
   isModalThread?: boolean;
   isFirst?: boolean;
   isLast?: boolean;
+  extendTopConnector?: boolean;
 }
 
 function SubComment({
@@ -33,6 +34,7 @@ function SubComment({
   isModalThread = false,
   isFirst = false,
   isLast = false,
+  extendTopConnector = false,
   ...props
 }: SubCommentProps): ReactElement {
   const { inputProps, commentId, onReplyTo } = useComments(props.post);
@@ -88,7 +90,12 @@ function SubComment({
               {isFirst && (
                 // Bridges the 8px gap (-top-2 = -8px) between the parent connector line and this reply's avatar.
                 // h-3 (12px) ensures overlap so there's no visual gap.
-                <div className="absolute -top-2 left-5 h-3 w-px bg-accent-pepper-subtle" />
+                <div
+                  className={classNames(
+                    'absolute left-5 w-px bg-accent-pepper-subtle',
+                    extendTopConnector ? '-top-2 h-4' : '-top-2 h-3',
+                  )}
+                />
               )}
               {!isLast && (
                 // Starts below avatar (top-10 = 40px = avatar height) and extends into next sibling's gap (-bottom-3 = -12px).
@@ -112,17 +119,19 @@ function SubComment({
         />
       )}
       {commentId === comment.id && (
-        <CommentInputOrModal
-          {...inputProps}
-          className={{ input: className }}
-          post={props.post}
-          onCommented={(...params) => {
-            onReplyTo(null);
-            onCommented(...params);
-          }}
-          onClose={() => onReplyTo(null)}
-          replyToCommentId={commentId}
-        />
+        <div className={classNames(isModalThread && 'mt-2')}>
+          <CommentInputOrModal
+            {...inputProps}
+            className={{ input: className }}
+            post={props.post}
+            onCommented={(...params) => {
+              onReplyTo(null);
+              onCommented(...params);
+            }}
+            onClose={() => onReplyTo(null)}
+            replyToCommentId={commentId}
+          />
+        </div>
       )}
     </>
   );
