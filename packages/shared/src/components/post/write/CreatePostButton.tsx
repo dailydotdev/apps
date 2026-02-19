@@ -18,6 +18,7 @@ import { Tooltip } from '../../tooltip/Tooltip';
 import { ActionType } from '../../../graphql/actions';
 import { Typography, TypographyType } from '../../typography/Typography';
 import Link from '../../utilities/Link';
+import { useProfileCompletionPostGate } from '../../../hooks/profile/useProfileCompletionPostGate';
 
 interface CreatePostButtonProps<Tag extends AllowedTags>
   extends Pick<ButtonProps<Tag>, 'className' | 'onClick' | 'size'> {
@@ -40,6 +41,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
 }: CreatePostButtonProps<Tag>): ReactElement {
   const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
+  const { isBlocked: isProfileBlocked } = useProfileCompletionPostGate();
   const isTablet = useViewSize(ViewSize.Tablet);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopL = useViewSize(ViewSize.LaptopL);
@@ -98,6 +100,10 @@ export function CreatePostButton<Tag extends AllowedTags>({
     compact !== false && ((isLaptop && !isLaptopL) || compact);
 
   const getTooltipContent = () => {
+    if (isProfileBlocked) {
+      return 'Complete your profile to create posts';
+    }
+
     if (!shouldShowPollTooltip) {
       return 'New Post';
     }
@@ -139,7 +145,9 @@ export function CreatePostButton<Tag extends AllowedTags>({
 
   return (
     <ConditionalWrapper
-      condition={shouldShowAsCompact || shouldShowPollTooltip}
+      condition={
+        shouldShowAsCompact || shouldShowPollTooltip || isProfileBlocked
+      }
       wrapper={(component: ReactElement) => (
         <Tooltip
           side="right"
