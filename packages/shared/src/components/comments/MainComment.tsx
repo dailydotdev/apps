@@ -152,7 +152,7 @@ export default function MainComment({
             content: classNames(isModalThread && 'ml-[52px] mt-1'),
             markdown: classNames(
               isModalThread &&
-                '!text-[15px] [&_p]:!text-[15px] [&_li]:!text-[15px] [&_a]:!text-[15px]',
+                '!text-[15px] [&_p]:!text-[15px] [&_li]:!text-[15px] [&_a]:!text-[15px] [&_p]:!leading-[1.55] [&_li]:!leading-[1.55]',
             ),
               ...className?.commentBox,
             }}
@@ -249,6 +249,7 @@ export default function MainComment({
               className={className?.commentBox}
               onCommented={onCommented}
               isModalThread={isModalThread}
+              isFirst={index === 0}
               isLast={index === comment.children.edges.length - 1}
             />
           ))}

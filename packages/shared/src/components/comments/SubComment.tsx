@@ -21,6 +21,7 @@ export interface SubCommentProps
   parentComment: Comment;
   onCommented: CommentMarkdownInputProps['onCommented'];
   isModalThread?: boolean;
+  isFirst?: boolean;
   isLast?: boolean;
 }
 
@@ -30,6 +31,7 @@ function SubComment({
   className,
   onCommented,
   isModalThread = false,
+  isFirst = false,
   isLast = false,
   ...props
 }: SubCommentProps): ReactElement {
@@ -61,7 +63,7 @@ function SubComment({
             content: classNames('ml-[52px]', isModalThread && 'mt-1'),
             markdown: classNames(
               isModalThread &&
-                '!text-[15px] [&_p]:!text-[15px] [&_li]:!text-[15px] [&_a]:!text-[15px]',
+                '!text-[15px] [&_p]:!text-[15px] [&_li]:!text-[15px] [&_a]:!text-[15px] [&_p]:!leading-[1.55] [&_li]:!leading-[1.55]',
             ),
           }}
           onComment={(selected, parent) =>
@@ -81,6 +83,9 @@ function SubComment({
           )}
           {isModalThread && (
             <>
+              {isFirst && (
+                <div className="absolute left-5 -top-2 h-3 w-px bg-accent-pepper-subtle" />
+              )}
               {!isLast && (
                 <div className="absolute left-5 top-10 -bottom-3 w-px bg-accent-pepper-subtle" />
               )}

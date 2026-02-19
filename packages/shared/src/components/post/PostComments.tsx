@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import type {
@@ -34,6 +35,7 @@ interface PostCommentsProps {
   post: Post;
   origin: Origin;
   sortBy?: SortCommentsBy;
+  isComposerOpen?: boolean;
   permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement;
@@ -47,6 +49,7 @@ export function PostComments({
   post,
   origin,
   sortBy,
+  isComposerOpen = false,
   onShare,
   onClickUpvote,
   modalParentSelector,
@@ -109,8 +112,14 @@ export function PostComments({
     <div
       className={
         isModalThread
-          ? 'mb-12 mt-6 flex flex-col gap-4'
-          : 'mb-12 mt-6 flex flex-col gap-4'
+          ? classNames(
+              'mb-12 flex flex-col gap-4',
+              isComposerOpen ? 'mt-2' : 'mt-5',
+            )
+          : classNames(
+              'mb-12 flex flex-col gap-4',
+              isComposerOpen ? 'mt-2' : 'mt-5',
+            )
       }
       ref={container}
     >
