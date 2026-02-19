@@ -61,6 +61,9 @@ export const SocialShare = ({
   const { logOpts } = useContext(ActiveFeedContext);
   const { openNativeSharePost } = useSharePost(Origin.Share);
   const [squadToShare, setSquadToShare] = shareToSquadState;
+  const emailTitle = post?.title
+    ? `Via Daily.Dev: ${post.title}`
+    : 'Via Daily.Dev';
   const logClick = (provider: ShareProvider) =>
     logEvent(
       postLogEvent(LogEvent.SharePost, post, {
@@ -99,11 +102,12 @@ export const SocialShare = ({
         <SocialShareList
           link={link}
           description={post?.title}
+          emailSummary={post?.summary}
           isCopying={copying}
           onCopy={logAndCopyLink}
           onNativeShare={() => openNativeSharePost(post)}
           onClickSocial={logClick}
-          emailTitle="I found this amazing post"
+          emailTitle={emailTitle}
         />
       </SocialShareContainer>
       {squadToShare && ( // using lazy modal would result to dep-cycle since this whole component is used in the share modal
