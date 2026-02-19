@@ -12,10 +12,16 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../../components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { LazyImage } from '../../../../components/LazyImage';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import { PinIcon } from '../../../../components/icons';
 import {
   AchievementRarityTier,
   getAchievementRarityTier,
@@ -25,10 +31,18 @@ import { RaritySparkles } from './RaritySparkles';
 
 interface AchievementCardProps {
   userAchievement: UserAchievement;
+  isOwner?: boolean;
+  isTracked?: boolean;
+  isTrackPending?: boolean;
+  onTrack?: (achievementId: string) => Promise<unknown>;
 }
 
 export function AchievementCard({
   userAchievement,
+  isOwner = false,
+  isTracked = false,
+  isTrackPending = false,
+  onTrack,
 }: AchievementCardProps): ReactElement {
   const { achievement, progress, unlockedAt } = userAchievement;
   const targetCount = getTargetCount(achievement);
@@ -139,6 +153,19 @@ export function AchievementCard({
             />
           </div>
         </div>
+      )}
+
+      {!isUnlocked && isOwner && onTrack && (
+        <Button
+          className="mt-3 self-start"
+          size={ButtonSize.XSmall}
+          variant={isTracked ? ButtonVariant.Secondary : ButtonVariant.Primary}
+          icon={<PinIcon />}
+          disabled={isTrackPending || isTracked}
+          onClick={() => onTrack(achievement.id)}
+        >
+          {isTracked ? 'Tracking' : 'Track this'}
+        </Button>
       )}
 
       {isUnlocked && unlockedAt && (

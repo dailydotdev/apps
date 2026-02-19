@@ -18,6 +18,8 @@ import { ProfileViewsWidget } from './ProfileViewsWidget';
 import { useProfileCompletionIndicator } from '../../../../hooks/profile/useProfileCompletionIndicator';
 import { ProfilePreviewToggle } from '../../../../components/profile/ProfilePreviewToggle';
 import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
+import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 
 const BadgesAndAwards = dynamic(() =>
   import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
@@ -30,6 +32,12 @@ const AchievementsWidget = dynamic(() =>
 const AchievementSyncPromptCheck = dynamic(() =>
   import('./AchievementSyncPromptCheck').then(
     (mod) => mod.AchievementSyncPromptCheck,
+  ),
+);
+
+const AchievementTrackingWidget = dynamic(() =>
+  import('./AchievementTrackingWidget').then(
+    (mod) => mod.AchievementTrackingWidget,
   ),
 );
 
@@ -48,6 +56,10 @@ export function ProfileWidgets({
     useProfileCompletionIndicator();
   const { isPreviewMode, isOwner, togglePreview } = useProfilePreview(user);
   const isSameUser = loggedUser?.id === user.id;
+  const { value: isAchievementTrackingWidgetEnabled } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: isOwner,
+  });
 
   const before = startOfTomorrow();
   const after = subMonths(subDays(before, 2), 5);
@@ -102,6 +114,9 @@ export function ProfileWidgets({
         mostReadTags={readingHistory?.userMostReadTags}
         isLoading={isReadingHistoryLoading}
       />
+      {isOwner && isAchievementTrackingWidgetEnabled && (
+        <AchievementTrackingWidget user={user} />
+      )}
       {(isOwner || squads.length > 0) && (
         <ActiveOrRecomendedSquads userId={user.id} squads={squads} />
       )}

@@ -16,6 +16,7 @@ import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import type { PublicProfile } from '../../../../lib/user';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useAchievementSync } from '../../../../hooks/profile/useAchievementSync';
+import { useTrackedAchievement } from '../../../../hooks/profile/useTrackedAchievement';
 import { AchievementSyncModal } from '../ProfileWidgets/AchievementSyncModal';
 import { useActions } from '../../../../hooks';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
@@ -48,6 +49,8 @@ export function AchievementsList({
   const [filter, setFilter] = useState<FilterType>('all');
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
+  const { trackedAchievement, trackAchievement, isTrackPending } =
+    useTrackedAchievement(user.id);
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
   const [syncResult, setSyncResult] = useState<AchievementSyncResult | null>(
@@ -154,6 +157,8 @@ export function AchievementsList({
     { type: 'locked', label: 'Locked', count: lockedCount },
   ];
 
+  const trackedAchievementId = trackedAchievement?.achievement.id;
+
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
       <div className="flex items-center justify-between">
@@ -197,6 +202,12 @@ export function AchievementsList({
             <AchievementCard
               key={userAchievement.achievement.id}
               userAchievement={userAchievement}
+              isOwner={isOwner}
+              isTracked={
+                trackedAchievementId === userAchievement.achievement.id
+              }
+              isTrackPending={isTrackPending}
+              onTrack={trackAchievement}
             />
           ))}
         </div>
