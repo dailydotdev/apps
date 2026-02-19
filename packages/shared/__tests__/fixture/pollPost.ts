@@ -19,10 +19,9 @@ export const pollPost: Post = {
     type: SourceType.Machine,
     public: true,
   },
-  readTime: null,
+  readTime: 0,
   image:
     'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/poll-image',
-  placeholder: 'data:image/jpeg;base64,test-placeholder',
   commentsPermalink: 'https://daily.dev/poll-test-id',
   author,
   tags: ['poll', 'programming'],
@@ -67,7 +66,8 @@ export const pollPostWithUserVote: Post = {
   ...pollPost,
   id: 'poll-with-vote-id',
   userState: {
-    ...pollPost.userState,
+    vote: pollPost.userState?.vote ?? UserVote.None,
+    flags: pollPost.userState?.flags,
     pollOption: { id: 'option-1' },
   },
 };
