@@ -789,7 +789,7 @@ function RichTextInput(
                       <Button
                         type="button"
                         variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.Small}
+                        size={ButtonSize.Small}
                         icon={<MarkdownIcon />}
                         onClick={switchToMarkdownMode}
                       />
