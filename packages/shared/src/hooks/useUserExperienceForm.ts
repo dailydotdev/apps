@@ -89,6 +89,18 @@ export const userExperienceInputBaseSchema = z
       message: 'End date is required when not current.',
       path: ['endedAt'],
     },
+  )
+  .refine(
+    (data) => {
+      if (data.endedAt && data.startedAt) {
+        return data.endedAt >= data.startedAt;
+      }
+      return true;
+    },
+    {
+      message: 'End date must be after start date.',
+      path: ['endedAt'],
+    },
   );
 
 type BaseUserExperience = Omit<

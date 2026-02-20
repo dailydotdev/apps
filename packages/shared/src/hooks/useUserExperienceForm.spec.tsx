@@ -166,6 +166,69 @@ describe('useUserExperienceForm', () => {
     expect(isValid).toBe(false);
   });
 
+  it('should fail validation when start date is after end date', async () => {
+    const validExperience: BaseUserExperience = {
+      type: UserExperienceType.Work,
+      title: 'Software Engineer',
+      description: 'Description',
+      startedAt: new Date('2020-01-01'),
+      endedAt: new Date('2022-12-31'),
+      current: false,
+    };
+
+    const { result } = renderHook(
+      () => useUserExperienceForm({ defaultValues: validExperience }),
+      { wrapper: createWrapper() },
+    );
+
+    act(() => {
+      result.current.methods.setValue('startedAt', new Date('2023-06-01'));
+      result.current.methods.setValue('endedAt', new Date('2022-01-01'));
+    });
+
+    let isValid = false;
+    await act(async () => {
+      isValid = await result.current.methods.trigger();
+    });
+
+    const endedAtError = result.current.methods.getFieldState('endedAt').error;
+
+    expect(isValid).toBe(false);
+    expect(endedAtError).toBeDefined();
+    expect(endedAtError?.message).toBe('End date must be after start date.');
+  });
+
+  it('should pass validation when start date is before end date', async () => {
+    const validExperience: BaseUserExperience = {
+      type: UserExperienceType.Work,
+      title: 'Software Engineer',
+      description: 'Description',
+      startedAt: new Date('2020-01-01'),
+      endedAt: new Date('2022-12-31'),
+      current: false,
+    };
+
+    const { result } = renderHook(
+      () => useUserExperienceForm({ defaultValues: validExperience }),
+      { wrapper: createWrapper() },
+    );
+
+    act(() => {
+      result.current.methods.setValue('startedAt', new Date('2020-01-01'));
+      result.current.methods.setValue('endedAt', new Date('2022-12-31'));
+    });
+
+    let isValid = false;
+    await act(async () => {
+      isValid = await result.current.methods.trigger();
+    });
+
+    expect(isValid).toBe(true);
+    expect(
+      result.current.methods.getFieldState('endedAt').error,
+    ).toBeUndefined();
+  });
+
   it('should not require end date when current is true', async () => {
     const validExperience: BaseUserExperience = {
       type: UserExperienceType.Work,
