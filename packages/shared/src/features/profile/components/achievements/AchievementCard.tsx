@@ -19,6 +19,7 @@ import {
 } from '../../../../components/buttons/Button';
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { LazyImage } from '../../../../components/LazyImage';
+import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { PinIcon } from '../../../../components/icons';
@@ -148,12 +149,14 @@ export function AchievementCard({
               {progress}/{targetCount}
             </Typography>
           </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-14 bg-accent-pepper-subtler">
-            <div
-              className="h-full rounded-14 bg-accent-cabbage-default transition-all"
-              style={{ width: `${progressPercentage}%` }}
-            />
-          </div>
+          <ProgressBar
+            percentage={progressPercentage}
+            shouldShowBg
+            className={{
+              wrapper: 'h-1.5 rounded-14',
+              bar: 'h-full rounded-14',
+            }}
+          />
         </div>
       )}
 

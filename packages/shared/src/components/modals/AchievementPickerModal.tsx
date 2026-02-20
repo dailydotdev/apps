@@ -4,6 +4,7 @@ import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { ProgressBar } from '../fields/ProgressBar';
 import { LazyImage } from '../LazyImage';
 import {
   Typography,
@@ -171,12 +172,14 @@ export const AchievementPickerModal = ({
                       {userAchievement.achievement.points} pts
                     </Typography>
                   </div>
-                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-14 bg-accent-pepper-subtler">
-                    <div
-                      className="h-full rounded-14 bg-accent-cabbage-default transition-all"
-                      style={{ width: `${progressPercentage}%` }}
-                    />
-                  </div>
+                  <ProgressBar
+                    percentage={progressPercentage}
+                    shouldShowBg
+                    className={{
+                      wrapper: 'mt-1 h-1.5 rounded-14',
+                      bar: 'h-full rounded-14',
+                    }}
+                  />
                 </div>
               );
             })}

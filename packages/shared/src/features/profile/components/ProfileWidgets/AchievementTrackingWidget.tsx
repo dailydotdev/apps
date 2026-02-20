@@ -3,6 +3,7 @@ import React from 'react';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import { LazyImage } from '../../../../components/LazyImage';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import {
   Typography,
   TypographyColor,
@@ -125,12 +126,14 @@ export const AchievementTrackingWidget = ({
                 {trackedAchievement.progress}/{targetCount}
               </Typography>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-14 bg-accent-pepper-subtler">
-              <div
-                className="h-full rounded-14 bg-accent-cabbage-default transition-all"
-                style={{ width: `${progressPercentage}%` }}
-              />
-            </div>
+            <ProgressBar
+              percentage={progressPercentage}
+              shouldShowBg
+              className={{
+                wrapper: 'h-1.5 rounded-14',
+                bar: 'h-full rounded-14',
+              }}
+            />
           </div>
 
           <div className="flex gap-2">
