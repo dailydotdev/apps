@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
@@ -18,13 +18,16 @@ import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import PostMetadata from '../cards/common/PostMetadata';
-import { PostTagList } from './tags/PostTagList';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import Markdown from '../Markdown';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
-import { getSocialTwitterMetadata } from '../cards/socialTwitter/socialTwitterHelpers';
+import {
+  getSocialTwitterMetadata,
+  getSocialTwitterMetadataLabel,
+} from '../cards/socialTwitter/socialTwitterHelpers';
+import { Separator } from '../cards/common/common';
 
 function SocialTwitterPostContentRaw({
   post,
@@ -81,20 +84,18 @@ function SocialTwitterPostContentRaw({
   const isThread = post.subType === 'thread';
   const shouldHideRepostHeadlineAndTags =
     post.subType === 'repost' && !post.content?.trim();
-  const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
+  const {
+    repostedByName,
+    metadataHandles,
+    embeddedTweetIdentity,
+    embeddedTweetAvatarUser,
+  } =
     getSocialTwitterMetadata(post);
-
-  const postForTags = useMemo(() => {
-    if (post.tags?.length) {
-      return post;
-    }
-
-    if (post.sharedPost?.tags?.length) {
-      return { ...post, tags: post.sharedPost.tags } as Post;
-    }
-
-    return post;
-  }, [post]);
+  const metadataLabel = getSocialTwitterMetadataLabel({
+    subType: post.subType,
+    repostedByName,
+    metadataHandles,
+  });
 
   return (
     <PostContentContainer
@@ -150,10 +151,18 @@ function SocialTwitterPostContentRaw({
             className={shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6'}
           />
           {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
+          <PostMetadata
+            createdAt={post.createdAt}
+            readTime={post.readTime}
+            className={classNames('mt-4 !typo-callout', 'mb-4')}
+          >
+            {!!post.createdAt && <Separator className="mx-0" />}
+            {metadataLabel}
+          </PostMetadata>
           {!shouldHideRepostHeadlineAndTags && (
-            <div className="my-6">
+            <div className="mb-6 mt-0">
               <h1
-                className="whitespace-pre-line break-words font-bold typo-large-title"
+                className="whitespace-pre-line break-words text-text-primary typo-markdown"
                 data-testid="post-modal-title"
               >
                 {title}
@@ -163,14 +172,6 @@ function SocialTwitterPostContentRaw({
               )}
             </div>
           )}
-          {!shouldHideRepostHeadlineAndTags && (
-            <PostTagList post={postForTags} />
-          )}
-          <PostMetadata
-            createdAt={post.createdAt}
-            readTime={post.readTime}
-            className={classNames('mt-4 !typo-callout', 'mb-8')}
-          />
           {!shouldHideRepostHeadlineAndTags && !!post.image && (
             <a
               href={post.permalink}
@@ -199,6 +200,8 @@ function SocialTwitterPostContentRaw({
               embeddedTweetIdentity={embeddedTweetIdentity}
               className="mb-5 w-full"
               textClampClass=""
+              bodyClassName="typo-markdown"
+              showXLogo
             />
           )}
         </BasePostContent>

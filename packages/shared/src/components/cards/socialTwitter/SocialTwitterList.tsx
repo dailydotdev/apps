@@ -49,6 +49,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const quoteLikeSubTypes = ['quote', 'repost'];
   const { pinnedAt, trending, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
   const onPostCardClick = () => onPostClick(post);
@@ -77,7 +78,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     embeddedTweetAvatarUser,
   } = getSocialTwitterMetadata(post);
   const cardLinkTitle =
-    post.subType === 'repost' && repostedByName
+    quoteLikeSubTypes.includes(post.subType || '') && repostedByName
       ? `${repostedByName} reposted on X. ${
           truncatedTitle || post.title || ''
         }`.trim()
@@ -196,6 +197,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 embeddedTweetIdentity={embeddedTweetIdentity}
                 className="mt-4 w-full"
                 textClampClass={quoteDetailsTextClampClass}
+                showXLogo={false}
               />
             )}
             <div className="hidden flex-1 tablet:flex" />

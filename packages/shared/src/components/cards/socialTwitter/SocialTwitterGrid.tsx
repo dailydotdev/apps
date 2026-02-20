@@ -120,7 +120,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     embeddedTweetAvatarUser,
   } = getSocialTwitterMetadata(post);
   const cardOverlayLabel =
-    post.subType === 'repost' && repostedByName
+    quoteLikeSubTypes.includes(post.subType || '') && repostedByName
       ? `${repostedByName} reposted on X. ${
           rawTitle || post.title || ''
         }`.trim()
@@ -216,6 +216,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
             embeddedTweetIdentity={embeddedTweetIdentity}
             className={`${quoteDetailsContainerClass} flex flex-col`}
             textClampClass={quoteDetailsTextClampClass}
+            showXLogo={false}
           />
         ) : null}
         {showMediaDetail && (

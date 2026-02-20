@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { Post } from '../../../graphql/posts';
 import { UNKNOWN_SOURCE_ID } from '../../../lib/utils';
+import { fallbackImages } from '../../../lib/config';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
 import { Separator } from '../common/common';
@@ -66,7 +67,7 @@ export const getSocialTwitterMetadata = (post: Post) => {
         post.sharedPost?.source?.id,
         post.sharedPost?.author?.image || post.sharedPost?.source?.image,
         post.sharedPost?.creatorTwitterImage,
-      ) || '',
+      ) || fallbackImages.avatar,
     username: sharedPostHandle,
     name: embeddedTweetDisplayName,
   };
@@ -91,7 +92,7 @@ export const getSocialTwitterMetadataLabel = ({
   repostedByName?: string | false;
   metadataHandles: string[];
 }): ReactElement => {
-  if (subType === 'repost') {
+  if (['repost', 'quote'].includes(subType || '') && repostedByName) {
     return (
       <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
         <span>{repostedByName} reposted</span>
