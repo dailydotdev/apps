@@ -3,6 +3,7 @@ import React from 'react';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import { LazyImage } from '../../../../components/LazyImage';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import {
   Typography,
   TypographyColor,
@@ -16,6 +17,8 @@ import { getTargetCount } from '../../../../graphql/user/achievements';
 import type { PublicProfile } from '../../../../lib/user';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent } from '../../../../lib/log';
 
 interface AchievementTrackingWidgetProps {
   user: PublicProfile;
@@ -25,6 +28,7 @@ export const AchievementTrackingWidget = ({
   user,
 }: AchievementTrackingWidgetProps): ReactElement => {
   const { openModal, closeModal } = useLazyModal();
+  const { logEvent } = useLogContext();
 
   const { achievements, isPending: isAchievementsPending } =
     useProfileAchievements(user);
@@ -43,6 +47,10 @@ export const AchievementTrackingWidget = ({
   };
 
   const openPicker = () => {
+    logEvent({
+      event_name: LogEvent.OpenAchievementPickerModal,
+    });
+
     openModal({
       type: LazyModal.AchievementPicker,
       props: {
@@ -118,12 +126,14 @@ export const AchievementTrackingWidget = ({
                 {trackedAchievement.progress}/{targetCount}
               </Typography>
             </div>
-            <div className="rounded-sm h-1.5 w-full overflow-hidden bg-accent-pepper-subtler">
-              <div
-                className="rounded-sm h-full bg-accent-cabbage-default transition-all"
-                style={{ width: `${progressPercentage}%` }}
-              />
-            </div>
+            <ProgressBar
+              percentage={progressPercentage}
+              shouldShowBg
+              className={{
+                wrapper: 'h-1.5 rounded-14',
+                bar: 'h-full rounded-14',
+              }}
+            />
           </div>
 
           <div className="flex gap-2">
@@ -137,7 +147,15 @@ export const AchievementTrackingWidget = ({
             <Button
               variant={ButtonVariant.Subtle}
               disabled={isBusy}
-              onClick={untrackAchievement}
+              onClick={async () => {
+                await untrackAchievement();
+                logEvent({
+                  event_name: LogEvent.UntrackAchievement,
+                  extra: JSON.stringify({
+                    achievement_id: trackedAchievement.achievement.id,
+                  }),
+                });
+              }}
             >
               Stop tracking
             </Button>

@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
-import { useRouter } from 'next/router';
+import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MedalBadgeIcon } from '../icons';
 import { AlertColor, AlertDot } from '../AlertDot';
@@ -10,13 +9,14 @@ import { useProfileAchievements } from '../../hooks/profile/useProfileAchievemen
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { getTargetCount } from '../../graphql/user/achievements';
 import { useViewSize, ViewSize } from '../../hooks';
-import { webappUrl } from '../../lib/constants';
+import { useLazyModal } from '../../hooks/useLazyModal';
 import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
 import { LazyImage } from '../LazyImage';
+import { LazyModal } from '../modals/common/types';
 
 export function AchievementTrackerButton(): ReactElement | null {
-  const { push } = useRouter();
+  const { openModal, closeModal } = useLazyModal();
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const {
@@ -27,6 +27,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     shouldEvaluate: !!user,
   });
   const {
+    achievements,
     unlockedCount,
     totalCount,
     isPending: isAchievementsPending,
@@ -44,6 +45,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     shouldRender;
   const {
     trackedAchievement,
+    trackAchievement,
     isPending: isTrackedAchievementPending,
     isTrackPending,
     isUntrackPending,
@@ -77,15 +79,21 @@ export function AchievementTrackerButton(): ReactElement | null {
       : `${progressValue} of ${targetCount}`;
   })();
 
-  const handleClick = useCallback(() => {
-    if (!user?.username) {
-      throw new Error(
-        'Achievement tracker button requires an authenticated user with a username.',
-      );
-    }
+  const handleTrack = async (achievementId: string) => {
+    await trackAchievement(achievementId);
+    closeModal();
+  };
 
-    return push(`${webappUrl}${user.username}/achievements`);
-  }, [push, user?.username]);
+  const handleClick = () => {
+    openModal({
+      type: LazyModal.AchievementPicker,
+      props: {
+        achievements: achievements ?? [],
+        trackedAchievementId: trackedAchievement?.achievement.id,
+        onTrack: handleTrack,
+      },
+    });
+  };
 
   if (
     !user ||

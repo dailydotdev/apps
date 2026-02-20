@@ -4,6 +4,7 @@ import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { ProgressBar } from '../fields/ProgressBar';
 import { LazyImage } from '../LazyImage';
 import {
   Typography,
@@ -14,6 +15,8 @@ import {
 import type { UserAchievement } from '../../graphql/user/achievements';
 import { getTargetCount } from '../../graphql/user/achievements';
 import { sortLockedAchievements } from './achievement/sortAchievements';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
 
 export interface AchievementPickerModalProps extends ModalProps {
   achievements: UserAchievement[];
@@ -29,6 +32,7 @@ export const AchievementPickerModal = ({
   ...props
 }: AchievementPickerModalProps): ReactElement => {
   const [isTracking, setIsTracking] = useState(false);
+  const { logEvent } = useLogContext();
 
   const lockedAchievements = useMemo(() => {
     return sortLockedAchievements(achievements);
@@ -38,6 +42,12 @@ export const AchievementPickerModal = ({
     setIsTracking(true);
     try {
       await onTrack(achievementId);
+      logEvent({
+        event_name: LogEvent.TrackAchievement,
+        target_type: TargetType.AchievementCard,
+        target_id: achievementId,
+        extra: JSON.stringify({ origin: 'picker_modal' }),
+      });
     } finally {
       setIsTracking(false);
     }
@@ -140,12 +150,14 @@ export const AchievementPickerModal = ({
                       {userAchievement.achievement.points} pts
                     </Typography>
                   </div>
-                  <div className="rounded-sm mt-1 h-1.5 w-full overflow-hidden bg-accent-pepper-subtler">
-                    <div
-                      className="rounded-sm h-full bg-accent-cabbage-default transition-all"
-                      style={{ width: `${progressPercentage}%` }}
-                    />
-                  </div>
+                  <ProgressBar
+                    percentage={progressPercentage}
+                    shouldShowBg
+                    className={{
+                      wrapper: 'mt-1 h-1.5 rounded-14',
+                      bar: 'h-full rounded-14',
+                    }}
+                  />
                 </div>
               );
             })}
