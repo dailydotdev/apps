@@ -6,8 +6,10 @@ import { LazyImage } from '../LazyImage';
 import { Loader } from '../Loader';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
+import { useActions } from '../../hooks/useActions';
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
+import { ActionType } from '../../graphql/actions';
 import { LogEvent, TargetType } from '../../lib/log';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -18,6 +20,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import { Checkbox } from '../fields/Checkbox';
 import { getTargetCount } from '../../graphql/user/achievements';
 import { sortLockedAchievements } from './achievement/sortAchievements';
 
@@ -44,10 +47,22 @@ export const AchievementCompletionModal = ({
 }: AchievementCompletionModalProps): ReactElement => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const { completeAction, checkHasCompleted } = useActions();
   const { achievements, isPending } = useProfileAchievements(user);
   const { trackedAchievement, trackAchievement } = useTrackedAchievement(
     user?.id,
   );
+
+  const isOptedOut = checkHasCompleted(ActionType.DisableAchievementCompletion);
+
+  const handleOptOut = () => {
+    if (!isOptedOut) {
+      logEvent({
+        event_name: LogEvent.DismissAchievementCompletion,
+      });
+      completeAction(ActionType.DisableAchievementCompletion);
+    }
+  };
 
   const [phase, setPhase] = useState<'celebrate' | 'pickNext'>('celebrate');
   const [isTracking, setIsTracking] = useState(false);
@@ -191,7 +206,7 @@ export const AchievementCompletionModal = ({
                   >
                     {unlockedAchievement.achievement.description}
                   </Typography>
-                  <div className="text-text-invert rounded-full bg-accent-cabbage-default px-3 py-1 font-bold typo-subhead">
+                  <div className="text-text-invert rounded-14 bg-accent-cabbage-default px-3 py-1 font-bold typo-subhead">
                     +{unlockedAchievement.achievement.points} points
                   </div>
                 </div>
@@ -202,6 +217,14 @@ export const AchievementCompletionModal = ({
                 >
                   Choose next goal
                 </Button>
+                <Checkbox
+                  name="disable_achievement_completion"
+                  className="mt-2"
+                  checked={isOptedOut}
+                  onToggleCallback={handleOptOut}
+                >
+                  Never show this again
+                </Checkbox>
               </>
             )}
 
@@ -222,6 +245,14 @@ export const AchievementCompletionModal = ({
                 >
                   Choose next goal
                 </Button>
+                <Checkbox
+                  name="disable_achievement_completion_fallback"
+                  className="mt-2"
+                  checked={isOptedOut}
+                  onToggleCallback={handleOptOut}
+                >
+                  Never show this again
+                </Checkbox>
               </div>
             )}
           </>

@@ -387,6 +387,7 @@ export enum LogEvent {
   FilterAchievements = 'filter achievements',
   ImpressionAchievementSyncPrompt = 'impression achievement sync',
   DismissAchievementSyncPrompt = 'dismiss achievement sync',
+  DismissAchievementCompletion = 'dismiss achievement completion',
 }
 
 export enum TargetType {

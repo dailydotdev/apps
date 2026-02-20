@@ -123,7 +123,7 @@ export const featureProfileCompletionIndicator = new Feature(
 
 export const achievementTrackingWidgetFeature = new Feature(
   'achievement_tracking_widget',
-  false,
+  true,
 );
 
 export const sharedPostPreviewFeature = new Feature(
