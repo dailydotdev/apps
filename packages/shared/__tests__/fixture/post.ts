@@ -30,7 +30,7 @@ export const sharePost: Post = {
   title: 'Good read about react-query',
   createdAt: '2023-02-09T03:35:33.898Z',
   image: 'https://media.daily.dev/image/upload/f_auto/v1/placeholders/6',
-  readTime: null,
+  readTime: 0,
   source: {
     id: 'c0457b66-e89b-4fc0-b06d-48f920c7caa2',
     handle: 'avengers',
@@ -60,7 +60,6 @@ export const sharePost: Post = {
       'The level of type-safety can drastically vary from project to project. Every valid JavaScript code can be valid TypeScript code - depending on the TS settings. To truly leverage the power of TypeScript, there is one thing that you need above all: Trust our type definitions.',
     createdAt: '2023-01-07T19:26:43.146Z',
     private: false,
-    scout: null,
     author: {
       id: 'oHt34Q_Zn',
       name: 'TkDodo',
@@ -76,7 +75,6 @@ export const sharePost: Post = {
       handle: 'tkdodo',
       name: 'TkDodo',
       permalink: 'https://app.daily.dev/sources/tkdodo',
-      description: null,
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1656338366/logos/tkdodo',
       type: SourceType.Machine,
@@ -87,7 +85,6 @@ export const sharePost: Post = {
   numComments: 0,
   numUpvotes: 1,
   commentsPermalink: 'https://app.daily.dev/posts/5nLQHVNHi',
-  scout: null,
   author: {
     id: 'ab02e61b958d49d88c8420b431a4d91c',
     name: 'Lee Hansel Solevilla Jr',
@@ -97,7 +94,6 @@ export const sharePost: Post = {
     username: 'sshanzel',
     bio: 'Software Engineer @daily.dev 👨‍💻  yes! here! 🥳',
   },
-  trending: null,
   tags: [],
   type: PostType.Share,
   private: true,

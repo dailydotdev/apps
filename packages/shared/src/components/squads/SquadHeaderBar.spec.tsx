@@ -9,6 +9,7 @@ import {
   generateTestSquad,
 } from '../../../__tests__/fixture/squads';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { SourcePermissions } from '../../graphql/sources';
 
 const client = new QueryClient();
 const mock = {
@@ -70,5 +71,40 @@ describe('Moderation button', () => {
     });
     renderComponent({ props: { squad } });
     await screen.findByText('1 Pending post');
+  });
+});
+
+describe('Analytics button', () => {
+  it('should render analytics button when user has ViewAnalytics permission', () => {
+    const squad = generateTestSquad({
+      currentMember: {
+        ...mock.squad.currentMember,
+        permissions: [SourcePermissions.ViewAnalytics],
+      },
+    });
+    renderComponent({ props: { squad } });
+
+    const analyticsLink = screen.getByRole('link', {
+      name: 'Squad analytics',
+    });
+
+    expect(analyticsLink).toHaveAttribute(
+      'href',
+      `/squads/${squad.handle}/analytics`,
+    );
+  });
+
+  it('should not render analytics button when user does not have ViewAnalytics permission', () => {
+    const squad = generateTestSquad({
+      currentMember: {
+        ...mock.squad.currentMember,
+        permissions: [SourcePermissions.Post],
+      },
+    });
+    renderComponent({ props: { squad } });
+
+    expect(
+      screen.queryByRole('link', { name: 'Squad analytics' }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -336,7 +336,10 @@ const coreValueMap = [
 ];
 
 export const getCoreCurrencyImage = (value: number): string => {
-  return coreValueMap.find((core) => core.maxValue > value).image;
+  return (
+    coreValueMap.find((core) => core.maxValue > value)?.image ??
+    coreValueMap[coreValueMap.length - 1].image
+  );
 };
 
 export const creditCardsImage =

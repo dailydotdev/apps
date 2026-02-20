@@ -16,6 +16,8 @@ import type {
   AchievementSyncResult,
   UserAchievement,
 } from '../../../../graphql/user/achievements';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent } from '../../../../lib/log';
 
 const REVEAL_DELAY_MS = 1000;
 const POP_VISIBLE_MS = 200;
@@ -108,6 +110,7 @@ export const AchievementSyncModal = ({
   onRequestClose,
   ...rest
 }: AchievementSyncModalProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const [contentVisible, setContentVisible] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [score, setScore] = useState(0);
@@ -218,6 +221,20 @@ export const AchievementSyncModal = ({
       clearTimeout(hideTimer);
     };
   }, [showSparkles]);
+
+  useEffect(() => {
+    if (!result || !isRevealComplete) {
+      return;
+    }
+
+    logEvent({
+      event_name: LogEvent.CompleteSyncAchievements,
+      extra: JSON.stringify({
+        points_gained: result.pointsGained,
+        newly_unlocked: result.newlyUnlockedAchievements.length,
+      }),
+    });
+  }, [isRevealComplete, logEvent, result]);
 
   return (
     <Modal

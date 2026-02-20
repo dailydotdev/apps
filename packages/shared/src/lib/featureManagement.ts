@@ -40,7 +40,7 @@ export const plusTakeoverContent = new Feature<{
   cta: string;
   shouldShowRefund: boolean;
   shouldShowReviews: boolean;
-}>('plus_takeover_content', null);
+}>('plus_takeover_content');
 
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   full: 'Level Up with Plus',
@@ -119,6 +119,11 @@ export const featureYearInReview = new Feature('year_in_review_2025', false);
 export const featureProfileCompletionIndicator = new Feature(
   'profile_completion_indicator',
   0,
+);
+
+export const achievementTrackingWidgetFeature = new Feature(
+  'achievement_tracking_widget',
+  false,
 );
 
 export const featureProfileCompletionPostGate = new Feature(
