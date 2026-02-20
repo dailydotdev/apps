@@ -171,9 +171,9 @@ export const AchievementPickerModal = ({
                       {userAchievement.achievement.points} pts
                     </Typography>
                   </div>
-                  <div className="rounded-sm mt-1 h-1.5 w-full overflow-hidden bg-accent-pepper-subtler">
+                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-14 bg-accent-pepper-subtler">
                     <div
-                      className="rounded-sm h-full bg-accent-cabbage-default transition-all"
+                      className="h-full rounded-14 bg-accent-cabbage-default transition-all"
                       style={{ width: `${progressPercentage}%` }}
                     />
                   </div>

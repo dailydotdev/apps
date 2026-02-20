@@ -148,9 +148,9 @@ export function AchievementCard({
               {progress}/{targetCount}
             </Typography>
           </div>
-          <div className="rounded-sm h-1.5 w-full overflow-hidden bg-accent-pepper-subtler">
+          <div className="h-1.5 w-full overflow-hidden rounded-14 bg-accent-pepper-subtler">
             <div
-              className="rounded-sm h-full bg-accent-cabbage-default transition-all"
+              className="h-full rounded-14 bg-accent-cabbage-default transition-all"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
