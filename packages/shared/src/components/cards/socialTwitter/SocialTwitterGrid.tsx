@@ -27,8 +27,9 @@ import { ButtonVariant } from '../../buttons/Button';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
 import { useFeedPreviewMode } from '../../../hooks';
+import { isSocialTwitterShareLike } from '../../../graphql/posts';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { stripHtmlTags } from '../../../lib/strings';
+import { sanitizeMessage } from '../../../features/onboarding/shared';
 import {
   getSocialTwitterMetadata,
   getSocialTwitterMetadataLabel,
@@ -36,7 +37,6 @@ import {
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
 const HeaderActions = getGroupedHoverContainer('span');
-const quoteLikeSubTypes = ['quote', 'repost'];
 const normalizeThreadBody = ({
   title,
   content,
@@ -46,7 +46,8 @@ const normalizeThreadBody = ({
   content?: string;
   contentHtml?: string;
 }): string | undefined => {
-  const rawBody = content || (contentHtml ? stripHtmlTags(contentHtml) : null);
+  const rawBody =
+    content || (contentHtml ? sanitizeMessage(contentHtml, []) : null);
   if (!rawBody) {
     return undefined;
   }
@@ -90,8 +91,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
 ): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
   const isUserSource = isSourceUserSource(post.source);
-  const isQuoteLike =
-    quoteLikeSubTypes.includes(post.subType || '') && !!post.sharedPost;
+  const isQuoteLike = isSocialTwitterShareLike(post);
   const shouldHideMedia = post.subType === 'thread';
   const showQuoteDetail = isQuoteLike;
   const showMediaDetail = !isQuoteLike && !shouldHideMedia && !!post.image;
@@ -120,13 +120,13 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     embeddedTweetAvatarUser,
   } = getSocialTwitterMetadata(post);
   const cardOverlayLabel =
-    quoteLikeSubTypes.includes(post.subType || '') && repostedByName
+    isQuoteLike && repostedByName
       ? `${repostedByName} reposted on X. ${
           rawTitle || post.title || ''
         }`.trim()
       : rawTitle;
   const metadataLabel = getSocialTwitterMetadataLabel({
-    subType: post.subType,
+    isRepostLike: isQuoteLike,
     repostedByName,
     metadataHandles,
   });

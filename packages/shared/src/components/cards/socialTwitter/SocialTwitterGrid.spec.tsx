@@ -78,7 +78,7 @@ it('should render top action link using post comments permalink', async () => {
   renderComponent();
 
   const link = await screen.findByRole('link', { name: 'Read on' });
-  expect(link).toHaveAttribute('href', basePost.commentsPermalink);
+  expect(link).toHaveAttribute('href', basePost.permalink);
 });
 
 it('should render source name next to metadata date for regular tweets', async () => {
@@ -127,7 +127,7 @@ it('should render quote/repost detail from shared post', async () => {
     },
   });
 
-  expect((await screen.findAllByText(/@avengers/)).length).toBeGreaterThan(0);
+  expect(await screen.findByText(/Avengers reposted/i)).toBeInTheDocument();
   expect((await screen.findAllByText(/@devrelweekly/)).length).toBeGreaterThan(
     0,
   );
@@ -186,7 +186,9 @@ it('should prefer source name when source id is unknown', async () => {
     },
   });
 
-  expect(await screen.findByText('Avengers')).toBeInTheDocument();
+  expect(
+    await screen.findByText('Lee Hansel Solevilla Jr'),
+  ).toBeInTheDocument();
   expect(screen.queryByText('@root_creator')).not.toBeInTheDocument();
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
 });
@@ -244,7 +246,7 @@ it('should keep headline and tags for repost cards with repost text', async () =
   });
 
   expect(
-    await screen.findByText('RT @ycombinator: Repost with context'),
+    await screen.findByText('@bcherny: RT @ycombinator: Repost with context'),
   ).toBeInTheDocument();
   expect(await screen.findByTestId('post-tags')).toBeInTheDocument();
 });

@@ -84,15 +84,15 @@ export const getSocialTwitterMetadata = (post: Post) => {
 };
 
 export const getSocialTwitterMetadataLabel = ({
-  subType,
+  isRepostLike,
   repostedByName,
   metadataHandles,
 }: {
-  subType?: string;
+  isRepostLike?: boolean;
   repostedByName?: string | false;
   metadataHandles: string[];
 }): ReactElement => {
-  if (['repost', 'quote'].includes(subType || '') && repostedByName) {
+  if (isRepostLike && repostedByName) {
     return (
       <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
         <span>{repostedByName} reposted</span>

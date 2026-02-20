@@ -5,7 +5,6 @@ import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import { isSocialTwitterShareLike } from '../../graphql/posts';
-import type { Post } from '../../graphql/posts';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PostContentProps, PostNavigationProps } from './common';
@@ -89,10 +88,9 @@ function SocialTwitterPostContentRaw({
     metadataHandles,
     embeddedTweetIdentity,
     embeddedTweetAvatarUser,
-  } =
-    getSocialTwitterMetadata(post);
+  } = getSocialTwitterMetadata(post);
   const metadataLabel = getSocialTwitterMetadataLabel({
-    subType: post.subType,
+    isRepostLike: isQuoteLike,
     repostedByName,
     metadataHandles,
   });

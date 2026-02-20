@@ -20,7 +20,7 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { PostType } from '../../../graphql/posts';
+import { isSocialTwitterShareLike, PostType } from '../../../graphql/posts';
 import PostTags from '../common/PostTags';
 import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
@@ -49,7 +49,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const quoteLikeSubTypes = ['quote', 'repost'];
   const { pinnedAt, trending, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
   const onPostCardClick = () => onPostClick(post);
@@ -63,6 +62,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   );
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
+  const isQuoteLike = isSocialTwitterShareLike(post);
   const postForTags = post.tags?.length ? post : post.sharedPost || post;
   const showReferenceTweet = post.sharedPost?.type === PostType.SocialTwitter;
   const showMediaCover = !!image && !showReferenceTweet;
@@ -78,7 +78,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     embeddedTweetAvatarUser,
   } = getSocialTwitterMetadata(post);
   const cardLinkTitle =
-    quoteLikeSubTypes.includes(post.subType || '') && repostedByName
+    isQuoteLike && repostedByName
       ? `${repostedByName} reposted on X. ${
           truncatedTitle || post.title || ''
         }`.trim()
@@ -125,11 +125,11 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     post?.source?.name,
   ]);
   const metadataBottomLabel = metadataHandles.length
-    ? (getSocialTwitterMetadataLabel({
-        subType: post.subType,
+    ? getSocialTwitterMetadataLabel({
+        isRepostLike: isQuoteLike,
         repostedByName,
         metadataHandles,
-      }) as ReactElement)
+      })
     : metadata.bottomLabel;
 
   return (
