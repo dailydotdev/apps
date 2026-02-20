@@ -78,6 +78,23 @@ type BaseUserExperience = {
 };
 
 describe('useUserExperienceForm', () => {
+  const baseWorkExperience: BaseUserExperience = {
+    type: UserExperienceType.Work,
+    title: 'Software Engineer',
+    description: 'Description',
+    startedAt: new Date('2020-01-01'),
+    endedAt: new Date('2022-12-31'),
+    current: false,
+  };
+
+  const setupWorkExperienceForm = () =>
+    renderHook(
+      () => useUserExperienceForm({ defaultValues: baseWorkExperience }),
+      {
+        wrapper: createWrapper(),
+      },
+    );
+
   beforeEach(() => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
@@ -167,19 +184,7 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should fail validation when start date is after end date', async () => {
-    const validExperience: BaseUserExperience = {
-      type: UserExperienceType.Work,
-      title: 'Software Engineer',
-      description: 'Description',
-      startedAt: new Date('2020-01-01'),
-      endedAt: new Date('2022-12-31'),
-      current: false,
-    };
-
-    const { result } = renderHook(
-      () => useUserExperienceForm({ defaultValues: validExperience }),
-      { wrapper: createWrapper() },
-    );
+    const { result } = setupWorkExperienceForm();
 
     act(() => {
       result.current.methods.setValue('startedAt', new Date('2023-06-01'));
@@ -195,23 +200,13 @@ describe('useUserExperienceForm', () => {
 
     expect(isValid).toBe(false);
     expect(endedAtError).toBeDefined();
-    expect(endedAtError?.message).toBe('End date must be after start date.');
+    expect(endedAtError?.message).toBe(
+      'End date must be on or after start date.',
+    );
   });
 
   it('should pass validation when start date is before end date', async () => {
-    const validExperience: BaseUserExperience = {
-      type: UserExperienceType.Work,
-      title: 'Software Engineer',
-      description: 'Description',
-      startedAt: new Date('2020-01-01'),
-      endedAt: new Date('2022-12-31'),
-      current: false,
-    };
-
-    const { result } = renderHook(
-      () => useUserExperienceForm({ defaultValues: validExperience }),
-      { wrapper: createWrapper() },
-    );
+    const { result } = setupWorkExperienceForm();
 
     act(() => {
       result.current.methods.setValue('startedAt', new Date('2020-01-01'));

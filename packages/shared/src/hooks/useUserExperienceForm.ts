@@ -92,13 +92,10 @@ export const userExperienceInputBaseSchema = z
   )
   .refine(
     (data) => {
-      if (data.endedAt && data.startedAt) {
-        return data.endedAt >= data.startedAt;
-      }
-      return true;
+      return !data.endedAt || data.endedAt >= data.startedAt;
     },
     {
-      message: 'End date must be after start date.',
+      message: 'End date must be on or after start date.',
       path: ['endedAt'],
     },
   );
