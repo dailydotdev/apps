@@ -19,6 +19,7 @@ import {
   generateDefaultSquad,
   MultipleSourceSelect,
 } from '@dailydotdev/shared/src/components/post/write';
+import { ProfileCompletionPostGate } from '@dailydotdev/shared/src/components/post/write/ProfileCompletionPostGate';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
@@ -47,11 +48,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { SettingsIcon } from '@dailydotdev/shared/src/components/icons';
 import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
-import {
-  Typography,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
@@ -73,7 +69,8 @@ function CreatePost(): ReactElement {
   );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
-  const { isBlocked: isProfileBlocked } = useProfileCompletionPostGate();
+  const { isBlocked: isProfileBlocked, requiredPercentage } =
+    useProfileCompletionPostGate();
   const {
     flags: { defaultWriteTab },
     loadedSettings,
@@ -261,19 +258,13 @@ function CreatePost(): ReactElement {
   if (isProfileBlocked) {
     return (
       <WritePageContainer className="px-5 py-10">
-        <div className="mx-auto flex w-full max-w-[34rem] flex-col items-center gap-4 rounded-16 border border-border-subtlest-secondary bg-surface-secondary p-6 text-center">
-          <Typography type={TypographyType.Title3} bold>
-            Complete your profile to create posts
-          </Typography>
-          <Typography type={TypographyType.Callout}>
-            Add your profile details to keep post creation available.
-          </Typography>
-          <Link href={`${settingsUrl}/profile`} passHref>
-            <Button tag="a" size={ButtonSize.Medium}>
-              Complete profile
-            </Button>
-          </Link>
-        </div>
+        <ProfileCompletionPostGate
+          className="mt-8 max-w-[36rem]"
+          currentPercentage={user?.profileCompletion?.percentage}
+          requiredPercentage={requiredPercentage}
+          description="Add your profile details to keep post creation available."
+          buttonSize={ButtonSize.Medium}
+        />
       </WritePageContainer>
     );
   }

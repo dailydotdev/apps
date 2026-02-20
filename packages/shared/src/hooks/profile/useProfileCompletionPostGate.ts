@@ -18,16 +18,8 @@ export const useProfileCompletionPostGate =
       shouldEvaluate: !!user,
     });
 
-    let requiredPercentage = 0;
-    if (gateValue === true) {
-      requiredPercentage = 100;
-    } else if (
-      typeof gateValue === 'number' &&
-      gateValue > 0 &&
-      gateValue <= 100
-    ) {
-      requiredPercentage = gateValue;
-    }
+    const requiredPercentage =
+      gateValue > 0 && gateValue <= 100 ? gateValue : 0;
     const isGateEnabled = requiredPercentage > 0;
     const profileCompletionPercentage =
       user?.profileCompletion?.percentage ?? 100;

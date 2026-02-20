@@ -121,9 +121,9 @@ export const featureProfileCompletionIndicator = new Feature(
   0,
 );
 
-export const featureProfileCompletionPostGate = new Feature<boolean | number>(
+export const featureProfileCompletionPostGate = new Feature(
   'profile_completion_post_gate',
-  false,
+  0,
 );
 
 export const sharedPostPreviewFeature = new Feature(
