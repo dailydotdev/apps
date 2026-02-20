@@ -14,6 +14,7 @@ import {
 } from '../typography/Typography';
 import type { UserAchievement } from '../../graphql/user/achievements';
 import { getTargetCount } from '../../graphql/user/achievements';
+import { sortLockedAchievements } from './achievement/sortAchievements';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 
@@ -22,16 +23,6 @@ export interface AchievementPickerModalProps extends ModalProps {
   trackedAchievementId?: string | null;
   onTrack: (achievementId: string) => Promise<void>;
 }
-
-const getProgressRatio = (achievement: UserAchievement): number => {
-  const targetCount = getTargetCount(achievement.achievement);
-
-  if (targetCount <= 0) {
-    return 0;
-  }
-
-  return Math.min(achievement.progress / targetCount, 1);
-};
 
 export const AchievementPickerModal = ({
   achievements,
@@ -44,20 +35,7 @@ export const AchievementPickerModal = ({
   const { logEvent } = useLogContext();
 
   const lockedAchievements = useMemo(() => {
-    return achievements
-      .filter((achievement) => !achievement.unlockedAt)
-      .sort((a, b) => {
-        const ratioDelta = getProgressRatio(b) - getProgressRatio(a);
-        if (ratioDelta !== 0) {
-          return ratioDelta;
-        }
-
-        if (b.progress !== a.progress) {
-          return b.progress - a.progress;
-        }
-
-        return b.achievement.points - a.achievement.points;
-      });
+    return sortLockedAchievements(achievements);
   }, [achievements]);
 
   const handleTrack = async (achievementId: string) => {

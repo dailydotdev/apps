@@ -95,6 +95,7 @@ export enum LazyModal {
   Feedback = 'feedback',
   AchievementSyncPrompt = 'achievementSyncPrompt',
   AchievementPicker = 'achievementPicker',
+  AchievementCompletion = 'achievementCompletion',
 }
 
 export type ModalTabItem = {

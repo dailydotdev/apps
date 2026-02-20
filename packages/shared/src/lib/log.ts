@@ -387,6 +387,7 @@ export enum LogEvent {
   FilterAchievements = 'filter achievements',
   ImpressionAchievementSyncPrompt = 'impression achievement sync',
   DismissAchievementSyncPrompt = 'dismiss achievement sync',
+  DismissAchievementCompletion = 'dismiss achievement completion',
 }
 
 export enum TargetType {
@@ -432,6 +433,7 @@ export enum TargetType {
   // End settings
   SocialLink = 'social link',
   Badge = 'badge',
+  AchievementCompletion = 'achievement completion',
   Plus = 'plus',
   // Browsers
   Chrome = 'chrome',
