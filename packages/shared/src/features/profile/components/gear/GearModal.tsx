@@ -92,11 +92,6 @@ export function GearModal({ onSubmit, ...rest }: GearModalProps): ReactElement {
                   nameRegistration.onChange(e);
                   setShowSuggestions(true);
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    setShowSuggestions(false);
-                  }
-                }}
                 onFocus={() => {
                   setShowSuggestions(true);
                 }}
