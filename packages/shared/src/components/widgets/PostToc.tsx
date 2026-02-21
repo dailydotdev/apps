@@ -69,7 +69,9 @@ export default function PostToc({
         )}
       >
         <Summary className="-mx-4 px-4 py-3 hover:bg-surface-hover">
-          <div className={classNames(collapsibleTitleClass, 'flex items-center')}>
+          <div
+            className={classNames(collapsibleTitleClass, 'flex items-center')}
+          >
             Table of contents
             <SummaryArrow />
           </div>
