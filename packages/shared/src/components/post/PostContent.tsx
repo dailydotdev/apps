@@ -19,6 +19,7 @@ import { useViewPost } from '../../hooks/post';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
+import { motion } from 'framer-motion';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
@@ -35,6 +36,8 @@ const PostCodeSnippets = dynamic(() =>
     (mod) => mod.PostCodeSnippets,
   ),
 );
+
+const SHARED_TRANSITION = { type: 'spring', stiffness: 400, damping: 35 };
 
 export function PostContentRaw({
   post,
@@ -162,18 +165,22 @@ export function PostContentRaw({
           post={post}
         >
           <div className={isCompactModalSpacing ? 'my-4' : 'my-6'}>
-            <PostSourceInfo
-              className="mb-3"
-              post={post}
-              onClose={onClose}
-              onReadArticle={onReadArticle}
-            />
-            <h1
+            <motion.div layoutId={`post-author-${post.id}`} transition={SHARED_TRANSITION}>
+              <PostSourceInfo
+                className="mb-3"
+                post={post}
+                onClose={onClose}
+                onReadArticle={onReadArticle}
+              />
+            </motion.div>
+            <motion.h1
+              layoutId={`post-title-${post.id}`}
+              transition={SHARED_TRANSITION}
               className="break-words font-bold typo-large-title"
               data-testid="post-modal-title"
             >
               <ArticleLink>{title}</ArticleLink>
-            </h1>
+            </motion.h1>
             {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
           </div>
           {isVideoType && (
@@ -208,22 +215,24 @@ export function PostContentRaw({
             }
           />
           {!isVideoType && (
-            <ArticleLink
-              className={classNames(
-                'block cursor-pointer overflow-hidden rounded-16',
-                isCompactModalSpacing ? 'mb-4' : 'mb-10',
-              )}
-              style={{ maxWidth: '25.625rem' }}
-            >
-              <LazyImage
-                imgSrc={post.image}
-                imgAlt="Post cover image"
-                ratio="49%"
-                eager
-                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                fetchPriority="high"
-              />
-            </ArticleLink>
+            <motion.div layoutId={`post-cover-${post.id}`} transition={SHARED_TRANSITION}>
+              <ArticleLink
+                className={classNames(
+                  'block cursor-pointer overflow-hidden rounded-16',
+                  isCompactModalSpacing ? 'mb-4' : 'mb-10',
+                )}
+                style={{ maxWidth: '25.625rem' }}
+              >
+                <LazyImage
+                  imgSrc={post.image}
+                  imgAlt="Post cover image"
+                  ratio="49%"
+                  eager
+                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                  fetchPriority="high"
+                />
+              </ArticleLink>
+            </motion.div>
           )}
           {post.toc?.length > 0 && (
             <PostToc

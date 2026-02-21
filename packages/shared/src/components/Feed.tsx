@@ -40,6 +40,8 @@ import {
   useFeedLayout,
   useFeedVotePost,
   useMutationSubscription,
+  useViewSize,
+  ViewSize,
 } from '../hooks';
 import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionCard';
 import type { AllFeedPages } from '../lib/query';
@@ -188,6 +190,8 @@ export default function Feed<T>({
   const { user } = useContext(AuthContext);
   const { isFallback, query: routerQuery } = useRouter();
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
+  const isLaptopView = useViewSize(ViewSize.Laptop);
+  const isLaptop = isNullOrUndefined(isLaptopView) || isLaptopView;
   const { isListMode } = useFeedLayout();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
@@ -430,18 +434,6 @@ export default function Feed<T>({
     }
   }, [canFetchMore, isFetching, trackFinishFeed]);
 
-  useEffect(() => {
-    return () => {
-      document.body.classList.remove('hidden-scrollbar');
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!selectedPost) {
-      document.body.classList.remove('hidden-scrollbar');
-    }
-  }, [selectedPost]);
-
   const onShareClick = useCallback(
     (post: Post, row?: number, column?: number) =>
       openSharePost({ post, columns: virtualizedNumCards, column, row }),
@@ -463,7 +455,6 @@ export default function Feed<T>({
     row?: number;
     column?: number;
   }) => {
-    document.body.classList.add('hidden-scrollbar');
     callback?.();
     setPostModalIndex({ index, row, column });
     onOpenModal(index);
@@ -484,7 +475,7 @@ export default function Feed<T>({
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (!isAuxClick && !shouldUseListFeedLayout) {
+    if (!isAuxClick && (!shouldUseListFeedLayout || !isLaptop)) {
       onPostModalOpen({ index, row, column });
     }
   };
@@ -515,7 +506,7 @@ export default function Feed<T>({
         is_ad: isAd,
       }),
     );
-    if (!shouldUseListFeedLayout) {
+    if (!shouldUseListFeedLayout || !isLaptop) {
       onPostModalOpen({ index, row, column });
     }
   };
@@ -627,7 +618,7 @@ export default function Feed<T>({
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}
-            {!shouldUseListFeedLayout && selectedPost && PostModal && (
+            {(!shouldUseListFeedLayout || !isLaptop) && selectedPost && PostModal && (
               <PostModal
                 isOpen={!!selectedPost}
                 id={selectedPost.id}

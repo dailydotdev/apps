@@ -1,6 +1,7 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { motion } from 'framer-motion';
 import type { ReactElement } from 'react-markdown/lib/react-markdown';
 import classed from '../../../../lib/classed';
 import { Image } from '../../../image/Image';
@@ -8,17 +9,23 @@ import { Image } from '../../../image/Image';
 type TitleProps = HTMLAttributes<HTMLHeadingElement> & {
   lineClamp?: `line-clamp-${number}`;
   children: ReactNode;
+  layoutId?: string;
 };
+
+const SHARED_TRANSITION = { type: 'spring', stiffness: 400, damping: 35 };
 
 const Title = ({
   className,
   lineClamp = 'line-clamp-3',
   children,
+  layoutId,
   ...rest
 }: TitleProps): ReactElement => {
   return (
-    <h3
+    <motion.h3
       {...rest}
+      transition={SHARED_TRANSITION}
+      layoutId={layoutId}
       className={classNames(
         'multi-truncate font-bold text-text-primary typo-title3',
         lineClamp,
@@ -26,7 +33,7 @@ const Title = ({
       )}
     >
       {children}
-    </h3>
+    </motion.h3>
   );
 };
 
@@ -37,7 +44,7 @@ export const CardContainer = classed('div', 'flex flex-col');
 export const CardContent = classed('div', 'flex flex-col mobileXL:flex-row');
 
 export const CardImage = classed(
-  Image,
+  motion(Image) as any,
   'rounded-12 min-h-[10rem] max-h-[12.5rem] object-cover w-full h-auto mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56',
 );
 
@@ -50,10 +57,10 @@ const clickableCardClasses = classNames(
 export const CardLink = classed('a', clickableCardClasses);
 
 export const ListCard = classed(
-  'article',
+  motion.article as any,
   `group relative w-full flex flex-col py-6 px-4 border-t border-border-subtlest-tertiary rounded-16
    hover:bg-surface-float
   `,
 );
 
-export const CardHeader = classed('div', 'flex flex-row items-center mb-2');
+export const CardHeader = classed(motion.div as any, 'flex flex-row items-center mb-2');

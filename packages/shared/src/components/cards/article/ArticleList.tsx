@@ -28,6 +28,7 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
+import { motion } from 'framer-motion';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -103,7 +104,9 @@ export const ArticleList = forwardRef(function ArticleList(
         ...domProps,
         style,
         className,
-      }}
+        layoutId: `post-card-${post.id}`,
+        transition: { type: 'spring', stiffness: 400, damping: 35 },
+      } as any}
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
       linkProps={
@@ -144,6 +147,7 @@ export const ArticleList = forwardRef(function ArticleList(
             <CardContent>
               <div className="mr-4 flex flex-1 flex-col">
                 <CardTitle
+                  layoutId={`post-title-${post.id}`}
                   lineClamp={undefined}
                   className={!!post.read && 'text-text-tertiary'}
                 >
@@ -160,26 +164,28 @@ export const ArticleList = forwardRef(function ArticleList(
                 {!isMobile && actionButtons}
               </div>
 
-              <CardCoverList
-                data-testid="postImage"
-                isVideoType={isVideoType}
-                onShare={onShare}
-                post={post}
-                imageProps={{
-                  alt: 'Post Cover image',
-                  className: classNames(
-                    'mobileXXL:self-start',
-                    !isVideoType && 'mt-4',
-                  ),
-                  ...(eagerLoadImage
-                    ? HIGH_PRIORITY_IMAGE_PROPS
-                    : { loading: 'lazy' }),
-                  src: post.image,
-                }}
-                videoProps={{
-                  className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
-                }}
-              />
+              <motion.div layoutId={`post-cover-${post.id}`} transition={{ type: 'spring', stiffness: 400, damping: 35 }} className="w-full mobileXL:w-auto">
+                <CardCoverList
+                  data-testid="postImage"
+                  isVideoType={isVideoType}
+                  onShare={onShare}
+                  post={post}
+                  imageProps={{
+                    alt: 'Post Cover image',
+                    className: classNames(
+                      'mobileXXL:self-start',
+                      !isVideoType && 'mt-4',
+                    ),
+                    ...(eagerLoadImage
+                      ? HIGH_PRIORITY_IMAGE_PROPS
+                      : { loading: 'lazy' }),
+                    src: post.image,
+                  }}
+                  videoProps={{
+                    className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
+                  }}
+                />
+              </motion.div>
             </CardContent>
           </CardContainer>
           {isMobile && actionButtons}

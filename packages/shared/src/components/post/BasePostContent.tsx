@@ -6,6 +6,7 @@ import PostEngagements from './PostEngagements';
 import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
 import { ButtonSize } from '../buttons/common';
+import { PostBottomAction } from './PostBottomAction';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -63,6 +64,9 @@ export function BasePostContent({
           logOrigin={origin}
           shouldOnboardAuthor={shouldOnboardAuthor}
         />
+      )}
+      {!isPostPage && !!navigationProps?.onClose && (
+        <PostBottomAction onAction={() => navigationProps.onClose?.(null as any)} />
       )}
     </>
   );
