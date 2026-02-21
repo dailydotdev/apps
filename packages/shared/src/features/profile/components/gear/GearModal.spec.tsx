@@ -48,6 +48,8 @@ describe('GearModal', () => {
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({ name: 'Magic Keyboard' });
     });
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onRequestClose).toHaveBeenCalledTimes(1);
     expect(onRequestClose).toHaveBeenCalledWith(null);
   });
 
@@ -71,6 +73,8 @@ describe('GearModal', () => {
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({ name: 'MX Master' });
     });
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onRequestClose).toHaveBeenCalledTimes(1);
     expect(onRequestClose).toHaveBeenCalledWith(null);
   });
 });
