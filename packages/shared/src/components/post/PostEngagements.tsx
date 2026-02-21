@@ -120,7 +120,7 @@ function PostEngagements({
         post={post}
         postQueryKey={postQueryKey}
         onComment={() =>
-          commentRef.current.onShowInput(Origin.PostCommentButton)
+          commentRef.current?.onShowInput(Origin.PostCommentButton)
         }
         origin={logOrigin}
       />
@@ -153,7 +153,7 @@ function PostEngagements({
         </Button>
       </span>
       <NewComment
-        className={{ container: 'mt-3 flex' }}
+        className={{ container: 'mt-3 hidden tablet:flex' }}
         post={post}
         ref={commentRef}
         onCommented={onCommented}
