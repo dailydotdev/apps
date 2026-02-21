@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -27,6 +28,8 @@ interface BasePostModalProps extends ModalProps {
   onNextPost?: () => void;
   post: Post;
 }
+
+const SHARED_TRANSITION = { type: 'spring', stiffness: 400, damping: 35 };
 
 function BasePostModal({
   className,
@@ -81,10 +84,20 @@ function BasePostModal({
         <Modal
           size={Modal.Size.XLarge}
           kind={Modal.Kind.FlexibleTop}
+          closeTimeoutMS={300}
           portalClassName={styles.postModal}
           id="post-modal"
           overlayRef={setScrollNode}
           {...props}
+          contentElement={(contentProps, contentChildren) => (
+            <AnimatePresence>
+              {props.isOpen && (
+                <motion.div {...contentProps as any} layoutId={`post-card-${post?.id}`} transition={SHARED_TRANSITION}>
+                  {contentChildren}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
           overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
           className={classNames(
             className,

@@ -72,6 +72,25 @@ function FeedItemContainer(
         <Link href={linkProps.href}>
           <CardLink
             {...linkProps}
+            onClick={(event) => {
+              if (
+                event.ctrlKey ||
+                event.metaKey ||
+                event.shiftKey ||
+                event.altKey
+              ) {
+                linkProps.onClick?.(event);
+                return;
+              }
+
+              event.preventDefault();
+
+              const card = (event.currentTarget as HTMLElement).closest(
+                'article',
+              );
+
+              linkProps.onClick?.(event);
+            }}
             onFocus={() => setFocus(true)}
             onBlur={() => setFocus(false)}
           />

@@ -84,6 +84,8 @@ export const PostCardHeader = ({
     <>
       {highlightBookmarkedPost && <BookmakProviderHeader />}
       <CardHeader
+        layoutId={`post-author-${post.id}`}
+        transition={{ type: 'spring', stiffness: 400, damping: 35 }}
         className={classNames(
           className,
           highlightBookmarkedPost && headerHiddenClassName,
