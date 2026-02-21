@@ -42,6 +42,7 @@ export function GearModal({ onSubmit, ...rest }: GearModalProps): ReactElement {
   } = methods;
 
   const name = watch('name');
+  const nameRegistration = register('name');
 
   const { results: suggestions } = useGearSearch(name);
 
@@ -79,7 +80,7 @@ export function GearModal({ onSubmit, ...rest }: GearModalProps): ReactElement {
             {/* Name with autocomplete */}
             <div className="relative">
               <TextField
-                {...register('name')}
+                {...nameRegistration}
                 autoComplete="off"
                 autoFocus
                 inputId="gearName"
@@ -88,8 +89,13 @@ export function GearModal({ onSubmit, ...rest }: GearModalProps): ReactElement {
                 valid={!errors.name}
                 hint={errors.name?.message}
                 onChange={(e) => {
-                  setValue('name', e.target.value);
+                  nameRegistration.onChange(e);
                   setShowSuggestions(true);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setShowSuggestions(false);
+                  }
                 }}
                 onFocus={() => {
                   setShowSuggestions(true);
