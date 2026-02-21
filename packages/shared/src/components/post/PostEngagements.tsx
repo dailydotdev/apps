@@ -22,7 +22,7 @@ import {
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
 import { SourceType } from '../../graphql/sources';
-import { useActions, useViewSize, ViewSize } from '../../hooks';
+import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -63,7 +63,6 @@ function PostEngagements({
     useSettingsContext();
   const { user, showLogin } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const isMobile = useViewSize(ViewSize.MobileL);
   const commentRef = useRef<NewCommentRef>();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
@@ -153,17 +152,15 @@ function PostEngagements({
             : 'Oldest first'}
         </Button>
       </span>
-      {!isMobile && (
-        <NewComment
-          className={{ container: 'mt-3 flex' }}
-          post={post}
-          ref={commentRef}
-          onCommented={onCommented}
-          onComposerOpenChange={setIsComposerOpen}
-          shouldHandleCommentQuery
-          CommentInputOrModal={CommentInputOrModal}
-        />
-      )}
+      <NewComment
+        className={{ container: 'mt-3 hidden tablet:flex' }}
+        post={post}
+        ref={commentRef}
+        onCommented={onCommented}
+        onComposerOpenChange={setIsComposerOpen}
+        shouldHandleCommentQuery
+        CommentInputOrModal={CommentInputOrModal}
+      />
       {!isPlus && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}

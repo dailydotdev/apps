@@ -22,6 +22,7 @@ import {
 } from '../buttons/Button';
 import { PostEngagementCounts } from '../cards/SimilarPosts';
 import { LogEvent } from '../../lib/log';
+import { WidgetContainer } from './common';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -48,7 +49,7 @@ const textContainerClassName = 'flex flex-col ml-3 mr-2 flex-1';
 const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
   <article
     className={classNames(
-      'group relative -mx-4 flex items-start px-4 py-2 hover:bg-surface-hover',
+      'group relative -mx-4 flex items-start px-4 py-3 hover:bg-surface-hover',
       styles.card,
     )}
   >
@@ -90,7 +91,7 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-12 my-0.5');
 
 const DefaultListItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="relative -mx-4 flex items-start px-4 py-2">
+  <article aria-busy className="relative -mx-4 flex items-start px-4 py-3">
     <ElementPlaceholder className={imageClassName} />
     <div className={textContainerClassName}>
       <TextPlaceholder style={{ width: '80%' }} />
@@ -125,9 +126,9 @@ export default function SimilarPosts({
   };
 
   return (
-    <section
+    <WidgetContainer
       className={classNames(
-        'flex flex-col rounded-16 border border-border-subtlest-tertiary p-4',
+        'flex flex-col overflow-hidden p-4',
         className,
       )}
     >
@@ -161,6 +162,6 @@ export default function SimilarPosts({
           {moreButtonText}
         </Button>
       </Link>
-    </section>
+    </WidgetContainer>
   );
 }
