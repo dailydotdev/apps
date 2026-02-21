@@ -6,8 +6,7 @@ import { Summary, SummaryArrow, TruncateText } from '../utilities';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { ActiveFeedContext } from '../../contexts';
-import styles from './PostToc.module.css';
-import { WidgetContainer } from './common';
+import { widgetClasses, WidgetContainer } from './common';
 import { LogEvent } from '../../lib/log';
 
 export type PostTocProps = {
@@ -59,22 +58,18 @@ export default function PostToc({
   );
 
   const desktopTitleClass = 'mb-2 typo-callout font-bold text-text-primary';
+  const collapsibleTitleClass = 'typo-callout font-bold text-text-primary';
   if (collapsible) {
     return (
       <details
         className={classNames(
-          'select-none flex-col overflow-hidden rounded-16',
-          styles.details,
+          'select-none flex-col overflow-hidden px-4 py-0',
+          widgetClasses,
           className,
         )}
       >
-        <Summary className="hover:bg-surface-hover">
-          <div
-            className={classNames(
-              desktopTitleClass,
-              'flex items-center px-4 pt-3',
-            )}
-          >
+        <Summary className="-mx-4 px-4 py-3 hover:bg-surface-hover">
+          <div className={classNames(collapsibleTitleClass, 'flex items-center')}>
             Table of contents
             <SummaryArrow />
           </div>
@@ -85,10 +80,7 @@ export default function PostToc({
   }
   return (
     <WidgetContainer
-      className={classNames(
-        'flex-col overflow-hidden rounded-16 border border-border-subtlest-quaternary p-4',
-        className,
-      )}
+      className={classNames('flex-col overflow-hidden p-4', className)}
     >
       <h4 className={desktopTitleClass}>Table of contents</h4>
       {items}

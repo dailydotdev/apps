@@ -65,6 +65,7 @@ export function PostContentRaw({
   const { title } = useSmartTitle(post);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
+  const hasToc = post.toc?.length > 0;
   const isCompactModalSpacing = !isPostPage;
   let metadataMarginClassName = 'mb-8';
   if (isVideoType) {
@@ -211,7 +212,7 @@ export function PostContentRaw({
             <ArticleLink
               className={classNames(
                 'block cursor-pointer overflow-hidden rounded-16',
-                isCompactModalSpacing ? 'mb-4' : 'mb-10',
+                isCompactModalSpacing || hasToc ? 'mb-4' : 'mb-10',
               )}
               style={{ maxWidth: '25.625rem' }}
             >
@@ -225,11 +226,11 @@ export function PostContentRaw({
               />
             </ArticleLink>
           )}
-          {post.toc?.length > 0 && (
+          {hasToc && (
             <PostToc
               post={post}
               collapsible
-              className="mb-4 mt-2 flex laptop:hidden"
+              className="mb-4 flex laptop:hidden"
             />
           )}
           {showCodeSnippets && (

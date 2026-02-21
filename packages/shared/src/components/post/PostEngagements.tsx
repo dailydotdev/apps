@@ -22,7 +22,7 @@ import {
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
 import { SourceType } from '../../graphql/sources';
-import { useActions } from '../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -63,6 +63,7 @@ function PostEngagements({
     useSettingsContext();
   const { user, showLogin } = useAuthContext();
   const { isPlus } = usePlusSubscription();
+  const isMobile = useViewSize(ViewSize.MobileL);
   const commentRef = useRef<NewCommentRef>();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
@@ -120,7 +121,7 @@ function PostEngagements({
         post={post}
         postQueryKey={postQueryKey}
         onComment={() =>
-          commentRef.current.onShowInput(Origin.PostCommentButton)
+          commentRef.current?.onShowInput(Origin.PostCommentButton)
         }
         origin={logOrigin}
       />
@@ -152,15 +153,17 @@ function PostEngagements({
             : 'Oldest first'}
         </Button>
       </span>
-      <NewComment
-        className={{ container: 'mt-3 flex' }}
-        post={post}
-        ref={commentRef}
-        onCommented={onCommented}
-        onComposerOpenChange={setIsComposerOpen}
-        shouldHandleCommentQuery
-        CommentInputOrModal={CommentInputOrModal}
-      />
+      {!isMobile && (
+        <NewComment
+          className={{ container: 'mt-3 flex' }}
+          post={post}
+          ref={commentRef}
+          onCommented={onCommented}
+          onComposerOpenChange={setIsComposerOpen}
+          shouldHandleCommentQuery
+          CommentInputOrModal={CommentInputOrModal}
+        />
+      )}
       {!isPlus && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
