@@ -127,10 +127,7 @@ export default function SimilarPosts({
 
   return (
     <WidgetContainer
-      className={classNames(
-        'flex flex-col overflow-hidden p-4',
-        className,
-      )}
+      className={classNames('flex flex-col overflow-hidden p-4', className)}
     >
       <h4 className="mb-2 font-bold text-text-primary typo-callout">{title}</h4>
       {isLoading ? (
