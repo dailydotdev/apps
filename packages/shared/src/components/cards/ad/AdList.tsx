@@ -68,13 +68,10 @@ export const AdList = forwardRef(function AdCard(
           {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
             <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
           ) : null}
-          <AdAttribution
-            ad={ad}
-            className={{ main: 'mb-2 mt-4 block font-normal' }}
-          />
         </CardTitle>
         <AdImage ad={ad} ImageComponent={CardImage} />
       </CardContent>
+      <AdAttribution ad={ad} className={{ main: 'mt-2 block font-normal' }} />
 
       <div className="z-1 flex items-center pt-2">
         <AdRefresh onClick={onRefreshClick} loading={isRefetching} />

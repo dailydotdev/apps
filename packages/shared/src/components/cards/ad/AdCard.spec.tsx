@@ -4,6 +4,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
+import { AdList } from './AdList';
 import type { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ActiveFeedContext } from '../../../contexts';
@@ -68,4 +69,24 @@ it('should show pixel images', async () => {
   });
   const el = await screen.findByTestId('pixel');
   expect(el).toHaveAttribute('src', 'https://daily.dev/pixel');
+});
+
+it('should render promoted attribution outside of list title clamp', async () => {
+  const client = new QueryClient();
+  const promotedMatcher = (_: string, element?: Element | null): boolean => {
+    const text = element?.textContent?.replace(/\u200B/g, '').trim();
+    return text === 'Promoted' || text.startsWith('Promoted by ');
+  };
+
+  render(
+    <TestBootProvider client={client}>
+      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
+        <AdList {...defaultProps} />
+      </ActiveFeedContext.Provider>
+    </TestBootProvider>,
+  );
+
+  const title = screen.getByRole('heading', { level: 3 });
+  expect(within(title).queryByText(promotedMatcher)).not.toBeInTheDocument();
+  expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
 });
