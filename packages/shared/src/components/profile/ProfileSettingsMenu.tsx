@@ -116,6 +116,14 @@ const useAccountPageItems = () => {
               icon: MedalBadgeIcon,
               href: `${webappUrl}${user?.username}/achievements`,
             },
+            hotTakes: {
+              title: 'Hot Takes',
+              icon: HotIcon,
+              onClick: () => {
+                logEvent({ event_name: LogEvent.OpenHotAndCold });
+                openModal({ type: LazyModal.HotAndCold });
+              },
+            } as ProfileSectionItemPropsWithoutHref,
             appearance: {
               title: 'Appearance',
               icon: NewTabIcon,
