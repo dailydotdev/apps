@@ -80,7 +80,9 @@ const OrganizationOptionsMenu = ({
     removeOrganizationMember,
     updateOrganizationMemberRole,
     toggleOrganizationMemberSeat,
-  } = useOrganization(router.query.orgId as string);
+  } = useOrganization(router.query.orgId as string, {
+    includeMembers: true,
+  });
 
   const { user, role, seatType } = member || {};
 
@@ -324,7 +326,9 @@ const Page = (): ReactElement => {
     isOwner,
     leaveOrganization,
     isLeavingOrganization,
-  } = useOrganization(query.orgId as string);
+  } = useOrganization(query.orgId as string, {
+    includeMembers: true,
+  });
 
   const onLeaveClick = async () => {
     const options: PromptOptions = {
