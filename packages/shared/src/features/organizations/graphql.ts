@@ -25,70 +25,29 @@ export const ORGANIZATION_SHORT_FRAGMENT = gql`
   }
 `;
 
-export const ORGANIZATION_BASE_FRAGMENT = gql`
-  fragment OrganizationBaseFragment on Organization {
+export const ORGANIZATION_FRAGMENT = gql`
+  fragment OrganizationFragment on Organization {
     ...OrganizationShortFragment
     seats
     activeSeats
     status
-  }
 
-  ${ORGANIZATION_SHORT_FRAGMENT}
-`;
-
-export const ORGANIZATION_FRAGMENT = gql`
-  fragment OrganizationFragment on Organization {
-    ...OrganizationBaseFragment
     members {
       ...OrganizationMemberFragment
     }
   }
 
-  ${ORGANIZATION_BASE_FRAGMENT}
+  ${ORGANIZATION_SHORT_FRAGMENT}
   ${ORGANIZATION_MEMBER_FRAGMENT}
-`;
-
-export const USER_ORGANIZATION_BASE_FRAGMENT = gql`
-  fragment UserOrganizationBaseFragment on UserOrganization {
-    role
-    referralToken
-    seatType
-  }
 `;
 
 export const USER_ORGANIZATION_FRAGMENT = gql`
   fragment UserOrganizationFragment on UserOrganization {
-    ...UserOrganizationBaseFragment
+    role
+    referralToken
     referralUrl
+    seatType
   }
-
-  ${USER_ORGANIZATION_BASE_FRAGMENT}
-`;
-
-export const ORGANIZATIONS_BASE_QUERY = gql`
-  query OrganizationsBase {
-    organizations {
-      ...UserOrganizationBaseFragment
-      organization {
-        ...OrganizationShortFragment
-      }
-    }
-  }
-  ${USER_ORGANIZATION_BASE_FRAGMENT}
-  ${ORGANIZATION_SHORT_FRAGMENT}
-`;
-
-export const ORGANIZATION_BASE_QUERY = gql`
-  query OrganizationBase($id: ID!) {
-    organization(id: $id) {
-      ...UserOrganizationBaseFragment
-      organization {
-        ...OrganizationBaseFragment
-      }
-    }
-  }
-  ${USER_ORGANIZATION_BASE_FRAGMENT}
-  ${ORGANIZATION_BASE_FRAGMENT}
 `;
 
 export const ORGANIZATIONS_QUERY = gql`
@@ -139,27 +98,27 @@ export const GET_ORGANIZATION_BY_ID_AND_INVITE_TOKEN_QUERY = gql`
 export const UPDATE_ORGANIZATION_MUTATION = gql`
   mutation UpdateOrganization($id: ID!, $name: String, $image: Upload) {
     updateOrganization(id: $id, name: $name, image: $image) {
-      ...UserOrganizationBaseFragment
+      ...UserOrganizationFragment
       organization {
-        ...OrganizationBaseFragment
+        ...OrganizationFragment
       }
     }
   }
-  ${USER_ORGANIZATION_BASE_FRAGMENT}
-  ${ORGANIZATION_BASE_FRAGMENT}
+  ${USER_ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
 `;
 
 export const JOIN_ORGANIZATION_MUTATION = gql`
   mutation JoinOrganization($id: ID!, $token: String!) {
     joinOrganization(id: $id, token: $token) {
-      ...UserOrganizationBaseFragment
+      ...UserOrganizationFragment
       organization {
-        ...OrganizationBaseFragment
+        ...OrganizationFragment
       }
     }
   }
-  ${USER_ORGANIZATION_BASE_FRAGMENT}
-  ${ORGANIZATION_BASE_FRAGMENT}
+  ${USER_ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
 `;
 
 export const LEAVE_ORGANIZATION_MUTATION = gql`
@@ -173,14 +132,14 @@ export const LEAVE_ORGANIZATION_MUTATION = gql`
 export const UPDATE_ORGANIZATION_SUBSCRIPTION_MUTATION = gql`
   mutation UpdateOrganizationSubscription($id: ID!, $quantity: Int!) {
     updateOrganizationSubscription(id: $id, quantity: $quantity) {
-      ...UserOrganizationBaseFragment
+      ...UserOrganizationFragment
       organization {
-        ...OrganizationBaseFragment
+        ...OrganizationFragment
       }
     }
   }
-  ${USER_ORGANIZATION_BASE_FRAGMENT}
-  ${ORGANIZATION_BASE_FRAGMENT}
+  ${USER_ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
 `;
 
 export const PREVIEW_SUBSCRIPTION_UPDATE_QUERY = gql`

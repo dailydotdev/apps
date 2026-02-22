@@ -6,7 +6,6 @@ import { DEFAULT_ERROR, gqlClient } from '../../../graphql/common';
 import {
   DELETE_ORGANIZATION_MUTATION,
   JOIN_ORGANIZATION_MUTATION,
-  ORGANIZATION_BASE_QUERY,
   LEAVE_ORGANIZATION_MUTATION,
   ORGANIZATION_QUERY,
   REMOVE_ORGANIZATION_MEMBER_MUTATION,
@@ -126,22 +125,13 @@ export const joinOrganizationHandler = async ({
 
 export const useOrganization = (
   organizationId: string,
-  options?: Partial<UseQueryOptions<UserOrganization>> & {
-    includeMembers?: boolean;
-  },
+  queryOptions?: Partial<UseQueryOptions<UserOrganization>>,
 ) => {
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const { user, isAuthReady, refetchBoot } = useAuthContext();
-  const { includeMembers = false, ...queryOptions } = options || {};
-  const queryMode = includeMembers ? 'members' : 'base';
-  const query = includeMembers ? ORGANIZATION_QUERY : ORGANIZATION_BASE_QUERY;
   const enableQuery = !!organizationId && !!user && isAuthReady;
-  const queryKey = generateOrganizationQueryKey(
-    user,
-    organizationId,
-    queryMode,
-  );
+  const queryKey = generateOrganizationQueryKey(user, organizationId);
   const queryClient = useQueryClient();
 
   const { data, isFetching } = useQuery({
@@ -149,9 +139,7 @@ export const useOrganization = (
     queryFn: async () => {
       const res = await gqlClient.request<{
         organization: UserOrganization;
-      }>(query, {
-        id: organizationId,
-      });
+      }>(ORGANIZATION_QUERY, { id: organizationId });
 
       return res?.organization || null;
     },
