@@ -13,6 +13,7 @@ import { FooterLinks } from '../footer';
 import SquadEntityCard from '../cards/entity/SquadEntityCard';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import type { UserShortProfile } from '../../lib/user';
+import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 
 export function SquadPostWidgets({
   onCopyPostLink,
@@ -46,6 +47,10 @@ export function SquadPostWidgets({
           user={post.author as UserShortProfile}
         />
       )}
+      <PostSidebarAdWidget
+        postId={post.id}
+        className={{ container: cardClasses }}
+      />
       {isPublicSquad && (
         <>
           <ShareBar post={post} />

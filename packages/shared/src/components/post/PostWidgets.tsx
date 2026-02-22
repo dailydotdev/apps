@@ -13,6 +13,7 @@ import type { UserShortProfile } from '../../lib/user';
 import type { SourceTooltip } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
+import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -79,6 +80,10 @@ export function PostWidgets({
           user={creator as UserShortProfile}
         />
       )}
+      <PostSidebarAdWidget
+        postId={post.id}
+        className={{ container: cardClasses }}
+      />
       <ShareBar post={post} />
       <ShareMobile
         post={post}
