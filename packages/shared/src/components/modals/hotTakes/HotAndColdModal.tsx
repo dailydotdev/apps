@@ -468,7 +468,7 @@ const HotTakeCard = ({
         </div>
       )}
 
-      <div className="relative flex flex-1 flex-col items-center justify-center gap-3 p-6">
+      <div className="pointer-events-none relative flex flex-1 flex-col items-center justify-center gap-3 p-6">
         <div className="flex size-16 items-center justify-center rounded-16 bg-overlay-quaternary-cabbage text-[2.5rem]">
           {hotTake.emoji}
         </div>
@@ -598,6 +598,7 @@ const HotAndColdModal = ({
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const [swipeDelta, setSwipeDelta] = useState(0);
+  const swipeDeltaRef = useRef(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dismissDurationMs, setDismissDurationMs] =
@@ -614,6 +615,7 @@ const HotAndColdModal = ({
   useEffect(() => {
     if (!isAnimating) {
       setSwipeDelta(0);
+      swipeDeltaRef.current = 0;
       setIsDragging(false);
     }
   }, [currentTake?.id, isAnimating]);
@@ -711,6 +713,7 @@ const HotAndColdModal = ({
           return;
         }
         setSwipeDelta(0);
+        swipeDeltaRef.current = 0;
         animatingTakeIdRef.current = null;
         setAnimatingTakeId(null);
         dismissCurrent();
@@ -736,10 +739,11 @@ const HotAndColdModal = ({
 
   const handleSwiped = (direction: 'left' | 'right') => {
     setIsDragging(false);
-    if (Math.abs(swipeDelta) > SWIPE_THRESHOLD) {
+    if (Math.abs(swipeDeltaRef.current) > SWIPE_THRESHOLD) {
       handleDismiss(direction, 'swipe');
     } else {
       setSwipeDelta(0);
+      swipeDeltaRef.current = 0;
     }
   };
 
@@ -748,21 +752,18 @@ const HotAndColdModal = ({
       if (!isAnimating) {
         setIsDragging(true);
         setSwipeDelta(e.deltaX);
+        swipeDeltaRef.current = e.deltaX;
       }
     },
     onSwipedLeft: () => handleSwiped('left'),
     onSwipedRight: () => handleSwiped('right'),
     trackMouse: true,
     preventScrollOnSwipe: true,
+    touchEventOptions: { passive: false },
   });
 
   return (
-    <Modal
-      {...props}
-      onRequestClose={onRequestClose}
-      size={ModalSize.Small}
-      isDrawerOnMobile
-    >
+    <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
       <Modal.Header title="Hot Takes" />
       <Modal.Body className="!p-0">
         {isLoading && (
@@ -785,7 +786,7 @@ const HotAndColdModal = ({
             <div
               {...handlers}
               className="relative mx-4 mt-2 select-none"
-              style={{ height: '22rem' }}
+              style={{ height: '26rem' }}
             >
               {nextTake && (
                 <HotTakeCard

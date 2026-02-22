@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { HotTake } from '../graphql/user/userHotTake';
 import { getDiscoverHotTakes } from '../graphql/user/userHotTake';
@@ -14,20 +14,45 @@ interface UseDiscoverHotTakes {
   dismissCurrent: () => void;
 }
 
+const REFETCH_THRESHOLD = 5;
+
 export const useDiscoverHotTakes = (): UseDiscoverHotTakes => {
   const { user } = useAuthContext();
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+  const [allHotTakes, setAllHotTakes] = useState<HotTake[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const seenIdsRef = useRef<Set<string>>(new Set());
 
-  const { data, isLoading } = useQuery({
+  const { isLoading, isFetching, refetch } = useQuery({
     queryKey: generateQueryKey(RequestKey.DiscoverHotTakes, user),
-    queryFn: () => getDiscoverHotTakes(),
+    queryFn: async () => {
+      const items = await getDiscoverHotTakes();
+
+      const newItems = items.filter((t) => !seenIdsRef.current.has(t.id));
+      items.forEach((item) => seenIdsRef.current.add(item.id));
+
+      if (newItems.length === 0) {
+        setHasMore(false);
+      } else {
+        setAllHotTakes((prev) => [...prev, ...newItems]);
+      }
+
+      return items;
+    },
     staleTime: StaleTime.Default,
     enabled: !!user,
   });
 
-  const hotTakes = (data ?? []).filter((take) => !dismissedIds.has(take.id));
+  const hotTakes = allHotTakes.filter((take) => !dismissedIds.has(take.id));
   const currentTake = hotTakes[0] ?? null;
   const nextTake = hotTakes[1] ?? null;
+
+  // Fetch more when running low on remaining items
+  useEffect(() => {
+    if (hotTakes.length < REFETCH_THRESHOLD && !isFetching && hasMore) {
+      refetch().catch(() => undefined);
+    }
+  }, [hotTakes.length, isFetching, hasMore, refetch]);
 
   const dismissCurrent = useCallback(() => {
     if (currentTake) {
@@ -40,7 +65,7 @@ export const useDiscoverHotTakes = (): UseDiscoverHotTakes => {
     currentTake,
     nextTake,
     isLoading,
-    isEmpty: !isLoading && hotTakes.length === 0,
+    isEmpty: !isLoading && !isFetching && hotTakes.length === 0 && !hasMore,
     dismissCurrent,
   };
 };
