@@ -31,6 +31,9 @@ const defaultToken = getNodeByKey(
   'csrf_token',
   passwordLoginFlowMockData.ui.nodes,
 );
+if (!defaultToken) {
+  throw new Error('Missing csrf token node in password login fixture');
+}
 const defaultParams: Partial<LoginPasswordParameters> & { method: string } = {
   method: 'password',
   csrf_token: defaultToken.attributes.value,

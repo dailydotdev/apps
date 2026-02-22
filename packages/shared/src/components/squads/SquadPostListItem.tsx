@@ -23,7 +23,7 @@ export const SquadPostListItem = ({
   return (
     <article
       className={classNames(
-        'group relative flex items-start px-4 py-2 hover:bg-surface-hover',
+        'group relative -mx-4 flex items-start px-4 py-3 hover:bg-surface-hover',
         styles.card,
       )}
     >
@@ -54,7 +54,7 @@ export const SquadPostListItem = ({
 };
 
 const SquadPostListItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="relative flex flex-col px-4 py-2">
+  <article aria-busy className="relative -mx-4 flex flex-col px-4 py-3">
     <div className="mb-2 flex flex-1 flex-row items-center">
       <ElementPlaceholder className="mt-1 h-10 w-10 rounded-14" />
       <div className="ml-3 mr-2 flex flex-1 flex-col">

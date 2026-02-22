@@ -67,7 +67,7 @@ export function SharedPostPreview({
             type={ImageType.Post}
             src={image}
             alt={title || 'Shared post cover image'}
-            className="size-full object-cover"
+            className="size-full overflow-hidden rounded-12 object-cover"
           />
           <div className="absolute inset-x-0 top-0 ">
             <div className="flex flex-col gap-2 rounded-t-8 bg-background-subtle p-2">
@@ -89,7 +89,7 @@ export function SharedPostPreview({
                     color={TypographyColor.Primary}
                     className="truncate font-bold"
                   >
-                    {isUnknownSource ? post.sharedPost.domain : source.handle}
+                    {isUnknownSource ? post.sharedPost.domain : source.name}
                   </Typography>
                 </div>
               )}

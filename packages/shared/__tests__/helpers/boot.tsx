@@ -5,7 +5,7 @@ import React from 'react';
 import type { QueryClient } from '@tanstack/react-query';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
-import type { WidenPrimitives } from '@growthbook/growthbook';
+import type { JSONValue, WidenPrimitives } from '@growthbook/growthbook';
 import type { AuthContextData } from '../../src/contexts/AuthContext';
 import AuthContext from '../../src/contexts/AuthContext';
 import type { NotificationsContextProviderProps } from '../../src/contexts/NotificationsContext';
@@ -20,6 +20,7 @@ import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
 import type { LogContextData } from '../../src/hooks/log/useLogContextData';
 import { PaymentContextProvider } from '../../src/contexts/payment';
 import { getLogContextStatic } from '../../src/contexts/LogContext';
+import type { Feature } from '../../src/lib/featureManagement';
 
 const LogContext = getLogContextStatic();
 
@@ -110,7 +111,7 @@ export const TestBootProvider = ({
             <FeaturesReadyContext.Provider
               value={{
                 ready: true,
-                getFeatureValue<T>(feature) {
+                getFeatureValue<T extends JSONValue>(feature: Feature<T>) {
                   return feature.defaultValue as WidenPrimitives<T>;
                 },
               }}

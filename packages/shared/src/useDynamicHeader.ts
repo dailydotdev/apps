@@ -9,9 +9,9 @@ export type UseDynamicHeaderRet<T extends HTMLElement> = {
 export const useDynamicHeader = <T extends HTMLElement>(
   enabled: boolean,
 ): UseDynamicHeaderRet<T> => {
-  const ref = useRef<T>();
+  const ref = useRef<T | null>(null);
   const [progress, setProgress] = useState<number | undefined>();
-  const onScroll = useRef<() => void>();
+  const onScroll = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     onScroll.current = () => {

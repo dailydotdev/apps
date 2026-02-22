@@ -381,6 +381,17 @@ export enum LogEvent {
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',
+  // Achievements
+  TrackAchievement = 'track achievement',
+  UntrackAchievement = 'untrack achievement',
+  OpenAchievementPickerModal = 'open achievement picker',
+  SyncAchievements = 'sync achievements',
+  CompleteSyncAchievements = 'complete sync achievements',
+  ClickAchievementTrackerButton = 'click achievement tracker',
+  FilterAchievements = 'filter achievements',
+  ImpressionAchievementSyncPrompt = 'impression achievement sync',
+  DismissAchievementSyncPrompt = 'dismiss achievement sync',
+  DismissAchievementCompletion = 'dismiss achievement completion',
 }
 
 export enum TargetType {
@@ -426,6 +437,7 @@ export enum TargetType {
   // End settings
   SocialLink = 'social link',
   Badge = 'badge',
+  AchievementCompletion = 'achievement completion',
   Plus = 'plus',
   // Browsers
   Chrome = 'chrome',
@@ -439,6 +451,8 @@ export enum TargetType {
   Recruiter = 'recruiter',
   ProfileCompletionCard = 'profile completion card',
   OpportunityInterestButton = 'opportunity interest button',
+  AchievementTracker = 'achievement tracker',
+  AchievementCard = 'achievement card',
 }
 
 export enum TargetId {

@@ -22,6 +22,7 @@ import {
 } from '../buttons/Button';
 import { PostEngagementCounts } from '../cards/SimilarPosts';
 import { LogEvent } from '../../lib/log';
+import { WidgetContainer } from './common';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -37,8 +38,6 @@ export type SimilarPostsProps = {
   };
 };
 
-const Separator = <div className="h-px bg-border-subtlest-tertiary" />;
-
 type PostProps = {
   post: Post;
   onLinkClick: (post: Post) => unknown;
@@ -50,7 +49,7 @@ const textContainerClassName = 'flex flex-col ml-3 mr-2 flex-1';
 const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
   <article
     className={classNames(
-      'group relative flex items-start py-2 pl-4 pr-2 hover:bg-surface-hover',
+      'group relative -mx-4 flex items-start px-4 py-3 hover:bg-surface-hover',
       styles.card,
     )}
   >
@@ -92,7 +91,7 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-12 my-0.5');
 
 const DefaultListItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="relative flex items-start py-2 pl-4 pr-2">
+  <article aria-busy className="relative -mx-4 flex items-start px-4 py-3">
     <ElementPlaceholder className={imageClassName} />
     <div className={textContainerClassName}>
       <TextPlaceholder style={{ width: '80%' }} />
@@ -127,14 +126,10 @@ export default function SimilarPosts({
   };
 
   return (
-    <section
-      className={classNames(
-        'flex flex-col rounded-16 border border-border-subtlest-tertiary',
-        className,
-      )}
+    <WidgetContainer
+      className={classNames('flex flex-col overflow-hidden p-4', className)}
     >
-      <h4 className="my-0.5 px-4 py-3 text-text-tertiary typo-body">{title}</h4>
-      {Separator}
+      <h4 className="mb-2 font-bold text-text-primary typo-callout">{title}</h4>
       {isLoading ? (
         <>
           <ListItem.Placeholder />
@@ -152,12 +147,10 @@ export default function SimilarPosts({
           ))}
         </>
       )}
-
-      {Separator}
       <Link href={moreButtonHref} passHref>
         <Button
           variant={ButtonVariant.Tertiary}
-          className="my-2 ml-2 self-start"
+          className="mt-2 self-start"
           size={ButtonSize.Small}
           tag="a"
           icon={<ArrowIcon className="rotate-90" />}
@@ -166,6 +159,6 @@ export default function SimilarPosts({
           {moreButtonText}
         </Button>
       </Link>
-    </section>
+    </WidgetContainer>
   );
 }

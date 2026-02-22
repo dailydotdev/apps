@@ -394,6 +394,7 @@ Keep PR descriptions concise and to the point. Reviewers should not be exhausted
 ## Code Review Guidelines
 
 When reviewing code (or writing code that will be reviewed):
+- **Always set explicit `type` on `<button>` elements in forms** - Use `type="button"` for non-submit actions (close/back/cancel). Never rely on the browser default inside forms.
 - **Delete dead code** - Remove unused components, functions, exports, and files. Don't leave code "for later"
 - **Avoid confusing naming** - Don't create multiple components with the same name in different locations (e.g., two `AboutMe` components)
 - **Remove unused exports** - If a function/constant is only used internally, don't export it

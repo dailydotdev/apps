@@ -30,50 +30,67 @@ export const getLinkedInShareLink = (link: string): string =>
   )}`;
 export const getTelegramShareLink = (link: string, text: string): string =>
   `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
-export const getEmailShareLink = (link: string, subject: string): string =>
-  `mailto:?subject=${subject}&body=${encodeURIComponent(link)}`;
+export const getEmailShareLink = (
+  link: string,
+  subject: string,
+  summary?: string,
+): string => {
+  const body = summary ? `${summary}\n\n${link}` : link;
+
+  return `mailto:?subject=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`;
+};
 
 interface GetShareLinkParams {
   provider: ShareProvider;
   link: string;
   text?: string;
+  emailSummary?: string;
 }
 
 export const getShareLink = ({
   provider,
   link,
-  text,
+  text = '',
+  emailSummary,
 }: GetShareLinkParams): string => {
   switch (provider) {
     case ShareProvider.WhatsApp:
       return getWhatsappShareLink(link);
     case ShareProvider.Twitter:
-      return getTwitterShareLink(link, text ?? '');
+      return getTwitterShareLink(link, text);
     case ShareProvider.Facebook:
       return getFacebookShareLink(link);
     case ShareProvider.Reddit:
-      return getRedditShareLink(link, text ?? '');
+      return getRedditShareLink(link, text);
     case ShareProvider.LinkedIn:
       return getLinkedInShareLink(link);
     case ShareProvider.Telegram:
-      return getTelegramShareLink(link, text ?? '');
+      return getTelegramShareLink(link, text);
     case ShareProvider.Email:
-      return getEmailShareLink(link, text ?? '');
+      return getEmailShareLink(link, text, emailSummary);
     default:
       return link;
   }
 };
 export interface AddLinkShareLogQueryParams {
   link: string | undefined;
-  userId: string | undefined;
+  userId: string | null | undefined;
   cid: ReferralCampaignKey;
 }
 
-export const addLogQueryParams = ({
+export function addLogQueryParams(
+  params: Omit<AddLinkShareLogQueryParams, 'link'> & { link: string },
+): string;
+export function addLogQueryParams(
+  params: AddLinkShareLogQueryParams,
+): string | undefined;
+export function addLogQueryParams({
   link,
   userId,
   cid,
-}: AddLinkShareLogQueryParams): string => {
+}: AddLinkShareLogQueryParams): string | undefined {
   // return link as is if not provided
   if (!link || !userId || !cid) {
     return link;
@@ -84,4 +101,4 @@ export const addLogQueryParams = ({
   url.searchParams.set('cid', cid);
 
   return url.toString();
-};
+}

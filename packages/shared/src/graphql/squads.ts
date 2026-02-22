@@ -25,24 +25,23 @@ import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection
 import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
 
-interface BaseSquadForm
-  extends Pick<
-    Squad,
-    | 'name'
-    | 'handle'
-    | 'description'
-    | 'memberInviteRole'
-    | 'memberPostingRole'
-    | 'moderationRequired'
-  > {
+type BaseSquadForm = Pick<
+  Squad,
+  | 'name'
+  | 'handle'
+  | 'description'
+  | 'memberInviteRole'
+  | 'memberPostingRole'
+  | 'moderationRequired'
+> & {
   categoryId?: string;
-}
+};
 
-export interface SquadForm extends BaseSquadForm {
+export type SquadForm = BaseSquadForm & {
   status?: PrivacyOption;
   file?: File;
   header?: File;
-}
+};
 
 interface SharedSquadInput extends BaseSquadForm {
   image?: File;

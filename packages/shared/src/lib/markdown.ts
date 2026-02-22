@@ -142,8 +142,8 @@ export const getMentionReplacement: GetReplacementFn = (
     return { replacement };
   }
 
-  const hasValidTrail = isFalsyOrSpace(trailingChar);
-  const hasValidLead = isFalsyOrSpace(leadingChar);
+  const hasValidTrail = isFalsyOrSpace(trailingChar ?? '');
+  const hasValidLead = isFalsyOrSpace(leadingChar ?? '');
   const startOffset = start + (hasValidTrail ? 1 : 2);
   const endOffset = startOffset + replacement.length - (hasValidLead ? 0 : 1);
   const offset = [startOffset, endOffset];

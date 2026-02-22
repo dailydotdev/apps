@@ -14,7 +14,7 @@ export const lottieAnimationQueryOptions = ({
   return {
     queryKey: generateQueryKey(
       RequestKey.LottieAnimations,
-      null,
+      undefined,
       basePath,
       src,
     ),

@@ -1,9 +1,11 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import type { ButtonProps } from './buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ArrowIcon } from './icons';
 import { useViewSize, ViewSize } from '../hooks';
+import { useSettingsContext } from '../contexts/SettingsContext';
 
 const baseStyle: CSSProperties = {
   transition: 'transform 0.1s ease-out, opacity 0.1s ease-out',
@@ -14,6 +16,7 @@ export default function ScrollToTopButton(): ReactElement {
   const [show, setShow] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
+  const { showFeedbackButton } = useSettingsContext();
   const size = (() => {
     if (isLaptop) {
       return ButtonSize.XLarge;
@@ -49,7 +52,12 @@ export default function ScrollToTopButton(): ReactElement {
     <Button
       aria-label="scroll to top"
       {...props}
-      className="absolute -top-12 right-4 z-2 tablet:-top-18 laptop:-top-24 laptop:right-8"
+      className={classNames(
+        'absolute right-4 z-2 laptop:right-8',
+        showFeedbackButton
+          ? '-top-22 tablet:-top-28 laptop:-top-36'
+          : '-top-12 tablet:-top-18 laptop:-top-24',
+      )}
       variant={ButtonVariant.Primary}
       size={size}
       style={style}
