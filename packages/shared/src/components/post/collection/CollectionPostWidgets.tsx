@@ -16,8 +16,6 @@ export const CollectionPostWidgets = ({
   origin,
   className,
 }: PostWidgetsProps): ReactElement => {
-  const cardClasses = 'w-full bg-transparent';
-
   return (
     <PageWidgets className={className}>
       <CollectionsIntro className="hidden laptop:flex" />
@@ -27,7 +25,7 @@ export const CollectionPostWidgets = ({
       />
       <PostSidebarAdWidget
         postId={post.id}
-        className={{ container: cardClasses }}
+        className={{ container: 'w-full bg-transparent' }}
       />
       <ShareBar post={post} />
       <ShareMobile
