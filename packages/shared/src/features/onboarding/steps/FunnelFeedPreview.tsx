@@ -1,11 +1,18 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import type { FunnelStepFeedPreview } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import Feed from '../../../components/Feed';
 import { ANONYMOUS_FEED_QUERY, RankingAlgorithm } from '../../../graphql/feed';
-import { OtherFeedPage, RequestKey } from '../../../lib/query';
+import { OtherFeedPage } from '../../../lib/query';
 import { FeedLayoutProvider } from '../../../contexts/FeedContext';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import { ButtonSize } from '../../../components/buttons/common';
@@ -16,40 +23,207 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
-import { MoveToIcon } from '../../../components/icons';
+import {
+  MoveToIcon,
+  UpvoteIcon,
+  DiscussIcon,
+  BookmarkIcon,
+  SparkleIcon,
+} from '../../../components/icons';
 import { useConditionalFeature } from '../../../hooks';
 import { popularFeedVersion } from '../../../lib/featureManagement';
 
-function InteractionPrompt({
-  message,
-  visible,
+// ─── Scroll phase thresholds ───────────────────────────────────────
+const PHASE = {
+  heroFadeEnd: 200,
+  valueStart: 400,
+  valueEnd: 700,
+  ctaStart: 500,
+} as const;
+
+// ─── Value propositions ────────────────────────────────────────────
+const VALUE_PROPS = [
+  {
+    icon: 'upvote' as const,
+    title: 'Community-ranked',
+    desc: 'Every post is voted on by developers like you',
+  },
+  {
+    icon: 'discuss' as const,
+    title: 'Real conversations',
+    desc: 'Not just links — genuine developer discussions',
+  },
+  {
+    icon: 'bookmark' as const,
+    title: 'Your reading list',
+    desc: "Save what matters, skip what doesn't",
+  },
+];
+
+// ─── Hook: window-level scroll tracking ────────────────────────────
+function useWindowScroll() {
+  const [scrollY, setScrollY] = useState(0);
+  const rafRef = useRef<number>();
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+      rafRef.current = requestAnimationFrame(() => {
+        setScrollY(window.scrollY);
+      });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
+  const heroOpacity = useMemo(() => {
+    if (scrollY >= PHASE.heroFadeEnd) {
+      return 0;
+    }
+    return 1 - scrollY / PHASE.heroFadeEnd;
+  }, [scrollY]);
+
+  const valueProgress = useMemo(() => {
+    if (scrollY <= PHASE.valueStart) {
+      return 0;
+    }
+    if (scrollY >= PHASE.valueEnd) {
+      return 1;
+    }
+    return (scrollY - PHASE.valueStart) / (PHASE.valueEnd - PHASE.valueStart);
+  }, [scrollY]);
+
+  const showCta = scrollY >= PHASE.ctaStart;
+  const hasScrolled = scrollY > 20;
+
+  return { scrollY, heroOpacity, valueProgress, showCta, hasScrolled };
+}
+
+// ─── Portal wrapper for fixed elements ────────────────────────────
+// The parent onboarding wrapper applies CSS transform (translate-y-0)
+// which creates a new containing block, breaking fixed positioning.
+// We portal fixed elements to document.body to bypass this.
+function FixedPortal({
+  children,
 }: {
-  message: string;
-  visible: boolean;
+  children: React.ReactNode;
 }): ReactElement | null {
-  if (!visible) {
+  if (typeof document === 'undefined') {
     return null;
   }
+  return ReactDOM.createPortal(children, document.body);
+}
+
+// ─── Interaction prompt ────────────────────────────────────────────
+// Always mounted to avoid animation/mount timing issues. Visibility
+// controlled via CSS opacity + pointer-events. Inline styles used for
+// background to bypass CSS-variable opacity modifier issues.
+function InteractionPrompt({
+  visible,
+  onPersonalize,
+}: {
+  visible: boolean;
+  onPersonalize: () => void;
+}): ReactElement {
+  return (
+    <FixedPortal>
+      <div
+        className="fixed inset-x-0 bottom-44 z-modal mx-auto flex w-fit items-center gap-3 rounded-16 border border-accent-cabbage-default/30 py-3 pl-4 pr-3 shadow-2 transition-all duration-300"
+        style={{
+          backgroundColor: '#1c1f26',
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0)' : 'translateY(8px)',
+          pointerEvents: visible ? 'auto' : 'none',
+        }}
+      >
+        <SparkleIcon className="size-5 text-accent-cabbage-default" />
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Primary}
+          bold
+        >
+          Create a free account to interact
+        </Typography>
+        <button
+          type="button"
+          onClick={onPersonalize}
+          className="ml-1 rounded-12 bg-accent-cabbage-default px-3 py-1.5 font-bold text-white transition-all duration-200 typo-caption1 hover:shadow-2-cabbage"
+        >
+          Get started
+        </button>
+      </div>
+    </FixedPortal>
+  );
+}
+
+// ─── Value chip (stagger-revealed) ─────────────────────────────────
+function ValueChip({
+  icon,
+  title,
+  desc,
+  progress,
+  index,
+}: {
+  icon: 'upvote' | 'discuss' | 'bookmark';
+  title: string;
+  desc: string;
+  progress: number;
+  index: number;
+}): ReactElement {
+  const stagger = Math.max(0, Math.min(1, progress * 3 - index));
+
+  const iconMap = {
+    upvote: <UpvoteIcon className="size-5 text-accent-avocado-default" />,
+    discuss: <DiscussIcon className="size-5 text-accent-blueCheese-default" />,
+    bookmark: <BookmarkIcon className="size-5 text-accent-cheese-default" />,
+  };
+
+  const bgMap = {
+    upvote: 'bg-accent-avocado-default/15',
+    discuss: 'bg-accent-blueCheese-default/15',
+    bookmark: 'bg-accent-cheese-default/15',
+  };
 
   return (
     <div
-      className={classNames(
-        'fixed inset-x-0 bottom-32 z-max mx-auto w-fit',
-        'animate-bounce rounded-16 bg-surface-float px-4 py-2 shadow-2',
-        'transition-all duration-300',
-        visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0',
-      )}
+      className="flex items-start gap-3 transition-all duration-500"
+      style={{
+        opacity: stagger,
+        transform: `translateY(${stagger > 0 ? 0 : 12}px)`,
+      }}
     >
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Primary}
+      <div
+        className={classNames(
+          'flex size-10 flex-shrink-0 items-center justify-center rounded-12',
+          bgMap[icon],
+        )}
       >
-        {message}
-      </Typography>
+        {iconMap[icon]}
+      </div>
+      <div className="flex flex-col gap-0.5">
+        <Typography type={TypographyType.Callout} bold>
+          {title}
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {desc}
+        </Typography>
+      </div>
     </div>
   );
 }
 
+// ─── Main component ────────────────────────────────────────────────
 function FeedPreviewComponent({
   onTransition,
 }: FunnelStepFeedPreview): ReactElement {
@@ -63,64 +237,207 @@ function FeedPreviewComponent({
     version: feedVersion,
   };
 
-  const [interactionPrompt, setInteractionPrompt] = useState<string | null>(
-    null,
-  );
+  const { heroOpacity, valueProgress, showCta, hasScrolled } =
+    useWindowScroll();
 
-  const showPrompt = useCallback((message: string) => {
-    setInteractionPrompt(message);
-    setTimeout(() => setInteractionPrompt(null), 2500);
+  const [showPrompt, setShowPrompt] = useState(false);
+  const promptTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const handlePersonalize = useCallback(() => {
+    onTransition({ type: FunnelStepTransitionType.Complete });
+  }, [onTransition]);
+
+  const triggerPrompt = useCallback(() => {
+    if (promptTimerRef.current) {
+      clearTimeout(promptTimerRef.current);
+    }
+    setShowPrompt(true);
+    promptTimerRef.current = setTimeout(() => setShowPrompt(false), 5000);
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (promptTimerRef.current) {
+        clearTimeout(promptTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Intercept clicks on feed action buttons and card links. We attach a
+  // native capture-phase listener on `document` so it fires BEFORE React's
+  // root listener (which is on the app container). This is the only reliable
+  // way to prevent React's synthetic onClick handlers from executing.
+  const feedRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const feedEl = feedRef.current;
+    if (!feedEl) {
+      return undefined;
+    }
+
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      // Only intercept clicks inside our feed wrapper
+      if (!feedEl.contains(target)) {
+        return;
+      }
+
+      // Intercept action buttons (upvote, downvote, bookmark, comment, copy)
+      const actionBtn = target.closest(
+        '[id*="upvote-btn"], [id*="downvote-btn"], [id*="bookmark-btn"], [id*="comment-btn"], [id="copy-post-btn"]',
+      );
+      if (actionBtn) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        triggerPrompt();
+        return;
+      }
+
+      // Intercept post card clicks (the overlay link that navigates to post)
+      const cardLink = target.closest('a[href*="/posts/"]');
+      if (cardLink) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        triggerPrompt();
+      }
+    };
+
+    document.addEventListener('click', handler, true);
+    return () => {
+      document.removeEventListener('click', handler, true);
+    };
+  }, [triggerPrompt]);
+
+  const topBarVisible = heroOpacity < 0.3;
 
   return (
     <div
       className="relative flex flex-1 flex-col"
       data-testid="funnel-feed-preview"
     >
-      {/* Minimal top bar */}
-      <div className="sticky top-0 z-3 flex items-center justify-between px-4 py-3">
-        <Logo linkDisabled position={LogoPosition.Empty} />
-        <button
-          type="button"
-          className="flex items-center gap-1 text-text-tertiary transition-colors hover:text-text-primary"
-          onClick={() =>
-            onTransition({ type: FunnelStepTransitionType.Complete })
-          }
-        >
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Personalize
-          </Typography>
-          <MoveToIcon className="size-5" />
-        </button>
+      {/* ─── Ambient glow (decorative depth) ─── */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="bg-accent-cabbage-default/10 absolute -left-32 -top-32 h-96 w-96 rounded-full blur-3xl"
+          style={{
+            transform: `translateY(${hasScrolled ? -40 : 0}px)`,
+            transition: 'transform 1.5s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        />
+        <div
+          className="bg-accent-onion-default/8 absolute -right-24 top-1/4 h-80 w-80 rounded-full blur-3xl"
+          style={{
+            transform: `translateY(${hasScrolled ? -20 : 0}px)`,
+            transition: 'transform 2s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        />
       </div>
 
-      {/* Feed */}
+      {/* ─── Top bar (fixed, appears on scroll) ─── */}
+      <FixedPortal>
+        <div
+          className={classNames(
+            'fixed left-0 right-0 top-0 z-popup',
+            'flex items-center justify-between px-4 py-3',
+            'bg-background-default/80 backdrop-blur-xl',
+            'transition-all duration-500',
+          )}
+          style={{
+            opacity: topBarVisible ? 1 : 0,
+            transform: topBarVisible ? 'translateY(0)' : 'translateY(-8px)',
+            pointerEvents: topBarVisible ? 'auto' : 'none',
+          }}
+        >
+          <Logo
+            linkDisabled
+            position={LogoPosition.Empty}
+            logoClassName={{ container: 'h-6' }}
+          />
+          <button
+            type="button"
+            className="bg-accent-cabbage-default/10 hover:bg-accent-cabbage-default/20 group flex items-center gap-1.5 rounded-12 px-3 py-1.5 transition-all duration-200"
+            onClick={handlePersonalize}
+          >
+            <SparkleIcon className="size-4 text-accent-cabbage-default transition-transform duration-200 group-hover:rotate-12" />
+            <Typography
+              type={TypographyType.Caption1}
+              bold
+              className="text-accent-cabbage-default"
+            >
+              Personalize
+            </Typography>
+          </button>
+        </div>
+      </FixedPortal>
+
+      {/* ─── Hero section (fades on scroll) ─── */}
       <div
-        className="relative flex-1"
-        role="presentation"
-        onClickCapture={(e) => {
-          const target = e.target as HTMLElement;
-          const button = target.closest(
-            '[data-testid="upvoteBtn"], [data-testid="bookmarkBtn"], [data-testid="commentBtn"]',
-          );
-          if (button) {
-            e.preventDefault();
-            e.stopPropagation();
-            const action = button
-              .getAttribute('data-testid')
-              ?.replace('Btn', '');
-            showPrompt(`Create a free account to ${action}`);
-          }
+        className="relative z-1 flex flex-col items-center px-6 pb-6 pt-10"
+        style={{
+          opacity: heroOpacity,
+          transform: `translateY(${(1 - heroOpacity) * -20}px)`,
+          transition: 'transform 0.1s linear',
+          pointerEvents: heroOpacity < 0.1 ? 'none' : 'auto',
         }}
       >
+        <div className="flex flex-col items-center gap-5">
+          <Logo
+            linkDisabled
+            position={LogoPosition.Empty}
+            logoClassName={{ container: 'h-8' }}
+          />
+
+          <div className="max-w-sm text-center">
+            <Typography type={TypographyType.Title1} bold>
+              <span className="bg-gradient-to-r from-text-primary via-accent-cabbage-bolder to-accent-onion-default bg-clip-text text-transparent">
+                Developer news
+              </span>
+            </Typography>
+            <Typography type={TypographyType.Title1} bold>
+              worth reading
+            </Typography>
+          </div>
+
+          <Typography
+            type={TypographyType.Body}
+            color={TypographyColor.Tertiary}
+            className="max-w-xs text-center"
+          >
+            Ranked by 1M+ developers. Personalized for you.
+          </Typography>
+
+          <div className="mt-2 flex animate-float flex-col items-center gap-1">
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Quaternary}
+            >
+              Scroll to explore
+            </Typography>
+            <svg
+              className="size-5 text-text-quaternary"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <path
+                d="M10 4v12m0 0l-4-4m4 4l4-4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Feed (the product IS the demo) ─── */}
+      <div ref={feedRef} className="relative" role="presentation">
         <FeedLayoutProvider>
           <Feed
             className="px-4"
             feedName={OtherFeedPage.Preview}
-            feedQueryKey={[RequestKey.FeedPreview, 'onboarding-mockup']}
+            feedQueryKey={['onboarding-preview', 'onboarding-mockup']}
             query={ANONYMOUS_FEED_QUERY}
             variables={feedVariables}
             showSearch={false}
@@ -130,31 +447,94 @@ function FeedPreviewComponent({
         </FeedLayoutProvider>
       </div>
 
-      {/* Gradient fade at bottom */}
-      <div className="via-background-default/80 pointer-events-none fixed inset-x-0 bottom-0 z-3 h-40 bg-gradient-to-t from-background-default to-transparent" />
-
-      {/* Sticky CTA */}
-      <div className="fixed inset-x-0 bottom-0 z-3 flex justify-center p-4 pb-safe-or-4">
-        <div className="bg-background-default/80 w-full max-w-md rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-xl">
-          <Button
-            className="group w-full overflow-hidden"
-            onClick={() =>
-              onTransition({ type: FunnelStepTransitionType.Complete })
-            }
-            size={ButtonSize.XLarge}
-            variant={ButtonVariant.Primary}
-          >
-            <span className="relative z-1">Personalize your feed</span>
-            <MoveToIcon className="relative z-1 ml-1 size-5 transition-transform group-hover:translate-x-0.5" />
-            {/* Shimmer effect on hover */}
-            <span className="via-white/20 absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          </Button>
+      {/* ─── Value reveal (scroll-driven, between feed and spacer) ─── */}
+      <div
+        className="relative z-1 mx-auto w-full max-w-sm px-4 py-8"
+        style={{
+          opacity: Math.min(valueProgress * 2, 1),
+          transform: `translateY(${
+            (1 - Math.min(valueProgress * 2, 1)) * 24
+          }px)`,
+          transition: 'transform 0.15s linear',
+        }}
+      >
+        <div className="border-border-subtlest-tertiary/50 bg-background-default/90 rounded-16 border p-5 shadow-2 backdrop-blur-xl">
+          <div className="mb-4 flex items-center gap-2">
+            <SparkleIcon className="size-4 text-accent-cabbage-default" />
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              bold
+              className="uppercase tracking-wider"
+            >
+              Why daily.dev
+            </Typography>
+          </div>
+          <div className="flex flex-col gap-4">
+            {VALUE_PROPS.map((prop, i) => (
+              <ValueChip
+                key={prop.title}
+                icon={prop.icon}
+                title={prop.title}
+                desc={prop.desc}
+                progress={valueProgress}
+                index={i}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
+      {/* Bottom spacer for CTA */}
+      <div className="h-32" />
+
+      {/* ─── Bottom gradient ─── */}
+      <FixedPortal>
+        <div className="via-background-default/80 pointer-events-none fixed inset-x-0 bottom-0 z-3 h-40 bg-gradient-to-t from-background-default to-transparent" />
+      </FixedPortal>
+
+      {/* ─── Sticky CTA (scroll-revealed) ─── */}
+      <FixedPortal>
+        <div
+          className={classNames(
+            'fixed inset-x-0 bottom-0 z-popup flex justify-center px-4 pb-safe-or-4',
+            'transition-all duration-700',
+          )}
+          style={{
+            opacity: showCta ? 1 : 0,
+            transform: showCta ? 'translateY(0)' : 'translateY(20px)',
+            pointerEvents: showCta ? 'auto' : 'none',
+          }}
+        >
+          <div className="w-full max-w-md">
+            <Button
+              className="group relative w-full overflow-hidden shadow-2"
+              onClick={handlePersonalize}
+              size={ButtonSize.XLarge}
+              variant={ButtonVariant.Primary}
+            >
+              <span className="relative z-1 flex items-center gap-2">
+                <SparkleIcon className="size-5 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
+                Make it yours
+                <MoveToIcon className="size-5 transition-transform duration-300 group-hover:translate-x-1" />
+              </span>
+              <span className="via-white/10 absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+            </Button>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Quaternary}
+              className="mt-2 text-center"
+            >
+              30 seconds to a personalized feed
+            </Typography>
+          </div>
+        </div>
+      </FixedPortal>
+
+      {/* ─── Interaction prompt ─── */}
       <InteractionPrompt
-        message={interactionPrompt ?? ''}
-        visible={!!interactionPrompt}
+        visible={showPrompt}
+        onPersonalize={handlePersonalize}
       />
     </div>
   );
