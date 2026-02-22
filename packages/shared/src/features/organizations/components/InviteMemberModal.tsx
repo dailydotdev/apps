@@ -33,7 +33,9 @@ export const InviteMemberModal = ({
   const [isCopying, copyLink] = useCopyLink();
   const { openModal } = useLazyModal();
 
-  const { organization, referralUrl, seats } = useOrganization(organizationId);
+  const { organization, referralUrl, seats } = useOrganization(organizationId, {
+    includeMembers: true,
+  });
 
   const isMobile = useViewSize(ViewSize.MobileL);
 
