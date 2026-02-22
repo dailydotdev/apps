@@ -178,10 +178,9 @@ const useVoteHotTake = ({
         return;
       }
 
-      // Hot takes don't support downvotes, just cancel the vote
-      await cancelHotTakeVote({ id: hotTake.id });
+      await downvoteHotTake({ id: hotTake.id });
     },
-    [cancelHotTakeVote, showLogin, user],
+    [downvoteHotTake, showLogin, user],
   );
 
   return {
