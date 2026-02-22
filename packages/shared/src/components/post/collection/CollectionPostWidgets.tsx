@@ -8,6 +8,7 @@ import { RelatedPostsWidget } from '../RelatedPostsWidget';
 import { PostRelationType } from '../../../graphql/posts';
 import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
+import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 
 export const CollectionPostWidgets = ({
   onCopyPostLink,
@@ -21,6 +22,10 @@ export const CollectionPostWidgets = ({
       <RelatedPostsWidget
         post={post}
         relationType={PostRelationType.Collection}
+      />
+      <PostSidebarAdWidget
+        postId={post.id}
+        className={{ container: 'w-full bg-transparent' }}
       />
       <ShareBar post={post} />
       <ShareMobile
