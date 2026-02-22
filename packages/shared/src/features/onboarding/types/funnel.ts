@@ -31,6 +31,10 @@ export enum FunnelStepType {
   OrganicCheckout = 'organicCheckout',
   BrowserExtension = 'browserExtension',
   UploadCv = 'uploadCv',
+  FeedPreview = 'feedPreview',
+  AIPersonalization = 'aiPersonalization',
+  SaveFeedAuth = 'saveFeedAuth',
+  ExtensionCta = 'extensionCta',
 }
 
 export enum FunnelBackgroundVariant {
@@ -368,6 +372,40 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepFeedPreview extends FunnelStepCommon {
+  type: FunnelStepType.FeedPreview;
+  onTransition: FunnelStepTransitionCallback;
+}
+
+export interface FunnelStepAIPersonalization extends FunnelStepCommon {
+  type: FunnelStepType.AIPersonalization;
+  onTransition: FunnelStepTransitionCallback;
+}
+
+export interface FunnelStepSaveFeedAuth
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+    image: string;
+    imageMobile: string;
+  }> {
+  type: FunnelStepType.SaveFeedAuth;
+  onTransition: FunnelStepTransitionCallback<{
+    user: LoggedUser | AnonymousUser;
+  }>;
+}
+
+export interface FunnelStepExtensionCta
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+  }> {
+  type: FunnelStepType.ExtensionCta;
+  onTransition: FunnelStepTransitionCallback<{
+    browserName: BrowserName;
+  }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -388,7 +426,11 @@ export type FunnelStep =
   | FunnelStepOrganicCheckout
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv;
+  | FunnelStepUploadCv
+  | FunnelStepFeedPreview
+  | FunnelStepAIPersonalization
+  | FunnelStepSaveFeedAuth
+  | FunnelStepExtensionCta;
 
 export type FunnelPosition = {
   chapter: number;
@@ -420,6 +462,7 @@ export const stepsWithHeader = [
   FunnelStepType.PlusCards,
   FunnelStepType.OrganicCheckout,
   FunnelStepType.UploadCv,
+  FunnelStepType.ExtensionCta,
 ] as const satisfies Array<FunnelStepType>;
 export const stepsWithOnlySkipHeader: Array<(typeof stepsWithHeader)[number]> =
   [
@@ -427,6 +470,7 @@ export const stepsWithOnlySkipHeader: Array<(typeof stepsWithHeader)[number]> =
     FunnelStepType.PlusCards,
     FunnelStepType.OrganicCheckout,
     FunnelStepType.UploadCv,
+    FunnelStepType.ExtensionCta,
   ];
 export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicSignup,
@@ -437,4 +481,8 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.BrowserExtension,
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
+  FunnelStepType.FeedPreview,
+  FunnelStepType.AIPersonalization,
+  FunnelStepType.SaveFeedAuth,
+  FunnelStepType.ExtensionCta,
 ];

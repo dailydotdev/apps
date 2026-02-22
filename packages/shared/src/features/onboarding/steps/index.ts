@@ -12,3 +12,7 @@ export { FunnelPlusCards } from './FunnelPlusCards';
 export { FunnelOrganicCheckout } from './FunnelOrganicCheckout';
 export { FunnelBrowserExtension } from './FunnelBrowserExtension';
 export { FunnelUploadCv } from './FunnelUploadCv';
+export { FunnelFeedPreview } from './FunnelFeedPreview';
+export { FunnelAIPersonalization } from './FunnelAIPersonalization';
+export { FunnelSaveFeedAuth } from './FunnelSaveFeedAuth';
+export { FunnelExtensionCta } from './FunnelExtensionCta';
