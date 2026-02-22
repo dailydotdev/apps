@@ -29,6 +29,22 @@ const renderComponent = (props: Partial<AdCardProps> = {}): RenderResult => {
   );
 };
 
+const renderListComponent = (
+  props: Partial<AdCardProps> = {},
+): RenderResult => {
+  const client = new QueryClient();
+  return render(
+    <TestBootProvider client={client}>
+      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
+        <AdList {...defaultProps} {...props} />
+      </ActiveFeedContext.Provider>
+    </TestBootProvider>,
+  );
+};
+
+const getNormalizedText = (element?: Element | null): string =>
+  element?.textContent?.replace(/\u200B/g, '').trim() ?? '';
+
 it('should call on click on component left click', async () => {
   renderComponent();
   const el = await screen.findByTestId('adItem');
@@ -72,21 +88,14 @@ it('should show pixel images', async () => {
 });
 
 it('should render promoted attribution outside of list title clamp', async () => {
-  const client = new QueryClient();
   const promotedMatcher = (_: string, element?: Element | null): boolean => {
-    const text = element?.textContent?.replace(/\u200B/g, '').trim();
+    const text = getNormalizedText(element);
     return text === 'Promoted' || text.startsWith('Promoted by ');
   };
 
-  render(
-    <TestBootProvider client={client}>
-      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
-        <AdList {...defaultProps} />
-      </ActiveFeedContext.Provider>
-    </TestBootProvider>,
-  );
+  renderListComponent();
 
   const title = screen.getByRole('heading', { level: 3 });
-  expect(within(title).queryByText(promotedMatcher)).not.toBeInTheDocument();
+  expect(getNormalizedText(title)).not.toContain('Promoted');
   expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
 });

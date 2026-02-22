@@ -1,7 +1,11 @@
 import type { AnchorHTMLAttributes, ReactElement } from 'react';
 import React, { forwardRef, useCallback } from 'react';
-import classNames from 'classnames';
-import { CardContent, CardImage, CardTitle } from '../common/list/ListCard';
+import {
+  CardContent,
+  CardImage,
+  CardTextContainer,
+  CardTitle,
+} from '../common/list/ListCard';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import type { AdCardProps } from './common/common';
 import { AdImage } from './common/AdImage';
@@ -62,16 +66,21 @@ export const AdList = forwardRef(function AdCard(
       linkProps={getLinkProps({ ad, onLinkClick })}
     >
       <CardContent>
-        <CardTitle className={classNames('!mt-0 mr-4 flex-1 typo-title3')}>
-          <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
-          {ad.description}
-          {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
-            <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
-          ) : null}
-        </CardTitle>
+        <CardTextContainer className="mr-4 flex-1">
+          <CardTitle className="!mt-0 typo-title3">
+            <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
+            {ad.description}
+            {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
+              <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
+            ) : null}
+          </CardTitle>
+          <AdAttribution
+            ad={ad}
+            className={{ main: 'mt-2 block font-normal' }}
+          />
+        </CardTextContainer>
         <AdImage ad={ad} ImageComponent={CardImage} />
       </CardContent>
-      <AdAttribution ad={ad} className={{ main: 'mt-2 block font-normal' }} />
 
       <div className="z-1 flex items-center pt-2">
         <AdRefresh onClick={onRefreshClick} loading={isRefetching} />
