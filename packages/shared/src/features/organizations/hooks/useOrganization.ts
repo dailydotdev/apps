@@ -134,11 +134,13 @@ export const useOrganization = (
   const { displayToast } = useToastNotification();
   const { user, isAuthReady, refetchBoot } = useAuthContext();
   const { includeMembers = false, ...queryOptions } = options || {};
+  const queryMode = includeMembers ? 'members' : 'base';
+  const query = includeMembers ? ORGANIZATION_QUERY : ORGANIZATION_BASE_QUERY;
   const enableQuery = !!organizationId && !!user && isAuthReady;
   const queryKey = generateOrganizationQueryKey(
     user,
     organizationId,
-    includeMembers ? 'members' : 'base',
+    queryMode,
   );
   const queryClient = useQueryClient();
 
@@ -147,7 +149,7 @@ export const useOrganization = (
     queryFn: async () => {
       const res = await gqlClient.request<{
         organization: UserOrganization;
-      }>(includeMembers ? ORGANIZATION_QUERY : ORGANIZATION_BASE_QUERY, {
+      }>(query, {
         id: organizationId,
       });
 
