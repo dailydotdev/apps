@@ -30,7 +30,7 @@ export const registerBrowserContentScripts = async (): Promise<void> => {
     // TODO: this needs to be switched to browser.scripting when bumping FF to V3 as well
     await browser.contentScripts.register({
       matches: ['*://*/*'],
-      css: [{ file: 'css/companion.css' }],
+      css: [{ file: 'css/daily-companion-app.css' }],
       js: [
         { file: 'js/content.bundle.js' },
         { file: 'js/companion.bundle.js' },
@@ -50,7 +50,7 @@ export const registerBrowserContentScripts = async (): Promise<void> => {
       {
         id: companionScriptId,
         matches: ['*://*/*'],
-        css: ['css/companion.css'],
+        css: ['css/daily-companion-app.css'],
         js: ['js/content.bundle.js', 'js/companion.bundle.js'],
       },
     ]);

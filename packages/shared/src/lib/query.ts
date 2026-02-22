@@ -105,7 +105,7 @@ export const generateStorageKey = (
   key: RequestKey,
   ...params: string[]
 ): string =>
-  (generateQueryKey(key, null, ...params) as Array<string>).join(':');
+  (generateQueryKey(key, undefined, ...params) as Array<string>).join(':');
 
 export enum RequestKey {
   DevCard = 'devcard',
@@ -247,6 +247,7 @@ export enum RequestKey {
   GearSearch = 'gear_search',
   PersonalAccessTokens = 'personal_access_tokens',
   UserAchievements = 'user_achievements',
+  TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
 }
 

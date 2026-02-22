@@ -13,8 +13,8 @@ const TERMINATED = 'terminated';
  * @param {!Array<string>} arr
  * @return {!Object}
  */
-const toIndexedObject = (arr) =>
-  arr.reduce((acc, val, idx) => {
+const toIndexedObject = (arr: string[]): Record<string, number> =>
+  arr.reduce<Record<string, number>>((acc, val, idx) => {
     acc[val] = idx;
     return acc;
   }, {});
@@ -51,10 +51,17 @@ const LEGAL_STATE_TRANSITIONS = [
  * @param {string} newState
  * @return {!Array<string>}
  */
-const getLegalStateTransitionPath = (oldState, newState) => {
+const getLegalStateTransitionPath = (
+  oldState: string,
+  newState: string,
+): string[] => {
   // We're intentionally not using for...of here so when we transpile to ES5
   // we don't need to include the Symbol polyfills.
-  for (let order, i = 0; i < LEGAL_STATE_TRANSITIONS.length; i += 1) {
+  for (
+    let order: Record<string, number>, i = 0;
+    i < LEGAL_STATE_TRANSITIONS.length;
+    i += 1
+  ) {
     order = LEGAL_STATE_TRANSITIONS[i];
     const oldIndex = order[oldState];
     const newIndex = order[newState];

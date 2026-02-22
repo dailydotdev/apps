@@ -39,8 +39,18 @@ beforeEach(async () => {
 });
 
 const squads = [generateTestSquad()];
+const manySquads = Array.from({ length: 5 }, (_, index) =>
+  generateTestSquad({
+    id: `squad-${index}`,
+    handle: `webteam-${index}`,
+    name: `Web team ${index}`,
+  }),
+);
 
-const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
+const renderComponent = (
+  loggedIn = true,
+  customSquads: typeof squads = squads,
+): RenderResult => {
   const client = new QueryClient();
 
   return render(
@@ -52,7 +62,7 @@ const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
         getRedirectUri={jest.fn()}
         loadingUser={false}
         loadedUserFromCache
-        squads={hasSquads ? squads : []}
+        squads={customSquads}
       >
         <NotificationsContextProvider>
           <LazyModalElement />
@@ -78,7 +88,7 @@ describe('ShareBar Test Suite:', () => {
   });
 
   it('should render the component for anonymous users', async () => {
-    renderComponent(false, false);
+    renderComponent(false, []);
     expect(
       screen.getByText('Would you recommend this post?'),
     ).toBeInTheDocument();
@@ -86,7 +96,7 @@ describe('ShareBar Test Suite:', () => {
   });
 
   it('should render the component with logged user but no squads and open new squad page', async () => {
-    renderComponent(true, false);
+    renderComponent(true, []);
     const btn = await screen.findByTestId('social-share-New Squad');
 
     expect(btn).toBeInTheDocument();
@@ -103,7 +113,7 @@ describe('ShareBar Test Suite:', () => {
   });
 
   it('should render the component with logged user and squads and open the share to squad modal', async () => {
-    renderComponent(true, true);
+    renderComponent();
     const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
 
     expect(btn).toBeInTheDocument();
@@ -137,5 +147,25 @@ describe('ShareBar Test Suite:', () => {
         defaultPost.commentsPermalink,
       ),
     );
+  });
+
+  it('should collapse squad options and expand on demand', async () => {
+    renderComponent(true, manySquads);
+
+    expect(
+      screen.getByRole('button', { name: 'Show more options' }),
+    ).toBeVisible();
+    expect(
+      screen.queryByTestId('social-share-@webteam-4'),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show more options' }));
+
+    expect(
+      await screen.findByTestId('social-share-@webteam-4'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Show fewer options' }),
+    ).toBeVisible();
   });
 });

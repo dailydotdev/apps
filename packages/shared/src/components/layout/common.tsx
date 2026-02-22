@@ -26,6 +26,7 @@ import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { Origin } from '../../lib/log';
+import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -123,6 +124,9 @@ export const SearchControlHeader = ({
         }
         key="toggle-clickbait-shield"
       />
+    ),
+    feedsWithActions.includes(feedName as SharedFeedPage) && (
+      <AchievementTrackerButton key="achievement-tracker" />
     ),
   ];
   const actions = actionButtons.filter((button) => !!button);

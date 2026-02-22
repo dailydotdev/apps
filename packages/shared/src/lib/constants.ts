@@ -110,7 +110,6 @@ export enum FeedOrder {
 export const feedRangeFilters: RadioItemProps[] = [
   {
     label: 'All time',
-    value: null,
   },
   {
     label: 'Past 24 hours',

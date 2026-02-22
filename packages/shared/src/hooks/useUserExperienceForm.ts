@@ -32,7 +32,7 @@ const repositorySchema = z
     id: z.string().min(1).nullish(),
     owner: z.string().max(100).nullish(),
     name: z.string().min(1).max(200),
-    url: z.url(),
+    url: z.url('Please enter a valid repository URL.'),
     image: z.url().nullish(),
   })
   .nullish();
@@ -87,6 +87,15 @@ export const userExperienceInputBaseSchema = z
     },
     {
       message: 'End date is required when not current.',
+      path: ['endedAt'],
+    },
+  )
+  .refine(
+    (data) => {
+      return !data.endedAt || data.endedAt >= data.startedAt;
+    },
+    {
+      message: 'End date must be on or after start date.',
       path: ['endedAt'],
     },
   );

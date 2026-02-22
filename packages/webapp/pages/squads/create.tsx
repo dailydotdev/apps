@@ -19,6 +19,7 @@ import {
   generateDefaultSquad,
   MultipleSourceSelect,
 } from '@dailydotdev/shared/src/components/post/write';
+import { ProfileCompletionPostGate } from '@dailydotdev/shared/src/components/post/write/ProfileCompletionPostGate';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
@@ -39,6 +40,7 @@ import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/h
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { WriteForm } from '@dailydotdev/shared/src/contexts';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useProfileCompletionPostGate } from '@dailydotdev/shared/src/hooks/profile/useProfileCompletionPostGate';
 
 import {
   Button,
@@ -67,6 +69,8 @@ function CreatePost(): ReactElement {
   );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const { isBlocked: isProfileBlocked, requiredPercentage } =
+    useProfileCompletionPostGate();
   const {
     flags: { defaultWriteTab },
     loadedSettings,
@@ -249,6 +253,20 @@ function CreatePost(): ReactElement {
 
   if (!user || (!activeSquads?.length && isAuthReady)) {
     return <Unauthorized />;
+  }
+
+  if (isProfileBlocked) {
+    return (
+      <WritePageContainer className="px-5 py-10">
+        <ProfileCompletionPostGate
+          className="mt-8 max-w-[36rem]"
+          currentPercentage={user?.profileCompletion?.percentage}
+          requiredPercentage={requiredPercentage}
+          description="Add your profile details to keep post creation available."
+          buttonSize={ButtonSize.Medium}
+        />
+      </WritePageContainer>
+    );
   }
 
   return (

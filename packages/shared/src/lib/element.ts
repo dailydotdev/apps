@@ -30,6 +30,9 @@ export const getCaretOffset = (textarea: HTMLTextAreaElement): CaretOffset => {
   div.className = classNames(textarea.className, 'invisible absolute');
   div.appendChild(left);
   left.appendChild(right);
+  if (!textarea.parentElement) {
+    return [0, 0];
+  }
   textarea.parentElement.appendChild(div);
 
   const coordinates: CaretOffset = [

@@ -324,7 +324,7 @@ export const canViewUserProfileAnalytics = ({
   return !!user?.id && user.id === profileUserId;
 };
 
-export const userProfileQueryOptions = ({ id }) => {
+export const userProfileQueryOptions = ({ id }: { id: string }) => {
   return {
     queryKey: generateQueryKey(
       RequestKey.Profile,
