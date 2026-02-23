@@ -160,6 +160,7 @@ export function ProfileAchievements({
         </div>
         {loggedUser && !isOwner && (
           <Button
+            className="mt-3"
             variant={ButtonVariant.Secondary}
             onClick={() =>
               openModal({
