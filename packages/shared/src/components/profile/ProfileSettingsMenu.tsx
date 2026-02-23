@@ -119,12 +119,12 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
             hotTakes: {
               title: 'Hot Takes',
               icon: HotIcon,
+              href: `${webappUrl}?openModal=hottakes`,
               onClick: () => {
                 logEvent({ event_name: LogEvent.OpenHotAndCold });
                 onClose?.();
-                openModal({ type: LazyModal.HotAndCold });
               },
-            } as ProfileSectionItemPropsWithoutHref,
+            },
             appearance: {
               title: 'Appearance',
               icon: NewTabIcon,
