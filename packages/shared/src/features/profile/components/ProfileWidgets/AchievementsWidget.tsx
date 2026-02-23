@@ -109,7 +109,7 @@ function RecentAchievements({
                 </a>
               }
             >
-              <div className="w-80">
+              <div className="w-80 overflow-hidden rounded-16 bg-background-popover">
                 <AchievementCard userAchievement={ua} />
               </div>
             </HoverCard>
