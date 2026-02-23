@@ -36,9 +36,12 @@ interface CardHeaderProps {
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   postLink?: string;
   openNewTab?: boolean;
+  readButtonContent?: string;
+  readButtonIcon?: ReactElement;
   metadata?: {
     topLabel?: PostMetadataProps['topLabel'];
     bottomLabel?: PostMetadataProps['bottomLabel'];
+    dateFirst?: PostMetadataProps['dateFirst'];
   };
 }
 
@@ -51,6 +54,8 @@ export const PostCardHeader = ({
   children,
   postLink,
   openNewTab,
+  readButtonContent,
+  readButtonIcon,
   metadata,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
@@ -63,7 +68,8 @@ export const PostCardHeader = ({
   const isUserSource = isSourceUserSource(post.source);
   const showCTA =
     !isFeedPreview &&
-    [PostType.Article, PostType.VideoYouTube].includes(post.type);
+    ([PostType.Article, PostType.VideoYouTube].includes(post.type) ||
+      !!readButtonContent);
 
   return (
     <>
@@ -107,10 +113,10 @@ export const PostCardHeader = ({
             <>
               {showCTA && (
                 <ReadArticleButton
-                  content={postButtonText}
+                  content={readButtonContent ?? postButtonText}
                   className="mr-2"
                   variant={ButtonVariant.Tertiary}
-                  icon={<OpenLinkIcon />}
+                  icon={readButtonIcon ?? <OpenLinkIcon />}
                   href={postLink}
                   onClick={onReadArticleClick}
                   openNewTab={openNewTab}
