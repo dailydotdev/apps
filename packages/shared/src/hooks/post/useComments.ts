@@ -18,6 +18,10 @@ interface UseComments extends CommentWrite {
   onReplyTo: (params: ReplyTo) => void;
 }
 
+export const getReplyToInitialContent = (
+  username?: string,
+): string | undefined => (username ? `@${username}\u00a0` : undefined);
+
 export const useComments = (post: Post): UseComments => {
   const { logEvent } = useLogContext();
   const { logOpts } = useActiveFeedContext();
@@ -30,12 +34,11 @@ export const useComments = (post: Post): UseComments => {
     }
 
     const { username, parentCommentId } = replyTo ?? {};
-    const replyToContent = username ? `@${username} ` : undefined;
 
     return {
       parentCommentId,
       replyTo: username,
-      initialContent: replyToContent,
+      initialContent: getReplyToInitialContent(username),
     };
   }, [replyTo]);
 
