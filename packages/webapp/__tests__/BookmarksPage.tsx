@@ -1,5 +1,6 @@
 import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
+  BookmarkSort,
   BOOKMARKS_FEED_QUERY,
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
@@ -49,6 +50,7 @@ const createFeedMock = (
     first: 7,
     after: '',
     loggedIn: true,
+    sort: BookmarkSort.TimeDesc,
     supportedTypes: supportedTypesForPrivateSources,
   },
 ): MockedGraphQLResponse<FeedData> => ({
