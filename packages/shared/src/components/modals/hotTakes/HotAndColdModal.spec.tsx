@@ -212,4 +212,38 @@ describe('HotAndColdModal', () => {
 
     expect(onRequestClose).toHaveBeenCalledTimes(1);
   });
+
+  it('should keep subtitle visible even when title is very long', () => {
+    const currentTake = {
+      ...createHotTake('long-text'),
+      title:
+        'This is a very long hot take title that should still be fully visible while forcing the subtitle to hide in order to keep the card layout stable in the modal, especially when additional context is included.',
+      subtitle:
+        'This subtitle is intentionally long so we can validate that the modal clamps text after a few lines and keeps the card content contained.',
+    };
+
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    expect(screen.getByText(currentTake.title)).toHaveClass(
+      'w-full',
+      'break-words',
+    );
+    expect(screen.getByText(currentTake.subtitle)).toHaveClass(
+      'w-full',
+      'break-words',
+      'text-center',
+    );
+    expect(screen.getByText(currentTake.subtitle)).not.toHaveClass(
+      'line-clamp-3',
+    );
+  });
 });
