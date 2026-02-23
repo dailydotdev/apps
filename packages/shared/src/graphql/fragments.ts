@@ -216,6 +216,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
   fragment FeedPostInfo on Post {
     id
     title
+    titleHtml
     image
     readTime
     permalink
@@ -230,6 +231,8 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     summary
     yggdrasilId
     creatorTwitter
+    creatorTwitterName
+    creatorTwitterImage
     flags {
       campaignId
     }
@@ -333,6 +336,8 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     videoId
     yggdrasilId
     creatorTwitter
+    creatorTwitterName
+    creatorTwitterImage
     bookmark {
       remindAt
     }
@@ -551,8 +556,11 @@ export const FEED_POST_FRAGMENT = gql`
     sharedPost {
       id
       title
+      titleHtml
       image
       creatorTwitter
+      creatorTwitterName
+      creatorTwitterImage
       readTime
       permalink
       commentsPermalink

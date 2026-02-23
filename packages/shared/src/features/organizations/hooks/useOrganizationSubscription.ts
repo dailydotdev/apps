@@ -97,9 +97,16 @@ export const useOrganizationSubscription = (
       },
       onSuccess: async (res) => {
         await queryClient.setQueryData(
-          generateOrganizationQueryKey(user, organizationId),
+          generateOrganizationQueryKey(user, organizationId, 'base'),
           () => res,
         );
+        await queryClient.invalidateQueries({
+          queryKey: generateOrganizationQueryKey(
+            user,
+            organizationId,
+            'members',
+          ),
+        });
 
         router.push(getOrganizationSettingsUrl(organizationId, 'members'));
         displayToast('The organization has been updated');
