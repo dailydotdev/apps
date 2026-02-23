@@ -406,6 +406,7 @@ When reviewing code (or writing code that will be reviewed):
 - **Do not hide accessible data using presentation heuristics** - In UI lists, avoid masking content based on flags like `source.public`; rely on backend access controls and render the data returned by the query.
 - **Keep scope tight in design iterations** - When adjusting UI, avoid unrelated behavioral/SEO changes in the same commit unless explicitly requested.
 - **Keep action spacing consistent in control headers** - When adding icon/action buttons near search fields or other controls, match existing horizontal gaps on both sides to avoid controls touching each other.
+- **Protect generated HTML from markdown regex passes** - In markdown conversion utilities, never run formatting regexes across already-generated HTML tags/attributes (for example, image `src` URLs with `_`); add regression tests for URL edge cases.
 
 ## Node.js Version Upgrade Checklist
 
