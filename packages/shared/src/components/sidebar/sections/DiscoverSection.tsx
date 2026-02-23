@@ -16,8 +16,6 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { webappUrl } from '../../../lib/constants';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
@@ -27,7 +25,6 @@ export const DiscoverSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { completeAction } = useActions();
   const { user } = useAuthContext();
-  const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
@@ -37,9 +34,9 @@ export const DiscoverSection = ({
         ),
         title: 'Hot Takes',
         requiresLogin: true,
+        path: `${webappUrl}?openModal=hottakes`,
         action: () => {
           logEvent({ event_name: LogEvent.OpenHotAndCold });
-          openModal({ type: LazyModal.HotAndCold });
         },
       },
       {
@@ -76,7 +73,7 @@ export const DiscoverSection = ({
         },
       },
     ].filter(Boolean);
-  }, [completeAction, user, openModal, logEvent]);
+  }, [completeAction, user, logEvent]);
 
   return (
     <Section

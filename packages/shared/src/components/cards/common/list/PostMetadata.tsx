@@ -18,6 +18,7 @@ export interface PostMetadataProps {
   topLabel?: ReactElement | string;
   bottomLabel?: ReactElement | string;
   createdAt?: string;
+  dateFirst?: boolean;
 }
 
 export default function PostMetadata({
@@ -25,6 +26,7 @@ export default function PostMetadata({
   createdAt,
   topLabel,
   bottomLabel,
+  dateFirst,
 }: PostMetadataProps): ReactElement {
   const { boostedBy } = useFeedCardContext();
   const promotedText = useScrambler(
@@ -47,10 +49,22 @@ export default function PostMetadata({
           </Typography>
         )}
         {!!boostedBy && !!bottomLabel && <Separator />}
-        {bottomLabel}
-        {(!!bottomLabel || !!boostedBy) && !!createdAt && <Separator />}
-        {!!createdAt && (
-          <DateFormat date={createdAt} type={TimeFormatType.Post} />
+        {dateFirst ? (
+          <>
+            {!!createdAt && (
+              <DateFormat date={createdAt} type={TimeFormatType.Post} />
+            )}
+            {!!createdAt && !!bottomLabel && <Separator />}
+            {bottomLabel}
+          </>
+        ) : (
+          <>
+            {bottomLabel}
+            {(!!bottomLabel || !!boostedBy) && !!createdAt && <Separator />}
+            {!!createdAt && (
+              <DateFormat date={createdAt} type={TimeFormatType.Post} />
+            )}
+          </>
         )}
       </div>
     </div>

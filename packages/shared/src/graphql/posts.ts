@@ -197,6 +197,8 @@ export interface Post {
   language?: string;
   yggdrasilId?: string;
   creatorTwitter?: string;
+  creatorTwitterName?: string;
+  creatorTwitterImage?: string;
   featuredAward?: {
     award?: FeaturedAward;
   };

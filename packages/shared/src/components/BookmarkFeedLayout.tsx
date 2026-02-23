@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import {
+  BookmarkSort,
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
   supportedTypesForPrivateSources,
@@ -14,8 +15,8 @@ import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import type { ButtonProps } from './buttons/Button';
-import { Button, ButtonVariant } from './buttons/Button';
-import { ShareIcon } from './icons';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
@@ -29,6 +30,9 @@ import type { BookmarkFolder } from '../graphql/bookmarks';
 import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
 import { TargetType } from '../lib/log';
 import usePlusEntry from '../hooks/usePlusEntry';
+import usePersistentContext from '../hooks/usePersistentContext';
+import { Dropdown } from './fields/Dropdown';
+import { IconSize } from './Icon';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -58,6 +62,15 @@ const ShareBookmarksButton = ({
   </Button>
 );
 
+const bookmarkSortOptions = [
+  { label: 'Newest first', value: BookmarkSort.TimeDesc },
+  { label: 'Oldest first', value: BookmarkSort.TimeAsc },
+];
+const bookmarkSortOptionLabels = bookmarkSortOptions.map(({ label }) => label);
+
+const BOOKMARK_SORT_KEY = 'bookmark:sort';
+const DEFAULT_BOOKMARK_SORT_INDEX = 0;
+
 export default function BookmarkFeedLayout({
   searchQuery,
   searchChildren,
@@ -74,21 +87,38 @@ export default function BookmarkFeedLayout({
   } = useFeedLayout();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
+  const [selectedSort, setSelectedSort, loadedSort] = usePersistentContext(
+    BOOKMARK_SORT_KEY,
+    DEFAULT_BOOKMARK_SORT_INDEX,
+    [0, 1],
+    DEFAULT_BOOKMARK_SORT_INDEX,
+  );
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isSearchResults = !!searchQuery;
   const isFolderPage = !!folder || isReminderOnly;
   const listId = folder?.id;
+  const selectedSortValue =
+    bookmarkSortOptions[selectedSort]?.value ?? BookmarkSort.TimeDesc;
   const feedQueryKey = useMemo(
     () =>
       generateQueryKey(RequestKey.Bookmarks, user, {
         listId,
         isReminderOnly,
         searchQuery,
+        ...(!isSearchResults && { sort: selectedSortValue }),
       }),
-    [user, listId, isReminderOnly, searchQuery],
+    [
+      user,
+      listId,
+      isReminderOnly,
+      searchQuery,
+      selectedSortValue,
+      isSearchResults,
+    ],
   );
   const { plusEntryBookmark } = usePlusEntry();
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    if (searchQuery) {
+    if (isSearchResults) {
       return {
         feedName: OtherFeedPage.SearchBookmarks,
         feedQueryKey,
@@ -113,6 +143,7 @@ export default function BookmarkFeedLayout({
       variables: {
         ...(listId && { listId }),
         reminderOnly: isReminderOnly,
+        sort: selectedSortValue,
         supportedTypes: supportedTypesForPrivateSources,
       },
       emptyScreen: (
@@ -126,7 +157,15 @@ export default function BookmarkFeedLayout({
       ),
       options: { refetchOnMount: true },
     };
-  }, [searchQuery, feedQueryKey, listId, isReminderOnly, isFolderPage]);
+  }, [
+    isSearchResults,
+    searchQuery,
+    feedQueryKey,
+    listId,
+    isReminderOnly,
+    isFolderPage,
+    selectedSortValue,
+  ]);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -151,6 +190,25 @@ export default function BookmarkFeedLayout({
         )}
       >
         {searchChildren}
+        {!isSearchResults && (
+          <Dropdown
+            className={{
+              label: 'hidden',
+              chevron: 'hidden',
+              button: '!px-1',
+              container: 'ml-4 flex',
+            }}
+            shouldIndicateSelected
+            icon={<SortIcon size={IconSize.Medium} />}
+            iconOnly
+            selectedIndex={selectedSort}
+            options={bookmarkSortOptionLabels}
+            onChange={(_, index) => setSelectedSort(index)}
+            buttonVariant={ButtonVariant.Float}
+            buttonSize={ButtonSize.Medium}
+            drawerProps={{ displayCloseButton: true }}
+          />
+        )}
         {!isFolderPage && (
           <ShareBookmarksButton
             aria-label="Share bookmarks"
@@ -187,7 +245,9 @@ export default function BookmarkFeedLayout({
           />
         )}
       </div>
-      {tokenRefreshed && <Feed {...feedProps} />}
+      {tokenRefreshed && (isSearchResults || loadedSort) && (
+        <Feed {...feedProps} />
+      )}
     </FeedPageLayoutComponent>
   );
 }
