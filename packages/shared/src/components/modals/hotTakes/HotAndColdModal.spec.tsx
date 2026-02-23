@@ -212,4 +212,40 @@ describe('HotAndColdModal', () => {
 
     expect(onRequestClose).toHaveBeenCalledTimes(1);
   });
+
+  it('should clamp long subtitle text while allowing title to wrap', () => {
+    const currentTake = {
+      ...createHotTake('long-text'),
+      title:
+        'This is a very long hot take title that should be clamped before it overflows outside the card layout',
+      subtitle:
+        'This subtitle is intentionally long so we can validate that the modal clamps text after a few lines and keeps the card content contained.',
+    };
+
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    expect(screen.getByText(currentTake.title)).toHaveClass(
+      'w-full',
+      'break-words',
+    );
+    expect(screen.getByText(currentTake.title)).not.toHaveClass(
+      'multi-truncate',
+      'line-clamp-3',
+    );
+    expect(screen.getByText(currentTake.subtitle)).toHaveClass(
+      'multi-truncate',
+      'line-clamp-4',
+      'w-full',
+      'break-words',
+    );
+  });
 });
