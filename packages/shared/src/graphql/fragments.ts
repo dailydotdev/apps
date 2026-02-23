@@ -216,6 +216,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
   fragment FeedPostInfo on Post {
     id
     title
+    titleHtml
     image
     readTime
     permalink
@@ -555,6 +556,7 @@ export const FEED_POST_FRAGMENT = gql`
     sharedPost {
       id
       title
+      titleHtml
       image
       creatorTwitter
       creatorTwitterName

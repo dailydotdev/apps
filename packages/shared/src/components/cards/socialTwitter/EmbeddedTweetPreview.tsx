@@ -64,16 +64,28 @@ export function EmbeddedTweetPreview({
           />
         )}
       </div>
-      <p
-        className={classNames(
-          'mt-1 whitespace-pre-line break-words',
-          resolvedBodyClassName,
-          post.read ? 'text-text-tertiary' : 'text-text-primary',
-          textClampClass,
-        )}
-      >
-        {post.sharedPost?.title}
-      </p>
+      {post.sharedPost?.titleHtml ? (
+        <p
+          className={classNames(
+            'mt-1 whitespace-pre-line break-words',
+            resolvedBodyClassName,
+            post.read ? 'text-text-tertiary' : 'text-text-primary',
+            textClampClass,
+          )}
+          dangerouslySetInnerHTML={{ __html: post.sharedPost.titleHtml }}
+        />
+      ) : (
+        <p
+          className={classNames(
+            'mt-1 whitespace-pre-line break-words',
+            resolvedBodyClassName,
+            post.read ? 'text-text-tertiary' : 'text-text-primary',
+            textClampClass,
+          )}
+        >
+          {post.sharedPost?.title}
+        </p>
+      )}
     </div>
   );
 }

@@ -89,7 +89,9 @@ function SocialTwitterPostContentRaw({
   const isQuoteLike = isSocialTwitterShareLike(post);
   const isThread = post.subType === 'thread';
   const shouldHideRepostHeadlineAndTags =
-    post.subType === 'repost' && !post.content?.trim();
+    post.subType === 'repost' &&
+    !post.contentHtml?.trim() &&
+    !post.content?.trim();
   const {
     repostedByName,
     metadataHandles,
@@ -166,12 +168,20 @@ function SocialTwitterPostContentRaw({
           </PostMetadata>
           {!shouldHideRepostHeadlineAndTags && (
             <div className="mb-6 mt-0">
-              <h1
-                className="whitespace-pre-line break-words text-text-primary typo-markdown"
-                data-testid="post-modal-title"
-              >
-                {title}
-              </h1>
+              {post.titleHtml ? (
+                <h1
+                  className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                  data-testid="post-modal-title"
+                  dangerouslySetInnerHTML={{ __html: post.titleHtml }}
+                />
+              ) : (
+                <h1
+                  className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                  data-testid="post-modal-title"
+                >
+                  {title}
+                </h1>
+              )}
               {post.clickbaitTitleDetected && (
                 <PostClickbaitShield post={post} />
               )}
