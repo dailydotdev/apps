@@ -104,7 +104,6 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     ? 'line-clamp-[10]'
     : 'line-clamp-5';
   const rawTitle = post.title || post.sharedPost?.title;
-  const displayTitleHtml = post.titleHtml || post.sharedPost?.titleHtml;
   const cardTags = post.tags?.length ? post.tags : post.sharedPost?.tags;
   const threadBody =
     post.subType === 'thread'
@@ -194,7 +193,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
           </CardTitle>
         )}
       </CardTextContainer>
-      <div className="flex flex-1" />
+      {!shouldHideRepostHeadlineAndTags && <div className="flex flex-1" />}
       {!shouldHideRepostHeadlineAndTags && !!cardTags?.length && (
         <PostTags className="mx-4 mt-0" post={{ tags: cardTags }} />
       )}
