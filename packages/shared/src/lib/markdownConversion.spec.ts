@@ -76,6 +76,17 @@ describe('markdownConversion', () => {
     );
   });
 
+  it('should not parse underscore characters inside image url attributes', () => {
+    const markdown =
+      '![Block words feature](https://media.daily.dev/image/upload/s--A9t0KF3Y--/f_auto/v1741689017/ugc/content_b24c703e-ca99-4feb-b19b-349a502afa66)';
+    const html = markdownToHtmlBasic(markdown);
+
+    expect(html).toBe(
+      '<img src="https://media.daily.dev/image/upload/s--A9t0KF3Y--/f_auto/v1741689017/ugc/content_b24c703e-ca99-4feb-b19b-349a502afa66" alt="Block words feature" />',
+    );
+    expect(html).not.toContain('<em>');
+  });
+
   it('should preserve bold text across line breaks', () => {
     const markdown = htmlToMarkdownBasic(
       '<p><strong>line1<br>line2</strong></p>',
