@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
+import { useRouter } from 'next/router';
 import {
   usePlusSubscription,
   useViewSize,
@@ -391,6 +392,7 @@ const CopyableCodeBlock = ({
 };
 
 const ApiAccessPage = (): ReactElement => {
+  const router = useRouter();
   const { isPlus } = usePlusSubscription();
   const { data: tokens, isLoading } = usePersonalAccessTokens();
   const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
@@ -428,46 +430,35 @@ const ApiAccessPage = (): ReactElement => {
     }));
   };
 
-  if (!isPlus) {
-    return (
-      <AccountPageContainer title="API Access">
-        <div className="flex flex-col gap-4">
-          <Typography type={TypographyType.Body} bold>
-            Plus Feature
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            API access is available exclusively for Plus subscribers. Upgrade to
-            connect AI agents and automate your workflows.
-          </Typography>
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            tag="a"
-            href="/plus"
-            className="self-start"
-          >
-            Upgrade to Plus
-          </Button>
-        </div>
-      </AccountPageContainer>
-    );
-  }
+  const handleCreateTokenClick = () => {
+    if (!isPlus) {
+      router.push('/plus');
+      return;
+    }
+
+    setShowCreateModal(true);
+  };
 
   return (
     <AccountPageContainer
       title="API Access"
       actions={
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<PlusIcon />}
-          onClick={() => setShowCreateModal(true)}
-        >
-          {isMobile ? undefined : 'Create token'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+            onClick={handleCreateTokenClick}
+          >
+            {isMobile ? undefined : 'Create token'}
+          </Button>
+          {!isPlus && (
+            <div className="flex items-center gap-1 rounded-12 bg-surface-float px-2 py-1 text-text-tertiary typo-footnote">
+              <LockIcon size={IconSize.XSmall} />
+              Plus
+            </div>
+          )}
+        </div>
       }
     >
       <div className="flex flex-col gap-6">
@@ -517,16 +508,29 @@ const ApiAccessPage = (): ReactElement => {
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              No tokens yet. Create one to get started.
+              {isPlus
+                ? 'No tokens yet. Create one to get started.'
+                : 'Upgrade to Plus to create API tokens and authenticate with the daily.dev API.'}
             </Typography>
-            <Button
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              icon={<PlusIcon />}
-              onClick={() => setShowCreateModal(true)}
-            >
-              Create your first token
-            </Button>
+            {isPlus ? (
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<PlusIcon />}
+                onClick={handleCreateTokenClick}
+              >
+                Create your first token
+              </Button>
+            ) : (
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                tag="a"
+                href="/plus"
+              >
+                Upgrade to Plus
+              </Button>
+            )}
           </div>
         )}
 
