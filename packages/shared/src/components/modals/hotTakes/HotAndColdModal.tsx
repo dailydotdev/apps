@@ -30,6 +30,8 @@ const BUTTON_DISMISS_ANIMATION_MS = 620;
 const DISMISS_FLY_DISTANCE = 760;
 const BUTTON_DISMISS_FLY_DISTANCE = 620;
 const BUTTON_FLY_KICK_DELAY_MS = 42;
+const SKIP_DISMISS_ANIMATION_MS = 520;
+const SKIP_DISMISS_FLY_DISTANCE = 600;
 
 const EFFECT_KEYFRAMES = `
   @keyframes hotTakeFlame {
@@ -171,6 +173,7 @@ const HotTakeCard = ({
   isTop,
   offset,
   swipeDelta,
+  skipDeltaY = 0,
   isDismissAnimating,
   isDragging,
   dismissDurationMs,
@@ -179,21 +182,30 @@ const HotTakeCard = ({
   isTop: boolean;
   offset: number;
   swipeDelta: number;
+  skipDeltaY?: number;
   isDismissAnimating: boolean;
   isDragging: boolean;
   dismissDurationMs: number;
 }): ReactElement => {
+  const isSkipAnimating = isTop && isDismissAnimating && skipDeltaY !== 0;
   const rotation = isTop ? Math.max(Math.min(swipeDelta * 0.08, 18), -18) : 0;
   const translateX = isTop ? swipeDelta : 0;
   const stackScale = isTop ? 1 : 1 - offset * 0.05;
   const translateY = isTop ? 0 : offset * 8;
-  const dismissProgress =
-    isTop && isDismissAnimating
-      ? Math.min(Math.abs(swipeDelta) / DISMISS_FLY_DISTANCE, 1)
-      : 0;
+  const getDismissProgress = (): number => {
+    if (!isTop || !isDismissAnimating) {
+      return 0;
+    }
+    if (isSkipAnimating) {
+      return Math.min(Math.abs(skipDeltaY) / SKIP_DISMISS_FLY_DISTANCE, 1);
+    }
+    return Math.min(Math.abs(swipeDelta) / DISMISS_FLY_DISTANCE, 1);
+  };
+  const dismissProgress = getDismissProgress();
   const scale = isTop ? 1 - dismissProgress * 0.06 : stackScale;
   const dismissLift = isTop ? dismissProgress * -22 : 0;
-  const translateYWithOutro = translateY + dismissLift;
+  const translateYWithOutro =
+    translateY + dismissLift + (isTop ? skipDeltaY : 0);
 
   const intensity = isTop
     ? Math.min(Math.abs(swipeDelta) / SWIPE_THRESHOLD, 1)
@@ -468,6 +480,21 @@ const HotTakeCard = ({
         </div>
       )}
 
+      {isTop && isSkipAnimating && (
+        <div
+          className="z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 bg-overlay-quaternary-cabbage px-4 py-1 font-bold text-white typo-title3"
+          style={{
+            opacity: dismissProgress,
+            animation: 'hotTakeBadgePulse 0.18s ease-out',
+            boxShadow: `0 6px ${12 + dismissProgress * 10}px rgba(0,0,0,${
+              0.1 + dismissProgress * 0.18
+            })`,
+          }}
+        >
+          SKIP 😐
+        </div>
+      )}
+
       <div className="pointer-events-none relative flex flex-1 flex-col items-center justify-center gap-3 p-6">
         <div className="flex size-16 items-center justify-center rounded-16 bg-overlay-quaternary-cabbage text-[2.5rem]">
           {hotTake.emoji}
@@ -607,6 +634,8 @@ const HotAndColdModal = ({
   const animatingTakeIdRef = useRef<string | null>(null);
   const flyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [skipDelta, setSkipDelta] = useState(0);
+  const swipeDeltaYRef = useRef(0);
 
   useEffect(() => {
     animatingTakeIdRef.current = animatingTakeId;
@@ -616,6 +645,8 @@ const HotAndColdModal = ({
     if (!isAnimating) {
       setSwipeDelta(0);
       swipeDeltaRef.current = 0;
+      setSkipDelta(0);
+      swipeDeltaYRef.current = 0;
       setIsDragging(false);
     }
   }, [currentTake?.id, isAnimating]);
@@ -631,12 +662,18 @@ const HotAndColdModal = ({
     };
   }, []);
 
-  const handleDismiss = useCallback(
-    (direction: 'left' | 'right', source: 'swipe' | 'button' = 'swipe') => {
-      if (!currentTake || isAnimating) {
-        return;
-      }
-
+  const startDismissAnimation = useCallback(
+    ({
+      takeId,
+      durationMs,
+      flyDelayMs,
+      onFly,
+    }: {
+      takeId: string;
+      durationMs: number;
+      flyDelayMs: number;
+      onFly: () => void;
+    }) => {
       if (flyTimerRef.current) {
         clearTimeout(flyTimerRef.current);
       }
@@ -644,18 +681,50 @@ const HotAndColdModal = ({
         clearTimeout(dismissTimerRef.current);
       }
 
-      const isButtonDismiss = source === 'button';
-      const currentDismissDurationMs =
-        source === 'button'
-          ? BUTTON_DISMISS_ANIMATION_MS
-          : DISMISS_ANIMATION_MS;
-      const flyKickDelayMs = isButtonDismiss ? BUTTON_FLY_KICK_DELAY_MS : 0;
-
-      animatingTakeIdRef.current = currentTake.id;
-      setAnimatingTakeId(currentTake.id);
-      setDismissDurationMs(currentDismissDurationMs);
+      animatingTakeIdRef.current = takeId;
+      setAnimatingTakeId(takeId);
+      setDismissDurationMs(durationMs);
       setIsAnimating(true);
       setIsDragging(false);
+
+      flyTimerRef.current = setTimeout(() => {
+        if (animatingTakeIdRef.current !== takeId) {
+          flyTimerRef.current = null;
+          return;
+        }
+        onFly();
+        flyTimerRef.current = null;
+      }, flyDelayMs);
+
+      dismissTimerRef.current = setTimeout(() => {
+        if (animatingTakeIdRef.current !== takeId) {
+          dismissTimerRef.current = null;
+          return;
+        }
+        setSwipeDelta(0);
+        swipeDeltaRef.current = 0;
+        setSkipDelta(0);
+        swipeDeltaYRef.current = 0;
+        animatingTakeIdRef.current = null;
+        setAnimatingTakeId(null);
+        dismissCurrent();
+        setIsAnimating(false);
+        dismissTimerRef.current = null;
+      }, durationMs);
+    },
+    [dismissCurrent],
+  );
+
+  const handleDismiss = useCallback(
+    (direction: 'left' | 'right', source: 'swipe' | 'button' = 'swipe') => {
+      if (!currentTake || isAnimating) {
+        return;
+      }
+
+      const isButtonSource = source === 'button';
+      const durationMs = isButtonSource
+        ? BUTTON_DISMISS_ANIMATION_MS
+        : DISMISS_ANIMATION_MS;
       const vote = direction === 'right' ? 'hot' : 'cold';
 
       logEvent({
@@ -676,10 +745,9 @@ const HotAndColdModal = ({
         });
       }
 
-      // Start from current drag position, then finish the swipe with momentum.
       let initialPush: number;
       let flyDistance: number;
-      if (source === 'button') {
+      if (isButtonSource) {
         initialPush =
           direction === 'right'
             ? SWIPE_THRESHOLD * 0.45
@@ -697,34 +765,18 @@ const HotAndColdModal = ({
           direction === 'right' ? DISMISS_FLY_DISTANCE : -DISMISS_FLY_DISTANCE;
       }
       setSwipeDelta(initialPush);
-      const dismissingTakeId = currentTake.id;
-      flyTimerRef.current = setTimeout(() => {
-        if (animatingTakeIdRef.current !== dismissingTakeId) {
-          flyTimerRef.current = null;
-          return;
-        }
-        setSwipeDelta(flyDistance);
-        flyTimerRef.current = null;
-      }, flyKickDelayMs);
 
-      dismissTimerRef.current = setTimeout(() => {
-        if (animatingTakeIdRef.current !== dismissingTakeId) {
-          dismissTimerRef.current = null;
-          return;
-        }
-        setSwipeDelta(0);
-        swipeDeltaRef.current = 0;
-        animatingTakeIdRef.current = null;
-        setAnimatingTakeId(null);
-        dismissCurrent();
-        setIsAnimating(false);
-        dismissTimerRef.current = null;
-      }, currentDismissDurationMs);
+      startDismissAnimation({
+        takeId: currentTake.id,
+        durationMs,
+        flyDelayMs: isButtonSource ? BUTTON_FLY_KICK_DELAY_MS : 0,
+        onFly: () => setSwipeDelta(flyDistance),
+      });
     },
     [
       currentTake,
       isAnimating,
-      dismissCurrent,
+      startDismissAnimation,
       toggleDownvote,
       toggleUpvote,
       logEvent,
@@ -732,10 +784,32 @@ const HotAndColdModal = ({
     ],
   );
 
+  const handleSkip = useCallback(
+    (source: 'swipe' | 'button' = 'button') => {
+      if (!currentTake || isAnimating) {
+        return;
+      }
+
+      logEvent({
+        event_name: LogEvent.SkipHotTake,
+        target_id: currentTake.id,
+      });
+
+      startDismissAnimation({
+        takeId: currentTake.id,
+        durationMs: SKIP_DISMISS_ANIMATION_MS,
+        flyDelayMs: source === 'button' ? BUTTON_FLY_KICK_DELAY_MS : 0,
+        onFly: () => setSkipDelta(-SKIP_DISMISS_FLY_DISTANCE),
+      });
+    },
+    [currentTake, isAnimating, startDismissAnimation, logEvent],
+  );
+
   const isCurrentTakeAnimating =
     !!currentTake && isAnimating && animatingTakeId === currentTake.id;
   const cardSwipeDelta =
     isAnimating && !isCurrentTakeAnimating ? 0 : swipeDelta;
+  const cardSkipDelta = isAnimating && !isCurrentTakeAnimating ? 0 : skipDelta;
 
   const handleSwiped = (direction: 'left' | 'right') => {
     setIsDragging(false);
@@ -744,6 +818,7 @@ const HotAndColdModal = ({
     } else {
       setSwipeDelta(0);
       swipeDeltaRef.current = 0;
+      swipeDeltaYRef.current = 0;
     }
   };
 
@@ -753,10 +828,24 @@ const HotAndColdModal = ({
         setIsDragging(true);
         setSwipeDelta(e.deltaX);
         swipeDeltaRef.current = e.deltaX;
+        swipeDeltaYRef.current = e.deltaY;
       }
     },
     onSwipedLeft: () => handleSwiped('left'),
     onSwipedRight: () => handleSwiped('right'),
+    onSwipedUp: () => {
+      setIsDragging(false);
+      if (
+        swipeDeltaYRef.current < 0 &&
+        Math.abs(swipeDeltaYRef.current) > SWIPE_THRESHOLD
+      ) {
+        handleSkip('swipe');
+      } else {
+        setSwipeDelta(0);
+        swipeDeltaRef.current = 0;
+        swipeDeltaYRef.current = 0;
+      }
+    },
     trackMouse: true,
     preventScrollOnSwipe: true,
     touchEventOptions: { passive: false },
@@ -806,13 +895,14 @@ const HotAndColdModal = ({
                 isTop
                 offset={0}
                 swipeDelta={cardSwipeDelta}
+                skipDeltaY={cardSkipDelta}
                 isDismissAnimating={isCurrentTakeAnimating}
                 isDragging={isDragging}
                 dismissDurationMs={dismissDurationMs}
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 pt-3">
+            <div className="flex items-center justify-center gap-4 p-4 pt-3">
               <Button
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Large}
@@ -825,6 +915,19 @@ const HotAndColdModal = ({
                 disabled={isAnimating}
                 className="!size-14 rounded-full"
                 aria-label="Cold take - downvote"
+              />
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Large}
+                icon={
+                  <span className="text-[1.375rem] leading-none" aria-hidden>
+                    😐
+                  </span>
+                }
+                onClick={() => handleSkip('button')}
+                disabled={isAnimating}
+                className="!size-12 rounded-full"
+                aria-label="Skip hot take"
               />
               <Button
                 variant={ButtonVariant.Float}
