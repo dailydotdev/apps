@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
+import { MilestoneTimeline } from './MilestoneTimeline';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import type { ReadingDay, UserStreak } from '../../../graphql/users';
 import { getReadingStreak30Days } from '../../../graphql/users';
@@ -47,6 +48,11 @@ import { cloudinaryNotificationsBrowser } from '../../../lib/image';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
+import {
+  getCurrentTier,
+  getNextMilestone,
+  getTierProgress,
+} from '../../../lib/streakMilestones';
 
 const getStreak = ({
   value,
@@ -105,11 +111,15 @@ const getStreakDays = (today: Date) => {
 interface ReadingStreakPopupProps {
   streak: UserStreak;
   fullWidth?: boolean;
+  showMilestoneTimeline?: boolean;
+  streakOverride?: number;
 }
 
 export function ReadingStreakPopup({
   streak,
   fullWidth,
+  showMilestoneTimeline = true,
+  streakOverride,
 }: ReadingStreakPopupProps): ReactElement {
   const router = useRouter();
   const { flags, updateFlag } = useSettingsContext();
@@ -188,9 +198,43 @@ export function ReadingStreakPopup({
     return null;
   }
 
+  const displayStreak = streakOverride ?? streak.current;
+  const currentTier = getCurrentTier(displayStreak);
+  const nextMilestone = getNextMilestone(displayStreak);
+  const tierProgress = getTierProgress(displayStreak);
+
   return (
     <div className="flex flex-col tablet:max-w-[21.75rem]">
       <div className="flex flex-col p-0 tablet:p-4">
+        {showMilestoneTimeline && (
+          <>
+            <div className="mb-3 flex items-center gap-2">
+              <Typography
+                bold
+                type={TypographyType.Body}
+                className="text-accent-bacon-default"
+              >
+                {currentTier.label}
+              </Typography>
+              {nextMilestone && (
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Quaternary}
+                >
+                  · {nextMilestone.day - displayStreak}d to{' '}
+                  {nextMilestone.label}
+                </Typography>
+              )}
+            </div>
+            <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-surface-float">
+              <div
+                className="h-full rounded-full bg-accent-bacon-default transition-all duration-500"
+                style={{ width: `${tierProgress}%` }}
+              />
+            </div>
+          </>
+        )}
+
         <div className="flex flex-row">
           <StreakSection streak={streak.current} label="Current streak" />
           <StreakSection streak={streak.max} label="Longest streak 🏆" />
@@ -315,6 +359,10 @@ export function ReadingStreakPopup({
           </Link>
         </div>
       </div>
+      {showMilestoneTimeline && (
+        <MilestoneTimeline currentStreak={displayStreak} />
+      )}
+
       {showAlert && (
         <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
           {!isSubscribed && (
