@@ -31,6 +31,7 @@ import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
@@ -82,6 +83,9 @@ const onboardingExcludedPaths = [
   '/jobs',
   '/settings',
 ];
+const hotAndColdModalQueryKey = 'openModal';
+const hotAndColdModalQueryValue = 'hottakes';
+const hotAndColdModalLegacyQueryValue = 'hotAndCold';
 const isOnboardingExcludedPath = (pathname: string): boolean =>
   onboardingExcludedPaths.some((path) => pathname.startsWith(path));
 
@@ -89,6 +93,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { isOnboardingActionsReady, isOnboardingComplete } =
     useOnboardingActions();
   const didRegisterSwRef = useRef(false);
+  const openedHotAndColdFromQueryRef = useRef(false);
 
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
@@ -97,12 +102,52 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     useCookieBanner();
   useWebVitals();
   useLogPageView();
-  const { modal, closeModal } = useLazyModal();
+  const { modal, closeModal, openModal } = useLazyModal();
   useConsoleLogo();
   useIOSError();
 
   useCheckCoresRole();
   useCheckLocation();
+
+  const activeModalType = modal?.type;
+  const hotAndColdModalQuery = router.query[hotAndColdModalQueryKey];
+  const shouldOpenHotAndColdFromQuery =
+    hotAndColdModalQuery === hotAndColdModalQueryValue ||
+    hotAndColdModalQuery === hotAndColdModalLegacyQueryValue ||
+    (Array.isArray(hotAndColdModalQuery) &&
+      (hotAndColdModalQuery.includes(hotAndColdModalQueryValue) ||
+        hotAndColdModalQuery.includes(hotAndColdModalLegacyQueryValue)));
+
+  useEffect(() => {
+    if (!shouldOpenHotAndColdFromQuery) {
+      openedHotAndColdFromQueryRef.current = false;
+      return;
+    }
+
+    if (activeModalType === LazyModal.HotAndCold) {
+      openedHotAndColdFromQueryRef.current = true;
+      return;
+    }
+
+    if (activeModalType) {
+      return;
+    }
+
+    if (!openedHotAndColdFromQueryRef.current) {
+      openModal({ type: LazyModal.HotAndCold });
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has(hotAndColdModalQueryKey)) {
+      return;
+    }
+
+    url.searchParams.delete(hotAndColdModalQueryKey);
+    const nextPath = `${url.pathname}${url.search}${url.hash}`;
+
+    router.replace(nextPath, undefined, { shallow: true });
+  }, [activeModalType, openModal, router, shouldOpenHotAndColdFromQuery]);
 
   useEffect(() => {
     if (
