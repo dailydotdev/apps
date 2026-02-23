@@ -31,7 +31,6 @@ const DISMISS_FLY_DISTANCE = 760;
 const BUTTON_DISMISS_FLY_DISTANCE = 620;
 const BUTTON_FLY_KICK_DELAY_MS = 42;
 const HOT_TAKE_CARD_HEIGHT = '28rem';
-const MAX_TITLE_LENGTH_WITH_SUBTITLE = 160;
 
 const EFFECT_KEYFRAMES = `
   @keyframes hotTakeFlame {
@@ -185,9 +184,6 @@ const HotTakeCard = ({
   isDragging: boolean;
   dismissDurationMs: number;
 }): ReactElement => {
-  const shouldShowSubtitle =
-    !!hotTake.subtitle &&
-    hotTake.title.length <= MAX_TITLE_LENGTH_WITH_SUBTITLE;
   const rotation = isTop ? Math.max(Math.min(swipeDelta * 0.08, 18), -18) : 0;
   const translateX = isTop ? swipeDelta : 0;
   const stackScale = isTop ? 1 : 1 - offset * 0.05;
@@ -473,7 +469,7 @@ const HotTakeCard = ({
         </div>
       )}
 
-      <div className="pointer-events-none relative flex min-h-0 flex-1 flex-col items-center justify-center gap-3 overflow-hidden break-words p-6">
+      <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-3 overflow-y-auto break-words p-6">
         <div className="flex size-16 items-center justify-center rounded-16 bg-overlay-quaternary-cabbage text-[2.5rem]">
           {hotTake.emoji}
         </div>
@@ -487,11 +483,11 @@ const HotTakeCard = ({
           {hotTake.title}
         </Typography>
 
-        {shouldShowSubtitle && (
+        {hotTake.subtitle && (
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
-            className="multi-truncate line-clamp-3 w-full break-words text-center"
+            className="w-full break-words text-center"
           >
             {hotTake.subtitle}
           </Typography>
@@ -770,7 +766,7 @@ const HotAndColdModal = ({
   return (
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
       <Modal.Header title="Hot Takes" />
-      <Modal.Body className="!p-0">
+      <Modal.Body className="overflow-hidden !p-0">
         {isLoading && (
           <div className="flex flex-1 items-center justify-center p-6">
             <Typography

@@ -213,7 +213,7 @@ describe('HotAndColdModal', () => {
     expect(onRequestClose).toHaveBeenCalledTimes(1);
   });
 
-  it('should hide subtitle when title is very long to keep title visible', () => {
+  it('should keep subtitle visible even when title is very long', () => {
     const currentTake = {
       ...createHotTake('long-text'),
       title:
@@ -237,6 +237,13 @@ describe('HotAndColdModal', () => {
       'w-full',
       'break-words',
     );
-    expect(screen.queryByText(currentTake.subtitle)).not.toBeInTheDocument();
+    expect(screen.getByText(currentTake.subtitle)).toHaveClass(
+      'w-full',
+      'break-words',
+      'text-center',
+    );
+    expect(screen.getByText(currentTake.subtitle)).not.toHaveClass(
+      'line-clamp-3',
+    );
   });
 });
