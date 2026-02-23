@@ -10,6 +10,11 @@ export enum RankingAlgorithm {
   Time = 'TIME',
 }
 
+export enum BookmarkSort {
+  TimeDesc = 'TIME_DESC',
+  TimeAsc = 'TIME_ASC',
+}
+
 export const baseFeedSupportedTypes = [
   PostType.Article,
   PostType.Share,
@@ -214,6 +219,7 @@ export const BOOKMARKS_FEED_QUERY = gql`
     $after: String
     $listId: ID
     $reminderOnly: Boolean
+    $sort: BookmarkSort
     $supportedTypes: [String!]
   ) {
     page: bookmarksFeed(
@@ -221,6 +227,7 @@ export const BOOKMARKS_FEED_QUERY = gql`
       after: $after
       listId: $listId
       reminderOnly: $reminderOnly
+      sort: $sort
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
