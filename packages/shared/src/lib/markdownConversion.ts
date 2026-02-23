@@ -147,6 +147,17 @@ export const markdownToHtmlBasic = (markdown: string): string => {
       return;
     }
 
+    const standaloneImageMatch = /^!\[([^\]]*)\]\(([^)]+)\)$/.exec(trimmed);
+    if (standaloneImageMatch) {
+      flushList();
+      flushPendingEmptyParagraphs();
+      const alt = standaloneImageMatch[1];
+      const url = standaloneImageMatch[2];
+      htmlParts.push(`<img src="${escapeAttribute(url)}" alt="${alt}" />`);
+      hasRenderedBlock = true;
+      return;
+    }
+
     flushList();
     flushPendingEmptyParagraphs();
     htmlParts.push(`<p>${inlineMarkdownToHtml(line)}</p>`);

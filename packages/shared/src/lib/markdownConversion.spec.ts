@@ -40,8 +40,39 @@ describe('markdownConversion', () => {
 
     const convertedHtml = markdownToHtmlBasic(markdown);
 
-    expect(convertedHtml).toContain(
+    expect(convertedHtml).toBe(
       '<img src="https://cdn.daily.dev/image.png" alt="Preview" />',
+    );
+  });
+
+  it('should keep standalone image in markdown round-trip', () => {
+    const initialMarkdown = '![Preview](https://cdn.daily.dev/image.png)';
+    const html = markdownToHtmlBasic(initialMarkdown);
+
+    expect(html).toBe(
+      '<img src="https://cdn.daily.dev/image.png" alt="Preview" />',
+    );
+
+    const markdown = htmlToMarkdownBasic(html);
+
+    expect(markdown).toBe(initialMarkdown);
+  });
+
+  it('should handle image between paragraphs', () => {
+    const md = 'hello\n\n![img](https://cdn.daily.dev/a.png)\n\nworld';
+    const html = markdownToHtmlBasic(md);
+
+    expect(html).toBe(
+      '<p>hello</p><img src="https://cdn.daily.dev/a.png" alt="img" /><p>world</p>',
+    );
+  });
+
+  it('should keep inline image within paragraph', () => {
+    const md = 'text ![img](https://cdn.daily.dev/a.png) more';
+    const html = markdownToHtmlBasic(md);
+
+    expect(html).toBe(
+      '<p>text <img src="https://cdn.daily.dev/a.png" alt="img" /> more</p>',
     );
   });
 
