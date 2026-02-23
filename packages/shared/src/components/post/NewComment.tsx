@@ -29,6 +29,7 @@ interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
   shouldHandleCommentQuery?: boolean;
   CommentInputOrModal: React.ElementType;
+  onComposerOpenChange?: (isOpen: boolean) => void;
 }
 
 const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
@@ -48,6 +49,7 @@ function NewCommentComponent(
     post,
     shouldHandleCommentQuery = false,
     CommentInputOrModal,
+    onComposerOpenChange,
     ...props
   }: NewCommentProps,
   ref: MutableRefObject<NewCommentRef>,
@@ -78,6 +80,11 @@ function NewCommentComponent(
   );
 
   const hasCommentQuery = typeof router.query.comment === 'string';
+  const isComposerOpen = typeof inputContent !== 'undefined';
+
+  useEffect(() => {
+    onComposerOpenChange?.(isComposerOpen);
+  }, [isComposerOpen, onComposerOpenChange]);
 
   useEffect(() => {
     if (
@@ -113,7 +120,7 @@ function NewCommentComponent(
     onShowInput: onCommentClick,
   }));
 
-  if (typeof inputContent !== 'undefined') {
+  if (isComposerOpen) {
     return (
       <CommentInputOrModal
         {...props}
@@ -132,7 +139,7 @@ function NewCommentComponent(
     <button
       type="button"
       className={classNames(
-        'flex w-full items-center gap-4 rounded-16 border-t border-border-subtlest-tertiary bg-blur-highlight p-3 typo-callout hover:border-border-subtlest-primary hover:bg-surface-hover tablet:border tablet:bg-surface-float',
+        'flex w-full items-center gap-2 !rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 typo-callout hover:border-border-subtlest-primary hover:bg-surface-hover tablet:p-1',
         className?.container,
       )}
       onClick={() => onCommentClick(Origin.StartDiscussion)}
@@ -160,11 +167,11 @@ function NewCommentComponent(
           width={40}
         />
       )}
-      <span className="text-text-tertiary">Share your thoughts</span>
+      <span className="text-text-tertiary typo-body">Share your thoughts</span>
       <Button
         size={buttonSize[size]}
         className="ml-auto hidden text-text-primary tablet:flex"
-        variant={ButtonVariant.Secondary}
+        variant={ButtonVariant.Tertiary}
         tag="a"
         disabled
       >

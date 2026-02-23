@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { CopyIcon, FacebookIcon, TwitterIcon, WhatsappIcon } from './icons';
 import type { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
@@ -13,17 +13,26 @@ import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 import type { Squad } from '../graphql/sources';
 import { SocialShareButton } from './widgets/SocialShareButton';
-import { SquadsToShare } from './squads/SquadsToShare';
+import { getShareableSquads, SquadsToShare } from './squads/SquadsToShare';
+import { Button } from './buttons/Button';
 import { ButtonSize, ButtonVariant } from './buttons/common';
 import { useGetShortUrl } from '../hooks';
 import { ReferralCampaignKey } from '../lib';
 import { ProfileImageSize } from './ProfilePicture';
+import { useAuthContext } from '../contexts/AuthContext';
 
 interface ShareBarProps {
   post: Post;
 }
 
+const visibleRows = 2;
+const columns = 4;
+const fixedOptions = 4;
+const maxVisibleOptions = visibleRows * columns;
+const maxVisibleSquadsWhenCollapsed = maxVisibleOptions - fixedOptions;
+
 export default function ShareBar({ post }: ShareBarProps): ReactElement {
+  const [isExpanded, setIsExpanded] = useState(false);
   const href = post.commentsPermalink;
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
@@ -31,6 +40,15 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { logOpts } = useContext(ActiveFeedContext);
+  const { squads } = useAuthContext();
+
+  const shareableSquadsCount = useMemo(
+    () => getShareableSquads(squads).length,
+    [squads],
+  );
+  const squadOptionsCount = shareableSquadsCount || 1;
+  const totalOptionsCount = fixedOptions + squadOptionsCount;
+  const shouldShowToggle = totalOptionsCount > maxVisibleOptions;
 
   const logShareEvent = (provider: ShareProvider) =>
     logEvent(
@@ -73,9 +91,9 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
 
   return (
     <WidgetContainer className="hidden flex-col p-3 laptop:flex">
-      <p className="mb-4 text-text-tertiary typo-callout">
+      <h4 className="mb-4 font-bold text-text-primary typo-callout">
         Would you recommend this post?
-      </p>
+      </h4>
       <div className="grid grid-cols-4 gap-2 gap-y-4">
         <SocialShareButton
           size={ButtonSize.Medium}
@@ -115,9 +133,20 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
         <SquadsToShare
           size={ButtonSize.Medium}
           squadAvatarSize={ProfileImageSize.Large}
+          maxItems={isExpanded ? undefined : maxVisibleSquadsWhenCollapsed}
           onClick={(_, squad) => onShareToSquad(squad)}
         />
       </div>
+      {shouldShowToggle && (
+        <Button
+          className="mt-3 w-full"
+          onClick={() => setIsExpanded((expanded) => !expanded)}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Subtle}
+        >
+          {isExpanded ? 'Show fewer options' : 'Show more options'}
+        </Button>
+      )}
     </WidgetContainer>
   );
 }

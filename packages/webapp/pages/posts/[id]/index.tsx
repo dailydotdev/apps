@@ -308,9 +308,7 @@ export async function getStaticProps({
           publishedTime: post?.createdAt,
           modifiedTime: post?.updatedAt,
           tags: post?.tags,
-          authors: post?.author?.permalink
-            ? [post.author.permalink]
-            : undefined,
+          authors: post?.author?.permalink ? [post.author.permalink] : [],
         },
         locale: post?.language || 'en',
       },

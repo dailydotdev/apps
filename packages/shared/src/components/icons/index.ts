@@ -154,6 +154,7 @@ export * from './Sun';
 export * from './Telegram';
 export * from './Terminal';
 export * from './ThemeAuto';
+export * from './Thread';
 export * from './Threads';
 export * from './Timer';
 export * from './TimeZone';

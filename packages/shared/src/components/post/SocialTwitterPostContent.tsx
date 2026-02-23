@@ -59,6 +59,7 @@ function SocialTwitterPostContentRaw({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
+  const isCompactModalSpacing = !isPostPage;
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onCopyPostLink } = engagementActions;
   const navigationProps: PostNavigationProps = {
@@ -69,6 +70,12 @@ function SocialTwitterPostContentRaw({
     onClose,
     inlineActions,
   };
+  let sourceInfoClassName = 'mb-6';
+  if (shouldShowBanner && isLaptop) {
+    sourceInfoClassName = isCompactModalSpacing ? 'mb-3' : 'mb-4';
+  } else if (isCompactModalSpacing) {
+    sourceInfoClassName = 'mb-4';
+  }
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
@@ -146,7 +153,7 @@ function SocialTwitterPostContentRaw({
             post={post}
             onClose={onClose}
             onReadArticle={onReadArticle}
-            className={shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6'}
+            className={sourceInfoClassName}
           />
           {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
           <PostMetadata
@@ -208,7 +215,7 @@ function SocialTwitterPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
+        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />

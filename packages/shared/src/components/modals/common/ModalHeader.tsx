@@ -64,6 +64,7 @@ export function ModalHeader({
     >
       {shouldShowClose && (
         <Button
+          type="button"
           size={ButtonSize.Small}
           className="mr-2 flex -rotate-90 tablet:hidden"
           icon={<ArrowIcon />}
@@ -104,6 +105,7 @@ export function ModalHeaderTabs(props: ModalTabsProps): ReactElement {
     <ModalHeaderOuter className="h-auto flex-col items-start gap-2 border-b border-border-subtlest-tertiary tablet:h-14 tablet:flex-row tablet:items-center">
       {onRequestClose && (
         <Button
+          type="button"
           size={ButtonSize.Small}
           className="flex -rotate-90 tablet:hidden"
           icon={<ArrowIcon />}

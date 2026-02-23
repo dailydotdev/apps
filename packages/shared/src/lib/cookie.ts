@@ -61,19 +61,20 @@ export const setCookie = (
     secure: options.secure,
   };
 
-  const cookieValue: string = Object.keys(parsedOptions).reduce((acc, key) => {
-    const option = parsedOptions[key];
+  const cookieValue: string = Object.entries(parsedOptions).reduce(
+    (acc, [key, option]) => {
+      if (isNullOrUndefined(option)) {
+        return acc;
+      }
 
-    if (isNullOrUndefined(option)) {
-      return acc;
-    }
+      if (typeof option === 'boolean') {
+        return option ? `${acc}; ${key}` : acc;
+      }
 
-    if (typeof option === 'boolean') {
-      return option ? `${acc}; ${key}` : acc;
-    }
-
-    return `${acc}; ${key}=${option}`;
-  }, `${name}=${encodeURIComponent(value)}`);
+      return `${acc}; ${key}=${option}`;
+    },
+    `${name}=${encodeURIComponent(value)}`,
+  );
 
   document.cookie = cookieValue;
 };

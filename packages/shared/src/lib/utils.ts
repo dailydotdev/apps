@@ -28,7 +28,7 @@ export const formatCurrency = (
 
 export const formatCoresCurrency = (value: number): string => {
   if (value > 100_000) {
-    return largeNumberFormat(value);
+    return largeNumberFormat(value) ?? '0';
   }
 
   return formatCurrency(value, {

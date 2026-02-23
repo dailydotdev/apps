@@ -88,7 +88,7 @@ function BasePostModal({
           overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
           className={classNames(
             className,
-            'laptop: mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:h-auto laptop:overflow-hidden',
+            'mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:!mt-2 laptop:h-auto laptop:overflow-hidden',
             '!overscroll-y-auto', // TODO: remove when fixing modal scroll issues see https://github.com/dailydotdev/daily/issues/2036
           )}
         >

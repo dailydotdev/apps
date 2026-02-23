@@ -51,7 +51,7 @@ export function PostUpvotesCommentsCount({
 
   return (
     <div
-      className="mb-5 flex flex-wrap items-center gap-x-4 !leading-7 text-text-tertiary typo-callout"
+      className="mb-3 flex flex-wrap items-center gap-x-4 !leading-7 text-text-tertiary typo-callout"
       data-testid="statsBar"
     >
       {!!post.analytics?.impressions && (
