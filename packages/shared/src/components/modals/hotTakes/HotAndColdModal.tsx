@@ -34,6 +34,7 @@ const SKIP_DISMISS_ANIMATION_MS = 520;
 const SKIP_DISMISS_FLY_DISTANCE = 600;
 const SKIP_DRAG_ELASTICITY_FACTOR = 0.3;
 const COLD_ACCENT_COLOR = '#123a88';
+const HOT_TAKE_CARD_HEIGHT = '28rem';
 
 const getElasticDelta = (delta: number): number => {
   const absoluteDelta = Math.abs(delta);
@@ -713,7 +714,7 @@ const HotTakeCard = ({
         </div>
       )}
 
-      <div className="pointer-events-none relative flex flex-1 flex-col items-center justify-center gap-3 p-6">
+      <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-3 overflow-y-auto break-words p-6">
         <div className="flex size-16 items-center justify-center rounded-16 bg-overlay-quaternary-cabbage text-[2.5rem]">
           {hotTake.emoji}
         </div>
@@ -722,7 +723,7 @@ const HotTakeCard = ({
           type={TypographyType.Title3}
           color={TypographyColor.Primary}
           bold
-          className="text-center"
+          className="w-full break-words text-center"
         >
           {hotTake.title}
         </Typography>
@@ -731,7 +732,7 @@ const HotTakeCard = ({
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
-            className="text-center"
+            className="w-full break-words text-center"
           >
             {hotTake.subtitle}
           </Typography>
@@ -1089,7 +1090,7 @@ const HotAndColdModal = ({
   return (
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
       <Modal.Header title="Hot Takes" />
-      <Modal.Body className="!p-0">
+      <Modal.Body className="overflow-hidden !p-0">
         {isLoading && (
           <div className="flex flex-1 items-center justify-center p-6">
             <Typography
@@ -1110,7 +1111,7 @@ const HotAndColdModal = ({
             <div
               {...handlers}
               className="relative mx-4 mt-2 select-none"
-              style={{ height: '26rem' }}
+              style={{ height: HOT_TAKE_CARD_HEIGHT }}
             >
               {nextTake && (
                 <HotTakeCard
