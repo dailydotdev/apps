@@ -196,7 +196,7 @@ export default function BookmarkFeedLayout({
               label: 'hidden',
               chevron: 'hidden',
               button: '!px-1',
-              container: 'flex',
+              container: 'ml-4 flex',
             }}
             shouldIndicateSelected
             icon={<SortIcon size={IconSize.Medium} />}
