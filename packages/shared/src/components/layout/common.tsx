@@ -10,14 +10,27 @@ import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import type { DropdownProps } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
+import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { CalendarIcon, SortIcon } from '../icons';
+import {
+  CalendarIcon,
+  ChromeIcon,
+  ClearIcon,
+  EdgeIcon,
+  SortIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { useViewSize, ViewSize } from '../../hooks';
-import ConditionalWrapper from '../ConditionalWrapper';
+import {
+  useActions,
+  useConditionalFeature,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
@@ -25,8 +38,18 @@ import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
+import { ActionType } from '../../graphql/actions';
+import {
+  BrowserName,
+  checkIsExtension,
+  getCurrentBrowserName,
+} from '../../lib/func';
+import { installExtensionFeedMenuFeature } from '../../lib/featureManagement';
+import { downloadBrowserExtension } from '../../lib/constants';
+import { anchorDefaultRel } from '../../lib/strings';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -63,11 +86,22 @@ export const SearchControlHeader = ({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
+  const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+  const { checkHasCompleted, completeAction } = useActions();
+  const browserName = getCurrentBrowserName();
+  const isEdge = browserName === BrowserName.Edge;
+  const shouldEvaluateInstallExtensionExperiment =
+    !checkIsExtension() && user?.flags?.lastExtensionUse === null;
+  const { value: isInstallExtensionFeedMenuEnabled } = useConditionalFeature({
+    feature: installExtensionFeedMenuFeature,
+    shouldEvaluate: shouldEvaluateInstallExtensionExperiment,
+  });
 
   if (isMobile) {
     return null;
@@ -91,11 +125,45 @@ export const SearchControlHeader = ({
     SharedFeedPage.Custom,
     SharedFeedPage.CustomForm,
   ];
+  const hasFeedActions = feedsWithActions.includes(feedName as SharedFeedPage);
+  const hasDismissedInstallExtension = checkHasCompleted(
+    ActionType.DismissInstallExtension,
+  );
+  const installExtensionButton = hasFeedActions &&
+    isInstallExtensionFeedMenuEnabled &&
+    !hasDismissedInstallExtension && (
+      <>
+        <div className="flex flex-1" />
+        <Button
+          key="install-extension"
+          tag="a"
+          href={downloadBrowserExtension}
+          variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+          size={ButtonSize.Medium}
+          icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
+          rel={anchorDefaultRel}
+          target="_blank"
+          className="ml-auto"
+          onClick={() =>
+            logEvent({
+              event_name: LogEvent.DownloadExtension,
+              origin: Origin.Feed,
+            })
+          }
+        >
+          Get it for {isEdge ? 'Edge' : 'Chrome'}
+        </Button>
+        <Button
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<ClearIcon secondary />}
+          onClick={() => completeAction(ActionType.DismissInstallExtension)}
+        />
+      </>
+    );
 
   const actionButtons = [
-    feedsWithActions.includes(feedName as SharedFeedPage) && (
-      <MyFeedHeading key="my-feed" />
-    ),
+    hasFeedActions && <MyFeedHeading key="my-feed" />,
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}
@@ -117,7 +185,7 @@ export const SearchControlHeader = ({
         drawerProps={{ displayCloseButton: true }}
       />
     ),
-    feedsWithActions.includes(feedName as SharedFeedPage) && (
+    hasFeedActions && (
       <ToggleClickbaitShield
         origin={
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
@@ -125,9 +193,8 @@ export const SearchControlHeader = ({
         key="toggle-clickbait-shield"
       />
     ),
-    feedsWithActions.includes(feedName as SharedFeedPage) && (
-      <AchievementTrackerButton key="achievement-tracker" />
-    ),
+    hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
+    isLaptop && installExtensionButton,
   ];
   const actions = actionButtons.filter((button) => !!button);
 
@@ -143,11 +210,11 @@ export const SearchControlHeader = ({
           <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-2">
             {wrapperChildren}
 
-            <div className="flex-0">
-              {isStreaksEnabled && (
+            {isStreaksEnabled && (
+              <div className="flex-0">
                 <ReadingStreakButton streak={streak} isLoading={isLoading} />
-              )}
-            </div>
+              </div>
+            )}
           </div>
         );
       }}
