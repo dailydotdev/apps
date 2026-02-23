@@ -138,6 +138,7 @@ export interface UserShortProfile
 export type UserFlagsPublic = Partial<{
   showPlusGift: boolean;
   cvUploadedAt: Date;
+  lastExtensionUse: string | null;
 }>;
 
 export type UserSubscriptionFlags = Partial<{

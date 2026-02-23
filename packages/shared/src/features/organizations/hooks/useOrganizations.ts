@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { gqlClient } from '../../../graphql/common';
-import { ORGANIZATIONS_QUERY } from '../graphql';
+import { ORGANIZATIONS_BASE_QUERY } from '../graphql';
 import type { UserOrganization } from '../types';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -13,7 +13,7 @@ export const useOrganizations = () => {
     queryFn: async () => {
       const data = await gqlClient.request<{
         organizations: UserOrganization[];
-      }>(ORGANIZATIONS_QUERY);
+      }>(ORGANIZATIONS_BASE_QUERY);
 
       if (!data || !data.organizations) {
         return [];
