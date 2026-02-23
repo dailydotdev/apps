@@ -118,7 +118,7 @@ function SquadPostAuthor({
       >
         <div
           className={classNames(
-            'flex gap-1 text-text-tertiary',
+            'flex items-center gap-1 text-text-tertiary',
             className?.handle,
           )}
         >

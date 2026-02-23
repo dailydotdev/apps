@@ -368,6 +368,7 @@ export enum LogEvent {
   OpenHotAndCold = 'open hot and cold',
   VoteHotAndCold = 'vote hot and cold',
   SwipeHotTake = 'swipe hot take',
+  SkipHotTake = 'skip hot take',
   // My Setup - Workspace Photos
   StartAddWorkspacePhoto = 'start add workspace photo',
   AddWorkspacePhoto = 'add workspace photo',
