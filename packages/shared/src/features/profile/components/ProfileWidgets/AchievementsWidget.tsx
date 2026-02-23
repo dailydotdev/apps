@@ -19,6 +19,8 @@ import {
   rarityGlowClasses,
 } from '../achievements/achievementRarity';
 import { RaritySparkles } from '../achievements/RaritySparkles';
+import HoverCard from '../../../../components/cards/common/HoverCard';
+import { AchievementCard } from '../achievements/AchievementCard';
 
 interface AchievementsWidgetProps {
   user: PublicProfile;
@@ -78,26 +80,39 @@ function RecentAchievements({
         {rarestUnlocked.map((ua) => {
           const rarityTier = getAchievementRarityTier(ua.achievement.rarity);
           return (
-            <div
+            <HoverCard
               key={ua.achievement.id}
-              className={classNames(
-                'relative size-10 rounded-10',
-                rarityTier
-                  ? ['overflow-visible border', rarityGlowClasses[rarityTier]]
-                  : 'overflow-hidden',
-              )}
-              title={ua.achievement.name}
+              openDelay={300}
+              sideOffset={8}
+              trigger={
+                <a
+                  href={`/${user.username || user.id}/achievements`}
+                  className={classNames(
+                    'relative block size-10 rounded-10',
+                    rarityTier
+                      ? [
+                          'overflow-visible border',
+                          rarityGlowClasses[rarityTier],
+                        ]
+                      : 'overflow-hidden',
+                  )}
+                >
+                  {rarityTier && (
+                    <RaritySparkles tier={rarityTier} size="compact" />
+                  )}
+                  <LazyImage
+                    imgSrc={ua.achievement.image}
+                    imgAlt={ua.achievement.name}
+                    className="size-full rounded-10 object-cover"
+                    fallbackSrc="https://daily.dev/default-achievement.png"
+                  />
+                </a>
+              }
             >
-              {rarityTier && (
-                <RaritySparkles tier={rarityTier} size="compact" />
-              )}
-              <LazyImage
-                imgSrc={ua.achievement.image}
-                imgAlt={ua.achievement.name}
-                className="size-full rounded-10 object-cover"
-                fallbackSrc="https://daily.dev/default-achievement.png"
-              />
-            </div>
+              <div className="w-80 overflow-hidden rounded-16 bg-background-popover">
+                <AchievementCard userAchievement={ua} />
+              </div>
+            </HoverCard>
           );
         })}
       </div>
