@@ -33,6 +33,7 @@ const BUTTON_FLY_KICK_DELAY_MS = 42;
 const SKIP_DISMISS_ANIMATION_MS = 520;
 const SKIP_DISMISS_FLY_DISTANCE = 600;
 const SKIP_DRAG_ELASTICITY_FACTOR = 0.3;
+const COLD_ACCENT_COLOR = '#123a88';
 
 const getElasticDelta = (delta: number): number => {
   const absoluteDelta = Math.abs(delta);
@@ -322,7 +323,7 @@ const HotTakeCard = ({
   const accentColor =
     swipeDirection === 'right'
       ? 'var(--theme-accent-ketchup-default)'
-      : 'var(--theme-accent-blueCheese-default)';
+      : COLD_ACCENT_COLOR;
   const skipAccentColor = 'var(--theme-accent-blueCheese-default)';
   let activeBorderColor;
   if (swipeDirection) {
@@ -681,11 +682,13 @@ const HotTakeCard = ({
             'z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 px-4 py-1 font-bold typo-title3',
             swipeDirection === 'right'
               ? 'bg-accent-ketchup-default text-white'
-              : 'bg-accent-blueCheese-default text-white',
+              : 'text-white',
           )}
           style={{
             opacity: effectIntensity,
             animation: 'hotTakeBadgePulse 0.18s ease-out',
+            backgroundColor:
+              swipeDirection === 'right' ? undefined : COLD_ACCENT_COLOR,
             boxShadow: `0 6px ${12 + effectIntensity * 10}px rgba(0,0,0,${
               0.1 + effectIntensity * 0.18
             })`,
