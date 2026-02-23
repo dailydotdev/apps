@@ -432,24 +432,16 @@ const ApiAccessPage = (): ReactElement => {
     <AccountPageContainer
       title="API Access"
       actions={
-        <div className="flex items-center gap-2">
+        isPlus ? (
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             icon={<PlusIcon />}
-            onClick={isPlus ? () => setShowCreateModal(true) : undefined}
-            tag={isPlus ? undefined : 'a'}
-            href={isPlus ? undefined : '/plus'}
+            onClick={() => setShowCreateModal(true)}
           >
             {isMobile ? undefined : 'Create token'}
           </Button>
-          {!isPlus && (
-            <div className="flex items-center gap-1 rounded-12 bg-surface-float px-2 py-1 text-text-tertiary typo-footnote">
-              <LockIcon size={IconSize.XSmall} />
-              Plus
-            </div>
-          )}
-        </div>
+        ) : undefined
       }
     >
       <div className="flex flex-col gap-6">

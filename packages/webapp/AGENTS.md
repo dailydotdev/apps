@@ -42,6 +42,7 @@ pages/
 ```
 
 ### Dynamic Routes
+
 ```typescript
 // pages/posts/[id]/index.tsx
 export default function PostPage() {
@@ -57,14 +58,11 @@ Layouts wrap pages with common UI:
 
 ```typescript
 // In a page component
-MyPage.getLayout = (page) => (
-  <MainLayout>
-    {page}
-  </MainLayout>
-);
+MyPage.getLayout = (page) => <MainLayout>{page}</MainLayout>;
 ```
 
 Available layouts in `components/layouts/`:
+
 - `MainLayout` - Standard page layout
 - `FooterNavBarLayout` - With mobile navigation
 - `ProfileLayout` - User profile pages
@@ -81,8 +79,9 @@ NEXT_PUBLIC_DOMAIN=daily.dev
 ```
 
 Access in code:
+
 ```typescript
-process.env.NEXT_PUBLIC_API_URL
+process.env.NEXT_PUBLIC_API_URL;
 ```
 
 ## SEO
@@ -99,7 +98,7 @@ import { NextSeo } from 'next-seo';
     title: 'OG Title',
     description: 'OG Description',
   }}
-/>
+/>;
 ```
 
 Default config in `next-seo.ts`.
@@ -107,6 +106,7 @@ Default config in `next-seo.ts`.
 ## API Proxy
 
 The webapp proxies API requests to the backend:
+
 - Production: `api.daily.dev`
 - Local: `localhost:5000` (when `NEXT_PUBLIC_DOMAIN=localhost`)
 
@@ -134,12 +134,14 @@ pnpm --filter webapp lint
 ## Webapp vs Shared
 
 **Put in webapp when:**
+
 - It's a page component
 - It's a webapp-specific layout
 - It uses Next.js-specific features (useRouter, next/head)
 - It's only used in webapp
 
 **Put in shared when:**
+
 - It could be used by the extension
 - It's a general-purpose component
 - It doesn't depend on Next.js APIs
@@ -164,12 +166,13 @@ Mocks for Next.js router and common dependencies are in `__mocks__/`.
 ## Common Patterns
 
 ### Page with Data Fetching
+
 ```typescript
 export default function MyPage() {
   const { data, isLoading } = useMyData();
 
   if (isLoading) return <Loading />;
-  
+
   return <div>{data}</div>;
 }
 
@@ -177,6 +180,7 @@ MyPage.getLayout = (page) => <MainLayout>{page}</MainLayout>;
 ```
 
 ### Protected Page
+
 ```typescript
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
@@ -185,7 +189,12 @@ export default function ProtectedPage() {
 
   if (!isAuthReady) return <Loading />;
   if (!isLoggedIn) return <LoginPrompt />;
-  
+
   return <ProtectedContent />;
 }
 ```
+
+## Monetization UI
+
+- For `pages/settings/api.tsx`, free users should see the full API/Skills page content, but token creation should be gated only inside the token empty-state widget.
+- Avoid adding header upsell markers/badges for this flow unless product explicitly asks for it.
