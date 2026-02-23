@@ -279,7 +279,7 @@ export const FeedContainer = ({
               )}
             >
               {!!actionButtons && (
-                <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary pr-3 laptop:w-auto">
+                <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary">
                   {actionButtons}
                 </span>
               )}

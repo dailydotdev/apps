@@ -40,9 +40,51 @@ describe('markdownConversion', () => {
 
     const convertedHtml = markdownToHtmlBasic(markdown);
 
-    expect(convertedHtml).toContain(
+    expect(convertedHtml).toBe(
       '<img src="https://cdn.daily.dev/image.png" alt="Preview" />',
     );
+  });
+
+  it('should keep standalone image in markdown round-trip', () => {
+    const initialMarkdown = '![Preview](https://cdn.daily.dev/image.png)';
+    const html = markdownToHtmlBasic(initialMarkdown);
+
+    expect(html).toBe(
+      '<img src="https://cdn.daily.dev/image.png" alt="Preview" />',
+    );
+
+    const markdown = htmlToMarkdownBasic(html);
+
+    expect(markdown).toBe(initialMarkdown);
+  });
+
+  it('should handle image between paragraphs', () => {
+    const md = 'hello\n\n![img](https://cdn.daily.dev/a.png)\n\nworld';
+    const html = markdownToHtmlBasic(md);
+
+    expect(html).toBe(
+      '<p>hello</p><img src="https://cdn.daily.dev/a.png" alt="img" /><p>world</p>',
+    );
+  });
+
+  it('should keep inline image within paragraph', () => {
+    const md = 'text ![img](https://cdn.daily.dev/a.png) more';
+    const html = markdownToHtmlBasic(md);
+
+    expect(html).toBe(
+      '<p>text <img src="https://cdn.daily.dev/a.png" alt="img" /> more</p>',
+    );
+  });
+
+  it('should not parse underscore characters inside image url attributes', () => {
+    const markdown =
+      '![Block words feature](https://media.daily.dev/image/upload/s--A9t0KF3Y--/f_auto/v1741689017/ugc/content_b24c703e-ca99-4feb-b19b-349a502afa66)';
+    const html = markdownToHtmlBasic(markdown);
+
+    expect(html).toBe(
+      '<img src="https://media.daily.dev/image/upload/s--A9t0KF3Y--/f_auto/v1741689017/ugc/content_b24c703e-ca99-4feb-b19b-349a502afa66" alt="Block words feature" />',
+    );
+    expect(html).not.toContain('<em>');
   });
 
   it('should preserve bold text across line breaks', () => {

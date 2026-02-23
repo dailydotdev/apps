@@ -135,3 +135,8 @@ export const sharedPostPreviewFeature = new Feature(
   'shared_post_preview',
   false,
 );
+
+export const installExtensionFeedMenuFeature = new Feature(
+  'install_extension_feed_menu',
+  false,
+);
