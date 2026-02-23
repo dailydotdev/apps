@@ -18,7 +18,14 @@ export const Separator = ({
 }: {
   className?: string;
 }): ReactElement => (
-  <span className={classNames('mx-1', className)}>{separatorCharacter}</span>
+  <span
+    className={classNames(
+      'mx-1 inline-block h-4 align-middle leading-4',
+      className,
+    )}
+  >
+    {separatorCharacter}
+  </span>
 );
 
 export const visibleOnGroupHover =
