@@ -213,11 +213,11 @@ describe('HotAndColdModal', () => {
     expect(onRequestClose).toHaveBeenCalledTimes(1);
   });
 
-  it('should clamp long subtitle text while allowing title to wrap', () => {
+  it('should hide subtitle when title is very long to keep title visible', () => {
     const currentTake = {
       ...createHotTake('long-text'),
       title:
-        'This is a very long hot take title that should be clamped before it overflows outside the card layout',
+        'This is a very long hot take title that should still be fully visible while forcing the subtitle to hide in order to keep the card layout stable in the modal, especially when additional context is included.',
       subtitle:
         'This subtitle is intentionally long so we can validate that the modal clamps text after a few lines and keeps the card content contained.',
     };
@@ -237,15 +237,6 @@ describe('HotAndColdModal', () => {
       'w-full',
       'break-words',
     );
-    expect(screen.getByText(currentTake.title)).not.toHaveClass(
-      'multi-truncate',
-      'line-clamp-3',
-    );
-    expect(screen.getByText(currentTake.subtitle)).toHaveClass(
-      'multi-truncate',
-      'line-clamp-4',
-      'w-full',
-      'break-words',
-    );
+    expect(screen.queryByText(currentTake.subtitle)).not.toBeInTheDocument();
   });
 });
