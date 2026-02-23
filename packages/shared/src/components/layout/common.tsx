@@ -12,7 +12,13 @@ import type { DropdownProps } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { BrowserGroupIcon, CalendarIcon, ClearIcon, SortIcon } from '../icons';
+import {
+  CalendarIcon,
+  ChromeIcon,
+  ClearIcon,
+  EdgeIcon,
+  SortIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -35,7 +41,11 @@ import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { ActionType } from '../../graphql/actions';
-import { checkIsExtension } from '../../lib/func';
+import {
+  BrowserName,
+  checkIsExtension,
+  getCurrentBrowserName,
+} from '../../lib/func';
 import { installExtensionFeedMenuFeature } from '../../lib/featureManagement';
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -84,6 +94,8 @@ export const SearchControlHeader = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { checkHasCompleted, completeAction } = useActions();
+  const browserName = getCurrentBrowserName();
+  const isEdge = browserName === BrowserName.Edge;
   const shouldEvaluateInstallExtensionExperiment =
     !checkIsExtension() && user?.flags?.lastExtensionUse === null;
   const { value: isInstallExtensionFeedMenuEnabled } = useConditionalFeature({
@@ -128,7 +140,7 @@ export const SearchControlHeader = ({
           href={downloadBrowserExtension}
           variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
           size={ButtonSize.Medium}
-          icon={<BrowserGroupIcon aria-hidden />}
+          icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
           rel={anchorDefaultRel}
           target="_blank"
           className="ml-auto"
@@ -139,7 +151,7 @@ export const SearchControlHeader = ({
             })
           }
         >
-          Install extension
+          Get it for {isEdge ? 'Edge' : 'Chrome'}
         </Button>
         <Button
           variant={ButtonVariant.Tertiary}
