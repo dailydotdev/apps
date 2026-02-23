@@ -78,6 +78,20 @@ const EFFECT_KEYFRAMES = `
     0%, 100% { opacity: 0.5; transform: translateY(0); }
     50% { opacity: 0.9; transform: translateY(2px); }
   }
+  @keyframes hotTakeSleepFloat {
+    0% { transform: translateX(-50%) translateY(0) scale(0.78); opacity: 0; }
+    18% { opacity: 1; }
+    100% { transform: translateX(-50%) translateY(-72px) scale(1.06); opacity: 0; }
+  }
+  @keyframes hotTakeBubbleRise {
+    0% { transform: translateY(0) scale(0.72); opacity: 0; }
+    18% { opacity: 0.95; }
+    100% { transform: translateY(-78px) scale(1.14); opacity: 0; }
+  }
+  @keyframes hotTakeSleepBreath {
+    0%, 100% { opacity: 0.56; transform: translateY(0); }
+    50% { opacity: 0.96; transform: translateY(-2px); }
+  }
   @keyframes hotTakeBadgePulse {
     0% { transform: translateX(-50%) scale(0.92); opacity: 0; }
     100% { transform: translateX(-50%) scale(1); opacity: 1; }
@@ -182,6 +196,65 @@ const SNOWFLAKES: ReadonlyArray<{
   { left: '52%', top: '35%', size: 5, delay: 0.65, duration: 3.1 },
 ];
 
+const SLEEP_ZS: ReadonlyArray<{
+  left: string;
+  bottom: string;
+  size: number;
+  delay: number;
+  duration: number;
+  rotate: number;
+}> = [
+  { left: '20%', bottom: '14%', size: 19, delay: 0, duration: 2.2, rotate: -6 },
+  {
+    left: '32%',
+    bottom: '22%',
+    size: 16,
+    delay: 0.35,
+    duration: 2.6,
+    rotate: 4,
+  },
+  {
+    left: '47%',
+    bottom: '16%',
+    size: 22,
+    delay: 0.12,
+    duration: 2.4,
+    rotate: -3,
+  },
+  {
+    left: '60%',
+    bottom: '24%',
+    size: 18,
+    delay: 0.55,
+    duration: 2.7,
+    rotate: 6,
+  },
+  {
+    left: '74%',
+    bottom: '18%',
+    size: 20,
+    delay: 0.22,
+    duration: 2.5,
+    rotate: -4,
+  },
+];
+
+const SLEEP_BUBBLES: ReadonlyArray<{
+  left: string;
+  bottom: string;
+  size: number;
+  delay: number;
+  duration: number;
+}> = [
+  { left: '12%', bottom: '10%', size: 8, delay: 0, duration: 2.2 },
+  { left: '24%', bottom: '15%', size: 6, delay: 0.5, duration: 2.6 },
+  { left: '38%', bottom: '8%', size: 10, delay: 0.2, duration: 2.3 },
+  { left: '50%', bottom: '13%', size: 7, delay: 0.7, duration: 2.7 },
+  { left: '62%', bottom: '9%', size: 9, delay: 0.35, duration: 2.4 },
+  { left: '76%', bottom: '14%', size: 6, delay: 0.95, duration: 2.8 },
+  { left: '88%', bottom: '8%', size: 8, delay: 0.45, duration: 2.5 },
+];
+
 const HotTakeCard = ({
   hotTake,
   isTop,
@@ -202,6 +275,7 @@ const HotTakeCard = ({
   dismissDurationMs: number;
 }): ReactElement => {
   const isSkipAnimating = isTop && isDismissAnimating && skipDeltaY !== 0;
+  const isSkipDragging = isTop && !isDismissAnimating && skipDeltaY < 0;
   const rotation = isTop ? Math.max(Math.min(swipeDelta * 0.08, 18), -18) : 0;
   const translateX = isTop ? swipeDelta : 0;
   const stackScale = isTop ? 1 : 1 - offset * 0.05;
@@ -225,6 +299,18 @@ const HotTakeCard = ({
     ? Math.min(Math.abs(swipeDelta) / SWIPE_THRESHOLD, 1)
     : 0;
   const effectIntensity = isTop ? intensity ** 0.78 : 0;
+  const skipDragIntensity = isTop
+    ? Math.min(Math.abs(skipDeltaY) / SWIPE_THRESHOLD, 1)
+    : 0;
+  let skipEffectIntensity = 0;
+  if (isTop) {
+    if (isSkipAnimating) {
+      skipEffectIntensity = dismissProgress;
+    } else if (isSkipDragging) {
+      skipEffectIntensity = skipDragIntensity ** 0.78;
+    }
+  }
+  const isSkipVisualActive = isTop && skipEffectIntensity > 0.02;
   const getSwipeDirection = (): 'right' | 'left' | null => {
     if (!isTop || Math.abs(swipeDelta) <= 20) {
       return null;
@@ -237,6 +323,40 @@ const HotTakeCard = ({
     swipeDirection === 'right'
       ? 'var(--theme-accent-ketchup-default)'
       : 'var(--theme-accent-blueCheese-default)';
+  const skipAccentColor = 'var(--theme-accent-blueCheese-default)';
+  let activeBorderColor;
+  if (swipeDirection) {
+    activeBorderColor = `color-mix(in srgb, ${accentColor} ${Math.round(
+      effectIntensity * 100,
+    )}%, var(--theme-border-subtlest-tertiary))`;
+  } else if (isSkipVisualActive) {
+    activeBorderColor = `color-mix(in srgb, ${skipAccentColor} ${Math.round(
+      skipEffectIntensity * 100,
+    )}%, var(--theme-border-subtlest-tertiary))`;
+  }
+
+  let activeBoxShadow;
+  if (swipeDirection) {
+    activeBoxShadow = `0 0 ${6 + effectIntensity * 24}px ${
+      2 + effectIntensity * 8
+    }px color-mix(in srgb, ${accentColor} ${Math.round(
+      effectIntensity * 65,
+    )}%, transparent), 0 0 ${10 + effectIntensity * 34}px ${
+      4 + effectIntensity * 14
+    }px color-mix(in srgb, ${accentColor} ${Math.round(
+      effectIntensity * 42,
+    )}%, transparent)`;
+  } else if (isSkipVisualActive) {
+    activeBoxShadow = `0 0 ${6 + skipEffectIntensity * 22}px ${
+      2 + skipEffectIntensity * 8
+    }px color-mix(in srgb, ${skipAccentColor} ${Math.round(
+      skipEffectIntensity * 60,
+    )}%, transparent), 0 0 ${10 + skipEffectIntensity * 28}px ${
+      4 + skipEffectIntensity * 12
+    }px color-mix(in srgb, ${skipAccentColor} ${Math.round(
+      skipEffectIntensity * 42,
+    )}%, transparent)`;
+  }
   let transition =
     'transform 0.3s ease, border-color 0.2s ease, box-shadow 0.2s ease';
   if (isTop) {
@@ -265,22 +385,8 @@ const HotTakeCard = ({
           isTop && isDismissAnimating
             ? `blur(${dismissProgress * 1.8}px)`
             : undefined,
-        borderColor: swipeDirection
-          ? `color-mix(in srgb, ${accentColor} ${Math.round(
-              effectIntensity * 100,
-            )}%, var(--theme-border-subtlest-tertiary))`
-          : undefined,
-        boxShadow: swipeDirection
-          ? `0 0 ${6 + effectIntensity * 24}px ${
-              2 + effectIntensity * 8
-            }px color-mix(in srgb, ${accentColor} ${Math.round(
-              effectIntensity * 65,
-            )}%, transparent), 0 0 ${10 + effectIntensity * 34}px ${
-              4 + effectIntensity * 14
-            }px color-mix(in srgb, ${accentColor} ${Math.round(
-              effectIntensity * 42,
-            )}%, transparent)`
-          : undefined,
+        borderColor: activeBorderColor,
+        boxShadow: activeBoxShadow,
       }}
     >
       {/* eslint-disable-next-line react/no-unknown-property */}
@@ -474,6 +580,101 @@ const HotTakeCard = ({
         </div>
       )}
 
+      {isSkipVisualActive && (
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-16">
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 'inherit',
+              background: `linear-gradient(180deg, rgba(222,246,255,${
+                skipEffectIntensity * 0.2
+              }) 0%, rgba(180,230,255,${
+                skipEffectIntensity * 0.12
+              }) 46%, rgba(120,186,240,${skipEffectIntensity * 0.16}) 100%)`,
+              boxShadow: [
+                `inset 0 ${52 * skipEffectIntensity}px ${
+                  44 * skipEffectIntensity
+                }px ${-15 * skipEffectIntensity}px rgba(170,225,255,0.32)`,
+                `inset ${24 * skipEffectIntensity}px 0 ${
+                  24 * skipEffectIntensity
+                }px ${-14 * skipEffectIntensity}px rgba(140,210,255,0.18)`,
+                `inset ${-24 * skipEffectIntensity}px 0 ${
+                  24 * skipEffectIntensity
+                }px ${-14 * skipEffectIntensity}px rgba(140,210,255,0.18)`,
+              ].join(', '),
+              backdropFilter: `blur(${0.4 + skipEffectIntensity * 1.5}px)`,
+              animation: `hotTakeSleepBreath ${
+                1.2 + (1 - skipEffectIntensity) * 0.4
+              }s ease-in-out infinite`,
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: '-8%',
+              right: '-8%',
+              top: '-16%',
+              height: '42%',
+              borderRadius: '50%',
+              background: `radial-gradient(ellipse at 50% 0%, rgba(220,245,255,${
+                skipEffectIntensity * 0.52
+              }) 0%, rgba(170,220,255,${
+                skipEffectIntensity * 0.22
+              }) 42%, transparent 78%)`,
+              filter: `blur(${4 + skipEffectIntensity * 5}px)`,
+            }}
+          />
+          {SLEEP_ZS.map((sleepZ) => (
+            <span
+              key={`${sleepZ.left}-${sleepZ.bottom}`}
+              style={{
+                position: 'absolute',
+                left: sleepZ.left,
+                bottom: sleepZ.bottom,
+                fontSize: sleepZ.size,
+                fontWeight: 800,
+                lineHeight: 1,
+                color: `rgba(230,248,255,${0.25 + skipEffectIntensity * 0.75})`,
+                textShadow: `0 0 ${
+                  4 + skipEffectIntensity * 10
+                }px rgba(150,220,255,${0.18 + skipEffectIntensity * 0.52})`,
+                transform: `translateX(-50%) rotate(${sleepZ.rotate}deg)`,
+                animation: `hotTakeSleepFloat ${sleepZ.duration}s ease-in infinite`,
+                animationDelay: `${sleepZ.delay}s`,
+                opacity: 0.24 + skipEffectIntensity * 0.76,
+              }}
+            >
+              Z
+            </span>
+          ))}
+          {SLEEP_BUBBLES.map((bubble) => (
+            <div
+              key={`${bubble.left}-${bubble.bottom}`}
+              style={{
+                position: 'absolute',
+                left: bubble.left,
+                bottom: bubble.bottom,
+                width: bubble.size,
+                height: bubble.size,
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(circle at 28% 28%, rgba(255,255,255,0.95) 0%, rgba(225,245,255,0.55) 44%, rgba(170,220,255,0.2) 100%)',
+                border: `1px solid rgba(208,240,255,${
+                  0.18 + skipEffectIntensity * 0.5
+                })`,
+                boxShadow: `0 0 ${bubble.size + 4}px rgba(150,220,255,${
+                  0.15 + skipEffectIntensity * 0.48
+                })`,
+                animation: `hotTakeBubbleRise ${bubble.duration}s ease-out infinite`,
+                animationDelay: `${bubble.delay}s`,
+                opacity: 0.2 + skipEffectIntensity * 0.8,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
       {isTop && swipeDirection && (
         <div
           className={classNames(
@@ -494,18 +695,18 @@ const HotTakeCard = ({
         </div>
       )}
 
-      {isTop && isSkipAnimating && (
+      {isSkipVisualActive && (
         <div
-          className="z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 bg-overlay-quaternary-cabbage px-4 py-1 font-bold text-white typo-title3"
+          className="z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 bg-accent-blueCheese-default px-4 py-1 font-bold text-white typo-title3"
           style={{
-            opacity: dismissProgress,
+            opacity: skipEffectIntensity,
             animation: 'hotTakeBadgePulse 0.18s ease-out',
-            boxShadow: `0 6px ${12 + dismissProgress * 10}px rgba(0,0,0,${
-              0.1 + dismissProgress * 0.18
+            boxShadow: `0 6px ${12 + skipEffectIntensity * 10}px rgba(0,0,0,${
+              0.1 + skipEffectIntensity * 0.18
             })`,
           }}
         >
-          SKIP 😐
+          SKIP 😴
         </div>
       )}
 
