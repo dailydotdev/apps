@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
-import { useRouter } from 'next/router';
 import {
   usePlusSubscription,
   useViewSize,
@@ -392,7 +391,6 @@ const CopyableCodeBlock = ({
 };
 
 const ApiAccessPage = (): ReactElement => {
-  const router = useRouter();
   const { isPlus } = usePlusSubscription();
   const { data: tokens, isLoading } = usePersonalAccessTokens();
   const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
@@ -430,15 +428,6 @@ const ApiAccessPage = (): ReactElement => {
     }));
   };
 
-  const handleCreateTokenClick = () => {
-    if (!isPlus) {
-      router.push('/plus');
-      return;
-    }
-
-    setShowCreateModal(true);
-  };
-
   return (
     <AccountPageContainer
       title="API Access"
@@ -448,7 +437,9 @@ const ApiAccessPage = (): ReactElement => {
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             icon={<PlusIcon />}
-            onClick={handleCreateTokenClick}
+            onClick={isPlus ? () => setShowCreateModal(true) : undefined}
+            tag={isPlus ? undefined : 'a'}
+            href={isPlus ? undefined : '/plus'}
           >
             {isMobile ? undefined : 'Create token'}
           </Button>
@@ -517,7 +508,7 @@ const ApiAccessPage = (): ReactElement => {
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Small}
                 icon={<PlusIcon />}
-                onClick={handleCreateTokenClick}
+                onClick={() => setShowCreateModal(true)}
               >
                 Create your first token
               </Button>
