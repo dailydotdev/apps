@@ -13,6 +13,9 @@ import {
 } from '../../../../components/typography/Typography';
 import { ProfileEmptyScreen } from '../../../../components/profile/ProfileEmptyScreen';
 import { MedalBadgeIcon } from '../../../../components/icons';
+import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import { useLazyModal } from '../../../../hooks/useLazyModal';
+import { LazyModal } from '../../../../components/modals/common/types';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
@@ -82,6 +85,7 @@ export function ProfileAchievements({
     isOwner &&
     !isAchievementTrackingWidgetLoading &&
     shouldRenderTrackingWidget;
+  const { openModal } = useLazyModal();
 
   if (isPending) {
     return (
@@ -154,6 +158,22 @@ export function ProfileAchievements({
             ({unlockedCount}/{totalCount})
           </Typography>
         </div>
+        {loggedUser && !isOwner && (
+          <Button
+            variant={ButtonVariant.Secondary}
+            onClick={() =>
+              openModal({
+                type: LazyModal.CompareAchievements,
+                props: {
+                  profileUser: user,
+                  profileAchievements: achievements,
+                },
+              })
+            }
+          >
+            Compare achievements
+          </Button>
+        )}
       </div>
       {shouldShowTrackingWidget && <AchievementTrackingWidget user={user} />}
       <AchievementsList achievements={achievements} user={user} />
