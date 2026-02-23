@@ -30,7 +30,7 @@ export const useComments = (post: Post): UseComments => {
     }
 
     const { username, parentCommentId } = replyTo ?? {};
-    const replyToContent = username ? `@${username} ` : undefined;
+    const replyToContent = username ? `@${username}\u00a0` : undefined;
 
     return {
       parentCommentId,
