@@ -66,6 +66,7 @@ const bookmarkSortOptions = [
   { label: 'Newest first', value: BookmarkSort.TimeDesc },
   { label: 'Oldest first', value: BookmarkSort.TimeAsc },
 ];
+const bookmarkSortOptionLabels = bookmarkSortOptions.map(({ label }) => label);
 
 const BOOKMARK_SORT_KEY = 'bookmark:sort';
 const DEFAULT_BOOKMARK_SORT_INDEX = 0;
@@ -93,6 +94,7 @@ export default function BookmarkFeedLayout({
     DEFAULT_BOOKMARK_SORT_INDEX,
   );
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isSearchResults = !!searchQuery;
   const isFolderPage = !!folder || isReminderOnly;
   const listId = folder?.id;
   const selectedSortValue =
@@ -103,13 +105,20 @@ export default function BookmarkFeedLayout({
         listId,
         isReminderOnly,
         searchQuery,
-        sort: selectedSortValue,
+        ...(!isSearchResults && { sort: selectedSortValue }),
       }),
-    [user, listId, isReminderOnly, searchQuery, selectedSortValue],
+    [
+      user,
+      listId,
+      isReminderOnly,
+      searchQuery,
+      selectedSortValue,
+      isSearchResults,
+    ],
   );
   const { plusEntryBookmark } = usePlusEntry();
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    if (searchQuery) {
+    if (isSearchResults) {
       return {
         feedName: OtherFeedPage.SearchBookmarks,
         feedQueryKey,
@@ -149,6 +158,7 @@ export default function BookmarkFeedLayout({
       options: { refetchOnMount: true },
     };
   }, [
+    isSearchResults,
     searchQuery,
     feedQueryKey,
     listId,
@@ -180,7 +190,7 @@ export default function BookmarkFeedLayout({
         )}
       >
         {searchChildren}
-        {!searchQuery && (
+        {!isSearchResults && (
           <Dropdown
             className={{
               label: 'hidden',
@@ -192,7 +202,7 @@ export default function BookmarkFeedLayout({
             icon={<SortIcon size={IconSize.Medium} />}
             iconOnly
             selectedIndex={selectedSort}
-            options={bookmarkSortOptions.map(({ label }) => label)}
+            options={bookmarkSortOptionLabels}
             onChange={(_, index) => setSelectedSort(index)}
             buttonVariant={ButtonVariant.Float}
             buttonSize={ButtonSize.Medium}
@@ -235,7 +245,9 @@ export default function BookmarkFeedLayout({
           />
         )}
       </div>
-      {tokenRefreshed && loadedSort && <Feed {...feedProps} />}
+      {tokenRefreshed && (isSearchResults || loadedSort) && (
+        <Feed {...feedProps} />
+      )}
     </FeedPageLayoutComponent>
   );
 }
