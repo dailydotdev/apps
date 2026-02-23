@@ -32,6 +32,20 @@ const BUTTON_DISMISS_FLY_DISTANCE = 620;
 const BUTTON_FLY_KICK_DELAY_MS = 42;
 const SKIP_DISMISS_ANIMATION_MS = 520;
 const SKIP_DISMISS_FLY_DISTANCE = 600;
+const SKIP_DRAG_ELASTICITY_FACTOR = 0.3;
+
+const getElasticDelta = (delta: number): number => {
+  const absoluteDelta = Math.abs(delta);
+  if (absoluteDelta <= SWIPE_THRESHOLD) {
+    return delta;
+  }
+
+  const overshoot = absoluteDelta - SWIPE_THRESHOLD;
+  return (
+    Math.sign(delta) *
+    (SWIPE_THRESHOLD + overshoot * SKIP_DRAG_ELASTICITY_FACTOR)
+  );
+};
 
 const EFFECT_KEYFRAMES = `
   @keyframes hotTakeFlame {
@@ -813,6 +827,7 @@ const HotAndColdModal = ({
 
   const handleSwiped = (direction: 'left' | 'right') => {
     setIsDragging(false);
+    setSkipDelta(0);
     if (Math.abs(swipeDeltaRef.current) > SWIPE_THRESHOLD) {
       handleDismiss(direction, 'swipe');
     } else {
@@ -827,6 +842,11 @@ const HotAndColdModal = ({
       if (!isAnimating) {
         setIsDragging(true);
         setSwipeDelta(e.deltaX);
+        if (e.deltaY < 0 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          setSkipDelta(getElasticDelta(e.deltaY));
+        } else {
+          setSkipDelta(0);
+        }
         swipeDeltaRef.current = e.deltaX;
         swipeDeltaYRef.current = e.deltaY;
       }
@@ -839,10 +859,13 @@ const HotAndColdModal = ({
         swipeDeltaYRef.current < 0 &&
         Math.abs(swipeDeltaYRef.current) > SWIPE_THRESHOLD
       ) {
+        setSwipeDelta(0);
+        swipeDeltaRef.current = 0;
         handleSkip('swipe');
       } else {
         setSwipeDelta(0);
         swipeDeltaRef.current = 0;
+        setSkipDelta(0);
         swipeDeltaYRef.current = 0;
       }
     },
