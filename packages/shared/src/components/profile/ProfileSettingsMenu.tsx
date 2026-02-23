@@ -79,7 +79,7 @@ type MenuItems = Record<
 
 const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
-const useAccountPageItems = () => {
+const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
@@ -116,6 +116,15 @@ const useAccountPageItems = () => {
               icon: MedalBadgeIcon,
               href: `${webappUrl}${user?.username}/achievements`,
             },
+            hotTakes: {
+              title: 'Hot Takes',
+              icon: HotIcon,
+              onClick: () => {
+                logEvent({ event_name: LogEvent.OpenHotAndCold });
+                onClose?.();
+                openModal({ type: LazyModal.HotAndCold });
+              },
+            } as ProfileSectionItemPropsWithoutHref,
             appearance: {
               title: 'Appearance',
               icon: NewTabIcon,
@@ -310,7 +319,7 @@ const useAccountPageItems = () => {
           },
         },
       }),
-    [logEvent, openModal, user?.username],
+    [logEvent, onClose, openModal, user?.username],
   );
 };
 
@@ -320,11 +329,14 @@ interface ProfileSettingsMenuProps {
   shouldKeepOpen?: boolean;
 }
 
-export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
+export const InnerProfileSettingsMenu = ({
+  className,
+  onClose,
+}: WithClassNameProps & { onClose?: () => void }) => {
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
-  const accountPageItems = useAccountPageItems();
+  const accountPageItems = useAccountPageItems({ onClose });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
@@ -377,7 +389,7 @@ export function ProfileSettingsMenuMobile({
         onClose,
       }}
     >
-      <InnerProfileSettingsMenu className="p-4" />
+      <InnerProfileSettingsMenu className="p-4" onClose={onClose} />
     </NavDrawer>
   );
 }

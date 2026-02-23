@@ -391,6 +391,8 @@ const handleClick = useCallback((key: string) => {
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
 
+Before opening a PR, run `git diff --name-only origin/main...HEAD` and confirm every changed file belongs to the current task. If unrelated files appear (for example from reverted or merged commits), clean the branch history first.
+
 ## Code Review Guidelines
 
 When reviewing code (or writing code that will be reviewed):

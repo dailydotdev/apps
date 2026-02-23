@@ -4,6 +4,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
+import { AdList } from './AdList';
 import type { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ActiveFeedContext } from '../../../contexts';
@@ -27,6 +28,22 @@ const renderComponent = (props: Partial<AdCardProps> = {}): RenderResult => {
     </TestBootProvider>,
   );
 };
+
+const renderListComponent = (
+  props: Partial<AdCardProps> = {},
+): RenderResult => {
+  const client = new QueryClient();
+  return render(
+    <TestBootProvider client={client}>
+      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
+        <AdList {...defaultProps} {...props} />
+      </ActiveFeedContext.Provider>
+    </TestBootProvider>,
+  );
+};
+
+const getNormalizedText = (element?: Element | null): string =>
+  element?.textContent?.replace(/\u200B/g, '').trim() ?? '';
 
 it('should call on click on component left click', async () => {
   renderComponent();
@@ -68,4 +85,17 @@ it('should show pixel images', async () => {
   });
   const el = await screen.findByTestId('pixel');
   expect(el).toHaveAttribute('src', 'https://daily.dev/pixel');
+});
+
+it('should render promoted attribution outside of list title clamp', async () => {
+  const promotedMatcher = (_: string, element?: Element | null): boolean => {
+    const text = getNormalizedText(element);
+    return text === 'Promoted' || text.startsWith('Promoted by ');
+  };
+
+  renderListComponent();
+
+  const title = screen.getByRole('heading', { level: 3 });
+  expect(getNormalizedText(title)).not.toContain('Promoted');
+  expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
 });

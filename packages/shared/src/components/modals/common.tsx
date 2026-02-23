@@ -420,6 +420,12 @@ const FeedbackModal = dynamic(
   () => import(/* webpackChunkName: "feedbackModal" */ './FeedbackModal'),
 );
 
+const HotAndColdModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "hotAndColdModal" */ './hotTakes/HotAndColdModal'
+    ),
+);
 const AchievementSyncPromptModal = dynamic(
   () =>
     import(
@@ -511,6 +517,7 @@ export const modals = {
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
   [LazyModal.Feedback]: FeedbackModal,
   [LazyModal.AchievementSyncPrompt]: AchievementSyncPromptModal,
+  [LazyModal.HotAndCold]: HotAndColdModal,
   [LazyModal.AchievementPicker]: AchievementPickerModal,
   [LazyModal.AchievementCompletion]: AchievementCompletionModal,
 };
