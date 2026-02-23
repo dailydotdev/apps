@@ -57,6 +57,7 @@ const renderComponent = (onRequestClose = jest.fn()) => {
 describe('HotAndColdModal', () => {
   const toggleUpvote = jest.fn();
   const toggleDownvote = jest.fn();
+  const cancelHotTakeVote = jest.fn();
   const dismissCurrent = jest.fn();
   const logEvent = jest.fn();
 
@@ -65,6 +66,7 @@ describe('HotAndColdModal', () => {
     mockedUseVoteHotTake.mockReturnValue({
       toggleUpvote,
       toggleDownvote,
+      cancelHotTakeVote,
     });
     mockedUseLogContext.mockReturnValue({
       logEvent,
@@ -176,6 +178,40 @@ describe('HotAndColdModal', () => {
     expect(dismissCurrent).toHaveBeenCalledTimes(1);
   });
 
+  it('should trigger neutral vote flow for skip action', () => {
+    jest.useFakeTimers();
+    const currentTake = createHotTake('skip-take');
+
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Skip hot take' }));
+
+    expect(cancelHotTakeVote).toHaveBeenCalledWith({ id: currentTake.id });
+    expect(toggleUpvote).not.toHaveBeenCalled();
+    expect(toggleDownvote).not.toHaveBeenCalled();
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.SkipHotTake,
+        target_id: currentTake.id,
+      }),
+    );
+
+    act(() => {
+      jest.runAllTimers();
+    });
+
+    expect(dismissCurrent).toHaveBeenCalledTimes(1);
+  });
+
   it('should render empty state share button and close modal on click', () => {
     mockedUseDiscoverHotTakes.mockReturnValue({
       hotTakes: [],
@@ -211,5 +247,39 @@ describe('HotAndColdModal', () => {
     fireEvent.click(addButton);
 
     expect(onRequestClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should keep subtitle visible even when title is very long', () => {
+    const currentTake = {
+      ...createHotTake('long-text'),
+      title:
+        'This is a very long hot take title that should still be fully visible while forcing the subtitle to hide in order to keep the card layout stable in the modal, especially when additional context is included.',
+      subtitle:
+        'This subtitle is intentionally long so we can validate that the modal clamps text after a few lines and keeps the card content contained.',
+    };
+
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    expect(screen.getByText(currentTake.title)).toHaveClass(
+      'w-full',
+      'break-words',
+    );
+    expect(screen.getByText(currentTake.subtitle)).toHaveClass(
+      'w-full',
+      'break-words',
+      'text-center',
+    );
+    expect(screen.getByText(currentTake.subtitle)).not.toHaveClass(
+      'line-clamp-3',
+    );
   });
 });
