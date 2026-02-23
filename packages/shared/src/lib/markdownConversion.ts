@@ -6,6 +6,17 @@ const escapeAttribute = (value: string): string =>
 
 const normalizeText = (value: string): string => value.replace(/\u00a0/g, ' ');
 
+const applyInlineTextFormatting = (value: string): string => {
+  let result = value;
+
+  result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  result = result.replace(/\*(?!\*)([^*]+)\*(?!\*)/g, '<em>$1</em>');
+  result = result.replace(/_(.+?)_/g, '<em>$1</em>');
+  result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  return result;
+};
+
 const inlineMarkdownToHtml = (value: string): string => {
   let result = escapeHtml(value);
 
@@ -21,12 +32,12 @@ const inlineMarkdownToHtml = (value: string): string => {
       `<a href="${escapeAttribute(url)}">${label}</a>`,
   );
 
-  result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  result = result.replace(/\*(?!\*)([^*]+)\*(?!\*)/g, '<em>$1</em>');
-  result = result.replace(/_(.+?)_/g, '<em>$1</em>');
-  result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-  return result;
+  return result
+    .split(/(<[^>]+>)/g)
+    .map((part) =>
+      part.startsWith('<') ? part : applyInlineTextFormatting(part),
+    )
+    .join('');
 };
 
 /**
@@ -144,6 +155,14 @@ export const markdownToHtmlBasic = (markdown: string): string => {
       if (hasRenderedBlock) {
         pendingBlankLines += 1;
       }
+      return;
+    }
+
+    if (/^!\[[^\]]*\]\([^)]+\)$/.test(trimmed)) {
+      flushList();
+      flushPendingEmptyParagraphs();
+      htmlParts.push(inlineMarkdownToHtml(trimmed));
+      hasRenderedBlock = true;
       return;
     }
 
