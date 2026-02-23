@@ -428,46 +428,20 @@ const ApiAccessPage = (): ReactElement => {
     }));
   };
 
-  if (!isPlus) {
-    return (
-      <AccountPageContainer title="API Access">
-        <div className="flex flex-col gap-4">
-          <Typography type={TypographyType.Body} bold>
-            Plus Feature
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            API access is available exclusively for Plus subscribers. Upgrade to
-            connect AI agents and automate your workflows.
-          </Typography>
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            tag="a"
-            href="/plus"
-            className="self-start"
-          >
-            Upgrade to Plus
-          </Button>
-        </div>
-      </AccountPageContainer>
-    );
-  }
-
   return (
     <AccountPageContainer
       title="API Access"
       actions={
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<PlusIcon />}
-          onClick={() => setShowCreateModal(true)}
-        >
-          {isMobile ? undefined : 'Create token'}
-        </Button>
+        isPlus ? (
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+            onClick={() => setShowCreateModal(true)}
+          >
+            {isMobile ? undefined : 'Create token'}
+          </Button>
+        ) : undefined
       }
     >
       <div className="flex flex-col gap-6">
@@ -517,16 +491,29 @@ const ApiAccessPage = (): ReactElement => {
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              No tokens yet. Create one to get started.
+              {isPlus
+                ? 'No tokens yet. Create one to get started.'
+                : 'Upgrade to Plus to create API tokens and authenticate with the daily.dev API.'}
             </Typography>
-            <Button
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              icon={<PlusIcon />}
-              onClick={() => setShowCreateModal(true)}
-            >
-              Create your first token
-            </Button>
+            {isPlus ? (
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<PlusIcon />}
+                onClick={() => setShowCreateModal(true)}
+              >
+                Create your first token
+              </Button>
+            ) : (
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                tag="a"
+                href="/plus"
+              >
+                Upgrade to Plus
+              </Button>
+            )}
           </div>
         )}
 
