@@ -839,7 +839,7 @@ const HotAndColdModal = ({
 }: ModalProps): ReactElement => {
   const { currentTake, nextTake, isEmpty, isLoading, dismissCurrent } =
     useDiscoverHotTakes();
-  const { toggleUpvote, toggleDownvote } = useVoteHotTake();
+  const { toggleUpvote, toggleDownvote, cancelHotTakeVote } = useVoteHotTake();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const [swipeDelta, setSwipeDelta] = useState(0);
@@ -1013,6 +1013,8 @@ const HotAndColdModal = ({
         target_id: currentTake.id,
       });
 
+      cancelHotTakeVote({ id: currentTake.id });
+
       startDismissAnimation({
         takeId: currentTake.id,
         durationMs: SKIP_DISMISS_ANIMATION_MS,
@@ -1020,7 +1022,13 @@ const HotAndColdModal = ({
         onFly: () => setSkipDelta(-SKIP_DISMISS_FLY_DISTANCE),
       });
     },
-    [currentTake, isAnimating, startDismissAnimation, logEvent],
+    [
+      cancelHotTakeVote,
+      currentTake,
+      isAnimating,
+      startDismissAnimation,
+      logEvent,
+    ],
   );
 
   const isCurrentTakeAnimating =

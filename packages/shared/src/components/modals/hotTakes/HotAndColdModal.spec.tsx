@@ -57,6 +57,7 @@ const renderComponent = (onRequestClose = jest.fn()) => {
 describe('HotAndColdModal', () => {
   const toggleUpvote = jest.fn();
   const toggleDownvote = jest.fn();
+  const cancelHotTakeVote = jest.fn();
   const dismissCurrent = jest.fn();
   const logEvent = jest.fn();
 
@@ -65,6 +66,7 @@ describe('HotAndColdModal', () => {
     mockedUseVoteHotTake.mockReturnValue({
       toggleUpvote,
       toggleDownvote,
+      cancelHotTakeVote,
     });
     mockedUseLogContext.mockReturnValue({
       logEvent,
@@ -168,6 +170,40 @@ describe('HotAndColdModal', () => {
       direction: 'left',
       hotTakeId: currentTake.id,
     });
+
+    act(() => {
+      jest.runAllTimers();
+    });
+
+    expect(dismissCurrent).toHaveBeenCalledTimes(1);
+  });
+
+  it('should trigger neutral vote flow for skip action', () => {
+    jest.useFakeTimers();
+    const currentTake = createHotTake('skip-take');
+
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Skip hot take' }));
+
+    expect(cancelHotTakeVote).toHaveBeenCalledWith({ id: currentTake.id });
+    expect(toggleUpvote).not.toHaveBeenCalled();
+    expect(toggleDownvote).not.toHaveBeenCalled();
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.SkipHotTake,
+        target_id: currentTake.id,
+      }),
+    );
 
     act(() => {
       jest.runAllTimers();
