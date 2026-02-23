@@ -25,24 +25,21 @@ interface CompareAchievementsModalProps extends ModalProps {
   profileAchievements: UserAchievement[];
 }
 
-interface MergedAchievement {
-  achievementId: string;
-  name: string;
-  description: string;
-  image: string;
-  points: number;
-  myUnlockedAt: string | null;
-  theirUnlockedAt: string | null;
-  myProgress: number;
-  targetCount: number;
-}
-
-const sortMergedAchievements = (
-  achievements: MergedAchievement[],
-): MergedAchievement[] => {
+/**
+ * Sorts achievements by the logged user's unlock status, matching AchievementsList:
+ * 1. Unlocked first
+ * 2. Among unlocked: rarest first, then highest points
+ * 3. Among locked: highest progress ratio first
+ */
+const sortByMyStatus = (
+  achievements: UserAchievement[],
+  myMap: Map<string, UserAchievement>,
+): UserAchievement[] => {
   return [...achievements].sort((a, b) => {
-    const aUnlocked = a.myUnlockedAt !== null;
-    const bUnlocked = b.myUnlockedAt !== null;
+    const myA = myMap.get(a.achievement.id);
+    const myB = myMap.get(b.achievement.id);
+    const aUnlocked = myA?.unlockedAt != null;
+    const bUnlocked = myB?.unlockedAt != null;
 
     if (aUnlocked && !bUnlocked) {
       return -1;
@@ -52,52 +49,21 @@ const sortMergedAchievements = (
     }
 
     if (aUnlocked && bUnlocked) {
-      return b.points - a.points;
+      const rarityA = a.achievement.rarity ?? Infinity;
+      const rarityB = b.achievement.rarity ?? Infinity;
+      if (rarityA !== rarityB) {
+        return rarityA - rarityB;
+      }
+      return b.achievement.points - a.achievement.points;
     }
 
-    const progressA = a.targetCount > 0 ? a.myProgress / a.targetCount : 0;
-    const progressB = b.targetCount > 0 ? b.myProgress / b.targetCount : 0;
+    const targetA = getTargetCount(a.achievement);
+    const targetB = getTargetCount(b.achievement);
+    const progressA = targetA > 0 ? (myA?.progress ?? 0) / targetA : 0;
+    const progressB = targetB > 0 ? (myB?.progress ?? 0) / targetB : 0;
 
     return progressB - progressA;
   });
-};
-
-const mergeAchievements = (
-  myAchievements: UserAchievement[],
-  profileAchievements: UserAchievement[],
-): MergedAchievement[] => {
-  const myMap = new Map(myAchievements.map((ua) => [ua.achievement.id, ua]));
-  const theirMap = new Map(
-    profileAchievements.map((ua) => [ua.achievement.id, ua]),
-  );
-
-  const allIds = new Set([...myMap.keys(), ...theirMap.keys()]);
-
-  return sortMergedAchievements(
-    Array.from(allIds).reduce<MergedAchievement[]>((items, id) => {
-      const mine = myMap.get(id);
-      const theirs = theirMap.get(id);
-      const achievement = mine?.achievement ?? theirs?.achievement;
-
-      if (!achievement) {
-        return items;
-      }
-
-      items.push({
-        achievementId: id,
-        name: achievement.name,
-        description: achievement.description,
-        image: achievement.image,
-        points: achievement.points,
-        myUnlockedAt: mine?.unlockedAt ?? null,
-        theirUnlockedAt: theirs?.unlockedAt ?? null,
-        myProgress: mine?.progress ?? 0,
-        targetCount: getTargetCount(achievement),
-      });
-
-      return items;
-    }, []),
-  );
 };
 
 export const CompareAchievementsModal = ({
@@ -110,19 +76,44 @@ export const CompareAchievementsModal = ({
   const { achievements: myAchievements, isPending } =
     useProfileAchievements(loggedUser);
 
-  const merged = useMemo(() => {
+  const { sorted, myMap, theirMap } = useMemo(() => {
+    const empty = {
+      sorted: [] as UserAchievement[],
+      myMap: new Map<string, UserAchievement>(),
+      theirMap: new Map<string, UserAchievement>(),
+    };
+
     if (!myAchievements) {
-      return [];
+      return empty;
     }
 
-    return mergeAchievements(myAchievements, profileAchievements);
+    const my = new Map(myAchievements.map((ua) => [ua.achievement.id, ua]));
+    const theirs = new Map(
+      profileAchievements.map((ua) => [ua.achievement.id, ua]),
+    );
+
+    // Build deduplicated list from both sets
+    const allIds = new Set([...my.keys(), ...theirs.keys()]);
+    const allAchievements = Array.from(allIds).reduce<UserAchievement[]>(
+      (acc, id) => {
+        const ua = my.get(id) ?? theirs.get(id);
+        if (ua) {
+          acc.push(ua);
+        }
+        return acc;
+      },
+      [],
+    );
+
+    return {
+      sorted: sortByMyStatus(allAchievements, my),
+      myMap: my,
+      theirMap: theirs,
+    };
   }, [myAchievements, profileAchievements]);
 
   const handleClose = (event?: React.MouseEvent | React.KeyboardEvent): void =>
     onRequestClose?.(event);
-
-  const isEitherUnlocked = (item: MergedAchievement): boolean =>
-    item.myUnlockedAt !== null || item.theirUnlockedAt !== null;
 
   return (
     <Modal
@@ -173,98 +164,105 @@ export const CompareAchievementsModal = ({
           </div>
         )}
 
-        {!isPending && merged.length > 0 && (
+        {!isPending && sorted.length > 0 && (
           <div className="flex max-h-[28rem] flex-col gap-3 overflow-y-auto">
-            {merged.map((item) => (
-              <div
-                key={item.achievementId}
-                className="flex gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3"
-              >
+            {sorted.map((ua) => {
+              const myUa = myMap.get(ua.achievement.id);
+              const theirUa = theirMap.get(ua.achievement.id);
+              const eitherUnlocked =
+                myUa?.unlockedAt != null || theirUa?.unlockedAt != null;
+
+              return (
                 <div
-                  className={classNames(
-                    'flex size-10 shrink-0 items-center justify-center rounded-10',
-                    !isEitherUnlocked(item) && 'opacity-50 grayscale',
-                  )}
+                  key={ua.achievement.id}
+                  className="flex gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3"
                 >
-                  <LazyImage
-                    imgSrc={item.image}
-                    imgAlt={item.name}
-                    className="size-10 rounded-10 object-cover"
-                    fallbackSrc="https://daily.dev/default-achievement.png"
-                  />
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <div className="flex items-start justify-between gap-2">
-                    <Typography
-                      type={TypographyType.Callout}
-                      tag={TypographyTag.Span}
-                      color={
-                        isEitherUnlocked(item)
-                          ? TypographyColor.Primary
-                          : TypographyColor.Tertiary
-                      }
-                      bold
-                      className="truncate"
-                    >
-                      {item.name}
-                    </Typography>
+                  <div
+                    className={classNames(
+                      'flex size-10 shrink-0 items-center justify-center rounded-10',
+                      !eitherUnlocked && 'opacity-50 grayscale',
+                    )}
+                  >
+                    <LazyImage
+                      imgSrc={ua.achievement.image}
+                      imgAlt={ua.achievement.name}
+                      className="size-10 rounded-10 object-cover"
+                      fallbackSrc="https://daily.dev/default-achievement.png"
+                    />
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <div className="flex items-start justify-between gap-2">
+                      <Typography
+                        type={TypographyType.Callout}
+                        tag={TypographyTag.Span}
+                        color={
+                          eitherUnlocked
+                            ? TypographyColor.Primary
+                            : TypographyColor.Tertiary
+                        }
+                        bold
+                        className="truncate"
+                      >
+                        {ua.achievement.name}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                        bold
+                        className="shrink-0"
+                      >
+                        {ua.achievement.points} pts
+                      </Typography>
+                    </div>
                     <Typography
                       type={TypographyType.Footnote}
                       color={TypographyColor.Tertiary}
-                      bold
-                      className="shrink-0"
+                      className="line-clamp-1"
                     >
-                      {item.points} pts
+                      {ua.achievement.description}
                     </Typography>
-                  </div>
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                    className="line-clamp-1"
-                  >
-                    {item.description}
-                  </Typography>
-                  <div className="mt-1 flex flex-col gap-0.5">
-                    {item.myUnlockedAt && (
-                      <Typography
-                        type={TypographyType.Caption1}
-                        className="text-accent-cheese-default"
-                      >
-                        {loggedUser?.name ?? 'You'} &middot; Unlocked{' '}
-                        {formatDate({
-                          value: item.myUnlockedAt,
-                          type: TimeFormatType.Post,
-                        })}
-                      </Typography>
-                    )}
-                    {item.theirUnlockedAt && (
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                      >
-                        {profileUser.name} &middot; Unlocked{' '}
-                        {formatDate({
-                          value: item.theirUnlockedAt,
-                          type: TimeFormatType.Post,
-                        })}
-                      </Typography>
-                    )}
-                    {!item.myUnlockedAt && !item.theirUnlockedAt && (
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                      >
-                        Locked
-                      </Typography>
-                    )}
+                    <div className="mt-1 flex flex-col gap-0.5">
+                      {myUa?.unlockedAt && (
+                        <Typography
+                          type={TypographyType.Caption1}
+                          className="text-accent-cheese-default"
+                        >
+                          {loggedUser?.name ?? 'You'} &middot; Unlocked{' '}
+                          {formatDate({
+                            value: myUa.unlockedAt,
+                            type: TimeFormatType.Post,
+                          })}
+                        </Typography>
+                      )}
+                      {theirUa?.unlockedAt && (
+                        <Typography
+                          type={TypographyType.Caption1}
+                          color={TypographyColor.Tertiary}
+                        >
+                          {profileUser.name} &middot; Unlocked{' '}
+                          {formatDate({
+                            value: theirUa.unlockedAt,
+                            type: TimeFormatType.Post,
+                          })}
+                        </Typography>
+                      )}
+                      {!myUa?.unlockedAt && !theirUa?.unlockedAt && (
+                        <Typography
+                          type={TypographyType.Caption1}
+                          color={TypographyColor.Tertiary}
+                        >
+                          Locked
+                        </Typography>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        {!isPending && merged.length === 0 && (
+        {!isPending && sorted.length === 0 && (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <Typography
               type={TypographyType.Body}
