@@ -32,6 +32,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import useSubscription from '../../hooks/useSubscription';
 import { ProgressBar } from '../fields/ProgressBar';
+import { UpgradeToPlus } from '../UpgradeToPlus';
+import { TargetId } from '../../lib/log';
 
 const getProgress = (progress: number, target: number) => {
   const safeTarget = Math.max(target, 1);
@@ -125,7 +127,7 @@ const QuestItem = ({
     <article
       className={classNames(
         'flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-2',
-        quest.locked && 'opacity-70',
+        quest.locked && 'opacity-50 grayscale',
       )}
     >
       <header className="flex items-start justify-between gap-2">
@@ -228,9 +230,14 @@ const QuestSection = ({
 
       {bucket.plus.length > 0 && (
         <>
-          <p className="mt-1 text-action-plus-default typo-caption1">
-            Plus quest
-          </p>
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <p className="text-action-plus-default typo-caption1">Plus quest</p>
+            <UpgradeToPlus
+              target={TargetId.Popover}
+              size={ButtonSize.Small}
+              className="!flex-none"
+            />
+          </div>
           {bucket.plus.map((quest) => (
             <QuestItem
               key={quest.rotationId}
