@@ -121,7 +121,7 @@ function ProfilePictureComponent(
     ...props
   }: ProfilePictureProps,
   ref?: Ref<HTMLImageElement>,
-): ReactElement {
+): ReactElement | null {
   const { isCompanion } = useRequestProtocol();
   const classes = classNames(
     getProfilePictureClasses(size, rounded),
