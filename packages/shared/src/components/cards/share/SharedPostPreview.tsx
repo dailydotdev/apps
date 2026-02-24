@@ -36,13 +36,14 @@ export function SharedPostPreview({
   imageProps,
 }: SharedPostPreviewProps): ReactElement {
   const { overlay } = useCardCover({ post, onShare });
-  const isUnknownSource = post.sharedPost.source.id === 'unknown';
+  const isUnknownSource =
+    !post.sharedPost?.source || post.sharedPost.source.id === 'unknown';
   const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
   const iconSize = Math.round(16 * pixelRatio);
   const sourceImage =
-    isUnknownSource && post.sharedPost.domain
+    isUnknownSource && post.sharedPost?.domain
       ? `${apiUrl}/icon?url=${encodeURIComponent(
-          post.sharedPost.domain,
+          post.sharedPost?.domain,
         )}&size=${iconSize}`
       : source?.image;
 
@@ -77,7 +78,7 @@ export function SharedPostPreview({
                     source={{
                       image: sourceImage,
                       handle: isUnknownSource
-                        ? post.sharedPost.domain
+                        ? post.sharedPost?.domain
                         : source.handle,
                     }}
                     size={ProfileImageSize.Size16}
@@ -89,7 +90,7 @@ export function SharedPostPreview({
                     color={TypographyColor.Primary}
                     className="truncate font-bold"
                   >
-                    {isUnknownSource ? post.sharedPost.domain : source.name}
+                    {isUnknownSource ? post.sharedPost?.domain : source.name}
                   </Typography>
                 </div>
               )}
