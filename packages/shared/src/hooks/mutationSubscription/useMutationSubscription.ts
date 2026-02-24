@@ -7,10 +7,10 @@ import type {
 } from './types';
 import { mutationSuccessSubscribers } from '../../lib/query';
 
-export const useMutationSubscription = ({
+export const useMutationSubscription = <TVariables = unknown>({
   matcher,
   callback,
-}: UseMutationSubscriptionProps): UseMutationSubscription => {
+}: UseMutationSubscriptionProps<TVariables>): UseMutationSubscription => {
   const queryClient = useQueryClient();
 
   const callbackRef = useRef(callback);
@@ -23,8 +23,16 @@ export const useMutationSubscription = ({
 
     mutationSuccessSubscribers.set(
       subscriptionId,
-      (data, variables, context, mutation) => {
-        if (!matcherRef.current({ status: 'success', mutation, variables })) {
+      (_, variables, __, mutation) => {
+        const typedVariables = variables as TVariables | undefined;
+
+        if (
+          !matcherRef.current({
+            status: 'success',
+            mutation,
+            variables: typedVariables,
+          })
+        ) {
           return;
         }
 
@@ -32,7 +40,7 @@ export const useMutationSubscription = ({
           status: 'success',
           mutation,
           queryClient,
-          variables,
+          variables: typedVariables,
         });
       },
     );
