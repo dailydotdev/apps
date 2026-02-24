@@ -20,7 +20,7 @@ export const ReputationUserBadge = ({
   iconProps,
   user,
   disableTooltip = false,
-}: ReputationUserBadgeProps): ReactElement => {
+}: ReputationUserBadgeProps): ReactElement | null => {
   if (typeof user?.reputation !== 'number') {
     return null;
   }

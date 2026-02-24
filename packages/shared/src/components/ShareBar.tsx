@@ -102,7 +102,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
           pressed={copying}
           icon={
             <CopyIcon
-              className={copying && 'text-accent-avocado-default'}
+              className={copying ? 'text-accent-avocado-default' : undefined}
               secondary={copying}
             />
           }

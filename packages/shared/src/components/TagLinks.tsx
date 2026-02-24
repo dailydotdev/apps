@@ -55,7 +55,7 @@ export function TagLinks({
   tags,
   className = {},
   buttonProps,
-}: TagLinksProps): ReactElement {
+}: TagLinksProps): ReactElement | null {
   if (tags.length === 0) {
     return null;
   }
