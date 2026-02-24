@@ -1,23 +1,25 @@
 import type { RefObject } from 'react';
 import { useEventListener } from '../useEventListener';
-import { isNullOrUndefined } from '../../lib/func';
 
 export const useOutsideClick = (
   ref: RefObject<HTMLElement>,
-  callback: (e: MouseEvent | KeyboardEvent | MessageEvent) => void,
+  callback: (e: MouseEvent) => void,
   enabled: boolean,
 ): void => {
-  useEventListener(globalThis, 'click', (e) => {
-    if (!enabled) {
-      return;
-    }
+  useEventListener(
+    typeof window === 'undefined' ? null : window,
+    'click',
+    (e) => {
+      if (!enabled) {
+        return;
+      }
 
-    if (
-      !isNullOrUndefined(ref.current) &&
-      !ref.current.contains(e.target as Node) &&
-      callback
-    ) {
+      const currentElement = ref.current;
+      if (!currentElement || currentElement.contains(e.target as Node)) {
+        return;
+      }
+
       callback(e);
-    }
-  });
+    },
+  );
 };
