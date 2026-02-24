@@ -24,6 +24,7 @@ import {
   MailIcon,
   NewTabIcon,
   PhoneIcon,
+  PinIcon,
   ReputationLightningIcon,
   ExitIcon,
   OrganizationIcon,
@@ -178,11 +179,12 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
             },
             trackAchievement: {
               title: 'Track achievement',
-              icon: MedalBadgeIcon,
+              icon: PinIcon,
               onClick: () => {
                 logEvent({
                   event_name: LogEvent.OpenAchievementPickerModal,
                 });
+                onClose?.();
                 openModal({
                   type: LazyModal.AchievementPicker,
                   props: {
