@@ -266,19 +266,12 @@ export const useMarkdownInput = ({
     useQuery<RecommendedMentionsData>({
       queryKey: key,
       queryFn: () =>
-        (() => {
-          if (!requestMethod) {
-            throw new Error('Request method is not initialized');
-          }
-
-          return requestMethod(
-            RECOMMEND_MENTIONS_QUERY,
-            { postId, query, sourceId },
-            { requestKey: JSON.stringify(key) },
-          );
-        })(),
-
-      enabled: !!user && typeof query !== 'undefined',
+        requestMethod!(
+          RECOMMEND_MENTIONS_QUERY,
+          { postId, query, sourceId },
+          { requestKey: JSON.stringify(key) },
+        ),
+      enabled: !!user && !!requestMethod && typeof query !== 'undefined',
       refetchOnWindowFocus: false,
       refetchOnMount: false,
     });

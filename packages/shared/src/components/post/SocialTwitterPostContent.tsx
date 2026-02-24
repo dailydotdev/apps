@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
+import type { Post } from '../../graphql/posts';
 import { isSocialTwitterShareLike } from '../../graphql/posts';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -28,6 +29,10 @@ import {
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
 
+type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
+  post: Post;
+};
+
 function SocialTwitterPostContentRaw({
   post,
   isFallback,
@@ -43,11 +48,7 @@ function SocialTwitterPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement {
-  if (!post) {
-    throw new Error('SocialTwitterPostContent requires a post');
-  }
-
+}: SocialTwitterPostContentRawProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
@@ -191,9 +192,9 @@ function SocialTwitterPostContentRaw({
               )}
             </div>
           )}
-          {!shouldHideRepostHeadlineAndTags && !!post.image && (
+          {!shouldHideRepostHeadlineAndTags && !!post.image && !!post.permalink && (
             <a
-              href={post.permalink ?? '#'}
+              href={post.permalink}
               target="_blank"
               rel="noopener"
               className="mb-10 block cursor-pointer overflow-hidden rounded-16"

@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
 import { PostWidgets } from './PostWidgets';
@@ -28,6 +29,8 @@ import { SmartPrompt } from './smartPrompts/SmartPrompt';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 
+type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
+
 export const SCROLL_OFFSET = 80;
 
 const PostCodeSnippets = dynamic(() =>
@@ -52,11 +55,7 @@ export function PostContentRaw({
   backToSquad,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement {
-  if (!post) {
-    throw new Error('PostContent requires a post');
-  }
-
+}: PostContentRawProps): ReactElement {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -108,7 +107,7 @@ export function PostContentRaw({
   const ArticleLink = ({ children, ...props }: ComponentProps<'a'>) => {
     return (
       <a
-        href={post.permalink ?? '#'}
+        href={post.permalink}
         title="Go to post"
         target="_blank"
         rel="noopener"

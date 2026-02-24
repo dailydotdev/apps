@@ -16,6 +16,7 @@ import PostContentContainer from '../PostContentContainer';
 import { BasePostContent } from '../BasePostContent';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
+import type { Post } from '../../../graphql/posts';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -71,6 +72,8 @@ import useNotificationSettings from '../../../hooks/notifications/useNotificatio
 import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 import { isMutingDigestCompletely } from '../../notifications/utils';
 
+type BriefPostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
+
 const BriefPostContentRaw = ({
   post,
   className = {},
@@ -87,11 +90,7 @@ const BriefPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement => {
-  if (!post) {
-    throw new Error('BriefPostContent requires a post');
-  }
-
+}: BriefPostContentRawProps): ReactElement => {
   const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
   const { completeAction } = useActions();
   const router = useRouter();
