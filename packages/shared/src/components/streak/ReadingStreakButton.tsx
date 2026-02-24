@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import classnames from 'classnames';
 import { ReadingStreakPopup } from './popup';
 import type { ButtonIconPosition } from '../buttons/Button';
@@ -26,7 +26,10 @@ import {
   UrgencyLevel,
 } from '../../hooks/streaks/useStreakUrgency';
 import { useStreakDebug } from '../../hooks/streaks/useStreakDebug';
-import { getCurrentTier } from '../../lib/streakMilestones';
+import { getCurrentTier, getMilestoneAtDay } from '../../lib/streakMilestones';
+import { StreakIncrementPopover } from './StreakIncrementPopover';
+import { StreakBrokenPopover } from './StreakBrokenPopover';
+import { StreakMilestoneCelebration } from './StreakMilestoneCelebration';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -75,6 +78,7 @@ function CustomStreaksTooltip({
           streak={streak}
           showMilestoneTimeline={showMilestoneTimeline}
           streakOverride={streakOverride}
+          isVisible={shouldShowStreaks}
         />
       }
       onClickOutside={
@@ -104,11 +108,16 @@ export function ReadingStreakButton({
   const isMobile = useViewSize(ViewSize.MobileL);
   const debug = useStreakDebug();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(debug.isDebugMode);
+  const [debugPos, setDebugPos] = useState({ x: 16, y: 16 });
+  const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
+  const [showMilestoneCelebration, setShowMilestoneCelebration] =
+    useState(false);
   const hasReadToday =
     streak?.lastViewAt &&
     isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user.timezone);
   const isTimezoneOk = useStreakTimezoneOk();
-  const { animationState } = useStreakIncrement(streak?.current);
+  const { animationState, previousStreak } = useStreakIncrement(streak?.current);
+  const [showBrokenPopover, setShowBrokenPopover] = useState(false);
   const isStreaksEnabled = !!streak;
   const urgency = useStreakUrgency(
     !!hasReadToday,
@@ -120,6 +129,7 @@ export function ReadingStreakButton({
   const effectiveAnimation = debug.debugAnimationOverride ?? animationState;
   const effectiveStreak = debug.debugStreakOverride ?? streak?.current;
   const currentTier = getCurrentTier(effectiveStreak ?? 0);
+  const hitMilestone = getMilestoneAtDay(effectiveStreak ?? 0);
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);
@@ -144,8 +154,10 @@ export function ReadingStreakButton({
   const urgencyMessage = debug.features.urgencyNudges
     ? urgencyTooltipMessages[effectiveUrgency]
     : undefined;
-  const isIncrementing =
+  const showIncrementAnimation =
     debug.features.animatedCounter && effectiveAnimation === 'incrementing';
+  const showStreakBroken =
+    showBrokenPopover || effectiveAnimation === 'broken';
   const showUrgencyAnimation = debug.features.urgencyNudges;
 
   return (
@@ -167,46 +179,67 @@ export function ReadingStreakButton({
           </Tooltip>
         )}
       >
-        <Button
-          id="reading-streak-header-button"
-          type="button"
-          iconPosition={iconPosition}
-          icon={
-            <IconWrapper wrapperClassName="relative flex items-center gap-2">
-              <ReadingStreakIcon secondary={hasReadToday} />
-              {!isTimezoneOk && (
-                <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
-              )}
-            </IconWrapper>
-          }
-          variant={
-            isLaptop || isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float
-          }
-          onClick={handleToggle}
-          className={classnames(
-            'gap-1',
-            compact && 'text-accent-bacon-default',
-            isIncrementing && 'animate-streak-bounce',
-            showUrgencyAnimation &&
-              effectiveUrgency === UrgencyLevel.Low &&
-              'animate-streak-pulse',
-            showUrgencyAnimation &&
-              effectiveUrgency === UrgencyLevel.Medium &&
-              'animate-streak-pulse',
-            showUrgencyAnimation &&
-              effectiveUrgency === UrgencyLevel.High &&
-              'animate-streak-shake',
-            className,
+        <div className="relative">
+          <Button
+            id="reading-streak-header-button"
+            type="button"
+            iconPosition={iconPosition}
+            icon={
+              <IconWrapper wrapperClassName="relative flex items-center gap-2">
+                <ReadingStreakIcon secondary={hasReadToday} />
+                {!isTimezoneOk && (
+                  <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
+                )}
+              </IconWrapper>
+            }
+            variant={
+              isLaptop || isMobile
+                ? ButtonVariant.Tertiary
+                : ButtonVariant.Float
+            }
+            onClick={handleToggle}
+            className={classnames(
+              'gap-1 overflow-hidden border-solid',
+              compact && 'text-accent-bacon-default',
+              showIncrementAnimation && 'animate-streak-expand',
+              !showIncrementAnimation &&
+                showUrgencyAnimation &&
+                effectiveUrgency === UrgencyLevel.Low &&
+                'animate-streak-pulse',
+              !showIncrementAnimation &&
+                showUrgencyAnimation &&
+                effectiveUrgency === UrgencyLevel.Medium &&
+                'animate-streak-pulse',
+              !showIncrementAnimation &&
+                showUrgencyAnimation &&
+                effectiveUrgency === UrgencyLevel.High &&
+                'animate-streak-shake',
+              className,
+            )}
+            size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
+          >
+            {showIncrementAnimation && (
+              <span className="pointer-events-none absolute inset-0 z-1 animate-streak-shine bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+            )}
+            {debug.features.animatedCounter ? (
+              <AnimatedNumber value={effectiveStreak ?? 0} />
+            ) : (
+              effectiveStreak
+            )}
+            {!compact && ' reading days'}
+          </Button>
+          {showIncrementAnimation && !hitMilestone && (
+            <StreakIncrementPopover
+              fromStreak={Math.max((effectiveStreak ?? 1) - 1, 0)}
+              toStreak={effectiveStreak ?? 1}
+            />
           )}
-          size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
-        >
-          {debug.features.animatedCounter ? (
-            <AnimatedNumber value={effectiveStreak ?? 0} />
-          ) : (
-            effectiveStreak
+          {showStreakBroken && (
+            <StreakBrokenPopover
+              previousStreak={previousStreak ?? effectiveStreak ?? 0}
+            />
           )}
-          {!compact && ' reading days'}
-        </Button>
+        </div>
       </ConditionalWrapper>
 
       {isMobile && (
@@ -221,15 +254,60 @@ export function ReadingStreakButton({
               fullWidth
               showMilestoneTimeline={debug.features.milestoneTimeline}
               streakOverride={debug.debugStreakOverride ?? undefined}
+              isVisible={shouldShowStreaks}
             />
           </Drawer>
         </RootPortal>
       )}
 
+      {((showIncrementAnimation && hitMilestone) ||
+        showMilestoneCelebration) && (
+        <StreakMilestoneCelebration
+          milestone={
+            hitMilestone ?? getCurrentTier(effectiveStreak ?? 0)
+          }
+          streakDay={effectiveStreak ?? 0}
+          onComplete={() => setShowMilestoneCelebration(false)}
+        />
+      )}
+
       {debug.isDebugMode && (
-        <div className="fixed bottom-4 right-4 z-max flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2">
-          <span className="font-bold text-text-tertiary typo-footnote">
-            Streak Debug
+        <div
+          className="fixed z-max flex w-fit flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2"
+          style={{ left: debugPos.x, bottom: debugPos.y }}
+        >
+          <span
+            className="cursor-grab font-bold text-text-tertiary typo-footnote select-none active:cursor-grabbing"
+            onMouseDown={(e) => {
+              dragRef.current = {
+                startX: e.clientX,
+                startY: e.clientY,
+                origX: debugPos.x,
+                origY: debugPos.y,
+              };
+
+              const onMove = (ev: MouseEvent) => {
+                if (!dragRef.current) {
+                  return;
+                }
+
+                setDebugPos({
+                  x: dragRef.current.origX + (ev.clientX - dragRef.current.startX),
+                  y: dragRef.current.origY - (ev.clientY - dragRef.current.startY),
+                });
+              };
+
+              const onUp = () => {
+                dragRef.current = null;
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+              };
+
+              document.addEventListener('mousemove', onMove);
+              document.addEventListener('mouseup', onUp);
+            }}
+          >
+            ⠿ Streak Debug
           </span>
 
           <div className="flex flex-col gap-1 border-b border-border-subtlest-tertiary pb-2">
@@ -266,13 +344,20 @@ export function ReadingStreakButton({
           </button>
           <button
             type="button"
-            onClick={debug.cycleUrgency}
+            onClick={() => setShowMilestoneCelebration(true)}
             className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover"
           >
-            Cycle Urgency ({effectiveUrgency})
+            Play Milestone 🎉
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowBrokenPopover((v) => !v)}
+            className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover"
+          >
+            Play Streak Broken 💔
           </button>
           <div className="flex gap-1">
-            {[0, 3, 7, 14, 30, 90, 365].map((d) => (
+            {[0, 3, 7, 14, 30, 90, 365, 730, 1095, 1460].map((d) => (
               <button
                 key={d}
                 type="button"

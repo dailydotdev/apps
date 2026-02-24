@@ -10,6 +10,9 @@ export enum StreakTier {
   EternalFlame = 'eternal_flame',
   Supernova = 'supernova',
   Legendary = 'legendary',
+  Phoenix = 'phoenix',
+  Titan = 'titan',
+  Godflame = 'godflame',
 }
 
 export enum RewardType {
@@ -133,6 +136,49 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
       },
     ],
   },
+  {
+    day: 730,
+    tier: StreakTier.Phoenix,
+    label: 'Phoenix',
+    rewards: [
+      { type: RewardType.Cores, description: '750 Cores' },
+      {
+        type: RewardType.Cosmetic,
+        description: 'Phoenix rising DevCard animation',
+      },
+      { type: RewardType.Perk, description: 'Custom profile color theme' },
+    ],
+  },
+  {
+    day: 1095,
+    tier: StreakTier.Titan,
+    label: 'Titan',
+    rewards: [
+      { type: RewardType.Cores, description: '1000 Cores' },
+      {
+        type: RewardType.Cosmetic,
+        description: 'Titan holographic DevCard effect',
+      },
+      { type: RewardType.Perk, description: 'Permanent boosted visibility' },
+    ],
+  },
+  {
+    day: 1460,
+    tier: StreakTier.Godflame,
+    label: 'Godflame',
+    rewards: [
+      { type: RewardType.Cores, description: '1500 Cores' },
+      {
+        type: RewardType.Cosmetic,
+        description: 'Godflame evolving DevCard aura',
+      },
+      {
+        type: RewardType.Cosmetic,
+        description: 'Permanent Godflame crown badge',
+      },
+      { type: RewardType.Perk, description: 'Founding Reader legacy title' },
+    ],
+  },
 ];
 
 export const getCurrentTier = (currentStreak: number): StreakMilestone => {
@@ -144,6 +190,10 @@ export const getNextMilestone = (
   currentStreak: number,
 ): StreakMilestone | null => {
   return STREAK_MILESTONES.find((m) => m.day > currentStreak) ?? null;
+};
+
+export const getMilestoneAtDay = (day: number): StreakMilestone | null => {
+  return STREAK_MILESTONES.find((m) => m.day === day) ?? null;
 };
 
 export const getTierProgress = (currentStreak: number): number => {

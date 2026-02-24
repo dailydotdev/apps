@@ -58,7 +58,7 @@ export const useStreakDebug = (): UseStreakDebugReturn => {
     setDebugAnimationOverride('incrementing');
     animationTimerRef.current = setTimeout(
       () => setDebugAnimationOverride('done'),
-      1800,
+      3200,
     );
   }, []);
 

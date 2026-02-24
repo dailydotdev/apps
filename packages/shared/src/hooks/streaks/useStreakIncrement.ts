@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 
-export type StreakAnimationState = 'idle' | 'incrementing' | 'done';
+export type StreakAnimationState = 'idle' | 'incrementing' | 'broken' | 'done';
 
 interface UseStreakIncrementReturn {
   animationState: StreakAnimationState;
+  previousStreak: number | undefined;
   resetAnimation: () => void;
 }
 
-const ANIMATION_DURATION_MS = 1800;
+const ANIMATION_DURATION_MS = 3200;
 
 export const useStreakIncrement = (
   currentStreak: number | undefined,
@@ -23,19 +24,26 @@ export const useStreakIncrement = (
       return;
     }
 
-    if (
-      prevStreakRef.current !== undefined &&
-      currentStreak > prevStreakRef.current
-    ) {
-      setAnimationState('incrementing');
+    if (prevStreakRef.current !== undefined) {
+      let nextState: StreakAnimationState | null = null;
 
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
+      if (currentStreak > prevStreakRef.current) {
+        nextState = 'incrementing';
+      } else if (currentStreak < prevStreakRef.current) {
+        nextState = 'broken';
       }
 
-      timerRef.current = setTimeout(() => {
-        setAnimationState('done');
-      }, ANIMATION_DURATION_MS);
+      if (nextState) {
+        setAnimationState(nextState);
+
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+        }
+
+        timerRef.current = setTimeout(() => {
+          setAnimationState('done');
+        }, ANIMATION_DURATION_MS);
+      }
     }
 
     prevStreakRef.current = currentStreak;
@@ -51,5 +59,5 @@ export const useStreakIncrement = (
 
   const resetAnimation = () => setAnimationState('idle');
 
-  return { animationState, resetAnimation };
+  return { animationState, previousStreak: prevStreakRef.current, resetAnimation };
 };

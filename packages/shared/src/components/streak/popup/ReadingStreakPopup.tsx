@@ -1,12 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
-import { addDays, subDays } from 'date-fns';
+import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { StreakSection } from './StreakSection';
-import { DayStreak, Streak } from './DayStreak';
 import { MilestoneTimeline } from './MilestoneTimeline';
+import { StreakMonthCalendar } from './StreakMonthCalendar';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import type { ReadingDay, UserStreak } from '../../../graphql/users';
 import { getReadingStreak30Days } from '../../../graphql/users';
@@ -15,11 +14,9 @@ import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { SettingsIcon, VIcon, WarningIcon } from '../../icons';
-import { isWeekend, DayOfWeek } from '../../../lib/date';
 import {
   DEFAULT_TIMEZONE,
   getTimezoneOffsetLabel,
-  isSameDayInTimezone,
 } from '../../../lib/timezones';
 import { timezoneSettingsUrl, webappUrl } from '../../../lib/constants';
 import { useStreakTimezoneOk } from '../../../hooks/streaks/useStreakTimezoneOk';
@@ -44,75 +41,17 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { cloudinaryNotificationsBrowser } from '../../../lib/image';
+import { NotificationSvg } from '../../../svg/NotificationSvg';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
-import {
-  getCurrentTier,
-  getNextMilestone,
-  getTierProgress,
-} from '../../../lib/streakMilestones';
-
-const getStreak = ({
-  value,
-  today,
-  history,
-  startOfWeek = DayOfWeek.Monday,
-  timezone,
-}: {
-  value: Date;
-  today: Date;
-  history?: ReadingDay[];
-  startOfWeek?: number;
-  timezone?: string;
-}): Streak => {
-  const isFreezeDay = isWeekend(value, startOfWeek, timezone);
-  const isToday = isSameDayInTimezone(value, today, timezone);
-  const isFuture = value > today;
-  const isCompleted =
-    !isFuture &&
-    history?.some(({ date: historyDate, reads }) => {
-      const dateToCompare = new Date(historyDate);
-      const sameDate = isSameDayInTimezone(dateToCompare, value, timezone);
-
-      return sameDate && reads > 0;
-    });
-
-  if (isCompleted) {
-    return Streak.Completed;
-  }
-
-  if (isFreezeDay) {
-    return Streak.Freeze;
-  }
-
-  if (isToday) {
-    return Streak.Pending;
-  }
-
-  return Streak.Upcoming;
-};
-
-const getStreakDays = (today: Date) => {
-  return [
-    subDays(today, 4),
-    subDays(today, 3),
-    subDays(today, 2),
-    subDays(today, 1),
-    today,
-    addDays(today, 1),
-    addDays(today, 2),
-    addDays(today, 3),
-    addDays(today, 4),
-  ]; // these dates will then be compared to the user's post views
-};
 
 interface ReadingStreakPopupProps {
   streak: UserStreak;
   fullWidth?: boolean;
   showMilestoneTimeline?: boolean;
   streakOverride?: number;
+  isVisible?: boolean;
 }
 
 export function ReadingStreakPopup({
@@ -120,6 +59,7 @@ export function ReadingStreakPopup({
   fullWidth,
   showMilestoneTimeline = true,
   streakOverride,
+  isVisible = true,
 }: ReadingStreakPopupProps): ReactElement {
   const router = useRouter();
   const { flags, updateFlag } = useSettingsContext();
@@ -150,32 +90,6 @@ export function ReadingStreakPopup({
     isInitialized &&
     (!isSubscribed || acceptedJustNow);
 
-  const streaks = useMemo(() => {
-    const today = new Date();
-    const streakDays = getStreakDays(today);
-
-    return streakDays.map((value) => {
-      const isToday = isSameDayInTimezone(value, today, user?.timezone);
-
-      const streakDef = getStreak({
-        value,
-        today,
-        history,
-        startOfWeek: streak.weekStart,
-        timezone: user?.timezone,
-      });
-
-      return (
-        <DayStreak
-          key={value.getTime()}
-          streak={streakDef}
-          date={value}
-          shouldShowArrow={isToday}
-        />
-      );
-    });
-  }, [history, streak.weekStart, user?.timezone]);
-
   const onTogglePush = async () => {
     logEvent({
       event_name: LogEvent.DisableNotification,
@@ -199,55 +113,27 @@ export function ReadingStreakPopup({
   }
 
   const displayStreak = streakOverride ?? streak.current;
-  const currentTier = getCurrentTier(displayStreak);
-  const nextMilestone = getNextMilestone(displayStreak);
-  const tierProgress = getTierProgress(displayStreak);
 
   return (
     <div className="flex flex-col tablet:max-w-[21.75rem]">
       <div className="flex flex-col p-0 tablet:p-4">
-        {showMilestoneTimeline && (
-          <>
-            <div className="mb-3 flex items-center gap-2">
-              <Typography
-                bold
-                type={TypographyType.Body}
-                className="text-accent-bacon-default"
-              >
-                {currentTier.label}
-              </Typography>
-              {nextMilestone && (
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Quaternary}
-                >
-                  · {nextMilestone.day - displayStreak}d to{' '}
-                  {nextMilestone.label}
-                </Typography>
-              )}
-            </div>
-            <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-surface-float">
-              <div
-                className="h-full rounded-full bg-accent-bacon-default transition-all duration-500"
-                style={{ width: `${tierProgress}%` }}
-              />
-            </div>
-          </>
-        )}
+        {/* Tier progress removed — milestones timeline is the primary progression UI */}
 
-        <div className="flex flex-row">
-          <StreakSection streak={streak.current} label="Current streak" />
-          <StreakSection streak={streak.max} label="Longest streak 🏆" />
+        <div className="flex items-end gap-2">
+          <StreakSection
+            streak={displayStreak}
+            label={`Current streak · Longest: ${streak.max}`}
+            isPrimary
+          />
         </div>
-        <div
-          className={classNames(
-            'mt-6 flex flex-row gap-2',
-            fullWidth && 'justify-between',
-          )}
-        >
-          {streaks}
+        <div className="mt-2">
+          <StreakMonthCalendar
+            history={history}
+            weekStart={streak.weekStart}
+            timezone={user?.timezone}
+          />
         </div>
-        <div className="mt-4 flex flex-col items-center tablet:flex-row">
+        <div className="mt-2 flex flex-col items-center tablet:flex-row">
           <div
             className={classNames(
               'flex w-full flex-row flex-wrap justify-center gap-2 font-bold text-text-tertiary tablet:w-auto tablet:flex-col tablet:items-start tablet:gap-1',
@@ -360,7 +246,7 @@ export function ReadingStreakPopup({
         </div>
       </div>
       {showMilestoneTimeline && (
-        <MilestoneTimeline currentStreak={displayStreak} />
+        <MilestoneTimeline currentStreak={displayStreak} isVisible={isVisible} />
       )}
 
       {showAlert && (
@@ -373,14 +259,11 @@ export function ReadingStreakPopup({
                   type={TypographyType.Callout}
                   className="flex-1"
                 >
-                  Get notified to keep your streak
+                  Don&apos;t lose your progress! Get notified
                 </Typography>
 
                 <div className="h-12 w-22 overflow-hidden">
-                  <img
-                    src={cloudinaryNotificationsBrowser}
-                    alt="A sample browser notification"
-                  />
+                  <NotificationSvg />
                 </div>
               </div>
 
