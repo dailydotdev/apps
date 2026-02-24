@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
+import type { Post } from '../../graphql/posts';
 import { isSocialTwitterShareLike } from '../../graphql/posts';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -28,6 +29,10 @@ import {
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
 
+type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
+  post: Post;
+};
+
 function SocialTwitterPostContentRaw({
   post,
   isFallback,
@@ -43,7 +48,7 @@ function SocialTwitterPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement {
+}: SocialTwitterPostContentRawProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
@@ -55,7 +60,7 @@ function SocialTwitterPostContentRaw({
     !hasClosedBanner &&
     isPostPage &&
     isBoostButtonVisible &&
-    !post?.flags?.campaignId;
+    !post.flags?.campaignId;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -116,11 +121,11 @@ function SocialTwitterPostContentRaw({
         position === 'fixed'
           ? {
               ...navigationProps,
-              isBannerVisible,
+              isBannerVisible: !!isBannerVisible,
               onReadArticle,
               className: className?.fixedNavigation,
             }
-          : null
+          : undefined
       }
     >
       <div
@@ -187,24 +192,26 @@ function SocialTwitterPostContentRaw({
               )}
             </div>
           )}
-          {!shouldHideRepostHeadlineAndTags && !!post.image && (
-            <a
-              href={post.permalink}
-              target="_blank"
-              rel="noopener"
-              className="mb-10 block cursor-pointer overflow-hidden rounded-16"
-              style={{ maxWidth: '25.625rem' }}
-            >
-              <LazyImage
-                imgSrc={post.image}
-                imgAlt="Post cover image"
-                ratio="49%"
-                eager
-                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                fetchPriority="high"
-              />
-            </a>
-          )}
+          {!shouldHideRepostHeadlineAndTags &&
+            !!post.image &&
+            !!post.permalink && (
+              <a
+                href={post.permalink}
+                target="_blank"
+                rel="noopener"
+                className="mb-10 block cursor-pointer overflow-hidden rounded-16"
+                style={{ maxWidth: '25.625rem' }}
+              >
+                <LazyImage
+                  imgSrc={post.image}
+                  imgAlt="Post cover image"
+                  ratio="49%"
+                  eager
+                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                  fetchPriority="high"
+                />
+              </a>
+            )}
           {isThread && !!post.contentHtml && (
             <Markdown content={post.contentHtml} className="mb-5 break-words" />
           )}
