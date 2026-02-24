@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MedalBadgeIcon } from '../icons';
 import { AlertColor, AlertDot } from '../AlertDot';
@@ -124,7 +125,10 @@ export function AchievementTrackerButton(): ReactElement | null {
           <LazyImage
             imgSrc={trackedAchievement.achievement.image}
             imgAlt={trackedAchievement.achievement.name}
-            className="mr-2 size-5 rounded-6 object-cover"
+            className={classNames(
+              'size-5 rounded-6 object-cover',
+              buttonLabel && 'mr-2',
+            )}
           />
         )}
         {buttonLabel}
