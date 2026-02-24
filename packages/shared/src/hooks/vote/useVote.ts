@@ -1,6 +1,7 @@
 import { useContext, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
+import { gqlRequest } from '../../graphql/common';
 import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import { useRequestProtocol } from '../useRequestProtocol';
@@ -16,7 +17,7 @@ import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 
 const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
-  const { requestMethod } = useRequestProtocol();
+  const { requestMethod = gqlRequest } = useRequestProtocol();
   const { user, showLogin } = useContext(AuthContext);
   const mutationKey = createVoteMutationKey({ entity, variables });
   const { completeAction } = useActions();
@@ -88,7 +89,7 @@ const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
     [cancelVote, showLogin, upvote, user],
   );
 
-  const toggleDownvote = useCallback(
+  const toggleDownvote: UseVote['toggleDownvote'] = useCallback(
     async ({ payload }) => {
       if (!payload) {
         return;
