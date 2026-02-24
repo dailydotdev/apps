@@ -116,20 +116,6 @@ export function SquadDetails({
     },
   });
 
-  const getFormData = (current: SquadForm): SquadForm => {
-    const updated = { ...current };
-
-    if (imageChanged) {
-      updated.file = imageFileRef.current ?? undefined;
-    }
-
-    if (headerChanged) {
-      updated.header = headerFileRef.current ?? undefined;
-    }
-
-    return updated;
-  };
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formJson = formToJson<SquadForm>(e.currentTarget);
@@ -143,7 +129,15 @@ export function SquadDetails({
       return null;
     }
 
-    const data = getFormData(formJson);
+    const data = { ...formJson };
+
+    if (imageChanged) {
+      data.file = imageFileRef.current ?? undefined;
+    }
+
+    if (headerChanged) {
+      data.header = headerFileRef.current ?? undefined;
+    }
 
     if (!createMode) {
       return onSubmit(e, data, channels?.[selectedChannelIndex]?.id);
@@ -184,12 +178,6 @@ export function SquadDetails({
       headerFileRef.current = file;
     },
   });
-
-  const handleFile = (event: ChangeEvent) => {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    return onFileChange(file);
-  };
 
   return (
     <FormWrapper
@@ -266,7 +254,11 @@ export function SquadDetails({
                 hidden
                 accept={ACCEPTED_TYPES}
                 multiple={false}
-                onChange={handleFile}
+                onChange={(event: ChangeEvent) => {
+                  const input = event.target as HTMLInputElement;
+                  const file = input.files?.[0];
+                  onFileChange(file);
+                }}
               />
             </div>
             <SquadPrivacyState
