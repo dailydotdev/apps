@@ -48,6 +48,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { SettingsIcon } from '@dailydotdev/shared/src/components/icons';
 import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
+import { getSquadsCreatePrefillState } from '../../lib/squadsCreatePrefill';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
@@ -107,6 +108,7 @@ function CreatePost(): ReactElement {
     onAskConfirmation,
     draft,
     updateDraft,
+    isDraftReady,
     formRef,
     clearDraft,
     isUpdatingDraft,
@@ -122,6 +124,10 @@ function CreatePost(): ReactElement {
   };
 
   const isInitialized = useRef(false);
+  const prefillState = useMemo(
+    () => getSquadsCreatePrefillState(query, draft),
+    [query, draft],
+  );
   const sourceSelectProps = {
     selectedSourceIds,
     setSelectedSourceIds,
@@ -196,17 +202,14 @@ function CreatePost(): ReactElement {
   const initialSelected = !!activeSquads?.length && (query.sid as string);
   useEffect(() => {
     // Only run this once after router and user are ready
-    if (!user || !isRouteReady || isInitialized.current) {
+    if (!user || !isRouteReady || !isDraftReady || isInitialized.current) {
       return;
     }
 
     isInitialized.current = true;
 
-    const { share: isInitialShare, poll: isInitialPoll } = query;
-    if (isInitialShare) {
-      setDisplay(WriteFormTab.Share);
-    } else if (isInitialPoll) {
-      setDisplay(WriteFormTab.Poll);
+    if (prefillState.initialDisplay) {
+      setDisplay(prefillState.initialDisplay);
     } else if (defaultWriteTab in WriteFormTab) {
       setDisplay(WriteFormTab[defaultWriteTab]);
     }
@@ -234,11 +237,12 @@ function CreatePost(): ReactElement {
   }, [
     initialSelected,
     isRouteReady,
+    isDraftReady,
     user,
     activeSquads,
     selectedSourceIds.length,
-    query,
     defaultWriteTab,
+    prefillState.initialDisplay,
   ]);
 
   useEffect(() => {
@@ -247,7 +251,13 @@ function CreatePost(): ReactElement {
     }
   }, [display, hasCheckedPollTab, completeAction]);
 
-  if (!isFetched || !isAuthReady || !isRouteReady || !loadedSettings) {
+  if (
+    !isFetched ||
+    !isAuthReady ||
+    !isRouteReady ||
+    !loadedSettings ||
+    !isDraftReady
+  ) {
     return <WriteFreeFormSkeleton />;
   }
 
@@ -319,7 +329,10 @@ function CreatePost(): ReactElement {
               <h2 className="pt-2 font-bold typo-title3">New post</h2>
             )}
             <MultipleSourceSelect {...sourceSelectProps} />
-            <WriteFreeformContent />
+            <WriteFreeformContent
+              initialTitle={prefillState.initialDraft.title}
+              initialContent={prefillState.initialDraft.content}
+            />
           </Tab>
           <Tab label={WriteFormTab.Share} className="flex flex-col gap-4 px-5">
             {isMobile && (
@@ -327,6 +340,8 @@ function CreatePost(): ReactElement {
             )}
             <MultipleSourceSelect {...sourceSelectProps} />
             <ShareLink
+              initialUrl={prefillState.initialShareUrl}
+              initialCommentary={prefillState.initialShareCommentary}
               onPostSuccess={() => {
                 onAskConfirmation(false);
               }}

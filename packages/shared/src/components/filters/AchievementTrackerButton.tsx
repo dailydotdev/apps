@@ -15,6 +15,8 @@ import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
 import { LazyImage } from '../LazyImage';
 import { LazyModal } from '../modals/common/types';
+import HoverCard from '../cards/common/HoverCard';
+import { AchievementCard } from '../../features/profile/components/achievements/AchievementCard';
 
 export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
@@ -105,7 +107,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     return null;
   }
 
-  return (
+  const buttonContent = (
     <div className="relative">
       <Button
         size={ButtonSize.Medium}
@@ -140,5 +142,17 @@ export function AchievementTrackerButton(): ReactElement | null {
         />
       )}
     </div>
+  );
+
+  if (!isTrackingAchievement) {
+    return buttonContent;
+  }
+
+  return (
+    <HoverCard openDelay={300} sideOffset={8} trigger={buttonContent}>
+      <div className="w-80 overflow-hidden rounded-16 bg-background-popover">
+        <AchievementCard userAchievement={trackedAchievement} />
+      </div>
+    </HoverCard>
   );
 }

@@ -14,12 +14,14 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { WritePreviewSkeleton } from './WritePreviewSkeleton';
 import { WriteLinkPreview } from './WriteLinkPreview';
 import { useDebouncedUrl } from '../../../hooks/input';
+import { isValidHttpUrl } from '../../../lib/links';
 
 interface SubmitExternalLinkProps {
-  preview: ExternalLinkPreview;
+  preview?: ExternalLinkPreview;
   isLoadingPreview: boolean;
   getLinkPreview: (value: string) => void;
   onSelectedHistory: (post: ReadHistoryPost) => void;
+  initialUrl?: string;
 }
 
 export function SubmitExternalLink({
@@ -27,10 +29,16 @@ export function SubmitExternalLink({
   isLoadingPreview,
   getLinkPreview,
   preview,
+  initialUrl,
 }: SubmitExternalLinkProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
-  const [url, setUrl] = useState<string>(undefined);
+  const [url, setUrl] = useState<string | undefined>(() => {
+    if (initialUrl && isValidHttpUrl(initialUrl)) {
+      getLinkPreview(initialUrl);
+    }
+    return initialUrl;
+  });
   const shouldShorten = url !== undefined || isMobile;
   const label = `Enter URL${shouldShorten ? '' : ' / Choose from'}`;
   const [checkUrl] = useDebouncedUrl(
@@ -71,6 +79,7 @@ export function SubmitExternalLink({
         required
         fieldType="tertiary"
         leftIcon={<LinkIcon />}
+        defaultValue={initialUrl}
         onBlur={() => !url?.length && setUrl(undefined)}
         onInput={onInput}
         onFocus={() => !url?.length && setUrl('')}
