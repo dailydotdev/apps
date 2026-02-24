@@ -111,9 +111,6 @@ export function ReportPostModal({
 }: Props): ReactElement {
   const { logEvent } = useLogContext();
   const inputRef = useRef<HTMLInputElement>();
-  const [selectedReason, setSelectedReason] = useState<ReportReason | null>(
-    null,
-  );
   const [selectedTags, setSelectedTags] = useState<string[]>(() => []);
   const reportOptionsForActiveReason = useCallback(
     (reason) => {
@@ -149,13 +146,6 @@ export function ReportPostModal({
   );
 
   const { reportPost } = useReportPost();
-  const onReasonChange = (reason: ReportReason): void => {
-    setSelectedReason(reason);
-
-    if (reason !== ReportReason.Irrelevant) {
-      setSelectedTags([]);
-    }
-  };
   const onReportPost = async (
     event: MouseEvent,
     reason: ReportReason,
@@ -165,7 +155,7 @@ export function ReportPostModal({
       id: post.id,
       reason,
       comment: text,
-      tags: selectedTags,
+      tags: reason === ReportReason.Irrelevant ? selectedTags : [],
     });
 
     if (!successful) {
@@ -191,12 +181,11 @@ export function ReportPostModal({
       {...props}
       isOpen
       onReport={onReportPost}
-      onReasonChange={onReasonChange}
       reasons={reportOptionsForActiveReason}
       heading="Report post"
       title={post?.title ? `"${post.title}"` : undefined}
-      disabled={
-        selectedReason === ReportReason.Irrelevant && selectedTags.length === 0
+      isDisabled={(reason) =>
+        reason === ReportReason.Irrelevant && selectedTags.length === 0
       }
       footer={
         <Checkbox ref={inputRef} name="blockSource" className="font-normal">

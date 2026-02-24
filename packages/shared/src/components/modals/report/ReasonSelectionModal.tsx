@@ -18,7 +18,7 @@ interface Props<T extends ReportReason | PostModerationReason>
   title?: string;
   footer?: ReactNode;
   disabled?: boolean;
-  onReasonChange?: (reason: T) => void;
+  isDisabled?: (reason: T | null) => boolean;
 }
 
 export const OTHER_KEY = 'OTHER';
@@ -32,18 +32,20 @@ export function ReasonSelectionModal<
   title,
   footer,
   disabled,
-  onReasonChange,
+  isDisabled,
   ...props
 }: Props<T>): ReactElement {
-  const [reason, setReason] = useState(null);
+  const [reason, setReason] = useState<T | null>(null);
   const [note, setNote] = useState<string>();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const onChange = (newReason: T) => {
-    setReason(newReason);
-    onReasonChange?.(newReason);
-  };
+  const onChange = (newReason: T) => setReason(newReason);
+  const submitDisabled =
+    !reason ||
+    (reason === OTHER_KEY && !note) ||
+    disabled ||
+    isDisabled?.(reason);
   const submitButtonProps = {
-    disabled: !reason || (reason === OTHER_KEY && !note) || disabled,
+    disabled: submitDisabled,
     onClick: (e) => onReport(e, reason, note),
   };
 
@@ -94,7 +96,7 @@ export function ReasonSelectionModal<
         {isMobile ? null : footer}
         <Button
           variant={ButtonVariant.Primary}
-          disabled={!reason || (reason === OTHER_KEY && !note) || disabled}
+          disabled={submitDisabled}
           onClick={(e) => onReport(e, reason, note)}
         >
           Submit report

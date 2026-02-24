@@ -965,7 +965,7 @@ describe('Feed logged in', () => {
     );
   });
 
-  it('should clear irrelevant tags when reason changes', async () => {
+  it('should keep selected irrelevant tags when reason changes', async () => {
     renderComponent([
       createFeedMock({
         pageInfo: defaultFeedPage.pageInfo,
@@ -997,7 +997,7 @@ describe('Feed logged in', () => {
     expect(submitBtn).toBeEnabled();
 
     fireEvent.click(irrelevantTagsBtn);
-    expect(submitBtn).toBeDisabled();
+    expect(submitBtn).toBeEnabled();
   });
 
   describe('acquisition form card', () => {
