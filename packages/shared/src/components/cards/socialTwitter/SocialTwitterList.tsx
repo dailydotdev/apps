@@ -91,32 +91,16 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
       />
     </Container>
   );
-  const metadata = useMemo(() => {
-    const authorName = post?.author?.name;
-    const sourceName = post?.source?.name;
-
-    if (isUserSource) {
-      return {
+  const authorName = post?.author?.name;
+  const sourceName = post?.source?.name;
+  const metadata = isUserSource
+    ? {
         topLabel: authorName || sourceName,
-      };
-    }
-
-    if (enableSourceHeader) {
-      return {
+      }
+    : {
         topLabel: sourceName || authorName,
-        bottomLabel: authorName,
+        ...(enableSourceHeader ? { bottomLabel: authorName } : {}),
       };
-    }
-
-    return {
-      topLabel: sourceName || authorName,
-    };
-  }, [
-    enableSourceHeader,
-    isUserSource,
-    post?.author?.name,
-    post?.source?.name,
-  ]);
   return (
     <FeedItemContainer
       domProps={{
