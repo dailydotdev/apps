@@ -407,6 +407,7 @@ When reviewing code (or writing code that will be reviewed):
 - **Keep scope tight in design iterations** - When adjusting UI, avoid unrelated behavioral/SEO changes in the same commit unless explicitly requested.
 - **Keep action spacing consistent in control headers** - When adding icon/action buttons near search fields or other controls, match existing horizontal gaps on both sides to avoid controls touching each other.
 - **Protect generated HTML from markdown regex passes** - In markdown conversion utilities, never run formatting regexes across already-generated HTML tags/attributes (for example, image `src` URLs with `_`); add regression tests for URL edge cases.
+- **Prefer component-level token swaps for one-off contrast fixes** - For isolated UI readability issues, use existing semantic color utilities in the impacted components first; avoid changing global tokens in `base.css` unless explicitly requested.
 
 ## Node.js Version Upgrade Checklist
 

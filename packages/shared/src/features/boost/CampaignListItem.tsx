@@ -17,7 +17,7 @@ import { CampaignListItemSquad } from './CampaignListItemSquad';
 
 const statusToColor: Record<Campaign['state'], string> = {
   ACTIVE: 'bg-action-upvote-active text-action-upvote-default',
-  COMPLETED: 'bg-action-share-active text-action-share-default',
+  COMPLETED: 'bg-action-share-default text-text-primary',
   CANCELLED: 'bg-surface-float text-text-secondary',
 };
 
