@@ -97,6 +97,24 @@ it('should render image for non-shared social tweets', async () => {
   expect(await screen.findByAltText('Post cover image')).toBeInTheDocument();
 });
 
+it('should not render source handle in metadata bottom label', async () => {
+  renderComponent({
+    post: {
+      ...basePost,
+      title: 'Root tweet title without handle',
+      source: {
+        ...basePost.source,
+        handle: 'uniquesourcehandle',
+      },
+    },
+  });
+
+  expect(
+    await screen.findByRole('link', { name: 'Read on' }),
+  ).toBeInTheDocument();
+  expect(screen.queryByText('@uniquesourcehandle')).not.toBeInTheDocument();
+});
+
 it('should hide headline and tags for repost cards without repost text', async () => {
   renderComponent({
     post: {
@@ -126,7 +144,11 @@ it('should hide headline and tags for repost cards without repost text', async (
     ),
   ).not.toBeInTheDocument();
   expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
-  expect(await screen.findByText(/Avengers reposted/i)).toBeInTheDocument();
+  expect(
+    await screen.findByTitle(
+      /Avengers reposted on X\. @bcherny: RT @ycombinator:/i,
+    ),
+  ).toBeInTheDocument();
   expect(
     await screen.findByText(/Y Combinator @ycombinator/i),
   ).toBeInTheDocument();

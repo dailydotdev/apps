@@ -29,7 +29,7 @@ const UserBadge = ({
   className,
   children,
   role = SourceMemberRole.Member,
-}: UserBadgeProps): ReactElement => {
+}: UserBadgeProps): ReactElement | null => {
   if (!children) {
     return null;
   }

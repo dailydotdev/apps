@@ -10,7 +10,7 @@ export type KeyboadShortcutLabelProps = {
 export const KeyboadShortcutLabel = ({
   className,
   keys,
-}: KeyboadShortcutLabelProps): ReactElement => {
+}: KeyboadShortcutLabelProps): ReactElement | null => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

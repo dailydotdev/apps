@@ -15,7 +15,7 @@ export function SquadPromotionModal({
   onRequestClose,
   handle,
   ...props
-}: SquadPromotionModalProps): ReactElement {
+}: SquadPromotionModalProps): ReactElement | null {
   const { squad, isFetched } = useSquad({ handle });
 
   if (!isFetched) {
@@ -39,7 +39,7 @@ export function SquadPromotionModal({
         variant={ButtonVariant.Secondary}
         top="3"
         right="3"
-        onClick={onRequestClose}
+        onClick={(event) => onRequestClose?.(event)}
       />
     </Modal>
   );

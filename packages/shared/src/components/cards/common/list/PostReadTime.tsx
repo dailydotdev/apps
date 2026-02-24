@@ -10,7 +10,7 @@ interface PostReadTimeProps extends Pick<Post, 'readTime'> {
 export default function PostReadTime({
   readTime,
   isVideoType = false,
-}: PostReadTimeProps): ReactElement {
+}: PostReadTimeProps): ReactElement | null {
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   if (!showReadTime) {
     return null;
@@ -19,7 +19,7 @@ export default function PostReadTime({
   const timeActionContent = isVideoType ? 'watch' : 'read';
   return (
     <span data-testid="readTime">
-      {formatReadTime(readTime)} {timeActionContent} time
+      {formatReadTime(readTime ?? 0)} {timeActionContent} time
     </span>
   );
 }

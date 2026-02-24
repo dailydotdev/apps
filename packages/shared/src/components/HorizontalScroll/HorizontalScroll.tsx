@@ -1,4 +1,4 @@
-import type { MutableRefObject, ReactElement, ReactNode } from 'react';
+import type { ForwardedRef, ReactElement, ReactNode } from 'react';
 import React, { forwardRef, useId } from 'react';
 import classNames from 'classnames';
 import type { UseHorizontalScrollHeaderProps } from './useHorizontalScrollHeader';
@@ -17,7 +17,7 @@ interface HorizontalScrollProps {
 
 function HorizontalScrollComponent(
   { children, className, scrollProps }: HorizontalScrollProps,
-  propRef: MutableRefObject<HTMLDivElement>,
+  propRef: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
   const id = useId();
   const titleId = `horizontal-scroll-title-${id}`;
