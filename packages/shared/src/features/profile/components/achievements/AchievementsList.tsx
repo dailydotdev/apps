@@ -262,6 +262,7 @@ export function AchievementsList({
                 trackingId === userAchievement.achievement.id
               }
               onTrack={canTrackAchievements ? handleTrack : undefined}
+              trackedAchievement={trackedAchievement}
             />
           ))}
         </div>

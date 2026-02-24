@@ -36,6 +36,7 @@ interface AchievementCardProps {
   isTracked?: boolean;
   isTrackPending?: boolean;
   onTrack?: (achievementId: string) => Promise<void>;
+  trackedAchievement?: UserAchievement | null;
 }
 
 export function AchievementCard({
@@ -44,6 +45,7 @@ export function AchievementCard({
   isTracked = false,
   isTrackPending = false,
   onTrack,
+  trackedAchievement,
 }: AchievementCardProps): ReactElement {
   const { achievement, progress, unlockedAt } = userAchievement;
   const targetCount = getTargetCount(achievement);
@@ -60,6 +62,19 @@ export function AchievementCard({
       : `${Math.round(achievement.rarity ?? 0)}%`;
   const statusPillClassName =
     'inline-flex h-8 items-center gap-1 rounded-10 border border-border-subtlest-primary bg-surface-hover px-3';
+
+  const trackingPill = (
+    <div className={statusPillClassName}>
+      <PinIcon className="size-4 text-text-secondary" />
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+        bold
+      >
+        Tracking
+      </Typography>
+    </div>
+  );
 
   return (
     <div
@@ -162,18 +177,15 @@ export function AchievementCard({
 
       {!isUnlocked && isOwner && onTrack && (
         <div className="mt-3 flex min-h-8 items-center">
-          {isTracked ? (
-            <div className={statusPillClassName}>
-              <PinIcon className="size-4 text-text-secondary" />
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-                bold
-              >
-                Tracking
-              </Typography>
-            </div>
-          ) : (
+          {isTracked && trackedAchievement && (
+            <HoverCard openDelay={300} sideOffset={8} trigger={trackingPill}>
+              <div className="w-80 overflow-hidden rounded-16 bg-background-popover">
+                <AchievementCard userAchievement={trackedAchievement} />
+              </div>
+            </HoverCard>
+          )}
+          {isTracked && !trackedAchievement && trackingPill}
+          {!isTracked && (
             <Button
               className="self-start"
               size={ButtonSize.Small}
