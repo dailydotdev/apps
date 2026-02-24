@@ -19,18 +19,18 @@ export const SharedPostLink = ({
   children,
   onGoToLinkProps,
 }: SharedPostTitleProps): ReactElement => {
-  const isUnknownSource = sharedPost.source.id === 'unknown';
+  const isUnknownSource = (sharedPost.source?.id ?? 'unknown') === 'unknown';
   const { href, as, ...props } = isUnknownSource
     ? {
-        href: sharedPost.permalink,
+        href: sharedPost?.permalink,
         target: '_blank',
         rel: 'noopener',
         as: undefined,
         ...onGoToLinkProps,
       }
     : {
-        href: `${sharedPost.commentsPermalink}?squad=${source.handle}&n=${source.name}`,
-        as: sharedPost.commentsPermalink,
+        href: `${sharedPost?.commentsPermalink}?squad=${source.handle}&n=${source.name}`,
+        as: sharedPost?.commentsPermalink,
       };
 
   return (
