@@ -10,7 +10,7 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { checkIsExtension } from '../../../lib/func';
 
-export const ExtensionSection = (): ReactElement => {
+export const ExtensionSection = (): ReactElement | null => {
   const { openModal } = useLazyModal();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { optOutCompanion, toggleOptOutCompanion } = useSettingsContext();
