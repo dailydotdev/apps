@@ -1,4 +1,7 @@
-type StorageWrapper = Pick<Storage, 'getItem' | 'setItem' | 'removeItem' | 'clear'>;
+type StorageWrapper = Pick<
+  Storage,
+  'getItem' | 'setItem' | 'removeItem' | 'clear'
+>;
 
 export default function Storage(): StorageWrapper {
   const inMemoryStorage: { [key: string]: string } = {};

@@ -242,7 +242,8 @@ export const useMarkdownInput = ({
       },
       onFinish: async (status, file, url) => {
         if (status === UploadState.Failed) {
-          return displayToast(uploadNotAcceptedMessage);
+          displayToast(uploadNotAcceptedMessage);
+          return;
         }
 
         if (!url) {
@@ -250,7 +251,7 @@ export const useMarkdownInput = ({
         }
 
         const textareaCommand = getCommand();
-        return onUpdate(textareaCommand.onReplaceUpload(url, file.name));
+        onUpdate(textareaCommand.onReplaceUpload(url, file.name));
       },
     });
 
@@ -265,12 +266,16 @@ export const useMarkdownInput = ({
   const { data = { recommendedMentions: [] } } =
     useQuery<RecommendedMentionsData>({
       queryKey: key,
-      queryFn: () =>
-        requestMethod!(
+      queryFn: () => {
+        if (!requestMethod) {
+          throw new Error('requestMethod is not initialized');
+        }
+        return requestMethod(
           RECOMMEND_MENTIONS_QUERY,
           { postId, query, sourceId },
           { requestKey: JSON.stringify(key) },
-        ),
+        );
+      },
       enabled: !!user && !!requestMethod && typeof query !== 'undefined',
       refetchOnWindowFocus: false,
       refetchOnMount: false,

@@ -192,24 +192,26 @@ function SocialTwitterPostContentRaw({
               )}
             </div>
           )}
-          {!shouldHideRepostHeadlineAndTags && !!post.image && !!post.permalink && (
-            <a
-              href={post.permalink}
-              target="_blank"
-              rel="noopener"
-              className="mb-10 block cursor-pointer overflow-hidden rounded-16"
-              style={{ maxWidth: '25.625rem' }}
-            >
-              <LazyImage
-                imgSrc={post.image}
-                imgAlt="Post cover image"
-                ratio="49%"
-                eager
-                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                fetchPriority="high"
-              />
-            </a>
-          )}
+          {!shouldHideRepostHeadlineAndTags &&
+            !!post.image &&
+            !!post.permalink && (
+              <a
+                href={post.permalink}
+                target="_blank"
+                rel="noopener"
+                className="mb-10 block cursor-pointer overflow-hidden rounded-16"
+                style={{ maxWidth: '25.625rem' }}
+              >
+                <LazyImage
+                  imgSrc={post.image}
+                  imgAlt="Post cover image"
+                  ratio="49%"
+                  eager
+                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                  fetchPriority="high"
+                />
+              </a>
+            )}
           {isThread && !!post.contentHtml && (
             <Markdown content={post.contentHtml} className="mb-5 break-words" />
           )}

@@ -97,6 +97,7 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Article]: ArticleGrid,
   [PostType.Share]: ShareGrid,
@@ -109,6 +110,7 @@ const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.SocialTwitter]: SocialTwitterGrid,
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
   [PostType.Article]: ArticleList,
   [PostType.Share]: ShareList,
@@ -142,23 +144,17 @@ const getTags = ({
 }: GetTagsProps) => {
   const useListCards = isListFeedLayout || shouldUseListMode;
   return {
-    PostTag: (useListCards
+    PostTag: useListCards
       ? PostTypeToTagList[postType] ?? ArticleList
-      : PostTypeToTagCard[postType] ?? ArticleGrid) as React.ComponentType<any>,
-    AdTag: (useListCards ? AdList : AdGrid) as React.ComponentType<any>,
-    SquadAdTag: (useListCards
-      ? SquadAdList
-      : SquadAdGrid) as React.ComponentType<any>,
-    PlaceholderTag: (useListCards
-      ? PlaceholderList
-      : PlaceholderGrid) as React.ComponentType<any>,
-    MarketingCtaTag: (useListCards
-      ? MarketingCtaList
-      : MarketingCtaCard) as React.ComponentType<any>,
-    PlusGridTag: PlusGrid as React.ComponentType<any>,
-    AcquisitionFormTag: (useListCards
+      : PostTypeToTagCard[postType] ?? ArticleGrid,
+    AdTag: useListCards ? AdList : AdGrid,
+    SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
+    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
+    MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
+    PlusGridTag: PlusGrid,
+    AcquisitionFormTag: useListCards
       ? AcquisitionFormList
-      : AcquisitionFormGrid) as React.ComponentType<any>,
+      : AcquisitionFormGrid,
   };
 };
 
