@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import type { RadioItemProps } from '../../fields/Radio';
 import { Radio } from '../../fields/Radio';
+import type { ButtonProps } from '../../buttons/Button';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
@@ -36,7 +37,10 @@ export function ReasonSelectionModal<
   const [reason, setReason] = useState(null);
   const [note, setNote] = useState<string>();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const submitButtonProps = {
+  const submitButtonProps: Pick<
+    ButtonProps<'button'>,
+    'disabled' | 'onClick' | 'type'
+  > = {
     disabled: !reason || (reason === OTHER_KEY && !note) || disabled,
     onClick: (e) => onReport(e, reason, note),
     type: 'button' as const,
@@ -87,11 +91,7 @@ export function ReasonSelectionModal<
         justify={footer && !isMobile ? Justify.Between : Justify.End}
       >
         {isMobile ? null : footer}
-        <Button
-          variant={ButtonVariant.Primary}
-          disabled={!reason || (reason === OTHER_KEY && !note) || disabled}
-          onClick={(e) => onReport(e, reason, note)}
-        >
+        <Button variant={ButtonVariant.Primary} {...submitButtonProps}>
           Submit report
         </Button>
       </Modal.Footer>
