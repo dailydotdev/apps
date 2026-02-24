@@ -947,12 +947,14 @@ describe('Feed logged in', () => {
       'Off-topic or wrong tags',
     );
     fireEvent.click(irrelevantTagsBtn);
+    const submitBtn = await screen.findByText('Submit report');
+    expect(submitBtn).toBeDisabled();
     const javascriptElements = await screen.findAllByText('#javascript');
     const javascriptBtn = javascriptElements.find(
       (item) => item.tagName === 'BUTTON',
     );
     fireEvent.click(javascriptBtn);
-    const submitBtn = await screen.findByText('Submit report');
+    expect(submitBtn).toBeEnabled();
     fireEvent.click(submitBtn);
 
     await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -961,6 +963,41 @@ describe('Feed logged in', () => {
         screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
       ).not.toBeInTheDocument(),
     );
+  });
+
+  it('should clear irrelevant tags when reason changes', async () => {
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, {
+      key: ' ',
+    });
+    const contextBtn = await screen.findByText('Report');
+    fireEvent.click(contextBtn);
+
+    const irrelevantTagsBtn = await screen.findByText(
+      'Off-topic or wrong tags',
+    );
+    fireEvent.click(irrelevantTagsBtn);
+    const submitBtn = await screen.findByText('Submit report');
+    const javascriptElements = await screen.findAllByText('#javascript');
+    const javascriptBtn = javascriptElements.find(
+      (item) => item.tagName === 'BUTTON',
+    );
+    fireEvent.click(javascriptBtn);
+    expect(submitBtn).toBeEnabled();
+
+    const brokenLinkBtn = await screen.findByText('Broken link');
+    fireEvent.click(brokenLinkBtn);
+    expect(submitBtn).toBeEnabled();
+
+    fireEvent.click(irrelevantTagsBtn);
+    expect(submitBtn).toBeDisabled();
   });
 
   describe('acquisition form card', () => {

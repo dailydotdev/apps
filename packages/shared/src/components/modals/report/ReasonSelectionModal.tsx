@@ -18,6 +18,7 @@ interface Props<T extends ReportReason | PostModerationReason>
   title?: string;
   footer?: ReactNode;
   disabled?: boolean;
+  onReasonChange?: (reason: T) => void;
 }
 
 export const OTHER_KEY = 'OTHER';
@@ -31,11 +32,16 @@ export function ReasonSelectionModal<
   title,
   footer,
   disabled,
+  onReasonChange,
   ...props
 }: Props<T>): ReactElement {
   const [reason, setReason] = useState(null);
   const [note, setNote] = useState<string>();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const onChange = (newReason: T) => {
+    setReason(newReason);
+    onReasonChange?.(newReason);
+  };
   const submitButtonProps = {
     disabled: !reason || (reason === OTHER_KEY && !note) || disabled,
     onClick: (e) => onReport(e, reason, note),
@@ -43,7 +49,7 @@ export function ReasonSelectionModal<
 
   const onFocus = () => {
     if (!reason) {
-      setReason(ReportReason.Other);
+      onChange(ReportReason.Other as T);
     }
   };
 
@@ -68,7 +74,7 @@ export function ReasonSelectionModal<
           name="report_reason"
           options={typeof reasons === 'function' ? reasons(reason) : reasons}
           value={reason}
-          onChange={setReason}
+          onChange={onChange}
         />
 
         <p className="mb-1 mt-6 px-2 font-bold typo-caption1">

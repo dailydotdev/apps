@@ -67,28 +67,36 @@ const reportReasonsMap: Partial<
 > = {
   IRRELEVANT: ({ post, selectedTags, setSelectedTags }) => {
     return (
-      <FlexRow className="my-4 flex-wrap gap-2">
-        {post.tags?.map((tag) => {
-          const isSelected = selectedTags.includes(tag);
+      <>
+        <p className="my-2 text-text-tertiary typo-caption1">
+          Select at least one tag you find irrelevant
+        </p>
+        <FlexRow className="my-4 flex-wrap gap-2">
+          {post.tags?.map((tag) => {
+            const isSelected = selectedTags.includes(tag);
 
-          return (
-            <Button
-              key={tag}
-              variant={isSelected ? ButtonVariant.Primary : ButtonVariant.Float}
-              size={ButtonSize.Small}
-              onClick={() => {
-                if (isSelected) {
-                  setSelectedTags(selectedTags.filter((t) => t !== tag));
-                } else {
-                  setSelectedTags([...selectedTags, tag]);
+            return (
+              <Button
+                key={tag}
+                variant={
+                  isSelected ? ButtonVariant.Primary : ButtonVariant.Float
                 }
-              }}
-            >
-              #{tag}
-            </Button>
-          );
-        })}
-      </FlexRow>
+                size={ButtonSize.Small}
+                onClick={() => {
+                  if (isSelected) {
+                    setSelectedTags(selectedTags.filter((t) => t !== tag));
+                    return;
+                  }
+
+                  setSelectedTags([...selectedTags, tag]);
+                }}
+              >
+                #{tag}
+              </Button>
+            );
+          })}
+        </FlexRow>
+      </>
     );
   },
 };
@@ -103,6 +111,9 @@ export function ReportPostModal({
 }: Props): ReactElement {
   const { logEvent } = useLogContext();
   const inputRef = useRef<HTMLInputElement>();
+  const [selectedReason, setSelectedReason] = useState<ReportReason | null>(
+    null,
+  );
   const [selectedTags, setSelectedTags] = useState<string[]>(() => []);
   const reportOptionsForActiveReason = useCallback(
     (reason) => {
@@ -138,6 +149,13 @@ export function ReportPostModal({
   );
 
   const { reportPost } = useReportPost();
+  const onReasonChange = (reason: ReportReason): void => {
+    setSelectedReason(reason);
+
+    if (reason !== ReportReason.Irrelevant) {
+      setSelectedTags([]);
+    }
+  };
   const onReportPost = async (
     event: MouseEvent,
     reason: ReportReason,
@@ -173,9 +191,13 @@ export function ReportPostModal({
       {...props}
       isOpen
       onReport={onReportPost}
+      onReasonChange={onReasonChange}
       reasons={reportOptionsForActiveReason}
       heading="Report post"
       title={post?.title ? `"${post.title}"` : undefined}
+      disabled={
+        selectedReason === ReportReason.Irrelevant && selectedTags.length === 0
+      }
       footer={
         <Checkbox ref={inputRef} name="blockSource" className="font-normal">
           Don&apos;t show posts from {post?.source?.name}
