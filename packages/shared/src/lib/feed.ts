@@ -31,27 +31,27 @@ interface FeedItemLogEvent extends LogEvent {
   feed_item_grid_column?: number;
   feed_item_grid_row?: number;
   feed_item_meta?: string;
-  feed_item_image: string;
-  feed_item_target_url: string;
-  feed_item_title: string;
+  feed_item_image?: string;
+  feed_item_target_url?: string;
+  feed_item_title?: string;
   target_id: string;
   target_type: string;
 }
 
 interface PostItemLogEvent extends FeedItemLogEvent {
-  post_author_id: string;
-  post_scout_id: string;
-  post_comments_count: number;
-  post_created_at: string;
-  post_read_time: number;
-  post_source_id: string;
-  post_tags: string[];
-  post_trending_value: number;
-  post_upvotes_count: number;
+  post_author_id?: string;
+  post_scout_id?: string;
+  post_comments_count?: number;
+  post_created_at?: string;
+  post_read_time?: number;
+  post_source_id?: string;
+  post_tags?: string[];
+  post_trending_value?: number;
+  post_upvotes_count?: number;
 }
 
 interface AdItemLogEvent extends FeedItemLogEvent {
-  ad_provider_id: string;
+  ad_provider_id?: string;
 }
 
 interface FeedLogExtra {
