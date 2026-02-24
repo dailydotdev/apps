@@ -98,7 +98,7 @@ export default function Logo({
   linkDisabled,
   isPlus = false,
   isRecruiter = false,
-  href = webappUrl!,
+  href = webappUrl,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip

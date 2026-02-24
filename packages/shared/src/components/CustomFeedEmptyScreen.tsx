@@ -42,6 +42,10 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
     const nextValue = typeof value === 'function' ? value(selectedAlgo) : value;
     return setSelectedAlgo(nextValue);
   };
+  const algoState: [number, Dispatch<SetStateAction<number>>] = [
+    selectedAlgo,
+    setSelectedAlgoState,
+  ];
 
   return (
     <div className="flex w-full flex-col">
