@@ -108,6 +108,7 @@ function BasePostModal({
                 onPreviousPost={onPreviousPost}
                 onNextPost={onNextPost}
                 onClose={props?.onRequestClose}
+                post={post}
               />
               {children}
             </>
