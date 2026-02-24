@@ -45,7 +45,7 @@ function ModalCloseComponent(
     ...props
   }: ModalCloseProps,
   ref: Ref<HTMLButtonElement>,
-): ReactElement {
+): ReactElement | null {
   const { isDrawer } = useModalContext();
 
   if (!onClick && isDrawer) {

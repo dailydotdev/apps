@@ -17,26 +17,24 @@ const Buttons = classed(
   'flex items-center justify-center self-stretch flex-col tablet:flex-row gap-4',
 );
 
-export function PromptElement(props: Partial<ModalProps>): ReactElement {
+export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
   const { prompt } = usePrompt();
-  if (!prompt) {
+  if (!prompt || !prompt.options) {
     return null;
   }
+  const { options } = prompt;
+  const { onFail, onSuccess } = prompt;
   const {
-    onFail,
-    onSuccess,
-    options: {
-      title,
-      description,
-      icon,
-      content,
-      promptSize = Modal.Size.Small,
-      cancelButton = {},
-      okButton = {},
-      className = {},
-      shouldCloseOnOverlayClick,
-    },
-  } = prompt;
+    title,
+    description,
+    icon,
+    content,
+    promptSize = Modal.Size.Small,
+    cancelButton = {},
+    okButton = {},
+    className = {},
+    shouldCloseOnOverlayClick,
+  } = options;
   return (
     <Modal
       isOpen

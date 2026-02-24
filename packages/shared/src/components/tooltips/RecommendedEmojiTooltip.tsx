@@ -20,7 +20,7 @@ const RecommendedEmojiTooltip = ({
   selected?: number;
   onSelect: (emoji: string) => void;
   onClickOutside?: () => void;
-}): ReactElement => {
+}): ReactElement | null => {
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 

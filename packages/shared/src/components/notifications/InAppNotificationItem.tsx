@@ -35,7 +35,7 @@ export function InAppNotificationItem({
   avatars,
   targetUrl,
   onClick,
-}: InAppNotificationItemProps): ReactElement {
+}: InAppNotificationItemProps): ReactElement | null {
   const { title: memoizedTitle, isReady } = useObjectPurify({ title });
 
   if (!isReady) {
