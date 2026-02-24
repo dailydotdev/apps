@@ -1,5 +1,5 @@
 import type { FormEventHandler, ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import type {
   ExternalLinkPreview,
@@ -33,7 +33,6 @@ export function SubmitExternalLink({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string | undefined>(initialUrl);
-  const hasInitializedUrl = useRef(false);
   const shouldShorten = url !== undefined || isMobile;
   const label = `Enter URL${shouldShorten ? '' : ' / Choose from'}`;
   const [checkUrl] = useDebouncedUrl(
@@ -42,13 +41,13 @@ export function SubmitExternalLink({
   );
 
   useEffect(() => {
-    if (!initialUrl || hasInitializedUrl.current) {
+    if (!initialUrl) {
       return;
     }
 
-    hasInitializedUrl.current = true;
     checkUrl(initialUrl);
-  }, [initialUrl, checkUrl]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onInput: FormEventHandler<HTMLInputElement> = (e) => {
     const { value } = e.currentTarget;
