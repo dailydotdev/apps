@@ -243,7 +243,7 @@ export function SquadDetails({
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Small}
                 icon={<CameraIcon />}
-                onClick={() => headerImageRef.current.click()}
+                onClick={() => headerImageRef.current?.click()}
               >
                 Upload cover
               </Button>
