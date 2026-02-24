@@ -1,4 +1,4 @@
-import type { FunctionComponent, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
@@ -97,7 +97,7 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
   }
 }
 
-const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
+const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Article]: ArticleGrid,
   [PostType.Share]: ShareGrid,
   [PostType.Welcome]: FreeformGrid,
@@ -109,7 +109,7 @@ const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.SocialTwitter]: SocialTwitterGrid,
 };
 
-const PostTypeToTagList: Record<PostType, FunctionComponent> = {
+const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
   [PostType.Article]: ArticleList,
   [PostType.Share]: ShareList,
   [PostType.Welcome]: FreeformList,
@@ -142,17 +142,23 @@ const getTags = ({
 }: GetTagsProps) => {
   const useListCards = isListFeedLayout || shouldUseListMode;
   return {
-    PostTag: useListCards
+    PostTag: (useListCards
       ? PostTypeToTagList[postType] ?? ArticleList
-      : PostTypeToTagCard[postType] ?? ArticleGrid,
-    AdTag: useListCards ? AdList : AdGrid,
-    SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
-    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
-    MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
-    PlusGridTag: PlusGrid,
-    AcquisitionFormTag: useListCards
+      : PostTypeToTagCard[postType] ?? ArticleGrid) as React.ComponentType<any>,
+    AdTag: (useListCards ? AdList : AdGrid) as React.ComponentType<any>,
+    SquadAdTag: (useListCards
+      ? SquadAdList
+      : SquadAdGrid) as React.ComponentType<any>,
+    PlaceholderTag: (useListCards
+      ? PlaceholderList
+      : PlaceholderGrid) as React.ComponentType<any>,
+    MarketingCtaTag: (useListCards
+      ? MarketingCtaList
+      : MarketingCtaCard) as React.ComponentType<any>,
+    PlusGridTag: PlusGrid as React.ComponentType<any>,
+    AcquisitionFormTag: (useListCards
       ? AcquisitionFormList
-      : AcquisitionFormGrid,
+      : AcquisitionFormGrid) as React.ComponentType<any>,
   };
 };
 
@@ -161,7 +167,7 @@ export const withFeedLogExtraContext = (
 ): typeof FeedItemComponent => {
   const WithFeedLogExtraContext = (
     props: FeedItemComponentProps,
-  ): ReactElement => {
+  ): ReactElement | null => {
     const { item } = props;
 
     if ([FeedItemType.Ad, FeedItemType.Post].includes(item?.type)) {
@@ -232,7 +238,7 @@ function FeedItemComponent({
   onCommentClick,
   onReadArticleClick,
   virtualizedNumCards,
-}: FeedItemComponentProps): ReactElement {
+}: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression(
     item,
@@ -287,6 +293,10 @@ function FeedItemComponent({
     const itemPost =
       item.type === FeedItemType.Post ? item.post : item.ad.data?.post;
 
+    if (!itemPost) {
+      return <PlaceholderTag />;
+    }
+
     if (
       !!itemPost.pinnedAt &&
       itemPost.source?.currentMember?.flags?.collapsePinnedPosts
@@ -303,7 +313,7 @@ function FeedItemComponent({
           ref={inViewRef}
           post={{ ...itemPost }}
           data-testid="postItem"
-          onUpvoteClick={(post, origin = Origin.Feed) => {
+          onUpvoteClick={(post: Post, origin = Origin.Feed) => {
             toggleUpvote({
               payload: post,
               origin,
@@ -314,7 +324,7 @@ function FeedItemComponent({
               },
             });
           }}
-          onDownvoteClick={(post, origin = Origin.Feed) => {
+          onDownvoteClick={(post: Post, origin = Origin.Feed) => {
             toggleDownvote({
               payload: post,
               origin,
@@ -325,13 +335,15 @@ function FeedItemComponent({
               },
             });
           }}
-          onPostClick={(post) => onPostClick(post, index, row, column)}
-          onPostAuxClick={(post) => onPostClick(post, index, row, column, true)}
+          onPostClick={(post: Post) => onPostClick(post, index, row, column)}
+          onPostAuxClick={(post: Post) =>
+            onPostClick(post, index, row, column, true)
+          }
           onReadArticleClick={() =>
             onReadArticleClick(itemPost, index, row, column)
           }
-          onShare={(post) => onShare(post, row, column)}
-          onBookmarkClick={(post, origin = Origin.Feed) => {
+          onShare={(post: Post) => onShare(post, row, column)}
+          onBookmarkClick={(post: Post, origin = Origin.Feed) => {
             toggleBookmark({
               post,
               origin,
@@ -344,12 +356,14 @@ function FeedItemComponent({
           }}
           openNewTab={openNewTab}
           enableMenu={!!user}
-          onMenuClick={(event) => onMenuClick(event, index, row, column)}
-          onCopyLinkClick={(event, post) =>
+          onMenuClick={(event: React.MouseEvent) =>
+            onMenuClick(event, index, row, column)
+          }
+          onCopyLinkClick={(event: React.MouseEvent, post: Post) =>
             onCopyLinkClick(event, post, index, row, column)
           }
           menuOpened={postMenuIndex === index}
-          onCommentClick={(post) =>
+          onCommentClick={(post: Post) =>
             onCommentClick(post, index, row, column, !!boostedBy)
           }
           eagerLoadImage={row === 0 && column === 0}
@@ -368,8 +382,8 @@ function FeedItemComponent({
           ad={item.ad}
           index={item.index}
           feedIndex={index}
-          onLinkClick={(ad) => onAdAction(AdActions.Click, ad)}
-          onRefresh={(ad) => onAdAction(AdActions.Refresh, ad)}
+          onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
+          onRefresh={(ad: Ad) => onAdAction(AdActions.Refresh, ad)}
         />
       );
     case FeedItemType.UserAcquisition:

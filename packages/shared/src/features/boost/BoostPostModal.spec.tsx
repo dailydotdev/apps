@@ -40,15 +40,16 @@ jest.mock('../../hooks/useDebounceFn', () => ({
   default: (fn: unknown) => [fn],
 }));
 
-const createMockPost = (overrides = {}) => ({
-  ...postFixture,
-  id: 'post-1',
-  title: 'Test Post Title',
-  tags: [],
-  yggdrasilId: null,
-  sharedPost: null,
-  ...overrides,
-});
+const createMockPost = (overrides: Record<string, unknown> = {}): Post =>
+  ({
+    ...(postFixture as Post),
+    id: 'post-1',
+    title: 'Test Post Title',
+    tags: [],
+    yggdrasilId: undefined,
+    sharedPost: undefined,
+    ...overrides,
+  }) as Post;
 
 const createMockUser = (balance = 50000) => ({
   ...loggedUser,
@@ -56,8 +57,8 @@ const createMockUser = (balance = 50000) => ({
   balance: { amount: balance },
 });
 
-const defaultMockBoostMutation = {
-  onBoostPost: jest.fn(),
+const defaultMockBoostMutation: ReturnType<typeof useCampaignMutation> = {
+  onStartBoost: jest.fn(),
   onCancelBoost: jest.fn(),
   isLoadingCancel: false,
 };
@@ -93,10 +94,10 @@ describe('BoostPostModal', () => {
     mockUseLazyModal.mockReturnValue({
       openModal: jest.fn(),
       closeModal: jest.fn(),
-      modal: null,
+      modal: undefined as unknown as ReturnType<typeof useLazyModal>['modal'],
     });
     mockUsePostById.mockReturnValue({
-      post: null,
+      post: createMockPost(),
       isLoading: false,
       isError: false,
     });

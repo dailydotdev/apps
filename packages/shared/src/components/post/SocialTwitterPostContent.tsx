@@ -44,6 +44,10 @@ function SocialTwitterPostContentRaw({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement {
+  if (!post) {
+    throw new Error('SocialTwitterPostContent requires a post');
+  }
+
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
@@ -55,7 +59,7 @@ function SocialTwitterPostContentRaw({
     !hasClosedBanner &&
     isPostPage &&
     isBoostButtonVisible &&
-    !post?.flags?.campaignId;
+    !post.flags?.campaignId;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -116,11 +120,11 @@ function SocialTwitterPostContentRaw({
         position === 'fixed'
           ? {
               ...navigationProps,
-              isBannerVisible,
+              isBannerVisible: !!isBannerVisible,
               onReadArticle,
               className: className?.fixedNavigation,
             }
-          : null
+          : undefined
       }
     >
       <div
@@ -189,7 +193,7 @@ function SocialTwitterPostContentRaw({
           )}
           {!shouldHideRepostHeadlineAndTags && !!post.image && (
             <a
-              href={post.permalink}
+              href={post.permalink ?? '#'}
               target="_blank"
               rel="noopener"
               className="mb-10 block cursor-pointer overflow-hidden rounded-16"

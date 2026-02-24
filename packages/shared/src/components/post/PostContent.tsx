@@ -53,6 +53,10 @@ export function PostContentRaw({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement {
+  if (!post) {
+    throw new Error('PostContent requires a post');
+  }
+
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -65,7 +69,7 @@ export function PostContentRaw({
   const { title } = useSmartTitle(post);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
-  const hasToc = post.toc?.length > 0;
+  const hasToc = (post.toc?.length ?? 0) > 0;
   const isCompactModalSpacing = !isPostPage;
   let metadataMarginClassName = 'mb-8';
   if (isVideoType) {
@@ -104,7 +108,7 @@ export function PostContentRaw({
   const ArticleLink = ({ children, ...props }: ComponentProps<'a'>) => {
     return (
       <a
-        href={post.permalink}
+        href={post.permalink ?? '#'}
         title="Go to post"
         target="_blank"
         rel="noopener"
@@ -125,7 +129,7 @@ export function PostContentRaw({
         position === 'fixed'
           ? {
               ...navigationProps,
-              isBannerVisible,
+              isBannerVisible: !!isBannerVisible,
               className: {
                 ...className?.fixedNavigation,
                 container: classNames(
@@ -134,7 +138,7 @@ export function PostContentRaw({
                 ),
               },
             }
-          : null
+          : undefined
       }
     >
       <PostContainer
@@ -180,7 +184,7 @@ export function PostContentRaw({
           {isVideoType && (
             <YoutubeVideo
               placeholderProps={{ post, onWatchVideo: onReadArticle }}
-              videoId={post.videoId}
+              videoId={post.videoId ?? ''}
               className="mb-7"
             />
           )}
@@ -198,7 +202,8 @@ export function PostContentRaw({
             className={metadataClassName}
             domain={
               !isVideoType &&
-              post.domain?.length > 0 && (
+              post.domain &&
+              post.domain.length > 0 && (
                 <TruncateText>
                   From{' '}
                   <ArticleLink title={post.domain} className="hover:underline">

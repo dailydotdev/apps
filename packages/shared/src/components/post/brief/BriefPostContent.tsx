@@ -88,6 +88,10 @@ const BriefPostContentRaw = ({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement => {
+  if (!post) {
+    throw new Error('BriefPostContent requires a post');
+  }
+
   const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
   const { completeAction } = useActions();
   const router = useRouter();
@@ -95,7 +99,7 @@ const BriefPostContentRaw = ({
   const { logEvent } = useLogContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { user, isAuthReady } = useAuthContext();
-  const isNotPlus = !isPlus && isAuthReady;
+  const isNotPlus = !isPlus && !!isAuthReady;
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
@@ -104,11 +108,11 @@ const BriefPostContentRaw = ({
   });
 
   const { subject } = useToastNotification();
-  const { contentHtml } = post;
-  const postsCount = post?.flags?.posts || 0;
-  const sourcesCount = post?.flags?.sources || 0;
+  const contentHtml = post.contentHtml ?? '';
+  const postsCount = post.flags?.posts || 0;
+  const sourcesCount = post.flags?.sources || 0;
 
-  const isAuthor = user?.id === post?.author?.id;
+  const isAuthor = user?.id === post.author?.id;
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
     '!max-w-3xl laptop:flex-row laptop:pb-0',
@@ -204,7 +208,7 @@ const BriefPostContentRaw = ({
 
     router?.replace(
       router?.pathname,
-      getPathnameWithQuery(`/posts/${post.slug}`, searchParams),
+      getPathnameWithQuery(`/posts/${post.slug ?? ''}`, searchParams),
       {
         shallow: true,
       },
@@ -215,7 +219,7 @@ const BriefPostContentRaw = ({
       props: {
         source: briefingSource,
         redirectPath: getPathnameWithQuery(
-          `/posts/${post.slug}`,
+          `/posts/${post.slug ?? ''}`,
           new URLSearchParams({
             lzym: LazyModal.SlackIntegration,
           }),
@@ -234,7 +238,7 @@ const BriefPostContentRaw = ({
     completeAction(ActionType.GeneratedBrief);
   }, [completeAction, post?.type, isAuthor]);
 
-  let authorFirstName = getFirstName(post.author?.name);
+  let authorFirstName = getFirstName(post.author?.name ?? '');
 
   if (authorFirstName) {
     authorFirstName = `${authorFirstName}'s`;
@@ -245,6 +249,10 @@ const BriefPostContentRaw = ({
   }
 
   const toggleNotification = (type: NotificationChannel) => {
+    if (!ns) {
+      return;
+    }
+
     const shouldUnsubscribe = isMutingDigestCompletely(ns, type);
 
     if (shouldUnsubscribe) {
@@ -262,7 +270,7 @@ const BriefPostContentRaw = ({
 
   const headerProps: BriefPostHeaderProps = useMemo(
     () => ({
-      kicker: post.title,
+      kicker: post.title ?? '',
       heading: authorFirstName
         ? `${authorFirstName} presidential briefing`
         : 'Presidential briefing',
@@ -298,20 +306,22 @@ const BriefPostContentRaw = ({
     ],
   );
 
+  const collectionSources = post.collectionSources ?? [];
+  const fixedNavigationProps =
+    position === 'fixed'
+      ? {
+          ...navigationProps,
+          isBannerVisible: !!isBannerVisible,
+          className: className?.fixedNavigation,
+        }
+      : undefined;
+
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
       className={containerClass}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
-      navigationProps={
-        position === 'fixed'
-          ? {
-              ...navigationProps,
-              isBannerVisible,
-              className: className?.fixedNavigation,
-            }
-          : null
-      }
+      navigationProps={fixedNavigationProps}
     >
       <PostContainer
         className={classNames('relative', className?.content)}
@@ -362,11 +372,11 @@ const BriefPostContentRaw = ({
                 />
               )}
               <div className="flex w-full items-center gap-1">
-                {post.collectionSources?.length > 0 && (
+                {collectionSources.length > 0 && (
                   <CollectionPillSources
                     alwaysShowSources
-                    sources={post.collectionSources}
-                    totalSources={post.collectionSources.length}
+                    sources={collectionSources}
+                    totalSources={collectionSources.length}
                     size={ProfileImageSize.Size16}
                     limit={briefSourcesLimit}
                   />
@@ -548,12 +558,16 @@ const BriefPostContentRaw = ({
                         iconPosition={ButtonIconPosition.Right}
                         icon={<OpenLinkIcon />}
                         onClick={() => {
+                          if (!briefingSource) {
+                            return;
+                          }
+
                           openModal({
                             type: LazyModal.SlackIntegration,
                             props: {
                               source: briefingSource,
                               redirectPath: getPathnameWithQuery(
-                                `/posts/${post.slug}`,
+                                `/posts/${post.slug ?? ''}`,
                                 new URLSearchParams({
                                   lzym: LazyModal.SlackIntegration,
                                 }),
