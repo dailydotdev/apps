@@ -39,6 +39,7 @@ function BasePostModal({
   onPreviousPost,
   onNextPost,
   post,
+  onRequestClose,
   ...props
 }: BasePostModalProps): ReactElement {
   const { usePostReferrer } = usePostReferrerContext();
@@ -84,6 +85,7 @@ function BasePostModal({
           portalClassName={styles.postModal}
           id="post-modal"
           overlayRef={setScrollNode}
+          onRequestClose={onRequestClose}
           {...props}
           overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
           className={classNames(
@@ -107,7 +109,8 @@ function BasePostModal({
                 postPosition={postPosition}
                 onPreviousPost={onPreviousPost}
                 onNextPost={onNextPost}
-                onClose={props?.onRequestClose}
+                onClose={onRequestClose}
+                post={post}
               />
               {children}
             </>

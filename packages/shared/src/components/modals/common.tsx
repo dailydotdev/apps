@@ -447,6 +447,13 @@ const AchievementCompletionModal = dynamic(
     ),
 );
 
+const CompareAchievementsModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "compareAchievementsModal" */ './achievement/CompareAchievementsModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -520,6 +527,7 @@ export const modals = {
   [LazyModal.HotAndCold]: HotAndColdModal,
   [LazyModal.AchievementPicker]: AchievementPickerModal,
   [LazyModal.AchievementCompletion]: AchievementCompletionModal,
+  [LazyModal.CompareAchievements]: CompareAchievementsModal,
 };
 
 type GetComponentProps<T> = T extends

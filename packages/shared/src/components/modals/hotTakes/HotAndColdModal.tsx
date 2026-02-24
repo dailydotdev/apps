@@ -30,6 +30,24 @@ const BUTTON_DISMISS_ANIMATION_MS = 620;
 const DISMISS_FLY_DISTANCE = 760;
 const BUTTON_DISMISS_FLY_DISTANCE = 620;
 const BUTTON_FLY_KICK_DELAY_MS = 42;
+const SKIP_DISMISS_ANIMATION_MS = 520;
+const SKIP_DISMISS_FLY_DISTANCE = 600;
+const SKIP_DRAG_ELASTICITY_FACTOR = 0.3;
+const COLD_ACCENT_COLOR = '#123a88';
+const HOT_TAKE_CARD_HEIGHT = '28rem';
+
+const getElasticDelta = (delta: number): number => {
+  const absoluteDelta = Math.abs(delta);
+  if (absoluteDelta <= SWIPE_THRESHOLD) {
+    return delta;
+  }
+
+  const overshoot = absoluteDelta - SWIPE_THRESHOLD;
+  return (
+    Math.sign(delta) *
+    (SWIPE_THRESHOLD + overshoot * SKIP_DRAG_ELASTICITY_FACTOR)
+  );
+};
 
 const EFFECT_KEYFRAMES = `
   @keyframes hotTakeFlame {
@@ -61,6 +79,20 @@ const EFFECT_KEYFRAMES = `
   @keyframes hotTakeFrostBreath {
     0%, 100% { opacity: 0.5; transform: translateY(0); }
     50% { opacity: 0.9; transform: translateY(2px); }
+  }
+  @keyframes hotTakeSleepFloat {
+    0% { transform: translateX(-50%) translateY(0) scale(0.78); opacity: 0; }
+    18% { opacity: 1; }
+    100% { transform: translateX(-50%) translateY(-72px) scale(1.06); opacity: 0; }
+  }
+  @keyframes hotTakeBubbleRise {
+    0% { transform: translateY(0) scale(0.72); opacity: 0; }
+    18% { opacity: 0.95; }
+    100% { transform: translateY(-78px) scale(1.14); opacity: 0; }
+  }
+  @keyframes hotTakeSleepBreath {
+    0%, 100% { opacity: 0.56; transform: translateY(0); }
+    50% { opacity: 0.96; transform: translateY(-2px); }
   }
   @keyframes hotTakeBadgePulse {
     0% { transform: translateX(-50%) scale(0.92); opacity: 0; }
@@ -166,11 +198,71 @@ const SNOWFLAKES: ReadonlyArray<{
   { left: '52%', top: '35%', size: 5, delay: 0.65, duration: 3.1 },
 ];
 
+const SLEEP_ZS: ReadonlyArray<{
+  left: string;
+  bottom: string;
+  size: number;
+  delay: number;
+  duration: number;
+  rotate: number;
+}> = [
+  { left: '20%', bottom: '14%', size: 19, delay: 0, duration: 2.2, rotate: -6 },
+  {
+    left: '32%',
+    bottom: '22%',
+    size: 16,
+    delay: 0.35,
+    duration: 2.6,
+    rotate: 4,
+  },
+  {
+    left: '47%',
+    bottom: '16%',
+    size: 22,
+    delay: 0.12,
+    duration: 2.4,
+    rotate: -3,
+  },
+  {
+    left: '60%',
+    bottom: '24%',
+    size: 18,
+    delay: 0.55,
+    duration: 2.7,
+    rotate: 6,
+  },
+  {
+    left: '74%',
+    bottom: '18%',
+    size: 20,
+    delay: 0.22,
+    duration: 2.5,
+    rotate: -4,
+  },
+];
+
+const SLEEP_BUBBLES: ReadonlyArray<{
+  left: string;
+  bottom: string;
+  size: number;
+  delay: number;
+  duration: number;
+}> = [
+  { left: '12%', bottom: '10%', size: 8, delay: 0, duration: 2.2 },
+  { left: '24%', bottom: '15%', size: 6, delay: 0.5, duration: 2.6 },
+  { left: '38%', bottom: '8%', size: 10, delay: 0.2, duration: 2.3 },
+  { left: '50%', bottom: '13%', size: 7, delay: 0.7, duration: 2.7 },
+  { left: '62%', bottom: '9%', size: 9, delay: 0.35, duration: 2.4 },
+  { left: '76%', bottom: '14%', size: 6, delay: 0.95, duration: 2.8 },
+  { left: '88%', bottom: '8%', size: 8, delay: 0.45, duration: 2.5 },
+];
+
 const HotTakeCard = ({
   hotTake,
   isTop,
   offset,
   swipeDelta,
+  skipDeltaY = 0,
   isDismissAnimating,
   isDragging,
   dismissDurationMs,
@@ -179,26 +271,48 @@ const HotTakeCard = ({
   isTop: boolean;
   offset: number;
   swipeDelta: number;
+  skipDeltaY?: number;
   isDismissAnimating: boolean;
   isDragging: boolean;
   dismissDurationMs: number;
 }): ReactElement => {
+  const isSkipAnimating = isTop && isDismissAnimating && skipDeltaY !== 0;
+  const isSkipDragging = isTop && !isDismissAnimating && skipDeltaY < 0;
   const rotation = isTop ? Math.max(Math.min(swipeDelta * 0.08, 18), -18) : 0;
   const translateX = isTop ? swipeDelta : 0;
   const stackScale = isTop ? 1 : 1 - offset * 0.05;
   const translateY = isTop ? 0 : offset * 8;
-  const dismissProgress =
-    isTop && isDismissAnimating
-      ? Math.min(Math.abs(swipeDelta) / DISMISS_FLY_DISTANCE, 1)
-      : 0;
+  const getDismissProgress = (): number => {
+    if (!isTop || !isDismissAnimating) {
+      return 0;
+    }
+    if (isSkipAnimating) {
+      return Math.min(Math.abs(skipDeltaY) / SKIP_DISMISS_FLY_DISTANCE, 1);
+    }
+    return Math.min(Math.abs(swipeDelta) / DISMISS_FLY_DISTANCE, 1);
+  };
+  const dismissProgress = getDismissProgress();
   const scale = isTop ? 1 - dismissProgress * 0.06 : stackScale;
   const dismissLift = isTop ? dismissProgress * -22 : 0;
-  const translateYWithOutro = translateY + dismissLift;
+  const translateYWithOutro =
+    translateY + dismissLift + (isTop ? skipDeltaY : 0);
 
   const intensity = isTop
     ? Math.min(Math.abs(swipeDelta) / SWIPE_THRESHOLD, 1)
     : 0;
   const effectIntensity = isTop ? intensity ** 0.78 : 0;
+  const skipDragIntensity = isTop
+    ? Math.min(Math.abs(skipDeltaY) / SWIPE_THRESHOLD, 1)
+    : 0;
+  let skipEffectIntensity = 0;
+  if (isTop) {
+    if (isSkipAnimating) {
+      skipEffectIntensity = dismissProgress;
+    } else if (isSkipDragging) {
+      skipEffectIntensity = skipDragIntensity ** 0.78;
+    }
+  }
+  const isSkipVisualActive = isTop && skipEffectIntensity > 0.02;
   const getSwipeDirection = (): 'right' | 'left' | null => {
     if (!isTop || Math.abs(swipeDelta) <= 20) {
       return null;
@@ -210,7 +324,41 @@ const HotTakeCard = ({
   const accentColor =
     swipeDirection === 'right'
       ? 'var(--theme-accent-ketchup-default)'
-      : 'var(--theme-accent-blueCheese-default)';
+      : COLD_ACCENT_COLOR;
+  const skipAccentColor = 'var(--theme-accent-blueCheese-default)';
+  let activeBorderColor;
+  if (swipeDirection) {
+    activeBorderColor = `color-mix(in srgb, ${accentColor} ${Math.round(
+      effectIntensity * 100,
+    )}%, var(--theme-border-subtlest-tertiary))`;
+  } else if (isSkipVisualActive) {
+    activeBorderColor = `color-mix(in srgb, ${skipAccentColor} ${Math.round(
+      skipEffectIntensity * 100,
+    )}%, var(--theme-border-subtlest-tertiary))`;
+  }
+
+  let activeBoxShadow;
+  if (swipeDirection) {
+    activeBoxShadow = `0 0 ${6 + effectIntensity * 24}px ${
+      2 + effectIntensity * 8
+    }px color-mix(in srgb, ${accentColor} ${Math.round(
+      effectIntensity * 65,
+    )}%, transparent), 0 0 ${10 + effectIntensity * 34}px ${
+      4 + effectIntensity * 14
+    }px color-mix(in srgb, ${accentColor} ${Math.round(
+      effectIntensity * 42,
+    )}%, transparent)`;
+  } else if (isSkipVisualActive) {
+    activeBoxShadow = `0 0 ${6 + skipEffectIntensity * 22}px ${
+      2 + skipEffectIntensity * 8
+    }px color-mix(in srgb, ${skipAccentColor} ${Math.round(
+      skipEffectIntensity * 60,
+    )}%, transparent), 0 0 ${10 + skipEffectIntensity * 28}px ${
+      4 + skipEffectIntensity * 12
+    }px color-mix(in srgb, ${skipAccentColor} ${Math.round(
+      skipEffectIntensity * 42,
+    )}%, transparent)`;
+  }
   let transition =
     'transform 0.3s ease, border-color 0.2s ease, box-shadow 0.2s ease';
   if (isTop) {
@@ -239,22 +387,8 @@ const HotTakeCard = ({
           isTop && isDismissAnimating
             ? `blur(${dismissProgress * 1.8}px)`
             : undefined,
-        borderColor: swipeDirection
-          ? `color-mix(in srgb, ${accentColor} ${Math.round(
-              effectIntensity * 100,
-            )}%, var(--theme-border-subtlest-tertiary))`
-          : undefined,
-        boxShadow: swipeDirection
-          ? `0 0 ${6 + effectIntensity * 24}px ${
-              2 + effectIntensity * 8
-            }px color-mix(in srgb, ${accentColor} ${Math.round(
-              effectIntensity * 65,
-            )}%, transparent), 0 0 ${10 + effectIntensity * 34}px ${
-              4 + effectIntensity * 14
-            }px color-mix(in srgb, ${accentColor} ${Math.round(
-              effectIntensity * 42,
-            )}%, transparent)`
-          : undefined,
+        borderColor: activeBorderColor,
+        boxShadow: activeBoxShadow,
       }}
     >
       {/* eslint-disable-next-line react/no-unknown-property */}
@@ -448,17 +582,114 @@ const HotTakeCard = ({
         </div>
       )}
 
+      {isSkipVisualActive && (
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-16">
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 'inherit',
+              background: `linear-gradient(180deg, rgba(222,246,255,${
+                skipEffectIntensity * 0.2
+              }) 0%, rgba(180,230,255,${
+                skipEffectIntensity * 0.12
+              }) 46%, rgba(120,186,240,${skipEffectIntensity * 0.16}) 100%)`,
+              boxShadow: [
+                `inset 0 ${52 * skipEffectIntensity}px ${
+                  44 * skipEffectIntensity
+                }px ${-15 * skipEffectIntensity}px rgba(170,225,255,0.32)`,
+                `inset ${24 * skipEffectIntensity}px 0 ${
+                  24 * skipEffectIntensity
+                }px ${-14 * skipEffectIntensity}px rgba(140,210,255,0.18)`,
+                `inset ${-24 * skipEffectIntensity}px 0 ${
+                  24 * skipEffectIntensity
+                }px ${-14 * skipEffectIntensity}px rgba(140,210,255,0.18)`,
+              ].join(', '),
+              backdropFilter: `blur(${0.4 + skipEffectIntensity * 1.5}px)`,
+              animation: `hotTakeSleepBreath ${
+                1.2 + (1 - skipEffectIntensity) * 0.4
+              }s ease-in-out infinite`,
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: '-8%',
+              right: '-8%',
+              top: '-16%',
+              height: '42%',
+              borderRadius: '50%',
+              background: `radial-gradient(ellipse at 50% 0%, rgba(220,245,255,${
+                skipEffectIntensity * 0.52
+              }) 0%, rgba(170,220,255,${
+                skipEffectIntensity * 0.22
+              }) 42%, transparent 78%)`,
+              filter: `blur(${4 + skipEffectIntensity * 5}px)`,
+            }}
+          />
+          {SLEEP_ZS.map((sleepZ) => (
+            <span
+              key={`${sleepZ.left}-${sleepZ.bottom}`}
+              style={{
+                position: 'absolute',
+                left: sleepZ.left,
+                bottom: sleepZ.bottom,
+                fontSize: sleepZ.size,
+                fontWeight: 800,
+                lineHeight: 1,
+                color: `rgba(230,248,255,${0.25 + skipEffectIntensity * 0.75})`,
+                textShadow: `0 0 ${
+                  4 + skipEffectIntensity * 10
+                }px rgba(150,220,255,${0.18 + skipEffectIntensity * 0.52})`,
+                transform: `translateX(-50%) rotate(${sleepZ.rotate}deg)`,
+                animation: `hotTakeSleepFloat ${sleepZ.duration}s ease-in infinite`,
+                animationDelay: `${sleepZ.delay}s`,
+                opacity: 0.24 + skipEffectIntensity * 0.76,
+              }}
+            >
+              Z
+            </span>
+          ))}
+          {SLEEP_BUBBLES.map((bubble) => (
+            <div
+              key={`${bubble.left}-${bubble.bottom}`}
+              style={{
+                position: 'absolute',
+                left: bubble.left,
+                bottom: bubble.bottom,
+                width: bubble.size,
+                height: bubble.size,
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(circle at 28% 28%, rgba(255,255,255,0.95) 0%, rgba(225,245,255,0.55) 44%, rgba(170,220,255,0.2) 100%)',
+                border: `1px solid rgba(208,240,255,${
+                  0.18 + skipEffectIntensity * 0.5
+                })`,
+                boxShadow: `0 0 ${bubble.size + 4}px rgba(150,220,255,${
+                  0.15 + skipEffectIntensity * 0.48
+                })`,
+                animation: `hotTakeBubbleRise ${bubble.duration}s ease-out infinite`,
+                animationDelay: `${bubble.delay}s`,
+                opacity: 0.2 + skipEffectIntensity * 0.8,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
       {isTop && swipeDirection && (
         <div
           className={classNames(
             'z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 px-4 py-1 font-bold typo-title3',
             swipeDirection === 'right'
               ? 'bg-accent-ketchup-default text-white'
-              : 'bg-accent-blueCheese-default text-white',
+              : 'text-white',
           )}
           style={{
             opacity: effectIntensity,
             animation: 'hotTakeBadgePulse 0.18s ease-out',
+            backgroundColor:
+              swipeDirection === 'right' ? undefined : COLD_ACCENT_COLOR,
             boxShadow: `0 6px ${12 + effectIntensity * 10}px rgba(0,0,0,${
               0.1 + effectIntensity * 0.18
             })`,
@@ -468,7 +699,22 @@ const HotTakeCard = ({
         </div>
       )}
 
-      <div className="pointer-events-none relative flex flex-1 flex-col items-center justify-center gap-3 p-6">
+      {isSkipVisualActive && (
+        <div
+          className="z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 bg-accent-blueCheese-default px-4 py-1 font-bold text-white typo-title3"
+          style={{
+            opacity: skipEffectIntensity,
+            animation: 'hotTakeBadgePulse 0.18s ease-out',
+            boxShadow: `0 6px ${12 + skipEffectIntensity * 10}px rgba(0,0,0,${
+              0.1 + skipEffectIntensity * 0.18
+            })`,
+          }}
+        >
+          SKIP 😴
+        </div>
+      )}
+
+      <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-3 overflow-y-auto break-words p-6">
         <div className="flex size-16 items-center justify-center rounded-16 bg-overlay-quaternary-cabbage text-[2.5rem]">
           {hotTake.emoji}
         </div>
@@ -477,7 +723,7 @@ const HotTakeCard = ({
           type={TypographyType.Title3}
           color={TypographyColor.Primary}
           bold
-          className="text-center"
+          className="w-full break-words text-center"
         >
           {hotTake.title}
         </Typography>
@@ -486,7 +732,7 @@ const HotTakeCard = ({
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
-            className="text-center"
+            className="w-full break-words text-center"
           >
             {hotTake.subtitle}
           </Typography>
@@ -594,7 +840,7 @@ const HotAndColdModal = ({
 }: ModalProps): ReactElement => {
   const { currentTake, nextTake, isEmpty, isLoading, dismissCurrent } =
     useDiscoverHotTakes();
-  const { toggleUpvote, toggleDownvote } = useVoteHotTake();
+  const { toggleUpvote, toggleDownvote, cancelHotTakeVote } = useVoteHotTake();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const [swipeDelta, setSwipeDelta] = useState(0);
@@ -607,6 +853,8 @@ const HotAndColdModal = ({
   const animatingTakeIdRef = useRef<string | null>(null);
   const flyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [skipDelta, setSkipDelta] = useState(0);
+  const swipeDeltaYRef = useRef(0);
 
   useEffect(() => {
     animatingTakeIdRef.current = animatingTakeId;
@@ -616,6 +864,8 @@ const HotAndColdModal = ({
     if (!isAnimating) {
       setSwipeDelta(0);
       swipeDeltaRef.current = 0;
+      setSkipDelta(0);
+      swipeDeltaYRef.current = 0;
       setIsDragging(false);
     }
   }, [currentTake?.id, isAnimating]);
@@ -631,12 +881,18 @@ const HotAndColdModal = ({
     };
   }, []);
 
-  const handleDismiss = useCallback(
-    (direction: 'left' | 'right', source: 'swipe' | 'button' = 'swipe') => {
-      if (!currentTake || isAnimating) {
-        return;
-      }
-
+  const startDismissAnimation = useCallback(
+    ({
+      takeId,
+      durationMs,
+      flyDelayMs,
+      onFly,
+    }: {
+      takeId: string;
+      durationMs: number;
+      flyDelayMs: number;
+      onFly: () => void;
+    }) => {
       if (flyTimerRef.current) {
         clearTimeout(flyTimerRef.current);
       }
@@ -644,18 +900,50 @@ const HotAndColdModal = ({
         clearTimeout(dismissTimerRef.current);
       }
 
-      const isButtonDismiss = source === 'button';
-      const currentDismissDurationMs =
-        source === 'button'
-          ? BUTTON_DISMISS_ANIMATION_MS
-          : DISMISS_ANIMATION_MS;
-      const flyKickDelayMs = isButtonDismiss ? BUTTON_FLY_KICK_DELAY_MS : 0;
-
-      animatingTakeIdRef.current = currentTake.id;
-      setAnimatingTakeId(currentTake.id);
-      setDismissDurationMs(currentDismissDurationMs);
+      animatingTakeIdRef.current = takeId;
+      setAnimatingTakeId(takeId);
+      setDismissDurationMs(durationMs);
       setIsAnimating(true);
       setIsDragging(false);
+
+      flyTimerRef.current = setTimeout(() => {
+        if (animatingTakeIdRef.current !== takeId) {
+          flyTimerRef.current = null;
+          return;
+        }
+        onFly();
+        flyTimerRef.current = null;
+      }, flyDelayMs);
+
+      dismissTimerRef.current = setTimeout(() => {
+        if (animatingTakeIdRef.current !== takeId) {
+          dismissTimerRef.current = null;
+          return;
+        }
+        setSwipeDelta(0);
+        swipeDeltaRef.current = 0;
+        setSkipDelta(0);
+        swipeDeltaYRef.current = 0;
+        animatingTakeIdRef.current = null;
+        setAnimatingTakeId(null);
+        dismissCurrent();
+        setIsAnimating(false);
+        dismissTimerRef.current = null;
+      }, durationMs);
+    },
+    [dismissCurrent],
+  );
+
+  const handleDismiss = useCallback(
+    (direction: 'left' | 'right', source: 'swipe' | 'button' = 'swipe') => {
+      if (!currentTake || isAnimating) {
+        return;
+      }
+
+      const isButtonSource = source === 'button';
+      const durationMs = isButtonSource
+        ? BUTTON_DISMISS_ANIMATION_MS
+        : DISMISS_ANIMATION_MS;
       const vote = direction === 'right' ? 'hot' : 'cold';
 
       logEvent({
@@ -676,10 +964,9 @@ const HotAndColdModal = ({
         });
       }
 
-      // Start from current drag position, then finish the swipe with momentum.
       let initialPush: number;
       let flyDistance: number;
-      if (source === 'button') {
+      if (isButtonSource) {
         initialPush =
           direction === 'right'
             ? SWIPE_THRESHOLD * 0.45
@@ -697,34 +984,18 @@ const HotAndColdModal = ({
           direction === 'right' ? DISMISS_FLY_DISTANCE : -DISMISS_FLY_DISTANCE;
       }
       setSwipeDelta(initialPush);
-      const dismissingTakeId = currentTake.id;
-      flyTimerRef.current = setTimeout(() => {
-        if (animatingTakeIdRef.current !== dismissingTakeId) {
-          flyTimerRef.current = null;
-          return;
-        }
-        setSwipeDelta(flyDistance);
-        flyTimerRef.current = null;
-      }, flyKickDelayMs);
 
-      dismissTimerRef.current = setTimeout(() => {
-        if (animatingTakeIdRef.current !== dismissingTakeId) {
-          dismissTimerRef.current = null;
-          return;
-        }
-        setSwipeDelta(0);
-        swipeDeltaRef.current = 0;
-        animatingTakeIdRef.current = null;
-        setAnimatingTakeId(null);
-        dismissCurrent();
-        setIsAnimating(false);
-        dismissTimerRef.current = null;
-      }, currentDismissDurationMs);
+      startDismissAnimation({
+        takeId: currentTake.id,
+        durationMs,
+        flyDelayMs: isButtonSource ? BUTTON_FLY_KICK_DELAY_MS : 0,
+        onFly: () => setSwipeDelta(flyDistance),
+      });
     },
     [
       currentTake,
       isAnimating,
-      dismissCurrent,
+      startDismissAnimation,
       toggleDownvote,
       toggleUpvote,
       logEvent,
@@ -732,18 +1003,50 @@ const HotAndColdModal = ({
     ],
   );
 
+  const handleSkip = useCallback(
+    (source: 'swipe' | 'button' = 'button') => {
+      if (!currentTake || isAnimating) {
+        return;
+      }
+
+      logEvent({
+        event_name: LogEvent.SkipHotTake,
+        target_id: currentTake.id,
+      });
+
+      cancelHotTakeVote({ id: currentTake.id });
+
+      startDismissAnimation({
+        takeId: currentTake.id,
+        durationMs: SKIP_DISMISS_ANIMATION_MS,
+        flyDelayMs: source === 'button' ? BUTTON_FLY_KICK_DELAY_MS : 0,
+        onFly: () => setSkipDelta(-SKIP_DISMISS_FLY_DISTANCE),
+      });
+    },
+    [
+      cancelHotTakeVote,
+      currentTake,
+      isAnimating,
+      startDismissAnimation,
+      logEvent,
+    ],
+  );
+
   const isCurrentTakeAnimating =
     !!currentTake && isAnimating && animatingTakeId === currentTake.id;
   const cardSwipeDelta =
     isAnimating && !isCurrentTakeAnimating ? 0 : swipeDelta;
+  const cardSkipDelta = isAnimating && !isCurrentTakeAnimating ? 0 : skipDelta;
 
   const handleSwiped = (direction: 'left' | 'right') => {
     setIsDragging(false);
+    setSkipDelta(0);
     if (Math.abs(swipeDeltaRef.current) > SWIPE_THRESHOLD) {
       handleDismiss(direction, 'swipe');
     } else {
       setSwipeDelta(0);
       swipeDeltaRef.current = 0;
+      swipeDeltaYRef.current = 0;
     }
   };
 
@@ -752,11 +1055,33 @@ const HotAndColdModal = ({
       if (!isAnimating) {
         setIsDragging(true);
         setSwipeDelta(e.deltaX);
+        if (e.deltaY < 0 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          setSkipDelta(getElasticDelta(e.deltaY));
+        } else {
+          setSkipDelta(0);
+        }
         swipeDeltaRef.current = e.deltaX;
+        swipeDeltaYRef.current = e.deltaY;
       }
     },
     onSwipedLeft: () => handleSwiped('left'),
     onSwipedRight: () => handleSwiped('right'),
+    onSwipedUp: () => {
+      setIsDragging(false);
+      if (
+        swipeDeltaYRef.current < 0 &&
+        Math.abs(swipeDeltaYRef.current) > SWIPE_THRESHOLD
+      ) {
+        setSwipeDelta(0);
+        swipeDeltaRef.current = 0;
+        handleSkip('swipe');
+      } else {
+        setSwipeDelta(0);
+        swipeDeltaRef.current = 0;
+        setSkipDelta(0);
+        swipeDeltaYRef.current = 0;
+      }
+    },
     trackMouse: true,
     preventScrollOnSwipe: true,
     touchEventOptions: { passive: false },
@@ -765,7 +1090,7 @@ const HotAndColdModal = ({
   return (
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
       <Modal.Header title="Hot Takes" />
-      <Modal.Body className="!p-0">
+      <Modal.Body className="overflow-hidden !p-0">
         {isLoading && (
           <div className="flex flex-1 items-center justify-center p-6">
             <Typography
@@ -786,7 +1111,7 @@ const HotAndColdModal = ({
             <div
               {...handlers}
               className="relative mx-4 mt-2 select-none"
-              style={{ height: '26rem' }}
+              style={{ height: HOT_TAKE_CARD_HEIGHT }}
             >
               {nextTake && (
                 <HotTakeCard
@@ -806,13 +1131,14 @@ const HotAndColdModal = ({
                 isTop
                 offset={0}
                 swipeDelta={cardSwipeDelta}
+                skipDeltaY={cardSkipDelta}
                 isDismissAnimating={isCurrentTakeAnimating}
                 isDragging={isDragging}
                 dismissDurationMs={dismissDurationMs}
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 pt-3">
+            <div className="flex items-center justify-center gap-4 p-4 pt-3">
               <Button
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Large}
@@ -825,6 +1151,19 @@ const HotAndColdModal = ({
                 disabled={isAnimating}
                 className="!size-14 rounded-full"
                 aria-label="Cold take - downvote"
+              />
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Large}
+                icon={
+                  <span className="text-[1.375rem] leading-none" aria-hidden>
+                    😐
+                  </span>
+                }
+                onClick={() => handleSkip('button')}
+                disabled={isAnimating}
+                className="!size-12 rounded-full"
+                aria-label="Skip hot take"
               />
               <Button
                 variant={ButtonVariant.Float}
