@@ -8,12 +8,14 @@ export default function useRequirePermissions(role: Roles): void {
   const { user, tokenRefreshed } = useContext(AuthContext);
 
   useEffect(() => {
-    if (tokenRefreshed) {
-      if (!(user?.roles.indexOf(role) >= 0)) {
-        router.replace('/');
-      }
+    if (!tokenRefreshed) {
+      return;
     }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenRefreshed, user]);
+
+    if (user?.roles?.includes(role)) {
+      return;
+    }
+
+    router.replace('/');
+  }, [role, router, tokenRefreshed, user]);
 }
