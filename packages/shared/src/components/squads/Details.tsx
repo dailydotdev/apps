@@ -52,28 +52,6 @@ interface SquadDetailsProps {
   integrationId?: string;
 }
 
-const getFormData = async (
-  current: SquadForm,
-  imageChanged: boolean,
-  headerChanged: boolean,
-): Promise<SquadForm> => {
-  const updated = { ...current };
-
-  if (imageChanged) {
-    const input = document.getElementById(squadImageId) as HTMLInputElement;
-    const file = input.files[0];
-    updated.file = file;
-  }
-
-  if (headerChanged) {
-    const header = document.getElementById(squadHeaderId) as HTMLInputElement;
-    const headerFile = header.files[0];
-    updated.header = headerFile;
-  }
-
-  return updated;
-};
-
 export function SquadDetails({
   onSubmit,
   children,
@@ -106,6 +84,8 @@ export function SquadDetails({
   const router = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const headerImageRef = useRef<HTMLInputElement>();
+  const imageFileRef = useRef<File | null>(null);
+  const headerFileRef = useRef<File | null>(null);
 
   const { data: channels } = useSlackChannelsQuery({
     integrationId,
@@ -149,7 +129,15 @@ export function SquadDetails({
       return null;
     }
 
-    const data = await getFormData(formJson, imageChanged, headerChanged);
+    const data = { ...formJson };
+
+    if (imageChanged) {
+      data.file = imageFileRef.current ?? undefined;
+    }
+
+    if (headerChanged) {
+      data.header = headerFileRef.current ?? undefined;
+    }
 
     if (!createMode) {
       return onSubmit(e, data, channels?.[selectedChannelIndex]?.id);
@@ -184,17 +172,12 @@ export function SquadDetails({
   const { onFileChange } = useFileInput({
     acceptedTypes: acceptedTypesList,
     limitMb: 2,
-    onChange(base64) {
+    onChange(base64, file) {
       setHeaderImageBase64(base64);
       setHeaderChanged(true);
+      headerFileRef.current = file;
     },
   });
-
-  const handleFile = (event: ChangeEvent) => {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    return onFileChange(file);
-  };
 
   return (
     <FormWrapper
@@ -234,7 +217,7 @@ export function SquadDetails({
             <div
               className="mt-4 flex w-full max-w-70 flex-row items-center justify-between rounded-32 bg-surface-float bg-cover pr-4"
               style={{
-                background: headerImageBase64
+                backgroundImage: headerImageBase64
                   ? `url(${headerImageBase64})`
                   : undefined,
               }}
@@ -249,7 +232,10 @@ export function SquadDetails({
                 }}
                 hoverIcon={<CameraIcon size={IconSize.Large} />}
                 alwaysShowHover={!imageChanged}
-                onChange={() => setImageChanged(true)}
+                onChange={(_, file) => {
+                  setImageChanged(true);
+                  imageFileRef.current = file ?? null;
+                }}
                 size="medium"
               />
               <Button
@@ -257,7 +243,7 @@ export function SquadDetails({
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Small}
                 icon={<CameraIcon />}
-                onClick={() => headerImageRef.current.click()}
+                onClick={() => headerImageRef.current?.click()}
               >
                 Upload cover
               </Button>
@@ -268,7 +254,11 @@ export function SquadDetails({
                 hidden
                 accept={ACCEPTED_TYPES}
                 multiple={false}
-                onChange={handleFile}
+                onChange={(event: ChangeEvent) => {
+                  const input = event.target as HTMLInputElement;
+                  const file = input.files?.[0];
+                  onFileChange(file);
+                }}
               />
             </div>
             <SquadPrivacyState
