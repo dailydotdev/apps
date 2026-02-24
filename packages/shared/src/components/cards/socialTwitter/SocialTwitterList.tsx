@@ -26,10 +26,7 @@ import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
-import {
-  getSocialTwitterMetadata,
-  getSocialTwitterMetadataLabel,
-} from './socialTwitterHelpers';
+import { getSocialTwitterMetadata } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
@@ -71,12 +68,8 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const quoteDetailsTextClampClass = shouldHideRepostHeadlineAndTags
     ? 'line-clamp-8'
     : 'line-clamp-4';
-  const {
-    repostedByName,
-    metadataHandles,
-    embeddedTweetIdentity,
-    embeddedTweetAvatarUser,
-  } = getSocialTwitterMetadata(post);
+  const { repostedByName, embeddedTweetIdentity, embeddedTweetAvatarUser } =
+    getSocialTwitterMetadata(post);
   const cardLinkTitle =
     isQuoteLike && repostedByName
       ? `${repostedByName} reposted on X. ${
@@ -124,14 +117,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     post?.author?.name,
     post?.source?.name,
   ]);
-  const metadataBottomLabel = metadataHandles.length
-    ? getSocialTwitterMetadataLabel({
-        isRepostLike: isQuoteLike,
-        repostedByName,
-        metadataHandles,
-      })
-    : metadata.bottomLabel;
-
   return (
     <FeedItemContainer
       domProps={{
@@ -155,7 +140,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
           metadata={{
             ...metadata,
             dateFirst: true,
-            bottomLabel: metadataBottomLabel,
           }}
           postLink={post.permalink}
           openNewTab
