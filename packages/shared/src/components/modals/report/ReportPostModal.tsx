@@ -68,7 +68,7 @@ const reportReasonsMap: Partial<
   IRRELEVANT: ({ post, selectedTags, setSelectedTags }) => {
     return (
       <>
-        <p className="my-2 text-text-tertiary typo-caption1">
+        <p className="text-text-tertiary typo-caption1">
           Select at least one tag you find irrelevant
         </p>
         <FlexRow className="my-4 flex-wrap gap-2">
