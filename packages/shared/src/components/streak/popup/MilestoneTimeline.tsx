@@ -7,7 +7,7 @@ import {
   getNextMilestone,
   RewardType,
 } from '../../../lib/streakMilestones';
-import { CoreIcon } from '../../icons';
+import { CoreIcon, SparkleIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import {
   Typography,
@@ -25,7 +25,15 @@ interface MilestoneItemProps {
   isLast: boolean;
   daysAway?: number;
   isClaimed: boolean;
+  justClaimed: boolean;
   onClaim?: () => void;
+}
+
+interface MilestoneSparkle {
+  top: number;
+  left: number;
+  size: number;
+  delayMs: number;
 }
 
 const rewardTypeIcon: Record<RewardType, ReactElement | string> = {
@@ -33,6 +41,22 @@ const rewardTypeIcon: Record<RewardType, ReactElement | string> = {
   [RewardType.Cosmetic]: '\u2728',
   [RewardType.Perk]: '\u26A1',
 };
+
+const seededRandom = (seed: number): number => {
+  const x = Math.sin(seed * 9301 + 49297) * 49297;
+  return x - Math.floor(x);
+};
+
+const getMilestoneSparkles = (
+  milestoneDay: number,
+  count = 3,
+): MilestoneSparkle[] =>
+  Array.from({ length: count }, (_, index) => ({
+    top: 20 + seededRandom(milestoneDay * 11 + index * 7 + 1) * 60,
+    left: 20 + seededRandom(milestoneDay * 13 + index * 5 + 3) * 60,
+    size: 8 + seededRandom(milestoneDay * 17 + index * 3 + 2) * 5,
+    delayMs: seededRandom(milestoneDay * 19 + index * 9 + 4) * 900,
+  }));
 
 const getMilestoneHelperText = (milestone: StreakMilestone): string | null => {
   if (milestone.day === 1) {
@@ -49,10 +73,12 @@ function MilestoneItem({
   isLast,
   daysAway,
   isClaimed,
+  justClaimed,
   onClaim,
 }: MilestoneItemProps): ReactElement {
   const helperText =
     milestone.rewards.length === 0 ? getMilestoneHelperText(milestone) : null;
+  const sparklePositions = getMilestoneSparkles(milestone.day);
 
   return (
     <div className="relative flex gap-3">
@@ -68,17 +94,33 @@ function MilestoneItem({
       )}
 
       <div
-        className={classNames(
-          'relative z-1 flex size-10 shrink-0 items-center justify-center',
-          !isUnlocked && !isNext && 'grayscale opacity-40',
-        )}
+        className="relative z-1 flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-pepper-subtlest"
       >
+        {isUnlocked && !isNext && (
+          <>
+            {sparklePositions.map((sparkle, index) => (
+              <SparkleIcon
+                key={`${milestone.day}-${index}`}
+                className="pointer-events-none absolute z-2 text-white animate-scale-down-pulse"
+                style={{
+                  top: `${sparkle.top}%`,
+                  left: `${sparkle.left}%`,
+                  width: `${sparkle.size}px`,
+                  height: `${sparkle.size}px`,
+                  transform: 'translate(-50%, -50%)',
+                  animationDelay: `${sparkle.delayMs}ms`,
+                }}
+              />
+            ))}
+          </>
+        )}
         <img
           src={MILESTONE_ICON_URLS[milestone.tier]}
           alt={milestone.label}
           className={classNames(
-            'size-full object-contain',
+            'size-full object-contain transition-transform duration-300 hover:scale-150 hover:delay-500',
             isNext && 'animate-milestone-glow',
+            !isUnlocked && !isNext && 'grayscale opacity-40',
           )}
         />
       </div>
@@ -134,7 +176,18 @@ function MilestoneItem({
 
         {milestone.rewards.length > 0 && (
           <div className="flex flex-col gap-0.5">
-            {milestone.rewards.map((reward) => (
+            {justClaimed && (
+              <Typography
+                bold
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                className="mb-0.5 animate-fade-in-up uppercase tracking-wider"
+                style={{ animationFillMode: 'backwards' }}
+              >
+                Rewards unlocked
+              </Typography>
+            )}
+            {milestone.rewards.map((reward, rewardIndex) => (
               <Typography
                 key={reward.description}
                 type={TypographyType.Footnote}
@@ -142,6 +195,15 @@ function MilestoneItem({
                   isUnlocked
                     ? TypographyColor.Tertiary
                     : TypographyColor.Quaternary
+                }
+                className={classNames(justClaimed && 'animate-fade-in-up')}
+                style={
+                  justClaimed
+                    ? {
+                        animationDelay: `${(rewardIndex + 1) * 120}ms`,
+                        animationFillMode: 'backwards',
+                      }
+                    : undefined
                 }
               >
                 {rewardTypeIcon[reward.type]} {reward.description}
@@ -219,14 +281,14 @@ export function MilestoneTimeline({
         return;
       }
 
-      active.scrollIntoView({ block: 'center' });
+      active.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 200);
 
     return () => clearTimeout(timer);
   }, [currentStreak, nextMilestone?.day, isVisible]);
 
   return (
-    <div className="flex flex-col border-t border-border-subtlest-tertiary px-4 pt-3">
+    <div className="flex min-h-0 flex-1 flex-col border-t border-border-subtlest-tertiary px-4 pt-3">
       <Typography
         bold
         type={TypographyType.Footnote}
@@ -236,7 +298,15 @@ export function MilestoneTimeline({
         Milestones &amp; Rewards
       </Typography>
 
-      <div className="flex max-h-64 flex-col overflow-y-auto">
+      <div
+        className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 -mx-2 pt-4 pb-2"
+        style={{
+          maskImage:
+            'linear-gradient(to bottom, transparent, black 24px, black calc(100% - 24px), transparent)',
+          WebkitMaskImage:
+            'linear-gradient(to bottom, transparent, black 24px, black calc(100% - 24px), transparent)',
+        }}
+      >
         {STREAK_MILESTONES.map((milestone, index) => {
           const isUnlocked = currentStreak >= milestone.day;
           const isNext =
@@ -244,8 +314,8 @@ export function MilestoneTimeline({
           const isLast = index === STREAK_MILESTONES.length - 1;
           const daysAway = isNext ? milestone.day - currentStreak : undefined;
           const shouldScrollToMilestone = milestone.day === activeDay;
-          const isClaimed =
-            claimedDays.has(milestone.day) || (isUnlocked && index < 3);
+          const wasJustClaimed = claimedDays.has(milestone.day);
+          const isClaimed = wasJustClaimed || (isUnlocked && index < 3);
 
           return (
             <div
@@ -259,6 +329,7 @@ export function MilestoneTimeline({
                 isLast={isLast}
                 daysAway={daysAway}
                 isClaimed={isClaimed}
+                justClaimed={wasJustClaimed}
                 onClaim={() => handleClaim(milestone)}
               />
             </div>
