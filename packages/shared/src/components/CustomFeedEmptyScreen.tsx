@@ -41,7 +41,8 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
   const algoState: [number, Dispatch<SetStateAction<number>>] = [
     selectedAlgo,
     (value) => {
-      const nextValue = typeof value === 'function' ? value(selectedAlgo) : value;
+      const nextValue =
+        typeof value === 'function' ? value(selectedAlgo) : value;
       setSelectedAlgo(nextValue);
     },
   ];
