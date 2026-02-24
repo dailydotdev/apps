@@ -1,12 +1,13 @@
 import { useCallback, useEffect } from 'react';
 import { onCLS, onFCP, onFID, onLCP, onTTFB } from 'web-vitals';
+import type { Metric } from 'web-vitals';
 import { useLogContext } from '../contexts/LogContext';
 
 export function useWebVitals(): void {
   const { logEvent } = useLogContext();
 
   const logMetric = useCallback(
-    (metric) => {
+    (metric: Metric) => {
       const { name, entries, id, ...rest } = metric;
       logEvent({ event_name: name, extra: JSON.stringify(rest) });
     },
