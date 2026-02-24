@@ -47,7 +47,7 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
     <div className="flex w-full flex-col">
       <div className="mr-auto mt-0 flex gap-3 tablet:mr-0 tablet:mt-2 laptop:mr-auto laptop:w-auto">
         <SearchControlHeader
-          algoState={[selectedAlgo, setSelectedAlgoState]}
+          algoState={algoState}
           feedName={SharedFeedPage.Custom}
         />
       </div>
