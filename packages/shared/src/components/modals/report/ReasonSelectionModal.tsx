@@ -39,6 +39,7 @@ export function ReasonSelectionModal<
   const submitButtonProps = {
     disabled: !reason || (reason === OTHER_KEY && !note) || disabled,
     onClick: (e) => onReport(e, reason, note),
+    type: 'button' as const,
   };
 
   const onFocus = () => {

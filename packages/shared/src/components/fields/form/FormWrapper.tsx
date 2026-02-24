@@ -66,7 +66,7 @@ export function FormWrapper({
         <Button
           {...rightButtonProps}
           variant={ButtonVariant.Primary}
-          form={form}
+          form={form || undefined}
           className={classNames('ml-auto', rightButtonProps.className)}
         >
           {right}
