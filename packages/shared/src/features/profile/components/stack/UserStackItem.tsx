@@ -57,6 +57,7 @@ export function UserStackItem({
       side="top"
       align="start"
       sideOffset={8}
+      collisionPadding={12}
       className="!max-w-none !rounded-14 !border !border-border-subtlest-secondary !bg-background-popover !p-0 !text-text-primary !shadow-2 [&>.TooltipArrow]:!fill-background-popover"
     >
       <div

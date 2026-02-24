@@ -93,7 +93,7 @@ export const UserStackTopSquadsTooltip = ({
   hasError,
 }: UserStackTopSquadsTooltipProps): ReactElement => {
   return (
-    <div className="w-[16.5rem] p-3">
+    <div className="w-[16.5rem] max-w-[calc(100vw-1.5rem)] p-3">
       <ToolHeader toolTitle={toolTitle} toolFaviconUrl={toolFaviconUrl} />
 
       <div className="mt-2.5 flex flex-col gap-1">
@@ -102,7 +102,7 @@ export const UserStackTopSquadsTooltip = ({
         ) : (
           topSquads.map((squad) => (
             <Link key={squad.id} href={`/squads/${squad.handle}`}>
-              <a className="flex items-center justify-between gap-2 rounded-10 px-2 py-1.5 hover:bg-surface-hover">
+              <a className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-10 px-2 py-1.5 hover:bg-surface-hover">
                 <div className="flex min-w-0 items-center gap-2">
                   <Image
                     src={squad.image}
@@ -121,6 +121,7 @@ export const UserStackTopSquadsTooltip = ({
                 <Typography
                   type={TypographyType.Caption1}
                   color={TypographyColor.Secondary}
+                  className="whitespace-nowrap"
                 >
                   {largeNumberFormat(squad.membersCount)} users
                 </Typography>
