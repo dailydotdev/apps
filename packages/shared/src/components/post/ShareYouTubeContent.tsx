@@ -32,7 +32,7 @@ function ShareYouTubeContent({
   }
 
   const isUnknownSource =
-    !post.sharedPost?.source || post.sharedPost.source.id === 'unknown';
+    (post.sharedPost?.source?.id ?? 'unknown') === 'unknown';
 
   return (
     <>

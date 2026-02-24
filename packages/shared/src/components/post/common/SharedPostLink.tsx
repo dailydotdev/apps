@@ -19,8 +19,7 @@ export const SharedPostLink = ({
   children,
   onGoToLinkProps,
 }: SharedPostTitleProps): ReactElement => {
-  const isUnknownSource =
-    !sharedPost?.source || sharedPost.source.id === 'unknown';
+  const isUnknownSource = (sharedPost.source?.id ?? 'unknown') === 'unknown';
   const { href, as, ...props } = isUnknownSource
     ? {
         href: sharedPost?.permalink,
