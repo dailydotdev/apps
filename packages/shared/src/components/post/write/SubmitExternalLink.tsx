@@ -1,5 +1,5 @@
 import type { FormEventHandler, ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import type {
   ExternalLinkPreview,
@@ -14,6 +14,7 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { WritePreviewSkeleton } from './WritePreviewSkeleton';
 import { WriteLinkPreview } from './WriteLinkPreview';
 import { useDebouncedUrl } from '../../../hooks/input';
+import { isValidHttpUrl } from '../../../lib/links';
 
 interface SubmitExternalLinkProps {
   preview?: ExternalLinkPreview;
@@ -32,22 +33,18 @@ export function SubmitExternalLink({
 }: SubmitExternalLinkProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
-  const [url, setUrl] = useState<string | undefined>(initialUrl);
+  const [url, setUrl] = useState<string | undefined>(() => {
+    if (initialUrl && isValidHttpUrl(initialUrl)) {
+      getLinkPreview(initialUrl);
+    }
+    return initialUrl;
+  });
   const shouldShorten = url !== undefined || isMobile;
   const label = `Enter URL${shouldShorten ? '' : ' / Choose from'}`;
   const [checkUrl] = useDebouncedUrl(
     getLinkPreview,
     (value) => value !== preview?.url,
   );
-
-  useEffect(() => {
-    if (!initialUrl) {
-      return;
-    }
-
-    checkUrl(initialUrl);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const onInput: FormEventHandler<HTMLInputElement> = (e) => {
     const { value } = e.currentTarget;
