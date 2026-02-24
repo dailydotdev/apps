@@ -1,5 +1,5 @@
 import type { FormEventHandler, ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type {
   ExternalLinkPreview,
@@ -16,10 +16,11 @@ import { WriteLinkPreview } from './WriteLinkPreview';
 import { useDebouncedUrl } from '../../../hooks/input';
 
 interface SubmitExternalLinkProps {
-  preview: ExternalLinkPreview;
+  preview?: ExternalLinkPreview;
   isLoadingPreview: boolean;
   getLinkPreview: (value: string) => void;
   onSelectedHistory: (post: ReadHistoryPost) => void;
+  initialUrl?: string;
 }
 
 export function SubmitExternalLink({
@@ -27,16 +28,27 @@ export function SubmitExternalLink({
   isLoadingPreview,
   getLinkPreview,
   preview,
+  initialUrl,
 }: SubmitExternalLinkProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
-  const [url, setUrl] = useState<string>(undefined);
+  const [url, setUrl] = useState<string | undefined>(initialUrl);
+  const hasInitializedUrl = useRef(false);
   const shouldShorten = url !== undefined || isMobile;
   const label = `Enter URL${shouldShorten ? '' : ' / Choose from'}`;
   const [checkUrl] = useDebouncedUrl(
     getLinkPreview,
     (value) => value !== preview?.url,
   );
+
+  useEffect(() => {
+    if (!initialUrl || hasInitializedUrl.current) {
+      return;
+    }
+
+    hasInitializedUrl.current = true;
+    checkUrl(initialUrl);
+  }, [initialUrl, checkUrl]);
 
   const onInput: FormEventHandler<HTMLInputElement> = (e) => {
     const { value } = e.currentTarget;
@@ -71,6 +83,7 @@ export function SubmitExternalLink({
         required
         fieldType="tertiary"
         leftIcon={<LinkIcon />}
+        defaultValue={initialUrl}
         onBlur={() => !url?.length && setUrl(undefined)}
         onInput={onInput}
         onFocus={() => !url?.length && setUrl('')}
