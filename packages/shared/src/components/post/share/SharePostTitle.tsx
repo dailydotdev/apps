@@ -13,7 +13,7 @@ export function SharePostTitle({
   title,
   titleHtml,
   isCompactSpacing,
-}: SharePostTitleProps): ReactElement {
+}: SharePostTitleProps): ReactElement | null {
   if (!title) {
     return null;
   }

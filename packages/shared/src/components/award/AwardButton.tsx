@@ -37,7 +37,7 @@ export const AwardButton = ({
   post,
   flags,
   copy,
-}: AwardButtonProps): ReactElement => {
+}: AwardButtonProps): ReactElement | null => {
   const { user, showLogin } = useAuthContext();
   const { openModal } = useLazyModal();
 

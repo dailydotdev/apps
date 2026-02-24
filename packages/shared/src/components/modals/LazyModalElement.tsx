@@ -4,7 +4,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import type { LazyPropTypes } from './common';
 import { modals } from './common';
 
-export function LazyModalElement(): ReactElement {
+export function LazyModalElement(): ReactElement | null {
   const { modal, closeModal } = useLazyModal();
   if (!modal) {
     return null;

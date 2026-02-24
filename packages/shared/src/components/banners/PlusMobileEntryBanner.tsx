@@ -28,7 +28,7 @@ const PlusMobileEntryBanner = ({
   arrow,
   targetType,
   campaignId,
-}: PlusBannerProps): ReactElement => {
+}: PlusBannerProps): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { clearMarketingCta } = useBoot();
   if (!flags) {

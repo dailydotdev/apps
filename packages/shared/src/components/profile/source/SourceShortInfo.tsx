@@ -17,7 +17,7 @@ interface SourceShortInfoProps {
 export function SourceShortInfo({
   source,
   size,
-}: SourceShortInfoProps): ReactElement {
+}: SourceShortInfoProps): ReactElement | null {
   if (!source) {
     return null;
   }

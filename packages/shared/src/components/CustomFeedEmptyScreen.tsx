@@ -38,13 +38,13 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
+  const setSelectedAlgoState: Dispatch<SetStateAction<number>> = (value) => {
+    const nextValue = typeof value === 'function' ? value(selectedAlgo) : value;
+    return setSelectedAlgo(nextValue);
+  };
   const algoState: [number, Dispatch<SetStateAction<number>>] = [
     selectedAlgo,
-    (value) => {
-      const nextValue =
-        typeof value === 'function' ? value(selectedAlgo) : value;
-      setSelectedAlgo(nextValue);
-    },
+    setSelectedAlgoState,
   ];
 
   return (
