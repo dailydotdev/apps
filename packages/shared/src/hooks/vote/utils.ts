@@ -13,7 +13,7 @@ import {
 } from '../../lib/query';
 import type { LoggedUser } from '../../lib/user';
 import type { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';
-import type { UseVoteMutationProps, UseVotePostProps } from './types';
+import type { UseVoteMutationProps, UseVotePostRollback } from './types';
 import { voteMutationHandlers } from './types';
 import type { Ad, PostItem, PostUserState } from '../../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../../lib/feed';
@@ -29,7 +29,7 @@ export const mutateVoteReadHistoryPost = ({
   data: ReadHistoryInfiniteData;
   user: LoggedUser;
   queryClient: QueryClient;
-}): ReturnType<UseVotePostProps['onMutate']> => {
+}): UseVotePostRollback | undefined => {
   const mutationHandler = voteMutationHandlers[vote];
 
   if (!mutationHandler) {
@@ -84,11 +84,7 @@ export const mutateVoteFeedPost = ({
   updatePost: UpdateFeedPost;
   queryClient?: QueryClient;
   feedQueryKey?: QueryKey;
-}): ReturnType<UseVotePostProps['onMutate']> => {
-  if (!items) {
-    return undefined;
-  }
-
+}): UseVotePostRollback | undefined => {
   const mutationHandler = voteMutationHandlers[vote];
 
   if (!mutationHandler) {
@@ -107,12 +103,13 @@ export const mutateVoteFeedPost = ({
     return undefined;
   }
 
-  let previousVote: PostUserState['vote'] | undefined;
+  let previousPostVote: PostUserState['vote'] | undefined;
+  let previousAdVote: PostUserState['vote'] | undefined;
   const rollbackFunctions: (() => void)[] = [];
 
   // Handle regular post update
   if (postIndexToUpdate !== -1) {
-    previousVote = (items[postIndexToUpdate] as PostItem)?.post?.userState
+    previousPostVote = (items[postIndexToUpdate] as PostItem)?.post?.userState
       ?.vote;
 
     optimisticPostUpdateInFeed(
@@ -130,7 +127,11 @@ export const mutateVoteFeedPost = ({
         return;
       }
 
-      const rollbackMutationHandler = voteMutationHandlers[previousVote];
+      if (typeof previousPostVote === 'undefined') {
+        return;
+      }
+
+      const rollbackMutationHandler = voteMutationHandlers[previousPostVote];
 
       if (!rollbackMutationHandler) {
         return;
@@ -150,7 +151,7 @@ export const mutateVoteFeedPost = ({
     const adPost = adItem.ad.data?.post;
 
     if (adPost) {
-      previousVote = adPost.userState?.vote;
+      previousAdVote = adPost.userState?.vote;
 
       // Update the ad's post in the ads cache
       const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
@@ -163,6 +164,11 @@ export const mutateVoteFeedPost = ({
         const existingAdPost = currentData.pages.find(
           (page) => page.data?.post?.id === id,
         )?.data?.post;
+
+        if (!existingAdPost) {
+          return currentData;
+        }
+
         return updateAdPostInCache(
           id,
           currentData,
@@ -171,7 +177,11 @@ export const mutateVoteFeedPost = ({
       });
 
       rollbackFunctions.push(() => {
-        const rollbackMutationHandler = voteMutationHandlers[previousVote];
+        if (typeof previousAdVote === 'undefined') {
+          return;
+        }
+
+        const rollbackMutationHandler = voteMutationHandlers[previousAdVote];
 
         if (!rollbackMutationHandler) {
           return;
