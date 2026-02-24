@@ -121,7 +121,12 @@ export function CalendarHeatmap<T extends { date: string }>({
     Record<number, { count: number; date: Date; bin: number; originalValue: T }>
   >(
     () =>
-      values.reduce((acc, value) => {
+      values.reduce<
+        Record<
+          number,
+          { count: number; date: Date; bin: number; originalValue: T }
+        >
+      >((acc, value) => {
         const date = new Date(value.date);
         const index = differenceInDays(date, startDateWithEmptyDays);
         if (index < 0) {

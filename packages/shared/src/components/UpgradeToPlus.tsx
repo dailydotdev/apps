@@ -31,7 +31,7 @@ export const UpgradeToPlus = ({
   target,
   variant,
   ...attrs
-}: Props): ReactElement => {
+}: Props): ReactElement | null => {
   const { isLoggedIn, showLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
