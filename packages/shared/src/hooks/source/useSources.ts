@@ -27,6 +27,7 @@ export interface SourcesQueryProps {
   featured?: boolean;
   categoryId?: string;
   sortByMembersCount?: boolean;
+  toolId?: string;
   first?: number;
 }
 
@@ -57,6 +58,7 @@ export const useSources = <T extends Source | Squad>({
     categoryId,
     first = 100,
     sortByMembersCount,
+    toolId,
   } = query;
   const result = useInfiniteQuery({
     queryKey: generateQueryKey(
@@ -65,6 +67,8 @@ export const useSources = <T extends Source | Squad>({
       featured,
       isPublic,
       categoryId,
+      sortByMembersCount,
+      toolId,
       first,
     ),
     queryFn: ({ pageParam }) =>
@@ -75,6 +79,7 @@ export const useSources = <T extends Source | Squad>({
         first,
         after: pageParam,
         sortByMembersCount,
+        toolId,
       }),
     initialPageParam: '',
     getNextPageParam: ({ sources }) => getNextPageParam(sources?.pageInfo),
