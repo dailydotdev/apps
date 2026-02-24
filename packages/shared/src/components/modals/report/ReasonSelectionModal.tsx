@@ -18,6 +18,7 @@ interface Props<T extends ReportReason | PostModerationReason>
   title?: string;
   footer?: ReactNode;
   disabled?: boolean;
+  isDisabled?: (reason: T | null) => boolean;
 }
 
 export const OTHER_KEY = 'OTHER';
@@ -31,19 +32,26 @@ export function ReasonSelectionModal<
   title,
   footer,
   disabled,
+  isDisabled,
   ...props
 }: Props<T>): ReactElement {
-  const [reason, setReason] = useState(null);
+  const [reason, setReason] = useState<T | null>(null);
   const [note, setNote] = useState<string>();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const onChange = (newReason: T) => setReason(newReason);
+  const submitDisabled =
+    !reason ||
+    (reason === OTHER_KEY && !note) ||
+    disabled ||
+    isDisabled?.(reason);
   const submitButtonProps = {
-    disabled: !reason || (reason === OTHER_KEY && !note) || disabled,
+    disabled: submitDisabled,
     onClick: (e) => onReport(e, reason, note),
   };
 
   const onFocus = () => {
     if (!reason) {
-      setReason(ReportReason.Other);
+      onChange(ReportReason.Other as T);
     }
   };
 
@@ -68,7 +76,7 @@ export function ReasonSelectionModal<
           name="report_reason"
           options={typeof reasons === 'function' ? reasons(reason) : reasons}
           value={reason}
-          onChange={setReason}
+          onChange={onChange}
         />
 
         <p className="mb-1 mt-6 px-2 font-bold typo-caption1">
@@ -88,7 +96,7 @@ export function ReasonSelectionModal<
         {isMobile ? null : footer}
         <Button
           variant={ButtonVariant.Primary}
-          disabled={!reason || (reason === OTHER_KEY && !note) || disabled}
+          disabled={submitDisabled}
           onClick={(e) => onReport(e, reason, note)}
         >
           Submit report
