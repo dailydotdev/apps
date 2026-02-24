@@ -18,7 +18,7 @@ function NotificationItemAvatar({
   targetUrl,
   referenceId,
   className,
-}: NotificationAvatar): ReactElement {
+}: NotificationAvatar): ReactElement | null {
   if (type === NotificationAvatarType.Source) {
     return (
       <SourceButton

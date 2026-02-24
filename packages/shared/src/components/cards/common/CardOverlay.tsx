@@ -18,7 +18,7 @@ const CardOverlay = ({
   onPostCardClick,
   onPostCardAuxClick,
   ariaLabel,
-}: CardOverlayProps): ReactElement => {
+}: CardOverlayProps): ReactElement | null => {
   const isFeedPreview = useFeedPreviewMode();
 
   if (isFeedPreview) {

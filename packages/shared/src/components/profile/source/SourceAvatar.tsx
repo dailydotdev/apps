@@ -15,7 +15,7 @@ export function SourceAvatar({
   source,
   size = ProfileImageSize.Large,
   className,
-}: SourceAvatarProps): ReactElement {
+}: SourceAvatarProps): ReactElement | null {
   if (!source) {
     return null;
   }

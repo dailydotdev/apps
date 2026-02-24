@@ -5,15 +5,12 @@ import { PostType } from '../../../../graphql/posts';
 
 type TypeLabelType = PostType | ReactElement | string;
 
-const typeToClassName: Record<
-  PostType.Collection | PostType.VideoYouTube,
-  string
-> = {
+const typeToClassName: Partial<Record<PostType, string>> = {
   [PostType.Collection]: 'text-brand-default',
   [PostType.VideoYouTube]: 'text-accent-blueCheese-default',
 };
 
-const typeToLabel = {
+const typeToLabel: Partial<Record<PostType, string>> = {
   [PostType.VideoYouTube]: 'Video',
 };
 
@@ -35,7 +32,7 @@ export function TypeLabel({
   type = PostType.Article,
   className,
   focus,
-}: TypeLabelProps): ReactElement {
+}: TypeLabelProps): ReactElement | null {
   // do not show tag label for excluded types
   if (excludedTypes.has(type as PostType)) {
     return null;
