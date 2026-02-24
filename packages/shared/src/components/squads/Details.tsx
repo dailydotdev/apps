@@ -52,28 +52,6 @@ interface SquadDetailsProps {
   integrationId?: string;
 }
 
-const getFormData = async (
-  current: SquadForm,
-  imageChanged: boolean,
-  headerChanged: boolean,
-): Promise<SquadForm> => {
-  const updated = { ...current };
-
-  if (imageChanged) {
-    const input = document.getElementById(squadImageId) as HTMLInputElement;
-    const file = input.files[0];
-    updated.file = file;
-  }
-
-  if (headerChanged) {
-    const header = document.getElementById(squadHeaderId) as HTMLInputElement;
-    const headerFile = header.files[0];
-    updated.header = headerFile;
-  }
-
-  return updated;
-};
-
 export function SquadDetails({
   onSubmit,
   children,
@@ -106,6 +84,8 @@ export function SquadDetails({
   const router = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const headerImageRef = useRef<HTMLInputElement>();
+  const imageFileRef = useRef<File | null>(null);
+  const headerFileRef = useRef<File | null>(null);
 
   const { data: channels } = useSlackChannelsQuery({
     integrationId,
@@ -136,6 +116,20 @@ export function SquadDetails({
     },
   });
 
+  const getFormData = (current: SquadForm): SquadForm => {
+    const updated = { ...current };
+
+    if (imageChanged) {
+      updated.file = imageFileRef.current ?? undefined;
+    }
+
+    if (headerChanged) {
+      updated.header = headerFileRef.current ?? undefined;
+    }
+
+    return updated;
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formJson = formToJson<SquadForm>(e.currentTarget);
@@ -149,7 +143,7 @@ export function SquadDetails({
       return null;
     }
 
-    const data = await getFormData(formJson, imageChanged, headerChanged);
+    const data = getFormData(formJson);
 
     if (!createMode) {
       return onSubmit(e, data, channels?.[selectedChannelIndex]?.id);
@@ -184,9 +178,10 @@ export function SquadDetails({
   const { onFileChange } = useFileInput({
     acceptedTypes: acceptedTypesList,
     limitMb: 2,
-    onChange(base64) {
+    onChange(base64, file) {
       setHeaderImageBase64(base64);
       setHeaderChanged(true);
+      headerFileRef.current = file;
     },
   });
 
@@ -234,7 +229,7 @@ export function SquadDetails({
             <div
               className="mt-4 flex w-full max-w-70 flex-row items-center justify-between rounded-32 bg-surface-float bg-cover pr-4"
               style={{
-                background: headerImageBase64
+                backgroundImage: headerImageBase64
                   ? `url(${headerImageBase64})`
                   : undefined,
               }}
@@ -249,7 +244,10 @@ export function SquadDetails({
                 }}
                 hoverIcon={<CameraIcon size={IconSize.Large} />}
                 alwaysShowHover={!imageChanged}
-                onChange={() => setImageChanged(true)}
+                onChange={(_, file) => {
+                  setImageChanged(true);
+                  imageFileRef.current = file ?? null;
+                }}
                 size="medium"
               />
               <Button
