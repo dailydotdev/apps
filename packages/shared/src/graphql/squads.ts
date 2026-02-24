@@ -99,7 +99,6 @@ export const SOURCES_QUERY = gql`
     $first: Int
     $categoryId: String
     $sortByMembersCount: Boolean
-    $toolId: ID
   ) {
     sources(
       filterOpenSquads: $filterOpenSquads
@@ -108,7 +107,6 @@ export const SOURCES_QUERY = gql`
       first: $first
       categoryId: $categoryId
       sortByMembersCount: $sortByMembersCount
-      toolId: $toolId
     ) {
       pageInfo {
         endCursor

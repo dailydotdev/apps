@@ -1,56 +1,48 @@
-import { useMemo } from 'react';
-import type { Squad } from '../../../graphql/sources';
-import {
-  getFlatteredSources,
-  useSources,
-} from '../../../hooks/source/useSources';
+import { useQuery } from '@tanstack/react-query';
+import { getTopSquadsForTool } from '../../../graphql/user/userStack';
+import type { ToolTopSquad } from '../../../graphql/user/userStack';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 
 const TOP_TOOL_SQUADS_LIMIT = 3;
-
-export type ToolTopSquad = Pick<
-  Squad,
-  'id' | 'name' | 'handle' | 'image' | 'membersCount'
->;
 
 interface UseToolTopSquadsProps {
   toolId?: string;
   enabled?: boolean;
 }
 
+const getToolIdOrThrow = (toolId?: string): string => {
+  if (!toolId) {
+    throw new Error('Tool id is required to fetch top squads');
+  }
+
+  return toolId;
+};
+
 export const useToolTopSquads = ({
   toolId,
   enabled = true,
 }: UseToolTopSquadsProps) => {
-  const {
-    result: { data, isPending, isError, error },
-  } = useSources<Squad>({
-    query: {
-      first: TOP_TOOL_SQUADS_LIMIT,
-      isPublic: true,
-      sortByMembersCount: true,
+  const query = useQuery({
+    queryKey: generateQueryKey(
+      RequestKey.UserTools,
+      null,
+      'top-squads-by-tool',
       toolId,
-    },
-    isEnabled: enabled && !!toolId,
+      TOP_TOOL_SQUADS_LIMIT,
+    ),
+    queryFn: () =>
+      getTopSquadsForTool({
+        toolId: getToolIdOrThrow(toolId),
+        first: TOP_TOOL_SQUADS_LIMIT,
+      }),
+    staleTime: StaleTime.OneHour,
+    enabled: enabled && !!toolId,
   });
 
-  const topSquads = useMemo(
-    () =>
-      (getFlatteredSources({ data }) as Squad[])
-        .slice(0, TOP_TOOL_SQUADS_LIMIT)
-        .map((squad) => ({
-          id: squad.id,
-          name: squad.name,
-          handle: squad.handle,
-          image: squad.image,
-          membersCount: squad.membersCount,
-        })),
-    [data],
-  );
-
   return {
-    topSquads,
-    isPending,
-    isError,
-    error,
+    topSquads: query.data ?? ([] as ToolTopSquad[]),
+    isPending: query.isPending,
+    isError: query.isError,
+    error: query.error,
   };
 };
