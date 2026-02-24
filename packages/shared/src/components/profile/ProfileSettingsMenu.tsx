@@ -68,6 +68,11 @@ import { VolunteeringIcon } from '../icons/Volunteering';
 import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
+import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
+import { shouldShowAchievementTracker } from '../../lib/achievements';
+import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 
 type MenuItems = Record<
   string,
@@ -80,9 +85,30 @@ type MenuItems = Record<
 const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
 const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
-  const { openModal } = useLazyModal();
+  const { openModal, closeModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
+
+  const { value: isAchievementTrackingWidgetEnabled } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: !!user,
+  });
+
+  const { achievements, unlockedCount, totalCount } = useProfileAchievements(
+    user,
+    isAchievementTrackingWidgetEnabled === true,
+  );
+
+  const showAchievementTracker = shouldShowAchievementTracker({
+    isExperimentEnabled: isAchievementTrackingWidgetEnabled === true,
+    unlockedCount,
+    totalCount,
+  });
+
+  const { trackedAchievement, trackAchievement } = useTrackedAchievement(
+    undefined,
+    showAchievementTracker,
+  );
 
   return useMemo(
     () =>
@@ -116,15 +142,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: MedalBadgeIcon,
               href: `${webappUrl}${user?.username}/achievements`,
             },
-            hotTakes: {
-              title: 'Hot Takes',
-              icon: HotIcon,
-              href: `${webappUrl}?openModal=hottakes`,
-              onClick: () => {
-                logEvent({ event_name: LogEvent.OpenHotAndCold });
-                onClose?.();
-              },
-            },
             appearance: {
               title: 'Appearance',
               icon: NewTabIcon,
@@ -145,6 +162,43 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: InviteIcon,
               href: `${settingsUrl}/invite`,
             },
+          },
+        },
+        misc: {
+          title: 'Misc',
+          items: {
+            hotTakes: {
+              title: 'Hot Takes',
+              icon: HotIcon,
+              href: `${webappUrl}?openModal=hottakes`,
+              onClick: () => {
+                logEvent({ event_name: LogEvent.OpenHotAndCold });
+                onClose?.();
+              },
+            },
+            ...(showAchievementTracker && {
+              trackAchievement: {
+                title: 'Track achievement',
+                icon: MedalBadgeIcon,
+                onClick: () => {
+                  logEvent({
+                    event_name: LogEvent.OpenAchievementPickerModal,
+                  });
+                  openModal({
+                    type: LazyModal.AchievementPicker,
+                    props: {
+                      achievements: achievements ?? [],
+                      trackedAchievementId: trackedAchievement?.achievement.id,
+                      onTrack: async (achievementId: string) => {
+                        await trackAchievement(achievementId);
+                        closeModal();
+                      },
+                    },
+                  });
+                  onClose?.();
+                },
+              } as ProfileSectionItemPropsWithoutHref,
+            }),
           },
         },
         career: {
@@ -319,7 +373,17 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
           },
         },
       }),
-    [logEvent, onClose, openModal, user?.username],
+    [
+      achievements,
+      closeModal,
+      logEvent,
+      onClose,
+      openModal,
+      showAchievementTracker,
+      trackAchievement,
+      trackedAchievement?.achievement.id,
+      user?.username,
+    ],
   );
 };
 
