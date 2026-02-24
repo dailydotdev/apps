@@ -191,7 +191,7 @@ body {
   --theme-actions-share-default: var(--theme-accent-cabbage-default);
   --theme-actions-share-float: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%);
   --theme-actions-share-hover: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 88%);
-  --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 84%);
+  --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 64%);
   /* Plus */
   --theme-actions-plus-default: var(--theme-accent-bacon-default);
   --theme-actions-plus-float: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 92%);
@@ -476,7 +476,7 @@ body {
   --theme-actions-share-default: var(--theme-accent-cabbage-default);
   --theme-actions-share-float: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%);
   --theme-actions-share-hover: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 88%);
-  --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 84%);
+  --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 64%);
   /* Plus */
   --theme-actions-plus-default: var(--theme-accent-bacon-default);
   --theme-actions-plus-float: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 92%);
