@@ -1,4 +1,4 @@
-import { gql } from 'graphql-request';
+import { ClientError, gql } from 'graphql-request';
 import { subDays } from 'date-fns';
 import {
   SHARED_POST_INFO_FRAGMENT,
@@ -853,9 +853,11 @@ export const getPlusGifterUser = async (): Promise<UserShortProfile | null> => {
     const res = await gqlClient.request(GET_PLUS_GIFTER_USER);
     return res.plusGifterUser;
   } catch (error) {
-    const errorCode = error.response?.errors?.[0]?.extensions?.code;
-    if (errorCode === ApiError.Forbidden) {
-      return null;
+    if (error instanceof ClientError) {
+      const errorCode = error.response?.errors?.[0]?.extensions?.code;
+      if (errorCode === ApiError.Forbidden) {
+        return null;
+      }
     }
 
     throw error;

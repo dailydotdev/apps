@@ -552,7 +552,7 @@ export interface SquadInvitationProps {
 
 export const getSquadInvitation = async (
   token: string,
-): Promise<SourceMember> => {
+): Promise<SourceMember | null> => {
   try {
     const res = await gqlClient.request<SquadInvitation>(
       SQUAD_INVITATION_QUERY,
@@ -655,13 +655,18 @@ export const verifyPermission = (
 
 export const isPrivilegedRole = (
   role?: SourceMemberRole | OrganizationMemberRole,
-): boolean =>
-  [
+): boolean => {
+  if (!role) {
+    return false;
+  }
+
+  return [
     SourceMemberRole.Admin,
     SourceMemberRole.Moderator,
     OrganizationMemberRole.Owner,
     OrganizationMemberRole.Admin,
   ].includes(role);
+};
 
 export const isSourcePublicSquad = (source: Source): boolean =>
   !!(source?.type === SourceType.Squad && source?.public);
