@@ -71,6 +71,7 @@ function MainLayoutComponent({
   isNavItemsButton,
   customBanner,
   additionalButtons,
+  hideSearchField,
   screenCentered = true,
   showSidebar = true,
   className,
@@ -192,6 +193,7 @@ function MainLayoutComponent({
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}
         additionalButtons={additionalButtons}
+        hideSearchField={hideSearchField}
         onLogoClick={onLogoClick}
       />
       <main

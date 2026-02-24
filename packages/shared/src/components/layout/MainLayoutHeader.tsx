@@ -20,6 +20,7 @@ export interface MainLayoutHeaderProps {
   sidebarRendered?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  hideSearchField?: boolean;
 }
 
 const SearchPanel = dynamic(
@@ -39,6 +40,7 @@ function MainLayoutHeader({
   sidebarRendered,
   additionalButtons,
   onLogoClick,
+  hideSearchField,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
@@ -56,6 +58,7 @@ function MainLayoutHeader({
 
   const RenderSearchPanel = useCallback(
     () =>
+      !hideSearchField &&
       loadedSettings && (
         <SearchPanel
           className={{
@@ -70,7 +73,7 @@ function MainLayoutHeader({
           }}
         />
       ),
-    [loadedSettings, isSearchPage, hasBanner],
+    [loadedSettings, isSearchPage, hasBanner, hideSearchField],
   );
 
   if (loadedSettings && !isLaptop) {
