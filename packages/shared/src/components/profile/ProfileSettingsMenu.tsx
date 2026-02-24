@@ -110,7 +110,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
     showAchievementTracker,
   );
 
-  return useMemo(
+  const items = useMemo(
     () =>
       defineMenuItems({
         main: {
@@ -176,29 +176,26 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
                 onClose?.();
               },
             },
-            ...(showAchievementTracker && {
-              trackAchievement: {
-                title: 'Track achievement',
-                icon: MedalBadgeIcon,
-                onClick: () => {
-                  logEvent({
-                    event_name: LogEvent.OpenAchievementPickerModal,
-                  });
-                  openModal({
-                    type: LazyModal.AchievementPicker,
-                    props: {
-                      achievements: achievements ?? [],
-                      trackedAchievementId: trackedAchievement?.achievement.id,
-                      onTrack: async (achievementId: string) => {
-                        await trackAchievement(achievementId);
-                        closeModal();
-                      },
+            trackAchievement: {
+              title: 'Track achievement',
+              icon: MedalBadgeIcon,
+              onClick: () => {
+                logEvent({
+                  event_name: LogEvent.OpenAchievementPickerModal,
+                });
+                openModal({
+                  type: LazyModal.AchievementPicker,
+                  props: {
+                    achievements: achievements ?? [],
+                    trackedAchievementId: trackedAchievement?.achievement.id,
+                    onTrack: async (achievementId: string) => {
+                      await trackAchievement(achievementId);
+                      closeModal();
                     },
-                  });
-                  onClose?.();
-                },
-              } as ProfileSectionItemPropsWithoutHref,
-            }),
+                  },
+                });
+              },
+            } as ProfileSectionItemPropsWithoutHref,
           },
         },
         career: {
@@ -379,12 +376,13 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
       logEvent,
       onClose,
       openModal,
-      showAchievementTracker,
       trackAchievement,
       trackedAchievement?.achievement.id,
       user?.username,
     ],
   );
+
+  return { items, showAchievementTracker };
 };
 
 interface ProfileSettingsMenuProps {
@@ -393,6 +391,8 @@ interface ProfileSettingsMenuProps {
   shouldKeepOpen?: boolean;
 }
 
+const TRACK_ACHIEVEMENT_KEY = 'trackAchievement';
+
 export const InnerProfileSettingsMenu = ({
   className,
   onClose,
@@ -400,7 +400,8 @@ export const InnerProfileSettingsMenu = ({
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
-  const accountPageItems = useAccountPageItems({ onClose });
+  const { items: accountPageItems, showAchievementTracker } =
+    useAccountPageItems({ onClose });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
@@ -413,8 +414,15 @@ export const InnerProfileSettingsMenu = ({
             withSeparator={!lastItem}
             title={menuItem.title}
             items={Object.entries(menuItem.items)
-              .filter(([, item]) => {
+              .filter(([itemKey, item]) => {
                 if (item.href === walletUrl && !hasAccessToCores) {
+                  return false;
+                }
+
+                if (
+                  itemKey === TRACK_ACHIEVEMENT_KEY &&
+                  !showAchievementTracker
+                ) {
                   return false;
                 }
 
