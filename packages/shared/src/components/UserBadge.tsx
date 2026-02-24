@@ -12,7 +12,7 @@ type UserBadgeProps = {
 };
 
 const userBadgeColor = {
-  purple: 'bg-action-share-default text-text-primary',
+  purple: 'text-brand-default bg-action-share-active',
   gray: 'text-text-tertiary bg-surface-float',
 };
 
