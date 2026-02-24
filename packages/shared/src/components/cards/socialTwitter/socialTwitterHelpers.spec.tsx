@@ -1,4 +1,5 @@
-import { render } from '@testing-library/react';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { sharePost } from '../../../../__tests__/fixture/post';
@@ -6,6 +7,10 @@ import {
   getSocialTwitterMetadata,
   getSocialTwitterMetadataLabel,
 } from './socialTwitterHelpers';
+
+jest.mock('../../icons', () => ({
+  TwitterIcon: () => <span data-testid="twitter-icon" />,
+}));
 
 const basePost: Post = {
   ...sharePost,
@@ -57,12 +62,12 @@ describe('getSocialTwitterMetadata', () => {
   });
 
   it('shows X icon for multi-handle metadata labels', () => {
-    const { container } = render(
+    render(
       getSocialTwitterMetadataLabel({
         metadataHandles: ['anthropicai', 'claudeai'],
       }),
     );
 
-    expect(container.querySelector('svg')).toBeInTheDocument();
+    expect(screen.getByTestId('twitter-icon')).toBeInTheDocument();
   });
 });
