@@ -198,11 +198,32 @@ GraphQLClient.prototype.unsetHeader = function unsetHeader(name: string) {
   }
 
   const headers = Reflect.get(options, 'headers');
-  if (!headers || typeof headers !== 'object') {
+  if (!headers) {
     return this;
   }
 
-  Reflect.deleteProperty(headers, name);
+  if (
+    typeof Headers !== 'undefined' &&
+    headers instanceof Headers &&
+    typeof headers.delete === 'function'
+  ) {
+    headers.delete(name);
+    return this;
+  }
+
+  if (Array.isArray(headers)) {
+    Reflect.set(
+      options,
+      'headers',
+      headers.filter(([key]) => key !== name),
+    );
+    return this;
+  }
+
+  if (typeof headers === 'object') {
+    Reflect.deleteProperty(headers, name);
+  }
+
   return this;
 };
 

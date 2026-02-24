@@ -193,12 +193,8 @@ export const initializeSearchSession = ({
 
 export const updateSearchData = (
   previous: Search,
-  chunk: Partial<SearchChunk> | null,
-): Search | null => {
-  if (!chunk) {
-    return null;
-  }
-
+  chunk: Partial<SearchChunk>,
+): Search => {
   const updated = {
     ...previous,
     chunks: [{ ...previous?.chunks?.[0], ...chunk }],

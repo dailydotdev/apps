@@ -1328,13 +1328,9 @@ export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
   return {
     queryKey: [...getPostByIdKey(postId), RequestKey.PostAnalytics],
     queryFn: async () => {
-      if (!id) {
-        throw new Error('postAnalyticsQueryOptions requires id');
-      }
-
       const result = await gqlClient.request<{
         postAnalytics: PostAnalytics;
-      }>(POST_ANALYTICS_QUERY, { id });
+      }>(POST_ANALYTICS_QUERY, { id: postId });
 
       return result.postAnalytics;
     },
@@ -1380,13 +1376,9 @@ export const postAnalyticsHistoryQuery = ({
   return {
     queryKey: [...getPostByIdKey(postId), RequestKey.PostAnalyticsHistory],
     queryFn: async () => {
-      if (!id) {
-        throw new Error('postAnalyticsHistoryQuery requires id');
-      }
-
       const result = await gqlClient.request<{
         postAnalyticsHistory: Connection<PostAnalyticsHistory>;
-      }>(POST_ANALYTICS_HISTORY_QUERY, { first, id });
+      }>(POST_ANALYTICS_HISTORY_QUERY, { first, id: postId });
 
       return result.postAnalyticsHistory;
     },
