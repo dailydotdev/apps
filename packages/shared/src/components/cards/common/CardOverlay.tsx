@@ -27,8 +27,8 @@ const CardOverlay = ({
 
   return (
     <CardLink
-      title={ariaLabel || post.title}
-      aria-label={ariaLabel || post.title}
+      title={ariaLabel || post.title || ''}
+      aria-label={ariaLabel || post.title || ''}
       href={`${webappUrl}posts/${post.slug ?? post.id}`}
       rel={anchorDefaultRel}
       onClick={(event) => {

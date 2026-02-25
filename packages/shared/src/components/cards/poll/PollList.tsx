@@ -92,7 +92,7 @@ export const PollList = forwardRef(function PollList(
       flagProps={{ pinnedAt, trending, type }}
       linkProps={
         !isFeedPreview && {
-          title: post.title,
+          title: post.title || '',
           href: post.commentsPermalink,
           ...combinedClicks(onPostCardClick),
         }

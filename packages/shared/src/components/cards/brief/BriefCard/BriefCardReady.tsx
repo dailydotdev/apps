@@ -74,7 +74,9 @@ export const BriefCardReady = ({
             <Typography className="typo-callout laptop:typo-title2" bold>
               {title}
             </Typography>
-            <Typography type={TypographyType.Callout}>{post.title}</Typography>
+            <Typography type={TypographyType.Callout}>
+              {post.title || ''}
+            </Typography>
           </div>
         </div>
         <div className="flex flex-1 flex-col gap-2 laptop:gap-4">
@@ -149,7 +151,7 @@ export const BriefCardReady = ({
       <Link href={`${webappUrl}posts/${post.slug ?? post.id}`} passHref>
         <CardLink
           className="cursor-pointer"
-          title={post.title}
+          title={post.title || ''}
           rel={anchorDefaultRel}
           {...combinedClicks(onCombinedClick)}
         />
