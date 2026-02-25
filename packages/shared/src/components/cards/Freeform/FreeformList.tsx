@@ -26,6 +26,10 @@ import { usePostActions } from '../../../hooks/post/usePostActions';
 import { PostType } from '../../../graphql/posts';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
+import {
+  getPostSourceHandle,
+  getPostSourceName,
+} from '../../../lib/postSource';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -59,6 +63,8 @@ export const FreeformList = forwardRef(function SharePostCard(
   const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
+  const sourceName = getPostSourceName(post);
+  const sourceHandle = getPostSourceHandle(post);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none">
@@ -86,22 +92,15 @@ export const FreeformList = forwardRef(function SharePostCard(
     }
 
     return {
-      topLabel: enableSourceHeader
-        ? post.source?.name ?? post.author.name
-        : post.author.name,
-      bottomLabel: enableSourceHeader
-        ? post.author.name
-        : `@${
-            post.source?.handle ?? post.sharedPost?.source?.handle ?? 'unknown'
-          }`,
+      topLabel: enableSourceHeader ? sourceName : post.author.name,
+      bottomLabel: enableSourceHeader ? post.author.name : `@${sourceHandle}`,
     };
   }, [
     enableSourceHeader,
     isUserSource,
     post?.author?.name,
-    post?.sharedPost?.source?.handle,
-    post?.source?.handle,
-    post?.source?.name,
+    sourceHandle,
+    sourceName,
   ]);
 
   return (

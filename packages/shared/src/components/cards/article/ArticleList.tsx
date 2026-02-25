@@ -28,6 +28,10 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
+import {
+  getPostSourceName,
+  getPostSourcePermalink,
+} from '../../../lib/postSource';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -58,6 +62,8 @@ export const ArticleList = forwardRef(function ArticleList(
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
+  const sourceName = getPostSourceName(post);
+  const sourcePermalink = getPostSourcePermalink(post);
   const actionButtons = (
     <Container className="pointer-events-none flex-[unset]">
       <ActionButtons
@@ -74,34 +80,24 @@ export const ArticleList = forwardRef(function ArticleList(
   );
 
   const metadata = useMemo(() => {
+    const sourceTopLabel = sourcePermalink ? (
+      <Link href={sourcePermalink}>
+        <a href={sourcePermalink} className="relative z-1">
+          {sourceName}
+        </a>
+      </Link>
+    ) : (
+      sourceName
+    );
+
     if (isUserSource) {
       return {
         topLabel: post.author.name,
       };
     }
 
-    if (!post.source) {
-      return {
-        topLabel: post.author.name,
-        bottomLabel: (
-          <PostReadTime
-            readTime={post.readTime}
-            isVideoType={isVideoPost(post)}
-          />
-        ),
-      };
-    }
-
     return {
-      topLabel: post.source.permalink ? (
-        <Link href={post.source.permalink}>
-          <a href={post.source.permalink} className="relative z-1">
-            {post.source.name}
-          </a>
-        </Link>
-      ) : (
-        post.source.name
-      ),
+      topLabel: sourceTopLabel,
       bottomLabel: (
         <PostReadTime
           readTime={post.readTime}
@@ -109,7 +105,7 @@ export const ArticleList = forwardRef(function ArticleList(
         />
       ),
     };
-  }, [isUserSource, post]);
+  }, [isUserSource, post, sourceName, sourcePermalink]);
 
   return (
     <FeedItemContainer

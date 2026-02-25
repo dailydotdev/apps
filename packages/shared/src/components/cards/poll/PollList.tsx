@@ -22,6 +22,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import PollOptions from './PollOptions';
 import PostMetadata from '../common/PostMetadata';
 import { usePollVote } from '../../../hooks/post/usePollVote';
+import { getPostSourceName } from '../../../lib/postSource';
 
 export const PollList = forwardRef(function PollList(
   {
@@ -49,6 +50,7 @@ export const PollList = forwardRef(function PollList(
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
+  const sourceName = getPostSourceName(post);
 
   const actionButtons = (
     <Container className="pointer-events-none flex-[unset] tablet:mt-4">
@@ -67,9 +69,7 @@ export const PollList = forwardRef(function PollList(
 
   const metadata = useMemo(() => {
     return {
-      topLabel: isUserSource
-        ? post.author.name
-        : post.source?.name ?? post.author.name,
+      topLabel: isUserSource ? post.author.name : sourceName,
       bottomLabel: (
         <PostMetadata
           createdAt={post.createdAt}
@@ -81,7 +81,7 @@ export const PollList = forwardRef(function PollList(
         />
       ),
     };
-  }, [isUserSource, post, user?.id]);
+  }, [isUserSource, post, sourceName, user?.id]);
 
   return (
     <FeedItemContainer

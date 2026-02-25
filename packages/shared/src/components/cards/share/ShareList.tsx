@@ -26,6 +26,10 @@ import { isSourceUserSource } from '../../../graphql/sources';
 import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
+import {
+  getPostSourceName,
+  getPostSourcePermalink,
+} from '../../../lib/postSource';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -57,6 +61,8 @@ export const ShareList = forwardRef(function ShareList(
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
+  const sourceName = getPostSourceName(post);
+  const sourcePermalink = getPostSourcePermalink(post);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -80,16 +86,15 @@ export const ShareList = forwardRef(function ShareList(
       };
     }
 
-    const sourceLabel = post.source?.name ?? post.author.name;
     const topLabel =
-      enableSourceHeader && post.source?.permalink ? (
-        <Link href={post.source.permalink}>
-          <a href={post.source.permalink} className="relative z-1">
-            {sourceLabel}
+      enableSourceHeader && sourcePermalink ? (
+        <Link href={sourcePermalink}>
+          <a href={sourcePermalink} className="relative z-1">
+            {sourceName}
           </a>
         </Link>
       ) : (
-        sourceLabel
+        sourceName
       );
 
     return {
@@ -102,8 +107,8 @@ export const ShareList = forwardRef(function ShareList(
     enableSourceHeader,
     isUserSource,
     post.author.name,
-    post?.source?.name,
-    post?.source?.permalink,
+    sourceName,
+    sourcePermalink,
     sharedPost?.source?.handle,
   ]);
 

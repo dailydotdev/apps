@@ -409,6 +409,8 @@ When reviewing code (or writing code that will be reviewed):
 - **Keep action spacing consistent in control headers** - When adding icon/action buttons near search fields or other controls, match existing horizontal gaps on both sides to avoid controls touching each other.
 - **Protect generated HTML from markdown regex passes** - In markdown conversion utilities, never run formatting regexes across already-generated HTML tags/attributes (for example, image `src` URLs with `_`); add regression tests for URL edge cases.
 - **Prefer component-level token swaps for one-off contrast fixes** - For isolated UI readability issues, use existing semantic color utilities in the impacted components first; avoid changing global tokens in `base.css` unless explicitly requested.
+- **Guard only relation-dependent UI** - When null-guarding optional relations (for example `post.source`), do not return `null` for the entire component unless the whole component depends on that relation. Keep unrelated actions/content visible.
+- **Extract repeated fallback logic** - If null-safe fallback logic repeats across multiple components, move it into a shared helper instead of duplicating inline optional chaining everywhere.
 
 ## Node.js Version Upgrade Checklist
 
