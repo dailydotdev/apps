@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { useViewSize, ViewSize } from '../../../hooks';
 import type { SentimentAnnotation, SentimentHighlightItem } from './types';
 import { stripTcoLinks, formatTimeAgo } from './ArenaLiveTicker';
 
@@ -166,6 +167,7 @@ export const ArenaHighlightsFeed = ({
     [],
   );
   const [mobileExpanded, setMobileExpanded] = useState(false);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const initializedRef = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -195,12 +197,14 @@ export const ArenaHighlightsFeed = ({
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // On mobile (no laptop:absolute), truncate items unless expanded
-  const displayItems = mobileExpanded
-    ? visibleItems
-    : visibleItems.slice(0, MOBILE_FEED_LIMIT);
+  // On laptop the feed scrolls inside a fixed-height container, so show all.
+  // On mobile, truncate unless the user taps "Show all".
+  const displayItems =
+    isLaptop || mobileExpanded
+      ? visibleItems
+      : visibleItems.slice(0, MOBILE_FEED_LIMIT);
   const hasMoreOnMobile =
-    !mobileExpanded && visibleItems.length > MOBILE_FEED_LIMIT;
+    !isLaptop && !mobileExpanded && visibleItems.length > MOBILE_FEED_LIMIT;
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle">

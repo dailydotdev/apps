@@ -76,7 +76,7 @@ const getPrevious24hWindow = (node: SentimentTimeSeriesNode): WindowData => {
   return sumWindowByTime(node, prevStart, cutoff);
 };
 
-const SENTIMENT_EXPONENT = 1.7;
+const SENTIMENT_EXPONENT = 2.5;
 
 const computeDIndex = (volume: number, sentimentScore: number): number =>
   volume * ((sentimentScore + 1) / 2) ** SENTIMENT_EXPONENT;
