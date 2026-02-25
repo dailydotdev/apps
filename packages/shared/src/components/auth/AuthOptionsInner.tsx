@@ -27,6 +27,7 @@ import { storageWrapper as storage } from '../../lib/storageWrapper';
 import type { AuthOptionsProps } from './common';
 import { AuthDisplay, providers } from './common';
 import useLogin from '../../hooks/useLogin';
+import type { UpdateProfileParameters } from '../../hooks/useProfileForm';
 import useProfileForm from '../../hooks/useProfileForm';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -470,7 +471,7 @@ function AuthOptionsInner({
     setEmail(emailAd);
   };
 
-  const onSocialCompletion = async (params) => {
+  const onSocialCompletion = async (params: UpdateProfileParameters) => {
     updateUserProfile({ ...params });
     await syncSettings();
   };

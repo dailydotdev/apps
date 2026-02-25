@@ -108,11 +108,11 @@ function ButtonComponent<TagName extends AllowedTags>(
         VariantColorToClassName[variant]?.[color],
         className,
       )}
-      onMouseEnter={(e) => {
+      onMouseEnter={(e: React.MouseEvent<AllowedElements>) => {
         props.onMouseEnter?.(e);
         setIsHovering(true);
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={(e: React.MouseEvent<AllowedElements>) => {
         props.onMouseLeave?.(e);
         setIsHovering(false);
       }}
