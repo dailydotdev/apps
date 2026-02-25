@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import Custom404 from '@dailydotdev/shared/src/components/Custom404';
+import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { NextSeo } from 'next-seo';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -21,8 +22,10 @@ export default function Custom404Seo(): ReactElement {
   }, [logEvent, logImpression]);
 
   return (
-    <Custom404>
-      <NextSeo title="Page not found" nofollow noindex />
-    </Custom404>
+    <ErrorBoundary feature="404-page">
+      <Custom404>
+        <NextSeo title="Page not found" nofollow noindex />
+      </Custom404>
+    </ErrorBoundary>
   );
 }

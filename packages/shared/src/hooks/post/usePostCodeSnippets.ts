@@ -64,7 +64,7 @@ export const usePostCodeSnippetsQuery = ({
         ? queryOptions.enabled && enabled
         : enabled,
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
-    select: useCallback((data) => {
+    select: useCallback((data: InfiniteData<UsePostCodeSnippetsData>) => {
       if (!data) {
         return undefined;
       }
@@ -72,7 +72,9 @@ export const usePostCodeSnippetsQuery = ({
       return {
         ...data,
         // filter out last page with no edges returned by api paginator
-        pages: data.pages.filter((pageItem) => !!pageItem?.edges.length),
+        pages: data.pages.filter(
+          (pageItem: UsePostCodeSnippetsData) => !!pageItem?.edges.length,
+        ),
       };
     }, []),
   });
