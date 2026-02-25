@@ -33,7 +33,9 @@ export function useChangelog(): UseChangelog {
     enabled: sidebarRendered && !!alerts.changelog,
   });
 
-  const updateLatestChangelogPostCache = (mutationHandler) => {
+  const updateLatestChangelogPostCache = (
+    mutationHandler: (payload: Post) => Partial<Post>,
+  ) => {
     return client.setQueryData(changelogQueryKey, (old: Post) => {
       return {
         ...old,

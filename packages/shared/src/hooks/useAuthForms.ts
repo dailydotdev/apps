@@ -35,7 +35,9 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
   const { showPrompt } = usePrompt();
   const formRef = useRef<HTMLFormElement>();
 
-  const openPrompt = async (e) => {
+  const openPrompt = async (
+    e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
+  ) => {
     if (await showPrompt(promptOptions)) {
       onDiscard(e);
     }
