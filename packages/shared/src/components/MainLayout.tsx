@@ -58,6 +58,7 @@ export interface MainLayoutProps
   screenCentered?: boolean;
   customBanner?: ReactNode;
   showSidebar?: boolean;
+  sidebarDisabled?: boolean;
   onNavTabClick?: (tab: string) => void;
   canGoBack?: string;
   hideBackButton?: boolean;
@@ -74,6 +75,7 @@ function MainLayoutComponent({
   hideSearchField,
   screenCentered = true,
   showSidebar = true,
+  sidebarDisabled = true,
   className,
   onLogoClick,
   onNavTabClick,
@@ -204,6 +206,7 @@ function MainLayoutComponent({
           isAuthReady &&
             !isScreenCentered &&
             sidebarExpanded &&
+            !sidebarDisabled &&
             'laptop:!pl-60',
           isBannerAvailable && 'laptop:pt-24',
         )}
@@ -214,6 +217,7 @@ function MainLayoutComponent({
             onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
             activePage={activePage}
+            disabled={sidebarDisabled}
           />
         )}
         {children}

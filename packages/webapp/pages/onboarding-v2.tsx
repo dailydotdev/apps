@@ -920,8 +920,9 @@ const OnboardingV2Page = (): ReactElement => {
         : 'var(--theme-accent-blueCheese-default)';
       counter.style.setProperty('--onb-bump-color', color);
       counter.classList.remove('onb-live-bump');
-      // eslint-disable-next-line no-void
-      void (counter as HTMLElement).offsetWidth;
+      // Force reflow to restart CSS animation
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      (counter as HTMLElement).offsetWidth;
       counter.classList.add('onb-live-bump');
 
       // Emit multiple overlapping floaters so engagement feels continuous.
@@ -1245,12 +1246,11 @@ const OnboardingV2Page = (): ReactElement => {
           <div className="onb-float-2 bg-accent-cabbage-default/20 absolute left-[85%] top-[45%] h-1 w-1 rounded-full" />
           <div className="onb-float-3 bg-white/20 absolute left-[40%] top-[30%] h-0.5 w-0.5 rounded-full" />
           {HERO_TAG_TREND.map((tag) => {
-            const tagSizeClasses: Record<string, string> = {
+            const sizeMap: Record<string, string> = {
               lg: 'px-4 py-2 typo-body',
               md: 'px-3.5 py-1.5 typo-callout',
             };
-            const sizeClass =
-              tagSizeClasses[tag.size] ?? 'px-3 py-1.5 typo-caption1';
+            const sizeClass = sizeMap[tag.size] ?? 'px-3 py-1.5 typo-caption1';
 
             return (
               <span
@@ -1327,7 +1327,7 @@ const OnboardingV2Page = (): ReactElement => {
             <h1 className="mx-auto max-w-[20rem] font-bold leading-[1.12] tracking-tight typo-title1 tablet:max-w-[48rem] tablet:leading-[1.08] tablet:typo-mega1">
               <span className="text-text-primary">Join top dev community.</span>
               <br />
-              <span className="onb-gradient-text bg-[length:200%_auto] bg-clip-text text-transparent">
+              <span className="onb-gradient-text bg-clip-text text-transparent">
                 Build your feed identity.
               </span>
             </h1>
@@ -1459,17 +1459,17 @@ const OnboardingV2Page = (): ReactElement => {
       {feedReadyState && (
         <div className="onb-confetti-stage pointer-events-none fixed inset-0 z-[80] overflow-hidden">
           {confettiParticles.map((p) => {
-            const confettiSizeClasses: Record<string, string> = {
+            const sizeMap: Record<string, string> = {
               xl: 'h-4 w-2.5',
               lg: 'h-3 w-2',
               md: 'h-2.5 w-1.5',
             };
-            const sizeClass = confettiSizeClasses[p.size] ?? 'h-2 w-1';
-            const confettiShapeClasses: Record<string, string> = {
+            const sizeClass = sizeMap[p.size] ?? 'h-2 w-1';
+            const shapeMap: Record<string, string> = {
               circle: 'rounded-full',
               star: 'onb-confetti-star',
             };
-            const shapeClass = confettiShapeClasses[p.shape] ?? 'rounded-[1px]';
+            const shapeClass = shapeMap[p.shape] ?? 'rounded-[1px]';
             return (
               <span
                 key={p.id}
@@ -1518,7 +1518,7 @@ const OnboardingV2Page = (): ReactElement => {
             { left: '90%', top: '40%', delay: '600ms', size: 8 },
           ].map((s) => (
             <svg
-              key={s.delay}
+              key={`sparkle-${s.left}-${s.top}`}
               className="onb-sparkle text-accent-cheese-default/60 pointer-events-none absolute"
               style={{ left: s.left, top: s.top, animationDelay: s.delay }}
               width={s.size}
@@ -1711,7 +1711,12 @@ const OnboardingV2Page = (): ReactElement => {
       <div
         className={classNames(
           'onb-feed-stage transition-[opacity,transform] duration-500 ease-out',
-          feedStageDynamicClass,
+          // eslint-disable-next-line no-nested-ternary
+          feedReadyState
+            ? 'onb-feed-unlocked translate-y-0 opacity-100'
+            : feedVisible
+            ? 'translate-y-0 opacity-100'
+            : 'pointer-events-none translate-y-2 opacity-0',
         )}
       >
         <ActiveFeedNameContext.Provider value={popularFeedNameValue}>
@@ -2602,6 +2607,7 @@ const OnboardingV2Page = (): ReactElement => {
             var(--theme-accent-water-default) 60%,
             var(--theme-accent-cabbage-default) 100%
           );
+          background-size: 200% auto;
           animation: onb-gradient-shift 6s ease-in-out infinite;
         }
 
@@ -4269,11 +4275,37 @@ const OnboardingV2Page = (): ReactElement => {
 
             {/* ── Title & progress ── */}
             <h2 className="mb-1 text-center font-bold text-text-primary typo-title3">
-              {githubImportTitle}
+              {(() => {
+                if (githubImportPhase === 'complete') {
+                  return 'Your feed is ready';
+                }
+                if (
+                  githubImportPhase === 'awaitingSeniority' ||
+                  githubImportPhase === 'confirmingSeniority'
+                ) {
+                  return 'Almost there';
+                }
+                return importFlowSource === 'github'
+                  ? 'Reading your GitHub'
+                  : 'Analyzing your profile';
+              })()}
             </h2>
 
             <p className="mb-4 text-center text-text-tertiary typo-footnote">
-              {githubImportDescription}
+              {(() => {
+                if (githubImportPhase === 'complete') {
+                  return 'We built a personalized feed just for you.';
+                }
+                if (githubImportPhase === 'awaitingSeniority') {
+                  return importFlowSource === 'github'
+                    ? 'One thing we couldn\u2019t find on your profile.'
+                    : 'One last detail to finish your profile setup.';
+                }
+                if (githubImportPhase === 'confirmingSeniority') {
+                  return 'Got it. Finishing up...';
+                }
+                return currentImportStep;
+              })()}
             </p>
 
             {/* ── Progress track ── */}
@@ -4302,42 +4334,12 @@ const OnboardingV2Page = (): ReactElement => {
                         const done = githubImportProgress >= step.threshold;
                         const active =
                           !done && githubImportProgress >= step.threshold - 16;
-
-                        let statusText: string;
-                        if (done) {
-                          statusText = 'Done';
-                        } else if (active) {
-                          statusText = 'In progress';
-                        } else {
-                          statusText = 'Up next';
-                        }
-
-                        let iconBgClass: string;
-                        if (done) {
-                          iconBgClass = 'bg-accent-avocado-default';
-                        } else if (active) {
-                          iconBgClass = 'bg-accent-cabbage-default/18';
-                        } else {
-                          iconBgClass = 'bg-white/[0.06]';
-                        }
-
-                        let labelClass: string;
-                        if (done) {
-                          labelClass = 'text-text-primary';
-                        } else if (active) {
-                          labelClass = 'text-text-secondary';
-                        } else {
-                          labelClass = 'text-text-quaternary';
-                        }
-
-                        let statusClass: string;
-                        if (done) {
-                          statusClass = 'text-accent-avocado-default';
-                        } else if (active) {
-                          statusClass = 'text-accent-cabbage-default';
-                        } else {
-                          statusClass = 'text-text-quaternary';
-                        }
+                        // eslint-disable-next-line no-nested-ternary
+                        const statusText = done
+                          ? 'Done'
+                          : active
+                          ? 'In progress'
+                          : 'Up next';
 
                         return (
                           <div
@@ -4348,7 +4350,12 @@ const OnboardingV2Page = (): ReactElement => {
                             <span
                               className={classNames(
                                 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors duration-300',
-                                iconBgClass,
+                                // eslint-disable-next-line no-nested-ternary
+                                done
+                                  ? 'bg-accent-avocado-default'
+                                  : active
+                                  ? 'bg-accent-cabbage-default/18'
+                                  : 'bg-white/[0.06]',
                               )}
                             >
                               {done ? (
@@ -4381,7 +4388,12 @@ const OnboardingV2Page = (): ReactElement => {
                             <span
                               className={classNames(
                                 'truncate transition-colors duration-300 typo-callout',
-                                labelClass,
+                                // eslint-disable-next-line no-nested-ternary
+                                done
+                                  ? 'text-text-primary'
+                                  : active
+                                  ? 'text-text-secondary'
+                                  : 'text-text-quaternary',
                               )}
                             >
                               {step.label}
@@ -4389,7 +4401,12 @@ const OnboardingV2Page = (): ReactElement => {
                             <span
                               className={classNames(
                                 'shrink-0 typo-caption2',
-                                statusClass,
+                                // eslint-disable-next-line no-nested-ternary
+                                done
+                                  ? 'text-accent-avocado-default'
+                                  : active
+                                  ? 'text-accent-cabbage-default'
+                                  : 'text-text-quaternary',
                               )}
                             >
                               {statusText}
@@ -4815,7 +4832,8 @@ const OnboardingV2Page = (): ReactElement => {
                 )}
               >
                 <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
-                {signupContext === 'github' && (
+                {/* eslint-disable-next-line no-nested-ternary */}
+                {signupContext === 'github' ? (
                   <button
                     type="button"
                     className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
