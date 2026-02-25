@@ -87,15 +87,16 @@ export const useLogContext = (): LogContextData => {
     return {
       ...logContextRef.current,
       logEvent: (event) => {
-        logContextRef.current.logEvent(
-          logExtraContextRef.current.selectorRef.current({ event }),
-        );
+        const contextSelector = logExtraContextRef.current?.selectorRef.current;
+        const nextEvent = contextSelector ? contextSelector({ event }) : event;
+
+        logContextRef.current.logEvent(nextEvent);
       },
       logEventStart: (id, event) => {
-        logContextRef.current.logEventStart(
-          id,
-          logExtraContextRef.current.selectorRef.current({ event }),
-        );
+        const contextSelector = logExtraContextRef.current?.selectorRef.current;
+        const nextEvent = contextSelector ? contextSelector({ event }) : event;
+
+        logContextRef.current.logEventStart(id, nextEvent);
       },
     };
   }, []);

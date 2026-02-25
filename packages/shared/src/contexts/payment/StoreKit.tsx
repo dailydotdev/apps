@@ -52,19 +52,27 @@ export const StoreKitSubProvider = ({
     ),
     enabled: !!metadata?.length && iOSSupportsPlusPurchase(),
     staleTime: StaleTime.Default,
-    queryFn: async () => getApplePricing(metadata),
+    queryFn: async () => {
+      if (!metadata) {
+        return [];
+      }
+
+      return getApplePricing(metadata);
+    },
   });
   const { openCheckout } = useStoreKitPayment({
     type: PurchaseType.Plus,
-    products,
-    successCallback,
+    products: products ?? [],
+    successCallback: (event) => {
+      successCallback?.(event);
+    },
   });
 
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
       productOptions: products,
-      isPlusAvailable,
+      isPlusAvailable: isPlusAvailable ?? false,
       giftOneYear: undefined,
       isPricesPending: false,
     }),

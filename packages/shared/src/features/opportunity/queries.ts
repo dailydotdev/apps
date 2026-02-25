@@ -283,7 +283,7 @@ export const recruiterPricesQueryOptions = ({
   discountId,
 }: {
   isLoggedIn: boolean;
-  user: LoggedUser;
+  user?: Pick<LoggedUser, 'id'>;
   discountId?: string;
 }) => {
   return {

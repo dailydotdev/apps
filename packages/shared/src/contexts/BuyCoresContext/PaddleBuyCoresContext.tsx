@@ -56,13 +56,22 @@ export const PaddleBuyCoresContextProvider = ({
     successCallback: (event) => {
       setActiveStep({
         step: SCREENS.PROCESSING,
-        providerTransactionId: event.data.transaction_id,
+        providerTransactionId: event.data?.transaction_id,
       });
     },
-    getProductQuantity: (event) =>
-      getQuantityForPriceRef.current({
-        priceId: event.data.items[0]?.price_id,
-      }),
+    getProductQuantity: (event) => {
+      const priceId = event.data?.items?.[0]?.price_id;
+
+      if (!priceId) {
+        return 1;
+      }
+
+      return (
+        getQuantityForPriceRef.current({
+          priceId,
+        }) ?? 1
+      );
+    },
     priceType: PurchaseType.Cores,
   });
 

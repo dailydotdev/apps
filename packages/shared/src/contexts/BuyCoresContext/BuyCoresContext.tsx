@@ -28,7 +28,7 @@ export const BuyCoresContextProvider = ({
   );
 };
 
-export const useCoreProductOptionQuery = (): CoreProductOption => {
+export const useCoreProductOptionQuery = (): CoreProductOption | undefined => {
   const { user, isLoggedIn } = useAuthContext();
   const router = useRouter();
   const pid = router?.query?.pid;
@@ -43,13 +43,15 @@ export const useCoreProductOptionQuery = (): CoreProductOption => {
   return useMemo(() => {
     const price = prices?.find((item) => item.priceId === pid);
 
-    if (!price) {
+    const coresValue = price?.metadata.coresValue;
+
+    if (!price || typeof coresValue === 'undefined') {
       return undefined;
     }
 
     return {
       id: price.priceId,
-      value: price.metadata.coresValue,
+      value: coresValue,
     };
   }, [prices, pid]);
 };

@@ -51,7 +51,7 @@ export const BasePaymentProvider = ({
       openCheckout,
       productOptions:
         data?.filter(({ priceId }) => priceId !== giftOneYear?.priceId) ?? [],
-      isPlusAvailable,
+      isPlusAvailable: isPlusAvailable ?? false,
       giftOneYear,
       isPricesPending,
       isPaddleReady,

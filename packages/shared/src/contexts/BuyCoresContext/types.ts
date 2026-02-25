@@ -4,10 +4,21 @@ import { createContext, useContext } from 'react';
 import type { OpenCheckoutFn } from '../payment/context';
 import type { Origin } from '../../lib/log';
 
-export const BuyCoresContext = createContext<BuyCoresContextData>(undefined);
+export const BuyCoresContext = createContext<BuyCoresContextData | undefined>(
+  undefined,
+);
 
-export const useBuyCoresContext = (): BuyCoresContextData =>
-  useContext(BuyCoresContext);
+export const useBuyCoresContext = (): BuyCoresContextData => {
+  const context = useContext(BuyCoresContext);
+
+  if (!context) {
+    throw new Error(
+      'useBuyCoresContext must be used within a BuyCoresContextProvider',
+    );
+  }
+
+  return context;
+};
 
 export const SCREENS = {
   INTRO: 'INTRO',

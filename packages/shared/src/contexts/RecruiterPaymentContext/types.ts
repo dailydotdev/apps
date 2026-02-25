@@ -5,11 +5,21 @@ import type { OpenCheckoutFn } from '../payment/context';
 import type { Origin } from '../../lib/log';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 
-export const RecruiterPaymentContext =
-  createContext<RecruiterPaymentContextData>(undefined);
+export const RecruiterPaymentContext = createContext<
+  RecruiterPaymentContextData | undefined
+>(undefined);
 
-export const useRecruiterPaymentContext = (): RecruiterPaymentContextData =>
-  useContext(RecruiterPaymentContext);
+export const useRecruiterPaymentContext = (): RecruiterPaymentContextData => {
+  const context = useContext(RecruiterPaymentContext);
+
+  if (!context) {
+    throw new Error(
+      'useRecruiterPaymentContext must be used within a RecruiterPaymentContextProvider',
+    );
+  }
+
+  return context;
+};
 
 export type RecruiterProductOption = {
   id: string;

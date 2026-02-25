@@ -10,8 +10,8 @@ const COOKIES = ['_ga', '_fbp', '_fbc', 'gbuuid'];
 
 export default function useLogSharedProps(
   app: string,
-  version: string,
-  deviceId: string,
+  version?: string,
+  deviceId?: string,
 ): [MutableRefObject<Partial<LogEvent>>, boolean] {
   // Use ref instead of state to reduce renders
   const sharedPropsRef = useRef<Partial<LogEvent>>();

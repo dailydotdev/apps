@@ -74,11 +74,19 @@ export const getAppleProducts = (metadata: ProductPricingMetadata[]) =>
             return null;
           }
 
+          const offer = product.attributes.offers[0];
+          if (!offer) {
+            return null;
+          }
+
           const duration =
             storekitDurationToPlusDurationMap[
-              product.attributes.offers[0].recurringSubscriptionPeriod
+              offer.recurringSubscriptionPeriod as StoreKitDuration
             ];
-          const offer = product.attributes.offers[0];
+
+          if (!duration) {
+            return null;
+          }
 
           return {
             metadata: item,
@@ -88,10 +96,13 @@ export const getAppleProducts = (metadata: ProductPricingMetadata[]) =>
               formatted: offer.priceFormatted,
             },
             duration,
-            currency: null,
-          } as ProductPricingPreview;
+            currency: {
+              code: offer.currencyCode,
+              symbol: offer.currencyCode,
+            },
+          };
         })
-        .filter(Boolean);
+        .filter((item): item is ProductPricingPreview => !!item);
     },
   );
 

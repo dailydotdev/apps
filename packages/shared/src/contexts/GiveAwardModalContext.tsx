@@ -94,8 +94,36 @@ export type GiveAwardModalContextData = {
   flags?: Record<string, string>;
 } & Pick<ModalProps, 'onRequestClose'>;
 
-const GiveAwardModalContext =
-  React.createContext<GiveAwardModalContextData>(undefined);
+const GiveAwardModalContext = React.createContext<GiveAwardModalContextData>({
+  activeModal: MODALRENDERS.AWARD,
+  setActiveModal: () => {
+    throw new Error(
+      'setActiveModal is not available outside GiveAwardModalContextProvider',
+    );
+  },
+  activeStep: AWARD_SCREENS.INTRO,
+  setActiveStep: () => {
+    throw new Error(
+      'setActiveStep is not available outside GiveAwardModalContextProvider',
+    );
+  },
+  type: AWARD_TYPES.USER,
+  entity: {
+    id: '',
+    receiver: {
+      id: '',
+      name: '',
+      username: '',
+      image: '',
+    },
+  },
+  logAwardEvent: () => {
+    throw new Error(
+      'logAwardEvent is not available outside GiveAwardModalContextProvider',
+    );
+  },
+  onRequestClose: () => undefined,
+});
 export default GiveAwardModalContext;
 
 export type GiveAwardModalContextProviderProps = {
@@ -149,6 +177,10 @@ export const GiveAwardModalContextProvider = ({
           extra: JSON.stringify({ ...extra }),
         });
       } else {
+        if (!post) {
+          throw new Error('post is required to log post/comment award events');
+        }
+
         logEvent(postLogEvent(eventName, post, { extra }));
       }
     },

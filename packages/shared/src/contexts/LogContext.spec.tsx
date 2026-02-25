@@ -14,6 +14,8 @@ import type { Visit } from '../lib/boot';
 import { BootApp } from '../lib/boot';
 import { waitForNock } from '../../__tests__/helpers/utilities';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
+import { SortCommentsBy } from '../graphql/comments';
+import { CampaignCtaPlacement } from '../graphql/settings';
 
 const LogContext = getLogContextStatic();
 
@@ -29,17 +31,48 @@ beforeEach(() => {
 
 const settings: SettingsContextData = {
   spaciness: 'roomy',
+  openNewTab: true,
+  sidebarExpanded: false,
+  companionExpanded: false,
+  sortingEnabled: false,
+  optOutReadingStreak: false,
+  optOutCompanion: false,
+  autoDismissNotifications: true,
+  sortCommentsBy: SortCommentsBy.OldestFirst,
+  showFeedbackButton: true,
+  campaignCtaPlacement: CampaignCtaPlacement.Header,
+  flags: {
+    sidebarSquadExpanded: true,
+    sidebarCustomFeedsExpanded: true,
+    sidebarOtherExpanded: true,
+    sidebarResourcesExpanded: true,
+    sidebarBookmarksExpanded: true,
+    clickbaitShieldEnabled: true,
+  },
   loadedSettings: true,
   setTheme: jest.fn(),
   themeMode: ThemeMode.Light,
   insaneMode: true,
   showTopSites: true,
   toggleInsaneMode: jest.fn(),
-  openNewTab: true,
   setSpaciness: jest.fn(),
   toggleOpenNewTab: jest.fn(),
   toggleShowTopSites: jest.fn(),
   toggleSidebarExpanded: jest.fn(),
+  toggleSortingEnabled: jest.fn(),
+  toggleOptOutReadingStreak: jest.fn(),
+  toggleOptOutCompanion: jest.fn(),
+  toggleAutoDismissNotifications: jest.fn(),
+  toggleShowFeedbackButton: jest.fn(),
+  updateCustomLinks: jest.fn(),
+  updateSortCommentsBy: jest.fn(),
+  updateFlag: jest.fn(),
+  updateFlagRemote: jest.fn(),
+  updatePromptFlag: jest.fn(),
+  syncSettings: jest.fn(),
+  onToggleHeaderPlacement: jest.fn(),
+  setSettings: jest.fn(),
+  applyThemeMode: jest.fn(),
 };
 
 const LogContextTester = ({
@@ -160,6 +193,9 @@ it('should add relevant properties when user is signed-in', async () => {
           email: 'u@a.com',
           image: 'https://image.com',
           name: 'U',
+          permalink: '/u',
+          username: 'u',
+          balance: { amount: 0 },
           providers: ['github'],
         },
         tokenRefreshed: true,

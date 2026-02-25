@@ -29,7 +29,9 @@ export interface PaymentContextData {
   setPriceType?: Dispatch<SetStateAction<PurchaseType>>;
 }
 
-export const PaymentContext = createContext<PaymentContextData>(undefined);
+export const PaymentContext = createContext<PaymentContextData | undefined>(
+  undefined,
+);
 
 export const usePaymentContext = (): PaymentContextData => {
   const context = useContext(PaymentContext);
@@ -44,7 +46,7 @@ export const usePaymentContext = (): PaymentContextData => {
 export interface PaymentContextProviderProps<T = unknown, E = unknown> {
   children?: ReactNode;
   disabledEvents?: E[];
-  successCallback?: (event: T) => void;
+  successCallback?(event: T): void;
   initialPriceType?: PurchaseType;
 }
 

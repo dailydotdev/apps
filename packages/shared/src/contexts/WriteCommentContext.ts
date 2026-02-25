@@ -5,9 +5,17 @@ interface WriteCommentContextProp {
   mutateComment: UseMutateCommentResult;
 }
 
-export const WriteCommentContext = createContext<WriteCommentContextProp>({
-  mutateComment: null,
-});
+export const WriteCommentContext =
+  createContext<WriteCommentContextProp | null>(null);
 
-export const useWriteCommentContext = (): WriteCommentContextProp =>
-  useContext(WriteCommentContext);
+export const useWriteCommentContext = (): WriteCommentContextProp => {
+  const context = useContext(WriteCommentContext);
+
+  if (!context) {
+    throw new Error(
+      'useWriteCommentContext must be used within a WriteCommentContext provider',
+    );
+  }
+
+  return context;
+};

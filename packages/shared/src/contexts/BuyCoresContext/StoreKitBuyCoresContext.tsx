@@ -40,7 +40,7 @@ export const StoreKitBuyCoresContextProvider = ({
   );
 
   const { openCheckout } = useStoreKitPayment({
-    products: prices,
+    products: prices ?? [],
     type: PurchaseType.Cores,
     successCallback: (event) => {
       setActiveStep({
