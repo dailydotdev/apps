@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { UserPersistentContextType } from '../usePersistentContext';
 import usePersistentContext from '../usePersistentContext';
 import { ActionType } from '../../graphql/actions';
@@ -12,6 +12,7 @@ import { checkIsExtension } from '../../lib/func';
 import type { NotificationPromptSource } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { useEventListener } from '../useEventListener';
 
 export const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
@@ -106,31 +107,24 @@ export const usePushNotificationMutation = ({
     [isSubscribed, onEnablePush, unsubscribe],
   );
 
-  useEffect(() => {
-    const onPermissionMessage = async (
-      e: MessageEvent<PermissionEvent>,
-    ): Promise<void> => {
-      const { permission, eventKey } = e.data ?? {};
-      const earlyReturnChecks = [
-        eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,
-        !shouldOpenPopup(),
-        permission !== 'granted',
-      ];
+  useEventListener(globalThis, 'message', async (e) => {
+    const { permission }: PermissionEvent = e?.data ?? {};
+    const earlyReturnChecks = [
+      e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,
+      !shouldOpenPopup,
+      permission !== 'granted',
+    ];
 
-      if (earlyReturnChecks.some(Boolean)) {
-        return;
-      }
+    if (earlyReturnChecks.some(Boolean)) {
+      return;
+    }
 
-      await onGranted();
-      onPopupGranted?.();
-    };
+    await onGranted();
 
-    globalThis.addEventListener('message', onPermissionMessage);
-
-    return () => {
-      globalThis.removeEventListener('message', onPermissionMessage);
-    };
-  }, [onGranted, onPopupGranted, shouldOpenPopup]);
+    if (onPopupGranted) {
+      onPopupGranted();
+    }
+  });
 
   return {
     hasPermissionCache: permissionCache === 'granted',
