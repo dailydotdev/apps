@@ -46,7 +46,7 @@ function CodeVerificationForm({
     },
   );
 
-  const onCodeVerification = async (e) => {
+  const onCodeVerification = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     logEvent({
       event_name: AuthEventNames.SubmitForgotPassword,

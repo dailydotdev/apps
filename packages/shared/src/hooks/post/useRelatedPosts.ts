@@ -70,7 +70,7 @@ export const useRelatedPosts = ({
     initialPageParam: '',
     enabled: !!postId,
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
-    select: useCallback((data) => {
+    select: useCallback((data: InfiniteData<RelatedPostsQueryData>) => {
       if (!data) {
         return undefined;
       }
@@ -78,7 +78,9 @@ export const useRelatedPosts = ({
       return {
         ...data,
         // filter out last page with no edges returned by api paginator
-        pages: data.pages.filter((pageItem) => !!pageItem?.edges.length),
+        pages: data.pages.filter(
+          (pageItem: RelatedPostsQueryData) => !!pageItem?.edges.length,
+        ),
       };
     }, []),
     staleTime: StaleTime.Default,

@@ -78,7 +78,7 @@ const usePoll = ({ post }: { post: Post }) => {
 
       if (currentAdsData) {
         const currentAdPost = currentAdsData.pages.find(
-          (page) => page.data?.post?.id === post.id,
+          (page: Ad) => page.data?.post?.id === post.id,
         )?.data?.post;
 
         if (currentAdPost) {

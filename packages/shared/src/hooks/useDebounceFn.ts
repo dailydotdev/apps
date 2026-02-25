@@ -21,7 +21,7 @@ export default function useDebounceFn<T = unknown>(
   }, []);
 
   const memoizedCallback = useCallback(
-    (args) => {
+    (args?: T) => {
       // We should ensure the last execution + minimum time is less than the current time
       if (
         lastExecutionRef.current &&
