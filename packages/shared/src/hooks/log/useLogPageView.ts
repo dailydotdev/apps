@@ -29,11 +29,7 @@ export default function useLogPageView(): MutableRefObject<
     router.events.on('routeChangeComplete', handleRouteChange);
 
     const handleLifecycle = (event: Event) => {
-      if (!(event instanceof CustomEvent)) {
-        return;
-      }
-
-      lifecycleCallbackRef.current?.(event);
+      lifecycleCallbackRef.current?.(event as CustomEvent);
     };
     window.addEventListener('statechange', handleLifecycle);
 
