@@ -31,6 +31,7 @@ export enum PostType {
   Brief = 'brief',
   Poll = 'poll',
   SocialTwitter = 'social:twitter',
+  Digest = 'digest',
 }
 
 export const briefSourcesLimit = 6;
@@ -42,3 +43,5 @@ export type ErrorBoundaryFeature =
   | 'extension-feed'
   | 'onboarding'
   | '404-page';
+
+export const DIGEST_SOURCE = 'digest';

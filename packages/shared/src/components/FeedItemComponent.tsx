@@ -108,6 +108,7 @@ const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Brief]: BriefCard,
   [PostType.Poll]: PollGrid,
   [PostType.SocialTwitter]: SocialTwitterGrid,
+  [PostType.Digest]: ArticleGrid,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,6 +122,7 @@ const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
   [PostType.Brief]: BriefCard,
   [PostType.Poll]: PollList,
   [PostType.SocialTwitter]: SocialTwitterList,
+  [PostType.Digest]: ArticleList,
 };
 
 const getPostTypeForCard = (post?: Post): PostType => {

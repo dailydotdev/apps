@@ -363,6 +363,17 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       sources
       savedTime
       generatedAt
+      digestPostIds
+      ad {
+        type
+        index
+        title
+        link
+        image
+        company_name
+        company_logo
+        call_to_action
+      }
     }
     userState {
       vote
@@ -602,6 +613,17 @@ export const FEED_POST_FRAGMENT = gql`
       posts
       sources
       savedTime
+      digestPostIds
+      ad {
+        type
+        index
+        title
+        link
+        image
+        company_name
+        company_logo
+        call_to_action
+      }
     }
     featuredAward {
       award {
