@@ -27,7 +27,7 @@ export interface BookmarkFolder {
 
 export interface SetBookmarkReminderProps {
   postId: string;
-  remindAt: Date;
+  remindAt?: Date | null;
 }
 
 export const setBookmarkReminder = ({

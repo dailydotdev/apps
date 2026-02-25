@@ -127,7 +127,7 @@ export const useMarkdownInput = ({
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
   const isEmojiEnabled = enabledCommand[MarkdownCommand.Emoji];
   const isGifEnabled = enabledCommand[MarkdownCommand.Gif];
-  const [command, setCommand] = useState<TextareaCommand>();
+  const [command, setCommand] = useState<TextareaCommand | null>(null);
 
   // Generate unique storage key for this comment context
   const draftStorageKey = useMemo(() => {
@@ -152,8 +152,8 @@ export const useMarkdownInput = ({
   }, [initialContent, draftStorageKey]);
 
   const [input, setInput] = useState(getInitialValue);
-  const [query, setQuery] = useState<string>(undefined);
-  const [emojiQuery, setEmojiQuery] = useState<string>(undefined);
+  const [query, setQuery] = useState<string | undefined>(undefined);
+  const [emojiQuery, setEmojiQuery] = useState<string | undefined>(undefined);
   const [offset, setOffset] = useState([0, 0]);
   const [selected, setSelected] = useState(0);
   const [selectedEmoji, setSelectedEmoji] = useState(0);
@@ -162,6 +162,14 @@ export const useMarkdownInput = ({
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const getCommand = useCallback((): TextareaCommand => {
+    if (!command) {
+      throw new Error('Markdown command is not initialized');
+    }
+
+    return command;
+  }, [command]);
 
   const emojiData = useMemo(
     () =>
@@ -222,6 +230,7 @@ export const useMarkdownInput = ({
   const { uploadedCount, queueCount, pushUpload, startUploading } =
     useSyncUploader({
       onStarted: async (file) => {
+        const textareaCommand = getCommand();
         const temporary = getTemporaryUploadString(file.name);
         const replace: GetReplacementFn = (_, { trailingChar }) => ({
           replacement: `${!trailingChar ? '' : '\n\n'}${temporary}\n\n`,
@@ -229,14 +238,20 @@ export const useMarkdownInput = ({
         const type = getCursorType(textarea);
         const allowedType =
           type === CursorType.Adjacent ? CursorType.Isolated : type;
-        await command.replaceWord(replace, onUpdate, allowedType);
+        await textareaCommand.replaceWord(replace, onUpdate, allowedType);
       },
       onFinish: async (status, file, url) => {
         if (status === UploadState.Failed) {
-          return displayToast(uploadNotAcceptedMessage);
+          displayToast(uploadNotAcceptedMessage);
+          return;
         }
 
-        return onUpdate(command.onReplaceUpload(url, file.name));
+        if (!url) {
+          return;
+        }
+
+        const textareaCommand = getCommand();
+        onUpdate(textareaCommand.onReplaceUpload(url, file.name));
       },
     });
 
@@ -251,20 +266,23 @@ export const useMarkdownInput = ({
   const { data = { recommendedMentions: [] } } =
     useQuery<RecommendedMentionsData>({
       queryKey: key,
-      queryFn: () =>
-        requestMethod(
+      queryFn: () => {
+        if (!requestMethod) {
+          throw new Error('requestMethod is not initialized');
+        }
+        return requestMethod(
           RECOMMEND_MENTIONS_QUERY,
           { postId, query, sourceId },
           { requestKey: JSON.stringify(key) },
-        ),
-
-      enabled: !!user && typeof query !== 'undefined',
+        );
+      },
+      enabled: !!user && !!requestMethod && typeof query !== 'undefined',
       refetchOnWindowFocus: false,
       refetchOnMount: false,
     });
   const mentions = data?.recommendedMentions;
 
-  const updateQuery = (value: string) => {
+  const updateQuery = (value: string | undefined) => {
     if (!isMentionEnabled || value === query) {
       return;
     }
@@ -276,11 +294,11 @@ export const useMarkdownInput = ({
     setQuery(value);
   };
 
-  const updateEmojiQuery = (value: string) => {
+  const updateEmojiQuery = (value: string | undefined) => {
     if (
       !isEmojiEnabled ||
       value === emojiQuery ||
-      specialCharsRegex.test(value)
+      (!!value && specialCharsRegex.test(value))
     ) {
       return;
     }
@@ -294,27 +312,38 @@ export const useMarkdownInput = ({
   };
 
   const onApplyMention = async (mention: UserShortProfile) => {
+    const textareaCommand = getCommand();
     const getReplacement = () => ({ replacement: `@${mention.username} ` });
-    await command.replaceWord(getReplacement, onUpdate, CursorType.Adjacent);
+    await textareaCommand.replaceWord(
+      getReplacement,
+      onUpdate,
+      CursorType.Adjacent,
+    );
     updateQuery(undefined);
   };
 
   const onApplyEmoji = async (emoji: string) => {
+    const textareaCommand = getCommand();
     const getReplacement = () => ({ replacement: `${emoji} ` });
-    await command.replaceWord(getReplacement, onUpdate, CursorType.Adjacent);
+    await textareaCommand.replaceWord(
+      getReplacement,
+      onUpdate,
+      CursorType.Adjacent,
+    );
     updateEmojiQuery(undefined);
   };
 
-  const onLinkCommand = () => command.replaceWord(getLinkReplacement, onUpdate);
+  const onLinkCommand = () =>
+    getCommand().replaceWord(getLinkReplacement, onUpdate);
   const onLinkPaste = (pastedLink: string) => {
     const onLinkPasteCommand: GetReplacementFn = (type, props) =>
       getLinkReplacement(type, { ...props, url: pastedLink });
 
-    return command.replaceWord(onLinkPasteCommand, onUpdate);
+    return getCommand().replaceWord(onLinkPasteCommand, onUpdate);
   };
 
   const onMentionCommand = async () => {
-    const { replacement } = await command.replaceWord(
+    const { replacement } = await getCommand().replaceWord(
       getMentionReplacement,
       onUpdate,
     );
@@ -417,11 +446,17 @@ export const useMarkdownInput = ({
       switch (e.key) {
         case 'b': {
           e.preventDefault();
-          return await command.replaceWord(getStyleReplacement('**'), onUpdate);
+          return await getCommand().replaceWord(
+            getStyleReplacement('**'),
+            onUpdate,
+          );
         }
         case 'i': {
           e.preventDefault();
-          return await command.replaceWord(getStyleReplacement('_'), onUpdate);
+          return await getCommand().replaceWord(
+            getStyleReplacement('_'),
+            onUpdate,
+          );
         }
         case 'k': {
           e.preventDefault();
@@ -531,13 +566,14 @@ export const useMarkdownInput = ({
   };
 
   const onGifCommand = async (gifUrl: string, altText: string) => {
+    const textareaCommand = getCommand();
     const replace: GetReplacementFn = (type, { trailingChar }) => {
       const replacement = `${
         !trailingChar ? '' : '\n\n'
       }![${altText}](${gifUrl})\n\n`;
       return { replacement };
     };
-    await command.replaceWord(replace, onUpdate);
+    await textareaCommand.replaceWord(replace, onUpdate);
   };
 
   const onPaste: ClipboardEventHandler<HTMLTextAreaElement> = async (e) => {
@@ -615,7 +651,7 @@ export const useMarkdownInput = ({
     ...emojiProps,
     ...gifProps,
     input,
-    onLinkCommand: isLinkEnabled ? onLinkCommand : null,
+    onLinkCommand: isLinkEnabled ? onLinkCommand : undefined,
     callbacks: {
       onInput,
       onKeyUp,

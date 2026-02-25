@@ -64,10 +64,19 @@ export const useNotificationPreference = ({
     mutationFn: muteNotification,
     onSuccess: (_, { referenceId, type }) => {
       client.setQueryData<NotificationPreference[]>(key, (oldData = []) => {
+        if (!user) {
+          return oldData;
+        }
+
+        const notificationType = notificationPreferenceMap[type];
+        if (!notificationType) {
+          return oldData;
+        }
+
         const preference: NotificationPreference = {
           referenceId,
           notificationType: type,
-          type: notificationPreferenceMap[type],
+          type: notificationType,
           userId: user.id,
           status: NotificationPreferenceStatus.Muted,
         };
@@ -107,10 +116,19 @@ export const useNotificationPreference = ({
     mutationFn: subscribeNotification,
     onSuccess: (_, { referenceId, type }) => {
       client.setQueryData<NotificationPreference[]>(key, (oldData = []) => {
+        if (!user) {
+          return oldData;
+        }
+
+        const notificationType = notificationPreferenceMap[type];
+        if (!notificationType) {
+          return oldData;
+        }
+
         const preference: NotificationPreference = {
           referenceId,
           notificationType: type,
-          type: notificationPreferenceMap[type],
+          type: notificationType,
           userId: user.id,
           status: NotificationPreferenceStatus.Subscribed,
         };
@@ -131,6 +149,10 @@ export const useNotificationPreference = ({
   const { mutateAsync: hideSourceFeedPostsAsync } = useMutation({
     mutationFn: hideSourceFeedPosts,
     onSuccess: () => {
+      if (!squad || !user) {
+        return;
+      }
+
       updateFlagsCache(client, squad, user, { hideFeedPosts: true });
     },
   });
@@ -138,19 +160,29 @@ export const useNotificationPreference = ({
   const { mutateAsync: showSourceFeedPostsAsync } = useMutation({
     mutationFn: showSourceFeedPosts,
     onSuccess: () => {
+      if (!squad || !user) {
+        return;
+      }
+
       updateFlagsCache(client, squad, user, { hideFeedPosts: false });
     },
   });
 
   return {
-    hideSourceFeedPosts: useCallback(
-      () => hideSourceFeedPostsAsync(squad?.id),
-      [hideSourceFeedPostsAsync, squad?.id],
-    ),
-    showSourceFeedPosts: useCallback(
-      () => showSourceFeedPostsAsync(squad?.id),
-      [showSourceFeedPostsAsync, squad?.id],
-    ),
+    hideSourceFeedPosts: useCallback(() => {
+      if (!squad?.id) {
+        return Promise.resolve();
+      }
+
+      return hideSourceFeedPostsAsync(squad.id);
+    }, [hideSourceFeedPostsAsync, squad]),
+    showSourceFeedPosts: useCallback(() => {
+      if (!squad?.id) {
+        return Promise.resolve();
+      }
+
+      return showSourceFeedPostsAsync(squad.id);
+    }, [showSourceFeedPostsAsync, squad]),
     isFetching: isPending,
     preferences: data,
     muteNotification: muteNotificationAsync,

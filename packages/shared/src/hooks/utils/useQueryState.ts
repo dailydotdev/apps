@@ -23,15 +23,15 @@ export const useQueryState = <T>({
   defaultValue,
 }: UseQueryStateProps<T>): UseQueryState<T> => {
   const client = useQueryClient();
-  const { data, ...rest } = useQuery<T>({
+  const { data = defaultValue, ...rest } = useQuery<T>({
     queryKey: key,
-    queryFn: () => client.getQueryData(key),
+    queryFn: () => client.getQueryData<T>(key) ?? defaultValue,
     ...disabledRefetch,
     initialData: defaultValue,
     staleTime: Infinity,
   });
   const setState = useCallback(
-    (value: T) => client.setQueryData(key, value),
+    (value: T) => client.setQueryData<T>(key, value),
     [client, key],
   );
 

@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
 import { PostWidgets } from './PostWidgets';
@@ -28,6 +29,8 @@ import { SmartPrompt } from './smartPrompts/SmartPrompt';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 
+type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
+
 export const SCROLL_OFFSET = 80;
 
 const PostCodeSnippets = dynamic(() =>
@@ -52,7 +55,7 @@ export function PostContentRaw({
   backToSquad,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement {
+}: PostContentRawProps): ReactElement {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -65,7 +68,7 @@ export function PostContentRaw({
   const { title } = useSmartTitle(post);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
-  const hasToc = post.toc?.length > 0;
+  const hasToc = (post.toc?.length ?? 0) > 0;
   const isCompactModalSpacing = !isPostPage;
   let metadataMarginClassName = 'mb-8';
   if (isVideoType) {
@@ -125,7 +128,7 @@ export function PostContentRaw({
         position === 'fixed'
           ? {
               ...navigationProps,
-              isBannerVisible,
+              isBannerVisible: !!isBannerVisible,
               className: {
                 ...className?.fixedNavigation,
                 container: classNames(
@@ -134,7 +137,7 @@ export function PostContentRaw({
                 ),
               },
             }
-          : null
+          : undefined
       }
     >
       <PostContainer
@@ -180,7 +183,7 @@ export function PostContentRaw({
           {isVideoType && (
             <YoutubeVideo
               placeholderProps={{ post, onWatchVideo: onReadArticle }}
-              videoId={post.videoId}
+              videoId={post.videoId ?? ''}
               className="mb-7"
             />
           )}
@@ -198,7 +201,8 @@ export function PostContentRaw({
             className={metadataClassName}
             domain={
               !isVideoType &&
-              post.domain?.length > 0 && (
+              post.domain &&
+              post.domain.length > 0 && (
                 <TruncateText>
                   From{' '}
                   <ArticleLink title={post.domain} className="hover:underline">

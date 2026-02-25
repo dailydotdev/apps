@@ -28,8 +28,12 @@ export function useSharePost(origin: Origin): UseSharePost {
   const postLogEvent = usePostLogEvent();
 
   const openSharePost = useCallback(
-    (props) => openModal({ type: LazyModal.Share, props }),
-    [openModal],
+    (props: FuncProps) =>
+      openModal({
+        type: LazyModal.Share,
+        props: { ...props, origin },
+      }),
+    [openModal, origin],
   );
 
   const copyLinkShare: UseSharePost['copyLink'] = useCallback(
