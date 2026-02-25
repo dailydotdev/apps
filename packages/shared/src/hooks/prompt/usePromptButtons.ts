@@ -32,7 +32,7 @@ export const usePromptButtons = ({
 
     let totalLength = offset;
 
-    return prompts.reduce((items, tag, index) => {
+    return prompts.reduce<Prompt[]>((items, tag, index) => {
       const baseWidth = base + gap;
       const minWidth = index === 0 ? base : baseWidth;
       const addition = tag.label.length * char + minWidth + iconSize;

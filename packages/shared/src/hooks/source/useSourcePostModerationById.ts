@@ -5,7 +5,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { getSourcePostModeration } from '../../graphql/posts';
 
 interface UseSourcePostModerationById {
-  moderated: SourcePostModeration;
+  moderated: SourcePostModeration | undefined;
   isLoading: boolean;
 }
 
@@ -21,7 +21,13 @@ export const useSourcePostModerationById = ({
   const { user } = useAuthContext();
   const { data, isLoading } = useQuery({
     queryKey: generateQueryKey(RequestKey.SourcePostModeration, user, id),
-    queryFn: () => getSourcePostModeration({ id }),
+    queryFn: () => {
+      if (!id) {
+        throw new Error('Source post moderation id is required');
+      }
+
+      return getSourcePostModeration({ id });
+    },
     enabled: !!id && enabled,
   });
 

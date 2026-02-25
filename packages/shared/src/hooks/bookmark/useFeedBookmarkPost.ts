@@ -48,6 +48,10 @@ export const useFeedBookmarkPost = ({
   const { toggleBookmark } = useBookmarkPost({
     mutationKey: feedQueryKey,
     onMutate: ({ id }) => {
+      if (!id) {
+        throw new Error('Bookmark mutation id is required');
+      }
+
       updatePostCache(queryClient, id, (post) => ({
         bookmarked: !post.bookmarked,
       }));

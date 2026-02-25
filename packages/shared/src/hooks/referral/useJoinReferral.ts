@@ -33,7 +33,7 @@ export const useJoinReferral = (): void => {
           id: referringUserId,
         });
 
-        refetchBoot();
+        refetchBoot?.();
       } catch (error) {
         if (
           (error as ApiErrorResult).response?.errors?.[0]?.message ===

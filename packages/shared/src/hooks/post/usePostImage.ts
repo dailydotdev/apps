@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { PostType } from '../../graphql/posts';
 import type { Post } from '../../graphql/posts';
 
-export const usePostImage = (post: Post): string =>
+export const usePostImage = (post: Post): string | undefined =>
   useMemo(() => {
     if (post?.type === PostType.SocialTwitter && post?.subType === 'thread') {
       return undefined;
@@ -15,10 +15,10 @@ export const usePostImage = (post: Post): string =>
     }
 
     const parser = new DOMParser();
-    const doc = parser.parseFromString(post?.contentHtml, 'text/html');
+    const doc = parser.parseFromString(post?.contentHtml ?? '', 'text/html');
     const imgTag = doc.querySelector('img');
     if (imgTag) {
-      return imgTag.getAttribute('src');
+      return imgTag.getAttribute('src') ?? undefined;
     }
 
     return undefined;

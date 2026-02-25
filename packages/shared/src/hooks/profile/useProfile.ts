@@ -6,7 +6,7 @@ import { disabledRefetch } from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 export function useProfile(initialUser?: PublicProfile): {
-  user: PublicProfile;
+  user: PublicProfile | undefined;
   userQueryKey: unknown[];
   isUserSame: boolean;
 } {
@@ -16,7 +16,13 @@ export function useProfile(initialUser?: PublicProfile): {
   });
   const { data: user } = useQuery({
     queryKey: userQueryKey,
-    queryFn: () => getProfile(initialUser?.id),
+    queryFn: () => {
+      if (!initialUser?.id) {
+        throw new Error('Initial user id is required');
+      }
+
+      return getProfile(initialUser.id);
+    },
     ...disabledRefetch,
     staleTime: StaleTime.OneHour,
     initialData: initialUser,
@@ -26,6 +32,6 @@ export function useProfile(initialUser?: PublicProfile): {
   return {
     user,
     userQueryKey,
-    isUserSame: loggedUser && loggedUser?.id === initialUser?.id,
+    isUserSame: !!loggedUser && loggedUser.id === initialUser?.id,
   };
 }

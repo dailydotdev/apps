@@ -31,7 +31,7 @@ export interface DevCardQueryData {
 }
 
 export interface UseDevCard {
-  devcard: DevCardData;
+  devcard?: DevCardData;
   isLoading: boolean;
   coverImage: string;
 }
@@ -41,10 +41,15 @@ export const useDevCard = (userId: string): UseDevCard => {
   const { data, isLoading } = useQuery<DevCardQueryData>({
     queryKey: generateQueryKey(RequestKey.DevCard, { id: userId }),
 
-    queryFn: async () =>
-      await requestMethod(DEV_CARD_QUERY, {
+    queryFn: async () => {
+      if (!requestMethod) {
+        throw new Error('Request method is required');
+      }
+
+      return requestMethod(DEV_CARD_QUERY, {
         id: userId,
-      }),
+      });
+    },
     staleTime: StaleTime.Default,
     enabled: !!userId,
   });
@@ -53,14 +58,16 @@ export const useDevCard = (userId: string): UseDevCard => {
 
   const { isProfileCover, user } = devCard ?? {};
   const coverImage =
-    (isProfileCover ? user.cover : undefined) ??
+    (isProfileCover ? user?.cover : undefined) ??
     cloudinaryDevcardDefaultCoverImage;
 
   return {
-    devcard: {
-      ...devCard,
-      streak: { ...userStreakProfile },
-    },
+    devcard: devCard
+      ? {
+          ...devCard,
+          streak: { max: userStreakProfile?.max ?? 0 },
+        }
+      : undefined,
     isLoading,
     coverImage,
   };

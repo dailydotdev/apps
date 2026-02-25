@@ -20,7 +20,7 @@ type UpdateReadingStreakConfig = {
 };
 
 interface UserReadingStreak {
-  streak: UserStreak;
+  streak?: UserStreak;
   isLoading: boolean;
   isUpdatingConfig: boolean;
   checkReadingStreak: () => void;
@@ -62,6 +62,10 @@ export const useReadingStreak = (): UserReadingStreak => {
     });
 
   const [clearQueries] = useDebounceFn(async () => {
+    if (!user) {
+      return;
+    }
+
     const hasReadToday =
       streak?.lastViewAt &&
       isSameDayInTimezone(

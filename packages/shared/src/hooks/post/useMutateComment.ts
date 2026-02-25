@@ -28,7 +28,7 @@ interface SubmitComment {
 }
 
 const generateCommentEdge = (comment: Comment): Edge<Comment> => ({
-  node: { ...comment, children: { edges: [], pageInfo: null } },
+  node: { ...comment, children: { edges: [], pageInfo: {} } },
 });
 
 interface UseMutateCommentProps {
@@ -45,6 +45,16 @@ interface UseMutateCommentProps {
 interface MutateCommentResult {
   comment?: Comment;
 }
+
+const hasResponse = (params: unknown): params is { res?: unknown } => {
+  return typeof params === 'object' && params !== null && 'res' in params;
+};
+
+const isMutateCommentResult = (
+  result: unknown,
+): result is MutateCommentResult => {
+  return typeof result === 'object' && result !== null && 'comment' in result;
+};
 
 export interface UseMutateCommentResult {
   mutateComment: (content: string) => Promise<MutateCommentResult>;
@@ -81,14 +91,11 @@ export const useMutateComment = ({
   );
 
   const onSuccess = (comment: Comment) => {
-    if (!comment) {
-      return;
+    if (!postId) {
+      throw new Error('Post id is required to update comments');
     }
 
     const updateQueryData = (data: PostCommentsData) => {
-      if (!data) {
-        return data;
-      }
       const copy = structuredClone(data);
 
       if (!editCommentId) {
@@ -99,10 +106,20 @@ export const useMutateComment = ({
           return copy;
         }
 
-        const index = copy.postComments.edges.findIndex(
+        const parentIndex = copy.postComments.edges.findIndex(
           ({ node }) => node.id === parentCommentId,
         );
-        copy.postComments.edges[index].node.children.edges.push(edge);
+        if (parentIndex === -1) {
+          return copy;
+        }
+
+        const parentComment = copy.postComments.edges[parentIndex].node;
+        const parentChildren = parentComment.children ?? {
+          edges: [],
+          pageInfo: {},
+        };
+        parentChildren.edges.push(edge);
+        parentComment.children = parentChildren;
 
         return copy;
       }
@@ -111,6 +128,10 @@ export const useMutateComment = ({
         const index = copy.postComments.edges.findIndex(
           ({ node }) => node.id === editCommentId,
         );
+        if (index === -1) {
+          return copy;
+        }
+
         copy.postComments.edges[index].node = {
           ...comment,
           children: copy.postComments.edges[index].node.children,
@@ -121,23 +142,36 @@ export const useMutateComment = ({
       const parent = copy.postComments.edges.find(
         ({ node }) => node.id === parentCommentId,
       );
-      const index = parent.node.children.edges.findIndex(
+      if (!parent) {
+        return copy;
+      }
+
+      const parentChildren = parent.node.children ?? {
+        edges: [],
+        pageInfo: {},
+      };
+      const index = parentChildren.edges.findIndex(
         ({ node }) => node.id === editCommentId,
       );
-      parent.node.children.edges[index].node = {
+      if (index === -1) {
+        return copy;
+      }
+
+      parentChildren.edges[index].node = {
         ...comment,
-        children: parent.node.children,
+        children: parentChildren,
       };
+      parent.node.children = parentChildren;
       return copy;
     };
 
-    const forInvalidation = [];
+    const forInvalidation: Array<ReturnType<typeof generateQueryKey>> = [];
 
     getAllCommentsQuery(postId).forEach((queryKey) => {
       client.setQueryData<PostCommentsData>(queryKey, (data) => {
         if (!data) {
           forInvalidation.push(queryKey);
-          return null;
+          return undefined;
         }
 
         return updateQueryData(data);
@@ -149,7 +183,13 @@ export const useMutateComment = ({
     });
 
     if (!editCommentId) {
-      updatePostCache(client, postId, { numComments: post.numComments + 1 });
+      if (!post) {
+        throw new Error('Post data is required to update comment count');
+      }
+
+      updatePostCache(client, postId, {
+        numComments: (post.numComments ?? 0) + 1,
+      });
 
       logEvent(
         postLogEvent(LogEvent.CommentPost, post, {
@@ -159,9 +199,7 @@ export const useMutateComment = ({
       );
     }
 
-    if (onCommented) {
-      onCommented(comment, !editCommentId, parentCommentId);
-    }
+    onCommented?.(comment, !editCommentId, parentCommentId);
   };
 
   const mutation = parentCommentId
@@ -172,17 +210,38 @@ export const useMutateComment = ({
     isPending: isCommenting,
     isSuccess,
   } = useMutation<MutateCommentResult, unknown, SubmitComment>({
-    mutationFn: (variables) =>
-      requestMethod(mutation, variables, {
-        requestKey: JSON.stringify(key),
-      }),
+    mutationFn: (variables) => {
+      if (!requestMethod) {
+        throw new Error('Request method is required to create comments');
+      }
 
-    onSuccess: (data) => onSuccess(data?.comment),
+      return requestMethod(mutation, variables, {
+        requestKey: JSON.stringify(key),
+      });
+    },
+
+    onSuccess: (data) => {
+      if (!data?.comment) {
+        throw new Error('Comment mutation must return a comment');
+      }
+
+      onSuccess(data.comment);
+    },
   });
 
   useBackgroundRequest(key, {
     enabled: isCompanion,
-    callback: ({ res }) => onSuccess(res?.comment),
+    callback: (params) => {
+      if (!hasResponse(params)) {
+        return;
+      }
+
+      if (!isMutateCommentResult(params.res) || !params.res.comment) {
+        return;
+      }
+
+      onSuccess(params.res.comment);
+    },
   });
 
   const { mutateAsync: editComment, isPending: isEditing } = useMutation<
@@ -190,18 +249,33 @@ export const useMutateComment = ({
     unknown,
     SubmitComment
   >({
-    mutationFn: (variables) =>
-      requestMethod(EDIT_COMMENT_MUTATION, variables, {
-        requestKey: JSON.stringify(key),
-      }),
+    mutationFn: (variables) => {
+      if (!requestMethod) {
+        throw new Error('Request method is required to edit comments');
+      }
 
-    onSuccess: (data) => onSuccess(data?.comment),
+      return requestMethod(EDIT_COMMENT_MUTATION, variables, {
+        requestKey: JSON.stringify(key),
+      });
+    },
+
+    onSuccess: (data) => {
+      if (!data?.comment) {
+        throw new Error('Edit comment mutation must return a comment');
+      }
+
+      onSuccess(data.comment);
+    },
   });
 
   const onSubmit = useCallback(
     (content: string) => {
       if (editCommentId) {
         return editComment({ id: editCommentId, content });
+      }
+
+      if (!parentOrPostId) {
+        throw new Error('Parent or post id is required to submit a comment');
       }
 
       return onComment({ content, id: parentOrPostId });

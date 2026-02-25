@@ -47,9 +47,9 @@ interface Params {
   unblocks: string[];
 }
 
-const getParams = (tags: BlockTagSelection): Params => {
-  const blocks = [];
-  const unblocks = [];
+const getParams = (tags?: BlockTagSelection): Params => {
+  const blocks: string[] = [];
+  const unblocks: string[] = [];
 
   if (tags) {
     Object.entries(tags).forEach(([tag, shouldBlock]) => {
@@ -82,28 +82,29 @@ export const useBlockPostPanel = (
   const key = generateQueryKey(RequestKey.Post, user, `block:${post?.id}`);
   const { data } = useQuery<BlockData>({
     queryKey: key,
-    queryFn: () => client.getQueryData(key),
+    queryFn: () => client.getQueryData<BlockData>(key) ?? {},
     initialData: {},
     ...disabledRefetch,
   });
   const setShowTagsPanel = useCallback(
     (params: BlockData) =>
       client.setQueryData<BlockData>(key, (current) => ({
-        ...current,
+        ...(current ?? {}),
         ...params,
       })),
     [client, key],
   );
 
-  const value = useMemo<BlockData>(
-    () => ({
-      ...data,
+  const value = useMemo<BlockData>(() => {
+    const dataValue = data ?? {};
+
+    return {
+      ...dataValue,
       showTagsPanel: checkHasCompleted(ActionType.HideBlockPanel)
         ? undefined
-        : data?.showTagsPanel,
-    }),
-    [data, checkHasCompleted],
-  );
+        : dataValue.showTagsPanel,
+    };
+  }, [data, checkHasCompleted]);
 
   const updateFeedPreferences = useCallback(
     async (
@@ -114,13 +115,21 @@ export const useBlockPostPanel = (
       const onUpdateSource = shouldBlockSource
         ? onBlockSource
         : onUnblockSource;
+      const shouldUpdateSource = !isNullOrUndefined(shouldBlockSource);
+      const { source } = post;
+      if (shouldUpdateSource && !source) {
+        throw new Error('Post source is required to update source preferences');
+      }
+
+      const sourceUpdatePromise =
+        shouldUpdateSource && source
+          ? onUpdateSource({ source })
+          : ignoredCall();
 
       const results = await Promise.all([
         blocks.length ? onBlockTags({ tags: blocks }) : ignoredCall(),
         unblocks.length ? onUnblockTags({ tags: unblocks }) : ignoredCall(),
-        isNullOrUndefined(shouldBlockSource)
-          ? ignoredCall()
-          : onUpdateSource({ source: post.source }),
+        sourceUpdatePromise,
       ]);
 
       return results.every(({ successful }) => successful);
@@ -185,7 +194,7 @@ export const useBlockPostPanel = (
   }, [openModal, setShowTagsPanel, post]);
 
   const onBlock = useCallback(
-    async (tags, shouldBlockSource) => {
+    async (tags: BlockTagSelection, shouldBlockSource: boolean) => {
       const { blocks } = getParams(tags);
       const hasChangedPreference = blockedSource !== shouldBlockSource;
       const successful = await updateFeedPreferences(
@@ -237,7 +246,7 @@ export const useBlockPostPanel = (
 
   const onUndoPanel = useCallback(() => {
     const { blocked = {} } = value;
-    const { blocks } = getParams(blocked.tags);
+    const { blocks } = getParams(blocked?.tags);
 
     return onUndo(
       blocks,
@@ -249,7 +258,7 @@ export const useBlockPostPanel = (
 
   return {
     data: value,
-    blockedTags: getBlockedLength(value?.blocked),
+    blockedTags: getBlockedLength(value?.blocked ?? {}),
     onClose,
     onShowPanel,
     onDismissPermanently,

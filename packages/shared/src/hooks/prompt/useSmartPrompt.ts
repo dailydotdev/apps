@@ -29,7 +29,7 @@ export const useSmartPrompt = ({
   prompt: Prompt;
 }): {
   executePrompt: (value: string) => Promise<void>;
-  data: Search;
+  data: Search | undefined;
   isPending: boolean;
 } => {
   const { user, accessToken } = useAuthContext();
@@ -65,9 +65,13 @@ export const useSmartPrompt = ({
       }
 
       const setSearchQuery = (chunk: Partial<SearchChunk>) => {
-        client.setQueryData<Search>(queryKey, (previous) =>
-          updateSearchData(previous, chunk),
-        );
+        client.setQueryData<Search | undefined>(queryKey, (previous) => {
+          if (!previous) {
+            return previous;
+          }
+
+          return updateSearchData(previous, chunk);
+        });
       };
 
       const onMessage = (event: MessageEvent) => {
@@ -82,7 +86,7 @@ export const useSmartPrompt = ({
               initializeSearchSession({
                 ...payload,
                 createdAt: new Date(),
-                status: messageData.status,
+                status: messageData.status ?? '',
                 prompt: value,
               }),
             );
@@ -112,7 +116,8 @@ export const useSmartPrompt = ({
             const errorPayload = messageData.payload as SearchChunkError;
             const message =
               errorPayload.message ||
-              searchErrorCodeToMessage[errorPayload.code];
+              searchErrorCodeToMessage[errorPayload.code] ||
+              'Unexpected error';
 
             setSearchQuery({
               error: { ...errorPayload, message },
@@ -131,9 +136,13 @@ export const useSmartPrompt = ({
         }
       };
 
+      if (!accessToken?.token) {
+        return;
+      }
+
       const source = await sendSmartPromptQuery({
         query: value,
-        token: accessToken?.token,
+        token: accessToken.token,
         post,
       });
       source.addEventListener('message', onMessage);

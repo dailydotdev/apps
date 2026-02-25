@@ -40,8 +40,13 @@ export const useSyncUploader = ({
           return;
         }
 
+        const nextFile = filesRef.current.pop();
+        if (!nextFile) {
+          return;
+        }
+
         setUploadedCount(uploadedCount + 1);
-        uploadImage(filesRef.current.pop());
+        uploadImage(nextFile);
       });
   };
 
@@ -53,7 +58,12 @@ export const useSyncUploader = ({
     setQueueCount(filesRef.current.length);
 
     if (!queueCount) {
-      uploadImage(filesRef.current.pop());
+      const nextFile = filesRef.current.pop();
+      if (!nextFile) {
+        return;
+      }
+
+      uploadImage(nextFile);
     }
   };
 

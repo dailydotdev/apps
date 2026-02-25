@@ -29,7 +29,7 @@ export type UseRelatedPostsProps = {
 type RelatedPostsQueryData = Connection<RelatedPost>;
 
 export type UseRelatedPosts = {
-  relatedPosts: InfiniteData<RelatedPostsQueryData>;
+  relatedPosts?: InfiniteData<RelatedPostsQueryData>;
   isLoading: boolean;
   hasNextPage: boolean;
   fetchNextPage: UseInfiniteQueryResult['fetchNextPage'];
@@ -51,11 +51,15 @@ export const useRelatedPosts = ({
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: generateQueryKey(RequestKey.RelatedPosts, null, {
+    queryKey: generateQueryKey(RequestKey.RelatedPosts, undefined, {
       id: postId,
       type: relationType,
     }),
     queryFn: async ({ pageParam }) => {
+      if (!requestMethod) {
+        throw new Error('Request method is required to fetch related posts');
+      }
+
       const result = await requestMethod<{
         relatedPosts: RelatedPostsQueryData;
       }>(RELATED_POSTS_QUERY, {
@@ -70,15 +74,13 @@ export const useRelatedPosts = ({
     initialPageParam: '',
     enabled: !!postId,
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
-    select: useCallback((data) => {
-      if (!data) {
-        return undefined;
-      }
-
+    select: useCallback((data: InfiniteData<RelatedPostsQueryData>) => {
       return {
         ...data,
         // filter out last page with no edges returned by api paginator
-        pages: data.pages.filter((pageItem) => !!pageItem?.edges.length),
+        pages: data.pages.filter((pageItem: RelatedPostsQueryData) =>
+          Boolean(pageItem?.edges.length),
+        ),
       };
     }, []),
     staleTime: StaleTime.Default,
@@ -103,7 +105,7 @@ export const useRelatedPosts = ({
   return {
     relatedPosts,
     isLoading,
-    hasNextPage,
+    hasNextPage: !!hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
   };

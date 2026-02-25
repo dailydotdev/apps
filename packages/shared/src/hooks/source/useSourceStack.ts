@@ -24,11 +24,21 @@ export function useSourceStack(squad: Squad | null) {
     ? verifyPermission(squad, SourcePermissionsEnum.Edit)
     : false;
 
-  const queryKey = generateQueryKey(RequestKey.SourceStack, null, squad?.id);
+  const queryKey = generateQueryKey(
+    RequestKey.SourceStack,
+    undefined,
+    squad?.id,
+  );
 
   const query = useQuery({
     queryKey,
-    queryFn: () => getSourceStack(squad?.id as string),
+    queryFn: () => {
+      if (!squad?.id) {
+        throw new Error('Squad id is required');
+      }
+
+      return getSourceStack(squad.id);
+    },
     staleTime: StaleTime.Default,
     enabled: !!squad?.id,
   });
@@ -44,8 +54,13 @@ export function useSourceStack(squad: Squad | null) {
   }, [queryClient, queryKey]);
 
   const addMutation = useMutation({
-    mutationFn: (input: AddSourceStackInput) =>
-      addSourceStack(squad?.id as string, input),
+    mutationFn: (input: AddSourceStackInput) => {
+      if (!squad?.id) {
+        throw new Error('Squad id is required');
+      }
+
+      return addSourceStack(squad.id, input);
+    },
     onSuccess: invalidateQuery,
   });
 
@@ -66,8 +81,13 @@ export function useSourceStack(squad: Squad | null) {
   });
 
   const reorderMutation = useMutation({
-    mutationFn: (items: ReorderSourceStackInput[]) =>
-      reorderSourceStack(squad?.id as string, items),
+    mutationFn: (items: ReorderSourceStackInput[]) => {
+      if (!squad?.id) {
+        throw new Error('Squad id is required');
+      }
+
+      return reorderSourceStack(squad.id, items);
+    },
     onSuccess: invalidateQuery,
   });
 

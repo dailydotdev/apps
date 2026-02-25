@@ -20,7 +20,7 @@ export const DATE_SINCE_ACTIONS_REQUIRED = new Date('2025-01-20');
 export const useOnboardingActions = (): UseOnboarding => {
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { isAuthReady, user } = useAuthContext();
-  const shouldShowAuthBanner = isAuthReady && !user;
+  const shouldShowAuthBanner = !!isAuthReady && !user;
 
   /*
     This is the date that completing the onboarding became required.
@@ -28,7 +28,10 @@ export const useOnboardingActions = (): UseOnboarding => {
   */
   const registeredBeforeRequired = useMemo(
     () =>
-      user?.createdAt && new Date(user.createdAt) < DATE_SINCE_ACTIONS_REQUIRED,
+      !!(
+        user?.createdAt &&
+        new Date(user.createdAt) < DATE_SINCE_ACTIONS_REQUIRED
+      ),
     [user?.createdAt],
   );
 
@@ -44,7 +47,7 @@ export const useOnboardingActions = (): UseOnboarding => {
 
   return {
     shouldShowAuthBanner,
-    isOnboardingActionsReady: isActionsFetched && isAuthReady,
+    isOnboardingActionsReady: !!isActionsFetched && !!isAuthReady,
     isOnboardingComplete,
     completeStep: (action: ActionType) => completeAction(action),
   };

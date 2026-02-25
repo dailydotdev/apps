@@ -42,10 +42,14 @@ export const usePostCodeSnippetsQuery = ({
   const enabled = !!postId;
 
   const queryResult = useInfiniteQuery({
-    queryKey: generateQueryKey(RequestKey.PostCodeSnippets, null, {
+    queryKey: generateQueryKey(RequestKey.PostCodeSnippets, undefined, {
       id: postId,
     }),
     queryFn: async ({ pageParam }) => {
+      if (!postId) {
+        throw new Error('Post id is required to fetch code snippets');
+      }
+
       const result = await gqlClient.request<{
         postCodeSnippets: UsePostCodeSnippetsData;
       }>(POST_CODE_SNIPPETS_QUERY, {
@@ -64,15 +68,13 @@ export const usePostCodeSnippetsQuery = ({
         ? queryOptions.enabled && enabled
         : enabled,
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
-    select: useCallback((data) => {
-      if (!data) {
-        return undefined;
-      }
-
+    select: useCallback((data: InfiniteData<UsePostCodeSnippetsData>) => {
       return {
         ...data,
         // filter out last page with no edges returned by api paginator
-        pages: data.pages.filter((pageItem) => !!pageItem?.edges.length),
+        pages: data.pages.filter((pageItem: UsePostCodeSnippetsData) =>
+          Boolean(pageItem?.edges.length),
+        ),
       };
     }, []),
   });

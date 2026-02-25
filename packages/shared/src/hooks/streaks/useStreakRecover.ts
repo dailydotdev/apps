@@ -92,6 +92,10 @@ export const useStreakRecover = ({
       });
 
       if (data.balance) {
+        if (!user) {
+          throw new Error('User is required to update streak recovery balance');
+        }
+
         updateUser({
           ...user,
           balance: data.balance,
@@ -111,6 +115,10 @@ export const useStreakRecover = ({
             UserTransactionStatus.InsufficientFunds &&
           errorExtensions.extensions.balance
         ) {
+          if (!user) {
+            throw new Error('User is required to update insufficient balance');
+          }
+
           await updateUser({
             ...user,
             balance: errorExtensions.extensions.balance,
@@ -121,6 +129,10 @@ export const useStreakRecover = ({
   });
 
   const hideRemoteAlert = useCallback(async () => {
+    if (!updateAlerts) {
+      throw new Error('Alert updater is required to hide remote streak alerts');
+    }
+
     await updateAlerts({
       showRecoverStreak: false,
     });
@@ -167,6 +179,14 @@ export const useStreakRecover = ({
 
   const onRecover = useCallback(async () => {
     try {
+      if (!user) {
+        throw new Error('User is required to recover streak');
+      }
+
+      if (!data?.streakRecover) {
+        throw new Error('Streak recover data is required');
+      }
+
       if (user.balance.amount < data.streakRecover.cost) {
         const searchParams = new URLSearchParams();
         searchParams.set('origin', Origin.StreakRecover);
@@ -190,12 +210,12 @@ export const useStreakRecover = ({
 
     await onClose?.();
   }, [
-    data?.streakRecover?.cost,
+    data?.streakRecover,
     displayToast,
     onClose,
     recoverMutation,
     router,
-    user?.balance?.amount,
+    user,
   ]);
 
   useEffect(() => {
@@ -218,7 +238,9 @@ export const useStreakRecover = ({
     onClose,
     onRecover,
     recover: {
-      ...data?.streakRecover,
+      canRecover: data?.streakRecover?.canRecover ?? false,
+      cost: data?.streakRecover?.cost ?? 0,
+      oldStreakLength: data?.streakRecover?.oldStreakLength ?? 0,
       isLoading,
       isRecoverPending: recoverMutation.isPending,
     },

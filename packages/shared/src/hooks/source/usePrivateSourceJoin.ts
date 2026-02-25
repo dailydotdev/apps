@@ -26,6 +26,11 @@ export const usePrivateSourceJoin = ({
   const squadJoinToken = router.query?.jt as string;
   const sourceId = router.query?.source as string;
   const sourceType = router.query?.type as string;
+  const sourceTypeValue = Object.values(SourceType).includes(
+    sourceType as SourceType,
+  )
+    ? (sourceType as SourceType)
+    : undefined;
   const { isAuthReady, squads } = useAuthContext();
   const isSourceMember = useMemo(() => {
     if (sourceType !== SourceType.Squad) {
@@ -42,6 +47,7 @@ export const usePrivateSourceJoin = ({
   const isActive = !!(
     squadJoinToken &&
     sourceId &&
+    sourceTypeValue &&
     isAuthReady &&
     !isSourceMember
   );
@@ -62,11 +68,11 @@ export const usePrivateSourceJoin = ({
 
     router.replace(
       getPathnameWithQuery(
-        `${webappUrl}${sourceTypeToPage[sourceType]}/${sourceId}/${squadJoinToken}`,
+        `${webappUrl}${sourceTypeToPage[sourceTypeValue]}/${sourceId}/${squadJoinToken}`,
         searchParams,
       ),
     );
-  }, [squadJoinToken, sourceId, sourceType, router, postId, isActive]);
+  }, [squadJoinToken, sourceId, sourceTypeValue, router, postId, isActive]);
 
   return { isActive };
 };

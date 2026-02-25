@@ -7,5 +7,5 @@ export interface CommentWriteProps {
 }
 
 export interface CommentWrite {
-  inputProps: Partial<CommentMarkdownInputProps>;
+  inputProps: Partial<CommentMarkdownInputProps> | null;
 }

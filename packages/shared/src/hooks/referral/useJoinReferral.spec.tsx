@@ -12,8 +12,14 @@ import { GET_REFERRING_USER_QUERY } from '../../graphql/users';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 
 describe('useJoinReferral hook', () => {
-  const createWrapper = ({ user = null, client = new QueryClient() }) => {
-    const Wrapper = ({ children }) => (
+  const createWrapper = ({
+    user = undefined,
+    client = new QueryClient(),
+  }: {
+    user?: typeof defaultUser;
+    client?: QueryClient;
+  }) => {
+    const Wrapper = ({ children }: React.PropsWithChildren) => (
       <QueryClientProvider client={client}>
         <AuthContextProvider
           user={user}

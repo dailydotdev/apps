@@ -52,6 +52,10 @@ const useReferralCampaign = ({
   const { data, isSuccess, fetchStatus } = useQuery({
     queryKey,
     queryFn: async () => {
+      if (!requestMethod) {
+        throw new Error('Request method is required');
+      }
+
       const result = await requestMethod<{
         referralCampaign: ReferralCampaign;
       }>(
@@ -68,8 +72,8 @@ const useReferralCampaign = ({
   const {
     referralCountLimit = 0,
     referredUsersCount = 0,
-    referralToken,
-    url,
+    referralToken = '',
+    url = '',
   } = data ?? {};
   const referralCurrentCount =
     referredUsersCount > referralCountLimit

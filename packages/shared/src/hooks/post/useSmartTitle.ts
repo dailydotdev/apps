@@ -27,6 +27,21 @@ type UseSmartTitle = {
   shieldActive: boolean;
 };
 
+const hasGraphqlErrorMessage = (
+  error: unknown,
+): error is { response: { errors: Array<{ message?: string }> } } => {
+  if (typeof error !== 'object' || !error || !('response' in error)) {
+    return false;
+  }
+
+  const { response } = error;
+  if (typeof response !== 'object' || !response || !('errors' in response)) {
+    return false;
+  }
+
+  return Array.isArray(response.errors);
+};
+
 export const useSmartTitle = (post: Post): UseSmartTitle => {
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
@@ -70,6 +85,10 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
         });
 
         if (!isPlus) {
+          if (!user) {
+            throw new Error('User is required to update smart title tries');
+          }
+
           await updateUser({
             ...user,
             clickbaitTries: (Number(user.clickbaitTries) || 0) + 1,
@@ -79,9 +98,10 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
 
         return data.fetchSmartTitle;
       } catch (error) {
-        displayToast(
-          error.response?.errors?.[0].message || labels.error.generic,
-        );
+        const message = hasGraphqlErrorMessage(error)
+          ? error.response.errors?.[0]?.message
+          : undefined;
+        displayToast(message || labels.error.generic);
       }
 
       return titleRecord;
@@ -153,17 +173,21 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
       : post?.title || post?.sharedPost?.title;
   }, [fetchedSmartTitle, smartTitle, post?.title, post?.sharedPost?.title]);
 
+  const fetchedSmartTitleValue = fetchedSmartTitle ?? false;
+  const smartTitleValue = title ?? '';
+  const clickbaitShieldEnabledValue = !!clickbaitShieldEnabled;
+
   const shieldActive = useMemo(() => {
     return (
-      (clickbaitShieldEnabled && !fetchedSmartTitle) ||
-      (!clickbaitShieldEnabled && fetchedSmartTitle)
+      (clickbaitShieldEnabledValue && !fetchedSmartTitleValue) ||
+      (!clickbaitShieldEnabledValue && fetchedSmartTitleValue)
     );
-  }, [clickbaitShieldEnabled, fetchedSmartTitle]);
+  }, [clickbaitShieldEnabledValue, fetchedSmartTitleValue]);
 
   return {
     fetchSmartTitle,
-    title,
-    fetchedSmartTitle,
+    title: smartTitleValue,
+    fetchedSmartTitle: fetchedSmartTitleValue,
     shieldActive,
   };
 };

@@ -40,10 +40,6 @@ export const useSignBack = (): UseSignBack => {
         );
       }
 
-      if (isNullOrUndefined(user)) {
-        return setSignBack(undefined);
-      }
-
       const { name, email, image } = user;
       return setSignBack({ name, email, image });
     },

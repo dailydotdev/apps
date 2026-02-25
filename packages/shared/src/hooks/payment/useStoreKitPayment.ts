@@ -59,17 +59,18 @@ export const useStoreKitPayment = ({
         const item = products?.find(
           ({ priceId }) => priceId === product?.attributes?.offerName,
         );
+        const offer = product?.attributes?.offers?.[0];
         switch (name) {
           case PurchaseEventName.PurchaseCompleted:
             eventLoggerRef.current({
               event_name: LogEvent.CompleteCheckout,
               target_type: targetType,
               extra: JSON.stringify({
-                quantity: item.metadata.coresValue,
+                quantity: item?.metadata?.coresValue,
                 user_id: user?.id,
-                cycle: item.duration,
-                localCost: product.attributes.offers[0].price,
-                localCurrency: product.attributes.offers[0].currencyCode,
+                cycle: item?.duration,
+                localCost: offer?.price,
+                localCurrency: offer?.currencyCode,
                 payment: SubscriptionProvider.AppleStoreKit,
               }),
             });
@@ -105,7 +106,10 @@ export const useStoreKitPayment = ({
     );
 
     return () => {
-      globalThis?.eventControllers?.[eventName]?.abort();
+      const runtimeWindow = globalThis as unknown as Window & {
+        eventControllers?: Record<string, AbortController | null>;
+      };
+      runtimeWindow.eventControllers?.[eventName]?.abort();
     };
   }, [displayToast, products, targetType, user?.id]);
 

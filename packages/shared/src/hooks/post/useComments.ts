@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { isNullOrUndefined } from '../../lib/func';
 import { useLogContext } from '../../contexts/LogContext';
 import { useActiveFeedContext } from '../../contexts';
 import { postLogEvent } from '../../lib/feed';
@@ -15,7 +14,7 @@ interface ReplyTo extends CommentWriteProps {
 
 interface UseComments extends CommentWrite {
   commentId: string;
-  onReplyTo: (params: ReplyTo) => void;
+  onReplyTo: (params?: ReplyTo | null) => void;
 }
 
 export const getReplyToInitialContent = (
@@ -26,7 +25,7 @@ export const useComments = (post: Post): UseComments => {
   const { logEvent } = useLogContext();
   const { logOpts } = useActiveFeedContext();
   const { user, showLogin } = useAuthContext();
-  const [replyTo, setReplyTo] = useState<ReplyTo>(null);
+  const [replyTo, setReplyTo] = useState<ReplyTo | null>(null);
 
   const inputProps = useMemo(() => {
     if (!replyTo) {
@@ -43,12 +42,12 @@ export const useComments = (post: Post): UseComments => {
   }, [replyTo]);
 
   const onReplyTo = useCallback(
-    (params: ReplyTo) => {
+    (params?: ReplyTo | null) => {
       if (!user) {
         return showLogin({ trigger: AuthTriggers.Comment });
       }
 
-      if (!isNullOrUndefined(params)) {
+      if (params) {
         logEvent(
           postLogEvent(LogEvent.OpenComment, post, {
             extra: { origin: Origin.PostCommentButton },
@@ -62,7 +61,7 @@ export const useComments = (post: Post): UseComments => {
       }
 
       if (params.username === user.username) {
-        return setReplyTo({ ...params, username: null });
+        return setReplyTo({ ...params, username: '' });
       }
 
       return setReplyTo(params);
@@ -73,6 +72,6 @@ export const useComments = (post: Post): UseComments => {
   return {
     onReplyTo,
     inputProps,
-    commentId: replyTo?.commentId,
+    commentId: replyTo?.commentId ?? '',
   };
 };

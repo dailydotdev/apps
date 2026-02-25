@@ -18,13 +18,19 @@ export const useViewPost = (): UseMutateAsyncFunction<
   const { mutateAsync: onSendViewPost } = useMutation({
     mutationFn: sendViewPost,
     onSuccess: async () => {
+      if (!user) {
+        return;
+      }
+
       const streak = client.getQueryData<UserStreak>(streakKey);
       const isNewStreak = !streak?.lastViewAt;
-      const isFirstViewToday = !isSameDayInTimezone(
-        new Date(streak?.lastViewAt),
-        new Date(),
-        user.timezone,
-      );
+      const isFirstViewToday =
+        !!streak?.lastViewAt &&
+        !isSameDayInTimezone(
+          new Date(streak.lastViewAt),
+          new Date(),
+          user.timezone,
+        );
 
       if (isNewStreak || isFirstViewToday) {
         await client.refetchQueries({ queryKey: streakKey });
@@ -32,8 +38,6 @@ export const useViewPost = (): UseMutateAsyncFunction<
         // just mark the query as stale
         await client.invalidateQueries({ queryKey: readKey });
       }
-
-      return null;
     },
   });
 
