@@ -19,7 +19,7 @@ import {
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
+import { downloadBrowserExtension, mobileAppUrl } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
@@ -233,6 +233,18 @@ type GithubImportPhase =
   | 'finishing'
   | 'complete';
 type ImportFlowSource = 'github' | 'ai';
+type LiveFloater = {
+  id: string;
+  left: number;
+  top: number;
+  text: string;
+  color: string;
+  x: string;
+  y: string;
+  scale: string;
+  rot: string;
+  delay: number;
+};
 
 const AI_IMPORT_STEPS = [
   { label: 'Analyzing your profile', threshold: 12 },
@@ -394,6 +406,7 @@ const OnboardingV2Page = (): ReactElement => {
   const [signupContext, setSignupContext] = useState<
     'topics' | 'github' | 'ai' | 'manual' | null
   >(null);
+  const [liveFloaters, setLiveFloaters] = useState<LiveFloater[]>([]);
   const didSetSidebarDefault = useRef(false);
   const panelSentinelRef = useRef<HTMLDivElement>(null);
   const panelStageRef = useRef<HTMLDivElement>(null);
@@ -788,7 +801,8 @@ const OnboardingV2Page = (): ReactElement => {
     const mutationObserver = new MutationObserver(() => {
       observeFeedArticles();
     });
-    mutationObserver.observe(document.body, {
+    const feedContainer = document.querySelector('.onb-feed-stage') ?? document.body;
+    mutationObserver.observe(feedContainer, {
       childList: true,
       subtree: true,
     });
@@ -915,33 +929,29 @@ const OnboardingV2Page = (): ReactElement => {
 
       // Emit multiple overlapping floaters so engagement feels continuous.
       const wrapperEl = wrapper as HTMLElement;
-      wrapperEl.style.position = 'relative';
-      wrapperEl.style.overflow = 'visible';
+      const rect = wrapperEl.getBoundingClientRect();
       const burstCount = 2 + Math.floor(Math.random() * 2);
       const tickLabel = `+${increment}`;
 
-      for (let i = 0; i < burstCount; i++) {
-        const floater = document.createElement('span');
-        floater.className = 'onb-live-tick';
-        floater.textContent = tickLabel;
-        floater.style.color = color;
-        floater.style.setProperty(
-          '--onb-live-x',
-          `${(Math.random() - 0.5) * 1.9}rem`,
-        );
-        floater.style.setProperty(
-          '--onb-live-y',
-          `${1.2 + Math.random() * 1.1}rem`,
-        );
-        floater.style.setProperty(
-          '--onb-live-scale',
-          `${1 + Math.random() * 0.45}`,
-        );
-        floater.style.setProperty('--onb-live-rot', `${(Math.random() - 0.5) * 14}deg`);
-        floater.style.setProperty('--onb-live-delay', `${i * 130}ms`);
-        wrapperEl.appendChild(floater);
-        setTimeout(() => floater.remove(), 1800 + i * 130);
-      }
+      const newFloaters: LiveFloater[] = Array.from({ length: burstCount }, (_, i) => ({
+        id: `floater-${Date.now()}-${i}`,
+        left: rect.right - 10,
+        top: rect.top - 3,
+        text: tickLabel,
+        color,
+        x: `${(Math.random() - 0.5) * 1.9}rem`,
+        y: `${1.2 + Math.random() * 1.1}rem`,
+        scale: `${1 + Math.random() * 0.45}`,
+        rot: `${(Math.random() - 0.5) * 14}deg`,
+        delay: i * 130,
+      }));
+
+      setLiveFloaters((prev) => [...prev, ...newFloaters]);
+      newFloaters.forEach((f, i) => {
+        setTimeout(() => {
+          setLiveFloaters((prev) => prev.filter((fl) => fl.id !== f.id));
+        }, 1800 + i * 130);
+      });
     };
 
     const tick = () => {
@@ -1077,7 +1087,6 @@ const OnboardingV2Page = (): ReactElement => {
   }, [canStartAiFlow, startAiProcessing]);
 
   const panelLift = Math.round(panelStageProgress * 60);
-  const panelBackdropOpacity = 1;
   const panelRevealOffset = panelVisible ? 40 : 120;
   const importSteps = useMemo(
     () => (importFlowSource === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS),
@@ -1483,7 +1492,7 @@ const OnboardingV2Page = (): ReactElement => {
               {/* Get mobile app */}
               <button
                 type="button"
-                onClick={() => window.open('https://app.daily.dev', '_blank', 'noopener,noreferrer')}
+                onClick={() => window.open(mobileAppUrl, '_blank', 'noopener,noreferrer')}
                 className="group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200 hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 text-accent-onion-default">
@@ -1554,11 +1563,11 @@ const OnboardingV2Page = (): ReactElement => {
             {/* Dark gradient overlay — fades feed out progressively */}
             <div
               className="onb-panel-fade pointer-events-none absolute inset-x-0 -top-[18rem] h-[40rem] bg-gradient-to-b from-background-default/0 via-background-default to-background-default transition-opacity duration-300"
-              style={{ opacity: panelVisible ? panelBackdropOpacity : 0 }}
+              style={{ opacity: panelVisible ? 1 : 0 }}
             />
             <div
               className="pointer-events-none absolute inset-x-0 bottom-[-12rem] h-[28rem] bg-background-default transition-opacity duration-300"
-              style={{ opacity: panelVisible ? panelBackdropOpacity : 0 }}
+              style={{ opacity: panelVisible ? 1 : 0 }}
             />
 
             <div
@@ -2267,8 +2276,8 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── AI ICON GLOW ─── */
         @keyframes onb-ai-shimmer {
-          0%, 100% { box-shadow: 0 0 8px rgba(168,85,247,0.15), 0 0 20px rgba(168,85,247,0.05); }
-          50% { box-shadow: 0 0 14px rgba(168,85,247,0.25), 0 0 32px rgba(168,85,247,0.10); }
+          0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--theme-accent-onion-default) 15%, transparent), 0 0 20px color-mix(in srgb, var(--theme-accent-onion-default) 5%, transparent); }
+          50% { box-shadow: 0 0 14px color-mix(in srgb, var(--theme-accent-onion-default) 25%, transparent), 0 0 32px color-mix(in srgb, var(--theme-accent-onion-default) 10%, transparent); }
         }
         .onb-ai-icon-glow {
           animation: onb-ai-shimmer 3s ease-in-out infinite;
@@ -2335,7 +2344,7 @@ const OnboardingV2Page = (): ReactElement => {
           left: var(--mouse-x);
           top: var(--mouse-y);
           transform: translate(-50%, -50%);
-          background: radial-gradient(circle, rgba(168,85,247,0.06) 0%, transparent 70%);
+          background: radial-gradient(circle, color-mix(in srgb, var(--theme-accent-onion-default) 6%, transparent) 0%, transparent 70%);
           border-radius: 50%;
           pointer-events: none;
           opacity: 0;
@@ -2464,8 +2473,6 @@ const OnboardingV2Page = (): ReactElement => {
         }
         .onb-live-tick {
           position: absolute;
-          top: -0.18rem;
-          right: -0.3rem;
           font-size: 0.72rem;
           font-weight: 700;
           line-height: 1;
@@ -2480,8 +2487,8 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── SCROLL PROGRESS LINE ─── */
         @keyframes onb-progress-glow {
-          0%, 100% { box-shadow: 0 0 6px 1px rgba(168,85,247,0.3); }
-          50% { box-shadow: 0 0 12px 2px rgba(168,85,247,0.5); }
+          0%, 100% { box-shadow: 0 0 6px 1px color-mix(in srgb, var(--theme-accent-onion-default) 30%, transparent); }
+          50% { box-shadow: 0 0 12px 2px color-mix(in srgb, var(--theme-accent-onion-default) 50%, transparent); }
         }
 
         /* ─── MOBILE TAG PILLS ─── */
@@ -2864,7 +2871,7 @@ const OnboardingV2Page = (): ReactElement => {
             role="presentation"
           />
 
-          <div className="onb-ext-enter relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-24 border border-white/[0.10] bg-[#0e1217] shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:max-w-lg tablet:rounded-24">
+          <div className="onb-ext-enter relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-24 border border-white/[0.10] bg-raw-pepper-90 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:max-w-lg tablet:rounded-24">
             {/* Close / Skip */}
             <button
               type="button"
@@ -2981,7 +2988,7 @@ const OnboardingV2Page = (): ReactElement => {
           />
 
           {/* Centered content */}
-          <div className="relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-20 border border-white/[0.10] bg-[#0e1217] px-5 py-6 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:mx-4 tablet:max-w-md tablet:rounded-20 tablet:px-6">
+          <div className="relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-20 border border-white/[0.10] bg-raw-pepper-90 px-5 py-6 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:mx-4 tablet:max-w-md tablet:rounded-20 tablet:px-6">
             <button
               type="button"
               onClick={closeGithubImportFlow}
@@ -3512,6 +3519,31 @@ const OnboardingV2Page = (): ReactElement => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Live engagement floater overlay — React-controlled, avoids direct DOM mutation */}
+      {liveFloaters.length > 0 && (
+        <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden">
+          {liveFloaters.map((f) => (
+            <span
+              key={f.id}
+              className="onb-live-tick"
+              style={{
+                position: 'absolute',
+                left: f.left,
+                top: f.top,
+                color: f.color,
+                '--onb-live-x': f.x,
+                '--onb-live-y': f.y,
+                '--onb-live-scale': f.scale,
+                '--onb-live-rot': f.rot,
+                '--onb-live-delay': `${f.delay}ms`,
+              } as React.CSSProperties}
+            >
+              {f.text}
+            </span>
+          ))}
         </div>
       )}
     </div>
