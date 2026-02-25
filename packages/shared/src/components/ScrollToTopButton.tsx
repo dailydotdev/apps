@@ -55,7 +55,7 @@ export default function ScrollToTopButton(): ReactElement {
       className={classNames(
         'absolute right-4 z-2 laptop:right-8',
         showFeedbackButton
-          ? '-top-22 tablet:-top-28 laptop:-top-36'
+          ? '-top-26 tablet:-top-32 laptop:-top-40'
           : '-top-12 tablet:-top-18 laptop:-top-24',
       )}
       variant={ButtonVariant.Primary}
