@@ -63,7 +63,7 @@ export const useSquadActions = ({
   const client = useQueryClient();
   const membersQueryKey = generateQueryKey(
     RequestKey.SquadMembers,
-    null,
+    undefined,
     membersQueryParams,
     squad?.id,
     query,
@@ -81,6 +81,10 @@ export const useSquadActions = ({
     mutationFn: collapsePinnedPosts,
     onSuccess: () => {
       client.invalidateQueries({ queryKey: feedQueryKey });
+      if (!user) {
+        return;
+      }
+
       updateFlagsCache(client, squad, user, { collapsePinnedPosts: true });
     },
   });
@@ -89,6 +93,10 @@ export const useSquadActions = ({
     mutationFn: expandPinnedPosts,
     onSuccess: () => {
       client.invalidateQueries({ queryKey: feedQueryKey });
+      if (!user) {
+        return;
+      }
+
       updateFlagsCache(client, squad, user, { collapsePinnedPosts: false });
     },
   });
