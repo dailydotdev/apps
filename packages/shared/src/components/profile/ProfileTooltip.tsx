@@ -9,6 +9,8 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import type { MostReadTag, UserReadingRank } from '../../graphql/users';
 import { getUserShortInfo } from '../../graphql/users';
 import UserEntityCard from '../cards/entity/UserEntityCard';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
@@ -42,6 +44,7 @@ export function ProfileTooltip({
   onTooltipMouseLeave,
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
   const query = useQueryClient();
+  const { logEvent } = useLogContext();
   const handler = useRef<() => void>();
   const [id, setId] = useState<string | undefined>(undefined);
   const { data, isLoading } = useQuery({
@@ -124,6 +127,10 @@ export function ProfileTooltip({
       onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
     ...tooltip,
     onShow: (instance) => {
+      logEvent({
+        event_name: LogEvent.HoverUserCard,
+        target_id: userId,
+      });
       if (id !== userId) {
         setId(userId);
       }
