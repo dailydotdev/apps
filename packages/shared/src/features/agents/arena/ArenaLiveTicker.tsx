@@ -133,10 +133,7 @@ export const ArenaLiveTicker = ({
             <TickerItemView key={item.externalItemId} item={item} />
           ))}
           {items.map((item) => (
-            <TickerItemView
-              key={`dup-${item.externalItemId}`}
-              item={item}
-            />
+            <TickerItemView key={`dup-${item.externalItemId}`} item={item} />
           ))}
         </div>
       </div>

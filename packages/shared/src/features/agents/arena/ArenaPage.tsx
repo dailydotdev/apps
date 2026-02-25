@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import type { ArenaTab } from './types';
 import { ARENA_TABS } from './config';
 import { computeRankings, computeCrowns, formatVolume } from './dindex';
@@ -44,21 +44,13 @@ export const ArenaPage = ({
   onTabChange,
 }: ArenaPageProps): ReactElement => {
   const [activeTab, setActiveTab] = useState<ArenaTab>(initialTab);
-  const queryClient = useQueryClient();
-
   const { data, isFetching } = useQuery(arenaOptions({ groupId: activeTab }));
 
   const timeSeries = data?.sentimentTimeSeries;
 
   const rankings = useMemo(
     () =>
-      timeSeries
-        ? computeRankings(
-            timeSeries.entities.nodes,
-            timeSeries.resolutionSeconds,
-            activeTab,
-          )
-        : [],
+      timeSeries ? computeRankings(timeSeries.entities.nodes, activeTab) : [],
     [timeSeries, activeTab],
   );
 

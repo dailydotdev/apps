@@ -156,7 +156,10 @@ const RankingRow = ({
         {loading ? (
           <Placeholder className="h-6 w-16" />
         ) : (
-          <ArenaSparkline data={tool.sparkline} color={tool.entity.brandColor} />
+          <ArenaSparkline
+            data={tool.sparkline}
+            color={tool.entity.brandColor}
+          />
         )}
       </div>
     </div>
@@ -183,7 +186,7 @@ const EmergingRow = ({
           <img
             src={tool.entity.logo}
             alt={tool.entity.name}
-            className="h-6 w-6 rounded-8 bg-surface-float object-cover opacity-60"
+            className="opacity-60 h-6 w-6 rounded-8 bg-surface-float object-cover"
           />
           <span className="text-text-tertiary typo-callout">
             {tool.entity.name}

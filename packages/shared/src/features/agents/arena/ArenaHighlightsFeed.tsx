@@ -79,7 +79,7 @@ const AuthorAvatar = ({
     .toUpperCase();
 
   return (
-    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-tertiary text-text-tertiary typo-caption2">
+    <div className="bg-surface-tertiary flex h-8 w-8 items-center justify-center rounded-full text-text-tertiary typo-caption2">
       {initials}
     </div>
   );
@@ -114,7 +114,7 @@ const HighlightCard = ({
         </div>
 
         {/* Full text */}
-        <p className="break-words whitespace-pre-wrap text-text-secondary typo-footnote">
+        <p className="whitespace-pre-wrap break-words text-text-secondary typo-footnote">
           {cleanText}
         </p>
 
@@ -202,7 +202,7 @@ export const ArenaHighlightsFeed = ({
       />
       {/* New posts badge — floats over feed */}
       {!loading && pendingItems.length > 0 && (
-        <div className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center">
+        <div className="z-10 pointer-events-none absolute inset-x-0 top-3 flex justify-center">
           <button
             type="button"
             onClick={showPending}

@@ -34,8 +34,7 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext): Promise<
   GetServerSidePropsResult<ArenaPageRouteProps>
 > {
-  const initialTab: ArenaTab =
-    query.tab === 'llms' ? 'llms' : 'coding-agents';
+  const initialTab: ArenaTab = query.tab === 'llms' ? 'llms' : 'coding-agents';
 
   res.setHeader(
     'Cache-Control',

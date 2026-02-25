@@ -55,10 +55,7 @@ const getWindowSpan = (node: SentimentTimeSeriesNode): number => {
   return node.timestamps[node.timestamps.length - 1];
 };
 
-const getLatest24hWindow = (
-  node: SentimentTimeSeriesNode,
-  _resolutionSeconds: number,
-): WindowData => {
+const getLatest24hWindow = (node: SentimentTimeSeriesNode): WindowData => {
   const span = getWindowSpan(node);
   if (span === 0) {
     return { volume: 0, sentimentScore: 0 };
@@ -68,10 +65,7 @@ const getLatest24hWindow = (
   return sumWindowByTime(node, cutoff, span + 1);
 };
 
-const getPrevious24hWindow = (
-  node: SentimentTimeSeriesNode,
-  _resolutionSeconds: number,
-): WindowData => {
+const getPrevious24hWindow = (node: SentimentTimeSeriesNode): WindowData => {
   const span = getWindowSpan(node);
   if (span <= SECONDS_PER_DAY) {
     return { volume: 0, sentimentScore: 0 };
@@ -133,22 +127,28 @@ const computeControversy = (
 };
 
 /**
- * Build a sparkline with 7 equal buckets across the available time window.
- * With a 7d lookback each bucket represents ~1 day.
+ * Build a 7-point sparkline across the available time window.
+ * Points 0-5 are fixed day-aligned buckets (complete days).
+ * Point 6 is a rolling 24h window ending at `span` so the in-progress day
+ * is compared against a full day of data instead of a partial one.
  */
-const getSparklineData = (
-  node: SentimentTimeSeriesNode,
-  _resolutionSeconds: number,
-): number[] => {
+const getSparklineData = (node: SentimentTimeSeriesNode): number[] => {
   const span = getWindowSpan(node);
   if (span === 0) {
     return [0, 0, 0, 0, 0, 0, 0];
   }
 
-  const bucketSize = span / 7;
   return Array.from({ length: 7 }, (_, idx) => {
-    const from = idx * bucketSize;
-    const to = (idx + 1) * bucketSize;
+    // Last point: rolling 24h window ending at the latest data point.
+    if (idx === 6) {
+      const from = Math.max(0, span - SECONDS_PER_DAY);
+      const window = sumWindowByTime(node, from, span + 1);
+      return computeDIndex(window.volume, window.sentimentScore);
+    }
+
+    // Points 0-5: fixed day-aligned buckets.
+    const from = idx * SECONDS_PER_DAY;
+    const to = (idx + 1) * SECONDS_PER_DAY;
     const window = sumWindowByTime(node, from, to);
     return computeDIndex(window.volume, window.sentimentScore);
   });
@@ -156,7 +156,6 @@ const getSparklineData = (
 
 export const computeRankings = (
   nodes: SentimentTimeSeriesNode[],
-  resolutionSeconds: number,
   groupId: ArenaGroupId,
 ): RankedTool[] => {
   const tools: RankedTool[] = nodes
@@ -166,8 +165,8 @@ export const computeRankings = (
         return null;
       }
 
-      const current = getLatest24hWindow(node, resolutionSeconds);
-      const previous = getPrevious24hWindow(node, resolutionSeconds);
+      const current = getLatest24hWindow(node);
+      const previous = getPrevious24hWindow(node);
       const dIndex = computeDIndex(current.volume, current.sentimentScore);
       const prevDIndex = computeDIndex(
         previous.volume,
@@ -184,7 +183,7 @@ export const computeRankings = (
         momentum: Math.round(computeMomentum(dIndex, prevDIndex)),
         volume24h: current.volume,
         controversyScore: computeControversy(node, cutoff24h, span + 1),
-        sparkline: getSparklineData(node, resolutionSeconds),
+        sparkline: getSparklineData(node),
         isEmerging: current.volume < EMERGING_THRESHOLD,
       };
     })
