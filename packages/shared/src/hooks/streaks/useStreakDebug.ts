@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useSyncExternalStore } from 'react';
 import { UrgencyLevel } from './useStreakUrgency';
 import type { StreakAnimationState } from './useStreakIncrement';
 
@@ -28,6 +28,22 @@ const URGENCY_CYCLE: UrgencyLevel[] = [
   UrgencyLevel.High,
 ];
 
+let globalDebugStreak: number | null = null;
+const debugStreakListeners = new Set<() => void>();
+
+const subscribeDebugStreak = (listener: () => void): (() => void) => {
+  debugStreakListeners.add(listener);
+  return () => debugStreakListeners.delete(listener);
+};
+
+const getDebugStreakSnapshot = (): number | null => globalDebugStreak;
+const getDebugStreakServerSnapshot = (): number | null => null;
+
+const setGlobalDebugStreak = (value: number | null): void => {
+  globalDebugStreak = value;
+  debugStreakListeners.forEach((listener) => listener());
+};
+
 export const useStreakDebug = (): UseStreakDebugReturn => {
   const [isDebugMode] = useState(() => {
     if (typeof window === 'undefined') {
@@ -46,9 +62,13 @@ export const useStreakDebug = (): UseStreakDebugReturn => {
   const [debugUrgency, setDebugUrgency] = useState<UrgencyLevel | null>(null);
   const [debugAnimationOverride, setDebugAnimationOverride] =
     useState<StreakAnimationState | null>(null);
-  const [debugStreakOverride, setDebugStreakOverride] = useState<number | null>(
-    null,
+
+  const debugStreakOverride = useSyncExternalStore(
+    subscribeDebugStreak,
+    getDebugStreakSnapshot,
+    getDebugStreakServerSnapshot,
   );
+
   const animationTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const triggerIncrementAnimation = useCallback(() => {
@@ -94,13 +114,13 @@ export const useStreakDebug = (): UseStreakDebugReturn => {
   }, []);
 
   const setDebugStreak = useCallback((value: number) => {
-    setDebugStreakOverride(value);
+    setGlobalDebugStreak(value);
   }, []);
 
   const resetDebug = useCallback(() => {
     setDebugUrgency(null);
     setDebugAnimationOverride(null);
-    setDebugStreakOverride(null);
+    setGlobalDebugStreak(null);
     setFeatures({
       animatedCounter: true,
       milestoneTimeline: true,

@@ -17,7 +17,7 @@ export function StreakSection({
       <strong
         className={
           isPrimary
-            ? 'text-[5rem] leading-[0.85] tablet:text-[5.5rem]'
+            ? 'text-[4rem] leading-[0.9] tablet:text-[4.5rem]'
             : 'typo-title3 leading-none'
         }
       >

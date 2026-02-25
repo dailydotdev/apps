@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { UserStreak, MostReadTag } from '../../../../graphql/users';
 import { largeNumberFormat, getTagPageLink } from '../../../../lib';
 import Link from '../../../../components/utilities/Link';
@@ -16,6 +17,9 @@ import { ActivityContainer } from '../../../../components/profile/ActivitySectio
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 import { migrateUserToStreaks } from '../../../../lib/constants';
+import { STREAK_MILESTONES } from '../../../../lib/streakMilestones';
+import { MILESTONE_ICON_URLS } from '../../../../components/streak/popup/icons/milestoneIcons';
+import { useStreakDebug } from '../../../../hooks/streaks/useStreakDebug';
 
 // ReadingTagProgress component
 interface ReadingTagProgressProps {
@@ -66,18 +70,88 @@ interface ReadingStreaksSectionProps {
 
 export const ReadingStreaksSection = ({
   streak,
-}: ReadingStreaksSectionProps): ReactElement => (
-  <div className="my-3 flex gap-2">
-    <SummaryCard
-      count={largeNumberFormat(streak?.max)}
-      label="Longest streak 🏆"
-    />
-    <SummaryCard
-      count={largeNumberFormat(streak?.total)}
-      label="Total reading days"
-    />
-  </div>
-);
+}: ReadingStreaksSectionProps): ReactElement => {
+  const { debugStreakOverride } = useStreakDebug();
+  const effectiveStreak = debugStreakOverride ?? streak?.current ?? 0;
+
+  return (
+    <>
+      <div className="my-3 flex gap-2">
+        <SummaryCard
+          count={largeNumberFormat(streak?.max)}
+          label="Longest streak 🏆"
+        />
+        <SummaryCard
+          count={largeNumberFormat(streak?.total)}
+          label="Total reading days"
+        />
+      </div>
+      <Typography
+        tag={TypographyTag.H3}
+        type={TypographyType.Subhead}
+        color={TypographyColor.Tertiary}
+        className="my-1"
+      >
+        Reading milestones
+      </Typography>
+      <div className="mb-3 flex flex-wrap gap-1.5">
+        {STREAK_MILESTONES.map((milestone) => {
+          const isUnlocked = effectiveStreak >= milestone.day;
+          return (
+            <Tooltip
+              key={milestone.day}
+              className="!bg-accent-pepper-subtlest !text-text-primary [&_.TooltipArrow]:!fill-accent-pepper-subtlest"
+              content={
+                <div className="flex items-center gap-2.5 p-1">
+                  <img
+                    src={MILESTONE_ICON_URLS[milestone.tier]}
+                    alt={milestone.label}
+                    className="size-12 object-contain"
+                  />
+                  <div className="flex flex-col gap-0.5">
+                    <Typography
+                      bold
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Primary}
+                    >
+                      {milestone.label}
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
+                    >
+                      {milestone.day}-day streak
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={
+                        isUnlocked
+                          ? TypographyColor.StatusSuccess
+                          : TypographyColor.Quaternary
+                      }
+                      bold
+                    >
+                      {isUnlocked ? 'Achieved' : `${milestone.day - effectiveStreak} days away`}
+                    </Typography>
+                  </div>
+                </div>
+              }
+            >
+              <img
+                src={MILESTONE_ICON_URLS[milestone.tier]}
+                alt={milestone.label}
+                className={classNames(
+                  'size-7 object-contain',
+                  !isUnlocked && 'grayscale opacity-30',
+                )}
+              />
+            </Tooltip>
+          );
+        })}
+      </div>
+    </>
+  );
+};
 
 // ReadingTagsSection component
 interface ReadingTagsSectionProps {

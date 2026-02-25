@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import classNames from 'classnames';
+
 import { useRouter } from 'next/router';
 import { StreakSection } from './StreakSection';
 import { MilestoneTimeline } from './MilestoneTimeline';
@@ -10,7 +10,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import type { ReadingDay, UserStreak } from '../../../graphql/users';
 import { getReadingStreak30Days } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useActions, useViewSize, ViewSize } from '../../../hooks';
+import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { SettingsIcon, VIcon, WarningIcon } from '../../icons';
@@ -63,7 +63,7 @@ export function ReadingStreakPopup({
 }: ReadingStreakPopupProps): ReactElement {
   const router = useRouter();
   const { flags, updateFlag } = useSettingsContext();
-  const isMobile = useViewSize(ViewSize.MobileL);
+
   const { user } = useAuthContext();
   const { completeAction } = useActions();
   const { data: history } = useQuery<ReadingDay[]>({
@@ -115,134 +115,123 @@ export function ReadingStreakPopup({
   const displayStreak = streakOverride ?? streak.current;
 
   return (
-    <div className="flex flex-col tablet:max-w-[21.75rem]">
-      <div className="flex flex-col p-0 tablet:p-4">
+    <div className="flex max-h-[640px] flex-col tablet:max-w-[21.75rem]">
+      <div className="flex flex-col p-0 pb-4 tablet:px-4 tablet:pt-4">
         {/* Tier progress removed — milestones timeline is the primary progression UI */}
 
-        <div className="flex items-end gap-2">
+        <div className="flex items-start gap-2">
           <StreakSection
             streak={displayStreak}
-            label={`Current streak · Longest: ${streak.max}`}
+            label={`${streak.max} Longest · ${streak.total} Total`}
             isPrimary
           />
+          <Link href={`${webappUrl}account/customization/streaks`} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<SettingsIcon />}
+            />
+          </Link>
         </div>
         <div className="mt-2">
           <StreakMonthCalendar
             history={history}
             weekStart={streak.weekStart}
             timezone={user?.timezone}
-          />
-        </div>
-        <div className="mt-2 flex flex-col items-center tablet:flex-row">
-          <div
-            className={classNames(
-              'flex w-full flex-row flex-wrap justify-center gap-2 font-bold text-text-tertiary tablet:w-auto tablet:flex-col tablet:items-start tablet:gap-1',
-              isMobile && 'my-4 flex-1 text-center',
-            )}
-          >
-            <div className="m-auto tablet:m-0">
-              Total reading days: {streak.total}
-            </div>
-            <Tooltip
-              side="bottom"
-              content={
-                <div className="flex text-center">
-                  {isTimezoneOk ? (
-                    <>
-                      We are showing your reading streak in your selected
-                      timezone.
-                      <br />
-                      Click to adjust your timezone if needed or traveling.
-                    </>
-                  ) : (
-                    <>Click for more info</>
+            streakOverride={streakOverride}
+            trailing={
+              <Tooltip
+                side="bottom"
+                content={
+                  <div className="flex text-center">
+                    {isTimezoneOk ? (
+                      <>
+                        We are showing your reading streak in your selected
+                        timezone.
+                        <br />
+                        Click to adjust your timezone if needed or traveling.
+                      </>
+                    ) : (
+                      <>Click for more info</>
+                    )}
+                  </div>
+                }
+              >
+                <div className="flex items-center">
+                  {!isTimezoneOk && (
+                    <WarningIcon className="text-raw-cheese-40" secondary />
                   )}
+                  <div className="font-normal !text-text-quaternary typo-subhead">
+                    <Link
+                      onClick={async (event) => {
+                        const deviceTimezone =
+                          Intl.DateTimeFormat().resolvedOptions().timeZone;
+                        const eventExtra = {
+                          device_timezone: deviceTimezone,
+                          user_timezone: user?.timezone,
+                          timezone_ok: isTimezoneOk,
+                          timezone_ignore: flags?.timezoneMismatchIgnore,
+                        };
+
+                        logEvent({
+                          event_name: LogEvent.Click,
+                          target_type: TargetId.StreakTimezoneLabel,
+                          extra: JSON.stringify(eventExtra),
+                        });
+
+                        if (isTimezoneOk) {
+                          return;
+                        }
+
+                        event.preventDefault();
+
+                        const promptResult = await showPrompt({
+                          title: 'Streak timezone mismatch',
+                          description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
+                            user?.timezone,
+                          )} does not match your current device timezone ${getTimezoneOffsetLabel(
+                            deviceTimezone,
+                          )}. You can update your timezone in settings.`,
+                          okButton: {
+                            title: 'Go to settings',
+                          },
+                          cancelButton: {
+                            title: 'Ignore',
+                          },
+                          shouldCloseOnOverlayClick: false,
+                        });
+
+                        logEvent({
+                          event_name: LogEvent.Click,
+                          target_type: TargetId.StreakTimezoneMismatchPrompt,
+                          extra: JSON.stringify({
+                            ...eventExtra,
+                            action: promptResult
+                              ? StreakTimezonePromptAction.Settings
+                              : StreakTimezonePromptAction.Ignore,
+                          }),
+                        });
+
+                        if (!promptResult) {
+                          updateFlag('timezoneMismatchIgnore', deviceTimezone);
+
+                          return;
+                        }
+
+                        router.push(timezoneSettingsUrl);
+                      }}
+                      href={timezoneSettingsUrl}
+                    >
+                      {isTimezoneOk
+                        ? user?.timezone || DEFAULT_TIMEZONE
+                        : 'Timezone mismatch'}
+                    </Link>
+                  </div>
                 </div>
-              }
-            >
-              <div className="m-auto flex items-center tablet:m-0">
-                {!isTimezoneOk && (
-                  <WarningIcon className="text-raw-cheese-40" secondary />
-                )}
-                <div className="flex justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
-                  <Link
-                    onClick={async (event) => {
-                      const deviceTimezone =
-                        Intl.DateTimeFormat().resolvedOptions().timeZone;
-                      const eventExtra = {
-                        device_timezone: deviceTimezone,
-                        user_timezone: user?.timezone,
-                        timezone_ok: isTimezoneOk,
-                        timezone_ignore: flags?.timezoneMismatchIgnore,
-                      };
-
-                      logEvent({
-                        event_name: LogEvent.Click,
-                        target_type: TargetId.StreakTimezoneLabel,
-                        extra: JSON.stringify(eventExtra),
-                      });
-
-                      if (isTimezoneOk) {
-                        return;
-                      }
-
-                      event.preventDefault();
-
-                      const promptResult = await showPrompt({
-                        title: 'Streak timezone mismatch',
-                        description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
-                          user?.timezone,
-                        )} does not match your current device timezone ${getTimezoneOffsetLabel(
-                          deviceTimezone,
-                        )}. You can update your timezone in settings.`,
-                        okButton: {
-                          title: 'Go to settings',
-                        },
-                        cancelButton: {
-                          title: 'Ignore',
-                        },
-                        shouldCloseOnOverlayClick: false,
-                      });
-
-                      logEvent({
-                        event_name: LogEvent.Click,
-                        target_type: TargetId.StreakTimezoneMismatchPrompt,
-                        extra: JSON.stringify({
-                          ...eventExtra,
-                          action: promptResult
-                            ? StreakTimezonePromptAction.Settings
-                            : StreakTimezonePromptAction.Ignore,
-                        }),
-                      });
-
-                      if (!promptResult) {
-                        updateFlag('timezoneMismatchIgnore', deviceTimezone);
-
-                        return;
-                      }
-
-                      router.push(timezoneSettingsUrl);
-                    }}
-                    href={timezoneSettingsUrl}
-                  >
-                    {isTimezoneOk
-                      ? user?.timezone || DEFAULT_TIMEZONE
-                      : 'Timezone mismatch'}
-                  </Link>
-                </div>
-              </div>
-            </Tooltip>
-          </div>
-          <Link href={`${webappUrl}account/customization/streaks`} passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Float}
-              icon={<SettingsIcon />}
-              className={isMobile ? 'w-full' : 'ml-auto'}
-            >
-              {isMobile ? 'Settings' : null}
-            </Button>
-          </Link>
+              </Tooltip>
+            }
+          />
         </div>
       </div>
       {showMilestoneTimeline && (

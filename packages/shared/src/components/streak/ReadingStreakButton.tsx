@@ -29,7 +29,10 @@ import { useStreakDebug } from '../../hooks/streaks/useStreakDebug';
 import { getCurrentTier, getMilestoneAtDay } from '../../lib/streakMilestones';
 import { StreakIncrementPopover } from './StreakIncrementPopover';
 import { StreakBrokenPopover } from './StreakBrokenPopover';
+import { StreakReminderPopover } from './StreakReminderPopover';
 import { StreakMilestoneCelebration } from './StreakMilestoneCelebration';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -102,6 +105,7 @@ export function ReadingStreakButton({
   iconPosition,
   className,
 }: ReadingStreakButtonProps): ReactElement {
+  const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -118,6 +122,7 @@ export function ReadingStreakButton({
   const isTimezoneOk = useStreakTimezoneOk();
   const { animationState, previousStreak } = useStreakIncrement(streak?.current);
   const [showBrokenPopover, setShowBrokenPopover] = useState(false);
+  const [showReminderPopover, setShowReminderPopover] = useState(false);
   const isStreaksEnabled = !!streak;
   const urgency = useStreakUrgency(
     !!hasReadToday,
@@ -156,6 +161,7 @@ export function ReadingStreakButton({
     : undefined;
   const showIncrementAnimation =
     debug.features.animatedCounter && effectiveAnimation === 'incrementing';
+  const isDebugIncrement = debug.debugAnimationOverride === 'incrementing';
   const showStreakBroken =
     showBrokenPopover || effectiveAnimation === 'broken';
   const showUrgencyAnimation = debug.features.urgencyNudges;
@@ -228,7 +234,7 @@ export function ReadingStreakButton({
             )}
             {!compact && ' reading days'}
           </Button>
-          {showIncrementAnimation && !hitMilestone && (
+          {showIncrementAnimation && (isDebugIncrement || !hitMilestone) && (
             <StreakIncrementPopover
               fromStreak={Math.max((effectiveStreak ?? 1) - 1, 0)}
               toStreak={effectiveStreak ?? 1}
@@ -237,6 +243,11 @@ export function ReadingStreakButton({
           {showStreakBroken && (
             <StreakBrokenPopover
               previousStreak={previousStreak ?? effectiveStreak ?? 0}
+            />
+          )}
+          {showReminderPopover && (
+            <StreakReminderPopover
+              currentStreak={effectiveStreak ?? 0}
             />
           )}
         </div>
@@ -260,7 +271,7 @@ export function ReadingStreakButton({
         </RootPortal>
       )}
 
-      {((showIncrementAnimation && hitMilestone) ||
+      {((showIncrementAnimation && hitMilestone && !isDebugIncrement) ||
         showMilestoneCelebration) && (
         <StreakMilestoneCelebration
           milestone={
@@ -351,13 +362,33 @@ export function ReadingStreakButton({
           </button>
           <button
             type="button"
-            onClick={() => setShowBrokenPopover((v) => !v)}
+            onClick={() => {
+              setShowBrokenPopover(false);
+              if (!user) {
+                return;
+              }
+
+              openModal({
+                type: LazyModal.RecoverStreak,
+                props: { user },
+              });
+            }}
             className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover"
           >
             Play Streak Broken 💔
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowReminderPopover(false);
+              requestAnimationFrame(() => setShowReminderPopover(true));
+            }}
+            className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover"
+          >
+            Play Reminder 🔔
+          </button>
           <div className="flex gap-1">
-            {[0, 3, 7, 14, 30, 90, 365, 730, 1095, 1460].map((d) => (
+            {[0, 3, 4, 7, 14, 30, 90, 365, 730, 1095, 1460].map((d) => (
               <button
                 key={d}
                 type="button"

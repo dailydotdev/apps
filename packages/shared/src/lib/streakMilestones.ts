@@ -49,6 +49,12 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     ],
   },
   {
+    day: 4,
+    tier: StreakTier.Spark,
+    label: 'Cursor AI',
+    rewards: [{ type: RewardType.Perk, description: 'Cursor AI discount coupon' }],
+  },
+  {
     day: 5,
     tier: StreakTier.Kindle,
     label: 'Kindle',
