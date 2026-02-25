@@ -249,6 +249,7 @@ export enum RequestKey {
   UserAchievements = 'user_achievements',
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
+  UserGithubRepos = 'user_github_repos',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

@@ -12,6 +12,7 @@ import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile
 import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
 import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
 import { ProfileUserWorkspacePhotos } from '@dailydotdev/shared/src/features/profile/components/workspacePhotos/ProfileUserWorkspacePhotos';
+import { ProfileUserGithubRepos } from '@dailydotdev/shared/src/features/profile/components/githubRepos/ProfileUserGithubRepos';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
@@ -130,6 +131,7 @@ const ProfilePage = ({
             className="no-scrollbar overflow-auto laptop:hidden"
           />
         </div>
+        <ProfileUserGithubRepos user={user} />
         <ProfileUserExperiences user={user} />
       </div>
     </div>
