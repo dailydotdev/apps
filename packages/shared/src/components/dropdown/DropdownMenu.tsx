@@ -33,6 +33,7 @@ interface DropdownMenuContentProps
   extends Omit<RadixDropdownMenuContentProps, 'className'> {
   children: ReactNode;
   className?: string;
+  scrollableClassName?: string;
   align?: 'start' | 'center' | 'end';
 }
 
@@ -100,24 +101,37 @@ DropdownMenu.displayName = 'DropdownMenu';
 export const DropdownMenuContent = React.forwardRef<
   HTMLDivElement,
   DropdownMenuContentProps
->(({ children, className, align = 'end', ...props }, forwardedRef) => {
-  const { isCompanion } = useRequestProtocol();
-  const container = isCompanion ? getCompanionWrapper() : undefined;
-  return (
-    <DropdownMenuPortal container={container}>
-      <DropdownMenuContentRoot
-        {...props}
-        ref={forwardedRef}
-        className={classNames('DropdownMenuContent overflow-hidden', className)}
-        align={align}
-      >
-        <div className="DropdownMenuScrollable max-h-72 overflow-y-auto bg-inherit">
-          {children}
-        </div>
-      </DropdownMenuContentRoot>
-    </DropdownMenuPortal>
-  );
-});
+>(
+  (
+    { children, className, scrollableClassName, align = 'end', ...props },
+    forwardedRef,
+  ) => {
+    const { isCompanion } = useRequestProtocol();
+    const container = isCompanion ? getCompanionWrapper() : undefined;
+    return (
+      <DropdownMenuPortal container={container}>
+        <DropdownMenuContentRoot
+          {...props}
+          ref={forwardedRef}
+          className={classNames(
+            'DropdownMenuContent overflow-hidden',
+            className,
+          )}
+          align={align}
+        >
+          <div
+            className={classNames(
+              'DropdownMenuScrollable overflow-y-auto bg-inherit',
+              scrollableClassName ?? 'max-h-72',
+            )}
+          >
+            {children}
+          </div>
+        </DropdownMenuContentRoot>
+      </DropdownMenuPortal>
+    );
+  },
+);
 
 DropdownMenuContent.displayName = 'DropdownMenuContent';
 

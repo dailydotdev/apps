@@ -322,7 +322,10 @@ export const QuestButton = (): ReactElement => {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-[22rem] !p-0">
+      <DropdownMenuContent
+        className="w-[22rem] !p-0"
+        scrollableClassName="max-h-[var(--radix-dropdown-menu-content-available-height)]"
+      >
         <div className="flex flex-col">
           <header className="flex flex-col gap-2 border-b border-border-subtlest-tertiary p-3">
             <p className="font-bold text-text-primary typo-callout">Quests</p>
