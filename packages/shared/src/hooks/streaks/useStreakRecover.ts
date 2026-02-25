@@ -70,10 +70,6 @@ export const useStreakRecover = ({
     query: { streak_restore: streakRestore },
   } = router;
 
-  if (!updateAlerts) {
-    throw new Error('Alert updater is required for streak recovery');
-  }
-
   const recoverMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
     mutationFn: async () =>

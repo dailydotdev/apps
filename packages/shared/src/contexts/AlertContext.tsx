@@ -27,7 +27,7 @@ export interface AlertContextData {
   alerts: Alerts;
   isFetched?: boolean;
   loadedAlerts?: boolean;
-  updateAlerts?: UseMutateAsyncFunction<
+  updateAlerts: UseMutateAsyncFunction<
     unknown,
     unknown,
     AlertsUpdate,
@@ -39,9 +39,16 @@ export interface AlertContextData {
   clearOpportunityAlert?: UseMutateAsyncFunction;
 }
 
+const defaultUpdateAlerts = async (): Promise<unknown> => {
+  return undefined;
+};
+
+const defaultUpdateAlertsUpdater = (): void => {};
+
 const AlertContext = React.createContext<AlertContextData>({
   alerts: ALERT_DEFAULTS,
   loadedAlerts: false,
+  updateAlerts: defaultUpdateAlerts,
 });
 
 export interface AlertContextProviderProps {
@@ -60,6 +67,8 @@ export const AlertContextProvider = ({
   isFetched,
   updateAlerts,
 }: AlertContextProviderProps): ReactElement => {
+  const updateAlertsUpdater = updateAlerts ?? defaultUpdateAlertsUpdater;
+
   const { mutateAsync: updateRemoteAlerts } = useMutation<
     unknown,
     unknown,
@@ -69,7 +78,7 @@ export const AlertContextProvider = ({
       gqlClient.request(UPDATE_ALERTS, {
         data: params,
       }),
-    onMutate: (params) => updateAlerts({ ...alerts, ...params }),
+    onMutate: (params) => updateAlertsUpdater({ ...alerts, ...params }),
 
     onError: (_, params) => {
       const rollback = Object.keys(params).reduce(
@@ -77,7 +86,7 @@ export const AlertContextProvider = ({
         {},
       );
 
-      updateAlerts({ ...alerts, ...rollback });
+      updateAlertsUpdater({ ...alerts, ...rollback });
     },
   });
 
@@ -89,14 +98,14 @@ export const AlertContextProvider = ({
     mutationFn: () => gqlClient.request(UPDATE_LAST_BOOT_POPUP),
 
     onMutate: () =>
-      updateAlerts({
+      updateAlertsUpdater({
         ...alerts,
         lastBootPopup: new Date(),
         bootPopup: false,
       }),
 
     onError: () => {
-      updateAlerts({
+      updateAlertsUpdater({
         ...alerts,
         lastBootPopup: null,
         bootPopup: true,

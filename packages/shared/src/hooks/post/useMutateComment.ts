@@ -16,6 +16,7 @@ import {
   updatePostCache,
 } from '../../lib/query';
 import { useBackgroundRequest } from '../companion';
+import { gqlRequest } from '../../graphql/common';
 import type { Edge } from '../../graphql/common';
 import { useLogContext } from '../../contexts/LogContext';
 import { useRequestProtocol } from '../useRequestProtocol';
@@ -32,7 +33,7 @@ const generateCommentEdge = (comment: Comment): Edge<Comment> => ({
 });
 
 interface UseMutateCommentProps {
-  post?: Post;
+  post: Post;
   editCommentId?: string;
   parentCommentId?: string;
   onCommented?: (
@@ -73,18 +74,9 @@ export const useMutateComment = ({
   const { requestMethod, isCompanion } = useRequestProtocol();
   const { logEvent } = useLogContext();
   const { logOpts } = useContext(ActiveFeedContext);
-
-  if (!post?.id) {
-    throw new Error('Post id is required to mutate comments');
-  }
-
-  if (!requestMethod) {
-    throw new Error('Request method is required to mutate comments');
-  }
-
-  const currentPost = post;
-  const sourceId = currentPost.source?.id;
-  const postId = currentPost.id;
+  const request = requestMethod ?? gqlRequest;
+  const sourceId = post.source?.id;
+  const postId = post.id;
   const parentOrPostId = parentCommentId ?? postId;
 
   const key = useMemo(
@@ -189,11 +181,11 @@ export const useMutateComment = ({
 
     if (!editCommentId) {
       updatePostCache(client, postId, {
-        numComments: (currentPost.numComments ?? 0) + 1,
+        numComments: (post.numComments ?? 0) + 1,
       });
 
       logEvent(
-        postLogEvent(LogEvent.CommentPost, currentPost, {
+        postLogEvent(LogEvent.CommentPost, post, {
           extra: { commentId: parentCommentId },
           ...(logOpts && logOpts),
         }),
@@ -212,13 +204,13 @@ export const useMutateComment = ({
     isSuccess,
   } = useMutation<MutateCommentResult, unknown, SubmitComment>({
     mutationFn: (variables) =>
-      requestMethod(mutation, variables, {
+      request(mutation, variables, {
         requestKey: JSON.stringify(key),
       }),
 
     onSuccess: (data) => {
       if (!data?.comment) {
-        throw new Error('Comment mutation must return a comment');
+        return;
       }
 
       onSuccess(data.comment);
@@ -246,13 +238,13 @@ export const useMutateComment = ({
     SubmitComment
   >({
     mutationFn: (variables) =>
-      requestMethod(EDIT_COMMENT_MUTATION, variables, {
+      request(EDIT_COMMENT_MUTATION, variables, {
         requestKey: JSON.stringify(key),
       }),
 
     onSuccess: (data) => {
       if (!data?.comment) {
-        throw new Error('Edit comment mutation must return a comment');
+        return;
       }
 
       onSuccess(data.comment);
