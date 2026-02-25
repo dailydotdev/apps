@@ -46,6 +46,7 @@ export const SidebarTablet = ({
   activePage,
   featureTheme,
   onLogoClick,
+  disabled,
 }: {
   activePage: string;
   featureTheme?: {
@@ -53,6 +54,7 @@ export const SidebarTablet = ({
     logoText?: string;
   };
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  disabled?: boolean;
 }): ReactElement => {
   const { alerts } = useAlertsContext();
   const { user, isLoggedIn, squads } = useAuthContext();
@@ -91,6 +93,8 @@ export const SidebarTablet = ({
       className={classNames(
         'w-16 items-center gap-4',
         featureTheme && 'bg-transparent',
+        disabled &&
+          'pointer-events-none select-none [&_a]:!text-text-disabled [&_button]:!text-text-disabled [&_span]:!text-text-disabled [&_svg]:!text-text-disabled',
       )}
     >
       <HeaderLogo

@@ -19,7 +19,10 @@ import {
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { downloadBrowserExtension, mobileAppUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  downloadBrowserExtension,
+  mobileAppUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
@@ -175,7 +178,9 @@ type HeroTagTrendItem = {
   size: HeroTagSize;
 };
 
-const TAG_TREND_EDGE_LABELS = TAG_TREND_LABELS.filter((_, index) => index % 2 === 0).slice(0, 14);
+const TAG_TREND_EDGE_LABELS = TAG_TREND_LABELS.filter(
+  (_, index) => index % 2 === 0,
+).slice(0, 14);
 const EDGE_Y_POSITIONS = [8, 18, 28, 40, 52, 64, 76] as const;
 const LEFT_X_POSITIONS = [4, 8, 12, 16, 20, 14, 9] as const;
 const RIGHT_X_POSITIONS = [80, 84, 88, 92, 96, 90, 86] as const;
@@ -273,57 +278,6 @@ const getExperienceLevelOptionParts = (
     title: match[1].trim(),
     meta: match[2]?.trim() ?? null,
   };
-};
-
-const getExperienceLevelIcon = (
-  level: keyof typeof UserExperienceLevel,
-): ReactElement => {
-  switch (level) {
-    case 'LESS_THAN_1_YEAR':
-      return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      );
-    case 'MORE_THAN_1_YEAR':
-      return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M7 12l3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      );
-    case 'MORE_THAN_2_YEARS':
-      return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M5 19V9m7 10V5m7 14v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      );
-    case 'MORE_THAN_4_YEARS':
-      return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M12 3l2.7 5.46L21 9.27l-4.5 4.38L17.4 20 12 17.1 6.6 20l.9-6.35L3 9.27l6.3-.81L12 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        </svg>
-      );
-    case 'MORE_THAN_6_YEARS':
-      return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M4 18h16M7 18V8l5-3 5 3v10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      );
-    case 'MORE_THAN_10_YEARS':
-      return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2l2.4 7.4H22l-6.1 4.4 2.4 7.2-6.2-4.5-6.2 4.5 2.4-7.2L2 9.4h7.6L12 2z" fill="currentColor" />
-        </svg>
-      );
-    case 'NOT_ENGINEER':
-    default:
-      return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M5 12h14M12 5v14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" opacity="0.35" />
-        </svg>
-      );
-  }
 };
 
 const GITHUB_IMPORT_STEPS = [
@@ -457,19 +411,18 @@ const OnboardingV2Page = (): ReactElement => {
     githubResumeTimeoutRef.current = null;
   }, []);
 
-  const startImportFlow = useCallback((source: ImportFlowSource) => {
-    clearGithubImportTimer();
-    clearGithubResumeTimeout();
-    setImportFlowSource(source);
-    setSelectedExperienceLevel(null);
-    setGithubImportProgress(10);
-    setGithubImportPhase('running');
-    setShowGithubImportFlow(true);
-  }, [
-    clearGithubImportTimer,
-    clearGithubResumeTimeout,
-    setImportFlowSource,
-  ]);
+  const startImportFlow = useCallback(
+    (source: ImportFlowSource) => {
+      clearGithubImportTimer();
+      clearGithubResumeTimeout();
+      setImportFlowSource(source);
+      setSelectedExperienceLevel(null);
+      setGithubImportProgress(10);
+      setGithubImportPhase('running');
+      setShowGithubImportFlow(true);
+    },
+    [clearGithubImportTimer, clearGithubResumeTimeout, setImportFlowSource],
+  );
 
   const startGithubImportFlow = useCallback(() => {
     startImportFlow('github');
@@ -520,7 +473,7 @@ const OnboardingV2Page = (): ReactElement => {
     }
     didSetSidebarDefault.current = true;
     if (sidebarExpanded) {
-      void toggleSidebarExpanded();
+      toggleSidebarExpanded();
     }
   }, [loadedSettings, sidebarExpanded, toggleSidebarExpanded]);
 
@@ -553,7 +506,7 @@ const OnboardingV2Page = (): ReactElement => {
 
   useEffect(() => {
     const onHeaderSignupClick = (event: MouseEvent) => {
-      const target = event.target;
+      const { target } = event;
       if (!(target instanceof Element)) {
         return;
       }
@@ -737,7 +690,9 @@ const OnboardingV2Page = (): ReactElement => {
     const prefersReduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches;
-    if (prefersReduced) return undefined;
+    if (prefersReduced) {
+      return undefined;
+    }
 
     let ticking = false;
     const onScroll = () => {
@@ -760,12 +715,16 @@ const OnboardingV2Page = (): ReactElement => {
 
   // Scroll-reveal: stagger feed articles as they enter viewport
   useEffect(() => {
-    if (!feedVisible) return undefined;
+    if (!feedVisible) {
+      return undefined;
+    }
 
     const prefersReduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches;
-    if (prefersReduced) return undefined;
+    if (prefersReduced) {
+      return undefined;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -784,7 +743,10 @@ const OnboardingV2Page = (): ReactElement => {
         const article = el as HTMLElement;
 
         if (!article.dataset.onbRevealDelay) {
-          article.style.setProperty('--reveal-delay', `${Math.min(i * 60, 400)}ms`);
+          article.style.setProperty(
+            '--reveal-delay',
+            `${Math.min(i * 60, 400)}ms`,
+          );
           article.dataset.onbRevealDelay = 'true';
         }
 
@@ -801,7 +763,8 @@ const OnboardingV2Page = (): ReactElement => {
     const mutationObserver = new MutationObserver(() => {
       observeFeedArticles();
     });
-    const feedContainer = document.querySelector('.onb-feed-stage') ?? document.body;
+    const feedContainer =
+      document.querySelector('.onb-feed-stage') ?? document.body;
     mutationObserver.observe(feedContainer, {
       childList: true,
       subtree: true,
@@ -815,16 +778,20 @@ const OnboardingV2Page = (): ReactElement => {
 
   // Live engagement ticker: rapidly tick counters across many cards (Polymarket-style)
   useEffect(() => {
-    if (!feedVisible) return undefined;
+    if (!feedVisible) {
+      return undefined;
+    }
 
     const prefersReduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches;
-    if (prefersReduced) return undefined;
+    if (prefersReduced) {
+      return undefined;
+    }
 
     const shuffle = <T,>(arr: T[]): T[] => {
       const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
+      for (let i = a.length - 1; i > 0; i -= 1) {
         const j = Math.floor(Math.random() * (i + 1));
         [a[i], a[j]] = [a[j], a[i]];
       }
@@ -833,14 +800,21 @@ const OnboardingV2Page = (): ReactElement => {
 
     // The QuaternaryButton renders: <div.btn-quaternary> <button#id/> <label>{counter}</label> </div>
     // So the counter span is in a sibling label, not inside the button itself.
-    const getButtonWrapper = (article: Element, suffix: string): Element | null => {
+    const getButtonWrapper = (
+      article: Element,
+      suffix: string,
+    ): Element | null => {
       const btn = article.querySelector(`[id$="${suffix}"]`);
-      if (!btn) return null;
+      if (!btn) {
+        return null;
+      }
       return btn.closest('.btn-quaternary') || btn.parentElement;
     };
 
     const findCounterIn = (wrapper: Element): HTMLSpanElement | null => {
-      const spans = Array.from(wrapper.querySelectorAll<HTMLSpanElement>('span'));
+      const spans = Array.from(
+        wrapper.querySelectorAll<HTMLSpanElement>('span'),
+      );
       return (
         spans.find((span) => {
           const t = span.textContent?.trim();
@@ -849,17 +823,25 @@ const OnboardingV2Page = (): ReactElement => {
       );
     };
 
-    const ensureCounter = (wrapper: Element, btnId: string, seed: number): HTMLSpanElement => {
+    const ensureCounter = (
+      wrapper: Element,
+      btnId: string,
+      seed: number,
+    ): HTMLSpanElement => {
       const existing = findCounterIn(wrapper);
-      if (existing) return existing;
+      if (existing) {
+        return existing;
+      }
 
       const label = document.createElement('label');
       label.htmlFor = btnId;
-      label.className = 'flex cursor-pointer items-center pl-1 font-bold typo-callout';
+      label.className =
+        'flex cursor-pointer items-center pl-1 font-bold typo-callout';
       label.setAttribute('data-onb-injected', 'true');
 
       const span = document.createElement('span');
-      span.className = 'flex h-5 min-w-[1ch] flex-col overflow-hidden tabular-nums typo-footnote';
+      span.className =
+        'flex h-5 min-w-[1ch] flex-col overflow-hidden tabular-nums typo-footnote';
       span.textContent = String(seed);
       label.appendChild(span);
       wrapper.appendChild(label);
@@ -868,16 +850,24 @@ const OnboardingV2Page = (): ReactElement => {
     };
 
     const formatCount = (n: number): string => {
-      if (n >= 1000000) return `${(n / 1000000).toFixed(1).replace(/\.0$/, '')}m`;
-      if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+      if (n >= 1000000) {
+        return `${(n / 1000000).toFixed(1).replace(/\.0$/, '')}m`;
+      }
+      if (n >= 1000) {
+        return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+      }
       return String(n);
     };
 
     const parseCount = (text: string): number | null => {
       const clean = text.trim().toLowerCase();
-      if (/^\d+$/.test(clean)) return parseInt(clean, 10);
+      if (/^\d+$/.test(clean)) {
+        return parseInt(clean, 10);
+      }
       const m = clean.match(/^([\d.]+)([km])$/);
-      if (!m) return null;
+      if (!m) {
+        return null;
+      }
       const n = parseFloat(m[1]);
       return m[2] === 'k' ? n * 1000 : n * 1000000;
     };
@@ -906,13 +896,19 @@ const OnboardingV2Page = (): ReactElement => {
       const isUpvote = Math.random() < 0.75;
       const suffix = isUpvote ? '-upvote-btn' : '-comment-btn';
       const wrapper = getButtonWrapper(article, suffix);
-      if (!wrapper) return;
+      if (!wrapper) {
+        return;
+      }
 
       const counter = findCounterIn(wrapper);
-      if (!counter) return;
+      if (!counter) {
+        return;
+      }
 
       const val = parseCount(counter.textContent || '');
-      if (val === null) return;
+      if (val === null) {
+        return;
+      }
 
       const increment = 1 + (Math.random() < 0.22 ? 1 : 0);
       const newVal = val + increment;
@@ -924,7 +920,9 @@ const OnboardingV2Page = (): ReactElement => {
         : 'var(--theme-accent-blueCheese-default)';
       counter.style.setProperty('--onb-bump-color', color);
       counter.classList.remove('onb-live-bump');
-      void (counter as HTMLElement).offsetWidth;
+      // Force reflow to restart CSS animation
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      (counter as HTMLElement).offsetWidth;
       counter.classList.add('onb-live-bump');
 
       // Emit multiple overlapping floaters so engagement feels continuous.
@@ -933,18 +931,21 @@ const OnboardingV2Page = (): ReactElement => {
       const burstCount = 2 + Math.floor(Math.random() * 2);
       const tickLabel = `+${increment}`;
 
-      const newFloaters: LiveFloater[] = Array.from({ length: burstCount }, (_, i) => ({
-        id: `floater-${Date.now()}-${i}`,
-        left: rect.right - 10,
-        top: rect.top - 3,
-        text: tickLabel,
-        color,
-        x: `${(Math.random() - 0.5) * 1.9}rem`,
-        y: `${1.2 + Math.random() * 1.1}rem`,
-        scale: `${1 + Math.random() * 0.45}`,
-        rot: `${(Math.random() - 0.5) * 14}deg`,
-        delay: i * 130,
-      }));
+      const newFloaters: LiveFloater[] = Array.from(
+        { length: burstCount },
+        (_, i) => ({
+          id: `floater-${Date.now()}-${i}`,
+          left: rect.right - 10,
+          top: rect.top - 3,
+          text: tickLabel,
+          color,
+          x: `${(Math.random() - 0.5) * 1.9}rem`,
+          y: `${1.2 + Math.random() * 1.1}rem`,
+          scale: `${1 + Math.random() * 0.45}`,
+          rot: `${(Math.random() - 0.5) * 14}deg`,
+          delay: i * 130,
+        }),
+      );
 
       setLiveFloaters((prev) => [...prev, ...newFloaters]);
       newFloaters.forEach((f, i) => {
@@ -958,10 +959,15 @@ const OnboardingV2Page = (): ReactElement => {
       const articles = Array.from(
         document.querySelectorAll('.onb-feed-stage article'),
       );
-      if (!articles.length) return;
+      if (!articles.length) {
+        return;
+      }
 
       const count = 5 + Math.floor(Math.random() * 5);
-      const picked = shuffle(articles).slice(0, Math.min(count, articles.length));
+      const picked = shuffle(articles).slice(
+        0,
+        Math.min(count, articles.length),
+      );
 
       picked.forEach((article, i) => {
         setTimeout(() => bumpOne(article), i * 45);
@@ -1000,7 +1006,9 @@ const OnboardingV2Page = (): ReactElement => {
   // Cursor-tracking glow on personalization panel
   useEffect(() => {
     const box = panelBoxRef.current;
-    if (!box) return undefined;
+    if (!box) {
+      return undefined;
+    }
 
     const onMove = (e: MouseEvent) => {
       const rect = box.getBoundingClientRect();
@@ -1024,10 +1032,15 @@ const OnboardingV2Page = (): ReactElement => {
       const labelLower = topic.label.toLowerCase();
       const keywords = labelLower.split(/[\s&/.+-]+/).filter(Boolean);
       const hasDirect = lower.includes(labelLower);
-      const score = keywords.reduce((acc, kw) => {
-        if (kw.length < 3) return acc;
-        return lower.includes(kw) ? acc + kw.length : acc;
-      }, hasDirect ? 100 : 0);
+      const score = keywords.reduce(
+        (acc, kw) => {
+          if (kw.length < 3) {
+            return acc;
+          }
+          return lower.includes(kw) ? acc + kw.length : acc;
+        },
+        hasDirect ? 100 : 0,
+      );
 
       return { ...topic, score };
     })
@@ -1064,8 +1077,7 @@ const OnboardingV2Page = (): ReactElement => {
       options: { isLogin: true },
     });
   }, [showLogin]);
-  const isAiSetupContext =
-    signupContext === 'ai' || signupContext === 'manual';
+  const isAiSetupContext = signupContext === 'ai' || signupContext === 'manual';
   const canStartAiFlow = aiPrompt.trim().length > 0 || selectedTopics.size > 0;
   const startGithubFlowFromChooser = useCallback(() => {
     setShowSignupChooser(false);
@@ -1089,7 +1101,8 @@ const OnboardingV2Page = (): ReactElement => {
   const panelLift = Math.round(panelStageProgress * 60);
   const panelRevealOffset = panelVisible ? 40 : 120;
   const importSteps = useMemo(
-    () => (importFlowSource === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS),
+    () =>
+      importFlowSource === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS,
     [importFlowSource],
   );
   const currentImportStep = useMemo(() => {
@@ -1134,10 +1147,23 @@ const OnboardingV2Page = (): ReactElement => {
   }, [githubImportPhase]);
 
   return (
-    <div className={classNames('onb-page onb-sidebar-locked relative overflow-x-hidden', !feedReadyState && 'onb-page-locked')} role="presentation">
+    <div
+      className={classNames(
+        'onb-page onb-sidebar-locked relative overflow-x-hidden',
+        !feedReadyState && 'onb-page-locked',
+      )}
+      role="presentation"
+    >
       {/* ── Hero ── */}
-      <section ref={heroRef} className={classNames('onb-hero relative overflow-hidden pb-10 pt-4 tablet:pb-14 tablet:pt-18', feedReadyState && 'hidden')} style={{ '--scroll-y': '0' } as React.CSSProperties}>
-        <div className="relative z-10 mx-auto mb-3 flex w-full max-w-[63.75rem] items-center justify-between px-4 tablet:hidden">
+      <section
+        ref={heroRef}
+        className={classNames(
+          'onb-hero relative overflow-hidden pb-10 pt-4 tablet:pb-14 tablet:pt-18',
+          feedReadyState && 'hidden',
+        )}
+        style={{ '--scroll-y': '0' } as React.CSSProperties}
+      >
+        <div className="z-10 relative mx-auto mb-3 flex w-full max-w-[63.75rem] items-center justify-between px-4 tablet:hidden">
           <Logo
             compact
             position={LogoPosition.Relative}
@@ -1147,14 +1173,14 @@ const OnboardingV2Page = (): ReactElement => {
             <button
               type="button"
               onClick={openLogin}
-              className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 hover:bg-white/[0.08] typo-footnote"
+              className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 typo-footnote hover:bg-white/[0.08]"
             >
               Log in
             </button>
             <button
               type="button"
               onClick={() => setShowSignupChooser(true)}
-              className="rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 hover:opacity-90 typo-footnote"
+              className="hover:opacity-90 rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 typo-footnote"
             >
               Sign up
             </button>
@@ -1176,23 +1202,22 @@ const OnboardingV2Page = (): ReactElement => {
 
         {/* Floating particles */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="onb-float-1 absolute left-[15%] top-[20%] h-1 w-1 rounded-full bg-accent-cabbage-default/30" />
-          <div className="onb-float-2 absolute left-[75%] top-[15%] h-1.5 w-1.5 rounded-full bg-accent-onion-default/20" />
-          <div className="onb-float-3 absolute left-[60%] top-[60%] h-1 w-1 rounded-full bg-accent-water-default/25" />
-          <div className="onb-float-1 absolute left-[25%] top-[70%] h-1 w-1 rounded-full bg-accent-cheese-default/20" />
-          <div className="onb-float-2 absolute left-[85%] top-[45%] h-1 w-1 rounded-full bg-accent-cabbage-default/20" />
-          <div className="onb-float-3 absolute left-[40%] top-[30%] h-0.5 w-0.5 rounded-full bg-white/20" />
-          {HERO_TAG_TREND.map((tag, index) => {
-            const sizeClass =
-              tag.size === 'lg'
-                ? 'px-4 py-2 typo-body'
-                : tag.size === 'md'
-                  ? 'px-3.5 py-1.5 typo-callout'
-                  : 'px-3 py-1.5 typo-caption1';
+          <div className="onb-float-1 bg-accent-cabbage-default/30 absolute left-[15%] top-[20%] h-1 w-1 rounded-full" />
+          <div className="onb-float-2 bg-accent-onion-default/20 absolute left-[75%] top-[15%] h-1.5 w-1.5 rounded-full" />
+          <div className="onb-float-3 bg-accent-water-default/25 absolute left-[60%] top-[60%] h-1 w-1 rounded-full" />
+          <div className="onb-float-1 bg-accent-cheese-default/20 absolute left-[25%] top-[70%] h-1 w-1 rounded-full" />
+          <div className="onb-float-2 bg-accent-cabbage-default/20 absolute left-[85%] top-[45%] h-1 w-1 rounded-full" />
+          <div className="onb-float-3 bg-white/20 absolute left-[40%] top-[30%] h-0.5 w-0.5 rounded-full" />
+          {HERO_TAG_TREND.map((tag) => {
+            const sizeMap: Record<string, string> = {
+              lg: 'px-4 py-2 typo-body',
+              md: 'px-3.5 py-1.5 typo-callout',
+            };
+            const sizeClass = sizeMap[tag.size] ?? 'px-3 py-1.5 typo-caption1';
 
             return (
               <span
-                key={`${tag.label}-${index}`}
+                key={tag.label}
                 className={classNames(
                   'onb-hero-tag absolute hidden whitespace-nowrap rounded-10 border border-white/[0.10] bg-white/[0.04] text-text-tertiary shadow-[0_6px_20px_rgba(0,0,0,0.14)] backdrop-blur-sm tablet:block',
                   sizeClass,
@@ -1216,11 +1241,11 @@ const OnboardingV2Page = (): ReactElement => {
 
         {/* Ambient glows */}
         {/* Magical breathing glow */}
-        <div className="onb-magical-glow pointer-events-none absolute left-1/2 top-[-5%] h-[30rem] w-full max-w-[60rem] -translate-x-1/2 rounded-[100%] bg-gradient-to-tr from-accent-cabbage-default/10 via-accent-water-default/20 to-accent-onion-default/10 blur-[90px] shadow-[0_0_100px_40px_rgba(255,255,255,0.08)]" />
-        
-        <div className="onb-glow-drift pointer-events-none absolute left-1/2 top-0 h-[22rem] w-full max-w-[48rem] -translate-x-1/2 bg-accent-cabbage-default/5 blur-[100px]" />
-        <div className="onb-glow-drift-reverse pointer-events-none absolute left-[40%] top-[4rem] h-[18rem] w-full max-w-[30rem] -translate-x-1/2 bg-accent-onion-default/[0.03] blur-[120px]" />
-        <div className="pointer-events-none absolute left-1/2 top-[5rem] h-[24rem] w-full max-w-[64rem] -translate-x-1/2 bg-gradient-to-r from-accent-water-default/[0.03] via-accent-cabbage-default/[0.10] to-accent-onion-default/[0.06] blur-[90px]" />
+        <div className="onb-magical-glow from-accent-cabbage-default/10 via-accent-water-default/20 to-accent-onion-default/10 pointer-events-none absolute left-1/2 top-[-5%] h-[30rem] w-full max-w-[60rem] -translate-x-1/2 rounded-[100%] bg-gradient-to-tr shadow-[0_0_100px_40px_rgba(255,255,255,0.08)] blur-[90px]" />
+
+        <div className="onb-glow-drift bg-accent-cabbage-default/5 pointer-events-none absolute left-1/2 top-0 h-[22rem] w-full max-w-[48rem] -translate-x-1/2 blur-[100px]" />
+        <div className="onb-glow-drift-reverse bg-accent-onion-default/[0.03] pointer-events-none absolute left-[40%] top-[4rem] h-[18rem] w-full max-w-[30rem] -translate-x-1/2 blur-[120px]" />
+        <div className="from-accent-water-default/[0.03] via-accent-cabbage-default/[0.10] to-accent-onion-default/[0.06] pointer-events-none absolute left-1/2 top-[5rem] h-[24rem] w-full max-w-[64rem] -translate-x-1/2 bg-gradient-to-r blur-[90px]" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[20rem] bg-gradient-to-b from-white/[0.03] to-transparent" />
 
         {/* Centered text content */}
@@ -1233,40 +1258,37 @@ const OnboardingV2Page = (): ReactElement => {
             )}
             style={{ transitionDelay: '100ms' }}
           >
-            {mounted && MOBILE_TAG_CLOUD_TOP.map((tag) => (
-              <span
-                key={`mob-top-${tag.label}`}
-                className="onb-mobile-tag absolute whitespace-nowrap rounded-8 border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-text-quaternary typo-caption2"
-                style={
-                  {
-                    left: tag.left,
-                    top: tag.top,
-                    '--tag-delay': tag.delay,
-                    '--tag-duration': tag.duration,
-                    '--tag-drift-x': `${tag.driftX}px`,
-                    '--tag-drift-y': `${tag.driftY}px`,
-                  } as React.CSSProperties
-                }
-              >
-                {tag.label}
-              </span>
-            ))}
+            {mounted &&
+              MOBILE_TAG_CLOUD_TOP.map((tag) => (
+                <span
+                  key={`mob-top-${tag.label}`}
+                  className="onb-mobile-tag absolute whitespace-nowrap rounded-8 border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-text-quaternary typo-caption2"
+                  style={
+                    {
+                      left: tag.left,
+                      top: tag.top,
+                      '--tag-delay': tag.delay,
+                      '--tag-duration': tag.duration,
+                      '--tag-drift-x': `${tag.driftX}px`,
+                      '--tag-drift-y': `${tag.driftY}px`,
+                    } as React.CSSProperties
+                  }
+                >
+                  {tag.label}
+                </span>
+              ))}
           </div>
 
           {/* Headline */}
           <div
             className={classNames(
               'transition-all duration-700 ease-out',
-              mounted
-                ? 'translate-y-0 opacity-100'
-                : 'translate-y-4 opacity-0',
+              mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0',
             )}
             style={{ transitionDelay: '200ms' }}
           >
             <h1 className="mx-auto max-w-[20rem] font-bold leading-[1.12] tracking-tight typo-title1 tablet:max-w-[48rem] tablet:leading-[1.08] tablet:typo-mega1">
-              <span className="text-text-primary">
-                Join top dev community.
-              </span>
+              <span className="text-text-primary">Join top dev community.</span>
               <br />
               <span className="onb-gradient-text bg-clip-text text-transparent">
                 Build your feed identity.
@@ -1278,15 +1300,16 @@ const OnboardingV2Page = (): ReactElement => {
           <div
             className={classNames(
               'transition-all duration-700 ease-out',
-              mounted
-                ? 'translate-y-0 opacity-100'
-                : 'translate-y-3 opacity-0',
+              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
             )}
             style={{ transitionDelay: '400ms' }}
           >
-            <p className="mx-auto mt-4 max-w-[20rem] text-text-secondary typo-callout tablet:mt-5 tablet:max-w-[36rem] tablet:typo-body" style={{ lineHeight: '1.65' }}>
-              Tap into live signals from the global dev community, then
-              lock your feed to your stack with GitHub import or manual setup.
+            <p
+              className="mx-auto mt-4 max-w-[20rem] text-text-secondary typo-callout tablet:mt-5 tablet:max-w-[36rem] tablet:typo-body"
+              style={{ lineHeight: '1.65' }}
+            >
+              Tap into live signals from the global dev community, then lock
+              your feed to your stack with GitHub import or manual setup.
             </p>
           </div>
 
@@ -1294,9 +1317,7 @@ const OnboardingV2Page = (): ReactElement => {
           <div
             className={classNames(
               'mt-7 transition-all duration-700 ease-out',
-              mounted
-                ? 'translate-y-0 opacity-100'
-                : 'translate-y-3 opacity-0',
+              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
             )}
             style={{ transitionDelay: '500ms' }}
           >
@@ -1305,7 +1326,7 @@ const OnboardingV2Page = (): ReactElement => {
               <button
                 type="button"
                 onClick={startGithubImportFlow}
-                className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout tablet:w-auto"
+                className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
               >
                 <svg
                   width="20"
@@ -1323,13 +1344,19 @@ const OnboardingV2Page = (): ReactElement => {
                   fill="none"
                   className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5"
                 >
-                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M5 12h14M12 5l7 7-7 7"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
               <button
                 type="button"
                 onClick={() => openSignup('manual')}
-                className="group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 border border-white/[0.12] bg-white/[0.04] px-6 py-3.5 font-bold text-text-primary backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white/[0.22] hover:bg-white/[0.08] hover:shadow-[0_10px_35px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout tablet:w-auto"
+                className="focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 border border-white/[0.12] bg-white/[0.04] px-6 py-3.5 font-bold text-text-primary backdrop-blur-md transition-all duration-300 typo-callout hover:-translate-y-1 hover:border-white/[0.22] hover:bg-white/[0.08] hover:shadow-[0_10px_35px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path
@@ -1348,7 +1375,13 @@ const OnboardingV2Page = (): ReactElement => {
                   fill="none"
                   className="text-text-quaternary transition-transform duration-300 group-hover:translate-x-0.5"
                 >
-                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M5 12h14M12 5l7 7-7 7"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
             </div>
@@ -1362,47 +1395,44 @@ const OnboardingV2Page = (): ReactElement => {
             )}
             style={{ transitionDelay: '650ms' }}
           >
-            {mounted && MOBILE_TAG_CLOUD_BOTTOM.map((tag) => (
-              <span
-                key={`mob-bot-${tag.label}`}
-                className="onb-mobile-tag absolute whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2.5 py-1 text-text-quaternary typo-caption2"
-                style={
-                  {
-                    left: tag.left,
-                    top: tag.top,
-                    '--tag-delay': tag.delay,
-                    '--tag-duration': tag.duration,
-                    '--tag-drift-x': `${tag.driftX}px`,
-                    '--tag-drift-y': `${tag.driftY}px`,
-                  } as React.CSSProperties
-                }
-              >
-                {tag.label}
-              </span>
-            ))}
+            {mounted &&
+              MOBILE_TAG_CLOUD_BOTTOM.map((tag) => (
+                <span
+                  key={`mob-bot-${tag.label}`}
+                  className="onb-mobile-tag absolute whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2.5 py-1 text-text-quaternary typo-caption2"
+                  style={
+                    {
+                      left: tag.left,
+                      top: tag.top,
+                      '--tag-delay': tag.delay,
+                      '--tag-duration': tag.duration,
+                      '--tag-drift-x': `${tag.driftX}px`,
+                      '--tag-drift-y': `${tag.driftY}px`,
+                    } as React.CSSProperties
+                  }
+                >
+                  {tag.label}
+                </span>
+              ))}
           </div>
         </div>
-
       </section>
 
       {/* ── Full-screen confetti (fixed, above everything) ── */}
       {feedReadyState && (
         <div className="onb-confetti-stage pointer-events-none fixed inset-0 z-[80] overflow-hidden">
           {confettiParticles.map((p) => {
-            const sizeClass =
-              p.size === 'xl'
-                ? 'h-4 w-2.5'
-                : p.size === 'lg'
-                  ? 'h-3 w-2'
-                  : p.size === 'md'
-                    ? 'h-2.5 w-1.5'
-                    : 'h-2 w-1';
-            const shapeClass =
-              p.shape === 'circle'
-                ? 'rounded-full'
-                : p.shape === 'star'
-                  ? 'onb-confetti-star'
-                  : 'rounded-[1px]';
+            const sizeMap: Record<string, string> = {
+              xl: 'h-4 w-2.5',
+              lg: 'h-3 w-2',
+              md: 'h-2.5 w-1.5',
+            };
+            const sizeClass = sizeMap[p.size] ?? 'h-2 w-1';
+            const shapeMap: Record<string, string> = {
+              circle: 'rounded-full',
+              star: 'onb-confetti-star',
+            };
+            const shapeClass = shapeMap[p.shape] ?? 'rounded-[1px]';
             return (
               <span
                 key={p.id}
@@ -1412,13 +1442,15 @@ const OnboardingV2Page = (): ReactElement => {
                   sizeClass,
                   p.color,
                 )}
-                style={{
-                  left: p.left,
-                  top: '-16px',
-                  animationDelay: p.delay,
-                  animationDuration: `${p.speed}s`,
-                  '--confetti-drift': `${p.drift}px`,
-                } as React.CSSProperties}
+                style={
+                  {
+                    left: p.left,
+                    top: '-16px',
+                    animationDelay: p.delay,
+                    animationDuration: `${p.speed}s`,
+                    '--confetti-drift': `${p.drift}px`,
+                  } as React.CSSProperties
+                }
               />
             );
           })}
@@ -1427,11 +1459,17 @@ const OnboardingV2Page = (): ReactElement => {
 
       {/* ── Feed Ready: Celebration Banner ── */}
       {feedReadyState && (
-        <div className="onb-feed-ready-banner relative overflow-hidden pt-8 pb-6 tablet:pt-12 tablet:pb-8">
+        <div className="onb-feed-ready-banner relative overflow-hidden pb-6 pt-8 tablet:pb-8 tablet:pt-12">
           {/* Radial burst glows — multi-layered */}
-          <div className="onb-ready-burst pointer-events-none absolute left-1/2 top-0 h-[24rem] w-full max-w-[48rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-accent-cabbage-default/[0.14] blur-[120px]" />
-          <div className="onb-ready-burst pointer-events-none absolute left-1/2 top-0 h-[16rem] w-full max-w-[28rem] -translate-x-1/2 -translate-y-1/4 rounded-full bg-accent-onion-default/[0.10] blur-[90px]" style={{ animationDelay: '150ms' }} />
-          <div className="onb-ready-burst pointer-events-none absolute left-1/2 top-0 h-[10rem] w-full max-w-[16rem] -translate-x-1/2 -translate-y-1/5 rounded-full bg-accent-water-default/[0.08] blur-[60px]" style={{ animationDelay: '350ms' }} />
+          <div className="onb-ready-burst bg-accent-cabbage-default/[0.14] pointer-events-none absolute left-1/2 top-0 h-[24rem] w-full max-w-[48rem] -translate-x-1/2 -translate-y-1/3 rounded-full blur-[120px]" />
+          <div
+            className="onb-ready-burst bg-accent-onion-default/[0.10] pointer-events-none absolute left-1/2 top-0 h-[16rem] w-full max-w-[28rem] -translate-x-1/2 -translate-y-1/4 rounded-full blur-[90px]"
+            style={{ animationDelay: '150ms' }}
+          />
+          <div
+            className="onb-ready-burst -translate-y-1/5 bg-accent-water-default/[0.08] pointer-events-none absolute left-1/2 top-0 h-[10rem] w-full max-w-[16rem] -translate-x-1/2 rounded-full blur-[60px]"
+            style={{ animationDelay: '350ms' }}
+          />
 
           {/* Sparkle accents */}
           {[
@@ -1441,10 +1479,10 @@ const OnboardingV2Page = (): ReactElement => {
             { left: '72%', top: '55%', delay: '400ms', size: 14 },
             { left: '50%', top: '8%', delay: '100ms', size: 18 },
             { left: '90%', top: '40%', delay: '600ms', size: 8 },
-          ].map((s, i) => (
+          ].map((s) => (
             <svg
-              key={`sparkle-${i}`}
-              className="onb-sparkle pointer-events-none absolute text-accent-cheese-default/60"
+              key={`sparkle-${s.left}-${s.top}`}
+              className="onb-sparkle text-accent-cheese-default/60 pointer-events-none absolute"
               style={{ left: s.left, top: s.top, animationDelay: s.delay }}
               width={s.size}
               height={s.size}
@@ -1458,48 +1496,125 @@ const OnboardingV2Page = (): ReactElement => {
           <div className="relative mx-auto flex max-w-2xl flex-col items-center px-4 tablet:px-6">
             {/* Celebration icon with glow ring */}
             <div className="onb-ready-reveal relative mb-5">
-              <div className="absolute inset-0 animate-ping rounded-full bg-accent-avocado-default/20" style={{ animationDuration: '2s', animationIterationCount: '2' }} />
-              <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-accent-avocado-default/20 ring-2 ring-accent-avocado-default/30">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-accent-avocado-default">
-                  <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+              <div
+                className="bg-accent-avocado-default/20 absolute inset-0 animate-ping rounded-full"
+                style={{
+                  animationDuration: '2s',
+                  animationIterationCount: '2',
+                }}
+              />
+              <div className="bg-accent-avocado-default/20 ring-accent-avocado-default/30 relative flex h-16 w-16 items-center justify-center rounded-full ring-2">
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-accent-avocado-default"
+                >
+                  <path
+                    d="M9 12l2 2 4-4"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    opacity="0.3"
+                  />
                 </svg>
               </div>
             </div>
 
             {/* Headline */}
-            <h2 className="onb-ready-reveal mb-2 text-center text-text-primary typo-title1" style={{ animationDelay: '120ms' }}>
+            <h2
+              className="onb-ready-reveal mb-2 text-center text-text-primary typo-title1"
+              style={{ animationDelay: '120ms' }}
+            >
               Your feed is ready
             </h2>
-            <p className="onb-ready-reveal mb-7 text-center text-text-tertiary typo-body" style={{ animationDelay: '220ms' }}>
+            <p
+              className="onb-ready-reveal mb-7 text-center text-text-tertiary typo-body"
+              style={{ animationDelay: '220ms' }}
+            >
               Here&apos;s how to get the most out of daily.dev
             </p>
 
             {/* Action chips */}
-            <div className="onb-ready-reveal flex flex-col items-stretch gap-3 tablet:flex-row tablet:flex-wrap tablet:items-center tablet:justify-center" style={{ animationDelay: '380ms' }}>
+            <div
+              className="onb-ready-reveal flex flex-col items-stretch gap-3 tablet:flex-row tablet:flex-wrap tablet:items-center tablet:justify-center"
+              style={{ animationDelay: '380ms' }}
+            >
               {/* Install extension */}
               <button
                 type="button"
-                onClick={() => window.open(downloadBrowserExtension, '_blank', 'noopener,noreferrer')}
-                className="group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200 hover:border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10"
+                onClick={() =>
+                  window.open(
+                    downloadBrowserExtension,
+                    '_blank',
+                    'noopener,noreferrer',
+                  )
+                }
+                className="hover:border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 text-accent-cabbage-default">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor" />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="shrink-0 text-accent-cabbage-default"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
+                    fill="currentColor"
+                  />
                 </svg>
-                <span className="text-text-primary typo-callout">Install extension</span>
+                <span className="text-text-primary typo-callout">
+                  Install extension
+                </span>
               </button>
 
               {/* Get mobile app */}
               <button
                 type="button"
-                onClick={() => window.open(mobileAppUrl, '_blank', 'noopener,noreferrer')}
-                className="group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200 hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10"
+                onClick={() =>
+                  window.open(mobileAppUrl, '_blank', 'noopener,noreferrer')
+                }
+                className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 text-accent-onion-default">
-                  <rect x="7" y="2" width="10" height="20" rx="2" stroke="currentColor" strokeWidth="1.8" />
-                  <line x1="10" y1="19" x2="14" y2="19" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="shrink-0 text-accent-onion-default"
+                >
+                  <rect
+                    x="7"
+                    y="2"
+                    width="10"
+                    height="20"
+                    rx="2"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  />
+                  <line
+                    x1="10"
+                    y1="19"
+                    x2="14"
+                    y2="19"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
                 </svg>
-                <span className="text-text-primary typo-callout">Get mobile app</span>
+                <span className="text-text-primary typo-callout">
+                  Get mobile app
+                </span>
               </button>
 
               {/* Enable notifications */}
@@ -1510,12 +1625,23 @@ const OnboardingV2Page = (): ReactElement => {
                     Notification.requestPermission();
                   }
                 }}
-                className="group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200 hover:border-accent-cheese-default/40 hover:bg-accent-cheese-default/10"
+                className="hover:border-accent-cheese-default/40 hover:bg-accent-cheese-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 text-accent-cheese-default">
-                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" fill="currentColor" />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="shrink-0 text-accent-cheese-default"
+                >
+                  <path
+                    d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+                    fill="currentColor"
+                  />
                 </svg>
-                <span className="text-text-primary typo-callout">Enable notifications</span>
+                <span className="text-text-primary typo-callout">
+                  Enable notifications
+                </span>
               </button>
             </div>
 
@@ -1528,7 +1654,13 @@ const OnboardingV2Page = (): ReactElement => {
             >
               Go to my feed
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M5 12h14M12 5l7 7-7 7"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           </div>
@@ -1542,364 +1674,613 @@ const OnboardingV2Page = (): ReactElement => {
       <div
         className={classNames(
           'onb-feed-stage transition-[opacity,transform] duration-500 ease-out',
+          // eslint-disable-next-line no-nested-ternary
           feedReadyState
             ? 'onb-feed-unlocked translate-y-0 opacity-100'
             : feedVisible
-              ? 'translate-y-0 opacity-100'
-              : 'pointer-events-none translate-y-2 opacity-0',
+            ? 'translate-y-0 opacity-100'
+            : 'pointer-events-none translate-y-2 opacity-0',
         )}
       >
         <ActiveFeedNameContext.Provider value={popularFeedNameValue}>
-        <MainFeedLayout feedName="popular" isSearchOn={false}>
-          {/* Scroll sentinel — triggers panel at ~50% of feed */}
-          <div ref={panelSentinelRef} className="pointer-events-none h-0" />
+          <MainFeedLayout feedName="popular" isSearchOn={false}>
+            {/* Scroll sentinel — triggers panel at ~50% of feed */}
+            <div ref={panelSentinelRef} className="pointer-events-none h-0" />
 
-        {/* ── Personalization Panel ── */}
-        <div
-          ref={panelStageRef}
-          className={classNames('relative left-1/2 h-[42vh] w-screen -translate-x-1/2', feedReadyState && 'hidden')}
-        >
-          <div className="sticky top-[50vh] -translate-y-1/2">
-            {/* Dark gradient overlay — fades feed out progressively */}
+            {/* ── Personalization Panel ── */}
             <div
-              className="onb-panel-fade pointer-events-none absolute inset-x-0 -top-[18rem] h-[40rem] bg-gradient-to-b from-background-default/0 via-background-default to-background-default transition-opacity duration-300"
-              style={{ opacity: panelVisible ? 1 : 0 }}
-            />
-            <div
-              className="pointer-events-none absolute inset-x-0 bottom-[-12rem] h-[28rem] bg-background-default transition-opacity duration-300"
-              style={{ opacity: panelVisible ? 1 : 0 }}
-            />
-
-            <div
+              ref={panelStageRef}
               className={classNames(
-                'relative transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)]',
-                panelVisible
-                  ? 'opacity-100'
-                  : 'opacity-0',
-              )}
-              style={{
-                transform: `translateY(${panelRevealOffset - panelLift}px)`,
-              }}
-            >
-              <div
-                ref={panelBoxRef}
-                className="onb-cursor-glow mx-auto max-w-[48rem] px-4 pb-10 pt-12 tablet:px-8 tablet:pt-20"
-              >
-            <div className="relative">
-
-            {/* Section title */}
-            <div
-              className={classNames(
-                'relative z-1 transition-all duration-700 ease-out',
-                panelVisible
-                  ? 'translate-y-0 opacity-100'
-                  : 'translate-y-6 opacity-0',
+                'relative left-1/2 h-[42vh] w-screen -translate-x-1/2',
+                feedReadyState && 'hidden',
               )}
             >
-              <p className="mb-2 text-center text-white typo-body">
-                You just explored the global feed.
-              </p>
-              <h3 className="mb-10 text-center font-bold text-white typo-title1 tablet:typo-large-title">
-                Now build a feed that is truly yours
-              </h3>
-            </div>
+              <div className="sticky top-[50vh] -translate-y-1/2">
+                {/* Dark gradient overlay — fades feed out progressively */}
+                <div
+                  className="onb-panel-fade from-background-default/0 pointer-events-none absolute inset-x-0 -top-[18rem] h-[40rem] bg-gradient-to-b via-background-default to-background-default transition-opacity duration-300"
+                  style={{ opacity: panelVisible ? 1 : 0 }}
+                />
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-[-12rem] h-[28rem] bg-background-default transition-opacity duration-300"
+                  style={{ opacity: panelVisible ? 1 : 0 }}
+                />
 
-            {/* Two-path layout */}
-            <div className="relative z-1 flex flex-col gap-4 tablet:grid tablet:grid-cols-2 tablet:items-stretch tablet:gap-5">
-              {/* ── Path A: GitHub ── */}
-              <div
-                className={classNames(
-                  'onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch',
-                  panelVisible
-                    ? 'translate-y-0 opacity-100'
-                    : 'translate-y-10 opacity-0',
-                )}
-                style={{ transitionDelay: '200ms' }}
-              >
-                {/* Animated orb — full-width energy field */}
-                <div className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center" style={{ width: 'calc(100% + 3rem)' }}>
-                  {/* Radial gradient from top center */}
-                  <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 0%, var(--theme-accent-cabbage-default) 0%, transparent 65%)', opacity: 0.22 }} />
-                  {/* Wide glow */}
-                  <div className="ghub-orb-glow pointer-events-none absolute h-32 w-52 rounded-full bg-accent-cabbage-default/15 blur-3xl" />
-                  {/* Outer ring */}
-                  <svg className="ghub-ring pointer-events-none absolute" style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
-                    <circle cx="88" cy="88" r="84" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
-                  </svg>
-                  {/* Middle ring */}
-                  <svg className="ghub-ring-reverse pointer-events-none absolute h-24 w-24" viewBox="0 0 96 96">
-                    <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
-                  </svg>
-                  {/* Inner ring */}
-                  <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
-                    <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
-                  </svg>
-                  {/* Particles from far away */}
-                  {[
-                    { px: '-6rem', py: '-3.5rem', dur: '3.0s', delay: '0s', color: 'bg-accent-cheese-default' },
-                    { px: '5.5rem', py: '-4rem', dur: '3.4s', delay: '0.5s', color: 'bg-accent-water-default' },
-                    { px: '-5rem', py: '3.5rem', dur: '3.2s', delay: '1.0s', color: 'bg-accent-cabbage-default' },
-                    { px: '6rem', py: '3rem', dur: '3.6s', delay: '1.5s', color: 'bg-accent-onion-default' },
-                    { px: '0.5rem', py: '-5rem', dur: '2.8s', delay: '0.7s', color: 'bg-accent-cheese-default' },
-                    { px: '-6.5rem', py: '0.5rem', dur: '3.1s', delay: '1.2s', color: 'bg-accent-water-default' },
-                  ].map((p) => (
-                    <span
-                      key={`panel-ghub-${p.delay}`}
-                      className={classNames(
-                        'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
-                        p.color,
-                      )}
-                      style={{
-                        '--px': p.px,
-                        '--py': p.py,
-                        '--dur': p.dur,
-                        '--delay': p.delay,
-                        animationDelay: p.delay,
-                      } as React.CSSProperties}
-                    />
-                  ))}
-                  {/* Center icon with pulse */}
-                  <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" className="text-text-primary">
-                      <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                    </svg>
-                  </div>
-                </div>
-
-                <h4 className="mb-1.5 font-bold text-text-primary typo-body">
-                  One-click setup
-                </h4>
-                <p className="mb-5 text-center text-text-tertiary typo-footnote">
-                  Connect GitHub and let our AI do the rest.
-                </p>
-
-                <div className="mb-5 flex w-full flex-col gap-3">
-                  {[
-                    { text: 'Detects your stack from your repos', icon: 'stack' },
-                    { text: 'AI maps your skills to the most relevant topics', icon: 'ai' },
-                    { text: 'Your personalized feed is ready in seconds', icon: 'feed' },
-                  ].map(({ text, icon }) => (
-                    <div key={text} className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/[0.06]">
-                        {icon === 'stack' && (
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-text-secondary">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                        {icon === 'ai' && (
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-text-secondary">
-                            <path d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z" fill="currentColor" />
-                          </svg>
-                        )}
-                        {icon === 'feed' && (
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-text-secondary">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                      </span>
-                      <span className="text-left text-text-tertiary typo-footnote">{text}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mb-5 h-px w-full bg-border-subtlest-tertiary/30" />
-
-                <div className="relative w-full">
-                  <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
-                  <button
-                    type="button"
-                    onClick={startGithubImportFlow}
-                    className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout"
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                    </svg>
-                    Continue with GitHub
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5">
-                      <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </button>
-                </div>
-                <p className="mt-2.5 text-text-quaternary typo-caption2">
-                  Read-only access &middot; No special permissions
-                </p>
-              </div>
-
-              {/* ── Path B: Manual ── */}
-              <div
-                className={classNames(
-                  'onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch',
-                  panelVisible
-                    ? 'translate-y-0 opacity-100'
-                    : 'translate-y-10 opacity-0',
-                )}
-                style={{ transitionDelay: '350ms' }}
-              >
-                {/* Animated orb — full-width energy field */}
-                <div className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center" style={{ width: 'calc(100% + 3rem)' }}>
-                  {/* Radial gradient from top center */}
-                  <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)', opacity: 0.22 }} />
-                  {/* Wide glow */}
-                  <div className="onb-ai-orb-glow pointer-events-none absolute h-32 w-52 rounded-full bg-accent-onion-default/15 blur-3xl" />
-                  {/* Outer ring */}
-                  <svg className="onb-ai-ring pointer-events-none absolute" style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
-                    <circle cx="88" cy="88" r="84" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
-                  </svg>
-                  {/* Middle ring */}
-                  <svg className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24" viewBox="0 0 96 96">
-                    <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
-                  </svg>
-                  {/* Inner ring */}
-                  <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
-                    <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
-                  </svg>
-                  {/* Particles from far away */}
-                  {[
-                    { px: '-6rem', py: '-3.5rem', dur: '3.2s', delay: '0s', color: 'bg-accent-cheese-default' },
-                    { px: '5.5rem', py: '-4rem', dur: '3.6s', delay: '0.5s', color: 'bg-accent-water-default' },
-                    { px: '-5rem', py: '3.5rem', dur: '3.0s', delay: '1.0s', color: 'bg-accent-onion-default' },
-                    { px: '6rem', py: '3rem', dur: '3.4s', delay: '1.5s', color: 'bg-accent-cabbage-default' },
-                    { px: '-0.5rem', py: '-5rem', dur: '2.8s', delay: '0.3s', color: 'bg-accent-cheese-default' },
-                    { px: '6.5rem', py: '-0.5rem', dur: '3.1s', delay: '0.8s', color: 'bg-accent-water-default' },
-                  ].map((p) => (
-                    <span
-                      key={`panel-ai-${p.delay}`}
-                      className={classNames(
-                        'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
-                        p.color,
-                      )}
-                      style={{
-                        '--px': p.px,
-                        '--py': p.py,
-                        '--dur': p.dur,
-                        '--delay': p.delay,
-                        animationDelay: p.delay,
-                      } as React.CSSProperties}
-                    />
-                  ))}
-                  {/* Center icon with pulse */}
-                  <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                    <MagicIcon secondary size={IconSize.Small} className="text-white" />
-                  </div>
-                </div>
-
-                <h4 className="mb-1.5 font-bold text-text-primary typo-body">
-                  Tell our AI about yourself
-                </h4>
-                <p className="mb-5 text-center text-text-tertiary typo-footnote">
-                  Describe your stack and let AI build your feed.
-                </p>
-
-                {/* Textarea */}
-                <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)]">
-                  <textarea
-                    value={aiPrompt}
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key !== 'Enter' || e.shiftKey) {
-                        return;
-                      }
-                      e.preventDefault();
-                      if (aiPrompt.trim()) {
-                        startAiProcessing();
-                      }
-                    }}
-                    rows={4}
-                    placeholder={"I'm a frontend engineer working with React and TypeScript. Interested in system design, AI tooling..."}
-                    className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary placeholder:text-text-quaternary transition-colors duration-200 focus:outline-none focus:placeholder:text-text-disabled typo-callout"
-                  />
-                </div>
-
-                {/* Selected chips */}
-                {selectedTopics.size > 0 && (
-                  <div className="mb-3 flex w-full flex-wrap gap-1.5">
-                    {Array.from(selectedTopics).map((topic) => (
-                      <button
-                        key={`sel-${topic}`}
-                        type="button"
-                        onClick={() => toggleTopic(topic)}
-                        className={classNames(
-                          'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] active:scale-[0.96] focus-visible:outline-none typo-caption1',
-                          TOPIC_SELECTED_STYLES,
-                        )}
-                      >
-                        {topic}
-                        <span className="text-text-quaternary">&times;</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Matched tags */}
                 <div
                   className={classNames(
-                    'w-full overflow-hidden transition-all duration-400 ease-out',
-                    recommendedTopics.length > 0
-                      ? 'max-h-40 opacity-100'
-                      : 'max-h-0 opacity-0',
+                    'relative transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)]',
+                    panelVisible ? 'opacity-100' : 'opacity-0',
                   )}
+                  style={{
+                    transform: `translateY(${panelRevealOffset - panelLift}px)`,
+                  }}
                 >
-                  <div className="flex flex-wrap gap-1.5">
-                    {recommendedTopics.map(({ label }) => (
-                      <button
-                        key={`match-${label}`}
-                        type="button"
-                        onClick={() => toggleTopic(label)}
-                        className="onb-chip-enter rounded-8 border border-border-subtlest-tertiary/40 px-2.5 py-1 text-text-tertiary transition-all duration-200 hover:bg-white/[0.06] hover:text-text-secondary active:scale-[0.97] focus-visible:outline-none typo-caption1"
+                  <div
+                    ref={panelBoxRef}
+                    className="onb-cursor-glow mx-auto max-w-[48rem] px-4 pb-10 pt-12 tablet:px-8 tablet:pt-20"
+                  >
+                    <div className="relative">
+                      {/* Section title */}
+                      <div
+                        className={classNames(
+                          'relative z-1 transition-all duration-700 ease-out',
+                          panelVisible
+                            ? 'translate-y-0 opacity-100'
+                            : 'translate-y-6 opacity-0',
+                        )}
                       >
-                        + {label}
-                      </button>
-                    ))}
+                        <p className="mb-2 text-center text-white typo-body">
+                          You just explored the global feed.
+                        </p>
+                        <h3 className="mb-10 text-center font-bold text-white typo-title1 tablet:typo-large-title">
+                          Now build a feed that is truly yours
+                        </h3>
+                      </div>
+
+                      {/* Two-path layout */}
+                      <div className="relative z-1 flex flex-col gap-4 tablet:grid tablet:grid-cols-2 tablet:items-stretch tablet:gap-5">
+                        {/* ── Path A: GitHub ── */}
+                        <div
+                          className={classNames(
+                            'onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch',
+                            panelVisible
+                              ? 'translate-y-0 opacity-100'
+                              : 'translate-y-10 opacity-0',
+                          )}
+                          style={{ transitionDelay: '200ms' }}
+                        >
+                          {/* Animated orb — full-width energy field */}
+                          <div
+                            className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
+                            style={{ width: 'calc(100% + 3rem)' }}
+                          >
+                            {/* Radial gradient from top center */}
+                            <div
+                              className="pointer-events-none absolute inset-0"
+                              style={{
+                                background:
+                                  'radial-gradient(ellipse at 50% 0%, var(--theme-accent-cabbage-default) 0%, transparent 65%)',
+                                opacity: 0.22,
+                              }}
+                            />
+                            {/* Wide glow */}
+                            <div className="ghub-orb-glow bg-accent-cabbage-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
+                            {/* Outer ring */}
+                            <svg
+                              className="ghub-ring pointer-events-none absolute"
+                              style={{ width: '11rem', height: '11rem' }}
+                              viewBox="0 0 176 176"
+                            >
+                              <circle
+                                cx="88"
+                                cy="88"
+                                r="84"
+                                fill="none"
+                                stroke="var(--theme-accent-cabbage-default)"
+                                strokeWidth="1.5"
+                                strokeDasharray="6 10"
+                                opacity="0.18"
+                              />
+                            </svg>
+                            {/* Middle ring */}
+                            <svg
+                              className="ghub-ring-reverse pointer-events-none absolute h-24 w-24"
+                              viewBox="0 0 96 96"
+                            >
+                              <circle
+                                cx="48"
+                                cy="48"
+                                r="44"
+                                fill="none"
+                                stroke="var(--theme-accent-cabbage-default)"
+                                strokeWidth="1.5"
+                                strokeDasharray="4 6"
+                                opacity="0.35"
+                              />
+                            </svg>
+                            {/* Inner ring */}
+                            <svg
+                              className="onb-ring-slow pointer-events-none absolute h-16 w-16"
+                              viewBox="0 0 64 64"
+                            >
+                              <circle
+                                cx="32"
+                                cy="32"
+                                r="28"
+                                fill="none"
+                                stroke="var(--theme-accent-cabbage-default)"
+                                strokeWidth="1"
+                                strokeDasharray="3 5"
+                                opacity="0.3"
+                              />
+                            </svg>
+                            {/* Particles from far away */}
+                            {[
+                              {
+                                px: '-6rem',
+                                py: '-3.5rem',
+                                dur: '3.0s',
+                                delay: '0s',
+                                color: 'bg-accent-cheese-default',
+                              },
+                              {
+                                px: '5.5rem',
+                                py: '-4rem',
+                                dur: '3.4s',
+                                delay: '0.5s',
+                                color: 'bg-accent-water-default',
+                              },
+                              {
+                                px: '-5rem',
+                                py: '3.5rem',
+                                dur: '3.2s',
+                                delay: '1.0s',
+                                color: 'bg-accent-cabbage-default',
+                              },
+                              {
+                                px: '6rem',
+                                py: '3rem',
+                                dur: '3.6s',
+                                delay: '1.5s',
+                                color: 'bg-accent-onion-default',
+                              },
+                              {
+                                px: '0.5rem',
+                                py: '-5rem',
+                                dur: '2.8s',
+                                delay: '0.7s',
+                                color: 'bg-accent-cheese-default',
+                              },
+                              {
+                                px: '-6.5rem',
+                                py: '0.5rem',
+                                dur: '3.1s',
+                                delay: '1.2s',
+                                color: 'bg-accent-water-default',
+                              },
+                            ].map((p) => (
+                              <span
+                                key={`panel-ghub-${p.delay}`}
+                                className={classNames(
+                                  'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
+                                  p.color,
+                                )}
+                                style={
+                                  {
+                                    '--px': p.px,
+                                    '--py': p.py,
+                                    '--dur': p.dur,
+                                    '--delay': p.delay,
+                                    animationDelay: p.delay,
+                                  } as React.CSSProperties
+                                }
+                              />
+                            ))}
+                            {/* Center icon with pulse */}
+                            <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
+                              <svg
+                                width="26"
+                                height="26"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="text-text-primary"
+                              >
+                                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
+                              </svg>
+                            </div>
+                          </div>
+
+                          <h4 className="mb-1.5 font-bold text-text-primary typo-body">
+                            One-click setup
+                          </h4>
+                          <p className="mb-5 text-center text-text-tertiary typo-footnote">
+                            Connect GitHub and let our AI do the rest.
+                          </p>
+
+                          <div className="mb-5 flex w-full flex-col gap-3">
+                            {[
+                              {
+                                text: 'Detects your stack from your repos',
+                                icon: 'stack',
+                              },
+                              {
+                                text: 'AI maps your skills to the most relevant topics',
+                                icon: 'ai',
+                              },
+                              {
+                                text: 'Your personalized feed is ready in seconds',
+                                icon: 'feed',
+                              },
+                            ].map(({ text, icon }) => (
+                              <div
+                                key={text}
+                                className="flex items-start gap-3"
+                              >
+                                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/[0.06]">
+                                  {icon === 'stack' && (
+                                    <svg
+                                      width="11"
+                                      height="11"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      className="text-text-secondary"
+                                    >
+                                      <path
+                                        d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      />
+                                    </svg>
+                                  )}
+                                  {icon === 'ai' && (
+                                    <svg
+                                      width="11"
+                                      height="11"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      className="text-text-secondary"
+                                    >
+                                      <path
+                                        d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z"
+                                        fill="currentColor"
+                                      />
+                                    </svg>
+                                  )}
+                                  {icon === 'feed' && (
+                                    <svg
+                                      width="11"
+                                      height="11"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      className="text-text-secondary"
+                                    >
+                                      <path
+                                        d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      />
+                                    </svg>
+                                  )}
+                                </span>
+                                <span className="text-left text-text-tertiary typo-footnote">
+                                  {text}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="bg-border-subtlest-tertiary/30 mb-5 h-px w-full" />
+
+                          <div className="relative w-full">
+                            <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
+                            <button
+                              type="button"
+                              onClick={startGithubImportFlow}
+                              className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
+                            >
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                              >
+                                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
+                              </svg>
+                              Continue with GitHub
+                              <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5"
+                              >
+                                <path
+                                  d="M5 12h14M12 5l7 7-7 7"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                          <p className="mt-2.5 text-text-quaternary typo-caption2">
+                            Read-only access &middot; No special permissions
+                          </p>
+                        </div>
+
+                        {/* ── Path B: Manual ── */}
+                        <div
+                          className={classNames(
+                            'onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch',
+                            panelVisible
+                              ? 'translate-y-0 opacity-100'
+                              : 'translate-y-10 opacity-0',
+                          )}
+                          style={{ transitionDelay: '350ms' }}
+                        >
+                          {/* Animated orb — full-width energy field */}
+                          <div
+                            className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
+                            style={{ width: 'calc(100% + 3rem)' }}
+                          >
+                            {/* Radial gradient from top center */}
+                            <div
+                              className="pointer-events-none absolute inset-0"
+                              style={{
+                                background:
+                                  'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)',
+                                opacity: 0.22,
+                              }}
+                            />
+                            {/* Wide glow */}
+                            <div className="onb-ai-orb-glow bg-accent-onion-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
+                            {/* Outer ring */}
+                            <svg
+                              className="onb-ai-ring pointer-events-none absolute"
+                              style={{ width: '11rem', height: '11rem' }}
+                              viewBox="0 0 176 176"
+                            >
+                              <circle
+                                cx="88"
+                                cy="88"
+                                r="84"
+                                fill="none"
+                                stroke="var(--theme-accent-onion-default)"
+                                strokeWidth="1.5"
+                                strokeDasharray="6 10"
+                                opacity="0.18"
+                              />
+                            </svg>
+                            {/* Middle ring */}
+                            <svg
+                              className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24"
+                              viewBox="0 0 96 96"
+                            >
+                              <circle
+                                cx="48"
+                                cy="48"
+                                r="44"
+                                fill="none"
+                                stroke="var(--theme-accent-onion-default)"
+                                strokeWidth="1.5"
+                                strokeDasharray="4 6"
+                                opacity="0.35"
+                              />
+                            </svg>
+                            {/* Inner ring */}
+                            <svg
+                              className="onb-ring-slow pointer-events-none absolute h-16 w-16"
+                              viewBox="0 0 64 64"
+                            >
+                              <circle
+                                cx="32"
+                                cy="32"
+                                r="28"
+                                fill="none"
+                                stroke="var(--theme-accent-onion-default)"
+                                strokeWidth="1"
+                                strokeDasharray="3 5"
+                                opacity="0.3"
+                              />
+                            </svg>
+                            {/* Particles from far away */}
+                            {[
+                              {
+                                px: '-6rem',
+                                py: '-3.5rem',
+                                dur: '3.2s',
+                                delay: '0s',
+                                color: 'bg-accent-cheese-default',
+                              },
+                              {
+                                px: '5.5rem',
+                                py: '-4rem',
+                                dur: '3.6s',
+                                delay: '0.5s',
+                                color: 'bg-accent-water-default',
+                              },
+                              {
+                                px: '-5rem',
+                                py: '3.5rem',
+                                dur: '3.0s',
+                                delay: '1.0s',
+                                color: 'bg-accent-onion-default',
+                              },
+                              {
+                                px: '6rem',
+                                py: '3rem',
+                                dur: '3.4s',
+                                delay: '1.5s',
+                                color: 'bg-accent-cabbage-default',
+                              },
+                              {
+                                px: '-0.5rem',
+                                py: '-5rem',
+                                dur: '2.8s',
+                                delay: '0.3s',
+                                color: 'bg-accent-cheese-default',
+                              },
+                              {
+                                px: '6.5rem',
+                                py: '-0.5rem',
+                                dur: '3.1s',
+                                delay: '0.8s',
+                                color: 'bg-accent-water-default',
+                              },
+                            ].map((p) => (
+                              <span
+                                key={`panel-ai-${p.delay}`}
+                                className={classNames(
+                                  'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
+                                  p.color,
+                                )}
+                                style={
+                                  {
+                                    '--px': p.px,
+                                    '--py': p.py,
+                                    '--dur': p.dur,
+                                    '--delay': p.delay,
+                                    animationDelay: p.delay,
+                                  } as React.CSSProperties
+                                }
+                              />
+                            ))}
+                            {/* Center icon with pulse */}
+                            <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
+                              <MagicIcon
+                                secondary
+                                size={IconSize.Small}
+                                className="text-white"
+                              />
+                            </div>
+                          </div>
+
+                          <h4 className="mb-1.5 font-bold text-text-primary typo-body">
+                            Tell our AI about yourself
+                          </h4>
+                          <p className="mb-5 text-center text-text-tertiary typo-footnote">
+                            Describe your stack and let AI build your feed.
+                          </p>
+
+                          {/* Textarea */}
+                          <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)] hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none">
+                            <textarea
+                              value={aiPrompt}
+                              onChange={(e) => setAiPrompt(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key !== 'Enter' || e.shiftKey) {
+                                  return;
+                                }
+                                e.preventDefault();
+                                if (aiPrompt.trim()) {
+                                  startAiProcessing();
+                                }
+                              }}
+                              rows={4}
+                              placeholder="I'm a frontend engineer working with React and TypeScript. Interested in system design, AI tooling..."
+                              className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary transition-colors duration-200 typo-callout placeholder:text-text-quaternary focus:outline-none focus:placeholder:text-text-disabled"
+                            />
+                          </div>
+
+                          {/* Selected chips */}
+                          {selectedTopics.size > 0 && (
+                            <div className="mb-3 flex w-full flex-wrap gap-1.5">
+                              {Array.from(selectedTopics).map((topic) => (
+                                <button
+                                  key={`sel-${topic}`}
+                                  type="button"
+                                  onClick={() => toggleTopic(topic)}
+                                  className={classNames(
+                                    'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 typo-caption1 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] focus-visible:outline-none active:scale-[0.96]',
+                                    TOPIC_SELECTED_STYLES,
+                                  )}
+                                >
+                                  {topic}
+                                  <span className="text-text-quaternary">
+                                    &times;
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Matched tags */}
+                          <div
+                            className={classNames(
+                              'duration-400 w-full overflow-hidden transition-all ease-out',
+                              recommendedTopics.length > 0
+                                ? 'max-h-40 opacity-100'
+                                : 'max-h-0 opacity-0',
+                            )}
+                          >
+                            <div className="flex flex-wrap gap-1.5">
+                              {recommendedTopics.map(({ label }) => (
+                                <button
+                                  key={`match-${label}`}
+                                  type="button"
+                                  onClick={() => toggleTopic(label)}
+                                  className="onb-chip-enter border-border-subtlest-tertiary/40 rounded-8 border px-2.5 py-1 text-text-tertiary transition-all duration-200 typo-caption1 hover:bg-white/[0.06] hover:text-text-secondary focus-visible:outline-none active:scale-[0.97]"
+                                >
+                                  + {label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Build feed CTA — disabled when no input */}
+                          <div className="relative mt-4 w-full">
+                            <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
+                            <button
+                              type="button"
+                              disabled={
+                                !aiPrompt.trim() && selectedTopics.size === 0
+                              }
+                              onClick={() => startAiProcessing()}
+                              className={classNames(
+                                'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
+                                aiPrompt.trim() || selectedTopics.size > 0
+                                  ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
+                                  : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
+                              )}
+                            >
+                              <MagicIcon
+                                secondary
+                                size={IconSize.Size16}
+                                className="transition-transform duration-300 group-hover:translate-x-0.5"
+                              />
+                              Generate my feed with AI
+                            </button>
+                          </div>
+                          <p className="mt-2.5 text-text-quaternary typo-caption2">
+                            AI-powered &middot; instant personalization
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                {/* Build feed CTA — disabled when no input */}
-                <div className="relative mt-4 w-full">
-                  <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
-                  <button
-                    type="button"
-                    disabled={!aiPrompt.trim() && selectedTopics.size === 0}
-                    onClick={() => startAiProcessing()}
-                    className={classNames(
-                      'group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout',
-                      aiPrompt.trim() || selectedTopics.size > 0
-                        ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
-                        : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
-                    )}
-                  >
-                    <MagicIcon secondary size={IconSize.Size16} className="transition-transform duration-300 group-hover:translate-x-0.5" />
-                    Generate my feed with AI
-                  </button>
-                </div>
-                <p className="mt-2.5 text-text-quaternary typo-caption2">
-                  AI-powered &middot; instant personalization
-                </p>
               </div>
             </div>
-            </div>
-            </div>
-          </div>
-        </div>
-        </div>
 
-        {/* Footer links for SEO — placed at the bottom of the page */}
-        {!feedReadyState && (
-          <div className="relative z-1 mx-auto mt-16 flex w-full max-w-[48rem] justify-center px-5 pb-8 mobileL:px-6 tablet:mt-14">
-            <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
-          </div>
-        )}
-        </MainFeedLayout>
+            {/* Footer links for SEO — placed at the bottom of the page */}
+            {!feedReadyState && (
+              <div className="relative z-1 mx-auto mt-16 flex w-full max-w-[48rem] justify-center px-5 pb-8 mobileL:px-6 tablet:mt-14">
+                <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
+              </div>
+            )}
+          </MainFeedLayout>
         </ActiveFeedNameContext.Provider>
       </div>
 
       {/* ── CSS: feed limit, article fade, marquee, sidebar disable ── */}
+      {/* eslint-disable-next-line react/no-unknown-property */}
       <style jsx global>{`
-        body:has(.onb-sidebar-locked) aside[data-testid="sidebar-aside"],
+        body:has(.onb-sidebar-locked) aside[data-testid='sidebar-aside'],
         body:has(.onb-sidebar-locked) nav[aria-label] {
           pointer-events: none !important;
           opacity: 0.15 !important;
@@ -1908,7 +2289,7 @@ const OnboardingV2Page = (): ReactElement => {
           cursor: not-allowed !important;
         }
 
-        body:has(.onb-sidebar-locked) aside[data-testid="sidebar-aside"] *,
+        body:has(.onb-sidebar-locked) aside[data-testid='sidebar-aside'] *,
         body:has(.onb-sidebar-locked) nav[aria-label] * {
           pointer-events: none !important;
           cursor: not-allowed !important;
@@ -1918,7 +2299,7 @@ const OnboardingV2Page = (): ReactElement => {
 
         .onb-page-locked aside a,
         .onb-page-locked aside button,
-        .onb-page-locked aside [role="button"],
+        .onb-page-locked aside [role='button'],
         .onb-page-locked aside svg,
         .onb-page-locked aside img {
           pointer-events: none !important;
@@ -1947,7 +2328,8 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── MAGICAL BREATHE GLOW ─── */
         @keyframes onb-magical-breathe {
-          0%, 100% {
+          0%,
+          100% {
             opacity: 0.4;
             transform: translateX(-50%) scale(1) translateY(0) rotate(0deg);
             filter: blur(90px) brightness(1);
@@ -1976,7 +2358,8 @@ const OnboardingV2Page = (): ReactElement => {
           transform: translateY(calc(var(--scroll-y) * -0.15px));
         }
         .onb-hero .onb-glow-drift {
-          transform: translateX(-50%) translateY(calc(var(--scroll-y) * -0.08px));
+          transform: translateX(-50%)
+            translateY(calc(var(--scroll-y) * -0.08px));
         }
 
         /* ─── HERO TAG CLOUD ─── */
@@ -1988,73 +2371,120 @@ const OnboardingV2Page = (): ReactElement => {
           18% {
             opacity: 0.9;
             transform: translate3d(
-              calc(var(--tag-drift-x, 0px) * 0.2),
-              calc(var(--tag-drift-y, 0px) * 0.2),
-              0
-            ) scale(1);
+                calc(var(--tag-drift-x, 0px) * 0.2),
+                calc(var(--tag-drift-y, 0px) * 0.2),
+                0
+              )
+              scale(1);
           }
           72% {
             opacity: 0.9;
             transform: translate3d(
-              calc(var(--tag-drift-x, 0px) * 0.75),
-              calc(var(--tag-drift-y, 0px) * 0.75),
-              0
-            ) scale(1.03);
+                calc(var(--tag-drift-x, 0px) * 0.75),
+                calc(var(--tag-drift-y, 0px) * 0.75),
+                0
+              )
+              scale(1.03);
           }
           100% {
             opacity: 0;
             transform: translate3d(
-              var(--tag-drift-x, 0px),
-              var(--tag-drift-y, 0px),
-              0
-            ) scale(1.06);
+                var(--tag-drift-x, 0px),
+                var(--tag-drift-y, 0px),
+                0
+              )
+              scale(1.06);
           }
         }
         .onb-hero-tag {
-          animation: onb-hero-tag-float var(--tag-duration, 12s) ease-in-out infinite;
+          animation: onb-hero-tag-float var(--tag-duration, 12s) ease-in-out
+            infinite;
           animation-delay: var(--tag-delay, 0s);
           will-change: opacity, transform;
         }
 
         /* ─── SHIMMER ─── */
-        .onb-shimmer { position: relative; overflow: hidden; }
+        .onb-shimmer {
+          position: relative;
+          overflow: hidden;
+        }
         .onb-shimmer::after {
           content: '';
           position: absolute;
           inset: 0;
-          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.06) 50%,
+            transparent 100%
+          );
           animation: onb-shimmer 2.4s ease-in-out infinite;
         }
         @keyframes onb-shimmer {
-          from { transform: translateX(-100%); }
-          to { transform: translateX(100%); }
+          from {
+            transform: translateX(-100%);
+          }
+          to {
+            transform: translateX(100%);
+          }
         }
 
         /* ─── RING ANIMATIONS ─── */
         @keyframes onb-ring-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
-        .onb-ring-spin { animation: onb-ring-spin 12s linear infinite; }
-        .onb-ring-spin-reverse { animation: onb-ring-spin 18s linear infinite reverse; }
+        .onb-ring-spin {
+          animation: onb-ring-spin 12s linear infinite;
+        }
+        .onb-ring-spin-reverse {
+          animation: onb-ring-spin 18s linear infinite reverse;
+        }
 
         @keyframes onb-ring-pulse {
-          0%, 100% { transform: scale(1); opacity: 0.6; }
-          50% { transform: scale(1.1); opacity: 1; }
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.6;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 1;
+          }
         }
-        .onb-ring-pulse { animation: onb-ring-pulse 3s ease-in-out infinite; }
+        .onb-ring-pulse {
+          animation: onb-ring-pulse 3s ease-in-out infinite;
+        }
 
         /* ─── CTA GLOW ─── */
         @keyframes onb-cta-glow {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
+          0%,
+          100% {
+            opacity: 0.5;
+          }
+          50% {
+            opacity: 1;
+          }
         }
 
         /* ─── CHIP POP ─── */
         @keyframes onb-chip-pop {
-          0% { transform: scale(0.6); opacity: 0; }
-          60% { transform: scale(1.08); opacity: 1; }
-          100% { transform: scale(1); opacity: 1; }
+          0% {
+            transform: scale(0.6);
+            opacity: 0;
+          }
+          60% {
+            transform: scale(1.08);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
         }
         .onb-chip-enter {
           animation: onb-chip-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -2062,30 +2492,75 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── FLOATING PARTICLES ─── */
         @keyframes onb-float-1 {
-          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-          25% { transform: translate(12px, -18px) scale(1.2); opacity: 0.6; }
-          50% { transform: translate(-8px, -30px) scale(0.9); opacity: 0.4; }
-          75% { transform: translate(16px, -12px) scale(1.1); opacity: 0.5; }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.3;
+          }
+          25% {
+            transform: translate(12px, -18px) scale(1.2);
+            opacity: 0.6;
+          }
+          50% {
+            transform: translate(-8px, -30px) scale(0.9);
+            opacity: 0.4;
+          }
+          75% {
+            transform: translate(16px, -12px) scale(1.1);
+            opacity: 0.5;
+          }
         }
         @keyframes onb-float-2 {
-          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
-          33% { transform: translate(-16px, -22px) scale(1.3); opacity: 0.5; }
-          66% { transform: translate(10px, -35px) scale(0.8); opacity: 0.3; }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.2;
+          }
+          33% {
+            transform: translate(-16px, -22px) scale(1.3);
+            opacity: 0.5;
+          }
+          66% {
+            transform: translate(10px, -35px) scale(0.8);
+            opacity: 0.3;
+          }
         }
         @keyframes onb-float-3 {
-          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.25; }
-          40% { transform: translate(20px, -14px) scale(1.15); opacity: 0.55; }
-          80% { transform: translate(-12px, -28px) scale(0.85); opacity: 0.2; }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.25;
+          }
+          40% {
+            transform: translate(20px, -14px) scale(1.15);
+            opacity: 0.55;
+          }
+          80% {
+            transform: translate(-12px, -28px) scale(0.85);
+            opacity: 0.2;
+          }
         }
-        .onb-float-1 { animation: onb-float-1 8s ease-in-out infinite; }
-        .onb-float-2 { animation: onb-float-2 11s ease-in-out infinite; }
-        .onb-float-3 { animation: onb-float-3 14s ease-in-out infinite; }
+        .onb-float-1 {
+          animation: onb-float-1 8s ease-in-out infinite;
+        }
+        .onb-float-2 {
+          animation: onb-float-2 11s ease-in-out infinite;
+        }
+        .onb-float-3 {
+          animation: onb-float-3 14s ease-in-out infinite;
+        }
 
         /* ─── GRADIENT TEXT SHIMMER ─── */
         @keyframes onb-gradient-shift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
         }
         .onb-gradient-text {
           background-image: linear-gradient(
@@ -2101,15 +2576,31 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── AMBIENT GLOW DRIFT ─── */
         @keyframes onb-glow-drift {
-          0%, 100% { opacity: 0.05; }
-          50% { opacity: 0.08; }
+          0%,
+          100% {
+            opacity: 0.05;
+          }
+          50% {
+            opacity: 0.08;
+          }
         }
         @keyframes onb-glow-drift-r {
-          0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.03; }
-          50% { transform: translateX(-52%) translateY(8px); opacity: 0.05; }
+          0%,
+          100% {
+            transform: translateX(-50%) translateY(0);
+            opacity: 0.03;
+          }
+          50% {
+            transform: translateX(-52%) translateY(8px);
+            opacity: 0.05;
+          }
         }
-        .onb-glow-drift { animation: onb-glow-drift 8s ease-in-out infinite; }
-        .onb-glow-drift-reverse { animation: onb-glow-drift-r 10s ease-in-out infinite; }
+        .onb-glow-drift {
+          animation: onb-glow-drift 8s ease-in-out infinite;
+        }
+        .onb-glow-drift-reverse {
+          animation: onb-glow-drift-r 10s ease-in-out infinite;
+        }
 
         /* ─── BUTTON SHINE SWEEP ─── */
         .onb-btn-shine::after {
@@ -2119,7 +2610,12 @@ const OnboardingV2Page = (): ReactElement => {
           left: -100%;
           width: 50%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.15),
+            transparent
+          );
           transition: left 0.6s ease;
         }
         .onb-btn-shine:hover::after {
@@ -2128,17 +2624,33 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── BUTTON GLOW BREATHING ─── */
         @keyframes onb-btn-breathe {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.05); }
+          0%,
+          100% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.7;
+            transform: scale(1.05);
+          }
         }
-        .onb-btn-glow { animation: onb-btn-breathe 3s ease-in-out infinite; }
+        .onb-btn-glow {
+          animation: onb-btn-breathe 3s ease-in-out infinite;
+        }
 
         /* ─── GITHUB IMPORT FLOW ─── */
 
         /* Orb: breathing glow behind the icon */
         @keyframes ghub-orb-breathe {
-          0%, 100% { transform: scale(1); opacity: 0.4; }
-          50% { transform: scale(1.3); opacity: 0.75; }
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.4;
+          }
+          50% {
+            transform: scale(1.3);
+            opacity: 0.75;
+          }
         }
         .ghub-orb-glow {
           animation: ghub-orb-breathe 2.6s ease-in-out infinite;
@@ -2146,19 +2658,39 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* Rings that rotate around the orb */
         @keyframes ghub-ring-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
-        .ghub-ring { animation: ghub-ring-spin 8s linear infinite; }
-        .ghub-ring-reverse { animation: ghub-ring-spin 12s linear infinite reverse; }
-        .onb-ring-slow { animation: ghub-ring-spin 18s linear infinite; }
+        .ghub-ring {
+          animation: ghub-ring-spin 8s linear infinite;
+        }
+        .ghub-ring-reverse {
+          animation: ghub-ring-spin 12s linear infinite reverse;
+        }
+        .onb-ring-slow {
+          animation: ghub-ring-spin 18s linear infinite;
+        }
 
         /* Particles that fly toward the orb center */
         @keyframes ghub-particle-in {
-          0% { transform: translate(var(--px), var(--py)) scale(0.8); opacity: 0; }
-          20% { opacity: 0.9; }
-          80% { opacity: 0.6; }
-          100% { transform: translate(0, 0) scale(0); opacity: 0; }
+          0% {
+            transform: translate(var(--px), var(--py)) scale(0.8);
+            opacity: 0;
+          }
+          20% {
+            opacity: 0.9;
+          }
+          80% {
+            opacity: 0.6;
+          }
+          100% {
+            transform: translate(0, 0) scale(0);
+            opacity: 0;
+          }
         }
         .ghub-particle {
           animation: ghub-particle-in var(--dur) ease-in infinite;
@@ -2167,8 +2699,14 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* Step checklist fade-in */
         @keyframes ghub-step-in {
-          from { transform: translateY(0.375rem); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
+          from {
+            transform: translateY(0.375rem);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
         }
         .ghub-step-reveal {
           animation: ghub-step-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -2176,8 +2714,14 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* Import panel phase transitions */
         @keyframes ghub-phase-in {
-          from { opacity: 0; transform: translateY(0.25rem) scale(0.995); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+          from {
+            opacity: 0;
+            transform: translateY(0.25rem) scale(0.995);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
         .ghub-phase-panel {
           animation: ghub-phase-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -2185,9 +2729,17 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* Confetti for completion */
         @keyframes ghub-confetti {
-          0% { transform: translateY(-0.625rem) rotate(0deg); opacity: 0; }
-          15% { opacity: 1; }
-          100% { transform: translateY(4rem) rotate(260deg); opacity: 0; }
+          0% {
+            transform: translateY(-0.625rem) rotate(0deg);
+            opacity: 0;
+          }
+          15% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(4rem) rotate(260deg);
+            opacity: 0;
+          }
         }
         .ghub-confetti {
           animation: ghub-confetti 1.6s ease-out infinite;
@@ -2199,42 +2751,82 @@ const OnboardingV2Page = (): ReactElement => {
             transform: translateY(0) translateX(0) rotate(0deg) scale(1);
             opacity: 0;
           }
-          5% { opacity: 1; }
-          25% { opacity: 0.95; }
-          75% { opacity: 0.7; }
+          5% {
+            opacity: 1;
+          }
+          25% {
+            opacity: 0.95;
+          }
+          75% {
+            opacity: 0.7;
+          }
           100% {
-            transform: translateY(110vh) translateX(var(--confetti-drift, 0px)) rotate(960deg) scale(0.2);
+            transform: translateY(110vh) translateX(var(--confetti-drift, 0px))
+              rotate(960deg) scale(0.2);
             opacity: 0;
           }
         }
         .onb-confetti-piece {
-          animation: onb-confetti-fall 4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+          animation: onb-confetti-fall 4s cubic-bezier(0.22, 0.61, 0.36, 1)
+            forwards;
           filter: brightness(1.2);
         }
         .onb-confetti-star {
-          clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+          clip-path: polygon(
+            50% 0%,
+            61% 35%,
+            98% 35%,
+            68% 57%,
+            79% 91%,
+            50% 70%,
+            21% 91%,
+            32% 57%,
+            2% 35%,
+            39% 35%
+          );
         }
         @keyframes onb-confetti-stage-fade {
-          0%, 85% { opacity: 1; }
-          100% { opacity: 0; }
+          0%,
+          85% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+          }
         }
         .onb-confetti-stage {
           animation: onb-confetti-stage-fade 6s ease-out forwards;
         }
 
         @keyframes onb-ready-burst {
-          0% { transform: translate(-50%, -33%) scale(0.4); opacity: 0; }
-          20% { opacity: 1; }
-          60% { opacity: 0.6; }
-          100% { transform: translate(-50%, -33%) scale(1.2); opacity: 0; }
+          0% {
+            transform: translate(-50%, -33%) scale(0.4);
+            opacity: 0;
+          }
+          20% {
+            opacity: 1;
+          }
+          60% {
+            opacity: 0.6;
+          }
+          100% {
+            transform: translate(-50%, -33%) scale(1.2);
+            opacity: 0;
+          }
         }
         .onb-ready-burst {
           animation: onb-ready-burst 2.5s ease-out forwards;
         }
 
         @keyframes onb-ready-reveal {
-          0% { transform: translateY(16px); opacity: 0; }
-          100% { transform: translateY(0); opacity: 1; }
+          0% {
+            transform: translateY(16px);
+            opacity: 0;
+          }
+          100% {
+            transform: translateY(0);
+            opacity: 1;
+          }
         }
         .onb-ready-reveal {
           opacity: 0;
@@ -2242,9 +2834,18 @@ const OnboardingV2Page = (): ReactElement => {
         }
 
         @keyframes onb-celebration-sparkle {
-          0% { transform: scale(0) rotate(0deg); opacity: 0; }
-          30% { transform: scale(1.2) rotate(90deg); opacity: 1; }
-          100% { transform: scale(0) rotate(180deg); opacity: 0; }
+          0% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          30% {
+            transform: scale(1.2) rotate(90deg);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(0) rotate(180deg);
+            opacity: 0;
+          }
         }
         .onb-sparkle {
           animation: onb-celebration-sparkle 1.2s ease-out forwards;
@@ -2258,15 +2859,26 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── AI PROCESSING ORB ─── */
         @keyframes onb-ai-orb-breathe {
-          0%, 100% { transform: scale(1); opacity: 0.3; }
-          50% { transform: scale(1.35); opacity: 0.6; }
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.3;
+          }
+          50% {
+            transform: scale(1.35);
+            opacity: 0.6;
+          }
         }
         .onb-ai-orb-glow {
           animation: onb-ai-orb-breathe 2.5s ease-in-out infinite;
         }
         @keyframes onb-ai-ring-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
         .onb-ai-ring {
           animation: onb-ai-ring-spin 10s linear infinite;
@@ -2277,8 +2889,35 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── AI ICON GLOW ─── */
         @keyframes onb-ai-shimmer {
-          0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--theme-accent-onion-default) 15%, transparent), 0 0 20px color-mix(in srgb, var(--theme-accent-onion-default) 5%, transparent); }
-          50% { box-shadow: 0 0 14px color-mix(in srgb, var(--theme-accent-onion-default) 25%, transparent), 0 0 32px color-mix(in srgb, var(--theme-accent-onion-default) 10%, transparent); }
+          0%,
+          100% {
+            box-shadow: 0 0 8px
+                color-mix(
+                  in srgb,
+                  var(--theme-accent-onion-default) 15%,
+                  transparent
+                ),
+              0 0 20px
+                color-mix(
+                  in srgb,
+                  var(--theme-accent-onion-default) 5%,
+                  transparent
+                );
+          }
+          50% {
+            box-shadow: 0 0 14px
+                color-mix(
+                  in srgb,
+                  var(--theme-accent-onion-default) 25%,
+                  transparent
+                ),
+              0 0 32px
+                color-mix(
+                  in srgb,
+                  var(--theme-accent-onion-default) 10%,
+                  transparent
+                );
+          }
         }
         .onb-ai-icon-glow {
           animation: onb-ai-shimmer 3s ease-in-out infinite;
@@ -2286,16 +2925,28 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── EXTENSION PROMO ─── */
         @keyframes onb-ext-enter {
-          from { transform: scale(0.94) translateY(20px); opacity: 0; }
-          to { transform: scale(1) translateY(0); opacity: 1; }
+          from {
+            transform: scale(0.94) translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
         }
         .onb-ext-enter {
           animation: onb-ext-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
         @keyframes onb-ext-reveal {
-          from { transform: translateY(10px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
+          from {
+            transform: translateY(10px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
         }
         .onb-ext-reveal {
           opacity: 0;
@@ -2303,8 +2954,13 @@ const OnboardingV2Page = (): ReactElement => {
         }
 
         @keyframes onb-ext-float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-6px);
+          }
         }
         .onb-ext-float {
           animation: onb-ext-float 4s ease-in-out infinite;
@@ -2314,8 +2970,20 @@ const OnboardingV2Page = (): ReactElement => {
         .onb-panel-fade {
           backdrop-filter: blur(14px);
           -webkit-backdrop-filter: blur(14px);
-          mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 15%, rgba(0,0,0,0.82) 35%, black 55%);
-          -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 15%, rgba(0,0,0,0.82) 35%, black 55%);
+          mask-image: linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(0, 0, 0, 0.35) 15%,
+            rgba(0, 0, 0, 0.82) 35%,
+            black 55%
+          );
+          -webkit-mask-image: linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(0, 0, 0, 0.35) 15%,
+            rgba(0, 0, 0, 0.82) 35%,
+            black 55%
+          );
         }
 
         /* ─── GLASSMORPHISM ─── */
@@ -2323,12 +2991,14 @@ const OnboardingV2Page = (): ReactElement => {
           background: rgba(255, 255, 255, 0.02);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
-          transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+          transition: background 0.35s ease, border-color 0.35s ease,
+            box-shadow 0.35s ease;
         }
         .onb-glass:hover {
           background: rgba(255, 255, 255, 0.04);
-          border-color: rgba(255, 255, 255, 0.10);
-          box-shadow: 0 4px 32px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.04);
+          border-color: rgba(255, 255, 255, 0.1);
+          box-shadow: 0 4px 32px rgba(0, 0, 0, 0.15),
+            0 0 0 1px rgba(255, 255, 255, 0.04);
         }
 
         /* ─── CURSOR-TRACKING GLOW ─── */
@@ -2345,7 +3015,16 @@ const OnboardingV2Page = (): ReactElement => {
           left: var(--mouse-x);
           top: var(--mouse-y);
           transform: translate(-50%, -50%);
-          background: radial-gradient(circle, color-mix(in srgb, var(--theme-accent-onion-default) 6%, transparent) 0%, transparent 70%);
+          background: radial-gradient(
+            circle,
+            color-mix(
+                in srgb,
+                var(--theme-accent-onion-default) 6%,
+                transparent
+              )
+              0%,
+            transparent 70%
+          );
           border-radius: 50%;
           pointer-events: none;
           opacity: 0;
@@ -2358,8 +3037,14 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── MODAL CHECKLIST STAGGER ─── */
         @keyframes onb-check-in {
-          from { transform: translateX(-8px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
+          from {
+            transform: translateX(-8px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
         }
         .onb-check-item {
           animation: onb-check-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -2367,15 +3052,27 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── MODAL ENTRANCE ─── */
         @keyframes onb-modal-in {
-          from { transform: scale(0.92) translateY(16px); opacity: 0; }
-          to { transform: scale(1) translateY(0); opacity: 1; }
+          from {
+            transform: scale(0.92) translateY(16px);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
         }
         .onb-modal-enter {
           animation: onb-modal-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         @keyframes onb-modal-backdrop-in {
-          from { opacity: 0; backdrop-filter: blur(0); }
-          to { opacity: 1; backdrop-filter: blur(12px); }
+          from {
+            opacity: 0;
+            backdrop-filter: blur(0);
+          }
+          to {
+            opacity: 1;
+            backdrop-filter: blur(12px);
+          }
         }
         .onb-modal-backdrop {
           animation: onb-modal-backdrop-in 0.3s ease-out both;
@@ -2391,9 +3088,8 @@ const OnboardingV2Page = (): ReactElement => {
           opacity: 0;
           transform: translateY(0.75rem) scale(0.995);
           transition: opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-                      transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-                      box-shadow 0.25s ease,
-                      border-color 0.25s ease !important;
+            transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease,
+            border-color 0.25s ease !important;
           transition-delay: var(--reveal-delay, 0ms);
         }
         .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed {
@@ -2403,23 +3099,43 @@ const OnboardingV2Page = (): ReactElement => {
         .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed:hover {
           transform: translateY(0) scale(1) !important;
           box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25),
-                      0 0 0 1px rgba(255,255,255,0.03) !important;
-          border-color: rgba(255,255,255,0.06) !important;
+            0 0 0 1px rgba(255, 255, 255, 0.03) !important;
+          border-color: rgba(255, 255, 255, 0.06) !important;
         }
 
         /* ─── FEED FADE-OUT GRADIENT (bottom of visible articles) ─── */
-        .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(13).onb-revealed { opacity: 0.88 !important; }
-        .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(14).onb-revealed { opacity: 0.72 !important; }
-        .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(15).onb-revealed { opacity: 0.52 !important; }
-        .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(16).onb-revealed { opacity: 0.32 !important; }
-        .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(17).onb-revealed { opacity: 0.15 !important; }
-        .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(18).onb-revealed { opacity: 0.05 !important; }
+        .onb-feed-stage:not(.onb-feed-unlocked)
+          article:nth-of-type(13).onb-revealed {
+          opacity: 0.88 !important;
+        }
+        .onb-feed-stage:not(.onb-feed-unlocked)
+          article:nth-of-type(14).onb-revealed {
+          opacity: 0.72 !important;
+        }
+        .onb-feed-stage:not(.onb-feed-unlocked)
+          article:nth-of-type(15).onb-revealed {
+          opacity: 0.52 !important;
+        }
+        .onb-feed-stage:not(.onb-feed-unlocked)
+          article:nth-of-type(16).onb-revealed {
+          opacity: 0.32 !important;
+        }
+        .onb-feed-stage:not(.onb-feed-unlocked)
+          article:nth-of-type(17).onb-revealed {
+          opacity: 0.15 !important;
+        }
+        .onb-feed-stage:not(.onb-feed-unlocked)
+          article:nth-of-type(18).onb-revealed {
+          opacity: 0.05 !important;
+        }
 
         @media (max-width: 63.9375rem) {
           .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(n + 11) {
             display: none !important;
           }
-          .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(10) ~ div {
+          .onb-feed-stage:not(.onb-feed-unlocked)
+            article:nth-of-type(10)
+            ~ div {
             display: none !important;
           }
 
@@ -2427,10 +3143,22 @@ const OnboardingV2Page = (): ReactElement => {
             box-shadow: none !important;
           }
 
-          .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(7).onb-revealed { opacity: 0.88 !important; }
-          .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(8).onb-revealed { opacity: 0.65 !important; }
-          .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(9).onb-revealed { opacity: 0.38 !important; }
-          .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(10).onb-revealed { opacity: 0.12 !important; }
+          .onb-feed-stage:not(.onb-feed-unlocked)
+            article:nth-of-type(7).onb-revealed {
+            opacity: 0.88 !important;
+          }
+          .onb-feed-stage:not(.onb-feed-unlocked)
+            article:nth-of-type(8).onb-revealed {
+            opacity: 0.65 !important;
+          }
+          .onb-feed-stage:not(.onb-feed-unlocked)
+            article:nth-of-type(9).onb-revealed {
+            opacity: 0.38 !important;
+          }
+          .onb-feed-stage:not(.onb-feed-unlocked)
+            article:nth-of-type(10).onb-revealed {
+            opacity: 0.12 !important;
+          }
         }
 
         /* ─── TOPIC PILLS (no interaction) ─── */
@@ -2442,11 +3170,25 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* Counter number bump — bigger/longer scale + color flash */
         @keyframes onb-live-bump {
-          0% { transform: translateY(0) scale(1); color: inherit; }
-          22% { transform: translateY(-0.08rem) scale(1.5); color: var(--onb-bump-color, var(--theme-accent-avocado-default)); }
-          55% { transform: translateY(0) scale(1.08); color: var(--onb-bump-color, var(--theme-accent-avocado-default)); }
-          78% { transform: translateY(0) scale(1.02); color: inherit; }
-          100% { transform: scale(1); }
+          0% {
+            transform: translateY(0) scale(1);
+            color: inherit;
+          }
+          22% {
+            transform: translateY(-0.08rem) scale(1.5);
+            color: var(--onb-bump-color, var(--theme-accent-avocado-default));
+          }
+          55% {
+            transform: translateY(0) scale(1.08);
+            color: var(--onb-bump-color, var(--theme-accent-avocado-default));
+          }
+          78% {
+            transform: translateY(0) scale(1.02);
+            color: inherit;
+          }
+          100% {
+            transform: scale(1);
+          }
         }
         .onb-live-bump {
           animation: onb-live-bump 0.72s cubic-bezier(0.2, 0.9, 0.2, 1) !important;
@@ -2461,12 +3203,21 @@ const OnboardingV2Page = (): ReactElement => {
             filter: blur(0);
           }
           18% {
-            transform: translate3d(calc(var(--onb-live-x, 0rem) * 0.28), calc(var(--onb-live-y, 1.7rem) * -0.18), 0)
-              scale(var(--onb-live-scale, 1.15)) rotate(calc(var(--onb-live-rot, 0deg) * 0.45));
+            transform: translate3d(
+                calc(var(--onb-live-x, 0rem) * 0.28),
+                calc(var(--onb-live-y, 1.7rem) * -0.18),
+                0
+              )
+              scale(var(--onb-live-scale, 1.15))
+              rotate(calc(var(--onb-live-rot, 0deg) * 0.45));
             opacity: 0.98;
           }
           100% {
-            transform: translate3d(var(--onb-live-x, 0rem), calc(var(--onb-live-y, 1.7rem) * -1), 0)
+            transform: translate3d(
+                var(--onb-live-x, 0rem),
+                calc(var(--onb-live-y, 1.7rem) * -1),
+                0
+              )
               scale(0.78) rotate(var(--onb-live-rot, 0deg));
             opacity: 0;
             filter: blur(0.4px);
@@ -2479,7 +3230,8 @@ const OnboardingV2Page = (): ReactElement => {
           line-height: 1;
           text-shadow: 0 0 8px color-mix(in srgb, currentColor 40%, transparent);
           pointer-events: none;
-          animation: onb-live-tick-up 1.3s cubic-bezier(0.18, 0.84, 0.25, 1) forwards;
+          animation: onb-live-tick-up 1.3s cubic-bezier(0.18, 0.84, 0.25, 1)
+            forwards;
           animation-delay: var(--onb-live-delay, 0ms);
           z-index: 10;
           white-space: nowrap;
@@ -2488,14 +3240,30 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── SCROLL PROGRESS LINE ─── */
         @keyframes onb-progress-glow {
-          0%, 100% { box-shadow: 0 0 6px 1px color-mix(in srgb, var(--theme-accent-onion-default) 30%, transparent); }
-          50% { box-shadow: 0 0 12px 2px color-mix(in srgb, var(--theme-accent-onion-default) 50%, transparent); }
+          0%,
+          100% {
+            box-shadow: 0 0 6px 1px
+              color-mix(
+                in srgb,
+                var(--theme-accent-onion-default) 30%,
+                transparent
+              );
+          }
+          50% {
+            box-shadow: 0 0 12px 2px
+              color-mix(
+                in srgb,
+                var(--theme-accent-onion-default) 50%,
+                transparent
+              );
+          }
         }
 
         /* ─── MOBILE TAG PILLS ─── */
         .onb-mobile-tag {
           opacity: 0;
-          animation: onb-hero-tag-float var(--tag-duration, 6.5s) ease-in-out infinite;
+          animation: onb-hero-tag-float var(--tag-duration, 6.5s) ease-in-out
+            infinite;
           animation-delay: var(--tag-delay, 0s);
           animation-fill-mode: both;
           will-change: transform, opacity;
@@ -2503,13 +3271,18 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── MOBILE MODAL SLIDE-UP ─── */
         @keyframes onb-modal-slide-up {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
+          from {
+            transform: translateY(100%);
+          }
+          to {
+            transform: translateY(0);
+          }
         }
         @media (max-width: 655px) {
           .onb-modal-enter,
           .onb-ext-enter {
-            animation: onb-modal-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation: onb-modal-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1)
+              both;
           }
         }
 
@@ -2577,16 +3350,16 @@ const OnboardingV2Page = (): ReactElement => {
           aria-label="Choose personalization setup"
         >
           <div
-            className="onb-modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-lg"
+            className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
             onClick={closeSignupChooser}
             role="presentation"
           />
 
-          <div className="onb-modal-enter onb-glass relative z-1 flex w-full max-h-[100dvh] flex-col overflow-y-auto rounded-t-24 border border-white/[0.08] bg-background-default shadow-[0_32px_90px_rgba(0,0,0,0.58)] tablet:max-w-[58rem] tablet:rounded-24">
+          <div className="onb-modal-enter onb-glass relative z-1 flex max-h-[100dvh] w-full flex-col overflow-y-auto rounded-t-24 border border-white/[0.08] bg-background-default shadow-[0_32px_90px_rgba(0,0,0,0.58)] tablet:max-w-[58rem] tablet:rounded-24">
             <button
               type="button"
               onClick={closeSignupChooser}
-              className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
+              className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -2613,25 +3386,108 @@ const OnboardingV2Page = (): ReactElement => {
                 {/* ── Path A: GitHub ── */}
                 <div className="onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch">
                   {/* Animated orb — full-width energy field */}
-                  <div className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center" style={{ width: 'calc(100% + 3rem)' }}>
-                    <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 0%, var(--theme-accent-cabbage-default) 0%, transparent 65%)', opacity: 0.22 }} />
-                    <div className="ghub-orb-glow pointer-events-none absolute h-32 w-52 rounded-full bg-accent-cabbage-default/15 blur-3xl" />
-                    <svg className="ghub-ring pointer-events-none absolute" style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
-                      <circle cx="88" cy="88" r="84" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
+                  <div
+                    className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
+                    style={{ width: 'calc(100% + 3rem)' }}
+                  >
+                    <div
+                      className="pointer-events-none absolute inset-0"
+                      style={{
+                        background:
+                          'radial-gradient(ellipse at 50% 0%, var(--theme-accent-cabbage-default) 0%, transparent 65%)',
+                        opacity: 0.22,
+                      }}
+                    />
+                    <div className="ghub-orb-glow bg-accent-cabbage-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
+                    <svg
+                      className="ghub-ring pointer-events-none absolute"
+                      style={{ width: '11rem', height: '11rem' }}
+                      viewBox="0 0 176 176"
+                    >
+                      <circle
+                        cx="88"
+                        cy="88"
+                        r="84"
+                        fill="none"
+                        stroke="var(--theme-accent-cabbage-default)"
+                        strokeWidth="1.5"
+                        strokeDasharray="6 10"
+                        opacity="0.18"
+                      />
                     </svg>
-                    <svg className="ghub-ring-reverse pointer-events-none absolute h-24 w-24" viewBox="0 0 96 96">
-                      <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
+                    <svg
+                      className="ghub-ring-reverse pointer-events-none absolute h-24 w-24"
+                      viewBox="0 0 96 96"
+                    >
+                      <circle
+                        cx="48"
+                        cy="48"
+                        r="44"
+                        fill="none"
+                        stroke="var(--theme-accent-cabbage-default)"
+                        strokeWidth="1.5"
+                        strokeDasharray="4 6"
+                        opacity="0.35"
+                      />
                     </svg>
-                    <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
-                      <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
+                    <svg
+                      className="onb-ring-slow pointer-events-none absolute h-16 w-16"
+                      viewBox="0 0 64 64"
+                    >
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        fill="none"
+                        stroke="var(--theme-accent-cabbage-default)"
+                        strokeWidth="1"
+                        strokeDasharray="3 5"
+                        opacity="0.3"
+                      />
                     </svg>
                     {[
-                      { px: '-6rem', py: '-3.5rem', dur: '3.0s', delay: '0s', color: 'bg-accent-cheese-default' },
-                      { px: '5.5rem', py: '-4rem', dur: '3.4s', delay: '0.5s', color: 'bg-accent-water-default' },
-                      { px: '-5rem', py: '3.5rem', dur: '3.2s', delay: '1.0s', color: 'bg-accent-cabbage-default' },
-                      { px: '6rem', py: '3rem', dur: '3.6s', delay: '1.5s', color: 'bg-accent-onion-default' },
-                      { px: '0.5rem', py: '-5rem', dur: '2.8s', delay: '0.7s', color: 'bg-accent-cheese-default' },
-                      { px: '-6.5rem', py: '0.5rem', dur: '3.1s', delay: '1.2s', color: 'bg-accent-water-default' },
+                      {
+                        px: '-6rem',
+                        py: '-3.5rem',
+                        dur: '3.0s',
+                        delay: '0s',
+                        color: 'bg-accent-cheese-default',
+                      },
+                      {
+                        px: '5.5rem',
+                        py: '-4rem',
+                        dur: '3.4s',
+                        delay: '0.5s',
+                        color: 'bg-accent-water-default',
+                      },
+                      {
+                        px: '-5rem',
+                        py: '3.5rem',
+                        dur: '3.2s',
+                        delay: '1.0s',
+                        color: 'bg-accent-cabbage-default',
+                      },
+                      {
+                        px: '6rem',
+                        py: '3rem',
+                        dur: '3.6s',
+                        delay: '1.5s',
+                        color: 'bg-accent-onion-default',
+                      },
+                      {
+                        px: '0.5rem',
+                        py: '-5rem',
+                        dur: '2.8s',
+                        delay: '0.7s',
+                        color: 'bg-accent-cheese-default',
+                      },
+                      {
+                        px: '-6.5rem',
+                        py: '0.5rem',
+                        dur: '3.1s',
+                        delay: '1.2s',
+                        color: 'bg-accent-water-default',
+                      },
                     ].map((p) => (
                       <span
                         key={`modal-panel-ghub-${p.delay}`}
@@ -2639,17 +3495,25 @@ const OnboardingV2Page = (): ReactElement => {
                           'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
                           p.color,
                         )}
-                        style={{
-                          '--px': p.px,
-                          '--py': p.py,
-                          '--dur': p.dur,
-                          '--delay': p.delay,
-                          animationDelay: p.delay,
-                        } as React.CSSProperties}
+                        style={
+                          {
+                            '--px': p.px,
+                            '--py': p.py,
+                            '--dur': p.dur,
+                            '--delay': p.delay,
+                            animationDelay: p.delay,
+                          } as React.CSSProperties
+                        }
                       />
                     ))}
                     <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" className="text-text-primary">
+                      <svg
+                        width="26"
+                        height="26"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="text-text-primary"
+                      >
                         <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
                       </svg>
                     </div>
@@ -2664,41 +3528,85 @@ const OnboardingV2Page = (): ReactElement => {
 
                   <div className="mb-5 flex w-full flex-col gap-3">
                     {[
-                      { text: 'Detects your stack from your repos', icon: 'stack' },
-                      { text: 'AI maps your skills to the most relevant topics', icon: 'ai' },
-                      { text: 'Your personalized feed is ready in seconds', icon: 'feed' },
+                      {
+                        text: 'Detects your stack from your repos',
+                        icon: 'stack',
+                      },
+                      {
+                        text: 'AI maps your skills to the most relevant topics',
+                        icon: 'ai',
+                      },
+                      {
+                        text: 'Your personalized feed is ready in seconds',
+                        icon: 'feed',
+                      },
                     ].map(({ text, icon }) => (
                       <div key={text} className="flex items-start gap-3">
                         <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/[0.06]">
                           {icon === 'stack' && (
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-text-secondary">
-                              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <svg
+                              width="11"
+                              height="11"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              className="text-text-secondary"
+                            >
+                              <path
+                                d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
                             </svg>
                           )}
                           {icon === 'ai' && (
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-text-secondary">
-                              <path d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z" fill="currentColor" />
+                            <svg
+                              width="11"
+                              height="11"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              className="text-text-secondary"
+                            >
+                              <path
+                                d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z"
+                                fill="currentColor"
+                              />
                             </svg>
                           )}
                           {icon === 'feed' && (
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-text-secondary">
-                              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <svg
+                              width="11"
+                              height="11"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              className="text-text-secondary"
+                            >
+                              <path
+                                d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
                             </svg>
                           )}
                         </span>
-                        <span className="text-left text-text-tertiary typo-footnote">{text}</span>
+                        <span className="text-left text-text-tertiary typo-footnote">
+                          {text}
+                        </span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="mb-5 h-px w-full bg-border-subtlest-tertiary/30" />
+                  <div className="bg-border-subtlest-tertiary/30 mb-5 h-px w-full" />
 
                   <div className="relative w-full">
                     <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
                     <button
                       type="button"
                       onClick={startGithubFlowFromChooser}
-                      className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout"
+                      className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
                     >
                       <svg
                         width="20"
@@ -2709,8 +3617,20 @@ const OnboardingV2Page = (): ReactElement => {
                         <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
                       </svg>
                       Continue with GitHub
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5">
-                        <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5"
+                      >
+                        <path
+                          d="M5 12h14M12 5l7 7-7 7"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </button>
                   </div>
@@ -2722,25 +3642,108 @@ const OnboardingV2Page = (): ReactElement => {
                 {/* ── Path B: Manual ── */}
                 <div className="onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch">
                   {/* Animated orb — full-width energy field */}
-                  <div className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center" style={{ width: 'calc(100% + 3rem)' }}>
-                    <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)', opacity: 0.22 }} />
-                    <div className="onb-ai-orb-glow pointer-events-none absolute h-32 w-52 rounded-full bg-accent-onion-default/15 blur-3xl" />
-                    <svg className="onb-ai-ring pointer-events-none absolute" style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
-                      <circle cx="88" cy="88" r="84" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
+                  <div
+                    className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
+                    style={{ width: 'calc(100% + 3rem)' }}
+                  >
+                    <div
+                      className="pointer-events-none absolute inset-0"
+                      style={{
+                        background:
+                          'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)',
+                        opacity: 0.22,
+                      }}
+                    />
+                    <div className="onb-ai-orb-glow bg-accent-onion-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
+                    <svg
+                      className="onb-ai-ring pointer-events-none absolute"
+                      style={{ width: '11rem', height: '11rem' }}
+                      viewBox="0 0 176 176"
+                    >
+                      <circle
+                        cx="88"
+                        cy="88"
+                        r="84"
+                        fill="none"
+                        stroke="var(--theme-accent-onion-default)"
+                        strokeWidth="1.5"
+                        strokeDasharray="6 10"
+                        opacity="0.18"
+                      />
                     </svg>
-                    <svg className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24" viewBox="0 0 96 96">
-                      <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
+                    <svg
+                      className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24"
+                      viewBox="0 0 96 96"
+                    >
+                      <circle
+                        cx="48"
+                        cy="48"
+                        r="44"
+                        fill="none"
+                        stroke="var(--theme-accent-onion-default)"
+                        strokeWidth="1.5"
+                        strokeDasharray="4 6"
+                        opacity="0.35"
+                      />
                     </svg>
-                    <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
-                      <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
+                    <svg
+                      className="onb-ring-slow pointer-events-none absolute h-16 w-16"
+                      viewBox="0 0 64 64"
+                    >
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        fill="none"
+                        stroke="var(--theme-accent-onion-default)"
+                        strokeWidth="1"
+                        strokeDasharray="3 5"
+                        opacity="0.3"
+                      />
                     </svg>
                     {[
-                      { px: '-6rem', py: '-3.5rem', dur: '3.2s', delay: '0s', color: 'bg-accent-cheese-default' },
-                      { px: '5.5rem', py: '-4rem', dur: '3.6s', delay: '0.5s', color: 'bg-accent-water-default' },
-                      { px: '-5rem', py: '3.5rem', dur: '3.0s', delay: '1.0s', color: 'bg-accent-onion-default' },
-                      { px: '6rem', py: '3rem', dur: '3.4s', delay: '1.5s', color: 'bg-accent-cabbage-default' },
-                      { px: '-0.5rem', py: '-5rem', dur: '2.8s', delay: '0.3s', color: 'bg-accent-cheese-default' },
-                      { px: '6.5rem', py: '-0.5rem', dur: '3.1s', delay: '0.8s', color: 'bg-accent-water-default' },
+                      {
+                        px: '-6rem',
+                        py: '-3.5rem',
+                        dur: '3.2s',
+                        delay: '0s',
+                        color: 'bg-accent-cheese-default',
+                      },
+                      {
+                        px: '5.5rem',
+                        py: '-4rem',
+                        dur: '3.6s',
+                        delay: '0.5s',
+                        color: 'bg-accent-water-default',
+                      },
+                      {
+                        px: '-5rem',
+                        py: '3.5rem',
+                        dur: '3.0s',
+                        delay: '1.0s',
+                        color: 'bg-accent-onion-default',
+                      },
+                      {
+                        px: '6rem',
+                        py: '3rem',
+                        dur: '3.4s',
+                        delay: '1.5s',
+                        color: 'bg-accent-cabbage-default',
+                      },
+                      {
+                        px: '-0.5rem',
+                        py: '-5rem',
+                        dur: '2.8s',
+                        delay: '0.3s',
+                        color: 'bg-accent-cheese-default',
+                      },
+                      {
+                        px: '6.5rem',
+                        py: '-0.5rem',
+                        dur: '3.1s',
+                        delay: '0.8s',
+                        color: 'bg-accent-water-default',
+                      },
                     ].map((p) => (
                       <span
                         key={`modal-panel-ai-${p.delay}`}
@@ -2748,17 +3751,23 @@ const OnboardingV2Page = (): ReactElement => {
                           'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
                           p.color,
                         )}
-                        style={{
-                          '--px': p.px,
-                          '--py': p.py,
-                          '--dur': p.dur,
-                          '--delay': p.delay,
-                          animationDelay: p.delay,
-                        } as React.CSSProperties}
+                        style={
+                          {
+                            '--px': p.px,
+                            '--py': p.py,
+                            '--dur': p.dur,
+                            '--delay': p.delay,
+                            animationDelay: p.delay,
+                          } as React.CSSProperties
+                        }
                       />
                     ))}
                     <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                      <MagicIcon secondary size={IconSize.Small} className="text-white" />
+                      <MagicIcon
+                        secondary
+                        size={IconSize.Small}
+                        className="text-white"
+                      />
                     </div>
                   </div>
 
@@ -2770,7 +3779,7 @@ const OnboardingV2Page = (): ReactElement => {
                   </p>
 
                   {/* Textarea */}
-                  <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)]">
+                  <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)] hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none">
                     <textarea
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
@@ -2782,8 +3791,8 @@ const OnboardingV2Page = (): ReactElement => {
                         startAiFlowFromChooser();
                       }}
                       rows={4}
-                      placeholder={"I'm a frontend engineer working with React and TypeScript. Interested in system design, AI tooling..."}
-                      className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary placeholder:text-text-quaternary transition-colors duration-200 focus:outline-none focus:placeholder:text-text-disabled typo-callout"
+                      placeholder="I'm a frontend engineer working with React and TypeScript. Interested in system design, AI tooling..."
+                      className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary transition-colors duration-200 typo-callout placeholder:text-text-quaternary focus:outline-none focus:placeholder:text-text-disabled"
                     />
                   </div>
 
@@ -2796,7 +3805,7 @@ const OnboardingV2Page = (): ReactElement => {
                           type="button"
                           onClick={() => toggleTopic(topic)}
                           className={classNames(
-                            'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] active:scale-[0.96] focus-visible:outline-none typo-caption1',
+                            'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 typo-caption1 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] focus-visible:outline-none active:scale-[0.96]',
                             TOPIC_SELECTED_STYLES,
                           )}
                         >
@@ -2810,7 +3819,7 @@ const OnboardingV2Page = (): ReactElement => {
                   {/* Matched tags */}
                   <div
                     className={classNames(
-                      'w-full overflow-hidden transition-all duration-400 ease-out',
+                      'duration-400 w-full overflow-hidden transition-all ease-out',
                       recommendedTopics.length > 0
                         ? 'max-h-40 opacity-100'
                         : 'max-h-0 opacity-0',
@@ -2822,7 +3831,7 @@ const OnboardingV2Page = (): ReactElement => {
                           key={`modal-match-${label}`}
                           type="button"
                           onClick={() => toggleTopic(label)}
-                          className="onb-chip-enter rounded-8 border border-border-subtlest-tertiary/40 px-2.5 py-1 text-text-tertiary transition-all duration-200 hover:bg-white/[0.06] hover:text-text-secondary active:scale-[0.97] focus-visible:outline-none typo-caption1"
+                          className="onb-chip-enter border-border-subtlest-tertiary/40 rounded-8 border px-2.5 py-1 text-text-tertiary transition-all duration-200 typo-caption1 hover:bg-white/[0.06] hover:text-text-secondary focus-visible:outline-none active:scale-[0.97]"
                         >
                           + {label}
                         </button>
@@ -2838,13 +3847,17 @@ const OnboardingV2Page = (): ReactElement => {
                       disabled={!canStartAiFlow}
                       onClick={startAiFlowFromChooser}
                       className={classNames(
-                        'group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout',
+                        'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
                         canStartAiFlow
                           ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
                           : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
                       )}
                     >
-                      <MagicIcon secondary size={IconSize.Size16} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+                      <MagicIcon
+                        secondary
+                        size={IconSize.Size16}
+                        className="transition-transform duration-300 group-hover:translate-x-0.5"
+                      />
                       Generate my feed with AI
                     </button>
                   </div>
@@ -2867,7 +3880,7 @@ const OnboardingV2Page = (): ReactElement => {
           aria-label="Install browser extension"
         >
           <div
-            className="onb-modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-md"
+            className="onb-modal-backdrop bg-black/70 absolute inset-0 backdrop-blur-md"
             onClick={dismissExtensionPromo}
             role="presentation"
           />
@@ -2877,29 +3890,40 @@ const OnboardingV2Page = (): ReactElement => {
             <button
               type="button"
               onClick={dismissExtensionPromo}
-              className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-colors duration-200 hover:text-text-secondary"
+              className="z-10 absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-colors duration-200 hover:text-text-secondary"
               aria-label="Skip"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path
+                  d="M18 6L6 18M6 6l12 12"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
 
             {/* Top section: text content */}
-            <div className="flex w-full flex-col items-center px-5 pt-8 pb-5 tablet:px-8 tablet:pt-10 tablet:pb-6">
+            <div className="flex w-full flex-col items-center px-5 pb-5 pt-8 tablet:px-8 tablet:pb-6 tablet:pt-10">
               {/* Icon */}
-                <div className="onb-ext-reveal mb-5 flex h-14 w-14 items-center justify-center rounded-16 bg-white/[0.06]">
+              <div className="onb-ext-reveal mb-5 flex h-14 w-14 items-center justify-center rounded-16 bg-white/[0.06]">
                 {isEdgeBrowser ? (
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                    <path d="M21.86 17.86q.14 0 .25.12.1.13.1.25t-.11.33l-.32.46-.43.53-.44.46q-.54.52-1.15.97l-.09.06q-.88.56-1.86.97-1.14.46-2.42.66-1.34.2-2.71.06-1.14-.12-2.2-.5-1.2-.42-2.27-1.12-1.17-.78-2.1-1.86-.83-.94-1.41-2.07-.66-1.27-.96-2.67-.17-.79-.22-1.6-.06-.91.05-1.84.1-.78.3-1.54.27-1.01.72-1.96.37-.78.88-1.51.47-.68 1.03-1.28.41-.44.87-.83l.13-.1q.49-.38 1.04-.71.53-.32 1.1-.56.92-.39 1.93-.56 1.19-.2 2.49-.08.38.03.76.1.36.07.72.17.42.12.82.29.34.14.67.31.3.15.58.33l.06.04q.28.18.55.38 0 0-.55.92T13.8 4.4q-.26-.13-.55-.24-.34-.12-.7-.2-.31-.07-.63-.1-.42-.04-.85-.02-.76.06-1.46.33-.82.32-1.51.86-.57.45-1.03 1.02-.54.66-.9 1.42-.27.57-.42 1.18-.12.48-.17.97-.06.64.03 1.3.11.79.39 1.52.32.82.84 1.52.57.76 1.32 1.34.64.5 1.39.84.79.36 1.66.52.57.1 1.16.12.78.02 1.56-.12.65-.11 1.26-.35.75-.3 1.4-.76.55-.39 1.01-.87.36-.37.67-.78l.36-.56Z" fill="#0078D4" />
+                    <path
+                      d="M21.86 17.86q.14 0 .25.12.1.13.1.25t-.11.33l-.32.46-.43.53-.44.46q-.54.52-1.15.97l-.09.06q-.88.56-1.86.97-1.14.46-2.42.66-1.34.2-2.71.06-1.14-.12-2.2-.5-1.2-.42-2.27-1.12-1.17-.78-2.1-1.86-.83-.94-1.41-2.07-.66-1.27-.96-2.67-.17-.79-.22-1.6-.06-.91.05-1.84.1-.78.3-1.54.27-1.01.72-1.96.37-.78.88-1.51.47-.68 1.03-1.28.41-.44.87-.83l.13-.1q.49-.38 1.04-.71.53-.32 1.1-.56.92-.39 1.93-.56 1.19-.2 2.49-.08.38.03.76.1.36.07.72.17.42.12.82.29.34.14.67.31.3.15.58.33l.06.04q.28.18.55.38 0 0-.55.92T13.8 4.4q-.26-.13-.55-.24-.34-.12-.7-.2-.31-.07-.63-.1-.42-.04-.85-.02-.76.06-1.46.33-.82.32-1.51.86-.57.45-1.03 1.02-.54.66-.9 1.42-.27.57-.42 1.18-.12.48-.17.97-.06.64.03 1.3.11.79.39 1.52.32.82.84 1.52.57.76 1.32 1.34.64.5 1.39.84.79.36 1.66.52.57.1 1.16.12.78.02 1.56-.12.65-.11 1.26-.35.75-.3 1.4-.76.55-.39 1.01-.87.36-.37.67-.78l.36-.56Z"
+                      fill="#0078D4"
+                    />
                   </svg>
                 ) : (
-                    <ChromeIcon aria-hidden size={IconSize.Medium} />
+                  <ChromeIcon aria-hidden size={IconSize.Medium} />
                 )}
               </div>
 
               {/* Headline */}
-              <h2 className="onb-ext-reveal mb-2 text-center font-bold text-text-primary typo-title1" style={{ animationDelay: '80ms' }}>
+              <h2
+                className="onb-ext-reveal mb-2 text-center font-bold text-text-primary typo-title1"
+                style={{ animationDelay: '80ms' }}
+              >
                 Open this every time you{'\u00A0'}open a new tab
               </h2>
 
@@ -2915,15 +3939,28 @@ const OnboardingV2Page = (): ReactElement => {
               <button
                 type="button"
                 onClick={() => {
-                  window.open(downloadBrowserExtension, '_blank', 'noopener,noreferrer');
+                  window.open(
+                    downloadBrowserExtension,
+                    '_blank',
+                    'noopener,noreferrer',
+                  );
                   dismissExtensionPromo();
                 }}
-                className="onb-ext-reveal group mb-4 flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3.5 font-bold text-black transition-all duration-200 hover:bg-white/90 typo-callout"
+                className="onb-ext-reveal hover:bg-white/90 group mb-4 flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3.5 font-bold text-black transition-all duration-200 typo-callout"
                 style={{ animationDelay: '240ms' }}
               >
                 {isEdgeBrowser ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0">
-                    <path d="M21.86 17.86q.14 0 .25.12.1.13.1.25t-.11.33l-.32.46-.43.53-.44.46q-.54.52-1.15.97l-.09.06q-.88.56-1.86.97-1.14.46-2.42.66-1.34.2-2.71.06-1.14-.12-2.2-.5-1.2-.42-2.27-1.12-1.17-.78-2.1-1.86-.83-.94-1.41-2.07-.66-1.27-.96-2.67-.17-.79-.22-1.6-.06-.91.05-1.84.1-.78.3-1.54.27-1.01.72-1.96.37-.78.88-1.51.47-.68 1.03-1.28.41-.44.87-.83l.13-.1q.49-.38 1.04-.71.53-.32 1.1-.56.92-.39 1.93-.56 1.19-.2 2.49-.08.38.03.76.1.36.07.72.17.42.12.82.29.34.14.67.31.3.15.58.33l.06.04q.28.18.55.38 0 0-.55.92T13.8 4.4q-.26-.13-.55-.24-.34-.12-.7-.2-.31-.07-.63-.1-.42-.04-.85-.02-.76.06-1.46.33-.82.32-1.51.86-.57.45-1.03 1.02-.54.66-.9 1.42-.27.57-.42 1.18-.12.48-.17.97-.06.64.03 1.3.11.79.39 1.52.32.82.84 1.52.57.76 1.32 1.34.64.5 1.39.84.79.36 1.66.52.57.1 1.16.12.78.02 1.56-.12.65-.11 1.26-.35.75-.3 1.4-.76.55-.39 1.01-.87.36-.37.67-.78l.36-.56Z" fill="#0078D4" />
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="shrink-0"
+                  >
+                    <path
+                      d="M21.86 17.86q.14 0 .25.12.1.13.1.25t-.11.33l-.32.46-.43.53-.44.46q-.54.52-1.15.97l-.09.06q-.88.56-1.86.97-1.14.46-2.42.66-1.34.2-2.71.06-1.14-.12-2.2-.5-1.2-.42-2.27-1.12-1.17-.78-2.1-1.86-.83-.94-1.41-2.07-.66-1.27-.96-2.67-.17-.79-.22-1.6-.06-.91.05-1.84.1-.78.3-1.54.27-1.01.72-1.96.37-.78.88-1.51.47-.68 1.03-1.28.41-.44.87-.83l.13-.1q.49-.38 1.04-.71.53-.32 1.1-.56.92-.39 1.93-.56 1.19-.2 2.49-.08.38.03.76.1.36.07.72.17.42.12.82.29.34.14.67.31.3.15.58.33l.06.04q.28.18.55.38 0 0-.55.92T13.8 4.4q-.26-.13-.55-.24-.34-.12-.7-.2-.31-.07-.63-.1-.42-.04-.85-.02-.76.06-1.46.33-.82.32-1.51.86-.57.45-1.03 1.02-.54.66-.9 1.42-.27.57-.42 1.18-.12.48-.17.97-.06.64.03 1.3.11.79.39 1.52.32.82.84 1.52.57.76 1.32 1.34.64.5 1.39.84.79.36 1.66.52.57.1 1.16.12.78.02 1.56-.12.65-.11 1.26-.35.75-.3 1.4-.76.55-.39 1.01-.87.36-.37.67-.78l.36-.56Z"
+                      fill="#0078D4"
+                    />
                   </svg>
                 ) : (
                   <ChromeIcon aria-hidden size={IconSize.Size16} />
@@ -2939,17 +3976,34 @@ const OnboardingV2Page = (): ReactElement => {
                 style={{ animationDelay: '300ms' }}
               >
                 Continue without extension
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0">
-                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="shrink-0"
+                >
+                  <path
+                    d="M5 12h14M12 5l7 7-7 7"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
             </div>
 
             {/* Screenshot with float animation */}
-            <div className="onb-ext-reveal relative w-full px-4 pb-4 tablet:px-6 tablet:pb-6" style={{ animationDelay: '380ms' }}>
+            <div
+              className="onb-ext-reveal relative w-full px-4 pb-4 tablet:px-6 tablet:pb-6"
+              style={{ animationDelay: '380ms' }}
+            >
               <div className="onb-ext-float overflow-hidden rounded-16 shadow-[0_16px_60px_rgba(0,0,0,0.4)]">
                 <img
-                  alt={`daily.dev extension in ${isEdgeBrowser ? 'Edge' : 'Chrome'}`}
+                  alt={`daily.dev extension in ${
+                    isEdgeBrowser ? 'Edge' : 'Chrome'
+                  }`}
                   className="block w-full"
                   loading="eager"
                   src={extensionImages.default}
@@ -2960,9 +4014,14 @@ const OnboardingV2Page = (): ReactElement => {
             </div>
 
             {/* Social proof */}
-            <div className="onb-ext-reveal w-full border-t border-white/[0.06] px-5 py-4 tablet:px-8" style={{ animationDelay: '440ms' }}>
+            <div
+              className="onb-ext-reveal w-full border-t border-white/[0.06] px-5 py-4 tablet:px-8"
+              style={{ animationDelay: '440ms' }}
+            >
               <p className="text-center text-text-quaternary typo-caption1">
-                Trusted by <span className="font-bold text-text-tertiary">500,000+</span> developers
+                Trusted by{' '}
+                <span className="font-bold text-text-tertiary">500,000+</span>{' '}
+                developers
               </p>
             </div>
           </div>
@@ -2983,7 +4042,7 @@ const OnboardingV2Page = (): ReactElement => {
         >
           {/* Full-screen scrim — blurred glass so feed peeks through */}
           <div
-            className="onb-modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-md"
+            className="onb-modal-backdrop bg-black/70 absolute inset-0 backdrop-blur-md"
             onClick={closeGithubImportFlow}
             role="presentation"
           />
@@ -2993,33 +4052,151 @@ const OnboardingV2Page = (): ReactElement => {
             <button
               type="button"
               onClick={closeGithubImportFlow}
-              className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
+              className="z-10 absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path
+                  d="M18 6L6 18M6 6l12 12"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
             {/* ── Animated orb — full-width energy field ── */}
-            <div className="pointer-events-none relative -mx-5 -mt-6 mb-0 flex h-32 items-center justify-center overflow-hidden tablet:-mx-6" style={{ width: 'calc(100% + 2.5rem)' }}>
-              <div className="pointer-events-none absolute inset-0" style={{ background: `radial-gradient(ellipse at 50% 0%, ${importFlowSource === 'github' ? 'var(--theme-accent-cabbage-default)' : 'var(--theme-accent-onion-default)'} 0%, transparent 65%)`, opacity: 0.22 }} />
-              <div className={classNames('pointer-events-none absolute h-32 w-52 rounded-full blur-3xl', importFlowSource === 'github' ? 'ghub-orb-glow bg-accent-cabbage-default/15' : 'onb-ai-orb-glow bg-accent-onion-default/15')} />
-              <svg className={classNames('pointer-events-none absolute', importFlowSource === 'github' ? 'ghub-ring' : 'onb-ai-ring')} style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
-                <circle cx="88" cy="88" r="84" fill="none" stroke={importFlowSource === 'github' ? 'var(--theme-accent-cabbage-default)' : 'var(--theme-accent-onion-default)'} strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
+            <div
+              className="pointer-events-none relative -mx-5 -mt-6 mb-0 flex h-32 items-center justify-center overflow-hidden tablet:-mx-6"
+              style={{ width: 'calc(100% + 2.5rem)' }}
+            >
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background: `radial-gradient(ellipse at 50% 0%, ${
+                    importFlowSource === 'github'
+                      ? 'var(--theme-accent-cabbage-default)'
+                      : 'var(--theme-accent-onion-default)'
+                  } 0%, transparent 65%)`,
+                  opacity: 0.22,
+                }}
+              />
+              <div
+                className={classNames(
+                  'pointer-events-none absolute h-32 w-52 rounded-full blur-3xl',
+                  importFlowSource === 'github'
+                    ? 'ghub-orb-glow bg-accent-cabbage-default/15'
+                    : 'onb-ai-orb-glow bg-accent-onion-default/15',
+                )}
+              />
+              <svg
+                className={classNames(
+                  'pointer-events-none absolute',
+                  importFlowSource === 'github' ? 'ghub-ring' : 'onb-ai-ring',
+                )}
+                style={{ width: '11rem', height: '11rem' }}
+                viewBox="0 0 176 176"
+              >
+                <circle
+                  cx="88"
+                  cy="88"
+                  r="84"
+                  fill="none"
+                  stroke={
+                    importFlowSource === 'github'
+                      ? 'var(--theme-accent-cabbage-default)'
+                      : 'var(--theme-accent-onion-default)'
+                  }
+                  strokeWidth="1.5"
+                  strokeDasharray="6 10"
+                  opacity="0.18"
+                />
               </svg>
-              <svg className={classNames('pointer-events-none absolute h-24 w-24', importFlowSource === 'github' ? 'ghub-ring-reverse' : 'onb-ai-ring-reverse')} viewBox="0 0 96 96">
-                <circle cx="48" cy="48" r="44" fill="none" stroke={importFlowSource === 'github' ? 'var(--theme-accent-cabbage-default)' : 'var(--theme-accent-onion-default)'} strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
+              <svg
+                className={classNames(
+                  'pointer-events-none absolute h-24 w-24',
+                  importFlowSource === 'github'
+                    ? 'ghub-ring-reverse'
+                    : 'onb-ai-ring-reverse',
+                )}
+                viewBox="0 0 96 96"
+              >
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="44"
+                  fill="none"
+                  stroke={
+                    importFlowSource === 'github'
+                      ? 'var(--theme-accent-cabbage-default)'
+                      : 'var(--theme-accent-onion-default)'
+                  }
+                  strokeWidth="1.5"
+                  strokeDasharray="4 6"
+                  opacity="0.35"
+                />
               </svg>
-              <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
-                <circle cx="32" cy="32" r="28" fill="none" stroke={importFlowSource === 'github' ? 'var(--theme-accent-cabbage-default)' : 'var(--theme-accent-onion-default)'} strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
+              <svg
+                className="onb-ring-slow pointer-events-none absolute h-16 w-16"
+                viewBox="0 0 64 64"
+              >
+                <circle
+                  cx="32"
+                  cy="32"
+                  r="28"
+                  fill="none"
+                  stroke={
+                    importFlowSource === 'github'
+                      ? 'var(--theme-accent-cabbage-default)'
+                      : 'var(--theme-accent-onion-default)'
+                  }
+                  strokeWidth="1"
+                  strokeDasharray="3 5"
+                  opacity="0.3"
+                />
               </svg>
               {[
-                { px: '-6rem', py: '-3.5rem', dur: '3.0s', delay: '0s', color: 'bg-accent-cheese-default' },
-                { px: '5.5rem', py: '-4rem', dur: '3.4s', delay: '0.5s', color: 'bg-accent-water-default' },
-                { px: '-5rem', py: '3.5rem', dur: '3.2s', delay: '1.0s', color: 'bg-accent-cabbage-default' },
-                { px: '6rem', py: '3rem', dur: '3.6s', delay: '1.5s', color: 'bg-accent-onion-default' },
-                { px: '0.5rem', py: '-5rem', dur: '2.8s', delay: '0.7s', color: 'bg-accent-cheese-default' },
-                { px: '-6.5rem', py: '0.5rem', dur: '3.1s', delay: '1.2s', color: 'bg-accent-water-default' },
+                {
+                  px: '-6rem',
+                  py: '-3.5rem',
+                  dur: '3.0s',
+                  delay: '0s',
+                  color: 'bg-accent-cheese-default',
+                },
+                {
+                  px: '5.5rem',
+                  py: '-4rem',
+                  dur: '3.4s',
+                  delay: '0.5s',
+                  color: 'bg-accent-water-default',
+                },
+                {
+                  px: '-5rem',
+                  py: '3.5rem',
+                  dur: '3.2s',
+                  delay: '1.0s',
+                  color: 'bg-accent-cabbage-default',
+                },
+                {
+                  px: '6rem',
+                  py: '3rem',
+                  dur: '3.6s',
+                  delay: '1.5s',
+                  color: 'bg-accent-onion-default',
+                },
+                {
+                  px: '0.5rem',
+                  py: '-5rem',
+                  dur: '2.8s',
+                  delay: '0.7s',
+                  color: 'bg-accent-cheese-default',
+                },
+                {
+                  px: '-6.5rem',
+                  py: '0.5rem',
+                  dur: '3.1s',
+                  delay: '1.2s',
+                  color: 'bg-accent-water-default',
+                },
               ].map((p) => (
                 <span
                   key={`import-flow-${p.delay}`}
@@ -3027,47 +4204,71 @@ const OnboardingV2Page = (): ReactElement => {
                     'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
                     p.color,
                   )}
-                  style={{
-                    '--px': p.px,
-                    '--py': p.py,
-                    '--dur': p.dur,
-                    '--delay': p.delay,
-                    animationDelay: p.delay,
-                  } as React.CSSProperties}
+                  style={
+                    {
+                      '--px': p.px,
+                      '--py': p.py,
+                      '--dur': p.dur,
+                      '--delay': p.delay,
+                      animationDelay: p.delay,
+                    } as React.CSSProperties
+                  }
                 />
               ))}
               <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
                 {importFlowSource === 'github' ? (
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" className="text-text-primary">
+                  <svg
+                    width="26"
+                    height="26"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="text-text-primary"
+                  >
                     <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
                   </svg>
                 ) : (
-                  <MagicIcon secondary size={IconSize.Small} className="text-text-primary" />
+                  <MagicIcon
+                    secondary
+                    size={IconSize.Small}
+                    className="text-text-primary"
+                  />
                 )}
               </div>
             </div>
 
             {/* ── Title & progress ── */}
             <h2 className="mb-1 text-center font-bold text-text-primary typo-title3">
-              {githubImportPhase === 'complete'
-                ? 'Your feed is ready'
-                : githubImportPhase === 'awaitingSeniority' || githubImportPhase === 'confirmingSeniority'
-                  ? 'Almost there'
-                  : importFlowSource === 'github'
-                    ? 'Reading your GitHub'
-                    : 'Analyzing your profile'}
+              {(() => {
+                if (githubImportPhase === 'complete') {
+                  return 'Your feed is ready';
+                }
+                if (
+                  githubImportPhase === 'awaitingSeniority' ||
+                  githubImportPhase === 'confirmingSeniority'
+                ) {
+                  return 'Almost there';
+                }
+                return importFlowSource === 'github'
+                  ? 'Reading your GitHub'
+                  : 'Analyzing your profile';
+              })()}
             </h2>
 
             <p className="mb-4 text-center text-text-tertiary typo-footnote">
-              {githubImportPhase === 'complete'
-                ? 'We built a personalized feed just for you.'
-                : githubImportPhase === 'awaitingSeniority'
-                  ? importFlowSource === 'github'
+              {(() => {
+                if (githubImportPhase === 'complete') {
+                  return 'We built a personalized feed just for you.';
+                }
+                if (githubImportPhase === 'awaitingSeniority') {
+                  return importFlowSource === 'github'
                     ? 'One thing we couldn\u2019t find on your profile.'
-                    : 'One last detail to finish your profile setup.'
-                  : githubImportPhase === 'confirmingSeniority'
-                    ? 'Got it. Finishing up...'
-                    : currentImportStep}
+                    : 'One last detail to finish your profile setup.';
+                }
+                if (githubImportPhase === 'confirmingSeniority') {
+                  return 'Got it. Finishing up...';
+                }
+                return currentImportStep;
+              })()}
             </p>
 
             {/* ── Progress track ── */}
@@ -3084,7 +4285,10 @@ const OnboardingV2Page = (): ReactElement => {
 
             {githubImportBodyPhase !== 'default' && (
               <div className="mb-4 w-full overflow-hidden rounded-16 border border-white/[0.06] bg-white/[0.01] p-3.5">
-                <div key={githubImportBodyPhase} className="ghub-phase-panel min-h-[10.5rem]">
+                <div
+                  key={githubImportBodyPhase}
+                  className="ghub-phase-panel min-h-[10.5rem]"
+                >
                   {/* ── Import checklist (during active import) ── */}
                   {(githubImportPhase === 'running' ||
                     githubImportPhase === 'finishing') && (
@@ -3093,11 +4297,12 @@ const OnboardingV2Page = (): ReactElement => {
                         const done = githubImportProgress >= step.threshold;
                         const active =
                           !done && githubImportProgress >= step.threshold - 16;
+                        // eslint-disable-next-line no-nested-ternary
                         const statusText = done
                           ? 'Done'
                           : active
-                            ? 'In progress'
-                            : 'Up next';
+                          ? 'In progress'
+                          : 'Up next';
 
                         return (
                           <div
@@ -3108,11 +4313,12 @@ const OnboardingV2Page = (): ReactElement => {
                             <span
                               className={classNames(
                                 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors duration-300',
+                                // eslint-disable-next-line no-nested-ternary
                                 done
                                   ? 'bg-accent-avocado-default'
                                   : active
-                                    ? 'bg-accent-cabbage-default/18'
-                                    : 'bg-white/[0.06]',
+                                  ? 'bg-accent-cabbage-default/18'
+                                  : 'bg-white/[0.06]',
                               )}
                             >
                               {done ? (
@@ -3145,11 +4351,12 @@ const OnboardingV2Page = (): ReactElement => {
                             <span
                               className={classNames(
                                 'truncate transition-colors duration-300 typo-callout',
+                                // eslint-disable-next-line no-nested-ternary
                                 done
                                   ? 'text-text-primary'
                                   : active
-                                    ? 'text-text-secondary'
-                                    : 'text-text-quaternary',
+                                  ? 'text-text-secondary'
+                                  : 'text-text-quaternary',
                               )}
                             >
                               {step.label}
@@ -3157,11 +4364,12 @@ const OnboardingV2Page = (): ReactElement => {
                             <span
                               className={classNames(
                                 'shrink-0 typo-caption2',
+                                // eslint-disable-next-line no-nested-ternary
                                 done
                                   ? 'text-accent-avocado-default'
                                   : active
-                                    ? 'text-accent-cabbage-default'
-                                    : 'text-text-quaternary',
+                                  ? 'text-accent-cabbage-default'
+                                  : 'text-text-quaternary',
                               )}
                             >
                               {statusText}
@@ -3183,7 +4391,8 @@ const OnboardingV2Page = (): ReactElement => {
                           const optionParts = getExperienceLevelOptionParts(
                             option.label,
                           );
-                          const optionMeta = optionParts.meta ?? 'Non-technical';
+                          const optionMeta =
+                            optionParts.meta ?? 'Non-technical';
                           const isSelected =
                             selectedExperienceLevel === option.value;
 
@@ -3195,7 +4404,7 @@ const OnboardingV2Page = (): ReactElement => {
                                 handleExperienceLevelSelect(option.value)
                               }
                               className={classNames(
-                                'group flex items-center rounded-12 border px-4 py-2.5 text-left transition-all duration-200 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default/60',
+                                'focus-visible:ring-accent-cabbage-default/60 group flex items-center rounded-12 border px-4 py-2.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 active:translate-y-px',
                                 isSelected
                                   ? 'border-white/[0.24] bg-surface-hover text-text-primary shadow-[0_8px_24px_rgba(0,0,0,0.3)]'
                                   : 'border-white/[0.12] bg-surface-float text-text-secondary hover:border-white/[0.2] hover:bg-surface-hover hover:text-text-primary',
@@ -3240,7 +4449,7 @@ const OnboardingV2Page = (): ReactElement => {
                         </p>
                       )}
                       <div className="mt-3 h-1 w-full overflow-hidden rounded-[0.125rem] bg-white/[0.12]">
-                        <span className="block h-full w-1/2 animate-pulse rounded-[0.125rem] bg-accent-cabbage-default/80" />
+                        <span className="bg-accent-cabbage-default/80 block h-full w-1/2 animate-pulse rounded-[0.125rem]" />
                       </div>
                     </div>
                   )}
@@ -3262,7 +4471,7 @@ const OnboardingV2Page = (): ReactElement => {
         >
           {/* Backdrop */}
           <div
-            className="onb-modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-lg"
+            className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
             onClick={() => setShowSignupPrompt(false)}
             role="presentation"
           />
@@ -3273,7 +4482,7 @@ const OnboardingV2Page = (): ReactElement => {
             <button
               type="button"
               onClick={() => setShowSignupPrompt(false)}
-              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
+              className="z-10 absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -3327,9 +4536,27 @@ const OnboardingV2Page = (): ReactElement => {
                         className="onb-check-item flex items-center gap-2 text-text-tertiary typo-caption1"
                         style={{ animationDelay: `${150 + i * 80}ms` }}
                       >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-accent-avocado-default/70">
-                          <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          className="text-accent-avocado-default/70 shrink-0"
+                        >
+                          <path
+                            d="M9 12l2 2 4-4"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          />
                         </svg>
                         {text}
                       </div>
@@ -3368,25 +4595,108 @@ const OnboardingV2Page = (): ReactElement => {
               {/* ── Shared AI setup context (manual + ai) ── */}
               {isAiSetupContext && (
                 <>
-                  <div className="pointer-events-none relative -mx-5 -mt-8 mb-0 flex h-32 items-center justify-center overflow-hidden tablet:-mx-7" style={{ width: 'calc(100% + 2.5rem)' }}>
-                    <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)', opacity: 0.22 }} />
-                    <div className="onb-ai-orb-glow pointer-events-none absolute h-32 w-52 rounded-full bg-accent-onion-default/15 blur-3xl" />
-                    <svg className="onb-ai-ring pointer-events-none absolute" style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
-                      <circle cx="88" cy="88" r="84" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
+                  <div
+                    className="pointer-events-none relative -mx-5 -mt-8 mb-0 flex h-32 items-center justify-center overflow-hidden tablet:-mx-7"
+                    style={{ width: 'calc(100% + 2.5rem)' }}
+                  >
+                    <div
+                      className="pointer-events-none absolute inset-0"
+                      style={{
+                        background:
+                          'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)',
+                        opacity: 0.22,
+                      }}
+                    />
+                    <div className="onb-ai-orb-glow bg-accent-onion-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
+                    <svg
+                      className="onb-ai-ring pointer-events-none absolute"
+                      style={{ width: '11rem', height: '11rem' }}
+                      viewBox="0 0 176 176"
+                    >
+                      <circle
+                        cx="88"
+                        cy="88"
+                        r="84"
+                        fill="none"
+                        stroke="var(--theme-accent-onion-default)"
+                        strokeWidth="1.5"
+                        strokeDasharray="6 10"
+                        opacity="0.18"
+                      />
                     </svg>
-                    <svg className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24" viewBox="0 0 96 96">
-                      <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
+                    <svg
+                      className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24"
+                      viewBox="0 0 96 96"
+                    >
+                      <circle
+                        cx="48"
+                        cy="48"
+                        r="44"
+                        fill="none"
+                        stroke="var(--theme-accent-onion-default)"
+                        strokeWidth="1.5"
+                        strokeDasharray="4 6"
+                        opacity="0.35"
+                      />
                     </svg>
-                    <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
-                      <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
+                    <svg
+                      className="onb-ring-slow pointer-events-none absolute h-16 w-16"
+                      viewBox="0 0 64 64"
+                    >
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        fill="none"
+                        stroke="var(--theme-accent-onion-default)"
+                        strokeWidth="1"
+                        strokeDasharray="3 5"
+                        opacity="0.3"
+                      />
                     </svg>
                     {[
-                      { px: '-6rem', py: '-3.5rem', dur: '3.2s', delay: '0s', color: 'bg-accent-cheese-default' },
-                      { px: '5.5rem', py: '-4rem', dur: '3.6s', delay: '0.5s', color: 'bg-accent-water-default' },
-                      { px: '-5rem', py: '3.5rem', dur: '3.0s', delay: '1.0s', color: 'bg-accent-onion-default' },
-                      { px: '6rem', py: '3rem', dur: '3.4s', delay: '1.5s', color: 'bg-accent-cabbage-default' },
-                      { px: '-0.5rem', py: '-5rem', dur: '2.8s', delay: '0.3s', color: 'bg-accent-cheese-default' },
-                      { px: '6.5rem', py: '-0.5rem', dur: '3.1s', delay: '0.8s', color: 'bg-accent-water-default' },
+                      {
+                        px: '-6rem',
+                        py: '-3.5rem',
+                        dur: '3.2s',
+                        delay: '0s',
+                        color: 'bg-accent-cheese-default',
+                      },
+                      {
+                        px: '5.5rem',
+                        py: '-4rem',
+                        dur: '3.6s',
+                        delay: '0.5s',
+                        color: 'bg-accent-water-default',
+                      },
+                      {
+                        px: '-5rem',
+                        py: '3.5rem',
+                        dur: '3.0s',
+                        delay: '1.0s',
+                        color: 'bg-accent-onion-default',
+                      },
+                      {
+                        px: '6rem',
+                        py: '3rem',
+                        dur: '3.4s',
+                        delay: '1.5s',
+                        color: 'bg-accent-cabbage-default',
+                      },
+                      {
+                        px: '-0.5rem',
+                        py: '-5rem',
+                        dur: '2.8s',
+                        delay: '0.3s',
+                        color: 'bg-accent-cheese-default',
+                      },
+                      {
+                        px: '6.5rem',
+                        py: '-0.5rem',
+                        dur: '3.1s',
+                        delay: '0.8s',
+                        color: 'bg-accent-water-default',
+                      },
                     ].map((p) => (
                       <span
                         key={`signup-ai-${p.delay}`}
@@ -3394,20 +4704,26 @@ const OnboardingV2Page = (): ReactElement => {
                           'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
                           p.color,
                         )}
-                        style={{
-                          '--px': p.px,
-                          '--py': p.py,
-                          '--dur': p.dur,
-                          '--delay': p.delay,
-                          animationDelay: p.delay,
-                        } as React.CSSProperties}
+                        style={
+                          {
+                            '--px': p.px,
+                            '--py': p.py,
+                            '--dur': p.dur,
+                            '--delay': p.delay,
+                            animationDelay: p.delay,
+                          } as React.CSSProperties
+                        }
                       />
                     ))}
                     <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                      <MagicIcon secondary size={IconSize.Small} className="text-white" />
+                      <MagicIcon
+                        secondary
+                        size={IconSize.Small}
+                        className="text-white"
+                      />
                     </div>
                   </div>
-                  <div className="mt-4 mb-4 flex flex-col items-center">
+                  <div className="mb-4 mt-4 flex flex-col items-center">
                     <h4 className="mb-1.5 font-bold text-text-primary typo-body">
                       Tell our AI about yourself
                     </h4>
@@ -3416,7 +4732,7 @@ const OnboardingV2Page = (): ReactElement => {
                     </p>
                   </div>
 
-                  <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)]">
+                  <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)] hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none">
                     <textarea
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
@@ -3431,7 +4747,7 @@ const OnboardingV2Page = (): ReactElement => {
                       }}
                       rows={4}
                       placeholder="I'm a frontend engineer using React and TypeScript. Interested in system design, performance, and AI tooling..."
-                      className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary placeholder:text-text-quaternary transition-colors duration-200 focus:outline-none focus:placeholder:text-text-disabled typo-callout"
+                      className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary transition-colors duration-200 typo-callout placeholder:text-text-quaternary focus:outline-none focus:placeholder:text-text-disabled"
                     />
                   </div>
                   {selectedTopics.size > 0 && (
@@ -3442,7 +4758,7 @@ const OnboardingV2Page = (): ReactElement => {
                           type="button"
                           onClick={() => toggleTopic(topic)}
                           className={classNames(
-                            'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] active:scale-[0.96] focus-visible:outline-none typo-caption1',
+                            'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 typo-caption1 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] focus-visible:outline-none active:scale-[0.96]',
                             TOPIC_SELECTED_STYLES,
                           )}
                         >
@@ -3453,18 +4769,18 @@ const OnboardingV2Page = (): ReactElement => {
                     </div>
                   )}
                   {recommendedTopics.length > 0 && (
-                    <div className="mb-2 w-full overflow-hidden transition-all duration-400 ease-out">
+                    <div className="duration-400 mb-2 w-full overflow-hidden transition-all ease-out">
                       <div className="flex flex-wrap gap-1.5">
-                      {recommendedTopics.map(({ label }) => (
-                        <button
-                          key={`signup-match-${label}`}
-                          type="button"
-                          onClick={() => toggleTopic(label)}
-                          className="onb-chip-enter rounded-8 border border-border-subtlest-tertiary/40 px-2.5 py-1 text-text-tertiary transition-all duration-200 hover:bg-white/[0.06] hover:text-text-secondary active:scale-[0.97] focus-visible:outline-none typo-caption1"
-                        >
-                          + {label}
-                        </button>
-                      ))}
+                        {recommendedTopics.map(({ label }) => (
+                          <button
+                            key={`signup-match-${label}`}
+                            type="button"
+                            onClick={() => toggleTopic(label)}
+                            className="onb-chip-enter border-border-subtlest-tertiary/40 rounded-8 border px-2.5 py-1 text-text-tertiary transition-all duration-200 typo-caption1 hover:bg-white/[0.06] hover:text-text-secondary focus-visible:outline-none active:scale-[0.97]"
+                          >
+                            + {label}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -3472,20 +4788,43 @@ const OnboardingV2Page = (): ReactElement => {
               )}
 
               {/* ── Auth buttons ── */}
-              <div className={classNames('relative', isAiSetupContext && 'mt-4 w-full')}>
+              <div
+                className={classNames(
+                  'relative',
+                  isAiSetupContext && 'mt-4 w-full',
+                )}
+              >
                 <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
+                {/* eslint-disable-next-line no-nested-ternary */}
                 {signupContext === 'github' ? (
                   <button
                     type="button"
                     className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
                     onClick={() => setShowSignupPrompt(false)}
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
                       <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
                     </svg>
                     Continue with GitHub
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5">
-                      <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5"
+                    >
+                      <path
+                        d="M5 12h14M12 5l7 7-7 7"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </button>
                 ) : isAiSetupContext ? (
@@ -3494,14 +4833,21 @@ const OnboardingV2Page = (): ReactElement => {
                       type="button"
                       disabled={!canStartAiFlow}
                       className={classNames(
-                        'group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout',
+                        'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
                         canStartAiFlow
                           ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
                           : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
                       )}
                       onClick={startAiFlowFromSignup}
                     >
-                      <MagicIcon secondary size={IconSize.Size16} className={classNames('transition-transform duration-300', canStartAiFlow && 'group-hover:translate-x-0.5')} />
+                      <MagicIcon
+                        secondary
+                        size={IconSize.Size16}
+                        className={classNames(
+                          'transition-transform duration-300',
+                          canStartAiFlow && 'group-hover:translate-x-0.5',
+                        )}
+                      />
                       Generate my feed with AI
                     </button>
                     <p className="mt-2.5 text-center text-text-quaternary typo-caption2">
@@ -3530,17 +4876,19 @@ const OnboardingV2Page = (): ReactElement => {
             <span
               key={f.id}
               className="onb-live-tick"
-              style={{
-                position: 'absolute',
-                left: f.left,
-                top: f.top,
-                color: f.color,
-                '--onb-live-x': f.x,
-                '--onb-live-y': f.y,
-                '--onb-live-scale': f.scale,
-                '--onb-live-rot': f.rot,
-                '--onb-live-delay': `${f.delay}ms`,
-              } as React.CSSProperties}
+              style={
+                {
+                  position: 'absolute',
+                  left: f.left,
+                  top: f.top,
+                  color: f.color,
+                  '--onb-live-x': f.x,
+                  '--onb-live-y': f.y,
+                  '--onb-live-scale': f.scale,
+                  '--onb-live-rot': f.rot,
+                  '--onb-live-delay': `${f.delay}ms`,
+                } as React.CSSProperties
+              }
             >
               {f.text}
             </span>
