@@ -25,6 +25,24 @@
   }
 }
 
+.slim-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-text-tertiary) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background: var(--theme-text-tertiary);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-text-secondary);
+  }
+}
+
 .break-words {
   word-break: break-word;
 }
