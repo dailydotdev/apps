@@ -370,9 +370,9 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
         title
         link
         image
-        company_name
-        company_logo
-        call_to_action
+        companyName
+        companyLogo
+        callToAction
       }
     }
     userState {
@@ -620,9 +620,9 @@ export const FEED_POST_FRAGMENT = gql`
         title
         link
         image
-        company_name
-        company_logo
-        call_to_action
+        companyName
+        companyLogo
+        callToAction
       }
     }
     featuredAward {

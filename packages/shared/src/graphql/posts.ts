@@ -117,9 +117,9 @@ export type DigestPostAd = {
   title: string;
   link: string;
   image: string;
-  company_name: string;
-  company_logo: string;
-  call_to_action: string;
+  companyName: string;
+  companyLogo: string;
+  callToAction: string;
 };
 
 type PostFlags = {

@@ -5,7 +5,7 @@ export const transformDigestAd = (
 ): { ad: Ad; index: number } => ({
   ad: {
     source: 'daily',
-    company: digestAd.company_name,
+    company: digestAd.companyName,
     description: digestAd.title,
     link: digestAd.link,
     image: digestAd.image,

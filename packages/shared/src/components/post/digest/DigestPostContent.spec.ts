@@ -9,9 +9,9 @@ describe('transformDigestAd', () => {
       title: 'Check out our product',
       link: 'https://example.com/ad',
       image: 'https://example.com/ad-image.png',
-      company_name: 'Acme Corp',
-      company_logo: 'https://example.com/logo.png',
-      call_to_action: 'Learn More',
+      companyName: 'Acme Corp',
+      companyLogo: 'https://example.com/logo.png',
+      callToAction: 'Learn More',
     };
 
     const result = transformDigestAd(digestAd);
@@ -36,9 +36,9 @@ describe('transformDigestAd', () => {
       title: 'Ad title',
       link: 'https://example.com',
       image: 'https://example.com/img.png',
-      company_name: 'Company',
-      company_logo: 'https://example.com/logo.png',
-      call_to_action: 'Click',
+      companyName: 'Company',
+      companyLogo: 'https://example.com/logo.png',
+      callToAction: 'Click',
     };
 
     const result = transformDigestAd(digestAd);
@@ -53,9 +53,9 @@ describe('transformDigestAd', () => {
       title: 'Ad',
       link: 'https://example.com',
       image: 'https://example.com/img.png',
-      company_name: 'Company',
-      company_logo: 'https://example.com/logo.png',
-      call_to_action: 'Click',
+      companyName: 'Company',
+      companyLogo: 'https://example.com/logo.png',
+      callToAction: 'Click',
     };
 
     const result = transformDigestAd(digestAd);
