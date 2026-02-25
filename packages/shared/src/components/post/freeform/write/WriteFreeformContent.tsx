@@ -39,10 +39,14 @@ const MAX_CONTENT_LENGTH = 10_000;
 
 interface WriteFreeformContentProps {
   className?: string;
+  initialTitle?: string;
+  initialContent?: string;
 }
 
 export function WriteFreeformContent({
   className,
+  initialTitle,
+  initialContent,
 }: WriteFreeformContentProps): ReactElement {
   const {
     onSubmitForm,
@@ -152,7 +156,7 @@ export function WriteFreeformContent({
           label="Post Title*"
           placeholder="Give your post a title"
           required
-          defaultValue={draft?.title ?? fetchedPost?.title}
+          defaultValue={draft?.title ?? initialTitle ?? fetchedPost?.title}
           onInput={onFormUpdate}
           maxLength={MAX_TITLE_LENGTH}
         />
@@ -160,7 +164,9 @@ export function WriteFreeformContent({
       <RichTextInput
         sourceId={squad?.id}
         onValueUpdate={onFormUpdate}
-        initialContent={draft?.content ?? fetchedPost?.content ?? ''}
+        initialContent={
+          draft?.content ?? initialContent ?? fetchedPost?.content ?? ''
+        }
         textareaProps={{ name: 'content' }}
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
         isUpdatingDraft={isUpdatingDraft}

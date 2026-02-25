@@ -24,6 +24,7 @@ import {
   MailIcon,
   NewTabIcon,
   PhoneIcon,
+  PinIcon,
   ReputationLightningIcon,
   ExitIcon,
   OrganizationIcon,
@@ -68,6 +69,11 @@ import { VolunteeringIcon } from '../icons/Volunteering';
 import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
+import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
+import { shouldShowAchievementTracker } from '../../lib/achievements';
+import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 
 type MenuItems = Record<
   string,
@@ -79,12 +85,33 @@ type MenuItems = Record<
 
 const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
-const useAccountPageItems = () => {
-  const { openModal } = useLazyModal();
+const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
+  const { openModal, closeModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
 
-  return useMemo(
+  const { value: isAchievementTrackingWidgetEnabled } = useConditionalFeature({
+    feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: !!user,
+  });
+
+  const { achievements, unlockedCount, totalCount } = useProfileAchievements(
+    user,
+    isAchievementTrackingWidgetEnabled === true,
+  );
+
+  const showAchievementTracker = shouldShowAchievementTracker({
+    isExperimentEnabled: isAchievementTrackingWidgetEnabled === true,
+    unlockedCount,
+    totalCount,
+  });
+
+  const { trackedAchievement, trackAchievement } = useTrackedAchievement(
+    undefined,
+    showAchievementTracker,
+  );
+
+  const items = useMemo(
     () =>
       defineMenuItems({
         main: {
@@ -136,6 +163,41 @@ const useAccountPageItems = () => {
               icon: InviteIcon,
               href: `${settingsUrl}/invite`,
             },
+          },
+        },
+        misc: {
+          title: 'Misc',
+          items: {
+            hotTakes: {
+              title: 'Hot Takes',
+              icon: HotIcon,
+              href: `${webappUrl}?openModal=hottakes`,
+              onClick: () => {
+                logEvent({ event_name: LogEvent.OpenHotAndCold });
+                onClose?.();
+              },
+            },
+            trackAchievement: {
+              title: 'Track achievement',
+              icon: PinIcon,
+              onClick: () => {
+                logEvent({
+                  event_name: LogEvent.OpenAchievementPickerModal,
+                });
+                onClose?.();
+                openModal({
+                  type: LazyModal.AchievementPicker,
+                  props: {
+                    achievements: achievements ?? [],
+                    trackedAchievementId: trackedAchievement?.achievement.id,
+                    onTrack: async (achievementId: string) => {
+                      await trackAchievement(achievementId);
+                      closeModal();
+                    },
+                  },
+                });
+              },
+            } as ProfileSectionItemPropsWithoutHref,
           },
         },
         career: {
@@ -310,8 +372,19 @@ const useAccountPageItems = () => {
           },
         },
       }),
-    [logEvent, openModal, user?.username],
+    [
+      achievements,
+      closeModal,
+      logEvent,
+      onClose,
+      openModal,
+      trackAchievement,
+      trackedAchievement?.achievement.id,
+      user?.username,
+    ],
   );
+
+  return { items, showAchievementTracker };
 };
 
 interface ProfileSettingsMenuProps {
@@ -320,11 +393,17 @@ interface ProfileSettingsMenuProps {
   shouldKeepOpen?: boolean;
 }
 
-export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
+const TRACK_ACHIEVEMENT_KEY = 'trackAchievement';
+
+export const InnerProfileSettingsMenu = ({
+  className,
+  onClose,
+}: WithClassNameProps & { onClose?: () => void }) => {
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
-  const accountPageItems = useAccountPageItems();
+  const { items: accountPageItems, showAchievementTracker } =
+    useAccountPageItems({ onClose });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
@@ -337,8 +416,15 @@ export const InnerProfileSettingsMenu = ({ className }: WithClassNameProps) => {
             withSeparator={!lastItem}
             title={menuItem.title}
             items={Object.entries(menuItem.items)
-              .filter(([, item]) => {
+              .filter(([itemKey, item]) => {
                 if (item.href === walletUrl && !hasAccessToCores) {
+                  return false;
+                }
+
+                if (
+                  itemKey === TRACK_ACHIEVEMENT_KEY &&
+                  !showAchievementTracker
+                ) {
                   return false;
                 }
 
@@ -377,7 +463,7 @@ export function ProfileSettingsMenuMobile({
         onClose,
       }}
     >
-      <InnerProfileSettingsMenu className="p-4" />
+      <InnerProfileSettingsMenu className="p-4" onClose={onClose} />
     </NavDrawer>
   );
 }

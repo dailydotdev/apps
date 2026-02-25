@@ -15,6 +15,13 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
+jest.mock('../common/PostTags', () => ({
+  __esModule: true,
+  default: ({ post }: { post: { tags?: string[] } }) => (
+    <div data-testid="post-tags">{post.tags?.join(',')}</div>
+  ),
+}));
+
 const basePost: Post = {
   ...sharePost,
   type: PostType.SocialTwitter,
@@ -71,8 +78,12 @@ it('should hide image and show referenced tweet block for shared social tweets',
     },
   });
 
-  expect(await screen.findByText('Referenced post')).toBeInTheDocument();
-  expect(await screen.findByText('@devrelweekly')).toBeInTheDocument();
+  expect(
+    await screen.findByText(/Referenced post @devrelweekly/i),
+  ).toBeInTheDocument();
+  expect(
+    await screen.findByAltText("devrelweekly's profile"),
+  ).toBeInTheDocument();
   expect(await screen.findByText('Referenced tweet body')).toBeInTheDocument();
   expect(screen.queryByAltText('Post cover image')).not.toBeInTheDocument();
 });
@@ -80,5 +91,65 @@ it('should hide image and show referenced tweet block for shared social tweets',
 it('should render image for non-shared social tweets', async () => {
   renderComponent();
 
+  expect(
+    await screen.findByRole('link', { name: 'Read on' }),
+  ).toBeInTheDocument();
   expect(await screen.findByAltText('Post cover image')).toBeInTheDocument();
+});
+
+it('should not render source handle in metadata bottom label', async () => {
+  renderComponent({
+    post: {
+      ...basePost,
+      title: 'Root tweet title without handle',
+      source: {
+        ...basePost.source,
+        handle: 'uniquesourcehandle',
+      },
+    },
+  });
+
+  expect(
+    await screen.findByRole('link', { name: 'Read on' }),
+  ).toBeInTheDocument();
+  expect(screen.queryByText('@uniquesourcehandle')).not.toBeInTheDocument();
+});
+
+it('should hide headline and tags for repost cards without repost text', async () => {
+  renderComponent({
+    post: {
+      ...basePost,
+      subType: 'repost',
+      title:
+        '@bcherny: RT @ycombinator: Today, startups are not winning by hiring faster',
+      content: null,
+      contentHtml: null,
+      tags: ['tagaa', 'tagbb'],
+      sharedPost: {
+        ...sharePost.sharedPost,
+        type: PostType.SocialTwitter,
+        title: 'Referenced tweet body',
+        source: {
+          ...sharePost.sharedPost.source,
+          name: 'Y Combinator',
+          handle: 'ycombinator',
+        },
+      },
+    },
+  });
+
+  expect(
+    screen.queryByText(
+      '@bcherny: RT @ycombinator: Today, startups are not winning by hiring faster',
+    ),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
+  expect(
+    await screen.findByTitle(
+      /Avengers reposted on X\. @bcherny: RT @ycombinator:/i,
+    ),
+  ).toBeInTheDocument();
+  expect(
+    await screen.findByText(/Y Combinator @ycombinator/i),
+  ).toBeInTheDocument();
 });

@@ -38,8 +38,10 @@ export const useSquadPendingPosts = ({
 } = {}): UseSquadPendingPosts => {
   const { user, squads } = useAuthContext();
   const isModeratorInAnySquad = useMemo(() => {
-    return squads?.some((squad) =>
-      verifyPermission(squad, SourcePermissions.ModeratePost),
+    return (
+      squads?.some((squad) =>
+        verifyPermission(squad, SourcePermissions.ModeratePost),
+      ) ?? false
     );
   }, [squads]);
 
@@ -65,17 +67,16 @@ export const useSquadPendingPosts = ({
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
     enabled: enabled && (Boolean(squadId) || isModeratorInAnySquad),
 
-    select: useCallback((res) => {
-      if (!res) {
-        return undefined;
-      }
-
-      return {
-        ...res,
-        // filter out last page with no edges returned by api paginator
-        pages: res.pages.filter((pageItem) => !!pageItem?.edges.length),
-      };
-    }, []),
+    select: useCallback(
+      (res: InfiniteData<Connection<SourcePostModeration[]>>) => {
+        return {
+          ...res,
+          // filter out last page with no edges returned by api paginator
+          pages: res.pages.filter((pageItem) => !!pageItem?.edges.length),
+        };
+      },
+      [],
+    ),
   });
 
   return {

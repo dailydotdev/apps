@@ -420,6 +420,12 @@ const FeedbackModal = dynamic(
   () => import(/* webpackChunkName: "feedbackModal" */ './FeedbackModal'),
 );
 
+const HotAndColdModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "hotAndColdModal" */ './hotTakes/HotAndColdModal'
+    ),
+);
 const AchievementSyncPromptModal = dynamic(
   () =>
     import(
@@ -438,6 +444,13 @@ const AchievementCompletionModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "achievementCompletionModal" */ './AchievementCompletionModal'
+    ),
+);
+
+const CompareAchievementsModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "compareAchievementsModal" */ './achievement/CompareAchievementsModal'
     ),
 );
 
@@ -511,8 +524,10 @@ export const modals = {
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
   [LazyModal.Feedback]: FeedbackModal,
   [LazyModal.AchievementSyncPrompt]: AchievementSyncPromptModal,
+  [LazyModal.HotAndCold]: HotAndColdModal,
   [LazyModal.AchievementPicker]: AchievementPickerModal,
   [LazyModal.AchievementCompletion]: AchievementCompletionModal,
+  [LazyModal.CompareAchievements]: CompareAchievementsModal,
 };
 
 type GetComponentProps<T> = T extends

@@ -317,7 +317,7 @@ export default function useFeed<T>(
 
     if (feedQuery.data) {
       newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
-        page.edges.forEach(({ node }, index) => {
+        page.edges.forEach(({ node }, index: number) => {
           const adIndex = acc.length;
           const adItem = getAd({ index: adIndex });
 

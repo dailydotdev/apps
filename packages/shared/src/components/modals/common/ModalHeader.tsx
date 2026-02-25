@@ -36,7 +36,7 @@ export function ModalHeader({
   className,
   title,
   showCloseButton = true,
-}: ModalHeaderProps): ReactElement {
+}: ModalHeaderProps): ReactElement | null {
   const {
     activeView,
     setActiveView,
@@ -58,7 +58,9 @@ export function ModalHeader({
     <ModalHeaderOuter
       className={classNames(
         'relative h-14 items-center',
-        (modalTitle || children) && 'border-b border-border-subtlest-tertiary',
+        modalTitle || children
+          ? 'border-b border-border-subtlest-tertiary'
+          : undefined,
         className,
       )}
     >
@@ -68,9 +70,9 @@ export function ModalHeader({
           size={ButtonSize.Small}
           className="mr-2 flex -rotate-90 tablet:hidden"
           icon={<ArrowIcon />}
-          onClick={(event) => {
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
             if (isMobile && tabs && activeView) {
-              setActiveView(undefined);
+              setActiveView?.(undefined);
             } else {
               onRequestClose(event);
             }
@@ -127,8 +129,8 @@ const ModalHeaderStepsButton = (props: ButtonProps<'button'>) => (
   />
 );
 
-export function ModalHeaderSteps(props: ModalHeaderProps): ReactElement {
-  const { activeView, steps } = useContext(ModalPropsContext);
+export function ModalHeaderSteps(props: ModalHeaderProps): ReactElement | null {
+  const { activeView, steps = [] } = useContext(ModalPropsContext);
   const activeStepIndex = steps.findIndex(({ key }) => activeView === key);
   const activeStep = steps[activeStepIndex];
   if (!activeStep) {
@@ -153,7 +155,9 @@ export function ModalHeaderSteps(props: ModalHeaderProps): ReactElement {
     <ModalHeader {...props}>
       <ModalStepsWrapper>
         {({ previousStep }) =>
-          previousStep && <ModalHeaderStepsButton onClick={previousStep} />
+          previousStep ? (
+            <ModalHeaderStepsButton onClick={previousStep} />
+          ) : null
         }
       </ModalStepsWrapper>
       <ModalHeaderSubtitle>{activeView}</ModalHeaderSubtitle>

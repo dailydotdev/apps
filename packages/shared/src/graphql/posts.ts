@@ -49,7 +49,7 @@ export const isInternalReadType = (post: Post): boolean =>
 
 export const isSharedPostSquadPost = (
   post: Pick<Post, 'sharedPost'>,
-): boolean => post.sharedPost?.source.type === SourceType.Squad;
+): boolean => post.sharedPost?.source?.type === SourceType.Squad;
 
 export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
   post?.type === PostType.VideoYouTube ||
@@ -63,7 +63,7 @@ export const isSocialTwitterPost = (
 export const isSocialTwitterShareLike = (
   post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
 ): boolean => {
-  if (!isSocialTwitterPost(post)) {
+  if (!post || !isSocialTwitterPost(post)) {
     return false;
   }
 
@@ -197,6 +197,8 @@ export interface Post {
   language?: string;
   yggdrasilId?: string;
   creatorTwitter?: string;
+  creatorTwitterName?: string;
+  creatorTwitterImage?: string;
   featuredAward?: {
     award?: FeaturedAward;
   };
@@ -1216,8 +1218,13 @@ export const checkCanBoostByUser = (post: Post, userId: string) =>
 export const useCanBoostPost = (post: Post) => {
   const { user } = useAuthContext();
   const canBuy = useCanPurchaseCores();
+
+  if (!user?.id) {
+    return { canBoost: false };
+  }
+
   const canBoost =
-    canBuy && checkCanBoostByUser(post, user?.id) && !post?.private;
+    canBuy && checkCanBoostByUser(post, user.id) && !post?.private;
 
   return { canBoost };
 };
@@ -1316,12 +1323,14 @@ export type PostAnalytics = {
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
+  const postId = id ?? '';
+
   return {
-    queryKey: [...getPostByIdKey(id), RequestKey.PostAnalytics],
+    queryKey: [...getPostByIdKey(postId), RequestKey.PostAnalytics],
     queryFn: async () => {
       const result = await gqlClient.request<{
         postAnalytics: PostAnalytics;
-      }>(POST_ANALYTICS_QUERY, { id });
+      }>(POST_ANALYTICS_QUERY, { id: postId });
 
       return result.postAnalytics;
     },
@@ -1362,12 +1371,14 @@ export const postAnalyticsHistoryQuery = ({
   id?: string;
   first?: number;
 }) => {
+  const postId = id ?? '';
+
   return {
-    queryKey: [...getPostByIdKey(id), RequestKey.PostAnalyticsHistory],
+    queryKey: [...getPostByIdKey(postId), RequestKey.PostAnalyticsHistory],
     queryFn: async () => {
       const result = await gqlClient.request<{
         postAnalyticsHistory: Connection<PostAnalyticsHistory>;
-      }>(POST_ANALYTICS_HISTORY_QUERY, { first, id });
+      }>(POST_ANALYTICS_HISTORY_QUERY, { first, id: postId });
 
       return result.postAnalyticsHistory;
     },

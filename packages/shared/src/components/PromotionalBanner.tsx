@@ -62,20 +62,28 @@ export default function PromotionalBanner(): ReactElement {
         <strong>{banner.title}</strong>
         <span className="ml-0.5">{banner.subtitle}</span>
       </div>
-      <Button
-        tag="a"
-        href={banner.url}
-        size={ButtonSize.XSmall}
-        variant={ButtonVariant.Primary}
-        color={
-          banner.theme === BannerCustomTheme.WhitePepper
-            ? ButtonColor.Cabbage
-            : undefined
-        }
-        className="mt-2 laptop:ml-4 laptop:mt-0"
-      >
-        {banner.cta}
-      </Button>
+      {banner.theme === BannerCustomTheme.WhitePepper ? (
+        <Button
+          tag="a"
+          href={banner.url}
+          size={ButtonSize.XSmall}
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          className="mt-2 laptop:ml-4 laptop:mt-0"
+        >
+          {banner.cta}
+        </Button>
+      ) : (
+        <Button
+          tag="a"
+          href={banner.url}
+          size={ButtonSize.XSmall}
+          variant={ButtonVariant.Primary}
+          className="mt-2 laptop:ml-4 laptop:mt-0"
+        >
+          {banner.cta}
+        </Button>
+      )}
       <CloseButton
         size={ButtonSize.XSmall}
         className="absolute right-2 top-2 laptop:inset-y-0 laptop:my-auto"

@@ -9,7 +9,6 @@ import {
 } from '../../graphql/contentPreference';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { gqlClient } from '../../graphql/common';
-import type { PropsParameters } from '../../types';
 import { useToastNotification } from '../useToastNotification';
 import type { ContentPreferenceMutation } from './types';
 import { useLogContext } from '../../contexts/LogContext';
@@ -40,7 +39,7 @@ export const useContentPreference = ({
   const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
-  const { activePost: referrerPost } = useActivePostContext();
+  const referrerPost = useActivePostContext()?.activePost;
 
   const { mutateAsync: follow } = useMutation({
     mutationKey: generateQueryKey(RequestKey.ContentPreferenceFollow, user),
@@ -50,7 +49,7 @@ export const useContentPreference = ({
       entityName,
       feedId,
       opts,
-    }: PropsParameters<UseContentPreference['follow']>) => {
+    }: Parameters<ContentPreferenceMutation>[0]) => {
       const extra =
         opts?.extra || feedId || referrerPost
           ? JSON.stringify({
@@ -99,7 +98,7 @@ export const useContentPreference = ({
       entityName,
       feedId,
       opts,
-    }: PropsParameters<UseContentPreference['unfollow']>) => {
+    }: Parameters<ContentPreferenceMutation>[0]) => {
       const extra =
         opts?.extra || feedId
           ? JSON.stringify({ ...opts?.extra, feedId })
@@ -135,7 +134,7 @@ export const useContentPreference = ({
       entityName,
       feedId,
       opts,
-    }: PropsParameters<UseContentPreference['subscribe']>) => {
+    }: Parameters<ContentPreferenceMutation>[0]) => {
       const extra =
         opts?.extra || feedId
           ? JSON.stringify({ ...opts?.extra, feedId })
@@ -175,7 +174,7 @@ export const useContentPreference = ({
       entityName,
       feedId,
       opts,
-    }: PropsParameters<UseContentPreference['subscribe']>) => {
+    }: Parameters<ContentPreferenceMutation>[0]) => {
       const extra =
         opts?.extra || feedId
           ? JSON.stringify({ ...opts?.extra, feedId })
@@ -212,7 +211,7 @@ export const useContentPreference = ({
       entityName,
       feedId,
       opts,
-    }: PropsParameters<UseContentPreference['block']>) => {
+    }: Parameters<ContentPreferenceMutation>[0]) => {
       const extra =
         opts?.extra || feedId
           ? JSON.stringify({ ...opts?.extra, feedId })
@@ -256,7 +255,7 @@ export const useContentPreference = ({
       entityName,
       feedId,
       opts,
-    }: PropsParameters<UseContentPreference['unblock']>) => {
+    }: Parameters<ContentPreferenceMutation>[0]) => {
       const extra =
         opts?.extra || feedId
           ? JSON.stringify({ ...opts?.extra, feedId })

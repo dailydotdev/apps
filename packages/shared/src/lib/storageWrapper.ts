@@ -1,4 +1,9 @@
-export default function Storage(): Partial<Storage> {
+type StorageWrapper = Pick<
+  Storage,
+  'getItem' | 'setItem' | 'removeItem' | 'clear'
+>;
+
+export default function Storage(): StorageWrapper {
   const inMemoryStorage: { [key: string]: string } = {};
 
   function isLocalStorageEnabled() {
@@ -13,7 +18,7 @@ export default function Storage(): Partial<Storage> {
     if (isLocalStorageEnabled()) {
       return localStorage.getItem(key);
     }
-    return inMemoryStorage[key];
+    return inMemoryStorage[key] ?? null;
   }
 
   function setItem(key: string, value: string): void {

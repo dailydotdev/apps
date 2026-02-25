@@ -16,7 +16,7 @@ interface PostContentReminderProps {
 export function PostContentReminder({
   post,
   className,
-}: PostContentReminderProps): ReactElement {
+}: PostContentReminderProps): ReactElement | null {
   const shouldShowReminder = useBookmarkReminderCover(post);
 
   if (!shouldShowReminder) {

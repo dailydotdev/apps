@@ -15,7 +15,6 @@ import {
 } from '../../../components/typography/Typography';
 import { IconSize } from '../../../components/Icon';
 import { SimpleTooltip } from '../../../components/tooltips/SimpleTooltip';
-import { ExpandableContent } from '../../../components/ExpandableContent';
 import { useLogContext } from '../../../contexts/LogContext';
 import { combinedClicks } from '../../../lib/click';
 import { LogEvent, TargetType } from '../../../lib/log';
@@ -50,53 +49,43 @@ export function AboutMe({
   }
 
   return (
-    <div className={classNames('py-4', className)}>
-      <ExpandableContent maxHeight={320}>
-        <div className="flex flex-col gap-4">
-          <Typography
-            type={TypographyType.Body}
-            color={TypographyColor.Primary}
-            bold
-          >
-            About me
-          </Typography>
+    <div className={classNames('flex flex-col gap-4 py-4', className)}>
+      <Typography
+        type={TypographyType.Body}
+        color={TypographyColor.Primary}
+        bold
+      >
+        About me
+      </Typography>
 
-          <div className="flex flex-1 flex-col gap-4">
-            {shouldShowSocialLinks && (
-              <div className="flex flex-wrap items-center gap-2">
-                {socialLinks.map((link) => (
-                  <SimpleTooltip key={link.id} content={link.label}>
-                    <Button
-                      variant={ButtonVariant.Subtle}
-                      size={ButtonSize.Small}
-                      tag="a"
-                      href={link.url}
-                      target="_blank"
-                      rel={anchorDefaultRel}
-                      icon={link.icon}
-                      aria-label={link.label}
-                      data-testid={`social-link-${link.id}`}
-                      {...combinedClicks(() => {
-                        logEvent({
-                          event_name: LogEvent.Click,
-                          target_type: TargetType.SocialLink,
-                          target_id: link.id,
-                        });
-                      })}
-                    />
-                  </SimpleTooltip>
-                ))}
-              </div>
-            )}
-
-            {shouldShowReadme && (
-              <div>
-                <Markdown content={readme} />
-              </div>
-            )}
-          </div>
+      {shouldShowSocialLinks && (
+        <div className="flex flex-wrap items-center gap-2">
+          {socialLinks.map((link) => (
+            <SimpleTooltip key={link.id} content={link.label}>
+              <Button
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
+                tag="a"
+                href={link.url}
+                target="_blank"
+                rel={anchorDefaultRel}
+                icon={link.icon}
+                aria-label={link.label}
+                data-testid={`social-link-${link.id}`}
+                {...combinedClicks(() => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.SocialLink,
+                    target_id: link.id,
+                  });
+                })}
+              />
+            </SimpleTooltip>
+          ))}
         </div>
-      </ExpandableContent>
+      )}
+
+      {shouldShowReadme && <Markdown content={readme} />}
     </div>
   );
 }

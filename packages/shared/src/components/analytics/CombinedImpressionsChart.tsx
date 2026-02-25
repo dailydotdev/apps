@@ -65,7 +65,7 @@ export const CombinedImpressionsChart = ({
               axisLine={{
                 stroke: 'transparent',
               }}
-              tickFormatter={(value) => largeNumberFormat(value)}
+              tickFormatter={(value) => largeNumberFormat(value) ?? ''}
               tickLine={false}
               tick={tickProp}
               interval={1}

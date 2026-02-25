@@ -391,6 +391,8 @@ const handleClick = useCallback((key: string) => {
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
 
+Before opening a PR, run `git diff --name-only origin/main...HEAD` and confirm every changed file belongs to the current task. If unrelated files appear (for example from reverted or merged commits), clean the branch history first.
+
 ## Code Review Guidelines
 
 When reviewing code (or writing code that will be reviewed):
@@ -403,6 +405,10 @@ When reviewing code (or writing code that will be reviewed):
 - **Reuse feed/list card primitives first** - Before adding modal-specific list item components, check existing card building blocks (`FeedItemContainer`, `PostCardHeader`, list card primitives) and compose with them.
 - **Do not hide accessible data using presentation heuristics** - In UI lists, avoid masking content based on flags like `source.public`; rely on backend access controls and render the data returned by the query.
 - **Keep scope tight in design iterations** - When adjusting UI, avoid unrelated behavioral/SEO changes in the same commit unless explicitly requested.
+- **Confirm target surface before implementing UI fixes** - If a bug report names a specific component or screen, update only that target unless expansion is explicitly requested.
+- **Keep action spacing consistent in control headers** - When adding icon/action buttons near search fields or other controls, match existing horizontal gaps on both sides to avoid controls touching each other.
+- **Protect generated HTML from markdown regex passes** - In markdown conversion utilities, never run formatting regexes across already-generated HTML tags/attributes (for example, image `src` URLs with `_`); add regression tests for URL edge cases.
+- **Prefer component-level token swaps for one-off contrast fixes** - For isolated UI readability issues, use existing semantic color utilities in the impacted components first; avoid changing global tokens in `base.css` unless explicitly requested.
 
 ## Node.js Version Upgrade Checklist
 

@@ -18,7 +18,7 @@ const CardOverlay = ({
   onPostCardClick,
   onPostCardAuxClick,
   ariaLabel,
-}: CardOverlayProps): ReactElement => {
+}: CardOverlayProps): ReactElement | null => {
   const isFeedPreview = useFeedPreviewMode();
 
   if (isFeedPreview) {
@@ -27,7 +27,7 @@ const CardOverlay = ({
 
   return (
     <CardLink
-      title={post.title}
+      title={ariaLabel || post.title}
       aria-label={ariaLabel || post.title}
       href={`${webappUrl}posts/${post.slug ?? post.id}`}
       rel={anchorDefaultRel}

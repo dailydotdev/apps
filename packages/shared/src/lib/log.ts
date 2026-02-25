@@ -80,6 +80,7 @@ export enum Origin {
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
   HotTakeList = 'hot take list',
+  HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
 }
 
@@ -364,6 +365,10 @@ export enum LogEvent {
   ReorderHotTake = 'reorder hot take',
   UpvoteHotTake = 'upvote hot take',
   RemoveHotTakeUpvote = 'remove hot take upvote',
+  OpenHotAndCold = 'open hot and cold',
+  VoteHotAndCold = 'vote hot and cold',
+  SwipeHotTake = 'swipe hot take',
+  SkipHotTake = 'skip hot take',
   // My Setup - Workspace Photos
   StartAddWorkspacePhoto = 'start add workspace photo',
   AddWorkspacePhoto = 'add workspace photo',

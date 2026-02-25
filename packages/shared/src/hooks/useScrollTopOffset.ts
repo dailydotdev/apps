@@ -23,9 +23,16 @@ export const useScrollTopOffset = (
       return undefined;
     }
 
-    const onScroll = (e) => {
-      const command =
-        e.currentTarget[scrollProperty] > offset ? onOverOffset : onUnderOffset;
+    const onScroll = () => {
+      let scrollValue = document.documentElement.scrollTop;
+
+      if (scrollProperty === 'scrollY') {
+        scrollValue = 'scrollY' in element ? element.scrollY : window.scrollY;
+      } else if ('scrollTop' in element) {
+        scrollValue = element.scrollTop;
+      }
+
+      const command = scrollValue > offset ? onOverOffset : onUnderOffset;
       command();
     };
 

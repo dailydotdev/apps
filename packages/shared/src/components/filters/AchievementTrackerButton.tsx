@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MedalBadgeIcon } from '../icons';
 import { AlertColor, AlertDot } from '../AlertDot';
@@ -14,6 +15,8 @@ import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
 import { LazyImage } from '../LazyImage';
 import { LazyModal } from '../modals/common/types';
+import HoverCard from '../cards/common/HoverCard';
+import { AchievementCard } from '../../features/profile/components/achievements/AchievementCard';
 
 export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
@@ -104,7 +107,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     return null;
   }
 
-  return (
+  const buttonContent = (
     <div className="relative">
       <Button
         size={ButtonSize.Medium}
@@ -124,7 +127,10 @@ export function AchievementTrackerButton(): ReactElement | null {
           <LazyImage
             imgSrc={trackedAchievement.achievement.image}
             imgAlt={trackedAchievement.achievement.name}
-            className="mr-2 size-5 rounded-6 object-cover"
+            className={classNames(
+              'size-5 rounded-6 object-cover',
+              buttonLabel && 'mr-2',
+            )}
           />
         )}
         {buttonLabel}
@@ -136,5 +142,17 @@ export function AchievementTrackerButton(): ReactElement | null {
         />
       )}
     </div>
+  );
+
+  if (!isTrackingAchievement) {
+    return buttonContent;
+  }
+
+  return (
+    <HoverCard openDelay={300} sideOffset={8} trigger={buttonContent}>
+      <div className="w-80 overflow-hidden rounded-16 bg-background-popover">
+        <AchievementCard userAchievement={trackedAchievement} />
+      </div>
+    </HoverCard>
   );
 }

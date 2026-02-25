@@ -17,7 +17,7 @@ type UseTopReader = (props: UseTopReaderProps) => {
 };
 
 export const useTopReader: UseTopReader = ({ limit = 5, user, badgeId }) => {
-  const { data, isPending } = useQuery({
+  const { data = [], isPending } = useQuery({
     queryKey: generateQueryKey(
       RequestKey.TopReaderBadge,
       user,

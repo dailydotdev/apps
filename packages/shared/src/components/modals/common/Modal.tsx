@@ -117,8 +117,8 @@ export function Modal({
   const [activeView, setView] = useState<string | undefined>(
     isMobile && tabs ? defaultView : defaultView ?? stepTitle ?? tabTitle,
   );
-  const setActiveView = (view: string) => {
-    if (onViewChange) {
+  const setActiveView = (view?: string) => {
+    if (onViewChange && view) {
       onViewChange(view);
     }
     setView(view);

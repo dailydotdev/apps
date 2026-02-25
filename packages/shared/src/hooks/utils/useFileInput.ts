@@ -14,9 +14,8 @@ export const useFileInput = ({
   onChange,
 }: UseFileInputProps) => {
   const { displayToast, dismissToast } = useToastNotification();
-  const onFileChange = async (file: File) => {
+  const onFileChange = async (file?: File | null) => {
     if (!file) {
-      onChange(null, null);
       return;
     }
 

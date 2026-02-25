@@ -2,7 +2,13 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { DiscussIcon, EarthIcon, HashtagIcon, SquadIcon } from '../../icons';
+import {
+  DiscussIcon,
+  EarthIcon,
+  HashtagIcon,
+  HotIcon,
+  SquadIcon,
+} from '../../icons';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
@@ -10,6 +16,8 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { webappUrl } from '../../../lib/constants';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 
 export const DiscoverSection = ({
   isItemsButton,
@@ -17,8 +25,20 @@ export const DiscoverSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { completeAction } = useActions();
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <HotIcon secondary={active} />} />
+        ),
+        title: 'Hot Takes',
+        requiresLogin: true,
+        path: `${webappUrl}?openModal=hottakes`,
+        action: () => {
+          logEvent({ event_name: LogEvent.OpenHotAndCold });
+        },
+      },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HashtagIcon secondary={active} />} />
@@ -53,7 +73,7 @@ export const DiscoverSection = ({
         },
       },
     ].filter(Boolean);
-  }, [completeAction, user]);
+  }, [completeAction, user, logEvent]);
 
   return (
     <Section

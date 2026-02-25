@@ -184,7 +184,7 @@ export interface DrawerRef {
 function AnimatedDrawer(
   { isOpen, onClose, appendOnRoot, ...props }: DrawerWrapperProps,
   ref: MutableRefObject<DrawerRef>,
-): ReactElement {
+): ReactElement | null {
   const [isClosing, setIsClosing] = useState(false);
   const [debounceClosing] = useDebounceFn((e: PopupEventType) => {
     setIsClosing(false);

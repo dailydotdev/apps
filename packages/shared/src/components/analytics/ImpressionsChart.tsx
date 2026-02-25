@@ -143,7 +143,7 @@ export const ImpressionsChart = ({
               axisLine={{
                 stroke: 'transparent',
               }}
-              tickFormatter={(value) => largeNumberFormat(value)}
+              tickFormatter={(value) => largeNumberFormat(value) ?? ''}
               tickLine={false}
               tick={tickProp}
               interval={1}

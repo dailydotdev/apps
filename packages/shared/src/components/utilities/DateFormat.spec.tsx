@@ -136,3 +136,17 @@ describe('date format read history type', () => {
     expect(element).toHaveTextContent('Yesterday');
   });
 });
+
+describe('invalid date handling', () => {
+  it('should return null for undefined date', () => {
+    render(<DateFormat type={TimeFormatType.Post} />);
+
+    expect(screen.queryByRole('time')).not.toBeInTheDocument();
+  });
+
+  it('should return null for malformed date string', () => {
+    render(<DateFormat date="not-a-date" type={TimeFormatType.Post} />);
+
+    expect(screen.queryByRole('time')).not.toBeInTheDocument();
+  });
+});

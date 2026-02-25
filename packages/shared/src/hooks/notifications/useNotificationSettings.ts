@@ -62,18 +62,19 @@ const useNotificationSettings = () => {
     isLoading: isLoadingPreferences,
     mutate,
   } = useNotificationSettingsQuery();
+  const settings = notificationSettings ?? {};
 
   const toggleSetting = (key: string, channel: NotificationChannel) => {
-    const currentValue = notificationSettings[key]?.[channel];
+    const currentValue = settings[key]?.[channel];
     const newValue =
       currentValue === NotificationPreferenceStatus.Subscribed
         ? NotificationPreferenceStatus.Muted
         : NotificationPreferenceStatus.Subscribed;
 
     const updatedSettings: NotificationSettings = {
-      ...notificationSettings,
+      ...settings,
       [key]: {
-        ...notificationSettings[key],
+        ...settings[key],
         [channel]: newValue,
       },
     };
@@ -104,12 +105,12 @@ const useNotificationSettings = () => {
       : NotificationPreferenceStatus.Muted;
 
     const updatedSettings: NotificationSettings = {
-      ...notificationSettings,
-      ...keys.reduce(
+      ...settings,
+      ...keys.reduce<NotificationSettings>(
         (acc, key) => ({
           ...acc,
           [key]: {
-            ...notificationSettings[key],
+            ...settings[key],
             [channel]: newStatus,
           },
         }),
@@ -139,8 +140,7 @@ const useNotificationSettings = () => {
     const keys = NOTIFICATION_GROUPS[groupName];
     return keys.some(
       (key) =>
-        notificationSettings?.[key]?.[channel] ===
-        NotificationPreferenceStatus.Subscribed,
+        settings[key]?.[channel] === NotificationPreferenceStatus.Subscribed,
     );
   };
 
@@ -150,9 +150,9 @@ const useNotificationSettings = () => {
     status: NotificationPreferenceStatus,
   ) => {
     const updatedSettings: NotificationSettings = {
-      ...notificationSettings,
+      ...settings,
       [type]: {
-        ...notificationSettings[type],
+        ...settings[type],
         [channel]: status,
       },
     };
@@ -162,10 +162,10 @@ const useNotificationSettings = () => {
 
   const unsubscribeAllEmail = () => {
     const updatedSettings: NotificationSettings = Object.keys(
-      notificationSettings || {},
-    ).reduce((acc, key) => {
+      settings,
+    ).reduce<NotificationSettings>((acc, key) => {
       acc[key] = {
-        ...notificationSettings[key],
+        ...settings[key],
         email: NotificationPreferenceStatus.Muted,
       };
       return acc;
@@ -185,21 +185,16 @@ const useNotificationSettings = () => {
 
     const briefDigest = getPersonalizedDigest(UserPersonalizedDigestType.Brief);
 
-    if (
-      briefDigest &&
-      isMutingDigestCompletely(notificationSettings, 'email')
-    ) {
+    if (briefDigest && isMutingDigestCompletely(settings, 'email')) {
       unsubscribePersonalizedDigest({
         type: UserPersonalizedDigestType.Brief,
       });
     }
   };
 
-  const emailsDisabled = notificationSettings
-    ? !Object.values(notificationSettings).some(
-        (setting) => setting.email === NotificationPreferenceStatus.Subscribed,
-      )
-    : true;
+  const emailsDisabled = !Object.values(settings).some(
+    (setting) => setting.email === NotificationPreferenceStatus.Subscribed,
+  );
 
   return {
     toggleSetting,
