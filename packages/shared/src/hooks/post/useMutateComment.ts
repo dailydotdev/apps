@@ -68,15 +68,24 @@ export const useMutateComment = ({
   parentCommentId,
   onCommented,
 }: UseMutateCommentProps): UseMutateCommentResult => {
-  const sourceId = post?.source?.id;
-  const postId = post?.id;
-  const parentOrPostId = parentCommentId ?? postId;
-
   const { user } = useAuthContext();
   const client = useQueryClient();
   const { requestMethod, isCompanion } = useRequestProtocol();
   const { logEvent } = useLogContext();
   const { logOpts } = useContext(ActiveFeedContext);
+
+  if (!post?.id) {
+    throw new Error('Post id is required to mutate comments');
+  }
+
+  if (!requestMethod) {
+    throw new Error('Request method is required to mutate comments');
+  }
+
+  const currentPost = post;
+  const sourceId = currentPost.source?.id;
+  const postId = currentPost.id;
+  const parentOrPostId = parentCommentId ?? postId;
 
   const key = useMemo(
     () =>
@@ -91,10 +100,6 @@ export const useMutateComment = ({
   );
 
   const onSuccess = (comment: Comment) => {
-    if (!postId) {
-      throw new Error('Post id is required to update comments');
-    }
-
     const updateQueryData = (data: PostCommentsData) => {
       const copy = structuredClone(data);
 
@@ -183,16 +188,12 @@ export const useMutateComment = ({
     });
 
     if (!editCommentId) {
-      if (!post) {
-        throw new Error('Post data is required to update comment count');
-      }
-
       updatePostCache(client, postId, {
-        numComments: (post.numComments ?? 0) + 1,
+        numComments: (currentPost.numComments ?? 0) + 1,
       });
 
       logEvent(
-        postLogEvent(LogEvent.CommentPost, post, {
+        postLogEvent(LogEvent.CommentPost, currentPost, {
           extra: { commentId: parentCommentId },
           ...(logOpts && logOpts),
         }),
@@ -210,15 +211,10 @@ export const useMutateComment = ({
     isPending: isCommenting,
     isSuccess,
   } = useMutation<MutateCommentResult, unknown, SubmitComment>({
-    mutationFn: (variables) => {
-      if (!requestMethod) {
-        throw new Error('Request method is required to create comments');
-      }
-
-      return requestMethod(mutation, variables, {
+    mutationFn: (variables) =>
+      requestMethod(mutation, variables, {
         requestKey: JSON.stringify(key),
-      });
-    },
+      }),
 
     onSuccess: (data) => {
       if (!data?.comment) {
@@ -249,15 +245,10 @@ export const useMutateComment = ({
     unknown,
     SubmitComment
   >({
-    mutationFn: (variables) => {
-      if (!requestMethod) {
-        throw new Error('Request method is required to edit comments');
-      }
-
-      return requestMethod(EDIT_COMMENT_MUTATION, variables, {
+    mutationFn: (variables) =>
+      requestMethod(EDIT_COMMENT_MUTATION, variables, {
         requestKey: JSON.stringify(key),
-      });
-    },
+      }),
 
     onSuccess: (data) => {
       if (!data?.comment) {
@@ -272,10 +263,6 @@ export const useMutateComment = ({
     (content: string) => {
       if (editCommentId) {
         return editComment({ id: editCommentId, content });
-      }
-
-      if (!parentOrPostId) {
-        throw new Error('Parent or post id is required to submit a comment');
       }
 
       return onComment({ content, id: parentOrPostId });

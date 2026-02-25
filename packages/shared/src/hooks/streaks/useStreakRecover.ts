@@ -70,6 +70,10 @@ export const useStreakRecover = ({
     query: { streak_restore: streakRestore },
   } = router;
 
+  if (!updateAlerts) {
+    throw new Error('Alert updater is required for streak recovery');
+  }
+
   const recoverMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),
     mutationFn: async () =>
@@ -91,11 +95,7 @@ export const useStreakRecover = ({
         exact: false,
       });
 
-      if (data.balance) {
-        if (!user) {
-          throw new Error('User is required to update streak recovery balance');
-        }
-
+      if (data.balance && user) {
         updateUser({
           ...user,
           balance: data.balance,
@@ -113,12 +113,9 @@ export const useStreakRecover = ({
         if (
           errorExtensions.extensions.status ===
             UserTransactionStatus.InsufficientFunds &&
-          errorExtensions.extensions.balance
+          errorExtensions.extensions.balance &&
+          user
         ) {
-          if (!user) {
-            throw new Error('User is required to update insufficient balance');
-          }
-
           await updateUser({
             ...user,
             balance: errorExtensions.extensions.balance,
@@ -129,10 +126,6 @@ export const useStreakRecover = ({
   });
 
   const hideRemoteAlert = useCallback(async () => {
-    if (!updateAlerts) {
-      throw new Error('Alert updater is required to hide remote streak alerts');
-    }
-
     await updateAlerts({
       showRecoverStreak: false,
     });
