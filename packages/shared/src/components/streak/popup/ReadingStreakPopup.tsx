@@ -125,12 +125,19 @@ export function ReadingStreakPopup({
       }`}
     >
       {showGreeting && (
-        <Typography
-          type={TypographyType.Subhead}
-          className="px-4 pt-3 font-bold text-white"
-        >
-          Good morning ☀️
-        </Typography>
+        <div className="flex items-center justify-between px-4 pt-3">
+          <Typography type={TypographyType.Subhead} className="font-bold text-white">
+            Good morning ☀️
+          </Typography>
+          <Link href={`${webappUrl}account/customization/streaks`} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<SettingsIcon />}
+            />
+          </Link>
+        </div>
       )}
       <div className="flex flex-col p-0 pb-4 tablet:px-4 tablet:pt-4">
         {/* Tier progress removed — milestones timeline is the primary progression UI */}
@@ -141,14 +148,16 @@ export function ReadingStreakPopup({
             label={`${streak.max} Longest · ${streak.total} Total`}
             isPrimary
           />
-          <Link href={`${webappUrl}account/customization/streaks`} passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={<SettingsIcon />}
-            />
-          </Link>
+          {!showGreeting && (
+            <Link href={`${webappUrl}account/customization/streaks`} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                icon={<SettingsIcon />}
+              />
+            </Link>
+          )}
         </div>
         <div className="mt-2">
           <StreakMonthCalendar

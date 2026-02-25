@@ -102,22 +102,16 @@ function MilestoneItem({
       className={classNames(
         'relative isolate z-0 flex gap-3 rounded-12',
         isSponsoredMilestone &&
-          'z-1 mb-6 items-center bg-background-default px-2 py-1',
+          'z-1 -mx-2 mb-6 items-center bg-background-default px-2 py-1',
       )}
     >
       {isSponsoredMilestone && (
         <>
           <div
-            className="pointer-events-none absolute inset-0 z-0 rounded-12 bg-[length:180%_180%] opacity-95 animate-sponsored-gradient-slide"
+            className="pointer-events-none absolute inset-0 z-0 rounded-12 bg-[length:220%_220%] animate-sponsored-gradient-slide"
             style={{
               backgroundImage:
-                'linear-gradient(120deg, color-mix(in srgb, var(--theme-accent-bacon-default), transparent 66%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 70%) 50%, color-mix(in srgb, var(--theme-accent-blueCheese-default), transparent 66%) 100%)',
-            }}
-          />
-          <div
-            className="pointer-events-none absolute inset-0 z-0 rounded-12"
-            style={{
-              boxShadow: 'inset 0 0 0 1px rgba(255, 160, 90, 0.22), 0 0 24px rgba(255, 140, 80, 0.18)',
+                'linear-gradient(120deg, color-mix(in srgb, var(--theme-accent-bacon-default), transparent 84%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 86%) 50%, color-mix(in srgb, var(--theme-accent-blueCheese-default), transparent 84%) 100%)',
             }}
           />
         </>
@@ -125,8 +119,10 @@ function MilestoneItem({
       {!isLast && (
         <div
           className={classNames(
-            'absolute -z-1 left-5 w-px',
-            isSponsoredMilestone ? 'top-full h-7' : 'top-10 h-[calc(100%-12px)]',
+            'absolute -z-1 w-px',
+            isSponsoredMilestone
+              ? 'left-7 top-full h-7'
+              : 'left-5 top-10 h-[calc(100%-12px)]',
             isUnlocked
               ? 'bg-accent-bacon-default'
               : 'bg-border-subtlest-tertiary',
@@ -412,7 +408,7 @@ export function MilestoneTimeline({
               className={classNames(
                 'relative z-0',
                 milestone.day === SPONSORED_MILESTONE_DAY &&
-                  "z-10 before:pointer-events-none before:absolute before:inset-y-0 before:left-5 before:w-px before:bg-background-default before:content-['']",
+                  "z-10 before:pointer-events-none before:absolute before:inset-y-0 before:left-7 before:w-px before:bg-background-default before:content-['']",
               )}
             >
               <MilestoneItem

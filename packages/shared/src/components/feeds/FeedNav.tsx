@@ -138,7 +138,7 @@ function FeedNav(): ReactElement {
           shouldMountInactive
           className={{
             header: classNames(
-              'no-scrollbar overflow-x-auto px-2',
+              'no-scrollbar overflow-x-auto px-2 !bg-background-default tablet:!bg-background-default',
               isSortableFeed && sortingEnabled && 'pr-28',
             ),
           }}

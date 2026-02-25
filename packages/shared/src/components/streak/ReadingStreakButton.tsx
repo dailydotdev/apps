@@ -114,6 +114,7 @@ export function ReadingStreakButton({
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isTablet = useViewSize(ViewSize.Tablet);
   const debug = useStreakDebug();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(debug.isDebugMode);
   const [showStreakAsDrawer, setShowStreakAsDrawer] = useState(false);
@@ -171,7 +172,9 @@ export function ReadingStreakButton({
   const showStreakBroken =
     showBrokenPopover || effectiveAnimation === 'broken';
   const showUrgencyAnimation = debug.features.urgencyNudges;
-  const shouldOpenInDrawer = isMobile || (debug.isDebugMode && showStreakAsDrawer);
+  const isTabletOnly = isTablet && !isLaptop;
+  const shouldOpenInDrawer =
+    isMobile || isTabletOnly || (debug.isDebugMode && showStreakAsDrawer);
 
   return (
     <>

@@ -165,7 +165,7 @@ export function StreakMonthCalendar({
               tabIndex={0}
             >
               {isRead && (
-                <span className="h-2 w-2 rounded-full bg-accent-bacon-default" />
+                <span className="aspect-square w-[42%] min-w-2.5 max-w-4 rounded-full bg-accent-bacon-default" />
               )}
             </div>
           );

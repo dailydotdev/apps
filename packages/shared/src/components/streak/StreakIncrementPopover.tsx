@@ -1,18 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { CoreIcon, ReadingStreakIcon } from '../icons';
-import { IconSize } from '../Icon';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
-import {
-  getCurrentTier,
-  getNextMilestone,
-  RewardType,
-} from '../../lib/streakMilestones';
+import { ReadingStreakIcon } from '../icons';
+import { Typography, TypographyType } from '../typography/Typography';
+import { getCurrentTier, getNextMilestone } from '../../lib/streakMilestones';
 import { MILESTONE_ICON_URLS } from './popup/icons/milestoneIcons';
 
 type PopoverPhase = 'enter' | 'filling' | 'complete' | 'fading' | 'exit';
@@ -54,7 +45,8 @@ export function StreakIncrementPopover({
 
   const currentTier = getCurrentTier(toStreak);
   const nextMilestone = getNextMilestone(toStreak);
-  const activeMilestone = nextMilestone;
+  const activeMilestone = nextMilestone ?? currentTier;
+  const hasNextMilestone = Boolean(nextMilestone);
   const activeRangeStart = currentTier.day;
   const activeRangeEnd = nextMilestone?.day ?? currentTier.day;
   const activeRangeDelta = Math.max(activeRangeEnd - activeRangeStart, 1);
@@ -82,16 +74,10 @@ export function StreakIncrementPopover({
       ? Math.max(toProgress, previewProgress)
       : fromProgress
     : fromProgress;
-  const rewardTypeIcon: Record<RewardType, ReactElement | string> = {
-    [RewardType.Cores]: (<CoreIcon size={IconSize.XSmall} className="inline" />),
-    [RewardType.Cosmetic]: '✨',
-    [RewardType.Perk]: '⚡',
-  };
-
   return (
     <div
       className={classNames(
-        'absolute left-1/2 top-full z-max mt-2 w-56 -translate-x-1/2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2 transition-all',
+        'absolute left-1/2 top-full z-max mt-2 w-56 -translate-x-1/2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2 transition-all tablet:left-auto tablet:right-0 tablet:translate-x-0 laptop:left-1/2 laptop:right-auto laptop:-translate-x-1/2',
         phase === 'enter' && 'scale-95 opacity-0 duration-300',
         phase === 'fading' && 'scale-95 opacity-0 duration-500',
         phase !== 'enter' && phase !== 'fading' && 'scale-100 opacity-100 duration-300',
@@ -144,28 +130,22 @@ export function StreakIncrementPopover({
             <img
               src={MILESTONE_ICON_URLS[activeMilestone.tier]}
               alt={activeMilestone.label}
-              className="size-8 object-contain grayscale"
+              className={classNames(
+                'size-8 object-contain',
+                hasNextMilestone && 'grayscale',
+              )}
             />
             <Typography bold type={TypographyType.Subhead}>
               {activeMilestone.label}
             </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              className="rounded-6 bg-accent-bacon-default px-1.5 py-0.5 font-bold text-white"
-            >
-              Active
-            </Typography>
-          </div>
-          <div className="mt-0.5 flex flex-col gap-0.5">
-            {activeMilestone.rewards.map((reward) => (
+            {hasNextMilestone && (
               <Typography
-                key={reward.description}
                 type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
+                className="rounded-6 bg-accent-bacon-default px-1.5 py-0.5 font-bold text-white"
               >
-                {rewardTypeIcon[reward.type]} {reward.description}
+                Active
               </Typography>
-            ))}
+            )}
           </div>
         </div>
       )}

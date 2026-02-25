@@ -194,19 +194,21 @@ export function StreakMilestoneCelebration({
             </div>
           )}
           {showRewards && (
-            <div className="flex w-full max-w-sm flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default/80 px-6 py-4">
-              <MilestoneShareActions
-                message={`I just reached ${milestone.label} (${streakDay} day streak) on daily.dev`}
-              />
+            <>
+              <div className="flex w-full max-w-sm flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default/80 px-6 py-4">
+                <MilestoneShareActions
+                  message={`I just reached ${milestone.label} (${streakDay} day streak) on daily.dev`}
+                />
+              </div>
               <Button
-                className="w-full"
+                className="w-full max-w-sm"
                 onClick={onComplete}
                 size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
+                variant={ButtonVariant.Primary}
               >
                 Close
               </Button>
-            </div>
+            </>
           )}
         </div>
       </div>
