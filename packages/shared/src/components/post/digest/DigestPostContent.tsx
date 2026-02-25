@@ -32,21 +32,7 @@ import {
   RequestKey,
 } from '../../../lib/query';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
-import type { Ad, DigestPostAd } from '../../../graphql/posts';
-
-const transformDigestAd = (
-  digestAd: DigestPostAd,
-): { ad: Ad; index: number } => ({
-  ad: {
-    source: 'daily',
-    company: digestAd.company_name,
-    description: digestAd.title,
-    link: digestAd.link,
-    image: digestAd.image,
-    pixel: [],
-  },
-  index: digestAd.index,
-});
+import { transformDigestAd } from './utils';
 
 const DigestPostContentRaw = ({
   post,

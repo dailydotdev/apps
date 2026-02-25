@@ -18,8 +18,7 @@ const digestCopy = `Our recommendation system scans everything on daily.dev and
                     Choose when and how often you get them.`;
 
 const DigestNotification = () => {
-  const { notificationSettings: ns, toggleSetting } =
-    useNotificationSettings();
+  const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
   const { isPushSupported } = usePushNotificationContext();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -39,10 +38,7 @@ const DigestNotification = () => {
     return getPersonalizedDigest(UserPersonalizedDigestType.Digest);
   }, [getPersonalizedDigest, isLoading]);
 
-  if (
-    !isNullOrUndefined(digest) &&
-    digest?.preferredHour !== digestTimeIndex
-  ) {
+  if (!isNullOrUndefined(digest) && digest?.preferredHour !== digestTimeIndex) {
     setDigestTimeIndex(digest.preferredHour);
   }
 
@@ -77,8 +73,7 @@ const DigestNotification = () => {
     setHour(preferredHour);
   };
 
-  const isChecked =
-    ns?.[NotificationType.DigestReady]?.inApp === 'subscribed';
+  const isChecked = ns?.[NotificationType.DigestReady]?.inApp === 'subscribed';
 
   const onToggleDigest = () => {
     toggleSetting(NotificationType.DigestReady, 'inApp');
