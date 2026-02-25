@@ -26,6 +26,7 @@ import {
 } from '@dailydotdev/shared/src/lib/func';
 import { cloudinaryOnboardingExtension } from '@dailydotdev/shared/src/lib/image';
 import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
+import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import { useRouter } from 'next/router';
@@ -41,7 +42,7 @@ const seo: NextSeoProps = {
   nofollow: true,
 };
 
-const TOPICS_ROW_1 = [
+const TAG_TREND_LABELS = [
   'React',
   'TypeScript',
   'System Design',
@@ -58,9 +59,6 @@ const TOPICS_ROW_1 = [
   'Redis',
   'Svelte',
   'Deno',
-];
-
-const TOPICS_ROW_2 = [
   'Open Source',
   'DevOps',
   'Rust',
@@ -77,9 +75,126 @@ const TOPICS_ROW_2 = [
   'Terraform',
   'MongoDB',
   'WebAssembly',
-];
+] as const;
 
-const MARQUEE_COPIES = [0, 1, 2];
+const MOBILE_TAG_ROW_TOP = TAG_TREND_LABELS.slice(0, 8);
+const MOBILE_TAG_ROW_BOTTOM = TAG_TREND_LABELS.slice(8, 16);
+type MobileHeroTagCloudItem = {
+  label: string;
+  left: string;
+  top: string;
+  delay: string;
+  duration: string;
+  driftX: number;
+  driftY: number;
+};
+const MOBILE_TAG_CLOUD_TOP: MobileHeroTagCloudItem[] = MOBILE_TAG_ROW_TOP.map(
+  (label, index) => {
+    const positions = [
+      { left: '6%', top: '10%' },
+      { left: '30%', top: '0%' },
+      { left: '56%', top: '12%' },
+      { left: '80%', top: '6%' },
+      { left: '14%', top: '50%' },
+      { left: '40%', top: '44%' },
+      { left: '66%', top: '54%' },
+      { left: '86%', top: '42%' },
+    ] as const;
+    const drifts = [
+      { x: 8, y: -4 },
+      { x: -9, y: 5 },
+      { x: 7, y: -6 },
+      { x: -8, y: 4 },
+      { x: 10, y: -5 },
+      { x: -7, y: 6 },
+      { x: 9, y: -4 },
+      { x: -10, y: 5 },
+    ] as const;
+    const position = positions[index % positions.length];
+    const drift = drifts[index % drifts.length];
+
+    return {
+      label,
+      left: position.left,
+      top: position.top,
+      delay: `${index * 0.22}s`,
+      duration: `${6.2 + (index % 3) * 0.7}s`,
+      driftX: drift.x,
+      driftY: drift.y,
+    };
+  },
+);
+const MOBILE_TAG_CLOUD_BOTTOM: MobileHeroTagCloudItem[] =
+  MOBILE_TAG_ROW_BOTTOM.map((label, index) => {
+    const positions = [
+      { left: '8%', top: '18%' },
+      { left: '26%', top: '52%' },
+      { left: '48%', top: '24%' },
+      { left: '72%', top: '56%' },
+      { left: '88%', top: '22%' },
+      { left: '18%', top: '78%' },
+      { left: '54%', top: '74%' },
+      { left: '82%', top: '82%' },
+    ] as const;
+    const drifts = [
+      { x: -8, y: -5 },
+      { x: 7, y: 6 },
+      { x: -10, y: -4 },
+      { x: 8, y: 5 },
+      { x: -9, y: -6 },
+      { x: 7, y: 5 },
+      { x: -8, y: -4 },
+      { x: 9, y: 6 },
+    ] as const;
+    const position = positions[index % positions.length];
+    const drift = drifts[index % drifts.length];
+
+    return {
+      label,
+      left: position.left,
+      top: position.top,
+      delay: `${0.45 + index * 0.2}s`,
+      duration: `${6 + (index % 3) * 0.8}s`,
+      driftX: drift.x,
+      driftY: drift.y,
+    };
+  });
+
+type HeroTagSize = 'sm' | 'md' | 'lg';
+type HeroTagTrendItem = {
+  label: string;
+  left: string;
+  top: string;
+  delay: string;
+  duration: string;
+  driftX: number;
+  driftY: number;
+  size: HeroTagSize;
+};
+
+const TAG_TREND_EDGE_LABELS = TAG_TREND_LABELS.filter((_, index) => index % 2 === 0).slice(0, 14);
+const EDGE_Y_POSITIONS = [8, 18, 28, 40, 52, 64, 76] as const;
+const LEFT_X_POSITIONS = [4, 8, 12, 16, 20, 14, 9] as const;
+const RIGHT_X_POSITIONS = [80, 84, 88, 92, 96, 90, 86] as const;
+
+const HERO_TAG_TREND: HeroTagTrendItem[] = TAG_TREND_EDGE_LABELS.map(
+  (label, index) => {
+    const row = Math.floor(index / 2) % EDGE_Y_POSITIONS.length;
+    const isLeft = index % 2 === 0;
+    const yOffset = (index % 3) - 1;
+
+    return {
+      label,
+      left: `${isLeft ? LEFT_X_POSITIONS[row] : RIGHT_X_POSITIONS[row]}%`,
+      top: `${EDGE_Y_POSITIONS[row] + yOffset}%`,
+      delay: `${(index % 7) * 0.8}s`,
+      duration: `${5.5 + (index % 3) * 0.9}s`,
+      driftX: isLeft ? 6 + (index % 4) * 2 : -(6 + (index % 4) * 2),
+      driftY: -10 + (index % 5) * 5,
+      size: (['sm', 'md', 'lg'] as const)[index % 3],
+    };
+  },
+);
 
 const SELECTABLE_TOPICS = [
   { label: 'React', color: 'water' as const },
@@ -114,14 +229,13 @@ type GithubImportPhase =
   | 'confirmingSeniority'
   | 'finishing'
   | 'complete';
+type ImportFlowSource = 'github' | 'ai';
 
-type AiProcessingPhase = 'idle' | 'analyzing' | 'complete';
-
-const AI_PROCESSING_STEPS = [
-  { label: 'Reading your description', threshold: 15 },
-  { label: 'Extracting technologies', threshold: 35 },
-  { label: 'Mapping interests', threshold: 55 },
-  { label: 'Identifying seniority', threshold: 75 },
+const AI_IMPORT_STEPS = [
+  { label: 'Analyzing your profile', threshold: 12 },
+  { label: 'Matching interests', threshold: 30 },
+  { label: 'Mapping your stack', threshold: 46 },
+  { label: 'Inferring seniority', threshold: 68 },
   { label: 'Building your feed', threshold: 95 },
 ];
 
@@ -131,6 +245,71 @@ const EXPERIENCE_LEVEL_OPTIONS = Object.entries(UserExperienceLevel).map(
     label,
   }),
 );
+
+const getExperienceLevelOptionParts = (
+  label: string,
+): { title: string; meta: string | null } => {
+  const match = label.match(/^(.*?)(?:\s*\(([^)]+)\))?$/);
+  if (!match) {
+    return { title: label, meta: null };
+  }
+
+  return {
+    title: match[1].trim(),
+    meta: match[2]?.trim() ?? null,
+  };
+};
+
+const getExperienceLevelIcon = (
+  level: keyof typeof UserExperienceLevel,
+): ReactElement => {
+  switch (level) {
+    case 'LESS_THAN_1_YEAR':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+    case 'MORE_THAN_1_YEAR':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M7 12l3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'MORE_THAN_2_YEARS':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M5 19V9m7 10V5m7 14v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+    case 'MORE_THAN_4_YEARS':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3l2.7 5.46L21 9.27l-4.5 4.38L17.4 20 12 17.1 6.6 20l.9-6.35L3 9.27l6.3-.81L12 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'MORE_THAN_6_YEARS':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M4 18h16M7 18V8l5-3 5 3v10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'MORE_THAN_10_YEARS':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l2.4 7.4H22l-6.1 4.4 2.4 7.2-6.2-4.5-6.2 4.5 2.4-7.2L2 9.4h7.6L12 2z" fill="currentColor" />
+        </svg>
+      );
+    case 'NOT_ENGINEER':
+    default:
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M12 5v14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" opacity="0.35" />
+        </svg>
+      );
+  }
+};
 
 const GITHUB_IMPORT_STEPS = [
   { label: 'Connecting account', threshold: 12 },
@@ -181,12 +360,6 @@ function buildConfettiParticles(): ConfettiParticle[] {
   return particles;
 }
 
-const TopicPill = ({ label }: { label: string }): ReactElement => (
-  <span className="pointer-events-none shrink-0 whitespace-nowrap rounded-10 border border-white/[0.12] bg-white/[0.06] px-3.5 py-1.5 text-text-secondary backdrop-blur-sm typo-caption1">
-    {label}
-  </span>
-);
-
 const OnboardingV2Page = (): ReactElement => {
   const router = useRouter();
   const {
@@ -204,12 +377,10 @@ const OnboardingV2Page = (): ReactElement => {
   const [aiPrompt, setAiPrompt] = useState('');
   const [feedReadyState, setFeedReadyState] = useState(false);
   const [showExtensionPromo, setShowExtensionPromo] = useState(false);
+  const [showSignupChooser, setShowSignupChooser] = useState(false);
   const [showGithubImportFlow, setShowGithubImportFlow] = useState(false);
-  const [showAiProcessing, setShowAiProcessing] = useState(false);
-  const [aiProcessingPhase, setAiProcessingPhase] =
-    useState<AiProcessingPhase>('idle');
-  const [aiProcessingProgress, setAiProcessingProgress] = useState(0);
-  const [showAuthAfterAi, setShowAuthAfterAi] = useState(false);
+  const [importFlowSource, setImportFlowSource] =
+    useState<ImportFlowSource>('github');
   const [githubImportPhase, setGithubImportPhase] =
     useState<GithubImportPhase>('idle');
   const [githubImportProgress, setGithubImportProgress] = useState(0);
@@ -227,7 +398,6 @@ const OnboardingV2Page = (): ReactElement => {
   const scrollY = useRef(0);
   const githubImportTimerRef = useRef<number | null>(null);
   const githubResumeTimeoutRef = useRef<number | null>(null);
-  const aiProcessingTimerRef = useRef<number | null>(null);
 
   const popularFeedNameValue = useMemo(
     () => ({ feedName: SharedFeedPage.Popular as const }),
@@ -270,14 +440,23 @@ const OnboardingV2Page = (): ReactElement => {
     githubResumeTimeoutRef.current = null;
   }, []);
 
-  const startGithubImportFlow = useCallback(() => {
+  const startImportFlow = useCallback((source: ImportFlowSource) => {
     clearGithubImportTimer();
     clearGithubResumeTimeout();
+    setImportFlowSource(source);
     setSelectedExperienceLevel(null);
     setGithubImportProgress(10);
     setGithubImportPhase('running');
     setShowGithubImportFlow(true);
-  }, [clearGithubImportTimer, clearGithubResumeTimeout]);
+  }, [
+    clearGithubImportTimer,
+    clearGithubResumeTimeout,
+    setImportFlowSource,
+  ]);
+
+  const startGithubImportFlow = useCallback(() => {
+    startImportFlow('github');
+  }, [startImportFlow]);
 
   const closeGithubImportFlow = useCallback(() => {
     clearGithubImportTimer();
@@ -286,29 +465,12 @@ const OnboardingV2Page = (): ReactElement => {
     setSelectedExperienceLevel(null);
     setGithubImportProgress(0);
     setGithubImportPhase('idle');
+    setImportFlowSource('github');
   }, [clearGithubImportTimer, clearGithubResumeTimeout]);
 
-  const clearAiProcessingTimer = useCallback(() => {
-    if (aiProcessingTimerRef.current === null) {
-      return;
-    }
-    window.clearInterval(aiProcessingTimerRef.current);
-    aiProcessingTimerRef.current = null;
-  }, []);
-
   const startAiProcessing = useCallback(() => {
-    clearAiProcessingTimer();
-    setAiProcessingProgress(5);
-    setAiProcessingPhase('analyzing');
-    setShowAiProcessing(true);
-  }, [clearAiProcessingTimer]);
-
-  const closeAiProcessing = useCallback(() => {
-    clearAiProcessingTimer();
-    setShowAiProcessing(false);
-    setAiProcessingProgress(0);
-    setAiProcessingPhase('idle');
-  }, [clearAiProcessingTimer]);
+    startImportFlow('ai');
+  }, [startImportFlow]);
 
   const handleExperienceLevelSelect = useCallback(
     (level: keyof typeof UserExperienceLevel) => {
@@ -352,10 +514,9 @@ const OnboardingV2Page = (): ReactElement => {
 
   useEffect(() => {
     const anyModalOpen =
+      showSignupChooser ||
       showSignupPrompt ||
       showGithubImportFlow ||
-      showAiProcessing ||
-      showAuthAfterAi ||
       showExtensionPromo;
 
     if (anyModalOpen) {
@@ -367,12 +528,50 @@ const OnboardingV2Page = (): ReactElement => {
       document.body.style.overflow = '';
     };
   }, [
+    showSignupChooser,
     showSignupPrompt,
     showGithubImportFlow,
-    showAiProcessing,
-    showAuthAfterAi,
     showExtensionPromo,
   ]);
+
+  useEffect(() => {
+    const onHeaderSignupClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const trigger = target.closest('button, a');
+      if (!(trigger instanceof HTMLElement)) {
+        return;
+      }
+
+      // Intercept only top header signup actions on this page.
+      if (!trigger.closest('header')) {
+        return;
+      }
+
+      const label = (trigger.textContent || '').trim().toLowerCase();
+      const isSignupTrigger =
+        label === 'sign up' ||
+        label === 'signup' ||
+        label.includes('sign up') ||
+        label.includes('create account');
+
+      if (!isSignupTrigger) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      setShowSignupChooser(true);
+    };
+
+    document.addEventListener('click', onHeaderSignupClick, true);
+    return () => {
+      document.removeEventListener('click', onHeaderSignupClick, true);
+    };
+  }, []);
 
   useEffect(() => {
     if (!mounted) {
@@ -393,13 +592,8 @@ const OnboardingV2Page = (): ReactElement => {
     return () => {
       clearGithubImportTimer();
       clearGithubResumeTimeout();
-      clearAiProcessingTimer();
     };
-  }, [
-    clearGithubImportTimer,
-    clearGithubResumeTimeout,
-    clearAiProcessingTimer,
-  ]);
+  }, [clearGithubImportTimer, clearGithubResumeTimeout]);
 
   useEffect(() => {
     if (!feedReadyState) {
@@ -414,36 +608,6 @@ const OnboardingV2Page = (): ReactElement => {
       window.clearTimeout(redirectTimer);
     };
   }, [feedReadyState, router]);
-
-  useEffect(() => {
-    if (!showAiProcessing || aiProcessingPhase !== 'analyzing') {
-      return undefined;
-    }
-
-    clearAiProcessingTimer();
-
-    aiProcessingTimerRef.current = window.setInterval(() => {
-      setAiProcessingProgress((prev) => {
-        const next = Math.min(100, prev + 2);
-
-        if (next >= 100) {
-          clearAiProcessingTimer();
-          setAiProcessingPhase('complete');
-          setTimeout(() => {
-            setShowAiProcessing(false);
-            setShowAuthAfterAi(true);
-          }, 600);
-          return 100;
-        }
-
-        return next;
-      });
-    }, 100);
-
-    return () => {
-      clearAiProcessingTimer();
-    };
-  }, [showAiProcessing, aiProcessingPhase, clearAiProcessingTimer]);
 
   useEffect(() => {
     if (!showGithubImportFlow) {
@@ -732,7 +896,8 @@ const OnboardingV2Page = (): ReactElement => {
       const val = parseCount(counter.textContent || '');
       if (val === null) return;
 
-      const newVal = val + 1;
+      const increment = 1 + (Math.random() < 0.22 ? 1 : 0);
+      const newVal = val + increment;
       counter.textContent = formatCount(newVal);
 
       // Brief color flash on the number
@@ -744,16 +909,35 @@ const OnboardingV2Page = (): ReactElement => {
       void (counter as HTMLElement).offsetWidth;
       counter.classList.add('onb-live-bump');
 
-      // Tiny "+1" floating up from the counter
-      const floater = document.createElement('span');
-      floater.className = 'onb-live-tick';
-      floater.textContent = '+1';
-      floater.style.color = color;
+      // Emit multiple overlapping floaters so engagement feels continuous.
       const wrapperEl = wrapper as HTMLElement;
       wrapperEl.style.position = 'relative';
       wrapperEl.style.overflow = 'visible';
-      wrapperEl.appendChild(floater);
-      setTimeout(() => floater.remove(), 700);
+      const burstCount = 2 + Math.floor(Math.random() * 2);
+      const tickLabel = `+${increment}`;
+
+      for (let i = 0; i < burstCount; i++) {
+        const floater = document.createElement('span');
+        floater.className = 'onb-live-tick';
+        floater.textContent = tickLabel;
+        floater.style.color = color;
+        floater.style.setProperty(
+          '--onb-live-x',
+          `${(Math.random() - 0.5) * 1.9}rem`,
+        );
+        floater.style.setProperty(
+          '--onb-live-y',
+          `${1.2 + Math.random() * 1.1}rem`,
+        );
+        floater.style.setProperty(
+          '--onb-live-scale',
+          `${1 + Math.random() * 0.45}`,
+        );
+        floater.style.setProperty('--onb-live-rot', `${(Math.random() - 0.5) * 14}deg`);
+        floater.style.setProperty('--onb-live-delay', `${i * 130}ms`);
+        wrapperEl.appendChild(floater);
+        setTimeout(() => floater.remove(), 1800 + i * 130);
+      }
     };
 
     const tick = () => {
@@ -762,17 +946,17 @@ const OnboardingV2Page = (): ReactElement => {
       );
       if (!articles.length) return;
 
-      const count = 3 + Math.floor(Math.random() * 4);
+      const count = 5 + Math.floor(Math.random() * 5);
       const picked = shuffle(articles).slice(0, Math.min(count, articles.length));
 
       picked.forEach((article, i) => {
-        setTimeout(() => bumpOne(article), i * 80);
+        setTimeout(() => bumpOne(article), i * 45);
       });
     };
 
     let timeoutId: ReturnType<typeof setTimeout>;
     const scheduleNext = () => {
-      const delay = 600 + Math.random() * 900;
+      const delay = 300 + Math.random() * 420;
       timeoutId = setTimeout(() => {
         tick();
         scheduleNext();
@@ -857,12 +1041,23 @@ const OnboardingV2Page = (): ReactElement => {
     setFeedReadyState(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
-  const dismissAuthAfterAi = useCallback(() => {
-    setShowAuthAfterAi(false);
+  const closeSignupChooser = useCallback(() => {
+    setShowSignupChooser(false);
   }, []);
   const isAiSetupContext =
     signupContext === 'ai' || signupContext === 'manual';
   const canStartAiFlow = aiPrompt.trim().length > 0 || selectedTopics.size > 0;
+  const startGithubFlowFromChooser = useCallback(() => {
+    setShowSignupChooser(false);
+    startGithubImportFlow();
+  }, [startGithubImportFlow]);
+  const startAiFlowFromChooser = useCallback(() => {
+    if (!canStartAiFlow) {
+      return;
+    }
+    setShowSignupChooser(false);
+    startAiProcessing();
+  }, [canStartAiFlow, startAiProcessing]);
   const startAiFlowFromSignup = useCallback(() => {
     if (!canStartAiFlow) {
       return;
@@ -875,7 +1070,11 @@ const OnboardingV2Page = (): ReactElement => {
   const panelBackdropOpacity = 1;
   const panelShadowOpacity = 0.12 + panelStageProgress * 0.2;
   const panelRevealOffset = panelVisible ? 40 : 120;
-  const currentGithubImportStep = useMemo(() => {
+  const importSteps = useMemo(
+    () => (importFlowSource === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS),
+    [importFlowSource],
+  );
+  const currentImportStep = useMemo(() => {
     if (githubImportPhase === 'awaitingSeniority') {
       return 'Waiting for your seniority level';
     }
@@ -886,26 +1085,40 @@ const OnboardingV2Page = (): ReactElement => {
       return 'Your feed is ready';
     }
 
-    const upcomingStep = GITHUB_IMPORT_STEPS.find(
+    const upcomingStep = importSteps.find(
       (step) => githubImportProgress < step.threshold,
     );
     return upcomingStep?.label ?? 'Building personalized feed';
-  }, [githubImportPhase, githubImportProgress]);
-
-  const currentAiStep = useMemo(() => {
-    if (aiProcessingPhase === 'complete') {
-      return 'Feed generated';
+  }, [githubImportPhase, githubImportProgress, importSteps]);
+  const selectedExperienceLevelLabel = useMemo(() => {
+    if (!selectedExperienceLevel) {
+      return null;
     }
-    const upcoming = AI_PROCESSING_STEPS.find(
-      (step) => aiProcessingProgress < step.threshold,
+
+    return (
+      EXPERIENCE_LEVEL_OPTIONS.find(
+        (option) => option.value === selectedExperienceLevel,
+      )?.label ?? null
     );
-    return upcoming?.label ?? 'Finalizing your feed';
-  }, [aiProcessingPhase, aiProcessingProgress]);
+  }, [selectedExperienceLevel]);
+  const githubImportBodyPhase = useMemo(() => {
+    if (githubImportPhase === 'running' || githubImportPhase === 'finishing') {
+      return 'checklist';
+    }
+    if (githubImportPhase === 'awaitingSeniority') {
+      return 'seniority';
+    }
+    if (githubImportPhase === 'confirmingSeniority') {
+      return 'confirming';
+    }
+
+    return 'default';
+  }, [githubImportPhase]);
 
   return (
-    <div className={classNames('onb-page onb-sidebar-locked relative', !feedReadyState && 'onb-page-locked')} role="presentation">
+    <div className={classNames('onb-page onb-sidebar-locked relative overflow-x-hidden', !feedReadyState && 'onb-page-locked')} role="presentation">
       {/* ── Hero ── */}
-      <section ref={heroRef} className={classNames('onb-hero relative overflow-hidden pb-10 pt-14 tablet:pb-14 tablet:pt-18', feedReadyState && 'hidden')} style={{ '--scroll-y': '0' } as React.CSSProperties}>
+      <section ref={heroRef} className={classNames('onb-hero relative overflow-hidden pb-5 pt-14 tablet:pb-8 tablet:pt-18', feedReadyState && 'hidden')} style={{ '--scroll-y': '0' } as React.CSSProperties}>
         {/* Dot grid — shifts subtly with scroll */}
         <div
           className="onb-dot-grid pointer-events-none absolute inset-0"
@@ -928,16 +1141,78 @@ const OnboardingV2Page = (): ReactElement => {
           <div className="onb-float-1 absolute left-[25%] top-[70%] h-1 w-1 rounded-full bg-accent-cheese-default/20" />
           <div className="onb-float-2 absolute left-[85%] top-[45%] h-1 w-1 rounded-full bg-accent-cabbage-default/20" />
           <div className="onb-float-3 absolute left-[40%] top-[30%] h-0.5 w-0.5 rounded-full bg-white/20" />
+          {HERO_TAG_TREND.map((tag, index) => {
+            const sizeClass =
+              tag.size === 'lg'
+                ? 'px-4 py-2 typo-body'
+                : tag.size === 'md'
+                  ? 'px-3.5 py-1.5 typo-callout'
+                  : 'px-3 py-1.5 typo-caption1';
+
+            return (
+              <span
+                key={`${tag.label}-${index}`}
+                className={classNames(
+                  'onb-hero-tag absolute hidden whitespace-nowrap rounded-10 border border-white/[0.10] bg-white/[0.04] text-text-tertiary shadow-[0_6px_20px_rgba(0,0,0,0.14)] backdrop-blur-sm tablet:block',
+                  sizeClass,
+                )}
+                style={
+                  {
+                    left: tag.left,
+                    top: tag.top,
+                    '--tag-delay': tag.delay,
+                    '--tag-duration': tag.duration,
+                    '--tag-drift-x': `${tag.driftX}px`,
+                    '--tag-drift-y': `${tag.driftY}px`,
+                  } as React.CSSProperties
+                }
+              >
+                {tag.label}
+              </span>
+            );
+          })}
         </div>
 
         {/* Ambient glows */}
-        <div className="onb-glow-drift pointer-events-none absolute left-1/2 top-0 h-[22rem] w-[48rem] -translate-x-1/2 bg-accent-cabbage-default/5 blur-[100px]" />
-        <div className="onb-glow-drift-reverse pointer-events-none absolute left-[40%] top-[4rem] h-[18rem] w-[30rem] -translate-x-1/2 bg-accent-onion-default/[0.03] blur-[120px]" />
-        <div className="pointer-events-none absolute left-1/2 top-[5rem] h-[24rem] w-[64rem] -translate-x-1/2 bg-gradient-to-r from-accent-water-default/[0.03] via-accent-cabbage-default/[0.10] to-accent-onion-default/[0.06] blur-[90px]" />
+        {/* Magical breathing glow */}
+        <div className="onb-magical-glow pointer-events-none absolute left-1/2 top-[-10%] h-[35rem] w-full max-w-[65rem] -translate-x-1/2 rounded-[100%] bg-gradient-to-tr from-accent-cabbage-default/15 via-accent-water-default/25 to-accent-onion-default/15 blur-[100px] shadow-[0_0_120px_50px_rgba(255,255,255,0.1)]" />
+        
+        <div className="onb-glow-drift pointer-events-none absolute left-1/2 top-0 h-[22rem] w-full max-w-[48rem] -translate-x-1/2 bg-accent-cabbage-default/5 blur-[100px]" />
+        <div className="onb-glow-drift-reverse pointer-events-none absolute left-[40%] top-[4rem] h-[18rem] w-full max-w-[30rem] -translate-x-1/2 bg-accent-onion-default/[0.03] blur-[120px]" />
+        <div className="pointer-events-none absolute left-1/2 top-[5rem] h-[24rem] w-full max-w-[64rem] -translate-x-1/2 bg-gradient-to-r from-accent-water-default/[0.03] via-accent-cabbage-default/[0.10] to-accent-onion-default/[0.06] blur-[90px]" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[20rem] bg-gradient-to-b from-white/[0.03] to-transparent" />
 
         {/* Centered text content */}
         <div className="relative mx-auto max-w-[63.75rem] px-4 text-center laptop:px-6">
+          {/* Mobile-only tag strip — top */}
+          <div
+            className={classNames(
+              'relative mb-4 h-[4.75rem] transition-all duration-700 ease-out tablet:hidden',
+              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
+            )}
+            style={{ transitionDelay: '100ms' }}
+          >
+            {MOBILE_TAG_CLOUD_TOP.map((tag, i) => (
+              <span
+                key={`mob-top-${tag.label}`}
+                className="onb-mobile-tag absolute whitespace-nowrap rounded-8 border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-text-quaternary typo-caption2"
+                style={
+                  {
+                    left: tag.left,
+                    top: tag.top,
+                    '--tag-delay': tag.delay,
+                    '--tag-duration': tag.duration,
+                    '--tag-drift-x': `${tag.driftX}px`,
+                    '--tag-drift-y': `${tag.driftY}px`,
+                    '--tag-enter-delay': `${i * 60}ms`,
+                  } as React.CSSProperties
+                }
+              >
+                {tag.label}
+              </span>
+            ))}
+          </div>
+
           {/* Headline */}
           <div
             className={classNames(
@@ -948,7 +1223,7 @@ const OnboardingV2Page = (): ReactElement => {
             )}
             style={{ transitionDelay: '200ms' }}
           >
-            <h1 className="mx-auto max-w-[36rem] font-bold leading-[1.08] tracking-tight typo-mega3 tablet:max-w-[48rem] tablet:typo-mega1">
+            <h1 className="mx-auto max-w-[20rem] font-bold leading-[1.12] tracking-tight typo-title1 tablet:max-w-[48rem] tablet:leading-[1.08] tablet:typo-mega1">
               <span className="text-text-primary">
                 Join top dev community.
               </span>
@@ -969,7 +1244,7 @@ const OnboardingV2Page = (): ReactElement => {
             )}
             style={{ transitionDelay: '400ms' }}
           >
-            <p className="mx-auto mt-5 max-w-[36rem] text-text-secondary typo-title4 tablet:typo-title3" style={{ lineHeight: '1.7' }}>
+            <p className="mx-auto mt-4 max-w-[20rem] text-text-secondary typo-body tablet:mt-5 tablet:max-w-[36rem] tablet:typo-title3" style={{ lineHeight: '1.7' }}>
               Tap into live signals from the global dev community, then
               lock your feed to your stack with GitHub import or manual setup.
             </p>
@@ -985,12 +1260,12 @@ const OnboardingV2Page = (): ReactElement => {
             )}
             style={{ transitionDelay: '500ms' }}
           >
-            <div className="relative mx-auto flex w-fit flex-wrap items-center justify-center gap-3">
+            <div className="relative mx-auto flex w-full flex-col items-center justify-center gap-3 tablet:w-fit tablet:flex-row">
               <div className="onb-btn-glow pointer-events-none absolute -inset-3 rounded-20 bg-white/[0.06] blur-xl" />
               <button
                 type="button"
                 onClick={startGithubImportFlow}
-                className="onb-btn-shine group relative flex items-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout"
+                className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout tablet:w-auto"
               >
                 <svg
                   width="20"
@@ -1014,7 +1289,7 @@ const OnboardingV2Page = (): ReactElement => {
               <button
                 type="button"
                 onClick={() => openSignup('manual')}
-                className="group relative flex items-center gap-2.5 overflow-hidden rounded-14 border border-white/[0.12] bg-white/[0.04] px-6 py-3.5 font-bold text-text-primary backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white/[0.22] hover:bg-white/[0.08] hover:shadow-[0_10px_35px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout"
+                className="group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 border border-white/[0.12] bg-white/[0.04] px-6 py-3.5 font-bold text-text-primary backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white/[0.22] hover:bg-white/[0.08] hover:shadow-[0_10px_35px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout tablet:w-auto"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path
@@ -1038,72 +1313,38 @@ const OnboardingV2Page = (): ReactElement => {
               </button>
             </div>
           </div>
+
+          {/* Mobile-only tag strip — bottom */}
+          <div
+            className={classNames(
+              'relative mt-5 h-[5.5rem] transition-all duration-700 ease-out tablet:hidden',
+              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
+            )}
+            style={{ transitionDelay: '650ms' }}
+          >
+            {MOBILE_TAG_CLOUD_BOTTOM.map((tag, i) => (
+              <span
+                key={`mob-bot-${tag.label}`}
+                className="onb-mobile-tag absolute whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2.5 py-1 text-text-quaternary typo-caption2"
+                style={
+                  {
+                    left: tag.left,
+                    top: tag.top,
+                    '--tag-delay': tag.delay,
+                    '--tag-duration': tag.duration,
+                    '--tag-drift-x': `${tag.driftX}px`,
+                    '--tag-drift-y': `${tag.driftY}px`,
+                    '--tag-enter-delay': `${400 + i * 60}ms`,
+                  } as React.CSSProperties
+                }
+              >
+                {tag.label}
+              </span>
+            ))}
+          </div>
         </div>
 
       </section>
-
-      {/* ── Topic marquee with gradient backdrop ── */}
-      <div
-        className={classNames(
-          'relative mb-3 mt-2 pb-0 pt-2 transition-all duration-700 ease-out',
-          mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
-          feedReadyState && 'hidden',
-        )}
-        style={{ transitionDelay: '600ms' }}
-        aria-hidden="true"
-      >
-        {/* Gradient backdrop */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-accent-cabbage-default/[0.04] via-accent-cabbage-default/[0.10] to-accent-cabbage-default/[0.04]" />
-        <div className="pointer-events-none absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-cabbage-default/30 to-transparent" />
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent-onion-default/25 to-transparent" />
-        <div className="onb-glow-drift pointer-events-none absolute left-1/2 top-1/2 h-24 w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent-cabbage-default/[0.06] blur-[60px]" />
-
-        <div
-          className="relative overflow-hidden"
-          style={{
-            maskImage:
-              'linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent)',
-            WebkitMaskImage:
-              'linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent)',
-          }}
-        >
-          {/* Row 1 — left */}
-          <div className="onb-marquee-row mb-3 flex">
-            {MARQUEE_COPIES.map((i) => (
-              <div
-                key={i}
-                className="onb-marquee flex shrink-0 gap-3 pr-3"
-                style={{
-                  animation: 'onb-marquee-left 90s linear infinite',
-                  willChange: 'transform',
-                }}
-              >
-                {TOPICS_ROW_1.map((t) => (
-                  <TopicPill key={`${t}-${i}`} label={t} />
-                ))}
-              </div>
-            ))}
-          </div>
-
-          {/* Row 2 — right */}
-          <div className="onb-marquee-row flex">
-            {MARQUEE_COPIES.map((i) => (
-              <div
-                key={i}
-                className="onb-marquee flex shrink-0 gap-3 pr-3"
-                style={{
-                  animation: 'onb-marquee-right 100s linear infinite',
-                  willChange: 'transform',
-                }}
-              >
-                {TOPICS_ROW_2.map((t) => (
-                  <TopicPill key={`${t}-${i}`} label={t} />
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* ── Full-screen confetti (fixed, above everything) ── */}
       {feedReadyState && (
@@ -1149,9 +1390,9 @@ const OnboardingV2Page = (): ReactElement => {
       {feedReadyState && (
         <div className="onb-feed-ready-banner relative overflow-hidden pt-8 pb-6 tablet:pt-12 tablet:pb-8">
           {/* Radial burst glows — multi-layered */}
-          <div className="onb-ready-burst pointer-events-none absolute left-1/2 top-0 h-[24rem] w-[48rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-accent-cabbage-default/[0.14] blur-[120px]" />
-          <div className="onb-ready-burst pointer-events-none absolute left-1/2 top-0 h-[16rem] w-[28rem] -translate-x-1/2 -translate-y-1/4 rounded-full bg-accent-onion-default/[0.10] blur-[90px]" style={{ animationDelay: '150ms' }} />
-          <div className="onb-ready-burst pointer-events-none absolute left-1/2 top-0 h-[10rem] w-[16rem] -translate-x-1/2 -translate-y-1/5 rounded-full bg-accent-water-default/[0.08] blur-[60px]" style={{ animationDelay: '350ms' }} />
+          <div className="onb-ready-burst pointer-events-none absolute left-1/2 top-0 h-[24rem] w-full max-w-[48rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-accent-cabbage-default/[0.14] blur-[120px]" />
+          <div className="onb-ready-burst pointer-events-none absolute left-1/2 top-0 h-[16rem] w-full max-w-[28rem] -translate-x-1/2 -translate-y-1/4 rounded-full bg-accent-onion-default/[0.10] blur-[90px]" style={{ animationDelay: '150ms' }} />
+          <div className="onb-ready-burst pointer-events-none absolute left-1/2 top-0 h-[10rem] w-full max-w-[16rem] -translate-x-1/2 -translate-y-1/5 rounded-full bg-accent-water-default/[0.08] blur-[60px]" style={{ animationDelay: '350ms' }} />
 
           {/* Sparkle accents */}
           {[
@@ -1175,7 +1416,7 @@ const OnboardingV2Page = (): ReactElement => {
             </svg>
           ))}
 
-          <div className="relative mx-auto flex max-w-2xl flex-col items-center px-6">
+          <div className="relative mx-auto flex max-w-2xl flex-col items-center px-4 tablet:px-6">
             {/* Celebration icon with glow ring */}
             <div className="onb-ready-reveal relative mb-5">
               <div className="absolute inset-0 animate-ping rounded-full bg-accent-avocado-default/20" style={{ animationDuration: '2s', animationIterationCount: '2' }} />
@@ -1196,7 +1437,7 @@ const OnboardingV2Page = (): ReactElement => {
             </p>
 
             {/* Action chips */}
-            <div className="onb-ready-reveal flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: '380ms' }}>
+            <div className="onb-ready-reveal flex flex-col items-stretch gap-3 tablet:flex-row tablet:flex-wrap tablet:items-center tablet:justify-center" style={{ animationDelay: '380ms' }}>
               {/* Install extension */}
               <button
                 type="button"
@@ -1303,7 +1544,7 @@ const OnboardingV2Page = (): ReactElement => {
             >
               <div
                 ref={panelBoxRef}
-                className="onb-cursor-glow mx-auto max-w-[48rem] px-5 pb-10 pt-16 tablet:px-8 tablet:pt-20"
+                className="onb-cursor-glow mx-auto max-w-[48rem] px-4 pb-10 pt-12 tablet:px-8 tablet:pt-20"
               >
             <div className="relative">
 
@@ -1325,36 +1566,48 @@ const OnboardingV2Page = (): ReactElement => {
             </div>
 
             {/* Two-path layout */}
-            <div className="relative z-1 flex flex-col gap-4 tablet:flex-row tablet:items-start tablet:gap-5">
+            <div className="relative z-1 flex flex-col gap-4 tablet:grid tablet:grid-cols-2 tablet:items-stretch tablet:gap-5">
               {/* ── Path A: GitHub ── */}
               <div
                 className={classNames(
-                  'onb-glass flex flex-1 flex-col items-center rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out',
+                  'onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch',
                   panelVisible
                     ? 'translate-y-0 opacity-100'
                     : 'translate-y-10 opacity-0',
                 )}
                 style={{ transitionDelay: '200ms' }}
               >
-                {/* Animated orb icon */}
-                <div className="relative mb-5 flex h-20 w-20 items-center justify-center">
-                  <div className="ghub-orb-glow pointer-events-none absolute inset-0 rounded-full bg-accent-cabbage-default/25 blur-xl" />
-                  <svg className="ghub-ring pointer-events-none absolute h-full w-full" viewBox="0 0 80 80">
-                    <circle cx="40" cy="40" r="36" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1" strokeDasharray="4 6" opacity="0.35" />
+                {/* Animated orb — full-width energy field */}
+                <div className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center" style={{ width: 'calc(100% + 3rem)' }}>
+                  {/* Radial gradient from top center */}
+                  <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 0%, var(--theme-accent-cabbage-default) 0%, transparent 65%)', opacity: 0.22 }} />
+                  {/* Wide glow */}
+                  <div className="ghub-orb-glow pointer-events-none absolute h-32 w-52 rounded-full bg-accent-cabbage-default/15 blur-3xl" />
+                  {/* Outer ring */}
+                  <svg className="ghub-ring pointer-events-none absolute" style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
+                    <circle cx="88" cy="88" r="84" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
                   </svg>
-                  <svg className="ghub-ring-reverse pointer-events-none absolute h-14 w-14" viewBox="0 0 56 56">
-                    <circle cx="28" cy="28" r="24" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1" strokeDasharray="3 7" opacity="0.3" />
+                  {/* Middle ring */}
+                  <svg className="ghub-ring-reverse pointer-events-none absolute h-24 w-24" viewBox="0 0 96 96">
+                    <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
                   </svg>
+                  {/* Inner ring */}
+                  <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
+                  </svg>
+                  {/* Particles from far away */}
                   {[
-                    { px: '-1.75rem', py: '-1rem', dur: '2.0s', delay: '0s', color: 'bg-accent-cheese-default' },
-                    { px: '1.5rem', py: '-1.25rem', dur: '2.4s', delay: '0.4s', color: 'bg-accent-water-default' },
-                    { px: '-1.25rem', py: '1.25rem', dur: '2.2s', delay: '0.8s', color: 'bg-accent-cabbage-default' },
-                    { px: '1.75rem', py: '0.75rem', dur: '2.6s', delay: '1.2s', color: 'bg-accent-onion-default' },
+                    { px: '-6rem', py: '-3.5rem', dur: '3.0s', delay: '0s', color: 'bg-accent-cheese-default' },
+                    { px: '5.5rem', py: '-4rem', dur: '3.4s', delay: '0.5s', color: 'bg-accent-water-default' },
+                    { px: '-5rem', py: '3.5rem', dur: '3.2s', delay: '1.0s', color: 'bg-accent-cabbage-default' },
+                    { px: '6rem', py: '3rem', dur: '3.6s', delay: '1.5s', color: 'bg-accent-onion-default' },
+                    { px: '0.5rem', py: '-5rem', dur: '2.8s', delay: '0.7s', color: 'bg-accent-cheese-default' },
+                    { px: '-6.5rem', py: '0.5rem', dur: '3.1s', delay: '1.2s', color: 'bg-accent-water-default' },
                   ].map((p) => (
                     <span
                       key={`panel-ghub-${p.delay}`}
                       className={classNames(
-                        'ghub-particle pointer-events-none absolute h-1.5 w-1.5 rounded-full',
+                        'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
                         p.color,
                       )}
                       style={{
@@ -1366,8 +1619,9 @@ const OnboardingV2Page = (): ReactElement => {
                       } as React.CSSProperties}
                     />
                   ))}
-                  <div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-surface-float">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" className="text-text-primary">
+                  {/* Center icon with pulse */}
+                  <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" className="text-text-primary">
                       <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
                     </svg>
                   </div>
@@ -1440,32 +1694,44 @@ const OnboardingV2Page = (): ReactElement => {
               {/* ── Path B: Manual ── */}
               <div
                 className={classNames(
-                  'onb-glass flex flex-1 flex-col items-center rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out',
+                  'onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch',
                   panelVisible
                     ? 'translate-y-0 opacity-100'
                     : 'translate-y-10 opacity-0',
                 )}
                 style={{ transitionDelay: '350ms' }}
               >
-                {/* Animated orb icon — matches GitHub box style */}
-                <div className="relative mb-5 flex h-20 w-20 items-center justify-center">
-                  <div className="onb-ai-orb-glow pointer-events-none absolute inset-0 rounded-full bg-accent-onion-default/25 blur-xl" />
-                  <svg className="onb-ai-ring pointer-events-none absolute h-full w-full" viewBox="0 0 80 80">
-                    <circle cx="40" cy="40" r="36" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1" strokeDasharray="4 6" opacity="0.35" />
+                {/* Animated orb — full-width energy field */}
+                <div className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center" style={{ width: 'calc(100% + 3rem)' }}>
+                  {/* Radial gradient from top center */}
+                  <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)', opacity: 0.22 }} />
+                  {/* Wide glow */}
+                  <div className="onb-ai-orb-glow pointer-events-none absolute h-32 w-52 rounded-full bg-accent-onion-default/15 blur-3xl" />
+                  {/* Outer ring */}
+                  <svg className="onb-ai-ring pointer-events-none absolute" style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
+                    <circle cx="88" cy="88" r="84" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
                   </svg>
-                  <svg className="onb-ai-ring-reverse pointer-events-none absolute h-14 w-14" viewBox="0 0 56 56">
-                    <circle cx="28" cy="28" r="24" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1" strokeDasharray="3 7" opacity="0.3" />
+                  {/* Middle ring */}
+                  <svg className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24" viewBox="0 0 96 96">
+                    <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
                   </svg>
+                  {/* Inner ring */}
+                  <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
+                  </svg>
+                  {/* Particles from far away */}
                   {[
-                    { px: '-1.75rem', py: '-1rem', dur: '2.2s', delay: '0s', color: 'bg-accent-onion-default' },
-                    { px: '1.5rem', py: '-1.25rem', dur: '2.6s', delay: '0.5s', color: 'bg-accent-cabbage-default' },
-                    { px: '-1.25rem', py: '1.25rem', dur: '2.0s', delay: '1.0s', color: 'bg-accent-cheese-default' },
-                    { px: '1.75rem', py: '0.75rem', dur: '2.4s', delay: '0.3s', color: 'bg-accent-water-default' },
+                    { px: '-6rem', py: '-3.5rem', dur: '3.2s', delay: '0s', color: 'bg-accent-cheese-default' },
+                    { px: '5.5rem', py: '-4rem', dur: '3.6s', delay: '0.5s', color: 'bg-accent-water-default' },
+                    { px: '-5rem', py: '3.5rem', dur: '3.0s', delay: '1.0s', color: 'bg-accent-onion-default' },
+                    { px: '6rem', py: '3rem', dur: '3.4s', delay: '1.5s', color: 'bg-accent-cabbage-default' },
+                    { px: '-0.5rem', py: '-5rem', dur: '2.8s', delay: '0.3s', color: 'bg-accent-cheese-default' },
+                    { px: '6.5rem', py: '-0.5rem', dur: '3.1s', delay: '0.8s', color: 'bg-accent-water-default' },
                   ].map((p) => (
                     <span
                       key={`panel-ai-${p.delay}`}
                       className={classNames(
-                        'ghub-particle pointer-events-none absolute h-1.5 w-1.5 rounded-full',
+                        'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
                         p.color,
                       )}
                       style={{
@@ -1477,11 +1743,9 @@ const OnboardingV2Page = (): ReactElement => {
                       } as React.CSSProperties}
                     />
                   ))}
-                  <div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-surface-float">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-white">
-                      <path d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z" fill="currentColor" opacity="0.9" />
-                      <path d="M19 15l1.04 3.13L23.18 19l-3.14.87L19 23l-1.04-3.13L14.82 19l3.14-.87L19 15z" fill="currentColor" opacity="0.5" />
-                    </svg>
+                  {/* Center icon with pulse */}
+                  <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
+                    <MagicIcon secondary size={IconSize.Small} className="text-white" />
                   </div>
                 </div>
 
@@ -1493,7 +1757,7 @@ const OnboardingV2Page = (): ReactElement => {
                 </p>
 
                 {/* Textarea */}
-                <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 focus-within:border-accent-cabbage-default/20 focus-within:shadow-[0_0_20px_rgba(168,85,247,0.06)]">
+                <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)]">
                   <textarea
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
@@ -1506,9 +1770,9 @@ const OnboardingV2Page = (): ReactElement => {
                         startAiProcessing();
                       }
                     }}
-                    rows={3}
+                    rows={4}
                     placeholder={"I'm a frontend engineer working with React and TypeScript. Interested in system design, AI tooling..."}
-                    className="w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary placeholder:text-text-quaternary focus:outline-none typo-callout"
+                    className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary placeholder:text-text-quaternary transition-colors duration-200 focus:outline-none focus:placeholder:text-text-disabled typo-callout"
                   />
                 </div>
 
@@ -1569,9 +1833,7 @@ const OnboardingV2Page = (): ReactElement => {
                         : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
                     )}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="transition-transform duration-300 group-hover:translate-x-0.5">
-                      <path d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z" fill="currentColor" opacity="0.9" />
-                    </svg>
+                    <MagicIcon secondary size={IconSize.Size16} className="transition-transform duration-300 group-hover:translate-x-0.5" />
                     Generate my feed with AI
                   </button>
                 </div>
@@ -1588,8 +1850,8 @@ const OnboardingV2Page = (): ReactElement => {
 
         {/* Footer links for SEO — placed at the bottom of the page */}
         {!feedReadyState && (
-          <div className="relative z-1 mx-auto mt-20 flex w-full max-w-[48rem] justify-center pb-8">
-            <FooterLinks className="w-full justify-center text-center" />
+          <div className="relative z-1 mx-auto mt-36 flex w-full max-w-[48rem] justify-center px-5 pb-8 mobileL:px-6 tablet:mt-28">
+            <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
           </div>
         )}
         </MainFeedLayout>
@@ -1639,6 +1901,28 @@ const OnboardingV2Page = (): ReactElement => {
         .onb-hero {
           --scroll-y: 0;
         }
+
+        /* ─── MAGICAL BREATHE GLOW ─── */
+        @keyframes onb-magical-breathe {
+          0%, 100% {
+            opacity: 0.5;
+            transform: translateX(-50%) scale(1) translateY(0) rotate(0deg);
+            filter: blur(100px) brightness(1.1);
+          }
+          50% {
+            opacity: 0.95;
+            transform: translateX(-50%) scale(1.15) translateY(-4%) rotate(3deg);
+            filter: blur(120px) brightness(1.5);
+          }
+        }
+        .onb-hero .onb-magical-glow {
+          animation: onb-magical-breathe 7s ease-in-out infinite;
+          mix-blend-mode: screen;
+          will-change: opacity, transform, filter;
+          /* Tie to scroll slightly for extra life */
+          margin-top: calc(var(--scroll-y) * -0.05px);
+        }
+
         .onb-hero .onb-dot-grid {
           transform: translateY(calc(var(--scroll-y) * 0.04px));
           opacity: calc(1 - var(--scroll-y) * 0.001);
@@ -1652,17 +1936,41 @@ const OnboardingV2Page = (): ReactElement => {
           transform: translateX(-50%) translateY(calc(var(--scroll-y) * -0.08px));
         }
 
-        /* ─── MARQUEE ─── */
-        @keyframes onb-marquee-left {
-          from { transform: translateX(0); }
-          to { transform: translateX(-100%); }
+        /* ─── HERO TAG CLOUD ─── */
+        @keyframes onb-hero-tag-float {
+          0% {
+            opacity: 0;
+            transform: translate3d(0, 12px, 0) scale(0.92);
+          }
+          18% {
+            opacity: 0.9;
+            transform: translate3d(
+              calc(var(--tag-drift-x, 0px) * 0.2),
+              calc(var(--tag-drift-y, 0px) * 0.2),
+              0
+            ) scale(1);
+          }
+          72% {
+            opacity: 0.9;
+            transform: translate3d(
+              calc(var(--tag-drift-x, 0px) * 0.75),
+              calc(var(--tag-drift-y, 0px) * 0.75),
+              0
+            ) scale(1.03);
+          }
+          100% {
+            opacity: 0;
+            transform: translate3d(
+              var(--tag-drift-x, 0px),
+              var(--tag-drift-y, 0px),
+              0
+            ) scale(1.06);
+          }
         }
-        @keyframes onb-marquee-right {
-          from { transform: translateX(-100%); }
-          to { transform: translateX(0); }
-        }
-        .onb-marquee-row {
-          pointer-events: none;
+        .onb-hero-tag {
+          animation: onb-hero-tag-float var(--tag-duration, 12s) ease-in-out infinite;
+          animation-delay: var(--tag-delay, 0s);
+          will-change: opacity, transform;
         }
 
         /* ─── SHIMMER ─── */
@@ -1783,27 +2091,29 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── GITHUB IMPORT FLOW ─── */
 
-        /* Orb: soft breathing glow behind the icon */
+        /* Orb: breathing glow behind the icon */
         @keyframes ghub-orb-breathe {
-          0%, 100% { transform: scale(1); opacity: 0.55; }
-          50% { transform: scale(1.12); opacity: 0.85; }
+          0%, 100% { transform: scale(1); opacity: 0.4; }
+          50% { transform: scale(1.3); opacity: 0.75; }
         }
         .ghub-orb-glow {
           animation: ghub-orb-breathe 2.6s ease-in-out infinite;
         }
 
-        /* Rings that rotate around the orb (data flowing) */
+        /* Rings that rotate around the orb */
         @keyframes ghub-ring-spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        .ghub-ring { animation: ghub-ring-spin 6s linear infinite; }
-        .ghub-ring-reverse { animation: ghub-ring-spin 9s linear infinite reverse; }
+        .ghub-ring { animation: ghub-ring-spin 8s linear infinite; }
+        .ghub-ring-reverse { animation: ghub-ring-spin 12s linear infinite reverse; }
+        .onb-ring-slow { animation: ghub-ring-spin 18s linear infinite; }
 
         /* Particles that fly toward the orb center */
         @keyframes ghub-particle-in {
-          0% { transform: translate(var(--px), var(--py)) scale(0.7); opacity: 0; }
-          30% { opacity: 1; }
+          0% { transform: translate(var(--px), var(--py)) scale(0.8); opacity: 0; }
+          20% { opacity: 0.9; }
+          80% { opacity: 0.6; }
           100% { transform: translate(0, 0) scale(0); opacity: 0; }
         }
         .ghub-particle {
@@ -1818,6 +2128,15 @@ const OnboardingV2Page = (): ReactElement => {
         }
         .ghub-step-reveal {
           animation: ghub-step-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* Import panel phase transitions */
+        @keyframes ghub-phase-in {
+          from { opacity: 0; transform: translateY(0.25rem) scale(0.995); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .ghub-phase-panel {
+          animation: ghub-phase-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
         /* Confetti for completion */
@@ -1895,8 +2214,8 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── AI PROCESSING ORB ─── */
         @keyframes onb-ai-orb-breathe {
-          0%, 100% { transform: scale(1); opacity: 0.25; }
-          50% { transform: scale(1.15); opacity: 0.4; }
+          0%, 100% { transform: scale(1); opacity: 0.3; }
+          50% { transform: scale(1.35); opacity: 0.6; }
         }
         .onb-ai-orb-glow {
           animation: onb-ai-orb-breathe 2.5s ease-in-out infinite;
@@ -1906,10 +2225,10 @@ const OnboardingV2Page = (): ReactElement => {
           to { transform: rotate(360deg); }
         }
         .onb-ai-ring {
-          animation: onb-ai-ring-spin 12s linear infinite;
+          animation: onb-ai-ring-spin 10s linear infinite;
         }
         .onb-ai-ring-reverse {
-          animation: onb-ai-ring-spin 8s linear infinite reverse;
+          animation: onb-ai-ring-spin 7s linear infinite reverse;
         }
 
         /* ─── AI ICON GLOW ─── */
@@ -2077,39 +2396,91 @@ const OnboardingV2Page = (): ReactElement => {
 
         /* ─── LIVE ENGAGEMENT TICKER ─── */
 
-        /* Counter number bump — brief scale + color flash */
+        /* Counter number bump — bigger/longer scale + color flash */
         @keyframes onb-live-bump {
-          0% { transform: scale(1); }
-          30% { transform: scale(1.3); color: var(--onb-bump-color, var(--theme-accent-avocado-default)); }
-          60% { transform: scale(0.95); }
+          0% { transform: translateY(0) scale(1); color: inherit; }
+          22% { transform: translateY(-0.08rem) scale(1.5); color: var(--onb-bump-color, var(--theme-accent-avocado-default)); }
+          55% { transform: translateY(0) scale(1.08); color: var(--onb-bump-color, var(--theme-accent-avocado-default)); }
+          78% { transform: translateY(0) scale(1.02); color: inherit; }
           100% { transform: scale(1); }
         }
         .onb-live-bump {
-          animation: onb-live-bump 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+          animation: onb-live-bump 0.72s cubic-bezier(0.2, 0.9, 0.2, 1) !important;
           display: inline-block;
         }
 
-        /* Tiny "+1" that floats up from counter */
+        /* "+N" floaters that drift up in overlapping bursts */
         @keyframes onb-live-tick-up {
-          0% { transform: translateY(0); opacity: 0.9; }
-          100% { transform: translateY(-0.75rem); opacity: 0; }
+          0% {
+            transform: translate3d(0, 0, 0) scale(0.92) rotate(0deg);
+            opacity: 0;
+            filter: blur(0);
+          }
+          18% {
+            transform: translate3d(calc(var(--onb-live-x, 0rem) * 0.28), calc(var(--onb-live-y, 1.7rem) * -0.18), 0)
+              scale(var(--onb-live-scale, 1.15)) rotate(calc(var(--onb-live-rot, 0deg) * 0.45));
+            opacity: 0.98;
+          }
+          100% {
+            transform: translate3d(var(--onb-live-x, 0rem), calc(var(--onb-live-y, 1.7rem) * -1), 0)
+              scale(0.78) rotate(var(--onb-live-rot, 0deg));
+            opacity: 0;
+            filter: blur(0.4px);
+          }
         }
         .onb-live-tick {
           position: absolute;
-          top: -0.125rem;
-          right: -0.25rem;
-          font-size: 0.5625rem;
+          top: -0.18rem;
+          right: -0.3rem;
+          font-size: 0.72rem;
           font-weight: 700;
+          line-height: 1;
+          text-shadow: 0 0 8px color-mix(in srgb, currentColor 40%, transparent);
           pointer-events: none;
-          animation: onb-live-tick-up 0.55s ease-out forwards;
+          animation: onb-live-tick-up 1.3s cubic-bezier(0.18, 0.84, 0.25, 1) forwards;
+          animation-delay: var(--onb-live-delay, 0ms);
           z-index: 10;
           white-space: nowrap;
+          will-change: transform, opacity;
         }
 
         /* ─── SCROLL PROGRESS LINE ─── */
         @keyframes onb-progress-glow {
           0%, 100% { box-shadow: 0 0 6px 1px rgba(168,85,247,0.3); }
           50% { box-shadow: 0 0 12px 2px rgba(168,85,247,0.5); }
+        }
+
+        /* ─── MOBILE TAG PILLS ─── */
+        @keyframes onb-mobile-tag-in {
+          0% { transform: scale(0.85); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes onb-mobile-tag-float {
+          0%, 100% {
+            transform: translate3d(0, 0, 0) scale(1);
+          }
+          50% {
+            transform: translate3d(var(--tag-drift-x, 0px), var(--tag-drift-y, 0px), 0) scale(1.03);
+          }
+        }
+        .onb-mobile-tag {
+          opacity: 0;
+          animation:
+            onb-mobile-tag-in 0.4s ease-out var(--tag-enter-delay, 0ms) forwards,
+            onb-mobile-tag-float var(--tag-duration, 6.5s) ease-in-out var(--tag-delay, 0s) infinite;
+          will-change: transform, opacity;
+        }
+
+        /* ─── MOBILE MODAL SLIDE-UP ─── */
+        @keyframes onb-modal-slide-up {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+        @media (max-width: 655px) {
+          .onb-modal-enter,
+          .onb-ext-enter {
+            animation: onb-modal-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+          }
         }
 
         /* ─── REDUCED MOTION ─── */
@@ -2134,6 +2505,7 @@ const OnboardingV2Page = (): ReactElement => {
           .ghub-ring-reverse,
           .ghub-particle,
           .ghub-confetti,
+          .ghub-phase-panel,
           .onb-confetti-piece,
           .onb-confetti-stage,
           .onb-ready-burst,
@@ -2142,13 +2514,15 @@ const OnboardingV2Page = (): ReactElement => {
           .onb-ai-ring,
           .onb-ai-ring-reverse,
           .onb-ai-icon-glow,
+          .onb-ring-slow,
           .onb-ext-enter,
           .onb-ext-reveal,
           .onb-ext-float,
           .onb-sparkle,
           .onb-confetti-star,
           .onb-live-bump,
-          .onb-live-tick {
+          .onb-live-tick,
+          .onb-mobile-tag {
             animation: none !important;
             opacity: 1 !important;
           }
@@ -2164,276 +2538,291 @@ const OnboardingV2Page = (): ReactElement => {
         }
       `}</style>
 
-      {/* ── AI Processing Overlay ── */}
-      {showAiProcessing && (
+      {/* ── Header signup chooser popup ── */}
+      {showSignupChooser && (
         <div
-          className="fixed inset-0 z-modal flex items-center justify-center"
+          className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
           role="dialog"
           aria-modal="true"
-          aria-label="AI personalization"
+          aria-label="Choose personalization setup"
         >
           <div
-            className="onb-modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-md"
-            onClick={closeAiProcessing}
+            className="onb-modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-lg"
+            onClick={closeSignupChooser}
             role="presentation"
           />
 
-          <button
-            type="button"
-            onClick={closeAiProcessing}
-            className="absolute right-5 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-colors duration-200 hover:text-text-secondary"
-            aria-label="Close"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
-
-          <div className="relative z-1 flex w-full max-w-md flex-col items-center rounded-24 border border-white/[0.10] bg-[#0e1217] px-8 py-10 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)]">
-            {/* Animated AI orb */}
-            <div className="relative mb-8 flex h-28 w-28 items-center justify-center">
-              <div className="onb-ai-orb-glow pointer-events-none absolute inset-0 rounded-full bg-accent-cabbage-default/25 blur-xl" />
-
-              <svg className="onb-ai-ring pointer-events-none absolute h-full w-full" viewBox="0 0 112 112">
-                <circle cx="56" cy="56" r="52" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1" strokeDasharray="4 6" opacity="0.35" />
-              </svg>
-              <svg className="onb-ai-ring-reverse pointer-events-none absolute h-20 w-20" viewBox="0 0 80 80">
-                <circle cx="40" cy="40" r="36" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1" strokeDasharray="3 8" opacity="0.3" />
-              </svg>
-
-              {/* Sparkle particles */}
-              {[
-                { px: '-2.5rem', py: '-1.5rem', dur: '2.2s', delay: '0s' },
-                { px: '2.25rem', py: '-2rem', dur: '2.6s', delay: '0.5s' },
-                { px: '-2rem', py: '2rem', dur: '2.0s', delay: '1.0s' },
-                { px: '2.5rem', py: '1.25rem', dur: '2.4s', delay: '0.3s' },
-                { px: '0rem', py: '-2.75rem', dur: '2.1s', delay: '0.7s' },
-              ].map((p, i) => (
-                <span
-                  key={`ai-p-${i}`}
-                  className="ghub-particle pointer-events-none absolute h-1 w-1 rounded-full bg-accent-cabbage-default"
-                  style={{
-                    left: `calc(50% + ${p.px})`,
-                    top: `calc(50% + ${p.py})`,
-                    animationDuration: p.dur,
-                    animationDelay: p.delay,
-                  }}
-                />
-              ))}
-
-              {/* Center sparkle icon */}
-              <div className="relative z-1 flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.06] bg-[#0e1217]">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" className="text-white">
-                  <path d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z" fill="currentColor" opacity="0.9" />
-                  <path d="M19 15l1.04 3.13L23.18 19l-3.14.87L19 23l-1.04-3.13L14.82 19l3.14-.87L19 15z" fill="currentColor" opacity="0.5" />
-                  <path d="M5 17l.78 2.34L8.13 20l-2.35.66L5 23l-.78-2.34L1.87 20l2.35-.66L5 17z" fill="currentColor" opacity="0.35" />
-                </svg>
-              </div>
-            </div>
-
-            <h2 className="mb-2 text-center text-text-primary typo-title2">
-              {aiProcessingPhase === 'complete'
-                ? 'Your feed is ready'
-                : 'Analyzing your profile'}
-            </h2>
-
-            <p className="mb-6 text-center text-text-tertiary typo-callout">
-              {aiProcessingPhase === 'complete'
-                ? 'We built a personalized feed just for you.'
-                : currentAiStep}
-            </p>
-
-            {/* Progress bar */}
-            {aiProcessingPhase !== 'complete' && (
-              <div className="mb-8 w-full">
-                <div className="relative h-1.5 w-full overflow-hidden rounded-[0.125rem] bg-white/[0.10]">
-                  <div
-                    className="h-full rounded-[0.125rem] bg-accent-cabbage-default transition-[width] duration-300 ease-out"
-                    style={{ width: `${Math.max(aiProcessingProgress, 6)}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Step checklist */}
-            {aiProcessingPhase === 'analyzing' && (
-              <div className="flex w-full flex-col gap-1.5">
-                {AI_PROCESSING_STEPS.map((step, i) => {
-                  const done = aiProcessingProgress >= step.threshold;
-                  const active = !done && aiProcessingProgress >= step.threshold - 16;
-
-                  return (
-                    <div
-                      key={step.label}
-                      className="ghub-step-reveal flex items-center gap-2.5"
-                      style={{ animationDelay: `${i * 80}ms` }}
-                    >
-                      <span
-                        className={classNames(
-                          'flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-colors duration-300',
-                          done
-                            ? 'bg-accent-avocado-default/20'
-                            : active
-                              ? 'bg-accent-cabbage-default/20'
-                              : 'bg-surface-float',
-                        )}
-                      >
-                        {done ? (
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-accent-avocado-default">
-                            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        ) : (
-                          <span
-                            className={classNames(
-                              'h-1.5 w-1.5 rounded-full',
-                              active ? 'bg-accent-cabbage-default' : 'bg-text-quaternary',
-                            )}
-                          />
-                        )}
-                      </span>
-                      <span
-                        className={classNames(
-                          'transition-colors duration-300 typo-footnote',
-                          done ? 'text-text-primary' : active ? 'text-text-secondary' : 'text-text-quaternary',
-                        )}
-                      >
-                        {step.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Quoted user input */}
-            {aiProcessingPhase === 'analyzing' && aiPrompt.trim() && (
-              <div className="mt-6 w-full rounded-12 border border-accent-cabbage-default/10 bg-accent-cabbage-default/[0.04] px-4 py-3">
-                <p className="line-clamp-2 text-text-tertiary typo-footnote italic">
-                  &ldquo;{aiPrompt}&rdquo;
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── Auth / Registration (after AI processing) ── */}
-      {showAuthAfterAi && (
-        <div
-          className="fixed inset-0 z-modal flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Create your account"
-        >
-          <div
-            className="onb-modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-md"
-            onClick={dismissAuthAfterAi}
-            role="presentation"
-          />
-
-          <div className="onb-modal-enter relative z-1 w-full max-w-[26rem] rounded-24 border border-white/[0.10] bg-[#0e1217] shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)]">
+          <div className="onb-modal-enter onb-glass relative z-1 flex w-full max-h-[100dvh] flex-col overflow-y-auto rounded-t-24 border border-white/[0.08] bg-background-default shadow-[0_32px_90px_rgba(0,0,0,0.58)] tablet:max-w-[58rem] tablet:rounded-24">
             <button
               type="button"
-              onClick={dismissAuthAfterAi}
-              className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-colors duration-200 hover:text-text-secondary"
+              onClick={closeSignupChooser}
+              className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M18 6L6 18M6 6l12 12"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
-            <div className="px-7 pb-7 pt-8">
-              {/* Success badge */}
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-avocado-default/15">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-accent-avocado-default">
-                    <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
-                  </svg>
+
+            <div className="px-4 pb-5 pt-8 tablet:px-8 tablet:pb-8">
+              <div className="mb-6 text-center tablet:mb-8">
+                <p className="mb-2 text-text-secondary typo-body">
+                  Stay up to date, level up with the community, and unlock more.
+                </p>
+                <h3 className="font-bold text-text-primary typo-title2">
+                  Build your developer identity
+                </h3>
+              </div>
+
+              <div className="relative z-1 grid gap-4 tablet:grid-cols-2 tablet:items-stretch tablet:gap-5">
+                {/* ── Path A: GitHub ── */}
+                <div className="onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch">
+                  {/* Animated orb — full-width energy field */}
+                  <div className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center" style={{ width: 'calc(100% + 3rem)' }}>
+                    <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 0%, var(--theme-accent-cabbage-default) 0%, transparent 65%)', opacity: 0.22 }} />
+                    <div className="ghub-orb-glow pointer-events-none absolute h-32 w-52 rounded-full bg-accent-cabbage-default/15 blur-3xl" />
+                    <svg className="ghub-ring pointer-events-none absolute" style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
+                      <circle cx="88" cy="88" r="84" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
+                    </svg>
+                    <svg className="ghub-ring-reverse pointer-events-none absolute h-24 w-24" viewBox="0 0 96 96">
+                      <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
+                    </svg>
+                    <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
+                      <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
+                    </svg>
+                    {[
+                      { px: '-6rem', py: '-3.5rem', dur: '3.0s', delay: '0s', color: 'bg-accent-cheese-default' },
+                      { px: '5.5rem', py: '-4rem', dur: '3.4s', delay: '0.5s', color: 'bg-accent-water-default' },
+                      { px: '-5rem', py: '3.5rem', dur: '3.2s', delay: '1.0s', color: 'bg-accent-cabbage-default' },
+                      { px: '6rem', py: '3rem', dur: '3.6s', delay: '1.5s', color: 'bg-accent-onion-default' },
+                      { px: '0.5rem', py: '-5rem', dur: '2.8s', delay: '0.7s', color: 'bg-accent-cheese-default' },
+                      { px: '-6.5rem', py: '0.5rem', dur: '3.1s', delay: '1.2s', color: 'bg-accent-water-default' },
+                    ].map((p) => (
+                      <span
+                        key={`modal-panel-ghub-${p.delay}`}
+                        className={classNames(
+                          'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
+                          p.color,
+                        )}
+                        style={{
+                          '--px': p.px,
+                          '--py': p.py,
+                          '--dur': p.dur,
+                          '--delay': p.delay,
+                          animationDelay: p.delay,
+                        } as React.CSSProperties}
+                      />
+                    ))}
+                    <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" className="text-text-primary">
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <h4 className="mb-1.5 font-bold text-text-primary typo-body">
+                    One-click setup
+                  </h4>
+                  <p className="mb-5 text-center text-text-tertiary typo-footnote">
+                    Connect GitHub and let our AI do the rest.
+                  </p>
+
+                  <div className="mb-5 flex w-full flex-col gap-3">
+                    {[
+                      { text: 'Detects your stack from your repos', icon: 'stack' },
+                      { text: 'AI maps your skills to the most relevant topics', icon: 'ai' },
+                      { text: 'Your personalized feed is ready in seconds', icon: 'feed' },
+                    ].map(({ text, icon }) => (
+                      <div key={text} className="flex items-start gap-3">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/[0.06]">
+                          {icon === 'stack' && (
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-text-secondary">
+                              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          )}
+                          {icon === 'ai' && (
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-text-secondary">
+                              <path d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z" fill="currentColor" />
+                            </svg>
+                          )}
+                          {icon === 'feed' && (
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-text-secondary">
+                              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          )}
+                        </span>
+                        <span className="text-left text-text-tertiary typo-footnote">{text}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mb-5 h-px w-full bg-border-subtlest-tertiary/30" />
+
+                  <div className="relative w-full">
+                    <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
+                    <button
+                      type="button"
+                      onClick={startGithubFlowFromChooser}
+                      className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout"
+                    >
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
+                      </svg>
+                      Continue with GitHub
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5">
+                        <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                  </div>
+                  <p className="mt-2.5 text-text-quaternary typo-caption2">
+                    Read-only access &middot; No special permissions
+                  </p>
                 </div>
-                <div>
-                  <h3 className="font-bold text-text-primary typo-title3">
-                    Your feed is generated
-                  </h3>
-                  <p className="text-accent-avocado-default typo-caption1">
-                    Personalized with AI
+
+                {/* ── Path B: Manual ── */}
+                <div className="onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch">
+                  {/* Animated orb — full-width energy field */}
+                  <div className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center" style={{ width: 'calc(100% + 3rem)' }}>
+                    <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)', opacity: 0.22 }} />
+                    <div className="onb-ai-orb-glow pointer-events-none absolute h-32 w-52 rounded-full bg-accent-onion-default/15 blur-3xl" />
+                    <svg className="onb-ai-ring pointer-events-none absolute" style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
+                      <circle cx="88" cy="88" r="84" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
+                    </svg>
+                    <svg className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24" viewBox="0 0 96 96">
+                      <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
+                    </svg>
+                    <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
+                      <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
+                    </svg>
+                    {[
+                      { px: '-6rem', py: '-3.5rem', dur: '3.2s', delay: '0s', color: 'bg-accent-cheese-default' },
+                      { px: '5.5rem', py: '-4rem', dur: '3.6s', delay: '0.5s', color: 'bg-accent-water-default' },
+                      { px: '-5rem', py: '3.5rem', dur: '3.0s', delay: '1.0s', color: 'bg-accent-onion-default' },
+                      { px: '6rem', py: '3rem', dur: '3.4s', delay: '1.5s', color: 'bg-accent-cabbage-default' },
+                      { px: '-0.5rem', py: '-5rem', dur: '2.8s', delay: '0.3s', color: 'bg-accent-cheese-default' },
+                      { px: '6.5rem', py: '-0.5rem', dur: '3.1s', delay: '0.8s', color: 'bg-accent-water-default' },
+                    ].map((p) => (
+                      <span
+                        key={`modal-panel-ai-${p.delay}`}
+                        className={classNames(
+                          'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
+                          p.color,
+                        )}
+                        style={{
+                          '--px': p.px,
+                          '--py': p.py,
+                          '--dur': p.dur,
+                          '--delay': p.delay,
+                          animationDelay: p.delay,
+                        } as React.CSSProperties}
+                      />
+                    ))}
+                    <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
+                      <MagicIcon secondary size={IconSize.Small} className="text-white" />
+                    </div>
+                  </div>
+
+                  <h4 className="mb-1.5 font-bold text-text-primary typo-body">
+                    Tell our AI about yourself
+                  </h4>
+                  <p className="mb-5 text-center text-text-tertiary typo-footnote">
+                    Describe your stack and let AI build your feed.
+                  </p>
+
+                  {/* Textarea */}
+                  <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)]">
+                    <textarea
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key !== 'Enter' || e.shiftKey) {
+                          return;
+                        }
+                        e.preventDefault();
+                        startAiFlowFromChooser();
+                      }}
+                      rows={4}
+                      placeholder={"I'm a frontend engineer working with React and TypeScript. Interested in system design, AI tooling..."}
+                      className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary placeholder:text-text-quaternary transition-colors duration-200 focus:outline-none focus:placeholder:text-text-disabled typo-callout"
+                    />
+                  </div>
+
+                  {/* Selected chips */}
+                  {selectedTopics.size > 0 && (
+                    <div className="mb-3 flex w-full flex-wrap gap-1.5">
+                      {Array.from(selectedTopics).map((topic) => (
+                        <button
+                          key={`modal-sel-${topic}`}
+                          type="button"
+                          onClick={() => toggleTopic(topic)}
+                          className={classNames(
+                            'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] active:scale-[0.96] focus-visible:outline-none typo-caption1',
+                            TOPIC_SELECTED_STYLES,
+                          )}
+                        >
+                          {topic}
+                          <span className="text-text-quaternary">&times;</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Matched tags */}
+                  <div
+                    className={classNames(
+                      'w-full overflow-hidden transition-all duration-400 ease-out',
+                      recommendedTopics.length > 0
+                        ? 'max-h-40 opacity-100'
+                        : 'max-h-0 opacity-0',
+                    )}
+                  >
+                    <div className="flex flex-wrap gap-1.5">
+                      {recommendedTopics.map(({ label }) => (
+                        <button
+                          key={`modal-match-${label}`}
+                          type="button"
+                          onClick={() => toggleTopic(label)}
+                          className="onb-chip-enter rounded-8 border border-border-subtlest-tertiary/40 px-2.5 py-1 text-text-tertiary transition-all duration-200 hover:bg-white/[0.06] hover:text-text-secondary active:scale-[0.97] focus-visible:outline-none typo-caption1"
+                        >
+                          + {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Build feed CTA — disabled when no input */}
+                  <div className="relative mt-4 w-full">
+                    <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
+                    <button
+                      type="button"
+                      disabled={!canStartAiFlow}
+                      onClick={startAiFlowFromChooser}
+                      className={classNames(
+                        'group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout',
+                        canStartAiFlow
+                          ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
+                          : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
+                      )}
+                    >
+                      <MagicIcon secondary size={IconSize.Size16} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+                      Generate my feed with AI
+                    </button>
+                  </div>
+                  <p className="mt-2.5 text-text-quaternary typo-caption2">
+                    AI-powered &middot; instant personalization
                   </p>
                 </div>
               </div>
-
-              <p className="mb-6 text-text-secondary typo-callout">
-                Create an account to save your personalized feed and unlock all features.
-              </p>
-
-              {/* Auth providers */}
-              <div className="flex flex-col gap-2.5">
-                {/* Google */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAuthAfterAi(false);
-                    setShowExtensionPromo(true);
-                  }}
-                  className="group flex w-full items-center gap-3 rounded-14 border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 transition-all duration-200 hover:border-white/[0.14] hover:bg-white/[0.07]"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                  </svg>
-                  <span className="font-medium text-text-primary typo-callout">
-                    Continue with Google
-                  </span>
-                </button>
-
-                {/* GitHub */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAuthAfterAi(false);
-                    startGithubImportFlow();
-                  }}
-                  className="group flex w-full items-center gap-3 rounded-14 border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 transition-all duration-200 hover:border-white/[0.14] hover:bg-white/[0.07]"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-text-primary">
-                    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                  </svg>
-                  <span className="font-medium text-text-primary typo-callout">
-                    Continue with GitHub
-                  </span>
-                </button>
-
-                {/* Divider */}
-                <div className="flex items-center gap-3 py-1">
-                  <div className="h-px flex-1 bg-white/[0.06]" />
-                  <span className="text-text-quaternary typo-caption2">or</span>
-                  <div className="h-px flex-1 bg-white/[0.06]" />
-                </div>
-
-                {/* Email */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAuthAfterAi(false);
-                    setShowExtensionPromo(true);
-                  }}
-                  className="group flex w-full items-center gap-3 rounded-14 border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 transition-all duration-200 hover:border-white/[0.14] hover:bg-white/[0.07]"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-text-secondary">
-                    <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M3 7l9 5 9-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                  <span className="font-medium text-text-primary typo-callout">
-                    Continue with email
-                  </span>
-                </button>
-              </div>
-
-              {/* Terms */}
-              <p className="mt-5 text-center text-text-quaternary typo-caption2">
-                By signing up you agree to our Terms of Service and Privacy Policy
-              </p>
             </div>
           </div>
         </div>
@@ -2442,7 +2831,7 @@ const OnboardingV2Page = (): ReactElement => {
       {/* ── Extension Promotion Overlay ── */}
       {showExtensionPromo && (
         <div
-          className="fixed inset-0 z-modal flex items-center justify-center"
+          className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center"
           role="dialog"
           aria-modal="true"
           aria-label="Install browser extension"
@@ -2453,7 +2842,7 @@ const OnboardingV2Page = (): ReactElement => {
             role="presentation"
           />
 
-          <div className="onb-ext-enter relative z-1 flex w-full max-w-lg flex-col items-center overflow-hidden rounded-24 border border-white/[0.10] bg-[#0e1217] shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)]">
+          <div className="onb-ext-enter relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-24 border border-white/[0.10] bg-[#0e1217] shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:max-w-lg tablet:rounded-24">
             {/* Close / Skip */}
             <button
               type="button"
@@ -2467,7 +2856,7 @@ const OnboardingV2Page = (): ReactElement => {
             </button>
 
             {/* Top section: text content */}
-            <div className="flex w-full flex-col items-center px-8 pt-10 pb-6">
+            <div className="flex w-full flex-col items-center px-5 pt-8 pb-5 tablet:px-8 tablet:pt-10 tablet:pb-6">
               {/* Icon */}
                 <div className="onb-ext-reveal mb-5 flex h-14 w-14 items-center justify-center rounded-16 bg-white/[0.06]">
                 {isEdgeBrowser ? (
@@ -2527,7 +2916,7 @@ const OnboardingV2Page = (): ReactElement => {
             </div>
 
             {/* Screenshot with float animation */}
-            <div className="onb-ext-reveal relative w-full px-6 pb-6" style={{ animationDelay: '380ms' }}>
+            <div className="onb-ext-reveal relative w-full px-4 pb-4 tablet:px-6 tablet:pb-6" style={{ animationDelay: '380ms' }}>
               <div className="onb-ext-float overflow-hidden rounded-16 shadow-[0_16px_60px_rgba(0,0,0,0.4)]">
                 <img
                   alt={`daily.dev extension in ${isEdgeBrowser ? 'Edge' : 'Chrome'}`}
@@ -2541,7 +2930,7 @@ const OnboardingV2Page = (): ReactElement => {
             </div>
 
             {/* Social proof */}
-            <div className="onb-ext-reveal w-full border-t border-white/[0.06] px-8 py-4" style={{ animationDelay: '440ms' }}>
+            <div className="onb-ext-reveal w-full border-t border-white/[0.06] px-5 py-4 tablet:px-8" style={{ animationDelay: '440ms' }}>
               <p className="text-center text-text-quaternary typo-caption1">
                 Trusted by <span className="font-bold text-text-tertiary">500,000+</span> developers
               </p>
@@ -2550,13 +2939,17 @@ const OnboardingV2Page = (): ReactElement => {
         </div>
       )}
 
-      {/* ── GitHub Import Overlay ── */}
+      {/* ── Profile Import Overlay ── */}
       {showGithubImportFlow && (
         <div
-          className="fixed inset-0 z-modal flex items-center justify-center"
+          className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center"
           role="dialog"
           aria-modal="true"
-          aria-label="Importing GitHub profile"
+          aria-label={
+            importFlowSource === 'github'
+              ? 'Importing GitHub profile'
+              : 'Analyzing your profile'
+          }
         >
           {/* Full-screen scrim — blurred glass so feed peeks through */}
           <div
@@ -2566,7 +2959,7 @@ const OnboardingV2Page = (): ReactElement => {
           />
 
           {/* Centered content */}
-          <div className="relative z-1 mx-4 flex w-full max-w-md flex-col items-center rounded-20 border border-white/[0.10] bg-[#0e1217] px-6 py-6 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)]">
+          <div className="relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-20 border border-white/[0.10] bg-[#0e1217] px-5 py-6 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:mx-4 tablet:max-w-md tablet:rounded-20 tablet:px-6">
             <button
               type="button"
               onClick={closeGithubImportFlow}
@@ -2577,25 +2970,31 @@ const OnboardingV2Page = (): ReactElement => {
                 <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
-            {/* ── Animated orb ── */}
-            <div className="relative mb-5 flex h-24 w-24 items-center justify-center">
-              <div className="ghub-orb-glow pointer-events-none absolute inset-0 rounded-full bg-accent-cabbage-default/25 blur-xl" />
-              <svg className="ghub-ring pointer-events-none absolute h-full w-full" viewBox="0 0 96 96">
-                <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-cabbage-default)" strokeWidth="1" strokeDasharray="4 6" opacity="0.35" />
+            {/* ── Animated orb — full-width energy field ── */}
+            <div className="pointer-events-none relative -mx-5 -mt-6 mb-0 flex h-32 items-center justify-center overflow-hidden tablet:-mx-6" style={{ width: 'calc(100% + 2.5rem)' }}>
+              <div className="pointer-events-none absolute inset-0" style={{ background: `radial-gradient(ellipse at 50% 0%, ${importFlowSource === 'github' ? 'var(--theme-accent-cabbage-default)' : 'var(--theme-accent-onion-default)'} 0%, transparent 65%)`, opacity: 0.22 }} />
+              <div className={classNames('pointer-events-none absolute h-32 w-52 rounded-full blur-3xl', importFlowSource === 'github' ? 'ghub-orb-glow bg-accent-cabbage-default/15' : 'onb-ai-orb-glow bg-accent-onion-default/15')} />
+              <svg className={classNames('pointer-events-none absolute', importFlowSource === 'github' ? 'ghub-ring' : 'onb-ai-ring')} style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
+                <circle cx="88" cy="88" r="84" fill="none" stroke={importFlowSource === 'github' ? 'var(--theme-accent-cabbage-default)' : 'var(--theme-accent-onion-default)'} strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
               </svg>
-              <svg className="ghub-ring-reverse pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
-                <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1" strokeDasharray="3 7" opacity="0.3" />
+              <svg className={classNames('pointer-events-none absolute h-24 w-24', importFlowSource === 'github' ? 'ghub-ring-reverse' : 'onb-ai-ring-reverse')} viewBox="0 0 96 96">
+                <circle cx="48" cy="48" r="44" fill="none" stroke={importFlowSource === 'github' ? 'var(--theme-accent-cabbage-default)' : 'var(--theme-accent-onion-default)'} strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
+              </svg>
+              <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="28" fill="none" stroke={importFlowSource === 'github' ? 'var(--theme-accent-cabbage-default)' : 'var(--theme-accent-onion-default)'} strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
               </svg>
               {[
-                { px: '-2.25rem', py: '-1.25rem', dur: '2.0s', delay: '0s', color: 'bg-accent-cheese-default' },
-                { px: '2rem', py: '-1.75rem', dur: '2.4s', delay: '0.4s', color: 'bg-accent-water-default' },
-                { px: '-1.75rem', py: '1.75rem', dur: '2.2s', delay: '0.8s', color: 'bg-accent-cabbage-default' },
-                { px: '2.25rem', py: '1rem', dur: '2.6s', delay: '1.2s', color: 'bg-accent-onion-default' },
+                { px: '-6rem', py: '-3.5rem', dur: '3.0s', delay: '0s', color: 'bg-accent-cheese-default' },
+                { px: '5.5rem', py: '-4rem', dur: '3.4s', delay: '0.5s', color: 'bg-accent-water-default' },
+                { px: '-5rem', py: '3.5rem', dur: '3.2s', delay: '1.0s', color: 'bg-accent-cabbage-default' },
+                { px: '6rem', py: '3rem', dur: '3.6s', delay: '1.5s', color: 'bg-accent-onion-default' },
+                { px: '0.5rem', py: '-5rem', dur: '2.8s', delay: '0.7s', color: 'bg-accent-cheese-default' },
+                { px: '-6.5rem', py: '0.5rem', dur: '3.1s', delay: '1.2s', color: 'bg-accent-water-default' },
               ].map((p) => (
                 <span
-                  key={`particle-${p.delay}`}
+                  key={`import-flow-${p.delay}`}
                   className={classNames(
-                    'ghub-particle pointer-events-none absolute h-1.5 w-1.5 rounded-full',
+                    'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
                     p.color,
                   )}
                   style={{
@@ -2607,10 +3006,14 @@ const OnboardingV2Page = (): ReactElement => {
                   } as React.CSSProperties}
                 />
               ))}
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-surface-float">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-text-primary">
-                  <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                </svg>
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
+                {importFlowSource === 'github' ? (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" className="text-text-primary">
+                    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
+                  </svg>
+                ) : (
+                  <MagicIcon secondary size={IconSize.Small} className="text-text-primary" />
+                )}
               </div>
             </div>
 
@@ -2620,17 +3023,21 @@ const OnboardingV2Page = (): ReactElement => {
                 ? 'Your feed is ready'
                 : githubImportPhase === 'awaitingSeniority' || githubImportPhase === 'confirmingSeniority'
                   ? 'Almost there'
-                  : 'Reading your GitHub'}
+                  : importFlowSource === 'github'
+                    ? 'Reading your GitHub'
+                    : 'Analyzing your profile'}
             </h2>
 
             <p className="mb-4 text-center text-text-tertiary typo-footnote">
               {githubImportPhase === 'complete'
                 ? 'We built a personalized feed just for you.'
                 : githubImportPhase === 'awaitingSeniority'
-                  ? 'One thing we couldn\u2019t find on your profile.'
+                  ? importFlowSource === 'github'
+                    ? 'One thing we couldn\u2019t find on your profile.'
+                    : 'One last detail to finish your profile setup.'
                   : githubImportPhase === 'confirmingSeniority'
                     ? 'Got it. Finishing up...'
-                    : currentGithubImportStep}
+                    : currentImportStep}
             </p>
 
             {/* ── Progress track ── */}
@@ -2645,78 +3052,168 @@ const OnboardingV2Page = (): ReactElement => {
               </div>
             )}
 
-            {/* ── Import checklist (during active import) ── */}
-            {(githubImportPhase === 'running' || githubImportPhase === 'finishing') && (
-              <div className="mb-4 flex w-full flex-col gap-1">
-                {GITHUB_IMPORT_STEPS.map((step, i) => {
-                  const done = githubImportProgress >= step.threshold;
-                  const active = !done && githubImportProgress >= step.threshold - 16;
+            {githubImportBodyPhase !== 'default' && (
+              <div className="mb-4 w-full overflow-hidden rounded-16 border border-white/[0.06] bg-white/[0.01] p-3.5">
+                <div key={githubImportBodyPhase} className="ghub-phase-panel min-h-[10.5rem]">
+                  {/* ── Import checklist (during active import) ── */}
+                  {(githubImportPhase === 'running' ||
+                    githubImportPhase === 'finishing') && (
+                    <div className="flex w-full flex-col gap-2.5">
+                      {importSteps.map((step, i) => {
+                        const done = githubImportProgress >= step.threshold;
+                        const active =
+                          !done && githubImportProgress >= step.threshold - 16;
+                        const statusText = done
+                          ? 'Done'
+                          : active
+                            ? 'In progress'
+                            : 'Up next';
 
-                  return (
-                    <div
-                      key={step.label}
-                      className="ghub-step-reveal flex items-center gap-2"
-                      style={{ animationDelay: `${i * 80}ms` }}
-                    >
-                      <span
-                        className={classNames(
-                          'flex h-4 w-4 shrink-0 items-center justify-center rounded-full transition-colors duration-300',
-                          done
-                            ? 'bg-accent-avocado-default/20'
-                            : active
-                              ? 'bg-accent-cabbage-default/20'
-                              : 'bg-surface-float',
-                        )}
-                      >
-                        {done ? (
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" className="text-accent-avocado-default">
-                            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        ) : (
-                          <span
-                            className={classNames(
-                              'h-1 w-1 rounded-full',
-                              active ? 'bg-accent-cabbage-default' : 'bg-text-quaternary',
-                            )}
-                          />
-                        )}
-                      </span>
-                      <span
-                        className={classNames(
-                          'transition-colors duration-300 typo-caption1',
-                          done ? 'text-text-primary' : active ? 'text-text-secondary' : 'text-text-quaternary',
-                        )}
-                      >
-                        {step.label}
-                      </span>
+                        return (
+                          <div
+                            key={step.label}
+                            className="ghub-step-reveal grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-3"
+                            style={{ animationDelay: `${i * 80}ms` }}
+                          >
+                            <span
+                              className={classNames(
+                                'flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors duration-300',
+                                done
+                                  ? 'bg-accent-avocado-default'
+                                  : active
+                                    ? 'bg-accent-cabbage-default/18'
+                                    : 'bg-white/[0.06]',
+                              )}
+                            >
+                              {done ? (
+                                <svg
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  aria-hidden
+                                >
+                                  <path
+                                    d="M9 12l2 2 4-4"
+                                    stroke="#111827"
+                                    strokeWidth="2.6"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              ) : (
+                                <span
+                                  className={classNames(
+                                    'h-2 w-2 rounded-full',
+                                    active
+                                      ? 'bg-accent-cabbage-default'
+                                      : 'bg-text-quaternary',
+                                  )}
+                                />
+                              )}
+                            </span>
+                            <span
+                              className={classNames(
+                                'truncate transition-colors duration-300 typo-callout',
+                                done
+                                  ? 'text-text-primary'
+                                  : active
+                                    ? 'text-text-secondary'
+                                    : 'text-text-quaternary',
+                              )}
+                            >
+                              {step.label}
+                            </span>
+                            <span
+                              className={classNames(
+                                'shrink-0 typo-caption2',
+                                done
+                                  ? 'text-accent-avocado-default'
+                                  : active
+                                    ? 'text-accent-cabbage-default'
+                                    : 'text-text-quaternary',
+                              )}
+                            >
+                              {statusText}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  )}
 
-            {/* ── Seniority question ── */}
-            {githubImportPhase === 'awaitingSeniority' && (
-              <div className="w-full">
-                <p className="mb-3 text-left font-medium text-text-primary typo-callout">
-                  What is your seniority level?
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {EXPERIENCE_LEVEL_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleExperienceLevelSelect(option.value)}
-                      className={classNames(
-                        'rounded-12 px-4 py-3 text-left transition-all duration-200 typo-callout focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default/60',
-                        selectedExperienceLevel === option.value
-                          ? 'bg-white font-bold text-black shadow-[0_0_16px_rgba(255,255,255,0.1)]'
-                          : 'bg-surface-float text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+                  {/* ── Seniority question ── */}
+                  {githubImportPhase === 'awaitingSeniority' && (
+                    <div>
+                      <p className="mb-3 text-left font-medium text-text-primary typo-callout">
+                        What is your seniority level?
+                      </p>
+                      <div className="grid grid-cols-1 gap-1.5">
+                        {EXPERIENCE_LEVEL_OPTIONS.map((option) => {
+                          const optionParts = getExperienceLevelOptionParts(
+                            option.label,
+                          );
+                          const optionMeta = optionParts.meta ?? 'Non-technical';
+                          const isSelected =
+                            selectedExperienceLevel === option.value;
+
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() =>
+                                handleExperienceLevelSelect(option.value)
+                              }
+                              className={classNames(
+                                'group flex items-center rounded-12 border px-4 py-2.5 text-left transition-all duration-200 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default/60',
+                                isSelected
+                                  ? 'border-white/[0.24] bg-surface-hover text-text-primary shadow-[0_8px_24px_rgba(0,0,0,0.3)]'
+                                  : 'border-white/[0.12] bg-surface-float text-text-secondary hover:border-white/[0.2] hover:bg-surface-hover hover:text-text-primary',
+                              )}
+                            >
+                              <span
+                                className={classNames(
+                                  'min-w-0 flex-1 truncate font-medium leading-tight typo-callout',
+                                  isSelected
+                                    ? 'text-text-primary'
+                                    : 'text-text-secondary',
+                                )}
+                              >
+                                {optionParts.title}
+                              </span>
+                              <span
+                                className={classNames(
+                                  'shrink-0 text-right typo-caption1',
+                                  isSelected
+                                    ? 'text-text-tertiary'
+                                    : 'text-text-quaternary',
+                                )}
+                              >
+                                {optionMeta}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Seniority confirmation ── */}
+                  {githubImportPhase === 'confirmingSeniority' && (
+                    <div className="flex h-full flex-col justify-center rounded-12 border border-white/[0.08] bg-surface-float px-4 py-3">
+                      <p className="text-text-secondary typo-footnote">
+                        Applying your experience level
+                      </p>
+                      {selectedExperienceLevelLabel && (
+                        <p className="mt-1 truncate text-text-primary typo-callout">
+                          {selectedExperienceLevelLabel}
+                        </p>
                       )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
+                      <div className="mt-3 h-1 w-full overflow-hidden rounded-[0.125rem] bg-white/[0.12]">
+                        <span className="block h-full w-1/2 animate-pulse rounded-[0.125rem] bg-accent-cabbage-default/80" />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -2729,7 +3226,7 @@ const OnboardingV2Page = (): ReactElement => {
       {/* ── Contextual Signup Modal ── */}
       {showSignupPrompt && (
         <div
-          className="fixed inset-0 z-modal flex items-center justify-center p-4"
+          className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
           role="dialog"
           aria-modal="true"
         >
@@ -2741,12 +3238,13 @@ const OnboardingV2Page = (): ReactElement => {
           />
 
           {/* Modal */}
-          <div className="onb-modal-enter onb-glass relative w-full max-w-[26rem] rounded-20 border border-white/[0.08] bg-background-default shadow-[0_24px_80px_rgba(0,0,0,0.5)]">
+          <div className="onb-modal-enter onb-glass relative flex max-h-[100dvh] w-full flex-col overflow-y-auto rounded-t-20 border border-white/[0.08] bg-background-default shadow-[0_24px_80px_rgba(0,0,0,0.5)] tablet:max-w-[26rem] tablet:rounded-20">
             {/* Close */}
             <button
               type="button"
               onClick={() => setShowSignupPrompt(false)}
               className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
+              aria-label="Close"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path
@@ -2759,7 +3257,7 @@ const OnboardingV2Page = (): ReactElement => {
             </button>
 
             {/* Content */}
-            <div className="px-7 pb-7 pt-8">
+            <div className="px-5 pb-6 pt-8 tablet:px-7 tablet:pb-7">
               {/* ── GitHub context ── */}
               {signupContext === 'github' && (
                 <>
@@ -2840,25 +3338,55 @@ const OnboardingV2Page = (): ReactElement => {
               {/* ── Shared AI setup context (manual + ai) ── */}
               {isAiSetupContext && (
                 <>
-                  <div className="mb-4 flex flex-col items-center">
-                    <div className="relative mb-4 flex h-14 w-14 items-center justify-center">
-                      <div className="onb-ai-orb-glow pointer-events-none absolute inset-0 rounded-full bg-accent-onion-default/25 blur-lg" />
-                      <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-surface-float">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-                          <path d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z" fill="currentColor" opacity="0.9" />
-                          <path d="M19 15l1.04 3.13L23.18 19l-3.14.87L19 23l-1.04-3.13L14.82 19l3.14-.87L19 15z" fill="currentColor" opacity="0.5" />
-                        </svg>
-                      </div>
+                  <div className="pointer-events-none relative -mx-5 -mt-8 mb-0 flex h-32 items-center justify-center overflow-hidden tablet:-mx-7" style={{ width: 'calc(100% + 2.5rem)' }}>
+                    <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)', opacity: 0.22 }} />
+                    <div className="onb-ai-orb-glow pointer-events-none absolute h-32 w-52 rounded-full bg-accent-onion-default/15 blur-3xl" />
+                    <svg className="onb-ai-ring pointer-events-none absolute" style={{ width: '11rem', height: '11rem' }} viewBox="0 0 176 176">
+                      <circle cx="88" cy="88" r="84" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="6 10" opacity="0.18" />
+                    </svg>
+                    <svg className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24" viewBox="0 0 96 96">
+                      <circle cx="48" cy="48" r="44" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.35" />
+                    </svg>
+                    <svg className="onb-ring-slow pointer-events-none absolute h-16 w-16" viewBox="0 0 64 64">
+                      <circle cx="32" cy="32" r="28" fill="none" stroke="var(--theme-accent-onion-default)" strokeWidth="1" strokeDasharray="3 5" opacity="0.3" />
+                    </svg>
+                    {[
+                      { px: '-6rem', py: '-3.5rem', dur: '3.2s', delay: '0s', color: 'bg-accent-cheese-default' },
+                      { px: '5.5rem', py: '-4rem', dur: '3.6s', delay: '0.5s', color: 'bg-accent-water-default' },
+                      { px: '-5rem', py: '3.5rem', dur: '3.0s', delay: '1.0s', color: 'bg-accent-onion-default' },
+                      { px: '6rem', py: '3rem', dur: '3.4s', delay: '1.5s', color: 'bg-accent-cabbage-default' },
+                      { px: '-0.5rem', py: '-5rem', dur: '2.8s', delay: '0.3s', color: 'bg-accent-cheese-default' },
+                      { px: '6.5rem', py: '-0.5rem', dur: '3.1s', delay: '0.8s', color: 'bg-accent-water-default' },
+                    ].map((p) => (
+                      <span
+                        key={`signup-ai-${p.delay}`}
+                        className={classNames(
+                          'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
+                          p.color,
+                        )}
+                        style={{
+                          '--px': p.px,
+                          '--py': p.py,
+                          '--dur': p.dur,
+                          '--delay': p.delay,
+                          animationDelay: p.delay,
+                        } as React.CSSProperties}
+                      />
+                    ))}
+                    <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
+                      <MagicIcon secondary size={IconSize.Small} className="text-white" />
                     </div>
-                    <h3 className="mb-1 font-bold text-text-primary typo-title3">
+                  </div>
+                  <div className="mt-4 mb-4 flex flex-col items-center">
+                    <h4 className="mb-1.5 font-bold text-text-primary typo-body">
                       Tell our AI about yourself
-                    </h3>
-                    <p className="text-center text-text-tertiary typo-footnote">
+                    </h4>
+                    <p className="mb-5 text-center text-text-tertiary typo-footnote">
                       Describe your stack and let AI build your feed.
                     </p>
                   </div>
 
-                  <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 focus-within:border-accent-cabbage-default/20 focus-within:shadow-[0_0_20px_rgba(168,85,247,0.06)]">
+                  <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)]">
                     <textarea
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
@@ -2871,20 +3399,20 @@ const OnboardingV2Page = (): ReactElement => {
                           startAiFlowFromSignup();
                         }
                       }}
-                      rows={3}
+                      rows={4}
                       placeholder="I'm a frontend engineer using React and TypeScript. Interested in system design, performance, and AI tooling..."
-                      className="w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary placeholder:text-text-quaternary focus:outline-none typo-callout"
+                      className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary placeholder:text-text-quaternary transition-colors duration-200 focus:outline-none focus:placeholder:text-text-disabled typo-callout"
                     />
                   </div>
                   {selectedTopics.size > 0 && (
-                    <div className="mb-3 flex flex-wrap gap-1.5">
+                    <div className="mb-3 flex w-full flex-wrap gap-1.5">
                       {Array.from(selectedTopics).map((topic) => (
                         <button
                           key={`signup-sel-${topic}`}
                           type="button"
                           onClick={() => toggleTopic(topic)}
                           className={classNames(
-                            'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium transition-all duration-200 hover:bg-white/[0.14] active:scale-[0.96] focus-visible:outline-none typo-caption1',
+                            'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] active:scale-[0.96] focus-visible:outline-none typo-caption1',
                             TOPIC_SELECTED_STYLES,
                           )}
                         >
@@ -2895,7 +3423,8 @@ const OnboardingV2Page = (): ReactElement => {
                     </div>
                   )}
                   {recommendedTopics.length > 0 && (
-                    <div className="mb-2 flex flex-wrap gap-1.5">
+                    <div className="mb-2 w-full overflow-hidden transition-all duration-400 ease-out">
+                      <div className="flex flex-wrap gap-1.5">
                       {recommendedTopics.map(({ label }) => (
                         <button
                           key={`signup-match-${label}`}
@@ -2906,13 +3435,14 @@ const OnboardingV2Page = (): ReactElement => {
                           + {label}
                         </button>
                       ))}
+                      </div>
                     </div>
                   )}
                 </>
               )}
 
               {/* ── Auth buttons ── */}
-              <div className="relative">
+              <div className={classNames('relative', isAiSetupContext && 'mt-4 w-full')}>
                 <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
                 {signupContext === 'github' ? (
                   <button
@@ -2929,22 +3459,25 @@ const OnboardingV2Page = (): ReactElement => {
                     </svg>
                   </button>
                 ) : isAiSetupContext ? (
-                  <button
-                    type="button"
-                    disabled={!canStartAiFlow}
-                    className={classNames(
-                      'group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-4 py-3.5 font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout',
-                      canStartAiFlow
-                        ? 'bg-white text-black hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
-                        : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
-                    )}
-                    onClick={startAiFlowFromSignup}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className={classNames('transition-transform duration-300', canStartAiFlow && 'group-hover:translate-x-0.5')}>
-                      <path d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z" fill="currentColor" opacity="0.9" />
-                    </svg>
-                    Generate my feed with AI
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      disabled={!canStartAiFlow}
+                      className={classNames(
+                        'group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 typo-callout',
+                        canStartAiFlow
+                          ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
+                          : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
+                      )}
+                      onClick={startAiFlowFromSignup}
+                    >
+                      <MagicIcon secondary size={IconSize.Size16} className={classNames('transition-transform duration-300', canStartAiFlow && 'group-hover:translate-x-0.5')} />
+                      Generate my feed with AI
+                    </button>
+                    <p className="mt-2.5 text-center text-text-quaternary typo-caption2">
+                      AI-powered &middot; instant personalization
+                    </p>
+                  </>
                 ) : (
                   <button
                     type="button"
