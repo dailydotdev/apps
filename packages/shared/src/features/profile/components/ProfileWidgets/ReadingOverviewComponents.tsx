@@ -5,6 +5,11 @@ import { largeNumberFormat, getTagPageLink } from '../../../../lib';
 import Link from '../../../../components/utilities/Link';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
+import {
   Typography,
   TypographyColor,
   TypographyTag,
@@ -20,6 +25,7 @@ import { STREAK_MILESTONES } from '../../../../lib/streakMilestones';
 import { MILESTONE_ICON_URLS } from '../../../../components/streak/popup/icons/milestoneIcons';
 import { useStreakDebug } from '../../../../hooks/streaks/useStreakDebug';
 import { useIsLightTheme } from '../../../../hooks/utils';
+import { ShareIcon } from '../../../../components/icons';
 import CursorAiIconDark from '../../../../components/streak/popup/icons/cursor-ai-dark.svg';
 import CursorAiIconLight from '../../../../components/streak/popup/icons/cursor-ai-light.svg';
 
@@ -98,21 +104,24 @@ export const ReadingMilestonesSection = ({
   const isLightTheme = useIsLightTheme();
   const effectiveStreak = debugStreakOverride ?? streak?.current ?? 0;
   const CursorAiIcon = isLightTheme ? CursorAiIconLight : CursorAiIconDark;
+  const achievedMilestones = STREAK_MILESTONES.filter(
+    (milestone) => effectiveStreak >= milestone.day,
+  );
 
   return (
     <>
-      <Typography
-        tag={TypographyTag.H3}
-        type={TypographyType.Subhead}
-        color={TypographyColor.Tertiary}
-        className="my-1"
-      >
-        Reading milestones
-      </Typography>
+      {achievedMilestones.length > 0 && (
+        <Typography
+          tag={TypographyTag.H3}
+          type={TypographyType.Subhead}
+          color={TypographyColor.Tertiary}
+          className="my-1"
+        >
+          Reading milestones
+        </Typography>
+      )}
       <div className="mb-3 flex flex-wrap gap-1.5">
-        {STREAK_MILESTONES.filter(
-          (milestone) => effectiveStreak >= milestone.day,
-        ).map((milestone) => {
+        {achievedMilestones.map((milestone) => {
           const isUnlocked = effectiveStreak >= milestone.day;
           const isCursorMilestone = milestone.day === 4;
           return (
@@ -147,17 +156,34 @@ export const ReadingMilestonesSection = ({
                     >
                       {milestone.day}-day streak
                     </Typography>
-                    <Typography
-                      type={TypographyType.Caption1}
-                      color={
-                        isUnlocked
-                          ? TypographyColor.StatusSuccess
-                          : TypographyColor.Quaternary
-                      }
-                      bold
-                    >
-                      {isUnlocked ? 'Achieved' : `${milestone.day - effectiveStreak} days away`}
-                    </Typography>
+                    {isUnlocked ? (
+                      <div className="inline-flex items-center gap-1">
+                        <Typography
+                          type={TypographyType.Caption1}
+                          color={TypographyColor.StatusSuccess}
+                          bold
+                        >
+                          Achieved
+                        </Typography>
+                        <Button
+                          aria-label={`Share ${milestone.label} milestone`}
+                          icon={<ShareIcon className="size-3.5" />}
+                          size={ButtonSize.XSmall}
+                          variant={ButtonVariant.Float}
+                          onClick={(event) => {
+                            event.preventDefault();
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Quaternary}
+                        bold
+                      >
+                        {`${milestone.day - effectiveStreak} days away`}
+                      </Typography>
+                    )}
                   </div>
                 </div>
               }
