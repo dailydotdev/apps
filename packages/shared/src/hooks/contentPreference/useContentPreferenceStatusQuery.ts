@@ -15,15 +15,18 @@ import {
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
 } from './types';
-import type { PropsParameters } from '../../types';
 
 export type UseContentPreferenceStatusQueryProps = {
   id: string;
   entity: ContentPreferenceType;
-  queryOptions?: Partial<UseQueryOptions<ContentPreference>>;
+  queryOptions?: Partial<
+    Omit<UseQueryOptions<ContentPreference | undefined>, 'queryKey' | 'queryFn'>
+  >;
 };
 
-export type UseContentPreferenceStatusQuery = UseQueryResult<ContentPreference>;
+export type UseContentPreferenceStatusQuery = UseQueryResult<
+  ContentPreference | undefined
+>;
 
 export const useContentPreferenceStatusQuery = ({
   id,
@@ -37,7 +40,7 @@ export const useContentPreferenceStatusQuery = ({
     entity,
   });
 
-  const queryResult = useQuery({
+  const queryResult = useQuery<ContentPreference | undefined>({
     queryKey,
     queryFn: async ({ queryKey: fnQueryKey }) => {
       const [, , queryVariables] = fnQueryKey as [
@@ -57,7 +60,7 @@ export const useContentPreferenceStatusQuery = ({
         const errorCode = error.response?.errors?.[0]?.extensions?.code;
 
         if ([ApiError.NotFound].includes(errorCode)) {
-          return null;
+          return undefined;
         }
 
         throw originalError;
@@ -84,7 +87,7 @@ export const useContentPreferenceStatusQuery = ({
       ];
 
       const { id: entityId, entity: entityType } =
-        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+        mutationVariables as Parameters<ContentPreferenceMutation>[0];
 
       if (entityId !== id || entityType !== entity) {
         return;
@@ -92,18 +95,24 @@ export const useContentPreferenceStatusQuery = ({
 
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
 
-      if (!nextStatus) {
-        mutationQueryClient.setQueryData<ContentPreference>(queryKey, null);
+      if (typeof nextStatus === 'undefined' || nextStatus === null) {
+        mutationQueryClient.setQueryData<ContentPreference | undefined>(
+          queryKey,
+          undefined,
+        );
 
         return;
       }
 
-      mutationQueryClient.setQueryData<ContentPreference>(queryKey, {
-        status: nextStatus,
-        referenceId: entityId,
-        type: entityType,
-        createdAt: new Date(),
-      });
+      mutationQueryClient.setQueryData<ContentPreference | undefined>(
+        queryKey,
+        {
+          status: nextStatus,
+          referenceId: entityId,
+          type: entityType,
+          createdAt: new Date(),
+        },
+      );
     },
   });
 
