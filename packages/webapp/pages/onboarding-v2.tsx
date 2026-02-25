@@ -826,13 +826,13 @@ const OnboardingV2Page = (): ReactElement => {
     };
 
     const findCounterIn = (wrapper: Element): HTMLSpanElement | null => {
-      for (const span of Array.from(wrapper.querySelectorAll('span'))) {
-        const t = span.textContent?.trim();
-        if (t && /^[\d][.\dkKmM]*$/.test(t) && !span.querySelector('span')) {
-          return span as HTMLSpanElement;
-        }
-      }
-      return null;
+      const spans = Array.from(wrapper.querySelectorAll<HTMLSpanElement>('span'));
+      return (
+        spans.find((span) => {
+          const t = span.textContent?.trim();
+          return t && /^[\d][.\dkKmM]*$/.test(t) && !span.querySelector('span');
+        }) ?? null
+      );
     };
 
     const ensureCounter = (wrapper: Element, btnId: string, seed: number): HTMLSpanElement => {
@@ -1078,7 +1078,6 @@ const OnboardingV2Page = (): ReactElement => {
 
   const panelLift = Math.round(panelStageProgress * 60);
   const panelBackdropOpacity = 1;
-  const panelShadowOpacity = 0.12 + panelStageProgress * 0.2;
   const panelRevealOffset = panelVisible ? 40 : 120;
   const importSteps = useMemo(
     () => (importFlowSource === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS),
