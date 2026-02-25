@@ -2,7 +2,6 @@ import type { InfiniteData } from '@tanstack/react-query';
 import type { Connection } from '../../graphql/common';
 import type { ContentPreference } from '../../graphql/contentPreference';
 import { RequestKey } from '../../lib/query';
-import type { PropsParameters } from '../../types';
 import { useMutationSubscription } from '../mutationSubscription';
 import type { ContentPreferenceMutation } from './types';
 import {
@@ -41,13 +40,17 @@ export const useFollowContentPreferenceMutationSubscription = ({
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
 
       const { id: entityId, entity } =
-        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+        mutationVariables as Parameters<ContentPreferenceMutation>[0];
 
       const queryType = queryKey[2] as RequestKey;
 
       mutationQueryClient.setQueryData<
         InfiniteData<Connection<ContentPreference>>
       >(queryKey, (data) => {
+        if (!data) {
+          return data;
+        }
+
         const newData = {
           ...data,
           pages: data.pages?.map((page) => {
@@ -66,21 +69,21 @@ export const useFollowContentPreferenceMutationSubscription = ({
                     followingKeys.includes(queryType) &&
                     node.referenceUser?.id === entityId
                   ) {
-                    node.referenceUser.contentPreference = {
-                      status: nextStatus,
-                    };
+                    node.referenceUser.contentPreference = nextStatus
+                      ? { status: nextStatus }
+                      : undefined;
                   }
 
                   if (
                     queryType === RequestKey.UserFollowers &&
                     node.user?.id === entityId
                   ) {
-                    node.user.contentPreference = {
-                      status: nextStatus,
-                    };
+                    node.user.contentPreference = nextStatus
+                      ? { status: nextStatus }
+                      : undefined;
                   }
 
-                  if (node.referenceId === entityId) {
+                  if (node.referenceId === entityId && nextStatus) {
                     node.status = nextStatus;
                   }
 

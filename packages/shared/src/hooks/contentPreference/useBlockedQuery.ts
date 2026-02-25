@@ -74,7 +74,7 @@ export const useBlockedQuery = ({
     },
     initialPageParam: '',
     staleTime: StaleTime.Default,
-    getNextPageParam: ({ lastPage }) => getNextPageParam(lastPage?.pageInfo),
+    getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),
     ...queryOptions,
     enabled:
       typeof queryOptions?.enabled !== 'undefined'
