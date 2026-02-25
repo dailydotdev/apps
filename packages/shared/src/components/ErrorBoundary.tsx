@@ -39,6 +39,9 @@ export class ErrorBoundary extends Component<
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     const { logEvent } = this.context;
     const { feature } = this.props;
+    const isDomMutationError =
+      error.message.includes('removeChild') ||
+      error.message.includes('insertBefore');
 
     if (!logEvent) {
       return;
@@ -53,6 +56,7 @@ export class ErrorBoundary extends Component<
         stack: errorInfo.componentStack,
         digest: errorInfo.digest,
         feature,
+        domMutation: isDomMutationError || undefined,
       }),
     });
   }
