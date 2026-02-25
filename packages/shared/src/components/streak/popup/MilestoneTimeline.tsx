@@ -86,6 +86,8 @@ function MilestoneItem({
 }: MilestoneItemProps): ReactElement {
   const helperText =
     milestone.rewards.length === 0 ? getMilestoneHelperText(milestone) : null;
+  const hasSingleReward = milestone.rewards.length === 1;
+  const hasCompactRewardLayout = milestone.rewards.length <= 1;
   const sparklePositions = getMilestoneSparkles(milestone.day);
   const isSponsoredMilestone = milestone.day === SPONSORED_MILESTONE_DAY;
   const isLightTheme = useIsLightTheme();
@@ -106,17 +108,16 @@ function MilestoneItem({
       {isSponsoredMilestone && (
         <>
           <div
-            className="pointer-events-none absolute inset-0 z-0 rounded-12 bg-[length:220%_220%] animate-sponsored-gradient-slide"
+            className="pointer-events-none absolute inset-0 z-0 rounded-12 bg-[length:180%_180%] opacity-95 animate-sponsored-gradient-slide"
             style={{
               backgroundImage:
-                'linear-gradient(120deg, color-mix(in srgb, var(--theme-accent-bacon-default), transparent 84%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 86%) 50%, color-mix(in srgb, var(--theme-accent-blueCheese-default), transparent 84%) 100%)',
+                'linear-gradient(120deg, color-mix(in srgb, var(--theme-accent-bacon-default), transparent 66%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 70%) 50%, color-mix(in srgb, var(--theme-accent-blueCheese-default), transparent 66%) 100%)',
             }}
           />
           <div
-            className="pointer-events-none absolute inset-0 z-0 rounded-12 bg-[length:260%_260%] opacity-32 animate-sponsored-lines-slide"
+            className="pointer-events-none absolute inset-0 z-0 rounded-12"
             style={{
-              backgroundImage:
-                'repeating-linear-gradient(120deg, transparent 0px, transparent 10px, color-mix(in srgb, var(--theme-text-primary), transparent 86%) 10px, color-mix(in srgb, var(--theme-text-primary), transparent 86%) 11px)',
+              boxShadow: 'inset 0 0 0 1px rgba(255, 160, 90, 0.22), 0 0 24px rgba(255, 140, 80, 0.18)',
             }}
           />
         </>
@@ -182,7 +183,9 @@ function MilestoneItem({
       <div
         className={classNames(
           'relative z-1 flex min-w-0 flex-1 flex-col justify-start gap-0.5',
-          isSponsoredMilestone ? 'min-h-0 py-1' : 'min-h-[5.5rem] pb-5',
+          isSponsoredMilestone && 'min-h-0 py-1',
+          !isSponsoredMilestone && hasCompactRewardLayout && 'min-h-[4.5rem] pb-3',
+          !isSponsoredMilestone && !hasCompactRewardLayout && 'min-h-[5.5rem] pb-5',
         )}
       >
         <div className="flex items-center gap-2">
@@ -270,14 +273,6 @@ function MilestoneItem({
                   style={{
                     backgroundImage:
                       'linear-gradient(120deg, color-mix(in srgb, var(--theme-accent-bacon-default), transparent 20%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 25%) 50%, color-mix(in srgb, var(--theme-accent-blueCheese-default), transparent 20%) 100%)',
-                  }}
-                />
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 z-0 bg-[length:260%_260%] opacity-40 animate-sponsored-lines-slide"
-                  style={{
-                    backgroundImage:
-                      'repeating-linear-gradient(120deg, transparent 0px, transparent 5px, color-mix(in srgb, var(--theme-text-primary), transparent 84%) 5px, color-mix(in srgb, var(--theme-text-primary), transparent 84%) 6px)',
                   }}
                 />
                 <span className="relative z-1">Sponsored</span>
