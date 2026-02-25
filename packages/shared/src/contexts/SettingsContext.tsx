@@ -73,6 +73,10 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   applyThemeMode: (mode?: ThemeMode) => void;
 }
 
+const asyncNoopVoid = async (): Promise<void> => undefined;
+const asyncNoopUnknown = async (): Promise<unknown> => undefined;
+const noop = (): void => undefined;
+
 const SettingsContext = React.createContext<SettingsContextData>({
   spaciness: 'eco',
   openNewTab: true,
@@ -97,107 +101,27 @@ const SettingsContext = React.createContext<SettingsContextData>({
     defaultWriteTab: WriteFormTab.NewPost,
   },
   themeMode: ThemeMode.Dark,
-  setTheme: async () => {
-    throw new Error(
-      'setTheme is not available outside SettingsContextProvider',
-    );
-  },
-  toggleOpenNewTab: async () => {
-    throw new Error(
-      'toggleOpenNewTab is not available outside SettingsContextProvider',
-    );
-  },
-  setSpaciness: async () => {
-    throw new Error(
-      'setSpaciness is not available outside SettingsContextProvider',
-    );
-  },
-  toggleInsaneMode: async () => {
-    throw new Error(
-      'toggleInsaneMode is not available outside SettingsContextProvider',
-    );
-  },
-  toggleShowTopSites: async () => {
-    throw new Error(
-      'toggleShowTopSites is not available outside SettingsContextProvider',
-    );
-  },
-  toggleSidebarExpanded: async () => {
-    throw new Error(
-      'toggleSidebarExpanded is not available outside SettingsContextProvider',
-    );
-  },
-  toggleSortingEnabled: async () => {
-    throw new Error(
-      'toggleSortingEnabled is not available outside SettingsContextProvider',
-    );
-  },
-  toggleOptOutReadingStreak: async () => {
-    throw new Error(
-      'toggleOptOutReadingStreak is not available outside SettingsContextProvider',
-    );
-  },
-  toggleOptOutCompanion: async () => {
-    throw new Error(
-      'toggleOptOutCompanion is not available outside SettingsContextProvider',
-    );
-  },
-  toggleAutoDismissNotifications: async () => {
-    throw new Error(
-      'toggleAutoDismissNotifications is not available outside SettingsContextProvider',
-    );
-  },
-  toggleShowFeedbackButton: async () => {
-    throw new Error(
-      'toggleShowFeedbackButton is not available outside SettingsContextProvider',
-    );
-  },
+  setTheme: asyncNoopVoid,
+  toggleOpenNewTab: asyncNoopVoid,
+  setSpaciness: asyncNoopVoid,
+  toggleInsaneMode: asyncNoopVoid,
+  toggleShowTopSites: asyncNoopVoid,
+  toggleSidebarExpanded: asyncNoopVoid,
+  toggleSortingEnabled: asyncNoopVoid,
+  toggleOptOutReadingStreak: asyncNoopVoid,
+  toggleOptOutCompanion: asyncNoopVoid,
+  toggleAutoDismissNotifications: asyncNoopVoid,
+  toggleShowFeedbackButton: asyncNoopVoid,
   loadedSettings: false,
-  updateCustomLinks: async () => {
-    throw new Error(
-      'updateCustomLinks is not available outside SettingsContextProvider',
-    );
-  },
-  updateSortCommentsBy: async () => {
-    throw new Error(
-      'updateSortCommentsBy is not available outside SettingsContextProvider',
-    );
-  },
-  updateFlag: async () => {
-    throw new Error(
-      'updateFlag is not available outside SettingsContextProvider',
-    );
-  },
-  updateFlagRemote: async () => {
-    throw new Error(
-      'updateFlagRemote is not available outside SettingsContextProvider',
-    );
-  },
-  updatePromptFlag: async () => {
-    throw new Error(
-      'updatePromptFlag is not available outside SettingsContextProvider',
-    );
-  },
-  syncSettings: async () => {
-    throw new Error(
-      'syncSettings is not available outside SettingsContextProvider',
-    );
-  },
-  onToggleHeaderPlacement: async () => {
-    throw new Error(
-      'onToggleHeaderPlacement is not available outside SettingsContextProvider',
-    );
-  },
-  setSettings: async () => {
-    throw new Error(
-      'setSettings is not available outside SettingsContextProvider',
-    );
-  },
-  applyThemeMode: () => {
-    throw new Error(
-      'applyThemeMode is not available outside SettingsContextProvider',
-    );
-  },
+  updateCustomLinks: asyncNoopUnknown,
+  updateSortCommentsBy: asyncNoopUnknown,
+  updateFlag: asyncNoopUnknown,
+  updateFlagRemote: asyncNoopUnknown,
+  updatePromptFlag: asyncNoopUnknown,
+  syncSettings: asyncNoopUnknown,
+  onToggleHeaderPlacement: asyncNoopUnknown,
+  setSettings: asyncNoopVoid,
+  applyThemeMode: noop,
 });
 export default SettingsContext;
 

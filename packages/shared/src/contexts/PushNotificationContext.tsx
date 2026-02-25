@@ -71,12 +71,13 @@ function OneSignalSubProvider({
     isFetched,
     isLoading,
     isSuccess,
-  } = useQuery<typeof OneSignal>({
+  } = useQuery<typeof OneSignal | undefined>({
     queryKey: key,
 
     queryFn: async () => {
-      if (!user?.id) {
-        throw new Error('Authenticated user is required for OneSignal login');
+      const userId = user?.id;
+      if (!userId) {
+        return undefined;
       }
 
       const osr = client.getQueryData<typeof OneSignal>(key);
@@ -89,7 +90,7 @@ function OneSignalSubProvider({
 
       const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
       if (!appId) {
-        throw new Error('NEXT_PUBLIC_ONESIGNAL_APP_ID is required');
+        return undefined;
       }
 
       await OneSignalImport.init({
@@ -98,7 +99,7 @@ function OneSignalSubProvider({
         serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
       });
 
-      await OneSignalImport.login(user.id);
+      await OneSignalImport.login(userId);
 
       setIsSubscribed(!!OneSignalImport.User.PushSubscription.optedIn);
 
@@ -210,16 +211,17 @@ function NativeAppleSubProvider({
     queryKey: key,
 
     queryFn: async () => {
-      if (!user?.id) {
-        throw new Error('Authenticated user is required for Apple push');
+      const userId = user?.id;
+      if (!userId) {
+        return;
       }
 
       const promise = promisifyEventListener('push-state', (event) => {
         setIsSubscribed(!!event?.detail);
       });
       postWebKitMessage(WebKitMessageHandlers.PushState, null);
-      postWebKitMessage(WebKitMessageHandlers.PushUserId, user.id);
-      return promise;
+      postWebKitMessage(WebKitMessageHandlers.PushUserId, userId);
+      await promise;
     },
     enabled: isEnabled,
     ...disabledRefetch,

@@ -42,19 +42,11 @@ const ConnectionError = dynamic(
 );
 
 const getStorageItem = (key: string): string | null => {
-  if (!storage.getItem) {
-    throw new Error('storage.getItem is required');
-  }
-
-  return storage.getItem(key);
+  return storage.getItem?.(key) ?? null;
 };
 
 const setStorageItem = (key: string, value: string): void => {
-  if (!storage.setItem) {
-    throw new Error('storage.setItem is required');
-  }
-
-  storage.setItem(key, value);
+  storage.setItem?.(key, value);
 };
 
 function filteredProps<T extends Record<string, unknown>>(

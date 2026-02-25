@@ -27,7 +27,7 @@ export interface AlertContextData {
   alerts: Alerts;
   isFetched?: boolean;
   loadedAlerts?: boolean;
-  updateAlerts?: UseMutateAsyncFunction<unknown, unknown, Alerts, unknown>;
+  updateAlerts: UseMutateAsyncFunction<unknown, unknown, Alerts, unknown>;
   updateLastReferralReminder?: UseMutateAsyncFunction<unknown, unknown, void>;
   updateLastBootPopup?: UseMutateAsyncFunction<unknown, unknown, void>;
   updateHasSeenOpportunity?: UseMutateAsyncFunction<
@@ -38,9 +38,13 @@ export interface AlertContextData {
   clearOpportunityAlert?: UseMutateAsyncFunction<unknown, unknown, void>;
 }
 
+const defaultUpdateAlerts: AlertContextData['updateAlerts'] = async () =>
+  undefined;
+
 const AlertContext = React.createContext<AlertContextData>({
   alerts: ALERT_DEFAULTS,
   loadedAlerts: false,
+  updateAlerts: defaultUpdateAlerts,
 });
 
 export interface AlertContextProviderProps {
@@ -60,13 +64,7 @@ export const AlertContextProvider = ({
   updateAlerts,
 }: AlertContextProviderProps): ReactElement => {
   const applyUpdatedAlerts = (updatedAlerts: Alerts): void => {
-    if (!updateAlerts) {
-      throw new Error(
-        'updateAlerts callback is required in AlertContextProvider',
-      );
-    }
-
-    updateAlerts(updatedAlerts);
+    updateAlerts?.(updatedAlerts);
   };
 
   const { mutateAsync: updateRemoteAlerts } = useMutation<

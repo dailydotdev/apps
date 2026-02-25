@@ -75,21 +75,15 @@ export interface AuthContextData {
 }
 
 const isExtension = checkIsExtension();
+const defaultLogout: AuthContextData['logout'] = async () => undefined;
+const defaultUpdateUser: AuthContextData['updateUser'] = async () => undefined;
 const AuthContext = React.createContext<AuthContextData>({
   isLoggedIn: false,
   shouldShowLogin: false,
-  showLogin: () => {
-    throw new Error('showLogin is not available outside AuthContextProvider');
-  },
-  closeLogin: () => {
-    throw new Error('closeLogin is not available outside AuthContextProvider');
-  },
-  logout: async () => {
-    throw new Error('logout is not available outside AuthContextProvider');
-  },
-  updateUser: async () => {
-    throw new Error('updateUser is not available outside AuthContextProvider');
-  },
+  showLogin: () => undefined,
+  closeLogin: () => undefined,
+  logout: defaultLogout,
+  updateUser: defaultUpdateUser,
   tokenRefreshed: false,
   getRedirectUri: () => '',
 });

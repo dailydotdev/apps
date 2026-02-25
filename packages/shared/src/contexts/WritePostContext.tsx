@@ -58,11 +58,7 @@ export interface WritePostProps {
 }
 
 export const WritePostContext = React.createContext<WritePostProps>({
-  onSubmitForm: () => {
-    throw new Error(
-      'onSubmitForm is not available outside WritePostContextProvider',
-    );
-  },
+  onSubmitForm: () => undefined,
   isPosting: false,
   squad: null,
   post: undefined,

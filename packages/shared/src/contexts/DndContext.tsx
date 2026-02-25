@@ -15,16 +15,10 @@ export interface DndContextData {
 
 const DEFAULT_VALUE: DndContextData = {
   showDnd: false,
-  setShowDnd: () => {
-    throw new Error('setShowDnd is not available outside DndContextProvider');
-  },
+  setShowDnd: () => undefined,
   dndSettings: undefined,
   isActive: false,
-  onDndSettings: async () => {
-    throw new Error(
-      'onDndSettings is not available outside DndContextProvider',
-    );
-  },
+  onDndSettings: async () => undefined,
 };
 const DndContext = React.createContext<DndContextData>(DEFAULT_VALUE);
 const now = new Date();
