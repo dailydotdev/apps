@@ -41,6 +41,22 @@ const ConnectionError = dynamic(
     ),
 );
 
+const getStorageItem = (key: string): string | null => {
+  if (!storage.getItem) {
+    throw new Error('storage.getItem is required');
+  }
+
+  return storage.getItem(key);
+};
+
+const setStorageItem = (key: string, value: string): void => {
+  if (!storage.setItem) {
+    throw new Error('storage.setItem is required');
+  }
+
+  storage.setItem(key, value);
+};
+
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
   filteredKeys: (keyof T)[],
@@ -61,9 +77,9 @@ export type BootDataProviderProps = {
 };
 
 export const getLocalBootData = (): BootCacheData | null => {
-  const local = storage.getItem(BOOT_LOCAL_KEY);
+  const local = getStorageItem(BOOT_LOCAL_KEY);
   if (local) {
-    return JSON.parse(storage.getItem(BOOT_LOCAL_KEY)) as BootCacheData;
+    return JSON.parse(local) as BootCacheData;
   }
 
   return null;
@@ -87,14 +103,20 @@ const updateLocalBootData = (
     'isAndroidApp',
   ]);
 
-  storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
+  setStorageItem(BOOT_LOCAL_KEY, JSON.stringify(result));
 
   return result;
 };
 
-const getCachedOrNull = () => {
+const getCachedOrNull = (): Partial<BootCacheData> | null => {
   try {
-    return JSON.parse(storage.getItem(BOOT_LOCAL_KEY));
+    const cached = getStorageItem(BOOT_LOCAL_KEY);
+
+    if (!cached) {
+      return null;
+    }
+
+    return JSON.parse(cached) as Partial<BootCacheData>;
   } catch (err) {
     return null;
   }
@@ -135,7 +157,7 @@ export const BootDataProvider = ({
     );
   };
 
-  const [initialLoad, setInitialLoad] = useState<boolean>(null);
+  const [initialLoad, setInitialLoad] = useState<boolean>();
   const [cachedBootData, setCachedBootData] = useState<Partial<Boot>>();
 
   useEffect(() => {
@@ -148,7 +170,7 @@ export const BootDataProvider = ({
     const boot = getLocalBootData();
 
     if (!boot) {
-      setCachedBootData(null);
+      setCachedBootData(undefined);
 
       return;
     }
@@ -157,14 +179,17 @@ export const BootDataProvider = ({
       applyTheme(themeModes[boot.settings.theme]);
     }
 
-    preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
+    preloadFeedsRef.current?.({ feeds: boot.feeds, user: boot.user });
 
     setCachedBootData(boot);
   }, [localBootData]);
 
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
-  const logged = cachedBootData?.user as LoggedUser;
+  const logged =
+    cachedBootData?.user && 'providers' in cachedBootData.user
+      ? cachedBootData.user
+      : undefined;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
   const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
 
@@ -180,7 +205,7 @@ export const BootDataProvider = ({
     queryFn: async () => {
       const pathname = globalThis?.location?.pathname;
       const result = await getBootData({ app, pathname });
-      preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
+      preloadFeedsRef.current?.({ feeds: result.feeds, user: result.user });
 
       return result;
     },
@@ -194,8 +219,14 @@ export const BootDataProvider = ({
   const { user, settings, alerts, notifications, squads, geo, isAndroidApp } =
     cachedBootData || {};
 
-  useRefreshToken(remoteData?.accessToken, refetch);
-  const updatedAtActive = user ? dataUpdatedAt : null;
+  useRefreshToken(
+    remoteData?.accessToken ?? {
+      token: '',
+      expiresIn: new Date(0).toISOString(),
+    },
+    refetch,
+  );
+  const updatedAtActive = user ? dataUpdatedAt : 0;
   const updateBootData = useCallback(
     (updatedBootData: Partial<BootCacheData>, update = true) => {
       const cachedData = getCachedOrNull() || {};
@@ -216,7 +247,7 @@ export const BootDataProvider = ({
         if (cachedData?.lastModifier !== 'companion' && lastAppliedChange) {
           updatedData = { ...updatedData, ...lastAppliedChange };
         }
-        lastAppliedChangeRef.current = null;
+        lastAppliedChangeRef.current = undefined;
       }
 
       const updated = updateLocalBootData(cachedData, updatedData);
@@ -236,31 +267,31 @@ export const BootDataProvider = ({
   );
 
   const updateSettings = useCallback(
-    (updatedSettings) => updateBootData({ settings: updatedSettings }),
+    (updatedSettings: BootCacheData['settings']) =>
+      updateBootData({ settings: updatedSettings }),
     [updateBootData],
   );
 
   const updateAlerts = useCallback(
-    (updatedAlerts) => updateBootData({ alerts: updatedAlerts }),
+    (updatedAlerts: BootCacheData['alerts']) =>
+      updateBootData({ alerts: updatedAlerts }),
     [updateBootData],
   );
 
-  const updateExperimentation = useCallback(
-    (exp: BootCacheData['exp']) => {
-      updateLocalBootData(cachedBootData, { exp });
-    },
-    [cachedBootData],
-  );
+  const updateExperimentation = useCallback((exp: BootCacheData['exp']) => {
+    const cachedData = getCachedOrNull() ?? {};
+    updateLocalBootData(cachedData, { exp });
+  }, []);
 
   if (logged?.language && logged?.isPlus) {
-    gqlClient.setHeader('content-language', logged.language as string);
+    gqlClient.setHeader('content-language', logged.language);
   } else {
     gqlClient.unsetHeader('content-language');
   }
 
   useEffect(() => {
     if (remoteData) {
-      setInitialLoad(initialLoad === null);
+      setInitialLoad(initialLoad === undefined);
       updateBootData(remoteData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -303,10 +334,12 @@ export const BootDataProvider = ({
     );
   }
 
+  const growthBookUser = user ?? remoteData?.user ?? { id: 'anonymous' };
+
   return (
     <GrowthBookProvider
       app={app}
-      user={user}
+      user={growthBookUser}
       deviceId={deviceId}
       experimentation={cachedBootData?.exp}
       updateExperimentation={updateExperimentation}

@@ -58,15 +58,19 @@ export interface WritePostProps {
 }
 
 export const WritePostContext = React.createContext<WritePostProps>({
-  onSubmitForm: null,
+  onSubmitForm: () => {
+    throw new Error(
+      'onSubmitForm is not available outside WritePostContextProvider',
+    );
+  },
   isPosting: false,
   squad: null,
-  post: null,
+  post: undefined,
   enableUpload: false,
-  formRef: null,
+  formRef: undefined,
   draft: {},
-  updateDraft: null,
-  formId: null,
+  updateDraft: undefined,
+  formId: undefined,
 });
 
 export const useWritePostContext = (): WritePostProps =>
@@ -90,7 +94,7 @@ export const WritePostContextProvider = ({
             copy={{ right: 'Post' }}
             rightButtonProps={{ disabled: props.isPosting }}
             leftButtonProps={{ onClick: () => router.back() }}
-            form={formId}
+            form={formId ?? ''}
           >
             {component}
           </FormWrapper>

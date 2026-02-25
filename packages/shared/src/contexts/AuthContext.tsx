@@ -51,7 +51,7 @@ export interface AuthContextData {
   shouldShowLogin: boolean;
   showLogin: ({ trigger, options }: ShowLoginParams) => void;
   closeLogin: () => void;
-  loginState?: LoginState;
+  loginState?: LoginState | null;
   logout: (reason: string) => Promise<void>;
   updateUser: (user: LoggedUser) => Promise<void>;
   loadingUser?: boolean;
@@ -75,7 +75,24 @@ export interface AuthContextData {
 }
 
 const isExtension = checkIsExtension();
-const AuthContext = React.createContext<AuthContextData>(null);
+const AuthContext = React.createContext<AuthContextData>({
+  isLoggedIn: false,
+  shouldShowLogin: false,
+  showLogin: () => {
+    throw new Error('showLogin is not available outside AuthContextProvider');
+  },
+  closeLogin: () => {
+    throw new Error('closeLogin is not available outside AuthContextProvider');
+  },
+  logout: async () => {
+    throw new Error('logout is not available outside AuthContextProvider');
+  },
+  updateUser: async () => {
+    throw new Error('updateUser is not available outside AuthContextProvider');
+  },
+  tokenRefreshed: false,
+  getRedirectUri: () => '',
+});
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
 export default AuthContext;
 
@@ -93,10 +110,11 @@ export const REGISTRATION_PATH = '/register';
 export const logout = async (reason: string): Promise<void> => {
   await dispatchLogout(reason);
   const params = getQueryParams();
-  if (params.redirect_uri) {
-    window.location.replace(params.redirect_uri);
+  const redirectUri = params.redirect_uri;
+  if (redirectUri) {
+    window.location.replace(redirectUri);
   } else if (window.location.pathname === REGISTRATION_PATH) {
-    window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
+    window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL ?? '/');
   }
 
   if (isExtension) {
@@ -107,9 +125,15 @@ export const logout = async (reason: string): Promise<void> => {
 };
 
 export function checkIfGdprCovered(geo?: Boot['geo']): boolean {
+  const region = geo?.region;
+
+  if (!region) {
+    return true;
+  }
+
   return (
     geo?.continent === Continent.Europe ||
-    !outsideGdpr.includes(geo?.region) ||
+    !outsideGdpr.includes(region) ||
     isIOSNative()
   );
 }
@@ -152,7 +176,7 @@ export const AuthContextProvider = ({
   isAndroidApp,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
-  const endUser = user && 'providers' in user ? user : null;
+  const endUser = user && 'providers' in user ? user : undefined;
   const referral = user?.referralId || user?.referrer;
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
@@ -169,10 +193,15 @@ export const AuthContextProvider = ({
     logout(LogoutReason.IncomleteOnboarding);
   }
 
-  const isValidRegion = useMemo(
-    () => !invalidPlusRegions.includes(geo?.region),
-    [geo?.region],
-  );
+  const isValidRegion = useMemo(() => {
+    const region = geo?.region;
+
+    if (!region) {
+      return true;
+    }
+
+    return !invalidPlusRegions.includes(region);
+  }, [geo?.region]);
 
   return (
     <AuthContext.Provider
@@ -185,7 +214,7 @@ export const AuthContextProvider = ({
         referralOrigin: loginState?.referralOrigin ?? referralOrigin,
         firstVisit: user?.firstVisit,
         trackingId: user?.id,
-        shouldShowLogin: loginState !== null,
+        shouldShowLogin: !!loginState,
         showLogin: useCallback(
           ({ trigger, options = {} }) => {
             const hasCompanion = !!isCompanionActivated();

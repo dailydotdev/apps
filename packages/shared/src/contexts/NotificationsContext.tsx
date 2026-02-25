@@ -8,8 +8,20 @@ export interface NotificationsContextData {
   incrementUnreadCount: () => void;
 }
 
-const NotificationsContext =
-  React.createContext<NotificationsContextData>(null);
+const NotificationsContext = React.createContext<NotificationsContextData>({
+  unreadCount: 0,
+  isNotificationsReady: false,
+  clearUnreadCount: () => {
+    throw new Error(
+      'clearUnreadCount is not available outside NotificationsContextProvider',
+    );
+  },
+  incrementUnreadCount: () => {
+    throw new Error(
+      'incrementUnreadCount is not available outside NotificationsContextProvider',
+    );
+  },
+});
 
 export default NotificationsContext;
 

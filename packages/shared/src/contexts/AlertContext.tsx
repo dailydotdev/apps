@@ -2,7 +2,7 @@ import type { ReactNode, ReactElement } from 'react';
 import React, { useMemo, useContext } from 'react';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
-import type { Alerts, AlertsUpdate } from '../graphql/alerts';
+import type { Alerts } from '../graphql/alerts';
 import {
   UPDATE_ALERTS,
   UPDATE_LAST_BOOT_POPUP,
@@ -13,30 +13,29 @@ import { gqlClient } from '../graphql/common';
 
 export const ALERT_DEFAULTS: Alerts = {
   filter: true,
-  rankLastSeen: null,
-  myFeed: null,
+  rankLastSeen: undefined,
+  myFeed: undefined,
   squadTour: true,
   showGenericReferral: false,
   showStreakMilestone: false,
   showAchievementUnlock: null,
-  lastBootPopup: null,
-  briefBannerLastSeen: null,
+  lastBootPopup: undefined,
+  briefBannerLastSeen: undefined,
 };
 
 export interface AlertContextData {
   alerts: Alerts;
   isFetched?: boolean;
   loadedAlerts?: boolean;
-  updateAlerts?: UseMutateAsyncFunction<
+  updateAlerts?: UseMutateAsyncFunction<unknown, unknown, Alerts, unknown>;
+  updateLastReferralReminder?: UseMutateAsyncFunction<unknown, unknown, void>;
+  updateLastBootPopup?: UseMutateAsyncFunction<unknown, unknown, void>;
+  updateHasSeenOpportunity?: UseMutateAsyncFunction<
     unknown,
     unknown,
-    AlertsUpdate,
-    () => Promise<void>
+    boolean | void
   >;
-  updateLastReferralReminder?: UseMutateAsyncFunction;
-  updateLastBootPopup?: UseMutateAsyncFunction;
-  updateHasSeenOpportunity?: UseMutateAsyncFunction;
-  clearOpportunityAlert?: UseMutateAsyncFunction;
+  clearOpportunityAlert?: UseMutateAsyncFunction<unknown, unknown, void>;
 }
 
 const AlertContext = React.createContext<AlertContextData>({
@@ -60,6 +59,16 @@ export const AlertContextProvider = ({
   isFetched,
   updateAlerts,
 }: AlertContextProviderProps): ReactElement => {
+  const applyUpdatedAlerts = (updatedAlerts: Alerts): void => {
+    if (!updateAlerts) {
+      throw new Error(
+        'updateAlerts callback is required in AlertContextProvider',
+      );
+    }
+
+    updateAlerts(updatedAlerts);
+  };
+
   const { mutateAsync: updateRemoteAlerts } = useMutation<
     unknown,
     unknown,
@@ -69,15 +78,15 @@ export const AlertContextProvider = ({
       gqlClient.request(UPDATE_ALERTS, {
         data: params,
       }),
-    onMutate: (params) => updateAlerts({ ...alerts, ...params }),
+    onMutate: (params) => applyUpdatedAlerts({ ...alerts, ...params }),
 
     onError: (_, params) => {
-      const rollback = Object.keys(params).reduce(
+      const rollback = (Object.keys(params) as Array<keyof Alerts>).reduce(
         (values, key) => ({ ...values, [key]: alerts[key] }),
-        {},
+        {} as Alerts,
       );
 
-      updateAlerts({ ...alerts, ...rollback });
+      applyUpdatedAlerts({ ...alerts, ...rollback });
     },
   });
 
@@ -89,16 +98,16 @@ export const AlertContextProvider = ({
     mutationFn: () => gqlClient.request(UPDATE_LAST_BOOT_POPUP),
 
     onMutate: () =>
-      updateAlerts({
+      applyUpdatedAlerts({
         ...alerts,
         lastBootPopup: new Date(),
         bootPopup: false,
       }),
 
     onError: () => {
-      updateAlerts({
+      applyUpdatedAlerts({
         ...alerts,
-        lastBootPopup: null,
+        lastBootPopup: undefined,
         bootPopup: true,
       });
     },

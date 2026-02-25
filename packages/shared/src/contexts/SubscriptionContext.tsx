@@ -6,12 +6,12 @@ import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';
 import AuthContext from './AuthContext';
 
 export interface SubscriptionContextData {
-  subscriptionClient: Client;
+  subscriptionClient?: Client;
   connected: boolean;
 }
 
 const SubscriptionContext = React.createContext<SubscriptionContextData>({
-  subscriptionClient: null,
+  subscriptionClient: undefined,
   connected: false,
 });
 export default SubscriptionContext;
@@ -27,21 +27,27 @@ export const SubscriptionContextProvider = ({
   const { tokenRefreshed, accessToken } = useContext(AuthContext);
 
   const [connected, setConnected] = useState(false);
-  const [subscriptionClient, setSubscriptionClient] = useState<Client>(null);
+  const [subscriptionClient, setSubscriptionClient] = useState<Client>();
 
   useEffect(() => {
+    const accessTokenValue = accessToken?.token;
+
+    if (!accessTokenValue) {
+      return;
+    }
+
     if (windowLoaded && tokenRefreshed && !subscriptionClient) {
       requestIdleCallback(() => {
         import(
           /* webpackChunkName: "subscriptions" */ '../graphql/subscriptions'
         ).then(({ createSubscriptionClient }) => {
-          const client = createSubscriptionClient(accessToken?.token);
+          const client = createSubscriptionClient(accessTokenValue);
           setSubscriptionClient(client);
           client.on('connected', () => setConnected(true));
         });
       });
     }
-  }, [windowLoaded, tokenRefreshed, accessToken, subscriptionClient]);
+  }, [windowLoaded, tokenRefreshed, accessToken?.token, subscriptionClient]);
 
   const contextData = useMemo<SubscriptionContextData>(
     () => ({

@@ -45,7 +45,7 @@ const baseFeedSettings: Record<FeedSettingsKeys, FeedSettings> = {
       eco: 1,
       roomy: 1,
     },
-    adTemplate: featureFeedAdTemplate.defaultValue.default,
+    adTemplate: featureFeedAdTemplate.defaultValue?.default ?? { adStart: 2 },
   },
   tablet: {
     pageSize: 9,
@@ -136,19 +136,27 @@ export function FeedLayoutProvider({
   }, [sidebarExpanded]);
 
   const { feedSettings, defaultFeedSettings } = useMemo(() => {
-    const enhancedFeedSettings = Object.entries(baseFeedSettings).reduce(
+    const enhancedFeedSettings = (
+      Object.entries(baseFeedSettings) as Array<
+        [FeedSettingsKeys, FeedSettings]
+      >
+    ).reduce<Record<FeedSettingsKeys, FeedSettings>>(
       (acc, [feedSettingsKey, feedSettingsValue]) => {
+        const featureAdTemplate =
+          feedAdTemplateFeature.value?.[feedSettingsKey];
+        const fallbackAdTemplate = feedAdTemplateFeature.value?.default;
+
         acc[feedSettingsKey] = {
           ...feedSettingsValue,
-          adTemplate:
-            feedAdTemplateFeature.value[feedSettingsKey] ||
-            feedAdTemplateFeature.value.default,
+          adTemplate: featureAdTemplate ?? fallbackAdTemplate,
         };
 
         return acc;
       },
-      {},
-    ) as typeof baseFeedSettings;
+      {
+        ...baseFeedSettings,
+      },
+    );
 
     return {
       feedSettings: [
@@ -165,9 +173,11 @@ export function FeedLayoutProvider({
   // Generate the breakpoints for the feed settings
   // Uses debounced sidebar state to sync layout change with sidebar animation
   const feedBreakpoints = useMemo(() => {
-    const breakpoints = feedSettings.map((setting) =>
-      setting.breakpoint.replace('@media ', ''),
-    );
+    const breakpoints = feedSettings
+      .filter((setting): setting is FeedSettings & { breakpoint: string } => {
+        return !!setting.breakpoint;
+      })
+      .map((setting) => setting.breakpoint.replace('@media ', ''));
 
     if (!sidebarRendered) {
       return breakpoints;

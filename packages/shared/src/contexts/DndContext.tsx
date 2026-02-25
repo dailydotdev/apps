@@ -1,4 +1,4 @@
-import type { Dispatch, ReactElement, ReactNode } from 'react';
+import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React, { useContext, useState } from 'react';
 import usePersistentContext from '../hooks/usePersistentContext';
 import { checkIsExtension } from '../lib/func';
@@ -6,19 +6,25 @@ import { checkIsExtension } from '../lib/func';
 export type DndSettings = { expiration: Date; link: string };
 
 export interface DndContextData {
-  setShowDnd: Dispatch<boolean>;
+  setShowDnd: Dispatch<SetStateAction<boolean>>;
   showDnd: boolean;
-  dndSettings: DndSettings;
+  dndSettings?: DndSettings;
   isActive: boolean;
   onDndSettings: (settings: DndSettings) => Promise<void>;
 }
 
-const DEFAULT_VALUE = {
-  showDnd: null,
-  setShowDnd: null,
-  dndSettings: null,
+const DEFAULT_VALUE: DndContextData = {
+  showDnd: false,
+  setShowDnd: () => {
+    throw new Error('setShowDnd is not available outside DndContextProvider');
+  },
+  dndSettings: undefined,
   isActive: false,
-  onDndSettings: null,
+  onDndSettings: async () => {
+    throw new Error(
+      'onDndSettings is not available outside DndContextProvider',
+    );
+  },
 };
 const DndContext = React.createContext<DndContextData>(DEFAULT_VALUE);
 const now = new Date();

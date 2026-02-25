@@ -73,7 +73,132 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   applyThemeMode: (mode?: ThemeMode) => void;
 }
 
-const SettingsContext = React.createContext<SettingsContextData>(null);
+const SettingsContext = React.createContext<SettingsContextData>({
+  spaciness: 'eco',
+  openNewTab: true,
+  insaneMode: false,
+  showTopSites: true,
+  sidebarExpanded: false,
+  companionExpanded: false,
+  sortingEnabled: false,
+  optOutReadingStreak: false,
+  optOutCompanion: false,
+  autoDismissNotifications: true,
+  sortCommentsBy: SortCommentsBy.OldestFirst,
+  showFeedbackButton: true,
+  campaignCtaPlacement: CampaignCtaPlacement.Header,
+  flags: {
+    sidebarSquadExpanded: true,
+    sidebarCustomFeedsExpanded: true,
+    sidebarOtherExpanded: true,
+    sidebarResourcesExpanded: true,
+    sidebarBookmarksExpanded: true,
+    clickbaitShieldEnabled: true,
+    defaultWriteTab: WriteFormTab.NewPost,
+  },
+  themeMode: ThemeMode.Dark,
+  setTheme: async () => {
+    throw new Error(
+      'setTheme is not available outside SettingsContextProvider',
+    );
+  },
+  toggleOpenNewTab: async () => {
+    throw new Error(
+      'toggleOpenNewTab is not available outside SettingsContextProvider',
+    );
+  },
+  setSpaciness: async () => {
+    throw new Error(
+      'setSpaciness is not available outside SettingsContextProvider',
+    );
+  },
+  toggleInsaneMode: async () => {
+    throw new Error(
+      'toggleInsaneMode is not available outside SettingsContextProvider',
+    );
+  },
+  toggleShowTopSites: async () => {
+    throw new Error(
+      'toggleShowTopSites is not available outside SettingsContextProvider',
+    );
+  },
+  toggleSidebarExpanded: async () => {
+    throw new Error(
+      'toggleSidebarExpanded is not available outside SettingsContextProvider',
+    );
+  },
+  toggleSortingEnabled: async () => {
+    throw new Error(
+      'toggleSortingEnabled is not available outside SettingsContextProvider',
+    );
+  },
+  toggleOptOutReadingStreak: async () => {
+    throw new Error(
+      'toggleOptOutReadingStreak is not available outside SettingsContextProvider',
+    );
+  },
+  toggleOptOutCompanion: async () => {
+    throw new Error(
+      'toggleOptOutCompanion is not available outside SettingsContextProvider',
+    );
+  },
+  toggleAutoDismissNotifications: async () => {
+    throw new Error(
+      'toggleAutoDismissNotifications is not available outside SettingsContextProvider',
+    );
+  },
+  toggleShowFeedbackButton: async () => {
+    throw new Error(
+      'toggleShowFeedbackButton is not available outside SettingsContextProvider',
+    );
+  },
+  loadedSettings: false,
+  updateCustomLinks: async () => {
+    throw new Error(
+      'updateCustomLinks is not available outside SettingsContextProvider',
+    );
+  },
+  updateSortCommentsBy: async () => {
+    throw new Error(
+      'updateSortCommentsBy is not available outside SettingsContextProvider',
+    );
+  },
+  updateFlag: async () => {
+    throw new Error(
+      'updateFlag is not available outside SettingsContextProvider',
+    );
+  },
+  updateFlagRemote: async () => {
+    throw new Error(
+      'updateFlagRemote is not available outside SettingsContextProvider',
+    );
+  },
+  updatePromptFlag: async () => {
+    throw new Error(
+      'updatePromptFlag is not available outside SettingsContextProvider',
+    );
+  },
+  syncSettings: async () => {
+    throw new Error(
+      'syncSettings is not available outside SettingsContextProvider',
+    );
+  },
+  onToggleHeaderPlacement: async () => {
+    throw new Error(
+      'onToggleHeaderPlacement is not available outside SettingsContextProvider',
+    );
+  },
+  setSettings: async () => {
+    throw new Error(
+      'setSettings is not available outside SettingsContextProvider',
+    );
+  },
+  applyThemeMode: () => {
+    throw new Error(
+      'applyThemeMode is not available outside SettingsContextProvider',
+    );
+  },
+});
 export default SettingsContext;
 
 const deprecatedLightModeStorageKey = 'showmethelight';
@@ -143,13 +268,23 @@ const defaultSettings: RemoteSettings = {
   },
 };
 
+const defaultSettingsFlags: SettingsFlags = {
+  sidebarSquadExpanded: true,
+  sidebarCustomFeedsExpanded: true,
+  sidebarOtherExpanded: true,
+  sidebarResourcesExpanded: true,
+  sidebarBookmarksExpanded: true,
+  clickbaitShieldEnabled: true,
+  defaultWriteTab: WriteFormTab.NewPost,
+};
+
 export const SettingsContextProvider = ({
   children,
   settings = defaultSettings,
   updateSettings,
   loadedSettings,
 }: SettingsContextProviderProps): ReactElement => {
-  const setTheme = useRef<ThemeMode>(null);
+  const setTheme = useRef<ThemeMode | undefined>();
   const { user } = useContext(AuthContext);
   const userId = user?.id;
   const { unsubscribePersonalizedDigest } = usePersonalizedDigest();
@@ -165,7 +300,7 @@ export const SettingsContextProvider = ({
   const { mutateAsync: updateRemoteSettings } = useMutation<
     unknown,
     unknown,
-    RemoteSettings
+    Partial<RemoteSettings>
   >({
     mutationFn: (params) =>
       gqlClient.request(UPDATE_USER_SETTINGS_MUTATION, {
@@ -173,12 +308,14 @@ export const SettingsContextProvider = ({
       }),
 
     onError: (_, params) => {
-      const rollback = Object.keys(params).reduce(
+      const rollback = (
+        Object.keys(params) as Array<keyof RemoteSettings>
+      ).reduce(
         (values, key) => ({ ...values, [key]: settings[key] }),
-        {},
+        {} as Partial<RemoteSettings>,
       );
 
-      updateSettings({ ...settings, ...rollback });
+      updateSettings?.({ ...settings, ...rollback });
     },
   });
 
@@ -187,7 +324,7 @@ export const SettingsContextProvider = ({
       if (mode) {
         setTheme.current = mode;
       } else {
-        setTheme.current = null;
+        setTheme.current = undefined;
       }
 
       applyTheme(setTheme.current || themeModes[settings.theme]);
@@ -196,14 +333,14 @@ export const SettingsContextProvider = ({
   );
 
   useEffect(() => {
-    const lightMode = storageWrapper.getItem(deprecatedLightModeStorageKey);
+    const lightMode = storageWrapper.getItem?.(deprecatedLightModeStorageKey);
     if (lightMode === 'true') {
       applyTheme(ThemeMode.Light);
     }
   }, []);
 
   const updateRemoteSettingsFn = async (
-    newSettings: RemoteSettings,
+    newSettings: Partial<RemoteSettings>,
     bootUserId?: string,
   ): Promise<void> => {
     if (userId || bootUserId) {
@@ -213,14 +350,18 @@ export const SettingsContextProvider = ({
     }
   };
 
-  const setSettings = async (newSettings: RemoteSettings): Promise<void> => {
-    updateSettings({ ...settings, ...newSettings });
+  const setSettings = async (
+    newSettings: Partial<RemoteSettings>,
+  ): Promise<void> => {
+    updateSettings?.({ ...settings, ...newSettings });
     await updateRemoteSettingsFn(newSettings);
   };
 
   const syncSettings = async (bootUserId?: string) => {
     await updateRemoteSettingsFn(settings, bootUserId);
   };
+
+  const settingsFlags: SettingsFlags = settings.flags ?? defaultSettingsFlags;
 
   const contextData = useMemo<SettingsContextData>(
     () => ({
@@ -276,7 +417,7 @@ export const SettingsContextProvider = ({
               ? CampaignCtaPlacement.ProfileMenu
               : CampaignCtaPlacement.Header,
         }),
-      loadedSettings,
+      loadedSettings: loadedSettings ?? false,
       updateCustomLinks: (links: string[]) =>
         setSettings({ ...settings, customLinks: links }),
       updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>
@@ -285,7 +426,7 @@ export const SettingsContextProvider = ({
         setSettings({
           ...settings,
           flags: {
-            ...settings.flags,
+            ...settingsFlags,
             [flag]: value,
           },
         }),
@@ -293,17 +434,17 @@ export const SettingsContextProvider = ({
         updateRemoteSettingsFn({
           ...settings,
           flags: {
-            ...settings.flags,
+            ...settingsFlags,
             [flag]: value,
           },
         }),
-      updatePromptFlag: (flag: keyof SettingsFlags, value: boolean) =>
+      updatePromptFlag: (flag: string, value: boolean) =>
         setSettings({
           ...settings,
           flags: {
-            ...settings.flags,
+            ...settingsFlags,
             prompt: {
-              ...settings.flags.prompt,
+              ...(settingsFlags.prompt ?? {}),
               [flag]: value,
             },
           },
@@ -313,7 +454,7 @@ export const SettingsContextProvider = ({
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [settings, loadedSettings, userId, applyThemeMode],
+    [settings, settingsFlags, loadedSettings, userId, applyThemeMode],
   );
 
   return (

@@ -41,8 +41,8 @@ export const PushNotificationsContext =
     isSubscribed: false,
     isLoading: false,
     shouldOpenPopup: () => true,
-    subscribe: null,
-    unsubscribe: null,
+    subscribe: async () => false,
+    unsubscribe: async () => undefined,
   });
 
 interface PushNotificationContextProviderProps {
@@ -75,6 +75,10 @@ function OneSignalSubProvider({
     queryKey: key,
 
     queryFn: async () => {
+      if (!user?.id) {
+        throw new Error('Authenticated user is required for OneSignal login');
+      }
+
       const osr = client.getQueryData<typeof OneSignal>(key);
 
       if (osr) {
@@ -83,15 +87,20 @@ function OneSignalSubProvider({
 
       const OneSignalImport = (await import('react-onesignal')).default;
 
+      const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
+      if (!appId) {
+        throw new Error('NEXT_PUBLIC_ONESIGNAL_APP_ID is required');
+      }
+
       await OneSignalImport.init({
-        appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+        appId,
         serviceWorkerParam: { scope: '/push/onesignal/' },
         serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
       });
 
       await OneSignalImport.login(user.id);
 
-      setIsSubscribed(OneSignalImport.User.PushSubscription.optedIn);
+      setIsSubscribed(!!OneSignalImport.User.PushSubscription.optedIn);
 
       return OneSignalImport;
     },
@@ -174,7 +183,7 @@ function OneSignalSubProvider({
         isInitialized: !isEnabled || isFetched || !isSuccess,
         isLoading,
         isSubscribed,
-        isPushSupported: isPushSupported && isSuccess && isEnabled,
+        isPushSupported: !!(isPushSupported && isSuccess && isEnabled),
         shouldOpenPopup: () => {
           const { permission } = globalThis.Notification ?? {};
           return permission === 'denied';
@@ -201,6 +210,10 @@ function NativeAppleSubProvider({
     queryKey: key,
 
     queryFn: async () => {
+      if (!user?.id) {
+        throw new Error('Authenticated user is required for Apple push');
+      }
+
       const promise = promisifyEventListener('push-state', (event) => {
         setIsSubscribed(!!event?.detail);
       });
