@@ -63,10 +63,6 @@ export function PostTagsPanel({
     feedId: customFeedId,
   });
 
-  if (!source) {
-    return null;
-  }
-
   if (post.tags.length === 0 || isNullOrUndefined(showTagsPanel)) {
     return null;
   }
@@ -113,16 +109,18 @@ export function PostTagsPanel({
         className="mt-4 flex flex-1 flex-row flex-wrap content-start gap-2 overflow-auto"
         role="list"
       >
-        <Button
-          variant={
-            shouldBlockSource ? ButtonVariant.Primary : ButtonVariant.Float
-          }
-          size={ButtonSize.Small}
-          icon={<SourceAvatar source={source} />}
-          onClick={() => setShouldBlockSource(!shouldBlockSource)}
-        >
-          {source.name}
-        </Button>
+        {source && (
+          <Button
+            variant={
+              shouldBlockSource ? ButtonVariant.Primary : ButtonVariant.Float
+            }
+            size={ButtonSize.Small}
+            icon={<SourceAvatar source={source} />}
+            onClick={() => setShouldBlockSource(!shouldBlockSource)}
+          >
+            {source.name}
+          </Button>
+        )}
         {post.tags.map((tag) => (
           <GenericTagButton
             key={tag}

@@ -80,22 +80,20 @@ export const ShareList = forwardRef(function ShareList(
       };
     }
 
-    return {
-      topLabel: enableSourceHeader ? (
-        <>
-          {post.source?.permalink ? (
-            <Link href={post.source?.permalink}>
-              <a href={post.source?.permalink} className="relative z-1">
-                {post.source?.name ?? ''}
-              </a>
-            </Link>
-          ) : (
-            post.source?.name ?? post.author.name
-          )}
-        </>
+    const sourceLabel = post.source?.name ?? post.author.name;
+    const topLabel =
+      enableSourceHeader && post.source?.permalink ? (
+        <Link href={post.source.permalink}>
+          <a href={post.source.permalink} className="relative z-1">
+            {sourceLabel}
+          </a>
+        </Link>
       ) : (
-        post.author.name
-      ),
+        sourceLabel
+      );
+
+    return {
+      topLabel: enableSourceHeader ? topLabel : post.author.name,
       bottomLabel: enableSourceHeader
         ? post.author.name
         : `@${sharedPost?.source?.handle}`,

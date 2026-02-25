@@ -93,18 +93,14 @@ export const ArticleList = forwardRef(function ArticleList(
     }
 
     return {
-      topLabel: (
-        <>
-          {post.source?.permalink ? (
-            <Link href={post.source?.permalink}>
-              <a href={post.source?.permalink} className="relative z-1">
-                {post.source?.name ?? ''}
-              </a>
-            </Link>
-          ) : (
-            post.source?.name ?? ''
-          )}
-        </>
+      topLabel: post.source.permalink ? (
+        <Link href={post.source.permalink}>
+          <a href={post.source.permalink} className="relative z-1">
+            {post.source.name}
+          </a>
+        </Link>
+      ) : (
+        post.source.name
       ),
       bottomLabel: (
         <PostReadTime

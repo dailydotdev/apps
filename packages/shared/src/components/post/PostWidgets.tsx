@@ -53,28 +53,26 @@ export function PostWidgets({
   const cardClasses = 'w-full bg-transparent';
 
   const creator = post.author || post.scout;
-  if (!post.source) {
-    return null;
-  }
 
   return (
     <PageWidgets className={className}>
-      {post.source?.type === SourceType.Squad ? (
-        <SquadEntityCard
-          className={{
-            container: cardClasses,
-          }}
-          handle={post.source?.handle}
-          origin={origin}
-        />
-      ) : (
-        <SourceEntityCard
-          className={{
-            container: cardClasses,
-          }}
-          source={post.source as SourceTooltip}
-        />
-      )}
+      {post.source &&
+        (post.source.type === SourceType.Squad ? (
+          <SquadEntityCard
+            className={{
+              container: cardClasses,
+            }}
+            handle={post.source.handle}
+            origin={origin}
+          />
+        ) : (
+          <SourceEntityCard
+            className={{
+              container: cardClasses,
+            }}
+            source={post.source as SourceTooltip}
+          />
+        ))}
       {creator && (
         <UserEntityCard
           className={{

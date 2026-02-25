@@ -614,6 +614,7 @@ const PostOptionButtonContent = ({
   const { isFollowing, toggleFollow } = useSourceActionsFollow({
     source: post?.source,
   });
+  const sourceName = post?.source?.name ?? 'this source';
 
   if (shouldShowSubscribe) {
     postOptions.push({
@@ -630,8 +631,8 @@ const PostOptionButtonContent = ({
           />
         ),
         label: haveNotificationsOn
-          ? `Remove notifications from ${post?.source?.name ?? ''}`
-          : `Notify on new post from ${post?.source?.name ?? ''}`,
+          ? `Remove notifications from ${sourceName}`
+          : `Notify on new post from ${sourceName}`,
         action: onNotifyToggle,
       });
     }
@@ -680,7 +681,7 @@ const PostOptionButtonContent = ({
   if (!isBriefPost && post?.source?.name && !isSourceUserSource(post?.source)) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
-      label: getBlockLabel(post?.source?.name ?? '', {
+      label: getBlockLabel(sourceName, {
         isCustomFeed,
         isBlocked: isSourceBlocked,
       }),

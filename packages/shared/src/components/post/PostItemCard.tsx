@@ -70,6 +70,9 @@ export default function PostItemCard({
   );
 
   const title = post?.title || post?.sharedPost?.title;
+  const sourceImage = isUserSource
+    ? post.author.image
+    : post.source?.image ?? post.author.image;
 
   return (
     <article className={classNames(!clickable && classes)}>
@@ -105,7 +108,7 @@ export default function PostItemCard({
               showVoteActions && 'top-8',
             )}
             user={{
-              image: isUserSource ? post.author.image : post.source?.image,
+              image: sourceImage,
               username: `source of ${title}`,
             }}
             nativeLazyLoading
