@@ -55,7 +55,7 @@ export function ProfileTooltip({
     enabled: !!id,
   });
 
-  const onShow = () => {
+  const handleShow = () => {
     if (!scrollingContainer) {
       return;
     }
@@ -138,7 +138,7 @@ export function ProfileTooltip({
         tooltip.onShow(instance);
         return;
       }
-      onShow();
+      handleShow();
     },
   };
 
