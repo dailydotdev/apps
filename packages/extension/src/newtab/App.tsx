@@ -52,23 +52,19 @@ Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 
-function FeedErrorFallback(): ReactElement {
-  const onReload = () => window.location.reload();
-
-  return (
-    <div className="flex min-h-dvh w-full flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="typo-title2">Something went wrong</h1>
-      <p className="text-text-tertiary">Please reload this page to continue.</p>
-      <button
-        type="button"
-        className="btn-primary px-5 py-2"
-        onClick={onReload}
-      >
-        Reload
-      </button>
-    </div>
-  );
-}
+const feedErrorFallback: ReactElement = (
+  <div className="flex min-h-dvh w-full flex-col items-center justify-center gap-4 px-6 text-center">
+    <h1 className="typo-title2">Something went wrong</h1>
+    <p className="text-text-tertiary">Please reload this page to continue.</p>
+    <button
+      type="button"
+      className="btn-primary px-5 py-2"
+      onClick={() => window.location.reload()}
+    >
+      Reload
+    </button>
+  </div>
+);
 
 function InternalApp(): ReactElement {
   const { isOnboardingComplete } = useOnboardingActions();
@@ -128,7 +124,7 @@ function InternalApp(): ReactElement {
   }
 
   return (
-    <ErrorBoundary feature="extension-feed" fallback={<FeedErrorFallback />}>
+    <ErrorBoundary feature="extension-feed" fallback={feedErrorFallback}>
       <DndContextProvider>
         <MainFeedPage onPageChanged={onPageChanged} />
       </DndContextProvider>
