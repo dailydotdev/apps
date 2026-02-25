@@ -32,6 +32,21 @@ import {
   RequestKey,
 } from '../../../lib/query';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
+import type { Ad, DigestPostAd } from '../../../graphql/posts';
+
+const transformDigestAd = (
+  digestAd: DigestPostAd,
+): { ad: Ad; index: number } => ({
+  ad: {
+    source: 'daily',
+    company: digestAd.company_name,
+    description: digestAd.title,
+    link: digestAd.link,
+    image: digestAd.image,
+    pixel: [],
+  },
+  index: digestAd.index,
+});
 
 const DigestPostContentRaw = ({
   post,
@@ -83,6 +98,12 @@ const DigestPostContentRaw = ({
 
   const feedQueryKey = generateQueryKey(RequestKey.FeedByIds, user, post?.id);
 
+  const digestAd = post?.flags?.ad;
+  const staticAd = useMemo(
+    () => (digestAd ? transformDigestAd(digestAd) : undefined),
+    [digestAd],
+  );
+
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     return {
       feedName: OtherFeedPage.FeedByIds,
@@ -93,10 +114,11 @@ const DigestPostContentRaw = ({
         postIds: digestPostIds,
       },
       disableAds: true,
+      staticAd,
       options: { refetchOnMount: true },
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, digestPostIds, post?.id]);
+  }, [user, digestPostIds, post?.id, staticAd]);
 
   const formattedDate = post?.createdAt
     ? formatDate({

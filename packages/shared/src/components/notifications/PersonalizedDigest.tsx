@@ -138,9 +138,13 @@ const PersonalizedDigest = () => {
 
     if (isChecked) {
       if (selectedDigest?.type === UserPersonalizedDigestType.Digest) {
-        unsubscribePersonalizedDigest({
-          type: UserPersonalizedDigestType.Digest,
-        });
+        const digestInAppActive =
+          ns?.[NotificationType.DigestReady]?.inApp === 'subscribed';
+        if (!digestInAppActive) {
+          unsubscribePersonalizedDigest({
+            type: UserPersonalizedDigestType.Digest,
+          });
+        }
       }
 
       if (

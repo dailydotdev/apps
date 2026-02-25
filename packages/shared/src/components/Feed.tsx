@@ -12,7 +12,7 @@ import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
-import type { Post } from '../graphql/posts';
+import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
@@ -86,6 +86,7 @@ export interface FeedProps<T>
   showSearch?: boolean;
   actionButtons?: ReactNode;
   disableAds?: boolean;
+  staticAd?: { ad: Ad; index: number };
   allowFetchMore?: boolean;
   pageSize?: number;
   isHorizontal?: boolean;
@@ -157,6 +158,7 @@ export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.VideoYouTube]: ArticlePostModal,
   [PostType.Collection]: CollectionPostModal,
   [PostType.Brief]: BriefPostModal,
+  [PostType.Digest]: ArticlePostModal,
   [PostType.Poll]: PollPostModal,
   [PostType.SocialTwitter]: SocialTwitterPostModal,
 };
@@ -177,6 +179,7 @@ export default function Feed<T>({
   shortcuts,
   actionButtons,
   disableAds,
+  staticAd,
   allowFetchMore,
   pageSize,
   isHorizontal = false,
@@ -264,6 +267,7 @@ export default function Feed<T>({
       options,
       settings: {
         disableAds,
+        staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,
         ...(showMarketingCta && { marketingCta }),

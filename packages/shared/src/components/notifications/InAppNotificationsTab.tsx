@@ -32,6 +32,7 @@ import {
   NotificationPromptSource,
 } from '../../lib/log';
 import { HorizontalSeparator } from '../utilities';
+import DigestNotification from './DigestNotification';
 import PresidentialBriefingNotification from './PresidentialBriefingNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import SquadModNotifications from './SquadModNotifications';
@@ -250,6 +251,10 @@ const InAppNotificationsTab = (): ReactElement => {
             }
           />
         </NotificationContainer>
+      </NotificationSection>
+      <HorizontalSeparator className="mx-4" />
+      <NotificationSection>
+        <DigestNotification />
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
