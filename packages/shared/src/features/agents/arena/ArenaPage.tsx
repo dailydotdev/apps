@@ -4,11 +4,10 @@ import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import type { ArenaTab } from './types';
 import { ARENA_TABS } from './config';
-import { computeRankings, computeCrowns, formatVolume } from './dindex';
+import { computeRankings, computeCrowns } from './dindex';
 import { ArenaCrownCards } from './ArenaCrownCards';
 import { ArenaRankings } from './ArenaRankings';
 import { ArenaHighlightsFeed } from './ArenaHighlightsFeed';
-import { ArenaAnimatedCounter } from './ArenaAnimatedCounter';
 import { arenaOptions } from './queries';
 
 interface ArenaPageProps {
@@ -16,26 +15,10 @@ interface ArenaPageProps {
   onTabChange?: (tab: ArenaTab) => void;
 }
 
-const LiveIndicator = ({
-  mentionsPerHour,
-}: {
-  mentionsPerHour: number;
-}): ReactElement => (
-  <div className="flex items-center gap-3">
-    <div className="flex items-center gap-1.5">
-      <span className="inline-block h-2 w-2 animate-scale-down-pulse rounded-full bg-accent-avocado-default shadow-[0_0_6px_var(--theme-accent-avocado-default)]" />
-      <span className="text-accent-avocado-default typo-caption2">Live</span>
-    </div>
-    {mentionsPerHour > 0 && (
-      <div className="flex items-center gap-1 text-text-quaternary typo-caption2">
-        <ArenaAnimatedCounter
-          value={mentionsPerHour}
-          format={formatVolume}
-          className="tabular-nums text-text-tertiary"
-        />
-        <span>/hr</span>
-      </div>
-    )}
+const LiveIndicator = (): ReactElement => (
+  <div className="flex items-center gap-1.5">
+    <span className="inline-block h-2 w-2 animate-scale-down-pulse rounded-full bg-accent-avocado-default shadow-[0_0_6px_var(--theme-accent-avocado-default)]" />
+    <span className="text-accent-avocado-default typo-caption2">Live</span>
   </div>
 );
 
@@ -55,12 +38,6 @@ export const ArenaPage = ({
   );
 
   const crowns = useMemo(() => computeCrowns(rankings), [rankings]);
-
-  // Total mentions per hour across all tools
-  const mentionsPerHour = useMemo(() => {
-    const total = rankings.reduce((sum, t) => sum + t.volume24h, 0);
-    return Math.round(total / 24);
-  }, [rankings]);
 
   const loading = isFetching && !data;
 
@@ -123,7 +100,7 @@ export const ArenaPage = ({
               Where AI tools fight for developer love
             </p>
           </div>
-          <LiveIndicator mentionsPerHour={mentionsPerHour} />
+          <LiveIndicator />
         </div>
       </header>
 

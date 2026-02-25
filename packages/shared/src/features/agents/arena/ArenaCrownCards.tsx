@@ -26,10 +26,10 @@ const CrownCard = ({
 }): ReactElement => (
   <div
     className={classNames(
-      'group relative flex min-w-[170px] flex-1 flex-col items-center gap-2 overflow-hidden rounded-16 border p-3 transition-all duration-300 tablet:min-w-[180px] tablet:gap-3 tablet:p-5',
+      'relative flex min-w-[170px] flex-1 flex-col items-center gap-2 overflow-hidden rounded-16 border p-3 tablet:min-w-[180px] tablet:gap-3 tablet:p-5',
       loading
         ? 'border-border-subtlest-tertiary bg-surface-float'
-        : 'border-border-subtlest-secondary bg-surface-float hover:-translate-y-1 hover:shadow-2',
+        : 'border-border-subtlest-secondary bg-surface-float',
     )}
     style={
       !loading && crown.entity?.brandColor
@@ -48,14 +48,6 @@ const CrownCard = ({
             backgroundColor: crown.entity.brandColor,
             animation: 'pulse 3s ease-in-out infinite',
             opacity: 0.15,
-          }}
-        />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          style={{
-            background: `linear-gradient(105deg, transparent 40%, ${crown.entity.brandColor}15 50%, transparent 60%)`,
-            backgroundSize: '200% 100%',
-            animation: 'shimmer 2s ease-in-out infinite',
           }}
         />
       </>

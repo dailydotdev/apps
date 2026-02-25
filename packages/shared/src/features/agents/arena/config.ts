@@ -13,7 +13,7 @@ const CODING_AGENTS: ArenaEntity[] = [
     name: 'Copilot',
     slug: 'copilot',
     logo: 'https://github.githubassets.com/images/icons/copilot/cp-head-square.png',
-    brandColor: '#000000',
+    brandColor: '#6E40C9',
   },
   {
     entity: 'windsurf',
