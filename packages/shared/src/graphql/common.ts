@@ -232,47 +232,5 @@ export const gqlClient = new GraphQLClient(graphqlUrl, {
   fetch: globalThis.fetch,
 });
 
-type SerializableObject = Record<string, unknown>;
-
-const isPostLike = (value: SerializableObject): boolean => {
-  return (
-    typeof value.id === 'string' &&
-    typeof value.commentsPermalink === 'string' &&
-    Object.prototype.hasOwnProperty.call(value, 'title')
-  );
-};
-
-const normalizePostTitleFallback = <T>(value: T): T => {
-  if (Array.isArray(value)) {
-    return value.map((item) => normalizePostTitleFallback(item)) as T;
-  }
-
-  if (value === null || typeof value !== 'object') {
-    return value;
-  }
-
-  const objectValue = value as SerializableObject;
-  const normalizedEntries = Object.entries(objectValue).map(([key, field]) => [
-    key,
-    normalizePostTitleFallback(field),
-  ]);
-  const normalizedObject = Object.fromEntries(
-    normalizedEntries,
-  ) as SerializableObject;
-
-  if (!isPostLike(normalizedObject)) {
-    return normalizedObject as T;
-  }
-
-  if (normalizedObject.title == null) {
-    normalizedObject.title = '';
-  }
-
-  return normalizedObject as T;
-};
-
-export const gqlRequest: typeof gqlClient.request = async (...args) => {
-  const result = await gqlClient.request(...args);
-
-  return normalizePostTitleFallback(result);
-};
+export const gqlRequest: typeof gqlClient.request = (...args) =>
+  gqlClient.request(...args);

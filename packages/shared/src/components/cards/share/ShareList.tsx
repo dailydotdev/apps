@@ -113,7 +113,7 @@ export const ShareList = forwardRef(function ShareList(
       flagProps={{ pinnedAt, trending, type }}
       linkProps={
         !isFeedPreview && {
-          title: post.title,
+          title: post.title ?? '',
           onClick: onPostCardClick,
           href: post.commentsPermalink,
         }
