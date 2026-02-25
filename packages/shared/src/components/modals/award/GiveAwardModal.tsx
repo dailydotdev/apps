@@ -18,6 +18,7 @@ import { featuredAwardImage } from '../../../lib/image';
 import type {
   AwardEntity,
   AwardTypes,
+  GiveAwardModalContextProviderProps,
 } from '../../../contexts/GiveAwardModalContext';
 import {
   AWARD_SCREENS,
@@ -528,8 +529,14 @@ type GiveAwardModalProps = ModalProps & {
   flags?: Record<string, string>;
 };
 const GiveAwardModal = (props: GiveAwardModalProps): ReactElement => {
+  // Cast required: GiveAwardModalContextProviderProps uses a discriminated union
+  // (post required for POST/COMMENT types) while GiveAwardModalProps keeps post
+  // optional so the lazy-modal type system remains unaffected. All callers already
+  // pass post when type is POST or COMMENT; the provider throws at runtime if not.
   return (
-    <GiveAwardModalContextProvider {...props}>
+    <GiveAwardModalContextProvider
+      {...(props as unknown as GiveAwardModalContextProviderProps)}
+    >
       <ModalRender {...props} />
     </GiveAwardModalContextProvider>
   );

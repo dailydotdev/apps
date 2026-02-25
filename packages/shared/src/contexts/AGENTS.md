@@ -173,6 +173,70 @@ Don't create a context when:
 - Data comes from the server (use TanStack Query directly, unless shared across siblings)
 - State is truly UI-local to one component (use useState)
 
+## Invariant Throws in Context Callbacks
+
+When a context callback requires data that **must always be present** for a certain usage, throw an error rather than silently using a default:
+
+```typescript
+// ❌ Wrong: silent default hides an impossible state
+const logAwardEvent = useCallback(({ awardEvent }) => {
+  if (!post) return; // No-op silently ignores a real bug
+  logEvent(postLogEvent(eventName, post, {}));
+}, [post]);
+
+// ✅ Right: throw immediately so the bug surfaces
+const logAwardEvent = useCallback(({ awardEvent }) => {
+  if (!post) {
+    throw new Error('post is required to log POST/COMMENT award events');
+  }
+  logEvent(postLogEvent(eventName, post, {}));
+}, [post]);
+```
+
+**Go further — enforce invariants in types too.** When a prop is only required for certain variants, use a discriminated union so TypeScript catches the violation at compile time:
+
+```typescript
+// ❌ Wrong: post is optional for all types — callers can forget it for POST/COMMENT
+type AwardProviderProps = {
+  type: 'USER' | 'SQUAD' | 'POST' | 'COMMENT';
+  post?: Post;
+};
+
+// ✅ Right: discriminated union makes post required exactly when needed
+type AwardProviderProps =
+  | { type: 'USER' | 'SQUAD'; post?: never }
+  | { type: 'POST' | 'COMMENT'; post: Post };
+```
+
+**Exception — critical completion callbacks (e.g. payment)**: in an event handler where throwing would prevent post-payment processing, use a documented fallback instead of a hard throw. Add a comment explaining the fallback value — never use magic defaults silently.
+
+## Context Hooks — Always Guard Against Outside-Provider Usage
+
+Every context hook must throw (not return `undefined` or a stale default) when called outside its provider:
+
+```typescript
+// ✅ Always do this in every useXxxContext hook
+export function useMyContext() {
+  const ctx = useContext(MyContext);
+  if (!ctx) throw new Error('useMyContext must be used within MyProvider');
+  return ctx;
+}
+```
+
+Nested components deep in the tree can call a hook outside the expected provider. The thrown error is the correct signal — it surfaces the integration bug instead of causing silent data corruption.
+
+## TypeScript: Filter Type Narrowing
+
+TypeScript does NOT auto-narrow from `.filter(Boolean)`. Always use an explicit type predicate to remove `null | undefined` from an array:
+
+```typescript
+// ❌ Wrong: TypeScript keeps null in the type
+const items = list.filter(Boolean); // type: (T | null)[]
+
+// ✅ Right: explicit predicate narrows the type
+const items = list.filter((item): item is T => !!item); // type: T[]
+```
+
 ## Context Patterns
 
 ### Preferred: `createContextProvider` (less boilerplate)

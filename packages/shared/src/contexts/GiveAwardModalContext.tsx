@@ -126,13 +126,15 @@ const GiveAwardModalContext = React.createContext<GiveAwardModalContextData>({
 });
 export default GiveAwardModalContext;
 
-export type GiveAwardModalContextProviderProps = {
+type GiveAwardContextBaseProps = {
   children?: ReactNode;
-  type: AwardTypes;
   entity: AwardEntity;
-  post?: Post;
   flags?: Record<string, string>;
 } & Pick<ModalProps, 'onRequestClose'>;
+
+export type GiveAwardModalContextProviderProps =
+  | (GiveAwardContextBaseProps & { type: 'USER' | 'SQUAD'; post?: never })
+  | (GiveAwardContextBaseProps & { type: 'POST' | 'COMMENT'; post: Post });
 
 export const GiveAwardModalContextProvider = ({
   children,
