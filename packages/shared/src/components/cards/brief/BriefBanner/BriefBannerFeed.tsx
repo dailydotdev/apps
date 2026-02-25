@@ -7,6 +7,17 @@ import { BriefBanner } from './BriefBanner';
 import { useAlertsContext } from '../../../../contexts/AlertContext';
 import { useEventListener } from '../../../../hooks';
 import { useAuthContext } from '../../../../contexts/AuthContext';
+import { isValidDate } from '../../../../lib/dateFormat';
+
+const isTodayDate = (value?: Date | number | string | null): boolean => {
+  if (!value) {
+    return false;
+  }
+
+  const date = new Date(value);
+
+  return isValidDate(date) && isToday(date);
+};
 
 const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const { brief } = useBriefContext();
@@ -14,13 +25,9 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const bannerLastSeenRef = useRef<Date | null>(null);
   const { user, isLoggedIn } = useAuthContext();
   const shouldShowBanner = useMemo(() => {
-    const hasTodayBrief = brief?.createdAt
-      ? isToday(new Date(brief.createdAt))
-      : false;
+    const hasTodayBrief = isTodayDate(brief?.createdAt);
     const haveSeenBannerToday =
-      loadedAlerts &&
-      alerts.briefBannerLastSeen &&
-      isToday(new Date(alerts.briefBannerLastSeen));
+      loadedAlerts && isTodayDate(alerts.briefBannerLastSeen);
 
     return (
       isLoggedIn && !user?.isPlus && !hasTodayBrief && !haveSeenBannerToday

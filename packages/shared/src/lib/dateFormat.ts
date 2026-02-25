@@ -262,14 +262,19 @@ export const getTodayTz = (timeZone: string, now = new Date()): Date => {
 
 interface FormatDateProps {
   value: Date | number | string;
-  type: TimeFormatType;
-  now?: Date; // Optional, used for testing or specific cases
+  type?: TimeFormatType;
+  now?: Date | number | string; // Optional, used for testing or specific cases
 }
 
 export const formatDate = ({ value, type, now }: FormatDateProps): string => {
   const date = new Date(value);
 
   if (!isValidDate(date)) {
+    return '';
+  }
+
+  const nowDate = now ? new Date(now) : undefined;
+  if (nowDate && !isValidDate(nowDate)) {
     return '';
   }
 
@@ -304,11 +309,11 @@ export const formatDate = ({ value, type, now }: FormatDateProps): string => {
   }
 
   if (type === TimeFormatType.LiveTimer) {
-    return publishTimeLiveTimer(date, now);
+    return publishTimeLiveTimer(date, nowDate);
   }
 
   if (type === TimeFormatType.Experience) {
-    return publishExperienceTime(date, now);
+    return publishExperienceTime(date, nowDate);
   }
 
   return postDateFormat(date);

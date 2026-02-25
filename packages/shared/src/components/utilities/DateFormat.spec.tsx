@@ -139,7 +139,7 @@ describe('date format read history type', () => {
 
 describe('invalid date handling', () => {
   it('should return null for undefined date', () => {
-    render(<DateFormat date={undefined as never} type={TimeFormatType.Post} />);
+    render(<DateFormat type={TimeFormatType.Post} />);
 
     expect(screen.queryByRole('time')).not.toBeInTheDocument();
   });

@@ -239,4 +239,14 @@ describe('formatDate invalid input', () => {
       }),
     ).toBe('');
   });
+
+  it('should return empty string for invalid now in live timer mode', () => {
+    expect(
+      formatDate({
+        value: new Date(),
+        now: 'invalid date',
+        type: TimeFormatType.LiveTimer,
+      }),
+    ).toBe('');
+  });
 });
