@@ -19,6 +19,16 @@ We're a startup. We move fast, iterate quickly, and embrace change. When impleme
 **Invariant handling:**
 - Do not silently ignore impossible states (for example, no-op rollback fallbacks in mutation/cache flows)
 - Fail fast with a clear thrown error message when an internal invariant is violated
+- **Also enforce invariants in types**: when data must always be present for a code path, express it as required in the TypeScript type rather than relying solely on a runtime throw. Use discriminated unions to model "required-when" constraints (e.g. `post` required when `type` is `'POST' | 'COMMENT'`).
+- **Exception for critical payment/completion callbacks**: in handlers where throwing would prevent post-payment processing (e.g. Paddle `CHECKOUT_COMPLETED`), prefer a logged error + safe fallback over a hard throw. Document the fallback value (e.g. `?? 1`) with a comment explaining why it is safe. Never use magic defaults silently.
+- **Magic defaults are a smell**: `?? someDefaultValue` is only acceptable when the value is genuinely safe AND documented. If the data should always exist (invariant), throw instead of defaulting.
+
+**Context hooks:**
+- Always use the guard pattern in context hooks: `if (!context) throw new Error('...')` — never return a stale or empty default outside a provider.
+- Watch out for deeply nested components that may call a context hook outside the expected provider tree; the thrown error is the correct signal.
+
+**TypeScript filter type narrowing:**
+- TypeScript does NOT auto-narrow from `.filter(Boolean)`. Always use an explicit type predicate: `.filter((item): item is T => !!item)` to remove `null | undefined` from array types.
 
 ## Project Architecture
 
