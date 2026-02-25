@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { largeNumberFormat } from '../../../../lib/numberFormat';
-import type { ToolTopSquad } from '../../hooks/useToolTopSquads';
+import type { ToolTopSquad } from '../../../../graphql/user/userStack';
 
 interface UserStackTopSquadsTooltipProps {
   toolTitle: string;
