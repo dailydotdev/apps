@@ -41,6 +41,13 @@ export const BriefCardReady = ({
   const { logEvent } = useLogContext();
   const postsCount = post?.flags?.posts || 0;
   const sourcesCount = post?.flags?.sources || 0;
+  const briefingDuration =
+    post.flags?.generatedAt &&
+    formatDate({
+      value: post.createdAt ?? '',
+      now: post.flags.generatedAt,
+      type: TimeFormatType.LiveTimer,
+    });
 
   const onCombinedClick = () => {
     logEvent({
@@ -80,12 +87,8 @@ export const BriefCardReady = ({
         <div className="flex flex-1 flex-col gap-2 laptop:gap-4">
           <div className="flex flex-row gap-1 laptop:flex-col">
             <Typography type={TypographyType.Callout} className="w-full">
-              {post.flags?.generatedAt &&
-                `Your AI agent spent ${formatDate({
-                  value: new Date(post.createdAt),
-                  now: new Date(post.flags?.generatedAt),
-                  type: TimeFormatType.LiveTimer,
-                })} on this presidential briefing. `}
+              {briefingDuration &&
+                `Your AI agent spent ${briefingDuration} on this presidential briefing. `}
               {post.flags.savedTime &&
                 `It saved you ${formatDate({
                   value: new Date(),
