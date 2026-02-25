@@ -18,8 +18,10 @@ import {
   ThemeMode,
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
   BrowserName,
   getCurrentBrowserName,
@@ -28,6 +30,7 @@ import { cloudinaryOnboardingExtension } from '@dailydotdev/shared/src/lib/image
 import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import { useRouter } from 'next/router';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
@@ -77,8 +80,8 @@ const TAG_TREND_LABELS = [
   'WebAssembly',
 ] as const;
 
-const MOBILE_TAG_ROW_TOP = TAG_TREND_LABELS.slice(0, 8);
-const MOBILE_TAG_ROW_BOTTOM = TAG_TREND_LABELS.slice(8, 16);
+const MOBILE_TAG_ROW_TOP = TAG_TREND_LABELS.slice(0, 6);
+const MOBILE_TAG_ROW_BOTTOM = TAG_TREND_LABELS.slice(8, 14);
 type MobileHeroTagCloudItem = {
   label: string;
   left: string;
@@ -362,6 +365,7 @@ function buildConfettiParticles(): ConfettiParticle[] {
 
 const OnboardingV2Page = (): ReactElement => {
   const router = useRouter();
+  const { showLogin } = useAuthContext();
   const {
     applyThemeMode,
     loadedSettings,
@@ -1044,6 +1048,12 @@ const OnboardingV2Page = (): ReactElement => {
   const closeSignupChooser = useCallback(() => {
     setShowSignupChooser(false);
   }, []);
+  const openLogin = useCallback(() => {
+    showLogin({
+      trigger: AuthTriggers.MainButton,
+      options: { isLogin: true },
+    });
+  }, [showLogin]);
   const isAiSetupContext =
     signupContext === 'ai' || signupContext === 'manual';
   const canStartAiFlow = aiPrompt.trim().length > 0 || selectedTopics.size > 0;
@@ -1118,7 +1128,30 @@ const OnboardingV2Page = (): ReactElement => {
   return (
     <div className={classNames('onb-page onb-sidebar-locked relative overflow-x-hidden', !feedReadyState && 'onb-page-locked')} role="presentation">
       {/* ── Hero ── */}
-      <section ref={heroRef} className={classNames('onb-hero relative overflow-hidden pb-5 pt-14 tablet:pb-8 tablet:pt-18', feedReadyState && 'hidden')} style={{ '--scroll-y': '0' } as React.CSSProperties}>
+      <section ref={heroRef} className={classNames('onb-hero relative overflow-hidden pb-10 pt-4 tablet:pb-14 tablet:pt-18', feedReadyState && 'hidden')} style={{ '--scroll-y': '0' } as React.CSSProperties}>
+        <div className="relative z-10 mx-auto mb-3 flex w-full max-w-[63.75rem] items-center justify-between px-4 tablet:hidden">
+          <Logo
+            compact
+            position={LogoPosition.Relative}
+            className="!left-0 !top-0 !mt-0 !translate-x-0"
+          />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={openLogin}
+              className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 hover:bg-white/[0.08] typo-footnote"
+            >
+              Log in
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowSignupChooser(true)}
+              className="rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 hover:opacity-90 typo-footnote"
+            >
+              Sign up
+            </button>
+          </div>
+        </div>
         {/* Dot grid — shifts subtly with scroll */}
         <div
           className="onb-dot-grid pointer-events-none absolute inset-0"
@@ -1175,7 +1208,7 @@ const OnboardingV2Page = (): ReactElement => {
 
         {/* Ambient glows */}
         {/* Magical breathing glow */}
-        <div className="onb-magical-glow pointer-events-none absolute left-1/2 top-[-10%] h-[35rem] w-full max-w-[65rem] -translate-x-1/2 rounded-[100%] bg-gradient-to-tr from-accent-cabbage-default/15 via-accent-water-default/25 to-accent-onion-default/15 blur-[100px] shadow-[0_0_120px_50px_rgba(255,255,255,0.1)]" />
+        <div className="onb-magical-glow pointer-events-none absolute left-1/2 top-[-5%] h-[30rem] w-full max-w-[60rem] -translate-x-1/2 rounded-[100%] bg-gradient-to-tr from-accent-cabbage-default/10 via-accent-water-default/20 to-accent-onion-default/10 blur-[90px] shadow-[0_0_100px_40px_rgba(255,255,255,0.08)]" />
         
         <div className="onb-glow-drift pointer-events-none absolute left-1/2 top-0 h-[22rem] w-full max-w-[48rem] -translate-x-1/2 bg-accent-cabbage-default/5 blur-[100px]" />
         <div className="onb-glow-drift-reverse pointer-events-none absolute left-[40%] top-[4rem] h-[18rem] w-full max-w-[30rem] -translate-x-1/2 bg-accent-onion-default/[0.03] blur-[120px]" />
@@ -1192,7 +1225,7 @@ const OnboardingV2Page = (): ReactElement => {
             )}
             style={{ transitionDelay: '100ms' }}
           >
-            {MOBILE_TAG_CLOUD_TOP.map((tag, i) => (
+            {mounted && MOBILE_TAG_CLOUD_TOP.map((tag) => (
               <span
                 key={`mob-top-${tag.label}`}
                 className="onb-mobile-tag absolute whitespace-nowrap rounded-8 border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-text-quaternary typo-caption2"
@@ -1204,7 +1237,6 @@ const OnboardingV2Page = (): ReactElement => {
                     '--tag-duration': tag.duration,
                     '--tag-drift-x': `${tag.driftX}px`,
                     '--tag-drift-y': `${tag.driftY}px`,
-                    '--tag-enter-delay': `${i * 60}ms`,
                   } as React.CSSProperties
                 }
               >
@@ -1244,7 +1276,7 @@ const OnboardingV2Page = (): ReactElement => {
             )}
             style={{ transitionDelay: '400ms' }}
           >
-            <p className="mx-auto mt-4 max-w-[20rem] text-text-secondary typo-body tablet:mt-5 tablet:max-w-[36rem] tablet:typo-title3" style={{ lineHeight: '1.7' }}>
+            <p className="mx-auto mt-4 max-w-[20rem] text-text-secondary typo-callout tablet:mt-5 tablet:max-w-[36rem] tablet:typo-body" style={{ lineHeight: '1.65' }}>
               Tap into live signals from the global dev community, then
               lock your feed to your stack with GitHub import or manual setup.
             </p>
@@ -1322,7 +1354,7 @@ const OnboardingV2Page = (): ReactElement => {
             )}
             style={{ transitionDelay: '650ms' }}
           >
-            {MOBILE_TAG_CLOUD_BOTTOM.map((tag, i) => (
+            {mounted && MOBILE_TAG_CLOUD_BOTTOM.map((tag) => (
               <span
                 key={`mob-bot-${tag.label}`}
                 className="onb-mobile-tag absolute whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2.5 py-1 text-text-quaternary typo-caption2"
@@ -1334,7 +1366,6 @@ const OnboardingV2Page = (): ReactElement => {
                     '--tag-duration': tag.duration,
                     '--tag-drift-x': `${tag.driftX}px`,
                     '--tag-drift-y': `${tag.driftY}px`,
-                    '--tag-enter-delay': `${400 + i * 60}ms`,
                   } as React.CSSProperties
                 }
               >
@@ -1850,7 +1881,7 @@ const OnboardingV2Page = (): ReactElement => {
 
         {/* Footer links for SEO — placed at the bottom of the page */}
         {!feedReadyState && (
-          <div className="relative z-1 mx-auto mt-36 flex w-full max-w-[48rem] justify-center px-5 pb-8 mobileL:px-6 tablet:mt-28">
+          <div className="relative z-1 mx-auto mt-16 flex w-full max-w-[48rem] justify-center px-5 pb-8 mobileL:px-6 tablet:mt-14">
             <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
           </div>
         )}
@@ -1895,6 +1926,10 @@ const OnboardingV2Page = (): ReactElement => {
           display: none !important;
         }
 
+        .onb-feed-stage > main[class*='utilities_feedPage'] {
+          padding-top: 0 !important;
+        }
+
         /* fade-out handled by .onb-revealed nth-of-type rules below */
 
         /* ─── HERO PARALLAX ─── */
@@ -1905,14 +1940,14 @@ const OnboardingV2Page = (): ReactElement => {
         /* ─── MAGICAL BREATHE GLOW ─── */
         @keyframes onb-magical-breathe {
           0%, 100% {
-            opacity: 0.5;
+            opacity: 0.4;
             transform: translateX(-50%) scale(1) translateY(0) rotate(0deg);
-            filter: blur(100px) brightness(1.1);
+            filter: blur(90px) brightness(1);
           }
           50% {
-            opacity: 0.95;
-            transform: translateX(-50%) scale(1.15) translateY(-4%) rotate(3deg);
-            filter: blur(120px) brightness(1.5);
+            opacity: 0.85;
+            transform: translateX(-50%) scale(1.1) translateY(-3%) rotate(2deg);
+            filter: blur(110px) brightness(1.3);
           }
         }
         .onb-hero .onb-magical-glow {
@@ -2451,23 +2486,11 @@ const OnboardingV2Page = (): ReactElement => {
         }
 
         /* ─── MOBILE TAG PILLS ─── */
-        @keyframes onb-mobile-tag-in {
-          0% { transform: scale(0.85); opacity: 0; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes onb-mobile-tag-float {
-          0%, 100% {
-            transform: translate3d(0, 0, 0) scale(1);
-          }
-          50% {
-            transform: translate3d(var(--tag-drift-x, 0px), var(--tag-drift-y, 0px), 0) scale(1.03);
-          }
-        }
         .onb-mobile-tag {
           opacity: 0;
-          animation:
-            onb-mobile-tag-in 0.4s ease-out var(--tag-enter-delay, 0ms) forwards,
-            onb-mobile-tag-float var(--tag-duration, 6.5s) ease-in-out var(--tag-delay, 0s) infinite;
+          animation: onb-hero-tag-float var(--tag-duration, 6.5s) ease-in-out infinite;
+          animation-delay: var(--tag-delay, 0s);
+          animation-fill-mode: both;
           will-change: transform, opacity;
         }
 
