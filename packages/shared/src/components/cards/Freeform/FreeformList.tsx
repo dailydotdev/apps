@@ -112,7 +112,7 @@ export const FreeformList = forwardRef(function SharePostCard(
       flagProps={{ pinnedAt, type: postType }}
       linkProps={
         !isFeedPreview && {
-          title: post.title ?? '',
+          title: post.title,
           onClick: onPostCardClick,
           href: post.commentsPermalink,
         }

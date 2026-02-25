@@ -396,6 +396,7 @@ Before opening a PR, run `git diff --name-only origin/main...HEAD` and confirm e
 ## Code Review Guidelines
 
 When reviewing code (or writing code that will be reviewed):
+- **Prefer GraphQL-layer normalization for known nullable API fields used app-wide** - If backend data can legitimately be `null` (for example post `title`), add a single fallback in `packages/shared/src/graphql/common.ts` request handling before adding repeated UI-level guards.
 - **Always set explicit `type` on `<button>` elements in forms** - Use `type="button"` for non-submit actions (close/back/cancel). Never rely on the browser default inside forms.
 - **Delete dead code** - Remove unused components, functions, exports, and files. Don't leave code "for later"
 - **Avoid confusing naming** - Don't create multiple components with the same name in different locations (e.g., two `AboutMe` components)
