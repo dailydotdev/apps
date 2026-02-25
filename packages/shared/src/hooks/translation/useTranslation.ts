@@ -49,16 +49,24 @@ type UpdateCachedPostTranslations = ({
   post: Post;
   translation: TranslateEvent;
 }) => Post;
+
 const updateGenericPostField: UpdateCachedPostTranslations = ({
   post,
-  translation,
+  translation: genericTranslation,
 }) => {
+  if (
+    genericTranslation.field !== 'summary' &&
+    genericTranslation.field !== 'titleHtml'
+  ) {
+    return post;
+  }
+
   const updatedPost = structuredClone(post);
 
-  updatedPost[translation.field] = translation.value;
+  updatedPost[genericTranslation.field] = genericTranslation.value;
   updatedPost.translation = {
     ...updatedPost.translation,
-    [translation.field]: !!translation.value,
+    [genericTranslation.field]: !!genericTranslation.value,
   };
 
   return updatedPost;
@@ -66,21 +74,32 @@ const updateGenericPostField: UpdateCachedPostTranslations = ({
 
 export const updateTitleTranslation: UpdateCachedPostTranslations = ({
   post,
-  translation,
+  translation: titleTranslation,
 }) => {
+  if (
+    titleTranslation.field !== 'title' &&
+    titleTranslation.field !== 'smartTitle'
+  ) {
+    return post;
+  }
+
   const updatedPost = structuredClone(post);
 
   if (post.title) {
-    updatedPost.title = translation.value;
+    updatedPost.title = titleTranslation.value;
     updatedPost.translation = {
       ...updatedPost.translation,
-      [translation.field]: !!translation.value,
+      [titleTranslation.field]: !!titleTranslation.value,
     };
   } else {
-    updatedPost.sharedPost.title = translation.value;
+    if (!updatedPost.sharedPost) {
+      return updatedPost;
+    }
+
+    updatedPost.sharedPost.title = titleTranslation.value;
     updatedPost.sharedPost.translation = {
       ...updatedPost.translation,
-      [translation.field]: !!translation.value,
+      [titleTranslation.field]: !!titleTranslation.value,
     };
   }
 
@@ -99,11 +118,17 @@ const updateTranslation = ({
   switch (translation.field) {
     case 'title':
     case 'smartTitle':
-      updatedPost = updateTitleTranslation({ post, translation });
+      updatedPost = updateTitleTranslation({
+        post,
+        translation,
+      });
       break;
     case 'summary':
     case 'titleHtml':
-      updatedPost = updateGenericPostField({ post, translation });
+      updatedPost = updateGenericPostField({
+        post,
+        translation,
+      });
       break;
     default:
       break;
@@ -138,6 +163,10 @@ export const useTranslation: UseTranslation = ({
       const updatePost = updateCachedPagePost(queryKey, queryClient);
       const feedData =
         queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
+      if (!feedData) {
+        return;
+      }
+
       const { pageIndex, index } = findIndexOfPostInData(
         feedData,
         translatedPost.id,
@@ -182,6 +211,10 @@ export const useTranslation: UseTranslation = ({
         return [];
       }
 
+      if (!language || !accessToken?.token) {
+        return [];
+      }
+
       const postsToTranslate = posts
         .filter(
           (post) =>
@@ -190,15 +223,15 @@ export const useTranslation: UseTranslation = ({
               post.language === language
             ),
         )
-        .filter(Boolean)
-        .map((node) => (node?.title ? node : node?.sharedPost));
+        .map((node) => (node?.title ? node : node?.sharedPost))
+        .filter((postItem): postItem is Post => Boolean(postItem));
 
       if (postsToTranslate.length === 0) {
         return [];
       }
 
-      const payload = postsToTranslate.reduce((acc, post) => {
-        const fields = [];
+      const payload = postsToTranslate.reduce<TranslatePayload>((acc, post) => {
+        const fields: TranslateablePostField[] = [];
 
         const shouldUseSmartTitle =
           post.clickbaitTitleDetected && clickbaitShieldEnabled;
@@ -228,23 +261,27 @@ export const useTranslation: UseTranslation = ({
         }
 
         return acc;
-      }, {} as TranslatePayload);
+      }, {});
 
       if (Object.keys(payload).length === 0) {
         return [];
       }
 
+      const requestHeaders = new Headers({
+        Accept: 'text/event-stream',
+        Authorization: `Bearer ${accessToken.token}`,
+        'Content-Language': language,
+        'Content-Type': 'application/json',
+        'X-Daily-Client': isExtension ? 'extension' : 'webapp',
+      });
+      if (process.env.CURRENT_VERSION) {
+        requestHeaders.set('X-Daily-Version', process.env.CURRENT_VERSION);
+      }
+
       const response = await fetch(`${apiUrl}/translate/post`, {
         signal: abort.current?.signal,
         method: 'POST',
-        headers: {
-          Accept: 'text/event-stream',
-          Authorization: `Bearer ${accessToken?.token}`,
-          'Content-Language': language as string,
-          'Content-Type': 'application/json',
-          'X-Daily-Client': isExtension ? 'extension' : 'webapp',
-          'X-Daily-Version': process.env.CURRENT_VERSION,
-        },
+        headers: requestHeaders,
         body: JSON.stringify(payload),
       });
 
@@ -256,7 +293,7 @@ export const useTranslation: UseTranslation = ({
 
       // eslint-disable-next-line no-restricted-syntax
       for await (const message of events(response)) {
-        if (message.event === ServerEvents.Message) {
+        if (message.event === ServerEvents.Message && message.data) {
           const post = JSON.parse(message.data) as TranslateEvent;
 
           results.push(post);

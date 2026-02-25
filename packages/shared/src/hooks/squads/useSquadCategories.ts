@@ -17,7 +17,7 @@ export const useSquadCategories = (): UseInfiniteQueryResult<
   InfiniteData<SourceCategoryData>
 > =>
   useInfiniteQuery<SourceCategoryData>({
-    queryKey: generateQueryKey(RequestKey.Source, null, 'categories'),
+    queryKey: generateQueryKey(RequestKey.Source, undefined, 'categories'),
     queryFn: () => gqlClient.request(SOURCE_CATEGORIES_QUERY),
     staleTime: StaleTime.OneDay,
     initialPageParam: '',

@@ -298,7 +298,7 @@ export const userProductSummaryQueryOptions = ({
   type: ProductType;
 }) => {
   return {
-    queryKey: generateQueryKey(RequestKey.Products, null, 'summary', {
+    queryKey: generateQueryKey(RequestKey.Products, undefined, 'summary', {
       userId,
       limit,
       type,
@@ -473,12 +473,12 @@ export const listAwardsInfiniteQueryOptions = ({
   limit?: number;
 }) => {
   return {
-    queryKey: generateQueryKey(RequestKey.Awards, null, {
+    queryKey: generateQueryKey(RequestKey.Awards, undefined, {
       id,
       type,
       first: limit,
     }),
-    queryFn: async ({ queryKey: queryKeyArg, pageParam }) => {
+    queryFn: async ({ pageParam = '' }: { pageParam?: string }) => {
       const gqlQueryFunction = listAwardsQueryMap[type];
 
       if (!gqlQueryFunction) {
@@ -491,16 +491,13 @@ export const listAwardsInfiniteQueryOptions = ({
         includeTotal: isInitialPage,
       });
 
-      const [, , queryVariables] = queryKeyArg as [
-        unknown,
-        unknown,
-        { id: string; type: AwardTypes; first: number },
-      ];
       const result = await gqlClient.request<{
         awards: Connection<AwardListItem>;
         awardsTotal?: LoggedUser['balance'];
       }>(gqlQuery, {
-        ...queryVariables,
+        id,
+        type,
+        first: limit,
         after: pageParam,
       });
 

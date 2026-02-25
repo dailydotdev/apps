@@ -22,7 +22,7 @@ export function useShareComment(origin: Origin): UseShareComment {
   const { getShortUrl } = useGetShortUrl();
 
   const openShareComment = useCallback(
-    async (comment, post) => {
+    async (comment: Comment, post: Post) => {
       if (shouldUseNativeShare()) {
         try {
           const shortUrl = await getShortUrl(

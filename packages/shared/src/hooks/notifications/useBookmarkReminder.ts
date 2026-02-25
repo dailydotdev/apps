@@ -86,7 +86,11 @@ export const useBookmarkReminder = ({
   const onUpdateCache = (postId: string, remindAt?: Date) => {
     updatePostCache(client, postId, (_post) => ({
       bookmarked: true,
-      bookmark: { ..._post.bookmark, remindAt },
+      bookmark: {
+        createdAt: _post.bookmark?.createdAt ?? new Date(),
+        listId: _post.bookmark?.listId,
+        remindAt,
+      },
     }));
 
     if (feedQueryKey) {
@@ -128,7 +132,7 @@ export const useBookmarkReminder = ({
   const { mutateAsync: onUndoReminder } = useMutation({
     mutationFn: setBookmarkReminder,
     onSuccess: (_, { postId, remindAt }) => {
-      onUpdateCache(postId, remindAt);
+      onUpdateCache(postId, remindAt ?? undefined);
     },
   });
   const { mutateAsync: onSetBookmarkReminder } = useMutation({
@@ -136,12 +140,13 @@ export const useBookmarkReminder = ({
       setBookmarkReminder({ postId, remindAt }),
 
     onSuccess: (_, { postId, existingReminder, preference, remindAt }) => {
-      onUpdateCache(postId, remindAt);
+      onUpdateCache(postId, remindAt ?? undefined);
 
       displayToast(`Reminder set for ${preference.toLowerCase()}`, {
         action: {
           copy: 'Undo',
-          onClick: () => onUndoReminder({ postId, remindAt: existingReminder }),
+          onClick: () =>
+            onUndoReminder({ postId, remindAt: existingReminder ?? null }),
         },
       });
 

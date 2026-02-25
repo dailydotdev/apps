@@ -26,18 +26,25 @@ export function useShareOrCopyLink({
 
   const onShareOrCopy: CopyNotifyFunction = async () => {
     const shortLink = cid ? await getShortUrl(link, cid) : link;
+    const logShareEvent = (provider: ShareProvider): void => {
+      if (!logObject) {
+        return;
+      }
+
+      logEvent(logObject(provider));
+    };
 
     if (shouldUseNativeShare()) {
       try {
         await navigator.share({
           text: `${text}\n${shortLink}`,
         });
-        logEvent(logObject(ShareProvider.Native));
+        logShareEvent(ShareProvider.Native);
       } catch (err) {
         // Do nothing
       }
     } else {
-      logEvent(logObject(ShareProvider.CopyLink));
+      logShareEvent(ShareProvider.CopyLink);
       copyLink({ link: shortLink });
     }
   };
