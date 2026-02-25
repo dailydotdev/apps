@@ -71,25 +71,27 @@ export const ArenaPage = ({
 
   return (
     <div className="relative mx-auto flex w-full max-w-6xl flex-col">
-      {/* Animated ambient glows that drift */}
-      <div
-        className="bg-accent-cabbage-default/10 pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full blur-3xl"
-        style={{
-          animation: 'float-slow 20s ease-in-out infinite',
-        }}
-      />
-      <div
-        className="bg-accent-onion-default/[0.08] pointer-events-none absolute -right-32 -top-16 h-64 w-64 rounded-full blur-3xl"
-        style={{
-          animation: 'float-slow 25s ease-in-out infinite reverse',
-        }}
-      />
-      <div
-        className="bg-accent-water-default/[0.06] pointer-events-none absolute -bottom-20 left-1/3 h-48 w-48 rounded-full blur-3xl"
-        style={{
-          animation: 'float-slow 18s ease-in-out infinite 5s',
-        }}
-      />
+      {/* Animated ambient glows that drift — clipped to prevent mobile overflow */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="bg-accent-cabbage-default/10 absolute -left-32 -top-32 h-96 w-96 rounded-full blur-3xl"
+          style={{
+            animation: 'float-slow 20s ease-in-out infinite',
+          }}
+        />
+        <div
+          className="bg-accent-onion-default/[0.08] absolute -right-32 -top-16 h-64 w-64 rounded-full blur-3xl"
+          style={{
+            animation: 'float-slow 25s ease-in-out infinite reverse',
+          }}
+        />
+        <div
+          className="bg-accent-water-default/[0.06] absolute -bottom-20 left-1/3 h-48 w-48 rounded-full blur-3xl"
+          style={{
+            animation: 'float-slow 18s ease-in-out infinite 5s',
+          }}
+        />
+      </div>
 
       {/* Inline keyframes for custom animations */}
       <style
@@ -110,10 +112,10 @@ export const ArenaPage = ({
       />
 
       {/* Header */}
-      <header className="px-4 pt-10 laptop:px-0">
-        <div className="flex items-start justify-between">
+      <header className="px-4 pt-6 laptop:px-0 laptop:pt-10">
+        <div className="flex flex-col gap-2 tablet:flex-row tablet:items-start tablet:justify-between tablet:gap-0">
           <div className="flex flex-col gap-1">
-            <h1 className="flex items-center gap-2 font-bold text-text-primary typo-title1">
+            <h1 className="flex items-center gap-2 font-bold text-text-primary typo-title2 laptop:typo-title1">
               <span aria-hidden="true">&#x2694;&#xFE0F;</span>
               The Arena
             </h1>
@@ -126,7 +128,7 @@ export const ArenaPage = ({
       </header>
 
       {/* Tab switcher */}
-      <nav className="mt-4 flex gap-1 border-b border-border-subtlest-tertiary bg-background-default px-4 laptop:px-0">
+      <nav className="sticky top-0 z-3 mt-4 flex gap-1 border-b border-border-subtlest-tertiary bg-background-default px-4 laptop:px-0">
         {ARENA_TABS.map((tab) => (
           <button
             key={tab.value}

@@ -148,6 +148,8 @@ const PlaceholderCard = (): ReactElement => (
   </div>
 );
 
+const MOBILE_FEED_LIMIT = 5;
+
 interface ArenaHighlightsFeedProps {
   items: SentimentHighlightItem[];
   loading?: boolean;
@@ -163,6 +165,7 @@ export const ArenaHighlightsFeed = ({
   const [pendingItems, setPendingItems] = useState<SentimentHighlightItem[]>(
     [],
   );
+  const [mobileExpanded, setMobileExpanded] = useState(false);
   const initializedRef = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -192,6 +195,13 @@ export const ArenaHighlightsFeed = ({
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // On mobile (no laptop:absolute), truncate items unless expanded
+  const displayItems = mobileExpanded
+    ? visibleItems
+    : visibleItems.slice(0, MOBILE_FEED_LIMIT);
+  const hasMoreOnMobile =
+    !mobileExpanded && visibleItems.length > MOBILE_FEED_LIMIT;
+
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle">
       {/* eslint-disable-next-line react/no-danger */}
@@ -200,9 +210,25 @@ export const ArenaHighlightsFeed = ({
           __html: `@keyframes slide-down{0%{opacity:0;transform:translateY(-100%)}100%{opacity:1;transform:translateY(0)}}`,
         }}
       />
-      {/* New posts badge — floats over feed */}
+      {/* Feed header — mobile only */}
+      <div className="flex items-center justify-between border-b border-border-subtlest-secondary px-4 py-2.5 laptop:hidden">
+        <span className="font-bold text-text-primary typo-callout">
+          Live Highlights
+        </span>
+        {!loading && pendingItems.length > 0 && (
+          <button
+            type="button"
+            onClick={showPending}
+            className="rounded-8 bg-accent-cabbage-default px-2.5 py-1 font-bold text-white typo-caption2 active:scale-95"
+          >
+            +{pendingItems.length} new
+          </button>
+        )}
+      </div>
+
+      {/* New posts badge — floats over feed (laptop only) */}
       {!loading && pendingItems.length > 0 && (
-        <div className="z-10 pointer-events-none absolute inset-x-0 top-3 flex justify-center">
+        <div className="z-10 pointer-events-none absolute inset-x-0 top-3 hidden justify-center laptop:flex">
           <button
             type="button"
             onClick={showPending}
@@ -224,10 +250,21 @@ export const ArenaHighlightsFeed = ({
               // eslint-disable-next-line react/no-array-index-key
               <PlaceholderCard key={i} />
             ))
-          : visibleItems.map((item) => (
+          : displayItems.map((item) => (
               <HighlightCard key={item.externalItemId} item={item} />
             ))}
       </div>
+
+      {/* Show all button — mobile only */}
+      {!loading && hasMoreOnMobile && (
+        <button
+          type="button"
+          onClick={() => setMobileExpanded(true)}
+          className="active:opacity-80 border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-link typo-callout laptop:hidden"
+        >
+          Show all {visibleItems.length} highlights
+        </button>
+      )}
     </div>
   );
 };

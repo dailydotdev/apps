@@ -26,7 +26,7 @@ const CrownCard = ({
 }): ReactElement => (
   <div
     className={classNames(
-      'group relative flex min-w-[180px] flex-1 flex-col items-center gap-3 overflow-hidden rounded-16 border p-5 transition-all duration-300',
+      'group relative flex min-w-[170px] flex-1 flex-col items-center gap-2 overflow-hidden rounded-16 border p-3 transition-all duration-300 tablet:min-w-[180px] tablet:gap-3 tablet:p-5',
       loading
         ? 'border-border-subtlest-tertiary bg-surface-float'
         : 'border-border-subtlest-secondary bg-surface-float hover:-translate-y-1 hover:shadow-2',
@@ -64,7 +64,7 @@ const CrownCard = ({
     {/* Crown emoji + label */}
     <div className="flex flex-col items-center gap-1">
       <span
-        className="text-2xl"
+        className="text-lg tablet:text-2xl"
         style={
           !loading && crown.entity
             ? { filter: 'drop-shadow(0 0 8px rgba(255,200,0,0.4))' }
@@ -73,26 +73,26 @@ const CrownCard = ({
       >
         {crown.emoji}
       </span>
-      <span className="font-bold uppercase tracking-wider text-text-quaternary typo-caption1">
+      <span className="text-center font-bold uppercase tracking-wider text-text-quaternary typo-caption2 tablet:typo-caption1">
         {crown.label}
       </span>
     </div>
 
     {/* Tool info */}
-    <div className="flex h-8 items-center gap-2">
+    <div className="flex h-7 items-center gap-1.5 tablet:h-8 tablet:gap-2">
       {loading ? (
         <>
-          <Placeholder className="h-8 w-8 shrink-0 rounded-8" />
-          <Placeholder className="h-5 w-20" />
+          <Placeholder className="h-6 w-6 shrink-0 rounded-8 tablet:h-8 tablet:w-8" />
+          <Placeholder className="h-4 w-16 tablet:h-5 tablet:w-20" />
         </>
       ) : (
         <>
           <img
             src={crown.entity?.logo}
             alt={crown.entity?.name}
-            className="h-8 w-8 shrink-0 rounded-8 bg-surface-float object-cover"
+            className="h-6 w-6 shrink-0 rounded-8 bg-surface-float object-cover tablet:h-8 tablet:w-8"
           />
-          <span className="font-bold text-text-primary typo-title3">
+          <span className="truncate font-bold text-text-primary typo-callout tablet:typo-title3">
             {crown.entity?.name}
           </span>
         </>
