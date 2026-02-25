@@ -79,7 +79,7 @@ export const SocialRegistrationForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const logError = (error) => {
+  const logError = (error: unknown) => {
     logEvent({
       event_name: AuthEventNames.SubmitSignUpFormError,
       extra: JSON.stringify({ error }),
