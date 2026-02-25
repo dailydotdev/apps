@@ -7,6 +7,7 @@ export interface SentimentTimeSeriesNode {
   timestamps: number[];
   scores: number[];
   volume: number[];
+  scoreVariance: number[];
 }
 
 export interface SentimentTimeSeries {
@@ -53,6 +54,7 @@ export interface RankedTool {
   momentum: number;
   volume24h: number;
   controversyScore: number;
+  heat: number;
   sparkline: number[];
   isEmerging: boolean;
 }

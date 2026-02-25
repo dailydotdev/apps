@@ -59,9 +59,9 @@ ArenaPageRoute.getLayout = getArenaLayout;
 ArenaPageRoute.layoutProps = {
   screenCentered: false,
   seo: {
-    title: 'The Arena - AI Coding Agent & LLM Leaderboard | daily.dev',
+    title: 'The Arena - Agents & LLM Leaderboard | daily.dev',
     description:
-      'Live leaderboard tracking developer sentiment for AI coding agents and LLMs. See who is winning the developer mindshare race with the D-Index.',
+      "No benchmarks. No hype. Just developers voting on which AI coding agents and LLMs actually deliver. See who's on top right now.",
   },
 };
 

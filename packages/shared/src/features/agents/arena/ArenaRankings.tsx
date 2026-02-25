@@ -6,6 +6,9 @@ import { ArenaSparkline } from './ArenaSparkline';
 import { ArenaSentimentBar } from './ArenaSentimentBar';
 import { ArenaAnimatedCounter } from './ArenaAnimatedCounter';
 import { formatDIndex, formatVolume } from './dindex';
+import { Tooltip } from '../../../components/tooltip/Tooltip';
+import { InfoIcon } from '../../../components/icons/Info';
+import { IconSize } from '../../../components/Icon';
 
 interface ArenaRankingsProps {
   tools: RankedTool[];
@@ -202,6 +205,21 @@ const EmergingRow = ({
   </div>
 );
 
+const HeaderWithTooltip = ({
+  label,
+  tooltip,
+}: {
+  label: string;
+  tooltip: string;
+}): ReactElement => (
+  <Tooltip content={tooltip}>
+    <span className="inline-flex cursor-help items-center gap-1">
+      {label}
+      <InfoIcon size={IconSize.XXSmall} className="text-text-disabled" />
+    </span>
+  </Tooltip>
+);
+
 const PLACEHOLDER_ROW_COUNT = 6;
 
 const PlaceholderRow = ({ rank }: { rank: number }): ReactElement => (
@@ -255,16 +273,28 @@ export const ArenaRankings = ({
           Tool
         </span>
         <span className="min-w-[80px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2">
-          D-Index
+          <HeaderWithTooltip
+            label="D-Index"
+            tooltip="Developer sentiment score combining mention volume and sentiment strength"
+          />
         </span>
         <span className="hidden min-w-[100px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 tablet:block">
-          Sentiment
+          <HeaderWithTooltip
+            label="Sentiment"
+            tooltip="How positively developers talk about this tool (0–100)"
+          />
         </span>
         <span className="hidden min-w-[80px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:block">
-          Momentum
+          <HeaderWithTooltip
+            label="Momentum"
+            tooltip="D-Index change compared to the previous 24-hour window"
+          />
         </span>
         <span className="hidden min-w-[60px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:block">
-          24h Vol
+          <HeaderWithTooltip
+            label="24h Vol"
+            tooltip="Total developer mentions in the last 24 hours"
+          />
         </span>
         <span className="ml-auto hidden font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:block">
           7d Trend

@@ -91,39 +91,37 @@ const computeMomentum = (currentDIndex: number, prevDIndex: number): number => {
   return ((currentDIndex - prevDIndex) / prevDIndex) * 100;
 };
 
+interface ControversyData {
+  /** Total controversy: sum of volume × scoreVariance. Used for ranking. */
+  score: number;
+  /** Volume-weighted average scoreVariance. */
+  heat: number;
+}
+
 /**
- * Controversy = totalVolume × sentimentVariance across hourly buckets.
- * High variance means scores swing between positive and negative,
- * indicating genuine polarization rather than bland neutrality.
+ * Compute controversy metrics from the API-provided scoreVariance.
  */
 const computeControversy = (
   node: SentimentTimeSeriesNode,
   fromOffset: number,
   toOffset: number,
-): number => {
-  const bucketScores: { score: number; volume: number }[] = [];
+): ControversyData => {
+  let totalWeighted = 0;
+  let totalVolume = 0;
 
   for (let i = 0; i < node.timestamps.length; i += 1) {
     const ts = node.timestamps[i];
     if (ts >= fromOffset && ts < toOffset && node.volume[i] > 0) {
-      bucketScores.push({ score: node.scores[i], volume: node.volume[i] });
+      totalWeighted += node.volume[i] * node.scoreVariance[i];
+      totalVolume += node.volume[i];
     }
   }
 
-  if (bucketScores.length < 2) {
-    return 0;
-  }
-
-  const totalVolume = bucketScores.reduce((sum, b) => sum + b.volume, 0);
-  const weightedMean =
-    bucketScores.reduce((sum, b) => sum + b.score * b.volume, 0) / totalVolume;
-  const variance =
-    bucketScores.reduce(
-      (sum, b) => sum + b.volume * (b.score - weightedMean) ** 2,
-      0,
-    ) / totalVolume;
-
-  return totalVolume * variance;
+  const avgVariance = totalVolume > 0 ? totalWeighted / totalVolume : 0;
+  return {
+    score: totalWeighted,
+    heat: Math.round(avgVariance * 100),
+  };
 };
 
 /**
@@ -175,6 +173,7 @@ export const computeRankings = (
 
       const span = getWindowSpan(node);
       const cutoff24h = Math.max(0, span - SECONDS_PER_DAY);
+      const controversy = computeControversy(node, cutoff24h, span + 1);
 
       return {
         entity: entityMeta,
@@ -182,7 +181,8 @@ export const computeRankings = (
         sentimentDisplay: computeSentimentDisplay(current.sentimentScore),
         momentum: Math.round(computeMomentum(dIndex, prevDIndex)),
         volume24h: current.volume,
-        controversyScore: computeControversy(node, cutoff24h, span + 1),
+        controversyScore: controversy.score,
+        heat: controversy.heat,
         sparkline: getSparklineData(node),
         isEmerging: current.volume < EMERGING_THRESHOLD,
       };
@@ -201,6 +201,7 @@ export const computeRankings = (
         momentum: 0,
         volume24h: 0,
         controversyScore: 0,
+        heat: 0,
         sparkline: [0, 0, 0, 0, 0, 0, 0],
         isEmerging: true,
       });
@@ -280,10 +281,7 @@ const CROWN_CONFIG: Record<
     label: 'Most Controversial',
     thresholds: { minVolume: 10 },
     getValue: (t) => t.controversyScore,
-    formatStat: (t) => {
-      const split = t.sentimentDisplay;
-      return `Split: ${split}/${100 - split}`;
-    },
+    formatStat: (t) => `Heat ${t.heat}`,
   },
 };
 

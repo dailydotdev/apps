@@ -21,6 +21,7 @@ export const ARENA_QUERY = gql`
           timestamps
           scores
           volume
+          scoreVariance
         }
       }
     }

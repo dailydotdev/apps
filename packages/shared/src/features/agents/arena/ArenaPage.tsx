@@ -118,7 +118,7 @@ export const ArenaPage = ({
               The Arena
             </h1>
             <p className="text-text-tertiary typo-footnote">
-              Real-time developer sentiment &middot; Powered by the D-Index
+              Where AI tools fight for developer love
             </p>
           </div>
           <LiveIndicator mentionsPerHour={mentionsPerHour} />
