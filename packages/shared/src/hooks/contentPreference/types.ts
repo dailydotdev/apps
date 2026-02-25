@@ -4,7 +4,6 @@ import type {
 } from '../../graphql/contentPreference';
 import { ContentPreferenceStatus } from '../../graphql/contentPreference';
 import { RequestKey } from '../../lib/query';
-import type { PropsParameters } from '../../types';
 import type { UseMutationMatcher } from '../mutationSubscription/types';
 
 export type ContentPreferenceMutation = ({
@@ -25,7 +24,7 @@ export type ContentPreferenceMutation = ({
 }) => Promise<void>;
 
 export const contentPreferenceMutationMatcher: UseMutationMatcher<
-  PropsParameters<ContentPreferenceMutation>
+  Parameters<ContentPreferenceMutation>[0]
 > = ({ status, mutation }) => {
   const [requestKey] = Array.isArray(mutation.options.mutationKey)
     ? mutation.options.mutationKey
@@ -58,8 +57,10 @@ export const mutationKeyToContentPreferenceStatusMap: Partial<
 export const isFollowingContent = (
   contentPreference: ContentPreference | undefined,
 ): boolean => {
-  return [
-    ContentPreferenceStatus.Follow,
-    ContentPreferenceStatus.Subscribed,
-  ].includes(contentPreference?.status);
+  const status = contentPreference?.status;
+
+  return (
+    status === ContentPreferenceStatus.Follow ||
+    status === ContentPreferenceStatus.Subscribed
+  );
 };
