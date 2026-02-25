@@ -52,7 +52,8 @@ export function BookmarkButton({
     },
     {
       label: 'Remove bookmark',
-      action: (e) => buttonProps.onClick(e),
+      action: (e: React.MouseEvent<HTMLButtonElement>) =>
+        buttonProps.onClick(e),
     },
   ];
 
@@ -98,7 +99,9 @@ export function BookmarkButton({
         type="button"
         pressed={post.bookmarked}
         iconPosition={ButtonIconPosition.Top}
-        onClick={(e) => buttonProps.onClick?.(e)}
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+          buttonProps.onClick?.(e)
+        }
         icon={<Icon secondary={post.bookmarked} size={iconSize} />}
       >
         {children}

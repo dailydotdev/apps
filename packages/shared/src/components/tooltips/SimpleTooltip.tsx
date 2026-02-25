@@ -3,8 +3,10 @@ import React, { useMemo } from 'react';
 import dynamicParent, {
   DynamicParentPlaceholder,
 } from '../../lib/dynamicParent';
-import type { TooltipProps } from './BaseTooltip';
+import type { TooltipProps, BaseTooltipProps } from './BaseTooltip';
 import { getShouldLoadTooltip } from './BaseTooltip';
+
+type TippyInstance = Parameters<NonNullable<BaseTooltipProps['onTrigger']>>[0];
 
 const BaseTooltipLoader = () =>
   import(/* webpackChunkName: "lazyTooltip" */ './BaseTooltip');
@@ -46,25 +48,29 @@ export function SimpleTooltip({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [children]);
 
-  const onTooltipTrigger = (_, event) => {
+  const onTooltipTrigger = (inst: TippyInstance, event: Event) => {
     shouldShow = event.type !== 'focus';
 
-    onTrigger?.(_, event);
+    onTrigger?.(inst, event);
   };
 
-  const onUntrigger = (_, event) => {
-    const eventPath = event.path || event.composedPath?.();
-    const bodyPath = eventPath.filter((path) => document.body === path)[0];
-    if (bodyPath?.className === 'ReactModal__Body--open') {
+  const onUntrigger = (_inst: TippyInstance, event: Event) => {
+    const eventPath =
+      (event as Event & { path?: EventTarget[] }).path ||
+      event.composedPath?.();
+    const bodyPath = eventPath.filter(
+      (path: EventTarget) => document.body === path,
+    )[0];
+    if ((bodyPath as HTMLElement)?.className === 'ReactModal__Body--open') {
       shouldShow = false;
       return;
     }
     shouldShow = true;
   };
 
-  const onTooltipShow = (_) => {
+  const onTooltipShow = (inst: TippyInstance) => {
     if (shouldShow) {
-      return onShow?.(_);
+      return onShow?.(inst);
     }
 
     return false;
