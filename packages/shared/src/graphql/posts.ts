@@ -112,7 +112,7 @@ export type PostTranslation = {
 };
 
 export type DigestPostAd = {
-  type: 'dynamic_ad' | 'ad_plus';
+  type: 'dynamic_ad';
   index: number;
   title: string;
   link: string;

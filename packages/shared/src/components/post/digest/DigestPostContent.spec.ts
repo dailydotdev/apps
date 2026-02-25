@@ -29,23 +29,6 @@ describe('transformDigestAd', () => {
     });
   });
 
-  it('should set source to daily regardless of ad type', () => {
-    const digestAd: DigestPostAd = {
-      type: 'ad_plus',
-      index: 1,
-      title: 'Upgrade to Plus',
-      link: 'https://daily.dev/plus',
-      image: 'https://daily.dev/plus-image.png',
-      company_name: 'daily.dev',
-      company_logo: 'https://daily.dev/logo.png',
-      call_to_action: 'Upgrade',
-    };
-
-    const result = transformDigestAd(digestAd);
-
-    expect(result.ad.source).toBe('daily');
-  });
-
   it('should always set pixel to empty array', () => {
     const digestAd: DigestPostAd = {
       type: 'dynamic_ad',
