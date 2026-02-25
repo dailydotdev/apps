@@ -12,7 +12,7 @@ import { isTesting } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { RootPortal } from '../tooltips/Portal';
-import { Drawer } from '../drawers';
+import { Drawer, DrawerPosition } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -33,6 +33,7 @@ import { StreakReminderPopover } from './StreakReminderPopover';
 import { StreakMilestoneCelebration } from './StreakMilestoneCelebration';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { Switch } from '../fields/Switch';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -51,6 +52,7 @@ interface CustomStreaksTooltipProps {
   showMilestoneTimeline?: boolean;
   streakOverride?: number;
   isDebugMode?: boolean;
+  showGreeting?: boolean;
 }
 
 function CustomStreaksTooltip({
@@ -62,6 +64,7 @@ function CustomStreaksTooltip({
   showMilestoneTimeline,
   streakOverride,
   isDebugMode,
+  showGreeting,
 }: CustomStreaksTooltipProps): ReactElement {
   return (
     <SimpleTooltip
@@ -82,6 +85,7 @@ function CustomStreaksTooltip({
           showMilestoneTimeline={showMilestoneTimeline}
           streakOverride={streakOverride}
           isVisible={shouldShowStreaks}
+          showGreeting={showGreeting}
         />
       }
       onClickOutside={
@@ -112,6 +116,8 @@ export function ReadingStreakButton({
   const isMobile = useViewSize(ViewSize.MobileL);
   const debug = useStreakDebug();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(debug.isDebugMode);
+  const [showStreakAsDrawer, setShowStreakAsDrawer] = useState(false);
+  const [showDrawerGreeting, setShowDrawerGreeting] = useState(true);
   const [debugPos, setDebugPos] = useState({ x: 16, y: 16 });
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
   const [showMilestoneCelebration, setShowMilestoneCelebration] =
@@ -165,11 +171,12 @@ export function ReadingStreakButton({
   const showStreakBroken =
     showBrokenPopover || effectiveAnimation === 'broken';
   const showUrgencyAnimation = debug.features.urgencyNudges;
+  const shouldOpenInDrawer = isMobile || (debug.isDebugMode && showStreakAsDrawer);
 
   return (
     <>
       <ConditionalWrapper
-        condition={!isMobile}
+        condition={!shouldOpenInDrawer}
         wrapper={(children: ReactElement) => (
           <Tooltip
             content={urgencyMessage || `Current streak · ${currentTier.label}`}
@@ -180,6 +187,7 @@ export function ReadingStreakButton({
             showMilestoneTimeline={debug.features.milestoneTimeline}
             streakOverride={debug.debugStreakOverride ?? undefined}
             isDebugMode={debug.isDebugMode}
+            showGreeting={debug.isDebugMode && showDrawerGreeting}
           >
             {children}
           </Tooltip>
@@ -253,12 +261,20 @@ export function ReadingStreakButton({
         </div>
       </ConditionalWrapper>
 
-      {isMobile && (
+      {shouldOpenInDrawer && (
         <RootPortal>
           <Drawer
-            displayCloseButton
             isOpen={shouldShowStreaks}
             onClose={handleToggle}
+            position={isMobile ? DrawerPosition.Bottom : DrawerPosition.Right}
+            className={
+              isMobile
+                ? undefined
+                : {
+                    wrapper:
+                      '!max-h-full h-full w-[21.75rem] border-l border-border-subtlest-tertiary',
+                  }
+            }
           >
             <ReadingStreakPopup
               streak={streak}
@@ -266,6 +282,7 @@ export function ReadingStreakButton({
               showMilestoneTimeline={debug.features.milestoneTimeline}
               streakOverride={debug.debugStreakOverride ?? undefined}
               isVisible={shouldShowStreaks}
+              showGreeting={debug.isDebugMode && showDrawerGreeting}
             />
           </Drawer>
         </RootPortal>
@@ -321,31 +338,6 @@ export function ReadingStreakButton({
             ⠿ Streak Debug
           </span>
 
-          <div className="flex flex-col gap-1 border-b border-border-subtlest-tertiary pb-2">
-            <span className="text-text-quaternary typo-caption1">Features</span>
-            {(
-              [
-                ['animatedCounter', 'Animated Counter'],
-                ['milestoneTimeline', 'Milestone Timeline'],
-                ['urgencyNudges', 'Urgency Nudges'],
-              ] as const
-            ).map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => debug.toggleFeature(key)}
-                className={classnames(
-                  'rounded-8 px-3 py-1 text-left typo-footnote',
-                  debug.features[key]
-                    ? 'bg-accent-bacon-default text-white'
-                    : 'bg-surface-float text-text-tertiary hover:bg-surface-hover',
-                )}
-              >
-                {debug.features[key] ? '\u2713' : '\u2717'} {label}
-              </button>
-            ))}
-          </div>
-
           <button
             type="button"
             onClick={debug.triggerIncrementAnimation}
@@ -387,6 +379,24 @@ export function ReadingStreakButton({
           >
             Play Reminder 🔔
           </button>
+          <Switch
+            inputId="streak-debug-drawer-mode"
+            name="streak-debug-drawer-mode"
+            checked={showStreakAsDrawer}
+            onToggle={() => setShowStreakAsDrawer((value) => !value)}
+            className="rounded-8 bg-surface-float px-3 py-2 hover:bg-surface-hover"
+          >
+            Open as right drawer
+          </Switch>
+          <Switch
+            inputId="streak-debug-greeting"
+            name="streak-debug-greeting"
+            checked={showDrawerGreeting}
+            onToggle={() => setShowDrawerGreeting((value) => !value)}
+            className="rounded-8 bg-surface-float px-3 py-2 hover:bg-surface-hover"
+          >
+            Show greeting message
+          </Switch>
           <div className="flex gap-1">
             {[0, 3, 4, 7, 14, 30, 90, 365, 730, 1095, 1460].map((d) => (
               <button

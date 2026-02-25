@@ -335,6 +335,8 @@ export function MilestoneTimeline({
         type: 'coupon',
         code: SPONSORED_COUPON_CODE,
         title: 'Cursor AI discount coupon',
+        milestoneDay: milestone.day,
+        milestoneLabel: milestone.label,
       });
       setClaimedDays((prev) => new Set([...prev, milestone.day]));
       return;
@@ -343,7 +345,12 @@ export function MilestoneTimeline({
     const cores = getCoresAmount(milestone);
     const displayAmount = cores ?? milestone.rewards[0]?.description ?? '1';
 
-    setClaimAnimation({ type: 'cores', amount: displayAmount });
+    setClaimAnimation({
+      type: 'cores',
+      amount: displayAmount,
+      milestoneDay: milestone.day,
+      milestoneLabel: milestone.label,
+    });
     setClaimedDays((prev) => new Set([...prev, milestone.day]));
   }, []);
 

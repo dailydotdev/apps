@@ -12,8 +12,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { IconSize } from '../Icon';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { MilestoneShareActions } from './MilestoneShareActions';
 
-type CelebrationPhase = 'enter' | 'reveal' | 'rewards' | 'fading' | 'exit';
+type CelebrationPhase = 'enter' | 'reveal' | 'rewards';
 
 interface StreakMilestoneCelebrationProps {
   milestone: StreakMilestone;
@@ -68,30 +70,20 @@ export function StreakMilestoneCelebration({
     const timers = [
       setTimeout(() => setPhase('reveal'), 100),
       setTimeout(() => setPhase('rewards'), 800),
-      setTimeout(() => setPhase('fading'), 3200),
-      setTimeout(() => {
-        setPhase('exit');
-        onComplete();
-      }, 3800),
     ];
 
     return () => timers.forEach(clearTimeout);
-  }, [onComplete]);
-
-  if (phase === 'exit') {
-    return null;
-  }
+  }, []);
 
   const isVisible = phase !== 'enter';
-  const showRewards = phase === 'rewards' || phase === 'fading';
-  const isFading = phase === 'fading';
+  const showRewards = phase === 'rewards';
 
   return (
     <RootPortal>
       <div
-        className="pointer-events-none fixed inset-0 z-max flex items-center justify-center"
+        className="fixed inset-0 z-max flex items-center justify-center"
         style={{
-          opacity: isFading ? 0 : 1,
+          opacity: 1,
           transition: 'opacity 0.6s ease-out',
         }}
       >
@@ -140,7 +132,7 @@ export function StreakMilestoneCelebration({
             <img
               src={MILESTONE_ICON_URLS[milestone.tier]}
               alt={milestone.label}
-              className="size-full object-contain"
+              className="size-full object-contain transition-transform duration-300 hover:scale-150"
             />
           </div>
 
@@ -165,9 +157,9 @@ export function StreakMilestoneCelebration({
             <div
               className="flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default/80 px-6 py-3"
               style={{
-                opacity: showRewards && !isFading ? 1 : 0,
+                opacity: showRewards ? 1 : 0,
                 transform:
-                  showRewards && !isFading
+                  showRewards
                     ? 'translateY(0)'
                     : 'translateY(8px)',
                 transition: 'all 0.4s ease-out',
@@ -199,6 +191,21 @@ export function StreakMilestoneCelebration({
                   </Typography>
                 </div>
               ))}
+            </div>
+          )}
+          {showRewards && (
+            <div className="flex w-full max-w-sm flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default/80 px-6 py-4">
+              <MilestoneShareActions
+                message={`I just reached ${milestone.label} (${streakDay} day streak) on daily.dev`}
+              />
+              <Button
+                className="w-full"
+                onClick={onComplete}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+              >
+                Close
+              </Button>
             </div>
           )}
         </div>

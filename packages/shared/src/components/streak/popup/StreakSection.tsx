@@ -12,6 +12,8 @@ export function StreakSection({
   label,
   isPrimary,
 }: StreakSectionProps): ReactElement {
+  const displayLabel = isPrimary ? `Current streak · ${label}` : label;
+
   return (
     <span className="flex flex-1 flex-col">
       <strong
@@ -23,7 +25,7 @@ export function StreakSection({
       >
         {streak}
       </strong>
-      <p className="py-1 text-text-quaternary typo-subhead">{label}</p>
+      <p className="py-1 text-text-quaternary typo-subhead">{displayLabel}</p>
     </span>
   );
 }

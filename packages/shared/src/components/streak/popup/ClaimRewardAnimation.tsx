@@ -11,18 +11,23 @@ import {
 } from '../../typography/Typography';
 import CursorAiDarkLogo from './icons/cursor-ai-dark.svg';
 import CursorAiLightLogo from './icons/cursor-ai-light.svg';
+import { MilestoneShareActions } from '../MilestoneShareActions';
 
-type AnimationPhase = 'idle' | 'appear' | 'fly' | 'done';
+type AnimationPhase = 'idle' | 'appear' | 'fly' | 'settled';
 
 export type ClaimReward =
   | {
       type: 'cores';
       amount: string;
+      milestoneDay: number;
+      milestoneLabel: string;
     }
   | {
       type: 'coupon';
       code: string;
       title: string;
+      milestoneDay: number;
+      milestoneLabel: string;
     };
 
 interface ClaimRewardAnimationProps {
@@ -93,14 +98,13 @@ export function ClaimRewardAnimation({
     }
 
     const appearTimer = setTimeout(() => setPhase('fly'), 1200);
-    const doneTimer = setTimeout(() => {
-      setPhase('done');
-      onComplete();
+    const settledTimer = setTimeout(() => {
+      setPhase('settled');
     }, 2100);
 
     return () => {
       clearTimeout(appearTimer);
-      clearTimeout(doneTimer);
+      clearTimeout(settledTimer);
     };
   }, [onComplete, reward.type]);
 
@@ -113,10 +117,6 @@ export function ClaimRewardAnimation({
     setCopied(true);
   }, [reward]);
 
-  if (phase === 'done') {
-    return null;
-  }
-
   const centerX =
     typeof window !== 'undefined' ? window.innerWidth / 2 : 500;
   const centerY =
@@ -127,16 +127,14 @@ export function ClaimRewardAnimation({
   const targetY = isFly ? flyTarget.y : centerY;
   const targetScale = isFly ? 0.15 : 1;
   const targetOpacity = isFly ? 0 : 1;
-  const showBackdrop = phase === 'appear';
+  const showBackdrop = phase !== 'idle';
   const CursorLogo = isLightTheme ? CursorAiLightLogo : CursorAiDarkLogo;
+  const isCoresSettled = reward.type === 'cores' && phase === 'settled';
+  const shareMessage = `I just reached ${reward.milestoneLabel} (${reward.milestoneDay} day streak) on daily.dev`;
 
   return (
     <RootPortal>
-      <div
-        className={`fixed inset-0 z-max ${
-          reward.type === 'coupon' ? 'pointer-events-auto' : 'pointer-events-none'
-        }`}
-      >
+      <div className="fixed inset-0 z-max pointer-events-auto">
         <div
           className="absolute inset-0 backdrop-blur-sm"
           style={{
@@ -238,38 +236,62 @@ export function ClaimRewardAnimation({
               >
                 Close
               </Button>
+              <div className="mt-3 w-full">
+                <MilestoneShareActions message={shareMessage} />
+              </div>
             </div>
           </div>
         ) : (
-          <div
-            className="absolute"
-            style={{
-              left: targetX,
-              top: targetY,
-              transform: `translate(-50%, -50%) scale(${
-                phase === 'idle' ? 0.3 : targetScale
-              })`,
-              opacity: phase === 'idle' ? 0 : targetOpacity,
-              filter:
-                phase === 'appear'
-                  ? 'drop-shadow(0 0 40px rgba(255, 116, 84, 0.6))'
-                  : 'none',
-              transition:
-                phase === 'fly'
-                  ? 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
-                  : 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            }}
-          >
-            <div style={{ width: 160, height: 160 }}>
-              <CoreIcon className="h-full w-full" />
-            </div>
-            <span
-              className="absolute whitespace-nowrap font-bold text-text-primary typo-giga1"
-              style={{ top: 0, right: -16, transform: 'translate(100%, 0)' }}
+          <>
+            <div
+              className="absolute"
+              style={{
+                left: targetX,
+                top: targetY,
+                transform: `translate(-50%, -50%) scale(${
+                  phase === 'idle' ? 0.3 : targetScale
+                })`,
+                opacity: phase === 'idle' ? 0 : targetOpacity,
+                filter:
+                  phase === 'appear'
+                    ? 'drop-shadow(0 0 40px rgba(255, 116, 84, 0.6))'
+                    : 'none',
+                transition:
+                  phase === 'fly'
+                    ? 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+                    : 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              }}
             >
-              +{reward.amount}
-            </span>
-          </div>
+              <div style={{ width: 160, height: 160 }}>
+                <CoreIcon className="h-full w-full" />
+              </div>
+              <span
+                className="absolute whitespace-nowrap font-bold text-text-primary typo-giga1"
+                style={{ top: 0, right: -16, transform: 'translate(100%, 0)' }}
+              >
+                +{reward.amount}
+              </span>
+            </div>
+            {isCoresSettled && (
+              <div className="absolute left-1/2 top-1/2 z-1 flex w-[20rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 text-center">
+                <Typography bold type={TypographyType.Title3}>
+                  Milestone reward unlocked
+                </Typography>
+                <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+                  +{reward.amount} Cores
+                </Typography>
+                <MilestoneShareActions message={shareMessage} />
+                <Button
+                  className="w-full"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                  onClick={onComplete}
+                >
+                  Close
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
       <style>{`

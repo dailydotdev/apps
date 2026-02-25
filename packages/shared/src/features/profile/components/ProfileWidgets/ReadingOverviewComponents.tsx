@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import type { UserStreak, MostReadTag } from '../../../../graphql/users';
 import { largeNumberFormat, getTagPageLink } from '../../../../lib';
 import Link from '../../../../components/utilities/Link';
@@ -20,6 +19,9 @@ import { migrateUserToStreaks } from '../../../../lib/constants';
 import { STREAK_MILESTONES } from '../../../../lib/streakMilestones';
 import { MILESTONE_ICON_URLS } from '../../../../components/streak/popup/icons/milestoneIcons';
 import { useStreakDebug } from '../../../../hooks/streaks/useStreakDebug';
+import { useIsLightTheme } from '../../../../hooks/utils';
+import CursorAiIconDark from '../../../../components/streak/popup/icons/cursor-ai-dark.svg';
+import CursorAiIconLight from '../../../../components/streak/popup/icons/cursor-ai-light.svg';
 
 // ReadingTagProgress component
 interface ReadingTagProgressProps {
@@ -71,21 +73,34 @@ interface ReadingStreaksSectionProps {
 export const ReadingStreaksSection = ({
   streak,
 }: ReadingStreaksSectionProps): ReactElement => {
+  return (
+    <div className="my-3 flex gap-2">
+      <SummaryCard
+        count={largeNumberFormat(streak?.max)}
+        label="Longest streak 🏆"
+      />
+      <SummaryCard
+        count={largeNumberFormat(streak?.total)}
+        label="Total reading days"
+      />
+    </div>
+  );
+};
+
+interface ReadingMilestonesSectionProps {
+  streak: UserStreak;
+}
+
+export const ReadingMilestonesSection = ({
+  streak,
+}: ReadingMilestonesSectionProps): ReactElement => {
   const { debugStreakOverride } = useStreakDebug();
+  const isLightTheme = useIsLightTheme();
   const effectiveStreak = debugStreakOverride ?? streak?.current ?? 0;
+  const CursorAiIcon = isLightTheme ? CursorAiIconLight : CursorAiIconDark;
 
   return (
     <>
-      <div className="my-3 flex gap-2">
-        <SummaryCard
-          count={largeNumberFormat(streak?.max)}
-          label="Longest streak 🏆"
-        />
-        <SummaryCard
-          count={largeNumberFormat(streak?.total)}
-          label="Total reading days"
-        />
-      </div>
       <Typography
         tag={TypographyTag.H3}
         type={TypographyType.Subhead}
@@ -95,19 +110,29 @@ export const ReadingStreaksSection = ({
         Reading milestones
       </Typography>
       <div className="mb-3 flex flex-wrap gap-1.5">
-        {STREAK_MILESTONES.map((milestone) => {
+        {STREAK_MILESTONES.filter(
+          (milestone) => effectiveStreak >= milestone.day,
+        ).map((milestone) => {
           const isUnlocked = effectiveStreak >= milestone.day;
+          const isCursorMilestone = milestone.day === 4;
           return (
             <Tooltip
               key={milestone.day}
               className="!bg-accent-pepper-subtlest !text-text-primary [&_.TooltipArrow]:!fill-accent-pepper-subtlest"
               content={
                 <div className="flex items-center gap-2.5 p-1">
-                  <img
-                    src={MILESTONE_ICON_URLS[milestone.tier]}
-                    alt={milestone.label}
-                    className="size-12 object-contain"
-                  />
+                  {isCursorMilestone ? (
+                    <CursorAiIcon
+                      aria-label={milestone.label}
+                      className="size-12 object-contain"
+                    />
+                  ) : (
+                    <img
+                      src={MILESTONE_ICON_URLS[milestone.tier]}
+                      alt={milestone.label}
+                      className="size-12 object-contain"
+                    />
+                  )}
                   <div className="flex flex-col gap-0.5">
                     <Typography
                       bold
@@ -137,14 +162,20 @@ export const ReadingStreaksSection = ({
                 </div>
               }
             >
-              <img
-                src={MILESTONE_ICON_URLS[milestone.tier]}
-                alt={milestone.label}
-                className={classNames(
-                  'size-7 object-contain',
-                  !isUnlocked && 'grayscale opacity-30',
-                )}
-              />
+              {isCursorMilestone ? (
+                <span className="inline-flex size-7 items-center justify-center">
+                  <CursorAiIcon
+                    aria-label={milestone.label}
+                    className="size-7 object-contain"
+                  />
+                </span>
+              ) : (
+                <img
+                  src={MILESTONE_ICON_URLS[milestone.tier]}
+                  alt={milestone.label}
+                  className="size-7 object-contain"
+                />
+              )}
             </Tooltip>
           );
         })}

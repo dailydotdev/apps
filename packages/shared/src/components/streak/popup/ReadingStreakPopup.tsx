@@ -52,6 +52,7 @@ interface ReadingStreakPopupProps {
   showMilestoneTimeline?: boolean;
   streakOverride?: number;
   isVisible?: boolean;
+  showGreeting?: boolean;
 }
 
 export function ReadingStreakPopup({
@@ -60,6 +61,7 @@ export function ReadingStreakPopup({
   showMilestoneTimeline = true,
   streakOverride,
   isVisible = true,
+  showGreeting = false,
 }: ReadingStreakPopupProps): ReactElement {
   const router = useRouter();
   const { flags, updateFlag } = useSettingsContext();
@@ -115,7 +117,21 @@ export function ReadingStreakPopup({
   const displayStreak = streakOverride ?? streak.current;
 
   return (
-    <div className="flex max-h-[640px] flex-col tablet:max-w-[21.75rem]">
+    <div
+      className={`flex max-h-[640px] flex-col ${
+        fullWidth
+          ? 'h-full max-h-none w-full max-w-none tablet:max-w-none'
+          : 'tablet:max-w-[21.75rem]'
+      }`}
+    >
+      {showGreeting && (
+        <Typography
+          type={TypographyType.Subhead}
+          className="px-4 pt-3 font-bold text-white"
+        >
+          Good morning ☀️
+        </Typography>
+      )}
       <div className="flex flex-col p-0 pb-4 tablet:px-4 tablet:pt-4">
         {/* Tier progress removed — milestones timeline is the primary progression UI */}
 
