@@ -64,7 +64,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
             'font-bold text-text-primary typo-title3',
           )}
         >
-          {post.title ?? ''}
+          {post.title || ''}
         </FreeformCardTitle>
 
         <PostTags post={post} className="!items-end" />

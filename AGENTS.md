@@ -397,6 +397,7 @@ Before opening a PR, run `git diff --name-only origin/main...HEAD` and confirm e
 
 When reviewing code (or writing code that will be reviewed):
 - **Keep fixes scoped to the requested surface** - If a bug is reported in `apps`, prefer explicit guards in the impacted components first. Do not introduce cross-cutting GraphQL/request-layer normalization unless explicitly requested in scope.
+- **Confirm architecture pivots before switching layers** - If a fix could move between frontend and backend ownership, explicitly align on that direction before refactoring to a different layer.
 - **Always set explicit `type` on `<button>` elements in forms** - Use `type="button"` for non-submit actions (close/back/cancel). Never rely on the browser default inside forms.
 - **Delete dead code** - Remove unused components, functions, exports, and files. Don't leave code "for later"
 - **Avoid confusing naming** - Don't create multiple components with the same name in different locations (e.g., two `AboutMe` components)

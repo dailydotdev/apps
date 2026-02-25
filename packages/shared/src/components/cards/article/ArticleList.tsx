@@ -108,7 +108,7 @@ export const ArticleList = forwardRef(function ArticleList(
       flagProps={{ pinnedAt, trending, type }}
       linkProps={
         !isFeedPreview && {
-          title: post.title ?? '',
+          title: post.title || '',
           href: post.commentsPermalink,
           ...combinedClicks(onPostCardClick),
         }

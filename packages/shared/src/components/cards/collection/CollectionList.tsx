@@ -62,7 +62,7 @@ export const CollectionList = forwardRef(function CollectionCard(
       ref={ref}
       flagProps={{ pinnedAt: post.pinnedAt, type: post.type }}
       linkProps={{
-        title: post.title ?? '',
+        title: post.title || '',
         onClick: () => onPostClick(post),
         href: post.commentsPermalink,
       }}

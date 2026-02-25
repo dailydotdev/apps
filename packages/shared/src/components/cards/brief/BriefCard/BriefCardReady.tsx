@@ -82,7 +82,7 @@ export const BriefCardReady = ({
               {title}
             </Typography>
             <Typography type={TypographyType.Callout}>
-              {post.title ?? ''}
+              {post.title || ''}
             </Typography>
           </div>
         </div>
@@ -154,7 +154,7 @@ export const BriefCardReady = ({
       <Link href={`${webappUrl}posts/${post.slug ?? post.id}`} passHref>
         <CardLink
           className="cursor-pointer"
-          title={post.title ?? ''}
+          title={post.title || ''}
           rel={anchorDefaultRel}
           {...combinedClicks(onCombinedClick)}
         />
