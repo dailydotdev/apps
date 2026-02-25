@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { format } from 'date-fns';
 import type { TimeFormatType } from '../../lib/dateFormat';
-import { formatDate } from '../../lib/dateFormat';
+import { formatDate, isValidDate } from '../../lib/dateFormat';
 
 interface DateFormatProps {
   date: string | number | Date;
@@ -16,13 +16,18 @@ export const DateFormat = ({
   type,
   className,
   prefix,
-}: DateFormatProps): ReactElement => {
+}: DateFormatProps): ReactElement | null => {
   const convertedDate = new Date(date);
+  const hasValidDate = isValidDate(convertedDate);
 
   const renderDate = useMemo(
-    () => date && formatDate({ value: date, type }),
-    [date, type],
+    () => (hasValidDate ? formatDate({ value: date, type }) : ''),
+    [date, hasValidDate, type],
   );
+
+  if (!hasValidDate) {
+    return null;
+  }
 
   return (
     <time

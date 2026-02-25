@@ -5,7 +5,9 @@ import {
   getReadHistoryDateFormat,
   isDateOnlyEqual,
   getTodayTz,
+  formatDate,
   publishTimeRelativeShort,
+  TimeFormatType,
 } from './dateFormat';
 
 const now = new Date(2020, 5, 1, 12, 0, 0);
@@ -216,5 +218,25 @@ describe('publishTimeRelativeShort', () => {
     const date = new Date(2018, 5, 1, 12, 0, 0);
     const actual = publishTimeRelativeShort(date.toISOString(), now);
     expect(actual).toEqual(expected);
+  });
+});
+
+describe('formatDate invalid input', () => {
+  it('should return empty string for undefined value', () => {
+    expect(
+      formatDate({
+        value: undefined as never,
+        type: TimeFormatType.Post,
+      }),
+    ).toBe('');
+  });
+
+  it('should return empty string for malformed date string', () => {
+    expect(
+      formatDate({
+        value: 'invalid date',
+        type: TimeFormatType.Post,
+      }),
+    ).toBe('');
   });
 });

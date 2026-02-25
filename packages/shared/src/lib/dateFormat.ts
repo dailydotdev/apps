@@ -14,6 +14,8 @@ export const oneDay = 86400;
 const oneWeek = 7 * oneDay;
 const oneMonth = 30 * oneDay;
 export const oneYear = oneDay * 365;
+export const isValidDate = (date: Date): boolean =>
+  !Number.isNaN(date.getTime());
 
 export const publishTimeRelativeShort = (
   value: Date | number | string,
@@ -266,6 +268,10 @@ interface FormatDateProps {
 
 export const formatDate = ({ value, type, now }: FormatDateProps): string => {
   const date = new Date(value);
+
+  if (!isValidDate(date)) {
+    return '';
+  }
 
   if (type === TimeFormatType.Post) {
     return postDateFormat(date);

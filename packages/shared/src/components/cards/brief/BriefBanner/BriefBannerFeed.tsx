@@ -14,7 +14,9 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
   const bannerLastSeenRef = useRef<Date | null>(null);
   const { user, isLoggedIn } = useAuthContext();
   const shouldShowBanner = useMemo(() => {
-    const hasTodayBrief = brief && isToday(new Date(brief.createdAt));
+    const hasTodayBrief = brief?.createdAt
+      ? isToday(new Date(brief.createdAt))
+      : false;
     const haveSeenBannerToday =
       loadedAlerts &&
       alerts.briefBannerLastSeen &&
