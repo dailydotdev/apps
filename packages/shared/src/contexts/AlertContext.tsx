@@ -38,14 +38,8 @@ export interface AlertContextData {
   clearOpportunityAlert?: UseMutateAsyncFunction<unknown, unknown, void>;
 }
 
-const defaultUpdateAlerts: AlertContextData['updateAlerts'] = async () =>
-  undefined;
-
-const AlertContext = React.createContext<AlertContextData>({
-  alerts: ALERT_DEFAULTS,
-  loadedAlerts: false,
-  updateAlerts: defaultUpdateAlerts,
-});
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const AlertContext = React.createContext<AlertContextData>(null!);
 
 export interface AlertContextProviderProps {
   children: ReactNode;

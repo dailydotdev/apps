@@ -13,34 +13,20 @@ export interface DndContextData {
   onDndSettings: (settings: DndSettings) => Promise<void>;
 }
 
-const DEFAULT_VALUE: DndContextData = {
-  showDnd: false,
-  setShowDnd: () => undefined,
-  dndSettings: undefined,
-  isActive: false,
-  onDndSettings: async () => undefined,
-};
-const DndContext = React.createContext<DndContextData>(DEFAULT_VALUE);
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const DndContext = React.createContext<DndContextData>(null!);
 const now = new Date();
 
 interface DndContextProviderProps {
   children: ReactNode;
 }
 
-export const DndContextProvider = ({
+const ExtensionDndContextProvider = ({
   children,
 }: DndContextProviderProps): ReactElement => {
   const [showDnd, setShowDnd] = useState(false);
   const [dndSettings, setDndSettings] =
     usePersistentContext<DndSettings>('dnd');
-
-  if (!checkIsExtension()) {
-    return (
-      <DndContext.Provider value={DEFAULT_VALUE}>
-        {children}
-      </DndContext.Provider>
-    );
-  }
 
   return (
     <DndContext.Provider
@@ -55,6 +41,16 @@ export const DndContextProvider = ({
       {children}
     </DndContext.Provider>
   );
+};
+
+export const DndContextProvider = ({
+  children,
+}: DndContextProviderProps): ReactElement => {
+  if (!checkIsExtension()) {
+    return <>{children}</>;
+  }
+
+  return <ExtensionDndContextProvider>{children}</ExtensionDndContextProvider>;
 };
 
 export default DndContext;

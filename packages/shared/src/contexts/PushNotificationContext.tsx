@@ -35,15 +35,9 @@ export interface PushNotificationsContextData {
 }
 
 export const PushNotificationsContext =
-  createContext<PushNotificationsContextData>({
-    isPushSupported: false,
-    isInitialized: true,
-    isSubscribed: false,
-    isLoading: false,
-    shouldOpenPopup: () => true,
-    subscribe: async () => false,
-    unsubscribe: async () => undefined,
-  });
+  createContext<PushNotificationsContextData>(
+    null!, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+  );
 
 interface PushNotificationContextProviderProps {
   children: ReactElement;
@@ -281,9 +275,7 @@ export function PushNotificationContextProvider({
   const isExtension = checkIsExtension();
 
   if (isExtension) {
-    throw new Error(
-      'PushNotificationContextProvider should only be used in the webapp',
-    );
+    return <>{children}</>;
   }
 
   if (isIOSNative()) {

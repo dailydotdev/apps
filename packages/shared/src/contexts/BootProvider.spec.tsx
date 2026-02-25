@@ -350,7 +350,7 @@ const AlertsMock = (params: Partial<Alerts>) => {
 
   return (
     <button
-      onClick={() => updateAlerts?.(params)}
+      onClick={() => updateAlerts(params)}
       type="button"
       data-test-value={JSON.stringify(alerts)}
     >

@@ -57,17 +57,8 @@ export interface WritePostProps {
   formId?: string;
 }
 
-export const WritePostContext = React.createContext<WritePostProps>({
-  onSubmitForm: () => undefined,
-  isPosting: false,
-  squad: null,
-  post: undefined,
-  enableUpload: false,
-  formRef: undefined,
-  draft: {},
-  updateDraft: undefined,
-  formId: undefined,
-});
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+export const WritePostContext = React.createContext<WritePostProps>(null!);
 
 export const useWritePostContext = (): WritePostProps =>
   useContext(WritePostContext);

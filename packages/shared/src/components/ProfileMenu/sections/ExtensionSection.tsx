@@ -10,14 +10,10 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { checkIsExtension } from '../../../lib/func';
 
-export const ExtensionSection = (): ReactElement | null => {
+const ExtensionSectionContent = (): ReactElement => {
   const { openModal } = useLazyModal();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { optOutCompanion, toggleOptOutCompanion } = useSettingsContext();
-
-  if (!checkIsExtension()) {
-    return null;
-  }
 
   return (
     <>
@@ -33,7 +29,7 @@ export const ExtensionSection = (): ReactElement | null => {
           {
             title: `${isDndActive ? 'Resume' : 'Pause'} new tab`,
             icon: isDndActive ? PlayIcon : PauseIcon,
-            onClick: () => setShowDnd?.(true),
+            onClick: () => setShowDnd(true),
           },
           {
             title: `${optOutCompanion ? 'Enable' : 'Disable'} companion widget`,
@@ -44,4 +40,12 @@ export const ExtensionSection = (): ReactElement | null => {
       />
     </>
   );
+};
+
+export const ExtensionSection = (): ReactElement | null => {
+  if (!checkIsExtension()) {
+    return null;
+  }
+
+  return <ExtensionSectionContent />;
 };

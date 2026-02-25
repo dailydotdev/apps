@@ -75,18 +75,8 @@ export interface AuthContextData {
 }
 
 const isExtension = checkIsExtension();
-const defaultLogout: AuthContextData['logout'] = async () => undefined;
-const defaultUpdateUser: AuthContextData['updateUser'] = async () => undefined;
-const AuthContext = React.createContext<AuthContextData>({
-  isLoggedIn: false,
-  shouldShowLogin: false,
-  showLogin: () => undefined,
-  closeLogin: () => undefined,
-  logout: defaultLogout,
-  updateUser: defaultUpdateUser,
-  tokenRefreshed: false,
-  getRedirectUri: () => '',
-});
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const AuthContext = React.createContext<AuthContextData>(null!);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
 export default AuthContext;
 

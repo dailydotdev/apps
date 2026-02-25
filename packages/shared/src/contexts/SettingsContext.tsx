@@ -73,56 +73,8 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   applyThemeMode: (mode?: ThemeMode) => void;
 }
 
-const asyncNoopVoid = async (): Promise<void> => undefined;
-const asyncNoopUnknown = async (): Promise<unknown> => undefined;
-const noop = (): void => undefined;
-
-const SettingsContext = React.createContext<SettingsContextData>({
-  spaciness: 'eco',
-  openNewTab: true,
-  insaneMode: false,
-  showTopSites: true,
-  sidebarExpanded: false,
-  companionExpanded: false,
-  sortingEnabled: false,
-  optOutReadingStreak: false,
-  optOutCompanion: false,
-  autoDismissNotifications: true,
-  sortCommentsBy: SortCommentsBy.OldestFirst,
-  showFeedbackButton: true,
-  campaignCtaPlacement: CampaignCtaPlacement.Header,
-  flags: {
-    sidebarSquadExpanded: true,
-    sidebarCustomFeedsExpanded: true,
-    sidebarOtherExpanded: true,
-    sidebarResourcesExpanded: true,
-    sidebarBookmarksExpanded: true,
-    clickbaitShieldEnabled: true,
-    defaultWriteTab: WriteFormTab.NewPost,
-  },
-  themeMode: ThemeMode.Dark,
-  setTheme: asyncNoopVoid,
-  toggleOpenNewTab: asyncNoopVoid,
-  setSpaciness: asyncNoopVoid,
-  toggleInsaneMode: asyncNoopVoid,
-  toggleShowTopSites: asyncNoopVoid,
-  toggleSidebarExpanded: asyncNoopVoid,
-  toggleSortingEnabled: asyncNoopVoid,
-  toggleOptOutReadingStreak: asyncNoopVoid,
-  toggleOptOutCompanion: asyncNoopVoid,
-  toggleAutoDismissNotifications: asyncNoopVoid,
-  toggleShowFeedbackButton: asyncNoopVoid,
-  loadedSettings: false,
-  updateCustomLinks: asyncNoopUnknown,
-  updateSortCommentsBy: asyncNoopUnknown,
-  updateFlag: asyncNoopUnknown,
-  updateFlagRemote: asyncNoopUnknown,
-  updatePromptFlag: asyncNoopUnknown,
-  syncSettings: asyncNoopUnknown,
-  onToggleHeaderPlacement: asyncNoopUnknown,
-  setSettings: asyncNoopVoid,
-  applyThemeMode: noop,
-});
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const SettingsContext = React.createContext<SettingsContextData>(null!);
 export default SettingsContext;
 
 const deprecatedLightModeStorageKey = 'showmethelight';
