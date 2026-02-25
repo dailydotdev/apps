@@ -1146,43 +1146,6 @@ const OnboardingV2Page = (): ReactElement => {
     return 'default';
   }, [githubImportPhase]);
 
-  let feedStageDynamicClass: string;
-  if (feedReadyState) {
-    feedStageDynamicClass = 'onb-feed-unlocked translate-y-0 opacity-100';
-  } else if (feedVisible) {
-    feedStageDynamicClass = 'translate-y-0 opacity-100';
-  } else {
-    feedStageDynamicClass = 'pointer-events-none translate-y-2 opacity-0';
-  }
-
-  let githubImportTitle: string;
-  if (githubImportPhase === 'complete') {
-    githubImportTitle = 'Your feed is ready';
-  } else if (
-    githubImportPhase === 'awaitingSeniority' ||
-    githubImportPhase === 'confirmingSeniority'
-  ) {
-    githubImportTitle = 'Almost there';
-  } else if (importFlowSource === 'github') {
-    githubImportTitle = 'Reading your GitHub';
-  } else {
-    githubImportTitle = 'Analyzing your profile';
-  }
-
-  let githubImportDescription: string;
-  if (githubImportPhase === 'complete') {
-    githubImportDescription = 'We built a personalized feed just for you.';
-  } else if (githubImportPhase === 'awaitingSeniority') {
-    githubImportDescription =
-      importFlowSource === 'github'
-        ? 'One thing we couldn\u2019t find on your profile.'
-        : 'One last detail to finish your profile setup.';
-  } else if (githubImportPhase === 'confirmingSeniority') {
-    githubImportDescription = 'Got it. Finishing up...';
-  } else {
-    githubImportDescription = currentImportStep;
-  }
-
   return (
     <div
       className={classNames(
@@ -4832,8 +4795,7 @@ const OnboardingV2Page = (): ReactElement => {
                 )}
               >
                 <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
-                {/* eslint-disable-next-line no-nested-ternary */}
-                {signupContext === 'github' ? (
+                {signupContext === 'github' && (
                   <button
                     type="button"
                     className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"

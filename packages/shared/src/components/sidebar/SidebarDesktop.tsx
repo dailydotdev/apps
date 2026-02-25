@@ -78,9 +78,7 @@ export const SidebarDesktop = ({
               <CreatePostButton
                 className={classNames(
                   '!flex whitespace-nowrap',
-                  effectiveExpanded
-                    ? 'w-full justify-start'
-                    : 'justify-center',
+                  effectiveExpanded ? 'w-full justify-start' : 'justify-center',
                 )}
                 compact={!effectiveExpanded}
                 size={ButtonSize.Small}
