@@ -55,8 +55,13 @@ export default function useLogLifecycleEvents(
 
   useEffect(() => {
     listenToLifecycleEvents();
-    const callback = (event: CustomEvent) =>
-      lifecycleCallbackRef.current(event);
+    const callback = (event: Event) => {
+      if (!(event instanceof CustomEvent)) {
+        return;
+      }
+
+      lifecycleCallbackRef.current?.(event);
+    };
     window.addEventListener('statechange', callback);
     return () => window.removeEventListener('statechange', callback);
   }, []);

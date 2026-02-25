@@ -23,8 +23,8 @@ type FeedContextMenu = {
     row: number,
     column: number,
   ) => void;
-  postMenuIndex: number;
-  postMenuLocation: PostLocation;
+  postMenuIndex: number | undefined;
+  postMenuLocation: PostLocation | undefined;
   setPostMenuIndex: (value: PostLocation | undefined) => void;
 };
 
@@ -39,7 +39,7 @@ export default function useFeedContextMenu(): FeedContextMenu {
     column: number,
   ) => {
     if (postMenuIndex === index) {
-      setPostMenuLocation(null);
+      setPostMenuLocation(undefined);
       return;
     }
     setPostMenuLocation({ index, row, column });
@@ -53,7 +53,7 @@ export default function useFeedContextMenu(): FeedContextMenu {
     column: number,
   ) => {
     if (postMenuIndex === index) {
-      setPostMenuLocation(null);
+      setPostMenuLocation(undefined);
       return;
     }
     setPostMenuLocation({ index, row, column });

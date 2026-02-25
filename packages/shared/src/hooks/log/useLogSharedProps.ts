@@ -14,7 +14,7 @@ export default function useLogSharedProps(
   deviceId: string,
 ): [MutableRefObject<Partial<LogEvent>>, boolean] {
   // Use ref instead of state to reduce renders
-  const sharedPropsRef = useRef<Partial<LogEvent>>();
+  const sharedPropsRef = useRef<Partial<LogEvent>>({});
   const { query } = useRouter();
   const { themeMode, spaciness, insaneMode } = useContext(SettingsContext);
   const { visit, anonymous, tokenRefreshed, user } = useContext(AuthContext);

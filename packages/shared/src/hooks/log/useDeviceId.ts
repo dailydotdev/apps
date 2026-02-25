@@ -14,7 +14,7 @@ export const getOrGenerateDeviceId = async (): Promise<string> => {
   return newDeviceId;
 };
 
-export default function useDeviceId(): string {
+export default function useDeviceId(): string | undefined {
   const [deviceId, setDeviceId] = useState<string>();
 
   useEffect(() => {
