@@ -1268,7 +1268,7 @@ const OnboardingV2Page = (): ReactElement => {
                 Join top dev community.
               </span>
               <br />
-              <span className="onb-gradient-text bg-[length:200%_auto] bg-clip-text text-transparent">
+              <span className="onb-gradient-text bg-clip-text text-transparent">
                 Build your feed identity.
               </span>
             </h1>
@@ -2095,6 +2095,7 @@ const OnboardingV2Page = (): ReactElement => {
             var(--theme-accent-water-default) 60%,
             var(--theme-accent-cabbage-default) 100%
           );
+          background-size: 200% auto;
           animation: onb-gradient-shift 6s ease-in-out infinite;
         }
 
