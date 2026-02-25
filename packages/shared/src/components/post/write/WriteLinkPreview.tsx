@@ -148,7 +148,7 @@ export function WriteLinkPreview({
                       <Separator />
                       {isUserSource
                         ? `@${post.author.username}`
-                        : post.source.name}
+                        : post.source?.name ?? ''}
                     </Typography>
                   </div>
 

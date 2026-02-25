@@ -35,7 +35,7 @@ export function SquadPostWidgets({
           className={{
             container: cardClasses,
           }}
-          handle={post.source.handle}
+          handle={post.source?.handle}
           origin={origin}
         />
       )}

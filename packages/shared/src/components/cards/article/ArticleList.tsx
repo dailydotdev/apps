@@ -80,13 +80,31 @@ export const ArticleList = forwardRef(function ArticleList(
       };
     }
 
+    if (!post.source) {
+      return {
+        topLabel: post.author.name,
+        bottomLabel: (
+          <PostReadTime
+            readTime={post.readTime}
+            isVideoType={isVideoPost(post)}
+          />
+        ),
+      };
+    }
+
     return {
       topLabel: (
-        <Link href={post.source.permalink}>
-          <a href={post.source.permalink} className="relative z-1">
-            {post.source.name}
-          </a>
-        </Link>
+        <>
+          {post.source?.permalink ? (
+            <Link href={post.source?.permalink}>
+              <a href={post.source?.permalink} className="relative z-1">
+                {post.source?.name ?? ''}
+              </a>
+            </Link>
+          ) : (
+            post.source?.name ?? ''
+          )}
+        </>
       ),
       bottomLabel: (
         <PostReadTime
@@ -132,7 +150,7 @@ export const ArticleList = forwardRef(function ArticleList(
               onReadArticleClick={onReadArticleClick}
               metadata={metadata}
             >
-              {!isUserSource && (
+              {!isUserSource && post.source && (
                 <SourceButton
                   size={ProfileImageSize.Large}
                   source={post.source}

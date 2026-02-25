@@ -86,11 +86,13 @@ export const FreeformList = forwardRef(function SharePostCard(
     }
 
     return {
-      topLabel: enableSourceHeader ? post.source.name : post.author.name,
+      topLabel: enableSourceHeader
+        ? post.source?.name ?? post.author.name
+        : post.author.name,
       bottomLabel: enableSourceHeader
         ? post.author.name
         : `@${
-            post.source.handle ?? post.sharedPost?.source?.handle ?? 'unknown'
+            post.source?.handle ?? post.sharedPost?.source?.handle ?? 'unknown'
           }`,
     };
   }, [
@@ -121,7 +123,7 @@ export const FreeformList = forwardRef(function SharePostCard(
     >
       <CardContainer>
         <PostCardHeader post={post} metadata={metadata}>
-          {!isUserSource && (
+          {!isUserSource && post.source && (
             <SquadHeaderPicture
               source={post.source}
               reverse={!enableSourceHeader}

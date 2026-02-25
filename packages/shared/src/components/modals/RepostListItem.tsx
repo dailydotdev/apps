@@ -26,7 +26,7 @@ export function RepostListItem({
   const comments = post.numComments ?? 0;
   const { author } = post;
   const showSquadPreview = !isUserSource && !!post.source;
-  const isPrivateSquad = showSquadPreview && !post.source.public;
+  const isPrivateSquad = showSquadPreview && !post.source?.public;
 
   const renderUserInfo = () => {
     if (!author) {
@@ -73,15 +73,15 @@ export function RepostListItem({
             size={ProfileImageSize.XSmall}
             className="!mr-0"
           />
-          {post.source.permalink ? (
-            <Link href={post.source.permalink}>
+          {post.source?.permalink ? (
+            <Link href={post.source?.permalink}>
               <a className="truncate text-text-secondary !no-underline typo-callout hover:!no-underline">
-                {post.source.name}
+                {post.source?.name ?? ''}
               </a>
             </Link>
           ) : (
             <span className="truncate text-text-secondary typo-callout">
-              {post.source.name}
+              {post.source?.name ?? ''}
             </span>
           )}
           {isPrivateSquad && (

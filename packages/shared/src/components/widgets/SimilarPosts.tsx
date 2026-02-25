@@ -59,8 +59,8 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
       {...combinedClicks(() => onLinkClick(post))}
     />
     <LazyImage
-      imgSrc={post.source.image}
-      imgAlt={post.source.name}
+      imgSrc={post.source?.image}
+      imgAlt={post.source?.name ?? ''}
       className={imageClassName}
     />
     <div className={textContainerClassName}>

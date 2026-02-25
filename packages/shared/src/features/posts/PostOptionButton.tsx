@@ -630,8 +630,8 @@ const PostOptionButtonContent = ({
           />
         ),
         label: haveNotificationsOn
-          ? `Remove notifications from ${post.source.name}`
-          : `Notify on new post from ${post.source.name}`,
+          ? `Remove notifications from ${post?.source?.name ?? ''}`
+          : `Notify on new post from ${post?.source?.name ?? ''}`,
         action: onNotifyToggle,
       });
     }
@@ -680,7 +680,7 @@ const PostOptionButtonContent = ({
   if (!isBriefPost && post?.source?.name && !isSourceUserSource(post?.source)) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
-      label: getBlockLabel(post.source.name, {
+      label: getBlockLabel(post?.source?.name ?? '', {
         isCustomFeed,
         isBlocked: isSourceBlocked,
       }),

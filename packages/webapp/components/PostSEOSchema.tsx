@@ -199,8 +199,8 @@ export const getDiscussionForumPostingSchema = (
   ...(post.source && {
     isPartOf: {
       '@type': 'WebPage',
-      url: post.source.permalink,
-      name: post.source.name,
+      url: post.source?.permalink,
+      name: post.source?.name,
     },
   }),
 });

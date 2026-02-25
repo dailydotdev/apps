@@ -36,8 +36,10 @@ export function PostTagsPanel({
   const { feedSettings } = useFeedSettings({
     feedId: customFeedId,
   });
+  const { source } = post;
+
   const hasBlockedSource = () =>
-    feedSettings?.excludeSources?.some(({ id }) => id === post.source.id);
+    feedSettings?.excludeSources?.some(({ id }) => id === source?.id);
   const [initialPreference] = useState(hasBlockedSource);
   const [shouldBlockSource, setShouldBlockSource] = useState(hasBlockedSource);
   const [tags, setTags] = useState<BlockTagSelection>(
@@ -60,6 +62,10 @@ export function PostTagsPanel({
     blockedSource: initialPreference,
     feedId: customFeedId,
   });
+
+  if (!source) {
+    return null;
+  }
 
   if (post.tags.length === 0 || isNullOrUndefined(showTagsPanel)) {
     return null;
@@ -112,10 +118,10 @@ export function PostTagsPanel({
             shouldBlockSource ? ButtonVariant.Primary : ButtonVariant.Float
           }
           size={ButtonSize.Small}
-          icon={<SourceAvatar source={post.source} />}
+          icon={<SourceAvatar source={source} />}
           onClick={() => setShouldBlockSource(!shouldBlockSource)}
         >
-          {post.source.name}
+          {source.name}
         </Button>
         {post.tags.map((tag) => (
           <GenericTagButton
