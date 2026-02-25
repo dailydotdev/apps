@@ -155,8 +155,8 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
           {hiddenCount > 0 && (
             <Button
               variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              className="border border-border-subtlest-tertiary self-stretch !h-auto"
+              size={ButtonSize.Medium}
+              className="border border-border-subtlest-tertiary"
               onClick={() => setIsExpanded((prev) => !prev)}
             >
               {isExpanded ? 'Show less' : `+${hiddenCount}`}
