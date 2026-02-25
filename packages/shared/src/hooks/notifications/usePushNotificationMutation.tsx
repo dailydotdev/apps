@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { UserPersistentContextType } from '../usePersistentContext';
 import usePersistentContext from '../usePersistentContext';
 import { ActionType } from '../../graphql/actions';
@@ -12,7 +12,6 @@ import { checkIsExtension } from '../../lib/func';
 import type { NotificationPromptSource } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
-import { useEventListener } from '../useEventListener';
 
 export const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
@@ -29,7 +28,10 @@ interface UsePushNotificationMutationProps {
 
 export const usePermissionCache =
   (): UserPersistentContextType<NotificationPermission> =>
-    usePersistentContext(PERMISSION_NOTIFICATION_KEY, 'default');
+    usePersistentContext<NotificationPermission>(
+      PERMISSION_NOTIFICATION_KEY,
+      'default',
+    );
 
 export const usePushNotificationMutation = ({
   onPopupGranted,
@@ -79,7 +81,7 @@ export const usePushNotificationMutation = ({
       }
 
       if (shouldOpenPopup()) {
-        onOpenPopup(source);
+        onOpenPopup?.(source);
         return false;
       }
 
@@ -104,24 +106,31 @@ export const usePushNotificationMutation = ({
     [isSubscribed, onEnablePush, unsubscribe],
   );
 
-  useEventListener(globalThis, 'message', async (e) => {
-    const { permission }: PermissionEvent = e?.data ?? {};
-    const earlyReturnChecks = [
-      e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,
-      !shouldOpenPopup,
-      permission !== 'granted',
-    ];
+  useEffect(() => {
+    const onPermissionMessage = async (
+      e: MessageEvent<PermissionEvent>,
+    ): Promise<void> => {
+      const { permission, eventKey } = e.data ?? {};
+      const earlyReturnChecks = [
+        eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,
+        !shouldOpenPopup(),
+        permission !== 'granted',
+      ];
 
-    if (earlyReturnChecks.some(Boolean)) {
-      return;
-    }
+      if (earlyReturnChecks.some(Boolean)) {
+        return;
+      }
 
-    await onGranted();
+      await onGranted();
+      onPopupGranted?.();
+    };
 
-    if (onPopupGranted) {
-      onPopupGranted();
-    }
-  });
+    globalThis.addEventListener('message', onPermissionMessage);
+
+    return () => {
+      globalThis.removeEventListener('message', onPermissionMessage);
+    };
+  }, [onGranted, onPopupGranted, shouldOpenPopup]);
 
   return {
     hasPermissionCache: permissionCache === 'granted',
