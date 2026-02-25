@@ -94,7 +94,6 @@ const GenericReferralModal = dynamic(
 const NewStreakModal = dynamic(
   () =>
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
-  { ssr: false },
 );
 
 const ReputationPrivilegesModal = dynamic(
@@ -134,7 +133,6 @@ const StreakRecoverModal = dynamic(
     import(
       /* webpackChunkName: "streakRecoverModal" */ './streaks/StreakRecoverModal'
     ),
-  { ssr: false },
 );
 
 const SlackIntegrationModal = dynamic(
