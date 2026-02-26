@@ -29,9 +29,11 @@ import {
   BrowserName,
   getCurrentBrowserName,
 } from '@dailydotdev/shared/src/lib/func';
-import { cloudinaryOnboardingExtension } from '@dailydotdev/shared/src/lib/image';
 import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
+import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
+import { StarIcon } from '@dailydotdev/shared/src/components/icons/Star';
+import { cloudinaryOnboardingExtension } from '@dailydotdev/shared/src/lib/image';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
@@ -83,126 +85,73 @@ const TAG_TREND_LABELS = [
   'WebAssembly',
 ] as const;
 
-const MOBILE_TAG_ROW_TOP = TAG_TREND_LABELS.slice(0, 6);
-const MOBILE_TAG_ROW_BOTTOM = TAG_TREND_LABELS.slice(8, 14);
-type MobileHeroTagCloudItem = {
+type RisingTag = {
   label: string;
   left: string;
-  top: string;
   delay: string;
   duration: string;
   driftX: number;
-  driftY: number;
-};
-const MOBILE_TAG_CLOUD_TOP: MobileHeroTagCloudItem[] = MOBILE_TAG_ROW_TOP.map(
-  (label, index) => {
-    const positions = [
-      { left: '6%', top: '10%' },
-      { left: '30%', top: '0%' },
-      { left: '56%', top: '12%' },
-      { left: '80%', top: '6%' },
-      { left: '14%', top: '50%' },
-      { left: '40%', top: '44%' },
-      { left: '66%', top: '54%' },
-      { left: '86%', top: '42%' },
-    ] as const;
-    const drifts = [
-      { x: 8, y: -4 },
-      { x: -9, y: 5 },
-      { x: 7, y: -6 },
-      { x: -8, y: 4 },
-      { x: 10, y: -5 },
-      { x: -7, y: 6 },
-      { x: 9, y: -4 },
-      { x: -10, y: 5 },
-    ] as const;
-    const position = positions[index % positions.length];
-    const drift = drifts[index % drifts.length];
-
-    return {
-      label,
-      left: position.left,
-      top: position.top,
-      delay: `${index * 0.22}s`,
-      duration: `${6.2 + (index % 3) * 0.7}s`,
-      driftX: drift.x,
-      driftY: drift.y,
-    };
-  },
-);
-const MOBILE_TAG_CLOUD_BOTTOM: MobileHeroTagCloudItem[] =
-  MOBILE_TAG_ROW_BOTTOM.map((label, index) => {
-    const positions = [
-      { left: '8%', top: '18%' },
-      { left: '26%', top: '52%' },
-      { left: '48%', top: '24%' },
-      { left: '72%', top: '56%' },
-      { left: '88%', top: '22%' },
-      { left: '18%', top: '78%' },
-      { left: '54%', top: '74%' },
-      { left: '82%', top: '82%' },
-    ] as const;
-    const drifts = [
-      { x: -8, y: -5 },
-      { x: 7, y: 6 },
-      { x: -10, y: -4 },
-      { x: 8, y: 5 },
-      { x: -9, y: -6 },
-      { x: 7, y: 5 },
-      { x: -8, y: -4 },
-      { x: 9, y: 6 },
-    ] as const;
-    const position = positions[index % positions.length];
-    const drift = drifts[index % drifts.length];
-
-    return {
-      label,
-      left: position.left,
-      top: position.top,
-      delay: `${0.45 + index * 0.2}s`,
-      duration: `${6 + (index % 3) * 0.8}s`,
-      driftX: drift.x,
-      driftY: drift.y,
-    };
-  });
-
-type HeroTagSize = 'sm' | 'md' | 'lg';
-type HeroTagTrendItem = {
-  label: string;
-  left: string;
-  top: string;
-  delay: string;
-  duration: string;
-  driftX: number;
-  driftY: number;
-  size: HeroTagSize;
 };
 
-const TAG_TREND_EDGE_LABELS = TAG_TREND_LABELS.filter(
-  (_, index) => index % 2 === 0,
-).slice(0, 14);
-const EDGE_Y_POSITIONS = [8, 18, 28, 40, 52, 64, 76] as const;
-const LEFT_X_POSITIONS = [4, 8, 12, 16, 20, 14, 9] as const;
-const RIGHT_X_POSITIONS = [80, 84, 88, 92, 96, 90, 86] as const;
-
-const HERO_TAG_TREND: HeroTagTrendItem[] = TAG_TREND_EDGE_LABELS.map(
-  (label, index) => {
-    const row = Math.floor(index / 2) % EDGE_Y_POSITIONS.length;
-    const isLeft = index % 2 === 0;
-    const yOffset = (index % 3) - 1;
-
-    return {
-      label,
-      left: `${isLeft ? LEFT_X_POSITIONS[row] : RIGHT_X_POSITIONS[row]}%`,
-      top: `${EDGE_Y_POSITIONS[row] + yOffset}%`,
-      delay: `${(index % 7) * 0.8}s`,
-      duration: `${5.5 + (index % 3) * 0.9}s`,
-      driftX: isLeft ? 6 + (index % 4) * 2 : -(6 + (index % 4) * 2),
-      driftY: -10 + (index % 5) * 5,
-      size: (['sm', 'md', 'lg'] as const)[index % 3],
-    };
+const RISING_TAGS_DESKTOP: RisingTag[] = [
+  { label: 'React', left: '8%', delay: '0s', duration: '14s', driftX: 12 },
+  { label: 'AI & ML', left: '28%', delay: '1.2s', duration: '15s', driftX: -8 },
+  {
+    label: 'System Design',
+    left: '52%',
+    delay: '0.6s',
+    duration: '14.5s',
+    driftX: 10,
   },
-);
+  { label: 'Docker', left: '78%', delay: '2s', duration: '13.8s', driftX: -14 },
+  {
+    label: 'TypeScript',
+    left: '18%',
+    delay: '3.4s',
+    duration: '15.2s',
+    driftX: 8,
+  },
+  {
+    label: 'Next.js',
+    left: '88%',
+    delay: '2.8s',
+    duration: '14.4s',
+    driftX: -10,
+  },
+  {
+    label: 'Python',
+    left: '42%',
+    delay: '4.2s',
+    duration: '14.8s',
+    driftX: -6,
+  },
+  {
+    label: 'Kubernetes',
+    left: '66%',
+    delay: '5s',
+    duration: '14.2s',
+    driftX: 12,
+  },
+];
+
+const RISING_TAGS_MOBILE: RisingTag[] = [
+  { label: 'React', left: '10%', delay: '0s', duration: '13.5s', driftX: 8 },
+  {
+    label: 'AI & ML',
+    left: '55%',
+    delay: '1.5s',
+    duration: '14s',
+    driftX: -10,
+  },
+  { label: 'Docker', left: '30%', delay: '3s', duration: '13s', driftX: 6 },
+  {
+    label: 'TypeScript',
+    left: '75%',
+    delay: '4.5s',
+    duration: '14.5s',
+    driftX: -8,
+  },
+];
 
 const SELECTABLE_TOPICS = [
   { label: 'React', color: 'water' as const },
@@ -238,18 +187,11 @@ type GithubImportPhase =
   | 'finishing'
   | 'complete';
 type ImportFlowSource = 'github' | 'ai';
-type LiveFloater = {
-  id: string;
-  left: number;
-  top: number;
-  text: string;
-  color: string;
-  x: string;
-  y: string;
-  scale: string;
-  rot: string;
-  delay: number;
-};
+type GithubImportBodyPhase =
+  | 'checklist'
+  | 'seniority'
+  | 'confirming'
+  | 'default';
 
 const AI_IMPORT_STEPS = [
   { label: 'Analyzing your profile', threshold: 12 },
@@ -312,7 +254,7 @@ function buildConfettiParticles(): ConfettiParticle[] {
   const particles: ConfettiParticle[] = [];
   const SIZES = ['sm', 'md', 'lg', 'xl'] as const;
   const SHAPES = ['rect', 'circle', 'star'] as const;
-  for (let i = 0; i < 60; i += 1) {
+  for (let i = 0; i < 24; i += 1) {
     const col = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
     const opacity = 65 + Math.round(Math.random() * 30);
     particles.push({
@@ -332,14 +274,10 @@ function buildConfettiParticles(): ConfettiParticle[] {
 const OnboardingV2Page = (): ReactElement => {
   const router = useRouter();
   const { showLogin } = useAuthContext();
-  const {
-    applyThemeMode,
-    loadedSettings,
-    sidebarExpanded,
-    toggleSidebarExpanded,
-  } = useSettingsContext();
+  const { applyThemeMode } = useSettingsContext();
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [tagsReady, setTagsReady] = useState(false);
   const [feedVisible, setFeedVisible] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
   const [panelStageProgress, setPanelStageProgress] = useState(0);
@@ -360,8 +298,6 @@ const OnboardingV2Page = (): ReactElement => {
   const [signupContext, setSignupContext] = useState<
     'topics' | 'github' | 'ai' | 'manual' | null
   >(null);
-  const [liveFloaters, setLiveFloaters] = useState<LiveFloater[]>([]);
-  const didSetSidebarDefault = useRef(false);
   const panelSentinelRef = useRef<HTMLDivElement>(null);
   const panelStageRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -468,19 +404,36 @@ const OnboardingV2Page = (): ReactElement => {
   }, [applyThemeMode]);
 
   useEffect(() => {
-    if (!loadedSettings || didSetSidebarDefault.current) {
-      return;
-    }
-    didSetSidebarDefault.current = true;
-    if (sidebarExpanded) {
-      toggleSidebarExpanded();
-    }
-  }, [loadedSettings, sidebarExpanded, toggleSidebarExpanded]);
-
-  useEffect(() => {
     const raf = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(raf);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) {
+      return undefined;
+    }
+    let idleTimer: number | null = null;
+    let revealTimer: number | null = null;
+
+    const revealTags = () => {
+      revealTimer = window.setTimeout(() => setTagsReady(true), 180);
+    };
+
+    if ('requestIdleCallback' in window) {
+      idleTimer = window.requestIdleCallback(revealTags, { timeout: 1400 });
+    } else {
+      revealTimer = window.setTimeout(() => setTagsReady(true), 1200);
+    }
+
+    return () => {
+      if (idleTimer !== null && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleTimer);
+      }
+      if (revealTimer !== null) {
+        window.clearTimeout(revealTimer);
+      }
+    };
+  }, [mounted]);
 
   useEffect(() => {
     const anyModalOpen =
@@ -543,6 +496,7 @@ const OnboardingV2Page = (): ReactElement => {
     };
   }, []);
 
+  // Parallax scroll: shift hero layers at different speeds
   useEffect(() => {
     if (!mounted) {
       return undefined;
@@ -551,10 +505,56 @@ const OnboardingV2Page = (): ReactElement => {
     // Keep intro order stable: hero settles before feed animates in.
     const timer = window.setTimeout(() => {
       setFeedVisible(true);
-    }, 700);
+    }, 1400);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).classList.add('onb-revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: '0px 0px -40px 0px', threshold: 0.05 },
+    );
+
+    const observeFeedArticles = () => {
+      document.querySelectorAll('article').forEach((el, i) => {
+        const article = el as HTMLElement;
+
+        if (!article.dataset.onbRevealDelay) {
+          article.style.setProperty(
+            '--reveal-delay',
+            `${Math.min(i * 60, 400)}ms`,
+          );
+          article.dataset.onbRevealDelay = 'true';
+        }
+
+        if (article.classList.contains('onb-revealed')) {
+          return;
+        }
+
+        observer.observe(article);
+      });
+    };
+
+    observeFeedArticles();
+
+    const mutationObserver = new MutationObserver(() => {
+      observeFeedArticles();
+    });
+    const feedContainer =
+      document.querySelector('.onb-feed-stage') ?? document.body;
+    mutationObserver.observe(feedContainer, {
+      childList: true,
+      subtree: true,
+    });
 
     return () => {
       window.clearTimeout(timer);
+      mutationObserver.disconnect();
+      observer.disconnect();
     };
   }, [mounted]);
 
@@ -685,7 +685,6 @@ const OnboardingV2Page = (): ReactElement => {
     };
   }, []);
 
-  // Parallax scroll: shift hero layers at different speeds
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
@@ -709,299 +708,10 @@ const OnboardingV2Page = (): ReactElement => {
         });
       }
     };
+
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  // Scroll-reveal: stagger feed articles as they enter viewport
-  useEffect(() => {
-    if (!feedVisible) {
-      return undefined;
-    }
-
-    const prefersReduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-    if (prefersReduced) {
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            (entry.target as HTMLElement).classList.add('onb-revealed');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: '0px 0px -40px 0px', threshold: 0.05 },
-    );
-
-    const observeFeedArticles = () => {
-      document.querySelectorAll('article').forEach((el, i) => {
-        const article = el as HTMLElement;
-
-        if (!article.dataset.onbRevealDelay) {
-          article.style.setProperty(
-            '--reveal-delay',
-            `${Math.min(i * 60, 400)}ms`,
-          );
-          article.dataset.onbRevealDelay = 'true';
-        }
-
-        if (article.classList.contains('onb-revealed')) {
-          return;
-        }
-
-        observer.observe(article);
-      });
-    };
-
-    observeFeedArticles();
-
-    const mutationObserver = new MutationObserver(() => {
-      observeFeedArticles();
-    });
-    const feedContainer =
-      document.querySelector('.onb-feed-stage') ?? document.body;
-    mutationObserver.observe(feedContainer, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => {
-      mutationObserver.disconnect();
-      observer.disconnect();
-    };
-  }, [feedVisible]);
-
-  // Live engagement ticker: rapidly tick counters across many cards (Polymarket-style)
-  useEffect(() => {
-    if (!feedVisible) {
-      return undefined;
-    }
-
-    const prefersReduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-    if (prefersReduced) {
-      return undefined;
-    }
-
-    const shuffle = <T,>(arr: T[]): T[] => {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    };
-
-    // The QuaternaryButton renders: <div.btn-quaternary> <button#id/> <label>{counter}</label> </div>
-    // So the counter span is in a sibling label, not inside the button itself.
-    const getButtonWrapper = (
-      article: Element,
-      suffix: string,
-    ): Element | null => {
-      const btn = article.querySelector(`[id$="${suffix}"]`);
-      if (!btn) {
-        return null;
-      }
-      return btn.closest('.btn-quaternary') || btn.parentElement;
-    };
-
-    const findCounterIn = (wrapper: Element): HTMLSpanElement | null => {
-      const spans = Array.from(
-        wrapper.querySelectorAll<HTMLSpanElement>('span'),
-      );
-      return (
-        spans.find((span) => {
-          const t = span.textContent?.trim();
-          return t && /^[\d][.\dkKmM]*$/.test(t) && !span.querySelector('span');
-        }) ?? null
-      );
-    };
-
-    const ensureCounter = (
-      wrapper: Element,
-      btnId: string,
-      seed: number,
-    ): HTMLSpanElement => {
-      const existing = findCounterIn(wrapper);
-      if (existing) {
-        return existing;
-      }
-
-      const label = document.createElement('label');
-      label.htmlFor = btnId;
-      label.className =
-        'flex cursor-pointer items-center pl-1 font-bold typo-callout';
-      label.setAttribute('data-onb-injected', 'true');
-
-      const span = document.createElement('span');
-      span.className =
-        'flex h-5 min-w-[1ch] flex-col overflow-hidden tabular-nums typo-footnote';
-      span.textContent = String(seed);
-      label.appendChild(span);
-      wrapper.appendChild(label);
-
-      return span;
-    };
-
-    const formatCount = (n: number): string => {
-      if (n >= 1000000) {
-        return `${(n / 1000000).toFixed(1).replace(/\.0$/, '')}m`;
-      }
-      if (n >= 1000) {
-        return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
-      }
-      return String(n);
-    };
-
-    const parseCount = (text: string): number | null => {
-      const clean = text.trim().toLowerCase();
-      if (/^\d+$/.test(clean)) {
-        return parseInt(clean, 10);
-      }
-      const m = clean.match(/^([\d.]+)([km])$/);
-      if (!m) {
-        return null;
-      }
-      const n = parseFloat(m[1]);
-      return m[2] === 'k' ? n * 1000 : n * 1000000;
-    };
-
-    // Seed all visible cards with upvote counters if they don't have one
-    const seedCards = () => {
-      const articles = document.querySelectorAll('.onb-feed-stage article');
-      articles.forEach((article) => {
-        const upWrapper = getButtonWrapper(article, '-upvote-btn');
-        if (upWrapper) {
-          const btn = article.querySelector('[id$="-upvote-btn"]');
-          const btnId = btn?.id || '';
-          ensureCounter(upWrapper, btnId, 3 + Math.floor(Math.random() * 60));
-        }
-
-        const cmtWrapper = getButtonWrapper(article, '-comment-btn');
-        if (cmtWrapper && Math.random() < 0.7) {
-          const btn = article.querySelector('[id$="-comment-btn"]');
-          const btnId = btn?.id || '';
-          ensureCounter(cmtWrapper, btnId, 1 + Math.floor(Math.random() * 20));
-        }
-      });
-    };
-
-    const bumpOne = (article: Element) => {
-      const isUpvote = Math.random() < 0.75;
-      const suffix = isUpvote ? '-upvote-btn' : '-comment-btn';
-      const wrapper = getButtonWrapper(article, suffix);
-      if (!wrapper) {
-        return;
-      }
-
-      const counter = findCounterIn(wrapper);
-      if (!counter) {
-        return;
-      }
-
-      const val = parseCount(counter.textContent || '');
-      if (val === null) {
-        return;
-      }
-
-      const increment = 1 + (Math.random() < 0.22 ? 1 : 0);
-      const newVal = val + increment;
-      counter.textContent = formatCount(newVal);
-
-      // Brief color flash on the number
-      const color = isUpvote
-        ? 'var(--theme-accent-avocado-default)'
-        : 'var(--theme-accent-blueCheese-default)';
-      counter.style.setProperty('--onb-bump-color', color);
-      counter.classList.remove('onb-live-bump');
-      // Force reflow to restart CSS animation
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      (counter as HTMLElement).offsetWidth;
-      counter.classList.add('onb-live-bump');
-
-      // Emit multiple overlapping floaters so engagement feels continuous.
-      const wrapperEl = wrapper as HTMLElement;
-      const rect = wrapperEl.getBoundingClientRect();
-      const burstCount = 2 + Math.floor(Math.random() * 2);
-      const tickLabel = `+${increment}`;
-
-      const newFloaters: LiveFloater[] = Array.from(
-        { length: burstCount },
-        (_, i) => ({
-          id: `floater-${Date.now()}-${i}`,
-          left: rect.right - 10,
-          top: rect.top - 3,
-          text: tickLabel,
-          color,
-          x: `${(Math.random() - 0.5) * 1.9}rem`,
-          y: `${1.2 + Math.random() * 1.1}rem`,
-          scale: `${1 + Math.random() * 0.45}`,
-          rot: `${(Math.random() - 0.5) * 14}deg`,
-          delay: i * 130,
-        }),
-      );
-
-      setLiveFloaters((prev) => [...prev, ...newFloaters]);
-      newFloaters.forEach((f, i) => {
-        setTimeout(() => {
-          setLiveFloaters((prev) => prev.filter((fl) => fl.id !== f.id));
-        }, 1800 + i * 130);
-      });
-    };
-
-    const tick = () => {
-      const articles = Array.from(
-        document.querySelectorAll('.onb-feed-stage article'),
-      );
-      if (!articles.length) {
-        return;
-      }
-
-      const count = 5 + Math.floor(Math.random() * 5);
-      const picked = shuffle(articles).slice(
-        0,
-        Math.min(count, articles.length),
-      );
-
-      picked.forEach((article, i) => {
-        setTimeout(() => bumpOne(article), i * 45);
-      });
-    };
-
-    let timeoutId: ReturnType<typeof setTimeout>;
-    const scheduleNext = () => {
-      const delay = 300 + Math.random() * 420;
-      timeoutId = setTimeout(() => {
-        tick();
-        scheduleNext();
-      }, delay);
-    };
-
-    const startDelay = setTimeout(() => {
-      seedCards();
-      tick();
-      scheduleNext();
-    }, 2000);
-
-    // Re-seed when new articles appear
-    const mo = new MutationObserver(() => seedCards());
-    const feedStage = document.querySelector('.onb-feed-stage');
-    if (feedStage) {
-      mo.observe(feedStage, { childList: true, subtree: true });
-    }
-
-    return () => {
-      clearTimeout(startDelay);
-      clearTimeout(timeoutId);
-      mo.disconnect();
-    };
-  }, [feedVisible]);
 
   // Cursor-tracking glow on personalization panel
   useEffect(() => {
@@ -1020,6 +730,192 @@ const OnboardingV2Page = (): ReactElement => {
     box.addEventListener('mousemove', onMove);
     return () => box.removeEventListener('mousemove', onMove);
   }, []);
+  useEffect(() => {
+    const shouldRun =
+      feedVisible &&
+      !feedReadyState &&
+      !showSignupChooser &&
+      !showSignupPrompt &&
+      !showGithubImportFlow &&
+      !showExtensionPromo;
+    if (!shouldRun) {
+      return undefined;
+    }
+
+    const prefersReduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    if (prefersReduced) {
+      return undefined;
+    }
+
+    const timeouts = new Set<number>();
+    const addTimeout = (fn: () => void, delay: number) => {
+      const id = window.setTimeout(() => {
+        timeouts.delete(id);
+        fn();
+      }, delay);
+      timeouts.add(id);
+    };
+
+    const getVisibleArticles = () => {
+      return Array.from(
+        document.querySelectorAll<HTMLElement>(
+          '.onb-feed-stage article.onb-revealed',
+        ),
+      ).filter((article) => {
+        const rect = article.getBoundingClientRect();
+        return rect.top > 100 && rect.bottom < window.innerHeight - 100;
+      });
+    };
+
+    const getButtonWrapper = (article: Element, suffix: string) => {
+      const btn = article.querySelector(`[id$="${suffix}"]`);
+      return btn ? btn.closest('.btn-quaternary') || btn.parentElement : null;
+    };
+
+    const findCounter = (wrapper: Element) => {
+      const spans = Array.from(wrapper.querySelectorAll('span'));
+      return spans.find((s) => {
+        const t = s.textContent?.trim();
+        return t && /^[\d][.\dkKmM]*$/.test(t) && !s.querySelector('span');
+      });
+    };
+
+    const ensureCounter = (wrapper: Element, seed: number) => {
+      let counter = findCounter(wrapper);
+      if (!counter) {
+        const label = document.createElement('label');
+        label.className =
+          'flex cursor-pointer items-center pl-1 font-bold typo-callout';
+        counter = document.createElement('span');
+        counter.className =
+          'flex h-5 min-w-[1ch] flex-col overflow-hidden tabular-nums typo-footnote';
+        counter.textContent = String(seed);
+        label.appendChild(counter);
+        wrapper.appendChild(label);
+      }
+      return counter;
+    };
+
+    const formatCount = (n: number) => {
+      if (n >= 1000000) {
+        return `${(n / 1000000).toFixed(1).replace(/\.0$/, '')}m`;
+      }
+      if (n >= 1000) {
+        return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+      }
+      return String(n);
+    };
+
+    const parseCount = (text: string) => {
+      const clean = text.trim().toLowerCase();
+      if (/^\d+$/.test(clean)) {
+        return parseInt(clean, 10);
+      }
+      const m = clean.match(/^([\d.]+)([km])$/);
+      if (!m) {
+        return null;
+      }
+      const n = parseFloat(m[1]);
+      return m[2] === 'k' ? n * 1000 : n * 1000000;
+    };
+
+    const runStream = () => {
+      const articles = getVisibleArticles();
+      if (!articles.length) {
+        addTimeout(runStream, 1000);
+        return;
+      }
+
+      const article = articles[Math.floor(Math.random() * articles.length)];
+      const isUpvote = Math.random() < 0.7;
+      const suffix = isUpvote ? '-upvote-btn' : '-comment-btn';
+      const wrapper = getButtonWrapper(article, suffix);
+      const btn = article.querySelector(`[id$="${suffix}"]`);
+
+      if (!wrapper || !btn) {
+        addTimeout(runStream, 500);
+        return;
+      }
+
+      const wrapperEl = wrapper as HTMLElement;
+      if (getComputedStyle(wrapperEl).position === 'static') {
+        wrapperEl.style.position = 'relative';
+      }
+
+      const counter = ensureCounter(
+        wrapper,
+        isUpvote
+          ? 4 + Math.floor(Math.random() * 50)
+          : 1 + Math.floor(Math.random() * 10),
+      );
+
+      const activeClass = isUpvote
+        ? 'onb-eng-active-upvote'
+        : 'onb-eng-active-comment';
+      const color = isUpvote
+        ? 'var(--theme-accent-avocado-default)'
+        : 'var(--theme-accent-water-default)';
+
+      wrapperEl.classList.add(activeClass);
+
+      const increments = [
+        1,
+        Math.random() < 0.5 ? 1 : 2,
+        Math.random() < 0.5 ? 2 : 3,
+        Math.random() < 0.5 ? 4 : 5,
+      ];
+      let delayAcc = 0;
+
+      increments.forEach((inc) => {
+        addTimeout(() => {
+          btn.classList.remove('onb-eng-pulse');
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          (btn as HTMLElement).offsetWidth;
+          btn.classList.add('onb-eng-pulse');
+
+          const currentVal = parseCount(counter.textContent || '') || 0;
+          counter.textContent = formatCount(currentVal + inc);
+
+          const floater = document.createElement('span');
+          floater.className = 'onb-eng-floater';
+          floater.textContent = `+${inc}`;
+          floater.style.color = color;
+          wrapperEl.appendChild(floater);
+
+          addTimeout(() => {
+            if (floater.parentNode) {
+              floater.remove();
+            }
+          }, 2500);
+        }, delayAcc);
+
+        delayAcc += 800 + Math.random() * 400;
+      });
+
+      addTimeout(() => {
+        wrapperEl.classList.remove(activeClass);
+      }, delayAcc + 500);
+
+      addTimeout(runStream, delayAcc + 1500 + Math.random() * 2000);
+    };
+
+    addTimeout(runStream, 1500);
+    addTimeout(runStream, 3500);
+
+    return () => {
+      timeouts.forEach(clearTimeout);
+      timeouts.clear();
+    };
+  }, [
+    feedVisible,
+    feedReadyState,
+    showExtensionPromo,
+    showGithubImportFlow,
+    showSignupChooser,
+    showSignupPrompt,
+  ]);
 
   const recommendedTopics = useMemo(() => {
     if (!aiPrompt.trim()) {
@@ -1053,6 +949,22 @@ const OnboardingV2Page = (): ReactElement => {
     () => (feedReadyState ? buildConfettiParticles() : []),
     [feedReadyState],
   );
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        hero.classList.toggle('onb-hero-offscreen', !entry.isIntersecting);
+      },
+      { threshold: 0 },
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, []);
+
   const [detectedBrowser, setDetectedBrowser] = useState(BrowserName.Chrome);
   useEffect(() => {
     setDetectedBrowser(getCurrentBrowserName());
@@ -1100,6 +1012,7 @@ const OnboardingV2Page = (): ReactElement => {
 
   const panelLift = Math.round(panelStageProgress * 60);
   const panelRevealOffset = panelVisible ? 40 : 120;
+  const isAwaitingSeniorityInput = githubImportPhase === 'awaitingSeniority';
   const importSteps = useMemo(
     () =>
       importFlowSource === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS,
@@ -1132,7 +1045,7 @@ const OnboardingV2Page = (): ReactElement => {
       )?.label ?? null
     );
   }, [selectedExperienceLevel]);
-  const githubImportBodyPhase = useMemo(() => {
+  const githubImportBodyPhase = useMemo<GithubImportBodyPhase>(() => {
     if (githubImportPhase === 'running' || githubImportPhase === 'finishing') {
       return 'checklist';
     }
@@ -1145,20 +1058,31 @@ const OnboardingV2Page = (): ReactElement => {
 
     return 'default';
   }, [githubImportPhase]);
+  const [displayedGithubImportBodyPhase, setDisplayedGithubImportBodyPhase] =
+    useState<GithubImportBodyPhase>('default');
+  const [isImportBodyTransitioning, setIsImportBodyTransitioning] =
+    useState(false);
+  useEffect(() => {
+    if (displayedGithubImportBodyPhase === githubImportBodyPhase) {
+      return undefined;
+    }
+
+    setIsImportBodyTransitioning(true);
+    const timer = window.setTimeout(() => {
+      setDisplayedGithubImportBodyPhase(githubImportBodyPhase);
+      setIsImportBodyTransitioning(false);
+    }, 160);
+
+    return () => window.clearTimeout(timer);
+  }, [displayedGithubImportBodyPhase, githubImportBodyPhase]);
 
   return (
-    <div
-      className={classNames(
-        'onb-page onb-sidebar-locked relative overflow-x-hidden',
-        !feedReadyState && 'onb-page-locked',
-      )}
-      role="presentation"
-    >
+    <div className="onb-page relative" role="presentation">
       {/* ── Hero ── */}
       <section
         ref={heroRef}
         className={classNames(
-          'onb-hero relative overflow-hidden pb-10 pt-4 tablet:pb-14 tablet:pt-18',
+          'onb-hero relative min-h-[28rem] overflow-hidden pb-10 pt-4 tablet:min-h-[32rem] tablet:pb-14 tablet:pt-18',
           feedReadyState && 'hidden',
         )}
         style={{ '--scroll-y': '0' } as React.CSSProperties}
@@ -1208,69 +1132,48 @@ const OnboardingV2Page = (): ReactElement => {
           <div className="onb-float-1 bg-accent-cheese-default/20 absolute left-[25%] top-[70%] h-1 w-1 rounded-full" />
           <div className="onb-float-2 bg-accent-cabbage-default/20 absolute left-[85%] top-[45%] h-1 w-1 rounded-full" />
           <div className="onb-float-3 bg-white/20 absolute left-[40%] top-[30%] h-0.5 w-0.5 rounded-full" />
-          {HERO_TAG_TREND.map((tag) => {
-            const sizeMap: Record<string, string> = {
-              lg: 'px-4 py-2 typo-body',
-              md: 'px-3.5 py-1.5 typo-callout',
-            };
-            const sizeClass = sizeMap[tag.size] ?? 'px-3 py-1.5 typo-caption1';
-
-            return (
+          {tagsReady &&
+            RISING_TAGS_DESKTOP.map((tag) => (
               <span
                 key={tag.label}
-                className={classNames(
-                  'onb-hero-tag absolute hidden whitespace-nowrap rounded-10 border border-white/[0.10] bg-white/[0.04] text-text-tertiary shadow-[0_6px_20px_rgba(0,0,0,0.14)] backdrop-blur-sm tablet:block',
-                  sizeClass,
-                )}
+                className="onb-rising-tag absolute bottom-0 hidden whitespace-nowrap rounded-8 border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-text-quaternary typo-caption1 tablet:block"
                 style={
                   {
                     left: tag.left,
-                    top: tag.top,
                     '--tag-delay': tag.delay,
                     '--tag-duration': tag.duration,
                     '--tag-drift-x': `${tag.driftX}px`,
-                    '--tag-drift-y': `${tag.driftY}px`,
                   } as React.CSSProperties
                 }
               >
                 {tag.label}
               </span>
-            );
-          })}
+            ))}
         </div>
 
-        {/* Ambient glows */}
-        {/* Magical breathing glow */}
-        <div className="onb-magical-glow from-accent-cabbage-default/10 via-accent-water-default/20 to-accent-onion-default/10 pointer-events-none absolute left-1/2 top-[-5%] h-[30rem] w-full max-w-[60rem] -translate-x-1/2 rounded-[100%] bg-gradient-to-tr shadow-[0_0_100px_40px_rgba(255,255,255,0.08)] blur-[90px]" />
-
-        <div className="onb-glow-drift bg-accent-cabbage-default/5 pointer-events-none absolute left-1/2 top-0 h-[22rem] w-full max-w-[48rem] -translate-x-1/2 blur-[100px]" />
-        <div className="onb-glow-drift-reverse bg-accent-onion-default/[0.03] pointer-events-none absolute left-[40%] top-[4rem] h-[18rem] w-full max-w-[30rem] -translate-x-1/2 blur-[120px]" />
-        <div className="from-accent-water-default/[0.03] via-accent-cabbage-default/[0.10] to-accent-onion-default/[0.06] pointer-events-none absolute left-1/2 top-[5rem] h-[24rem] w-full max-w-[64rem] -translate-x-1/2 bg-gradient-to-r blur-[90px]" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[20rem] bg-gradient-to-b from-white/[0.03] to-transparent" />
+        {/* Single radial hero glow */}
+        <div className="onb-hero-radial pointer-events-none absolute inset-x-0 top-0 h-[26rem]" />
 
         {/* Centered text content */}
         <div className="relative mx-auto max-w-[63.75rem] px-4 text-center laptop:px-6">
-          {/* Mobile-only tag strip — top */}
+          <div className="pointer-events-none mb-4 hidden h-[4.75rem] tablet:block" />
+          {/* Mobile-only rising tags */}
           <div
             className={classNames(
-              'relative mb-4 h-[4.75rem] transition-all duration-700 ease-out tablet:hidden',
-              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
+              'pointer-events-none relative mb-4 h-[4.75rem] overflow-hidden tablet:hidden',
             )}
-            style={{ transitionDelay: '100ms' }}
           >
-            {mounted &&
-              MOBILE_TAG_CLOUD_TOP.map((tag) => (
+            {tagsReady &&
+              RISING_TAGS_MOBILE.map((tag) => (
                 <span
-                  key={`mob-top-${tag.label}`}
-                  className="onb-mobile-tag absolute whitespace-nowrap rounded-8 border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-text-quaternary typo-caption2"
+                  key={`mob-${tag.label}`}
+                  className="onb-rising-tag absolute bottom-0 whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2 py-0.5 text-text-quaternary typo-caption2"
                   style={
                     {
                       left: tag.left,
-                      top: tag.top,
                       '--tag-delay': tag.delay,
                       '--tag-duration': tag.duration,
                       '--tag-drift-x': `${tag.driftX}px`,
-                      '--tag-drift-y': `${tag.driftY}px`,
                     } as React.CSSProperties
                   }
                 >
@@ -1309,7 +1212,7 @@ const OnboardingV2Page = (): ReactElement => {
               style={{ lineHeight: '1.65' }}
             >
               Tap into live signals from the global dev community, then lock
-              your feed to your stack with GitHub import or manual setup.
+              your feed to your stack with GitHub import or AI setup.
             </p>
           </div>
 
@@ -1358,16 +1261,12 @@ const OnboardingV2Page = (): ReactElement => {
                 onClick={() => openSignup('manual')}
                 className="focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 border border-white/[0.12] bg-white/[0.04] px-6 py-3.5 font-bold text-text-primary backdrop-blur-md transition-all duration-300 typo-callout hover:-translate-y-1 hover:border-white/[0.22] hover:bg-white/[0.08] hover:shadow-[0_10px_35px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Set up manually
+                <MagicIcon
+                  secondary
+                  size={IconSize.Size16}
+                  className="text-text-primary"
+                />
+                Set up with AI
                 <svg
                   width="14"
                   height="14"
@@ -1387,27 +1286,19 @@ const OnboardingV2Page = (): ReactElement => {
             </div>
           </div>
 
-          {/* Mobile-only tag strip — bottom */}
-          <div
-            className={classNames(
-              'relative mt-5 h-[5.5rem] transition-all duration-700 ease-out tablet:hidden',
-              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
-            )}
-            style={{ transitionDelay: '650ms' }}
-          >
-            {mounted &&
-              MOBILE_TAG_CLOUD_BOTTOM.map((tag) => (
+          {/* Mobile-only bottom rising tags */}
+          <div className="pointer-events-none relative mt-5 h-[5rem] overflow-hidden tablet:hidden">
+            {tagsReady &&
+              RISING_TAGS_MOBILE.map((tag) => (
                 <span
                   key={`mob-bot-${tag.label}`}
-                  className="onb-mobile-tag absolute whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2.5 py-1 text-text-quaternary typo-caption2"
+                  className="onb-rising-tag absolute bottom-0 whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2 py-0.5 text-text-quaternary typo-caption2"
                   style={
                     {
-                      left: tag.left,
-                      top: tag.top,
-                      '--tag-delay': tag.delay,
+                      left: `${100 - parseInt(tag.left, 10)}%`,
+                      '--tag-delay': `${parseFloat(tag.delay) + 2}s`,
                       '--tag-duration': tag.duration,
-                      '--tag-drift-x': `${tag.driftX}px`,
-                      '--tag-drift-y': `${tag.driftY}px`,
+                      '--tag-drift-x': `${-tag.driftX}px`,
                     } as React.CSSProperties
                   }
                 >
@@ -1664,16 +1555,13 @@ const OnboardingV2Page = (): ReactElement => {
               </svg>
             </button>
           </div>
-
-          {/* Bottom fade into feed */}
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-b from-transparent to-background-default" />
         </div>
       )}
 
       {/* ── Feed ── */}
       <div
         className={classNames(
-          'onb-feed-stage transition-[opacity,transform] duration-500 ease-out',
+          'onb-feed-stage min-h-[50vh] transition-[opacity,transform] duration-500 ease-out laptop:px-10',
           // eslint-disable-next-line no-nested-ternary
           feedReadyState
             ? 'onb-feed-unlocked translate-y-0 opacity-100'
@@ -1709,7 +1597,7 @@ const OnboardingV2Page = (): ReactElement => {
                 <div
                   className={classNames(
                     'relative transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)]',
-                    panelVisible ? 'opacity-100' : 'opacity-0',
+                    panelVisible ? 'opacity-100' : 'onb-panel-hidden opacity-0',
                   )}
                   style={{
                     transform: `translateY(${panelRevealOffset - panelLift}px)`,
@@ -1717,7 +1605,7 @@ const OnboardingV2Page = (): ReactElement => {
                 >
                   <div
                     ref={panelBoxRef}
-                    className="onb-cursor-glow mx-auto max-w-[48rem] px-4 pb-10 pt-12 tablet:px-8 tablet:pt-20"
+                    className="onb-cursor-glow mx-auto mb-6 max-w-[48rem] px-4 pb-10 pt-12 tablet:mb-0 tablet:px-8 tablet:pt-20"
                   >
                     <div className="relative">
                       {/* Section title */}
@@ -1742,7 +1630,7 @@ const OnboardingV2Page = (): ReactElement => {
                         {/* ── Path A: GitHub ── */}
                         <div
                           className={classNames(
-                            'onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch',
+                            'onb-glass flex h-full min-h-[24rem] flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:min-h-[26rem] tablet:self-stretch',
                             panelVisible
                               ? 'translate-y-0 opacity-100'
                               : 'translate-y-10 opacity-0',
@@ -1890,7 +1778,7 @@ const OnboardingV2Page = (): ReactElement => {
                             </div>
                           </div>
 
-                          <h4 className="mb-1.5 font-bold text-text-primary typo-body">
+                          <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
                             One-click setup
                           </h4>
                           <p className="mb-5 text-center text-text-tertiary typo-footnote">
@@ -1975,7 +1863,7 @@ const OnboardingV2Page = (): ReactElement => {
 
                           <div className="bg-border-subtlest-tertiary/30 mb-5 h-px w-full" />
 
-                          <div className="relative w-full">
+                          <div className="relative mt-auto w-full pt-4">
                             <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
                             <button
                               type="button"
@@ -2014,16 +1902,8 @@ const OnboardingV2Page = (): ReactElement => {
                         </div>
 
                         {/* ── Path B: Manual ── */}
-                        <div
-                          className={classNames(
-                            'onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch',
-                            panelVisible
-                              ? 'translate-y-0 opacity-100'
-                              : 'translate-y-10 opacity-0',
-                          )}
-                          style={{ transitionDelay: '350ms' }}
-                        >
-                          {/* Animated orb — full-width energy field */}
+                        <div className="onb-glass flex h-full min-h-[24rem] flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:min-h-[26rem] tablet:self-stretch">
+                          {/* Static icon zone */}
                           <div
                             className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
                             style={{ width: 'calc(100% + 3rem)' }}
@@ -2037,120 +1917,6 @@ const OnboardingV2Page = (): ReactElement => {
                                 opacity: 0.22,
                               }}
                             />
-                            {/* Wide glow */}
-                            <div className="onb-ai-orb-glow bg-accent-onion-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
-                            {/* Outer ring */}
-                            <svg
-                              className="onb-ai-ring pointer-events-none absolute"
-                              style={{ width: '11rem', height: '11rem' }}
-                              viewBox="0 0 176 176"
-                            >
-                              <circle
-                                cx="88"
-                                cy="88"
-                                r="84"
-                                fill="none"
-                                stroke="var(--theme-accent-onion-default)"
-                                strokeWidth="1.5"
-                                strokeDasharray="6 10"
-                                opacity="0.18"
-                              />
-                            </svg>
-                            {/* Middle ring */}
-                            <svg
-                              className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24"
-                              viewBox="0 0 96 96"
-                            >
-                              <circle
-                                cx="48"
-                                cy="48"
-                                r="44"
-                                fill="none"
-                                stroke="var(--theme-accent-onion-default)"
-                                strokeWidth="1.5"
-                                strokeDasharray="4 6"
-                                opacity="0.35"
-                              />
-                            </svg>
-                            {/* Inner ring */}
-                            <svg
-                              className="onb-ring-slow pointer-events-none absolute h-16 w-16"
-                              viewBox="0 0 64 64"
-                            >
-                              <circle
-                                cx="32"
-                                cy="32"
-                                r="28"
-                                fill="none"
-                                stroke="var(--theme-accent-onion-default)"
-                                strokeWidth="1"
-                                strokeDasharray="3 5"
-                                opacity="0.3"
-                              />
-                            </svg>
-                            {/* Particles from far away */}
-                            {[
-                              {
-                                px: '-6rem',
-                                py: '-3.5rem',
-                                dur: '3.2s',
-                                delay: '0s',
-                                color: 'bg-accent-cheese-default',
-                              },
-                              {
-                                px: '5.5rem',
-                                py: '-4rem',
-                                dur: '3.6s',
-                                delay: '0.5s',
-                                color: 'bg-accent-water-default',
-                              },
-                              {
-                                px: '-5rem',
-                                py: '3.5rem',
-                                dur: '3.0s',
-                                delay: '1.0s',
-                                color: 'bg-accent-onion-default',
-                              },
-                              {
-                                px: '6rem',
-                                py: '3rem',
-                                dur: '3.4s',
-                                delay: '1.5s',
-                                color: 'bg-accent-cabbage-default',
-                              },
-                              {
-                                px: '-0.5rem',
-                                py: '-5rem',
-                                dur: '2.8s',
-                                delay: '0.3s',
-                                color: 'bg-accent-cheese-default',
-                              },
-                              {
-                                px: '6.5rem',
-                                py: '-0.5rem',
-                                dur: '3.1s',
-                                delay: '0.8s',
-                                color: 'bg-accent-water-default',
-                              },
-                            ].map((p) => (
-                              <span
-                                key={`panel-ai-${p.delay}`}
-                                className={classNames(
-                                  'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
-                                  p.color,
-                                )}
-                                style={
-                                  {
-                                    '--px': p.px,
-                                    '--py': p.py,
-                                    '--dur': p.dur,
-                                    '--delay': p.delay,
-                                    animationDelay: p.delay,
-                                  } as React.CSSProperties
-                                }
-                              />
-                            ))}
-                            {/* Center icon with pulse */}
                             <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
                               <MagicIcon
                                 secondary
@@ -2160,7 +1926,7 @@ const OnboardingV2Page = (): ReactElement => {
                             </div>
                           </div>
 
-                          <h4 className="mb-1.5 font-bold text-text-primary typo-body">
+                          <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
                             Tell our AI about yourself
                           </h4>
                           <p className="mb-5 text-center text-text-tertiary typo-footnote">
@@ -2233,7 +1999,7 @@ const OnboardingV2Page = (): ReactElement => {
                           </div>
 
                           {/* Build feed CTA — disabled when no input */}
-                          <div className="relative mt-4 w-full">
+                          <div className="relative mt-auto w-full pt-4">
                             <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
                             <button
                               type="button"
@@ -2269,7 +2035,7 @@ const OnboardingV2Page = (): ReactElement => {
 
             {/* Footer links for SEO — placed at the bottom of the page */}
             {!feedReadyState && (
-              <div className="relative z-1 mx-auto mt-16 flex w-full max-w-[48rem] justify-center px-5 pb-8 mobileL:px-6 tablet:mt-14">
+              <div className="relative z-1 mx-auto mt-20 flex w-full max-w-[48rem] justify-center px-5 pb-8 mobileL:px-6 tablet:mt-14">
                 <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
               </div>
             )}
@@ -2280,41 +2046,17 @@ const OnboardingV2Page = (): ReactElement => {
       {/* ── CSS: feed limit, article fade, marquee, sidebar disable ── */}
       {/* eslint-disable-next-line react/no-unknown-property */}
       <style jsx global>{`
-        body:has(.onb-sidebar-locked) aside[data-testid='sidebar-aside'],
-        body:has(.onb-sidebar-locked) nav[aria-label] {
-          pointer-events: none !important;
-          opacity: 0.15 !important;
-          user-select: none !important;
-          filter: grayscale(1) brightness(0.35) !important;
-          cursor: not-allowed !important;
-        }
-
-        body:has(.onb-sidebar-locked) aside[data-testid='sidebar-aside'] *,
-        body:has(.onb-sidebar-locked) nav[aria-label] * {
-          pointer-events: none !important;
-          cursor: not-allowed !important;
-          color: var(--theme-text-disabled) !important;
-          fill: var(--theme-text-disabled) !important;
-        }
-
-        .onb-page-locked aside a,
-        .onb-page-locked aside button,
-        .onb-page-locked aside [role='button'],
-        .onb-page-locked aside svg,
-        .onb-page-locked aside img {
-          pointer-events: none !important;
-          cursor: not-allowed !important;
-          color: var(--theme-text-disabled) !important;
-          fill: var(--theme-text-disabled) !important;
-        }
-
         .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(n + 19) {
           display: none !important;
         }
         .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(18) ~ div {
           display: none !important;
         }
-
+        .onb-hero .onb-float-1,
+        .onb-hero .onb-float-2,
+        .onb-hero .onb-float-3 {
+          transform: translateY(calc(var(--scroll-y) * -0.15px));
+        }
         .onb-feed-stage > main[class*='utilities_feedPage'] {
           padding-top: 0 !important;
         }
@@ -2324,83 +2066,79 @@ const OnboardingV2Page = (): ReactElement => {
         /* ─── HERO PARALLAX ─── */
         .onb-hero {
           --scroll-y: 0;
+          contain: content;
         }
 
-        /* ─── MAGICAL BREATHE GLOW ─── */
-        @keyframes onb-magical-breathe {
+        /* ─── HERO RADIAL GLOW ─── */
+        @keyframes onb-hero-radial-breathe {
           0%,
           100% {
-            opacity: 0.4;
-            transform: translateX(-50%) scale(1) translateY(0) rotate(0deg);
-            filter: blur(90px) brightness(1);
+            opacity: 0.9;
+            transform: scale(1) translateY(0);
           }
           50% {
-            opacity: 0.85;
-            transform: translateX(-50%) scale(1.1) translateY(-3%) rotate(2deg);
-            filter: blur(110px) brightness(1.3);
+            opacity: 1;
+            transform: scale(1.04) translateY(-2%);
           }
         }
-        .onb-hero .onb-magical-glow {
-          animation: onb-magical-breathe 7s ease-in-out infinite;
-          mix-blend-mode: screen;
-          will-change: opacity, transform, filter;
-          /* Tie to scroll slightly for extra life */
-          margin-top: calc(var(--scroll-y) * -0.05px);
+        .onb-hero .onb-hero-radial {
+          background: radial-gradient(
+            ellipse 80% 55% at 50% 0%,
+            rgba(255, 255, 255, 0.065) 0%,
+            rgba(255, 255, 255, 0.035) 28%,
+            rgba(255, 255, 255, 0.015) 48%,
+            transparent 74%
+          );
+          animation: onb-hero-radial-breathe 12s ease-in-out infinite;
+          will-change: opacity, transform;
+          transform: translateY(calc(var(--scroll-y) * -0.05px));
         }
 
         .onb-hero .onb-dot-grid {
           transform: translateY(calc(var(--scroll-y) * 0.04px));
           opacity: calc(1 - var(--scroll-y) * 0.001);
         }
-        .onb-hero .onb-float-1,
-        .onb-hero .onb-float-2,
-        .onb-hero .onb-float-3 {
-          transform: translateY(calc(var(--scroll-y) * -0.15px));
-        }
-        .onb-hero .onb-glow-drift {
-          transform: translateX(-50%)
-            translateY(calc(var(--scroll-y) * -0.08px));
-        }
 
-        /* ─── HERO TAG CLOUD ─── */
-        @keyframes onb-hero-tag-float {
+        /* ─── RISING TAG CLOUD ─── */
+        @keyframes onb-tag-rise {
           0% {
             opacity: 0;
-            transform: translate3d(0, 12px, 0) scale(0.92);
+            transform: translate3d(0, 0, 0) scale(0.88);
           }
-          18% {
-            opacity: 0.9;
+          6% {
+            opacity: 0.6;
+            transform: translate3d(calc(var(--tag-drift-x, 0px) * 0.1), -6vh, 0)
+              scale(0.95);
+          }
+          40% {
+            opacity: 0.45;
             transform: translate3d(
-                calc(var(--tag-drift-x, 0px) * 0.2),
-                calc(var(--tag-drift-y, 0px) * 0.2),
+                calc(var(--tag-drift-x, 0px) * 0.55),
+                -28vh,
                 0
               )
               scale(1);
           }
-          72% {
-            opacity: 0.9;
+          75% {
+            opacity: 0.15;
             transform: translate3d(
-                calc(var(--tag-drift-x, 0px) * 0.75),
-                calc(var(--tag-drift-y, 0px) * 0.75),
+                calc(var(--tag-drift-x, 0px) * 0.85),
+                -52vh,
                 0
               )
-              scale(1.03);
+              scale(1.01);
           }
           100% {
             opacity: 0;
-            transform: translate3d(
-                var(--tag-drift-x, 0px),
-                var(--tag-drift-y, 0px),
-                0
-              )
-              scale(1.06);
+            transform: translate3d(var(--tag-drift-x, 0px), -70vh, 0)
+              scale(1.02);
           }
         }
-        .onb-hero-tag {
-          animation: onb-hero-tag-float var(--tag-duration, 12s) ease-in-out
-            infinite;
+        .onb-rising-tag {
+          opacity: 0;
+          animation: onb-tag-rise var(--tag-duration, 14s) ease-out infinite;
           animation-delay: var(--tag-delay, 0s);
-          will-change: opacity, transform;
+          contain: layout style;
         }
 
         /* ─── SHIMMER ─── */
@@ -2469,6 +2207,16 @@ const OnboardingV2Page = (): ReactElement => {
           50% {
             opacity: 1;
           }
+        }
+        .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed {
+          opacity: 1 !important;
+          transform: translateY(0) scale(1) !important;
+        }
+        .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed:hover {
+          transform: translateY(0) scale(1) !important;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.03) !important;
+          border-color: rgba(255, 255, 255, 0.06) !important;
         }
 
         /* ─── CHIP POP ─── */
@@ -2541,13 +2289,13 @@ const OnboardingV2Page = (): ReactElement => {
           }
         }
         .onb-float-1 {
-          animation: onb-float-1 8s ease-in-out infinite;
+          animation: onb-float-1 14s ease-in-out infinite;
         }
         .onb-float-2 {
-          animation: onb-float-2 11s ease-in-out infinite;
+          animation: onb-float-2 18s ease-in-out infinite;
         }
         .onb-float-3 {
-          animation: onb-float-3 14s ease-in-out infinite;
+          animation: onb-float-3 22s ease-in-out infinite;
         }
 
         /* ─── GRADIENT TEXT SHIMMER ─── */
@@ -2571,35 +2319,7 @@ const OnboardingV2Page = (): ReactElement => {
             var(--theme-accent-cabbage-default) 100%
           );
           background-size: 200% auto;
-          animation: onb-gradient-shift 6s ease-in-out infinite;
-        }
-
-        /* ─── AMBIENT GLOW DRIFT ─── */
-        @keyframes onb-glow-drift {
-          0%,
-          100% {
-            opacity: 0.05;
-          }
-          50% {
-            opacity: 0.08;
-          }
-        }
-        @keyframes onb-glow-drift-r {
-          0%,
-          100% {
-            transform: translateX(-50%) translateY(0);
-            opacity: 0.03;
-          }
-          50% {
-            transform: translateX(-52%) translateY(8px);
-            opacity: 0.05;
-          }
-        }
-        .onb-glow-drift {
-          animation: onb-glow-drift 8s ease-in-out infinite;
-        }
-        .onb-glow-drift-reverse {
-          animation: onb-glow-drift-r 10s ease-in-out infinite;
+          animation: onb-gradient-shift 10s ease-in-out infinite;
         }
 
         /* ─── BUTTON SHINE SWEEP ─── */
@@ -2725,6 +2445,23 @@ const OnboardingV2Page = (): ReactElement => {
         }
         .ghub-phase-panel {
           animation: ghub-phase-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .ghub-orb-paused {
+          animation-play-state: paused !important;
+        }
+        @keyframes ghub-question-pulse {
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.9;
+          }
+          50% {
+            transform: scale(1.06);
+            opacity: 1;
+          }
+        }
+        .ghub-question-pulse {
+          animation: ghub-question-pulse 1.8s ease-in-out infinite;
         }
 
         /* Confetti for completion */
@@ -2959,11 +2696,54 @@ const OnboardingV2Page = (): ReactElement => {
             transform: translateY(0);
           }
           50% {
-            transform: translateY(-6px);
+            transform: translateY(-8px);
           }
         }
         .onb-ext-float {
-          animation: onb-ext-float 4s ease-in-out infinite;
+          animation: onb-ext-float 5s ease-in-out infinite;
+        }
+
+        @keyframes onb-cta-shimmer {
+          0% {
+            transform: translateX(-130%) skewX(-20deg);
+          }
+          100% {
+            transform: translateX(230%) skewX(-20deg);
+          }
+        }
+        .onb-cta-shimmer {
+          position: relative;
+          overflow: hidden;
+        }
+        .onb-cta-shimmer::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.18) 50%,
+            transparent 100%
+          );
+          animation: onb-cta-shimmer 3.5s ease-in-out infinite;
+          animation-delay: 1.2s;
+          pointer-events: none;
+        }
+
+        @keyframes onb-accent-draw {
+          from {
+            transform: scaleX(0);
+            opacity: 0;
+          }
+          to {
+            transform: scaleX(1);
+            opacity: 1;
+          }
+        }
+        .onb-accent-draw {
+          transform-origin: center;
+          animation: onb-accent-draw 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s
+            both;
         }
 
         /* ─── PANEL FADE: progressive blur + dark overlay ─── */
@@ -2984,6 +2764,15 @@ const OnboardingV2Page = (): ReactElement => {
             rgba(0, 0, 0, 0.82) 35%,
             black 55%
           );
+        }
+        .onb-feed-stage {
+          content-visibility: auto;
+          contain-intrinsic-size: 1px 1800px;
+          contain: content;
+        }
+        .onb-cursor-glow {
+          content-visibility: auto;
+          contain-intrinsic-size: 1px 1200px;
         }
 
         /* ─── GLASSMORPHISM ─── */
@@ -3035,6 +2824,65 @@ const OnboardingV2Page = (): ReactElement => {
           opacity: 1;
         }
 
+        .onb-eng-active-upvote,
+        .onb-eng-active-upvote svg,
+        .onb-eng-active-upvote span {
+          color: var(--theme-accent-avocado-default) !important;
+        }
+        .onb-eng-active-comment,
+        .onb-eng-active-comment svg,
+        .onb-eng-active-comment span {
+          color: var(--theme-accent-water-default) !important;
+        }
+
+        .onb-eng-pulse {
+          animation: onb-eng-pulse-anim 0.3s
+            cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes onb-eng-pulse-anim {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.25);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .onb-eng-floater {
+          position: absolute;
+          left: 12px;
+          bottom: 80%;
+          transform: translateX(-50%);
+          font-size: 0.875rem;
+          font-weight: 800;
+          pointer-events: none;
+          z-index: 20;
+          animation: onb-eng-float-anim 2.5s ease-out forwards;
+          text-shadow: 0 2px 10px
+            color-mix(in srgb, currentColor 40%, transparent);
+        }
+        @keyframes onb-eng-float-anim {
+          0% {
+            transform: translate(-50%, 10px) scale(0.5);
+            opacity: 0;
+          }
+          10% {
+            transform: translate(-50%, -2px) scale(1.2);
+            opacity: 1;
+          }
+          80% {
+            transform: translate(-50%, -28px) scale(1);
+            opacity: 0.9;
+          }
+          100% {
+            transform: translate(-50%, -36px) scale(0.8);
+            opacity: 0;
+          }
+        }
+
         /* ─── MODAL CHECKLIST STAGGER ─── */
         @keyframes onb-check-in {
           from {
@@ -3076,6 +2924,7 @@ const OnboardingV2Page = (): ReactElement => {
         }
         .onb-modal-backdrop {
           animation: onb-modal-backdrop-in 0.3s ease-out both;
+          contain: content;
         }
         .onb-modal-enter.onb-glass {
           background: rgba(10, 12, 16, 0.9);
@@ -3091,16 +2940,6 @@ const OnboardingV2Page = (): ReactElement => {
             transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease,
             border-color 0.25s ease !important;
           transition-delay: var(--reveal-delay, 0ms);
-        }
-        .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed {
-          opacity: 1 !important;
-          transform: translateY(0) scale(1) !important;
-        }
-        .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed:hover {
-          transform: translateY(0) scale(1) !important;
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25),
-            0 0 0 1px rgba(255, 255, 255, 0.03) !important;
-          border-color: rgba(255, 255, 255, 0.06) !important;
         }
 
         /* ─── FEED FADE-OUT GRADIENT (bottom of visible articles) ─── */
@@ -3166,78 +3005,6 @@ const OnboardingV2Page = (): ReactElement => {
           pointer-events: none;
         }
 
-        /* ─── LIVE ENGAGEMENT TICKER ─── */
-
-        /* Counter number bump — bigger/longer scale + color flash */
-        @keyframes onb-live-bump {
-          0% {
-            transform: translateY(0) scale(1);
-            color: inherit;
-          }
-          22% {
-            transform: translateY(-0.08rem) scale(1.5);
-            color: var(--onb-bump-color, var(--theme-accent-avocado-default));
-          }
-          55% {
-            transform: translateY(0) scale(1.08);
-            color: var(--onb-bump-color, var(--theme-accent-avocado-default));
-          }
-          78% {
-            transform: translateY(0) scale(1.02);
-            color: inherit;
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-        .onb-live-bump {
-          animation: onb-live-bump 0.72s cubic-bezier(0.2, 0.9, 0.2, 1) !important;
-          display: inline-block;
-        }
-
-        /* "+N" floaters that drift up in overlapping bursts */
-        @keyframes onb-live-tick-up {
-          0% {
-            transform: translate3d(0, 0, 0) scale(0.92) rotate(0deg);
-            opacity: 0;
-            filter: blur(0);
-          }
-          18% {
-            transform: translate3d(
-                calc(var(--onb-live-x, 0rem) * 0.28),
-                calc(var(--onb-live-y, 1.7rem) * -0.18),
-                0
-              )
-              scale(var(--onb-live-scale, 1.15))
-              rotate(calc(var(--onb-live-rot, 0deg) * 0.45));
-            opacity: 0.98;
-          }
-          100% {
-            transform: translate3d(
-                var(--onb-live-x, 0rem),
-                calc(var(--onb-live-y, 1.7rem) * -1),
-                0
-              )
-              scale(0.78) rotate(var(--onb-live-rot, 0deg));
-            opacity: 0;
-            filter: blur(0.4px);
-          }
-        }
-        .onb-live-tick {
-          position: absolute;
-          font-size: 0.72rem;
-          font-weight: 700;
-          line-height: 1;
-          text-shadow: 0 0 8px color-mix(in srgb, currentColor 40%, transparent);
-          pointer-events: none;
-          animation: onb-live-tick-up 1.3s cubic-bezier(0.18, 0.84, 0.25, 1)
-            forwards;
-          animation-delay: var(--onb-live-delay, 0ms);
-          z-index: 10;
-          white-space: nowrap;
-          will-change: transform, opacity;
-        }
-
         /* ─── SCROLL PROGRESS LINE ─── */
         @keyframes onb-progress-glow {
           0%,
@@ -3259,15 +3026,7 @@ const OnboardingV2Page = (): ReactElement => {
           }
         }
 
-        /* ─── MOBILE TAG PILLS ─── */
-        .onb-mobile-tag {
-          opacity: 0;
-          animation: onb-hero-tag-float var(--tag-duration, 6.5s) ease-in-out
-            infinite;
-          animation-delay: var(--tag-delay, 0s);
-          animation-fill-mode: both;
-          will-change: transform, opacity;
-        }
+        /* mobile rising tags already handled by .onb-rising-tag */
 
         /* ─── MOBILE MODAL SLIDE-UP ─── */
         @keyframes onb-modal-slide-up {
@@ -3285,6 +3044,48 @@ const OnboardingV2Page = (): ReactElement => {
               both;
           }
         }
+        @media (max-width: 63.9375rem) {
+          .onb-panel-fade {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+          }
+        }
+
+        /* ─── OFF-SCREEN ANIMATION PAUSING ─── */
+        .onb-hero-offscreen .onb-rising-tag,
+        .onb-hero-offscreen .onb-hero-radial,
+        .onb-hero-offscreen .onb-float-1,
+        .onb-hero-offscreen .onb-float-2,
+        .onb-hero-offscreen .onb-float-3,
+        .onb-hero-offscreen .onb-gradient-text,
+        .onb-hero-offscreen .onb-btn-glow {
+          animation-play-state: paused !important;
+        }
+        .onb-hero-offscreen .onb-hero-radial,
+        .onb-hero-offscreen .onb-rising-tag {
+          will-change: auto !important;
+        }
+
+        .onb-panel-hidden .ghub-orb-glow,
+        .onb-panel-hidden .ghub-ring,
+        .onb-panel-hidden .ghub-ring-reverse,
+        .onb-panel-hidden .onb-ring-slow,
+        .onb-panel-hidden .ghub-particle,
+        .onb-panel-hidden .onb-ai-orb-glow,
+        .onb-panel-hidden .onb-ai-ring,
+        .onb-panel-hidden .onb-ai-ring-reverse,
+        .onb-panel-hidden .onb-btn-glow {
+          animation-play-state: paused !important;
+        }
+
+        /* ─── CSS CONTAINMENT FOR ANIMATION CONTAINERS ─── */
+        .onb-hero .onb-float-1,
+        .onb-hero .onb-float-2,
+        .onb-hero .onb-float-3,
+        .ghub-particle,
+        .onb-confetti-piece {
+          contain: layout style;
+        }
 
         /* ─── REDUCED MOTION ─── */
         @media (prefers-reduced-motion: reduce) {
@@ -3298,8 +3099,7 @@ const OnboardingV2Page = (): ReactElement => {
           .onb-float-2,
           .onb-float-3,
           .onb-gradient-text,
-          .onb-glow-drift,
-          .onb-glow-drift-reverse,
+          .onb-hero-radial,
           .onb-btn-glow,
           .onb-modal-enter,
           .onb-modal-backdrop,
@@ -3320,12 +3120,11 @@ const OnboardingV2Page = (): ReactElement => {
           .onb-ring-slow,
           .onb-ext-enter,
           .onb-ext-reveal,
-          .onb-ext-float,
           .onb-sparkle,
           .onb-confetti-star,
-          .onb-live-bump,
-          .onb-live-tick,
-          .onb-mobile-tag {
+          .onb-eng-pulse,
+          .onb-eng-floater,
+          .onb-rising-tag {
             animation: none !important;
             opacity: 1 !important;
           }
@@ -3384,7 +3183,7 @@ const OnboardingV2Page = (): ReactElement => {
 
               <div className="relative z-1 grid gap-4 tablet:grid-cols-2 tablet:items-stretch tablet:gap-5">
                 {/* ── Path A: GitHub ── */}
-                <div className="onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch">
+                <div className="onb-glass flex h-full min-h-[24rem] flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:min-h-[26rem] tablet:self-stretch">
                   {/* Animated orb — full-width energy field */}
                   <div
                     className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
@@ -3519,7 +3318,7 @@ const OnboardingV2Page = (): ReactElement => {
                     </div>
                   </div>
 
-                  <h4 className="mb-1.5 font-bold text-text-primary typo-body">
+                  <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
                     One-click setup
                   </h4>
                   <p className="mb-5 text-center text-text-tertiary typo-footnote">
@@ -3601,7 +3400,7 @@ const OnboardingV2Page = (): ReactElement => {
 
                   <div className="bg-border-subtlest-tertiary/30 mb-5 h-px w-full" />
 
-                  <div className="relative w-full">
+                  <div className="relative mt-auto w-full pt-4">
                     <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
                     <button
                       type="button"
@@ -3640,8 +3439,8 @@ const OnboardingV2Page = (): ReactElement => {
                 </div>
 
                 {/* ── Path B: Manual ── */}
-                <div className="onb-glass flex h-full flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:self-stretch">
-                  {/* Animated orb — full-width energy field */}
+                <div className="onb-glass flex h-full min-h-[24rem] flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:min-h-[26rem] tablet:self-stretch">
+                  {/* Static icon zone */}
                   <div
                     className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
                     style={{ width: 'calc(100% + 3rem)' }}
@@ -3654,114 +3453,6 @@ const OnboardingV2Page = (): ReactElement => {
                         opacity: 0.22,
                       }}
                     />
-                    <div className="onb-ai-orb-glow bg-accent-onion-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
-                    <svg
-                      className="onb-ai-ring pointer-events-none absolute"
-                      style={{ width: '11rem', height: '11rem' }}
-                      viewBox="0 0 176 176"
-                    >
-                      <circle
-                        cx="88"
-                        cy="88"
-                        r="84"
-                        fill="none"
-                        stroke="var(--theme-accent-onion-default)"
-                        strokeWidth="1.5"
-                        strokeDasharray="6 10"
-                        opacity="0.18"
-                      />
-                    </svg>
-                    <svg
-                      className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24"
-                      viewBox="0 0 96 96"
-                    >
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="44"
-                        fill="none"
-                        stroke="var(--theme-accent-onion-default)"
-                        strokeWidth="1.5"
-                        strokeDasharray="4 6"
-                        opacity="0.35"
-                      />
-                    </svg>
-                    <svg
-                      className="onb-ring-slow pointer-events-none absolute h-16 w-16"
-                      viewBox="0 0 64 64"
-                    >
-                      <circle
-                        cx="32"
-                        cy="32"
-                        r="28"
-                        fill="none"
-                        stroke="var(--theme-accent-onion-default)"
-                        strokeWidth="1"
-                        strokeDasharray="3 5"
-                        opacity="0.3"
-                      />
-                    </svg>
-                    {[
-                      {
-                        px: '-6rem',
-                        py: '-3.5rem',
-                        dur: '3.2s',
-                        delay: '0s',
-                        color: 'bg-accent-cheese-default',
-                      },
-                      {
-                        px: '5.5rem',
-                        py: '-4rem',
-                        dur: '3.6s',
-                        delay: '0.5s',
-                        color: 'bg-accent-water-default',
-                      },
-                      {
-                        px: '-5rem',
-                        py: '3.5rem',
-                        dur: '3.0s',
-                        delay: '1.0s',
-                        color: 'bg-accent-onion-default',
-                      },
-                      {
-                        px: '6rem',
-                        py: '3rem',
-                        dur: '3.4s',
-                        delay: '1.5s',
-                        color: 'bg-accent-cabbage-default',
-                      },
-                      {
-                        px: '-0.5rem',
-                        py: '-5rem',
-                        dur: '2.8s',
-                        delay: '0.3s',
-                        color: 'bg-accent-cheese-default',
-                      },
-                      {
-                        px: '6.5rem',
-                        py: '-0.5rem',
-                        dur: '3.1s',
-                        delay: '0.8s',
-                        color: 'bg-accent-water-default',
-                      },
-                    ].map((p) => (
-                      <span
-                        key={`modal-panel-ai-${p.delay}`}
-                        className={classNames(
-                          'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
-                          p.color,
-                        )}
-                        style={
-                          {
-                            '--px': p.px,
-                            '--py': p.py,
-                            '--dur': p.dur,
-                            '--delay': p.delay,
-                            animationDelay: p.delay,
-                          } as React.CSSProperties
-                        }
-                      />
-                    ))}
                     <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
                       <MagicIcon
                         secondary
@@ -3771,7 +3462,7 @@ const OnboardingV2Page = (): ReactElement => {
                     </div>
                   </div>
 
-                  <h4 className="mb-1.5 font-bold text-text-primary typo-body">
+                  <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
                     Tell our AI about yourself
                   </h4>
                   <p className="mb-5 text-center text-text-tertiary typo-footnote">
@@ -3840,7 +3531,7 @@ const OnboardingV2Page = (): ReactElement => {
                   </div>
 
                   {/* Build feed CTA — disabled when no input */}
-                  <div className="relative mt-4 w-full">
+                  <div className="relative mt-auto w-full pt-4">
                     <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
                     <button
                       type="button"
@@ -3880,20 +3571,26 @@ const OnboardingV2Page = (): ReactElement => {
           aria-label="Install browser extension"
         >
           <div
-            className="onb-modal-backdrop bg-black/70 absolute inset-0 backdrop-blur-md"
+            className="onb-modal-backdrop bg-black/70 absolute inset-0 z-0 backdrop-blur-sm"
             onClick={dismissExtensionPromo}
             role="presentation"
           />
 
-          <div className="onb-ext-enter relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-24 border border-white/[0.10] bg-raw-pepper-90 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:max-w-lg tablet:rounded-24">
-            {/* Close / Skip */}
+          <div className="onb-ext-enter z-10 relative flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-20 border border-white/[0.08] bg-[#0d0d0f] shadow-[0_40px_120px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.06)] tablet:mx-4 tablet:max-w-lg tablet:rounded-20">
+            {/* Signature top accent line */}
+            <div className="onb-accent-draw via-accent-cabbage-default/70 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
+
+            {/* Subtle ambient glow from top */}
+            <div className="from-accent-cabbage-default/[0.06] pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b to-transparent" />
+
+            {/* Close */}
             <button
               type="button"
               onClick={dismissExtensionPromo}
-              className="z-10 absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-colors duration-200 hover:text-text-secondary"
-              aria-label="Skip"
+              className="z-20 absolute right-3 top-3 flex h-8 w-8 cursor-pointer items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
+              aria-label="Close"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M18 6L6 18M6 6l12 12"
                   stroke="currentColor"
@@ -3903,126 +3600,146 @@ const OnboardingV2Page = (): ReactElement => {
               </svg>
             </button>
 
-            {/* Top section: text content */}
-            <div className="flex w-full flex-col items-center px-5 pb-5 pt-8 tablet:px-8 tablet:pb-6 tablet:pt-10">
-              {/* Icon */}
-              <div className="onb-ext-reveal mb-5 flex h-14 w-14 items-center justify-center rounded-16 bg-white/[0.06]">
-                {isEdgeBrowser ? (
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M21.86 17.86q.14 0 .25.12.1.13.1.25t-.11.33l-.32.46-.43.53-.44.46q-.54.52-1.15.97l-.09.06q-.88.56-1.86.97-1.14.46-2.42.66-1.34.2-2.71.06-1.14-.12-2.2-.5-1.2-.42-2.27-1.12-1.17-.78-2.1-1.86-.83-.94-1.41-2.07-.66-1.27-.96-2.67-.17-.79-.22-1.6-.06-.91.05-1.84.1-.78.3-1.54.27-1.01.72-1.96.37-.78.88-1.51.47-.68 1.03-1.28.41-.44.87-.83l.13-.1q.49-.38 1.04-.71.53-.32 1.1-.56.92-.39 1.93-.56 1.19-.2 2.49-.08.38.03.76.1.36.07.72.17.42.12.82.29.34.14.67.31.3.15.58.33l.06.04q.28.18.55.38 0 0-.55.92T13.8 4.4q-.26-.13-.55-.24-.34-.12-.7-.2-.31-.07-.63-.1-.42-.04-.85-.02-.76.06-1.46.33-.82.32-1.51.86-.57.45-1.03 1.02-.54.66-.9 1.42-.27.57-.42 1.18-.12.48-.17.97-.06.64.03 1.3.11.79.39 1.52.32.82.84 1.52.57.76 1.32 1.34.64.5 1.39.84.79.36 1.66.52.57.1 1.16.12.78.02 1.56-.12.65-.11 1.26-.35.75-.3 1.4-.76.55-.39 1.01-.87.36-.37.67-.78l.36-.56Z"
-                      fill="#0078D4"
-                    />
-                  </svg>
-                ) : (
-                  <ChromeIcon aria-hidden size={IconSize.Medium} />
-                )}
-              </div>
-
-              {/* Headline */}
-              <h2
-                className="onb-ext-reveal mb-2 text-center font-bold text-text-primary typo-title1"
-                style={{ animationDelay: '80ms' }}
-              >
-                Open this every time you{'\u00A0'}open a new tab
-              </h2>
-
-              {/* Trust line */}
-              <p
-                className="onb-ext-reveal mb-5 text-center text-text-quaternary typo-footnote"
-                style={{ animationDelay: '160ms' }}
-              >
-                Trusted by 500K+ developers &middot; Only replaces your new tab
-              </p>
-
-              {/* CTA */}
-              <button
-                type="button"
-                onClick={() => {
-                  window.open(
-                    downloadBrowserExtension,
-                    '_blank',
-                    'noopener,noreferrer',
-                  );
-                  dismissExtensionPromo();
-                }}
-                className="onb-ext-reveal hover:bg-white/90 group mb-4 flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3.5 font-bold text-black transition-all duration-200 typo-callout"
-                style={{ animationDelay: '240ms' }}
-              >
-                {isEdgeBrowser ? (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="shrink-0"
-                  >
-                    <path
-                      d="M21.86 17.86q.14 0 .25.12.1.13.1.25t-.11.33l-.32.46-.43.53-.44.46q-.54.52-1.15.97l-.09.06q-.88.56-1.86.97-1.14.46-2.42.66-1.34.2-2.71.06-1.14-.12-2.2-.5-1.2-.42-2.27-1.12-1.17-.78-2.1-1.86-.83-.94-1.41-2.07-.66-1.27-.96-2.67-.17-.79-.22-1.6-.06-.91.05-1.84.1-.78.3-1.54.27-1.01.72-1.96.37-.78.88-1.51.47-.68 1.03-1.28.41-.44.87-.83l.13-.1q.49-.38 1.04-.71.53-.32 1.1-.56.92-.39 1.93-.56 1.19-.2 2.49-.08.38.03.76.1.36.07.72.17.42.12.82.29.34.14.67.31.3.15.58.33l.06.04q.28.18.55.38 0 0-.55.92T13.8 4.4q-.26-.13-.55-.24-.34-.12-.7-.2-.31-.07-.63-.1-.42-.04-.85-.02-.76.06-1.46.33-.82.32-1.51.86-.57.45-1.03 1.02-.54.66-.9 1.42-.27.57-.42 1.18-.12.48-.17.97-.06.64.03 1.3.11.79.39 1.52.32.82.84 1.52.57.76 1.32 1.34.64.5 1.39.84.79.36 1.66.52.57.1 1.16.12.78.02 1.56-.12.65-.11 1.26-.35.75-.3 1.4-.76.55-.39 1.01-.87.36-.37.67-.78l.36-.56Z"
-                      fill="#0078D4"
-                    />
-                  </svg>
-                ) : (
-                  <ChromeIcon aria-hidden size={IconSize.Size16} />
-                )}
-                Add to {isEdgeBrowser ? 'Edge' : 'Chrome'} — it&apos;s free
-              </button>
-
-              {/* Skip */}
-              <button
-                type="button"
-                onClick={dismissExtensionPromo}
-                className="onb-ext-reveal flex w-full items-center justify-center gap-1.5 rounded-14 border border-white/[0.10] bg-white/[0.04] py-3 text-text-secondary transition-all duration-200 typo-callout hover:border-white/[0.18] hover:bg-white/[0.08] hover:text-text-primary"
-                style={{ animationDelay: '300ms' }}
-              >
-                Continue without extension
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="shrink-0"
-                >
-                  <path
-                    d="M5 12h14M12 5l7 7-7 7"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            {/* Screenshot with float animation */}
-            <div
-              className="onb-ext-reveal relative w-full px-4 pb-4 tablet:px-6 tablet:pb-6"
-              style={{ animationDelay: '380ms' }}
-            >
-              <div className="onb-ext-float overflow-hidden rounded-16 shadow-[0_16px_60px_rgba(0,0,0,0.4)]">
-                <img
-                  alt={`daily.dev extension in ${
-                    isEdgeBrowser ? 'Edge' : 'Chrome'
-                  }`}
-                  className="block w-full"
-                  loading="eager"
-                  src={extensionImages.default}
-                  srcSet={`${extensionImages.default} 820w, ${extensionImages.retina} 1640w`}
-                  sizes="(max-width: 480px) 100vw, 480px"
+            <div className="flex w-full flex-col overflow-y-auto">
+              {/* ── Screenshot Zone ── */}
+              <div className="relative flex items-end justify-center overflow-hidden px-5 pt-8">
+                {/* Angled gradient backdrop — gives depth behind screenshot */}
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, rgba(163,230,53,0.06) 0%, transparent 55%, rgba(72,98,255,0.04) 100%)',
+                  }}
                 />
+                {/* Fade screenshot into content section */}
+                <div className="via-[#0d0d0f]/70 pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#0d0d0f] to-transparent" />
+                <div className="onb-ext-float z-10 relative w-full max-w-[30rem] translate-y-5">
+                  <img
+                    alt={`daily.dev extension in ${
+                      isEdgeBrowser ? 'Edge' : 'Chrome'
+                    }`}
+                    className="block h-auto w-full rounded-t-8 object-contain drop-shadow-[0_-2px_40px_rgba(0,0,0,0.9)]"
+                    fetchPriority="high"
+                    width={820}
+                    height={520}
+                    loading="eager"
+                    src={extensionImages.default}
+                    srcSet={`${extensionImages.default} 820w, ${extensionImages.retina} 1640w`}
+                    sizes="(max-width: 480px) 100vw, 400px"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Social proof */}
-            <div
-              className="onb-ext-reveal w-full border-t border-white/[0.06] px-5 py-4 tablet:px-8"
-              style={{ animationDelay: '440ms' }}
-            >
-              <p className="text-center text-text-quaternary typo-caption1">
-                Trusted by{' '}
-                <span className="font-bold text-text-tertiary">500,000+</span>{' '}
-                developers
-              </p>
+              {/* ── Content ── */}
+              <div className="z-10 relative flex flex-col items-center px-5 pb-6 pt-4 text-center tablet:px-6">
+                {/* Status badge */}
+                <div
+                  className="onb-ext-reveal mb-3 inline-flex w-fit items-center gap-1.5"
+                  style={{ animationDelay: '60ms' }}
+                >
+                  <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent-avocado-default text-black">
+                    <VIcon size={IconSize.XSmall} />
+                  </div>
+                  <span className="font-bold text-accent-avocado-default typo-caption1">
+                    Your feed is ready
+                  </span>
+                </div>
+
+                {/* Headline — two tones */}
+                <h2
+                  className="onb-ext-reveal mb-4 font-bold leading-tight text-text-primary typo-title1"
+                  style={{ animationDelay: '90ms' }}
+                >
+                  See it every time
+                  <br />
+                  <span className="text-accent-cabbage-default">
+                    you open a tab.
+                  </span>
+                </h2>
+
+                {/* Value chips */}
+                <div
+                  className="onb-ext-reveal mb-5 flex w-full gap-1.5"
+                  style={{ animationDelay: '130ms' }}
+                >
+                  {(
+                    [
+                      'Personalized feed',
+                      'AI summaries',
+                      'Free forever',
+                    ] as const
+                  ).map((label) => (
+                    <div
+                      key={label}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-8 bg-white/[0.05] px-2.5 py-2"
+                    >
+                      <VIcon
+                        className="shrink-0 text-accent-cabbage-default"
+                        size={IconSize.XSmall}
+                      />
+                      <span className="text-text-secondary typo-caption2">
+                        {label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA button with shimmer */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.open(
+                      downloadBrowserExtension,
+                      '_blank',
+                      'noopener,noreferrer',
+                    );
+                    dismissExtensionPromo();
+                  }}
+                  className="onb-ext-reveal onb-cta-shimmer mb-2 flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black shadow-[0_0_0_1px_rgba(255,255,255,0.15)] transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(163,230,53,0.22),0_0_0_1px_rgba(255,255,255,0.2)]"
+                  style={{ animationDelay: '175ms' }}
+                >
+                  {isEdgeBrowser ? (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="#0078D4"
+                      className="shrink-0"
+                    >
+                      <path d="M21.86 17.86q.14 0 .25.12.1.13.1.25t-.11.33l-.32.46-.43.53-.44.46q-.54.52-1.15.97l-.09.06q-.88.56-1.86.97-1.14.46-2.42.66-1.34.2-2.71.06-1.14-.12-2.2-.5-1.2-.42-2.27-1.12-1.17-.78-2.1-1.86-.83-.94-1.41-2.07-.66-1.27-.96-2.67-.17-.79-.22-1.6-.06-.91.05-1.84.1-.78.3-1.54.27-1.01.72-1.96.37-.78.88-1.51.47-.68 1.03-1.28.41-.44.87-.83l.13-.1q.49-.38 1.04-.71.53-.32 1.1-.56.92-.39 1.93-.56 1.19-.2 2.49-.08.38.03.76.1.36.07.72.17.42.12.82.29.34.14.67.31.3.15.58.33l.06.04q.28.18.55.38 0 0-.55.92T13.8 4.4q-.26-.13-.55-.24-.34-.12-.7-.2-.31-.07-.63-.1-.42-.04-.85-.02-.76.06-1.46.33-.82.32-1.51.86-.57.45-1.03 1.02-.54.66-.9 1.42-.27.57-.42 1.18-.12.48-.17.97-.06.64.03 1.3.11.79.39 1.52.32.82.84 1.52.57.76 1.32 1.34.64.5 1.39.84.79.36 1.66.52.57.1 1.16.12.78.02 1.56-.12.65-.11 1.26-.35.75-.3 1.4-.76.55-.39 1.01-.87.36-.37.67-.78l.36-.56Z" />
+                    </svg>
+                  ) : (
+                    <ChromeIcon aria-hidden size={IconSize.Size16} />
+                  )}
+                  Add to {isEdgeBrowser ? 'Edge' : 'Chrome'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={dismissExtensionPromo}
+                  className="onb-ext-reveal mb-3 text-text-quaternary underline-offset-4 transition-colors typo-caption2 hover:text-text-tertiary hover:underline"
+                  style={{ animationDelay: '205ms' }}
+                >
+                  I&apos;ll continue on web for now
+                </button>
+
+                {/* Community proof */}
+                <div
+                  className="onb-ext-reveal flex items-center justify-center gap-1.5"
+                  style={{ animationDelay: '225ms' }}
+                >
+                  <div className="flex text-accent-cheese-default">
+                    <StarIcon size={IconSize.XSmall} />
+                    <StarIcon size={IconSize.XSmall} />
+                    <StarIcon size={IconSize.XSmall} />
+                    <StarIcon size={IconSize.XSmall} />
+                    <StarIcon size={IconSize.XSmall} />
+                  </div>
+                  <span className="italic text-text-quaternary typo-caption2">
+                    &quot;Replaced my boring new tab&quot; — 1M+ devs
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -4083,6 +3800,7 @@ const OnboardingV2Page = (): ReactElement => {
               <div
                 className={classNames(
                   'pointer-events-none absolute h-32 w-52 rounded-full blur-3xl',
+                  isAwaitingSeniorityInput && 'ghub-orb-paused',
                   importFlowSource === 'github'
                     ? 'ghub-orb-glow bg-accent-cabbage-default/15'
                     : 'onb-ai-orb-glow bg-accent-onion-default/15',
@@ -4091,6 +3809,7 @@ const OnboardingV2Page = (): ReactElement => {
               <svg
                 className={classNames(
                   'pointer-events-none absolute',
+                  isAwaitingSeniorityInput && 'ghub-orb-paused',
                   importFlowSource === 'github' ? 'ghub-ring' : 'onb-ai-ring',
                 )}
                 style={{ width: '11rem', height: '11rem' }}
@@ -4114,6 +3833,7 @@ const OnboardingV2Page = (): ReactElement => {
               <svg
                 className={classNames(
                   'pointer-events-none absolute h-24 w-24',
+                  isAwaitingSeniorityInput && 'ghub-orb-paused',
                   importFlowSource === 'github'
                     ? 'ghub-ring-reverse'
                     : 'onb-ai-ring-reverse',
@@ -4136,7 +3856,10 @@ const OnboardingV2Page = (): ReactElement => {
                 />
               </svg>
               <svg
-                className="onb-ring-slow pointer-events-none absolute h-16 w-16"
+                className={classNames(
+                  'onb-ring-slow pointer-events-none absolute h-16 w-16',
+                  isAwaitingSeniorityInput && 'ghub-orb-paused',
+                )}
                 viewBox="0 0 64 64"
               >
                 <circle
@@ -4202,6 +3925,7 @@ const OnboardingV2Page = (): ReactElement => {
                   key={`import-flow-${p.delay}`}
                   className={classNames(
                     'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
+                    isAwaitingSeniorityInput && 'ghub-orb-paused',
                     p.color,
                   )}
                   style={
@@ -4216,23 +3940,59 @@ const OnboardingV2Page = (): ReactElement => {
                 />
               ))}
               <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                {importFlowSource === 'github' ? (
-                  <svg
-                    width="26"
-                    height="26"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="text-text-primary"
-                  >
-                    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                  </svg>
-                ) : (
-                  <MagicIcon
-                    secondary
-                    size={IconSize.Small}
-                    className="text-text-primary"
-                  />
-                )}
+                {(() => {
+                  if (isAwaitingSeniorityInput) {
+                    return (
+                      <svg
+                        width="26"
+                        height="26"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        className="ghub-question-pulse text-text-primary"
+                      >
+                        <path
+                          d="M9.75 9a2.25 2.25 0 114.5 0c0 1.2-.69 1.76-1.53 2.34-.75.52-1.47 1.02-1.47 2.16"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <circle cx="12" cy="17.2" r="1" fill="currentColor" />
+                        <rect
+                          x="4.2"
+                          y="3.8"
+                          width="15.6"
+                          height="16.4"
+                          rx="3"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                        />
+                      </svg>
+                    );
+                  }
+
+                  if (importFlowSource === 'github') {
+                    return (
+                      <svg
+                        width="26"
+                        height="26"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="text-text-primary"
+                      >
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
+                      </svg>
+                    );
+                  }
+
+                  return (
+                    <MagicIcon
+                      secondary
+                      size={IconSize.Small}
+                      className="text-text-primary"
+                    />
+                  );
+                })()}
               </div>
             </div>
 
@@ -4283,15 +4043,19 @@ const OnboardingV2Page = (): ReactElement => {
               </div>
             )}
 
-            {githubImportBodyPhase !== 'default' && (
+            {displayedGithubImportBodyPhase !== 'default' && (
               <div className="mb-4 w-full overflow-hidden rounded-16 border border-white/[0.06] bg-white/[0.01] p-3.5">
                 <div
-                  key={githubImportBodyPhase}
-                  className="ghub-phase-panel min-h-[10.5rem]"
+                  key={displayedGithubImportBodyPhase}
+                  className={classNames(
+                    'ghub-phase-panel min-h-[12rem] transition-[opacity,transform] duration-300',
+                    isImportBodyTransitioning
+                      ? '-translate-y-1 opacity-0'
+                      : 'translate-y-0 opacity-100',
+                  )}
                 >
                   {/* ── Import checklist (during active import) ── */}
-                  {(githubImportPhase === 'running' ||
-                    githubImportPhase === 'finishing') && (
+                  {displayedGithubImportBodyPhase === 'checklist' && (
                     <div className="flex w-full flex-col gap-2.5">
                       {importSteps.map((step, i) => {
                         const done = githubImportProgress >= step.threshold;
@@ -4381,7 +4145,7 @@ const OnboardingV2Page = (): ReactElement => {
                   )}
 
                   {/* ── Seniority question ── */}
-                  {githubImportPhase === 'awaitingSeniority' && (
+                  {displayedGithubImportBodyPhase === 'seniority' && (
                     <div>
                       <p className="mb-3 text-left font-medium text-text-primary typo-callout">
                         What is your seniority level?
@@ -4412,7 +4176,7 @@ const OnboardingV2Page = (): ReactElement => {
                             >
                               <span
                                 className={classNames(
-                                  'min-w-0 flex-1 truncate font-medium leading-tight typo-callout',
+                                  'line-clamp-2 min-w-0 flex-1 font-medium leading-tight typo-callout',
                                   isSelected
                                     ? 'text-text-primary'
                                     : 'text-text-secondary',
@@ -4438,7 +4202,7 @@ const OnboardingV2Page = (): ReactElement => {
                   )}
 
                   {/* ── Seniority confirmation ── */}
-                  {githubImportPhase === 'confirmingSeniority' && (
+                  {displayedGithubImportBodyPhase === 'confirming' && (
                     <div className="flex h-full flex-col justify-center rounded-12 border border-white/[0.08] bg-surface-float px-4 py-3">
                       <p className="text-text-secondary typo-footnote">
                         Applying your experience level
@@ -4607,114 +4371,6 @@ const OnboardingV2Page = (): ReactElement => {
                         opacity: 0.22,
                       }}
                     />
-                    <div className="onb-ai-orb-glow bg-accent-onion-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
-                    <svg
-                      className="onb-ai-ring pointer-events-none absolute"
-                      style={{ width: '11rem', height: '11rem' }}
-                      viewBox="0 0 176 176"
-                    >
-                      <circle
-                        cx="88"
-                        cy="88"
-                        r="84"
-                        fill="none"
-                        stroke="var(--theme-accent-onion-default)"
-                        strokeWidth="1.5"
-                        strokeDasharray="6 10"
-                        opacity="0.18"
-                      />
-                    </svg>
-                    <svg
-                      className="onb-ai-ring-reverse pointer-events-none absolute h-24 w-24"
-                      viewBox="0 0 96 96"
-                    >
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="44"
-                        fill="none"
-                        stroke="var(--theme-accent-onion-default)"
-                        strokeWidth="1.5"
-                        strokeDasharray="4 6"
-                        opacity="0.35"
-                      />
-                    </svg>
-                    <svg
-                      className="onb-ring-slow pointer-events-none absolute h-16 w-16"
-                      viewBox="0 0 64 64"
-                    >
-                      <circle
-                        cx="32"
-                        cy="32"
-                        r="28"
-                        fill="none"
-                        stroke="var(--theme-accent-onion-default)"
-                        strokeWidth="1"
-                        strokeDasharray="3 5"
-                        opacity="0.3"
-                      />
-                    </svg>
-                    {[
-                      {
-                        px: '-6rem',
-                        py: '-3.5rem',
-                        dur: '3.2s',
-                        delay: '0s',
-                        color: 'bg-accent-cheese-default',
-                      },
-                      {
-                        px: '5.5rem',
-                        py: '-4rem',
-                        dur: '3.6s',
-                        delay: '0.5s',
-                        color: 'bg-accent-water-default',
-                      },
-                      {
-                        px: '-5rem',
-                        py: '3.5rem',
-                        dur: '3.0s',
-                        delay: '1.0s',
-                        color: 'bg-accent-onion-default',
-                      },
-                      {
-                        px: '6rem',
-                        py: '3rem',
-                        dur: '3.4s',
-                        delay: '1.5s',
-                        color: 'bg-accent-cabbage-default',
-                      },
-                      {
-                        px: '-0.5rem',
-                        py: '-5rem',
-                        dur: '2.8s',
-                        delay: '0.3s',
-                        color: 'bg-accent-cheese-default',
-                      },
-                      {
-                        px: '6.5rem',
-                        py: '-0.5rem',
-                        dur: '3.1s',
-                        delay: '0.8s',
-                        color: 'bg-accent-water-default',
-                      },
-                    ].map((p) => (
-                      <span
-                        key={`signup-ai-${p.delay}`}
-                        className={classNames(
-                          'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
-                          p.color,
-                        )}
-                        style={
-                          {
-                            '--px': p.px,
-                            '--py': p.py,
-                            '--dur': p.dur,
-                            '--delay': p.delay,
-                            animationDelay: p.delay,
-                          } as React.CSSProperties
-                        }
-                      />
-                    ))}
                     <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
                       <MagicIcon
                         secondary
@@ -4724,7 +4380,7 @@ const OnboardingV2Page = (): ReactElement => {
                     </div>
                   </div>
                   <div className="mb-4 mt-4 flex flex-col items-center">
-                    <h4 className="mb-1.5 font-bold text-text-primary typo-body">
+                    <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
                       Tell our AI about yourself
                     </h4>
                     <p className="mb-5 text-center text-text-tertiary typo-footnote">
@@ -4867,33 +4523,6 @@ const OnboardingV2Page = (): ReactElement => {
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Live engagement floater overlay — React-controlled, avoids direct DOM mutation */}
-      {liveFloaters.length > 0 && (
-        <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden">
-          {liveFloaters.map((f) => (
-            <span
-              key={f.id}
-              className="onb-live-tick"
-              style={
-                {
-                  position: 'absolute',
-                  left: f.left,
-                  top: f.top,
-                  color: f.color,
-                  '--onb-live-x': f.x,
-                  '--onb-live-y': f.y,
-                  '--onb-live-scale': f.scale,
-                  '--onb-live-rot': f.rot,
-                  '--onb-live-delay': `${f.delay}ms`,
-                } as React.CSSProperties
-              }
-            >
-              {f.text}
-            </span>
-          ))}
         </div>
       )}
     </div>
