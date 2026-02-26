@@ -52,41 +52,6 @@ const seo: NextSeoProps = {
   nofollow: true,
 };
 
-const TAG_TREND_LABELS = [
-  'React',
-  'TypeScript',
-  'System Design',
-  'AI & ML',
-  'PostgreSQL',
-  'Next.js',
-  'Docker',
-  'GraphQL',
-  'Kubernetes',
-  'Python',
-  'Web Performance',
-  'Microservices',
-  'AWS',
-  'Redis',
-  'Svelte',
-  'Deno',
-  'Open Source',
-  'DevOps',
-  'Rust',
-  'Career Growth',
-  'Node.js',
-  'Go',
-  'Cloud Native',
-  'Testing',
-  'Security',
-  'CSS',
-  'Linux',
-  'API Design',
-  'CI / CD',
-  'Terraform',
-  'MongoDB',
-  'WebAssembly',
-] as const;
-
 type RisingTag = {
   label: string;
   left: string;
@@ -417,16 +382,16 @@ const OnboardingV2Page = (): ReactElement => {
       return undefined;
     }
     let idleTimer: number | null = null;
-    let revealTimer: number | null = null;
+    let revealTimer: ReturnType<typeof setTimeout> | null = null;
 
     const revealTags = () => {
-      revealTimer = window.setTimeout(() => setTagsReady(true), 180);
+      revealTimer = setTimeout(() => setTagsReady(true), 180);
     };
 
     if ('requestIdleCallback' in window) {
       idleTimer = window.requestIdleCallback(revealTags, { timeout: 1400 });
     } else {
-      revealTimer = window.setTimeout(() => setTagsReady(true), 1200);
+      revealTimer = setTimeout(() => setTagsReady(true), 1200);
     }
 
     return () => {
@@ -908,7 +873,9 @@ const OnboardingV2Page = (): ReactElement => {
 
           const counterRect = counter.getBoundingClientRect();
           const wrapperRect = wrapperEl.getBoundingClientRect();
-          floater.style.left = `${counterRect.left + counterRect.width / 2 - wrapperRect.left}px`;
+          floater.style.left = `${
+            counterRect.left + counterRect.width / 2 - wrapperRect.left
+          }px`;
 
           wrapperEl.appendChild(floater);
 
@@ -1851,13 +1818,22 @@ const OnboardingV2Page = (): ReactElement => {
                                   )}
                                 >
                                   {icon === 'stack' && (
-                                    <TerminalIcon size={IconSize.Size16} secondary />
+                                    <TerminalIcon
+                                      size={IconSize.Size16}
+                                      secondary
+                                    />
                                   )}
                                   {icon === 'ai' && (
-                                    <MagicIcon size={IconSize.Size16} secondary />
+                                    <MagicIcon
+                                      size={IconSize.Size16}
+                                      secondary
+                                    />
                                   )}
                                   {icon === 'feed' && (
-                                    <NewTabIcon size={IconSize.Size16} secondary />
+                                    <NewTabIcon
+                                      size={IconSize.Size16}
+                                      secondary
+                                    />
                                   )}
                                 </span>
                                 <span className="text-left text-text-primary typo-footnote">
@@ -3562,7 +3538,7 @@ const OnboardingV2Page = (): ReactElement => {
       {/* ── Persistent backdrop during import→extension transition ── */}
       {githubImportExiting && (
         <div
-          className="fixed inset-0 z-modal bg-black/80 backdrop-blur-lg"
+          className="bg-black/80 fixed inset-0 z-modal backdrop-blur-lg"
           aria-hidden
         />
       )}
@@ -3647,7 +3623,7 @@ const OnboardingV2Page = (): ReactElement => {
                     key={label}
                     className="flex items-center justify-center gap-2.5 py-1"
                   >
-                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-avocado-default/20">
+                    <div className="bg-accent-avocado-default/20 flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
                       <VIcon
                         className="text-accent-avocado-default"
                         size={IconSize.XXSmall}
@@ -3710,9 +3686,9 @@ const OnboardingV2Page = (): ReactElement => {
                   className="max-w-[26rem] text-center italic text-text-tertiary typo-callout"
                   style={{ lineHeight: 1.8 }}
                 >
-                  &quot;I open 50+ tabs a day. daily.dev makes each one
-                  count. It&apos;s the best dev tool I&apos;ve installed
-                  this year.&quot;
+                  &quot;I open 50+ tabs a day. daily.dev makes each one count.
+                  It&apos;s the best dev tool I&apos;ve installed this
+                  year.&quot;
                 </span>
               </div>
             </div>
@@ -3943,7 +3919,12 @@ const OnboardingV2Page = (): ReactElement => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
-                          <circle cx="12" cy="18.1" r="1.6" fill="currentColor" />
+                          <circle
+                            cx="12"
+                            cy="18.1"
+                            r="1.6"
+                            fill="currentColor"
+                          />
                         </svg>
                       </span>
                     );
@@ -4047,153 +4028,153 @@ const OnboardingV2Page = (): ReactElement => {
                         : 'min-h-[12rem]'
                     }
                   >
-                  {/* ── Import checklist (during active import) ── */}
-                  {githubImportBodyPhase === 'checklist' && (
-                    <div className="flex w-full flex-col gap-2.5">
-                      {importSteps.map((step, i) => {
-                        const done = githubImportProgress >= step.threshold;
-                        const active =
-                          !done && githubImportProgress >= step.threshold - 16;
-                        // eslint-disable-next-line no-nested-ternary
-                        const statusText = done
-                          ? 'Done'
-                          : active
-                          ? 'In progress'
-                          : 'Up next';
-
-                        return (
-                          <div
-                            key={step.label}
-                            className="ghub-step-reveal grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-3"
-                            style={{ animationDelay: `${i * 80}ms` }}
-                          >
-                            <span
-                              className={classNames(
-                                'flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors duration-300',
-                                // eslint-disable-next-line no-nested-ternary
-                                done
-                                  ? 'bg-accent-avocado-default'
-                                  : active
-                                  ? 'bg-accent-cabbage-default/18'
-                                  : 'bg-white/[0.06]',
-                              )}
-                            >
-                              {done ? (
-                                <svg
-                                  width="18"
-                                  height="18"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  aria-hidden
-                                >
-                                  <path
-                                    d="M9 12l2 2 4-4"
-                                    stroke="#111827"
-                                    strokeWidth="2.6"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                              ) : (
-                                <span
-                                  className={classNames(
-                                    'h-2 w-2 rounded-full',
-                                    active
-                                      ? 'bg-accent-cabbage-default'
-                                      : 'bg-text-quaternary',
-                                  )}
-                                />
-                              )}
-                            </span>
-                            <span
-                              className={classNames(
-                                'truncate transition-colors duration-300 typo-callout',
-                                // eslint-disable-next-line no-nested-ternary
-                                done
-                                  ? 'text-text-primary'
-                                  : active
-                                  ? 'text-text-secondary'
-                                  : 'text-text-quaternary',
-                              )}
-                            >
-                              {step.label}
-                            </span>
-                            <span
-                              className={classNames(
-                                'shrink-0 typo-caption2',
-                                // eslint-disable-next-line no-nested-ternary
-                                done
-                                  ? 'text-accent-avocado-default'
-                                  : active
-                                  ? 'text-accent-cabbage-default'
-                                  : 'text-text-quaternary',
-                              )}
-                            >
-                              {statusText}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* ── Seniority question ── */}
-                  {githubImportBodyPhase === 'seniority' && (
-                    <div>
-                      <p className="mb-3 text-left font-medium text-text-primary typo-callout">
-                        What is your seniority level?
-                      </p>
-                      <div className="grid grid-cols-1 gap-1.5">
-                        {EXPERIENCE_LEVEL_OPTIONS.map((option) => {
-                          const optionParts = getExperienceLevelOptionParts(
-                            option.label,
-                          );
-                          const optionMeta =
-                            optionParts.meta ?? 'Non-technical';
-                          const isSelected =
-                            selectedExperienceLevel === option.value;
+                    {/* ── Import checklist (during active import) ── */}
+                    {githubImportBodyPhase === 'checklist' && (
+                      <div className="flex w-full flex-col gap-2.5">
+                        {importSteps.map((step, i) => {
+                          const done = githubImportProgress >= step.threshold;
+                          const active =
+                            !done &&
+                            githubImportProgress >= step.threshold - 16;
+                          // eslint-disable-next-line no-nested-ternary
+                          const statusText = done
+                            ? 'Done'
+                            : active
+                            ? 'In progress'
+                            : 'Up next';
 
                           return (
-                            <button
-                              key={option.value}
-                              type="button"
-                              onClick={() =>
-                                handleExperienceLevelSelect(option.value)
-                              }
-                              className={classNames(
-                                'focus-visible:ring-accent-cabbage-default/60 group flex items-center rounded-12 border px-4 py-2.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 active:translate-y-px',
-                                isSelected
-                                  ? 'border-white/[0.24] bg-surface-hover text-text-primary shadow-[0_8px_24px_rgba(0,0,0,0.3)]'
-                                  : 'border-white/[0.12] bg-surface-float text-text-secondary hover:border-white/[0.2] hover:bg-surface-hover hover:text-text-primary',
-                              )}
+                            <div
+                              key={step.label}
+                              className="ghub-step-reveal grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-3"
+                              style={{ animationDelay: `${i * 80}ms` }}
                             >
                               <span
                                 className={classNames(
-                                  'line-clamp-2 min-w-0 flex-1 font-medium leading-tight typo-callout',
-                                  isSelected
-                                    ? 'text-text-primary'
-                                    : 'text-text-secondary',
+                                  'flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors duration-300',
+                                  // eslint-disable-next-line no-nested-ternary
+                                  done
+                                    ? 'bg-accent-avocado-default'
+                                    : active
+                                    ? 'bg-accent-cabbage-default/18'
+                                    : 'bg-white/[0.06]',
                                 )}
                               >
-                                {optionParts.title}
+                                {done ? (
+                                  <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden
+                                  >
+                                    <path
+                                      d="M9 12l2 2 4-4"
+                                      stroke="#111827"
+                                      strokeWidth="2.6"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                ) : (
+                                  <span
+                                    className={classNames(
+                                      'h-2 w-2 rounded-full',
+                                      active
+                                        ? 'bg-accent-cabbage-default'
+                                        : 'bg-text-quaternary',
+                                    )}
+                                  />
+                                )}
                               </span>
                               <span
                                 className={classNames(
-                                  'shrink-0 text-right typo-caption1',
-                                  isSelected
-                                    ? 'text-text-tertiary'
+                                  'truncate transition-colors duration-300 typo-callout',
+                                  // eslint-disable-next-line no-nested-ternary
+                                  done
+                                    ? 'text-text-primary'
+                                    : active
+                                    ? 'text-text-secondary'
                                     : 'text-text-quaternary',
                                 )}
                               >
-                                {optionMeta}
+                                {step.label}
                               </span>
-                            </button>
+                              <span
+                                className={classNames(
+                                  'shrink-0 typo-caption2',
+                                  // eslint-disable-next-line no-nested-ternary
+                                  done
+                                    ? 'text-accent-avocado-default'
+                                    : active
+                                    ? 'text-accent-cabbage-default'
+                                    : 'text-text-quaternary',
+                                )}
+                              >
+                                {statusText}
+                              </span>
+                            </div>
                           );
                         })}
                       </div>
-                    </div>
-                  )}
+                    )}
 
+                    {/* ── Seniority question ── */}
+                    {githubImportBodyPhase === 'seniority' && (
+                      <div>
+                        <p className="mb-3 text-left font-medium text-text-primary typo-callout">
+                          What is your seniority level?
+                        </p>
+                        <div className="grid grid-cols-1 gap-1.5">
+                          {EXPERIENCE_LEVEL_OPTIONS.map((option) => {
+                            const optionParts = getExperienceLevelOptionParts(
+                              option.label,
+                            );
+                            const optionMeta =
+                              optionParts.meta ?? 'Non-technical';
+                            const isSelected =
+                              selectedExperienceLevel === option.value;
+
+                            return (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={() =>
+                                  handleExperienceLevelSelect(option.value)
+                                }
+                                className={classNames(
+                                  'focus-visible:ring-accent-cabbage-default/60 group flex items-center rounded-12 border px-4 py-2.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 active:translate-y-px',
+                                  isSelected
+                                    ? 'border-white/[0.24] bg-surface-hover text-text-primary shadow-[0_8px_24px_rgba(0,0,0,0.3)]'
+                                    : 'border-white/[0.12] bg-surface-float text-text-secondary hover:border-white/[0.2] hover:bg-surface-hover hover:text-text-primary',
+                                )}
+                              >
+                                <span
+                                  className={classNames(
+                                    'line-clamp-2 min-w-0 flex-1 font-medium leading-tight typo-callout',
+                                    isSelected
+                                      ? 'text-text-primary'
+                                      : 'text-text-secondary',
+                                  )}
+                                >
+                                  {optionParts.title}
+                                </span>
+                                <span
+                                  className={classNames(
+                                    'shrink-0 text-right typo-caption1',
+                                    isSelected
+                                      ? 'text-text-tertiary'
+                                      : 'text-text-quaternary',
+                                  )}
+                                >
+                                  {optionMeta}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -4461,7 +4442,7 @@ const OnboardingV2Page = (): ReactElement => {
                     </svg>
                   </button>
                 )}
-                {isAiSetupContext && signupContext !== 'github' && (
+                {isAiSetupContext && (
                   <>
                     <button
                       type="button"
