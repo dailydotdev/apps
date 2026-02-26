@@ -245,6 +245,7 @@ const CROWN_CONFIG: Record<
   {
     icon: CrownData['icon'];
     iconColor: string;
+    glowColor: string;
     label: string;
     thresholds: CrownThresholds;
     getValue: (t: RankedTool) => number;
@@ -254,7 +255,8 @@ const CROWN_CONFIG: Record<
   'developers-choice': {
     icon: MedalBadgeIcon,
     iconColor: 'text-accent-cheese-default',
-    label: "Developer's Choice",
+    glowColor: 'var(--theme-accent-cheese-default)',
+    label: "Developer's choice",
     thresholds: { minVolume: 10 },
     getValue: (t) => t.dIndex,
     formatStat: (t) => `${formatDIndex(t.dIndex)} D-Index`,
@@ -262,7 +264,8 @@ const CROWN_CONFIG: Record<
   'most-loved': {
     icon: StarIcon,
     iconColor: 'text-accent-cabbage-default',
-    label: 'Most Loved',
+    glowColor: 'var(--theme-accent-cabbage-default)',
+    label: 'Most loved',
     thresholds: { minVolume: 10 },
     getValue: (t) => t.sentimentDisplay,
     formatStat: (t) => `${t.sentimentDisplay} / 100`,
@@ -270,18 +273,18 @@ const CROWN_CONFIG: Record<
   'fastest-rising': {
     icon: TrendingIcon,
     iconColor: 'text-accent-avocado-default',
-    label: 'Fastest Rising',
+    glowColor: 'var(--theme-accent-avocado-default)',
+    label: 'Fastest rising',
     thresholds: { minVolume: 5 },
     getValue: (t) => t.momentum,
     formatStat: (t) =>
-      `${t.momentum > 0 ? '\u25B2' : '\u25BC'} ${t.momentum > 0 ? '+' : ''}${
-        t.momentum
-      }% vs prior 24h`,
+      `${t.momentum > 0 ? '+' : ''}${t.momentum}% vs prior 24h`,
   },
   'most-discussed': {
     icon: MegaphoneIcon,
     iconColor: 'text-accent-blueCheese-default',
-    label: 'Most Discussed',
+    glowColor: 'var(--theme-accent-blueCheese-default)',
+    label: 'Most discussed',
     thresholds: { minVolume: 0 },
     getValue: (t) => t.volume24h,
     formatStat: (t) => `${formatVolume(t.volume24h)} mentions`,
@@ -289,7 +292,8 @@ const CROWN_CONFIG: Record<
   'most-controversial': {
     icon: HotIcon,
     iconColor: 'text-accent-ketchup-default',
-    label: 'Most Controversial',
+    glowColor: 'var(--theme-accent-ketchup-default)',
+    label: 'Most controversial',
     thresholds: { minVolume: 10 },
     getValue: (t) => t.controversyScore,
     formatStat: (t) => `Heat ${t.heat}`,
@@ -318,6 +322,7 @@ export const computeCrowns = (tools: RankedTool[]): CrownData[] => {
         type,
         icon: config.icon,
         iconColor: config.iconColor,
+        glowColor: config.glowColor,
         label: config.label,
         entity: null,
         stat: '',
@@ -333,6 +338,7 @@ export const computeCrowns = (tools: RankedTool[]): CrownData[] => {
       type,
       icon: config.icon,
       iconColor: config.iconColor,
+      glowColor: config.glowColor,
       label: config.label,
       entity: winner.entity,
       stat: config.formatStat(winner),

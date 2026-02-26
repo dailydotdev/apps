@@ -90,22 +90,19 @@ export const ArenaPage = ({
 
       {/* Header */}
       <header className="px-4 pt-6 laptop:px-0 laptop:pt-10">
-        <div className="flex flex-col gap-2 tablet:flex-row tablet:items-start tablet:justify-between tablet:gap-0">
-          <div className="flex flex-col gap-1">
-            <h1 className="flex items-center gap-2 font-bold text-text-primary typo-title2 laptop:typo-title1">
-              <span aria-hidden="true">&#x2694;&#xFE0F;</span>
-              The Arena
-            </h1>
-            <p className="text-text-tertiary typo-footnote">
-              Where AI tools fight for developer love
-            </p>
-          </div>
-          <LiveIndicator />
+        <div className="flex flex-col gap-1">
+          <h1 className="flex items-center gap-2 font-bold text-text-primary typo-title2 laptop:typo-title1">
+            <span aria-hidden="true">&#x2694;&#xFE0F;</span>
+            The Arena
+          </h1>
+          <p className="text-text-tertiary typo-footnote">
+            Where AI tools fight for developer love
+          </p>
         </div>
       </header>
 
       {/* Tab switcher */}
-      <nav className="sticky top-0 z-3 mt-4 flex gap-1 border-b border-border-subtlest-tertiary bg-background-default px-4 laptop:px-0">
+      <nav className="sticky top-0 z-3 mt-4 flex items-center gap-1 border-b border-border-subtlest-tertiary bg-background-default px-4 laptop:px-0">
         {ARENA_TABS.map((tab) => (
           <button
             key={tab.value}
@@ -124,6 +121,9 @@ export const ArenaPage = ({
             )}
           </button>
         ))}
+        <div className="ml-auto">
+          <LiveIndicator />
+        </div>
       </nav>
 
       {/* Content */}

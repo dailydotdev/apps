@@ -45,6 +45,7 @@ export interface CrownData {
   type: CrownType;
   icon: ComponentType<IconProps>;
   iconColor: string;
+  glowColor: string;
   label: string;
   entity: ArenaEntity | null;
   stat: string;

@@ -115,7 +115,7 @@ const HighlightCard = ({
         </div>
 
         {/* Full text */}
-        <p className="whitespace-pre-wrap break-words text-text-secondary typo-footnote">
+        <p className="whitespace-pre-wrap break-words text-text-secondary typo-callout">
           {cleanText}
         </p>
 
@@ -219,25 +219,16 @@ export const ArenaHighlightsFeed = ({
           __html: `@keyframes slide-down{0%{opacity:0;transform:translateY(-100%)}100%{opacity:1;transform:translateY(0)}}`,
         }}
       />
-      {/* Feed header — mobile only */}
-      <div className="flex items-center justify-between border-b border-border-subtlest-secondary px-4 py-2.5 laptop:hidden">
+      {/* Feed header */}
+      <div className="flex items-center border-b border-border-subtlest-tertiary px-4 py-2.5">
         <span className="font-bold text-text-primary typo-callout">
           Live Highlights
         </span>
-        {!loading && pendingItems.length > 0 && (
-          <button
-            type="button"
-            onClick={showPending}
-            className="rounded-8 bg-accent-cabbage-default px-2.5 py-1 font-bold text-white typo-caption2 active:scale-95"
-          >
-            +{pendingItems.length} new
-          </button>
-        )}
       </div>
 
-      {/* New posts badge — floats over feed (laptop only) */}
+      {/* New posts badge — floats over feed */}
       {!loading && pendingItems.length > 0 && (
-        <div className="z-10 pointer-events-none absolute inset-x-0 top-3 hidden justify-center laptop:flex">
+        <div className="z-10 pointer-events-none absolute inset-x-0 top-12 flex justify-center">
           <button
             type="button"
             onClick={showPending}

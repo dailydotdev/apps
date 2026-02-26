@@ -7,7 +7,7 @@ interface ArenaSentimentBarProps {
 }
 
 const getSentimentColor = (value: number): string => {
-  if (value > 70) {
+  if (value > 60) {
     return 'bg-accent-avocado-default';
   }
   if (value >= 40) {
@@ -17,7 +17,7 @@ const getSentimentColor = (value: number): string => {
 };
 
 const getSentimentTextColor = (value: number): string => {
-  if (value > 70) {
+  if (value > 60) {
     return 'text-accent-avocado-default';
   }
   if (value >= 40) {
