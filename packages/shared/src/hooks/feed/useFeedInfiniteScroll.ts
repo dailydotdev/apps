@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import classed from '../../lib/classed';
 
 export interface UseFeedInfiniteScrollProps {
-  fetchPage?: () => Promise<unknown> | void;
+  fetchPage: () => Promise<unknown> | void;
   canFetchMore: boolean;
 }
 
@@ -23,7 +23,7 @@ export default function useFeedInfiniteScroll({
 
   useEffect(() => {
     if (inView && canFetchMore) {
-      fetchPage?.();
+      fetchPage();
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps

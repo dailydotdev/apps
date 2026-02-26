@@ -120,7 +120,7 @@ export function Dropdown({
   };
 
   const infiniteScrollRef = useFeedInfiniteScroll({
-    fetchPage: fetchNextPage,
+    fetchPage: fetchNextPage ?? (() => {}),
     canFetchMore: canFetchMore && !isFetchingNextPage,
   });
 
