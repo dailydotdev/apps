@@ -29,12 +29,13 @@ export type UserSourceIntegration = {
 };
 
 export const SLACK_CHANNELS_QUERY = gql`
-  query SlackChannels($integrationId: ID!) {
-    slackChannels(integrationId: $integrationId, limit: 999) {
+  query SlackChannels($integrationId: ID!, $cursor: String) {
+    slackChannels(integrationId: $integrationId, limit: 100, cursor: $cursor) {
       data {
         id
         name
       }
+      cursor
     }
   }
 `;

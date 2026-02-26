@@ -5,6 +5,8 @@ import { Drawer } from './Drawer';
 import type { SelectParams } from './common';
 import type { ListDrawerItemProps } from './ListDrawerItem';
 import { ListDrawerItem } from './ListDrawerItem';
+import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
+import { Loader } from '../Loader';
 
 interface ListDrawerProps extends Pick<ListDrawerItemProps, 'customItem'> {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;
@@ -12,6 +14,9 @@ interface ListDrawerProps extends Pick<ListDrawerItemProps, 'customItem'> {
   selected: number; // index
   onSelectedChange(props: SelectParams): void;
   shouldIndicateSelected?: boolean;
+  fetchNextPage?: () => Promise<unknown>;
+  canFetchMore?: boolean;
+  isFetchingNextPage?: boolean;
 }
 
 export function ListDrawer({
@@ -21,8 +26,15 @@ export function ListDrawer({
   options,
   customItem,
   shouldIndicateSelected,
+  fetchNextPage,
+  canFetchMore = false,
+  isFetchingNextPage,
 }: ListDrawerProps): ReactElement {
   const ref = React.useRef<DrawerRef>();
+  const infiniteScrollRef = useFeedInfiniteScroll({
+    fetchPage: fetchNextPage ?? (() => {}),
+    canFetchMore: canFetchMore && !isFetchingNextPage,
+  });
 
   return (
     <Drawer {...drawerProps} ref={ref} role="menu">
@@ -41,6 +53,13 @@ export function ListDrawer({
           }}
         />
       ))}
+      {fetchNextPage && (
+        <div
+          ref={infiniteScrollRef}
+          className="pointer-events-none h-px w-px opacity-0"
+        />
+      )}
+      {isFetchingNextPage && <Loader className="mx-auto my-2" />}
     </Drawer>
   );
 }
