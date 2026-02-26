@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classnames from 'classnames';
 import { ReadingStreakPopup } from './popup';
 import type { ButtonIconPosition } from '../buttons/Button';
@@ -116,9 +116,9 @@ export function ReadingStreakButton({
   const isMobile = useViewSize(ViewSize.MobileL);
   const isTablet = useViewSize(ViewSize.Tablet);
   const debug = useStreakDebug();
-  const [shouldShowStreaks, setShouldShowStreaks] = useState(debug.isDebugMode);
+  const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const [showStreakAsDrawer, setShowStreakAsDrawer] = useState(false);
-  const [showDrawerGreeting, setShowDrawerGreeting] = useState(true);
+  const [showDrawerGreeting, setShowDrawerGreeting] = useState(false);
   const [debugPos, setDebugPos] = useState({ x: 16, y: 16 });
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
   const [showMilestoneCelebration, setShowMilestoneCelebration] =
@@ -139,7 +139,9 @@ export function ReadingStreakButton({
 
   const effectiveUrgency = debug.debugUrgency ?? urgency;
   const effectiveAnimation = debug.debugAnimationOverride ?? animationState;
-  const effectiveStreak = debug.debugStreakOverride ?? streak?.current;
+  const effectiveStreak = debug.isDebugMode
+    ? (debug.debugStreakOverride ?? 0)
+    : streak?.current;
   const currentTier = getCurrentTier(effectiveStreak ?? 0);
   const hitMilestone = getMilestoneAtDay(effectiveStreak ?? 0);
 
@@ -154,6 +156,26 @@ export function ReadingStreakButton({
   }, [shouldShowStreaks, logEvent]);
 
   const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
+
+  useEffect(() => {
+    if (isTesting || isLoading || !streak || !user?.id || hasReadToday) {
+      return;
+    }
+
+    const sessionKey = `streak-reminder-shown:${user.id}`;
+
+    try {
+      if (sessionStorage.getItem(sessionKey)) {
+        return;
+      }
+
+      sessionStorage.setItem(sessionKey, '1');
+    } catch {
+      // Fallback for environments where sessionStorage is unavailable.
+    }
+
+    requestAnimationFrame(() => setShowReminderPopover(true));
+  }, [hasReadToday, isLoading, streak, user?.id]);
 
   if (isLoading) {
     return <div className="h-8 w-14 rounded-12 bg-surface-float" />;
@@ -175,6 +197,12 @@ export function ReadingStreakButton({
   const isTabletOnly = isTablet && !isLaptop;
   const shouldOpenInDrawer =
     isMobile || isTabletOnly || (debug.isDebugMode && showStreakAsDrawer);
+  const decrementDebugStreak = useCallback(() => {
+    debug.setDebugStreak(Math.max((effectiveStreak ?? 0) - 1, 0));
+  }, [debug, effectiveStreak]);
+  const incrementDebugStreak = useCallback(() => {
+    debug.setDebugStreak((effectiveStreak ?? 0) + 1);
+  }, [debug, effectiveStreak]);
 
   return (
     <>
@@ -360,12 +388,13 @@ export function ReadingStreakButton({
             onClick={() => {
               setShowBrokenPopover(false);
               if (!user) {
+                requestAnimationFrame(() => setShowBrokenPopover(true));
                 return;
               }
 
               openModal({
                 type: LazyModal.RecoverStreak,
-                props: { user },
+                props: { user, forceOpen: true },
               });
             }}
             className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover"
@@ -400,6 +429,28 @@ export function ReadingStreakButton({
           >
             Show greeting message
           </Switch>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={decrementDebugStreak}
+              className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={(effectiveStreak ?? 0) <= 0}
+              aria-label="Decrease debug streak by one day"
+            >
+              -
+            </button>
+            <span className="min-w-10 text-center text-text-tertiary typo-footnote">
+              {effectiveStreak ?? 0}
+            </span>
+            <button
+              type="button"
+              onClick={incrementDebugStreak}
+              className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover"
+              aria-label="Increase debug streak by one day"
+            >
+              +
+            </button>
+          </div>
           <div className="flex gap-1">
             {[0, 3, 4, 7, 14, 30, 90, 365, 730, 1095, 1460].map((d) => (
               <button

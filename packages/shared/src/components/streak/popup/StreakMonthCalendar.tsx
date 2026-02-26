@@ -2,9 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
+  addDays,
   format,
   isSameDay,
   subDays,
@@ -16,6 +14,7 @@ interface StreakMonthCalendarProps {
   history?: ReadingDay[];
   weekStart?: number;
   timezone?: string;
+  currentStreak?: number;
   streakOverride?: number;
   trailing?: React.ReactNode;
 }
@@ -38,13 +37,13 @@ function formatDayLabel(
 
 function generateDummyReadDays(
   streakCount: number,
+  anchorDate: Date,
   weekStart: number | undefined,
   timezone: string | undefined,
 ): Set<string> {
   const result = new Set<string>();
-  const now = new Date();
   let remaining = streakCount;
-  let cursor = now;
+  let cursor = anchorDate;
 
   while (remaining > 0) {
     if (!isWeekendDay(cursor, weekStart, timezone)) {
@@ -61,26 +60,36 @@ export function StreakMonthCalendar({
   history,
   weekStart,
   timezone,
+  currentStreak,
   streakOverride,
   trailing,
 }: StreakMonthCalendarProps): ReactElement {
-  const today = useMemo(() => new Date(), []);
+  const baseToday = useMemo(() => new Date(), []);
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
+  const activeStreak = Math.max(streakOverride ?? currentStreak ?? 1, 1);
+  const initialStreakRef = useRef(activeStreak);
+  const streakDelta = activeStreak - initialStreakRef.current;
+  const today = useMemo(() => addDays(baseToday, streakDelta), [baseToday, streakDelta]);
+  const todayAbsoluteIndex = activeStreak - 1;
+  const startRowIndex = Math.max(0, Math.floor(todayAbsoluteIndex / 10) - 1);
+  const startAbsoluteIndex = startRowIndex * 10;
 
-  const { days, monthLabel } = useMemo(() => {
-    const monthStart = startOfMonth(today);
-    const monthEnd = endOfMonth(today);
-    const allDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-
-    return {
-      days: allDays,
-      monthLabel: format(today, 'MMMM yyyy'),
-    };
-  }, [today]);
+  const days = useMemo(
+    () =>
+      Array.from({ length: 30 }, (_, index) => {
+        const absoluteIndex = startAbsoluteIndex + index;
+        return subDays(today, todayAbsoluteIndex - absoluteIndex);
+      }),
+    [startAbsoluteIndex, today, todayAbsoluteIndex],
+  );
 
   const readDaysSet = useMemo(() => {
     if (streakOverride !== undefined) {
-      return generateDummyReadDays(streakOverride, weekStart, timezone);
+      return generateDummyReadDays(streakOverride, today, weekStart, timezone);
+    }
+
+    if (currentStreak !== undefined) {
+      return generateDummyReadDays(currentStreak, today, weekStart, timezone);
     }
 
     if (!history) {
@@ -92,7 +101,7 @@ export function StreakMonthCalendar({
         .filter((d) => d.reads > 0)
         .map((d) => new Date(d.date).toDateString()),
     );
-  }, [history, streakOverride, weekStart, timezone]);
+  }, [currentStreak, history, streakOverride, today, weekStart, timezone]);
 
   const todayLabel = formatDayLabel(today, today, isWeekendDay(today, weekStart, timezone));
   const displayLabel = hoveredDay
@@ -104,6 +113,13 @@ export function StreakMonthCalendar({
   const [visible, setVisible] = useState(true);
   const pendingLabel = useRef(displayLabel);
   const [renderedLabel, setRenderedLabel] = useState(displayLabel);
+  const [windowDays, setWindowDays] = useState(days);
+  const [elevatorTrackDays, setElevatorTrackDays] = useState<Date[] | null>(null);
+  const [isElevatorAnimating, setIsElevatorAnimating] = useState(false);
+  const [trackOffsetPx, setTrackOffsetPx] = useState(0);
+  const [windowHeightPx, setWindowHeightPx] = useState<number | null>(null);
+  const previousStartRowIndex = useRef(startRowIndex);
+  const gridContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (displayLabel === renderedLabel) {
@@ -128,12 +144,114 @@ export function StreakMonthCalendar({
     return () => clearTimeout(timer);
   }, [displayLabel, renderedLabel, hoveredDay]);
 
+  useEffect(() => {
+    if (!gridContainerRef.current || elevatorTrackDays) {
+      return;
+    }
+
+    setWindowHeightPx(gridContainerRef.current.getBoundingClientRect().height);
+  }, [elevatorTrackDays, windowDays]);
+
+  useEffect(() => {
+    if (previousStartRowIndex.current === startRowIndex) {
+      setWindowDays(days);
+      previousStartRowIndex.current = startRowIndex;
+      return;
+    }
+
+    const rowShift = startRowIndex - previousStartRowIndex.current;
+    const isSingleRowShift = Math.abs(rowShift) === 1;
+    const gridElement = gridContainerRef.current;
+
+    if (!isSingleRowShift || !gridElement) {
+      setWindowDays(days);
+      previousStartRowIndex.current = startRowIndex;
+      return;
+    }
+
+    const { height: currentWindowHeight } = gridElement.getBoundingClientRect();
+    const styles = window.getComputedStyle(gridElement);
+    const rowGap = parseFloat(styles.rowGap || styles.gap || '0') || 0;
+    const rowStep = (currentWindowHeight + rowGap) / 3;
+
+    if (!Number.isFinite(rowStep) || rowStep <= 0) {
+      setWindowDays(days);
+      previousStartRowIndex.current = startRowIndex;
+      return;
+    }
+
+    const forwardIncomingRow = days.slice(20, 30);
+    const backwardIncomingRow = days.slice(0, 10);
+    const nextTrackDays =
+      rowShift > 0
+        ? [...windowDays, ...forwardIncomingRow]
+        : [...backwardIncomingRow, ...windowDays];
+    const initialOffset = rowShift > 0 ? 0 : -rowStep;
+    const targetOffset = rowShift > 0 ? -rowStep : 0;
+
+    setWindowHeightPx(currentWindowHeight);
+    setElevatorTrackDays(nextTrackDays);
+    setTrackOffsetPx(initialOffset);
+    setIsElevatorAnimating(false);
+
+    const animationFrame = requestAnimationFrame(() => {
+      setIsElevatorAnimating(true);
+      setTrackOffsetPx(targetOffset);
+    });
+    const animationTimer = setTimeout(() => {
+      setWindowDays(days);
+      setElevatorTrackDays(null);
+      setTrackOffsetPx(0);
+      setIsElevatorAnimating(false);
+      previousStartRowIndex.current = startRowIndex;
+    }, 240);
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      clearTimeout(animationTimer);
+    };
+  }, [days, startRowIndex, windowDays]);
+
+  const renderDayCircle = (
+    day: Date,
+    index: number,
+    keyPrefix: string,
+    isInteractive: boolean,
+  ): ReactElement => {
+    const isToday = isSameDay(day, today);
+    const isFreeze = isWeekendDay(day, weekStart, timezone);
+    const isRead = !isFreeze && readDaysSet.has(day.toDateString());
+
+    return (
+      <div
+        key={`${keyPrefix}-${day.toISOString()}-${index}`}
+        className={classNames(
+          'aspect-square w-full cursor-pointer rounded-full border border-border-subtlest-tertiary bg-surface-subtle',
+          'flex items-center justify-center',
+          isToday && 'animate-streak-day-pop',
+          isToday && 'border-white',
+          isFreeze &&
+            'bg-surface-float text-border-subtlest-tertiary bg-[repeating-linear-gradient(135deg,currentColor_0_2px,transparent_2px_5px)]',
+        )}
+        onMouseEnter={isInteractive ? () => setHoveredDay(day) : undefined}
+        onMouseLeave={isInteractive ? () => setHoveredDay(null) : undefined}
+        onClick={isInteractive ? () => setHoveredDay(day) : undefined}
+        role="button"
+        tabIndex={0}
+      >
+        {isRead && (
+          <span className="aspect-square w-[42%] min-w-2.5 max-w-4 rounded-full bg-accent-bacon-default" />
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col gap-1">
-      <div className="mb-1 mt-1 flex items-center justify-between">
+      <div className="mb-1 mt-1 flex items-center justify-between gap-1">
         <span
           className={classNames(
-            'block min-w-0 flex-1 truncate font-bold text-text-tertiary typo-subhead transition-opacity duration-100',
+            'block min-w-0 max-w-[12.5rem] flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-bold text-text-tertiary typo-subhead transition-opacity duration-100',
             visible ? 'opacity-100' : 'opacity-0',
           )}
         >
@@ -141,35 +259,34 @@ export function StreakMonthCalendar({
         </span>
         {!isHoveredWeekend && trailing}
       </div>
-      <div className="grid w-full grid-cols-[repeat(11,1fr)] grid-rows-3 gap-2.5">
-        {days.map((day) => {
-          const isToday = isSameDay(day, today);
-          const isFreeze = isWeekendDay(day, weekStart, timezone);
-          const isRead = !isFreeze && readDaysSet.has(day.toDateString());
-
-          return (
-            <div
-              key={day.toDateString()}
-              className={classNames(
-                'aspect-square w-full cursor-pointer rounded-full border border-border-subtlest-tertiary bg-transparent',
-                'flex items-center justify-center',
-                isToday && 'animate-streak-day-pop',
-                isToday && 'border-white',
-                isFreeze &&
-                  'bg-surface-float text-border-subtlest-tertiary bg-[repeating-linear-gradient(135deg,currentColor_0_2px,transparent_2px_5px)]',
-              )}
-              onMouseEnter={() => setHoveredDay(day)}
-              onMouseLeave={() => setHoveredDay(null)}
-              onClick={() => setHoveredDay(day)}
-              role="button"
-              tabIndex={0}
-            >
-              {isRead && (
-                <span className="aspect-square w-[42%] min-w-2.5 max-w-4 rounded-full bg-accent-bacon-default" />
+      <div
+        className={classNames(
+          'relative',
+          elevatorTrackDays ? 'overflow-hidden' : 'overflow-visible',
+        )}
+        style={windowHeightPx ? { height: `${windowHeightPx}px` } : undefined}
+      >
+        {elevatorTrackDays ? (
+          <div
+            className={classNames(
+              'pointer-events-none',
+              isElevatorAnimating && 'transition-transform duration-200 ease-out',
+            )}
+            style={{ transform: `translateY(${trackOffsetPx}px)` }}
+          >
+            <div className="grid w-full grid-cols-10 grid-rows-4 gap-2.5">
+              {elevatorTrackDays.map((day, index) =>
+                renderDayCircle(day, index, 'elevator', false),
               )}
             </div>
-          );
-        })}
+          </div>
+        ) : (
+          <div ref={gridContainerRef} className="grid w-full grid-cols-10 grid-rows-3 gap-2.5">
+            {windowDays.map((day, index) =>
+              renderDayCircle(day, index, 'window', true),
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

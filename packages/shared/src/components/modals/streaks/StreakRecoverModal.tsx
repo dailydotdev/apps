@@ -37,6 +37,7 @@ export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
   onRequestClose: () => void;
   user: LoggedUser;
+  forceOpen?: boolean;
 }
 
 const streakRecoverCoverSrc =
@@ -259,7 +260,7 @@ export const StreakRecoverOptout = ({
 export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
 ): ReactElement => {
-  const { isOpen, onRequestClose, onAfterClose, user } = props;
+  const { isOpen, onRequestClose, onAfterClose, user, forceOpen } = props;
   const { isStreaksEnabled } = useReadingStreak();
 
   const id = useId();
@@ -268,7 +269,27 @@ export const StreakRecoverModal = (
     onRequestClose,
   });
 
-  if (!user || !isStreaksEnabled || !recover.canRecover || recover.isLoading) {
+  const isPreviewMode =
+    !!forceOpen && (recover.isLoading || !recover.canRecover);
+  const previewRecover: UserStreakRecoverData & {
+    isLoading: boolean;
+    isRecoverPending: boolean;
+  } = {
+    canRecover: true,
+    cost: 100,
+    regularCost: 100,
+    oldStreakLength: Math.max(user?.streak?.current ?? 0, 1),
+    isLoading: false,
+    isRecoverPending: false,
+  };
+  const activeRecover = isPreviewMode ? previewRecover : recover;
+  const canRecoverAction = !isPreviewMode;
+
+  if (
+    !user ||
+    !isStreaksEnabled ||
+    (!isPreviewMode && (!recover.canRecover || recover.isLoading))
+  ) {
     return null;
   }
 
@@ -312,15 +333,15 @@ export const StreakRecoverModal = (
         </div>
         <div className="relative z-1 flex flex-col gap-4">
           <StreakRecoverCover />
-          <StreakRecoverHeading days={recover.oldStreakLength} />
-          <StreakRecoveryCopy recover={recover} />
+          <StreakRecoverHeading days={activeRecover.oldStreakLength} />
+          <StreakRecoveryCopy recover={activeRecover} />
           <StreakRecoverMilestoneProgress
-            streakDays={recover.oldStreakLength}
+            streakDays={activeRecover.oldStreakLength}
             cta={(
               <StreakRecoverButton
-                onClick={onRecover}
-                recover={recover}
-                loading={recover.isRecoverPending}
+                onClick={canRecoverAction ? onRecover : undefined}
+                recover={activeRecover}
+                loading={activeRecover.isRecoverPending}
               />
             )}
           />

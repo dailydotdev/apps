@@ -186,17 +186,6 @@ function MilestoneItem({
       >
         <div className="flex items-center gap-2">
           <Typography
-            bold
-            type={TypographyType.Subhead}
-            color={
-              isUnlocked || hasActiveLineStyle
-                ? TypographyColor.Primary
-                : TypographyColor.Quaternary
-            }
-          >
-            {milestone.label}
-          </Typography>
-          <Typography
             type={TypographyType.Footnote}
             color={isNext ? TypographyColor.Secondary : TypographyColor.Quaternary}
             className={classNames(
@@ -206,6 +195,17 @@ function MilestoneItem({
             )}
           >
             {isNext ? 'Active' : `${milestone.day}d`}
+          </Typography>
+          <Typography
+            bold
+            type={TypographyType.Subhead}
+            color={
+              isUnlocked || hasActiveLineStyle
+                ? TypographyColor.Primary
+                : TypographyColor.Quaternary
+            }
+          >
+            {milestone.label}
           </Typography>
           {isNext && daysAway !== undefined && (
             <Typography

@@ -121,7 +121,7 @@ export function ReadingStreakPopup({
       className={`flex max-h-[640px] flex-col ${
         fullWidth
           ? 'h-full max-h-none w-full max-w-none tablet:max-w-none'
-          : 'tablet:max-w-[21.75rem]'
+          : 'w-full max-w-[320px]'
       }`}
     >
       {showGreeting && (
@@ -164,6 +164,7 @@ export function ReadingStreakPopup({
             history={history}
             weekStart={streak.weekStart}
             timezone={user?.timezone}
+            currentStreak={displayStreak}
             streakOverride={streakOverride}
             trailing={
               <Tooltip
