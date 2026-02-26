@@ -203,8 +203,7 @@ const FeedbackModal = ({
   }, [category, description, screenshot, submitMutation, displayToast]);
 
   const isOperationInProgress = isPending || isCapturing || isUploading;
-  const isSubmitDisabled =
-    !description.trim() || isOperationInProgress || hasSubmitted.current;
+  const isSubmitDisabled = !description.trim() || isOperationInProgress;
 
   return (
     <Modal
