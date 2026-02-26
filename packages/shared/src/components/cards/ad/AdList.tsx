@@ -83,7 +83,9 @@ export const AdList = forwardRef(function AdCard(
       </CardContent>
 
       <div className="z-1 flex items-center pt-2">
-        <AdRefresh onClick={onRefreshClick} loading={isRefetching} />
+        {!!onRefresh && (
+          <AdRefresh onClick={onRefreshClick} loading={isRefetching} />
+        )}
         {!isPlus && <RemoveAd />}
       </div>
       <AdPixel pixel={ad.pixel} />

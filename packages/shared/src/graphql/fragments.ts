@@ -363,6 +363,17 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       sources
       savedTime
       generatedAt
+      digestPostIds
+      ad {
+        type
+        index
+        title
+        link
+        image
+        companyName
+        companyLogo
+        callToAction
+      }
     }
     userState {
       vote

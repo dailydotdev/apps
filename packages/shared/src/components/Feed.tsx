@@ -87,6 +87,7 @@ export interface FeedProps<T>
   actionButtons?: ReactNode;
   disableAds?: boolean;
   staticAd?: { ad: Ad; index: number };
+  disableAdRefresh?: boolean;
   allowFetchMore?: boolean;
   pageSize?: number;
   isHorizontal?: boolean;
@@ -180,6 +181,7 @@ export default function Feed<T>({
   actionButtons,
   disableAds,
   staticAd,
+  disableAdRefresh = false,
   allowFetchMore,
   pageSize,
   isHorizontal = false,
@@ -191,10 +193,9 @@ export default function Feed<T>({
   const { user } = useContext(AuthContext);
   const { isFallback, query: routerQuery } = useRouter();
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
-  const { isListMode } = useFeedLayout();
+  const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
-  const { shouldUseListFeedLayout } = useFeedLayout();
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const showAcquisitionForm =
@@ -625,6 +626,7 @@ export default function Feed<T>({
                   onCommentClick={onCommentClick}
                   onReadArticleClick={onReadArticleClick}
                   virtualizedNumCards={virtualizedNumCards}
+                  disableAdRefresh={disableAdRefresh}
                 />
               </FeedCardContext.Provider>
             ))}

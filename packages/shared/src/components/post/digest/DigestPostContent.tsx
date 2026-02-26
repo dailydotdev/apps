@@ -2,6 +2,9 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { useMemo, useEffect } from 'react';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import SettingsContext, {
+  useSettingsContext,
+} from '../../../contexts/SettingsContext';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { withPostById } from '../withPostById';
 import PostContentContainer from '../PostContentContainer';
@@ -53,6 +56,12 @@ const DigestPostContentRaw = ({
 }: PostContentProps): ReactElement => {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
+  const settingsContext = useSettingsContext();
+  // ensure digest feed renders list mode
+  const digestSettings = useMemo(
+    () => ({ ...settingsContext, insaneMode: true }),
+    [settingsContext],
+  );
   const postsCount = post?.flags?.posts || 0;
   const sourcesCount = post?.flags?.sources || 0;
   const digestPostIds = post?.flags?.digestPostIds;
@@ -101,6 +110,7 @@ const DigestPostContentRaw = ({
       },
       disableAds: true,
       staticAd,
+      disableAdRefresh: true,
       options: { refetchOnMount: true },
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -178,7 +188,7 @@ const DigestPostContentRaw = ({
           origin={origin}
           post={post}
         >
-          <div className="my-6 flex flex-col gap-6">
+          <div className="my-6 flex flex-col gap-2">
             <BriefPostHeader {...headerProps}>
               <BriefPostHeaderActions
                 post={post}
@@ -207,7 +217,11 @@ const DigestPostContentRaw = ({
                 </div>
               )}
             </div>
-            {!!digestPostIds?.length && <Feed {...feedProps} />}
+            {!!digestPostIds?.length && (
+              <SettingsContext.Provider value={digestSettings}>
+                <Feed {...feedProps} />
+              </SettingsContext.Provider>
+            )}
           </div>
         </BasePostContent>
       </PostContainer>
