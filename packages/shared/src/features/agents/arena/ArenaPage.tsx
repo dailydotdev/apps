@@ -93,7 +93,7 @@ export const ArenaPage = ({
       {/* Header */}
       <header className="px-4 pt-6 laptop:px-6 laptop:pt-10 laptopL:px-0">
         <div className="flex items-center gap-3">
-          <ArenaIcon size={IconSize.XLarge} className="text-text-primary" />
+          <ArenaIcon size={IconSize.XXLarge} className="text-text-primary" />
           <div className="flex flex-col">
             <h1 className="font-bold text-text-primary typo-title2 laptop:typo-title1">
               The Arena
