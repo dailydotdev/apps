@@ -52,7 +52,6 @@ interface CustomStreaksTooltipProps {
   showMilestoneTimeline?: boolean;
   streakOverride?: number;
   isDebugMode?: boolean;
-  showGreeting?: boolean;
 }
 
 function CustomStreaksTooltip({
@@ -64,7 +63,6 @@ function CustomStreaksTooltip({
   showMilestoneTimeline,
   streakOverride,
   isDebugMode,
-  showGreeting,
 }: CustomStreaksTooltipProps): ReactElement {
   return (
     <SimpleTooltip
@@ -85,7 +83,6 @@ function CustomStreaksTooltip({
           showMilestoneTimeline={showMilestoneTimeline}
           streakOverride={streakOverride}
           isVisible={shouldShowStreaks}
-          showGreeting={showGreeting}
         />
       }
       onClickOutside={
@@ -118,30 +115,38 @@ export function ReadingStreakButton({
   const debug = useStreakDebug();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const [showStreakAsDrawer, setShowStreakAsDrawer] = useState(false);
-  const [showDrawerGreeting, setShowDrawerGreeting] = useState(false);
   const [debugPos, setDebugPos] = useState({ x: 16, y: 16 });
-  const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    origX: number;
+    origY: number;
+  } | null>(null);
   const [showMilestoneCelebration, setShowMilestoneCelebration] =
     useState(false);
+  const effectiveStreak = debug.isDebugMode
+    ? debug.debugStreakOverride ?? 0
+    : streak?.current;
+  const isDebugStreakInactive = debug.isDebugMode && effectiveStreak === 0;
   const hasReadToday =
-    streak?.lastViewAt &&
+    !isDebugStreakInactive &&
+    !!streak?.lastViewAt &&
     isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user.timezone);
   const isTimezoneOk = useStreakTimezoneOk();
-  const { animationState, previousStreak } = useStreakIncrement(streak?.current);
+  const { animationState, previousStreak } = useStreakIncrement(
+    streak?.current,
+  );
   const [showBrokenPopover, setShowBrokenPopover] = useState(false);
   const [showReminderPopover, setShowReminderPopover] = useState(false);
-  const isStreaksEnabled = !!streak;
+  const isStreaksEnabled = !!streak && !isDebugStreakInactive;
   const urgency = useStreakUrgency(
     !!hasReadToday,
     isStreaksEnabled,
-    streak?.current,
+    effectiveStreak ?? undefined,
   );
 
   const effectiveUrgency = debug.debugUrgency ?? urgency;
   const effectiveAnimation = debug.debugAnimationOverride ?? animationState;
-  const effectiveStreak = debug.isDebugMode
-    ? (debug.debugStreakOverride ?? 0)
-    : streak?.current;
   const currentTier = getCurrentTier(effectiveStreak ?? 0);
   const hitMilestone = getMilestoneAtDay(effectiveStreak ?? 0);
   const decrementDebugStreak = useCallback(() => {
@@ -200,8 +205,7 @@ export function ReadingStreakButton({
   const showIncrementAnimation =
     debug.features.animatedCounter && effectiveAnimation === 'incrementing';
   const isDebugIncrement = debug.debugAnimationOverride === 'incrementing';
-  const showStreakBroken =
-    showBrokenPopover || effectiveAnimation === 'broken';
+  const showStreakBroken = showBrokenPopover || effectiveAnimation === 'broken';
   const showUrgencyAnimation = debug.features.urgencyNudges;
   const isTabletOnly = isTablet && !isLaptop;
   const shouldOpenInDrawer =
@@ -221,7 +225,6 @@ export function ReadingStreakButton({
             showMilestoneTimeline={debug.features.milestoneTimeline}
             streakOverride={debug.debugStreakOverride ?? undefined}
             isDebugMode={debug.isDebugMode}
-            showGreeting={debug.isDebugMode && showDrawerGreeting}
           >
             {children}
           </Tooltip>
@@ -267,7 +270,7 @@ export function ReadingStreakButton({
             size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
           >
             {showIncrementAnimation && (
-              <span className="pointer-events-none absolute inset-0 z-1 animate-streak-shine bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <span className="via-white/30 pointer-events-none absolute inset-0 z-1 animate-streak-shine bg-gradient-to-r from-transparent to-transparent" />
             )}
             {debug.features.animatedCounter ? (
               <AnimatedNumber value={effectiveStreak ?? 0} />
@@ -288,9 +291,7 @@ export function ReadingStreakButton({
             />
           )}
           {showReminderPopover && (
-            <StreakReminderPopover
-              currentStreak={effectiveStreak ?? 0}
-            />
+            <StreakReminderPopover currentStreak={effectiveStreak ?? 0} />
           )}
         </div>
       </ConditionalWrapper>
@@ -306,7 +307,7 @@ export function ReadingStreakButton({
                 ? undefined
                 : {
                     wrapper:
-                      '!max-h-full h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary',
+                      'h-full !max-h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary',
                   }
             }
           >
@@ -316,7 +317,6 @@ export function ReadingStreakButton({
               showMilestoneTimeline={debug.features.milestoneTimeline}
               streakOverride={debug.debugStreakOverride ?? undefined}
               isVisible={shouldShowStreaks}
-              showGreeting={debug.isDebugMode && showDrawerGreeting}
               onClose={handleCloseDrawer}
             />
           </Drawer>
@@ -326,9 +326,7 @@ export function ReadingStreakButton({
       {((showIncrementAnimation && hitMilestone && !isDebugIncrement) ||
         showMilestoneCelebration) && (
         <StreakMilestoneCelebration
-          milestone={
-            hitMilestone ?? getCurrentTier(effectiveStreak ?? 0)
-          }
+          milestone={hitMilestone ?? getCurrentTier(effectiveStreak ?? 0)}
           streakDay={effectiveStreak ?? 0}
           onComplete={() => setShowMilestoneCelebration(false)}
         />
@@ -340,7 +338,7 @@ export function ReadingStreakButton({
           style={{ left: debugPos.x, bottom: debugPos.y }}
         >
           <span
-            className="cursor-grab font-bold text-text-tertiary typo-footnote select-none active:cursor-grabbing"
+            className="cursor-grab select-none font-bold text-text-tertiary typo-footnote active:cursor-grabbing"
             onMouseDown={(e) => {
               dragRef.current = {
                 startX: e.clientX,
@@ -355,8 +353,12 @@ export function ReadingStreakButton({
                 }
 
                 setDebugPos({
-                  x: dragRef.current.origX + (ev.clientX - dragRef.current.startX),
-                  y: dragRef.current.origY - (ev.clientY - dragRef.current.startY),
+                  x:
+                    dragRef.current.origX +
+                    (ev.clientX - dragRef.current.startX),
+                  y:
+                    dragRef.current.origY -
+                    (ev.clientY - dragRef.current.startY),
                 });
               };
 
@@ -425,13 +427,13 @@ export function ReadingStreakButton({
             Open as right drawer
           </Switch>
           <Switch
-            inputId="streak-debug-greeting"
-            name="streak-debug-greeting"
-            checked={showDrawerGreeting}
-            onToggle={() => setShowDrawerGreeting((value) => !value)}
+            inputId="streak-debug-feed-hero"
+            name="streak-debug-feed-hero"
+            checked={debug.isFeedHeroVisible}
+            onToggle={() => debug.setFeedHeroVisible(!debug.isFeedHeroVisible)}
             className="rounded-8 bg-surface-float px-3 py-2 hover:bg-surface-hover"
           >
-            Show greeting message
+            Show feed hero night
           </Switch>
           <div className="flex items-center gap-1">
             <button

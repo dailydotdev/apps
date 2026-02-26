@@ -53,7 +53,6 @@ interface ReadingStreakPopupProps {
   showMilestoneTimeline?: boolean;
   streakOverride?: number;
   isVisible?: boolean;
-  showGreeting?: boolean;
   onClose?: () => void;
 }
 
@@ -63,7 +62,6 @@ export function ReadingStreakPopup({
   showMilestoneTimeline = true,
   streakOverride,
   isVisible = true,
-  showGreeting = false,
   onClose,
 }: ReadingStreakPopupProps): ReactElement {
   const router = useRouter();
@@ -127,11 +125,15 @@ export function ReadingStreakPopup({
           : 'w-full max-w-[320px]'
       }`}
     >
-      {showGreeting && (
-        <div className="flex items-center justify-between px-4 pt-3">
-          <Typography type={TypographyType.Subhead} className="font-bold text-white">
-            Good morning ☀️
-          </Typography>
+      <div className="flex flex-col p-0 pb-4 tablet:px-4 tablet:pt-4">
+        {/* Tier progress removed — milestones timeline is the primary progression UI */}
+
+        <div className="flex items-start gap-2">
+          <StreakSection
+            streak={displayStreak}
+            label={`${streak.max} Longest · ${streak.total} Total`}
+            isPrimary
+          />
           <div className="flex flex-col items-center gap-1">
             {onClose && <CloseButton size={ButtonSize.Small} onClick={onClose} />}
             <Link href={`${webappUrl}account/customization/streaks`} passHref>
@@ -143,30 +145,6 @@ export function ReadingStreakPopup({
               />
             </Link>
           </div>
-        </div>
-      )}
-      <div className="flex flex-col p-0 pb-4 tablet:px-4 tablet:pt-4">
-        {/* Tier progress removed — milestones timeline is the primary progression UI */}
-
-        <div className="flex items-start gap-2">
-          <StreakSection
-            streak={displayStreak}
-            label={`${streak.max} Longest · ${streak.total} Total`}
-            isPrimary
-          />
-          {!showGreeting && (
-            <div className="flex flex-col items-center gap-1">
-              {onClose && <CloseButton size={ButtonSize.Small} onClick={onClose} />}
-              <Link href={`${webappUrl}account/customization/streaks`} passHref>
-                <Button
-                  tag="a"
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.XSmall}
-                  icon={<SettingsIcon />}
-                />
-              </Link>
-            </div>
-          )}
         </div>
         <div className="mt-2">
           <StreakMonthCalendar

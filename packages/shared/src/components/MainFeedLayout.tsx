@@ -65,6 +65,7 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI } from '../lib/constants';
+import { FeedGreetingHero } from './streak/FeedGreetingHero';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -562,6 +563,7 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
+      {feedName === SharedFeedPage.MyFeed && !isSearchOn && <FeedGreetingHero />}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed

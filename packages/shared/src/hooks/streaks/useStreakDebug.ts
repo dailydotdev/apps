@@ -12,6 +12,8 @@ interface UseStreakDebugReturn {
   isDebugMode: boolean;
   features: StreakFeatureToggles;
   toggleFeature: (feature: keyof StreakFeatureToggles) => void;
+  isFeedHeroVisible: boolean;
+  setFeedHeroVisible: (value: boolean) => void;
   debugUrgency: UrgencyLevel | null;
   debugAnimationOverride: StreakAnimationState | null;
   debugStreakOverride: number | null;
@@ -30,6 +32,8 @@ const URGENCY_CYCLE: UrgencyLevel[] = [
 
 let globalDebugStreak: number | null = null;
 const debugStreakListeners = new Set<() => void>();
+let globalFeedHeroVisible = false;
+const feedHeroListeners = new Set<() => void>();
 
 const subscribeDebugStreak = (listener: () => void): (() => void) => {
   debugStreakListeners.add(listener);
@@ -38,10 +42,21 @@ const subscribeDebugStreak = (listener: () => void): (() => void) => {
 
 const getDebugStreakSnapshot = (): number | null => globalDebugStreak;
 const getDebugStreakServerSnapshot = (): number | null => null;
+const subscribeFeedHeroVisibility = (listener: () => void): (() => void) => {
+  feedHeroListeners.add(listener);
+
+  return () => feedHeroListeners.delete(listener);
+};
+const getFeedHeroVisibilitySnapshot = (): boolean => globalFeedHeroVisible;
+const getFeedHeroVisibilityServerSnapshot = (): boolean => false;
 
 const setGlobalDebugStreak = (value: number | null): void => {
   globalDebugStreak = value;
   debugStreakListeners.forEach((listener) => listener());
+};
+const setGlobalFeedHeroVisible = (value: boolean): void => {
+  globalFeedHeroVisible = value;
+  feedHeroListeners.forEach((listener) => listener());
 };
 
 export const useStreakDebug = (): UseStreakDebugReturn => {
@@ -67,6 +82,11 @@ export const useStreakDebug = (): UseStreakDebugReturn => {
     subscribeDebugStreak,
     getDebugStreakSnapshot,
     getDebugStreakServerSnapshot,
+  );
+  const isFeedHeroVisible = useSyncExternalStore(
+    subscribeFeedHeroVisibility,
+    getFeedHeroVisibilitySnapshot,
+    getFeedHeroVisibilityServerSnapshot,
   );
 
   const animationTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -116,11 +136,15 @@ export const useStreakDebug = (): UseStreakDebugReturn => {
   const setDebugStreak = useCallback((value: number) => {
     setGlobalDebugStreak(value);
   }, []);
+  const setFeedHeroVisible = useCallback((value: boolean) => {
+    setGlobalFeedHeroVisible(value);
+  }, []);
 
   const resetDebug = useCallback(() => {
     setDebugUrgency(null);
     setDebugAnimationOverride(null);
     setGlobalDebugStreak(null);
+    setGlobalFeedHeroVisible(false);
     setFeatures({
       animatedCounter: true,
       milestoneTimeline: true,
@@ -132,6 +156,8 @@ export const useStreakDebug = (): UseStreakDebugReturn => {
     isDebugMode,
     features,
     toggleFeature,
+    isFeedHeroVisible,
+    setFeedHeroVisible,
     debugUrgency,
     debugAnimationOverride,
     debugStreakOverride,
