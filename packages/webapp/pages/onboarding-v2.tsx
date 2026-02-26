@@ -510,6 +510,7 @@ const OnboardingV2Page = (): ReactElement => {
               '--reveal-delay',
               `${Math.min(i * 60, 400)}ms`,
             );
+            // eslint-disable-next-line no-param-reassign
             article.dataset.onbRevealDelay = 'true';
           }
 
@@ -889,7 +890,8 @@ const OnboardingV2Page = (): ReactElement => {
           // Create floater via React state so it renders in a fixed-position
           // overlay rather than appending DOM nodes directly to the article.
           const counterRect = counter.getBoundingClientRect();
-          const newFloaterId = (floaterIdRef.current += 1);
+          floaterIdRef.current += 1;
+          const newFloaterId = floaterIdRef.current;
           setLiveFloaters((prev) => [
             ...prev,
             {
@@ -901,7 +903,9 @@ const OnboardingV2Page = (): ReactElement => {
             },
           ]);
           addTimeout(() => {
-            setLiveFloaters((prev) => prev.filter((f) => f.id !== newFloaterId));
+            setLiveFloaters((prev) =>
+              prev.filter((f) => f.id !== newFloaterId),
+            );
           }, 2500);
         }, delayAcc);
 
