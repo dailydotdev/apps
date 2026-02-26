@@ -3,7 +3,9 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useLogContext } from '../../contexts/LogContext';
 
-export default function useLogPageView(): MutableRefObject<() => void> {
+export default function useLogPageView(): MutableRefObject<
+  (() => void) | undefined
+> {
   const router = useRouter();
   const { logEventStart, logEventEnd } = useLogContext();
   const routeChangedCallbackRef = useRef<() => void>();
@@ -23,11 +25,12 @@ export default function useLogPageView(): MutableRefObject<() => void> {
   }, [logEventStart, logEventEnd]);
 
   useEffect(() => {
-    const handleRouteChange = () => routeChangedCallbackRef.current();
+    const handleRouteChange = () => routeChangedCallbackRef.current?.();
     router.events.on('routeChangeComplete', handleRouteChange);
 
-    const handleLifecycle = (event: CustomEvent) =>
-      lifecycleCallbackRef.current(event);
+    const handleLifecycle = (event: Event) => {
+      lifecycleCallbackRef.current?.(event as CustomEvent);
+    };
     window.addEventListener('statechange', handleLifecycle);
 
     return () => {

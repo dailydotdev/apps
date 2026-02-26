@@ -4,6 +4,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { useFeeds } from './useFeeds';
+import type { Feed } from '../../graphql/feed';
 import {
   CREATE_FEED_MUTATION,
   DELETE_FEED_MUTATION,
@@ -18,7 +19,7 @@ const client = new QueryClient();
 const noop = jest.fn();
 let queryCalled = false;
 
-const Wrapper = ({ children }) => {
+const Wrapper = ({ children }: React.PropsWithChildren) => {
   return (
     <QueryClientProvider client={client}>
       <AuthContextProvider
@@ -183,7 +184,7 @@ describe('useFeeds hook', () => {
     await waitFor(() => expect(queryCalled).toBe(true));
 
     expect(result.current.feeds).toBeTruthy();
-    expect(result.current.feeds.edges).toMatchObject(feeds);
+    expect(result.current.feeds?.edges).toMatchObject(feeds);
   });
 
   it('should create a feed', async () => {
@@ -193,7 +194,7 @@ describe('useFeeds hook', () => {
 
     await waitFor(() => expect(queryCalled).toBe(true));
 
-    let feed;
+    let feed: Feed | undefined;
 
     await act(async () => {
       feed = await result.current.createFeed({ name: 'New feed' });
@@ -201,9 +202,19 @@ describe('useFeeds hook', () => {
     rerender();
 
     expect(feed).toBeTruthy();
-    expect(feed.flags.name).toBe('New feed');
+    if (!feed) {
+      throw new Error('Created feed is required');
+    }
+
+    if (!feed.flags) {
+      throw new Error('Created feed flags are required');
+    }
+
+    const createdFeed = feed;
+    const createdFeedFlags = feed.flags;
+    expect(createdFeedFlags.name).toBe('New feed');
     expect(
-      result.current.feeds.edges.find((f) => f.node.id === feed.id),
+      result.current.feeds?.edges.find((f) => f.node.id === createdFeed.id),
     ).toBeTruthy();
   });
 
@@ -214,7 +225,7 @@ describe('useFeeds hook', () => {
 
     await waitFor(() => expect(queryCalled).toBe(true));
 
-    let feed;
+    let feed: Feed | undefined;
     await act(async () => {
       feed = await result.current.updateFeed({
         feedId: 'cf1',
@@ -224,9 +235,19 @@ describe('useFeeds hook', () => {
     rerender();
 
     expect(feed).toBeTruthy();
-    expect(feed.flags.name).toBe('Updated feed');
+    if (!feed) {
+      throw new Error('Updated feed is required');
+    }
+
+    if (!feed.flags) {
+      throw new Error('Updated feed flags are required');
+    }
+
+    const updatedFeed = feed;
+    const updatedFeedFlags = feed.flags;
+    expect(updatedFeedFlags.name).toBe('Updated feed');
     expect(
-      result.current.feeds.edges.find((f) => f.node.id === feed.id),
+      result.current.feeds?.edges.find((f) => f.node.id === updatedFeed.id),
     ).toBeTruthy();
   });
 
@@ -244,7 +265,7 @@ describe('useFeeds hook', () => {
     rerender();
 
     expect(
-      result.current.feeds.edges.find((f) => f.node.id === 'cf1'),
+      result.current.feeds?.edges.find((f) => f.node.id === 'cf1'),
     ).toBeFalsy();
   });
 });
