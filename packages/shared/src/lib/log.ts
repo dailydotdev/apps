@@ -297,6 +297,7 @@ export enum LogEvent {
   ProfileView = 'profile view',
   UpdateProfile = 'update profile',
   UpdateProfileImage = 'update profile image',
+  HoverUserCard = 'hover user card',
   // End Profile
   TranslatePost = 'translate post',
   // Start Credits
