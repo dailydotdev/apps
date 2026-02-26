@@ -53,7 +53,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-const defaultAlerts: Alerts = { filter: true, rankLastSeen: null };
+const defaultAlerts: Alerts = { filter: true, rankLastSeen: undefined };
 
 const defaultSettings: RemoteSettings = {
   theme: 'bright',
@@ -162,7 +162,13 @@ const SettingsMock = ({
         Sidebar
       </button>
       <button
-        onClick={() => setTheme(toTheme)}
+        onClick={() => {
+          if (!toTheme) {
+            return;
+          }
+
+          setTheme(toTheme);
+        }}
         type="button"
         data-test-value={themeMode}
       >
@@ -176,14 +182,20 @@ const SettingsMock = ({
         Show Weekly Goal widget
       </button>
       <button
-        onClick={() => setSpaciness(toSpaciness)}
+        onClick={() => {
+          if (!toSpaciness) {
+            return;
+          }
+
+          setSpaciness(toSpaciness);
+        }}
         type="button"
         data-test-value={spaciness}
       >
         Spaciness
       </button>
       <button
-        onClick={() => toggleInsaneMode(toInsaneMode)}
+        onClick={() => toggleInsaneMode(toInsaneMode ?? false)}
         type="button"
         data-test-value={insaneMode}
       >
@@ -391,7 +403,13 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
   return (
     <>
       <button
-        onClick={() => updateUser(updatedUser)}
+        onClick={() => {
+          if (!updatedUser) {
+            return;
+          }
+
+          updateUser(updatedUser);
+        }}
         type="button"
         data-test-value={user?.name || 'anonymous'}
       >
@@ -404,7 +422,9 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
         Logout
       </button>
       <button
-        onClick={() => showLogin({ trigger: loginTrigger })}
+        onClick={() =>
+          showLogin({ trigger: loginTrigger ?? AuthTriggers.Comment })
+        }
         type="button"
         data-test-value={JSON.stringify(loginState)}
       >

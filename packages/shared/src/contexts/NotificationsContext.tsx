@@ -8,8 +8,9 @@ export interface NotificationsContextData {
   incrementUnreadCount: () => void;
 }
 
-const NotificationsContext =
-  React.createContext<NotificationsContextData>(null);
+const NotificationsContext = React.createContext<NotificationsContextData>(
+  null!, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+);
 
 export default NotificationsContext;
 

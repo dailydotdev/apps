@@ -73,7 +73,8 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   applyThemeMode: (mode?: ThemeMode) => void;
 }
 
-const SettingsContext = React.createContext<SettingsContextData>(null);
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const SettingsContext = React.createContext<SettingsContextData>(null!);
 export default SettingsContext;
 
 const deprecatedLightModeStorageKey = 'showmethelight';
@@ -143,13 +144,23 @@ const defaultSettings: RemoteSettings = {
   },
 };
 
+const defaultSettingsFlags: SettingsFlags = {
+  sidebarSquadExpanded: true,
+  sidebarCustomFeedsExpanded: true,
+  sidebarOtherExpanded: true,
+  sidebarResourcesExpanded: true,
+  sidebarBookmarksExpanded: true,
+  clickbaitShieldEnabled: true,
+  defaultWriteTab: WriteFormTab.NewPost,
+};
+
 export const SettingsContextProvider = ({
   children,
   settings = defaultSettings,
   updateSettings,
   loadedSettings,
 }: SettingsContextProviderProps): ReactElement => {
-  const setTheme = useRef<ThemeMode>(null);
+  const setTheme = useRef<ThemeMode | undefined>();
   const { user } = useContext(AuthContext);
   const userId = user?.id;
   const { unsubscribePersonalizedDigest } = usePersonalizedDigest();
@@ -165,7 +176,7 @@ export const SettingsContextProvider = ({
   const { mutateAsync: updateRemoteSettings } = useMutation<
     unknown,
     unknown,
-    RemoteSettings
+    Partial<RemoteSettings>
   >({
     mutationFn: (params) =>
       gqlClient.request(UPDATE_USER_SETTINGS_MUTATION, {
@@ -173,12 +184,14 @@ export const SettingsContextProvider = ({
       }),
 
     onError: (_, params) => {
-      const rollback = Object.keys(params).reduce(
+      const rollback = (
+        Object.keys(params) as Array<keyof RemoteSettings>
+      ).reduce(
         (values, key) => ({ ...values, [key]: settings[key] }),
-        {},
+        {} as Partial<RemoteSettings>,
       );
 
-      updateSettings({ ...settings, ...rollback });
+      updateSettings?.({ ...settings, ...rollback });
     },
   });
 
@@ -187,7 +200,7 @@ export const SettingsContextProvider = ({
       if (mode) {
         setTheme.current = mode;
       } else {
-        setTheme.current = null;
+        setTheme.current = undefined;
       }
 
       applyTheme(setTheme.current || themeModes[settings.theme]);
@@ -196,14 +209,14 @@ export const SettingsContextProvider = ({
   );
 
   useEffect(() => {
-    const lightMode = storageWrapper.getItem(deprecatedLightModeStorageKey);
+    const lightMode = storageWrapper.getItem?.(deprecatedLightModeStorageKey);
     if (lightMode === 'true') {
       applyTheme(ThemeMode.Light);
     }
   }, []);
 
   const updateRemoteSettingsFn = async (
-    newSettings: RemoteSettings,
+    newSettings: Partial<RemoteSettings>,
     bootUserId?: string,
   ): Promise<void> => {
     if (userId || bootUserId) {
@@ -213,14 +226,18 @@ export const SettingsContextProvider = ({
     }
   };
 
-  const setSettings = async (newSettings: RemoteSettings): Promise<void> => {
-    updateSettings({ ...settings, ...newSettings });
+  const setSettings = async (
+    newSettings: Partial<RemoteSettings>,
+  ): Promise<void> => {
+    updateSettings?.({ ...settings, ...newSettings });
     await updateRemoteSettingsFn(newSettings);
   };
 
   const syncSettings = async (bootUserId?: string) => {
     await updateRemoteSettingsFn(settings, bootUserId);
   };
+
+  const settingsFlags: SettingsFlags = settings.flags ?? defaultSettingsFlags;
 
   const contextData = useMemo<SettingsContextData>(
     () => ({
@@ -276,7 +293,7 @@ export const SettingsContextProvider = ({
               ? CampaignCtaPlacement.ProfileMenu
               : CampaignCtaPlacement.Header,
         }),
-      loadedSettings,
+      loadedSettings: loadedSettings ?? false,
       updateCustomLinks: (links: string[]) =>
         setSettings({ ...settings, customLinks: links }),
       updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>
@@ -285,7 +302,7 @@ export const SettingsContextProvider = ({
         setSettings({
           ...settings,
           flags: {
-            ...settings.flags,
+            ...settingsFlags,
             [flag]: value,
           },
         }),
@@ -293,17 +310,17 @@ export const SettingsContextProvider = ({
         updateRemoteSettingsFn({
           ...settings,
           flags: {
-            ...settings.flags,
+            ...settingsFlags,
             [flag]: value,
           },
         }),
-      updatePromptFlag: (flag: keyof SettingsFlags, value: boolean) =>
+      updatePromptFlag: (flag: string, value: boolean) =>
         setSettings({
           ...settings,
           flags: {
-            ...settings.flags,
+            ...settingsFlags,
             prompt: {
-              ...settings.flags.prompt,
+              ...(settingsFlags.prompt ?? {}),
               [flag]: value,
             },
           },
@@ -313,7 +330,7 @@ export const SettingsContextProvider = ({
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [settings, loadedSettings, userId, applyThemeMode],
+    [settings, settingsFlags, loadedSettings, userId, applyThemeMode],
   );
 
   return (

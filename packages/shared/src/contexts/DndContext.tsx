@@ -1,4 +1,4 @@
-import type { Dispatch, ReactElement, ReactNode } from 'react';
+import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React, { useContext, useState } from 'react';
 import usePersistentContext from '../hooks/usePersistentContext';
 import { checkIsExtension } from '../lib/func';
@@ -6,41 +6,27 @@ import { checkIsExtension } from '../lib/func';
 export type DndSettings = { expiration: Date; link: string };
 
 export interface DndContextData {
-  setShowDnd: Dispatch<boolean>;
+  setShowDnd: Dispatch<SetStateAction<boolean>>;
   showDnd: boolean;
-  dndSettings: DndSettings;
+  dndSettings?: DndSettings;
   isActive: boolean;
   onDndSettings: (settings: DndSettings) => Promise<void>;
 }
 
-const DEFAULT_VALUE = {
-  showDnd: null,
-  setShowDnd: null,
-  dndSettings: null,
-  isActive: false,
-  onDndSettings: null,
-};
-const DndContext = React.createContext<DndContextData>(DEFAULT_VALUE);
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const DndContext = React.createContext<DndContextData>(null!);
 const now = new Date();
 
 interface DndContextProviderProps {
   children: ReactNode;
 }
 
-export const DndContextProvider = ({
+const ExtensionDndContextProvider = ({
   children,
 }: DndContextProviderProps): ReactElement => {
   const [showDnd, setShowDnd] = useState(false);
   const [dndSettings, setDndSettings] =
     usePersistentContext<DndSettings>('dnd');
-
-  if (!checkIsExtension()) {
-    return (
-      <DndContext.Provider value={DEFAULT_VALUE}>
-        {children}
-      </DndContext.Provider>
-    );
-  }
 
   return (
     <DndContext.Provider
@@ -55,6 +41,16 @@ export const DndContextProvider = ({
       {children}
     </DndContext.Provider>
   );
+};
+
+export const DndContextProvider = ({
+  children,
+}: DndContextProviderProps): ReactElement => {
+  if (!checkIsExtension()) {
+    return <>{children}</>;
+  }
+
+  return <ExtensionDndContextProvider>{children}</ExtensionDndContextProvider>;
 };
 
 export default DndContext;

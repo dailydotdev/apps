@@ -57,17 +57,8 @@ export interface WritePostProps {
   formId?: string;
 }
 
-export const WritePostContext = React.createContext<WritePostProps>({
-  onSubmitForm: null,
-  isPosting: false,
-  squad: null,
-  post: null,
-  enableUpload: false,
-  formRef: null,
-  draft: {},
-  updateDraft: null,
-  formId: null,
-});
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+export const WritePostContext = React.createContext<WritePostProps>(null!);
 
 export const useWritePostContext = (): WritePostProps =>
   useContext(WritePostContext);
@@ -90,7 +81,7 @@ export const WritePostContextProvider = ({
             copy={{ right: 'Post' }}
             rightButtonProps={{ disabled: props.isPosting }}
             leftButtonProps={{ onClick: () => router.back() }}
-            form={formId}
+            form={formId ?? ''}
           >
             {component}
           </FormWrapper>

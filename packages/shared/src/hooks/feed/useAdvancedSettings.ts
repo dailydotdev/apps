@@ -10,7 +10,7 @@ import useTagAndSource from '../useTagAndSource';
 import { Origin } from '../../lib/log';
 
 interface UseAdvancedSettings {
-  selectedSettings: Record<string, boolean>;
+  selectedSettings: Record<number, boolean>;
   onToggleSettings(id: number, state: boolean): void;
   onToggleSource(source: Source): void;
   onUpdateSettings(
@@ -30,11 +30,14 @@ export const useAdvancedSettings = (
 
   const selectedSettings = useMemo(
     () =>
-      feedSettings?.advancedSettings?.reduce((settingsMap, currentSettings) => {
-        const map = { ...settingsMap };
-        map[currentSettings.id] = currentSettings.enabled;
-        return map;
-      }, {}) || {},
+      feedSettings?.advancedSettings?.reduce<Record<number, boolean>>(
+        (settingsMap, currentSettings) => {
+          const map = { ...settingsMap };
+          map[currentSettings.id] = currentSettings.enabled;
+          return map;
+        },
+        {},
+      ) || {},
     [feedSettings?.advancedSettings],
   );
 
@@ -60,7 +63,7 @@ export const useAdvancedSettings = (
   // and currently used in simpler implementations of updating the settings
   const onToggleSettings = useCallback(
     (id: number, defaultEnabledState: boolean) => {
-      if (alerts?.filter && user) {
+      if (alerts.filter && user) {
         updateAlerts({ filter: false });
       }
 
@@ -68,7 +71,7 @@ export const useAdvancedSettings = (
 
       return onUpdateSettings([{ id, enabled }]);
     },
-    [alerts?.filter, selectedSettings, onUpdateSettings, updateAlerts, user],
+    [alerts.filter, selectedSettings, onUpdateSettings, updateAlerts, user],
   );
 
   const checkSourceBlocked = useCallback(

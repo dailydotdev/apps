@@ -35,15 +35,9 @@ export interface PushNotificationsContextData {
 }
 
 export const PushNotificationsContext =
-  createContext<PushNotificationsContextData>({
-    isPushSupported: false,
-    isInitialized: true,
-    isSubscribed: false,
-    isLoading: false,
-    shouldOpenPopup: () => true,
-    subscribe: null,
-    unsubscribe: null,
-  });
+  createContext<PushNotificationsContextData>(
+    null!, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+  );
 
 interface PushNotificationContextProviderProps {
   children: ReactElement;
@@ -71,10 +65,15 @@ function OneSignalSubProvider({
     isFetched,
     isLoading,
     isSuccess,
-  } = useQuery<typeof OneSignal>({
+  } = useQuery<typeof OneSignal | undefined>({
     queryKey: key,
 
     queryFn: async () => {
+      const userId = user?.id;
+      if (!userId) {
+        return undefined;
+      }
+
       const osr = client.getQueryData<typeof OneSignal>(key);
 
       if (osr) {
@@ -83,15 +82,20 @@ function OneSignalSubProvider({
 
       const OneSignalImport = (await import('react-onesignal')).default;
 
+      const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
+      if (!appId) {
+        return undefined;
+      }
+
       await OneSignalImport.init({
-        appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+        appId,
         serviceWorkerParam: { scope: '/push/onesignal/' },
         serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
       });
 
-      await OneSignalImport.login(user.id);
+      await OneSignalImport.login(userId);
 
-      setIsSubscribed(OneSignalImport.User.PushSubscription.optedIn);
+      setIsSubscribed(!!OneSignalImport.User.PushSubscription.optedIn);
 
       return OneSignalImport;
     },
@@ -174,7 +178,7 @@ function OneSignalSubProvider({
         isInitialized: !isEnabled || isFetched || !isSuccess,
         isLoading,
         isSubscribed,
-        isPushSupported: isPushSupported && isSuccess && isEnabled,
+        isPushSupported: !!(isPushSupported && isSuccess && isEnabled),
         shouldOpenPopup: () => {
           const { permission } = globalThis.Notification ?? {};
           return permission === 'denied';
@@ -201,12 +205,17 @@ function NativeAppleSubProvider({
     queryKey: key,
 
     queryFn: async () => {
+      const userId = user?.id;
+      if (!userId) {
+        return;
+      }
+
       const promise = promisifyEventListener('push-state', (event) => {
         setIsSubscribed(!!event?.detail);
       });
       postWebKitMessage(WebKitMessageHandlers.PushState, null);
-      postWebKitMessage(WebKitMessageHandlers.PushUserId, user.id);
-      return promise;
+      postWebKitMessage(WebKitMessageHandlers.PushUserId, userId);
+      await promise;
     },
     enabled: isEnabled,
     ...disabledRefetch,
@@ -266,9 +275,7 @@ export function PushNotificationContextProvider({
   const isExtension = checkIsExtension();
 
   if (isExtension) {
-    throw new Error(
-      'PushNotificationContextProvider should only be used in the webapp',
-    );
+    return <>{children}</>;
   }
 
   if (isIOSNative()) {
