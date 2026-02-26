@@ -174,7 +174,7 @@ function OneSignalSubProvider({
         isInitialized: !isEnabled || isFetched || !isSuccess,
         isLoading,
         isSubscribed,
-        isPushSupported: isPushSupported && isSuccess && (isEnabled ?? false),
+        isPushSupported: !!(isPushSupported && isSuccess && isEnabled),
         shouldOpenPopup: () => {
           const { permission } = globalThis.Notification ?? {};
           return permission === 'denied';
