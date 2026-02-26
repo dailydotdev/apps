@@ -12,17 +12,52 @@ import type {
 } from '@dailydotdev/shared/src/features/agents/arena/types';
 import { arenaOptions } from '@dailydotdev/shared/src/features/agents/arena/queries';
 import { computeRankings } from '@dailydotdev/shared/src/features/agents/arena/arenaMetrics';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { ArenaLaunchPromo } from '../../components/agents/ArenaLaunchPromo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 
 interface ArenaPageRouteProps {
   initialTab: ArenaTab;
   dehydratedState: DehydratedState;
+  isTwitterTraffic: boolean;
 }
 
 const ARENA_TITLE = 'The Arena - Agents & LLM Leaderboard | daily.dev';
 const ARENA_DESCRIPTION =
   "No benchmarks. No hype. Just developers voting on which AI coding agents and LLMs actually deliver. See who's on top right now.";
+const ARENA_LAUNCH_TWEET_URL =
+  'https://x.com/idoshamun/status/2027040061061996827';
+const TWITTER_HOST_INDICATORS = ['x.', 'twitter.', 't.co'];
+
+const isTwitterUtmSource = (
+  utmSource: string | string[] | undefined,
+): boolean => {
+  if (!utmSource) {
+    return false;
+  }
+
+  const sources = Array.isArray(utmSource) ? utmSource : [utmSource];
+  return sources.some((source) => {
+    const normalizedSource = source.toLowerCase();
+    return normalizedSource === 'twitter' || normalizedSource === 'x';
+  });
+};
+
+const isTwitterReferrer = (referrer: string | undefined): boolean => {
+  if (!referrer) {
+    return false;
+  }
+
+  try {
+    const host = new URL(referrer).hostname;
+    return TWITTER_HOST_INDICATORS.some((indicator) =>
+      host.includes(indicator),
+    );
+  } catch {
+    return false;
+  }
+};
 
 const getTabUrl = (tab: ArenaTab): string => {
   if (tab === 'coding-agents') {
@@ -80,8 +115,14 @@ const getArenaJsonLd = ({
     },
   });
 
-const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
+const ArenaPageRoute = ({
+  initialTab,
+  isTwitterTraffic,
+}: ArenaPageRouteProps): ReactElement => {
   const router = useRouter();
+  const { isLoggedIn } = useAuthContext();
+  const shouldShowLaunchTweetPromo = isLoggedIn && !isTwitterTraffic;
+
   const queryTab = router.query.tab;
   let activeTab: ArenaTab = initialTab;
   if (queryTab === 'llms') {
@@ -120,18 +161,32 @@ const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
           __html: getArenaJsonLd({ activeTab, rankings, dateModified }),
         }}
       />
-      <ArenaPage activeTab={activeTab} onTabChange={handleTabChange} />
+      <ArenaPage
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        headerAside={
+          <ArenaLaunchPromo
+            visible={shouldShowLaunchTweetPromo}
+            tweetUrl={ARENA_LAUNCH_TWEET_URL}
+          />
+        }
+      />
     </>
   );
 };
 
 export async function getServerSideProps({
   query,
+  req,
   res,
 }: GetServerSidePropsContext): Promise<
   GetServerSidePropsResult<ArenaPageRouteProps>
 > {
   const initialTab: ArenaTab = query.tab === 'llms' ? 'llms' : 'coding-agents';
+  const referrerHeader =
+    typeof req.headers.referer === 'string' ? req.headers.referer : undefined;
+  const isTwitterTrafficDetected =
+    isTwitterReferrer(referrerHeader) || isTwitterUtmSource(query.utm_source);
 
   res.setHeader(
     'Cache-Control',
@@ -144,6 +199,7 @@ export async function getServerSideProps({
   return {
     props: {
       initialTab,
+      isTwitterTraffic: isTwitterTrafficDetected,
       dehydratedState: dehydrate(queryClient),
     },
   };

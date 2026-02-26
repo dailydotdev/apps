@@ -15,6 +15,7 @@ import { arenaOptions } from './queries';
 interface ArenaPageProps {
   activeTab: ArenaTab;
   onTabChange?: (tab: ArenaTab) => void;
+  headerAside?: ReactElement;
 }
 
 const LiveIndicator = (): ReactElement => (
@@ -27,6 +28,7 @@ const LiveIndicator = (): ReactElement => (
 export const ArenaPage = ({
   activeTab,
   onTabChange,
+  headerAside,
 }: ArenaPageProps): ReactElement => {
   const { data, isFetching } = useQuery(arenaOptions({ groupId: activeTab }));
 
@@ -54,16 +56,19 @@ export const ArenaPage = ({
       </div>
 
       <header className="px-4 pt-6 laptop:px-6 laptop:pt-10 laptopL:px-0">
-        <div className="flex items-center gap-3">
-          <ArenaIcon size={IconSize.XXLarge} className="text-text-primary" />
-          <div className="flex flex-col">
-            <h1 className="font-bold text-text-primary typo-title2 laptop:typo-title1">
-              The Arena
-            </h1>
-            <p className="text-text-tertiary typo-footnote">
-              Where AI tools fight for developer love
-            </p>
+        <div className="flex flex-col gap-3 laptop:flex-row laptop:items-start">
+          <div className="flex items-center gap-3">
+            <ArenaIcon size={IconSize.XXLarge} className="text-text-primary" />
+            <div className="flex flex-col">
+              <h1 className="font-bold text-text-primary typo-title2 laptop:typo-title1">
+                The Arena
+              </h1>
+              <p className="text-text-tertiary typo-footnote">
+                Where AI tools fight for developer love
+              </p>
+            </div>
           </div>
+          {headerAside && <div className="laptop:ml-auto">{headerAside}</div>}
         </div>
       </header>
 
