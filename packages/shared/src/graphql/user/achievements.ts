@@ -76,6 +76,14 @@ export interface UntrackAchievementData {
   };
 }
 
+export interface ShowcaseAchievementsData {
+  showcaseAchievements: UserAchievement[];
+}
+
+export interface SetShowcaseAchievementsData {
+  setShowcaseAchievements: UserAchievement[];
+}
+
 const ACHIEVEMENT_FRAGMENT = gql`
   fragment AchievementFragment on Achievement {
     id
@@ -197,6 +205,36 @@ export const SYNC_ACHIEVEMENTS_MUTATION = gql`
   ${ACHIEVEMENT_FRAGMENT}
 `;
 
+export const SHOWCASE_ACHIEVEMENTS_QUERY = gql`
+  query ShowcaseAchievements($userId: ID!) {
+    showcaseAchievements(userId: $userId) {
+      achievement {
+        ...AchievementFragment
+      }
+      progress
+      unlockedAt
+      createdAt
+      updatedAt
+    }
+  }
+  ${ACHIEVEMENT_FRAGMENT}
+`;
+
+export const SET_SHOWCASE_ACHIEVEMENTS_MUTATION = gql`
+  mutation SetShowcaseAchievements($achievementIds: [ID!]!) {
+    setShowcaseAchievements(achievementIds: $achievementIds) {
+      achievement {
+        ...AchievementFragment
+      }
+      progress
+      unlockedAt
+      createdAt
+      updatedAt
+    }
+  }
+  ${ACHIEVEMENT_FRAGMENT}
+`;
+
 export const getAchievements = async (): Promise<Achievement[]> => {
   const result = await gqlClient.request<AchievementsData>(ACHIEVEMENTS_QUERY);
   return result.achievements;
@@ -251,6 +289,26 @@ export const syncAchievements = async (): Promise<AchievementSyncResult> => {
   );
 
   return result.syncAchievements;
+};
+
+export const getShowcaseAchievements = async (
+  userId: string,
+): Promise<UserAchievement[]> => {
+  const result = await gqlClient.request<ShowcaseAchievementsData>(
+    SHOWCASE_ACHIEVEMENTS_QUERY,
+    { userId },
+  );
+  return result.showcaseAchievements;
+};
+
+export const setShowcaseAchievements = async (
+  achievementIds: string[],
+): Promise<UserAchievement[]> => {
+  const result = await gqlClient.request<SetShowcaseAchievementsData>(
+    SET_SHOWCASE_ACHIEVEMENTS_MUTATION,
+    { achievementIds },
+  );
+  return result.setShowcaseAchievements;
 };
 
 // Helper to get target count from achievement criteria

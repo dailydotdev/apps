@@ -46,7 +46,7 @@ export function ReasonSelectionModal<
     isDisabled?.(reason);
   const submitButtonProps = {
     disabled: submitDisabled,
-    onClick: (e) => onReport(e, reason, note),
+    onClick: (e: React.MouseEvent) => onReport(e, reason, note),
   };
 
   const onFocus = () => {
@@ -97,7 +97,7 @@ export function ReasonSelectionModal<
         <Button
           variant={ButtonVariant.Primary}
           disabled={submitDisabled}
-          onClick={(e) => onReport(e, reason, note)}
+          onClick={(e: React.MouseEvent) => onReport(e, reason, note)}
         >
           Submit report
         </Button>

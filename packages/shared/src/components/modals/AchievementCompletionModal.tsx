@@ -332,7 +332,7 @@ export const AchievementCompletionModal = ({
                               : ButtonVariant.Primary
                           }
                           disabled={isTracking || isTracked}
-                          onClick={(event) =>
+                          onClick={(event: React.MouseEvent) =>
                             handleTrack(event, userAchievement.achievement.id)
                           }
                         >
