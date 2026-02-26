@@ -66,7 +66,7 @@ export function CommentMarkdownInputComponent(
   const {
     mutateComment: { mutateComment, isLoading, isSuccess },
   } = useWriteCommentContext();
-  const richTextRef = useRef<RichTextInputRef>(null);
+  const richTextRef = useRef<RichTextInputRef | null>(null);
 
   const onSubmitForm: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
