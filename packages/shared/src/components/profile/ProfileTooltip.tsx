@@ -9,6 +9,8 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import type { MostReadTag, UserReadingRank } from '../../graphql/users';
 import { getUserShortInfo } from '../../graphql/users';
 import UserEntityCard from '../cards/entity/UserEntityCard';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
 type TippyInstance = Parameters<NonNullable<BaseTooltipProps['onShow']>>[0];
@@ -44,6 +46,7 @@ export function ProfileTooltip({
   onTooltipMouseLeave,
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
   const query = useQueryClient();
+  const { logEvent } = useLogContext();
   const handler = useRef<() => void>();
   const [id, setId] = useState<string | undefined>(undefined);
   const { data, isLoading } = useQuery({
@@ -54,7 +57,7 @@ export function ProfileTooltip({
     enabled: !!id,
   });
 
-  const onShow = () => {
+  const handleShow = () => {
     if (!scrollingContainer) {
       return;
     }
@@ -126,6 +129,10 @@ export function ProfileTooltip({
       onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
     ...tooltip,
     onShow: (instance) => {
+      logEvent({
+        event_name: LogEvent.HoverUserCard,
+        target_id: userId,
+      });
       if (id !== userId) {
         setId(userId);
       }
@@ -133,7 +140,7 @@ export function ProfileTooltip({
         tooltip.onShow(instance);
         return;
       }
-      onShow();
+      handleShow();
     },
   };
 
