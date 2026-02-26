@@ -12,6 +12,7 @@ export enum NotificationAvatarType {
   TopReaderBadge = 'top_reader_badge',
   Organization = 'organization',
   Brief = 'brief',
+  Digest = 'digest',
   Achievement = 'achievement',
 }
 
