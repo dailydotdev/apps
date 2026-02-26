@@ -17,7 +17,6 @@ import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import Popular from '../pages/popular';
 
@@ -63,7 +62,7 @@ const renderComponent = (
   const client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a').optionally().reply(200, [ad]);
+  nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
 
   return render(
     <TestBootProvider client={client} auth={{ user }}>
@@ -85,7 +84,6 @@ it('should request anonymous popular feed', async () => {
     ],
     null,
   );
-  await waitForNock();
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeTruthy();
 });
