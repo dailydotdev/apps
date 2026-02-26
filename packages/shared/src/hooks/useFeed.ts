@@ -316,8 +316,14 @@ export default function useFeed<T>(
     const plusEntryAsFirstCard = settings?.plusEntry?.flags?.asFirstCard;
 
     if (feedQuery.data) {
+      const seenPostIds = new Set<string>();
       newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
         page.edges.forEach(({ node }, index: number) => {
+          if (seenPostIds.has(node.id)) {
+            return;
+          }
+          seenPostIds.add(node.id);
+
           const adIndex = acc.length;
           const adItem = getAd({ index: adIndex });
 
