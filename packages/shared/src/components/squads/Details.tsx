@@ -347,10 +347,9 @@ export function SquadDetails({
                 options={channels?.map((item) => `#${item.name}`)}
                 onChange={(_, index) => setSelectedChannel(channels[index].id)}
                 scrollable
-                onScrollEnd={
-                  hasNextChannelPage ? fetchNextChannelPage : undefined
-                }
-                isFetchingMore={isFetchingNextChannelPage}
+                fetchNextPage={fetchNextChannelPage}
+                canFetchMore={hasNextChannelPage}
+                isFetchingNextPage={isFetchingNextChannelPage}
               />
             )}
           </SquadSettingsSection>

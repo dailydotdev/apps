@@ -14,8 +14,9 @@ interface ListDrawerProps extends Pick<ListDrawerItemProps, 'customItem'> {
   selected: number; // index
   onSelectedChange(props: SelectParams): void;
   shouldIndicateSelected?: boolean;
-  onScrollEnd?: () => void;
-  isFetchingMore?: boolean;
+  fetchNextPage?: () => Promise<unknown>;
+  canFetchMore?: boolean;
+  isFetchingNextPage?: boolean;
 }
 
 export function ListDrawer({
@@ -25,13 +26,14 @@ export function ListDrawer({
   options,
   customItem,
   shouldIndicateSelected,
-  onScrollEnd,
-  isFetchingMore,
+  fetchNextPage,
+  canFetchMore = false,
+  isFetchingNextPage,
 }: ListDrawerProps): ReactElement {
   const ref = React.useRef<DrawerRef>();
   const infiniteScrollRef = useFeedInfiniteScroll({
-    fetchPage: onScrollEnd ?? (() => {}),
-    canFetchMore: !!onScrollEnd,
+    fetchPage: fetchNextPage ?? (() => {}),
+    canFetchMore: canFetchMore && !isFetchingNextPage,
   });
 
   return (
@@ -51,13 +53,13 @@ export function ListDrawer({
           }}
         />
       ))}
-      {onScrollEnd && (
+      {fetchNextPage && (
         <div
           ref={infiniteScrollRef}
           className="pointer-events-none h-px w-px opacity-0"
         />
       )}
-      {isFetchingMore && <Loader className="mx-auto my-2" />}
+      {isFetchingNextPage && <Loader className="mx-auto my-2" />}
     </Drawer>
   );
 }

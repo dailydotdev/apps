@@ -231,10 +231,9 @@ const SlackIntegrationModal = ({
                 options={channels?.map((item) => `#${item.name}`)}
                 onChange={onChannelChange}
                 scrollable
-                onScrollEnd={
-                  hasNextChannelPage ? fetchNextChannelPage : undefined
-                }
-                isFetchingMore={isFetchingNextChannelPage}
+                fetchNextPage={fetchNextChannelPage}
+                canFetchMore={hasNextChannelPage}
+                isFetchingNextPage={isFetchingNextChannelPage}
               />
             )}
           </div>

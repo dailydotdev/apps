@@ -55,8 +55,9 @@ export interface DropdownProps {
   disabled?: boolean;
   valid?: boolean;
   hint?: string;
-  onScrollEnd?: () => void;
-  isFetchingMore?: boolean;
+  fetchNextPage?: () => Promise<unknown>;
+  canFetchMore?: boolean;
+  isFetchingNextPage?: boolean;
 }
 
 export function Dropdown({
@@ -78,8 +79,9 @@ export function Dropdown({
   disabled,
   valid,
   hint,
-  onScrollEnd,
-  isFetchingMore,
+  fetchNextPage,
+  canFetchMore = false,
+  isFetchingNextPage,
   ...props
 }: DropdownProps): ReactElement {
   const id = useId();
@@ -118,8 +120,8 @@ export function Dropdown({
   };
 
   const infiniteScrollRef = useFeedInfiniteScroll({
-    fetchPage: onScrollEnd ?? (() => {}),
-    canFetchMore: !!onScrollEnd,
+    fetchPage: fetchNextPage ?? (() => {}),
+    canFetchMore: canFetchMore && !isFetchingNextPage,
   });
 
   const fullScreen = openFullScreen ?? isMobile;
@@ -218,8 +220,9 @@ export function Dropdown({
               selected={selectedIndex}
               onSelectedChange={handleChange}
               shouldIndicateSelected={shouldIndicateSelected}
-              onScrollEnd={onScrollEnd}
-              isFetchingMore={isFetchingMore}
+              fetchNextPage={fetchNextPage}
+              canFetchMore={canFetchMore}
+              isFetchingNextPage={isFetchingNextPage}
             />
           </RootPortal>
         </>
@@ -261,13 +264,13 @@ export function Dropdown({
                 </div>
               </DropdownMenuItem>
             ))}
-            {onScrollEnd && (
+            {fetchNextPage && (
               <div
                 ref={infiniteScrollRef}
                 className="pointer-events-none h-px w-px opacity-0"
               />
             )}
-            {isFetchingMore && <Loader className="mx-auto my-2" />}
+            {isFetchingNextPage && <Loader className="mx-auto my-2" />}
           </DropdownMenuContent>
         </DropdownMenu>
       )}
