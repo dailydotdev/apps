@@ -21,6 +21,12 @@ import useProfileForm from '../../hooks/useProfileForm';
 
 const REP_TRESHOLD = 250;
 
+interface BootPopupEntry {
+  type: string;
+  props?: Record<string, unknown>;
+  persistOnRouteChange?: boolean;
+}
+
 /**
  * Boot popup system — centralized modal queue shown on page load.
  *
@@ -88,11 +94,11 @@ export const BootPopups = (): ReactElement => {
     alerts?.showStreakMilestone !== true,
     !streak?.current,
   ].some(Boolean);
-  const addBootPopup = (popup) => {
+  const addBootPopup = (popup: BootPopupEntry) => {
     setBootPopups((prev) => new Map([...prev, [popup.type, popup]]));
   };
 
-  const addImmediatePopup = (popup) => {
+  const addImmediatePopup = (popup: BootPopupEntry) => {
     setImmediatePopups((prev) => new Map([...prev, [popup.type, popup]]));
   };
 
