@@ -109,13 +109,10 @@ export const useSlackIntegrationModal = ({
     selectedChannelId: selectedChannel,
   });
 
-  const selectedChannelIndex = useMemo(() => {
-    if (!selectedChannel) {
-      return -1;
-    }
-
-    return channels?.findIndex((item) => item.id === selectedChannel) ?? -1;
-  }, [channels, selectedChannel]);
+  const selectedChannelIndex = useMemo(
+    () => channels?.findIndex((item) => item.id === selectedChannel) ?? -1,
+    [channels, selectedChannel],
+  );
 
   const slack = useSlack();
 

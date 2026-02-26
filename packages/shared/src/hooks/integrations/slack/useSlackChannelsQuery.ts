@@ -59,6 +59,12 @@ export const useSlackChannelsQuery = ({
         : enabled,
   });
 
+  // Flatten all fetched pages into a single channel list.
+  // When a channel was previously selected but hasn't been loaded yet
+  // (it may be on a later page), prepend a placeholder entry so the
+  // dropdown can display the selection immediately. Once the real
+  // channel arrives via scroll pagination, it replaces the placeholder
+  // because `found` becomes true and we return `fetched` as-is.
   const channels = useMemo(() => {
     const fetched = (queryResult.data?.pages ?? []).flatMap(
       (page) => page.slackChannels.data,
