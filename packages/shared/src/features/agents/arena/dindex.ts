@@ -9,6 +9,11 @@ import {
   getEntityByKey,
   EMERGING_THRESHOLD,
 } from './config';
+import { MedalBadgeIcon } from '../../../components/icons/MedalBadge';
+import { StarIcon } from '../../../components/icons/Star';
+import { TrendingIcon } from '../../../components/icons/Trending';
+import { MegaphoneIcon } from '../../../components/icons/Megaphone';
+import { HotIcon } from '../../../components/icons/Hot';
 
 const SECONDS_PER_DAY = 86400;
 
@@ -238,7 +243,8 @@ interface CrownThresholds {
 const CROWN_CONFIG: Record<
   string,
   {
-    emoji: string;
+    icon: CrownData['icon'];
+    iconColor: string;
     label: string;
     thresholds: CrownThresholds;
     getValue: (t: RankedTool) => number;
@@ -246,21 +252,24 @@ const CROWN_CONFIG: Record<
   }
 > = {
   'developers-choice': {
-    emoji: '\uD83C\uDFC6',
+    icon: MedalBadgeIcon,
+    iconColor: 'text-accent-cheese-default',
     label: "Developer's Choice",
     thresholds: { minVolume: 10 },
     getValue: (t) => t.dIndex,
     formatStat: (t) => `${formatDIndex(t.dIndex)} D-Index`,
   },
   'most-loved': {
-    emoji: '\uD83D\uDC9C',
+    icon: StarIcon,
+    iconColor: 'text-accent-cabbage-default',
     label: 'Most Loved',
     thresholds: { minVolume: 10 },
     getValue: (t) => t.sentimentDisplay,
     formatStat: (t) => `${t.sentimentDisplay} / 100`,
   },
   'fastest-rising': {
-    emoji: '\uD83D\uDE80',
+    icon: TrendingIcon,
+    iconColor: 'text-accent-avocado-default',
     label: 'Fastest Rising',
     thresholds: { minVolume: 5 },
     getValue: (t) => t.momentum,
@@ -270,14 +279,16 @@ const CROWN_CONFIG: Record<
       }% vs prior 24h`,
   },
   'most-discussed': {
-    emoji: '\uD83D\uDCE2',
+    icon: MegaphoneIcon,
+    iconColor: 'text-accent-blueCheese-default',
     label: 'Most Discussed',
     thresholds: { minVolume: 0 },
     getValue: (t) => t.volume24h,
     formatStat: (t) => `${formatVolume(t.volume24h)} mentions`,
   },
   'most-controversial': {
-    emoji: '\uD83D\uDCA5',
+    icon: HotIcon,
+    iconColor: 'text-accent-ketchup-default',
     label: 'Most Controversial',
     thresholds: { minVolume: 10 },
     getValue: (t) => t.controversyScore,
@@ -305,7 +316,8 @@ export const computeCrowns = (tools: RankedTool[]): CrownData[] => {
     if (eligible.length === 0) {
       return {
         type,
-        emoji: config.emoji,
+        icon: config.icon,
+        iconColor: config.iconColor,
         label: config.label,
         entity: null,
         stat: '',
@@ -319,7 +331,8 @@ export const computeCrowns = (tools: RankedTool[]): CrownData[] => {
 
     return {
       type,
-      emoji: config.emoji,
+      icon: config.icon,
+      iconColor: config.iconColor,
       label: config.label,
       entity: winner.entity,
       stat: config.formatStat(winner),

@@ -1,3 +1,6 @@
+import type { ComponentType } from 'react';
+import type { IconProps } from '../../../components/Icon';
+
 export type ArenaGroupId = 'coding-agents' | 'llms';
 
 export type ArenaTab = 'coding-agents' | 'llms';
@@ -40,7 +43,8 @@ export type CrownType =
 
 export interface CrownData {
   type: CrownType;
-  emoji: string;
+  icon: ComponentType<IconProps>;
+  iconColor: string;
   label: string;
   entity: ArenaEntity | null;
   stat: string;

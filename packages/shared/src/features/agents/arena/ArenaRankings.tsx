@@ -8,6 +8,7 @@ import { ArenaAnimatedCounter } from './ArenaAnimatedCounter';
 import { formatDIndex, formatVolume } from './dindex';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { InfoIcon } from '../../../components/icons/Info';
+import { MedalBadgeIcon } from '../../../components/icons/MedalBadge';
 import { IconSize } from '../../../components/Icon';
 
 interface ArenaRankingsProps {
@@ -15,7 +16,11 @@ interface ArenaRankingsProps {
   loading?: boolean;
 }
 
-const RANK_MEDALS = ['\uD83E\uDD47', '\uD83E\uDD48', '\uD83E\uDD49'];
+const RANK_MEDAL_COLORS = [
+  'text-accent-cheese-default',   // gold
+  'text-text-tertiary',           // silver
+  'text-accent-bacon-default',    // bronze
+];
 
 const Placeholder = ({ className }: { className?: string }): ReactElement => (
   <div
@@ -79,7 +84,7 @@ const RankingRow = ({
   onToggle: () => void;
 }): ReactElement => {
   const momentum = getMomentumDisplay(tool.momentum);
-  const medal = RANK_MEDALS[rank - 1] || '';
+  const medalColor = RANK_MEDAL_COLORS[rank - 1];
   const isHot = !loading && tool.volume24h > 500;
 
   return (
@@ -109,8 +114,8 @@ const RankingRow = ({
       >
         {/* Rank */}
         <div className="flex w-8 shrink-0 items-center justify-center laptop:w-10">
-          {medal ? (
-            <span className="text-lg">{medal}</span>
+          {medalColor ? (
+            <MedalBadgeIcon size={IconSize.Small} secondary className={medalColor} />
           ) : (
             <span className="font-bold text-text-quaternary typo-callout">
               {rank}

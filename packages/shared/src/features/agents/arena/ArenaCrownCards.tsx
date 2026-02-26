@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { IconSize } from '../../../components/Icon';
 import type { CrownData } from './types';
 
 interface ArenaCrownCardsProps {
@@ -53,18 +54,17 @@ const CrownCard = ({
       </>
     )}
 
-    {/* Crown emoji + label */}
+    {/* Crown icon + label */}
     <div className="flex flex-col items-center gap-1">
-      <span
-        className="text-lg tablet:text-2xl"
-        style={
+      <crown.icon
+        size={IconSize.Large}
+        secondary={!loading && !!crown.entity}
+        className={classNames(
           !loading && crown.entity
-            ? { filter: 'drop-shadow(0 0 8px rgba(255,200,0,0.4))' }
-            : undefined
-        }
-      >
-        {crown.emoji}
-      </span>
+            ? crown.iconColor
+            : 'text-text-quaternary',
+        )}
+      />
       <span className="text-center font-bold uppercase tracking-wider text-text-quaternary typo-caption2 tablet:typo-caption1">
         {crown.label}
       </span>
