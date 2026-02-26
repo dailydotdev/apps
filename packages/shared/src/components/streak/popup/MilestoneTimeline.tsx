@@ -13,7 +13,6 @@ import { IconSize } from '../../Icon';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -22,6 +21,7 @@ import type { ClaimReward } from './ClaimRewardAnimation';
 import { MILESTONE_ICON_URLS } from './icons/milestoneIcons';
 import CursorAiIconDark from './icons/cursor-ai-dark.svg';
 import CursorAiIconLight from './icons/cursor-ai-light.svg';
+import SponsoredGiftImage from './icons/sponsored-gift.png';
 
 interface MilestoneItemProps {
   milestone: StreakMilestone;
@@ -65,6 +65,10 @@ const getMilestoneSparkles = (
 
 const SPONSORED_MILESTONE_DAY = 4;
 const SPONSORED_COUPON_CODE = 'CURSOR-4D-STREAK';
+const sponsoredGiftSrc =
+  typeof SponsoredGiftImage === 'string'
+    ? SponsoredGiftImage
+    : (SponsoredGiftImage as { src?: string })?.src;
 
 const getMilestoneHelperText = (milestone: StreakMilestone): string | null => {
   if (milestone.day === 1) {
@@ -72,6 +76,37 @@ const getMilestoneHelperText = (milestone: StreakMilestone): string | null => {
   }
 
   return null;
+};
+
+const getMilestoneHeadline = ({
+  milestone,
+  helperText,
+  isSponsoredMilestone,
+}: {
+  milestone: StreakMilestone;
+  helperText: string | null;
+  isSponsoredMilestone: boolean;
+}): string => {
+  if (isSponsoredMilestone) {
+    return '20% discount coupon';
+  }
+
+  if (milestone.rewards.length === 0) {
+    return helperText ?? milestone.label;
+  }
+
+  if (milestone.rewards.length === 1) {
+    return milestone.rewards[0].description;
+  }
+
+  const primaryReward =
+    milestone.rewards.find((reward) => reward.type === RewardType.Cores)
+      ?.description ?? milestone.rewards[0].description;
+  const extraRewardsCount = milestone.rewards.length - 1;
+
+  return `${primaryReward} + ${extraRewardsCount} ${
+    extraRewardsCount === 1 ? 'reward' : 'rewards'
+  }`;
 };
 
 function MilestoneItem({
@@ -86,7 +121,6 @@ function MilestoneItem({
 }: MilestoneItemProps): ReactElement {
   const helperText =
     milestone.rewards.length === 0 ? getMilestoneHelperText(milestone) : null;
-  const hasSingleReward = milestone.rewards.length === 1;
   const hasCompactRewardLayout = milestone.rewards.length <= 1;
   const sparklePositions = getMilestoneSparkles(milestone.day);
   const isSponsoredMilestone = milestone.day === SPONSORED_MILESTONE_DAY;
@@ -96,6 +130,11 @@ function MilestoneItem({
   const canClaim = isUnlocked && !isClaimed;
   const canShowSponsoredReward = isSponsoredMilestone && isClaimed;
   const CursorAiIcon = isLightTheme ? CursorAiIconLight : CursorAiIconDark;
+  const milestoneHeadline = getMilestoneHeadline({
+    milestone,
+    helperText,
+    isSponsoredMilestone,
+  });
 
   return (
     <div
@@ -153,9 +192,10 @@ function MilestoneItem({
           </>
         )}
         {isSponsoredMilestone ? (
-          <CursorAiIcon
+          <img
+            src={sponsoredGiftSrc}
+            alt={`${milestone.label} gift`}
             className="relative z-1 size-full object-contain"
-            aria-label={milestone.label}
           />
         ) : !isUnlocked && !isNext ? (
           <LockIcon
@@ -196,17 +236,6 @@ function MilestoneItem({
           >
             {isNext ? 'Active' : `${milestone.day}d`}
           </Typography>
-          <Typography
-            bold
-            type={TypographyType.Subhead}
-            color={
-              isUnlocked || hasActiveLineStyle
-                ? TypographyColor.Primary
-                : TypographyColor.Quaternary
-            }
-          >
-            {milestone.label}
-          </Typography>
           {isNext && daysAway !== undefined && (
             <Typography
               type={TypographyType.Footnote}
@@ -215,6 +244,20 @@ function MilestoneItem({
               {daysAway === 1 ? '1 day away' : `${daysAway} days away`}
             </Typography>
           )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Typography
+            bold
+            type={TypographyType.Subhead}
+            color={
+              isUnlocked || hasActiveLineStyle
+                ? TypographyColor.Primary
+                : TypographyColor.Quaternary
+            }
+            className="truncate"
+          >
+            {milestoneHeadline}
+          </Typography>
           {showClaimButton && (
             <Button
               size={ButtonSize.XSmall}
@@ -231,59 +274,22 @@ function MilestoneItem({
             </Button>
           )}
         </div>
-
-        {milestone.rewards.length > 0 && (
-          <div className="flex flex-col gap-0.5">
-            {milestone.rewards.map((reward, rewardIndex) => (
-              <Typography
-                key={reward.description}
-                type={TypographyType.Footnote}
-                color={
-                  isUnlocked
-                    ? TypographyColor.Tertiary
-                    : TypographyColor.Quaternary
-                }
-                className={classNames(justClaimed && 'animate-fade-in-up')}
-                style={
-                  justClaimed
-                    ? {
-                        animationDelay: `${(rewardIndex + 1) * 120}ms`,
-                        animationFillMode: 'backwards',
-                      }
-                    : undefined
-                }
-              >
-                {isSponsoredMilestone ? '🎁' : rewardTypeIcon[reward.type]}{' '}
-                {reward.description}
-              </Typography>
-            ))}
-            {isSponsoredMilestone && (
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption2}
-                className="relative inline-flex w-fit overflow-hidden rounded-6 px-1 py-0 text-surface-invert"
-              >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 z-0 bg-[length:220%_220%] animate-sponsored-gradient-slide"
-                  style={{
-                    backgroundImage:
-                      'linear-gradient(120deg, color-mix(in srgb, var(--theme-accent-bacon-default), transparent 20%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 25%) 50%, color-mix(in srgb, var(--theme-accent-blueCheese-default), transparent 20%) 100%)',
-                  }}
-                />
-                <span className="relative z-1">Sponsored</span>
-              </Typography>
-            )}
-          </div>
-        )}
-        {helperText && (
+        <div className="flex min-w-0 items-center gap-1">
           <Typography
-            type={TypographyType.Subhead}
-            color={TypographyColor.Quaternary}
+            type={TypographyType.Footnote}
+            color={isUnlocked ? TypographyColor.Tertiary : TypographyColor.Quaternary}
+            className="truncate"
           >
-            {helperText}
+            {milestone.label}
           </Typography>
-        )}
+          {isSponsoredMilestone && (
+            <CursorAiIcon
+              className="size-4 shrink-0 object-contain"
+              aria-label={`${milestone.label} logo`}
+            />
+          )}
+        </div>
+
       </div>
     </div>
   );

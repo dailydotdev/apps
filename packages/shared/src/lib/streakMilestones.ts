@@ -44,15 +44,13 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     day: 3,
     tier: StreakTier.Spark,
     label: 'Spark',
-    rewards: [
-      { type: RewardType.Cosmetic, description: 'Streak badge on profile' },
-    ],
+    rewards: [{ type: RewardType.Cores, description: '10 Cores' }],
   },
   {
     day: 4,
     tier: StreakTier.Spark,
     label: 'Cursor AI',
-    rewards: [{ type: RewardType.Perk, description: 'Cursor AI discount coupon' }],
+    rewards: [{ type: RewardType.Perk, description: '20% discount coupon' }],
   },
   {
     day: 5,
@@ -64,19 +62,13 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     day: 7,
     tier: StreakTier.Flame,
     label: 'Flame',
-    rewards: [
-      { type: RewardType.Cores, description: '25 Cores' },
-      { type: RewardType.Cosmetic, description: 'Active Reader flair' },
-    ],
+    rewards: [{ type: RewardType.Cosmetic, description: 'Premium flair' }],
   },
   {
     day: 14,
     tier: StreakTier.Blaze,
     label: 'Blaze',
-    rewards: [
-      { type: RewardType.Cosmetic, description: 'Streak on DevCard' },
-      { type: RewardType.Perk, description: 'Boosted post visibility 24h' },
-    ],
+    rewards: [{ type: RewardType.Perk, description: 'Boosted post visibility 48h' }],
   },
   {
     day: 21,
@@ -98,10 +90,9 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     tier: StreakTier.Scorcher,
     label: 'Scorcher',
     rewards: [
-      { type: RewardType.Cosmetic, description: 'Enhanced DevCard skin' },
       {
         type: RewardType.Perk,
-        description: 'Priority source recommendations 7d',
+        description: 'Priority source recommendations 14d',
       },
     ],
   },
@@ -109,80 +100,38 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     day: 90,
     tier: StreakTier.EternalFlame,
     label: 'Eternal Flame',
-    rewards: [
-      { type: RewardType.Cores, description: '200 Cores' },
-      { type: RewardType.Cosmetic, description: 'Animated profile badge' },
-    ],
+    rewards: [{ type: RewardType.Cores, description: '250 Cores' }],
   },
   {
     day: 180,
     tier: StreakTier.Supernova,
     label: 'Supernova',
-    rewards: [
-      { type: RewardType.Cores, description: '300 Cores' },
-      {
-        type: RewardType.Perk,
-        description: 'Dedicated Reader verified badge',
-      },
-    ],
+    rewards: [{ type: RewardType.Perk, description: 'Verified Reader+ title' }],
   },
   {
     day: 365,
     tier: StreakTier.Legendary,
     label: 'Legendary',
-    rewards: [
-      { type: RewardType.Cores, description: '500 Cores' },
-      {
-        type: RewardType.Cosmetic,
-        description: 'Unique animated DevCard background',
-      },
-      {
-        type: RewardType.Cosmetic,
-        description: 'Permanent Legendary badge',
-      },
-    ],
+    rewards: [{ type: RewardType.Cores, description: '600 Cores' }],
   },
   {
     day: 730,
     tier: StreakTier.Phoenix,
     label: 'Phoenix',
-    rewards: [
-      { type: RewardType.Cores, description: '750 Cores' },
-      {
-        type: RewardType.Cosmetic,
-        description: 'Phoenix rising DevCard animation',
-      },
-      { type: RewardType.Perk, description: 'Custom profile color theme' },
-    ],
+    rewards: [{ type: RewardType.Cores, description: '900 Cores' }],
   },
   {
     day: 1095,
     tier: StreakTier.Titan,
     label: 'Titan',
-    rewards: [
-      { type: RewardType.Cores, description: '1000 Cores' },
-      {
-        type: RewardType.Cosmetic,
-        description: 'Titan holographic DevCard effect',
-      },
-      { type: RewardType.Perk, description: 'Permanent boosted visibility' },
-    ],
+    rewards: [{ type: RewardType.Perk, description: 'Permanent boosted visibility' }],
   },
   {
     day: 1460,
     tier: StreakTier.Godflame,
     label: 'Godflame',
     rewards: [
-      { type: RewardType.Cores, description: '1500 Cores' },
-      {
-        type: RewardType.Cosmetic,
-        description: 'Godflame evolving DevCard aura',
-      },
-      {
-        type: RewardType.Cosmetic,
-        description: 'Permanent Godflame crown badge',
-      },
-      { type: RewardType.Perk, description: 'Founding Reader legacy title' },
+      { type: RewardType.Cosmetic, description: 'Permanent Godflame crown badge' },
     ],
   },
 ];
