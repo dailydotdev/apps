@@ -31,6 +31,8 @@ import {
 } from '@dailydotdev/shared/src/lib/func';
 import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
+import { NewTabIcon } from '@dailydotdev/shared/src/components/icons/NewTab';
+import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { StarIcon } from '@dailydotdev/shared/src/components/icons/Star';
 import { cloudinaryOnboardingExtension } from '@dailydotdev/shared/src/lib/image';
@@ -1821,73 +1823,44 @@ const OnboardingV2Page = (): ReactElement => {
                           <div className="mb-5 flex w-full flex-col gap-3">
                             {[
                               {
-                                text: 'Detects your stack from your repos',
+                                text: 'We spot your stack from GitHub',
                                 icon: 'stack',
                               },
                               {
-                                text: 'AI maps your skills to the most relevant topics',
+                                text: 'AI matches your skills to topics',
                                 icon: 'ai',
                               },
                               {
-                                text: 'Your personalized feed is ready in seconds',
+                                text: 'Your feed is ready in seconds',
                                 icon: 'feed',
                               },
                             ].map(({ text, icon }) => (
                               <div
                                 key={text}
-                                className="flex items-start gap-3"
+                                className="flex items-center gap-2"
                               >
-                                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/[0.06]">
+                                <span
+                                  className={classNames(
+                                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
+                                    icon === 'stack' &&
+                                      'bg-accent-avocado-default/20 text-accent-avocado-default',
+                                    icon === 'ai' &&
+                                      'bg-accent-cheese-default/20 text-accent-cheese-default',
+                                    icon === 'feed' &&
+                                      'bg-accent-water-default/20 text-accent-water-default',
+                                  )}
+                                >
                                   {icon === 'stack' && (
-                                    <svg
-                                      width="11"
-                                      height="11"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      className="text-text-secondary"
-                                    >
-                                      <path
-                                        d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                      />
-                                    </svg>
+                                    <TerminalIcon size={IconSize.Size16} secondary />
                                   )}
                                   {icon === 'ai' && (
-                                    <svg
-                                      width="11"
-                                      height="11"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      className="text-text-secondary"
-                                    >
-                                      <path
-                                        d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z"
-                                        fill="currentColor"
-                                      />
-                                    </svg>
+                                    <MagicIcon size={IconSize.Size16} secondary />
                                   )}
                                   {icon === 'feed' && (
-                                    <svg
-                                      width="11"
-                                      height="11"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      className="text-text-secondary"
-                                    >
-                                      <path
-                                        d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                      />
-                                    </svg>
+                                    <NewTabIcon size={IconSize.Size16} secondary />
                                   )}
                                 </span>
-                                <span className="text-left text-text-tertiary typo-footnote">
+                                <span className="text-left text-text-primary typo-footnote">
                                   {text}
                                 </span>
                               </div>
@@ -2815,11 +2788,6 @@ const OnboardingV2Page = (): ReactElement => {
           contain-intrinsic-size: 1px 1800px;
           contain: content;
         }
-        .onb-cursor-glow {
-          content-visibility: auto;
-          contain-intrinsic-size: 1px 1200px;
-        }
-
         /* ─── GLASSMORPHISM ─── */
         .onb-glass {
           background: rgba(255, 255, 255, 0.02);
@@ -3386,70 +3354,41 @@ const OnboardingV2Page = (): ReactElement => {
                   <div className="mb-5 flex w-full flex-col gap-3">
                     {[
                       {
-                        text: 'Detects your stack from your repos',
+                        text: 'We spot your stack from GitHub',
                         icon: 'stack',
                       },
                       {
-                        text: 'AI maps your skills to the most relevant topics',
+                        text: 'AI matches your skills to topics',
                         icon: 'ai',
                       },
                       {
-                        text: 'Your personalized feed is ready in seconds',
+                        text: 'Your feed is ready in seconds',
                         icon: 'feed',
                       },
                     ].map(({ text, icon }) => (
-                      <div key={text} className="flex items-start gap-3">
-                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/[0.06]">
+                      <div key={text} className="flex items-center gap-2">
+                        <span
+                          className={classNames(
+                            'flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
+                            icon === 'stack' &&
+                              'bg-accent-avocado-default/20 text-accent-avocado-default',
+                            icon === 'ai' &&
+                              'bg-accent-cheese-default/20 text-accent-cheese-default',
+                            icon === 'feed' &&
+                              'bg-accent-water-default/20 text-accent-water-default',
+                          )}
+                        >
                           {icon === 'stack' && (
-                            <svg
-                              width="11"
-                              height="11"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              className="text-text-secondary"
-                            >
-                              <path
-                                d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
+                            <TerminalIcon size={IconSize.Size16} secondary />
                           )}
                           {icon === 'ai' && (
-                            <svg
-                              width="11"
-                              height="11"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              className="text-text-secondary"
-                            >
-                              <path
-                                d="M12 2l2.09 6.26L20.18 10l-6.09 1.74L12 18l-2.09-6.26L3.82 10l6.09-1.74L12 2z"
-                                fill="currentColor"
-                              />
-                            </svg>
+                            <MagicIcon size={IconSize.Size16} secondary />
                           )}
                           {icon === 'feed' && (
-                            <svg
-                              width="11"
-                              height="11"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              className="text-text-secondary"
-                            >
-                              <path
-                                d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
+                            <NewTabIcon size={IconSize.Size16} secondary />
                           )}
                         </span>
-                        <span className="text-left text-text-tertiary typo-footnote">
+                        <span className="text-left text-text-primary typo-footnote">
                           {text}
                         </span>
                       </div>
@@ -3771,8 +3710,8 @@ const OnboardingV2Page = (): ReactElement => {
                   className="max-w-[26rem] text-center italic text-text-tertiary typo-callout"
                   style={{ lineHeight: 1.8 }}
                 >
-                  &quot;I open 50+ tabs a day — daily.dev makes every
-                  single one count. Best dev tool I&apos;ve installed
+                  &quot;I open 50+ tabs a day. daily.dev makes each one
+                  count. It&apos;s the best dev tool I&apos;ve installed
                   this year.&quot;
                 </span>
               </div>
