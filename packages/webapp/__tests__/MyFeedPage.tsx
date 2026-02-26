@@ -7,7 +7,7 @@ import {
 import nock from 'nock';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { mocked } from 'ts-jest/utils';
@@ -20,6 +20,7 @@ import type { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import MyFeed from '../pages/my-feed';
 
 jest.mock('next/router', () => ({
@@ -73,7 +74,7 @@ const renderComponent = (
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  nock('http://localhost:3000').get('/v1/a').optionally().reply(200, [ad]);
   return render(
     <TestBootProvider
       client={client}
@@ -95,13 +96,12 @@ it('should request user feed', async () => {
       ranking: RankingAlgorithm.Popularity,
     }),
   ]);
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toBeTruthy();
-  });
+  await waitForNock();
+  const elements = await screen.findAllByTestId('postItem');
+  expect(elements.length).toBeTruthy();
 });
 
-it('should request anonymous feed', async () => {
+it('should request anonymous my feed', async () => {
   renderComponent(
     [
       createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
@@ -114,8 +114,7 @@ it('should request anonymous feed', async () => {
     ],
     null,
   );
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toBeTruthy();
-  });
+  await waitForNock();
+  const elements = await screen.findAllByTestId('postItem');
+  expect(elements.length).toBeTruthy();
 });
