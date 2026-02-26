@@ -385,7 +385,7 @@ export default function useFeed<T>(
       );
     }
 
-    if (settings?.staticAd && newItems.length > 0) {
+    if (settings?.staticAd && feedQuery.data && newItems.length > 0) {
       const insertAt = Math.min(settings.staticAd.index, newItems.length);
       newItems.splice(insertAt, 0, {
         type: FeedItemType.Ad,

@@ -44,4 +44,3 @@ export type ErrorBoundaryFeature =
   | 'onboarding'
   | '404-page';
 
-export const DIGEST_SOURCE = 'digest';
