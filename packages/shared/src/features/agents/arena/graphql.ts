@@ -31,6 +31,7 @@ export const ARENA_QUERY = gql`
           scores
           volume
           scoreVariance
+          dIndex
         }
       }
     }

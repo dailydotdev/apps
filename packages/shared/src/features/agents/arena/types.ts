@@ -11,6 +11,7 @@ export interface SentimentTimeSeriesNode {
   scores: number[];
   volume: number[];
   scoreVariance: number[];
+  dIndex: number[];
 }
 
 export interface SentimentTimeSeries {

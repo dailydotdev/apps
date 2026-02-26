@@ -66,10 +66,25 @@ const getLatest24hWindow = (node: SentimentTimeSeriesNode): WindowData => {
   return sumWindowByTime(node, cutoff, span + 1);
 };
 
-const SENTIMENT_EXPONENT = 2.5;
+const assertSeriesShape = (node: SentimentTimeSeriesNode): void => {
+  const expectedLength = node.timestamps.length;
+  const series: Array<[string, number[]]> = [
+    ['scores', node.scores],
+    ['volume', node.volume],
+    ['scoreVariance', node.scoreVariance],
+    ['dIndex', node.dIndex],
+  ];
 
-const computeDIndex = (volume: number, sentimentScore: number): number =>
-  volume * ((sentimentScore + 1) / 2) ** SENTIMENT_EXPONENT;
+  const invalidSeries = series.find(
+    ([, values]) => values.length !== expectedLength,
+  );
+  if (invalidSeries) {
+    const [name, values] = invalidSeries;
+    throw new Error(
+      `Arena sentiment series "${node.entity}" has invalid ${name} length: expected ${expectedLength}, got ${values.length}`,
+    );
+  }
+};
 
 const getWeightedAverageDIndexByTime = (
   node: SentimentTimeSeriesNode,
@@ -85,7 +100,7 @@ const getWeightedAverageDIndexByTime = (
     if (ts >= fromOffset && ts < toOffset) {
       const volume = node.volume[i];
       if (volume > 0) {
-        weightedDIndex += computeDIndex(volume, node.scores[i]) * volume;
+        weightedDIndex += node.dIndex[i] * volume;
         totalWeight += volume;
       }
     }
@@ -220,6 +235,7 @@ export const computeRankings = (
         `Arena sentiment series contains unknown entity "${node.entity}"`,
       );
     }
+    assertSeriesShape(node);
 
     const current = getLatest24hWindow(node);
     const dIndex = getLatest24hDIndex(node, multiplier);
