@@ -117,7 +117,7 @@ export function ProfileAchievementShowcase({
                   </button>
                 }
               >
-                <div className="w-80 overflow-hidden rounded-16 bg-background-popover">
+                <div className="w-80 rounded-16 bg-background-popover">
                   <AchievementCard userAchievement={userAchievement} />
                 </div>
               </HoverCard>
