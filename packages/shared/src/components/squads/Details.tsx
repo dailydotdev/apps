@@ -95,10 +95,15 @@ export function SquadDetails({
   } = useSlackChannelsQuery({
     integrationId,
     queryOptions: { enabled: createMode },
+    selectedChannelId: selectedChannel,
   });
 
   const selectedChannelIndex = useMemo(() => {
-    return channels?.findIndex((item) => item.id === selectedChannel) || 0;
+    if (!selectedChannel) {
+      return -1;
+    }
+
+    return channels?.findIndex((item) => item.id === selectedChannel) ?? -1;
   }, [channels, selectedChannel]);
 
   const { mutateAsync: onValidateHandle } = useMutation({

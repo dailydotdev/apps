@@ -97,6 +97,8 @@ export const useSlackIntegrationModal = ({
   }, [slackIntegrations, selectedIntegration]);
   const hasIntegrations = !!slackIntegrations?.length && !isLoadingIntegrations;
 
+  const selectedChannel = state.channelId || sourceIntegration?.channelIds[0];
+
   const {
     channels,
     fetchNextPage: fetchNextChannelPage,
@@ -104,11 +106,15 @@ export const useSlackIntegrationModal = ({
     isFetchingNextPage: isFetchingNextChannelPage,
   } = useSlackChannelsQuery({
     integrationId: selectedIntegration?.id,
+    selectedChannelId: selectedChannel,
   });
 
-  const selectedChannel = state.channelId || sourceIntegration?.channelIds[0];
   const selectedChannelIndex = useMemo(() => {
-    return channels?.findIndex((item) => item.id === selectedChannel) || 0;
+    if (!selectedChannel) {
+      return -1;
+    }
+
+    return channels?.findIndex((item) => item.id === selectedChannel) ?? -1;
   }, [channels, selectedChannel]);
 
   const slack = useSlack();

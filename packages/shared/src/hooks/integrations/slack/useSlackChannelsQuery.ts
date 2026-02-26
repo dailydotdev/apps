@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { SlackChannel } from '../../../graphql/integrations';
 import { SLACK_CHANNELS_QUERY } from '../../../graphql/integrations';
@@ -16,6 +16,7 @@ type SlackChannelsResponse = {
 export type UseSlackChannelsQueryProps = {
   integrationId: string;
   queryOptions?: { enabled?: boolean };
+  selectedChannelId?: string;
 };
 
 export type UseSlackChannelsQuery = {
@@ -29,6 +30,7 @@ export type UseSlackChannelsQuery = {
 export const useSlackChannelsQuery = ({
   integrationId,
   queryOptions,
+  selectedChannelId,
 }: UseSlackChannelsQueryProps): UseSlackChannelsQuery => {
   const { user } = useAuthContext();
   const enabled = !!integrationId;
@@ -64,6 +66,22 @@ export const useSlackChannelsQuery = ({
       ),
     [queryResult.data?.pages],
   );
+
+  useEffect(() => {
+    if (
+      !selectedChannelId ||
+      queryResult.isFetchingNextPage ||
+      !queryResult.hasNextPage
+    ) {
+      return;
+    }
+
+    const found = channels.some((ch) => ch.id === selectedChannelId);
+
+    if (!found) {
+      queryResult.fetchNextPage();
+    }
+  }, [selectedChannelId, channels, queryResult]);
 
   return {
     channels,
