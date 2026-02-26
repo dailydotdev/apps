@@ -68,7 +68,7 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     day: 14,
     tier: StreakTier.Blaze,
     label: 'Blaze',
-    rewards: [{ type: RewardType.Perk, description: 'Boosted post visibility 48h' }],
+    rewards: [{ type: RewardType.Perk, description: '48H Boost post' }],
   },
   {
     day: 21,
@@ -92,7 +92,7 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     rewards: [
       {
         type: RewardType.Perk,
-        description: 'Priority source recommendations 14d',
+        description: 'X1 free streak restore',
       },
     ],
   },
@@ -106,7 +106,7 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     day: 180,
     tier: StreakTier.Supernova,
     label: 'Supernova',
-    rewards: [{ type: RewardType.Perk, description: 'Verified Reader+ title' }],
+    rewards: [{ type: RewardType.Perk, description: 'Verified Reader title' }],
   },
   {
     day: 365,
@@ -124,14 +124,14 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     day: 1095,
     tier: StreakTier.Titan,
     label: 'Titan',
-    rewards: [{ type: RewardType.Perk, description: 'Permanent boosted visibility' }],
+    rewards: [{ type: RewardType.Perk, description: 'Top comment (Shotgun!)' }],
   },
   {
     day: 1460,
     tier: StreakTier.Godflame,
     label: 'Godflame',
     rewards: [
-      { type: RewardType.Cosmetic, description: 'Permanent Godflame crown badge' },
+      { type: RewardType.Cosmetic, description: 'Goldflame crown badge' },
     ],
   },
 ];

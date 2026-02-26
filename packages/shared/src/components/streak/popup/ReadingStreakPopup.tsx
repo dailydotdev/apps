@@ -41,6 +41,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
+import CloseButton from '../../CloseButton';
 import { NotificationSvg } from '../../../svg/NotificationSvg';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
 import { IconSize } from '../../Icon';
@@ -53,6 +54,7 @@ interface ReadingStreakPopupProps {
   streakOverride?: number;
   isVisible?: boolean;
   showGreeting?: boolean;
+  onClose?: () => void;
 }
 
 export function ReadingStreakPopup({
@@ -62,6 +64,7 @@ export function ReadingStreakPopup({
   streakOverride,
   isVisible = true,
   showGreeting = false,
+  onClose,
 }: ReadingStreakPopupProps): ReactElement {
   const router = useRouter();
   const { flags, updateFlag } = useSettingsContext();
@@ -129,14 +132,17 @@ export function ReadingStreakPopup({
           <Typography type={TypographyType.Subhead} className="font-bold text-white">
             Good morning ☀️
           </Typography>
-          <Link href={`${webappUrl}account/customization/streaks`} passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={<SettingsIcon />}
-            />
-          </Link>
+          <div className="flex flex-col items-center gap-1">
+            {onClose && <CloseButton size={ButtonSize.Small} onClick={onClose} />}
+            <Link href={`${webappUrl}account/customization/streaks`} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                icon={<SettingsIcon />}
+              />
+            </Link>
+          </div>
         </div>
       )}
       <div className="flex flex-col p-0 pb-4 tablet:px-4 tablet:pt-4">
@@ -149,14 +155,17 @@ export function ReadingStreakPopup({
             isPrimary
           />
           {!showGreeting && (
-            <Link href={`${webappUrl}account/customization/streaks`} passHref>
-              <Button
-                tag="a"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.XSmall}
-                icon={<SettingsIcon />}
-              />
-            </Link>
+            <div className="flex flex-col items-center gap-1">
+              {onClose && <CloseButton size={ButtonSize.Small} onClick={onClose} />}
+              <Link href={`${webappUrl}account/customization/streaks`} passHref>
+                <Button
+                  tag="a"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.XSmall}
+                  icon={<SettingsIcon />}
+                />
+              </Link>
+            </div>
           )}
         </div>
         <div className="mt-2">

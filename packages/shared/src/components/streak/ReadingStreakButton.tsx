@@ -144,6 +144,12 @@ export function ReadingStreakButton({
     : streak?.current;
   const currentTier = getCurrentTier(effectiveStreak ?? 0);
   const hitMilestone = getMilestoneAtDay(effectiveStreak ?? 0);
+  const decrementDebugStreak = useCallback(() => {
+    debug.setDebugStreak(Math.max((effectiveStreak ?? 0) - 1, 0));
+  }, [debug, effectiveStreak]);
+  const incrementDebugStreak = useCallback(() => {
+    debug.setDebugStreak((effectiveStreak ?? 0) + 1);
+  }, [debug, effectiveStreak]);
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);
@@ -154,6 +160,9 @@ export function ReadingStreakButton({
       });
     }
   }, [shouldShowStreaks, logEvent]);
+  const handleCloseDrawer = useCallback(() => {
+    setShouldShowStreaks(false);
+  }, []);
 
   const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
 
@@ -197,12 +206,6 @@ export function ReadingStreakButton({
   const isTabletOnly = isTablet && !isLaptop;
   const shouldOpenInDrawer =
     isMobile || isTabletOnly || (debug.isDebugMode && showStreakAsDrawer);
-  const decrementDebugStreak = useCallback(() => {
-    debug.setDebugStreak(Math.max((effectiveStreak ?? 0) - 1, 0));
-  }, [debug, effectiveStreak]);
-  const incrementDebugStreak = useCallback(() => {
-    debug.setDebugStreak((effectiveStreak ?? 0) + 1);
-  }, [debug, effectiveStreak]);
 
   return (
     <>
@@ -303,7 +306,7 @@ export function ReadingStreakButton({
                 ? undefined
                 : {
                     wrapper:
-                      '!max-h-full h-full w-[21.75rem] border-l border-border-subtlest-tertiary',
+                      '!max-h-full h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary',
                   }
             }
           >
@@ -314,6 +317,7 @@ export function ReadingStreakButton({
               streakOverride={debug.debugStreakOverride ?? undefined}
               isVisible={shouldShowStreaks}
               showGreeting={debug.isDebugMode && showDrawerGreeting}
+              onClose={handleCloseDrawer}
             />
           </Drawer>
         </RootPortal>

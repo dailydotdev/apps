@@ -8,7 +8,12 @@ import {
   RewardType,
 } from '../../../lib/streakMilestones';
 import { useIsLightTheme } from '../../../hooks/utils';
-import { CoreIcon, LockIcon, SparkleIcon } from '../../icons';
+import {
+  CoreIcon,
+  LockIcon,
+  ReputationLightningIcon,
+  SparkleIcon,
+} from '../../icons';
 import { IconSize } from '../../Icon';
 import {
   Typography,
@@ -40,12 +45,6 @@ interface MilestoneSparkle {
   size: number;
   delayMs: number;
 }
-
-const rewardTypeIcon: Record<RewardType, ReactElement | string> = {
-  [RewardType.Cores]: (<CoreIcon size={IconSize.XSmall} className="inline" />),
-  [RewardType.Cosmetic]: '\u2728',
-  [RewardType.Perk]: '\u26A1',
-};
 
 const seededRandom = (seed: number): number => {
   const x = Math.sin(seed * 9301 + 49297) * 49297;
@@ -86,7 +85,7 @@ const getMilestoneHeadline = ({
   milestone: StreakMilestone;
   helperText: string | null;
   isSponsoredMilestone: boolean;
-}): string => {
+}): ReactElement | string => {
   if (isSponsoredMilestone) {
     return '20% discount coupon';
   }
@@ -96,17 +95,50 @@ const getMilestoneHeadline = ({
   }
 
   if (milestone.rewards.length === 1) {
-    return milestone.rewards[0].description;
+    const reward = milestone.rewards[0];
+
+    if (reward.type === RewardType.Perk && /boost/i.test(reward.description)) {
+      return (
+        <span className="inline-flex items-center gap-1">
+          <ReputationLightningIcon
+            secondary
+            size={IconSize.XSmall}
+            className="shrink-0"
+          />
+          <span>{reward.description}</span>
+        </span>
+      );
+    }
+
+    if (reward.type !== RewardType.Cores) {
+      return reward.description;
+    }
+
+    return (
+      <span className="inline-flex items-center gap-1">
+        <CoreIcon size={IconSize.XSmall} className="shrink-0" />
+        <span>{reward.description}</span>
+      </span>
+    );
   }
 
-  const primaryReward =
-    milestone.rewards.find((reward) => reward.type === RewardType.Cores)
-      ?.description ?? milestone.rewards[0].description;
-  const extraRewardsCount = milestone.rewards.length - 1;
+  const primaryCoresReward = milestone.rewards.find(
+    (reward) => reward.type === RewardType.Cores,
+  );
+  const primaryReward = primaryCoresReward?.description ?? milestone.rewards[0].description;
+  if (!primaryCoresReward) {
+    const extraRewardsCount = milestone.rewards.length - 1;
+    return `${primaryReward} + ${extraRewardsCount} ${
+      extraRewardsCount === 1 ? 'reward' : 'rewards'
+    }`;
+  }
 
-  return `${primaryReward} + ${extraRewardsCount} ${
-    extraRewardsCount === 1 ? 'reward' : 'rewards'
-  }`;
+  return (
+    <span className="inline-flex items-center gap-1">
+      <CoreIcon size={IconSize.XSmall} className="shrink-0" />
+      <span>{primaryReward}</span>
+    </span>
+  );
 };
 
 function MilestoneItem({
@@ -150,7 +182,7 @@ function MilestoneItem({
             className="pointer-events-none absolute inset-0 z-0 rounded-12 bg-[length:220%_220%] animate-sponsored-gradient-slide"
             style={{
               backgroundImage:
-                'linear-gradient(120deg, color-mix(in srgb, var(--theme-accent-bacon-default), transparent 84%) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 86%) 50%, color-mix(in srgb, var(--theme-accent-blueCheese-default), transparent 84%) 100%)',
+                'radial-gradient(140% 120% at 8% 12%, color-mix(in srgb, var(--theme-accent-bacon-default), transparent 78%) 0%, transparent 58%), radial-gradient(120% 120% at 88% 20%, color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 80%) 0%, transparent 60%), radial-gradient(130% 130% at 48% 82%, color-mix(in srgb, var(--theme-accent-blueCheese-default), transparent 80%) 0%, transparent 62%), radial-gradient(100% 90% at 72% 72%, color-mix(in srgb, var(--theme-accent-pepper-default), transparent 88%) 0%, transparent 65%)',
             }}
           />
         </>
@@ -169,7 +201,12 @@ function MilestoneItem({
         />
       )}
 
-      <div className="relative z-1 flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-pepper-subtlest">
+      <div
+        className={classNames(
+          'relative z-1 flex size-10 shrink-0 items-center justify-center rounded-full',
+          isSponsoredMilestone ? 'bg-transparent' : 'bg-accent-pepper-subtlest',
+        )}
+      >
         {isNext && (
           <div className="pointer-events-none absolute -inset-2 z-0 rounded-full bg-accent-bacon-default/50 blur-lg animate-streak-pulse" />
         )}
@@ -195,7 +232,7 @@ function MilestoneItem({
           <img
             src={sponsoredGiftSrc}
             alt={`${milestone.label} gift`}
-            className="relative z-1 size-full object-contain"
+            className="relative z-1 size-full object-contain transition-transform duration-300 hover:scale-150 hover:delay-500"
           />
         ) : !isUnlocked && !isNext ? (
           <LockIcon
@@ -234,18 +271,8 @@ function MilestoneItem({
               (isUnlocked || (!isUnlocked && !isNext)) && 'bg-surface-float',
             )}
           >
-            {isNext ? 'Active' : `${milestone.day}d`}
+            {`${milestone.day}d`}
           </Typography>
-          {isNext && daysAway !== undefined && (
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-            >
-              {daysAway === 1 ? '1 day away' : `${daysAway} days away`}
-            </Typography>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
           <Typography
             bold
             type={TypographyType.Subhead}
@@ -254,7 +281,7 @@ function MilestoneItem({
                 ? TypographyColor.Primary
                 : TypographyColor.Quaternary
             }
-            className="truncate"
+            className="min-w-0 flex-1 truncate"
           >
             {milestoneHeadline}
           </Typography>
@@ -276,12 +303,27 @@ function MilestoneItem({
         </div>
         <div className="flex min-w-0 items-center gap-1">
           <Typography
-            type={TypographyType.Footnote}
-            color={isUnlocked ? TypographyColor.Tertiary : TypographyColor.Quaternary}
+            type={TypographyType.Subhead}
+            color={
+              isNext
+                ? TypographyColor.Primary
+                : isUnlocked
+                  ? TypographyColor.Tertiary
+                  : TypographyColor.Quaternary
+            }
             className="truncate"
           >
             {milestone.label}
           </Typography>
+          {isNext && daysAway !== undefined && (
+            <Typography
+              type={TypographyType.Subhead}
+              color={TypographyColor.Primary}
+              className="shrink-0"
+            >
+              · {daysAway === 1 ? '1 day away' : `${daysAway} days away`}
+            </Typography>
+          )}
           {isSponsoredMilestone && (
             <CursorAiIcon
               className="size-4 shrink-0 object-contain"
@@ -299,19 +341,6 @@ interface MilestoneTimelineProps {
   currentStreak: number;
   isVisible?: boolean;
 }
-
-const getCoresAmount = (milestone: StreakMilestone): string | null => {
-  const coresReward = milestone.rewards.find(
-    (r) => r.type === RewardType.Cores,
-  );
-
-  if (!coresReward) {
-    return null;
-  }
-
-  const match = coresReward.description.match(/\d+/);
-  return match?.[0] ?? null;
-};
 
 export function MilestoneTimeline({
   currentStreak,
@@ -338,16 +367,6 @@ export function MilestoneTimeline({
       setClaimedDays((prev) => new Set([...prev, milestone.day]));
       return;
     }
-
-    const cores = getCoresAmount(milestone);
-    const displayAmount = cores ?? milestone.rewards[0]?.description ?? '1';
-
-    setClaimAnimation({
-      type: 'cores',
-      amount: displayAmount,
-      milestoneDay: milestone.day,
-      milestoneLabel: milestone.label,
-    });
     setClaimedDays((prev) => new Set([...prev, milestone.day]));
   }, []);
 
@@ -389,8 +408,12 @@ export function MilestoneTimeline({
         style={{
           maskImage:
             'linear-gradient(to bottom, transparent, black 24px, black calc(100% - 24px), transparent)',
+          maskRepeat: 'no-repeat',
+          maskSize: '100% 100%',
           WebkitMaskImage:
             'linear-gradient(to bottom, transparent, black 24px, black calc(100% - 24px), transparent)',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskSize: '100% 100%',
         }}
       >
         {STREAK_MILESTONES.map((milestone, index) => {
