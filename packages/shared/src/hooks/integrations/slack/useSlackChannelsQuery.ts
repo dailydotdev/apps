@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { SlackChannel } from '../../../graphql/integrations';
 import { SLACK_CHANNELS_QUERY } from '../../../graphql/integrations';
@@ -59,29 +59,26 @@ export const useSlackChannelsQuery = ({
         : enabled,
   });
 
-  const channels = useMemo(
-    () =>
-      (queryResult.data?.pages ?? []).flatMap(
-        (page) => page.slackChannels.data,
-      ),
-    [queryResult.data?.pages],
-  );
+  const channels = useMemo(() => {
+    const fetched = (queryResult.data?.pages ?? []).flatMap(
+      (page) => page.slackChannels.data,
+    );
 
-  useEffect(() => {
-    if (
-      !selectedChannelId ||
-      queryResult.isFetchingNextPage ||
-      !queryResult.hasNextPage
-    ) {
-      return;
+    if (!selectedChannelId) {
+      return fetched;
     }
 
-    const found = channels.some((ch) => ch.id === selectedChannelId);
+    const found = fetched.some((ch) => ch.id === selectedChannelId);
 
-    if (!found) {
-      queryResult.fetchNextPage();
+    if (found) {
+      return fetched;
     }
-  }, [selectedChannelId, channels, queryResult]);
+
+    return [
+      { id: selectedChannelId, name: `Channel ${selectedChannelId}` },
+      ...fetched,
+    ];
+  }, [queryResult.data?.pages, selectedChannelId]);
 
   return {
     channels,
