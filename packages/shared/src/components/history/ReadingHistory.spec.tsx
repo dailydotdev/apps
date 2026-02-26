@@ -65,6 +65,7 @@ describe('ReadingHistoryList component', () => {
             showLogin: jest.fn(),
             updateUser: jest.fn(),
             tokenRefreshed: true,
+            isAuthReady: true,
           }}
         >
           <ReadHistoryList {...props} />
@@ -139,6 +140,7 @@ describe('PostItemCard component', () => {
           getRedirectUri: jest.fn(),
           isLoggedIn: true,
           closeLogin: jest.fn(),
+          isAuthReady: true,
         }}
       >
         <QueryClientProvider client={new QueryClient()}>

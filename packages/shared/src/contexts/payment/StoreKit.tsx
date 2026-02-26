@@ -64,7 +64,7 @@ export const StoreKitSubProvider = ({
     () => ({
       openCheckout,
       productOptions: products,
-      isPlusAvailable,
+      isPlusAvailable: isPlusAvailable ?? false,
       giftOneYear: undefined,
       isPricesPending: false,
     }),

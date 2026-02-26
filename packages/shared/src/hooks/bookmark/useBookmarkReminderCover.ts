@@ -6,5 +6,5 @@ export const useBookmarkReminderCover = (post: Post): boolean => {
     bookmarked: post?.bookmarked,
   });
 
-  return justBookmarked && !post?.bookmark?.remindAt;
+  return !!(justBookmarked && !post?.bookmark?.remindAt);
 };

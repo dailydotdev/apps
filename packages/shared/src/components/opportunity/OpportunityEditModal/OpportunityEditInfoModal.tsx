@@ -24,6 +24,7 @@ import { opportunityEditInfoSchema } from '../../../lib/schema/opportunity';
 import { RequestKey } from '../../../lib/query';
 import { editOpportunityInfoMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
+import type { GraphQLError } from '../../../lib/errors';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
 import { applyZodErrorsToForm } from '../../../lib/form';
@@ -89,7 +90,8 @@ export const OpportunityEditInfoModal = ({
       });
 
       return result;
-    } catch (originalError) {
+    } catch (err) {
+      const originalError = err as GraphQLError;
       if (
         originalError.response?.errors?.[0]?.extensions?.code ===
         ApiError.ZodValidationError
@@ -104,7 +106,7 @@ export const OpportunityEditInfoModal = ({
         );
       }
 
-      throw originalError;
+      throw err;
     }
   });
 

@@ -66,7 +66,7 @@ export interface AuthContextData {
   refetchBoot?: () => Promise<QueryObserverResult<Partial<Boot>>>;
   accessToken?: AccessToken;
   squads?: Squad[];
-  isAuthReady?: boolean;
+  isAuthReady: boolean;
   geo?: Boot['geo'];
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;

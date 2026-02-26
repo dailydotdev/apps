@@ -276,7 +276,7 @@ export const SettingsContextProvider = ({
               ? CampaignCtaPlacement.ProfileMenu
               : CampaignCtaPlacement.Header,
         }),
-      loadedSettings,
+      loadedSettings: loadedSettings ?? false,
       updateCustomLinks: (links: string[]) =>
         setSettings({ ...settings, customLinks: links }),
       updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>

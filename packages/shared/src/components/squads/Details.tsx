@@ -262,8 +262,8 @@ export function SquadDetails({
               />
             </div>
             <SquadPrivacyState
-              isPublic={squad?.public}
-              isFeatured={flags?.featured}
+              isPublic={squad?.public ?? false}
+              isFeatured={flags?.featured ?? false}
             />
             <SquadStats flags={flags} />
           </div>
@@ -348,7 +348,7 @@ export function SquadDetails({
         ) : undefined}
         <SquadPrivacySection
           initialCategory={category?.id}
-          isPublic={squad?.public}
+          isPublic={squad?.public ?? false}
           categoryHint={categoryHint}
           onCategoryChange={useCallback(() => setCategoryHint(''), [])}
         />

@@ -64,7 +64,7 @@ export const PostCardHeader = ({
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
   const isUserSource = isSourceUserSource(post.source);
   const { highlightBookmarkedPost } = useBookmarkProvider({
-    bookmarked: post.bookmarked && !showFeedback,
+    bookmarked: (post.bookmarked && !showFeedback) ?? false,
   });
 
   const articleLink = useMemo(() => {

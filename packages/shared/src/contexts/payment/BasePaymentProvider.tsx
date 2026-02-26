@@ -54,7 +54,7 @@ export const BasePaymentProvider = ({
       isPlusAvailable,
       giftOneYear,
       isPricesPending,
-      isPaddleReady,
+      isPaddleReady: isPaddleReady ?? false,
       isOrganization,
       checkoutItemsLoading,
       priceType,

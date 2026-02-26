@@ -38,7 +38,7 @@ function FeedItemContainer(
   ref?: Ref<HTMLElement>,
 ): ReactElement {
   const { highlightBookmarkedPost } = useBookmarkProvider({
-    bookmarked,
+    bookmarked: bookmarked ?? false,
   });
   const { adAttribution, pinnedAt, trending, type } = flagProps ?? {};
   const raisedLabelType = pinnedAt
