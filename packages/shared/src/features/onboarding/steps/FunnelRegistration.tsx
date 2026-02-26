@@ -140,7 +140,7 @@ function InnerFunnelRegistration({
   const router = useRouter();
   const isTablet = useViewSize(ViewSize.Tablet);
   const shouldRedirect = shouldRedirectAuth();
-  const windowPopup = useRef<Window>(null);
+  const windowPopup = useRef<Window | null>(null);
   const { cookieExists } = useConsentCookie(GdprConsentKey.Marketing);
   const { onSocialRegistration } = useRegistration({
     key: ['registration_funnel'],

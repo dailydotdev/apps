@@ -85,7 +85,7 @@ export const SmartPrompt = ({
         activePrompt={activePrompt}
         setActivePrompt={onSetActivePrompt}
         width={width}
-        isContainedView={isContainedView}
+        isContainedView={isContainedView ?? false}
       />
       <TabContainer controlledActive={activeDisplay} showHeader={false}>
         <Tab label={PromptDisplay.TLDR}>
