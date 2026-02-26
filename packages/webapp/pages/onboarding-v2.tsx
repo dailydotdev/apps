@@ -187,11 +187,7 @@ type GithubImportPhase =
   | 'finishing'
   | 'complete';
 type ImportFlowSource = 'github' | 'ai';
-type GithubImportBodyPhase =
-  | 'checklist'
-  | 'seniority'
-  | 'confirming'
-  | 'default';
+type GithubImportBodyPhase = 'checklist' | 'seniority' | 'default';
 
 const AI_IMPORT_STEPS = [
   { label: 'Analyzing your profile', threshold: 12 },
@@ -295,6 +291,10 @@ const OnboardingV2Page = (): ReactElement => {
   const [selectedExperienceLevel, setSelectedExperienceLevel] = useState<
     keyof typeof UserExperienceLevel | null
   >(null);
+  const [githubImportBodyHeight, setGithubImportBodyHeight] = useState<
+    number | null
+  >(null);
+  const [githubImportExiting, setGithubImportExiting] = useState(false);
   const [signupContext, setSignupContext] = useState<
     'topics' | 'github' | 'ai' | 'manual' | null
   >(null);
@@ -305,6 +305,7 @@ const OnboardingV2Page = (): ReactElement => {
   const scrollY = useRef(0);
   const githubImportTimerRef = useRef<number | null>(null);
   const githubResumeTimeoutRef = useRef<number | null>(null);
+  const githubImportBodyContentRef = useRef<HTMLDivElement>(null);
 
   const popularFeedNameValue = useMemo(
     () => ({ feedName: SharedFeedPage.Popular as const }),
@@ -368,6 +369,7 @@ const OnboardingV2Page = (): ReactElement => {
     clearGithubImportTimer();
     clearGithubResumeTimeout();
     setShowGithubImportFlow(false);
+    setGithubImportExiting(false);
     setSelectedExperienceLevel(null);
     setGithubImportProgress(0);
     setGithubImportPhase('idle');
@@ -386,7 +388,7 @@ const OnboardingV2Page = (): ReactElement => {
 
       clearGithubResumeTimeout();
       setSelectedExperienceLevel(level);
-      setGithubImportProgress((prev) => Math.max(prev, 52));
+      setGithubImportProgress((prev) => Math.max(prev, 72));
       setGithubImportPhase('confirmingSeniority');
 
       githubResumeTimeoutRef.current = window.setTimeout(() => {
@@ -440,7 +442,8 @@ const OnboardingV2Page = (): ReactElement => {
       showSignupChooser ||
       showSignupPrompt ||
       showGithubImportFlow ||
-      showExtensionPromo;
+      showExtensionPromo ||
+      githubImportExiting;
 
     if (anyModalOpen) {
       document.body.style.overflow = 'hidden';
@@ -455,6 +458,7 @@ const OnboardingV2Page = (): ReactElement => {
     showSignupPrompt,
     showGithubImportFlow,
     showExtensionPromo,
+    githubImportExiting,
   ]);
 
   useEffect(() => {
@@ -595,18 +599,22 @@ const OnboardingV2Page = (): ReactElement => {
         const increment = githubImportPhase === 'running' ? 2 : 3;
         const next = Math.min(100, prev + increment);
 
-        if (githubImportPhase === 'running' && next >= 48) {
+        if (githubImportPhase === 'running' && next >= 68) {
           clearGithubImportTimer();
           setGithubImportPhase('awaitingSeniority');
-          return 48;
+          return 68;
         }
 
         if (githubImportPhase === 'finishing' && next >= 100) {
           clearGithubImportTimer();
           setGithubImportPhase('complete');
           setTimeout(() => {
-            setShowGithubImportFlow(false);
-            setShowExtensionPromo(true);
+            setGithubImportExiting(true);
+            setTimeout(() => {
+              setShowGithubImportFlow(false);
+              setGithubImportExiting(false);
+              setShowExtensionPromo(true);
+            }, 350);
           }, 600);
           return 100;
         }
@@ -737,7 +745,8 @@ const OnboardingV2Page = (): ReactElement => {
       !showSignupChooser &&
       !showSignupPrompt &&
       !showGithubImportFlow &&
-      !showExtensionPromo;
+      !showExtensionPromo &&
+      !githubImportExiting;
     if (!shouldRun) {
       return undefined;
     }
@@ -895,9 +904,9 @@ const OnboardingV2Page = (): ReactElement => {
           floater.textContent = `+${inc}`;
           floater.style.color = color;
 
-          // Slight random horizontal jitter for a more organic feel
-          const jitter = (Math.random() - 0.5) * 10;
-          floater.style.setProperty('--eng-jitter', `${jitter}px`);
+          const counterRect = counter.getBoundingClientRect();
+          const wrapperRect = wrapperEl.getBoundingClientRect();
+          floater.style.left = `${counterRect.left + counterRect.width / 2 - wrapperRect.left}px`;
 
           wrapperEl.appendChild(floater);
 
@@ -937,6 +946,7 @@ const OnboardingV2Page = (): ReactElement => {
     showGithubImportFlow,
     showSignupChooser,
     showSignupPrompt,
+    githubImportExiting,
   ]);
 
   const recommendedTopics = useMemo(() => {
@@ -1056,47 +1066,48 @@ const OnboardingV2Page = (): ReactElement => {
     );
     return upcomingStep?.label ?? 'Building personalized feed';
   }, [githubImportPhase, githubImportProgress, importSteps]);
-  const selectedExperienceLevelLabel = useMemo(() => {
-    if (!selectedExperienceLevel) {
-      return null;
-    }
-
-    return (
-      EXPERIENCE_LEVEL_OPTIONS.find(
-        (option) => option.value === selectedExperienceLevel,
-      )?.label ?? null
-    );
-  }, [selectedExperienceLevel]);
   const githubImportBodyPhase = useMemo<GithubImportBodyPhase>(() => {
-    if (githubImportPhase === 'running' || githubImportPhase === 'finishing') {
+    if (
+      githubImportPhase === 'running' ||
+      githubImportPhase === 'finishing' ||
+      githubImportPhase === 'confirmingSeniority' ||
+      githubImportPhase === 'complete'
+    ) {
       return 'checklist';
     }
     if (githubImportPhase === 'awaitingSeniority') {
       return 'seniority';
     }
-    if (githubImportPhase === 'confirmingSeniority') {
-      return 'confirming';
-    }
 
     return 'default';
   }, [githubImportPhase]);
-  const [displayedGithubImportBodyPhase, setDisplayedGithubImportBodyPhase] =
-    useState<GithubImportBodyPhase>('default');
-  const [isImportBodyTransitioning, setIsImportBodyTransitioning] =
-    useState(false);
+
   useEffect(() => {
-    if (displayedGithubImportBodyPhase === githubImportBodyPhase) {
+    if (githubImportBodyPhase === 'default') {
+      setGithubImportBodyHeight(null);
       return undefined;
     }
 
-    setIsImportBodyTransitioning(true);
-    const timer = window.setTimeout(() => {
-      setDisplayedGithubImportBodyPhase(githubImportBodyPhase);
-      setIsImportBodyTransitioning(false);
-    }, 160);
+    const contentNode = githubImportBodyContentRef.current;
+    if (!contentNode) {
+      return undefined;
+    }
 
-    return () => window.clearTimeout(timer);
-  }, [displayedGithubImportBodyPhase, githubImportBodyPhase]);
+    const updateHeight = () => {
+      setGithubImportBodyHeight(contentNode.getBoundingClientRect().height);
+    };
+
+    updateHeight();
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(contentNode);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [githubImportBodyPhase]);
 
   return (
     <div className="onb-page relative" role="presentation">
@@ -1104,7 +1115,7 @@ const OnboardingV2Page = (): ReactElement => {
       <section
         ref={heroRef}
         className={classNames(
-          'onb-hero relative min-h-[28rem] overflow-hidden pb-10 pt-4 tablet:min-h-[32rem] tablet:pb-14 tablet:pt-18',
+          'onb-hero relative overflow-hidden py-2 tablet:py-8',
           feedReadyState && 'hidden',
         )}
         style={{ '--scroll-y': '0' } as React.CSSProperties}
@@ -1178,11 +1189,11 @@ const OnboardingV2Page = (): ReactElement => {
 
         {/* Centered text content */}
         <div className="relative mx-auto max-w-[63.75rem] px-4 text-center laptop:px-6">
-          <div className="pointer-events-none mb-4 hidden h-[4.75rem] tablet:block" />
+          <div className="pointer-events-none mb-1 hidden h-[1.5rem] tablet:block" />
           {/* Mobile-only rising tags */}
           <div
             className={classNames(
-              'pointer-events-none relative mb-4 h-[4.75rem] overflow-hidden tablet:hidden',
+              'pointer-events-none relative mb-1 h-[1.5rem] overflow-hidden tablet:hidden',
             )}
           >
             {tagsReady &&
@@ -1309,7 +1320,7 @@ const OnboardingV2Page = (): ReactElement => {
           </div>
 
           {/* Mobile-only bottom rising tags */}
-          <div className="pointer-events-none relative mt-5 h-[5rem] overflow-hidden tablet:hidden">
+          <div className="pointer-events-none relative mt-2 h-[2rem] overflow-hidden tablet:hidden">
             {tagsReady &&
               RISING_TAGS_MOBILE.map((tag) => (
                 <span
@@ -2454,20 +2465,6 @@ const OnboardingV2Page = (): ReactElement => {
           animation: ghub-step-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
-        /* Import panel phase transitions */
-        @keyframes ghub-phase-in {
-          from {
-            opacity: 0;
-            transform: translateY(0.25rem) scale(0.995);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        .ghub-phase-panel {
-          animation: ghub-phase-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
         .ghub-orb-paused {
           animation-play-state: paused !important;
         }
@@ -2682,6 +2679,32 @@ const OnboardingV2Page = (): ReactElement => {
           animation: onb-ai-shimmer 3s ease-in-out infinite;
         }
 
+        /* ─── MODAL EXIT ─── */
+        @keyframes onb-modal-out {
+          from {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
+          to {
+            transform: scale(0.92) translateY(16px);
+            opacity: 0;
+          }
+        }
+        .onb-modal-exit {
+          animation: onb-modal-out 0.35s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+        @keyframes onb-modal-backdrop-out {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
+        .onb-modal-backdrop-exit {
+          animation: onb-modal-backdrop-out 0.3s ease-in forwards;
+        }
+
         /* ─── EXTENSION PROMO ─── */
         @keyframes onb-ext-enter {
           from {
@@ -2875,11 +2898,11 @@ const OnboardingV2Page = (): ReactElement => {
 
         .onb-eng-floater {
           position: absolute;
-          left: 12px;
           bottom: 80%;
-          transform: translateX(-50%);
           font-size: 0.875rem;
           font-weight: 800;
+          font-variant-numeric: tabular-nums;
+          white-space: nowrap;
           pointer-events: none;
           z-index: 20;
           animation: onb-eng-float-anim 2.5s ease-out forwards;
@@ -2887,21 +2910,20 @@ const OnboardingV2Page = (): ReactElement => {
             color-mix(in srgb, currentColor 40%, transparent);
         }
         @keyframes onb-eng-float-anim {
-          0% { transform: translate(calc(-50% + var(--eng-jitter, 0px)), 10px) scale(0.5); opacity: 0; }
-          10% { transform: translate(calc(-50% + var(--eng-jitter, 0px)), -2px) scale(1.2); opacity: 1; }
-          80% { transform: translate(calc(-50% + var(--eng-jitter, 0px)), -28px) scale(1); opacity: 0.9; }
-          100% { transform: translate(calc(-50% + var(--eng-jitter, 0px)), -36px) scale(0.8); opacity: 0; }
-        }
+          0% {
+            transform: translateX(-50%) translateY(10px) scale(0.5);
+            opacity: 0;
+          }
           10% {
-            transform: translate(-50%, -2px) scale(1.2);
+            transform: translateX(-50%) translateY(-2px) scale(1.2);
             opacity: 1;
           }
           80% {
-            transform: translate(-50%, -28px) scale(1);
+            transform: translateX(-50%) translateY(-28px) scale(1);
             opacity: 0.9;
           }
           100% {
-            transform: translate(-50%, -36px) scale(0.8);
+            transform: translateX(-50%) translateY(-36px) scale(0.8);
             opacity: 0;
           }
         }
@@ -3060,11 +3082,23 @@ const OnboardingV2Page = (): ReactElement => {
             transform: translateY(0);
           }
         }
+        @keyframes onb-modal-slide-down {
+          from {
+            transform: translateY(0);
+          }
+          to {
+            transform: translateY(100%);
+          }
+        }
         @media (max-width: 655px) {
           .onb-modal-enter,
           .onb-ext-enter {
             animation: onb-modal-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1)
               both;
+          }
+          .onb-modal-exit {
+            animation: onb-modal-slide-down 0.3s cubic-bezier(0.4, 0, 1, 1)
+              forwards;
           }
         }
         @media (max-width: 63.9375rem) {
@@ -3125,13 +3159,14 @@ const OnboardingV2Page = (): ReactElement => {
           .onb-hero-radial,
           .onb-btn-glow,
           .onb-modal-enter,
+          .onb-modal-exit,
           .onb-modal-backdrop,
+          .onb-modal-backdrop-exit,
           .ghub-orb-glow,
           .ghub-ring,
           .ghub-ring-reverse,
           .ghub-particle,
           .ghub-confetti,
-          .ghub-phase-panel,
           .onb-confetti-piece,
           .onb-confetti-stage,
           .onb-ready-burst,
@@ -3585,32 +3620,33 @@ const OnboardingV2Page = (): ReactElement => {
         </div>
       )}
 
+      {/* ── Persistent backdrop during import→extension transition ── */}
+      {githubImportExiting && (
+        <div
+          className="fixed inset-0 z-modal bg-black/80 backdrop-blur-lg"
+          aria-hidden
+        />
+      )}
+
       {/* ── Extension Promotion Overlay ── */}
       {showExtensionPromo && (
         <div
-          className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center"
+          className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Install browser extension"
         >
           <div
-            className="onb-modal-backdrop bg-black/70 absolute inset-0 z-0 backdrop-blur-sm"
+            className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
             onClick={dismissExtensionPromo}
             role="presentation"
           />
 
-          <div className="onb-ext-enter z-10 relative flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-20 border border-white/[0.08] bg-[#0d0d0f] shadow-[0_40px_120px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.06)] tablet:mx-4 tablet:max-w-lg tablet:rounded-20">
-            {/* Signature top accent line */}
-            <div className="onb-accent-draw via-accent-cabbage-default/70 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
-
-            {/* Subtle ambient glow from top */}
-            <div className="from-accent-cabbage-default/[0.06] pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b to-transparent" />
-
-            {/* Close */}
+          <div className="onb-modal-enter onb-glass relative z-1 flex max-h-[100dvh] w-full flex-col overflow-y-auto rounded-t-24 border border-white/[0.08] bg-background-default shadow-[0_32px_90px_rgba(0,0,0,0.58)] tablet:max-w-lg tablet:rounded-24">
             <button
               type="button"
               onClick={dismissExtensionPromo}
-              className="z-20 absolute right-3 top-3 flex h-8 w-8 cursor-pointer items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
+              className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -3623,145 +3659,122 @@ const OnboardingV2Page = (): ReactElement => {
               </svg>
             </button>
 
-            <div className="flex w-full flex-col overflow-y-auto">
-              {/* ── Screenshot Zone ── */}
-              <div className="relative flex items-end justify-center overflow-hidden px-5 pt-8">
-                {/* Angled gradient backdrop — gives depth behind screenshot */}
-                <div
-                  className="pointer-events-none absolute inset-0"
-                  style={{
-                    background:
-                      'linear-gradient(135deg, rgba(163,230,53,0.06) 0%, transparent 55%, rgba(72,98,255,0.04) 100%)',
-                  }}
-                />
-                {/* Fade screenshot into content section */}
-                <div className="via-[#0d0d0f]/70 pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#0d0d0f] to-transparent" />
-                <div className="onb-ext-float z-10 relative w-full max-w-[30rem] translate-y-5">
-                  <img
-                    alt={`daily.dev extension in ${
-                      isEdgeBrowser ? 'Edge' : 'Chrome'
-                    }`}
-                    className="block h-auto w-full rounded-t-8 object-contain drop-shadow-[0_-2px_40px_rgba(0,0,0,0.9)]"
-                    fetchPriority="high"
-                    width={820}
-                    height={520}
-                    loading="eager"
-                    src={extensionImages.default}
-                    srcSet={`${extensionImages.default} 820w, ${extensionImages.retina} 1640w`}
-                    sizes="(max-width: 480px) 100vw, 400px"
-                  />
+            <div className="flex w-full flex-col items-center px-5 pb-6 pt-7 tablet:px-6">
+              {/* Status badge */}
+              <div className="mb-4 inline-flex items-center gap-1.5">
+                <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent-avocado-default text-black">
+                  <VIcon secondary size={IconSize.XXSmall} />
                 </div>
+                <span className="font-bold text-accent-avocado-default typo-callout">
+                  Your feed is ready
+                </span>
               </div>
 
-              {/* ── Content ── */}
-              <div className="z-10 relative flex flex-col items-center px-5 pb-6 pt-4 text-center tablet:px-6">
-                {/* Status badge */}
-                <div
-                  className="onb-ext-reveal mb-3 inline-flex w-fit items-center gap-1.5"
-                  style={{ animationDelay: '60ms' }}
-                >
-                  <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent-avocado-default text-black">
-                    <VIcon size={IconSize.XSmall} />
-                  </div>
-                  <span className="font-bold text-accent-avocado-default typo-caption1">
-                    Your feed is ready
-                  </span>
-                </div>
+              {/* Headline */}
+              <h2 className="mb-4 text-center font-bold leading-tight text-text-primary typo-title1">
+                See it every time{' '}
+                <span className="text-accent-cabbage-default">
+                  you open a tab.
+                </span>
+              </h2>
 
-                {/* Headline — two tones */}
-                <h2
-                  className="onb-ext-reveal mb-4 font-bold leading-tight text-text-primary typo-title1"
-                  style={{ animationDelay: '90ms' }}
-                >
-                  See it every time
-                  <br />
-                  <span className="text-accent-cabbage-default">
-                    you open a tab.
-                  </span>
-                </h2>
+              {/* Screenshot */}
+              <div className="relative mb-4 w-full overflow-hidden rounded-12">
+                <img
+                  alt={`daily.dev extension in ${
+                    isEdgeBrowser ? 'Edge' : 'Chrome'
+                  }`}
+                  className="block h-auto w-full object-contain"
+                  fetchPriority="high"
+                  width={820}
+                  height={520}
+                  loading="eager"
+                  src={extensionImages.default}
+                  srcSet={`${extensionImages.default} 820w, ${extensionImages.retina} 1640w`}
+                  sizes="(max-width: 480px) 100vw, 400px"
+                />
+              </div>
 
-                {/* Value chips */}
-                <div
-                  className="onb-ext-reveal mb-5 flex w-full gap-1.5"
-                  style={{ animationDelay: '130ms' }}
-                >
-                  {(
-                    [
-                      'Personalized feed',
-                      'AI summaries',
-                      'Free forever',
-                    ] as const
-                  ).map((label) => (
-                    <div
-                      key={label}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-8 bg-white/[0.05] px-2.5 py-2"
-                    >
+              {/* Value props */}
+              <div className="mb-7 mt-2 flex w-full flex-col items-center gap-1 px-2 text-center tablet:px-4">
+                {(
+                  [
+                    'Zero clicks to your personalized feed',
+                    'Catch trending tools & discussions early',
+                    'Trusted by 1M+ developers daily',
+                  ] as const
+                ).map((label) => (
+                  <div
+                    key={label}
+                    className="flex items-center justify-center gap-2.5 py-1"
+                  >
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-avocado-default/20">
                       <VIcon
-                        className="shrink-0 text-accent-cabbage-default"
-                        size={IconSize.XSmall}
+                        className="text-accent-avocado-default"
+                        size={IconSize.XXSmall}
                       />
-                      <span className="text-text-secondary typo-caption2">
-                        {label}
-                      </span>
                     </div>
-                  ))}
-                </div>
-
-                {/* CTA button with shimmer */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    window.open(
-                      downloadBrowserExtension,
-                      '_blank',
-                      'noopener,noreferrer',
-                    );
-                    dismissExtensionPromo();
-                  }}
-                  className="onb-ext-reveal onb-cta-shimmer mb-2 flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black shadow-[0_0_0_1px_rgba(255,255,255,0.15)] transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(163,230,53,0.22),0_0_0_1px_rgba(255,255,255,0.2)]"
-                  style={{ animationDelay: '175ms' }}
-                >
-                  {isEdgeBrowser ? (
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="#0078D4"
-                      className="shrink-0"
-                    >
-                      <path d="M21.86 17.86q.14 0 .25.12.1.13.1.25t-.11.33l-.32.46-.43.53-.44.46q-.54.52-1.15.97l-.09.06q-.88.56-1.86.97-1.14.46-2.42.66-1.34.2-2.71.06-1.14-.12-2.2-.5-1.2-.42-2.27-1.12-1.17-.78-2.1-1.86-.83-.94-1.41-2.07-.66-1.27-.96-2.67-.17-.79-.22-1.6-.06-.91.05-1.84.1-.78.3-1.54.27-1.01.72-1.96.37-.78.88-1.51.47-.68 1.03-1.28.41-.44.87-.83l.13-.1q.49-.38 1.04-.71.53-.32 1.1-.56.92-.39 1.93-.56 1.19-.2 2.49-.08.38.03.76.1.36.07.72.17.42.12.82.29.34.14.67.31.3.15.58.33l.06.04q.28.18.55.38 0 0-.55.92T13.8 4.4q-.26-.13-.55-.24-.34-.12-.7-.2-.31-.07-.63-.1-.42-.04-.85-.02-.76.06-1.46.33-.82.32-1.51.86-.57.45-1.03 1.02-.54.66-.9 1.42-.27.57-.42 1.18-.12.48-.17.97-.06.64.03 1.3.11.79.39 1.52.32.82.84 1.52.57.76 1.32 1.34.64.5 1.39.84.79.36 1.66.52.57.1 1.16.12.78.02 1.56-.12.65-.11 1.26-.35.75-.3 1.4-.76.55-.39 1.01-.87.36-.37.67-.78l.36-.56Z" />
-                    </svg>
-                  ) : (
-                    <ChromeIcon aria-hidden size={IconSize.Size16} />
-                  )}
-                  Add to {isEdgeBrowser ? 'Edge' : 'Chrome'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={dismissExtensionPromo}
-                  className="onb-ext-reveal mb-3 text-text-quaternary underline-offset-4 transition-colors typo-caption2 hover:text-text-tertiary hover:underline"
-                  style={{ animationDelay: '205ms' }}
-                >
-                  I&apos;ll continue on web for now
-                </button>
-
-                {/* Community proof */}
-                <div
-                  className="onb-ext-reveal flex items-center justify-center gap-1.5"
-                  style={{ animationDelay: '225ms' }}
-                >
-                  <div className="flex text-accent-cheese-default">
-                    <StarIcon size={IconSize.XSmall} />
-                    <StarIcon size={IconSize.XSmall} />
-                    <StarIcon size={IconSize.XSmall} />
-                    <StarIcon size={IconSize.XSmall} />
-                    <StarIcon size={IconSize.XSmall} />
+                    <span className="text-text-secondary typo-callout">
+                      {label}
+                    </span>
                   </div>
-                  <span className="italic text-text-quaternary typo-caption2">
-                    &quot;Replaced my boring new tab&quot; — 1M+ devs
-                  </span>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <button
+                type="button"
+                onClick={() => {
+                  window.open(
+                    downloadBrowserExtension,
+                    '_blank',
+                    'noopener,noreferrer',
+                  );
+                  dismissExtensionPromo();
+                }}
+                className="mb-2 flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(163,230,53,0.22)]"
+              >
+                {isEdgeBrowser ? (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="#0078D4"
+                    className="shrink-0"
+                  >
+                    <path d="M21.86 17.86q.14 0 .25.12.1.13.1.25t-.11.33l-.32.46-.43.53-.44.46q-.54.52-1.15.97l-.09.06q-.88.56-1.86.97-1.14.46-2.42.66-1.34.2-2.71.06-1.14-.12-2.2-.5-1.2-.42-2.27-1.12-1.17-.78-2.1-1.86-.83-.94-1.41-2.07-.66-1.27-.96-2.67-.17-.79-.22-1.6-.06-.91.05-1.84.1-.78.3-1.54.27-1.01.72-1.96.37-.78.88-1.51.47-.68 1.03-1.28.41-.44.87-.83l.13-.1q.49-.38 1.04-.71.53-.32 1.1-.56.92-.39 1.93-.56 1.19-.2 2.49-.08.38.03.76.1.36.07.72.17.42.12.82.29.34.14.67.31.3.15.58.33l.06.04q.28.18.55.38 0 0-.55.92T13.8 4.4q-.26-.13-.55-.24-.34-.12-.7-.2-.31-.07-.63-.1-.42-.04-.85-.02-.76.06-1.46.33-.82.32-1.51.86-.57.45-1.03 1.02-.54.66-.9 1.42-.27.57-.42 1.18-.12.48-.17.97-.06.64.03 1.3.11.79.39 1.52.32.82.84 1.52.57.76 1.32 1.34.64.5 1.39.84.79.36 1.66.52.57.1 1.16.12.78.02 1.56-.12.65-.11 1.26-.35.75-.3 1.4-.76.55-.39 1.01-.87.36-.37.67-.78l.36-.56Z" />
+                  </svg>
+                ) : (
+                  <ChromeIcon aria-hidden size={IconSize.Size16} />
+                )}
+                Add to {isEdgeBrowser ? 'Edge' : 'Chrome'}
+              </button>
+
+              <button
+                type="button"
+                onClick={dismissExtensionPromo}
+                className="mb-5 rounded-10 px-4 py-2 text-text-tertiary transition-all typo-callout hover:bg-white/[0.06] hover:text-text-secondary"
+              >
+                I&apos;ll continue on web for now
+              </button>
+
+              {/* Community proof */}
+              <div className="flex w-full flex-col items-center justify-center gap-2 border-t border-border-subtlest-tertiary pt-4">
+                <div className="flex text-accent-cheese-default">
+                  <StarIcon secondary size={IconSize.XSmall} />
+                  <StarIcon secondary size={IconSize.XSmall} />
+                  <StarIcon secondary size={IconSize.XSmall} />
+                  <StarIcon secondary size={IconSize.XSmall} />
+                  <StarIcon secondary size={IconSize.XSmall} />
                 </div>
+                <span
+                  className="max-w-[26rem] text-center italic text-text-tertiary typo-callout"
+                  style={{ lineHeight: 1.8 }}
+                >
+                  &quot;I open 50+ tabs a day — daily.dev makes every
+                  single one count. Best dev tool I&apos;ve installed
+                  this year.&quot;
+                </span>
               </div>
             </div>
           </div>
@@ -3782,13 +3795,23 @@ const OnboardingV2Page = (): ReactElement => {
         >
           {/* Full-screen scrim — blurred glass so feed peeks through */}
           <div
-            className="onb-modal-backdrop bg-black/70 absolute inset-0 backdrop-blur-md"
+            className={classNames(
+              'bg-black/70 absolute inset-0 backdrop-blur-md',
+              githubImportExiting
+                ? 'onb-modal-backdrop-exit'
+                : 'onb-modal-backdrop',
+            )}
             onClick={closeGithubImportFlow}
             role="presentation"
           />
 
           {/* Centered content */}
-          <div className="relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-20 border border-white/[0.10] bg-raw-pepper-90 px-5 py-6 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:mx-4 tablet:max-w-md tablet:rounded-20 tablet:px-6">
+          <div
+            className={classNames(
+              'relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-20 border border-white/[0.10] bg-raw-pepper-90 px-5 py-6 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:mx-4 tablet:max-w-md tablet:rounded-20 tablet:px-6',
+              githubImportExiting && 'onb-modal-exit',
+            )}
+          >
             <button
               type="button"
               onClick={closeGithubImportFlow}
@@ -3966,31 +3989,24 @@ const OnboardingV2Page = (): ReactElement => {
                 {(() => {
                   if (isAwaitingSeniorityInput) {
                     return (
-                      <svg
-                        width="26"
-                        height="26"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="ghub-question-pulse text-text-primary"
-                      >
-                        <path
-                          d="M9.75 9a2.25 2.25 0 114.5 0c0 1.2-.69 1.76-1.53 2.34-.75.52-1.47 1.02-1.47 2.16"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <circle cx="12" cy="17.2" r="1" fill="currentColor" />
-                        <rect
-                          x="4.2"
-                          y="3.8"
-                          width="15.6"
-                          height="16.4"
-                          rx="3"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                        />
-                      </svg>
+                      <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-accent-water-default text-white shadow-[0_12px_28px_rgba(72,98,255,0.42)]">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          className="ghub-question-pulse text-white"
+                        >
+                          <path
+                            d="M8.7 9a3.3 3.3 0 116.6 0c0 1.5-.84 2.24-1.8 2.9-.86.6-1.66 1.16-1.66 2.45"
+                            stroke="currentColor"
+                            strokeWidth="2.6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <circle cx="12" cy="18.1" r="1.6" fill="currentColor" />
+                        </svg>
+                      </span>
                     );
                   }
 
@@ -4055,7 +4071,7 @@ const OnboardingV2Page = (): ReactElement => {
             </p>
 
             {/* ── Progress track ── */}
-            {githubImportPhase !== 'complete' && (
+            {githubImportPhase !== 'idle' && (
               <div className="mb-5 w-full">
                 <div className="relative h-1 w-full overflow-hidden rounded-[0.125rem] bg-white/[0.10]">
                   <div
@@ -4066,19 +4082,34 @@ const OnboardingV2Page = (): ReactElement => {
               </div>
             )}
 
-            {displayedGithubImportBodyPhase !== 'default' && (
-              <div className="mb-4 w-full overflow-hidden rounded-16 border border-white/[0.06] bg-white/[0.01] p-3.5">
+            {githubImportBodyPhase !== 'default' && (
+              <div
+                className={classNames(
+                  'w-full overflow-hidden',
+                  githubImportBodyPhase === 'seniority'
+                    ? 'rounded-none border-0 bg-transparent p-0'
+                    : 'rounded-16 border border-white/[0.06] bg-white/[0.01] p-3.5',
+                )}
+              >
                 <div
-                  key={displayedGithubImportBodyPhase}
-                  className={classNames(
-                    'ghub-phase-panel min-h-[12rem] transition-[opacity,transform] duration-300',
-                    isImportBodyTransitioning
-                      ? '-translate-y-1 opacity-0'
-                      : 'translate-y-0 opacity-100',
-                  )}
+                  className="ghub-phase-shell overflow-hidden transition-[height] duration-300 ease-out"
+                  style={{
+                    height: githubImportBodyHeight
+                      ? `${githubImportBodyHeight}px`
+                      : undefined,
+                  }}
                 >
+                  <div
+                    key={githubImportBodyPhase}
+                    ref={githubImportBodyContentRef}
+                    className={
+                      githubImportBodyPhase === 'checklist'
+                        ? 'min-h-0'
+                        : 'min-h-[12rem]'
+                    }
+                  >
                   {/* ── Import checklist (during active import) ── */}
-                  {displayedGithubImportBodyPhase === 'checklist' && (
+                  {githubImportBodyPhase === 'checklist' && (
                     <div className="flex w-full flex-col gap-2.5">
                       {importSteps.map((step, i) => {
                         const done = githubImportProgress >= step.threshold;
@@ -4168,7 +4199,7 @@ const OnboardingV2Page = (): ReactElement => {
                   )}
 
                   {/* ── Seniority question ── */}
-                  {displayedGithubImportBodyPhase === 'seniority' && (
+                  {githubImportBodyPhase === 'seniority' && (
                     <div>
                       <p className="mb-3 text-left font-medium text-text-primary typo-callout">
                         What is your seniority level?
@@ -4224,22 +4255,7 @@ const OnboardingV2Page = (): ReactElement => {
                     </div>
                   )}
 
-                  {/* ── Seniority confirmation ── */}
-                  {displayedGithubImportBodyPhase === 'confirming' && (
-                    <div className="flex h-full flex-col justify-center rounded-12 border border-white/[0.08] bg-surface-float px-4 py-3">
-                      <p className="text-text-secondary typo-footnote">
-                        Applying your experience level
-                      </p>
-                      {selectedExperienceLevelLabel && (
-                        <p className="mt-1 truncate text-text-primary typo-callout">
-                          {selectedExperienceLevelLabel}
-                        </p>
-                      )}
-                      <div className="mt-3 h-1 w-full overflow-hidden rounded-[0.125rem] bg-white/[0.12]">
-                        <span className="bg-accent-cabbage-default/80 block h-full w-1/2 animate-pulse rounded-[0.125rem]" />
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
               </div>
             )}
