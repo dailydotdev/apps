@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type { SentimentAnnotation, SentimentHighlightItem } from './types';
-import { stripTcoLinks, formatTimeAgo } from './ArenaLiveTicker';
+import { stripTcoLinks, formatTimeAgo } from './ArenaHighlightUtils';
 
 const decodeHtmlEntities = (text: string): string => {
   const textarea =
@@ -16,6 +16,7 @@ const decodeHtmlEntities = (text: string): string => {
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'");
   }
+
   textarea.innerHTML = text;
   return textarea.value;
 };
@@ -97,7 +98,6 @@ const HighlightCard = ({
     <div className="flex gap-3 px-4 py-3">
       <AuthorAvatar author={item.author} />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        {/* Author info */}
         <div className="flex min-w-0 items-center gap-1.5">
           {item.author?.name && (
             <span className="shrink truncate font-bold text-text-primary typo-caption1">
@@ -114,16 +114,14 @@ const HighlightCard = ({
           </span>
         </div>
 
-        {/* Full text */}
         <p className="whitespace-pre-wrap break-words text-text-secondary typo-callout">
           {cleanText}
         </p>
 
-        {/* Sentiment pills */}
         {item.sentiments.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            {item.sentiments.map((s) => (
-              <SentimentPill key={s.entity} sentiment={s} />
+            {item.sentiments.map((sentiment) => (
+              <SentimentPill key={sentiment.entity} sentiment={sentiment} />
             ))}
           </div>
         )}
@@ -170,29 +168,40 @@ export const ArenaHighlightsFeed = ({
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const isLaptop = useViewSize(ViewSize.LaptopL);
   const initializedRef = useRef(false);
+  const visibleIdsRef = useRef<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    visibleIdsRef.current = new Set(
+      visibleItems.map((item) => item.externalItemId),
+    );
+  }, [visibleItems]);
+
+  useEffect(() => {
     if (items.length === 0) {
+      initializedRef.current = false;
+      setVisibleItems([]);
+      setPendingItems([]);
       return;
     }
 
-    // First load — show everything (capped)
     if (!initializedRef.current) {
       initializedRef.current = true;
       setVisibleItems(items.slice(0, MAX_HIGHLIGHTS));
+      setPendingItems([]);
       return;
     }
 
-    // Subsequent updates — find new items not in visible set
-    const visibleIds = new Set(visibleItems.map((i) => i.externalItemId));
-    const newItems = items.filter((i) => !visibleIds.has(i.externalItemId));
+    const newItems = items.filter(
+      (item) => !visibleIdsRef.current.has(item.externalItemId),
+    );
+
     if (newItems.length > 0) {
       setPendingItems((prev) =>
         [...newItems, ...prev].slice(0, MAX_HIGHLIGHTS),
       );
     }
-  }, [items]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [items]);
 
   const showPending = (): void => {
     setVisibleItems((prev) =>
@@ -202,8 +211,6 @@ export const ArenaHighlightsFeed = ({
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // On laptop the feed scrolls inside a fixed-height container, so show all.
-  // On mobile, truncate unless the user taps "Show all".
   const displayItems =
     isLaptop || mobileExpanded
       ? visibleItems
@@ -212,28 +219,19 @@ export const ArenaHighlightsFeed = ({
     !isLaptop && !mobileExpanded && visibleItems.length > MOBILE_FEED_LIMIT;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle">
-      {/* eslint-disable-next-line react/no-danger */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `@keyframes slide-down{0%{opacity:0;transform:translateY(-100%)}100%{opacity:1;transform:translateY(0)}}`,
-        }}
-      />
-      {/* Feed header */}
+    <div className="relative flex h-full flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle">
       <div className="flex items-center border-b border-border-subtlest-tertiary px-4 py-2.5">
         <span className="font-bold text-text-primary typo-callout">
           Live Highlights
         </span>
       </div>
 
-      {/* New posts badge — floats over feed */}
       {!loading && pendingItems.length > 0 && (
         <div className="z-10 pointer-events-none absolute inset-x-0 top-12 flex justify-center">
           <button
             type="button"
             onClick={showPending}
-            className="pointer-events-auto rounded-12 bg-accent-cabbage-default px-4 py-1.5 font-bold text-white shadow-2 transition-transform typo-caption1 hover:scale-105 active:scale-95"
-            style={{ animation: 'slide-down 0.3s ease-out' }}
+            className="animate-slide-down pointer-events-auto rounded-12 bg-accent-cabbage-default px-4 py-1.5 font-bold text-white shadow-2 transition-transform typo-caption1 hover:scale-105 active:scale-95"
           >
             &#x2191; +{pendingItems.length} new post
             {pendingItems.length !== 1 ? 's' : ''}
@@ -255,7 +253,6 @@ export const ArenaHighlightsFeed = ({
             ))}
       </div>
 
-      {/* Show all button — mobile only */}
       {!loading && hasMoreOnMobile && (
         <button
           type="button"

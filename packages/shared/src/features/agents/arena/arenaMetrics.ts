@@ -325,7 +325,6 @@ export const computeCrowns = (tools: RankedTool[]): CrownData[] => {
         label: config.label,
         entity: null,
         stat: '',
-        heldSince: null,
       };
     }
 
@@ -341,7 +340,6 @@ export const computeCrowns = (tools: RankedTool[]): CrownData[] => {
       label: config.label,
       entity: winner.entity,
       stat: config.formatStat(winner),
-      heldSince: Date.now(),
     };
   });
 };

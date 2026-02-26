@@ -54,7 +54,6 @@ export interface CrownData {
   label: string;
   entity: ArenaEntity | null;
   stat: string;
-  heldSince: number | null;
 }
 
 export interface RankedTool {

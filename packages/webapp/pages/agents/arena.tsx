@@ -17,6 +17,14 @@ interface ArenaPageRouteProps {
 
 const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
   const router = useRouter();
+  const queryTab = router.query.tab;
+  let activeTab: ArenaTab = initialTab;
+  if (queryTab === 'llms') {
+    activeTab = 'llms';
+  }
+  if (queryTab === 'coding-agents') {
+    activeTab = 'coding-agents';
+  }
 
   const handleTabChange = (tab: ArenaTab): void => {
     const query = tab === 'coding-agents' ? {} : { tab };
@@ -25,7 +33,7 @@ const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
     });
   };
 
-  return <ArenaPage initialTab={initialTab} onTabChange={handleTabChange} />;
+  return <ArenaPage activeTab={activeTab} onTabChange={handleTabChange} />;
 };
 
 export async function getServerSideProps({

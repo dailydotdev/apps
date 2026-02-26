@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useId } from 'react';
 
 interface ArenaSparklineProps {
   data: number[];
@@ -22,7 +22,7 @@ export const ArenaSparkline = ({
   const chartHeight = height - padding * 2;
   const step = chartWidth / Math.max(data.length - 1, 1);
   const strokeColor = color || 'var(--theme-text-tertiary)';
-  const gradientId = `sparkGrad-${data.join('-').slice(0, 20)}`;
+  const gradientId = `sparkGrad-${useId().replace(/:/g, '')}`;
 
   const points = data.map((value, i) => ({
     x: padding + i * step,
@@ -61,7 +61,6 @@ export const ArenaSparkline = ({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {/* Breathing cursor dot at the end */}
       <circle cx={lastPoint.x} cy={lastPoint.y} r={2.5} fill={strokeColor}>
         <animate
           attributeName="r"

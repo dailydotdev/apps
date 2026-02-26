@@ -5,7 +5,7 @@ import type { RankedTool } from './types';
 import { ArenaSparkline } from './ArenaSparkline';
 import { ArenaSentimentBar } from './ArenaSentimentBar';
 import { ArenaAnimatedCounter } from './ArenaAnimatedCounter';
-import { formatDIndex, formatVolume } from './dindex';
+import { formatDIndex, formatVolume } from './arenaMetrics';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { InfoIcon } from '../../../components/icons/Info';
 import { MedalBadgeIcon } from '../../../components/icons/MedalBadge';
