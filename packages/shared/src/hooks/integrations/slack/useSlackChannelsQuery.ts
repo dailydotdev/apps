@@ -5,7 +5,6 @@ import { SLACK_CHANNELS_QUERY } from '../../../graphql/integrations';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { gqlClient } from '../../../graphql/common';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { sortAlphabeticallyByProperty } from '../../../lib/func';
 
 type SlackChannelsResponse = {
   slackChannels: {
@@ -60,9 +59,9 @@ export const useSlackChannelsQuery = ({
 
   const channels = useMemo(
     () =>
-      (queryResult.data?.pages ?? [])
-        .flatMap((page) => page.slackChannels.data)
-        .sort(sortAlphabeticallyByProperty('name')),
+      (queryResult.data?.pages ?? []).flatMap(
+        (page) => page.slackChannels.data,
+      ),
     [queryResult.data?.pages],
   );
 

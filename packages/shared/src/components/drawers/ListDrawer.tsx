@@ -32,7 +32,7 @@ export function ListDrawer({
 }: ListDrawerProps): ReactElement {
   const ref = React.useRef<DrawerRef>();
   const infiniteScrollRef = useFeedInfiniteScroll({
-    fetchPage: fetchNextPage ?? (() => {}),
+    fetchPage: fetchNextPage,
     canFetchMore: canFetchMore && !isFetchingNextPage,
   });
 
