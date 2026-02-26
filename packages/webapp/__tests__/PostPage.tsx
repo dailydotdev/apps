@@ -41,7 +41,11 @@ import {
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import type { AllTagCategoriesData } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { FEED_SETTINGS_QUERY } from '@dailydotdev/shared/src/graphql/feedSettings';
+import {
+  ADD_FILTERS_TO_FEED_MUTATION,
+  FEED_SETTINGS_QUERY,
+  REMOVE_FILTERS_FROM_FEED_MUTATION,
+} from '@dailydotdev/shared/src/graphql/feedSettings';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
@@ -793,18 +797,6 @@ it('should decrement number of upvotes if downvoting post that was upvoted', asy
 });
 
 describe('downvote flow', () => {
-  beforeEach(() => {
-    nock('http://localhost:3000')
-      .persist()
-      .post('/graphql', (body) => {
-        if (typeof body === 'string') {
-          return body.includes('mutation RemoveFiltersFromFeed');
-        }
-        return body?.query?.includes('mutation RemoveFiltersFromFeed');
-      })
-      .reply(200, { data: { _: true } });
-  });
-
   const createAllTagCategoriesMock = (
     onSuccess?: () => void,
   ): MockedGraphQLResponse<AllTagCategoriesData> => ({
@@ -877,16 +869,56 @@ describe('downvote flow', () => {
     const close = await screen.findByTitle('Close');
     fireEvent.click(close);
     await screen.findAllByText('No topics were blocked');
+    let mutationCalled = false;
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.HideBlockPanel },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    });
     const dontAskAgain = await screen.findByLabelText("Don't ask again");
     fireEvent.click(dontAskAgain);
+    await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
 
-  it('should enable block after selecting an option', async () => {
+  it('should display the correct blocked tags count and update filters', async () => {
     await prepareDownvote();
-    const [selection] = await screen.findAllByTestId('blockTagButton');
-    fireEvent.click(selection);
-    const block = await screen.findByText<HTMLButtonElement>('Block');
-    expect(block.disabled).toBe(false);
+    const [, tag] = await screen.findAllByTestId('blockTagButton');
+    fireEvent.click(tag);
+    let mutationCalled = false;
+    const label = tag.textContent.substring(1);
+    mockGraphQL({
+      request: {
+        query: ADD_FILTERS_TO_FEED_MUTATION,
+        variables: { filters: { blockedTags: [label] } },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { feedSettings: { id: defaultUser.id } } };
+      },
+    });
+    const block = await screen.findByText('Block');
+    fireEvent.click(block);
+    await waitFor(() => expect(mutationCalled).toBeTruthy());
+    await screen.findByText('1 topic was blocked');
+    let undoMutationCalled = true;
+    mockGraphQL({
+      request: {
+        query: REMOVE_FILTERS_FROM_FEED_MUTATION,
+        variables: { filters: { blockedTags: [label] } },
+      },
+      result: () => {
+        undoMutationCalled = true;
+        return { data: { _: true } };
+      },
+    });
+    const undo = await screen.findByText('Undo');
+    fireEvent.click(undo);
+    await waitFor(() => expect(undoMutationCalled).toBeTruthy());
   });
 });
 
