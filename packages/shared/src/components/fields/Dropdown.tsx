@@ -16,12 +16,14 @@ import {
 import { ArrowIcon, VIcon } from '../icons';
 import styles from './Dropdown.module.css';
 import { usePrevious, useViewSize, ViewSize } from '../../hooks';
+import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { ListDrawer } from '../drawers/ListDrawer';
 import type { SelectParams } from '../drawers/common';
 import { RootPortal } from '../tooltips/Portal';
 import type { DrawerProps } from '../drawers';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { IconProps } from '../Icon';
+import { Loader } from '../Loader';
 
 export interface DropdownClassName {
   container?: string;
@@ -53,6 +55,8 @@ export interface DropdownProps {
   disabled?: boolean;
   valid?: boolean;
   hint?: string;
+  onScrollEnd?: () => void;
+  isFetchingMore?: boolean;
 }
 
 export function Dropdown({
@@ -74,6 +78,8 @@ export function Dropdown({
   disabled,
   valid,
   hint,
+  onScrollEnd,
+  isFetchingMore,
   ...props
 }: DropdownProps): ReactElement {
   const id = useId();
@@ -110,6 +116,11 @@ export function Dropdown({
         break;
     }
   };
+
+  const infiniteScrollRef = useFeedInfiniteScroll({
+    fetchPage: onScrollEnd ?? (() => {}),
+    canFetchMore: !!onScrollEnd,
+  });
 
   const fullScreen = openFullScreen ?? isMobile;
 
@@ -207,6 +218,8 @@ export function Dropdown({
               selected={selectedIndex}
               onSelectedChange={handleChange}
               shouldIndicateSelected={shouldIndicateSelected}
+              onScrollEnd={onScrollEnd}
+              isFetchingMore={isFetchingMore}
             />
           </RootPortal>
         </>
@@ -248,6 +261,13 @@ export function Dropdown({
                 </div>
               </DropdownMenuItem>
             ))}
+            {onScrollEnd && (
+              <div
+                ref={infiniteScrollRef}
+                className="pointer-events-none h-px w-px opacity-0"
+              />
+            )}
+            {isFetchingMore && <Loader className="mx-auto my-2" />}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

@@ -62,6 +62,9 @@ const SlackIntegrationModal = ({
     onWorkspaceChange,
     onChannelChange,
     hasIntegrations,
+    fetchNextChannelPage,
+    hasNextChannelPage,
+    isFetchingNextChannelPage,
   } = useSlackIntegrationModal({ source, redirectPath });
 
   const isStartTracked = useRef(false);
@@ -228,6 +231,10 @@ const SlackIntegrationModal = ({
                 options={channels?.map((item) => `#${item.name}`)}
                 onChange={onChannelChange}
                 scrollable
+                onScrollEnd={
+                  hasNextChannelPage ? fetchNextChannelPage : undefined
+                }
+                isFetchingMore={isFetchingNextChannelPage}
               />
             )}
           </div>

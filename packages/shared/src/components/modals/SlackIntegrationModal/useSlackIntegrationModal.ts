@@ -37,6 +37,9 @@ export type UseSlackIntegrationModal = {
   onWorkspaceChange: (value: string, index: number) => void;
   onChannelChange: (value: string, index: number) => void;
   hasIntegrations: boolean;
+  fetchNextChannelPage: () => Promise<unknown>;
+  hasNextChannelPage: boolean;
+  isFetchingNextChannelPage: boolean;
 };
 
 export const useSlackIntegrationModal = ({
@@ -94,7 +97,12 @@ export const useSlackIntegrationModal = ({
   }, [slackIntegrations, selectedIntegration]);
   const hasIntegrations = !!slackIntegrations?.length && !isLoadingIntegrations;
 
-  const { data: channels } = useSlackChannelsQuery({
+  const {
+    channels,
+    fetchNextPage: fetchNextChannelPage,
+    hasNextPage: hasNextChannelPage,
+    isFetchingNextPage: isFetchingNextChannelPage,
+  } = useSlackChannelsQuery({
     integrationId: selectedIntegration?.id,
   });
 
@@ -189,5 +197,8 @@ export const useSlackIntegrationModal = ({
     onWorkspaceChange,
     onChannelChange,
     hasIntegrations,
+    fetchNextChannelPage,
+    hasNextChannelPage,
+    isFetchingNextChannelPage,
   };
 };

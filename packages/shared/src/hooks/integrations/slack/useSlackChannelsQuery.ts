@@ -1,5 +1,4 @@
-import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import type { SlackChannel } from '../../../graphql/integrations';
 import { SLACK_CHANNELS_QUERY } from '../../../graphql/integrations';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
@@ -7,12 +6,25 @@ import { gqlClient } from '../../../graphql/common';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { sortAlphabeticallyByProperty } from '../../../lib/func';
 
-export type UseSlackChannelsQueryProps = {
-  integrationId: string;
-  queryOptions?: Partial<UseQueryOptions<SlackChannel[]>>;
+type SlackChannelsResponse = {
+  slackChannels: {
+    data: SlackChannel[];
+    cursor?: string;
+  };
 };
 
-export type UseSlackChannelsQuery = UseQueryResult<SlackChannel[]>;
+export type UseSlackChannelsQueryProps = {
+  integrationId: string;
+  queryOptions?: { enabled?: boolean };
+};
+
+export type UseSlackChannelsQuery = {
+  channels: SlackChannel[];
+  fetchNextPage: () => Promise<unknown>;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  isLoading: boolean;
+};
 
 export const useSlackChannelsQuery = ({
   integrationId,
@@ -21,33 +33,39 @@ export const useSlackChannelsQuery = ({
   const { user } = useAuthContext();
   const enabled = !!integrationId;
 
-  const queryResult = useQuery({
+  const queryResult = useInfiniteQuery({
     queryKey: generateQueryKey(RequestKey.SlackChannels, user, {
       integrationId,
     }),
-    queryFn: async ({ queryKey }) => {
-      const [, , queryVariables] = queryKey as [
-        unknown,
-        unknown,
-        { integrationId: string },
-      ];
-      const result = await gqlClient.request<{
-        slackChannels: {
-          data: SlackChannel[];
-        };
-      }>(SLACK_CHANNELS_QUERY, queryVariables);
-
-      return result.slackChannels.data.sort(
-        sortAlphabeticallyByProperty('name'),
+    queryFn: async ({ pageParam }) => {
+      const result = await gqlClient.request<SlackChannelsResponse>(
+        SLACK_CHANNELS_QUERY,
+        {
+          integrationId,
+          cursor: pageParam || undefined,
+        },
       );
+
+      return result;
     },
+    initialPageParam: '',
+    getNextPageParam: (lastPage) => lastPage?.slackChannels?.cursor || null,
     staleTime: StaleTime.Default,
-    ...queryOptions,
     enabled:
       typeof queryOptions?.enabled !== 'undefined'
         ? queryOptions.enabled && enabled
         : enabled,
   });
 
-  return queryResult;
+  const channels = (queryResult.data?.pages ?? [])
+    .flatMap((page) => page.slackChannels.data)
+    .sort(sortAlphabeticallyByProperty('name'));
+
+  return {
+    channels,
+    fetchNextPage: queryResult.fetchNextPage,
+    hasNextPage: queryResult.hasNextPage,
+    isFetchingNextPage: queryResult.isFetchingNextPage,
+    isLoading: queryResult.isLoading,
+  };
 };
