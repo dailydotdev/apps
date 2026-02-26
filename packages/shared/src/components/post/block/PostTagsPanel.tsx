@@ -38,8 +38,10 @@ export function PostTagsPanel({
   });
   const hasBlockedSource = () =>
     feedSettings?.excludeSources?.some(({ id }) => id === post.source.id);
-  const [initialPreference] = useState(hasBlockedSource);
-  const [shouldBlockSource, setShouldBlockSource] = useState(hasBlockedSource);
+  const [initialPreference] = useState(() => hasBlockedSource() ?? false);
+  const [shouldBlockSource, setShouldBlockSource] = useState(
+    () => hasBlockedSource() ?? false,
+  );
   const [tags, setTags] = useState<BlockTagSelection>(
     () =>
       feedSettings?.blockedTags?.reduce(
