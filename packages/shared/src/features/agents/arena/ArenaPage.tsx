@@ -36,6 +36,7 @@ export const ArenaPage = ({
         ? computeRankings(
             data.sentimentTimeSeries.entities.nodes,
             data.sentimentGroup.entities,
+            data.sentimentTimeSeries.resolutionSeconds,
           )
         : [],
     [data?.sentimentTimeSeries, data?.sentimentGroup],

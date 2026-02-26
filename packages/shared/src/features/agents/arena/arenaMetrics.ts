@@ -82,6 +82,61 @@ const SENTIMENT_EXPONENT = 2.5;
 const computeDIndex = (volume: number, sentimentScore: number): number =>
   volume * ((sentimentScore + 1) / 2) ** SENTIMENT_EXPONENT;
 
+const getWeightedAverageDIndexByTime = (
+  node: SentimentTimeSeriesNode,
+  fromOffset: number,
+  toOffset: number,
+  multiplier: number,
+): number => {
+  let totalWeight = 0;
+  let weightedDIndex = 0;
+
+  for (let i = 0; i < node.timestamps.length; i += 1) {
+    const ts = node.timestamps[i];
+    if (ts >= fromOffset && ts < toOffset) {
+      const volume = node.volume[i];
+      if (volume <= 0) {
+        continue;
+      }
+      weightedDIndex += computeDIndex(volume, node.scores[i]) * volume;
+      totalWeight += volume;
+    }
+  }
+
+  if (totalWeight === 0) {
+    return 0;
+  }
+
+  return (weightedDIndex / totalWeight) * multiplier;
+};
+
+const getLatest24hDIndex = (
+  node: SentimentTimeSeriesNode,
+  multiplier: number,
+): number => {
+  const span = getWindowSpan(node);
+  if (span === 0) {
+    return 0;
+  }
+
+  const cutoff = Math.max(0, span - SECONDS_PER_DAY);
+  return getWeightedAverageDIndexByTime(node, cutoff, span + 1, multiplier);
+};
+
+const getPrevious24hDIndex = (
+  node: SentimentTimeSeriesNode,
+  multiplier: number,
+): number => {
+  const span = getWindowSpan(node);
+  if (span <= SECONDS_PER_DAY) {
+    return 0;
+  }
+
+  const cutoff = Math.max(0, span - SECONDS_PER_DAY);
+  const prevStart = Math.max(0, cutoff - SECONDS_PER_DAY);
+  return getWeightedAverageDIndexByTime(node, prevStart, cutoff, multiplier);
+};
+
 const computeSentimentDisplay = (sentimentScore: number): number =>
   Math.round(((sentimentScore + 1) / 2) * 100);
 
@@ -131,7 +186,10 @@ const computeControversy = (
  * Point 6 is a rolling 24h window ending at `span` so the in-progress day
  * is compared against a full day of data instead of a partial one.
  */
-const getSparklineData = (node: SentimentTimeSeriesNode): number[] => {
+const getSparklineData = (
+  node: SentimentTimeSeriesNode,
+  multiplier: number,
+): number[] => {
   const span = getWindowSpan(node);
   if (span === 0) {
     return [0, 0, 0, 0, 0, 0, 0];
@@ -141,21 +199,20 @@ const getSparklineData = (node: SentimentTimeSeriesNode): number[] => {
     // Last point: rolling 24h window ending at the latest data point.
     if (idx === 6) {
       const from = Math.max(0, span - SECONDS_PER_DAY);
-      const window = sumWindowByTime(node, from, span + 1);
-      return computeDIndex(window.volume, window.sentimentScore);
+      return getWeightedAverageDIndexByTime(node, from, span + 1, multiplier);
     }
 
     // Points 0-5: fixed day-aligned buckets.
     const from = idx * SECONDS_PER_DAY;
     const to = (idx + 1) * SECONDS_PER_DAY;
-    const window = sumWindowByTime(node, from, to);
-    return computeDIndex(window.volume, window.sentimentScore);
+    return getWeightedAverageDIndexByTime(node, from, to, multiplier);
   });
 };
 
 export const computeRankings = (
   nodes: SentimentTimeSeriesNode[],
   entityMetadata: ArenaEntity[],
+  resolutionSeconds = 3600,
 ): RankedTool[] => {
   if (!entityMetadata.length) {
     throw new Error('Arena entity metadata is empty');
@@ -164,6 +221,9 @@ export const computeRankings = (
   const entityMap = new Map(
     entityMetadata.map((entity) => [entity.entity, entity]),
   );
+
+  const multiplier =
+    resolutionSeconds > 0 ? SECONDS_PER_DAY / resolutionSeconds : 1;
 
   const tools: RankedTool[] = nodes.map((node) => {
     const entityMeta = entityMap.get(node.entity);
@@ -174,9 +234,8 @@ export const computeRankings = (
     }
 
     const current = getLatest24hWindow(node);
-    const previous = getPrevious24hWindow(node);
-    const dIndex = computeDIndex(current.volume, current.sentimentScore);
-    const prevDIndex = computeDIndex(previous.volume, previous.sentimentScore);
+    const dIndex = getLatest24hDIndex(node, multiplier);
+    const prevDIndex = getPrevious24hDIndex(node, multiplier);
 
     const span = getWindowSpan(node);
     const cutoff24h = Math.max(0, span - SECONDS_PER_DAY);
@@ -190,7 +249,7 @@ export const computeRankings = (
       volume24h: current.volume,
       controversyScore: controversy.score,
       heat: controversy.heat,
-      sparkline: getSparklineData(node),
+      sparkline: getSparklineData(node, multiplier),
       isEmerging: current.volume < EMERGING_THRESHOLD,
     };
   });
