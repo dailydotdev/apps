@@ -190,10 +190,7 @@ const RankingRow = ({
           {loading ? (
             <Placeholder className="h-6 w-16" />
           ) : (
-            <ArenaSparkline
-              data={tool.sparkline}
-              color={tool.entity.brandColor}
-            />
+            <ArenaSparkline data={tool.sparkline} />
           )}
         </div>
 
@@ -242,7 +239,6 @@ const RankingRow = ({
               data={tool.sparkline}
               width={200}
               height={32}
-              color={tool.entity.brandColor}
             />
           </div>
         </div>

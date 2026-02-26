@@ -21,7 +21,7 @@ export const ArenaSparkline = ({
   const chartWidth = width - padding * 2;
   const chartHeight = height - padding * 2;
   const step = chartWidth / Math.max(data.length - 1, 1);
-  const strokeColor = color || 'var(--theme-accent-cabbage-default)';
+  const strokeColor = color || 'var(--theme-text-tertiary)';
   const gradientId = `sparkGrad-${data.join('-').slice(0, 20)}`;
 
   const points = data.map((value, i) => ({

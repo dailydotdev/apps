@@ -62,9 +62,7 @@ const CrownCard = ({
       <span
         className="text-center tracking-wider typo-caption2 tablet:typo-caption1"
         style={
-          !loading && crown.entity
-            ? { color: crown.glowColor }
-            : undefined
+          !loading && crown.entity ? { color: crown.glowColor } : undefined
         }
       >
         {crown.label}
