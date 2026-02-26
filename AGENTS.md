@@ -409,6 +409,7 @@ When reviewing code (or writing code that will be reviewed):
 - **Keep action spacing consistent in control headers** - When adding icon/action buttons near search fields or other controls, match existing horizontal gaps on both sides to avoid controls touching each other.
 - **Protect generated HTML from markdown regex passes** - In markdown conversion utilities, never run formatting regexes across already-generated HTML tags/attributes (for example, image `src` URLs with `_`); add regression tests for URL edge cases.
 - **Prefer component-level token swaps for one-off contrast fixes** - For isolated UI readability issues, use existing semantic color utilities in the impacted components first; avoid changing global tokens in `base.css` unless explicitly requested.
+- **Gate infinite scroll with separate `canFetchMore` and `fetchNextPage` props** - When adding infinite scroll to dropdowns or lists, never derive `canFetchMore` from the existence of a callback (e.g. `!!onScrollEnd`). Instead, pass three separate props: `fetchNextPage` (the function), `canFetchMore` (boolean from `hasNextPage`), and `isFetchingNextPage` (boolean). The scroll hook should use `canFetchMore && !isFetchingNextPage` to gate fetches. Follow the `InfiniteScrolling` component pattern in `packages/shared/src/components/containers/InfiniteScrolling.tsx`.
 
 ## Node.js Version Upgrade Checklist
 
