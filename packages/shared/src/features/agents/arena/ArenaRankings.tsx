@@ -33,20 +33,26 @@ const Placeholder = ({ className }: { className?: string }): ReactElement => (
 
 const getMomentumDisplay = (
   momentum: number,
-): { text: string; color: string } => {
+): { text: string; color: string; cssColor: string } => {
   if (momentum > 0) {
     return {
       text: `+${momentum}%`,
       color: 'text-accent-avocado-default',
+      cssColor: 'var(--theme-accent-avocado-default)',
     };
   }
   if (momentum < 0) {
     return {
       text: `${momentum}%`,
       color: 'text-accent-ketchup-default',
+      cssColor: 'var(--theme-accent-ketchup-default)',
     };
   }
-  return { text: '0%', color: 'text-text-quaternary' };
+  return {
+    text: '0%',
+    color: 'text-text-quaternary',
+    cssColor: 'var(--theme-text-quaternary)',
+  };
 };
 
 const ChevronIcon = ({ expanded }: { expanded: boolean }): ReactElement => (
@@ -152,15 +158,6 @@ const RankingRow = ({
           )}
         </div>
 
-        {/* Sentiment — tablet+ inline */}
-        <div className="hidden min-w-[100px] shrink-0 items-center tablet:flex laptop:flex">
-          {loading ? (
-            <Placeholder className="h-4 w-20" />
-          ) : (
-            <ArenaSentimentBar value={tool.sentimentDisplay} />
-          )}
-        </div>
-
         {/* Volume — laptop+ inline */}
         <div className="hidden min-w-[60px] shrink-0 items-center laptop:flex">
           {loading ? (
@@ -169,6 +166,15 @@ const RankingRow = ({
             <span className="text-text-tertiary typo-caption1">
               {formatVolume(tool.volume24h)}
             </span>
+          )}
+        </div>
+
+        {/* Sentiment — tablet+ inline */}
+        <div className="hidden min-w-[100px] shrink-0 items-center tablet:flex laptop:flex">
+          {loading ? (
+            <Placeholder className="h-4 w-20" />
+          ) : (
+            <ArenaSentimentBar value={tool.sentimentDisplay} />
           )}
         </div>
 
@@ -190,7 +196,7 @@ const RankingRow = ({
           {loading ? (
             <Placeholder className="h-6 w-16" />
           ) : (
-            <ArenaSparkline data={tool.sparkline} />
+            <ArenaSparkline data={tool.sparkline} color={momentum.cssColor} />
           )}
         </div>
 
@@ -239,6 +245,7 @@ const RankingRow = ({
               data={tool.sparkline}
               width={200}
               height={32}
+              color={momentum.cssColor}
             />
           </div>
         </div>
@@ -314,11 +321,11 @@ const PlaceholderRow = ({ rank }: { rank: number }): ReactElement => (
     <div className="shrink-0 laptop:min-w-[80px]">
       <Placeholder className="h-5 w-12" />
     </div>
-    <div className="hidden min-w-[100px] shrink-0 tablet:block">
-      <Placeholder className="h-4 w-20" />
-    </div>
     <div className="hidden min-w-[60px] shrink-0 laptop:block">
       <Placeholder className="h-4 w-10" />
+    </div>
+    <div className="hidden min-w-[100px] shrink-0 tablet:block">
+      <Placeholder className="h-4 w-20" />
     </div>
     <div className="hidden min-w-[80px] shrink-0 laptop:block">
       <Placeholder className="h-4 w-14" />
@@ -355,16 +362,16 @@ export const ArenaRankings = ({
             tooltip="Developer sentiment score combining mention volume and sentiment strength"
           />
         </span>
-        <span className="hidden min-w-[100px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 tablet:block">
-          <HeaderWithTooltip
-            label="Sentiment"
-            tooltip="How positively developers talk about this tool (0–100)"
-          />
-        </span>
         <span className="hidden min-w-[60px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:block">
           <HeaderWithTooltip
             label="24h Vol"
             tooltip="Total developer mentions in the last 24 hours"
+          />
+        </span>
+        <span className="hidden min-w-[100px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 tablet:block">
+          <HeaderWithTooltip
+            label="Sentiment"
+            tooltip="How positively developers talk about this tool (0–100)"
           />
         </span>
         <span className="hidden min-w-[80px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:block">

@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
+import { ArenaIcon } from '../../../components/icons/Arena';
+import { IconSize } from '../../../components/Icon';
 import type { ArenaTab } from './types';
 import { ARENA_TABS } from './config';
 import { computeRankings, computeCrowns } from './dindex';
@@ -90,14 +92,16 @@ export const ArenaPage = ({
 
       {/* Header */}
       <header className="px-4 pt-6 laptop:px-0 laptop:pt-10">
-        <div className="flex flex-col gap-1">
-          <h1 className="flex items-center gap-2 font-bold text-text-primary typo-title2 laptop:typo-title1">
-            <span aria-hidden="true">&#x2694;&#xFE0F;</span>
-            The Arena
-          </h1>
-          <p className="text-text-tertiary typo-footnote">
-            Where AI tools fight for developer love
-          </p>
+        <div className="flex items-center gap-3">
+          <ArenaIcon size={IconSize.XLarge} className="text-text-primary" />
+          <div className="flex flex-col">
+            <h1 className="font-bold text-text-primary typo-title2 laptop:typo-title1">
+              The Arena
+            </h1>
+            <p className="text-text-tertiary typo-footnote">
+              Where AI tools fight for developer love
+            </p>
+          </div>
         </div>
       </header>
 

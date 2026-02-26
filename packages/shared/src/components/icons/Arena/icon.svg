@@ -1,0 +1,27 @@
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Flag: thin pole + small pennant -->
+  <line x1="12" y1="2" x2="12" y2="5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M12 2.5l2.2.8-2.2.8" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/>
+
+  <!-- Top rim ellipse (the open roof) -->
+  <ellipse cx="12" cy="8" rx="8" ry="2.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+
+  <!-- Stadium walls — two vertical sides connecting top rim to bottom ellipse -->
+  <line x1="4" y1="8" x2="4" y2="16.5" stroke="currentColor" stroke-width="1.2"/>
+  <line x1="20" y1="8" x2="20" y2="16.5" stroke="currentColor" stroke-width="1.2"/>
+
+  <!-- Bottom ellipse (base of stadium) — only the front half visible -->
+  <path d="M4 16.5c0 1.38 3.582 2.5 8 2.5s8-1.12 8-2.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+
+  <!-- Horizontal band across middle of wall -->
+  <path d="M4 12.5c0 1.38 3.582 2.5 8 2.5s8-1.12 8-2.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+
+  <!-- Pillar accents — upper tier (rim to mid-band) -->
+  <line x1="7" y1="10.2" x2="7" y2="13.2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+  <line x1="9.5" y1="10.4" x2="9.5" y2="13.8" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+  <line x1="14.5" y1="10.4" x2="14.5" y2="13.8" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+  <line x1="17" y1="10.2" x2="17" y2="13.2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+
+  <!-- Arched gate entrance -->
+  <path d="M10.8 19v-1.5a1.2 1.2 0 0 1 2.4 0v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+</svg>
