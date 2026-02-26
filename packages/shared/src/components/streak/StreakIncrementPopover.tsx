@@ -2,7 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { ReadingStreakIcon } from '../icons';
-import { Typography, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { getCurrentTier, getNextMilestone } from '../../lib/streakMilestones';
 import { MILESTONE_ICON_URLS } from './popup/icons/milestoneIcons';
 
@@ -47,33 +51,14 @@ export function StreakIncrementPopover({
   const nextMilestone = getNextMilestone(toStreak);
   const activeMilestone = nextMilestone ?? currentTier;
   const hasNextMilestone = Boolean(nextMilestone);
-  const activeRangeStart = currentTier.day;
-  const activeRangeEnd = nextMilestone?.day ?? currentTier.day;
-  const activeRangeDelta = Math.max(activeRangeEnd - activeRangeStart, 1);
-  const clampedFromStreak = Math.max(
-    activeRangeStart,
-    Math.min(fromStreak, activeRangeEnd),
-  );
-  const clampedToStreak = Math.max(
-    activeRangeStart,
-    Math.min(toStreak, activeRangeEnd),
-  );
+  const transitionStartDay = Math.max(fromStreak, 0);
+  const transitionEndDay = Math.max(toStreak, transitionStartDay + 1);
+  const totalDaysLeft = nextMilestone
+    ? Math.max(nextMilestone.day - toStreak, 0)
+    : 0;
 
   const isFilling = phase === 'filling' || phase === 'complete';
-  const fromProgress =
-    nextMilestone === null
-      ? 100
-      : ((clampedFromStreak - activeRangeStart) / activeRangeDelta) * 100;
-  const toProgress =
-    nextMilestone === null
-      ? 100
-      : ((clampedToStreak - activeRangeStart) / activeRangeDelta) * 100;
-  const previewProgress = Math.min(fromProgress + 8, 100);
-  const progress = isProgressAnimationStarted
-    ? isFilling
-      ? Math.max(toProgress, previewProgress)
-      : fromProgress
-    : fromProgress;
+  const progress = isProgressAnimationStarted ? 100 : 0;
   return (
     <div
       className={classNames(
@@ -99,7 +84,7 @@ export function StreakIncrementPopover({
             isFilling ? 'text-text-quaternary' : 'text-text-primary',
           )}
         >
-          {activeRangeStart}
+          {transitionStartDay}
         </span>
 
         <div className="h-1.5 flex-1 overflow-hidden rounded-4 bg-surface-float">
@@ -107,7 +92,7 @@ export function StreakIncrementPopover({
             className="h-full bg-accent-bacon-default"
             style={{
               width: `${progress}%`,
-              transition: isFilling && isProgressAnimationStarted
+              transition: isProgressAnimationStarted
                 ? 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
                 : 'none',
             }}
@@ -120,7 +105,7 @@ export function StreakIncrementPopover({
             isFilling ? 'text-text-primary' : 'text-text-quaternary',
           )}
         >
-          {activeRangeEnd}
+          {transitionEndDay}
         </span>
       </div>
 
@@ -147,6 +132,17 @@ export function StreakIncrementPopover({
               </Typography>
             )}
           </div>
+          {hasNextMilestone && (
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Quaternary}
+              className="mt-1"
+            >
+              {totalDaysLeft === 1
+                ? '1 total day left'
+                : `${totalDaysLeft} total days left`}
+            </Typography>
+          )}
         </div>
       )}
 
