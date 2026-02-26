@@ -54,7 +54,7 @@ function FeedFilterCard({
     >
       <BackgroundLayer className="invisible -z-1 opacity-64 group-hover:visible group-hover:-rotate-12" />
       <BackgroundLayer className="invisible -z-2 opacity-24 group-hover:visible group-hover:-rotate-[24deg]" />
-      <Icon isActive={isActive} />
+      <Icon isActive={isActive ?? false} />
       <span className="z-1 w-full break-words p-1 typo-callout">
         {topic?.title}
       </span>

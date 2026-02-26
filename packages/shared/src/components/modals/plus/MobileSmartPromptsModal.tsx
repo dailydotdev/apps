@@ -18,7 +18,7 @@ export const MobileSmartPromptsModal = ({
   onChoosePrompt,
   ...props
 }: MobileSmartPromptsModalProps): ReactElement => {
-  const onClick = (event, id) => {
+  const onClick = (event: React.MouseEvent, id: string) => {
     onChoosePrompt?.(id);
     props.onRequestClose?.(event);
   };

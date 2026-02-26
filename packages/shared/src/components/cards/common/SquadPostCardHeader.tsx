@@ -32,7 +32,7 @@ export const SquadPostCardHeader = ({
 }: SquadPostCardHeaderProps): ReactElement => {
   const { author, source, bookmarked } = post;
   const { highlightBookmarkedPost } = useBookmarkProvider({
-    bookmarked,
+    bookmarked: bookmarked ?? false,
   });
   const isUserSource = isSourceUserSource(post.source);
 

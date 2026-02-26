@@ -151,7 +151,7 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
           <ModalFooter justify={Justify.Between}>
             <FooterButton
               variant={ButtonVariant.Tertiary}
-              onClick={(e) => onSwipedRight(e)}
+              onClick={() => onSwipedRight(undefined as never)}
             >
               {index === 0 ? 'Close' : 'Back'}
             </FooterButton>
@@ -159,7 +159,7 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
             <FooterButton
               variant={ButtonVariant.Primary}
               color={ButtonColor.Cabbage}
-              onClick={(e) => onSwipedLeft(e)}
+              onClick={() => onSwipedLeft(undefined as never)}
             >
               {index === items.length - 1 ? 'Close' : 'Next'}
             </FooterButton>

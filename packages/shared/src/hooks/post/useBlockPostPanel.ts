@@ -185,7 +185,7 @@ export const useBlockPostPanel = (
   }, [openModal, setShowTagsPanel, post]);
 
   const onBlock = useCallback(
-    async (tags, shouldBlockSource) => {
+    async (tags: BlockTagSelection, shouldBlockSource: boolean) => {
       const { blocks } = getParams(tags);
       const hasChangedPreference = blockedSource !== shouldBlockSource;
       const successful = await updateFeedPreferences(

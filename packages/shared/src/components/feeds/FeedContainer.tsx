@@ -324,7 +324,11 @@ export const FeedContainer = ({
                   isFeedLayoutList: shouldUseListFeedLayout,
                   space: spaciness,
                 }),
-                cardClass({ isList, numberOfCards: numCards, isHorizontal }),
+                cardClass({
+                  isList,
+                  numberOfCards: numCards,
+                  isHorizontal: isHorizontal ?? false,
+                }),
               )}
               ref={feedContainerRef}
             >

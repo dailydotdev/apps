@@ -24,7 +24,7 @@ export const CollectionCardHeader = ({
   } = post;
 
   const { highlightBookmarkedPost } = useBookmarkProvider({
-    bookmarked,
+    bookmarked: bookmarked ?? false,
   });
 
   return (

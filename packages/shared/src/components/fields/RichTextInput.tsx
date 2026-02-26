@@ -246,7 +246,7 @@ function RichTextInput(
   }, []);
 
   const mention = useMentionAutocomplete({
-    enabled: isMentionEnabled,
+    enabled: isMentionEnabled ?? false,
     postId,
     sourceId,
     userId: user?.id,
@@ -254,7 +254,7 @@ function RichTextInput(
   });
 
   const emoji = useEmojiAutocomplete({
-    enabled: isEmojiEnabled,
+    enabled: isEmojiEnabled ?? false,
     onOffsetUpdate: updateOffset,
   });
 
@@ -465,7 +465,7 @@ function RichTextInput(
   }, [editor]);
 
   const upload = useImageUpload({
-    enabled: isUploadEnabled,
+    enabled: isUploadEnabled ?? false,
     editorRef,
   });
 

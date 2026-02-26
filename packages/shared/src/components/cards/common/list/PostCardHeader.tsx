@@ -61,7 +61,7 @@ export const PostCardHeader = ({
   const isFeedPreview = useFeedPreviewMode();
   const postButtonText = useReadPostButtonText(post);
   const { highlightBookmarkedPost } = useBookmarkProvider({
-    bookmarked: post.bookmarked,
+    bookmarked: post.bookmarked ?? false,
   });
 
   const isCollectionType = post.type === 'collection';

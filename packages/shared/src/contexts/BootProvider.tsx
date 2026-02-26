@@ -236,12 +236,14 @@ export const BootDataProvider = ({
   );
 
   const updateSettings = useCallback(
-    (updatedSettings) => updateBootData({ settings: updatedSettings }),
+    (updatedSettings: BootCacheData['settings']) =>
+      updateBootData({ settings: updatedSettings }),
     [updateBootData],
   );
 
   const updateAlerts = useCallback(
-    (updatedAlerts) => updateBootData({ alerts: updatedAlerts }),
+    (updatedAlerts: BootCacheData['alerts']) =>
+      updateBootData({ alerts: updatedAlerts }),
     [updateBootData],
   );
 

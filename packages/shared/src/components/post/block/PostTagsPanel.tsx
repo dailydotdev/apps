@@ -147,7 +147,7 @@ export function PostTagsPanel({
           <Button
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
-            onClick={() => onBlock(tags, shouldBlockSource)}
+            onClick={() => onBlock(tags, shouldBlockSource ?? false)}
             disabled={isBlockDisabled}
           >
             Block

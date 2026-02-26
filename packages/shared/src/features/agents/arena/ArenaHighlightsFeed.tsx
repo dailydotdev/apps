@@ -2,8 +2,9 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { getLastActivityDateFormat } from '../../../lib/dateFormat';
 import type { SentimentAnnotation, SentimentHighlightItem } from './types';
-import { stripTcoLinks, formatTimeAgo } from './ArenaHighlightUtils';
+import { stripTcoLinks } from './ArenaHighlightUtils';
 
 const decodeHtmlEntities = (text: string): string => {
   const textarea =
@@ -110,7 +111,7 @@ const HighlightCard = ({
             </span>
           )}
           <span className="shrink-0 text-text-disabled typo-caption2">
-            &middot; {formatTimeAgo(item.createdAt)}
+            &middot; {getLastActivityDateFormat(item.createdAt)}
           </span>
         </div>
 

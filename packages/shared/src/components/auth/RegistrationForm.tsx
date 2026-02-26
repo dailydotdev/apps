@@ -405,7 +405,7 @@ const RegistrationForm = ({
           I don&apos;t want to receive updates and promotions via email
         </Checkbox>
         <ConditionalWrapper
-          condition={simplified}
+          condition={simplified ?? false}
           wrapper={(component) => (
             <AuthContainer className="!mt-0 border-t border-border-subtlest-tertiary p-3 !px-3 pb-1">
               {component}

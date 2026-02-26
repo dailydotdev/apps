@@ -58,7 +58,7 @@ export const OpportunitySteps = ({
       <Button
         variant={ButtonVariant.Primary}
         {...ctaButtonProps}
-        onClick={async (event) => {
+        onClick={async (event: React.MouseEvent<HTMLButtonElement>) => {
           if (schema) {
             const result = onValidateOpportunity({ schema });
 

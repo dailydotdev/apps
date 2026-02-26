@@ -224,6 +224,7 @@ const renderComponent = (
           closeLogin: jest.fn(),
           trackingId: user?.id,
           loginState: null,
+          isAuthReady: true,
         }}
       >
         <LazyModalElement />

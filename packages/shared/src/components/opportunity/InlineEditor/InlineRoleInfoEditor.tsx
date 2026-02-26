@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
 import { editOpportunityInfoMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
+import type { GraphQLError } from '../../../lib/errors';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
 import { opportunityEditInfoSchema } from '../../../lib/schema/opportunity';
@@ -111,7 +112,8 @@ export const InlineRoleInfoEditor = ({
         id: opportunityId,
         payload: data as z.infer<typeof opportunityEditInfoSchema>,
       });
-    } catch (originalError) {
+    } catch (err) {
+      const originalError = err as GraphQLError;
       if (
         originalError.response?.errors?.[0]?.extensions?.code ===
         ApiError.ZodValidationError
@@ -125,7 +127,7 @@ export const InlineRoleInfoEditor = ({
           originalError.response?.errors?.[0]?.message || labels.error.generic,
         );
       }
-      throw originalError;
+      throw err;
     }
   });
 

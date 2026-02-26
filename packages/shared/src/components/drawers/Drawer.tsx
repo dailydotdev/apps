@@ -160,7 +160,7 @@ function BaseDrawer({
             <Button
               variant={ButtonVariant.Float}
               className="mt-3 w-full"
-              onClick={(e) => onClose(e.nativeEvent)}
+              onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
             >
               Close
             </Button>
@@ -204,7 +204,7 @@ function AnimatedDrawer(
 
   return (
     <ConditionalWrapper
-      condition={appendOnRoot}
+      condition={appendOnRoot ?? false}
       wrapper={(component) => <RootPortal>{component}</RootPortal>}
     >
       <BaseDrawer {...props} isClosing={isClosing} onClose={onClosing} />

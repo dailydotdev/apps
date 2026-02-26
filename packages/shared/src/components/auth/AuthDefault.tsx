@@ -188,7 +188,7 @@ const AuthDefault = ({
       <div className="flex flex-1" />
       {!disableRegistration && (
         <ConditionalWrapper
-          condition={simplified}
+          condition={simplified ?? false}
           wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
         >
           <AuthModalFooter

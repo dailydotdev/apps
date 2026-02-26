@@ -51,7 +51,7 @@ const shouldShowBannerOnComment = (
   comment: Comment,
 ): boolean =>
   commentId === comment.id ||
-  comment.children?.edges?.some(({ node }) => node.id === commentId);
+  (comment.children?.edges?.some(({ node }) => node.id === commentId) ?? false);
 
 export default function MainComment({
   className,
