@@ -761,7 +761,7 @@ const OnboardingV2Page = (): ReactElement => {
     const getVisibleArticles = () => {
       return Array.from(
         document.querySelectorAll<HTMLElement>(
-          '.onb-feed-stage article.onb-revealed',
+          '.onb-feed-stage article.onb-revealed:not([data-eng-active="true"])',
         ),
       ).filter((article) => {
         const rect = article.getBoundingClientRect();
@@ -829,12 +829,15 @@ const OnboardingV2Page = (): ReactElement => {
       }
 
       const article = articles[Math.floor(Math.random() * articles.length)];
+      article.setAttribute('data-eng-active', 'true');
+
       const isUpvote = Math.random() < 0.7;
       const suffix = isUpvote ? '-upvote-btn' : '-comment-btn';
       const wrapper = getButtonWrapper(article, suffix);
       const btn = article.querySelector(`[id$="${suffix}"]`);
 
       if (!wrapper || !btn) {
+        article.removeAttribute('data-eng-active');
         addTimeout(runStream, 500);
         return;
       }
@@ -860,12 +863,21 @@ const OnboardingV2Page = (): ReactElement => {
 
       wrapperEl.classList.add(activeClass);
 
-      const increments = [
-        1,
-        Math.random() < 0.5 ? 1 : 2,
-        Math.random() < 0.5 ? 2 : 3,
-        Math.random() < 0.5 ? 4 : 5,
-      ];
+      const numIncrements = 2 + Math.floor(Math.random() * 5); // 2 to 6 increments
+      const increments: number[] = [];
+      for (let i = 0; i < numIncrements; i += 1) {
+        const r = Math.random();
+        if (r < 0.55) {
+          increments.push(1 + Math.floor(Math.random() * 2));
+        } // 1-2 (55%)
+        else if (r < 0.85) {
+          increments.push(3 + Math.floor(Math.random() * 4));
+        } // 3-6 (30%)
+        else {
+          increments.push(7 + Math.floor(Math.random() * 12));
+        } // 7-18 (15%)
+      }
+
       let delayAcc = 0;
 
       increments.forEach((inc) => {
@@ -882,6 +894,11 @@ const OnboardingV2Page = (): ReactElement => {
           floater.className = 'onb-eng-floater';
           floater.textContent = `+${inc}`;
           floater.style.color = color;
+
+          // Slight random horizontal jitter for a more organic feel
+          const jitter = (Math.random() - 0.5) * 10;
+          floater.style.setProperty('--eng-jitter', `${jitter}px`);
+
           wrapperEl.appendChild(floater);
 
           addTimeout(() => {
@@ -891,18 +908,23 @@ const OnboardingV2Page = (): ReactElement => {
           }, 2500);
         }, delayAcc);
 
-        delayAcc += 800 + Math.random() * 400;
+        delayAcc += 350 + Math.random() * 650; // 0.35s to 1.0s between pops
       });
 
       addTimeout(() => {
         wrapperEl.classList.remove(activeClass);
-      }, delayAcc + 500);
+        article.removeAttribute('data-eng-active');
+      }, delayAcc + 600);
 
-      addTimeout(runStream, delayAcc + 1500 + Math.random() * 2000);
+      // Schedule next stream on this "thread"
+      addTimeout(runStream, delayAcc + 1000 + Math.random() * 1500);
     };
 
+    // Start 4 concurrent streams for higher density
+    addTimeout(runStream, 200);
+    addTimeout(runStream, 800);
     addTimeout(runStream, 1500);
-    addTimeout(runStream, 3500);
+    addTimeout(runStream, 2200);
 
     return () => {
       timeouts.forEach(clearTimeout);
@@ -2865,10 +2887,11 @@ const OnboardingV2Page = (): ReactElement => {
             color-mix(in srgb, currentColor 40%, transparent);
         }
         @keyframes onb-eng-float-anim {
-          0% {
-            transform: translate(-50%, 10px) scale(0.5);
-            opacity: 0;
-          }
+          0% { transform: translate(calc(-50% + var(--eng-jitter, 0px)), 10px) scale(0.5); opacity: 0; }
+          10% { transform: translate(calc(-50% + var(--eng-jitter, 0px)), -2px) scale(1.2); opacity: 1; }
+          80% { transform: translate(calc(-50% + var(--eng-jitter, 0px)), -28px) scale(1); opacity: 0.9; }
+          100% { transform: translate(calc(-50% + var(--eng-jitter, 0px)), -36px) scale(0.8); opacity: 0; }
+        }
           10% {
             transform: translate(-50%, -2px) scale(1.2);
             opacity: 1;
