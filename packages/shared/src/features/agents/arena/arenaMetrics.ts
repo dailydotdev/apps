@@ -66,17 +66,6 @@ const getLatest24hWindow = (node: SentimentTimeSeriesNode): WindowData => {
   return sumWindowByTime(node, cutoff, span + 1);
 };
 
-const getPrevious24hWindow = (node: SentimentTimeSeriesNode): WindowData => {
-  const span = getWindowSpan(node);
-  if (span <= SECONDS_PER_DAY) {
-    return { volume: 0, sentimentScore: 0 };
-  }
-
-  const cutoff = Math.max(0, span - SECONDS_PER_DAY);
-  const prevStart = Math.max(0, cutoff - SECONDS_PER_DAY);
-  return sumWindowByTime(node, prevStart, cutoff);
-};
-
 const SENTIMENT_EXPONENT = 2.5;
 
 const computeDIndex = (volume: number, sentimentScore: number): number =>
@@ -95,11 +84,10 @@ const getWeightedAverageDIndexByTime = (
     const ts = node.timestamps[i];
     if (ts >= fromOffset && ts < toOffset) {
       const volume = node.volume[i];
-      if (volume <= 0) {
-        continue;
+      if (volume > 0) {
+        weightedDIndex += computeDIndex(volume, node.scores[i]) * volume;
+        totalWeight += volume;
       }
-      weightedDIndex += computeDIndex(volume, node.scores[i]) * volume;
-      totalWeight += volume;
     }
   }
 
