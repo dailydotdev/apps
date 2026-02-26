@@ -42,6 +42,7 @@ export default function FooterWrapper({
   post,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
+  const isOnboardingV2 = router?.pathname === '/onboarding-v2';
 
   const showPlusButton =
     !router?.pathname?.startsWith('/settings') &&
@@ -55,9 +56,11 @@ export default function FooterWrapper({
           'bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
       )}
     >
-      <div className="hidden tablet:block">
-        <ScrollToTopButton />
-      </div>
+      {!isOnboardingV2 && (
+        <div className="hidden tablet:block">
+          <ScrollToTopButton />
+        </div>
+      )}
       {post && post.type !== PostType.Brief && (
         <div className="my-2 w-full px-2 tablet:hidden">
           <NewComment
