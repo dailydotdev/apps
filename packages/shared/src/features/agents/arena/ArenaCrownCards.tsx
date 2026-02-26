@@ -515,7 +515,7 @@ const CrownCard = ({
   return (
     <div
       className={classNames(
-        'group relative flex min-w-[170px] flex-1 flex-col items-center gap-2 overflow-hidden rounded-16 border p-3 tablet:min-w-[180px] tablet:gap-3 tablet:p-5',
+        'group relative flex min-w-[170px] flex-1 flex-col items-center gap-2 overflow-hidden rounded-16 border p-3 tablet:min-w-0 tablet:gap-3 tablet:p-5',
         'border-border-subtlest-tertiary transition-shadow duration-300',
         hoverClass,
       )}

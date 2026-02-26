@@ -168,7 +168,7 @@ export const ArenaHighlightsFeed = ({
     [],
   );
   const [mobileExpanded, setMobileExpanded] = useState(false);
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSize(ViewSize.LaptopL);
   const initializedRef = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -260,7 +260,7 @@ export const ArenaHighlightsFeed = ({
         <button
           type="button"
           onClick={() => setMobileExpanded(true)}
-          className="active:opacity-80 border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-link typo-callout laptop:hidden"
+          className="active:opacity-80 border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-link typo-callout laptopL:hidden"
         >
           Show all {visibleItems.length} highlights
         </button>

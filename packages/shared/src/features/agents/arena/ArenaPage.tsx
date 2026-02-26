@@ -91,7 +91,7 @@ export const ArenaPage = ({
       />
 
       {/* Header */}
-      <header className="px-4 pt-6 laptop:px-0 laptop:pt-10">
+      <header className="px-4 pt-6 laptop:px-6 laptop:pt-10 laptopL:px-0">
         <div className="flex items-center gap-3">
           <ArenaIcon size={IconSize.XLarge} className="text-text-primary" />
           <div className="flex flex-col">
@@ -106,7 +106,7 @@ export const ArenaPage = ({
       </header>
 
       {/* Tab switcher */}
-      <nav className="sticky top-0 z-3 mt-4 flex items-center gap-1 border-b border-border-subtlest-tertiary bg-background-default px-4 laptop:px-0">
+      <nav className="sticky top-0 z-3 mt-4 flex items-center gap-1 border-b border-border-subtlest-tertiary bg-background-default px-4 laptop:px-6 laptopL:px-0">
         {ARENA_TABS.map((tab) => (
           <button
             key={tab.value}
@@ -131,19 +131,19 @@ export const ArenaPage = ({
       </nav>
 
       {/* Content */}
-      <div className="flex flex-col gap-6 px-4 py-6 laptop:px-0">
+      <div className="flex flex-col gap-6 px-4 py-6 laptop:px-6 laptopL:px-0">
         {/* Crown cards — full width */}
         <section>
           <ArenaCrownCards crowns={crowns} loading={loading} />
         </section>
 
         {/* Side-by-side: Rankings + Highlights feed */}
-        <div className="flex flex-col gap-6 laptop:grid laptop:grid-cols-[3fr_2fr]">
+        <div className="flex flex-col gap-6 laptopL:grid laptopL:grid-cols-[3fr_2fr]">
           <section className="min-w-0">
             <ArenaRankings tools={rankings} loading={loading} />
           </section>
           <aside className="relative">
-            <div className="laptop:absolute laptop:inset-0">
+            <div className="laptopL:absolute laptopL:inset-0">
               <ArenaHighlightsFeed
                 key={activeTab}
                 items={data?.sentimentHighlights?.items ?? []}
