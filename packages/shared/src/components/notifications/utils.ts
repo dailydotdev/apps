@@ -165,7 +165,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
 
 export const notificationIconStyle: Record<
   NotificationIconType,
-  Record<string, string>
+  Record<string, string> | null
 > = {
   [NotificationIconType.DailyDev]: null,
   [NotificationIconType.CommunityPicks]: null,

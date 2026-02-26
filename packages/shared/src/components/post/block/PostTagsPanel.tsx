@@ -37,9 +37,11 @@ export function PostTagsPanel({
     feedId: customFeedId,
   });
   const hasBlockedSource = () =>
-    feedSettings?.excludeSources?.some(({ id }) => id === post.source.id);
-  const [initialPreference] = useState(hasBlockedSource);
-  const [shouldBlockSource, setShouldBlockSource] = useState(hasBlockedSource);
+    feedSettings?.excludeSources?.some(({ id }) => id === post.source.id) ??
+    false;
+  const [initialPreference] = useState<boolean>(hasBlockedSource);
+  const [shouldBlockSource, setShouldBlockSource] =
+    useState<boolean>(hasBlockedSource);
   const [tags, setTags] = useState<BlockTagSelection>(
     () =>
       feedSettings?.blockedTags?.reduce(
@@ -147,7 +149,7 @@ export function PostTagsPanel({
           <Button
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
-            onClick={() => onBlock(tags, shouldBlockSource ?? false)}
+            onClick={() => onBlock(tags, shouldBlockSource)}
             disabled={isBlockDisabled}
           >
             Block

@@ -159,7 +159,7 @@ function AuthOptionsInner({
     null,
   );
   const [isRegistration, setIsRegistration] = useState(false);
-  const windowPopup = useRef<Window>(null);
+  const windowPopup = useRef<Window | null>(null);
 
   const checkForOnboardedUser = async (data: LoggedUser) => {
     onAuthStateUpdate({ isLoading: true });
