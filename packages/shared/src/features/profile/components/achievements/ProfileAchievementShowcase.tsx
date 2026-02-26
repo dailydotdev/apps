@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { PublicProfile } from '../../../../lib/user';
 import { useShowcaseAchievements } from '../../../../hooks/profile/useShowcaseAchievements';
 import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
@@ -21,7 +22,9 @@ import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import {
   getAchievementRarityTier,
   AchievementRarityTier,
+  rarityGlowClasses,
 } from './achievementRarity';
+import { RaritySparkles } from './RaritySparkles';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
 
@@ -97,12 +100,23 @@ export function ProfileAchievementShowcase({
                 trigger={
                   <button
                     type="button"
-                    className="flex size-16 shrink-0 items-center justify-center rounded-14"
+                    className={classNames(
+                      'relative flex size-16 shrink-0 items-center justify-center rounded-14',
+                      rarityTier
+                        ? [
+                            'overflow-visible border',
+                            rarityGlowClasses[rarityTier],
+                          ]
+                        : 'overflow-hidden',
+                    )}
                   >
+                    {rarityTier && (
+                      <RaritySparkles tier={rarityTier} size="compact" />
+                    )}
                     <LazyImage
                       imgSrc={achievement.image}
                       imgAlt={achievement.name}
-                      className="size-16 rounded-14 object-cover"
+                      className="size-full rounded-14 object-cover"
                       fallbackSrc="https://daily.dev/default-achievement.png"
                     />
                   </button>

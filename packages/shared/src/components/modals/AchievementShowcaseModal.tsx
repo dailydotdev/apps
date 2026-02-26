@@ -18,7 +18,7 @@ import { useShowcaseAchievements } from '../../hooks/profile/useShowcaseAchievem
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { useToastNotification } from '../../hooks/useToastNotification';
 
-const MAX_SHOWCASE = 3;
+const MAX_SHOWCASE = 5;
 
 export interface AchievementShowcaseModalProps extends ModalProps {
   user: PublicProfile;
