@@ -126,7 +126,7 @@ const getBlockLabel = (
 const PostOptionButtonContent = ({
   post: initialPost,
   origin: initialOrigin,
-}): ReactElement => {
+}: Pick<PostOptionButtonProps, 'post' | 'origin'>): ReactElement => {
   const client = useQueryClient();
   const router = useRouter();
   const { user, isLoggedIn } = useAuthContext();
@@ -843,7 +843,17 @@ const PostOptionButtonContent = ({
   );
 };
 
-export const PostOptionButton = (props): ReactElement => {
+interface PostOptionButtonProps {
+  post: Post;
+  origin?: Origin;
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  triggerClassName?: string;
+}
+
+export const PostOptionButton = (
+  props: PostOptionButtonProps,
+): ReactElement => {
   const {
     size = ButtonSize.Small,
     triggerClassName,

@@ -246,14 +246,14 @@ export const OnboardingPlusVariationV1 = ({
                 <Button
                   variant={ButtonVariant.Secondary}
                   icon={<ArrowIcon className="-rotate-90" />}
-                  onClick={(e) => onSwipedRight(e)}
+                  onClick={() => onSwipedRight(undefined as never)}
                   disabled={index === 0}
                 />
                 <span className="flex justify-center">{indicator}</span>
                 <Button
                   variant={ButtonVariant.Secondary}
                   icon={<ArrowIcon className="rotate-90" />}
-                  onClick={(e) => onSwipedLeft(e)}
+                  onClick={() => onSwipedLeft(undefined as never)}
                   disabled={index === items.length - 1}
                 />
               </div>

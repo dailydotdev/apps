@@ -160,7 +160,7 @@ function BaseDrawer({
             <Button
               variant={ButtonVariant.Float}
               className="mt-3 w-full"
-              onClick={(e) => onClose(e.nativeEvent)}
+              onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
             >
               Close
             </Button>

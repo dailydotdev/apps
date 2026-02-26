@@ -245,7 +245,7 @@ const SlackIntegrationModal = ({
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Large}
-            onClick={async (event) => {
+            onClick={async (event: React.MouseEvent) => {
               await onSave();
 
               props.onRequestClose?.(event);
@@ -258,7 +258,7 @@ const SlackIntegrationModal = ({
             type="button"
             variant={isMobile ? ButtonVariant.Float : ButtonVariant.Tertiary}
             size={ButtonSize.Medium}
-            onClick={async (event) => {
+            onClick={async (event: React.MouseEvent) => {
               await removeSourceIntegration({
                 integrationId: selectedIntegration.id,
                 sourceId: source.id,

@@ -117,7 +117,7 @@ export const ReadingHistoryOptionsMenu = ({
     {
       icon: <WrappingMenuIcon Icon={ShareIcon} />,
       label: 'Share post via...',
-      action: (e) => {
+      action: (e: React.MouseEvent) => {
         e.preventDefault();
         setOpen(false);
         openSharePost({ post });
@@ -126,7 +126,7 @@ export const ReadingHistoryOptionsMenu = ({
     {
       icon: getBookmarkIconAndMenuIcon(post?.bookmarked),
       label: post?.bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks',
-      action: (e) => {
+      action: (e: React.MouseEvent) => {
         e.preventDefault();
         setOpen(false);
         onToggleBookmark();
@@ -135,7 +135,7 @@ export const ReadingHistoryOptionsMenu = ({
     {
       icon: <WrappingMenuIcon Icon={XIcon} />,
       label: 'Remove post',
-      action: (e) => {
+      action: (e: React.MouseEvent) => {
         e.preventDefault();
         setOpen(false);
         onHide?.();
@@ -150,7 +150,7 @@ export const ReadingHistoryOptionsMenu = ({
           variant={ButtonVariant.Tertiary}
           data-testid={`post-item-${post.id}`}
           icon={<MenuIcon />}
-          onClick={(event) => {
+          onClick={(event: React.MouseEvent) => {
             event.stopPropagation();
             event.preventDefault();
           }}

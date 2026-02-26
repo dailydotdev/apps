@@ -824,7 +824,7 @@ const EmptyState = ({
         size={ButtonSize.Large}
         tag="a"
         href={`${webappUrl}${username}#hot-takes`}
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent) => {
           onClose?.(e);
         }}
       >
@@ -1188,7 +1188,7 @@ const HotAndColdModal = ({
                   tag="a"
                   href={`${webappUrl}${user.username}#hot-takes`}
                   className="w-full"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     onRequestClose?.(e);
                   }}
                 >

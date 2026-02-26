@@ -59,9 +59,10 @@ export const useSlackIntegrationModal = ({
   const { data: slackIntegrations, isLoading: isLoadingIntegrations } =
     useIntegrationsQuery({
       queryOptions: {
-        select: useCallback((data) => {
+        select: useCallback((data: UserIntegration[]) => {
           const filteredData = data.filter(
-            (integration) => integration.type === UserIntegrationType.Slack,
+            (integration: UserIntegration) =>
+              integration.type === UserIntegrationType.Slack,
           );
 
           if (filteredData.length > 0) {
