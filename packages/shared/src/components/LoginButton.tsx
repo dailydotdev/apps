@@ -58,6 +58,7 @@ export default function LoginButton({
         onClick={() => onClick(ButtonCopy.Signup)}
         variant={ButtonVariant.Primary}
         className={className?.button}
+        data-header-signup
       >
         {ButtonCopy.Signup}
       </Button>

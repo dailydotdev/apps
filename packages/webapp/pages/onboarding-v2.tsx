@@ -213,6 +213,14 @@ type ConfettiParticle = {
   speed: number;
 };
 
+type LiveFloater = {
+  id: number;
+  text: string;
+  color: string;
+  x: number;
+  y: number;
+};
+
 function buildConfettiParticles(): ConfettiParticle[] {
   const particles: ConfettiParticle[] = [];
   const SIZES = ['sm', 'md', 'lg', 'xl'] as const;
@@ -265,6 +273,9 @@ const OnboardingV2Page = (): ReactElement => {
   const [signupContext, setSignupContext] = useState<
     'topics' | 'github' | 'ai' | 'manual' | null
   >(null);
+  const [liveFloaters, setLiveFloaters] = useState<LiveFloater[]>([]);
+  const floaterIdRef = useRef(0);
+  const prevBodyOverflowRef = useRef('');
   const panelSentinelRef = useRef<HTMLDivElement>(null);
   const panelStageRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -413,12 +424,15 @@ const OnboardingV2Page = (): ReactElement => {
       githubImportExiting;
 
     if (anyModalOpen) {
+      prevBodyOverflowRef.current = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = prevBodyOverflowRef.current;
+      prevBodyOverflowRef.current = '';
     }
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = prevBodyOverflowRef.current;
+      prevBodyOverflowRef.current = '';
     };
   }, [
     showSignupChooser,
@@ -445,12 +459,9 @@ const OnboardingV2Page = (): ReactElement => {
         return;
       }
 
-      const label = (trigger.textContent || '').trim().toLowerCase();
-      const isSignupTrigger =
-        label === 'sign up' ||
-        label === 'signup' ||
-        label.includes('sign up') ||
-        label.includes('create account');
+      // Use a data attribute marker instead of brittle textContent matching.
+      // LoginButton adds data-header-signup to the sign-up button.
+      const isSignupTrigger = 'headerSignup' in trigger.dataset;
 
       if (!isSignupTrigger) {
         return;
@@ -491,23 +502,23 @@ const OnboardingV2Page = (): ReactElement => {
     );
 
     const observeFeedArticles = () => {
-      document.querySelectorAll('article').forEach((el, i) => {
-        const article = el as HTMLElement;
+      document
+        .querySelectorAll<HTMLElement>('.onb-feed-stage article')
+        .forEach((article, i) => {
+          if (!article.dataset.onbRevealDelay) {
+            article.style.setProperty(
+              '--reveal-delay',
+              `${Math.min(i * 60, 400)}ms`,
+            );
+            article.dataset.onbRevealDelay = 'true';
+          }
 
-        if (!article.dataset.onbRevealDelay) {
-          article.style.setProperty(
-            '--reveal-delay',
-            `${Math.min(i * 60, 400)}ms`,
-          );
-          article.dataset.onbRevealDelay = 'true';
-        }
+          if (article.classList.contains('onb-revealed')) {
+            return;
+          }
 
-        if (article.classList.contains('onb-revealed')) {
-          return;
-        }
-
-        observer.observe(article);
-      });
+          observer.observe(article);
+        });
     };
 
     observeFeedArticles();
@@ -517,9 +528,12 @@ const OnboardingV2Page = (): ReactElement => {
     });
     const feedContainer =
       document.querySelector('.onb-feed-stage') ?? document.body;
+    // subtree: false — only watch for direct article additions to the feed
+    // container, not for DOM mutations inside articles (which the engagement
+    // animation makes, causing a feedback loop with subtree: true).
     mutationObserver.observe(feedContainer, {
       childList: true,
-      subtree: true,
+      subtree: false,
     });
 
     return () => {
@@ -819,9 +833,9 @@ const OnboardingV2Page = (): ReactElement => {
       }
 
       const wrapperEl = wrapper as HTMLElement;
-      if (getComputedStyle(wrapperEl).position === 'static') {
-        wrapperEl.style.position = 'relative';
-      }
+      // Add CSS class instead of direct style mutation — the class provides
+      // position:relative via the stylesheet without forcing a style recalculation.
+      wrapperEl.classList.add('onb-eng-pos-relative');
 
       const counter = ensureCounter(
         wrapper,
@@ -858,31 +872,36 @@ const OnboardingV2Page = (): ReactElement => {
 
       increments.forEach((inc) => {
         addTimeout(() => {
+          // Restart the pulse animation without reading layout (offsetWidth
+          // forces a synchronous reflow). Setting animationName to 'none' is a
+          // write-only style operation, then the next rAF restores it so the
+          // animation re-runs from the start.
           btn.classList.remove('onb-eng-pulse');
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          (btn as HTMLElement).offsetWidth;
-          btn.classList.add('onb-eng-pulse');
+          (btn as HTMLElement).style.animationName = 'none';
+          requestAnimationFrame(() => {
+            (btn as HTMLElement).style.animationName = '';
+            btn.classList.add('onb-eng-pulse');
+          });
 
           const currentVal = parseCount(counter.textContent || '') || 0;
           counter.textContent = formatCount(currentVal + inc);
 
-          const floater = document.createElement('span');
-          floater.className = 'onb-eng-floater';
-          floater.textContent = `+${inc}`;
-          floater.style.color = color;
-
+          // Create floater via React state so it renders in a fixed-position
+          // overlay rather than appending DOM nodes directly to the article.
           const counterRect = counter.getBoundingClientRect();
-          const wrapperRect = wrapperEl.getBoundingClientRect();
-          floater.style.left = `${
-            counterRect.left + counterRect.width / 2 - wrapperRect.left
-          }px`;
-
-          wrapperEl.appendChild(floater);
-
+          const newFloaterId = (floaterIdRef.current += 1);
+          setLiveFloaters((prev) => [
+            ...prev,
+            {
+              id: newFloaterId,
+              text: `+${inc}`,
+              color,
+              x: counterRect.left + counterRect.width / 2,
+              y: counterRect.top,
+            },
+          ]);
           addTimeout(() => {
-            if (floater.parentNode) {
-              floater.remove();
-            }
+            setLiveFloaters((prev) => prev.filter((f) => f.id !== newFloaterId));
           }, 2500);
         }, delayAcc);
 
@@ -907,6 +926,9 @@ const OnboardingV2Page = (): ReactElement => {
     return () => {
       timeouts.forEach(clearTimeout);
       timeouts.clear();
+      // Clear any floaters that didn't finish their cleanup timer — they'd
+      // persist indefinitely because their cleanup timeouts were just cancelled.
+      setLiveFloaters([]);
     };
   }, [
     feedVisible,
@@ -1080,6 +1102,28 @@ const OnboardingV2Page = (): ReactElement => {
 
   return (
     <div className="onb-page relative" role="presentation">
+      {/* ── Engagement floaters overlay (React-controlled, fixed position) ── */}
+      {liveFloaters.length > 0 && (
+        <div
+          className="pointer-events-none fixed inset-0"
+          style={{ zIndex: 9999 }}
+          aria-hidden="true"
+        >
+          {liveFloaters.map((floater) => (
+            <span
+              key={floater.id}
+              className="onb-eng-floater"
+              style={{
+                color: floater.color,
+                left: floater.x,
+                top: floater.y,
+              }}
+            >
+              {floater.text}
+            </span>
+          ))}
+        </div>
+      )}
       {/* ── Hero ── */}
       <section
         ref={heroRef}
@@ -2840,9 +2884,13 @@ const OnboardingV2Page = (): ReactElement => {
           }
         }
 
+        /* position and bottom are now handled via inline styles in the React
+           fixed overlay; only the visual/animation properties live here. */
+        .onb-eng-pos-relative {
+          position: relative;
+        }
         .onb-eng-floater {
           position: absolute;
-          bottom: 80%;
           font-size: 0.875rem;
           font-weight: 800;
           font-variant-numeric: tabular-nums;

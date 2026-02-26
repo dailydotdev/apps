@@ -6,6 +6,7 @@ import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
+import { onboardingV2Path } from '@dailydotdev/shared/src/lib/constants';
 import { blurClasses } from './common';
 
 const NewComment = dynamic(() =>
@@ -42,7 +43,7 @@ export default function FooterWrapper({
   post,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
-  const isOnboardingV2 = router?.pathname === '/onboarding-v2';
+  const isOnboardingV2 = router?.pathname === onboardingV2Path;
 
   const showPlusButton =
     !router?.pathname?.startsWith('/settings') &&
