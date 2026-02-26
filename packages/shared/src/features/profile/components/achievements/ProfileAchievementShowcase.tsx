@@ -18,12 +18,11 @@ import {
 import { EditIcon, PlusIcon } from '../../../../components/icons';
 import { LazyImage } from '../../../../components/LazyImage';
 import HoverCard from '../../../../components/cards/common/HoverCard';
-import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import {
   getAchievementRarityTier,
-  AchievementRarityTier,
   rarityGlowClasses,
 } from './achievementRarity';
+import { AchievementCard } from './AchievementCard';
 import { RaritySparkles } from './RaritySparkles';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
@@ -85,12 +84,8 @@ export function ProfileAchievementShowcase({
       {hasShowcase ? (
         <div className="flex gap-3">
           {showcaseAchievements.map((userAchievement) => {
-            const { achievement, unlockedAt } = userAchievement;
+            const { achievement } = userAchievement;
             const rarityTier = getAchievementRarityTier(achievement.rarity);
-            const rarityLabel =
-              rarityTier === AchievementRarityTier.Emerald
-                ? '<1%'
-                : `${Math.round(achievement.rarity ?? 0)}%`;
 
             return (
               <HoverCard
@@ -122,62 +117,8 @@ export function ProfileAchievementShowcase({
                   </button>
                 }
               >
-                <div className="flex w-64 flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4">
-                  <div className="flex items-start gap-3">
-                    <LazyImage
-                      imgSrc={achievement.image}
-                      imgAlt={achievement.name}
-                      className="size-12 rounded-12 object-cover"
-                      fallbackSrc="https://daily.dev/default-achievement.png"
-                    />
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <Typography
-                        type={TypographyType.Callout}
-                        color={TypographyColor.Primary}
-                        bold
-                        className="truncate"
-                      >
-                        {achievement.name}
-                      </Typography>
-                      <Typography
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                        className="line-clamp-2"
-                      >
-                        {achievement.description}
-                      </Typography>
-                    </div>
-                    <Typography
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Primary}
-                      bold
-                    >
-                      {achievement.points}
-                    </Typography>
-                  </div>
-                  {unlockedAt && (
-                    <div className="flex flex-col">
-                      <Typography
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Quaternary}
-                      >
-                        Unlocked{' '}
-                        {formatDate({
-                          value: unlockedAt,
-                          type: TimeFormatType.Post,
-                        })}
-                      </Typography>
-                      {achievement.rarity != null && (
-                        <Typography
-                          type={TypographyType.Caption1}
-                          color={TypographyColor.Quaternary}
-                          className="mt-1"
-                        >
-                          Earned by {rarityLabel} of users
-                        </Typography>
-                      )}
-                    </div>
-                  )}
+                <div className="w-80 overflow-hidden rounded-16 bg-background-popover">
+                  <AchievementCard userAchievement={userAchievement} />
                 </div>
               </HoverCard>
             );
