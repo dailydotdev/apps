@@ -519,13 +519,6 @@ const CrownCard = ({
         'border-border-subtlest-tertiary transition-shadow duration-300',
         hoverClass,
       )}
-      style={
-        hasEntity
-          ? {
-              boxShadow: `0 0 30px color-mix(in srgb, ${crown.glowColor} 12%, transparent), inset 0 1px 0 color-mix(in srgb, ${crown.glowColor} 19%, transparent)`,
-            }
-          : undefined
-      }
       onMouseEnter={handleMouseEnter}
     >
       {/* Animated gradient glow that breathes */}
