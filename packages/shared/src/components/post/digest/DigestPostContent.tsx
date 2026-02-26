@@ -5,6 +5,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import SettingsContext, {
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { withPostById } from '../withPostById';
 import PostContentContainer from '../PostContentContainer';
@@ -35,6 +36,7 @@ import {
   RequestKey,
 } from '../../../lib/query';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
+import { BriefUpgradeAlert } from '../../../features/briefing/components/BriefUpgradeAlert';
 import { transformDigestAd } from './utils';
 
 const DigestPostContentRaw = ({
@@ -54,7 +56,8 @@ const DigestPostContentRaw = ({
   isBannerVisible,
   isPostPage,
 }: PostContentProps): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
+  const { isPlus } = usePlusSubscription();
   const { subject } = useToastNotification();
   const settingsContext = useSettingsContext();
   // ensure digest feed renders list mode
@@ -221,6 +224,12 @@ const DigestPostContentRaw = ({
               <SettingsContext.Provider value={digestSettings}>
                 <Feed {...feedProps} />
               </SettingsContext.Provider>
+            )}
+            {isLoggedIn && !isPlus && (
+              <BriefUpgradeAlert
+                className="!mb-0 mt-4"
+                text="Want deeper insights? Upgrade to Plus for AI-powered briefings that go beyond the headlines."
+              />
             )}
           </div>
         </BasePostContent>
