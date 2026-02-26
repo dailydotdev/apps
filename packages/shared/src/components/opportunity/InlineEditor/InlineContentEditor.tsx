@@ -9,6 +9,7 @@ import dynamic from 'next/dynamic';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
 import { editOpportunityContentMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
+import type { GraphQLError } from '../../../lib/errors';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
 import { opportunityEditContentSchema } from '../../../lib/schema/opportunity';
@@ -116,7 +117,8 @@ export const InlineContentEditor = ({
         id: opportunityId,
         payload: data as z.infer<typeof opportunityEditContentSchema>,
       });
-    } catch (originalError) {
+    } catch (err) {
+      const originalError = err as GraphQLError;
       if (
         originalError.response?.errors?.[0]?.extensions?.code ===
         ApiError.ZodValidationError
@@ -130,7 +132,7 @@ export const InlineContentEditor = ({
           originalError.response?.errors?.[0]?.message || labels.error.generic,
         );
       }
-      throw originalError;
+      throw err;
     }
   });
 

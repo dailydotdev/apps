@@ -263,7 +263,7 @@ function MarkdownInput(
           )}
         >
           <ConditionalWrapper
-            condition={showUserAvatar}
+            condition={showUserAvatar ?? false}
             wrapper={(component) => (
               <span className="flex w-full flex-row">
                 <ProfilePicture

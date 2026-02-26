@@ -240,7 +240,7 @@ export function PostActions({
           </QuaternaryButton>
           {canAward && (
             <ConditionalWrapper
-              condition={post?.userState?.awarded}
+              condition={post?.userState?.awarded ?? false}
               wrapper={(children) => {
                 return (
                   <Tooltip content="You already awarded this post!">

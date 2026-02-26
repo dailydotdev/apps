@@ -333,7 +333,8 @@ export default function useFeed<T>(
 
             // Skip ad slot if marketing CTA is shown as first card
             const shouldSkipAdForMarketingCta = withFirstIndex(
-              marketingCtaAsFirstCard || plusEntryAsFirstCard,
+              (marketingCtaAsFirstCard ?? false) ||
+                (plusEntryAsFirstCard ?? false),
             );
 
             if (shouldSkipAdForMarketingCta) {
@@ -348,7 +349,7 @@ export default function useFeed<T>(
                 type: FeedItemType.MarketingCta,
                 marketingCta: settings.marketingCta,
               });
-            } else if (withFirstIndex(settings.showAcquisitionForm)) {
+            } else if (withFirstIndex(settings.showAcquisitionForm ?? false)) {
               acc.push({ type: FeedItemType.UserAcquisition });
             } else {
               acc.push(adItem);

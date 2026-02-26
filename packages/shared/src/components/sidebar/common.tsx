@@ -88,7 +88,7 @@ const ItemInnerIcon = ({
   return (
     <span className={iconClassName}>
       {alert}
-      {icon instanceof Function ? icon(active) : icon}
+      {icon instanceof Function ? icon(active ?? false) : icon}
     </span>
   );
 };
@@ -108,7 +108,7 @@ const ItemInnerIconTooltip = ({
       )}
     >
       {alert}
-      {icon instanceof Function ? icon(active) : icon}
+      {icon instanceof Function ? icon(active ?? false) : icon}
     </span>
   </SimpleTooltip>
 );

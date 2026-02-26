@@ -126,7 +126,7 @@ export function BoostSourceButton({
 
   return (
     <ConditionalWrapper
-      condition={hasTooltip}
+      condition={!!hasTooltip}
       wrapper={(component) => (
         <Tooltip
           className="max-w-64"

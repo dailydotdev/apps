@@ -79,7 +79,7 @@ export const SidebarDesktop = ({
           <MainSection
             {...defaultRenderSectionProps}
             onNavTabClick={onNavTabClick}
-            isItemsButton={isNavButtons}
+            isItemsButton={isNavButtons ?? false}
           />
 
           {/* User Content Sections */}
@@ -92,7 +92,7 @@ export const SidebarDesktop = ({
           <NetworkSection
             {...defaultRenderSectionProps}
             title="Squads"
-            isItemsButton={isNavButtons}
+            isItemsButton={isNavButtons ?? false}
             key="network-section"
           />
           <BookmarkSection
@@ -106,7 +106,7 @@ export const SidebarDesktop = ({
           <DiscoverSection
             {...defaultRenderSectionProps}
             title="Discover"
-            isItemsButton={isNavButtons}
+            isItemsButton={isNavButtons ?? false}
           />
         </Nav>
       </SidebarScrollWrapper>

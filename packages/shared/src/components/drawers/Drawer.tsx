@@ -204,7 +204,7 @@ function AnimatedDrawer(
 
   return (
     <ConditionalWrapper
-      condition={appendOnRoot}
+      condition={appendOnRoot ?? false}
       wrapper={(component) => <RootPortal>{component}</RootPortal>}
     >
       <BaseDrawer {...props} isClosing={isClosing} onClose={onClosing} />

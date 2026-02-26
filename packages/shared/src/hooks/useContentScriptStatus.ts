@@ -26,5 +26,5 @@ export const useContentScriptStatus = (): UseContentScriptStatus => {
     enabled: !!getContentScriptPermission,
   });
 
-  return { contentScriptGranted, isFetched };
+  return { contentScriptGranted: contentScriptGranted ?? false, isFetched };
 };

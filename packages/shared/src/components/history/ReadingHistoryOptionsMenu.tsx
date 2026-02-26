@@ -124,7 +124,7 @@ export const ReadingHistoryOptionsMenu = ({
       },
     },
     {
-      icon: getBookmarkIconAndMenuIcon(post?.bookmarked),
+      icon: getBookmarkIconAndMenuIcon(post?.bookmarked ?? false),
       label: post?.bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks',
       action: (e: React.MouseEvent) => {
         e.preventDefault();

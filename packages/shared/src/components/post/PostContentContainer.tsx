@@ -37,7 +37,7 @@ function PostContentContainer({
 
   return (
     <ConditionalWrapper
-      condition={isNavigationOutside}
+      condition={isNavigationOutside ?? false}
       wrapper={(component) => (
         <>
           {props && <FixedPostNavigation {...props} />}

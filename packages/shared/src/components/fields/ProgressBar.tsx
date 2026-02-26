@@ -23,7 +23,7 @@ export function ProgressBar({
 }: ProgressBarProps): ReactElement {
   return (
     <ConditionalWrapper
-      condition={shouldShowBg}
+      condition={shouldShowBg ?? false}
       wrapper={(component) => (
         <span
           className={classNames(
