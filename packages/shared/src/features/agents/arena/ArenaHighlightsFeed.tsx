@@ -150,6 +150,7 @@ const PlaceholderCard = (): ReactElement => (
 );
 
 const MOBILE_FEED_LIMIT = 5;
+const MAX_HIGHLIGHTS = 100;
 
 interface ArenaHighlightsFeedProps {
   items: SentimentHighlightItem[];
@@ -176,10 +177,10 @@ export const ArenaHighlightsFeed = ({
       return;
     }
 
-    // First load — show everything
+    // First load — show everything (capped)
     if (!initializedRef.current) {
       initializedRef.current = true;
-      setVisibleItems(items);
+      setVisibleItems(items.slice(0, MAX_HIGHLIGHTS));
       return;
     }
 
@@ -187,12 +188,16 @@ export const ArenaHighlightsFeed = ({
     const visibleIds = new Set(visibleItems.map((i) => i.externalItemId));
     const newItems = items.filter((i) => !visibleIds.has(i.externalItemId));
     if (newItems.length > 0) {
-      setPendingItems((prev) => [...newItems, ...prev]);
+      setPendingItems((prev) =>
+        [...newItems, ...prev].slice(0, MAX_HIGHLIGHTS),
+      );
     }
   }, [items]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showPending = (): void => {
-    setVisibleItems((prev) => [...pendingItems, ...prev]);
+    setVisibleItems((prev) =>
+      [...pendingItems, ...prev].slice(0, MAX_HIGHLIGHTS),
+    );
     setPendingItems([]);
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };

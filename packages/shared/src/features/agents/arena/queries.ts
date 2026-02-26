@@ -20,4 +20,5 @@ export const arenaOptions = ({ groupId }: { groupId: ArenaGroupId }) => ({
   },
   staleTime: StaleTime.Base,
   refetchInterval: ARENA_REFETCH_INTERVAL,
+  refetchIntervalInBackground: false,
 });
