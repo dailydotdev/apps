@@ -858,8 +858,8 @@ const OnboardingV2Page = (): ReactElement => {
         ? 'onb-eng-active-upvote'
         : 'onb-eng-active-comment';
       const color = isUpvote
-        ? 'var(--theme-accent-avocado-default)'
-        : 'var(--theme-accent-water-default)';
+        ? 'var(--theme-actions-upvote-default)'
+        : 'var(--theme-actions-comment-default)';
 
       wrapperEl.classList.add(activeClass);
 
@@ -2849,12 +2849,12 @@ const OnboardingV2Page = (): ReactElement => {
         .onb-eng-active-upvote,
         .onb-eng-active-upvote svg,
         .onb-eng-active-upvote span {
-          color: var(--theme-accent-avocado-default) !important;
+          color: var(--theme-actions-upvote-default) !important;
         }
         .onb-eng-active-comment,
         .onb-eng-active-comment svg,
         .onb-eng-active-comment span {
-          color: var(--theme-accent-water-default) !important;
+          color: var(--theme-actions-comment-default) !important;
         }
 
         .onb-eng-pulse {
