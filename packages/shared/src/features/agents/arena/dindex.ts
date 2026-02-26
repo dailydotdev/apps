@@ -1,14 +1,10 @@
 import type {
   SentimentTimeSeriesNode,
-  ArenaGroupId,
+  ArenaEntity,
   CrownData,
   RankedTool,
 } from './types';
-import {
-  getEntitiesByGroup,
-  getEntityByKey,
-  EMERGING_THRESHOLD,
-} from './config';
+import { EMERGING_THRESHOLD } from './config';
 import { MedalBadgeIcon } from '../../../components/icons/MedalBadge';
 import { StarIcon } from '../../../components/icons/Star';
 import { TrendingIcon } from '../../../components/icons/Trending';
@@ -159,45 +155,48 @@ const getSparklineData = (node: SentimentTimeSeriesNode): number[] => {
 
 export const computeRankings = (
   nodes: SentimentTimeSeriesNode[],
-  groupId: ArenaGroupId,
+  entityMetadata: ArenaEntity[],
 ): RankedTool[] => {
-  const tools: RankedTool[] = nodes
-    .map((node) => {
-      const entityMeta = getEntityByKey(groupId, node.entity);
-      if (!entityMeta) {
-        return null;
-      }
+  if (!entityMetadata.length) {
+    throw new Error('Arena entity metadata is empty');
+  }
 
-      const current = getLatest24hWindow(node);
-      const previous = getPrevious24hWindow(node);
-      const dIndex = computeDIndex(current.volume, current.sentimentScore);
-      const prevDIndex = computeDIndex(
-        previous.volume,
-        previous.sentimentScore,
+  const entityMap = new Map(
+    entityMetadata.map((entity) => [entity.entity, entity]),
+  );
+
+  const tools: RankedTool[] = nodes.map((node) => {
+    const entityMeta = entityMap.get(node.entity);
+    if (!entityMeta) {
+      throw new Error(
+        `Arena sentiment series contains unknown entity "${node.entity}"`,
       );
+    }
 
-      const span = getWindowSpan(node);
-      const cutoff24h = Math.max(0, span - SECONDS_PER_DAY);
-      const controversy = computeControversy(node, cutoff24h, span + 1);
+    const current = getLatest24hWindow(node);
+    const previous = getPrevious24hWindow(node);
+    const dIndex = computeDIndex(current.volume, current.sentimentScore);
+    const prevDIndex = computeDIndex(previous.volume, previous.sentimentScore);
 
-      return {
-        entity: entityMeta,
-        dIndex: Math.round(dIndex),
-        sentimentDisplay: computeSentimentDisplay(current.sentimentScore),
-        momentum: Math.round(computeMomentum(dIndex, prevDIndex)),
-        volume24h: current.volume,
-        controversyScore: controversy.score,
-        heat: controversy.heat,
-        sparkline: getSparklineData(node),
-        isEmerging: current.volume < EMERGING_THRESHOLD,
-      };
-    })
-    .filter((t): t is RankedTool => t !== null);
+    const span = getWindowSpan(node);
+    const cutoff24h = Math.max(0, span - SECONDS_PER_DAY);
+    const controversy = computeControversy(node, cutoff24h, span + 1);
 
+    return {
+      entity: entityMeta,
+      dIndex: Math.round(dIndex),
+      sentimentDisplay: computeSentimentDisplay(current.sentimentScore),
+      momentum: Math.round(computeMomentum(dIndex, prevDIndex)),
+      volume24h: current.volume,
+      controversyScore: controversy.score,
+      heat: controversy.heat,
+      sparkline: getSparklineData(node),
+      isEmerging: current.volume < EMERGING_THRESHOLD,
+    };
+  });
   // Include entities with no data as emerging
   const presentEntities = new Set(tools.map((t) => t.entity.entity));
-  const allEntities = getEntitiesByGroup(groupId);
-  allEntities.forEach((entity) => {
+  entityMetadata.forEach((entity) => {
     if (!presentEntities.has(entity.entity)) {
       tools.push({
         entity,

@@ -8,6 +8,15 @@ export const ARENA_QUERY = gql`
     $highlightsFirst: Int
     $highlightsOrderBy: SentimentHighlightsOrderBy
   ) {
+    sentimentGroup(id: $groupId) {
+      id
+      name
+      entities {
+        entity
+        name
+        logo
+      }
+    }
     sentimentTimeSeries(
       resolution: $resolution
       groupId: $groupId

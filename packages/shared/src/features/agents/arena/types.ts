@@ -24,14 +24,19 @@ export interface SentimentTimeSeries {
 export interface ArenaQueryResponse {
   sentimentTimeSeries: SentimentTimeSeries;
   sentimentHighlights: SentimentHighlightsConnection;
+  sentimentGroup: SentimentGroup | null;
 }
 
 export interface ArenaEntity {
   entity: string;
   name: string;
-  slug: string;
   logo: string;
-  brandColor: string;
+}
+
+export interface SentimentGroup {
+  id: string;
+  name: string;
+  entities: ArenaEntity[];
 }
 
 export type CrownType =

@@ -35,8 +35,13 @@ export const ArenaPage = ({
 
   const rankings = useMemo(
     () =>
-      timeSeries ? computeRankings(timeSeries.entities.nodes, activeTab) : [],
-    [timeSeries, activeTab],
+      timeSeries && data?.sentimentGroup
+        ? computeRankings(
+            timeSeries.entities.nodes,
+            data.sentimentGroup.entities,
+          )
+        : [],
+    [timeSeries, data?.sentimentGroup],
   );
 
   const crowns = useMemo(() => computeCrowns(rankings), [rankings]);

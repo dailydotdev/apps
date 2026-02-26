@@ -16,6 +16,11 @@ export const arenaOptions = ({ groupId }: { groupId: ArenaGroupId }) => ({
       highlightsFirst: 50,
       highlightsOrderBy: 'RECENCY',
     });
+
+    if (!res.sentimentGroup) {
+      throw new Error(`Arena sentiment group not found for tab "${groupId}"`);
+    }
+
     return res;
   },
   staleTime: StaleTime.Base,
