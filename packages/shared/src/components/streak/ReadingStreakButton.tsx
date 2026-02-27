@@ -52,6 +52,7 @@ interface CustomStreaksTooltipProps {
   showMilestoneTimeline?: boolean;
   streakOverride?: number;
   isDebugMode?: boolean;
+  milestoneClaimResetNonce?: number;
 }
 
 function CustomStreaksTooltip({
@@ -63,6 +64,7 @@ function CustomStreaksTooltip({
   showMilestoneTimeline,
   streakOverride,
   isDebugMode,
+  milestoneClaimResetNonce,
 }: CustomStreaksTooltipProps): ReactElement {
   return (
     <SimpleTooltip
@@ -83,6 +85,7 @@ function CustomStreaksTooltip({
           showMilestoneTimeline={showMilestoneTimeline}
           streakOverride={streakOverride}
           isVisible={shouldShowStreaks}
+          milestoneClaimResetNonce={milestoneClaimResetNonce}
         />
       }
       onClickOutside={
@@ -116,6 +119,7 @@ export function ReadingStreakButton({
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const [showStreakAsDrawer, setShowStreakAsDrawer] = useState(false);
   const [debugPos, setDebugPos] = useState({ x: 16, y: 16 });
+  const [milestoneClaimResetNonce, setMilestoneClaimResetNonce] = useState(0);
   const dragRef = useRef<{
     startX: number;
     startY: number;
@@ -155,6 +159,10 @@ export function ReadingStreakButton({
   const incrementDebugStreak = useCallback(() => {
     debug.setDebugStreak((effectiveStreak ?? 0) + 1);
   }, [debug, effectiveStreak]);
+  const handleResetDebug = useCallback(() => {
+    debug.resetDebug();
+    setMilestoneClaimResetNonce((value) => value + 1);
+  }, [debug]);
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);
@@ -210,6 +218,10 @@ export function ReadingStreakButton({
   const isTabletOnly = isTablet && !isLaptop;
   const shouldOpenInDrawer =
     isMobile || isTabletOnly || (debug.isDebugMode && showStreakAsDrawer);
+  const debugActionButtonClassName =
+    'inline-flex items-center justify-center gap-2 rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover';
+  const debugIconClassName =
+    'inline-flex h-4 w-4 items-center justify-center text-[14px] leading-none';
 
   return (
     <>
@@ -225,6 +237,7 @@ export function ReadingStreakButton({
             showMilestoneTimeline={debug.features.milestoneTimeline}
             streakOverride={debug.debugStreakOverride ?? undefined}
             isDebugMode={debug.isDebugMode}
+            milestoneClaimResetNonce={milestoneClaimResetNonce}
           >
             {children}
           </Tooltip>
@@ -307,7 +320,7 @@ export function ReadingStreakButton({
                 ? undefined
                 : {
                     wrapper:
-                      'h-full !max-h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary',
+                      'h-full !max-h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary !px-0',
                   }
             }
           >
@@ -317,6 +330,7 @@ export function ReadingStreakButton({
               showMilestoneTimeline={debug.features.milestoneTimeline}
               streakOverride={debug.debugStreakOverride ?? undefined}
               isVisible={shouldShowStreaks}
+              milestoneClaimResetNonce={milestoneClaimResetNonce}
               onClose={handleCloseDrawer}
             />
           </Drawer>
@@ -338,7 +352,7 @@ export function ReadingStreakButton({
           style={{ left: debugPos.x, bottom: debugPos.y }}
         >
           <span
-            className="cursor-grab select-none font-bold text-text-tertiary typo-footnote active:cursor-grabbing"
+            className="inline-flex cursor-grab select-none items-center gap-2 font-bold text-text-tertiary typo-footnote active:cursor-grabbing"
             onMouseDown={(e) => {
               dragRef.current = {
                 startX: e.clientX,
@@ -372,22 +386,24 @@ export function ReadingStreakButton({
               document.addEventListener('mouseup', onUp);
             }}
           >
-            ⠿ Streak Debug
+            <span className={debugIconClassName}>⠿</span>
+            <span>Streak Debug</span>
           </span>
 
           <button
             type="button"
             onClick={debug.triggerIncrementAnimation}
-            className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover"
+            className={debugActionButtonClassName}
           >
             Play +1 Animation
           </button>
           <button
             type="button"
             onClick={() => setShowMilestoneCelebration(true)}
-            className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover"
+            className={debugActionButtonClassName}
           >
-            Play Milestone 🎉
+            <span>Play Milestone</span>
+            <span className={debugIconClassName}>🎉</span>
           </button>
           <button
             type="button"
@@ -403,9 +419,10 @@ export function ReadingStreakButton({
                 props: { user, forceOpen: true },
               });
             }}
-            className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover"
+            className={debugActionButtonClassName}
           >
-            Play Streak Broken 💔
+            <span>Play Streak Broken</span>
+            <span className={debugIconClassName}>💔</span>
           </button>
           <button
             type="button"
@@ -413,9 +430,10 @@ export function ReadingStreakButton({
               setShowReminderPopover(false);
               requestAnimationFrame(() => setShowReminderPopover(true));
             }}
-            className="rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover"
+            className={debugActionButtonClassName}
           >
-            Play Reminder 🔔
+            <span>Play Reminder</span>
+            <span className={debugIconClassName}>🔔</span>
           </button>
           <Switch
             inputId="streak-debug-drawer-mode"
@@ -493,7 +511,7 @@ export function ReadingStreakButton({
           </div>
           <button
             type="button"
-            onClick={debug.resetDebug}
+            onClick={handleResetDebug}
             className="rounded-8 bg-surface-float px-3 py-1 text-text-tertiary typo-footnote hover:bg-surface-hover"
           >
             Reset

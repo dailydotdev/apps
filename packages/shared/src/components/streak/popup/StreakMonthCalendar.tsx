@@ -7,6 +7,7 @@ import {
   isSameDay,
   subDays,
 } from 'date-fns';
+import { ReadingStreakIcon } from '../../icons';
 import type { ReadingDay } from '../../../graphql/users';
 import { isWeekend as isWeekendDay } from '../../../lib/date';
 
@@ -66,6 +67,8 @@ export function StreakMonthCalendar({
 }: StreakMonthCalendarProps): ReactElement {
   const baseToday = useMemo(() => new Date(), []);
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
+  const effectiveStreak = streakOverride ?? currentStreak;
+  const hasPositiveStreak = (effectiveStreak ?? 0) > 0;
   const activeStreak = Math.max(streakOverride ?? currentStreak ?? 1, 1);
   const initialStreakRef = useRef(activeStreak);
   const streakDelta = activeStreak - initialStreakRef.current;
@@ -220,15 +223,17 @@ export function StreakMonthCalendar({
   ): ReactElement => {
     const isToday = isSameDay(day, today);
     const isFreeze = isWeekendDay(day, weekStart, timezone);
-    const isRead = !isFreeze && readDaysSet.has(day.toDateString());
+    const isRead =
+      !isFreeze &&
+      readDaysSet.has(day.toDateString()) &&
+      (!isToday || hasPositiveStreak);
 
     return (
       <div
         key={`${keyPrefix}-${day.toISOString()}-${index}`}
         className={classNames(
-          'aspect-square w-full cursor-pointer rounded-full border border-border-subtlest-tertiary bg-surface-subtle',
+          'relative size-5 place-self-center cursor-pointer rounded-full border border-border-subtlest-tertiary bg-surface-subtle',
           'flex items-center justify-center',
-          isToday && 'animate-streak-day-pop',
           isToday && 'border-white',
           isFreeze &&
             'bg-surface-float text-border-subtlest-tertiary bg-[repeating-linear-gradient(135deg,currentColor_0_2px,transparent_2px_5px)]',
@@ -239,8 +244,14 @@ export function StreakMonthCalendar({
         role="button"
         tabIndex={0}
       >
+        {isToday && !isFreeze && (
+          <span className="pointer-events-none absolute inset-0 rounded-full border border-white/70 animate-streak-day-pop" />
+        )}
         {isRead && (
-          <span className="aspect-square w-[42%] min-w-2.5 max-w-4 rounded-full bg-accent-bacon-default" />
+          <ReadingStreakIcon
+            secondary
+            className="size-4 text-accent-bacon-default"
+          />
         )}
       </div>
     );

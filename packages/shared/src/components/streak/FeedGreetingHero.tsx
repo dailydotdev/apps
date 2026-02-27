@@ -196,10 +196,10 @@ export function FeedGreetingHero(): ReactElement | null {
       />
       
       <style>{`
-        @keyframes butterfly-flutter {
-          0%, 100% { transform: scaleY(1) rotate(0deg); }
-          50% { transform: scaleY(0.4) rotate(-10deg); }
-        }
+            @keyframes butterfly-flutter {
+              0%, 100% { transform: scaleX(1) translateY(0); }
+              50% { transform: scaleX(0.2) translateY(-2px); }
+            }
         @keyframes butterfly-float-1 {
           0% { transform: translate(0, 0) scale(0.8) rotate(15deg); opacity: 0; }
           20% { opacity: 0.8; }
@@ -221,21 +221,65 @@ export function FeedGreetingHero(): ReactElement | null {
           80% { opacity: 0.6; }
           100% { transform: translate(-30px, -60px) scale(0.8) rotate(45deg); opacity: 0; }
         }
+        @keyframes anime-ray-pulse {
+          0%, 100% { opacity: 0.85; }
+          50% { opacity: 1; }
+        }
+        @keyframes anime-dust-float {
+          0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+          20% { opacity: 1; }
+          80% { opacity: 1; }
+          100% { transform: translate(25px, -40px) scale(1.2); opacity: 0; }
+        }
         .animate-butterfly-1 { animation: butterfly-float-1 6s ease-in-out infinite; }
         .animate-butterfly-2 { animation: butterfly-float-2 8s ease-in-out infinite; animation-delay: 2s; }
         .animate-butterfly-3 { animation: butterfly-float-3 7s ease-in-out infinite; animation-delay: 4s; }
         .animate-butterfly-wing { animation: butterfly-flutter 0.15s ease-in-out infinite; }
+        .animate-anime-ray-1 { animation: anime-ray-pulse 6s ease-in-out infinite; }
+        .animate-anime-ray-2 { animation: anime-ray-pulse 8s ease-in-out infinite 1s; }
+        .animate-anime-ray-3 { animation: anime-ray-pulse 7s ease-in-out infinite 2s; }
+        .animate-anime-ray-4 { animation: anime-ray-pulse 9s ease-in-out infinite 1.5s; }
       `}</style>
 
-      {isMorning && (
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          {/* Window light rays */}
-          <div className="absolute -top-32 left-[5%] h-[200%] w-32 -rotate-45 bg-gradient-to-b from-white/30 via-white/10 to-transparent blur-2xl" />
-          <div className="absolute -top-32 left-[25%] h-[200%] w-48 -rotate-45 bg-gradient-to-b from-white/20 via-white/10 to-transparent blur-2xl" />
-          <div className="absolute -top-32 left-[55%] h-[200%] w-24 -rotate-45 bg-gradient-to-b from-white/20 via-white/10 to-transparent blur-xl" />
+      {!isEvening && (
+        <div className="pointer-events-none absolute inset-0 z-[2] overflow-hidden">
+          {/* Sunrise anime sky wash (blue -> pink -> gold) */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#ffd99e]/90 via-[#e098a3]/80 to-[#7f90b8]/90" />
           
-          {/* Gentle morning glow at the source */}
-          <div className="absolute -left-20 -top-20 h-64 w-96 rounded-full bg-white/20 blur-[60px]" />
+          {/* Additional bottom purple/blue cloud glow */}
+          <div className="absolute -bottom-20 -left-10 h-64 w-96 rounded-full bg-[#706b96]/60 blur-[80px]" />
+
+          {/* Strong fallback beam so rays are always visible */}
+          <div className="absolute -left-[10%] -top-[30%] h-[200%] w-[50%] rotate-[35deg] bg-gradient-to-b from-[#ffe7a0]/90 via-[#ffb973]/50 to-transparent blur-3xl" />
+
+          {/* Strong parallel window rays from top-left */}
+          <div className="absolute -left-[20%] -top-[55%] h-[240%] w-[180%] rotate-[35deg] transform-gpu">
+            <div className="absolute left-[12%] top-0 h-full w-24 bg-gradient-to-b from-[#fff3cd]/95 via-[#ffc677]/60 to-transparent blur-xl animate-anime-ray-1" />
+            <div className="absolute left-[24%] top-0 h-full w-16 bg-gradient-to-b from-white/90 via-[#ffba6b]/50 to-transparent blur-lg animate-anime-ray-2" />
+            <div className="absolute left-[33%] top-0 h-full w-32 bg-gradient-to-b from-[#ffedba]/85 via-[#ffa75e]/45 to-transparent blur-2xl animate-anime-ray-3" />
+            <div className="absolute left-[45%] top-0 h-full w-14 bg-gradient-to-b from-white/85 via-[#ffcf85]/40 to-transparent blur-md animate-anime-ray-4" />
+            <div className="absolute left-[52%] top-0 h-full w-40 bg-gradient-to-b from-[#ffe094]/80 via-[#ff9c54]/30 to-transparent blur-[32px] animate-anime-ray-2" />
+          </div>
+
+          {/* Floating light particles in the rays */}
+          {Array.from({ length: 18 }).map((_, i) => (
+            <div
+              key={`dust-${i}`}
+              className="absolute rounded-full bg-[#fffcf2] blur-[0.5px]"
+              style={{
+                left: `${10 + Math.random() * 75}%`,
+                top: `${8 + Math.random() * 80}%`,
+                width: `${2 + Math.random() * 3}px`,
+                height: `${2 + Math.random() * 3}px`,
+                boxShadow: '0 0 10px 1px rgba(255, 240, 180, 0.9)',
+                animation: `anime-dust-float ${4 + Math.random() * 5}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 4}s`,
+              }}
+            />
+          ))}
+
+          {/* Warm source glow */}
+          <div className="absolute -left-32 -top-32 h-[35rem] w-[35rem] rounded-full bg-[#ffea9e]/60 blur-[100px]" />
         </div>
       )}
       {isEvening && (
@@ -420,23 +464,20 @@ export function FeedGreetingHero(): ReactElement | null {
             <>
               {/* Butterfly 1 (Top Right) */}
               <span className="absolute -right-12 -top-6 z-10 h-6 w-6 animate-butterfly-1 text-[#c084fc] opacity-0 drop-shadow-[0_0_12px_rgba(192,132,252,0.9)] blur-[0.5px]">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing">
-                  <path d="M12 12C8 6 4 4 2 8C0 12 4 16 10 14C10 16 8 20 10 22C12 24 13 18 12 12Z" />
-                  <path d="M12 12C16 6 20 4 22 8C24 12 20 16 14 14C14 16 16 20 14 22C12 24 11 18 12 12Z" />
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing origin-center">
+                  <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
                 </svg>
               </span>
               {/* Butterfly 2 (Bottom Left) */}
               <span className="absolute -bottom-4 -left-10 z-10 h-5 w-5 animate-butterfly-2 text-[#a855f7] opacity-0 drop-shadow-[0_0_10px_rgba(168,85,247,0.9)] blur-[0.5px]">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing" style={{ animationDelay: '0.05s' }}>
-                  <path d="M12 12C8 6 4 4 2 8C0 12 4 16 10 14C10 16 8 20 10 22C12 24 13 18 12 12Z" />
-                  <path d="M12 12C16 6 20 4 22 8C24 12 20 16 14 14C14 16 16 20 14 22C12 24 11 18 12 12Z" />
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing origin-center" style={{ animationDelay: '0.05s' }}>
+                  <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
                 </svg>
               </span>
               {/* Butterfly 3 (Top Left) */}
               <span className="absolute -left-4 -top-8 z-10 h-4 w-4 animate-butterfly-3 text-[#d8b4fe] opacity-0 drop-shadow-[0_0_8px_rgba(216,180,254,0.9)] blur-[0.5px]">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing" style={{ animationDelay: '0.1s' }}>
-                  <path d="M12 12C8 6 4 4 2 8C0 12 4 16 10 14C10 16 8 20 10 22C12 24 13 18 12 12Z" />
-                  <path d="M12 12C16 6 20 4 22 8C24 12 20 16 14 14C14 16 16 20 14 22C12 24 11 18 12 12Z" />
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing origin-center" style={{ animationDelay: '0.1s' }}>
+                  <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
                 </svg>
               </span>
             </>

@@ -263,15 +263,18 @@ export default {
           '0%': { transform: 'scale(1)', boxShadow: 'none' },
           '20%': {
             transform: 'scale(1.25)',
-            boxShadow: '0 0 20px 4px rgba(255, 149, 0, 0.4)',
+            boxShadow:
+              '0 0 20px 4px color-mix(in srgb, currentColor, transparent 60%)',
           },
           '60%': {
             transform: 'scale(1.25)',
-            boxShadow: '0 0 20px 4px rgba(255, 149, 0, 0.4)',
+            boxShadow:
+              '0 0 20px 4px color-mix(in srgb, currentColor, transparent 60%)',
           },
           '100%': {
             transform: 'scale(1)',
-            boxShadow: '0 0 0 0 rgba(255, 149, 0, 0)',
+            boxShadow:
+              '0 0 0 0 color-mix(in srgb, currentColor, transparent 100%)',
           },
         },
         'streak-shine': {
@@ -294,12 +297,20 @@ export default {
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
         'streak-pulse': {
-          '0%, 100%': { boxShadow: '0 0 0 0 rgba(255, 149, 0, 0)' },
-          '50%': { boxShadow: '0 0 8px 2px rgba(255, 149, 0, 0.35)' },
+          '0%, 100%': {
+            boxShadow: '0 0 0 0 color-mix(in srgb, currentColor, transparent 100%)',
+          },
+          '50%': {
+            boxShadow: '0 0 8px 2px color-mix(in srgb, currentColor, transparent 65%)',
+          },
         },
         'milestone-glow': {
-          '0%, 100%': { filter: 'drop-shadow(0 0 0px rgba(255, 149, 0, 0))' },
-          '50%': { filter: 'drop-shadow(0 0 6px rgba(255, 149, 0, 0.5))' },
+          '0%, 100%': {
+            filter: 'drop-shadow(0 0 0px color-mix(in srgb, currentColor, transparent 100%))',
+          },
+          '50%': {
+            filter: 'drop-shadow(0 0 6px color-mix(in srgb, currentColor, transparent 50%))',
+          },
         },
         'streak-shake': {
           '0%, 100%': { transform: 'translateX(0)' },

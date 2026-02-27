@@ -11,9 +11,8 @@ import {
 } from '../../typography/Typography';
 import CursorAiDarkLogo from './icons/cursor-ai-dark.svg';
 import CursorAiLightLogo from './icons/cursor-ai-light.svg';
-import { MilestoneShareActions } from '../MilestoneShareActions';
 
-type AnimationPhase = 'idle' | 'appear' | 'fly' | 'settled';
+type AnimationPhase = 'idle' | 'appear' | 'fly';
 
 export type ClaimReward =
   | {
@@ -98,13 +97,13 @@ export function ClaimRewardAnimation({
     }
 
     const appearTimer = setTimeout(() => setPhase('fly'), 1200);
-    const settledTimer = setTimeout(() => {
-      setPhase('settled');
-    }, 2100);
+    const completeTimer = setTimeout(() => {
+      onComplete();
+    }, 2200);
 
     return () => {
       clearTimeout(appearTimer);
-      clearTimeout(settledTimer);
+      clearTimeout(completeTimer);
     };
   }, [onComplete, reward.type]);
 
@@ -129,8 +128,6 @@ export function ClaimRewardAnimation({
   const targetOpacity = isFly ? 0 : 1;
   const showBackdrop = phase !== 'idle';
   const CursorLogo = isLightTheme ? CursorAiLightLogo : CursorAiDarkLogo;
-  const isCoresSettled = reward.type === 'cores' && phase === 'settled';
-  const shareMessage = `I just reached ${reward.milestoneLabel} (${reward.milestoneDay} day streak) on daily.dev`;
 
   return (
     <RootPortal>
@@ -236,9 +233,6 @@ export function ClaimRewardAnimation({
               >
                 Close
               </Button>
-              <div className="mt-3 w-full">
-                <MilestoneShareActions message={shareMessage} />
-              </div>
             </div>
           </div>
         ) : (
@@ -272,25 +266,6 @@ export function ClaimRewardAnimation({
                 +{reward.amount}
               </span>
             </div>
-            {isCoresSettled && (
-              <div className="absolute left-1/2 top-1/2 z-1 flex w-[20rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 text-center">
-                <Typography bold type={TypographyType.Title3}>
-                  Milestone reward unlocked
-                </Typography>
-                <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
-                  +{reward.amount} Cores
-                </Typography>
-                <MilestoneShareActions message={shareMessage} />
-                <Button
-                  className="w-full"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                  onClick={onComplete}
-                >
-                  Close
-                </Button>
-              </div>
-            )}
           </>
         )}
       </div>

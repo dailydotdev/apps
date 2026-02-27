@@ -1,6 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { CopyIcon, LinkedInIcon, TwitterIcon } from '../icons';
 import { getLinkedInShareLink, getTwitterShareLink } from '../../lib/share';
 import { webappUrl } from '../../lib/constants';
@@ -44,30 +49,41 @@ export function MilestoneShareActions({
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <Typography type={TypographyType.Footnote}>Share on</Typography>
-      <div className="flex items-center gap-2">
+    <div className="flex w-full flex-col items-center gap-2">
+      <div className="flex w-full max-w-[320px] flex-col items-stretch gap-2">
         <Button
           aria-label="Share on X"
           icon={<TwitterIcon />}
           onClick={onShareX}
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Tertiary}
-        />
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Twitter}
+          className="w-full whitespace-nowrap transition-none hover:brightness-100 hover:shadow-none"
+        >
+          Share on X
+        </Button>
         <Button
           aria-label="Share on LinkedIn"
           icon={<LinkedInIcon />}
           onClick={onShareLinkedIn}
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Tertiary}
-        />
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.LinkedIn}
+          className="mb-px w-full whitespace-nowrap transition-none hover:brightness-100 hover:shadow-none"
+        >
+          Share on LinkedIn
+        </Button>
         <Button
           aria-label="Copy share link"
           icon={<CopyIcon />}
           onClick={onCopyLink}
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Tertiary}
-        />
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Salt}
+          className="w-full whitespace-nowrap transition-none hover:brightness-100 hover:shadow-none"
+        >
+          Copy link
+        </Button>
       </div>
       {isCopied && (
         <Typography type={TypographyType.Footnote} className="text-text-tertiary">

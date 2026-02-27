@@ -77,6 +77,18 @@ const getMilestoneHelperText = (milestone: StreakMilestone): string | null => {
   return null;
 };
 
+const getMilestoneCoresAmount = (milestone: StreakMilestone): string | null => {
+  const coresReward = milestone.rewards.find(
+    (reward) => reward.type === RewardType.Cores,
+  );
+  if (!coresReward) {
+    return null;
+  }
+
+  const amountMatch = coresReward.description.match(/\d[\d,]*/);
+  return amountMatch?.[0] ?? null;
+};
+
 const getMilestoneHeadline = ({
   milestone,
   helperText,
@@ -313,7 +325,9 @@ function MilestoneItem({
             }
             className="truncate"
           >
-            {milestone.label}
+            {isSponsoredMilestone
+              ? `A gift from ${milestone.label}`
+              : milestone.label}
           </Typography>
           {isNext && daysAway !== undefined && (
             <Typography
@@ -340,11 +354,13 @@ function MilestoneItem({
 interface MilestoneTimelineProps {
   currentStreak: number;
   isVisible?: boolean;
+  claimResetNonce?: number;
 }
 
 export function MilestoneTimeline({
   currentStreak,
   isVisible = true,
+  claimResetNonce,
 }: MilestoneTimelineProps): ReactElement {
   const nextMilestone = getNextMilestone(currentStreak);
   const activeDay =
@@ -367,12 +383,28 @@ export function MilestoneTimeline({
       setClaimedDays((prev) => new Set([...prev, milestone.day]));
       return;
     }
+
+    const coresAmount = getMilestoneCoresAmount(milestone);
+    if (coresAmount) {
+      setClaimAnimation({
+        type: 'cores',
+        amount: coresAmount,
+        milestoneDay: milestone.day,
+        milestoneLabel: milestone.label,
+      });
+    }
+
     setClaimedDays((prev) => new Set([...prev, milestone.day]));
   }, []);
 
   const handleAnimationComplete = useCallback(() => {
     setClaimAnimation(null);
   }, []);
+
+  useEffect(() => {
+    setClaimedDays(new Set());
+    setClaimAnimation(null);
+  }, [claimResetNonce]);
 
   useEffect(() => {
     if (!isVisible) {
@@ -424,11 +456,7 @@ export function MilestoneTimeline({
           const daysAway = isNext ? milestone.day - currentStreak : undefined;
           const shouldScrollToMilestone = milestone.day === activeDay;
           const wasJustClaimed = claimedDays.has(milestone.day);
-          const isAutoClaimed =
-            isUnlocked &&
-            index < 3 &&
-            milestone.day !== SPONSORED_MILESTONE_DAY;
-          const isClaimed = wasJustClaimed || isAutoClaimed;
+          const isClaimed = wasJustClaimed;
 
           return (
             <div

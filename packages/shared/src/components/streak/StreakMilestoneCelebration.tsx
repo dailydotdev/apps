@@ -114,7 +114,7 @@ export function StreakMilestoneCelebration({
           ))}
 
         <div
-          className="relative z-1 flex flex-col items-center gap-4"
+          className="relative z-1 flex w-full max-w-[320px] flex-col items-center gap-4 px-4"
           style={{
             transform: isVisible ? 'scale(1)' : 'scale(0.5)',
             opacity: isVisible ? 1 : 0,
@@ -194,21 +194,19 @@ export function StreakMilestoneCelebration({
             </div>
           )}
           {showRewards && (
-            <>
-              <div className="flex w-full max-w-sm flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default/80 px-6 py-4">
-                <MilestoneShareActions
-                  message={`I just reached ${milestone.label} (${streakDay} day streak) on daily.dev`}
-                />
-              </div>
+            <div className="mt-3 flex w-full flex-col items-center gap-8">
+              <MilestoneShareActions
+                message={`I just reached ${milestone.label} (${streakDay} day streak) on daily.dev`}
+              />
               <Button
-                className="w-full max-w-sm"
+                className="w-full max-w-[320px] text-white"
                 onClick={onComplete}
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
+                size={ButtonSize.Medium}
+                variant={ButtonVariant.Float}
               >
                 Close
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>

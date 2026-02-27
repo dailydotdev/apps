@@ -53,6 +53,7 @@ interface ReadingStreakPopupProps {
   showMilestoneTimeline?: boolean;
   streakOverride?: number;
   isVisible?: boolean;
+  milestoneClaimResetNonce?: number;
   onClose?: () => void;
 }
 
@@ -62,6 +63,7 @@ export function ReadingStreakPopup({
   showMilestoneTimeline = true,
   streakOverride,
   isVisible = true,
+  milestoneClaimResetNonce,
   onClose,
 }: ReadingStreakPopupProps): ReactElement {
   const router = useRouter();
@@ -248,7 +250,11 @@ export function ReadingStreakPopup({
         </div>
       </div>
       {showMilestoneTimeline && (
-        <MilestoneTimeline currentStreak={displayStreak} isVisible={isVisible} />
+        <MilestoneTimeline
+          currentStreak={displayStreak}
+          isVisible={isVisible}
+          claimResetNonce={milestoneClaimResetNonce}
+        />
       )}
 
       {showAlert && (
