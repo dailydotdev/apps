@@ -1,11 +1,13 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
+import classNames from 'classnames';
 import type { CommonLeaderboardProps } from './LeaderboardList';
 import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
 import type { LoggedUser } from '../../../lib/user';
-import { indexToEmoji } from './common';
+import { runIconPopAnimation, runSparkAnimation, TOP_RANK_STYLES } from './common';
+import { TopRankBadge } from './TopRankBadge';
 
 export interface UserLeaderboard {
   score: number;
@@ -17,16 +19,38 @@ export function UserTopList({
   concatScore = true,
   ...props
 }: CommonLeaderboardProps<UserLeaderboard[]>): ReactElement {
+  const createRowMouseEnter = useCallback(
+    (rankIndex: number) => (e: React.MouseEvent<HTMLLIElement>) => {
+      const rankStyle = TOP_RANK_STYLES[rankIndex];
+      if (!rankStyle) {
+        return;
+      }
+
+      runIconPopAnimation(e.currentTarget, 'leaderboard-medal-wrapper');
+      runSparkAnimation(
+        e.currentTarget,
+        '.leaderboard-medal-spark',
+        rankStyle.glowColor,
+        16,
+      );
+    },
+    [],
+  );
+
   return (
     <LeaderboardList {...props}>
       {items?.map((item, i) => (
         <LeaderboardListItem
           key={item.user.id}
           index={item.score}
-          href={item.user.permalink}
           concatScore={concatScore}
+          className={classNames(
+            'group flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler',
+            TOP_RANK_STYLES[i]?.hoverClass,
+          )}
+          onMouseEnter={TOP_RANK_STYLES[i] ? createRowMouseEnter(i) : undefined}
         >
-          <span className="min-w-8 pl-1">{indexToEmoji(i)}</span>
+          <TopRankBadge rankIndex={i} />
           <UserHighlight
             {...item.user}
             showReputation
