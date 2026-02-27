@@ -11,6 +11,7 @@ interface LeaderboardListItemProps {
   children: ReactNode;
   className?: string;
   concatScore?: boolean;
+  onMouseEnter?: React.MouseEventHandler<HTMLLIElement>;
 }
 
 export function LeaderboardListItem({
@@ -19,6 +20,7 @@ export function LeaderboardListItem({
   children,
   className,
   concatScore = true,
+  onMouseEnter,
 }: LeaderboardListItemProps): ReactElement {
   const formattedNumber = concatScore ? largeNumberFormat(index) : index;
   const shouldShowTooltip =
@@ -26,7 +28,7 @@ export function LeaderboardListItem({
   const actualNumber = index.toLocaleString();
 
   return (
-    <li className={className}>
+    <li className={className} onMouseEnter={onMouseEnter}>
       <ConditionalWrapper
         condition={!!href}
         wrapper={(child) => (
@@ -38,7 +40,7 @@ export function LeaderboardListItem({
         )}
       >
         <Tooltip content={actualNumber} visible={shouldShowTooltip}>
-          <span className="inline-flex min-w-14 justify-center text-text-quaternary">
+          <span className="inline-flex w-14 shrink-0 justify-center tabular-nums text-text-quaternary">
             {formattedNumber}
           </span>
         </Tooltip>

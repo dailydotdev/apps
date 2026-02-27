@@ -187,7 +187,8 @@ export const useBlockPostPanel = (
   const onBlock = useCallback(
     async (tags: BlockTagSelection, shouldBlockSource: boolean) => {
       const { blocks } = getParams(tags);
-      const hasChangedPreference = blockedSource !== shouldBlockSource;
+      const hasChangedPreference =
+        (blockedSource ?? false) !== shouldBlockSource;
       const successful = await updateFeedPreferences(
         blocks,
         [],
@@ -199,7 +200,8 @@ export const useBlockPostPanel = (
       }
 
       if (toastOnSuccess) {
-        const sourcePreferenceChanged = blockedSource !== shouldBlockSource;
+        const sourcePreferenceChanged =
+          (blockedSource ?? false) !== shouldBlockSource;
         const onUndoToast = () => {
           onUndo(
             blocks,
@@ -241,7 +243,7 @@ export const useBlockPostPanel = (
 
     return onUndo(
       blocks,
-      blockedSource === blocked.sourceIncluded
+      (blockedSource ?? false) === blocked.sourceIncluded
         ? undefined
         : !blocked.sourceIncluded,
     );
