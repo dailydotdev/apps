@@ -94,7 +94,7 @@ export const useContentPreferenceStatusQuery = ({
 
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
 
-      if (typeof nextStatus === 'undefined' || nextStatus === null) {
+      if (nextStatus == null) {
         mutationQueryClient.setQueryData<ContentPreference | null>(
           queryKey,
           null,

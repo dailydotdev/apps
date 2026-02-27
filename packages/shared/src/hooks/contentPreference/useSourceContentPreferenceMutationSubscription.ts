@@ -52,11 +52,6 @@ export const useSourceContentPreferenceMutationSubscription = ({
         );
 
         if (followedMember?.user) {
-          if (!nextStatus) {
-            followedMember.user.contentPreference = undefined;
-            return newData;
-          }
-
           followedMember.user.contentPreference = nextStatus
             ? {
                 ...followedMember.user.contentPreference,
