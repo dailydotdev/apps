@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { useMemo, useEffect } from 'react';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import SettingsContext, {
   useSettingsContext,
@@ -95,6 +96,12 @@ const DigestPostContentRaw = ({
   }, [post?.id, onSendViewPost, user?.id]);
 
   const feedQueryKey = generateQueryKey(RequestKey.FeedByIds, user, post?.id);
+
+  const queryClient = useQueryClient();
+  const feedFetchingCount = useIsFetching({ queryKey: feedQueryKey });
+  const isFeedLoaded =
+    !digestPostIds?.length ||
+    (!feedFetchingCount && !!queryClient.getQueryData(feedQueryKey));
 
   const digestAd = post?.flags?.ad;
   const staticAd = useMemo(
@@ -225,7 +232,7 @@ const DigestPostContentRaw = ({
                 <Feed {...feedProps} />
               </SettingsContext.Provider>
             )}
-            {isLoggedIn && !isPlus && (
+            {isLoggedIn && !isPlus && isFeedLoaded && (
               <BriefUpgradeAlert
                 className="!mb-0 mt-4"
                 text="Want deeper insights? Upgrade to Plus for AI-powered briefings that go beyond the headlines."
