@@ -84,4 +84,42 @@ describe('FeedbackModal', () => {
 
     await waitFor(() => expect(mockSubmitFeedback).toHaveBeenCalledTimes(2));
   });
+
+  it('renders all categories and submits content quality with updated enum value', async () => {
+    mockSubmitFeedback.mockResolvedValue({ _: true });
+
+    renderComponent();
+
+    expect(
+      screen.getByRole('button', { name: 'Bug Report' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Feature Request' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'UX Issue' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Performance' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Content Quality' }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Content Quality' }));
+    fireEvent.input(screen.getByPlaceholderText('Your feedback'), {
+      target: {
+        value: 'Content quality is inconsistent across recommendations',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Submit Feedback' }));
+
+    await waitFor(() =>
+      expect(mockSubmitFeedback).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: 7,
+        }),
+      ),
+    );
+  });
 });
