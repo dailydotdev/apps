@@ -119,6 +119,7 @@ export function FeedGreetingHero(): ReactElement | null {
   }, [feedHeroVariantOverride, isDebugMode]);
   const greeting = greetingByMoment[greetingMoment];
   const isEvening = greetingMoment === 'evening';
+  const isMorning = greetingMoment === 'morning';
 
   const effectiveStreak = debugStreakOverride ?? streak?.current ?? 0;
   const hasReadToday =
@@ -243,6 +244,28 @@ export function FeedGreetingHero(): ReactElement | null {
             .animate-starlink {
               animation: starlink-train 80s linear 20s infinite;
             }
+            @keyframes butterfly-flutter {
+              0%, 100% { transform: scaleY(1) rotate(0deg); }
+              50% { transform: scaleY(0.4) rotate(-10deg); }
+            }
+            @keyframes butterfly-float-1 {
+              0%, 100% { transform: translate(0, 0) rotate(15deg); }
+              33% { transform: translate(15px, -15px) rotate(25deg); }
+              66% { transform: translate(-10px, -25px) rotate(5deg); }
+            }
+            @keyframes butterfly-float-2 {
+              0%, 100% { transform: translate(0, 0) rotate(-15deg); }
+              33% { transform: translate(-20px, -10px) rotate(-25deg); }
+              66% { transform: translate(10px, -20px) rotate(-5deg); }
+            }
+            @keyframes butterfly-float-3 {
+              0%, 100% { transform: translate(0, 0) rotate(45deg); }
+              50% { transform: translate(-15px, -30px) rotate(20deg); }
+            }
+            .animate-butterfly-1 { animation: butterfly-float-1 8s ease-in-out infinite; }
+            .animate-butterfly-2 { animation: butterfly-float-2 10s ease-in-out infinite; }
+            .animate-butterfly-3 { animation: butterfly-float-3 9s ease-in-out infinite; }
+            .animate-butterfly-wing { animation: butterfly-flutter 0.3s ease-in-out infinite; }
           `}</style>
           {/* Deep space background gradients */}
           <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,rgba(15,25,60,0.8)_0%,transparent_60%)]" />
@@ -371,6 +394,31 @@ export function FeedGreetingHero(): ReactElement | null {
             isVisible ? "opacity-100" : "opacity-0"
           )}
         >
+          {isMorning && (
+            <>
+              {/* Butterfly 1 (Top Right) */}
+              <span className="absolute -right-12 -top-6 z-10 h-6 w-6 animate-butterfly-1 text-accent-bacon-default opacity-80 drop-shadow-[0_0_8px_rgba(var(--theme-accent-bacon-default),0.8)]">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing">
+                  <path d="M12 12C8 6 4 4 2 8C0 12 4 16 10 14C10 16 8 20 10 22C12 24 13 18 12 12Z" />
+                  <path d="M12 12C16 6 20 4 22 8C24 12 20 16 14 14C14 16 16 20 14 22C12 24 11 18 12 12Z" />
+                </svg>
+              </span>
+              {/* Butterfly 2 (Bottom Left) */}
+              <span className="absolute -bottom-4 -left-10 z-10 h-5 w-5 animate-butterfly-2 text-accent-onion-default opacity-70 drop-shadow-[0_0_6px_rgba(var(--theme-accent-onion-default),0.8)]">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing" style={{ animationDelay: '0.1s' }}>
+                  <path d="M12 12C8 6 4 4 2 8C0 12 4 16 10 14C10 16 8 20 10 22C12 24 13 18 12 12Z" />
+                  <path d="M12 12C16 6 20 4 22 8C24 12 20 16 14 14C14 16 16 20 14 22C12 24 11 18 12 12Z" />
+                </svg>
+              </span>
+              {/* Butterfly 3 (Top Left) */}
+              <span className="absolute -left-4 -top-8 z-10 h-4 w-4 animate-butterfly-3 text-accent-pepper-default opacity-60 drop-shadow-[0_0_5px_rgba(var(--theme-accent-pepper-default),0.8)]">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing" style={{ animationDelay: '0.2s' }}>
+                  <path d="M12 12C8 6 4 4 2 8C0 12 4 16 10 14C10 16 8 20 10 22C12 24 13 18 12 12Z" />
+                  <path d="M12 12C16 6 20 4 22 8C24 12 20 16 14 14C14 16 16 20 14 22C12 24 11 18 12 12Z" />
+                </svg>
+              </span>
+            </>
+          )}
           {greeting}
         </p>
         <p 
