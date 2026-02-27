@@ -436,6 +436,23 @@ export function ReadingStreakButton({
             Show feed hero night
           </Switch>
           <div className="flex items-center gap-1">
+            {(['auto', 'night', 'morning'] as const).map((variant) => (
+              <button
+                key={variant}
+                type="button"
+                onClick={() => debug.setFeedHeroVariantOverride(variant)}
+                className={classnames(
+                  'rounded-8 px-2 py-1 capitalize typo-caption1',
+                  debug.feedHeroVariantOverride === variant
+                    ? 'bg-accent-bacon-default text-white'
+                    : 'bg-surface-float hover:bg-surface-hover',
+                )}
+              >
+                {variant}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={decrementDebugStreak}

@@ -8,12 +8,16 @@ export interface StreakFeatureToggles {
   urgencyNudges: boolean;
 }
 
+export type FeedHeroVariantOverride = 'auto' | 'night' | 'morning';
+
 interface UseStreakDebugReturn {
   isDebugMode: boolean;
   features: StreakFeatureToggles;
   toggleFeature: (feature: keyof StreakFeatureToggles) => void;
   isFeedHeroVisible: boolean;
   setFeedHeroVisible: (value: boolean) => void;
+  feedHeroVariantOverride: FeedHeroVariantOverride;
+  setFeedHeroVariantOverride: (value: FeedHeroVariantOverride) => void;
   debugUrgency: UrgencyLevel | null;
   debugAnimationOverride: StreakAnimationState | null;
   debugStreakOverride: number | null;
@@ -34,6 +38,8 @@ let globalDebugStreak: number | null = null;
 const debugStreakListeners = new Set<() => void>();
 let globalFeedHeroVisible = false;
 const feedHeroListeners = new Set<() => void>();
+let globalFeedHeroVariantOverride: FeedHeroVariantOverride = 'auto';
+const feedHeroVariantListeners = new Set<() => void>();
 
 const subscribeDebugStreak = (listener: () => void): (() => void) => {
   debugStreakListeners.add(listener);
@@ -49,6 +55,14 @@ const subscribeFeedHeroVisibility = (listener: () => void): (() => void) => {
 };
 const getFeedHeroVisibilitySnapshot = (): boolean => globalFeedHeroVisible;
 const getFeedHeroVisibilityServerSnapshot = (): boolean => false;
+const subscribeFeedHeroVariant = (listener: () => void): (() => void) => {
+  feedHeroVariantListeners.add(listener);
+
+  return () => feedHeroVariantListeners.delete(listener);
+};
+const getFeedHeroVariantSnapshot = (): FeedHeroVariantOverride =>
+  globalFeedHeroVariantOverride;
+const getFeedHeroVariantServerSnapshot = (): FeedHeroVariantOverride => 'auto';
 
 const setGlobalDebugStreak = (value: number | null): void => {
   globalDebugStreak = value;
@@ -57,6 +71,12 @@ const setGlobalDebugStreak = (value: number | null): void => {
 const setGlobalFeedHeroVisible = (value: boolean): void => {
   globalFeedHeroVisible = value;
   feedHeroListeners.forEach((listener) => listener());
+};
+const setGlobalFeedHeroVariantOverride = (
+  value: FeedHeroVariantOverride,
+): void => {
+  globalFeedHeroVariantOverride = value;
+  feedHeroVariantListeners.forEach((listener) => listener());
 };
 
 export const useStreakDebug = (): UseStreakDebugReturn => {
@@ -87,6 +107,11 @@ export const useStreakDebug = (): UseStreakDebugReturn => {
     subscribeFeedHeroVisibility,
     getFeedHeroVisibilitySnapshot,
     getFeedHeroVisibilityServerSnapshot,
+  );
+  const feedHeroVariantOverride = useSyncExternalStore(
+    subscribeFeedHeroVariant,
+    getFeedHeroVariantSnapshot,
+    getFeedHeroVariantServerSnapshot,
   );
 
   const animationTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -139,12 +164,19 @@ export const useStreakDebug = (): UseStreakDebugReturn => {
   const setFeedHeroVisible = useCallback((value: boolean) => {
     setGlobalFeedHeroVisible(value);
   }, []);
+  const setFeedHeroVariantOverride = useCallback(
+    (value: FeedHeroVariantOverride) => {
+      setGlobalFeedHeroVariantOverride(value);
+    },
+    [],
+  );
 
   const resetDebug = useCallback(() => {
     setDebugUrgency(null);
     setDebugAnimationOverride(null);
     setGlobalDebugStreak(null);
     setGlobalFeedHeroVisible(false);
+    setGlobalFeedHeroVariantOverride('auto');
     setFeatures({
       animatedCounter: true,
       milestoneTimeline: true,
@@ -158,6 +190,8 @@ export const useStreakDebug = (): UseStreakDebugReturn => {
     toggleFeature,
     isFeedHeroVisible,
     setFeedHeroVisible,
+    feedHeroVariantOverride,
+    setFeedHeroVariantOverride,
     debugUrgency,
     debugAnimationOverride,
     debugStreakOverride,

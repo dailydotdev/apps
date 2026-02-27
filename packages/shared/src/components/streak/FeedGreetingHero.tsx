@@ -62,8 +62,12 @@ export function FeedGreetingHero(): ReactElement | null {
   const { user } = useAuthContext();
   const { themeMode } = useSettingsContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { debugStreakOverride, isDebugMode, isFeedHeroVisible } =
-    useStreakDebug();
+  const {
+    debugStreakOverride,
+    isDebugMode,
+    isFeedHeroVisible,
+    feedHeroVariantOverride,
+  } = useStreakDebug();
   const { data: history } = useQuery<ReadingDay[]>({
     queryKey: generateQueryKey(RequestKey.ReadingStreak30Days, user),
     queryFn: () => getReadingStreak30Days(user?.id),
@@ -102,7 +106,17 @@ export function FeedGreetingHero(): ReactElement | null {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
-  const greetingMoment = useMemo(() => getGreetingMoment(new Date()), []);
+  const greetingMoment = useMemo(() => {
+    if (isDebugMode && feedHeroVariantOverride === 'night') {
+      return 'evening';
+    }
+
+    if (isDebugMode && feedHeroVariantOverride === 'morning') {
+      return 'morning';
+    }
+
+    return getGreetingMoment(new Date());
+  }, [feedHeroVariantOverride, isDebugMode]);
   const greeting = greetingByMoment[greetingMoment];
   const isEvening = greetingMoment === 'evening';
 
@@ -148,8 +162,11 @@ export function FeedGreetingHero(): ReactElement | null {
   if (
     !user ||
     isLoading ||
-    themeMode === ThemeMode.Light ||
-    (themeMode === ThemeMode.Auto && !isSystemDark) ||
+    (!isDebugMode && isEvening && themeMode === ThemeMode.Light) ||
+    (!isDebugMode &&
+      isEvening &&
+      themeMode === ThemeMode.Auto &&
+      !isSystemDark) ||
     !isStreaksEnabled ||
     !streak ||
     (isDebugMode && !isFeedHeroVisible) ||
