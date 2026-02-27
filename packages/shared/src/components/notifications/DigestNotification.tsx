@@ -9,6 +9,7 @@ import { HourDropdown } from '../fields/HourDropdown';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { NotificationType } from './utils';
+import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import NotificationSwitch from './NotificationSwitch';
 import { isNullOrUndefined } from '../../lib/func';
 import { Radio } from '../fields/Radio';
@@ -18,7 +19,11 @@ const digestCopy = `Our recommendation system scans everything on daily.dev and
                     Choose when and how often you get them.`;
 
 const DigestNotification = () => {
-  const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
+  const {
+    notificationSettings: ns,
+    toggleSetting,
+    setNotificationStatus,
+  } = useNotificationSettings();
   const { isPushSupported } = usePushNotificationContext();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -77,7 +82,7 @@ const DigestNotification = () => {
 
   const onToggleDigest = () => {
     toggleSetting(NotificationType.DigestReady, 'inApp');
-    onLogToggle(isChecked, NotificationCategory.Digest);
+    onLogToggle(!isChecked, NotificationCategory.Digest);
 
     // Email for digest is managed via BriefingReady in the email tab
     const emailActive =
@@ -89,6 +94,20 @@ const DigestNotification = () => {
         type: UserPersonalizedDigestType.Digest,
       });
     } else if (!digest) {
+      // Enabling Digest — if Brief subscription exists, replace it
+      const briefDigest = getPersonalizedDigest(
+        UserPersonalizedDigestType.Brief,
+      );
+      if (briefDigest) {
+        unsubscribePersonalizedDigest({
+          type: UserPersonalizedDigestType.Brief,
+        });
+        setNotificationStatus(
+          NotificationType.BriefingReady,
+          'inApp',
+          NotificationPreferenceStatus.Muted,
+        );
+      }
       subscribePersonalizedDigest({
         type: UserPersonalizedDigestType.Digest,
         sendType: SendType.Workdays,

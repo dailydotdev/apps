@@ -134,7 +134,7 @@ const PersonalizedDigest = () => {
 
   const onToggleBriefing = () => {
     toggleSetting(NotificationType.BriefingReady, 'email');
-    onLogToggle(isChecked, NotificationCategory.Digest);
+    onLogToggle(!isChecked, NotificationCategory.Digest);
 
     if (isChecked) {
       if (selectedDigest?.type === UserPersonalizedDigestType.Digest) {
@@ -294,6 +294,11 @@ const PersonalizedDigest = () => {
                 await unsubscribePersonalizedDigest({
                   type: UserPersonalizedDigestType.Digest,
                 });
+                setNotificationStatus(
+                  NotificationType.DigestReady,
+                  'inApp',
+                  NotificationPreferenceStatus.Muted,
+                );
               } else {
                 await onSubscribeDigest({
                   type: UserPersonalizedDigestType.Digest,
