@@ -1,8 +1,12 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { MedalBadgeIcon } from '../../icons/MedalBadge';
 import { IconSize } from '../../Icon';
-import { TOP_RANK_STYLES } from './common';
+import {
+  runIconPopAnimation,
+  runSparkAnimation,
+  TOP_RANK_STYLES,
+} from './common';
 
 const SPARK_COUNT = 5;
 
@@ -13,12 +17,31 @@ interface TopRankBadgeProps {
 export function TopRankBadge({ rankIndex }: TopRankBadgeProps): ReactElement {
   const rankStyle = TOP_RANK_STYLES[rankIndex];
 
+  const handleMouseEnter = useCallback(
+    (e: React.MouseEvent<HTMLSpanElement>) => {
+      if (!rankStyle) {
+        return;
+      }
+      runIconPopAnimation(e.currentTarget, 'leaderboard-medal-wrapper');
+      runSparkAnimation(
+        e.currentTarget,
+        '.leaderboard-medal-spark',
+        rankStyle.glowColor,
+        16,
+      );
+    },
+    [rankStyle],
+  );
+
   if (!rankStyle) {
     return <span className="w-8 shrink-0" />;
   }
 
   return (
-    <span className="relative flex w-8 shrink-0 items-center justify-center pl-1">
+    <span
+      className="relative flex w-8 shrink-0 items-center justify-center pl-1"
+      onMouseEnter={handleMouseEnter}
+    >
       <span
         className="pointer-events-none absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-40"
         style={{ backgroundColor: rankStyle.glowColor }}
@@ -33,7 +56,7 @@ export function TopRankBadge({ rankIndex }: TopRankBadgeProps): ReactElement {
           {Array.from({ length: SPARK_COUNT }, (_, i) => (
             <span
               key={i}
-              className="leaderboard-medal-spark gear-medal-spark absolute left-1/2 top-1/2 h-1 w-1 rounded-full"
+              className="leaderboard-medal-spark absolute left-1/2 top-1/2 h-1 w-1 rounded-full"
             />
           ))}
         </span>

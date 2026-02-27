@@ -23,17 +23,17 @@ export const TOP_RANK_STYLES: TopRankStyle[] = [
   {
     iconColor: 'text-accent-cheese-default',
     glowColor: 'var(--theme-accent-cheese-default)',
-    hoverClass: 'gear-rank-gold',
+    hoverClass: 'leaderboard-rank-gold',
   },
   {
     iconColor: 'text-text-tertiary',
     glowColor: 'var(--theme-text-tertiary)',
-    hoverClass: 'gear-rank-silver',
+    hoverClass: 'leaderboard-rank-silver',
   },
   {
     iconColor: 'text-accent-bacon-default',
     glowColor: 'var(--theme-accent-bacon-default)',
-    hoverClass: 'gear-rank-bronze',
+    hoverClass: 'leaderboard-rank-bronze',
   },
 ];
 
@@ -62,7 +62,7 @@ export const runSparkAnimation = (
 
     style.animation = 'none';
     forceReflow(el);
-    style.animation = `gear-medal-spark 0.7s ease-out ${(
+    style.animation = `leaderboard-medal-spark 0.7s ease-out ${(
       Math.random() * 0.06
     ).toFixed(2)}s forwards`;
   });
