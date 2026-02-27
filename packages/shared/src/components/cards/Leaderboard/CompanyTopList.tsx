@@ -6,7 +6,11 @@ import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import type { Company } from '../../../lib/userCompany';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
-import { runIconPopAnimation, runSparkAnimation, TOP_RANK_STYLES } from './common';
+import {
+  runIconPopAnimation,
+  runSparkAnimation,
+  TOP_RANK_STYLES,
+} from './common';
 import { TopRankBadge } from './TopRankBadge';
 
 export interface CompanyLeaderboard {

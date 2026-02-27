@@ -6,7 +6,11 @@ import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
 import type { LoggedUser } from '../../../lib/user';
-import { runIconPopAnimation, runSparkAnimation, TOP_RANK_STYLES } from './common';
+import {
+  runIconPopAnimation,
+  runSparkAnimation,
+  TOP_RANK_STYLES,
+} from './common';
 import { TopRankBadge } from './TopRankBadge';
 
 export interface UserLeaderboard {
