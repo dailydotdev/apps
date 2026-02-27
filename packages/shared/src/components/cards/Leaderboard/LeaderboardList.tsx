@@ -11,10 +11,15 @@ export interface CommonLeaderboardProps<T extends Iterable<unknown>>
 }
 
 export interface LeaderboardListProps {
-  containerProps: Omit<LeaderboardListContainerProps, 'children'>;
+  containerProps: Omit<
+    LeaderboardListContainerProps,
+    'children' | 'footer' | 'header'
+  >;
   isLoading: boolean;
   children: ReactNode;
   concatScore?: boolean;
+  footer?: ReactNode;
+  header?: ReactNode;
 }
 
 const PlaceholderList = classed(
@@ -26,9 +31,15 @@ export function LeaderboardList({
   containerProps,
   isLoading,
   children,
+  footer,
+  header,
 }: LeaderboardListProps): ReactElement {
   return (
-    <LeaderboardListContainer {...containerProps}>
+    <LeaderboardListContainer
+      {...containerProps}
+      footer={footer}
+      header={header}
+    >
       {/* eslint-disable-next-line react/no-array-index-key */}
       {isLoading && [...Array(10)].map((_, i) => <PlaceholderList key={i} />)}
       {children}

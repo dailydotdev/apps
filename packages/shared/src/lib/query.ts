@@ -245,6 +245,8 @@ export enum RequestKey {
   UserWorkspacePhotos = 'user_workspace_photos',
   Gear = 'gear',
   GearSearch = 'gear_search',
+  PopularGear = 'popular_gear',
+  GearCategories = 'gear_categories',
   PersonalAccessTokens = 'personal_access_tokens',
   UserAchievements = 'user_achievements',
   TrackedAchievement = 'tracked_achievement',
