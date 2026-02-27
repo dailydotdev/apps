@@ -9,9 +9,9 @@ export enum FeedbackCategory {
   Unspecified = 0,
   BugReport = 1,
   FeatureRequest = 2,
-  UxIssue = 3,
-  PerformanceComplaint = 4,
-  ContentQuality = 5,
+  UxIssue = 5,
+  PerformanceComplaint = 6,
+  ContentQuality = 7,
 }
 
 export interface FeedbackInput {
