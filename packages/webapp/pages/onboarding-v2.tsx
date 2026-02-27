@@ -524,17 +524,32 @@ const OnboardingV2Page = (): ReactElement => {
 
     observeFeedArticles();
 
-    const mutationObserver = new MutationObserver(() => {
-      observeFeedArticles();
+    const mutationObserver = new MutationObserver((mutations) => {
+      // Only re-observe when actual <article> elements (or wrappers containing
+      // them) are added. This prevents a feedback loop with the engagement
+      // animation, which appends <label>/<span> nodes inside articles —
+      // those additions are ignored because they are not articles themselves.
+      const hasNewArticles = mutations.some((mutation) =>
+        Array.from(mutation.addedNodes).some(
+          (node) =>
+            node instanceof HTMLElement &&
+            (node.tagName === 'ARTICLE' || node.querySelector('article')),
+        ),
+      );
+      if (hasNewArticles) {
+        observeFeedArticles();
+      }
     });
     const feedContainer =
       document.querySelector('.onb-feed-stage') ?? document.body;
-    // subtree: false — only watch for direct article additions to the feed
-    // container, not for DOM mutations inside articles (which the engagement
-    // animation makes, causing a feedback loop with subtree: true).
+    // subtree: true is required — feed articles are nested several levels deep
+    // inside .onb-feed-stage (inside a <main> wrapper), so childList-only
+    // observation on the container itself never fires when articles load.
+    // The callback above filters to article additions only, preventing the
+    // feedback loop that previously occurred with the engagement animation.
     mutationObserver.observe(feedContainer, {
       childList: true,
-      subtree: false,
+      subtree: true,
     });
 
     return () => {
