@@ -194,6 +194,50 @@ export function FeedGreetingHero(): ReactElement | null {
             : 'bg-gradient-to-b from-[#1b2134]/35 via-[#1b2134]/15 to-transparent',
         )}
       />
+      
+      <style>{`
+        @keyframes butterfly-flutter {
+          0%, 100% { transform: scaleY(1) rotate(0deg); }
+          50% { transform: scaleY(0.4) rotate(-10deg); }
+        }
+        @keyframes butterfly-float-1 {
+          0% { transform: translate(0, 0) scale(0.8) rotate(15deg); opacity: 0; }
+          20% { opacity: 0.8; }
+          50% { transform: translate(15px, -20px) scale(1) rotate(25deg); opacity: 1; }
+          80% { opacity: 0.8; }
+          100% { transform: translate(30px, -40px) scale(0.8) rotate(15deg); opacity: 0; }
+        }
+        @keyframes butterfly-float-2 {
+          0% { transform: translate(0, 0) scale(0.8) rotate(-15deg); opacity: 0; }
+          20% { opacity: 0.7; }
+          50% { transform: translate(-20px, -15px) scale(1.1) rotate(-25deg); opacity: 1; }
+          80% { opacity: 0.7; }
+          100% { transform: translate(-40px, -30px) scale(0.8) rotate(-15deg); opacity: 0; }
+        }
+        @keyframes butterfly-float-3 {
+          0% { transform: translate(0, 0) scale(0.8) rotate(45deg); opacity: 0; }
+          20% { opacity: 0.6; }
+          50% { transform: translate(-15px, -30px) scale(1) rotate(20deg); opacity: 0.9; }
+          80% { opacity: 0.6; }
+          100% { transform: translate(-30px, -60px) scale(0.8) rotate(45deg); opacity: 0; }
+        }
+        .animate-butterfly-1 { animation: butterfly-float-1 6s ease-in-out infinite; }
+        .animate-butterfly-2 { animation: butterfly-float-2 8s ease-in-out infinite; animation-delay: 2s; }
+        .animate-butterfly-3 { animation: butterfly-float-3 7s ease-in-out infinite; animation-delay: 4s; }
+        .animate-butterfly-wing { animation: butterfly-flutter 0.15s ease-in-out infinite; }
+      `}</style>
+
+      {isMorning && (
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+          {/* Window light rays */}
+          <div className="absolute -top-32 left-[5%] h-[200%] w-32 -rotate-45 bg-gradient-to-b from-white/30 via-white/10 to-transparent blur-2xl" />
+          <div className="absolute -top-32 left-[25%] h-[200%] w-48 -rotate-45 bg-gradient-to-b from-white/20 via-white/10 to-transparent blur-2xl" />
+          <div className="absolute -top-32 left-[55%] h-[200%] w-24 -rotate-45 bg-gradient-to-b from-white/20 via-white/10 to-transparent blur-xl" />
+          
+          {/* Gentle morning glow at the source */}
+          <div className="absolute -left-20 -top-20 h-64 w-96 rounded-full bg-white/20 blur-[60px]" />
+        </div>
+      )}
       {isEvening && (
         <>
           <style>{`
@@ -244,28 +288,6 @@ export function FeedGreetingHero(): ReactElement | null {
             .animate-starlink {
               animation: starlink-train 80s linear 20s infinite;
             }
-            @keyframes butterfly-flutter {
-              0%, 100% { transform: scaleY(1) rotate(0deg); }
-              50% { transform: scaleY(0.4) rotate(-10deg); }
-            }
-            @keyframes butterfly-float-1 {
-              0%, 100% { transform: translate(0, 0) rotate(15deg); }
-              33% { transform: translate(15px, -15px) rotate(25deg); }
-              66% { transform: translate(-10px, -25px) rotate(5deg); }
-            }
-            @keyframes butterfly-float-2 {
-              0%, 100% { transform: translate(0, 0) rotate(-15deg); }
-              33% { transform: translate(-20px, -10px) rotate(-25deg); }
-              66% { transform: translate(10px, -20px) rotate(-5deg); }
-            }
-            @keyframes butterfly-float-3 {
-              0%, 100% { transform: translate(0, 0) rotate(45deg); }
-              50% { transform: translate(-15px, -30px) rotate(20deg); }
-            }
-            .animate-butterfly-1 { animation: butterfly-float-1 8s ease-in-out infinite; }
-            .animate-butterfly-2 { animation: butterfly-float-2 10s ease-in-out infinite; }
-            .animate-butterfly-3 { animation: butterfly-float-3 9s ease-in-out infinite; }
-            .animate-butterfly-wing { animation: butterfly-flutter 0.3s ease-in-out infinite; }
           `}</style>
           {/* Deep space background gradients */}
           <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,rgba(15,25,60,0.8)_0%,transparent_60%)]" />
@@ -397,22 +419,22 @@ export function FeedGreetingHero(): ReactElement | null {
           {isMorning && (
             <>
               {/* Butterfly 1 (Top Right) */}
-              <span className="absolute -right-12 -top-6 z-10 h-6 w-6 animate-butterfly-1 text-accent-bacon-default opacity-80 drop-shadow-[0_0_8px_rgba(var(--theme-accent-bacon-default),0.8)]">
+              <span className="absolute -right-12 -top-6 z-10 h-6 w-6 animate-butterfly-1 text-[#c084fc] opacity-0 drop-shadow-[0_0_12px_rgba(192,132,252,0.9)] blur-[0.5px]">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing">
                   <path d="M12 12C8 6 4 4 2 8C0 12 4 16 10 14C10 16 8 20 10 22C12 24 13 18 12 12Z" />
                   <path d="M12 12C16 6 20 4 22 8C24 12 20 16 14 14C14 16 16 20 14 22C12 24 11 18 12 12Z" />
                 </svg>
               </span>
               {/* Butterfly 2 (Bottom Left) */}
-              <span className="absolute -bottom-4 -left-10 z-10 h-5 w-5 animate-butterfly-2 text-accent-onion-default opacity-70 drop-shadow-[0_0_6px_rgba(var(--theme-accent-onion-default),0.8)]">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing" style={{ animationDelay: '0.1s' }}>
+              <span className="absolute -bottom-4 -left-10 z-10 h-5 w-5 animate-butterfly-2 text-[#a855f7] opacity-0 drop-shadow-[0_0_10px_rgba(168,85,247,0.9)] blur-[0.5px]">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing" style={{ animationDelay: '0.05s' }}>
                   <path d="M12 12C8 6 4 4 2 8C0 12 4 16 10 14C10 16 8 20 10 22C12 24 13 18 12 12Z" />
                   <path d="M12 12C16 6 20 4 22 8C24 12 20 16 14 14C14 16 16 20 14 22C12 24 11 18 12 12Z" />
                 </svg>
               </span>
               {/* Butterfly 3 (Top Left) */}
-              <span className="absolute -left-4 -top-8 z-10 h-4 w-4 animate-butterfly-3 text-accent-pepper-default opacity-60 drop-shadow-[0_0_5px_rgba(var(--theme-accent-pepper-default),0.8)]">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing" style={{ animationDelay: '0.2s' }}>
+              <span className="absolute -left-4 -top-8 z-10 h-4 w-4 animate-butterfly-3 text-[#d8b4fe] opacity-0 drop-shadow-[0_0_8px_rgba(216,180,254,0.9)] blur-[0.5px]">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-full w-full animate-butterfly-wing" style={{ animationDelay: '0.1s' }}>
                   <path d="M12 12C8 6 4 4 2 8C0 12 4 16 10 14C10 16 8 20 10 22C12 24 13 18 12 12Z" />
                   <path d="M12 12C16 6 20 4 22 8C24 12 20 16 14 14C14 16 16 20 14 22C12 24 11 18 12 12Z" />
                 </svg>
