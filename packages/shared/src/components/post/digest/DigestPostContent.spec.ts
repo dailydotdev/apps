@@ -23,6 +23,8 @@ describe('transformDigestAd', () => {
         description: 'Check out our product',
         link: 'https://example.com/ad',
         image: 'https://example.com/ad-image.png',
+        companyLogo: 'https://example.com/logo.png',
+        callToAction: 'Learn More',
         pixel: [],
       },
       index: 3,

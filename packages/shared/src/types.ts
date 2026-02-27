@@ -43,4 +43,3 @@ export type ErrorBoundaryFeature =
   | 'extension-feed'
   | 'onboarding'
   | '404-page';
-
