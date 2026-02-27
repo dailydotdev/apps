@@ -57,14 +57,12 @@ export const useSourceContentPreferenceMutationSubscription = ({
             return newData;
           }
 
-          if (!followedMember.user.contentPreference) {
-            return newData;
-          }
-
-          followedMember.user.contentPreference = {
-            ...followedMember.user.contentPreference,
-            status: nextStatus,
-          };
+          followedMember.user.contentPreference = nextStatus
+            ? {
+                ...followedMember.user.contentPreference,
+                status: nextStatus,
+              }
+            : undefined;
         }
 
         return newData;

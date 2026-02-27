@@ -69,21 +69,19 @@ export const useFollowContentPreferenceMutationSubscription = ({
                     followingKeys.includes(queryType) &&
                     node.referenceUser?.id === entityId
                   ) {
-                    node.referenceUser.contentPreference = nextStatus
-                      ? { status: nextStatus }
-                      : undefined;
+                    node.referenceUser.contentPreference = {
+                      status: nextStatus,
+                    };
                   }
 
                   if (
                     queryType === RequestKey.UserFollowers &&
                     node.user?.id === entityId
                   ) {
-                    node.user.contentPreference = nextStatus
-                      ? { status: nextStatus }
-                      : undefined;
+                    node.user.contentPreference = { status: nextStatus };
                   }
 
-                  if (node.referenceId === entityId && nextStatus) {
+                  if (node.referenceId === entityId) {
                     node.status = nextStatus;
                   }
 
