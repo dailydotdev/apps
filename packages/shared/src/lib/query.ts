@@ -249,6 +249,7 @@ export enum RequestKey {
   UserAchievements = 'user_achievements',
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
+  Arena = 'arena',
   ShowcaseAchievements = 'showcase_achievements',
 }
 

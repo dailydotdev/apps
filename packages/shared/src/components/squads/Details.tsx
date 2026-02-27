@@ -87,14 +87,21 @@ export function SquadDetails({
   const imageFileRef = useRef<File | null>(null);
   const headerFileRef = useRef<File | null>(null);
 
-  const { data: channels } = useSlackChannelsQuery({
+  const {
+    channels,
+    fetchNextPage: fetchNextChannelPage,
+    hasNextPage: hasNextChannelPage,
+    isFetchingNextPage: isFetchingNextChannelPage,
+  } = useSlackChannelsQuery({
     integrationId,
     queryOptions: { enabled: createMode },
+    selectedChannelId: selectedChannel,
   });
 
-  const selectedChannelIndex = useMemo(() => {
-    return channels?.findIndex((item) => item.id === selectedChannel) || 0;
-  }, [channels, selectedChannel]);
+  const selectedChannelIndex = useMemo(
+    () => channels?.findIndex((item) => item.id === selectedChannel) ?? -1,
+    [channels, selectedChannel],
+  );
 
   const { mutateAsync: onValidateHandle } = useMutation({
     mutationFn: checkExistingHandle,
@@ -342,6 +349,9 @@ export function SquadDetails({
                 options={channels?.map((item) => `#${item.name}`)}
                 onChange={(_, index) => setSelectedChannel(channels[index].id)}
                 scrollable
+                fetchNextPage={fetchNextChannelPage}
+                canFetchMore={hasNextChannelPage}
+                isFetchingNextPage={isFetchingNextChannelPage}
               />
             )}
           </SquadSettingsSection>
