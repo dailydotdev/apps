@@ -246,6 +246,8 @@ export interface Ad {
   generationId?: string;
   matchingTags?: string[];
   adDomain?: string;
+  companyLogo?: string;
+  callToAction?: string;
 }
 
 export type ReadHistoryPost = Pick<

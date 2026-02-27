@@ -9,6 +9,8 @@ export const transformDigestAd = (
     description: digestAd.title,
     link: digestAd.link,
     image: digestAd.image,
+    companyLogo: digestAd.companyLogo,
+    callToAction: digestAd.callToAction,
     pixel: [],
   },
   index: digestAd.index,

@@ -3,6 +3,7 @@ import React, { forwardRef, useCallback } from 'react';
 
 import { Card, CardImage, CardTextContainer, CardTitle } from '../common/Card';
 import AdLink from './common/AdLink';
+import { combinedClicks } from '../../../lib/click';
 import AdAttribution from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
@@ -12,6 +13,7 @@ import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
+import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { AdFavicon } from './common/AdFavicon';
 import PostTags from '../common/PostTags';
@@ -53,20 +55,36 @@ export const AdGrid = forwardRef(function AdGrid(
       <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
       <CardTextContainer className="!mx-1 my-1">
         <div className="flex items-center">
-          {!!onRefresh && (
-            <AdRefresh
-              variant={ButtonVariant.Tertiary}
+          {!!ad.callToAction && (
+            <Button
+              tag="a"
+              href={ad.link}
+              target="_blank"
+              rel="noopener"
+              variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
-              onClick={onRefreshClick}
-              loading={isRefetching}
-            />
+              className="z-1"
+              {...combinedClicks(() => onLinkClick?.(ad))}
+            >
+              {ad.callToAction}
+            </Button>
           )}
-          {!isPlus && (
-            <RemoveAd
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-            />
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            {!!onRefresh && (
+              <AdRefresh
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                onClick={onRefreshClick}
+                loading={isRefetching}
+              />
+            )}
+            {!isPlus && (
+              <RemoveAd
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+              />
+            )}
+          </div>
         </div>
       </CardTextContainer>
       <AdPixel pixel={ad.pixel} />
