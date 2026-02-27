@@ -68,7 +68,7 @@ export const PromptButtons = ({
   const remainingTags = promptsCount - promptList?.length;
 
   const onPromptClick = useCallback(
-    (id) => {
+    (id: string) => {
       if (isMobile && !isPlus) {
         openModal({
           type: LazyModal.SmartPrompt,

@@ -163,7 +163,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   return {
     fetchSmartTitle,
     title,
-    fetchedSmartTitle,
-    shieldActive,
+    fetchedSmartTitle: fetchedSmartTitle ?? false,
+    shieldActive: shieldActive ?? false,
   };
 };

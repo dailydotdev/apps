@@ -43,6 +43,7 @@ const FeedbackModal = ({
 }: ModalProps): ReactElement => {
   const { displayToast } = useToastNotification();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasSubmitted = useRef(false);
 
   const [category, setCategory] = useState<FeedbackCategory>(
     FeedbackCategory.BugReport,
@@ -159,15 +160,22 @@ const FeedbackModal = ({
       onRequestClose?.(null);
     },
     onError: () => {
+      hasSubmitted.current = false;
       displayToast('Failed to submit feedback. Please try again.');
     },
   });
 
   const handleSubmit = useCallback(async () => {
+    if (hasSubmitted.current) {
+      return;
+    }
+
     if (!description.trim()) {
       displayToast('Please enter your feedback');
       return;
     }
+
+    hasSubmitted.current = true;
 
     let screenshotUrl: string | undefined;
 
@@ -176,6 +184,7 @@ const FeedbackModal = ({
       try {
         screenshotUrl = await uploadContentImage(screenshot);
       } catch {
+        hasSubmitted.current = false;
         displayToast('Failed to upload screenshot. Please try again.');
         setIsUploading(false);
         return;

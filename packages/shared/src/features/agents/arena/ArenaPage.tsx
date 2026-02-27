@@ -1,0 +1,121 @@
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
+import { ArenaIcon } from '../../../components/icons/Arena';
+import { IconSize } from '../../../components/Icon';
+import type { ArenaTab } from './types';
+import { ARENA_TABS } from './config';
+import { computeRankings, computeCrowns } from './arenaMetrics';
+import { ArenaCrownCards } from './ArenaCrownCards';
+import { ArenaRankings } from './ArenaRankings';
+import { ArenaHighlightsFeed } from './ArenaHighlightsFeed';
+import { arenaOptions } from './queries';
+
+interface ArenaPageProps {
+  activeTab: ArenaTab;
+  onTabChange?: (tab: ArenaTab) => void;
+  headerAside?: ReactElement;
+}
+
+const LiveIndicator = (): ReactElement => (
+  <div className="flex items-center gap-1.5">
+    <span className="inline-block h-2 w-2 animate-scale-down-pulse rounded-full bg-accent-avocado-default shadow-[0_0_6px_var(--theme-accent-avocado-default)]" />
+    <span className="text-accent-avocado-default typo-caption2">Live</span>
+  </div>
+);
+
+export const ArenaPage = ({
+  activeTab,
+  onTabChange,
+  headerAside,
+}: ArenaPageProps): ReactElement => {
+  const { data, isFetching } = useQuery(arenaOptions({ groupId: activeTab }));
+
+  const rankings = useMemo(
+    () =>
+      data?.sentimentTimeSeries && data.sentimentGroup
+        ? computeRankings(
+            data.sentimentTimeSeries.entities.nodes,
+            data.sentimentGroup.entities,
+            data.sentimentTimeSeries.resolutionSeconds,
+          )
+        : [],
+    [data?.sentimentTimeSeries, data?.sentimentGroup],
+  );
+
+  const crowns = useMemo(() => computeCrowns(rankings), [rankings]);
+  const loading = isFetching && !data;
+
+  return (
+    <div className="relative mx-auto flex w-full max-w-6xl flex-col">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="animate-float-slow bg-accent-cabbage-default/10 absolute -left-32 -top-32 h-96 w-96 rounded-full blur-3xl" />
+        <div className="animate-float-slow-reverse bg-accent-onion-default/[0.08] absolute -right-32 -top-16 h-64 w-64 rounded-full blur-3xl" />
+        <div className="animate-float-slow-delayed bg-accent-water-default/[0.06] absolute -bottom-20 left-1/3 h-48 w-48 rounded-full blur-3xl" />
+      </div>
+
+      <header className="px-4 pt-6 laptop:px-6 laptop:pt-10 laptopL:px-0">
+        <div className="flex flex-col gap-3 laptop:flex-row laptop:items-start">
+          <div className="flex items-center gap-3">
+            <ArenaIcon size={IconSize.XXLarge} className="text-text-primary" />
+            <div className="flex flex-col">
+              <h1 className="font-bold text-text-primary typo-title2 laptop:typo-title1">
+                The Arena
+              </h1>
+              <p className="text-text-tertiary typo-footnote">
+                Where AI tools fight for developer love
+              </p>
+            </div>
+          </div>
+          {headerAside && <div className="laptop:ml-auto">{headerAside}</div>}
+        </div>
+      </header>
+
+      <nav className="sticky top-0 z-3 mt-4 flex items-center gap-1 border-b border-border-subtlest-tertiary bg-background-default px-4 laptop:px-6 laptopL:px-0">
+        {ARENA_TABS.map((tab) => (
+          <button
+            key={tab.value}
+            type="button"
+            onClick={() => onTabChange?.(tab.value)}
+            className={classNames(
+              'relative rounded-t-12 px-4 py-2.5 font-bold transition-colors typo-callout',
+              activeTab === tab.value
+                ? 'bg-surface-float text-text-primary'
+                : 'text-text-tertiary hover:text-text-secondary',
+            )}
+          >
+            {tab.label}
+            {activeTab === tab.value && (
+              <div className="absolute bottom-0 left-1/2 h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary" />
+            )}
+          </button>
+        ))}
+        <div className="ml-auto">
+          <LiveIndicator />
+        </div>
+      </nav>
+
+      <div className="flex flex-col gap-6 px-4 py-6 laptop:px-6 laptopL:px-0">
+        <section>
+          <ArenaCrownCards crowns={crowns} loading={loading} />
+        </section>
+
+        <div className="flex flex-col gap-6 laptopL:grid laptopL:grid-cols-[3fr_2fr]">
+          <section className="min-w-0">
+            <ArenaRankings tools={rankings} loading={loading} />
+          </section>
+          <aside className="relative">
+            <div className="laptopL:absolute laptopL:inset-0">
+              <ArenaHighlightsFeed
+                key={activeTab}
+                items={data?.sentimentHighlights?.items ?? []}
+                loading={loading}
+              />
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  );
+};

@@ -65,7 +65,7 @@ export const MarketingCtaModal = ({
             variant={ButtonVariant.Tertiary}
             icon={<MiniCloseIcon />}
             aria-label="Close post"
-            onClick={(event) =>
+            onClick={(event: React.MouseEvent) =>
               onModalClose(event, LogEvent.MarketingCtaDismiss)
             }
           />

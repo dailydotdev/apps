@@ -9,7 +9,9 @@ const useCustomDefaultFeed = (): UseCustomDefaultFeed => {
   const { user } = useAuthContext();
 
   return {
-    isCustomDefaultFeed: user?.defaultFeedId && user.defaultFeedId !== user?.id,
+    isCustomDefaultFeed: !!(
+      user?.defaultFeedId && user.defaultFeedId !== user?.id
+    ),
     defaultFeedId: user?.defaultFeedId ?? user?.id,
   };
 };

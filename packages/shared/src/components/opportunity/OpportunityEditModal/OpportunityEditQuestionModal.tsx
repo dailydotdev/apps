@@ -11,6 +11,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { labels } from '../../../lib';
 import { editOpportunityQuestionMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
+import type { GraphQLError } from '../../../lib/errors';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
 import { opportunityEditQuestionsSchema } from '../../../lib/schema/opportunity';
@@ -82,7 +83,8 @@ export const OpportunityEditQuestionModal = ({
       });
 
       return result;
-    } catch (originalError) {
+    } catch (err) {
+      const originalError = err as GraphQLError;
       if (
         originalError.response?.errors?.[0]?.extensions?.code ===
         ApiError.ZodValidationError
@@ -97,7 +99,7 @@ export const OpportunityEditQuestionModal = ({
         );
       }
 
-      throw originalError;
+      throw err;
     }
   });
 

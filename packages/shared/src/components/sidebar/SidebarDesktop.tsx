@@ -91,11 +91,12 @@ export const SidebarDesktop = ({
           <MainSection
             {...defaultRenderSectionProps}
             onNavTabClick={onNavTabClick}
-            isItemsButton={isNavButtons}
+            isItemsButton={isNavButtons ?? false}
           />
 
           {!disabled && (
             <>
+              {/* User Content Sections */}
               <CustomFeedSection
                 {...defaultRenderSectionProps}
                 onNavTabClick={onNavTabClick}
@@ -105,7 +106,7 @@ export const SidebarDesktop = ({
               <NetworkSection
                 {...defaultRenderSectionProps}
                 title="Squads"
-                isItemsButton={isNavButtons}
+                isItemsButton={isNavButtons ?? false}
                 key="network-section"
               />
               <BookmarkSection
@@ -114,10 +115,12 @@ export const SidebarDesktop = ({
                 isItemsButton={false}
                 key="bookmark-section"
               />
+
+              {/* Discovery Section */}
               <DiscoverSection
                 {...defaultRenderSectionProps}
                 title="Discover"
-                isItemsButton={isNavButtons}
+                isItemsButton={isNavButtons ?? false}
               />
             </>
           )}

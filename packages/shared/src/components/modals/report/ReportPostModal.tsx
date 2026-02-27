@@ -113,7 +113,7 @@ export function ReportPostModal({
   const inputRef = useRef<HTMLInputElement>();
   const [selectedTags, setSelectedTags] = useState<string[]>(() => []);
   const reportOptionsForActiveReason = useCallback(
-    (reason) => {
+    (reason: string) => {
       return reportReasons
         .filter((reportReason) => {
           if (reportReason.value === 'IRRELEVANT' && post?.tags?.length === 0) {

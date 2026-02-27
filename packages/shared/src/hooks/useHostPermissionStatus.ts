@@ -32,5 +32,5 @@ export const useHostStatus = (): UseHostStatus => {
     ...disabledRefetch,
   });
 
-  return { hostGranted, isFetched, isFetching, refetch };
+  return { hostGranted: hostGranted ?? false, isFetched, isFetching, refetch };
 };

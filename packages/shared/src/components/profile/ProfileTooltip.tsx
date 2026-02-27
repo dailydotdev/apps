@@ -2,14 +2,18 @@ import type { ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Author } from '../../graphql/comments';
-import type { TooltipProps } from '../tooltips/BaseTooltip';
+import type { BaseTooltipProps, TooltipProps } from '../tooltips/BaseTooltip';
 import type { LinkWithTooltipProps } from '../tooltips/LinkWithTooltip';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import type { MostReadTag, UserReadingRank } from '../../graphql/users';
 import { getUserShortInfo } from '../../graphql/users';
 import UserEntityCard from '../cards/entity/UserEntityCard';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+
+type TippyInstance = Parameters<NonNullable<BaseTooltipProps['onShow']>>[0];
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
@@ -42,6 +46,7 @@ export function ProfileTooltip({
   onTooltipMouseLeave,
 }: Omit<ProfileTooltipProps, 'user'>): ReactElement {
   const query = useQueryClient();
+  const { logEvent } = useLogContext();
   const handler = useRef<() => void>();
   const [id, setId] = useState<string | undefined>(undefined);
   const { data, isLoading } = useQuery({
@@ -52,7 +57,7 @@ export function ProfileTooltip({
     enabled: !!id,
   });
 
-  const onShow = () => {
+  const handleShow = () => {
     if (!scrollingContainer) {
       return;
     }
@@ -74,7 +79,7 @@ export function ProfileTooltip({
   // when the user moves their mouse from a markdown @ to the tooltip
   const hoverPlugin = {
     fn: () => ({
-      onShow(instance) {
+      onShow(instance: TippyInstance) {
         if (onTooltipMouseEnter || onTooltipMouseLeave) {
           if (instance.popper) {
             if (onTooltipMouseEnter) {
@@ -92,7 +97,7 @@ export function ProfileTooltip({
           }
         }
       },
-      onHide(instance) {
+      onHide(instance: TippyInstance) {
         if (onTooltipMouseEnter || onTooltipMouseLeave) {
           if (instance.popper) {
             if (onTooltipMouseEnter) {
@@ -124,6 +129,10 @@ export function ProfileTooltip({
       onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
     ...tooltip,
     onShow: (instance) => {
+      logEvent({
+        event_name: LogEvent.HoverUserCard,
+        target_id: userId,
+      });
       if (id !== userId) {
         setId(userId);
       }
@@ -131,7 +140,7 @@ export function ProfileTooltip({
         tooltip.onShow(instance);
         return;
       }
-      onShow();
+      handleShow();
     },
   };
 
