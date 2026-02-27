@@ -10,12 +10,14 @@ import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 
 interface HeaderButtonsProps {
   additionalButtons?: ReactNode;
+  onSignupClick?: () => boolean | void;
 }
 
 const Container = classed('div', 'ml-auto flex justify-end gap-3');
 
 export function HeaderButtons({
   additionalButtons,
+  onSignupClick,
 }: HeaderButtonsProps): ReactElement {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { loadedSettings } = useSettingsContext();
@@ -28,6 +30,7 @@ export function HeaderButtons({
     return (
       <Container>
         <LoginButton
+          onSignupClick={onSignupClick}
           className={{
             container: 'gap-4',
             button: 'hidden laptop:block',

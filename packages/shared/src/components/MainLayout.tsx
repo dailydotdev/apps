@@ -19,7 +19,7 @@ import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
 import { SharedFeedPage } from './utilities';
-import { isTesting, onboardingUrl } from '../lib/constants';
+import { isTesting, onboardingUrl, onboardingV2Path } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import {
@@ -99,6 +99,26 @@ function MainLayoutComponent({
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
+
+  const onSignupClick = (): boolean => {
+    if (router.pathname !== onboardingV2Path) {
+      return false;
+    }
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: {
+          ...router.query,
+          onbSignup: '1',
+        },
+      },
+      undefined,
+      { shallow: true },
+    );
+
+    return true;
+  };
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -197,6 +217,7 @@ function MainLayoutComponent({
         additionalButtons={additionalButtons}
         hideSearchField={hideSearchField}
         onLogoClick={onLogoClick}
+        onSignupClick={onSignupClick}
       />
       <main
         className={classNames(

@@ -276,6 +276,7 @@ const OnboardingV2Page = (): ReactElement => {
   const [liveFloaters, setLiveFloaters] = useState<LiveFloater[]>([]);
   const floaterIdRef = useRef(0);
   const prevBodyOverflowRef = useRef('');
+  const pageRef = useRef<HTMLDivElement>(null);
   const panelSentinelRef = useRef<HTMLDivElement>(null);
   const panelStageRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -443,40 +444,26 @@ const OnboardingV2Page = (): ReactElement => {
   ]);
 
   useEffect(() => {
-    const onHeaderSignupClick = (event: MouseEvent) => {
-      const { target } = event;
-      if (!(target instanceof Element)) {
-        return;
-      }
+    const signupQueryParam = router.query.onbSignup;
+    const shouldOpenFromHeader =
+      signupQueryParam === '1' ||
+      (Array.isArray(signupQueryParam) && signupQueryParam.includes('1'));
+    if (!shouldOpenFromHeader) {
+      return;
+    }
 
-      const trigger = target.closest('button, a');
-      if (!(trigger instanceof HTMLElement)) {
-        return;
-      }
+    setShowSignupChooser(true);
 
-      // Intercept only top header signup actions on this page.
-      if (!trigger.closest('header')) {
-        return;
-      }
-
-      // Use a data attribute marker instead of brittle textContent matching.
-      // LoginButton adds data-header-signup to the sign-up button.
-      const isSignupTrigger = 'headerSignup' in trigger.dataset;
-
-      if (!isSignupTrigger) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-      setShowSignupChooser(true);
-    };
-
-    document.addEventListener('click', onHeaderSignupClick, true);
-    return () => {
-      document.removeEventListener('click', onHeaderSignupClick, true);
-    };
-  }, []);
+    const { onbSignup, ...restQuery } = router.query;
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: restQuery,
+      },
+      undefined,
+      { shallow: true },
+    );
+  }, [router]);
 
   // Parallax scroll: shift hero layers at different speeds
   useEffect(() => {
@@ -902,9 +889,12 @@ const OnboardingV2Page = (): ReactElement => {
           const currentVal = parseCount(counter.textContent || '') || 0;
           counter.textContent = formatCount(currentVal + inc);
 
-          // Create floater via React state so it renders in a fixed-position
-          // overlay rather than appending DOM nodes directly to the article.
+          // Translate viewport coordinates to .onb-page coordinates so
+          // floaters stay aligned to cards while the document scrolls.
           const counterRect = counter.getBoundingClientRect();
+          const pageRect = pageRef.current?.getBoundingClientRect();
+          const pageOffsetX = (pageRect?.left ?? 0) + window.scrollX;
+          const pageOffsetY = (pageRect?.top ?? 0) + window.scrollY;
           floaterIdRef.current += 1;
           const newFloaterId = floaterIdRef.current;
           setLiveFloaters((prev) => [
@@ -913,8 +903,12 @@ const OnboardingV2Page = (): ReactElement => {
               id: newFloaterId,
               text: `+${inc}`,
               color,
-              x: counterRect.left + counterRect.width / 2,
-              y: counterRect.top,
+              x:
+                counterRect.left +
+                counterRect.width / 2 +
+                window.scrollX -
+                pageOffsetX,
+              y: counterRect.top + window.scrollY - pageOffsetY,
             },
           ]);
           addTimeout(() => {
@@ -1120,12 +1114,11 @@ const OnboardingV2Page = (): ReactElement => {
   }, [githubImportBodyPhase]);
 
   return (
-    <div className="onb-page relative" role="presentation">
-      {/* ── Engagement floaters overlay (React-controlled, fixed position) ── */}
+    <div ref={pageRef} className="onb-page relative" role="presentation">
+      {/* ── Engagement floaters overlay (React-controlled, page-relative) ── */}
       {liveFloaters.length > 0 && (
         <div
-          className="pointer-events-none fixed inset-0"
-          style={{ zIndex: 9999 }}
+          className="pointer-events-none absolute inset-0 z-2"
           aria-hidden="true"
         >
           {liveFloaters.map((floater) => (
@@ -1850,7 +1843,7 @@ const OnboardingV2Page = (): ReactElement => {
                             Connect GitHub and let our AI do the rest.
                           </p>
 
-                          <div className="mb-5 flex w-full flex-col gap-3">
+                          <div className="mb-5 flex w-full flex-col items-center gap-3">
                             {[
                               {
                                 text: 'We spot your stack from GitHub',
@@ -1867,7 +1860,7 @@ const OnboardingV2Page = (): ReactElement => {
                             ].map(({ text, icon }) => (
                               <div
                                 key={text}
-                                className="flex items-center gap-2"
+                                className="flex w-full max-w-[15.5rem] items-center gap-2"
                               >
                                 <span
                                   className={classNames(
@@ -2080,7 +2073,7 @@ const OnboardingV2Page = (): ReactElement => {
 
             {/* Footer links for SEO — placed at the bottom of the page */}
             {!feedReadyState && (
-              <div className="relative z-1 mx-auto mt-20 flex w-full max-w-[48rem] justify-center px-5 pb-8 mobileL:px-6 tablet:mt-14">
+              <div className="relative z-1 mx-auto mt-28 flex w-full max-w-[48rem] justify-center px-5 pb-24 mobileL:px-6 tablet:mt-14 tablet:pb-8">
                 <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
               </div>
             )}
@@ -3394,7 +3387,7 @@ const OnboardingV2Page = (): ReactElement => {
                     Connect GitHub and let our AI do the rest.
                   </p>
 
-                  <div className="mb-5 flex w-full flex-col gap-3">
+                  <div className="mb-5 flex w-full flex-col items-center gap-3">
                     {[
                       {
                         text: 'We spot your stack from GitHub',
@@ -3409,7 +3402,10 @@ const OnboardingV2Page = (): ReactElement => {
                         icon: 'feed',
                       },
                     ].map(({ text, icon }) => (
-                      <div key={text} className="flex items-center gap-2">
+                      <div
+                        key={text}
+                        className="flex w-full max-w-[15.5rem] items-center gap-2"
+                      >
                         <span
                           className={classNames(
                             'flex h-6 w-6 shrink-0 items-center justify-center rounded-full',

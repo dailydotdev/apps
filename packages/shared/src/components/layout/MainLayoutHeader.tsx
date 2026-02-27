@@ -21,6 +21,7 @@ export interface MainLayoutHeaderProps {
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   hideSearchField?: boolean;
+  onSignupClick?: () => boolean | void;
 }
 
 const SearchPanel = dynamic(
@@ -41,6 +42,7 @@ function MainLayoutHeader({
   additionalButtons,
   onLogoClick,
   hideSearchField,
+  onSignupClick,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
@@ -117,7 +119,10 @@ function MainLayoutHeader({
             />
           </div>
           <RenderSearchPanel />
-          <HeaderButtons additionalButtons={additionalButtons} />
+          <HeaderButtons
+            additionalButtons={additionalButtons}
+            onSignupClick={onSignupClick}
+          />
         </>
       )}
     </header>
