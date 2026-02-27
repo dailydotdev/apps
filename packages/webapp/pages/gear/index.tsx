@@ -140,15 +140,11 @@ export async function getStaticProps(): Promise<
     };
   } catch (err) {
     const error = err as GraphQLError;
-    const errorCode = String(
-      error?.response?.errors?.[0]?.extensions?.code ?? '',
-    );
-    const recoverableErrorCodes = [
-      ApiError.NotFound,
-      ApiError.Forbidden,
-      'GRAPHQL_VALIDATION_FAILED',
-    ];
-    if (recoverableErrorCodes.includes(errorCode)) {
+    if (
+      [ApiError.NotFound, ApiError.Forbidden].includes(
+        error?.response?.errors?.[0]?.extensions?.code,
+      )
+    ) {
       return {
         props: { gearByCategory: {} },
         revalidate: 60,
