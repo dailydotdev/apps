@@ -107,24 +107,15 @@ export const useSearchProviderSuggestions = ({
             ...subData,
             hits: subData.hits?.map((hit) => {
               if (hit.id === entityId) {
-                if (!nextStatus) {
-                  return {
-                    ...hit,
-                    contentPreference: undefined,
-                  };
-                }
-
-                if (!hit.contentPreference) {
-                  return hit;
-                }
-
-                const newContentPreferenceEdge = structuredClone(hit);
-                if (!newContentPreferenceEdge.contentPreference) {
-                  return hit;
-                }
-
-                newContentPreferenceEdge.contentPreference.status = nextStatus;
-                return newContentPreferenceEdge;
+                return {
+                  ...hit,
+                  contentPreference: nextStatus
+                    ? {
+                        ...hit.contentPreference,
+                        status: nextStatus,
+                      }
+                    : undefined,
+                };
               }
 
               return hit;
