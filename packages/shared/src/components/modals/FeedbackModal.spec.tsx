@@ -2,7 +2,6 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import FeedbackModal from './FeedbackModal';
-import { FeedbackCategory } from '../../graphql/feedback';
 
 const mockDisplayToast = jest.fn();
 const mockSubmitFeedback = jest.fn();
@@ -118,7 +117,7 @@ describe('FeedbackModal', () => {
     await waitFor(() =>
       expect(mockSubmitFeedback).toHaveBeenCalledWith(
         expect.objectContaining({
-          category: FeedbackCategory.ContentQuality,
+          category: 7,
         }),
       ),
     );

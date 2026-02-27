@@ -2,9 +2,6 @@ import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { EmptyResponse } from './emptyResponse';
 
-/**
- * @generated from enum dailydotdev.bragi.pipelines.FeedbackCategory
- */
 export enum FeedbackCategory {
   Unspecified = 0,
   BugReport = 1,
