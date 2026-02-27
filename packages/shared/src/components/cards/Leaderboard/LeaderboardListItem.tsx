@@ -40,7 +40,7 @@ export function LeaderboardListItem({
         )}
       >
         <Tooltip content={actualNumber} visible={shouldShowTooltip}>
-          <span className="inline-flex w-14 shrink-0 justify-center text-text-quaternary tabular-nums">
+          <span className="inline-flex w-14 shrink-0 justify-center tabular-nums text-text-quaternary">
             {formattedNumber}
           </span>
         </Tooltip>
