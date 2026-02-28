@@ -79,7 +79,8 @@ function FeedNav(): ReactElement {
     onDismiss: onDismissReadingReminder,
     onEnable: onEnableReadingReminder,
   } = useReadingReminderHero();
-  const canShowReadingReminderBanner = !isForYouTab || !plusEntryForYou;
+  const shouldShowReadingReminderBanner =
+    isMobile && shouldShowReadingReminder && (!isForYouTab || !plusEntryForYou);
   const showStickyButton =
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
@@ -215,15 +216,13 @@ function FeedNav(): ReactElement {
           {...plusEntryForYou}
         />
       )}
-      {isMobile &&
-        shouldShowReadingReminder &&
-        canShowReadingReminderBanner && (
-          <ReadingReminderHero
-            className="-mt-4"
-            onEnable={onEnableReadingReminder}
-            onDismiss={onDismissReadingReminder}
-          />
-        )}
+      {shouldShowReadingReminderBanner && (
+        <ReadingReminderHero
+          className="-mt-4"
+          onEnable={onEnableReadingReminder}
+          onDismiss={onDismissReadingReminder}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { isToday } from 'date-fns';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { UserPersonalizedDigestType } from '../../graphql/users';
@@ -21,6 +21,19 @@ interface UseReadingReminderHero {
 
 const DEFAULT_READING_REMINDER_HOUR = 9;
 
+const getHasSeenToday = (lastSeen: string | null): boolean => {
+  if (!lastSeen) {
+    return false;
+  }
+
+  const parsedDate = new Date(lastSeen);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return false;
+  }
+
+  return isToday(parsedDate);
+};
+
 export const useReadingReminderHero = (): UseReadingReminderHero => {
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -41,13 +54,7 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
     UserPersonalizedDigestType.ReadingReminder,
   );
 
-  const hasSeenToday = useMemo(() => {
-    if (!lastSeen) {
-      return false;
-    }
-
-    return isToday(new Date(lastSeen));
-  }, [lastSeen]);
+  const hasSeenToday = getHasSeenToday(lastSeen);
 
   const onDismiss = useCallback(() => {
     setLastSeen(new Date().toISOString());
@@ -76,15 +83,13 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
     });
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
-  return {
-    shouldShow:
-      isLoggedIn &&
-      isMobile &&
-      isFeatureEnabled &&
-      !readingReminderDigest &&
-      !hasSeenToday &&
-      isFetched,
-    onDismiss,
-    onEnable,
-  };
+  const shouldShow =
+    isLoggedIn &&
+    isMobile &&
+    isFeatureEnabled &&
+    !readingReminderDigest &&
+    !hasSeenToday &&
+    isFetched;
+
+  return { shouldShow, onDismiss, onEnable };
 };

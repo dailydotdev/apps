@@ -14,7 +14,7 @@ import { LogEvent, TargetType } from '../../lib/log';
 
 interface ReadingReminderHeroProps {
   className?: string;
-  onEnable: () => void | Promise<void>;
+  onEnable: () => Promise<void>;
   onDismiss: () => void;
 }
 
