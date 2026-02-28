@@ -29,8 +29,10 @@ import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { SharedFeedPage } from '../utilities';
 import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
+import ReadingReminderHero from '../banners/ReadingReminderHero';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
+import { useReadingReminderHero } from '../../hooks/notifications/useReadingReminderHero';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -72,6 +74,12 @@ function FeedNav(): ReactElement {
   const isForYouTab =
     router.pathname === webappUrl || router.pathname === `${webappUrl}my-feed`;
   const { plusEntryForYou } = usePlusEntry();
+  const {
+    shouldShow: shouldShowReadingReminder,
+    onDismiss: onDismissReadingReminder,
+    onEnable: onEnableReadingReminder,
+  } = useReadingReminderHero();
+  const canShowReadingReminderBanner = !isForYouTab || !plusEntryForYou;
   const showStickyButton =
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
@@ -207,6 +215,15 @@ function FeedNav(): ReactElement {
           {...plusEntryForYou}
         />
       )}
+      {isMobile &&
+        shouldShowReadingReminder &&
+        canShowReadingReminderBanner && (
+          <ReadingReminderHero
+            className="-mt-4"
+            onEnable={onEnableReadingReminder}
+            onDismiss={onDismissReadingReminder}
+          />
+        )}
     </div>
   );
 }

@@ -69,6 +69,10 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
+export const featureReadingReminderMobile = new Feature(
+  'reading_reminder_mobile',
+  false,
+);
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
