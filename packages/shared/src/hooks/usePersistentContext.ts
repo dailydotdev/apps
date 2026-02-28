@@ -64,4 +64,5 @@ export enum PersistentContextKeys {
   AlertPushKey = 'alert_push_key',
   StreakAlertPushKey = 'streak_alert_push_key',
   PendingOpportunityId = 'pending_opportunity_id',
+  ReadingReminderLastSeen = 'reading_reminder_last_seen',
 }
