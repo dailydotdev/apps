@@ -33,6 +33,19 @@ const getHasSeenToday = (lastSeen: string | null): boolean => {
   return isToday(parsedDate);
 };
 
+const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
+  if (!createdAt) {
+    return false;
+  }
+
+  const parsedDate = new Date(createdAt);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return false;
+  }
+
+  return isToday(parsedDate);
+};
+
 export const useReadingReminderHero = (): UseReadingReminderHero => {
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -54,11 +67,13 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   );
 
   const hasSeenToday = getHasSeenToday(lastSeen);
+  const isRegisteredToday = getIsRegisteredToday(user?.createdAt);
   const [hasShownInSession, setHasShownInSession] = useState(false);
   const shouldShowBase =
     isLoggedIn &&
     isMobile &&
     isFeatureEnabled &&
+    !isRegisteredToday &&
     !readingReminderDigest &&
     !hasSeenToday &&
     isFetched;

@@ -87,6 +87,18 @@ describe('useReadingReminderHero', () => {
     expect(result.current.shouldShow).toBe(true);
   });
 
+  it("should not show on the user's registration day", () => {
+    mockUseAuthContext.mockReturnValue({
+      isLoggedIn: true,
+      user: { timezone: 'UTC', createdAt: new Date().toISOString() },
+    });
+
+    const { result } = renderHook(() => useReadingReminderHero());
+
+    expect(result.current.shouldShow).toBe(false);
+    expect(setLastSeen).not.toHaveBeenCalled();
+  });
+
   it('should persist seen time immediately when shown', () => {
     const { result } = renderHook(() => useReadingReminderHero());
 

@@ -35,7 +35,7 @@ const ReadingReminderHero = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          Turn on your daily reading reminder for 9:00 and keep your routine.
+          Turn on your daily reading reminder and keep your routine.
         </Typography>
         <div className="mt-3">
           <Button
