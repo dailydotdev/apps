@@ -87,15 +87,11 @@ describe('useReadingReminderHero', () => {
     expect(result.current.shouldShow).toBe(true);
   });
 
-  it('should dismiss and log skip', () => {
+  it('should persist seen time immediately when shown', () => {
     const { result } = renderHook(() => useReadingReminderHero());
 
-    result.current.onDismiss();
-
+    expect(result.current.shouldShow).toBe(true);
     expect(setLastSeen).toHaveBeenCalledTimes(1);
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.SkipReadingReminder,
-    });
   });
 
   it('should enable reminder and log schedule event', async () => {
@@ -113,7 +109,7 @@ describe('useReadingReminderHero', () => {
     expect(onEnablePush).toHaveBeenCalledWith(
       NotificationPromptSource.ReadingReminder,
     );
-    expect(setLastSeen).toHaveBeenCalledTimes(1);
+    expect(setLastSeen).toHaveBeenCalledTimes(2);
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.ScheduleReadingReminder,
       extra: JSON.stringify({ hour: 9, timezone: 'UTC' }),

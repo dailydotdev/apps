@@ -12,7 +12,7 @@ describe('ReadingReminderHero', () => {
   });
 
   it('should log impression target on mount', () => {
-    render(<ReadingReminderHero onEnable={jest.fn()} onDismiss={jest.fn()} />);
+    render(<ReadingReminderHero onEnable={jest.fn()} />);
 
     expect(useLogEventOnce).toHaveBeenCalledTimes(1);
 
@@ -23,18 +23,16 @@ describe('ReadingReminderHero', () => {
     });
   });
 
-  it('should handle enable and dismiss actions', () => {
+  it('should handle enable action', () => {
     const onEnable = jest.fn();
-    const onDismiss = jest.fn();
 
-    render(<ReadingReminderHero onEnable={onEnable} onDismiss={onDismiss} />);
+    render(<ReadingReminderHero onEnable={onEnable} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Enable reminder' }));
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Dismiss reading reminder' }),
-    );
 
     expect(onEnable).toHaveBeenCalledTimes(1);
-    expect(onDismiss).toHaveBeenCalledTimes(1);
+    expect(
+      screen.queryByRole('button', { name: 'Dismiss reading reminder' }),
+    ).not.toBeInTheDocument();
   });
 });

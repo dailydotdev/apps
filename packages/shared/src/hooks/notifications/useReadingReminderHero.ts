@@ -1,5 +1,5 @@
 import { isToday } from 'date-fns';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { UserPersonalizedDigestType } from '../../graphql/users';
@@ -15,7 +15,6 @@ import { featureReadingReminderMobile } from '../../lib/featureManagement';
 
 interface UseReadingReminderHero {
   shouldShow: boolean;
-  onDismiss: () => void;
   onEnable: () => Promise<void>;
 }
 
@@ -55,11 +54,23 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   );
 
   const hasSeenToday = getHasSeenToday(lastSeen);
+  const [hasShownInSession, setHasShownInSession] = useState(false);
+  const shouldShowBase =
+    isLoggedIn &&
+    isMobile &&
+    isFeatureEnabled &&
+    !readingReminderDigest &&
+    !hasSeenToday &&
+    isFetched;
 
-  const onDismiss = useCallback(() => {
+  useEffect(() => {
+    if (!shouldShowBase || hasShownInSession) {
+      return;
+    }
+
+    setHasShownInSession(true);
     setLastSeen(new Date().toISOString());
-    logEvent({ event_name: LogEvent.SkipReadingReminder });
-  }, [logEvent, setLastSeen]);
+  }, [hasShownInSession, setLastSeen, shouldShowBase]);
 
   const onEnable = useCallback(async () => {
     const timezone =
@@ -84,12 +95,7 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
   const shouldShow =
-    isLoggedIn &&
-    isMobile &&
-    isFeatureEnabled &&
-    !readingReminderDigest &&
-    !hasSeenToday &&
-    isFetched;
+    !readingReminderDigest && (shouldShowBase || hasShownInSession);
 
-  return { shouldShow, onDismiss, onEnable };
+  return { shouldShow, onEnable };
 };
