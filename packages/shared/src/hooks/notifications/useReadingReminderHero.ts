@@ -56,27 +56,24 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
     string | null
   >(PersistentContextKeys.ReadingReminderLastSeen, null);
 
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const { value: isFeatureEnabled } = useConditionalFeature({
-    feature: featureReadingReminderMobile,
-    shouldEvaluate: isMobile && isLoggedIn,
-  });
-
   const readingReminderDigest = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
   );
 
-  const hasSeenToday = getHasSeenToday(lastSeen);
   const isRegisteredToday = getIsRegisteredToday(user?.createdAt);
+
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const shouldEvaluate =
+    isMobile && isLoggedIn && !readingReminderDigest && !isRegisteredToday;
+  const { value: isFeatureEnabled } = useConditionalFeature({
+    feature: featureReadingReminderMobile,
+    shouldEvaluate,
+  });
+
+  const hasSeenToday = getHasSeenToday(lastSeen);
   const [hasShownInSession, setHasShownInSession] = useState(false);
   const shouldShowBase =
-    isLoggedIn &&
-    isMobile &&
-    isFeatureEnabled &&
-    !isRegisteredToday &&
-    !readingReminderDigest &&
-    !hasSeenToday &&
-    isFetched;
+    shouldEvaluate && isFeatureEnabled && !hasSeenToday && isFetched;
 
   useEffect(() => {
     if (!shouldShowBase || hasShownInSession) {
