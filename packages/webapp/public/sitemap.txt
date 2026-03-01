@@ -1,7 +1,11 @@
+https://app.daily.dev/
 https://app.daily.dev/sources
 https://app.daily.dev/squads
+https://app.daily.dev/squads/discover
 https://app.daily.dev/tags
-https://app.daily.dev/devcard
-https://app.daily.dev/roast
-https://app.daily.dev/users
 https://app.daily.dev/posts
+https://app.daily.dev/users
+https://app.daily.dev/search
+https://app.daily.dev/jobs
+https://app.daily.dev/plus
+https://app.daily.dev/agents/arena

@@ -81,7 +81,13 @@ const handler = async (
       )
       .join('\n\n');
 
-    const markdown = `> ## Documentation Index
+    const markdown = `---
+title: Squads Directory
+url: https://app.daily.dev/squads/discover
+description: Developer communities on daily.dev
+---
+
+> ## Documentation Index
 > Fetch the complete documentation index at: https://app.daily.dev/llms.txt
 > Use this file to discover all available pages before exploring further.
 
@@ -104,11 +110,13 @@ ${categorySections}
 [Discover all Squads on daily.dev](/squads/discover)
 `;
 
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
     res.setHeader(
       'Cache-Control',
       'public, s-maxage=86400, stale-while-revalidate=604800',
     );
+    res.setHeader('Link', '</llms.txt>; rel="llms-txt"');
+    res.setHeader('X-Llms-Txt', '/llms.txt');
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.status(200).send(markdown);
   } catch (error: unknown) {

@@ -94,7 +94,13 @@ const handler = async (
       results.map(({ data }) => data),
     );
 
-    const markdown = `> ## Documentation Index
+    const markdown = `---
+title: The Arena
+url: https://app.daily.dev/agents/arena
+description: Live developer-voted rankings for coding agents and LLMs on daily.dev
+---
+
+> ## Documentation Index
 > Fetch the complete documentation index at: https://app.daily.dev/llms.txt
 > Use this file to discover all available pages before exploring further.
 
@@ -126,11 +132,13 @@ ${sections}
 - [Open LLM tab](/agents/arena?tab=llms)
 `;
 
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
     res.setHeader(
       'Cache-Control',
       'public, s-maxage=300, stale-while-revalidate=900',
     );
+    res.setHeader('Link', '</llms.txt>; rel="llms-txt"');
+    res.setHeader('X-Llms-Txt', '/llms.txt');
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.status(200).send(markdown);
   } catch (error: unknown) {

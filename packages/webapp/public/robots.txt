@@ -1,10 +1,74 @@
-Sitemap: https://app.daily.dev/sitemap.txt
+# Robots.txt for app.daily.dev
+
+# AI Crawlers - explicitly allow for LLM visibility
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Cohere-ai
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: AppleBot-Extended
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: AI2Bot
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+# All other crawlers
 User-agent: *
+Allow: /
 Disallow: /join
 Disallow: /error
 Disallow: /callback
 Disallow: /helloworld
 Disallow: /helloworld/
+Disallow: /onboarding
+Disallow: /welcome
+Disallow: /api/
 
-# AI Agent Resources
-# LLM-friendly documentation: https://app.daily.dev/llms.txt
+# Sitemap index
+Sitemap: https://app.daily.dev/sitemap.xml
+
+# LLM/AI discoverability (llmstxt.org spec)
+LLMs: https://app.daily.dev/llms.txt

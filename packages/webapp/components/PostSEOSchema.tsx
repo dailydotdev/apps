@@ -12,6 +12,18 @@ const USER_GENERATED_POST_TYPES: PostType[] = [
   PostType.Welcome,
   PostType.Poll,
 ];
+const SEO_DESCRIPTION_MAX_LENGTH = 160;
+
+const truncateAtWordBoundary = (text: string, maxLength: number): string => {
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+
+  return `${lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated}...`;
+};
 
 /**
  * Check if a post is user-generated content (Squad posts)
@@ -21,25 +33,32 @@ export const isUserGeneratedPost = (post: Post | null | undefined): boolean =>
   post?.type ? USER_GENERATED_POST_TYPES.includes(post.type) : false;
 
 export const getSeoDescription = (post: Post): string => {
+  let description: string;
+
   if (post?.summary) {
-    return post?.summary;
+    description = post.summary;
+    return truncateAtWordBoundary(description, SEO_DESCRIPTION_MAX_LENGTH);
   }
 
   if (post?.sharedPost?.summary) {
-    return post.sharedPost.summary;
+    description = post.sharedPost.summary;
+    return truncateAtWordBoundary(description, SEO_DESCRIPTION_MAX_LENGTH);
   }
 
   if (post?.description) {
-    return post?.description;
+    description = post.description;
+    return truncateAtWordBoundary(description, SEO_DESCRIPTION_MAX_LENGTH);
   }
 
   const postTitle = post?.title || post?.sharedPost?.title;
 
   if (postTitle) {
-    return `Discussion about "${postTitle}" on daily.dev - join the developer community`;
+    description = `Discussion about "${postTitle}" on daily.dev - join the developer community`;
+    return truncateAtWordBoundary(description, SEO_DESCRIPTION_MAX_LENGTH);
   }
 
-  return `Join the discussion on daily.dev - the developer community`;
+  description = 'Join the discussion on daily.dev - the developer community';
+  return truncateAtWordBoundary(description, SEO_DESCRIPTION_MAX_LENGTH);
 };
 
 /**

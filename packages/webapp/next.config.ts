@@ -192,6 +192,46 @@ const nextConfig: NextConfig = {
 
         return [
           ...markdownRedirects,
+          {
+            source: '/mobile',
+            destination: '/',
+            permanent: true,
+          },
+          {
+            source: '/brand',
+            destination: '/',
+            permanent: true,
+          },
+          {
+            source: '/about',
+            destination: '/',
+            permanent: true,
+          },
+          {
+            source: '/premium',
+            destination: '/plus',
+            permanent: true,
+          },
+          {
+            source: '/monthly-prize',
+            destination: '/',
+            permanent: true,
+          },
+          {
+            source: '/submit-a-guest-post',
+            destination: '/',
+            permanent: true,
+          },
+          {
+            source: '/giveaway',
+            destination: '/',
+            permanent: true,
+          },
+          {
+            source: '/topic/:path*',
+            destination: '/tags/:path*',
+            permanent: true,
+          },
           ...oldPublicAssets.map((asset) => ({
             source: `/${asset}`,
             destination: `${
@@ -264,11 +304,6 @@ const nextConfig: NextConfig = {
             destination: '/jobs',
             permanent: true,
           },
-          {
-            source: '/jobs/welcome',
-            destination: '/jobs',
-            permanent: true,
-          },
         ];
       },
       headers: async () => {
@@ -285,6 +320,8 @@ const nextConfig: NextConfig = {
               // AI agent discovery headers (llms.txt spec)
               { key: 'Link', value: '</llms.txt>; rel="llms-txt"' },
               { key: 'X-Llms-Txt', value: '/llms.txt' },
+              // Content negotiation for markdown routes requires cache variation.
+              { key: 'Vary', value: 'Accept' },
             ],
           },
           {

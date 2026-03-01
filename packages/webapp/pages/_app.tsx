@@ -89,6 +89,44 @@ const hotAndColdModalLegacyQueryValue = 'hotAndCold';
 const isOnboardingExcludedPath = (pathname: string): boolean =>
   onboardingExcludedPaths.some((path) => pathname.startsWith(path));
 
+const GLOBAL_SEO_JSON_LD = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://daily.dev/#organization',
+      name: 'daily.dev',
+      url: 'https://daily.dev',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://daily.dev/apple-touch-icon.png',
+        width: 180,
+        height: 180,
+      },
+      sameAs: [
+        'https://twitter.com/dailydotdev',
+        'https://github.com/dailydotdev',
+        'https://www.linkedin.com/company/daily-dev-ltd',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://app.daily.dev/#website',
+      url: 'https://app.daily.dev',
+      name: 'daily.dev',
+      publisher: { '@id': 'https://daily.dev/#organization' },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: 'https://app.daily.dev/search?q={search_term_string}',
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
+});
+
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { isOnboardingActionsReady, isOnboardingComplete } =
     useOnboardingActions();
@@ -218,6 +256,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const showAppStoreBanner = !router.pathname.startsWith('/helloworld');
   const isImageGenerator = router.pathname.startsWith('/image-generator');
+  const canonical = canonicalFromRouter(router);
 
   return (
     <>
@@ -266,9 +305,19 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <link rel="manifest" href="/manifest.json" />
         <link
           rel="sitemap"
-          type="text/plain"
+          type="application/xml"
           title="Sitemap"
-          href="/sitemap.txt"
+          href="/sitemap.xml"
+        />
+        <link
+          rel="alternate"
+          type="text/plain"
+          href="/llms.txt"
+          title="LLM-friendly site directory"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: GLOBAL_SEO_JSON_LD }}
         />
 
         <script
@@ -287,7 +336,11 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         {...Seo}
         {...defaultSeo}
         title={defaultSeoTitle}
-        canonical={canonicalFromRouter(router)}
+        canonical={canonical}
+        openGraph={{
+          ...Seo.openGraph,
+          url: canonical,
+        }}
         titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
       />
       {!!seo && <NextSeo {...seo} />}
