@@ -107,6 +107,12 @@ export function AchievementTrackerButton(): ReactElement | null {
     return null;
   }
 
+  if (isTrackedAchievementPending) {
+    return (
+      <div className="h-10 w-24 animate-pulse rounded-12 bg-surface-float" />
+    );
+  }
+
   const buttonContent = (
     <div className="relative">
       <Button
