@@ -133,13 +133,15 @@ it('returns null when the feature flag is disabled', () => {
   expect(container).toBeEmptyDOMElement();
 });
 
-it('returns null while achievements list is loading', () => {
+it('renders skeleton placeholder while achievements list is loading', () => {
   mockUseProfileAchievements.mockReturnValue({
     ...defaultProfileAchievementsHook,
     isPending: true,
   });
   const { container } = renderComponent();
-  expect(container).toBeEmptyDOMElement();
+  const skeleton = container.firstChild as HTMLElement;
+  expect(skeleton).toHaveClass('animate-pulse', 'h-10', 'w-10');
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
 
 it('renders skeleton placeholder while tracked achievement query is pending', () => {

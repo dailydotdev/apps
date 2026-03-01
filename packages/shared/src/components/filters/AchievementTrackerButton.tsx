@@ -116,12 +116,19 @@ export function AchievementTrackerButton(): ReactElement | null {
     });
   };
 
-  if (
-    !user ||
-    isAchievementTrackingWidgetLoading ||
-    (isAchievementTrackingWidgetEnabled === true && isAchievementsPending) ||
-    !shouldRender
-  ) {
+  if (!user || isAchievementTrackingWidgetLoading) {
+    return null;
+  }
+
+  if (isAchievementTrackingWidgetEnabled !== true) {
+    return null;
+  }
+
+  if (isAchievementsPending) {
+    return <ElementPlaceholder className="h-10 w-10 animate-pulse rounded-12" />;
+  }
+
+  if (!shouldRender) {
     return null;
   }
 
