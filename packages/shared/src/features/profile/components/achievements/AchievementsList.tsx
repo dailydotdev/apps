@@ -69,10 +69,12 @@ export function AchievementsList({
     isOwner &&
     !isAchievementTrackingWidgetLoading &&
     isAchievementTrackingWidgetEnabled === true;
-  const { trackedAchievement, trackAchievement } = useTrackedAchievement(
-    user.id,
-    canTrackAchievements,
-  );
+  const {
+    trackedAchievement,
+    trackAchievement,
+    untrackAchievement,
+    isUntrackPending,
+  } = useTrackedAchievement(user.id, canTrackAchievements);
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
   const { logEvent } = useLogContext();
@@ -158,6 +160,15 @@ export function AchievementsList({
     },
     [logEvent, trackAchievement],
   );
+
+  const handleUntrack = useCallback(async () => {
+    await untrackAchievement();
+    logEvent({
+      event_name: LogEvent.UntrackAchievement,
+      target_type: TargetType.AchievementCard,
+      target_id: trackedAchievement?.achievement.id,
+    });
+  }, [logEvent, trackedAchievement?.achievement.id, untrackAchievement]);
 
   const filteredAchievements = useMemo(() => {
     const sorted = [...achievements].sort((a, b) => {
@@ -265,6 +276,8 @@ export function AchievementsList({
                 trackingId === userAchievement.achievement.id
               }
               onTrack={canTrackAchievements ? handleTrack : undefined}
+              onUntrack={canTrackAchievements ? handleUntrack : undefined}
+              isUntrackPending={isUntrackPending}
             />
           ))}
         </div>
