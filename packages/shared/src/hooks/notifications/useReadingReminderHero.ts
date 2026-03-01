@@ -50,8 +50,11 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { onEnablePush } = usePushNotificationMutation();
-  const { getPersonalizedDigest, subscribePersonalizedDigest } =
-    usePersonalizedDigest();
+  const {
+    getPersonalizedDigest,
+    isLoading: isDigestLoading,
+    subscribePersonalizedDigest,
+  } = usePersonalizedDigest();
   const [lastSeen, setLastSeen, isFetched] = usePersistentContext<
     string | null
   >(PersistentContextKeys.ReadingReminderLastSeen, null);
@@ -64,7 +67,11 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
 
   const isMobile = useViewSize(ViewSize.MobileL);
   const shouldEvaluate =
-    isMobile && isLoggedIn && !readingReminderDigest && !isRegisteredToday;
+    isMobile &&
+    isLoggedIn &&
+    !isDigestLoading &&
+    !readingReminderDigest &&
+    !isRegisteredToday;
   const { value: isFeatureEnabled } = useConditionalFeature({
     feature: featureReadingReminderMobile,
     shouldEvaluate,

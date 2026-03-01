@@ -72,6 +72,7 @@ describe('useReadingReminderHero', () => {
     });
     mockUsePersonalizedDigest.mockReturnValue({
       getPersonalizedDigest: jest.fn(() => null),
+      isLoading: false,
       subscribePersonalizedDigest,
     });
     mockPersistentContext.mockReturnValue([null, setLastSeen, true]);
@@ -91,6 +92,19 @@ describe('useReadingReminderHero', () => {
     mockUseAuthContext.mockReturnValue({
       isLoggedIn: true,
       user: { timezone: 'UTC', createdAt: new Date().toISOString() },
+    });
+
+    const { result } = renderHook(() => useReadingReminderHero());
+
+    expect(result.current.shouldShow).toBe(false);
+    expect(setLastSeen).not.toHaveBeenCalled();
+  });
+
+  it('should not show while digest subscription data is loading', () => {
+    mockUsePersonalizedDigest.mockReturnValue({
+      getPersonalizedDigest: jest.fn(() => null),
+      isLoading: true,
+      subscribePersonalizedDigest,
     });
 
     const { result } = renderHook(() => useReadingReminderHero());
