@@ -144,3 +144,13 @@ export const installExtensionFeedMenuFeature = new Feature(
   'install_extension_feed_menu',
   false,
 );
+
+export type AgentsLeaderboardEntrypointFeature = {
+  groupId: string;
+  showLabel?: boolean;
+};
+
+export const agentsLeaderboardEntrypointFeature =
+  new Feature<AgentsLeaderboardEntrypointFeature>(
+    'agents_leaderboard_entrypoint',
+  );

@@ -40,13 +40,18 @@ import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
+import { AgentsLeaderboardEntrypointButton } from '../filters/AgentsLeaderboardEntrypointButton';
 import { ActionType } from '../../graphql/actions';
 import {
   BrowserName,
   checkIsExtension,
   getCurrentBrowserName,
 } from '../../lib/func';
-import { installExtensionFeedMenuFeature } from '../../lib/featureManagement';
+import {
+  agentsLeaderboardEntrypointFeature,
+  installExtensionFeedMenuFeature,
+} from '../../lib/featureManagement';
+import type { AgentsLeaderboardEntrypointFeature } from '../../lib/featureManagement';
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -102,6 +107,17 @@ export const SearchControlHeader = ({
     feature: installExtensionFeedMenuFeature,
     shouldEvaluate: shouldEvaluateInstallExtensionExperiment,
   });
+  const feedsWithActions = [
+    SharedFeedPage.MyFeed,
+    SharedFeedPage.Custom,
+    SharedFeedPage.CustomForm,
+  ];
+  const hasFeedActions = feedsWithActions.includes(feedName as SharedFeedPage);
+  const { value: leaderboardEntrypointConfig } =
+    useConditionalFeature<AgentsLeaderboardEntrypointFeature>({
+      feature: agentsLeaderboardEntrypointFeature,
+      shouldEvaluate: hasFeedActions,
+    });
 
   if (isMobile) {
     return null;
@@ -120,12 +136,6 @@ export const SearchControlHeader = ({
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
 
-  const feedsWithActions = [
-    SharedFeedPage.MyFeed,
-    SharedFeedPage.Custom,
-    SharedFeedPage.CustomForm,
-  ];
-  const hasFeedActions = feedsWithActions.includes(feedName as SharedFeedPage);
   const hasDismissedInstallExtension = checkHasCompleted(
     ActionType.DismissInstallExtension,
   );
@@ -194,6 +204,14 @@ export const SearchControlHeader = ({
       />
     ),
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
+    hasFeedActions && leaderboardEntrypointConfig?.groupId && (
+      <AgentsLeaderboardEntrypointButton
+        key="agents-arena-entrypoint"
+        groupId={leaderboardEntrypointConfig.groupId}
+        showLabel={!!leaderboardEntrypointConfig.showLabel}
+        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+      />
+    ),
     isLaptop && installExtensionButton,
   ];
   const actions = actionButtons.filter((button) => !!button);
