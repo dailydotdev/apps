@@ -174,7 +174,7 @@ export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
 ): ReactElement => {
   const { isOpen, onRequestClose, onAfterClose, user, forceOpen } = props;
-  const { isStreaksEnabled } = useReadingStreak();
+  const { isStreaksEnabled, streak } = useReadingStreak();
 
   const id = useId();
   const { recover, hideForever, onClose, onRecover } = useStreakRecover({
@@ -191,7 +191,7 @@ export const StreakRecoverModal = (
     canRecover: true,
     cost: 100,
     regularCost: 100,
-    oldStreakLength: Math.max(user?.streak?.current ?? 0, 1),
+    oldStreakLength: Math.max(streak?.current ?? 0, 1),
     isLoading: false,
     isRecoverPending: false,
   };
