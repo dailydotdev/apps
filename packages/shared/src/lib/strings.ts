@@ -111,7 +111,7 @@ export const stripHtmlTags = (html: string): string => {
  * @returns The escaped text safe for use in markdown
  */
 export const escapeMarkdown = (text: string): string => {
-  return text.replace(/[\\`*_{}[\]()#+\-.!|]/g, '\\$&');
+  return text.replace(/[\\`*_{}[\]()#+!|]/g, '\\$&');
 };
 
 /**

@@ -16,6 +16,10 @@ const USER_GENERATED_POST_TYPES: PostType[] = [
   PostType.Poll,
 ];
 const SEO_DESCRIPTION_MAX_LENGTH = 160;
+const siteDomain = process.env.NEXT_PUBLIC_DOMAIN || 'daily.dev';
+const siteOrigin = siteDomain.startsWith('http')
+  ? siteDomain.replace(/\/$/, '')
+  : `https://${siteDomain}`;
 
 /**
  * Check if a post is user-generated content (Squad posts)
@@ -231,10 +235,9 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
     '@id': post.commentsPermalink,
   },
   datePublished: post.createdAt,
-  dateModified: post.updatedAt,
+  ...(post.updatedAt && { dateModified: post.updatedAt }),
   description: getSeoDescription(post),
-  image: post.image,
-  thumbnailUrl: post.image,
+  ...(post.image && { image: post.image, thumbnailUrl: post.image }),
   // Google News properties
   isAccessibleForFree: true,
   articleSection: post.source?.name || post.tags?.[0],
@@ -243,10 +246,10 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
   publisher: {
     '@type': 'Organization',
     name: 'daily.dev',
-    url: 'https://daily.dev',
+    url: siteOrigin,
     logo: {
       '@type': 'ImageObject',
-      url: 'https://daily.dev/apple-touch-icon.png',
+      url: `${siteOrigin}/apple-touch-icon.png`,
       width: 180,
       height: 180,
     },
@@ -269,7 +272,7 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
     },
   ],
   keywords: post.tags?.join(','),
-  timeRequired: `PT${post.readTime}M`,
+  ...(post.readTime && { timeRequired: `PT${post.readTime}M` }),
   // Video schema for YouTube posts
   ...(post.type === PostType.VideoYouTube &&
     post.videoId && {
@@ -279,7 +282,7 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
         description: getSeoDescription(post),
         thumbnailUrl: post.image,
         uploadDate: post.createdAt,
-        duration: `PT${post.readTime}M`,
+        ...(post.readTime && { duration: `PT${post.readTime}M` }),
         url: post.permalink,
         embedUrl: `https://www.youtube.com/embed/${post.videoId}`,
       },

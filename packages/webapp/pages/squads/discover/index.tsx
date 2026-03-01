@@ -64,12 +64,14 @@ function SquadDiscoveryPage(): ReactElement {
   return (
     <SquadDirectoryLayout className="gap-6">
       <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: getSquadsSchemas(categories),
-          }}
-        />
+        {categories.length > 0 && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: getSquadsSchemas(categories),
+            }}
+          />
+        )}
       </Head>
       <SquadsDirectoryFeed
         key="featured"
