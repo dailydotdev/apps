@@ -115,6 +115,24 @@ export const escapeMarkdown = (text: string): string => {
 };
 
 /**
+ * Truncates text by max length while preserving whole words when possible.
+ * Appends an ellipsis when truncation occurs.
+ */
+export const truncateAtWordBoundary = (
+  text: string,
+  maxLength: number,
+): string => {
+  if (!text || text.length <= maxLength) {
+    return text || '';
+  }
+
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+
+  return `${lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated}...`;
+};
+
+/**
  * Regex to test if a string contains special characters.
  * Matches any character that is NOT alphanumeric, underscore, or dot.
  * Used for validating user input like emoji shortcuts or mentions.

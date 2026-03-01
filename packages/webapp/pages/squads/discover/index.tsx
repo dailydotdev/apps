@@ -46,7 +46,9 @@ const getSquadsSchemas = (
           item: {
             '@type': 'Thing',
             name: node.title,
-            url: `https://app.daily.dev/squads/discover/${node.id}`,
+            url: `https://app.daily.dev/squads/discover/${encodeURIComponent(
+              node.id,
+            )}`,
           },
         })),
       },

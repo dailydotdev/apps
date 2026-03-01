@@ -320,9 +320,15 @@ const nextConfig: NextConfig = {
               // AI agent discovery headers (llms.txt spec)
               { key: 'Link', value: '</llms.txt>; rel="llms-txt"' },
               { key: 'X-Llms-Txt', value: '/llms.txt' },
-              // Content negotiation for markdown routes requires cache variation.
-              { key: 'Vary', value: 'Accept' },
             ],
+          },
+          {
+            source: '/(sources|tags|squads/discover|agents/arena)',
+            headers: [{ key: 'Vary', value: 'Accept' }],
+          },
+          {
+            source: '/api/md/:path*',
+            headers: [{ key: 'Vary', value: 'Accept' }],
           },
           {
             source: '/.well-known/apple-app-site-association',

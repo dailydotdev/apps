@@ -90,7 +90,7 @@ const SourcesPage = ({
   ];
   const uniqueSources = Array.from(
     new Map(allSources.map((source) => [source.id, source])).values(),
-  ).slice(0, 20);
+  ).slice(0, 100);
 
   return (
     <PageWrapperLayout className="py-6">

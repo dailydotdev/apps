@@ -89,17 +89,34 @@ const hotAndColdModalLegacyQueryValue = 'hotAndCold';
 const isOnboardingExcludedPath = (pathname: string): boolean =>
   onboardingExcludedPaths.some((path) => pathname.startsWith(path));
 
+const getAppOrigin = (): string => {
+  const appUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'https://app.daily.dev';
+  return appUrl.endsWith('/') ? appUrl.slice(0, -1) : appUrl;
+};
+
+const getSiteOrigin = (): string => {
+  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'daily.dev';
+  if (domain.startsWith('http://') || domain.startsWith('https://')) {
+    return domain.endsWith('/') ? domain.slice(0, -1) : domain;
+  }
+
+  return `https://${domain}`;
+};
+
+const APP_ORIGIN = getAppOrigin();
+const SITE_ORIGIN = getSiteOrigin();
+
 const GLOBAL_SEO_JSON_LD = JSON.stringify({
   '@context': 'https://schema.org',
   '@graph': [
     {
       '@type': 'Organization',
-      '@id': 'https://daily.dev/#organization',
+      '@id': `${SITE_ORIGIN}/#organization`,
       name: 'daily.dev',
-      url: 'https://daily.dev',
+      url: SITE_ORIGIN,
       logo: {
         '@type': 'ImageObject',
-        url: 'https://daily.dev/apple-touch-icon.png',
+        url: `${SITE_ORIGIN}/apple-touch-icon.png`,
         width: 180,
         height: 180,
       },
@@ -111,15 +128,15 @@ const GLOBAL_SEO_JSON_LD = JSON.stringify({
     },
     {
       '@type': 'WebSite',
-      '@id': 'https://app.daily.dev/#website',
-      url: 'https://app.daily.dev',
+      '@id': `${APP_ORIGIN}/#website`,
+      url: APP_ORIGIN,
       name: 'daily.dev',
-      publisher: { '@id': 'https://daily.dev/#organization' },
+      publisher: { '@id': `${SITE_ORIGIN}/#organization` },
       potentialAction: {
         '@type': 'SearchAction',
         target: {
           '@type': 'EntryPoint',
-          urlTemplate: 'https://app.daily.dev/search?q={search_term_string}',
+          urlTemplate: `${APP_ORIGIN}/search?q={search_term_string}`,
         },
         'query-input': 'required name=search_term_string',
       },
