@@ -17,6 +17,8 @@ import { LazyImage } from '../LazyImage';
 import { LazyModal } from '../modals/common/types';
 import HoverCard from '../cards/common/HoverCard';
 import { AchievementCard } from '../../features/profile/components/achievements/AchievementCard';
+import { Tooltip } from '../tooltip/Tooltip';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 
 export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
@@ -68,7 +70,7 @@ export function AchievementTrackerButton(): ReactElement | null {
 
   const buttonLabel = (() => {
     if (!isTrackingAchievement) {
-      return 'Track achievement';
+      return undefined;
     }
 
     if (targetCount <= 1) {
@@ -105,6 +107,10 @@ export function AchievementTrackerButton(): ReactElement | null {
     !shouldRender
   ) {
     return null;
+  }
+
+  if (isTrackedAchievementPending) {
+    return <ElementPlaceholder className="h-8 w-8 animate-pulse rounded-10" />;
   }
 
   const buttonContent = (
@@ -145,7 +151,11 @@ export function AchievementTrackerButton(): ReactElement | null {
   );
 
   if (!isTrackingAchievement) {
-    return buttonContent;
+    return (
+      <Tooltip content="Track achievement" side="bottom">
+        {buttonContent}
+      </Tooltip>
+    );
   }
 
   return (
