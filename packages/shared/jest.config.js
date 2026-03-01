@@ -13,6 +13,7 @@ module.exports = {
   moduleNameMapper: {
     '^node-emoji$': 'node-emoji/lib/index.cjs',
     '\\.svg$': '<rootDir>/__mocks__/svgrMock.ts',
+    '\\.(png|jpe?g|gif|webp|avif)$': '<rootDir>/__mocks__/fileMock.ts',
     '\\.css$': 'identity-obj-proxy',
     'react-markdown': '<rootDir>/__mocks__/reactMarkdownMock.tsx',
     'react-turnstile': 'identity-obj-proxy',

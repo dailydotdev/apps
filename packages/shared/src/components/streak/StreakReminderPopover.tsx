@@ -1,7 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { Typography, TypographyColor, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { getCurrentTier, getNextMilestone } from '../../lib/streakMilestones';
 import { MILESTONE_ICON_URLS } from './popup/icons/milestoneIcons';
 
@@ -51,7 +55,7 @@ export function StreakReminderPopover({
     >
       <div className="mb-2 flex items-center justify-start gap-1.5 whitespace-nowrap">
         <div className="relative flex size-7 items-center justify-center rounded-full bg-transparent">
-          <span className="pointer-events-none absolute inset-0.5 rounded-full border border-white/70 animate-streak-day-pop" />
+          <span className="border-white/70 pointer-events-none absolute inset-0.5 animate-streak-day-pop rounded-full border" />
           <div className="absolute size-4 rounded-full border-[1.5px] border-border-subtlest-tertiary" />
         </div>
         <Typography bold type={TypographyType.Callout}>

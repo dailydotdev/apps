@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
-import classNames from 'classnames';
 import type { StreakMilestone } from '../../lib/streakMilestones';
 import { RewardType } from '../../lib/streakMilestones';
 import { CoreIcon } from '../icons';
@@ -155,13 +154,10 @@ export function StreakMilestoneCelebration({
 
           {showRewards && milestone.rewards.length > 0 && (
             <div
-              className="flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default/80 px-6 py-3"
+              className="bg-background-default/80 flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-3"
               style={{
                 opacity: showRewards ? 1 : 0,
-                transform:
-                  showRewards
-                    ? 'translateY(0)'
-                    : 'translateY(8px)',
+                transform: showRewards ? 'translateY(0)' : 'translateY(8px)',
                 transition: 'all 0.4s ease-out',
               }}
             >

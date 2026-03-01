@@ -116,10 +116,8 @@ export function ClaimRewardAnimation({
     setCopied(true);
   }, [reward]);
 
-  const centerX =
-    typeof window !== 'undefined' ? window.innerWidth / 2 : 500;
-  const centerY =
-    typeof window !== 'undefined' ? window.innerHeight / 2 : 400;
+  const centerX = typeof window !== 'undefined' ? window.innerWidth / 2 : 500;
+  const centerY = typeof window !== 'undefined' ? window.innerHeight / 2 : 400;
 
   const isFly = phase === 'fly' && flyTarget && reward.type === 'cores';
   const targetX = isFly ? flyTarget.x : centerX;
@@ -131,7 +129,7 @@ export function ClaimRewardAnimation({
 
   return (
     <RootPortal>
-      <div className="fixed inset-0 z-max pointer-events-auto">
+      <div className="pointer-events-auto fixed inset-0 z-max">
         <div
           className="absolute inset-0 backdrop-blur-sm"
           style={{
@@ -161,7 +159,9 @@ export function ClaimRewardAnimation({
           <div
             className="absolute left-1/2 top-1/2 z-1 flex w-[20rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4"
             style={{
-              transform: `translate(-50%, -50%) scale(${phase === 'idle' ? 0.6 : 1})`,
+              transform: `translate(-50%, -50%) scale(${
+                phase === 'idle' ? 0.6 : 1
+              })`,
               opacity: phase === 'idle' ? 0 : 1,
               transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
             }}
@@ -176,7 +176,10 @@ export function ClaimRewardAnimation({
                   : 'drop-shadow(0 0 32px rgba(255, 255, 255, 0.72))',
               }}
             >
-              <CursorLogo aria-label="Cursor AI" className="size-16 object-contain" />
+              <CursorLogo
+                aria-label="Cursor AI"
+                className="size-16 object-contain"
+              />
             </div>
 
             <div

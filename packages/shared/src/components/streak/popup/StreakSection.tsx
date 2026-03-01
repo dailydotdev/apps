@@ -20,7 +20,7 @@ export function StreakSection({
         className={
           isPrimary
             ? 'text-[4rem] leading-[0.9] tablet:text-[4.5rem]'
-            : 'typo-title3 leading-none'
+            : 'leading-none typo-title3'
         }
       >
         {streak}

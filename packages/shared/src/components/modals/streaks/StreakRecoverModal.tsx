@@ -61,9 +61,8 @@ const StreakRecoverHeading = ({ days }: { days: number }) => (
     type={TypographyType.Title1}
     data-testid="streak-recover-modal-heading"
   >
-    Oh no!{' '}
-    <span className="text-accent-bacon-default">{days} day streak </span> has
-    been broken!
+    Oh no! <span className="text-accent-bacon-default">{days} day streak </span>{' '}
+    has been broken!
   </Typography>
 );
 
@@ -125,13 +124,13 @@ const StreakRecoverButton = ({
   return (
     <Button
       {...props}
-      className="relative mt-2 mb-2 w-full gap-1 overflow-hidden"
+      className="relative mb-2 mt-2 w-full gap-1 overflow-hidden"
       style={{ animation: 'streak-recover-cta-pop 2.2s ease-in-out infinite' }}
       variant={ButtonVariant.Primary}
       size={ButtonSize.Large}
       data-testid="streak-recover-button"
     >
-      <span className="pointer-events-none absolute inset-0 z-1 animate-streak-shine bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+      <span className="via-white/30 pointer-events-none absolute inset-0 z-1 animate-streak-shine bg-gradient-to-r from-transparent to-transparent" />
       {recover.cost > user.balance.amount ? 'Buy Cores' : 'Restore my streak'}
       <span className="relative z-2 inline-flex items-center gap-1">
         <CoreIcon />
@@ -223,7 +222,7 @@ export const StreakRecoverModal = (
         zIndex="2"
         title="Close streak recover popup"
       />
-      <ModalBody className="relative !p-4 overflow-hidden">
+      <ModalBody className="relative overflow-hidden !p-4">
         <div
           className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
           aria-hidden

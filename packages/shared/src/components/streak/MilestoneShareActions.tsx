@@ -58,7 +58,7 @@ export function MilestoneShareActions({
           size={ButtonSize.Medium}
           variant={ButtonVariant.Primary}
           color={ButtonColor.Twitter}
-          className="w-full whitespace-nowrap transition-none hover:brightness-100 hover:shadow-none"
+          className="w-full whitespace-nowrap transition-none hover:shadow-none hover:brightness-100"
         >
           Share on X
         </Button>
@@ -69,7 +69,7 @@ export function MilestoneShareActions({
           size={ButtonSize.Medium}
           variant={ButtonVariant.Primary}
           color={ButtonColor.LinkedIn}
-          className="mb-px w-full whitespace-nowrap transition-none hover:brightness-100 hover:shadow-none"
+          className="mb-px w-full whitespace-nowrap transition-none hover:shadow-none hover:brightness-100"
         >
           Share on LinkedIn
         </Button>
@@ -80,13 +80,16 @@ export function MilestoneShareActions({
           size={ButtonSize.Medium}
           variant={ButtonVariant.Primary}
           color={ButtonColor.Salt}
-          className="w-full whitespace-nowrap transition-none hover:brightness-100 hover:shadow-none"
+          className="w-full whitespace-nowrap transition-none hover:shadow-none hover:brightness-100"
         >
           Copy link
         </Button>
       </div>
       {isCopied && (
-        <Typography type={TypographyType.Footnote} className="text-text-tertiary">
+        <Typography
+          type={TypographyType.Footnote}
+          className="text-text-tertiary"
+        >
           Link copied
         </Typography>
       )}

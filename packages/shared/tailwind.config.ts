@@ -298,18 +298,22 @@ export default {
         },
         'streak-pulse': {
           '0%, 100%': {
-            boxShadow: '0 0 0 0 color-mix(in srgb, currentColor, transparent 100%)',
+            boxShadow:
+              '0 0 0 0 color-mix(in srgb, currentColor, transparent 100%)',
           },
           '50%': {
-            boxShadow: '0 0 8px 2px color-mix(in srgb, currentColor, transparent 65%)',
+            boxShadow:
+              '0 0 8px 2px color-mix(in srgb, currentColor, transparent 65%)',
           },
         },
         'milestone-glow': {
           '0%, 100%': {
-            filter: 'drop-shadow(0 0 0px color-mix(in srgb, currentColor, transparent 100%))',
+            filter:
+              'drop-shadow(0 0 0px color-mix(in srgb, currentColor, transparent 100%))',
           },
           '50%': {
-            filter: 'drop-shadow(0 0 6px color-mix(in srgb, currentColor, transparent 50%))',
+            filter:
+              'drop-shadow(0 0 6px color-mix(in srgb, currentColor, transparent 50%))',
           },
         },
         'streak-shake': {

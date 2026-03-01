@@ -14,7 +14,14 @@ export function NotificationSvg(): ReactElement {
           <feGaussianBlur stdDeviation="1.5" result="blur" />
           <feComposite in="SourceGraphic" in2="blur" operator="over" />
         </filter>
-        <linearGradient id="notif-bg" x1="0" y1="0" x2="88" y2="48" gradientUnits="userSpaceOnUse">
+        <linearGradient
+          id="notif-bg"
+          x1="0"
+          y1="0"
+          x2="88"
+          y2="48"
+          gradientUnits="userSpaceOnUse"
+        >
           <stop stopColor="#1E1E1E" />
           <stop offset="1" stopColor="#121212" />
         </linearGradient>
@@ -80,31 +87,10 @@ export function NotificationSvg(): ReactElement {
           className="notif-text-glow"
         />
         {/* Subtitle lines (light grey) */}
-        <rect
-          x="28"
-          y="20"
-          width="48"
-          height="3"
-          rx="1.5"
-          fill="#888888"
-        />
-        <rect
-          x="28"
-          y="26"
-          width="36"
-          height="3"
-          rx="1.5"
-          fill="#666666"
-        />
+        <rect x="28" y="20" width="48" height="3" rx="1.5" fill="#888888" />
+        <rect x="28" y="26" width="36" height="3" rx="1.5" fill="#666666" />
         {/* Tiny timestamp / meta */}
-        <rect
-          x="72"
-          y="12"
-          width="8"
-          height="3"
-          rx="1.5"
-          fill="#555555"
-        />
+        <rect x="72" y="12" width="8" height="3" rx="1.5" fill="#555555" />
       </g>
     </svg>
   );

@@ -35,7 +35,6 @@ interface MilestoneItemProps {
   isLast: boolean;
   daysAway?: number;
   isClaimed: boolean;
-  justClaimed: boolean;
   onClaim?: () => void;
 }
 
@@ -137,7 +136,8 @@ const getMilestoneHeadline = ({
   const primaryCoresReward = milestone.rewards.find(
     (reward) => reward.type === RewardType.Cores,
   );
-  const primaryReward = primaryCoresReward?.description ?? milestone.rewards[0].description;
+  const primaryReward =
+    primaryCoresReward?.description ?? milestone.rewards[0].description;
   if (!primaryCoresReward) {
     const extraRewardsCount = milestone.rewards.length - 1;
     return `${primaryReward} + ${extraRewardsCount} ${
@@ -160,7 +160,6 @@ function MilestoneItem({
   isLast,
   daysAway,
   isClaimed,
-  justClaimed,
   onClaim,
 }: MilestoneItemProps): ReactElement {
   const helperText =
@@ -174,11 +173,56 @@ function MilestoneItem({
   const canClaim = isUnlocked && !isClaimed;
   const canShowSponsoredReward = isSponsoredMilestone && isClaimed;
   const CursorAiIcon = isLightTheme ? CursorAiIconLight : CursorAiIconDark;
+  const claimButtonVariant =
+    canShowSponsoredReward || isClaimed
+      ? ButtonVariant.Tertiary
+      : ButtonVariant.Primary;
+  let claimButtonLabel = 'Claim';
+  if (canShowSponsoredReward) {
+    claimButtonLabel = 'Show';
+  } else if (isClaimed) {
+    claimButtonLabel = 'Claimed';
+  }
+  let milestoneDescriptionColor = TypographyColor.Quaternary;
+  if (isNext) {
+    milestoneDescriptionColor = TypographyColor.Primary;
+  } else if (isUnlocked) {
+    milestoneDescriptionColor = TypographyColor.Tertiary;
+  }
   const milestoneHeadline = getMilestoneHeadline({
     milestone,
     helperText,
     isSponsoredMilestone,
   });
+  const shouldShowLockedIcon = !isUnlocked && !isNext;
+  const milestoneIconStyle =
+    isNext && !isSponsoredMilestone ? { filter: 'grayscale(100%)' } : undefined;
+  let milestoneIcon: ReactElement;
+  if (isSponsoredMilestone) {
+    milestoneIcon = (
+      <img
+        src={sponsoredGiftSrc}
+        alt={`${milestone.label} gift`}
+        className="relative z-1 size-full object-contain transition-transform duration-300 hover:scale-150 hover:delay-500"
+      />
+    );
+  } else if (shouldShowLockedIcon) {
+    milestoneIcon = (
+      <LockIcon
+        size={IconSize.Small}
+        className="relative z-1 text-text-quaternary"
+      />
+    );
+  } else {
+    milestoneIcon = (
+      <img
+        src={MILESTONE_ICON_URLS[milestone.tier]}
+        alt={milestone.label}
+        className="relative z-1 size-full object-contain transition-transform duration-300 hover:scale-150 hover:delay-500"
+        style={milestoneIconStyle}
+      />
+    );
+  }
 
   return (
     <div
@@ -191,7 +235,7 @@ function MilestoneItem({
       {isSponsoredMilestone && (
         <>
           <div
-            className="pointer-events-none absolute inset-0 z-0 rounded-12 bg-[length:220%_220%] animate-sponsored-gradient-slide"
+            className="pointer-events-none absolute inset-0 z-0 animate-sponsored-gradient-slide rounded-12 bg-[length:220%_220%]"
             style={{
               backgroundImage:
                 'radial-gradient(140% 120% at 8% 12%, color-mix(in srgb, var(--theme-accent-bacon-default), transparent 78%) 0%, transparent 58%), radial-gradient(120% 120% at 88% 20%, color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 80%) 0%, transparent 60%), radial-gradient(130% 130% at 48% 82%, color-mix(in srgb, var(--theme-accent-blueCheese-default), transparent 80%) 0%, transparent 62%), radial-gradient(100% 90% at 72% 72%, color-mix(in srgb, var(--theme-accent-pepper-default), transparent 88%) 0%, transparent 65%)',
@@ -220,14 +264,14 @@ function MilestoneItem({
         )}
       >
         {isNext && (
-          <div className="pointer-events-none absolute -inset-2 z-0 rounded-full bg-accent-bacon-default/50 blur-lg animate-streak-pulse" />
+          <div className="bg-accent-bacon-default/50 pointer-events-none absolute -inset-2 z-0 animate-streak-pulse rounded-full blur-lg" />
         )}
         {isUnlocked && !isNext && (
           <>
-            {sparklePositions.map((sparkle, index) => (
+            {sparklePositions.map((sparkle) => (
               <SparkleIcon
-                key={`${milestone.day}-${index}`}
-                className="pointer-events-none absolute z-2 text-white animate-scale-down-pulse"
+                key={`${milestone.day}-${sparkle.top}-${sparkle.left}-${sparkle.delayMs}`}
+                className="pointer-events-none absolute z-2 animate-scale-down-pulse text-white"
                 style={{
                   top: `${sparkle.top}%`,
                   left: `${sparkle.left}%`,
@@ -240,43 +284,27 @@ function MilestoneItem({
             ))}
           </>
         )}
-        {isSponsoredMilestone ? (
-          <img
-            src={sponsoredGiftSrc}
-            alt={`${milestone.label} gift`}
-            className="relative z-1 size-full object-contain transition-transform duration-300 hover:scale-150 hover:delay-500"
-          />
-        ) : !isUnlocked && !isNext ? (
-          <LockIcon
-            size={IconSize.Small}
-            className="relative z-1 text-text-quaternary"
-          />
-        ) : (
-          <img
-            src={MILESTONE_ICON_URLS[milestone.tier]}
-            alt={milestone.label}
-            className="relative z-1 size-full object-contain transition-transform duration-300 hover:scale-150 hover:delay-500"
-            style={
-              isNext && !isSponsoredMilestone
-                ? { filter: 'grayscale(100%)' }
-                : undefined
-            }
-          />
-        )}
+        {milestoneIcon}
       </div>
 
       <div
         className={classNames(
           'relative z-1 flex min-w-0 flex-1 flex-col justify-start gap-0.5',
           isSponsoredMilestone && 'min-h-0 py-1',
-          !isSponsoredMilestone && hasCompactRewardLayout && 'min-h-[4.5rem] pb-3',
-          !isSponsoredMilestone && !hasCompactRewardLayout && 'min-h-[5.5rem] pb-5',
+          !isSponsoredMilestone &&
+            hasCompactRewardLayout &&
+            'min-h-[4.5rem] pb-3',
+          !isSponsoredMilestone &&
+            !hasCompactRewardLayout &&
+            'min-h-[5.5rem] pb-5',
         )}
       >
         <div className="flex items-center gap-2">
           <Typography
             type={TypographyType.Footnote}
-            color={isNext ? TypographyColor.Secondary : TypographyColor.Quaternary}
+            color={
+              isNext ? TypographyColor.Secondary : TypographyColor.Quaternary
+            }
             className={classNames(
               'rounded-6 px-1.5 py-0.5',
               isNext && 'bg-accent-bacon-default font-bold text-white',
@@ -300,29 +328,19 @@ function MilestoneItem({
           {showClaimButton && (
             <Button
               size={ButtonSize.XSmall}
-              variant={
-                canShowSponsoredReward || isClaimed
-                  ? ButtonVariant.Tertiary
-                  : ButtonVariant.Primary
-              }
+              variant={claimButtonVariant}
               disabled={!canClaim && !canShowSponsoredReward}
               className="ml-auto shrink-0"
               onClick={canClaim || canShowSponsoredReward ? onClaim : undefined}
             >
-              {canShowSponsoredReward ? 'Show' : isClaimed ? 'Claimed' : 'Claim'}
+              {claimButtonLabel}
             </Button>
           )}
         </div>
         <div className="flex min-w-0 items-center gap-1">
           <Typography
             type={TypographyType.Subhead}
-            color={
-              isNext
-                ? TypographyColor.Primary
-                : isUnlocked
-                  ? TypographyColor.Tertiary
-                  : TypographyColor.Quaternary
-            }
+            color={milestoneDescriptionColor}
             className="truncate"
           >
             {isSponsoredMilestone
@@ -345,7 +363,6 @@ function MilestoneItem({
             />
           )}
         </div>
-
       </div>
     </div>
   );
@@ -369,7 +386,9 @@ export function MilestoneTimeline({
     STREAK_MILESTONES[0]?.day;
   const activeMilestoneRef = useRef<HTMLDivElement>(null);
   const [claimedDays, setClaimedDays] = useState<Set<number>>(new Set());
-  const [claimAnimation, setClaimAnimation] = useState<ClaimReward | null>(null);
+  const [claimAnimation, setClaimAnimation] = useState<ClaimReward | null>(
+    null,
+  );
 
   const handleClaim = useCallback((milestone: StreakMilestone) => {
     if (milestone.day === SPONSORED_MILESTONE_DAY) {
@@ -436,7 +455,7 @@ export function MilestoneTimeline({
       </Typography>
 
       <div
-        className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 -mx-2 pt-4 pb-2"
+        className="-mx-2 flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-2 pt-4"
         style={{
           maskImage:
             'linear-gradient(to bottom, transparent, black 24px, black calc(100% - 24px), transparent)',
@@ -475,7 +494,6 @@ export function MilestoneTimeline({
                 isLast={isLast}
                 daysAway={daysAway}
                 isClaimed={isClaimed}
-                justClaimed={wasJustClaimed}
                 onClaim={() => handleClaim(milestone)}
               />
             </div>

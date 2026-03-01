@@ -59,5 +59,9 @@ export const useStreakIncrement = (
 
   const resetAnimation = () => setAnimationState('idle');
 
-  return { animationState, previousStreak: prevStreakRef.current, resetAnimation };
+  return {
+    animationState,
+    previousStreak: prevStreakRef.current,
+    resetAnimation,
+  };
 };

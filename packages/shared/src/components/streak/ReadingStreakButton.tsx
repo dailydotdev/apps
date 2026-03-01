@@ -351,7 +351,8 @@ export function ReadingStreakButton({
           className="fixed z-max flex w-fit flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2"
           style={{ left: debugPos.x, bottom: debugPos.y }}
         >
-          <span
+          <button
+            type="button"
             className="inline-flex cursor-grab select-none items-center gap-2 font-bold text-text-tertiary typo-footnote active:cursor-grabbing"
             onMouseDown={(e) => {
               dragRef.current = {
@@ -388,7 +389,7 @@ export function ReadingStreakButton({
           >
             <span className={debugIconClassName}>⠿</span>
             <span>Streak Debug</span>
-          </span>
+          </button>
 
           <button
             type="button"

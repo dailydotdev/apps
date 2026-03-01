@@ -137,7 +137,9 @@ export function ReadingStreakPopup({
             isPrimary
           />
           <div className="flex flex-col items-center gap-1">
-            {onClose && <CloseButton size={ButtonSize.Small} onClick={onClose} />}
+            {onClose && (
+              <CloseButton size={ButtonSize.Small} onClick={onClose} />
+            )}
             <Link href={`${webappUrl}account/customization/streaks`} passHref>
               <Button
                 tag="a"

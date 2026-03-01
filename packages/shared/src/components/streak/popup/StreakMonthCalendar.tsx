@@ -1,12 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import {
-  addDays,
-  format,
-  isSameDay,
-  subDays,
-} from 'date-fns';
+import { addDays, format, isSameDay, subDays } from 'date-fns';
 import { ReadingStreakIcon } from '../../icons';
 import type { ReadingDay } from '../../../graphql/users';
 import { isWeekend as isWeekendDay } from '../../../lib/date';
@@ -20,14 +15,12 @@ interface StreakMonthCalendarProps {
   trailing?: React.ReactNode;
 }
 
-function formatDayLabel(
-  day: Date,
-  today: Date,
-  isWeekend: boolean,
-): string {
+function formatDayLabel(day: Date, today: Date, isWeekend: boolean): string {
   const isToday = isSameDay(day, today);
   const datePart = format(day, 'MMMM d, yyyy');
-  const label = isToday ? `Today, ${datePart}` : format(day, 'EEEE, MMMM d, yyyy');
+  const label = isToday
+    ? `Today, ${datePart}`
+    : format(day, 'EEEE, MMMM d, yyyy');
 
   if (isWeekend) {
     return `${label} (weekend)`;
@@ -72,7 +65,10 @@ export function StreakMonthCalendar({
   const activeStreak = Math.max(streakOverride ?? currentStreak ?? 1, 1);
   const initialStreakRef = useRef(activeStreak);
   const streakDelta = activeStreak - initialStreakRef.current;
-  const today = useMemo(() => addDays(baseToday, streakDelta), [baseToday, streakDelta]);
+  const today = useMemo(
+    () => addDays(baseToday, streakDelta),
+    [baseToday, streakDelta],
+  );
   const todayAbsoluteIndex = activeStreak - 1;
   const startRowIndex = Math.max(0, Math.floor(todayAbsoluteIndex / 10) - 1);
   const startAbsoluteIndex = startRowIndex * 10;
@@ -106,9 +102,17 @@ export function StreakMonthCalendar({
     );
   }, [currentStreak, history, streakOverride, today, weekStart, timezone]);
 
-  const todayLabel = formatDayLabel(today, today, isWeekendDay(today, weekStart, timezone));
+  const todayLabel = formatDayLabel(
+    today,
+    today,
+    isWeekendDay(today, weekStart, timezone),
+  );
   const displayLabel = hoveredDay
-    ? formatDayLabel(hoveredDay, today, isWeekendDay(hoveredDay, weekStart, timezone))
+    ? formatDayLabel(
+        hoveredDay,
+        today,
+        isWeekendDay(hoveredDay, weekStart, timezone),
+      )
     : todayLabel;
   const isHoveredWeekend =
     !!hoveredDay && isWeekendDay(hoveredDay, weekStart, timezone);
@@ -117,7 +121,9 @@ export function StreakMonthCalendar({
   const pendingLabel = useRef(displayLabel);
   const [renderedLabel, setRenderedLabel] = useState(displayLabel);
   const [windowDays, setWindowDays] = useState(days);
-  const [elevatorTrackDays, setElevatorTrackDays] = useState<Date[] | null>(null);
+  const [elevatorTrackDays, setElevatorTrackDays] = useState<Date[] | null>(
+    null,
+  );
   const [isElevatorAnimating, setIsElevatorAnimating] = useState(false);
   const [trackOffsetPx, setTrackOffsetPx] = useState(0);
   const [windowHeightPx, setWindowHeightPx] = useState<number | null>(null);
@@ -127,13 +133,13 @@ export function StreakMonthCalendar({
   useEffect(() => {
     if (displayLabel === renderedLabel) {
       setVisible(true);
-      return;
+      return undefined;
     }
 
     if (!hoveredDay) {
       setRenderedLabel(displayLabel);
       setVisible(true);
-      return;
+      return undefined;
     }
 
     pendingLabel.current = displayLabel;
@@ -149,17 +155,18 @@ export function StreakMonthCalendar({
 
   useEffect(() => {
     if (!gridContainerRef.current || elevatorTrackDays) {
-      return;
+      return undefined;
     }
 
     setWindowHeightPx(gridContainerRef.current.getBoundingClientRect().height);
+    return undefined;
   }, [elevatorTrackDays, windowDays]);
 
   useEffect(() => {
     if (previousStartRowIndex.current === startRowIndex) {
       setWindowDays(days);
       previousStartRowIndex.current = startRowIndex;
-      return;
+      return undefined;
     }
 
     const rowShift = startRowIndex - previousStartRowIndex.current;
@@ -169,7 +176,7 @@ export function StreakMonthCalendar({
     if (!isSingleRowShift || !gridElement) {
       setWindowDays(days);
       previousStartRowIndex.current = startRowIndex;
-      return;
+      return undefined;
     }
 
     const { height: currentWindowHeight } = gridElement.getBoundingClientRect();
@@ -180,7 +187,7 @@ export function StreakMonthCalendar({
     if (!Number.isFinite(rowStep) || rowStep <= 0) {
       setWindowDays(days);
       previousStartRowIndex.current = startRowIndex;
-      return;
+      return undefined;
     }
 
     const forwardIncomingRow = days.slice(20, 30);
@@ -232,20 +239,30 @@ export function StreakMonthCalendar({
       <div
         key={`${keyPrefix}-${day.toISOString()}-${index}`}
         className={classNames(
-          'relative size-5 place-self-center cursor-pointer rounded-full border border-border-subtlest-tertiary bg-surface-subtle',
+          'bg-surface-subtle relative size-5 cursor-pointer place-self-center rounded-full border border-border-subtlest-tertiary',
           'flex items-center justify-center',
           isToday && 'border-white',
           isFreeze &&
-            'bg-surface-float text-border-subtlest-tertiary bg-[repeating-linear-gradient(135deg,currentColor_0_2px,transparent_2px_5px)]',
+            'bg-surface-float bg-[repeating-linear-gradient(135deg,currentColor_0_2px,transparent_2px_5px)] text-border-subtlest-tertiary',
         )}
         onMouseEnter={isInteractive ? () => setHoveredDay(day) : undefined}
         onMouseLeave={isInteractive ? () => setHoveredDay(null) : undefined}
         onClick={isInteractive ? () => setHoveredDay(day) : undefined}
+        onKeyDown={
+          isInteractive
+            ? (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setHoveredDay(day);
+                }
+              }
+            : undefined
+        }
         role="button"
         tabIndex={0}
       >
         {isToday && !isFreeze && (
-          <span className="pointer-events-none absolute inset-0 rounded-full border border-white/70 animate-streak-day-pop" />
+          <span className="border-white/70 pointer-events-none absolute inset-0 animate-streak-day-pop rounded-full border" />
         )}
         {isRead && (
           <ReadingStreakIcon
@@ -262,7 +279,7 @@ export function StreakMonthCalendar({
       <div className="mb-1 mt-1 flex items-center justify-between gap-1">
         <span
           className={classNames(
-            'block min-w-0 max-w-[12.5rem] flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-bold text-text-tertiary typo-subhead transition-opacity duration-100',
+            'block min-w-0 max-w-[12.5rem] flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-bold text-text-tertiary transition-opacity duration-100 typo-subhead',
             visible ? 'opacity-100' : 'opacity-0',
           )}
         >
@@ -281,7 +298,8 @@ export function StreakMonthCalendar({
           <div
             className={classNames(
               'pointer-events-none',
-              isElevatorAnimating && 'transition-transform duration-200 ease-out',
+              isElevatorAnimating &&
+                'transition-transform duration-200 ease-out',
             )}
             style={{ transform: `translateY(${trackOffsetPx}px)` }}
           >
@@ -292,7 +310,10 @@ export function StreakMonthCalendar({
             </div>
           </div>
         ) : (
-          <div ref={gridContainerRef} className="grid w-full grid-cols-10 grid-rows-3 gap-2.5">
+          <div
+            ref={gridContainerRef}
+            className="grid w-full grid-cols-10 grid-rows-3 gap-2.5"
+          >
             {windowDays.map((day, index) =>
               renderDayCircle(day, index, 'window', true),
             )}
