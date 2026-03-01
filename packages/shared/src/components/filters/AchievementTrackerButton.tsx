@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
+import type { IconType } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MedalBadgeIcon } from '../icons';
 import { AlertColor, AlertDot } from '../AlertDot';
@@ -19,6 +19,22 @@ import HoverCard from '../cards/common/HoverCard';
 import { AchievementCard } from '../../features/profile/components/achievements/AchievementCard';
 import { Tooltip } from '../tooltip/Tooltip';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+
+function AchievementIcon({
+  imgSrc,
+  imgAlt,
+}: {
+  imgSrc: string;
+  imgAlt: string;
+}): ReactElement {
+  return (
+    <LazyImage
+      imgSrc={imgSrc}
+      imgAlt={imgAlt}
+      className="size-5 rounded-6 object-cover"
+    />
+  );
+}
 
 export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
@@ -118,7 +134,16 @@ export function AchievementTrackerButton(): ReactElement | null {
       <Button
         size={ButtonSize.Medium}
         variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        icon={isTrackingAchievement ? undefined : <MedalBadgeIcon />}
+        icon={
+          (isTrackingAchievement ? (
+            <AchievementIcon
+              imgSrc={trackedAchievement.achievement.image}
+              imgAlt={trackedAchievement.achievement.name}
+            />
+          ) : (
+            <MedalBadgeIcon />
+          )) as unknown as IconType
+        }
         onClick={handleClick}
         disabled={isTrackerUpdating}
         aria-label={
@@ -129,17 +154,7 @@ export function AchievementTrackerButton(): ReactElement | null {
             : 'Track an achievement'
         }
       >
-        {isTrackingAchievement && (
-          <LazyImage
-            imgSrc={trackedAchievement.achievement.image}
-            imgAlt={trackedAchievement.achievement.name}
-            className={classNames(
-              'size-5 rounded-6 object-cover',
-              buttonLabel && 'mr-2',
-            )}
-          />
-        )}
-        {buttonLabel}
+        {buttonLabel || undefined}
       </Button>
       {showAttentionDot && (
         <AlertDot
