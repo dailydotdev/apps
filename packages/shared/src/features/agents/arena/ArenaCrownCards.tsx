@@ -232,7 +232,7 @@ export const ArenaCrownCards = ({
   loading,
 }: ArenaCrownCardsProps): ReactElement => {
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2 tablet:grid tablet:grid-cols-5 tablet:overflow-visible">
+    <div className="flex gap-3 overflow-x-auto tablet:grid tablet:grid-cols-5 tablet:overflow-visible">
       {crowns.map((crown) => (
         <CrownCard key={crown.type} crown={crown} loading={loading} />
       ))}
