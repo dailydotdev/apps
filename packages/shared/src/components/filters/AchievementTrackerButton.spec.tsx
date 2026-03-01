@@ -40,6 +40,13 @@ jest.mock('../../hooks/useRequestProtocol', () => ({
   useRequestProtocol: () => ({ isCompanion: false }),
 }));
 
+jest.mock('../AlertDot', () => ({
+  AlertDot: ({ className }: { className?: string }) => (
+    <div data-testid="alert-dot" className={className} />
+  ),
+  AlertColor: { Bun: 'bg-accent-bun-default' },
+}));
+
 jest.mock('../cards/common/HoverCard', () => ({
   __esModule: true,
   default: ({
@@ -138,8 +145,8 @@ it('renders skeleton placeholder while achievements list is loading', () => {
     ...defaultProfileAchievementsHook,
     isPending: true,
   });
-  const { container } = renderComponent();
-  const skeleton = container.firstChild as HTMLElement;
+  renderComponent();
+  const skeleton = screen.getByTestId('achievement-tracker-skeleton');
   expect(skeleton).toHaveClass('animate-pulse', 'h-10', 'w-10');
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
@@ -149,9 +156,9 @@ it('renders skeleton placeholder while tracked achievement query is pending', ()
     ...defaultTrackedAchievementHook,
     isPending: true,
   });
-  const { container } = renderComponent();
+  renderComponent();
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
-  const skeleton = container.firstChild as HTMLElement;
+  const skeleton = screen.getByTestId('achievement-tracker-skeleton');
   expect(skeleton).toHaveClass('animate-pulse', 'h-10', 'w-10');
 });
 
@@ -170,14 +177,15 @@ it('wraps the non-tracking button with a tooltip labeled "Track achievement"', (
 });
 
 it('shows attention dot on the button when no achievement is tracked', () => {
-  const { container } = renderComponent();
-  const attentionDot = container.querySelector('.bg-accent-bun-default');
-  expect(attentionDot).toBeInTheDocument();
+  renderComponent();
+  expect(screen.getByTestId('alert-dot')).toBeInTheDocument();
 });
 
 it('does not show skeleton once the tracked achievement query resolves', () => {
-  const { container } = renderComponent();
-  expect(container.querySelector('.animate-pulse')).not.toBeInTheDocument();
+  renderComponent();
+  expect(
+    screen.queryByTestId('achievement-tracker-skeleton'),
+  ).not.toBeInTheDocument();
   expect(screen.getByRole('button')).toBeInTheDocument();
 });
 

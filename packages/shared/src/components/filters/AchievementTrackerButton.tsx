@@ -125,7 +125,12 @@ export function AchievementTrackerButton(): ReactElement | null {
   }
 
   if (isAchievementsPending) {
-    return <ElementPlaceholder className="h-10 w-10 animate-pulse rounded-12" />;
+    return (
+      <ElementPlaceholder
+        data-testid="achievement-tracker-skeleton"
+        className="h-10 w-10 animate-pulse rounded-12"
+      />
+    );
   }
 
   if (!shouldRender) {
@@ -133,7 +138,12 @@ export function AchievementTrackerButton(): ReactElement | null {
   }
 
   if (isTrackedAchievementPending) {
-    return <ElementPlaceholder className="h-10 w-10 animate-pulse rounded-12" />;
+    return (
+      <ElementPlaceholder
+        data-testid="achievement-tracker-skeleton"
+        className="h-10 w-10 animate-pulse rounded-12"
+      />
+    );
   }
 
   const buttonContent = (
