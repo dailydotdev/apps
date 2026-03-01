@@ -569,13 +569,33 @@ const CROWN_CONFIG: Record<
     glowColor: 'var(--theme-accent-ketchup-default)',
     label: 'Most controversial',
     thresholds: { minVolume: 10 },
-    getValue: (t) => t.controversyScore,
+    getValue: (t) => t.heat,
     formatStat: (t) => `Heat ${t.heat}`,
   },
 };
 
 export const computeCrowns = (tools: RankedTool[]): CrownData[] => {
   const established = tools.filter((t) => !t.isEmerging);
+  const awardedEntities = new Set<string>();
+  const tieEpsilon = 1e-6;
+
+  const getWinnerWithDiversity = (
+    eligible: RankedTool[],
+    getValue: (tool: RankedTool) => number,
+  ): RankedTool => {
+    const maxValue = eligible.reduce(
+      (best, current) => Math.max(best, getValue(current)),
+      Number.NEGATIVE_INFINITY,
+    );
+    const topCandidates = eligible.filter(
+      (tool) => Math.abs(getValue(tool) - maxValue) <= tieEpsilon,
+    );
+    const uncrownedCandidate = topCandidates.find(
+      (tool) => !awardedEntities.has(tool.entity.entity),
+    );
+
+    return uncrownedCandidate ?? topCandidates[0];
+  };
 
   return (
     [
@@ -603,9 +623,8 @@ export const computeCrowns = (tools: RankedTool[]): CrownData[] => {
       };
     }
 
-    const winner = eligible.reduce((best, current) =>
-      config.getValue(current) > config.getValue(best) ? current : best,
-    );
+    const winner = getWinnerWithDiversity(eligible, config.getValue);
+    awardedEntities.add(winner.entity.entity);
 
     return {
       type,
