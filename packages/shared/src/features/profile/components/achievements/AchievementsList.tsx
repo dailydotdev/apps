@@ -162,11 +162,12 @@ export function AchievementsList({
   );
 
   const handleUntrack = useCallback(async () => {
+    const achievementId = trackedAchievement?.achievement.id;
     await untrackAchievement();
     logEvent({
       event_name: LogEvent.UntrackAchievement,
       target_type: TargetType.AchievementCard,
-      target_id: trackedAchievement?.achievement.id,
+      target_id: achievementId,
     });
   }, [logEvent, trackedAchievement?.achievement.id, untrackAchievement]);
 

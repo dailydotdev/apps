@@ -63,6 +63,7 @@ export const AchievementPickerModal = ({
       logEvent({
         event_name: LogEvent.UntrackAchievement,
         target_type: TargetType.AchievementCard,
+        target_id: trackedAchievementId,
         extra: JSON.stringify({ origin: 'picker_modal' }),
       });
     } finally {
