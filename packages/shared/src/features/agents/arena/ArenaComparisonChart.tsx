@@ -7,6 +7,12 @@ import {
   formatComparisonMetricValue,
   getComparisonMetricLabel,
 } from './arenaMetrics';
+import {
+  getChartLayout,
+  getLinePath,
+  getTooltipPosition,
+  getXAxisTickLabel,
+} from './arenaComparisonChartUtils';
 
 interface ArenaComparisonChartProps {
   series: ArenaComparisonSeries[];
@@ -31,32 +37,6 @@ const Placeholder = ({ className }: { className?: string }): ReactElement => (
     )}
   />
 );
-
-const getLinePath = (
-  values: number[],
-  getX: (index: number) => number,
-  getY: (value: number) => number,
-): string =>
-  values.reduce((path, value, index) => {
-    const prefix = index === 0 ? 'M' : 'L';
-    return `${path}${prefix}${getX(index)},${getY(value)}`;
-  }, '');
-
-const getXAxisTickLabel = (
-  index: number,
-  pointCount: number,
-  compact?: boolean,
-): string => {
-  if (pointCount <= 1) {
-    return 'Now';
-  }
-  if (index === pointCount - 1) {
-    return 'Now';
-  }
-
-  const days = pointCount - 1 - index;
-  return compact ? `${days}d` : `${days}d ago`;
-};
 
 export const ArenaComparisonChart = ({
   series,
@@ -93,15 +73,8 @@ export const ArenaComparisonChart = ({
     );
   }
 
-  const width = isTablet ? 760 : 420;
-  const height = isTablet ? 340 : 300;
-  const yAxisLabelX = isTablet ? 14 : 18;
-  const padding = {
-    top: isTablet ? 20 : 16,
-    right: 20,
-    bottom: isTablet ? 52 : 56,
-    left: isTablet ? 52 : 58,
-  };
+  const { width, height, yAxisLabelX, yTickCount, xTickStep, padding } =
+    getChartLayout(isTablet);
 
   const pointCount = Math.max(...series.map((line) => line.values.length), 1);
   const chartWidth = width - padding.left - padding.right;
@@ -120,13 +93,11 @@ export const ArenaComparisonChart = ({
   const baselineY =
     minValue <= 0 && maxValue >= 0 ? getY(0) : padding.top + chartHeight;
   const metricLabel = getComparisonMetricLabel(metric);
-  const yTickCount = isTablet ? 4 : 3;
   const yTicks = Array.from(
     { length: yTickCount },
     (_, index) =>
       maxValue - (index / Math.max(yTickCount - 1, 1)) * (maxValue - minValue),
   );
-  const xTickStep = isTablet ? 1 : 2;
 
   return (
     <div className="rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
@@ -341,38 +312,15 @@ export const ArenaComparisonChart = ({
                 return;
               }
 
-              const tooltipWidth = 220;
-              const tooltipHeight = 150;
-              const tooltipOffsetX = 18;
-              const tooltipOffsetY = 18;
-              let rawX = event.clientX - svgBounds.left + tooltipOffsetX;
-              let rawY = event.clientY - svgBounds.top + tooltipOffsetY;
-
-              if (rawX + tooltipWidth + 8 > svgBounds.width) {
-                rawX =
-                  event.clientX -
-                  svgBounds.left -
-                  tooltipWidth -
-                  tooltipOffsetX;
-              }
-              if (rawY + tooltipHeight + 8 > svgBounds.height) {
-                rawY =
-                  event.clientY -
-                  svgBounds.top -
-                  tooltipHeight -
-                  tooltipOffsetY;
-              }
-              const clampedX = Math.max(
-                8,
-                Math.min(rawX, svgBounds.width - tooltipWidth - 8),
-              );
-              const clampedY = Math.max(
-                8,
-                Math.min(rawY, svgBounds.height - tooltipHeight - 8),
-              );
+              const clampedPosition = getTooltipPosition({
+                cursorX: event.clientX - svgBounds.left,
+                cursorY: event.clientY - svgBounds.top,
+                chartWidth: svgBounds.width,
+                chartHeight: svgBounds.height,
+              });
 
               setHoveredIndex(boundedIndex);
-              setTooltipPosition({ x: clampedX, y: clampedY });
+              setTooltipPosition(clampedPosition);
             }}
             onMouseLeave={() => {
               setHoveredIndex(null);
