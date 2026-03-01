@@ -62,6 +62,7 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const readingReminderDigest = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
   );
+  const isSubscribedToReadingReminder = !!readingReminderDigest;
 
   const isRegisteredToday = getIsRegisteredToday(user?.createdAt);
 
@@ -70,7 +71,7 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
     isMobile &&
     isLoggedIn &&
     !isDigestLoading &&
-    !readingReminderDigest &&
+    !isSubscribedToReadingReminder &&
     !isRegisteredToday;
   const { value: isFeatureEnabled } = useConditionalFeature({
     feature: featureReadingReminderMobile,
@@ -114,7 +115,7 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
   const shouldShow =
-    !readingReminderDigest && (shouldShowBase || hasShownInSession);
+    !isSubscribedToReadingReminder && (shouldShowBase || hasShownInSession);
 
   return { shouldShow, onEnable };
 };

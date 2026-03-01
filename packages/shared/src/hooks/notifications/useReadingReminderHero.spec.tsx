@@ -111,6 +111,9 @@ describe('useReadingReminderHero', () => {
 
     expect(result.current.shouldShow).toBe(false);
     expect(setLastSeen).not.toHaveBeenCalled();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
   });
 
   it('should persist seen time immediately when shown', () => {
