@@ -110,7 +110,7 @@ export function AchievementTrackerButton(): ReactElement | null {
   }
 
   if (isTrackedAchievementPending) {
-    return <ElementPlaceholder className="h-8 w-8 animate-pulse rounded-10" />;
+    return <ElementPlaceholder className="h-10 w-10 animate-pulse rounded-12" />;
   }
 
   const buttonContent = (

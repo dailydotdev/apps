@@ -150,7 +150,7 @@ it('renders skeleton placeholder while tracked achievement query is pending', ()
   const { container } = renderComponent();
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
   const skeleton = container.firstChild as HTMLElement;
-  expect(skeleton).toHaveClass('animate-pulse', 'h-8', 'w-8');
+  expect(skeleton).toHaveClass('animate-pulse', 'h-10', 'w-10');
 });
 
 it('renders icon-only button with no text label when not tracking', () => {
