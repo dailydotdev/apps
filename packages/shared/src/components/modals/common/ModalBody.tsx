@@ -14,7 +14,7 @@ const bigModals = [ModalSize.Large, ModalSize.XLarge];
 function ModalBodyComponent(
   { children, className, view, ...props }: ModalBodyProps,
   ref: MutableRefObject<HTMLElement>,
-): ReactElement {
+): ReactElement | null {
   const { activeView, kind, size, isDrawer } = useContext(ModalPropsContext);
   const sectionClassName = classNames(
     'relative flex h-full max-h-full w-full shrink flex-col overflow-auto',

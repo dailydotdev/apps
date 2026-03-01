@@ -36,13 +36,15 @@ export function SharedPostPreview({
   imageProps,
 }: SharedPostPreviewProps): ReactElement {
   const { overlay } = useCardCover({ post, onShare });
-  const isUnknownSource = post.sharedPost.source.id === 'unknown';
+  const isUnknownSource =
+    (post.sharedPost?.source?.id ?? 'unknown') === 'unknown';
+  const unknownSource = post.sharedPost?.domain ?? source?.handle ?? 'unknown';
   const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
   const iconSize = Math.round(16 * pixelRatio);
   const sourceImage =
-    isUnknownSource && post.sharedPost.domain
+    isUnknownSource && post.sharedPost?.domain
       ? `${apiUrl}/icon?url=${encodeURIComponent(
-          post.sharedPost.domain,
+          post.sharedPost?.domain,
         )}&size=${iconSize}`
       : source?.image;
 
@@ -67,7 +69,7 @@ export function SharedPostPreview({
             type={ImageType.Post}
             src={image}
             alt={title || 'Shared post cover image'}
-            className="size-full object-cover"
+            className="size-full overflow-hidden rounded-12 object-cover"
           />
           <div className="absolute inset-x-0 top-0 ">
             <div className="flex flex-col gap-2 rounded-t-8 bg-background-subtle p-2">
@@ -76,9 +78,7 @@ export function SharedPostPreview({
                   <SourceAvatar
                     source={{
                       image: sourceImage,
-                      handle: isUnknownSource
-                        ? post.sharedPost.domain
-                        : source.handle,
+                      handle: isUnknownSource ? unknownSource : source.handle,
                     }}
                     size={ProfileImageSize.Size16}
                     className="shrink-0"
@@ -89,7 +89,7 @@ export function SharedPostPreview({
                     color={TypographyColor.Primary}
                     className="truncate font-bold"
                   >
-                    {isUnknownSource ? post.sharedPost.domain : source.handle}
+                    {isUnknownSource ? unknownSource : source.name}
                   </Typography>
                 </div>
               )}

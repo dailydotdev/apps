@@ -28,6 +28,7 @@ import {
   TrashIcon,
   LockIcon,
   DocsIcon,
+  ArrowIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
@@ -51,9 +52,11 @@ const seo: NextSeoProps = {
   title: getTemplatedTitle('API Access'),
 };
 
-const SKILL_INSTRUCTION =
-  'Install the daily-dev skill from clawdhub and explain my new superpowers';
 const OPENAPI_URL = 'https://api.daily.dev/public/v1/docs/json';
+const DAILY_DEV_OPENCLAW_INSTRUCTION =
+  'Install daily-dev from clawhub and explain my new superpowers';
+const DAILY_DEV_AGENTIC_OPENCLAW_INSTRUCTION =
+  'Install daily-dev-agentic from clawhub and start getting smarter';
 const CLAUDE_INSTALL_COMMAND = [
   `claude plugin marketplace add https://github.com/dailydotdev/daily.git`,
   `claude plugin install daily.dev@daily.dev`,
@@ -62,6 +65,88 @@ const CLAUDE_INSTALL_COMMAND = [
 
 const CURSOR_REPO_URL = 'https://github.com/dailydotdev/daily.git';
 const CODEX_INSTALL_COMMAND = `$skill-installer install the daily.dev skill from ${CURSOR_REPO_URL}`;
+
+interface SkillInstallMethod {
+  tool: 'OpenClaw' | 'Claude Code' | 'Codex' | 'Cursor';
+  description: string;
+  code?: string;
+  multilineCode?: boolean;
+  copyValue?: string;
+  copySuccessMessage?: string;
+  steps?: string[];
+  note?: string;
+}
+
+interface SkillDefinition {
+  id: string;
+  name: string;
+  description: string;
+  methods: SkillInstallMethod[];
+}
+
+const SKILLS: SkillDefinition[] = [
+  {
+    id: 'daily-dev',
+    name: 'daily-dev',
+    description:
+      'Overcome LLM knowledge cutoffs with real-time developer content.',
+    methods: [
+      {
+        tool: 'OpenClaw',
+        description: 'Copy this instruction to your agent to get started:',
+        code: DAILY_DEV_OPENCLAW_INSTRUCTION,
+        copyValue: DAILY_DEV_OPENCLAW_INSTRUCTION,
+        copySuccessMessage: 'Instruction copied to clipboard',
+      },
+      {
+        tool: 'Claude Code',
+        description:
+          'Add daily.dev to Claude Code as a plugin with these commands:',
+        code: CLAUDE_INSTALL_COMMAND.join('\n'),
+        multilineCode: true,
+        copyValue: CLAUDE_INSTALL_COMMAND.join(' && '),
+        copySuccessMessage: 'Command copied to clipboard',
+        note: 'After setup, use /daily.dev to interact with your feed and features.',
+      },
+      {
+        tool: 'Codex',
+        description: 'Install the daily.dev skill in Codex with this command:',
+        code: CODEX_INSTALL_COMMAND,
+        copyValue: CODEX_INSTALL_COMMAND,
+        copySuccessMessage: 'Command copied to clipboard',
+        note: 'Restart Codex after installation, then use $daily.dev.',
+      },
+      {
+        tool: 'Cursor',
+        description: 'Add daily.dev as a remote skill in Cursor:',
+        steps: [
+          'Open Cursor Settings -> Rules (Cmd+Shift+J on Mac, Ctrl+Shift+J on Windows/Linux)',
+          'Click "Add Rule" -> "Remote Rule (Github)"',
+          'Enter the repository URL below',
+        ],
+        code: CURSOR_REPO_URL,
+        copyValue: CURSOR_REPO_URL,
+        copySuccessMessage: 'URL copied to clipboard',
+        note: 'Use /daily.dev in Agent chat to interact with your feed.',
+      },
+    ],
+  },
+  {
+    id: 'daily-dev-agentic',
+    name: 'daily-dev-agentic',
+    description:
+      'Continuous self-improvement for agents through daily.dev feeds.',
+    methods: [
+      {
+        tool: 'OpenClaw',
+        description: 'Copy this instruction to your agent:',
+        code: DAILY_DEV_AGENTIC_OPENCLAW_INSTRUCTION,
+        copyValue: DAILY_DEV_AGENTIC_OPENCLAW_INSTRUCTION,
+        copySuccessMessage: 'Instruction copied to clipboard',
+      },
+    ],
+  },
+];
 
 const lowercaseRelativeDate = (dateStr: string): string => {
   const relativeDates = ['Now', 'Today', 'Yesterday'];
@@ -274,6 +359,37 @@ const TokenListItem = ({
   );
 };
 
+interface CopyableCodeBlockProps {
+  text: string;
+  onCopy: () => Promise<void>;
+  multiline?: boolean;
+}
+
+const CopyableCodeBlock = ({
+  text,
+  onCopy,
+  multiline,
+}: CopyableCodeBlockProps): ReactElement => {
+  return (
+    <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
+      <code
+        className={`min-w-0 flex-1 break-words text-text-tertiary ${
+          multiline ? 'whitespace-pre-wrap' : ''
+        }`}
+      >
+        {text}
+      </code>
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        icon={<CopyIcon />}
+        onClick={onCopy}
+        className="shrink-0"
+      />
+    </div>
+  );
+};
+
 const ApiAccessPage = (): ReactElement => {
   const { isPlus } = usePlusSubscription();
   const { data: tokens, isLoading } = usePersonalAccessTokens();
@@ -283,38 +399,14 @@ const ApiAccessPage = (): ReactElement => {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createdToken, setCreatedToken] = useState<string | null>(null);
+  const [expandedSkills, setExpandedSkills] = useState<Record<string, boolean>>(
+    {},
+  );
 
-  const handleCopyInstruction = async () => {
+  const handleCopy = async (value: string, successMessage = 'Copied') => {
     try {
-      await navigator.clipboard.writeText(SKILL_INSTRUCTION);
-      displayToast('Instruction copied to clipboard');
-    } catch {
-      displayToast('Failed to copy');
-    }
-  };
-
-  const handleCopyClaudeCommand = async () => {
-    try {
-      await navigator.clipboard.writeText(CLAUDE_INSTALL_COMMAND.join(' && '));
-      displayToast('Command copied to clipboard');
-    } catch {
-      displayToast('Failed to copy');
-    }
-  };
-
-  const handleCopyCodexCommand = async () => {
-    try {
-      await navigator.clipboard.writeText(CODEX_INSTALL_COMMAND);
-      displayToast('Command copied to clipboard');
-    } catch {
-      displayToast('Failed to copy');
-    }
-  };
-
-  const handleCopyCursorUrl = async () => {
-    try {
-      await navigator.clipboard.writeText(CURSOR_REPO_URL);
-      displayToast('URL copied to clipboard');
+      await navigator.clipboard.writeText(value);
+      displayToast(successMessage);
     } catch {
       displayToast('Failed to copy');
     }
@@ -329,46 +421,27 @@ const ApiAccessPage = (): ReactElement => {
     }
   };
 
-  if (!isPlus) {
-    return (
-      <AccountPageContainer title="API Access">
-        <div className="flex flex-col gap-4">
-          <Typography type={TypographyType.Body} bold>
-            Plus Feature
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            API access is available exclusively for Plus subscribers. Upgrade to
-            connect AI agents and automate your workflows.
-          </Typography>
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            tag="a"
-            href="/plus"
-            className="self-start"
-          >
-            Upgrade to Plus
-          </Button>
-        </div>
-      </AccountPageContainer>
-    );
-  }
+  const toggleSkill = (skillId: string) => {
+    setExpandedSkills((current) => ({
+      ...current,
+      [skillId]: !current[skillId],
+    }));
+  };
 
   return (
     <AccountPageContainer
       title="API Access"
       actions={
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<PlusIcon />}
-          onClick={() => setShowCreateModal(true)}
-        >
-          {isMobile ? undefined : 'Create token'}
-        </Button>
+        isPlus ? (
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+            onClick={() => setShowCreateModal(true)}
+          >
+            {isMobile ? undefined : 'Create token'}
+          </Button>
+        ) : undefined
       }
     >
       <div className="flex flex-col gap-6">
@@ -418,144 +491,150 @@ const ApiAccessPage = (): ReactElement => {
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              No tokens yet. Create one to get started.
+              {isPlus
+                ? 'No tokens yet. Create one to get started.'
+                : 'Upgrade to Plus to create API tokens and authenticate with the daily.dev API.'}
             </Typography>
-            <Button
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              icon={<PlusIcon />}
-              onClick={() => setShowCreateModal(true)}
-            >
-              Create your first token
-            </Button>
+            {isPlus ? (
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<PlusIcon />}
+                onClick={() => setShowCreateModal(true)}
+              >
+                Create your first token
+              </Button>
+            ) : (
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                tag="a"
+                href="/plus"
+              >
+                Upgrade to Plus
+              </Button>
+            )}
           </div>
         )}
 
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Body} bold>
-            Connect OpenClaw
+            Skills
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Copy this instruction to your agent to get started:
+            Install one or more daily.dev skills using the integrations below.
           </Typography>
-          <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
-            <code className="min-w-0 flex-1 break-words text-text-tertiary">
-              {SKILL_INSTRUCTION}
-            </code>
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<CopyIcon />}
-              onClick={handleCopyInstruction}
-              className="shrink-0"
-            />
-          </div>
-        </div>
+          <div className="flex flex-col gap-4">
+            {SKILLS.map((skill) => {
+              const supportedTools = Array.from(
+                new Set(skill.methods.map((method) => method.tool)),
+              );
+              const isExpanded = !!expandedSkills[skill.id];
 
-        <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Body} bold>
-            Claude Code Integration
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Add daily.dev to Claude Code as a plugin with below commands:
-          </Typography>
-          <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
-            <code className="min-w-0 flex-1 whitespace-pre-wrap break-words text-text-tertiary">
-              {CLAUDE_INSTALL_COMMAND.join('\n')}
-            </code>
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<CopyIcon />}
-              onClick={handleCopyClaudeCommand}
-              className="shrink-0"
-            />
-          </div>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            After that you can use skill <strong>/daily.dev</strong> to interact
-            with your daily.dev feed and other features.
-          </Typography>
-        </div>
+              return (
+                <div
+                  key={skill.id}
+                  className="flex flex-col rounded-12 border border-border-subtlest-tertiary p-4"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleSkill(skill.id)}
+                    aria-expanded={isExpanded}
+                    aria-controls={`skill-${skill.id}`}
+                    className="flex w-full items-start justify-between gap-3 rounded-8 py-1 text-left"
+                  >
+                    <div className="flex min-w-0 flex-1 flex-col gap-2">
+                      <div className="flex flex-col gap-2">
+                        <Typography type={TypographyType.Callout} bold>
+                          {skill.name}
+                        </Typography>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {supportedTools.map((tool) => (
+                            <span
+                              key={`${skill.id}-${tool}`}
+                              className="rounded-16 bg-surface-float px-2 py-0.5 text-text-tertiary typo-footnote"
+                            >
+                              {tool}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <Typography
+                        type={TypographyType.Callout}
+                        color={TypographyColor.Tertiary}
+                        className="whitespace-normal break-words"
+                      >
+                        {skill.description}
+                      </Typography>
+                    </div>
+                    <ArrowIcon
+                      className={`h-4 w-4 shrink-0 text-text-tertiary transition-transform ${
+                        isExpanded ? 'rotate-180' : 'rotate-90'
+                      }`}
+                    />
+                  </button>
 
-        <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Body} bold>
-            Codex Integration
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Install the daily.dev skill in Codex with this command:
-          </Typography>
-          <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
-            <code className="min-w-0 flex-1 break-words text-text-tertiary">
-              {CODEX_INSTALL_COMMAND}
-            </code>
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<CopyIcon />}
-              onClick={handleCopyCodexCommand}
-              className="shrink-0"
-            />
+                  <div
+                    id={`skill-${skill.id}`}
+                    className={`flex flex-col overflow-hidden transition-all duration-300 ${
+                      isExpanded
+                        ? 'mt-4 max-h-[1200px] gap-4 opacity-100'
+                        : 'mt-0 max-h-0 gap-0 opacity-0'
+                    }`}
+                  >
+                    {skill.methods.map((method) => (
+                      <div
+                        key={`${skill.id}-${method.tool}`}
+                        className="flex flex-col gap-2"
+                      >
+                        <Typography type={TypographyType.Callout} bold>
+                          {method.tool}
+                        </Typography>
+                        <Typography
+                          type={TypographyType.Callout}
+                          color={TypographyColor.Tertiary}
+                          className="whitespace-normal break-words"
+                        >
+                          {method.description}
+                        </Typography>
+                        {method.steps && (
+                          <ol className="list-inside list-decimal text-text-tertiary typo-callout">
+                            {method.steps.map((step) => (
+                              <li key={step}>{step}</li>
+                            ))}
+                          </ol>
+                        )}
+                        {method.code && method.copyValue && (
+                          <CopyableCodeBlock
+                            text={method.code}
+                            multiline={method.multilineCode}
+                            onCopy={() =>
+                              handleCopy(
+                                method.copyValue,
+                                method.copySuccessMessage,
+                              )
+                            }
+                          />
+                        )}
+                        {method.note && (
+                          <Typography
+                            type={TypographyType.Callout}
+                            color={TypographyColor.Tertiary}
+                            className="whitespace-normal break-all"
+                          >
+                            {method.note}
+                          </Typography>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Restart Codex after installation, then use{' '}
-            <strong>$daily.dev</strong> to interact with your feed.
-          </Typography>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Body} bold>
-            Cursor Integration
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Add daily.dev as a remote skill in Cursor:
-          </Typography>
-          <ol className="list-inside list-decimal text-text-tertiary typo-callout">
-            <li>
-              Open Cursor Settings → Rules (Cmd+Shift+J on Mac, Ctrl+Shift+J on
-              Windows/Linux)
-            </li>
-            <li>
-              Click &quot;Add Rule&quot; → &quot;Remote Rule (Github)&quot;
-            </li>
-            <li>Enter the repository URL below</li>
-          </ol>
-          <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
-            <code className="min-w-0 flex-1 break-words text-text-tertiary">
-              {CURSOR_REPO_URL}
-            </code>
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<CopyIcon />}
-              onClick={handleCopyCursorUrl}
-              className="shrink-0"
-            />
-          </div>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Use <strong>/daily.dev</strong> in Agent chat to interact with your
-            feed.
-          </Typography>
         </div>
 
         <div className="flex flex-col gap-2">

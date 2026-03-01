@@ -1,4 +1,4 @@
-import type { CSSProperties, MutableRefObject, ReactElement } from 'react';
+import type { CSSProperties, ForwardedRef, ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import classed from '../../lib/classed';
 
@@ -19,7 +19,7 @@ interface PointerProps {
 
 function Pointer(
   { color, ...props }: PointerProps,
-  ref?: MutableRefObject<HTMLDivElement>,
+  ref: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
   return (
     <PointerContainer {...props} ref={ref}>

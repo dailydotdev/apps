@@ -16,9 +16,19 @@ export const useReadHistoryVotePost = (): UseReadHistoryVotePost => {
   const votePost = useVotePost({
     variables: { key: RequestKey.ReadingHistory },
     onMutate: ({ id, vote }) => {
+      if (!user) {
+        throw new Error(
+          'useReadHistoryVotePost requires an authenticated user in onMutate',
+        );
+      }
+
       const data = queryClient.getQueryData<ReadHistoryInfiniteData>(
         generateQueryKey(RequestKey.ReadingHistory, user),
       );
+
+      if (!data) {
+        return undefined;
+      }
 
       return mutateVoteReadHistoryPost({
         id,

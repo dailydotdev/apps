@@ -40,7 +40,7 @@ export const plusTakeoverContent = new Feature<{
   cta: string;
   shouldShowRefund: boolean;
   shouldShowReviews: boolean;
-}>('plus_takeover_content', null);
+}>('plus_takeover_content');
 
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   full: 'Level Up with Plus',
@@ -69,6 +69,10 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
+export const featureReadingReminderMobile = new Feature(
+  'reading_reminder_mobile',
+  false,
+);
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
@@ -121,7 +125,22 @@ export const featureProfileCompletionIndicator = new Feature(
   0,
 );
 
+export const achievementTrackingWidgetFeature = new Feature(
+  'achievement_tracking_widget',
+  false,
+);
+
+export const featureProfileCompletionPostGate = new Feature(
+  'profile_completion_post_gate',
+  0,
+);
+
 export const sharedPostPreviewFeature = new Feature(
   'shared_post_preview',
+  false,
+);
+
+export const installExtensionFeedMenuFeature = new Feature(
+  'install_extension_feed_menu',
   false,
 );

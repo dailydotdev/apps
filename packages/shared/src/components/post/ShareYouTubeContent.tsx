@@ -15,6 +15,7 @@ import { ProfileImageSize } from '../ProfilePicture';
 interface ShareYouTubeContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
+  isCompactSpacing?: boolean;
 }
 
 function ShareYouTubeContent({
@@ -30,7 +31,8 @@ function ShareYouTubeContent({
     );
   }
 
-  const isUnknownSource = post.sharedPost.source.id === 'unknown';
+  const isUnknownSource =
+    (post.sharedPost?.source?.id ?? 'unknown') === 'unknown';
 
   return (
     <>

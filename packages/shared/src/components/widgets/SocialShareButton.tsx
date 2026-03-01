@@ -35,7 +35,7 @@ export const SocialShareButton = ({
     } as ButtonProps<'a'>);
 
   return (
-    <div className="flex w-16 flex-col items-center">
+    <div className="group flex w-16 flex-col items-center">
       <Button
         {...buttonProps}
         {...props}
@@ -46,7 +46,7 @@ export const SocialShareButton = ({
       />
       <ShareText
         className={classNames(
-          'mt-1.5 max-w-16 overflow-hidden overflow-ellipsis text-center',
+          'mt-1.5 max-w-16 overflow-hidden overflow-ellipsis text-center transition-colors hover:text-text-primary group-hover:text-text-primary',
           sizeToText[size],
         )}
         onClick={() => button?.current?.click()}

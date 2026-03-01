@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classnames from 'classnames';
-import { ReadingStreakPopup } from './popup';
+import { ReadingStreakPopup } from './popup/ReadingStreakPopup';
 import type { ButtonIconPosition } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ReadingStreakIcon, WarningIcon } from '../icons';

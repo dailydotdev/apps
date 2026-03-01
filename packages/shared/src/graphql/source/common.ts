@@ -16,14 +16,20 @@ export const updateFlagsCache = (
     return;
   }
 
-  client.setQueryData<Squad>(queryKey, (oldData) => ({
-    ...oldData,
-    currentMember: {
-      ...oldData.currentMember,
-      flags: {
-        ...(oldData.currentMember.flags ?? {}),
-        ...update,
+  client.setQueryData<Squad | undefined>(queryKey, (oldData) => {
+    if (!oldData?.currentMember) {
+      return oldData;
+    }
+
+    return {
+      ...oldData,
+      currentMember: {
+        ...oldData.currentMember,
+        flags: {
+          ...(oldData.currentMember.flags ?? {}),
+          ...update,
+        },
       },
-    },
-  }));
+    };
+  });
 };

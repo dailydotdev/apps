@@ -21,10 +21,39 @@ import useProfileForm from '../../hooks/useProfileForm';
 
 const REP_TRESHOLD = 250;
 
+interface BootPopupEntry {
+  type: string;
+  props?: Record<string, unknown>;
+  persistOnRouteChange?: boolean;
+}
+
 /**
- * Component that renders popups that should be shown on boot.
- * Set rule is that we only show one popup per day, and they come in first come, first served manner.
- * These popups are removed when the users interact with page (clicks outside, closes, completes action).
+ * Boot popup system — centralized modal queue shown on page load.
+ *
+ * ## How it works
+ *
+ * There are two types of boot popups:
+ *
+ * ### Queued popups (default)
+ * - Added via `addBootPopup({ type, props })`
+ * - Subject to a **one-per-day** limit controlled by `alerts.bootPopup`
+ * - First-come-first-served: only the first popup in the queue is shown
+ * - Must call `updateLastBootPopup()` in `onAfterClose` to record the daily slot as used
+ *
+ * ### Immediate popups
+ * - Added via `addImmediatePopup({ type, props })`
+ * - **Bypass** the one-per-day limit — shown as soon as alerts are loaded
+ * - Useful for time-sensitive or high-priority events (e.g. achievement unlocks)
+ * - Do NOT call `updateLastBootPopup()` — they don't consume the daily slot
+ * - Still respect opt-out checks and other guards in their useEffect
+ *
+ * ## Adding a new boot popup
+ *
+ * 1. Add a `useEffect` in this component that checks the relevant conditions
+ * 2. Call `addBootPopup(...)` for queued or `addImmediatePopup(...)` for immediate
+ * 3. For queued popups: call `updateLastBootPopup()` in `onAfterClose`
+ * 4. For immediate popups: clear the server-side flag (e.g. `updateAlerts(...)`) in `onAfterClose`
+ *
  * @constructor
  */
 export const BootPopups = (): ReactElement => {
@@ -41,6 +70,7 @@ export const BootPopups = (): ReactElement => {
     updateHasSeenOpportunity,
   } = useContext(AlertContext);
   const [bootPopups, setBootPopups] = useState(() => new Map());
+  const [immediatePopups, setImmediatePopups] = useState(() => new Map());
   const [interactiveBootPopup, setInteractiveBootPopup] =
     useState<InteractivePopupProps | null>(null);
   const { getMarketingCta } = useBoot();
@@ -64,8 +94,12 @@ export const BootPopups = (): ReactElement => {
     alerts?.showStreakMilestone !== true,
     !streak?.current,
   ].some(Boolean);
-  const addBootPopup = (popup) => {
+  const addBootPopup = (popup: BootPopupEntry) => {
     setBootPopups((prev) => new Map([...prev, [popup.type, popup]]));
+  };
+
+  const addImmediatePopup = (popup: BootPopupEntry) => {
+    setImmediatePopups((prev) => new Map([...prev, [popup.type, popup]]));
   };
 
   /**
@@ -286,6 +320,39 @@ export const BootPopups = (): ReactElement => {
   }, [alerts.showTopReader, logEvent, updateAlerts, updateLastBootPopup]);
 
   /**
+   * Immediate popup for achievement unlock celebration.
+   * Bypasses the one-per-day queue so users see their unlock right away.
+   */
+  useEffect(() => {
+    if (!alerts?.showAchievementUnlock || !isActionsFetched) {
+      return;
+    }
+
+    const isOptedOut = checkHasCompleted(
+      ActionType.DisableAchievementCompletion,
+    );
+
+    if (isNullOrUndefined(isOptedOut) || isOptedOut) {
+      return;
+    }
+
+    addImmediatePopup({
+      type: LazyModal.AchievementCompletion,
+      props: {
+        achievementId: alerts.showAchievementUnlock,
+        onAfterClose: () => {
+          updateAlerts({ showAchievementUnlock: null });
+        },
+      },
+    });
+  }, [
+    alerts?.showAchievementUnlock,
+    checkHasCompleted,
+    isActionsFetched,
+    updateAlerts,
+  ]);
+
+  /**
    * Job opportunity modal
    */
   useEffect(() => {
@@ -311,7 +378,19 @@ export const BootPopups = (): ReactElement => {
   ]);
 
   /**
-   * Actual rendering of the boot popup that's first in line
+   * Immediate popups — shown as soon as alerts are loaded, bypassing the daily limit.
+   */
+  useEffect(() => {
+    if (!loadedAlerts || immediatePopups.size === 0) {
+      return;
+    }
+    openModal(immediatePopups.values().next().value);
+    setImmediatePopups(new Map());
+  }, [immediatePopups, loadedAlerts, openModal]);
+
+  /**
+   * Queued popups — subject to the one-per-day gate (`alerts.bootPopup`).
+   * Only the first popup in the queue is shown.
    */
   useEffect(() => {
     if (!loadedAlerts || !alerts?.bootPopup || bootPopups.size === 0) {

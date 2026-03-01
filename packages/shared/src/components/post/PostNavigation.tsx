@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon, MiniCloseIcon as CloseIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
@@ -39,6 +39,7 @@ function PostNavigation({
           <Button
             className="-rotate-90"
             icon={<ArrowIcon />}
+            size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             onClick={onPreviousPost}
             disabled={[PostPosition.First, PostPosition.Only].includes(
@@ -52,6 +53,7 @@ function PostNavigation({
           <Button
             className="rotate-90"
             icon={<ArrowIcon />}
+            size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             onClick={onNextPost}
             disabled={[PostPosition.Last, PostPosition.Only].includes(
@@ -76,7 +78,10 @@ function PostNavigation({
             <Button
               variant={ButtonVariant.Tertiary}
               icon={<CloseIcon />}
-              onClick={(e) => props?.onClose(e)}
+              size={ButtonSize.Small}
+              onClick={(e: React.MouseEvent<HTMLElement>) =>
+                (props?.onClose as React.MouseEventHandler)?.(e)
+              }
             />
           </Tooltip>
         )}

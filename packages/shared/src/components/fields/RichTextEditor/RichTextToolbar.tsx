@@ -55,11 +55,16 @@ const ToolbarButton = ({
     <Tooltip content={tooltip}>
       <Button
         variant={ButtonVariant.Tertiary}
-        size={ButtonSize.XSmall}
-        icon={icon}
+        size={ButtonSize.Small}
+        icon={React.cloneElement(icon, {
+          className: icon.props.className
+            ? `${icon.props.className} block m-auto`
+            : 'block m-auto',
+        })}
         pressed={isActive}
         onClick={onClick}
         type="button"
+        className="leading-none"
       />
     </Tooltip>
   );
@@ -135,8 +140,8 @@ function RichTextToolbarComponent(
 
   return (
     <>
-      <div className="flex flex-row flex-wrap items-center gap-1 border-b border-border-subtlest-tertiary p-2">
-        <div className="flex flex-1 flex-wrap items-center gap-1">
+      <div className="flex flex-row flex-wrap items-center gap-1 border-b border-border-subtlest-tertiary px-2 py-1">
+        <div className="flex flex-1 flex-wrap items-center gap-0">
           <ToolbarButton
             tooltip="Bold (⌘B)"
             icon={<BoldIcon />}
@@ -194,7 +199,7 @@ function RichTextToolbarComponent(
           />
         </div>
         {rightActions && (
-          <div className="flex shrink-0 items-center gap-1">{rightActions}</div>
+          <div className="flex shrink-0 items-center gap-0">{rightActions}</div>
         )}
       </div>
       <LinkModal

@@ -138,6 +138,7 @@ export interface UserShortProfile
 export type UserFlagsPublic = Partial<{
   showPlusGift: boolean;
   cvUploadedAt: Date;
+  lastExtensionUse: string | null;
 }>;
 
 export type UserSubscriptionFlags = Partial<{
@@ -324,7 +325,7 @@ export const canViewUserProfileAnalytics = ({
   return !!user?.id && user.id === profileUserId;
 };
 
-export const userProfileQueryOptions = ({ id }) => {
+export const userProfileQueryOptions = ({ id }: { id: string }) => {
   return {
     queryKey: generateQueryKey(
       RequestKey.Profile,

@@ -1,27 +1,37 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import Markdown from '../../Markdown';
 
 interface SharePostTitleProps {
   title?: string;
   titleHtml?: string;
+  isCompactSpacing?: boolean;
 }
 
 export function SharePostTitle({
   title,
   titleHtml,
-}: SharePostTitleProps): ReactElement {
+  isCompactSpacing,
+}: SharePostTitleProps): ReactElement | null {
   if (!title) {
     return null;
   }
 
+  const topMarginClassName = isCompactSpacing ? 'mt-4' : 'mt-6';
+
   if (!titleHtml) {
     return (
-      <p className="mt-6 whitespace-pre-line break-words typo-title3">
+      <p
+        className={classNames(
+          topMarginClassName,
+          'whitespace-pre-line break-words typo-title3',
+        )}
+      >
         {title}
       </p>
     );
   }
 
-  return <Markdown className="mt-6" content={titleHtml} />;
+  return <Markdown className={topMarginClassName} content={titleHtml} />;
 }

@@ -195,32 +195,33 @@ export const updateSearchData = (
   previous: Search,
   chunk: Partial<SearchChunk>,
 ): Search => {
-  if (!chunk) {
-    return null;
-  }
-
   const updated = {
     ...previous,
     chunks: [{ ...previous?.chunks?.[0], ...chunk }],
   };
+  const currentChunk = updated.chunks[0];
+
+  if (!currentChunk) {
+    return updated;
+  }
 
   if (chunk.error) {
     return updated;
   }
 
   if (chunk.status) {
-    updated.chunks[0].progress += 1;
+    currentChunk.progress = (currentChunk.progress ?? 0) + 1;
   }
 
   if (chunk.completedAt) {
-    updated.chunks[0].progress = updated.chunks[0].steps;
+    currentChunk.progress = currentChunk.steps;
   }
 
   if (isNullOrUndefined(chunk.response)) {
     return updated;
   }
 
-  updated.chunks[0].response = previous.chunks[0].response + chunk.response;
+  currentChunk.response = (previous.chunks[0]?.response ?? '') + chunk.response;
 
   return updated;
 };

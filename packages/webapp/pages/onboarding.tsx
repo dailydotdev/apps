@@ -23,6 +23,7 @@ import {
   FooterLinks,
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
+import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import type {
@@ -359,7 +360,9 @@ function Page(props: PageProps) {
   const { autoDismissNotifications } = useSettingsContext();
   return (
     <JotaiProvider>
-      <Onboarding {...props} />
+      <ErrorBoundary feature="onboarding">
+        <Onboarding {...props} />
+      </ErrorBoundary>
       <Toast autoDismissNotifications={autoDismissNotifications} />
     </JotaiProvider>
   );

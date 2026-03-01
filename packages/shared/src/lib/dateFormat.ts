@@ -14,6 +14,8 @@ export const oneDay = 86400;
 const oneWeek = 7 * oneDay;
 const oneMonth = 30 * oneDay;
 export const oneYear = oneDay * 365;
+export const isValidDate = (date: Date): boolean =>
+  !Number.isNaN(date.getTime());
 
 export const publishTimeRelativeShort = (
   value: Date | number | string,
@@ -231,7 +233,7 @@ export const getLastActivityDateFormat = (
   });
 };
 
-const publishExperienceTime = (start: Date, end: Date): string => {
+const publishExperienceTime = (start: Date, end?: Date): string => {
   const difference =
     new Date(end || Date.now()).getTime() - new Date(start).getTime();
   const differenceInMonths = Math.floor(difference / oneMonth);
@@ -260,12 +262,21 @@ export const getTodayTz = (timeZone: string, now = new Date()): Date => {
 
 interface FormatDateProps {
   value: Date | number | string;
-  type: TimeFormatType;
-  now?: Date; // Optional, used for testing or specific cases
+  type?: TimeFormatType;
+  now?: Date | number | string; // Optional, used for testing or specific cases
 }
 
 export const formatDate = ({ value, type, now }: FormatDateProps): string => {
   const date = new Date(value);
+
+  if (!isValidDate(date)) {
+    return '';
+  }
+
+  const nowDate = now ? new Date(now) : undefined;
+  if (nowDate && !isValidDate(nowDate)) {
+    return '';
+  }
 
   if (type === TimeFormatType.Post) {
     return postDateFormat(date);
@@ -298,11 +309,11 @@ export const formatDate = ({ value, type, now }: FormatDateProps): string => {
   }
 
   if (type === TimeFormatType.LiveTimer) {
-    return publishTimeLiveTimer(date, now);
+    return publishTimeLiveTimer(date, nowDate);
   }
 
   if (type === TimeFormatType.Experience) {
-    return publishExperienceTime(date, now);
+    return publishExperienceTime(date, nowDate);
   }
 
   return postDateFormat(date);

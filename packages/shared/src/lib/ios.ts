@@ -21,8 +21,17 @@ export enum WebKitMessageHandlers {
   AppIconSet = 'app-icon-set',
 }
 
+type IOSWebkitGlobal = typeof globalThis & {
+  webkit?: {
+    messageHandlers?: Partial<
+      Record<WebKitMessageHandlers, { postMessage: (payload: unknown) => void }>
+    >;
+  };
+};
+
 export const messageHandlerExists = (handler: WebKitMessageHandlers): boolean =>
-  isIOSNative() && !!globalThis?.webkit?.messageHandlers?.[handler];
+  isIOSNative() &&
+  !!(globalThis as IOSWebkitGlobal)?.webkit?.messageHandlers?.[handler];
 
 export const iOSSupportsPlusPurchase = (): boolean =>
   isIOSNative() &&
@@ -40,6 +49,8 @@ export const postWebKitMessage = <T = unknown>(
   handler: WebKitMessageHandlers,
   payload: T,
 ): void => {
+  const webkitGlobal = globalThis as IOSWebkitGlobal;
+
   if (!isIOSNative()) {
     throw new Error('sendMessage is only available on iOS');
   }
@@ -48,5 +59,11 @@ export const postWebKitMessage = <T = unknown>(
     throw new Error(`Message handler ${handler} does not exist`);
   }
 
-  globalThis.webkit.messageHandlers[handler].postMessage(payload);
+  const messageHandler = webkitGlobal.webkit?.messageHandlers?.[handler];
+
+  if (!messageHandler) {
+    throw new Error(`Message handler ${handler} does not exist`);
+  }
+
+  messageHandler.postMessage(payload);
 };

@@ -9,7 +9,7 @@ export const ToggleWeekStart = ({
   className,
 }: {
   className?: RadioClassName;
-}): ReactElement => {
+}): ReactElement | null => {
   const { streak, isLoading, updateStreakConfig, isUpdatingConfig } =
     useReadingStreak();
 

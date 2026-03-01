@@ -26,6 +26,6 @@ export function useProfile(initialUser?: PublicProfile): {
   return {
     user,
     userQueryKey,
-    isUserSame: loggedUser && loggedUser?.id === initialUser?.id,
+    isUserSame: !!(loggedUser && loggedUser?.id === initialUser?.id),
   };
 }

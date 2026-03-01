@@ -24,7 +24,10 @@ export const ProfilePictureGroup = ({
   size = ProfileImageSize.Large,
   children,
 }: ProfilePictureGroupProps): ReactElement => {
-  const childrenMap = React.Children.toArray(children).slice(0, limit);
+  const childrenMap = React.Children.toArray(children).slice(
+    0,
+    limit,
+  ) as React.ReactElement[];
   const remainingCount = total ? total - childrenMap.length : 0;
 
   if (remainingCount) {
@@ -41,21 +44,19 @@ export const ProfilePictureGroup = ({
   }
   return (
     <div className={classNames(className, 'flex items-center')}>
-      {childrenMap.map(
-        (child: React.ReactElement<ProfilePictureGroupChildProps>, index) => {
-          return (
-            <div
-              key={child.key || index}
-              style={{
-                zIndex: childrenMap.length - index,
-              }}
-              className={classNames(index > 0 && '-ml-1.5')}
-            >
-              {child}
-            </div>
-          );
-        },
-      )}
+      {childrenMap.map((child, index) => {
+        return (
+          <div
+            key={child.key || index}
+            style={{
+              zIndex: childrenMap.length - index,
+            }}
+            className={classNames(index > 0 && '-ml-1.5')}
+          >
+            {child}
+          </div>
+        );
+      })}
     </div>
   );
 };

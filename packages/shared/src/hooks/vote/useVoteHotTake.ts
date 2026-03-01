@@ -5,7 +5,11 @@ import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import type { HotTake } from '../../graphql/user/userHotTake';
 import type { Connection } from '../../graphql/common';
-import type { UseVoteProps, ToggleVoteProps } from './types';
+import type {
+  UseVoteProps,
+  ToggleVoteProps,
+  UseVoteMutationProps,
+} from './types';
 import { UserVoteEntity } from './types';
 import { useVote } from './useVote';
 import { useLogContext } from '../../contexts/LogContext';
@@ -53,7 +57,10 @@ const useVoteHotTake = ({
   const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useLogContext();
 
-  const defaultOnMutate = ({ id, vote }) => {
+  const defaultOnMutate: NonNullable<UseVoteProps['onMutate']> = ({
+    id,
+    vote,
+  }: UseVoteMutationProps) => {
     const mutationHandler = hotTakeMutationHandlers[vote];
 
     if (!mutationHandler) {
@@ -96,6 +103,10 @@ const useVoteHotTake = ({
     });
 
     return () => {
+      if (typeof previousVote === 'undefined') {
+        return;
+      }
+
       const rollbackMutationHandler = hotTakeMutationHandlers[previousVote];
 
       if (!rollbackMutationHandler) {
@@ -178,10 +189,9 @@ const useVoteHotTake = ({
         return;
       }
 
-      // Hot takes don't support downvotes, just cancel the vote
-      await cancelHotTakeVote({ id: hotTake.id });
+      await downvoteHotTake({ id: hotTake.id });
     },
-    [cancelHotTakeVote, showLogin, user],
+    [downvoteHotTake, showLogin, user],
   );
 
   return {

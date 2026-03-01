@@ -391,9 +391,12 @@ const handleClick = useCallback((key: string) => {
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
 
+Before opening a PR, run `git diff --name-only origin/main...HEAD` and confirm every changed file belongs to the current task. If unrelated files appear (for example from reverted or merged commits), clean the branch history first.
+
 ## Code Review Guidelines
 
 When reviewing code (or writing code that will be reviewed):
+- **Always set explicit `type` on `<button>` elements in forms** - Use `type="button"` for non-submit actions (close/back/cancel). Never rely on the browser default inside forms.
 - **Delete dead code** - Remove unused components, functions, exports, and files. Don't leave code "for later"
 - **Avoid confusing naming** - Don't create multiple components with the same name in different locations (e.g., two `AboutMe` components)
 - **Remove unused exports** - If a function/constant is only used internally, don't export it
@@ -402,6 +405,14 @@ When reviewing code (or writing code that will be reviewed):
 - **Reuse feed/list card primitives first** - Before adding modal-specific list item components, check existing card building blocks (`FeedItemContainer`, `PostCardHeader`, list card primitives) and compose with them.
 - **Do not hide accessible data using presentation heuristics** - In UI lists, avoid masking content based on flags like `source.public`; rely on backend access controls and render the data returned by the query.
 - **Keep scope tight in design iterations** - When adjusting UI, avoid unrelated behavioral/SEO changes in the same commit unless explicitly requested.
+- **Confirm target surface before implementing UI fixes** - If a bug report names a specific component or screen, update only that target unless expansion is explicitly requested.
+- **Keep action spacing consistent in control headers** - When adding icon/action buttons near search fields or other controls, match existing horizontal gaps on both sides to avoid controls touching each other.
+- **Place feed promos in content flow unless explicitly sticky** - If a promo belongs between feed navigation and the feed list, render it in the feed/content layout so it pushes content down. Do not attach it to sticky nav with absolute positioning unless the requirement explicitly asks for overlay behavior.
+- **Protect generated HTML from markdown regex passes** - In markdown conversion utilities, never run formatting regexes across already-generated HTML tags/attributes (for example, image `src` URLs with `_`); add regression tests for URL edge cases.
+- **Prefer component-level token swaps for one-off contrast fixes** - For isolated UI readability issues, use existing semantic color utilities in the impacted components first; avoid changing global tokens in `base.css` unless explicitly requested.
+- **Gate infinite scroll with separate `canFetchMore` and `fetchNextPage` props** - When adding infinite scroll to dropdowns or lists, never derive `canFetchMore` from the existence of a callback (e.g. `!!onScrollEnd`). Instead, pass three separate props: `fetchNextPage` (the function), `canFetchMore` (boolean from `hasNextPage`), and `isFetchingNextPage` (boolean). The scroll hook should use `canFetchMore && !isFetchingNextPage` to gate fetches. Follow the `InfiniteScrolling` component pattern in `packages/shared/src/components/containers/InfiniteScrolling.tsx`.
+- **Handle pre-selected values in paginated dropdowns** - When a dropdown uses infinite scroll and a value was previously selected (e.g. from a saved integration), that value may not be in the first page of results. Insert an artificial placeholder entry (e.g. `{ id, name: "Channel ${id}" }`) at the front of the list so the selection is visible immediately, and deduplicate by `id` once the real item is fetched during scrolling. Do not auto-fetch pages in a loop to find the selected item. Never use `findIndex(...) || 0` — it silently falls back to the first item when the value isn't found; use `?? -1` so the dropdown shows the placeholder instead.
+- **Portaled drawers must stop click propagation** - The `BaseDrawer` overlay stops click propagation so that portaled child drawers (e.g. `ListDrawer` inside a `Dropdown` inside a modal-as-drawer) don't accidentally close the parent modal via `useOutsideClick`. When adding new portaled overlays, always `stopPropagation` on the overlay and handle outside-click dismissal locally.
 
 ## Node.js Version Upgrade Checklist
 

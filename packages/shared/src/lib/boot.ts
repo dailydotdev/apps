@@ -100,7 +100,9 @@ const getReferrerType = (pathname?: string): string | undefined => {
 const getBootURL = (app: string, url?: string, pathname?: string) => {
   const appRoute = app === 'companion' ? '/companion' : '';
   const params = new URLSearchParams();
-  params.append('v', process.env.CURRENT_VERSION);
+  if (process.env.CURRENT_VERSION) {
+    params.append('v', process.env.CURRENT_VERSION);
+  }
   if (url) {
     params.append('url', url);
   }
@@ -113,6 +115,10 @@ const getBootURL = (app: string, url?: string, pathname?: string) => {
 };
 
 const enrichBootWithFeatures = async (boot: Boot): Promise<Boot> => {
+  if (!boot.exp || !process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY) {
+    return boot;
+  }
+
   const features = await decrypt(
     boot.exp.f,
     process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,

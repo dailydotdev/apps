@@ -10,6 +10,14 @@ export interface DatasetTool {
   faviconUrl: string | null;
 }
 
+export interface ToolTopSquad {
+  id: string;
+  name: string;
+  handle: string;
+  image: string;
+  membersCount: number;
+}
+
 export interface UserStack {
   id: string;
   tool: DatasetTool;
@@ -118,6 +126,27 @@ const AUTOCOMPLETE_TOOLS_QUERY = gql`
   }
 `;
 
+const TOP_SQUADS_FOR_TOOL_QUERY = gql`
+  query TopSquadsForTool($toolId: ID!, $first: Int) {
+    sources(
+      filterOpenSquads: true
+      sortByMembersCount: true
+      first: $first
+      toolId: $toolId
+    ) {
+      edges {
+        node {
+          id
+          name
+          handle
+          image
+          membersCount
+        }
+      }
+    }
+  }
+`;
+
 export const getUserStack = async (
   userId: string,
   first = MAX_STACK_ITEMS,
@@ -133,6 +162,20 @@ export const searchTools = async (query: string): Promise<DatasetTool[]> => {
     autocompleteTools: DatasetTool[];
   }>(AUTOCOMPLETE_TOOLS_QUERY, { query });
   return result.autocompleteTools;
+};
+
+export const getTopSquadsForTool = async ({
+  toolId,
+  first,
+}: {
+  toolId: string;
+  first?: number;
+}): Promise<ToolTopSquad[]> => {
+  const result = await gqlClient.request<{
+    sources: Connection<ToolTopSquad>;
+  }>(TOP_SQUADS_FOR_TOOL_QUERY, { toolId, first });
+
+  return result.sources.edges.map(({ node }) => node);
 };
 
 export const addUserStack = async (

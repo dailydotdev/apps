@@ -43,7 +43,7 @@ export const useActions = (): UseActions => {
     ...disabledRefetch,
   });
 
-  const actions = data?.actions;
+  const actions = useMemo(() => data?.actions ?? [], [data?.actions]);
   const isActionsFetched = !isPending && !!data?.serverLoaded;
   const queueRef = useRef<ActionType[]>([]);
 
@@ -78,7 +78,7 @@ export const useActions = (): UseActions => {
           serverLoaded: !!data?.serverLoaded,
         });
     },
-    onError: (_, __, rollback: () => void) => {
+    onError: (_, __, rollback: (() => void) | undefined) => {
       if (rollback) {
         rollback();
       }
@@ -92,12 +92,12 @@ export const useActions = (): UseActions => {
   );
 
   const handleCompleteAction = useCallback(
-    (type: ActionType) => {
+    async (type: ActionType): Promise<void> => {
       if (checkHasCompleted(type)) {
-        return undefined;
+        return;
       }
 
-      return completeAction(type);
+      await completeAction(type);
     },
     [checkHasCompleted, completeAction],
   );
@@ -116,12 +116,12 @@ export const useActions = (): UseActions => {
   return useMemo<UseActions>(() => {
     return {
       actions,
-      completeAction: (type: ActionType) => {
+      completeAction: async (type: ActionType): Promise<void> => {
         if (checkHasCompleted(type)) {
-          return undefined;
+          return;
         }
 
-        return completeAction(type);
+        await completeAction(type);
       },
       checkHasCompleted,
       isActionsFetched,

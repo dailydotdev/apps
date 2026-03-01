@@ -28,7 +28,7 @@ export function RecommendedMentionTooltip({
   appendTo,
   elementRef,
   onClickOutside,
-}: RecommendedMentionTooltipProps): ReactElement {
+}: RecommendedMentionTooltipProps): ReactElement | null {
   if (isTesting) {
     return null;
   }
@@ -42,7 +42,7 @@ export function RecommendedMentionTooltip({
       content={
         <RecommendedMention
           className="w-70"
-          users={typeof query !== 'undefined' && mentions}
+          users={typeof query !== 'undefined' ? mentions : []}
           selected={selected}
           onClick={onMentionClick}
         />

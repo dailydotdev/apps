@@ -21,6 +21,7 @@ interface SocialShareListProps {
   link: string;
   description: string;
   emailTitle?: string;
+  emailSummary?: string;
   isCopying?: boolean;
   onCopy?(): void;
   onNativeShare(): void;
@@ -31,6 +32,7 @@ interface SocialShareListProps {
 export function SocialShareList({
   link,
   emailTitle,
+  emailSummary,
   description,
   isCopying,
   onCopy,
@@ -43,14 +45,13 @@ export function SocialShareList({
   const openShareLink = async (provider: ShareProvider) => {
     onClickSocial(provider);
 
+    const isEmailShare = provider === ShareProvider.Email;
     const shortLink = shortenUrl ? await getShortUrl(link) : link;
     const shareLink = getShareLink({
       provider,
       link: shortLink,
-      text:
-        provider === ShareProvider.Email
-          ? emailTitle ?? description
-          : description,
+      text: isEmailShare ? emailTitle ?? description : description,
+      emailSummary,
     });
     window.open(shareLink, '_blank');
   };

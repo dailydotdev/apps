@@ -12,7 +12,13 @@ import {
   getPostByIdKey,
   updatePostCache as updateSinglePostCache,
 } from '../../lib/query';
-import type { UseVotePostProps, UseVotePost, ToggleVoteProps } from './types';
+import type {
+  UseVotePostProps,
+  UseVotePost,
+  ToggleVoteProps,
+  UseVoteMutationProps,
+  UseVoteProps,
+} from './types';
 import { voteMutationHandlers, UserVoteEntity } from './types';
 import { useVote } from './useVote';
 import { useActiveFeedContext } from '../../contexts';
@@ -38,7 +44,10 @@ const useVotePost = ({
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const { logOpts } = useActiveFeedContext();
-  const defaultOnMutate = ({ id, vote }) => {
+  const defaultOnMutate: NonNullable<UseVoteProps['onMutate']> = ({
+    id,
+    vote,
+  }: UseVoteMutationProps) => {
     const mutationHandler = voteMutationHandlers[vote];
 
     if (!mutationHandler) {
@@ -50,6 +59,10 @@ const useVotePost = ({
     updateSinglePostCache(client, id, mutationHandler);
 
     return () => {
+      if (typeof previousVote === 'undefined') {
+        return;
+      }
+
       const rollbackMutationHandler = voteMutationHandlers[previousVote];
 
       if (!rollbackMutationHandler) {

@@ -62,7 +62,7 @@ export const ReadingTagProgress = ({
           {value}
         </Typography>
         <div
-          className="absolute bottom-0 left-0 top-0 h-auto overflow-hidden bg-accent-onion-default"
+          className="absolute bottom-0 left-0 top-0 h-auto overflow-hidden bg-action-share-default"
           style={{ width: value }}
           data-testid="tagProgress"
         />

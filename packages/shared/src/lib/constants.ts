@@ -52,7 +52,7 @@ export const isChrome = (): boolean =>
   /Chrome/.test(globalThis?.navigator?.userAgent) &&
   /Google Inc/.test(globalThis?.navigator?.vendor);
 
-export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
+export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL as string;
 export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';
@@ -110,7 +110,6 @@ export enum FeedOrder {
 export const feedRangeFilters: RadioItemProps[] = [
   {
     label: 'All time',
-    value: null,
   },
   {
     label: 'Past 24 hours',

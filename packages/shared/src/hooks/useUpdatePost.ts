@@ -5,17 +5,17 @@ import { getPostByIdKey } from '../lib/query';
 
 type UpdateData = { id: string; update?: Partial<Post> };
 type UseBookmarkPostRet = {
-  updatePost: (props) => MutateFunc<UpdateData>;
+  updatePost: (props: UpdateData) => MutateFunc<UpdateData>;
 };
 
 export default function useUpdatePost(): UseBookmarkPostRet {
   const client = useQueryClient();
 
   const updatePost =
-    (props): MutateFunc<UpdateData> =>
+    (props: UpdateData): MutateFunc<UpdateData> =>
     async () => {
       const postQueryKey = getPostByIdKey(props.id);
-      await client.cancelQueries(postQueryKey);
+      await client.cancelQueries({ queryKey: postQueryKey });
       const oldPost = client.getQueryData<PostData>(postQueryKey);
 
       if (!oldPost) {

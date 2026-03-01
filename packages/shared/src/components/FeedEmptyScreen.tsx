@@ -14,9 +14,13 @@ import { ButtonSize } from './buttons/common';
 import { webappUrl } from '../lib/constants';
 import { useAuthContext } from '../contexts/AuthContext';
 
-function FeedEmptyScreen(): ReactElement {
+function FeedEmptyScreen(): ReactElement | null {
   const router = useRouter();
   const { user } = useAuthContext();
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <PageContainer className="mx-auto">

@@ -67,28 +67,36 @@ const reportReasonsMap: Partial<
 > = {
   IRRELEVANT: ({ post, selectedTags, setSelectedTags }) => {
     return (
-      <FlexRow className="my-4 flex-wrap gap-2">
-        {post.tags?.map((tag) => {
-          const isSelected = selectedTags.includes(tag);
+      <>
+        <p className="text-text-tertiary typo-caption1">
+          Select at least one tag you find irrelevant
+        </p>
+        <FlexRow className="my-4 flex-wrap gap-2">
+          {post.tags?.map((tag) => {
+            const isSelected = selectedTags.includes(tag);
 
-          return (
-            <Button
-              key={tag}
-              variant={isSelected ? ButtonVariant.Primary : ButtonVariant.Float}
-              size={ButtonSize.Small}
-              onClick={() => {
-                if (isSelected) {
-                  setSelectedTags(selectedTags.filter((t) => t !== tag));
-                } else {
-                  setSelectedTags([...selectedTags, tag]);
+            return (
+              <Button
+                key={tag}
+                variant={
+                  isSelected ? ButtonVariant.Primary : ButtonVariant.Float
                 }
-              }}
-            >
-              #{tag}
-            </Button>
-          );
-        })}
-      </FlexRow>
+                size={ButtonSize.Small}
+                onClick={() => {
+                  if (isSelected) {
+                    setSelectedTags(selectedTags.filter((t) => t !== tag));
+                    return;
+                  }
+
+                  setSelectedTags([...selectedTags, tag]);
+                }}
+              >
+                #{tag}
+              </Button>
+            );
+          })}
+        </FlexRow>
+      </>
     );
   },
 };
@@ -105,7 +113,7 @@ export function ReportPostModal({
   const inputRef = useRef<HTMLInputElement>();
   const [selectedTags, setSelectedTags] = useState<string[]>(() => []);
   const reportOptionsForActiveReason = useCallback(
-    (reason) => {
+    (reason: string) => {
       return reportReasons
         .filter((reportReason) => {
           if (reportReason.value === 'IRRELEVANT' && post?.tags?.length === 0) {
@@ -147,7 +155,7 @@ export function ReportPostModal({
       id: post.id,
       reason,
       comment: text,
-      tags: selectedTags,
+      tags: reason === ReportReason.Irrelevant ? selectedTags : [],
     });
 
     if (!successful) {
@@ -176,6 +184,9 @@ export function ReportPostModal({
       reasons={reportOptionsForActiveReason}
       heading="Report post"
       title={post?.title ? `"${post.title}"` : undefined}
+      isDisabled={(reason) =>
+        reason === ReportReason.Irrelevant && selectedTags.length === 0
+      }
       footer={
         <Checkbox ref={inputRef} name="blockSource" className="font-normal">
           Don&apos;t show posts from {post?.source?.name}

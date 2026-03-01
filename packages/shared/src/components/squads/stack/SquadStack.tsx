@@ -19,6 +19,8 @@ import { MAX_STACK_ITEMS } from '../../../graphql/source/sourceStack';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { usePrompt } from '../../../hooks/usePrompt';
 
+const MAX_VISIBLE_STACK_ITEMS = 4;
+
 interface SquadStackProps {
   squad: Squad;
 }
@@ -31,6 +33,7 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<SourceStack | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleAdd = useCallback(
     async (input: AddSourceStackInput) => {
@@ -107,6 +110,10 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
   }, [canAddMore, displayToast]);
 
   const hasItems = stackItems.length > 0;
+  const hiddenCount = stackItems.length - MAX_VISIBLE_STACK_ITEMS;
+  const visibleItems = isExpanded
+    ? stackItems
+    : stackItems.slice(0, MAX_VISIBLE_STACK_ITEMS);
 
   if (!hasItems && !canEdit) {
     return null;
@@ -136,7 +143,7 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
 
       {hasItems ? (
         <div className="flex flex-wrap gap-2">
-          {stackItems.map((item) => (
+          {visibleItems.map((item) => (
             <SourceStackItem
               key={item.id}
               item={item}
@@ -145,6 +152,16 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
               onDelete={handleDelete}
             />
           ))}
+          {hiddenCount > 0 && (
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Medium}
+              className="border border-border-subtlest-tertiary"
+              onClick={() => setIsExpanded((prev) => !prev)}
+            >
+              {isExpanded ? 'Show less' : `+${hiddenCount}`}
+            </Button>
+          )}
         </div>
       ) : (
         canEdit && (

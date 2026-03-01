@@ -326,7 +326,7 @@ export const submitKratosFlow = async <
   });
 
   if (res.status === 204) {
-    return { data: null };
+    return {};
   }
 
   const json = await res.json();
@@ -336,7 +336,7 @@ export const submitKratosFlow = async <
   }
 
   const hasError = json.ui?.messages?.some(
-    ({ type }) => type === MessageType.Error,
+    ({ type }: { type?: string }) => type === MessageType.Error,
   );
 
   if (res.status === 200 && !hasError) {

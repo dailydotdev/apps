@@ -2,12 +2,21 @@ import type { InfiniteData, QueryKey } from '@tanstack/react-query';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
 import type { RequestKey } from '../../lib/query';
 import { updateAuthorContentPreference } from '../../lib/query';
-import type { PropsParameters } from '../../types';
 import type { ContentPreferenceMutation } from './types';
 import {
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
 } from './types';
+
+type QueryPage = {
+  [key: string]: {
+    edges?: Array<{
+      node: {
+        user?: Parameters<typeof updateAuthorContentPreference>[0]['data'];
+      };
+    }>;
+  };
+};
 
 type UseUsersContentPreferenceMutationSubscriptionProps = {
   queryKey: QueryKey;
@@ -42,18 +51,29 @@ export const useUsersContentPreferenceMutationSubscription = ({
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
 
       const { id: entityId, entity } =
-        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+        mutationVariables as Parameters<ContentPreferenceMutation>[0];
 
-      mutationQueryClient.setQueryData<InfiniteData<unknown>>(
+      mutationQueryClient.setQueryData<InfiniteData<QueryPage>>(
         queryKey,
         (data) => {
+          if (!data) {
+            return data;
+          }
+
           const newData = {
             ...data,
             pages: data.pages?.map((page) => {
+              const pageConnection = page[queryProp];
+
+              if (!pageConnection) {
+                return page;
+              }
+
               return {
+                ...page,
                 [queryProp]: {
-                  ...page[queryProp],
-                  edges: page[queryProp].edges?.map((edge) => {
+                  ...pageConnection,
+                  edges: pageConnection.edges?.map((edge) => {
                     if (edge.node.user?.id === entityId) {
                       return {
                         ...edge,
@@ -64,7 +84,7 @@ export const useUsersContentPreferenceMutationSubscription = ({
                             ...updateAuthorContentPreference({
                               data: edge.node.user,
                               entity,
-                              status: nextStatus,
+                              status: nextStatus ?? null,
                             }),
                           },
                         },

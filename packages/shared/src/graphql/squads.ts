@@ -25,24 +25,23 @@ import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection
 import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
 
-interface BaseSquadForm
-  extends Pick<
-    Squad,
-    | 'name'
-    | 'handle'
-    | 'description'
-    | 'memberInviteRole'
-    | 'memberPostingRole'
-    | 'moderationRequired'
-  > {
+type BaseSquadForm = Pick<
+  Squad,
+  | 'name'
+  | 'handle'
+  | 'description'
+  | 'memberInviteRole'
+  | 'memberPostingRole'
+  | 'moderationRequired'
+> & {
   categoryId?: string;
-}
+};
 
-export interface SquadForm extends BaseSquadForm {
+export type SquadForm = BaseSquadForm & {
   status?: PrivacyOption;
   file?: File;
   header?: File;
-}
+};
 
 interface SharedSquadInput extends BaseSquadForm {
   image?: File;
@@ -553,7 +552,7 @@ export interface SquadInvitationProps {
 
 export const getSquadInvitation = async (
   token: string,
-): Promise<SourceMember> => {
+): Promise<SourceMember | null> => {
   try {
     const res = await gqlClient.request<SquadInvitation>(
       SQUAD_INVITATION_QUERY,
@@ -656,13 +655,18 @@ export const verifyPermission = (
 
 export const isPrivilegedRole = (
   role?: SourceMemberRole | OrganizationMemberRole,
-): boolean =>
-  [
+): boolean => {
+  if (!role) {
+    return false;
+  }
+
+  return [
     SourceMemberRole.Admin,
     SourceMemberRole.Moderator,
     OrganizationMemberRole.Owner,
     OrganizationMemberRole.Admin,
   ].includes(role);
+};
 
 export const isSourcePublicSquad = (source: Source): boolean =>
   !!(source?.type === SourceType.Squad && source?.public);

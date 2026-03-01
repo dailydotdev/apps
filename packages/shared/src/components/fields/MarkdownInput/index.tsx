@@ -39,7 +39,6 @@ import { SavingLabel } from './SavingLabel';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Loader } from '../../Loader';
-import { Divider } from '../../utilities';
 import { usePopupSelector } from '../../../hooks/usePopupSelector';
 import { focusInput } from '../../../lib/textarea';
 import CloseButton from '../../CloseButton';
@@ -256,10 +255,7 @@ function MarkdownInput(
           condition={!!timeline}
           wrapper={(component) => (
             <span className="relative flex flex-col">
-              <Divider
-                className="absolute left-8 !h-10 !bg-border-subtlest-tertiary"
-                vertical
-              />
+              <div className="absolute left-5 top-0 h-[14px] w-6 rounded-bl-[10px] border-b border-l border-accent-pepper-subtle" />
               {timeline}
 
               {component}
@@ -267,7 +263,7 @@ function MarkdownInput(
           )}
         >
           <ConditionalWrapper
-            condition={showUserAvatar}
+            condition={showUserAvatar ?? false}
             wrapper={(component) => (
               <span className="flex w-full flex-row">
                 <ProfilePicture

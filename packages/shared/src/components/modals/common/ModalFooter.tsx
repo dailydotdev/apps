@@ -16,7 +16,7 @@ export function ModalFooter({
   className,
   justify = Justify.End,
   view,
-}: ModalFooterProps): ReactElement {
+}: ModalFooterProps): ReactElement | null {
   const { activeView, isDrawer, isForm } = useContext(ModalPropsContext);
 
   if (isForm || isDrawer) {

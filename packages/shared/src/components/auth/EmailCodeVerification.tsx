@@ -56,7 +56,7 @@ function EmailCodeVerification({
     }
   }, [autoResend, alert]);
 
-  const onCodeVerification = async (e) => {
+  const onCodeVerification = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     logEvent({
       event_name: LogEvent.Click,

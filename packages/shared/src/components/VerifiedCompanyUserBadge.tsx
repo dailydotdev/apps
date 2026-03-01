@@ -27,7 +27,7 @@ export const VerifiedCompanyUserBadge = ({
   showCompanyName,
   showVerified,
   companyNameTypography,
-}: VerifiedCompanyUserBadgeProps): ReactElement => {
+}: VerifiedCompanyUserBadgeProps): ReactElement | null => {
   const { isVerified } = useUserCompaniesQuery();
   const { companies } = user;
 

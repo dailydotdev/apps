@@ -38,7 +38,6 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SavingLabel } from './MarkdownInput/SavingLabel';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Loader } from '../Loader';
-import { Divider } from '../utilities';
 import { usePopupSelector } from '../../hooks/usePopupSelector';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -129,6 +128,7 @@ interface RichTextInputProps {
     'className'
   >;
   submitCopy?: string;
+  submitButtonVariant?: ButtonVariant;
   showUserAvatar?: boolean;
   isUpdatingDraft?: boolean;
   timeline?: ReactNode;
@@ -159,6 +159,7 @@ function RichTextInput(
     footer,
     textareaProps = {},
     submitCopy,
+    submitButtonVariant = ButtonVariant.Float,
     showUserAvatar,
     isUpdatingDraft,
     timeline,
@@ -195,7 +196,7 @@ function RichTextInput(
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
   const isEmojiEnabled = enabledCommand[MarkdownCommand.Emoji];
   const isGifEnabled = enabledCommand[MarkdownCommand.Gif];
-  const headerActionSize = ButtonSize.XSmall;
+  const headerActionSize = ButtonSize.Small;
   const maxLength = maxInputLength ?? textareaProps.maxLength;
 
   const { getInitialValue, clearDraft } = useDraftStorage({
@@ -208,6 +209,7 @@ function RichTextInput(
 
   const [input, setInput] = useState(() => getInitialValue(initialContent));
   inputRef.current = input;
+  const isInputEmpty = input.trim() === '';
 
   const updateInput = useCallback(
     (
@@ -244,7 +246,7 @@ function RichTextInput(
   }, []);
 
   const mention = useMentionAutocomplete({
-    enabled: isMentionEnabled,
+    enabled: isMentionEnabled ?? false,
     postId,
     sourceId,
     userId: user?.id,
@@ -252,7 +254,7 @@ function RichTextInput(
   });
 
   const emoji = useEmojiAutocomplete({
-    enabled: isEmojiEnabled,
+    enabled: isEmojiEnabled ?? false,
     onOffsetUpdate: updateOffset,
   });
 
@@ -338,7 +340,7 @@ function RichTextInput(
         }
 
         const currentCharacters =
-          editorRef.current?.storage.characterCount.characters() ??
+          editorRef.current?.storage.characterCount?.characters?.() ??
           inputRef.current.length;
         const selectedCharacters = getSelectedLength(editorRef.current);
 
@@ -463,7 +465,7 @@ function RichTextInput(
   }, [editor]);
 
   const upload = useImageUpload({
-    enabled: isUploadEnabled,
+    enabled: isUploadEnabled ?? false,
     editorRef,
   });
 
@@ -624,7 +626,7 @@ function RichTextInput(
       ? maxLength -
         (isMarkdownMode
           ? input.length
-          : editor?.storage.characterCount.characters() ?? input.length)
+          : editor?.storage.characterCount?.characters?.() ?? input.length)
       : null;
 
   const hasToolbarActions = isUploadEnabled || isMentionEnabled || isGifEnabled;
@@ -704,150 +706,136 @@ function RichTextInput(
         condition={!!timeline}
         wrapper={(component) => (
           <span className="relative flex flex-col">
-            <Divider
-              className="absolute left-8 !h-10 !bg-border-subtlest-tertiary"
-              vertical
-            />
+            <div className="absolute left-5 top-0 h-[14px] w-6 rounded-bl-[10px] border-b border-l border-accent-pepper-subtle" />
             {timeline}
             {component}
           </span>
         )}
       >
-        <ConditionalWrapper
-          condition={showUserAvatar}
-          wrapper={(component) => (
-            <span className="flex w-full flex-row">
-              <ProfilePicture
-                size={ProfileImageSize.Large}
-                className={classNames('ml-3 mt-3', className?.profile)}
-                user={user}
-                nativeLazyLoading
-                fetchPriority="low"
-              />
-              {component}
-            </span>
-          )}
+        <div
+          className="flex flex-1 flex-col"
+          ref={editorContainerRef}
+          onDrop={isMarkdownMode ? undefined : upload.handleDrop}
+          onDragOver={
+            isMarkdownMode ? undefined : (event) => event.preventDefault()
+          }
+          onPaste={isMarkdownMode ? undefined : upload.handlePaste}
         >
-          <div
-            className={classNames(
-              'flex flex-1 flex-col',
-              showUserAvatar && 'ml-3',
-            )}
-            ref={editorContainerRef}
-            onDrop={isMarkdownMode ? undefined : upload.handleDrop}
-            onDragOver={
-              isMarkdownMode ? undefined : (event) => event.preventDefault()
-            }
-            onPaste={isMarkdownMode ? undefined : upload.handlePaste}
-          >
-            {isMarkdownMode ? (
-              <>
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtlest-tertiary p-2">
-                  <span className="px-2 text-text-tertiary typo-caption1">
-                    Markdown editor
-                  </span>
-                  <div className="flex items-center gap-2">
+          {isMarkdownMode ? (
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtlest-tertiary p-2">
+                <span className="px-2 text-text-tertiary typo-caption1">
+                  Markdown editor
+                </span>
+                <div className="flex items-center gap-2">
+                  {savingLabel}
+                  <SimpleTooltip content="Switch to Rich Text Editor">
+                    <Button
+                      type="button"
+                      variant={ButtonVariant.Tertiary}
+                      size={ButtonSize.Small}
+                      icon={<EditIcon />}
+                      onClick={switchToRichMode}
+                    />
+                  </SimpleTooltip>
+                  {onClose && (
+                    <CloseButton size={ButtonSize.Small} onClick={onClose} />
+                  )}
+                </div>
+              </div>
+              <textarea
+                {...textareaProps}
+                name={undefined}
+                ref={markdownTextareaRef}
+                value={input}
+                className={classNames(
+                  'min-h-[8rem] resize-y bg-transparent p-4 outline-none',
+                  className?.input,
+                )}
+                onInput={onMarkdownInput}
+                onPaste={onMarkdownPaste}
+                onKeyDown={onMarkdownKeyDown}
+              />
+            </>
+          ) : (
+            <>
+              <RichTextToolbar
+                ref={toolbarRef}
+                editor={editor}
+                onLinkAdd={(url, label) => {
+                  if (!editor) {
+                    return;
+                  }
+                  if (!editor.state.selection.empty) {
+                    editor.chain().focus().setLink({ href: url }).run();
+                    return;
+                  }
+                  const linkText = label || url;
+                  editor
+                    .chain()
+                    .focus()
+                    .insertContent({
+                      type: 'text',
+                      text: linkText,
+                      marks: [{ type: 'link', attrs: { href: url } }],
+                    })
+                    .run();
+                }}
+                inlineActions={hasToolbarActions ? toolbarActions : null}
+                rightActions={
+                  <div className="flex items-center gap-0">
                     {savingLabel}
-                    <SimpleTooltip content="Switch to Rich Text Editor">
+                    <SimpleTooltip content="Switch to Markdown Editor">
                       <Button
                         type="button"
                         variant={ButtonVariant.Tertiary}
-                        size={ButtonSize.XSmall}
-                        icon={<EditIcon />}
-                        onClick={switchToRichMode}
+                        size={ButtonSize.Small}
+                        icon={<MarkdownIcon />}
+                        onClick={switchToMarkdownMode}
                       />
                     </SimpleTooltip>
                     {onClose && (
                       <CloseButton size={ButtonSize.Small} onClick={onClose} />
                     )}
                   </div>
-                </div>
-                <textarea
-                  {...textareaProps}
-                  name={undefined}
-                  ref={markdownTextareaRef}
-                  value={input}
-                  className={classNames(
-                    'min-h-[8rem] resize-y bg-transparent p-4 outline-none',
-                    className?.input,
-                  )}
-                  onInput={onMarkdownInput}
-                  onPaste={onMarkdownPaste}
-                  onKeyDown={onMarkdownKeyDown}
+                }
+              />
+              {isUploadEnabled && (
+                <input
+                  type="file"
+                  className="hidden"
+                  name="content_upload"
+                  ref={upload.uploadRef}
+                  accept={allowedContentImage.join(',')}
+                  onInput={upload.onUpload}
                 />
-              </>
-            ) : (
-              <>
-                <RichTextToolbar
-                  ref={toolbarRef}
-                  editor={editor}
-                  onLinkAdd={(url, label) => {
-                    if (!editor) {
-                      return;
-                    }
-                    if (!editor.state.selection.empty) {
-                      editor.chain().focus().setLink({ href: url }).run();
-                      return;
-                    }
-                    const linkText = label || url;
-                    editor
-                      .chain()
-                      .focus()
-                      .insertContent({
-                        type: 'text',
-                        text: linkText,
-                        marks: [{ type: 'link', attrs: { href: url } }],
-                      })
-                      .run();
-                  }}
-                  inlineActions={hasToolbarActions ? toolbarActions : null}
-                  rightActions={
-                    <div className="flex items-center gap-2">
-                      {savingLabel}
-                      <SimpleTooltip content="Switch to Markdown Editor">
-                        <Button
-                          type="button"
-                          variant={ButtonVariant.Tertiary}
-                          size={ButtonSize.XSmall}
-                          icon={<MarkdownIcon />}
-                          onClick={switchToMarkdownMode}
-                        />
-                      </SimpleTooltip>
-                      {onClose && (
-                        <CloseButton
-                          size={ButtonSize.Small}
-                          onClick={onClose}
-                        />
-                      )}
-                    </div>
-                  }
-                />
-                {isUploadEnabled && (
-                  <input
-                    type="file"
-                    className="hidden"
-                    name="content_upload"
-                    ref={upload.uploadRef}
-                    accept={allowedContentImage.join(',')}
-                    onInput={upload.onUpload}
+              )}
+              <div className="flex w-full flex-row">
+                {showUserAvatar && (
+                  <ProfilePicture
+                    size={ProfileImageSize.Large}
+                    className={classNames('ml-3 mt-3', className?.profile)}
+                    user={user}
+                    nativeLazyLoading
+                    fetchPriority="low"
                   />
                 )}
                 <EditorContent
                   editor={editor}
                   className={classNames(
                     styles.editor,
-                    'min-h-[8rem] p-4',
-                    showUserAvatar ? 'ml-0' : '',
+                    'min-h-[8rem] min-w-0 flex-1 p-4',
+                    showUserAvatar && 'ml-3 tablet:ml-0',
                     className?.input,
                   )}
                 />
-              </>
-            )}
-            {textareaProps.name && (
-              <input type="hidden" name={textareaProps.name} value={input} />
-            )}
-          </div>
-        </ConditionalWrapper>
+              </div>
+            </>
+          )}
+          {textareaProps.name && (
+            <input type="hidden" name={textareaProps.name} value={input} />
+          )}
+        </div>
       </ConditionalWrapper>
       {!isMarkdownMode && (
         <RecommendedMentionTooltip
@@ -881,7 +869,7 @@ function RichTextInput(
         />
       )}
       {footer ?? (
-        <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:border-t">
+        <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-2 px-3 text-text-tertiary laptop:border-t">
           {hasUploadHint && !isMarkdownMode && (
             <span className="hidden text-text-quaternary typo-caption1 tablet:inline">
               Drag and drop images to attach
@@ -901,13 +889,13 @@ function RichTextInput(
           )}
           {shouldShowSubmit && (
             <Button
+              size={ButtonSize.Small}
               className={
                 maxLength && remainingCharacters !== null ? '' : 'ml-auto'
               }
-              variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
+              variant={submitButtonVariant}
               type="submit"
-              disabled={isLoading || disabledSubmit || input === ''}
+              disabled={isLoading || disabledSubmit || isInputEmpty}
               loading={isLoading}
             >
               {submitCopy}

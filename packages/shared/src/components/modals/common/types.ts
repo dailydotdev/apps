@@ -93,7 +93,12 @@ export enum LazyModal {
   RecruiterSeats = 'recruiterSeats',
   CandidateSignIn = 'candidateSignIn',
   Feedback = 'feedback',
+  HotAndCold = 'hotAndCold',
   AchievementSyncPrompt = 'achievementSyncPrompt',
+  AchievementPicker = 'achievementPicker',
+  AchievementCompletion = 'achievementCompletion',
+  CompareAchievements = 'compareAchievements',
+  AchievementShowcase = 'achievementShowcase',
 }
 
 export type ModalTabItem = {
@@ -114,7 +119,7 @@ export type ModalContextProps = {
   kind: ModalKind;
   onViewChange?: (view: string) => void;
   onRequestClose: null | ((event: MouseEvent | KeyboardEvent) => void);
-  setActiveView?: (view: string) => void;
+  setActiveView?: (view?: string) => void;
   size: ModalSize;
   steps?: ModalStep[];
   tabs?: string[] | ModalTabItem[];

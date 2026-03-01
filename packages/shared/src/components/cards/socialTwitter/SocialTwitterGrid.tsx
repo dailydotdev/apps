@@ -193,6 +193,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
           </CardTitle>
         )}
       </CardTextContainer>
+      {!shouldHideRepostHeadlineAndTags && <div className="flex flex-1" />}
       {!shouldHideRepostHeadlineAndTags && !!cardTags?.length && (
         <PostTags className="mx-4 mt-0" post={{ tags: cardTags }} />
       )}

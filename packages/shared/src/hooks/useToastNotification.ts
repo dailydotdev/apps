@@ -36,10 +36,9 @@ export type NotifyOptionalProps = Partial<
 
 export const useToastNotification = (): UseToastNotification => {
   const client = useQueryClient();
-  const { data: toast } = useQuery<ToastNotification>({
+  const { data: toast } = useQuery<ToastNotification | undefined>({
     queryKey: TOAST_NOTIF_KEY,
-    queryFn: () =>
-      client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY) || null,
+    queryFn: () => client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY),
   });
   const setToastNotification = (data: ToastNotification) =>
     client.setQueryData(TOAST_NOTIF_KEY, data);
@@ -53,7 +52,13 @@ export const useToastNotification = (): UseToastNotification => {
     () => ({
       displayToast,
       subject: toast?.subject,
-      dismissToast: () => toast && setToastNotification({ ...toast, timer: 0 }),
+      dismissToast: () => {
+        if (!toast) {
+          return;
+        }
+
+        setToastNotification({ ...toast, timer: 0 });
+      },
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps

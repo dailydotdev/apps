@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { Dispatch, ReactElement, SetStateAction } from 'react';
 import React from 'react';
 import { EmptyScreenIcon } from './EmptyScreen';
 import { DevPlusIcon, HashtagIcon } from './icons';
@@ -38,12 +38,20 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
+  const setSelectedAlgoState: Dispatch<SetStateAction<number>> = (value) => {
+    const nextValue = typeof value === 'function' ? value(selectedAlgo) : value;
+    return setSelectedAlgo(nextValue);
+  };
+  const algoState: [number, Dispatch<SetStateAction<number>>] = [
+    selectedAlgo,
+    setSelectedAlgoState,
+  ];
 
   return (
     <div className="flex w-full flex-col">
       <div className="mr-auto mt-0 flex gap-3 tablet:mr-0 tablet:mt-2 laptop:mr-auto laptop:w-auto">
         <SearchControlHeader
-          algoState={[selectedAlgo, setSelectedAlgo]}
+          algoState={algoState}
           feedName={SharedFeedPage.Custom}
         />
       </div>

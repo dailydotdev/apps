@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
+import type { Post } from '../../graphql/posts';
 import { isSocialTwitterShareLike } from '../../graphql/posts';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -28,6 +29,10 @@ import {
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
 
+type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
+  post: Post;
+};
+
 function SocialTwitterPostContentRaw({
   post,
   isFallback,
@@ -43,7 +48,7 @@ function SocialTwitterPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement {
+}: SocialTwitterPostContentRawProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
@@ -55,10 +60,11 @@ function SocialTwitterPostContentRaw({
     !hasClosedBanner &&
     isPostPage &&
     isBoostButtonVisible &&
-    !post?.flags?.campaignId;
+    !post.flags?.campaignId;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
+  const isCompactModalSpacing = !isPostPage;
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onCopyPostLink } = engagementActions;
   const navigationProps: PostNavigationProps = {
@@ -69,6 +75,12 @@ function SocialTwitterPostContentRaw({
     onClose,
     inlineActions,
   };
+  let sourceInfoClassName = 'mb-6';
+  if (shouldShowBanner && isLaptop) {
+    sourceInfoClassName = isCompactModalSpacing ? 'mb-3' : 'mb-4';
+  } else if (isCompactModalSpacing) {
+    sourceInfoClassName = 'mb-4';
+  }
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
@@ -82,7 +94,9 @@ function SocialTwitterPostContentRaw({
   const isQuoteLike = isSocialTwitterShareLike(post);
   const isThread = post.subType === 'thread';
   const shouldHideRepostHeadlineAndTags =
-    post.subType === 'repost' && !post.content?.trim();
+    post.subType === 'repost' &&
+    !post.contentHtml?.trim() &&
+    !post.content?.trim();
   const {
     repostedByName,
     metadataHandles,
@@ -107,11 +121,11 @@ function SocialTwitterPostContentRaw({
         position === 'fixed'
           ? {
               ...navigationProps,
-              isBannerVisible,
+              isBannerVisible: !!isBannerVisible,
               onReadArticle,
               className: className?.fixedNavigation,
             }
-          : null
+          : undefined
       }
     >
       <div
@@ -146,7 +160,7 @@ function SocialTwitterPostContentRaw({
             post={post}
             onClose={onClose}
             onReadArticle={onReadArticle}
-            className={shouldShowBanner && isLaptop ? 'mb-4' : 'mb-6'}
+            className={sourceInfoClassName}
           />
           {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
           <PostMetadata
@@ -159,35 +173,45 @@ function SocialTwitterPostContentRaw({
           </PostMetadata>
           {!shouldHideRepostHeadlineAndTags && (
             <div className="mb-6 mt-0">
-              <h1
-                className="whitespace-pre-line break-words text-text-primary typo-markdown"
-                data-testid="post-modal-title"
-              >
-                {title}
-              </h1>
+              {post.titleHtml ? (
+                <h1
+                  className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                  data-testid="post-modal-title"
+                  dangerouslySetInnerHTML={{ __html: post.titleHtml }}
+                />
+              ) : (
+                <h1
+                  className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                  data-testid="post-modal-title"
+                >
+                  {title}
+                </h1>
+              )}
               {post.clickbaitTitleDetected && (
                 <PostClickbaitShield post={post} />
               )}
             </div>
           )}
-          {!shouldHideRepostHeadlineAndTags && !!post.image && (
-            <a
-              href={post.permalink}
-              target="_blank"
-              rel="noopener"
-              className="mb-10 block cursor-pointer overflow-hidden rounded-16"
-              style={{ maxWidth: '25.625rem' }}
-            >
-              <LazyImage
-                imgSrc={post.image}
-                imgAlt="Post cover image"
-                ratio="49%"
-                eager
-                fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                fetchPriority="high"
-              />
-            </a>
-          )}
+          {!shouldHideRepostHeadlineAndTags &&
+            !!post.image &&
+            !!post.permalink && (
+              <a
+                href={post.permalink}
+                target="_blank"
+                rel="noopener"
+                className="mb-10 block cursor-pointer overflow-hidden rounded-16"
+                style={{ maxWidth: '25.625rem' }}
+              >
+                <LazyImage
+                  imgSrc={post.image}
+                  imgAlt="Post cover image"
+                  ratio="49%"
+                  eager
+                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                  fetchPriority="high"
+                />
+              </a>
+            )}
           {isThread && !!post.contentHtml && (
             <Markdown content={post.contentHtml} className="mb-5 break-words" />
           )}
@@ -208,7 +232,7 @@ function SocialTwitterPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
+        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />

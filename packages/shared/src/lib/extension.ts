@@ -6,7 +6,7 @@ export enum ExtensionMessageType {
   RequestUpdate = 'REQUEST_UPDATE',
 }
 
-export const getCompanionWrapper = (): HTMLElement =>
+export const getCompanionWrapper = (): HTMLElement | null =>
   globalThis?.document
     ?.querySelector('daily-companion-app')
-    ?.shadowRoot?.querySelector('#daily-companion-wrapper');
+    ?.shadowRoot?.querySelector('#daily-companion-wrapper') ?? null;

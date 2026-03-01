@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement } from 'react';
+import type { ComponentType, CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -22,6 +22,7 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
+import type { PostContentProps } from '@dailydotdev/shared/src/components/post/common';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
@@ -114,7 +115,7 @@ export interface Props extends DynamicSeoProps {
   error?: ApiError;
 }
 
-const CONTENT_MAP: Record<PostType, typeof PostContent> = {
+const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent,
   share: SquadPostContent,
   welcome: SquadPostContent,
@@ -308,9 +309,7 @@ export async function getStaticProps({
           publishedTime: post?.createdAt,
           modifiedTime: post?.updatedAt,
           tags: post?.tags,
-          authors: post?.author?.permalink
-            ? [post.author.permalink]
-            : undefined,
+          authors: post?.author?.permalink ? [post.author.permalink] : [],
         },
         locale: post?.language || 'en',
       },

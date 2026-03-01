@@ -2,11 +2,11 @@ import type {
   ComponentClass,
   FunctionComponent,
   PropsWithChildren,
+  ReactElement,
   ReactHTML,
   ReactNode,
 } from 'react';
 import React from 'react';
-import type { ReactElement } from 'react-markdown/lib/react-markdown';
 
 type LoaderResult<P> = ComponentClass<P> | FunctionComponent<P>;
 
@@ -26,7 +26,7 @@ export default function dynamicParent<
 ): React.ComponentType<PC & T & { shouldLoad: boolean }> {
   return class DynamicParent extends React.Component<
     PC & T & { shouldLoad: boolean },
-    { componentClass?: LoaderResult<PC> }
+    { componentClass: LoaderResult<PC> | null }
   > {
     constructor(props: PC & T & { shouldLoad: boolean }) {
       super(props);
@@ -40,7 +40,9 @@ export default function dynamicParent<
       }
     }
 
-    async componentDidUpdate(prevProps) {
+    async componentDidUpdate(
+      prevProps: Readonly<PC & T & { shouldLoad: boolean }>,
+    ) {
       const { shouldLoad } = this.props;
       if (!prevProps.shouldLoad && shouldLoad) {
         await this.loadComponent();
@@ -58,7 +60,13 @@ export default function dynamicParent<
       if (componentClass) {
         return React.createElement(componentClass, this.props, children);
       }
-      return React.createElement(placeholder, this.props, children);
+      return React.createElement(
+        placeholder as
+          | keyof ReactHTML
+          | FunctionComponent<PC & T & { shouldLoad: boolean }>,
+        this.props,
+        children,
+      );
     }
   };
 }

@@ -10,7 +10,7 @@ interface NotificationItemDescriptionIconProps {
 
 export const NotificationItemDescriptionIcon = ({
   type,
-}: NotificationItemDescriptionIconProps): ReactElement => {
+}: NotificationItemDescriptionIconProps): ReactElement | null => {
   const Icon = descriptionIcon[type];
   if (!Icon) {
     return null;

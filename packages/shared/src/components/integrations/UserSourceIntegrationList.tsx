@@ -39,7 +39,7 @@ export const UserSourceIntegrationList = ({
   return (
     <ul>
       {sourceIntegrations?.map((sourceIntegration) => {
-        const onClick = async (event) => {
+        const onClick = async (event: React.MouseEvent) => {
           event.stopPropagation();
 
           await removeSourceIntegration({

@@ -4,12 +4,9 @@ import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
 import { CardHeader } from '../../common/Card';
 import type { Ad } from '../../../../graphql/posts';
 import { adFaviconPlaceholder } from '../../../../lib/image';
-import { apiUrl } from '../../../../lib/config';
 import { useFeature } from '../../../GrowthBookProvider';
 import { adImprovementsV3Feature } from '../../../../lib/featureManagement';
-
-const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
-const iconSize = Math.round(24 * pixelRatio);
+import { getAdFaviconImageLink } from './getAdFaviconImageLink';
 
 type AdFaviconProps = {
   ad: Ad;
@@ -17,10 +14,11 @@ type AdFaviconProps = {
 };
 export const AdFavicon = ({ ad, className }: AdFaviconProps): ReactElement => {
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
-  const imageLink =
-    adImprovementsV3 && ad?.adDomain
-      ? `${apiUrl}/icon?url=${encodeURIComponent(ad.adDomain)}&size=${iconSize}`
-      : adFaviconPlaceholder;
+  const imageLink = getAdFaviconImageLink({
+    ad,
+    adImprovementsV3,
+    size: 24,
+  });
   return (
     <CardHeader className={className}>
       <ProfilePicture

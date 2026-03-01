@@ -1,53 +1,96 @@
-import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import type { SlackChannel } from '../../../graphql/integrations';
 import { SLACK_CHANNELS_QUERY } from '../../../graphql/integrations';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { gqlClient } from '../../../graphql/common';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { sortAlphabeticallyByProperty } from '../../../lib/func';
+
+type SlackChannelsResponse = {
+  slackChannels: {
+    data: SlackChannel[];
+    cursor?: string;
+  };
+};
 
 export type UseSlackChannelsQueryProps = {
   integrationId: string;
-  queryOptions?: Partial<UseQueryOptions<SlackChannel[]>>;
+  queryOptions?: { enabled?: boolean };
+  selectedChannelId?: string;
 };
 
-export type UseSlackChannelsQuery = UseQueryResult<SlackChannel[]>;
+export type UseSlackChannelsQuery = {
+  channels: SlackChannel[];
+  fetchNextPage: () => Promise<unknown>;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  isLoading: boolean;
+};
 
 export const useSlackChannelsQuery = ({
   integrationId,
   queryOptions,
+  selectedChannelId,
 }: UseSlackChannelsQueryProps): UseSlackChannelsQuery => {
   const { user } = useAuthContext();
   const enabled = !!integrationId;
 
-  const queryResult = useQuery({
+  const queryResult = useInfiniteQuery({
     queryKey: generateQueryKey(RequestKey.SlackChannels, user, {
       integrationId,
     }),
-    queryFn: async ({ queryKey }) => {
-      const [, , queryVariables] = queryKey as [
-        unknown,
-        unknown,
-        { integrationId: string },
-      ];
-      const result = await gqlClient.request<{
-        slackChannels: {
-          data: SlackChannel[];
-        };
-      }>(SLACK_CHANNELS_QUERY, queryVariables);
-
-      return result.slackChannels.data.sort(
-        sortAlphabeticallyByProperty('name'),
+    queryFn: async ({ pageParam }) => {
+      const result = await gqlClient.request<SlackChannelsResponse>(
+        SLACK_CHANNELS_QUERY,
+        {
+          integrationId,
+          cursor: pageParam || undefined,
+        },
       );
+
+      return result;
     },
+    initialPageParam: '',
+    getNextPageParam: (lastPage) => lastPage?.slackChannels?.cursor || null,
     staleTime: StaleTime.Default,
-    ...queryOptions,
     enabled:
       typeof queryOptions?.enabled !== 'undefined'
         ? queryOptions.enabled && enabled
         : enabled,
   });
 
-  return queryResult;
+  // Flatten all fetched pages into a single channel list.
+  // When a channel was previously selected but hasn't been loaded yet
+  // (it may be on a later page), prepend a placeholder entry so the
+  // dropdown can display the selection immediately. Once the real
+  // channel arrives via scroll pagination, it replaces the placeholder
+  // because `found` becomes true and we return `fetched` as-is.
+  const channels = useMemo(() => {
+    const fetched = (queryResult.data?.pages ?? []).flatMap(
+      (page) => page.slackChannels.data,
+    );
+
+    if (!selectedChannelId) {
+      return fetched;
+    }
+
+    const found = fetched.some((ch) => ch.id === selectedChannelId);
+
+    if (found) {
+      return fetched;
+    }
+
+    return [
+      { id: selectedChannelId, name: `Channel ${selectedChannelId}` },
+      ...fetched,
+    ];
+  }, [queryResult.data?.pages, selectedChannelId]);
+
+  return {
+    channels,
+    fetchNextPage: queryResult.fetchNextPage,
+    hasNextPage: queryResult.hasNextPage,
+    isFetchingNextPage: queryResult.isFetchingNextPage,
+    isLoading: queryResult.isLoading,
+  };
 };

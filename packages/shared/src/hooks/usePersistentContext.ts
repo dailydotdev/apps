@@ -1,7 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { get as getCache, set as setCache } from 'idb-keyval';
 
-function getAsyncCache<T>(key, valueWhenCacheEmpty, validValues): Promise<T> {
+function getAsyncCache<T>(
+  key: string,
+  valueWhenCacheEmpty: T,
+  validValues?: T[],
+): Promise<T> {
   return getCache<T>(key)
     .then((cachedValue) => {
       if (
@@ -60,4 +64,5 @@ export enum PersistentContextKeys {
   AlertPushKey = 'alert_push_key',
   StreakAlertPushKey = 'streak_alert_push_key',
   PendingOpportunityId = 'pending_opportunity_id',
+  ReadingReminderLastSeen = 'reading_reminder_last_seen',
 }

@@ -316,8 +316,14 @@ export default function useFeed<T>(
     const plusEntryAsFirstCard = settings?.plusEntry?.flags?.asFirstCard;
 
     if (feedQuery.data) {
+      const seenPostIds = new Set<string>();
       newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
-        page.edges.forEach(({ node }, index) => {
+        page.edges.forEach(({ node }, index: number) => {
+          if (seenPostIds.has(node.id)) {
+            return;
+          }
+          seenPostIds.add(node.id);
+
           const adIndex = acc.length;
           const adItem = getAd({ index: adIndex });
 
@@ -327,7 +333,8 @@ export default function useFeed<T>(
 
             // Skip ad slot if marketing CTA is shown as first card
             const shouldSkipAdForMarketingCta = withFirstIndex(
-              marketingCtaAsFirstCard || plusEntryAsFirstCard,
+              (marketingCtaAsFirstCard ?? false) ||
+                (plusEntryAsFirstCard ?? false),
             );
 
             if (shouldSkipAdForMarketingCta) {
@@ -342,7 +349,7 @@ export default function useFeed<T>(
                 type: FeedItemType.MarketingCta,
                 marketingCta: settings.marketingCta,
               });
-            } else if (withFirstIndex(settings.showAcquisitionForm)) {
+            } else if (withFirstIndex(settings.showAcquisitionForm ?? false)) {
               acc.push({ type: FeedItemType.UserAcquisition });
             } else {
               acc.push(adItem);

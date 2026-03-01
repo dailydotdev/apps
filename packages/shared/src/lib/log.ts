@@ -80,6 +80,7 @@ export enum Origin {
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
   HotTakeList = 'hot take list',
+  HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
 }
 
@@ -296,6 +297,7 @@ export enum LogEvent {
   ProfileView = 'profile view',
   UpdateProfile = 'update profile',
   UpdateProfileImage = 'update profile image',
+  HoverUserCard = 'hover user card',
   // End Profile
   TranslatePost = 'translate post',
   // Start Credits
@@ -364,6 +366,10 @@ export enum LogEvent {
   ReorderHotTake = 'reorder hot take',
   UpvoteHotTake = 'upvote hot take',
   RemoveHotTakeUpvote = 'remove hot take upvote',
+  OpenHotAndCold = 'open hot and cold',
+  VoteHotAndCold = 'vote hot and cold',
+  SwipeHotTake = 'swipe hot take',
+  SkipHotTake = 'skip hot take',
   // My Setup - Workspace Photos
   StartAddWorkspacePhoto = 'start add workspace photo',
   AddWorkspacePhoto = 'add workspace photo',
@@ -377,6 +383,17 @@ export enum LogEvent {
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',
+  // Achievements
+  TrackAchievement = 'track achievement',
+  UntrackAchievement = 'untrack achievement',
+  OpenAchievementPickerModal = 'open achievement picker',
+  SyncAchievements = 'sync achievements',
+  CompleteSyncAchievements = 'complete sync achievements',
+  ClickAchievementTrackerButton = 'click achievement tracker',
+  FilterAchievements = 'filter achievements',
+  ImpressionAchievementSyncPrompt = 'impression achievement sync',
+  DismissAchievementSyncPrompt = 'dismiss achievement sync',
+  DismissAchievementCompletion = 'dismiss achievement completion',
 }
 
 export enum TargetType {
@@ -422,6 +439,7 @@ export enum TargetType {
   // End settings
   SocialLink = 'social link',
   Badge = 'badge',
+  AchievementCompletion = 'achievement completion',
   Plus = 'plus',
   // Browsers
   Chrome = 'chrome',
@@ -435,6 +453,8 @@ export enum TargetType {
   Recruiter = 'recruiter',
   ProfileCompletionCard = 'profile completion card',
   OpportunityInterestButton = 'opportunity interest button',
+  AchievementTracker = 'achievement tracker',
+  AchievementCard = 'achievement card',
 }
 
 export enum TargetId {
