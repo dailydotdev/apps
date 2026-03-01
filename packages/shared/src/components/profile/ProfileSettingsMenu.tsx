@@ -381,6 +381,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
       onClose,
       openModal,
       trackAchievement,
+      untrackAchievement,
       trackedAchievement?.achievement.id,
       user?.username,
     ],
