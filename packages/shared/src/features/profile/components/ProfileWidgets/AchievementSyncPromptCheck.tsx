@@ -9,6 +9,7 @@ import { ActionType } from '../../../../graphql/actions';
 import { LazyModal } from '../../../../components/modals/common/types';
 import type { AchievementSyncResult } from '../../../../graphql/user/achievements';
 import { AchievementSyncModal } from './AchievementSyncModal';
+import { ACHIEVEMENTS_LAUNCH_DATE } from '../achievements/constants';
 
 interface AchievementSyncPromptCheckProps {
   user: PublicProfile;
@@ -19,6 +20,8 @@ export function AchievementSyncPromptCheck({
 }: AchievementSyncPromptCheckProps): ReactElement | null {
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
+  const shouldShowSync =
+    isOwner && new Date(user.createdAt) < ACHIEVEMENTS_LAUNCH_DATE;
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
   const { isActionsFetched, checkHasCompleted } = useActions();
@@ -47,7 +50,7 @@ export function AchievementSyncPromptCheck({
   useEffect(() => {
     if (
       !isActionsFetched ||
-      !isOwner ||
+      !shouldShowSync ||
       isStatusPending ||
       !syncStatus?.canSync ||
       checkHasCompleted(ActionType.AchievementSyncPrompt)
@@ -61,7 +64,7 @@ export function AchievementSyncPromptCheck({
     });
   }, [
     isActionsFetched,
-    isOwner,
+    shouldShowSync,
     isStatusPending,
     syncStatus?.canSync,
     checkHasCompleted,
