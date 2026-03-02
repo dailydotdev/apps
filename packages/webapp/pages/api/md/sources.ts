@@ -3,6 +3,7 @@ import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { escapeMarkdown } from '@dailydotdev/shared/src/lib/strings';
+import { getAppOrigin, getLlmsTxtUrl } from '../../../lib/seo';
 
 interface SourceDirectoryData {
   trendingSources: Source[];
@@ -10,6 +11,9 @@ interface SourceDirectoryData {
   mostRecentSources: Source[];
   topVideoSources: Source[];
 }
+
+const appOrigin = getAppOrigin();
+const llmsTxtUrl = getLlmsTxtUrl();
 
 const formatSource = (source: Source): string => {
   const name = escapeMarkdown(source.name);
@@ -35,12 +39,12 @@ const handler = async (
 
     const markdown = `---
 title: Sources Directory
-url: https://app.daily.dev/sources
+url: ${appOrigin}/sources
 description: 1,300+ curated content sources on daily.dev
 ---
 
 > ## Documentation Index
-> Fetch the complete documentation index at: https://app.daily.dev/llms.txt
+> Fetch the complete documentation index at: ${llmsTxtUrl}
 > Use this file to discover all available pages before exploring further.
 
 # Sources Directory
@@ -85,7 +89,7 @@ ${data.topVideoSources.map(formatSource).join('\n')}
     res
       .status(500)
       .send(
-        'Unable to generate markdown. Please try again later or visit https://app.daily.dev/sources',
+        `Unable to generate markdown. Please try again later or visit ${appOrigin}/sources`,
       );
   }
 };

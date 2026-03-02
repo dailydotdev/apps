@@ -8,6 +8,7 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { SOURCES_QUERY } from '@dailydotdev/shared/src/graphql/squads';
 import { SOURCE_CATEGORIES_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import { escapeMarkdown } from '@dailydotdev/shared/src/lib/strings';
+import { getAppOrigin, getLlmsTxtUrl } from '../../../lib/seo';
 
 interface SquadsData {
   sources: Connection<Squad>;
@@ -16,6 +17,9 @@ interface SquadsData {
 interface CategoriesData {
   categories: Connection<SourceCategory>;
 }
+
+const appOrigin = getAppOrigin();
+const llmsTxtUrl = getLlmsTxtUrl();
 
 const formatSquad = (squad: Squad): string => {
   const name = escapeMarkdown(squad.name);
@@ -83,12 +87,12 @@ const handler = async (
 
     const markdown = `---
 title: Squads Directory
-url: https://app.daily.dev/squads/discover
+url: ${appOrigin}/squads/discover
 description: Developer communities on daily.dev
 ---
 
 > ## Documentation Index
-> Fetch the complete documentation index at: https://app.daily.dev/llms.txt
+> Fetch the complete documentation index at: ${llmsTxtUrl}
 > Use this file to discover all available pages before exploring further.
 
 # Squads Directory
@@ -125,7 +129,7 @@ ${categorySections}
     res
       .status(500)
       .send(
-        'Unable to generate markdown. Please try again later or visit https://app.daily.dev/squads/discover',
+        `Unable to generate markdown. Please try again later or visit ${appOrigin}/squads/discover`,
       );
   }
 };

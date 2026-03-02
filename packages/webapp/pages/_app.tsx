@@ -52,6 +52,7 @@ import {
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
+import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 import { PixelsProvider } from '../context/PixelsContext';
 
 structuredCloneJsonPolyfill();
@@ -88,20 +89,6 @@ const hotAndColdModalQueryValue = 'hottakes';
 const hotAndColdModalLegacyQueryValue = 'hotAndCold';
 const isOnboardingExcludedPath = (pathname: string): boolean =>
   onboardingExcludedPaths.some((path) => pathname.startsWith(path));
-
-const getAppOrigin = (): string => {
-  const appUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'https://app.daily.dev';
-  return appUrl.endsWith('/') ? appUrl.slice(0, -1) : appUrl;
-};
-
-const getSiteOrigin = (): string => {
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'daily.dev';
-  if (domain.startsWith('http://') || domain.startsWith('https://')) {
-    return domain.endsWith('/') ? domain.slice(0, -1) : domain;
-  }
-
-  return `https://${domain}`;
-};
 
 const APP_ORIGIN = getAppOrigin();
 const SITE_ORIGIN = getSiteOrigin();

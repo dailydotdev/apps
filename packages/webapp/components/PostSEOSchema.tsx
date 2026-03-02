@@ -7,6 +7,7 @@ import {
   stripHtmlTags,
   truncateAtWordBoundary,
 } from '@dailydotdev/shared/src/lib/strings';
+import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 
 // User-generated post types that should use DiscussionForumPosting schema
 const USER_GENERATED_POST_TYPES: PostType[] = [
@@ -16,10 +17,8 @@ const USER_GENERATED_POST_TYPES: PostType[] = [
   PostType.Poll,
 ];
 const SEO_DESCRIPTION_MAX_LENGTH = 160;
-const siteDomain = process.env.NEXT_PUBLIC_DOMAIN || 'daily.dev';
-const siteOrigin = siteDomain.startsWith('http')
-  ? siteDomain.replace(/\/$/, '')
-  : `https://${siteDomain}`;
+const appOrigin = getAppOrigin();
+const siteOrigin = getSiteOrigin();
 
 /**
  * Check if a post is user-generated content (Squad posts)
@@ -129,7 +128,7 @@ const getAuthorSchema = (post: Post): Record<string, unknown> => {
     '@type': 'Organization',
     name: post.source?.name || 'daily.dev',
     logo: post.source?.image,
-    url: post.source?.permalink || 'https://daily.dev',
+    url: post.source?.permalink || siteOrigin,
   };
 };
 
@@ -311,13 +310,13 @@ export const getBreadcrumbJsonLd = (post: Post): string => {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://app.daily.dev',
+        item: appOrigin,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: post.source?.name || 'Posts',
-        item: post.source?.permalink || 'https://app.daily.dev',
+        item: post.source?.permalink || appOrigin,
       },
       {
         '@type': 'ListItem',

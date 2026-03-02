@@ -3,12 +3,16 @@ import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { escapeMarkdown } from '@dailydotdev/shared/src/lib/strings';
+import { getAppOrigin, getLlmsTxtUrl } from '../../../lib/seo';
 
 interface TagDirectoryData {
   tags: Keyword[];
   trendingTags: Array<{ value: string }>;
   popularTags: Array<{ value: string }>;
 }
+
+const appOrigin = getAppOrigin();
+const llmsTxtUrl = getLlmsTxtUrl();
 
 const formatTag = (tag: { value: string }): string => {
   const escaped = escapeMarkdown(tag.value);
@@ -64,12 +68,12 @@ const handler = async (
 
     const markdown = `---
 title: Tags Directory
-url: https://app.daily.dev/tags
+url: ${appOrigin}/tags
 description: Discover topics that matter to developers on daily.dev
 ---
 
 > ## Documentation Index
-> Fetch the complete documentation index at: https://app.daily.dev/llms.txt
+> Fetch the complete documentation index at: ${llmsTxtUrl}
 > Use this file to discover all available pages before exploring further.
 
 # Tags Directory
@@ -110,7 +114,7 @@ ${allTagsMarkdown}
     res
       .status(500)
       .send(
-        'Unable to generate markdown. Please try again later or visit https://app.daily.dev/tags',
+        `Unable to generate markdown. Please try again later or visit ${appOrigin}/tags`,
       );
   }
 };
