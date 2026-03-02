@@ -37,7 +37,10 @@ import {
   TwitterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { DevCardFetchWrapper } from '@dailydotdev/shared/src/components/profile/devcard/DevCardFetchWrapper';
-import { devCard } from '@dailydotdev/shared/src/lib/constants';
+import {
+  absoluteWebappUrl,
+  devCard,
+} from '@dailydotdev/shared/src/lib/constants';
 import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
 import classNames from 'classnames';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
@@ -83,7 +86,7 @@ export const DevCardStep2 = ({
   );
   const embedCode = useMemo(
     () =>
-      `<a href="https://app.daily.dev/${
+      `<a href="${absoluteWebappUrl}${
         user?.username
       }"><img src="${devCardSrc}" width="${
         type === DevCardType.Horizontal ? 652 : 356

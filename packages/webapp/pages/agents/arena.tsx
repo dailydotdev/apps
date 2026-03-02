@@ -12,6 +12,7 @@ import type {
 } from '@dailydotdev/shared/src/features/agents/arena/types';
 import { arenaOptions } from '@dailydotdev/shared/src/features/agents/arena/queries';
 import { computeRankings } from '@dailydotdev/shared/src/features/agents/arena/arenaMetrics';
+import { absoluteWebappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 
@@ -24,12 +25,14 @@ const ARENA_TITLE = 'The Arena - Agents & LLM Leaderboard | daily.dev';
 const ARENA_DESCRIPTION =
   "No benchmarks. No hype. Just developers voting on which AI coding agents and LLMs actually deliver. See who's on top right now.";
 
+const arenaBaseUrl = `${absoluteWebappUrl.replace(/\/$/, '')}/agents/arena`;
+
 const getTabUrl = (tab: ArenaTab): string => {
   if (tab === 'coding-agents') {
-    return 'https://app.daily.dev/agents/arena';
+    return arenaBaseUrl;
   }
 
-  return 'https://app.daily.dev/agents/arena?tab=llms';
+  return `${arenaBaseUrl}?tab=llms`;
 };
 
 const getArenaJsonLd = ({
@@ -51,7 +54,7 @@ const getArenaJsonLd = ({
     isPartOf: {
       '@type': 'WebSite',
       name: 'daily.dev',
-      url: 'https://app.daily.dev',
+      url: absoluteWebappUrl.replace(/\/$/, ''),
     },
     about: [
       { '@type': 'Thing', name: 'AI coding agents' },
@@ -159,11 +162,11 @@ ArenaPageRoute.layoutProps = {
   seo: {
     title: ARENA_TITLE,
     description: ARENA_DESCRIPTION,
-    canonical: 'https://app.daily.dev/agents/arena',
+    canonical: arenaBaseUrl,
     openGraph: {
       title: ARENA_TITLE,
       description: ARENA_DESCRIPTION,
-      url: 'https://app.daily.dev/agents/arena',
+      url: arenaBaseUrl,
       type: 'website',
     },
   },

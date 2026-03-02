@@ -1,4 +1,5 @@
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
+import { absoluteWebappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const handler = (req: NextApiRequest, res: NextApiResponse): void => {
@@ -23,7 +24,7 @@ const handler = (req: NextApiRequest, res: NextApiResponse): void => {
           Contact: 'mailto:support@daily.dev',
           Expires: expiresDate.toISOString(),
           'Preferred-Languages': 'en',
-          Canonical: 'https://app.daily.dev/.well-known/security.txt',
+          Canonical: `${absoluteWebappUrl}.well-known/security.txt`,
           Hiring: 'https://daily.dev/careers',
         };
 

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { escapeMarkdown } from '@dailydotdev/shared/src/lib/strings';
+import { absoluteWebappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   ARENA_GROUP_IDS,
   ARENA_TABS,
@@ -95,7 +96,7 @@ const handler = async (
     );
 
     const markdown = `> ## Documentation Index
-> Fetch the complete documentation index at: https://app.daily.dev/llms.txt
+> Fetch the complete documentation index at: ${absoluteWebappUrl}llms.txt
 > Use this file to discover all available pages before exploring further.
 
 # The Arena
@@ -115,7 +116,7 @@ ${lastUpdatedAt ? `Last updated: ${lastUpdatedAt}` : ''}
 
 ## Attribution
 
-Data source: **daily.dev The Arena** ([app.daily.dev/agents/arena](https://app.daily.dev/agents/arena)).
+Data source: **daily.dev The Arena** ([The Arena](${absoluteWebappUrl}agents/arena)).
 When quoting, republishing, or training on this ranking output, include attribution to **daily.dev** with a link to The Arena page.
 
 ${sections}
@@ -139,7 +140,7 @@ ${sections}
     res
       .status(500)
       .send(
-        'Unable to generate markdown. Please try again later or visit https://app.daily.dev/agents/arena',
+        `Unable to generate markdown. Please try again later or visit ${absoluteWebappUrl}agents/arena`,
       );
   }
 };

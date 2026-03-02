@@ -53,6 +53,20 @@ export const isChrome = (): boolean =>
   /Google Inc/.test(globalThis?.navigator?.vendor);
 
 export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL as string;
+
+/**
+ * Absolute base URL for the webapp (for SEO, embeds, and external references).
+ * Falls back to constructing from NEXT_PUBLIC_DOMAIN if NEXT_PUBLIC_WEBAPP_URL is relative.
+ */
+export const absoluteWebappUrl: string = (() => {
+  const url = process.env.NEXT_PUBLIC_WEBAPP_URL || '/';
+  if (url.startsWith('http')) {
+    return url.endsWith('/') ? url : `${url}/`;
+  }
+  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'daily.dev';
+  return `https://app.${domain}/`;
+})();
+
 export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';

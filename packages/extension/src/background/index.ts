@@ -7,7 +7,11 @@ import { GraphQLClient } from 'graphql-request';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 import { getLocalBootData } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/log/useDeviceId';
-import { install, uninstall } from '@dailydotdev/shared/src/lib/constants';
+import {
+  install,
+  uninstall,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
@@ -18,7 +22,7 @@ const client = new GraphQLClient(graphqlUrl, { fetch: globalThis.fetch });
 const excludedCompanionOrigins = [
   'http://127.0.0.1:5002',
   'http://localhost',
-  'https://app.daily.dev',
+  webappUrl.replace(/\/$/, ''),
   'https://twitter.com',
   'https://www.google.com',
   'https://stackoverflow.com',

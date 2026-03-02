@@ -4,6 +4,7 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import type { Comment } from '@dailydotdev/shared/src/graphql/comments';
 import { stripHtmlTags } from '@dailydotdev/shared/src/lib/strings';
+import { absoluteWebappUrl } from '@dailydotdev/shared/src/lib/constants';
 
 // User-generated post types that should use DiscussionForumPosting schema
 const USER_GENERATED_POST_TYPES: PostType[] = [
@@ -295,7 +296,7 @@ export const getBreadcrumbJsonLd = (post: Post): string => {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://app.daily.dev',
+        item: absoluteWebappUrl.replace(/\/$/, ''),
       },
       {
         '@type': 'ListItem',

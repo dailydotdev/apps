@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { SiteLinksSearchBoxJsonLd } from 'next-seo';
+import { absoluteWebappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -14,12 +15,14 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
+const baseUrl = absoluteWebappUrl.replace(/\/$/, '');
+
 const Home = (): ReactElement => (
   <SiteLinksSearchBoxJsonLd
-    url="https://app.daily.dev"
+    url={baseUrl}
     potentialActions={[
       {
-        target: 'https://app.daily.dev/search?q',
+        target: `${baseUrl}/search?q`,
         queryInput: 'search_term_string',
       },
     ]}
