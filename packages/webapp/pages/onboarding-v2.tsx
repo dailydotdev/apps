@@ -745,8 +745,10 @@ const OnboardingV2Page = (): ReactElement => {
 
     const getVisibleArticles = () => {
       const feedStage = document.querySelector('.onb-feed-stage > main');
-      if (!feedStage) return [];
-      
+      if (!feedStage) {
+        return [];
+      }
+
       return Array.from(
         feedStage.querySelectorAll<HTMLElement>(
           'article.onb-revealed:not([data-eng-active="true"])',
@@ -1602,7 +1604,7 @@ const OnboardingV2Page = (): ReactElement => {
             <div
               ref={panelStageRef}
               className={classNames(
-                'relative z-50 left-1/2 h-[42vh] w-screen -translate-x-1/2',
+                'z-50 relative left-1/2 h-[42vh] w-screen -translate-x-1/2',
                 feedReadyState && 'hidden',
               )}
             >
