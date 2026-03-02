@@ -6,11 +6,13 @@ export interface LeaderboardListContainerProps {
   titleHref?: string;
   children: ReactNode;
   className?: string;
+  footer?: ReactNode;
+  header?: ReactNode;
 }
 
 export const LeaderboardCard = classed(
   'div',
-  'flex flex-col border-b border-border-subtlest-tertiary p-4 tablet:rounded-12 tablet:border tablet:bg-surface-float',
+  'flex flex-1 flex-col border-b border-border-subtlest-tertiary p-4 tablet:rounded-12 tablet:border tablet:bg-surface-float',
 );
 
 export interface TopRankStyle {

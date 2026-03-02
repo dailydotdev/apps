@@ -11,24 +11,29 @@ export function LeaderboardListContainer({
   className,
   title,
   titleHref,
+  footer,
+  header,
 }: LeaderboardListContainerProps): ReactElement {
   return (
     <LeaderboardCard className={className}>
-      <h3 className="mb-2 font-bold typo-title3">
-        {titleHref ? (
-          <Link href={titleHref} passHref prefetch={false}>
-            <a className="flex w-fit items-center gap-1 hover:underline">
-              {title}
-              {titleHref && (
-                <ArrowIcon className="rotate-90" size={IconSize.XSmall} />
-              )}
-            </a>
-          </Link>
-        ) : (
-          <>{title}</>
-        )}
-      </h3>
-      <ol className="typo-body">{children}</ol>
+      {header ?? (
+        <h3 className="mb-2 font-bold typo-title3">
+          {titleHref ? (
+            <Link href={titleHref} passHref prefetch={false}>
+              <a className="flex w-fit items-center gap-1 hover:underline">
+                {title}
+                {titleHref && (
+                  <ArrowIcon className="rotate-90" size={IconSize.XSmall} />
+                )}
+              </a>
+            </Link>
+          ) : (
+            <>{title}</>
+          )}
+        </h3>
+      )}
+      <ol className="flex flex-col gap-1.5 typo-body">{children}</ol>
+      {footer && <div className="mt-auto">{footer}</div>}
     </LeaderboardCard>
   );
 }
