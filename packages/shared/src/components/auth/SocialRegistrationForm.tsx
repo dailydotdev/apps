@@ -5,7 +5,7 @@ import type {
   AuthTriggersType,
   SocialRegistrationParameters,
 } from '../../lib/auth';
-import { AuthEventNames } from '../../lib/auth';
+import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
@@ -57,9 +57,11 @@ export const SocialRegistrationForm = ({
   onSignup,
   isLoading,
   simplified,
+  trigger,
 }: SocialRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useContext(AuthContext);
+  const hideExperienceLevel = trigger === AuthTriggers.Onboarding;
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [experienceLevelHint, setExperienceLevelHint] = useState<string>(null);
@@ -118,7 +120,7 @@ export const SocialRegistrationForm = ({
       return;
     }
 
-    if (!values.experienceLevel?.length) {
+    if (!hideExperienceLevel && !values.experienceLevel?.length) {
       logError('Experience level not provided');
       setExperienceLevelHint('Please select your experience level');
       return;
@@ -229,18 +231,20 @@ export const SocialRegistrationForm = ({
           }
           rightIcon={isLoadingUsername ? <Loader /> : null}
         />
-        <ExperienceLevelDropdown
-          className={{ container: 'w-full' }}
-          name="experienceLevel"
-          onChange={() => {
-            if (experienceLevelHint) {
-              setExperienceLevelHint(null);
-            }
-          }}
-          valid={experienceLevelHint === null}
-          hint={experienceLevelHint}
-          saveHintSpace
-        />
+        {!hideExperienceLevel && (
+          <ExperienceLevelDropdown
+            className={{ container: 'w-full' }}
+            name="experienceLevel"
+            onChange={() => {
+              if (experienceLevelHint) {
+                setExperienceLevelHint(null);
+              }
+            }}
+            valid={experienceLevelHint === null}
+            hint={experienceLevelHint}
+            saveHintSpace
+          />
+        )}
         <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
           Your email will be used to send you product and community updates
         </span>

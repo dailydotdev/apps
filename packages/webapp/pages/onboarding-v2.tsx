@@ -283,6 +283,7 @@ const OnboardingV2Page = (): ReactElement => {
   const githubResumeTimeoutRef = useRef<number | null>(null);
   const githubImportBodyContentRef = useRef<HTMLDivElement>(null);
   const authFormRef = useRef<HTMLFormElement>(null);
+  const importFlowSourceRef = useRef<ImportFlowSource>('github');
 
   const popularFeedNameValue = useMemo(
     () => ({ feedName: SharedFeedPage.Popular as const }),
@@ -329,6 +330,7 @@ const OnboardingV2Page = (): ReactElement => {
     (source: ImportFlowSource) => {
       clearGithubImportTimer();
       clearGithubResumeTimeout();
+      importFlowSourceRef.current = source;
       setImportFlowSource(source);
       setSelectedExperienceLevel(null);
       setGithubImportProgress(10);
@@ -597,7 +599,12 @@ const OnboardingV2Page = (): ReactElement => {
             setTimeout(() => {
               setShowGithubImportFlow(false);
               setGithubImportExiting(false);
-              setShowAuthSignup(true);
+              if (importFlowSourceRef.current === 'ai') {
+                setAuthDisplay(AuthDisplay.OnboardingSignup);
+                setShowAuthSignup(true);
+              } else {
+                setShowExtensionPromo(true);
+              }
             }, 350);
           }, 600);
           return 100;
@@ -1028,6 +1035,10 @@ const OnboardingV2Page = (): ReactElement => {
   }, []);
   const closeSignupChooser = useCallback(() => {
     setShowSignupChooser(false);
+  }, []);
+  const closeAuthSignup = useCallback(() => {
+    setShowAuthSignup(false);
+    setAuthDisplay(AuthDisplay.OnboardingSignup);
   }, []);
   const openLogin = useCallback(() => {
     showLogin({
@@ -3615,35 +3626,58 @@ const OnboardingV2Page = (): ReactElement => {
         >
           <div
             className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
+            onClick={closeAuthSignup}
             role="presentation"
           />
+
           <div className="onb-modal-enter onb-glass relative z-1 flex max-h-[100dvh] w-full flex-col overflow-y-auto rounded-t-24 border border-white/[0.08] bg-background-default shadow-[0_32px_90px_rgba(0,0,0,0.58)] tablet:max-w-md tablet:rounded-24">
-            <div className="flex w-full flex-col items-center px-5 pb-6 pt-7 tablet:px-6">
-              <h2 className="mb-2 text-center font-bold text-text-primary typo-title2">
-                Create your account
-              </h2>
-              <p className="mb-6 text-center text-text-tertiary typo-callout">
-                Sign up to save your personalized feed.
-              </p>
+            {authDisplay === AuthDisplay.OnboardingSignup && (
+              <button
+                type="button"
+                onClick={closeAuthSignup}
+                className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
+                aria-label="Close"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M18 6L6 18M6 6l12 12"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            )}
+
+            <div className="flex w-full flex-col items-center px-5 py-5 tablet:px-6">
+              {authDisplay === AuthDisplay.OnboardingSignup && (
+                <>
+                  <h2 className="mb-2 text-center font-bold text-text-primary typo-title2">
+                    Create your account
+                  </h2>
+                  <p className="mb-6 text-center text-text-tertiary typo-callout">
+                    Sign up to save your personalized feed.
+                  </p>
+                </>
+              )}
               <AuthOptions
                 trigger={AuthTriggers.Onboarding}
                 formRef={authFormRef}
                 defaultDisplay={authDisplay}
                 forceDefaultDisplay
                 simplified
+                className={{ container: '!min-h-0' }}
                 onAuthStateUpdate={(props: Partial<AuthProps>) => {
                   if (props.defaultDisplay) {
                     setAuthDisplay(props.defaultDisplay);
                   }
                 }}
                 onSuccessfulRegistration={() => {
-                  setShowAuthSignup(false);
-                  setAuthDisplay(AuthDisplay.OnboardingSignup);
+                  closeAuthSignup();
                   setShowExtensionPromo(true);
                 }}
                 onSuccessfulLogin={() => {
-                  setShowAuthSignup(false);
-                  setAuthDisplay(AuthDisplay.OnboardingSignup);
+                  closeAuthSignup();
                   setShowExtensionPromo(true);
                 }}
               />
