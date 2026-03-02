@@ -905,7 +905,7 @@ describe('downvote flow', () => {
     fireEvent.click(block);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
     await screen.findByText('1 topic was blocked');
-    let undoMutationCalled = true;
+    let undoMutationCalled = false;
     mockGraphQL({
       request: {
         query: REMOVE_FILTERS_FROM_FEED_MUTATION,

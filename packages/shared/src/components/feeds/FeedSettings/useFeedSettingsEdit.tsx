@@ -356,7 +356,7 @@ export const useFeedSettingsEdit = ({
     ),
     isDirty,
     onBackToFeed,
-    isNewFeed,
+    isNewFeed: isNewFeed ?? false,
     editFeedSettings: (callback) => {
       // all async operations usually don't require dirty state
       // only when we are creating a new feed we log it because

@@ -36,7 +36,7 @@ const onRequestClose = jest.fn();
 const renderComponent = (
   loggedIn = true,
   hasSquads = true,
-  comment?,
+  comment?: string,
 ): RenderResult => {
   const client = new QueryClient();
 

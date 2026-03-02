@@ -115,7 +115,7 @@ export default function CommentModal({
   });
 
   const refCallback = useCallback(
-    (node) => {
+    (node: HTMLElement | null) => {
       if (node) {
         setModalNode(node);
       }

@@ -22,7 +22,7 @@ export function RepostsModal({
   ...props
 }: RepostsModalProps): ReactElement {
   const container = useRef<HTMLElement>(null);
-  const modalRef = useRef<HTMLElement>(null);
+  const modalRef = useRef<HTMLElement | null>(null);
   const { requestMethod } = useRequestProtocol();
   const queryResult = useInfiniteQuery({
     queryKey,

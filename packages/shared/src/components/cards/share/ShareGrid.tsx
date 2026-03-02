@@ -108,7 +108,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
 
     return (
       <PostCardFooter
-        openNewTab={openNewTab}
+        openNewTab={openNewTab ?? false}
         post={footerPost}
         className={{
           image: 'px-1',

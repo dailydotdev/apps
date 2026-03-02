@@ -195,7 +195,7 @@ export const PlusInfo = ({
           className="mb-4"
           itemQuantity={itemQuantity}
           selectedOption={selectedOption}
-          checkoutItemsLoading={checkoutItemsLoading}
+          checkoutItemsLoading={checkoutItemsLoading ?? false}
           setItemQuantity={setItemQuantity}
           onChange={onChange}
         />

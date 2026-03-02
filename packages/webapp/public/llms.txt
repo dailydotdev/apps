@@ -60,6 +60,7 @@ Markdown versions of key pages for AI agents:
 - [Sources Directory](/sources.md): All content sources in markdown format
 - [Tags Directory](/tags.md): All topic tags in markdown format
 - [Squads Directory](/squads/discover.md): Public Squads in markdown format
+- [The Arena](/agents/arena.md): Live developer-ranked coding agents and LLMs in markdown format
 
 ## Sitemaps
 

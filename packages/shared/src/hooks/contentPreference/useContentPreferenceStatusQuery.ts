@@ -20,13 +20,12 @@ export type UseContentPreferenceStatusQueryProps = {
   id: string;
   entity: ContentPreferenceType;
   queryOptions?: Partial<
-    Omit<UseQueryOptions<ContentPreference | undefined>, 'queryKey' | 'queryFn'>
+    Omit<UseQueryOptions<ContentPreference | null>, 'queryKey' | 'queryFn'>
   >;
 };
 
-export type UseContentPreferenceStatusQuery = UseQueryResult<
-  ContentPreference | undefined
->;
+export type UseContentPreferenceStatusQuery =
+  UseQueryResult<ContentPreference | null>;
 
 export const useContentPreferenceStatusQuery = ({
   id,
@@ -40,7 +39,7 @@ export const useContentPreferenceStatusQuery = ({
     entity,
   });
 
-  const queryResult = useQuery<ContentPreference | undefined>({
+  const queryResult = useQuery<ContentPreference | null>({
     queryKey,
     queryFn: async ({ queryKey: fnQueryKey }) => {
       const [, , queryVariables] = fnQueryKey as [
@@ -60,7 +59,7 @@ export const useContentPreferenceStatusQuery = ({
         const errorCode = error.response?.errors?.[0]?.extensions?.code;
 
         if ([ApiError.NotFound].includes(errorCode)) {
-          return undefined;
+          return null;
         }
 
         throw originalError;
@@ -95,24 +94,21 @@ export const useContentPreferenceStatusQuery = ({
 
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
 
-      if (typeof nextStatus === 'undefined' || nextStatus === null) {
-        mutationQueryClient.setQueryData<ContentPreference | undefined>(
+      if (nextStatus == null) {
+        mutationQueryClient.setQueryData<ContentPreference | null>(
           queryKey,
-          undefined,
+          null,
         );
 
         return;
       }
 
-      mutationQueryClient.setQueryData<ContentPreference | undefined>(
-        queryKey,
-        {
-          status: nextStatus,
-          referenceId: entityId,
-          type: entityType,
-          createdAt: new Date(),
-        },
-      );
+      mutationQueryClient.setQueryData<ContentPreference | null>(queryKey, {
+        status: nextStatus,
+        referenceId: entityId,
+        type: entityType,
+        createdAt: new Date(),
+      });
     },
   });
 

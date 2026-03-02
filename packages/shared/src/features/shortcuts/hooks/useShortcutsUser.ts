@@ -26,10 +26,12 @@ export const useShortcutsUser = (): UseShortcutsUser => {
   const isOldUserWithNoShortcuts = isOldUser && !hasCompletedFirstSession;
 
   return {
-    isOldUser,
-    isOldUserWithNoShortcuts,
+    isOldUser: !!isOldUser,
+    isOldUserWithNoShortcuts: !!isOldUserWithNoShortcuts,
     hasCompletedFirstSession,
-    showToggleShortcuts:
-      isExtension && (!showTopSites || isOldUserWithNoShortcuts),
+    showToggleShortcuts: !!(
+      isExtension &&
+      (!showTopSites || isOldUserWithNoShortcuts)
+    ),
   };
 };

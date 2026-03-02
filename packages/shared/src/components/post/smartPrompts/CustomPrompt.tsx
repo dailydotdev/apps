@@ -38,7 +38,7 @@ export const CustomPrompt = ({ post }: CustomPromptProps): ReactElement => {
   );
   const { executePrompt, data, isPending } = useSmartPrompt({ post, prompt });
   const onSubmitCustomPrompt = useCallback(
-    (e) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
       logEvent(
         postLogEvent(LogEvent.SmartPrompt, post, {

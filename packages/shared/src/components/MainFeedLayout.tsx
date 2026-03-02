@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
+import ReadingReminderHero from './banners/ReadingReminderHero';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -64,7 +65,8 @@ import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
-import { isDevelopment, isProductionAPI } from '../lib/constants';
+import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
+import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -214,6 +216,8 @@ export default function MainFeedLayout({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
+  const { shouldShow: shouldShowReadingReminder, onEnable } =
+    useReadingReminderHero();
   const {
     isUpvoted,
     isPopular,
@@ -517,6 +521,8 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
+  const shouldShowReadingReminderOnHomepage =
+    router.pathname === webappUrl && shouldShowReadingReminder;
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
@@ -562,6 +568,9 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
+      {shouldShowReadingReminderOnHomepage && (
+        <ReadingReminderHero className="px-4 pb-2" onEnable={onEnable} />
+      )}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed

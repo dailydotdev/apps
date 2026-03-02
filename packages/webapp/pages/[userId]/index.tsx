@@ -9,6 +9,7 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
+import { ProfileAchievementShowcase } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievementShowcase';
 import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
 import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
 import { ProfileUserWorkspacePhotos } from '@dailydotdev/shared/src/features/profile/components/workspacePhotos/ProfileUserWorkspacePhotos';
@@ -107,6 +108,7 @@ const ProfilePage = ({
         )}
         {!shouldShowBanner && <div />}
         <AboutMe user={user} />
+        <ProfileAchievementShowcase user={user} />
         <ProfileUserStack user={user} />
         <ProfileUserHotTakes user={user} />
         <ProfileUserWorkspacePhotos user={user} />

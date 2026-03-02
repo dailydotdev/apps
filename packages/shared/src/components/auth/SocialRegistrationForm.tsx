@@ -249,7 +249,7 @@ export const SocialRegistrationForm = ({
         </Checkbox>
       </AuthForm>
       <ConditionalWrapper
-        condition={simplified}
+        condition={simplified ?? false}
         wrapper={(component) => (
           <AuthContainer className="!mt-0">{component}</AuthContainer>
         )}

@@ -143,7 +143,7 @@ export function Modal({
       }}
     >
       <ConditionalWrapper
-        condition={isForm}
+        condition={isForm ?? false}
         wrapper={(component) => (
           <FormWrapper
             {...formProps}

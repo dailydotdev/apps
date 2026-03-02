@@ -63,6 +63,7 @@ const renderLayout = (
           closeLogin: jest.fn(),
           getRedirectUri: jest.fn(),
           tokenRefreshed: true,
+          isAuthReady: true,
         }}
       >
         <PaymentContextProvider>

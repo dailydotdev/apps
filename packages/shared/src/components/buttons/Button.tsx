@@ -84,7 +84,11 @@ function ButtonComponent<TagName extends AllowedTags>(
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
   const iconOnly = icon && isNullOrUndefined(children);
-  const getIconWithSize = useGetIconWithSize(size, iconOnly, iconPosition);
+  const getIconWithSize = useGetIconWithSize(
+    size,
+    iconOnly ?? false,
+    iconPosition,
+  );
   const isAnchor = Tag === 'a';
   const [isHovering, setIsHovering] = useState(false);
 
