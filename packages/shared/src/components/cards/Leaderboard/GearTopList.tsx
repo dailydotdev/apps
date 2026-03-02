@@ -9,32 +9,9 @@ import {
 import type { CommonLeaderboardProps } from './LeaderboardList';
 import { LeaderboardList } from './LeaderboardList';
 import { largeNumberFormat } from '../../../lib/numberFormat';
-import { MedalBadgeIcon } from '../../icons/MedalBadge';
 import { IconSize } from '../../Icon';
+import { RankBadge } from './RankBadge';
 
-const RANK_STYLES: {
-  iconColor: string;
-  glowColor: string;
-  hoverClass: string;
-}[] = [
-  {
-    iconColor: 'text-accent-cheese-default',
-    glowColor: 'var(--theme-accent-cheese-default)',
-    hoverClass: 'gear-rank-gold',
-  },
-  {
-    iconColor: 'text-text-tertiary',
-    glowColor: 'var(--theme-text-tertiary)',
-    hoverClass: 'gear-rank-silver',
-  },
-  {
-    iconColor: 'text-accent-bacon-default',
-    glowColor: 'var(--theme-accent-bacon-default)',
-    hoverClass: 'gear-rank-bronze',
-  },
-];
-
-const SPARK_COUNT = 5;
 const HEADER_SPARK_COUNT = 6;
 
 const forceReflow = (element: Element): void => {
@@ -135,68 +112,11 @@ interface GearTopListProps extends CommonLeaderboardProps<PopularGearItem[]> {
   category?: GearCategory;
 }
 
-const TopRow = ({
-  item,
-  rank,
-  style: rankStyle,
-}: {
-  item: PopularGearItem;
-  rank: number;
-  style: (typeof RANK_STYLES)[number];
-}): ReactElement => {
-  const handleMouseEnter = useCallback(
-    (e: React.MouseEvent<HTMLLIElement>) => {
-      runIconPopAnimation(e.currentTarget, 'gear-medal-wrapper');
-      runSparkAnimation(
-        e.currentTarget,
-        '.gear-medal-spark',
-        rankStyle.glowColor,
-        16,
-      );
-    },
-    [rankStyle.glowColor],
-  );
-
-  return (
-    <li
-      className={classNames(
-        'group relative flex items-center gap-2 rounded-8 bg-surface-float py-2 pr-3 transition-shadow duration-300 hover:bg-surface-hover',
-        rank === 1 && 'border-accent-cheese-default/20 border',
-        rankStyle.hoverClass,
-      )}
-      onMouseEnter={handleMouseEnter}
-    >
-      <div className="relative flex w-8 shrink-0 items-center justify-center">
-        <div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-40"
-          style={{ backgroundColor: rankStyle.glowColor }}
-        />
-        <div className="gear-medal-wrapper relative transition-transform duration-300">
-          <MedalBadgeIcon
-            size={IconSize.Small}
-            secondary
-            className={rankStyle.iconColor}
-          />
-          <div className="pointer-events-none absolute inset-0">
-            {Array.from({ length: SPARK_COUNT }, (_, i) => (
-              <div
-                key={i}
-                className="gear-medal-spark absolute left-1/2 top-1/2 h-1 w-1 rounded-full opacity-0"
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-      <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-callout">
-        {item.name}
-      </span>
-      <span className="ml-2 shrink-0 text-text-quaternary typo-caption2">
-        {largeNumberFormat(item.userCount)}{' '}
-        {item.userCount === 1 ? 'user' : 'users'}
-      </span>
-    </li>
-  );
-};
+const RANK_HOVER_CLASSES = [
+  'gear-rank-gold',
+  'gear-rank-silver',
+  'gear-rank-bronze',
+];
 
 export function GearTopList({
   items,
@@ -211,29 +131,23 @@ export function GearTopList({
   return (
     <LeaderboardList {...props} footer={footer} header={header}>
       {items?.map((item, i) => {
-        const rankStyle = RANK_STYLES[i];
-
-        if (rankStyle) {
-          return (
-            <TopRow
-              key={item.gearId}
-              item={item}
-              rank={i + 1}
-              style={rankStyle}
-            />
-          );
-        }
+        const isTop3 = i < 3;
+        const hoverClass = RANK_HOVER_CLASSES[i];
 
         return (
           <li
             key={item.gearId}
-            className="flex items-center gap-2 rounded-8 py-2 pr-3 transition-colors hover:bg-surface-hover"
+            className={classNames(
+              'group flex items-center gap-2 rounded-8 py-2 pr-3 transition-all duration-300 hover:bg-surface-hover',
+              isTop3 && 'relative bg-surface-float',
+              isTop3 && i === 0 && 'border-accent-cheese-default/20 border',
+              hoverClass,
+            )}
           >
-            <div className="flex w-8 shrink-0 items-center justify-center">
-              <span className="font-bold text-text-quaternary typo-callout">
-                {i + 1}
-              </span>
-            </div>
+            <RankBadge
+              rank={i + 1}
+              className="relative flex w-8 shrink-0 items-center justify-center"
+            />
             <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-callout">
               {item.name}
             </span>
