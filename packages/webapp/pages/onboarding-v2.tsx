@@ -903,7 +903,7 @@ const OnboardingV2Page = (): ReactElement => {
           floater.className = 'onb-eng-floater';
           floater.style.color = color;
           floater.style.left = '0';
-          floater.style.bottom = `calc(100% + 0.5rem + ${laneOffset}rem)`;
+          floater.style.bottom = `calc(100% + 5px + ${laneOffset}rem)`;
           floater.textContent = `+${inc}`;
           floaterAnchor.appendChild(floater);
           activeFloaters.add(floater);
@@ -911,10 +911,10 @@ const OnboardingV2Page = (): ReactElement => {
           addTimeout(() => {
             floater.remove();
             activeFloaters.delete(floater);
-          }, 5500);
+          }, 3500);
         }, delayAcc);
 
-        delayAcc += 1800 + Math.random() * 2200;
+        delayAcc += 800 + Math.random() * 1200;
       });
 
       addTimeout(() => {
@@ -922,7 +922,7 @@ const OnboardingV2Page = (): ReactElement => {
         article.removeAttribute('data-eng-active');
       }, delayAcc + 600);
 
-      addTimeout(runStream, delayAcc + 3000 + Math.random() * 3000);
+      addTimeout(runStream, delayAcc + 1500 + Math.random() * 2000);
     };
 
     addTimeout(runStream, 800);
@@ -2881,7 +2881,7 @@ const OnboardingV2Page = (): ReactElement => {
           white-space: nowrap;
           pointer-events: none;
           z-index: 2;
-          animation: onb-eng-float-anim 5s ease-out forwards;
+          animation: onb-eng-float-anim 3s ease-out forwards;
           text-shadow: 0 1px 8px
             color-mix(in srgb, currentColor 35%, transparent);
         }
@@ -2890,20 +2890,20 @@ const OnboardingV2Page = (): ReactElement => {
             transform: translateY(0) scale(0.7);
             opacity: 0;
           }
-          8% {
-            transform: translateY(-4px) scale(1.05);
+          12% {
+            transform: translateY(-3px) scale(1.1);
             opacity: 1;
           }
-          25% {
-            transform: translateY(-18px) scale(1);
-            opacity: 0.9;
+          35% {
+            transform: translateY(-14px) scale(1);
+            opacity: 0.85;
           }
-          70% {
-            transform: translateY(-50px) scale(0.95);
-            opacity: 0.4;
+          75% {
+            transform: translateY(-32px) scale(0.95);
+            opacity: 0.3;
           }
           100% {
-            transform: translateY(-70px) scale(0.85);
+            transform: translateY(-44px) scale(0.9);
             opacity: 0;
           }
         }
