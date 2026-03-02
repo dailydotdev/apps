@@ -111,6 +111,17 @@ export type PostTranslation = {
   [key in TranslateablePostField]?: boolean;
 };
 
+export type DigestPostAd = {
+  type: 'dynamic_ad';
+  index: number;
+  title: string;
+  link: string;
+  image: string;
+  companyName: string;
+  companyLogo: string;
+  callToAction: string;
+};
+
 type PostFlags = {
   sentAnalyticsReport: boolean;
   banned: boolean;
@@ -125,6 +136,8 @@ type PostFlags = {
   sources?: number;
   savedTime?: number;
   generatedAt?: Date;
+  digestPostIds?: string[];
+  ad?: DigestPostAd | null;
 };
 
 export enum UserVote {
@@ -233,6 +246,8 @@ export interface Ad {
   generationId?: string;
   matchingTags?: string[];
   adDomain?: string;
+  companyLogo?: string;
+  callToAction?: string;
 }
 
 export type ReadHistoryPost = Pick<

@@ -1,4 +1,6 @@
 import type {
+  ArenaComparisonMetric,
+  ArenaComparisonSeries,
   SentimentTimeSeriesNode,
   ArenaEntity,
   CrownData,
@@ -298,6 +300,216 @@ export const formatVolume = (value: number): string => {
   return value.toString();
 };
 
+export const COMPARISON_METRIC_OPTIONS: Array<{
+  value: ArenaComparisonMetric;
+  label: string;
+}> = [
+  { value: 'd-index', label: 'D-Index' },
+  { value: 'volume', label: 'Volume' },
+  { value: 'sentiment', label: 'Sentiment' },
+  { value: 'momentum', label: 'Momentum' },
+  { value: 'controversy', label: 'Controversy' },
+];
+
+export const getComparisonMetricLabel = (
+  metric: ArenaComparisonMetric,
+): string => {
+  const option = COMPARISON_METRIC_OPTIONS.find(
+    (item) => item.value === metric,
+  );
+  if (!option) {
+    throw new Error(`Unknown comparison metric "${metric}"`);
+  }
+
+  return option.label;
+};
+
+export const formatComparisonMetricValue = (
+  metric: ArenaComparisonMetric,
+  value: number,
+): string => {
+  if (metric === 'd-index') {
+    return formatDIndex(Math.round(value));
+  }
+
+  if (metric === 'volume') {
+    return formatVolume(Math.round(value));
+  }
+
+  if (metric === 'sentiment' || metric === 'controversy') {
+    return `${Math.round(value)}`;
+  }
+
+  if (metric === 'momentum') {
+    const rounded = Math.round(value);
+    return `${rounded > 0 ? '+' : ''}${rounded}%`;
+  }
+
+  throw new Error(`Unknown comparison metric "${metric}"`);
+};
+
+const getComparisonWindowBounds = (
+  span: number,
+): Array<{ from: number; to: number }> => {
+  if (span === 0) {
+    return Array.from({ length: 7 }, (_, index) => ({
+      from: index * SECONDS_PER_DAY,
+      to: (index + 1) * SECONDS_PER_DAY,
+    }));
+  }
+
+  return Array.from({ length: 7 }, (_, index) => {
+    if (index === 6) {
+      return {
+        from: Math.max(0, span - SECONDS_PER_DAY),
+        to: span + 1,
+      };
+    }
+
+    return {
+      from: index * SECONDS_PER_DAY,
+      to: (index + 1) * SECONDS_PER_DAY,
+    };
+  });
+};
+
+const getComparisonMetricValue = (
+  node: SentimentTimeSeriesNode,
+  metric: ArenaComparisonMetric,
+  fromOffset: number,
+  toOffset: number,
+  multiplier: number,
+): number => {
+  if (metric === 'd-index') {
+    return getWeightedAverageDIndexByTime(
+      node,
+      fromOffset,
+      toOffset,
+      multiplier,
+    );
+  }
+
+  if (metric === 'volume') {
+    return sumWindowByTime(node, fromOffset, toOffset).volume;
+  }
+
+  if (metric === 'sentiment') {
+    const { sentimentScore } = sumWindowByTime(node, fromOffset, toOffset);
+    return computeSentimentDisplay(sentimentScore);
+  }
+
+  if (metric === 'momentum') {
+    const currentDIndex = getWeightedAverageDIndexByTime(
+      node,
+      fromOffset,
+      toOffset,
+      multiplier,
+    );
+    const previousFrom = Math.max(0, fromOffset - SECONDS_PER_DAY);
+    const previousTo = Math.max(0, toOffset - SECONDS_PER_DAY);
+    const previousDIndex = getWeightedAverageDIndexByTime(
+      node,
+      previousFrom,
+      previousTo,
+      multiplier,
+    );
+    return computeMomentum(currentDIndex, previousDIndex);
+  }
+
+  if (metric === 'controversy') {
+    return computeControversy(node, fromOffset, toOffset).heat;
+  }
+
+  throw new Error(`Unknown comparison metric "${metric}"`);
+};
+
+const getTopToolsForComparison = (
+  tools: RankedTool[],
+  topN: number,
+  metric: ArenaComparisonMetric,
+): RankedTool[] => {
+  const getMetricRankValue = (tool: RankedTool): number => {
+    if (metric === 'd-index') {
+      return tool.dIndex;
+    }
+
+    if (metric === 'volume') {
+      return tool.volume24h;
+    }
+
+    if (metric === 'sentiment') {
+      return tool.sentimentDisplay;
+    }
+
+    if (metric === 'momentum') {
+      return tool.momentum;
+    }
+
+    if (metric === 'controversy') {
+      return tool.heat;
+    }
+
+    throw new Error(`Unknown comparison metric "${metric}"`);
+  };
+
+  const establishedTools = tools.filter((tool) => !tool.isEmerging);
+  const sortedByMetric = [...establishedTools].sort(
+    (a, b) => getMetricRankValue(b) - getMetricRankValue(a),
+  );
+
+  return sortedByMetric.slice(0, topN);
+};
+
+export const computeComparisonSeries = ({
+  nodes,
+  rankings,
+  metric,
+  resolutionSeconds = 3600,
+  topN = 5,
+}: {
+  nodes: SentimentTimeSeriesNode[];
+  rankings: RankedTool[];
+  metric: ArenaComparisonMetric;
+  resolutionSeconds?: number;
+  topN?: number;
+}): ArenaComparisonSeries[] => {
+  const multiplier =
+    resolutionSeconds > 0 ? SECONDS_PER_DAY / resolutionSeconds : 1;
+  const nodeMap = new Map(nodes.map((node) => [node.entity, node]));
+  const topTools = getTopToolsForComparison(rankings, topN, metric);
+
+  return topTools.map((tool) => {
+    const node = nodeMap.get(tool.entity.entity);
+    if (!node) {
+      const values = [0, 0, 0, 0, 0, 0, 0];
+      return {
+        entity: tool.entity,
+        values,
+        latestValue: values[values.length - 1],
+      };
+    }
+
+    assertSeriesShape(node);
+    const span = getWindowSpan(node);
+    const windows = getComparisonWindowBounds(span);
+    const values = windows.map((window) =>
+      getComparisonMetricValue(
+        node,
+        metric,
+        window.from,
+        window.to,
+        multiplier,
+      ),
+    );
+
+    return {
+      entity: tool.entity,
+      values,
+      latestValue: values[values.length - 1] ?? 0,
+    };
+  });
+};
+
 interface CrownThresholds {
   minVolume: number;
 }
@@ -357,13 +569,33 @@ const CROWN_CONFIG: Record<
     glowColor: 'var(--theme-accent-ketchup-default)',
     label: 'Most controversial',
     thresholds: { minVolume: 10 },
-    getValue: (t) => t.controversyScore,
+    getValue: (t) => t.heat,
     formatStat: (t) => `Heat ${t.heat}`,
   },
 };
 
 export const computeCrowns = (tools: RankedTool[]): CrownData[] => {
   const established = tools.filter((t) => !t.isEmerging);
+  const awardedEntities = new Set<string>();
+  const tieEpsilon = 1e-6;
+
+  const getWinnerWithDiversity = (
+    eligible: RankedTool[],
+    getValue: (tool: RankedTool) => number,
+  ): RankedTool => {
+    const maxValue = eligible.reduce(
+      (best, current) => Math.max(best, getValue(current)),
+      Number.NEGATIVE_INFINITY,
+    );
+    const topCandidates = eligible.filter(
+      (tool) => Math.abs(getValue(tool) - maxValue) <= tieEpsilon,
+    );
+    const uncrownedCandidate = topCandidates.find(
+      (tool) => !awardedEntities.has(tool.entity.entity),
+    );
+
+    return uncrownedCandidate ?? topCandidates[0];
+  };
 
   return (
     [
@@ -391,9 +623,8 @@ export const computeCrowns = (tools: RankedTool[]): CrownData[] => {
       };
     }
 
-    const winner = eligible.reduce((best, current) =>
-      config.getValue(current) > config.getValue(best) ? current : best,
-    );
+    const winner = getWinnerWithDiversity(eligible, config.getValue);
+    awardedEntities.add(winner.entity.entity);
 
     return {
       type,
