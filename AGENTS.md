@@ -262,6 +262,7 @@ Each package has its own AGENTS.md with detailed guidance:
 - `packages/webapp/AGENTS.md` - Next.js webapp specifics
 - `packages/extension/AGENTS.md` - Browser extension development
 - `packages/storybook/AGENTS.md` - Component documentation
+- `packages/playwright/AGENTS.md` - E2E testing with Playwright
 
 ## Adding Content to Existing Pages
 

@@ -603,3 +603,25 @@
       0
       color-mix(in srgb, var(--theme-accent-avocado-default) 30%, transparent) !important;
 }
+
+@keyframes agent-live-radar-sweep {
+  0% {
+    transform: rotate(0deg);
+    opacity: 0.65;
+  }
+
+  16.7% {
+    transform: rotate(360deg);
+    opacity: 0.65;
+  }
+
+  20.8%,
+  100% {
+    transform: rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.agent-live-radar-sweep {
+  animation: agent-live-radar-sweep 20s linear infinite;
+}

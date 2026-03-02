@@ -1,8 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { IconSize } from '../Icon';
-import { ArenaIcon } from '../icons/Arena';
 import { webappUrl } from '../../lib/constants';
 import { useAgentsLeaderboardEntrypoint } from '../../features/agents/leaderboard/useAgentsLeaderboardEntrypoint';
 
@@ -19,6 +17,7 @@ export function AgentsLeaderboardEntrypointButton({
 }: AgentsLeaderboardEntrypointButtonProps): ReactElement {
   const { topEntity } = useAgentsLeaderboardEntrypoint({ groupId });
   const isIconOnly = !showLabel;
+  const label = topEntity?.entity.name ?? 'Agents';
 
   return (
     <Button
@@ -26,28 +25,39 @@ export function AgentsLeaderboardEntrypointButton({
       href={`${webappUrl}agents/arena`}
       size={ButtonSize.Medium}
       variant={variant}
-      className={isIconOnly ? 'relative h-10 w-10 p-0' : 'relative gap-2'}
+      className={
+        isIconOnly
+          ? 'relative h-10 w-10 overflow-visible p-0'
+          : 'relative gap-2 overflow-visible pr-3'
+      }
       aria-label="Open agents arena"
     >
-      <span className="relative flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-full bg-background-subtle">
+      <span className="relative flex size-5 shrink-0 items-center justify-center rounded-full border border-border-subtlest-secondary bg-background-subtle">
         {topEntity?.entity.logo ? (
-          <img
-            src={topEntity.entity.logo}
-            alt={topEntity.entity.name}
-            className="size-full object-cover"
-          />
+          <>
+            <span className="relative size-full overflow-hidden rounded-full">
+              <img
+                src={topEntity.entity.logo}
+                alt={topEntity.entity.name}
+                className="size-full object-cover"
+              />
+            </span>
+            <span className="pointer-events-none absolute -inset-0.5 rounded-full text-text-primary">
+              <span className="agent-live-radar-sweep absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0_298deg,currentColor_324deg_356deg,transparent_360deg)] mix-blend-screen" />
+            </span>
+          </>
         ) : (
           <span className="size-2 rounded-full bg-accent-avocado-default" />
         )}
       </span>
       {showLabel ? (
-        <span className="max-w-24 truncate">
-          {topEntity?.entity.name ?? 'Agents'}
-        </span>
+        <>
+          <span className="max-w-24 truncate">{label}</span>
+          <span className="pointer-events-none inline-flex items-center rounded-full border border-border-subtlest-tertiary bg-background-default px-1.5 py-0.5 text-text-tertiary typo-caption1">
+            Live
+          </span>
+        </>
       ) : null}
-      <span className="pointer-events-none absolute -right-2 -top-2 rounded-full border border-border-subtlest-tertiary bg-background-default p-0.5 shadow-2">
-        <ArenaIcon size={IconSize.Size16} />
-      </span>
     </Button>
   );
 }
