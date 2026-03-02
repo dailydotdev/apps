@@ -1195,7 +1195,7 @@ const OnboardingV2Page = (): ReactElement => {
           {/* Mobile-only rising tags */}
           <div
             className={classNames(
-              'pointer-events-none relative mb-1 h-[1.5rem] overflow-hidden tablet:hidden',
+              'pointer-events-none relative mb-4 h-[4.5rem] overflow-hidden tablet:hidden',
             )}
           >
             {tagsReady &&
@@ -1322,7 +1322,7 @@ const OnboardingV2Page = (): ReactElement => {
           </div>
 
           {/* Mobile-only bottom rising tags */}
-          <div className="pointer-events-none relative mt-2 h-[2rem] overflow-hidden tablet:hidden">
+          <div className="pointer-events-none relative mt-5 h-[4.5rem] overflow-hidden tablet:hidden">
             {tagsReady &&
               RISING_TAGS_MOBILE.map((tag) => (
                 <span
