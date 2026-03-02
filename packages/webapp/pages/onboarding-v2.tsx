@@ -719,6 +719,7 @@ const OnboardingV2Page = (): ReactElement => {
     const shouldRun =
       feedVisible &&
       !feedReadyState &&
+      !panelVisible &&
       !showSignupChooser &&
       !showSignupPrompt &&
       !showGithubImportFlow &&
@@ -822,7 +823,6 @@ const OnboardingV2Page = (): ReactElement => {
 
       const article = articles[Math.floor(Math.random() * articles.length)];
       article.setAttribute('data-eng-active', 'true');
-      article.classList.add('relative'); // Ensure article can contain absolute elements
 
       const isUpvote = Math.random() < 0.7;
       const suffix = isUpvote ? '-upvote-btn' : '-comment-btn';
@@ -835,9 +835,26 @@ const OnboardingV2Page = (): ReactElement => {
         return;
       }
 
+      const wrapperEl = wrapper as HTMLElement;
+      // Add CSS class instead of direct style mutation — the class provides
+      // position:relative via the stylesheet without forcing a style recalculation.
+      wrapperEl.classList.add('onb-eng-pos-relative');
+
+      const counter = ensureCounter(
+        wrapper,
+        isUpvote
+          ? 4 + Math.floor(Math.random() * 50)
+          : 1 + Math.floor(Math.random() * 10),
+      );
+
+      const activeClass = isUpvote
+        ? 'onb-eng-active-upvote'
+        : 'onb-eng-active-comment';
       const color = isUpvote
         ? 'var(--theme-actions-upvote-default)'
         : 'var(--theme-actions-comment-default)';
+
+      wrapperEl.classList.add(activeClass);
 
       const numIncrements = 1 + Math.floor(Math.random() * 3); // 1 to 3 increments
       const increments: number[] = [];
@@ -858,34 +875,34 @@ const OnboardingV2Page = (): ReactElement => {
 
       increments.forEach((inc) => {
         addTimeout(() => {
-          const btnRect = btn.getBoundingClientRect();
-          const articleRect = article.getBoundingClientRect();
+          // Restart the pulse animation without reading layout (offsetWidth
+          // forces a synchronous reflow). Setting animationName to 'none' is a
+          // write-only style operation, then the next rAF restores it so the
+          // animation re-runs from the start.
+          btn.classList.remove('onb-eng-pulse');
+          (btn as HTMLElement).style.animationName = 'none';
+          requestAnimationFrame(() => {
+            (btn as HTMLElement).style.animationName = '';
+            btn.classList.add('onb-eng-pulse');
+          });
 
-          // Center of the button relative to the article
-          const startX = btnRect.left - articleRect.left + btnRect.width / 2;
-          const startY = btnRect.top - articleRect.top;
+          const currentVal = parseCount(counter.textContent || '') || 0;
+          counter.textContent = formatCount(currentVal + inc);
+
+          const floaterAnchor =
+            counter.parentElement instanceof HTMLElement
+              ? counter.parentElement
+              : wrapperEl;
+          floaterAnchor.classList.add('onb-eng-pos-relative');
 
           const floater = document.createElement('span');
           floater.className = 'onb-eng-floater';
           floater.style.color = color;
-
-          // Random offset so they don't stack on top of each other (PolyMarket style)
-          const offsetX = (Math.random() - 0.5) * 32; // -16px to +16px
-          const offsetY = (Math.random() - 0.5) * 16; // -8px to +8px
-
-          floater.style.left = `${startX + offsetX}px`;
-          floater.style.top = `${startY + offsetY}px`;
+          floater.style.left = `${counter.offsetLeft}px`;
+          floater.style.top = `${counter.offsetTop}px`;
           floater.textContent = `+${inc}`;
-
-          article.appendChild(floater);
+          floaterAnchor.appendChild(floater);
           activeFloaters.add(floater);
-
-          // Update the actual counter text
-          const counter = ensureCounter(wrapper, isUpvote ? 14 : 3);
-          if (counter) {
-            const currentVal = parseCount(counter.textContent || '') || 0;
-            counter.textContent = formatCount(currentVal + inc);
-          }
 
           addTimeout(() => {
             floater.remove();
@@ -897,6 +914,7 @@ const OnboardingV2Page = (): ReactElement => {
       });
 
       addTimeout(() => {
+        wrapperEl.classList.remove(activeClass);
         article.removeAttribute('data-eng-active');
       }, delayAcc + 600);
 
@@ -2818,34 +2836,70 @@ const OnboardingV2Page = (): ReactElement => {
           opacity: 1;
         }
 
+        .onb-eng-active-upvote,
+        .onb-eng-active-upvote svg,
+        .onb-eng-active-upvote span {
+          color: var(--theme-actions-upvote-default) !important;
+        }
+        .onb-eng-active-comment,
+        .onb-eng-active-comment svg,
+        .onb-eng-active-comment span {
+          color: var(--theme-actions-comment-default) !important;
+        }
+
+        .onb-eng-pulse {
+          animation: onb-eng-pulse-anim 0.3s
+            cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes onb-eng-pulse-anim {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.25);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .onb-eng-pos-relative {
+          position: relative;
+        }
+        .onb-eng-floater-anchor {
+          position: relative;
+        }
         .onb-eng-floater {
           position: absolute;
-          font-size: 0.75rem;
+          font-size: 0.875rem;
           font-weight: 800;
           font-variant-numeric: tabular-nums;
           white-space: nowrap;
           pointer-events: none;
-          z-index: 10;
-          animation: onb-eng-float-anim 1.6s cubic-bezier(0.2, 0.8, 0.2, 1)
-            forwards;
+          z-index: 2;
+          animation: onb-eng-float-anim 1.4s ease-out forwards;
           text-shadow: 0 1px 4px
             color-mix(in srgb, currentColor 25%, transparent);
         }
         @keyframes onb-eng-float-anim {
           0% {
-            transform: translateY(10px) scale(0.6);
+            transform: translateY(0) scale(0.6);
             opacity: 0;
           }
-          15% {
-            transform: translateY(0px) scale(1.1);
+          10% {
+            transform: translateY(-8px) scale(1.1);
             opacity: 1;
           }
-          30% {
-            transform: translateY(-5px) scale(1);
+          25% {
+            transform: translateY(-12px) scale(1);
             opacity: 1;
+          }
+          70% {
+            transform: translateY(-24px) scale(1);
+            opacity: 0.8;
           }
           100% {
-            transform: translateY(-30px) scale(0.9);
+            transform: translateY(-32px) scale(0.95);
             opacity: 0;
           }
         }
