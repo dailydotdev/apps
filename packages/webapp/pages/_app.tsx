@@ -52,6 +52,7 @@ import {
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
 import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
+import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 import { PixelsProvider } from '../context/PixelsContext';
 
 structuredCloneJsonPolyfill();
@@ -88,6 +89,47 @@ const hotAndColdModalQueryValue = 'hottakes';
 const hotAndColdModalLegacyQueryValue = 'hotAndCold';
 const isOnboardingExcludedPath = (pathname: string): boolean =>
   onboardingExcludedPaths.some((path) => pathname.startsWith(path));
+
+const APP_ORIGIN = getAppOrigin();
+const SITE_ORIGIN = getSiteOrigin();
+
+const GLOBAL_SEO_JSON_LD = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${SITE_ORIGIN}/#organization`,
+      name: 'daily.dev',
+      url: SITE_ORIGIN,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_ORIGIN}/apple-touch-icon.png`,
+        width: 180,
+        height: 180,
+      },
+      sameAs: [
+        'https://twitter.com/dailydotdev',
+        'https://github.com/dailydotdev',
+        'https://www.linkedin.com/company/daily-dev-ltd',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${APP_ORIGIN}/#website`,
+      url: APP_ORIGIN,
+      name: 'daily.dev',
+      publisher: { '@id': `${SITE_ORIGIN}/#organization` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${APP_ORIGIN}/search?q={search_term_string}`,
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
+});
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { isOnboardingActionsReady, isOnboardingComplete } =
@@ -218,6 +260,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const showAppStoreBanner = !router.pathname.startsWith('/helloworld');
   const isImageGenerator = router.pathname.startsWith('/image-generator');
+  const canonical = canonicalFromRouter(router);
 
   return (
     <>
@@ -266,9 +309,19 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <link rel="manifest" href="/manifest.json" />
         <link
           rel="sitemap"
-          type="text/plain"
+          type="application/xml"
           title="Sitemap"
-          href="/sitemap.txt"
+          href="/sitemap.xml"
+        />
+        <link
+          rel="alternate"
+          type="text/plain"
+          href="/llms.txt"
+          title="LLM-friendly site directory"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: GLOBAL_SEO_JSON_LD }}
         />
 
         <script
@@ -287,7 +340,11 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         {...Seo}
         {...defaultSeo}
         title={defaultSeoTitle}
-        canonical={canonicalFromRouter(router)}
+        canonical={canonical}
+        openGraph={{
+          ...Seo.openGraph,
+          url: canonical,
+        }}
         titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
       />
       {!!seo && <NextSeo {...seo} />}

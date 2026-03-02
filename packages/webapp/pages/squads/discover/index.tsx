@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import Head from 'next/head';
 import { useSquadCategories } from '@dailydotdev/shared/src/hooks/squads/useSquadCategories';
 import { SquadsDirectoryFeed } from '@dailydotdev/shared/src/components/cards/squad/SquadsDirectoryFeed';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
@@ -22,6 +23,38 @@ const seo: NextSeoProps = {
 
 const sourceIcon = <SourceIcon secondary size={IconSize.Large} />;
 
+const getSquadsSchemas = (
+  categories: Array<{ node: { id: string; title: string } }>,
+): string =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': 'https://app.daily.dev/squads/discover#collection',
+        url: 'https://app.daily.dev/squads/discover',
+        name: 'Explore all Squads',
+        description:
+          'Browse and join Squads on daily.dev to connect with developers around shared interests.',
+      },
+      {
+        '@type': 'ItemList',
+        '@id': 'https://app.daily.dev/squads/discover#items',
+        itemListElement: categories.map(({ node }, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          item: {
+            '@type': 'Thing',
+            name: node.title,
+            url: `https://app.daily.dev/squads/discover/${encodeURIComponent(
+              node.id,
+            )}`,
+          },
+        })),
+      },
+    ],
+  });
+
 function SquadDiscoveryPage(): ReactElement {
   const { data, isFetched } = useSquadCategories();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -30,6 +63,16 @@ function SquadDiscoveryPage(): ReactElement {
 
   return (
     <SquadDirectoryLayout className="gap-6">
+      <Head>
+        {categories.length > 0 && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: getSquadsSchemas(categories),
+            }}
+          />
+        )}
+      </Head>
       <SquadsDirectoryFeed
         key="featured"
         linkToSeeAll="/squads/discover/featured"

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://app.daily.dev/sitemap.txt</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://app.daily.dev/api/sitemaps/posts.txt</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://app.daily.dev/api/sitemaps/sources.txt</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://app.daily.dev/api/sitemaps/squads.txt</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://app.daily.dev/api/sitemaps/tags.txt</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://app.daily.dev/api/sitemaps/users.txt</loc>
+  </sitemap>
+</sitemapindex>
