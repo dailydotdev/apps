@@ -603,6 +603,9 @@ const OnboardingV2Page = (): ReactElement => {
   }, [clearGithubImportTimer, githubImportPhase, showGithubImportFlow]);
 
   useEffect(() => {
+    if (!feedVisible) {
+      return undefined;
+    }
     const node = panelSentinelRef.current;
     if (!node) {
       return undefined;
@@ -617,7 +620,7 @@ const OnboardingV2Page = (): ReactElement => {
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, []);
+  }, [feedVisible]);
 
   useEffect(() => {
     const stage = panelStageRef.current;
@@ -755,7 +758,7 @@ const OnboardingV2Page = (): ReactElement => {
         ),
       ).filter((article) => {
         const rect = article.getBoundingClientRect();
-        return rect.top > 60 && rect.bottom < window.innerHeight - 120;
+        return rect.top < window.innerHeight && rect.bottom > 0;
       });
     };
 
