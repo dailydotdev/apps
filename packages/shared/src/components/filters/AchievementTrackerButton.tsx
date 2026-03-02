@@ -67,6 +67,7 @@ export function AchievementTrackerButton(): ReactElement | null {
   const {
     trackedAchievement,
     trackAchievement,
+    untrackAchievement,
     isPending: isTrackedAchievementPending,
     isTrackPending,
     isUntrackPending,
@@ -105,6 +106,11 @@ export function AchievementTrackerButton(): ReactElement | null {
     closeModal();
   };
 
+  const handleUntrack = async () => {
+    await untrackAchievement();
+    closeModal();
+  };
+
   const handleClick = () => {
     openModal({
       type: LazyModal.AchievementPicker,
@@ -112,6 +118,7 @@ export function AchievementTrackerButton(): ReactElement | null {
         achievements: achievements ?? [],
         trackedAchievementId: trackedAchievement?.achievement.id,
         onTrack: handleTrack,
+        onUntrack: handleUntrack,
       },
     });
   };
