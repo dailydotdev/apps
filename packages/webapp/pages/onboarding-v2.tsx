@@ -755,7 +755,7 @@ const OnboardingV2Page = (): ReactElement => {
         ),
       ).filter((article) => {
         const rect = article.getBoundingClientRect();
-        return rect.top > 80 && rect.bottom < window.innerHeight * 0.6;
+        return rect.top > 60 && rect.bottom < window.innerHeight - 120;
       });
     };
 
@@ -886,22 +886,23 @@ const OnboardingV2Page = (): ReactElement => {
           const currentVal = parseCount(counter.textContent || '') || 0;
           counter.textContent = formatCount(currentVal + inc);
 
-          const activeInArticle =
-            article.querySelectorAll('.onb-eng-floater').length;
-          const laneOffset = Math.min(activeInArticle, 3) * 1.1;
+          const floaterAnchor =
+            counter.parentElement instanceof HTMLElement
+              ? counter.parentElement
+              : wrapperEl;
+          floaterAnchor.classList.add('onb-eng-floater-anchor');
 
-          const counterRect = counter.getBoundingClientRect();
-          const articleRect = article.getBoundingClientRect();
-          const bottomOffset = articleRect.bottom - counterRect.top + 8;
-          const leftOffset = counterRect.left - articleRect.left;
+          const activeInAnchor =
+            floaterAnchor.querySelectorAll('.onb-eng-floater').length;
+          const laneOffset = Math.min(activeInAnchor, 3) * 1.1;
 
           const floater = document.createElement('span');
           floater.className = 'onb-eng-floater';
           floater.style.color = color;
-          floater.style.left = `${leftOffset}px`;
-          floater.style.bottom = `${bottomOffset + laneOffset * 16}px`;
+          floater.style.left = '0';
+          floater.style.bottom = `calc(100% + 0.5rem + ${laneOffset}rem)`;
           floater.textContent = `+${inc}`;
-          article.appendChild(floater);
+          floaterAnchor.appendChild(floater);
           activeFloaters.add(floater);
 
           addTimeout(() => {
@@ -2216,7 +2217,6 @@ const OnboardingV2Page = (): ReactElement => {
         .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed {
           opacity: 1 !important;
           transform: translateY(0) scale(1) !important;
-          overflow: hidden;
         }
         .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed:hover {
           transform: translateY(0) scale(1) !important;
@@ -2865,6 +2865,9 @@ const OnboardingV2Page = (): ReactElement => {
         }
 
         .onb-eng-pos-relative {
+          position: relative;
+        }
+        .onb-eng-floater-anchor {
           position: relative;
         }
         .onb-eng-floater {
