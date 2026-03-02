@@ -893,13 +893,13 @@ const OnboardingV2Page = (): ReactElement => {
             counter.parentElement instanceof HTMLElement
               ? counter.parentElement
               : wrapperEl;
-          floaterAnchor.classList.add('onb-eng-floater-anchor');
+          floaterAnchor.classList.add('onb-eng-pos-relative');
 
           const floater = document.createElement('span');
           floater.className = 'onb-eng-floater';
           floater.style.color = color;
-          floater.style.left = '0';
-          floater.style.bottom = '100%';
+          floater.style.left = `${counter.offsetLeft}px`;
+          floater.style.top = `${counter.offsetTop}px`;
           floater.textContent = `+${inc}`;
           floaterAnchor.appendChild(floater);
           activeFloaters.add(floater);
@@ -910,7 +910,7 @@ const OnboardingV2Page = (): ReactElement => {
           }, 1400);
         }, delayAcc);
 
-        delayAcc += 500 + Math.random() * 700;
+        delayAcc += 150 + Math.random() * 200;
       });
 
       addTimeout(() => {
@@ -2871,27 +2871,35 @@ const OnboardingV2Page = (): ReactElement => {
         }
         .onb-eng-floater {
           position: absolute;
-          font-size: 0.8125rem;
+          font-size: 0.875rem;
           font-weight: 800;
           font-variant-numeric: tabular-nums;
           white-space: nowrap;
           pointer-events: none;
           z-index: 2;
-          animation: onb-eng-float-anim 1.2s ease-out forwards;
+          animation: onb-eng-float-anim 1.4s ease-out forwards;
           text-shadow: 0 1px 4px
             color-mix(in srgb, currentColor 25%, transparent);
         }
         @keyframes onb-eng-float-anim {
           0% {
-            transform: translateY(0);
+            transform: translateY(0) scale(0.6);
+            opacity: 0;
+          }
+          10% {
+            transform: translateY(-8px) scale(1.1);
             opacity: 1;
           }
-          60% {
-            transform: translateY(-8px);
-            opacity: 0.6;
+          25% {
+            transform: translateY(-12px) scale(1);
+            opacity: 1;
+          }
+          70% {
+            transform: translateY(-24px) scale(1);
+            opacity: 0.8;
           }
           100% {
-            transform: translateY(-14px);
+            transform: translateY(-32px) scale(0.95);
             opacity: 0;
           }
         }
