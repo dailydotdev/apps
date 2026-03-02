@@ -24,7 +24,7 @@ const handler = (req: NextApiRequest, res: NextApiResponse): void => {
           Contact: 'mailto:support@daily.dev',
           Expires: expiresDate.toISOString(),
           'Preferred-Languages': 'en',
-          Canonical: `${absoluteWebappUrl}.well-known/security.txt`,
+          Canonical: `${absoluteWebappUrl}/.well-known/security.txt`,
           Hiring: 'https://daily.dev/careers',
         };
 

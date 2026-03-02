@@ -296,7 +296,7 @@ export const getBreadcrumbJsonLd = (post: Post): string => {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: absoluteWebappUrl.replace(/\/$/, ''),
+        item: absoluteWebappUrl,
       },
       {
         '@type': 'ListItem',

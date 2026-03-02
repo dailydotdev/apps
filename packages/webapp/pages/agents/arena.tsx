@@ -25,7 +25,7 @@ const ARENA_TITLE = 'The Arena - Agents & LLM Leaderboard | daily.dev';
 const ARENA_DESCRIPTION =
   "No benchmarks. No hype. Just developers voting on which AI coding agents and LLMs actually deliver. See who's on top right now.";
 
-const arenaBaseUrl = `${absoluteWebappUrl.replace(/\/$/, '')}/agents/arena`;
+const arenaBaseUrl = `${absoluteWebappUrl}/agents/arena`;
 
 const getTabUrl = (tab: ArenaTab): string => {
   if (tab === 'coding-agents') {
@@ -54,7 +54,7 @@ const getArenaJsonLd = ({
     isPartOf: {
       '@type': 'WebSite',
       name: 'daily.dev',
-      url: absoluteWebappUrl.replace(/\/$/, ''),
+      url: absoluteWebappUrl,
     },
     about: [
       { '@type': 'Thing', name: 'AI coding agents' },

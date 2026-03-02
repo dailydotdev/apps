@@ -15,14 +15,12 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const baseUrl = absoluteWebappUrl.replace(/\/$/, '');
-
 const Home = (): ReactElement => (
   <SiteLinksSearchBoxJsonLd
-    url={baseUrl}
+    url={absoluteWebappUrl}
     potentialActions={[
       {
-        target: `${baseUrl}/search?q`,
+        target: `${absoluteWebappUrl}/search?q`,
         queryInput: 'search_term_string',
       },
     ]}

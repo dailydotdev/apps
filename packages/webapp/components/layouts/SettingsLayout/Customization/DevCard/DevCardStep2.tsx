@@ -86,7 +86,7 @@ export const DevCardStep2 = ({
   );
   const embedCode = useMemo(
     () =>
-      `<a href="${absoluteWebappUrl}${
+      `<a href="${absoluteWebappUrl}/${
         user?.username
       }"><img src="${devCardSrc}" width="${
         type === DevCardType.Horizontal ? 652 : 356

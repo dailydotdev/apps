@@ -17,8 +17,7 @@ export const canonicalFromRouter = (router: BaseRouter): string | undefined => {
     return undefined;
   }
   const includeQuery = path === '/search';
-  const baseUrl = absoluteWebappUrl.replace(/\/$/, '');
-  return `${baseUrl}${path}${
+  return `${absoluteWebappUrl}${path}${
     includeQuery ? parsedQueryToString(router.query) : ''
   }`;
 };

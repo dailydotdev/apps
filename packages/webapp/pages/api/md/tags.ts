@@ -64,7 +64,7 @@ const handler = async (
       .join('\n\n');
 
     const markdown = `> ## Documentation Index
-> Fetch the complete documentation index at: ${absoluteWebappUrl}llms.txt
+> Fetch the complete documentation index at: ${absoluteWebappUrl}/llms.txt
 > Use this file to discover all available pages before exploring further.
 
 # Tags Directory
@@ -103,7 +103,7 @@ ${allTagsMarkdown}
     res
       .status(500)
       .send(
-        `Unable to generate markdown. Please try again later or visit ${absoluteWebappUrl}tags`,
+        `Unable to generate markdown. Please try again later or visit ${absoluteWebappUrl}/tags`,
       );
   }
 };

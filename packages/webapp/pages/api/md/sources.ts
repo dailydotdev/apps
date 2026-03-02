@@ -35,7 +35,7 @@ const handler = async (
     );
 
     const markdown = `> ## Documentation Index
-> Fetch the complete documentation index at: ${absoluteWebappUrl}llms.txt
+> Fetch the complete documentation index at: ${absoluteWebappUrl}/llms.txt
 > Use this file to discover all available pages before exploring further.
 
 # Sources Directory
@@ -78,7 +78,7 @@ ${data.topVideoSources.map(formatSource).join('\n')}
     res
       .status(500)
       .send(
-        `Unable to generate markdown. Please try again later or visit ${absoluteWebappUrl}sources`,
+        `Unable to generate markdown. Please try again later or visit ${absoluteWebappUrl}/sources`,
       );
   }
 };
