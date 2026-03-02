@@ -899,7 +899,7 @@ const OnboardingV2Page = (): ReactElement => {
           floater.className = 'onb-eng-floater';
           floater.style.color = color;
           floater.style.left = '0';
-          floater.style.bottom = 'calc(100% + 2px)';
+          floater.style.bottom = '100%';
           floater.textContent = `+${inc}`;
           floaterAnchor.appendChild(floater);
           activeFloaters.add(floater);
@@ -907,7 +907,7 @@ const OnboardingV2Page = (): ReactElement => {
           addTimeout(() => {
             floater.remove();
             activeFloaters.delete(floater);
-          }, 1800);
+          }, 1400);
         }, delayAcc);
 
         delayAcc += 500 + Math.random() * 700;
@@ -2877,25 +2877,21 @@ const OnboardingV2Page = (): ReactElement => {
           white-space: nowrap;
           pointer-events: none;
           z-index: 2;
-          animation: onb-eng-float-anim 1.5s ease-out forwards;
-          text-shadow: 0 1px 6px
-            color-mix(in srgb, currentColor 30%, transparent);
+          animation: onb-eng-float-anim 1.2s ease-out forwards;
+          text-shadow: 0 1px 4px
+            color-mix(in srgb, currentColor 25%, transparent);
         }
         @keyframes onb-eng-float-anim {
           0% {
-            transform: translateY(0) scale(0.8);
-            opacity: 0;
-          }
-          15% {
-            transform: translateY(-2px) scale(1.05);
+            transform: translateY(0);
             opacity: 1;
           }
-          50% {
-            transform: translateY(-10px) scale(1);
-            opacity: 0.7;
+          60% {
+            transform: translateY(-8px);
+            opacity: 0.6;
           }
           100% {
-            transform: translateY(-20px) scale(0.95);
+            transform: translateY(-14px);
             opacity: 0;
           }
         }
