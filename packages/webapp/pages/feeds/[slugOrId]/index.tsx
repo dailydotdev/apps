@@ -43,6 +43,6 @@ const FeedPage = (): ReactElement => {
 };
 
 FeedPage.getLayout = getMainFeedLayout;
-FeedPage.layoutProps = mainFeedLayoutProps;
+FeedPage.layoutProps = { ...mainFeedLayoutProps, canGoBack: true };
 
 export default FeedPage;

@@ -59,6 +59,6 @@ const EditFeedPage = (): ReactElement => {
 };
 
 EditFeedPage.getLayout = getMainFeedLayout;
-EditFeedPage.layoutProps = { ...mainFeedLayoutProps, seo };
+EditFeedPage.layoutProps = { ...mainFeedLayoutProps, canGoBack: true, seo };
 
 export default EditFeedPage;

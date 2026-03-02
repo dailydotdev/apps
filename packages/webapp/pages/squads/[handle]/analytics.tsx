@@ -257,5 +257,6 @@ const SquadAnalyticsPage = (): ReactElement => {
 };
 
 SquadAnalyticsPage.getLayout = getMainLayout;
+SquadAnalyticsPage.layoutProps = { canGoBack: true };
 
 export default SquadAnalyticsPage;

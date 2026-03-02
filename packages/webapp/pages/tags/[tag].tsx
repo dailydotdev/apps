@@ -378,7 +378,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
 };
 
 TagPage.getLayout = getLayout;
-TagPage.layoutProps = mainFeedLayoutProps;
+TagPage.layoutProps = { ...mainFeedLayoutProps, canGoBack: true };
 
 export default TagPage;
 

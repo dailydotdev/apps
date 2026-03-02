@@ -65,9 +65,7 @@ export default function ModerateSquadPage({
     <ManageSquadPageContainer>
       <PageHeader className="border-b-0">
         <Button
-          onClick={() =>
-            handle ? router.push(`/squads/${handle}`) : router.back()
-          }
+          onClick={() => router.back()}
           icon={<ArrowIcon className="-rotate-90" />}
           variant={ButtonVariant.Tertiary}
         />

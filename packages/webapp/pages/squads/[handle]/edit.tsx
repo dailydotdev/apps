@@ -111,7 +111,7 @@ const EditSquad = ({ handle }: SquadSettingsProps): ReactElement => {
 };
 
 EditSquad.getLayout = getMainLayout;
-EditSquad.layoutProps = { seo };
+EditSquad.layoutProps = { canGoBack: true, seo };
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: true };

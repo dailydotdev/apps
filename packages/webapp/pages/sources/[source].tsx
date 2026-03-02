@@ -254,6 +254,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
 SourcePage.getLayout = getLayout;
 SourcePage.layoutProps = {
   ...mainFeedLayoutProps,
+  canGoBack: true,
   customBanner: <CustomAuthBanner />,
 };
 export default SourcePage;
