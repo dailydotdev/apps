@@ -719,7 +719,6 @@ const OnboardingV2Page = (): ReactElement => {
     const shouldRun =
       feedVisible &&
       !feedReadyState &&
-      !panelVisible &&
       !showSignupChooser &&
       !showSignupPrompt &&
       !showGithubImportFlow &&
@@ -856,29 +855,38 @@ const OnboardingV2Page = (): ReactElement => {
 
       wrapperEl.classList.add(activeClass);
 
-      const numIncrements = 1 + Math.floor(Math.random() * 3); // 1 to 3 increments
+      const numIncrements = 1 + Math.floor(Math.random() * 3);
       const increments: number[] = [];
       for (let i = 0; i < numIncrements; i += 1) {
         const r = Math.random();
         if (r < 0.55) {
           increments.push(1 + Math.floor(Math.random() * 2));
-        } // 1-2 (55%)
-        else if (r < 0.85) {
+        } else if (r < 0.85) {
           increments.push(3 + Math.floor(Math.random() * 4));
-        } // 3-6 (30%)
-        else {
+        } else {
           increments.push(7 + Math.floor(Math.random() * 12));
-        } // 7-18 (15%)
+        }
       }
 
-      let delayAcc = 0;
+      const floaterAnchor =
+        counter.parentElement instanceof HTMLElement
+          ? counter.parentElement
+          : wrapperEl;
+      floaterAnchor.classList.add('onb-eng-floater-anchor');
 
-      increments.forEach((inc) => {
+      let delayAcc = 0;
+      let pendingFloaters = increments.length;
+
+      const cleanupArticle = () => {
+        pendingFloaters -= 1;
+        if (pendingFloaters <= 0) {
+          wrapperEl.classList.remove(activeClass);
+          article.removeAttribute('data-eng-active');
+        }
+      };
+
+      increments.forEach((inc, idx) => {
         addTimeout(() => {
-          // Restart the pulse animation without reading layout (offsetWidth
-          // forces a synchronous reflow). Setting animationName to 'none' is a
-          // write-only style operation, then the next rAF restores it so the
-          // animation re-runs from the start.
           btn.classList.remove('onb-eng-pulse');
           (btn as HTMLElement).style.animationName = 'none';
           requestAnimationFrame(() => {
@@ -889,17 +897,13 @@ const OnboardingV2Page = (): ReactElement => {
           const currentVal = parseCount(counter.textContent || '') || 0;
           counter.textContent = formatCount(currentVal + inc);
 
-          const floaterAnchor =
-            counter.parentElement instanceof HTMLElement
-              ? counter.parentElement
-              : wrapperEl;
-          floaterAnchor.classList.add('onb-eng-pos-relative');
+          const laneShift = idx * 1.2;
 
           const floater = document.createElement('span');
           floater.className = 'onb-eng-floater';
           floater.style.color = color;
-          floater.style.left = `${counter.offsetLeft}px`;
-          floater.style.top = `${counter.offsetTop}px`;
+          floater.style.left = '0';
+          floater.style.bottom = `calc(100% + ${laneShift}rem)`;
           floater.textContent = `+${inc}`;
           floaterAnchor.appendChild(floater);
           activeFloaters.add(floater);
@@ -907,18 +911,14 @@ const OnboardingV2Page = (): ReactElement => {
           addTimeout(() => {
             floater.remove();
             activeFloaters.delete(floater);
-          }, 1400);
+            cleanupArticle();
+          }, 1800);
         }, delayAcc);
 
-        delayAcc += 150 + Math.random() * 200;
+        delayAcc += 400 + Math.random() * 400;
       });
 
-      addTimeout(() => {
-        wrapperEl.classList.remove(activeClass);
-        article.removeAttribute('data-eng-active');
-      }, delayAcc + 600);
-
-      addTimeout(runStream, delayAcc + 800 + Math.random() * 1200);
+      addTimeout(runStream, delayAcc + 1000 + Math.random() * 1500);
     };
 
     addTimeout(runStream, 300);
@@ -929,11 +929,21 @@ const OnboardingV2Page = (): ReactElement => {
       timeouts.clear();
       activeFloaters.forEach((floater) => floater.remove());
       activeFloaters.clear();
+      document
+        .querySelectorAll(
+          '.onb-eng-active-upvote, .onb-eng-active-comment, [data-eng-active]',
+        )
+        .forEach((el) => {
+          el.classList.remove(
+            'onb-eng-active-upvote',
+            'onb-eng-active-comment',
+          );
+          el.removeAttribute('data-eng-active');
+        });
     };
   }, [
     feedVisible,
     feedReadyState,
-    panelVisible,
     showExtensionPromo,
     showGithubImportFlow,
     showSignupChooser,
@@ -2848,7 +2858,7 @@ const OnboardingV2Page = (): ReactElement => {
         }
 
         .onb-eng-pulse {
-          animation: onb-eng-pulse-anim 0.3s
+          animation: onb-eng-pulse-anim 0.35s
             cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes onb-eng-pulse-anim {
@@ -2856,7 +2866,7 @@ const OnboardingV2Page = (): ReactElement => {
             transform: scale(1);
           }
           50% {
-            transform: scale(1.25);
+            transform: scale(1.2);
           }
           100% {
             transform: scale(1);
@@ -2871,35 +2881,34 @@ const OnboardingV2Page = (): ReactElement => {
         }
         .onb-eng-floater {
           position: absolute;
-          font-size: 0.875rem;
-          font-weight: 800;
+          font-size: 0.6875rem;
+          font-weight: 700;
           font-variant-numeric: tabular-nums;
           white-space: nowrap;
           pointer-events: none;
-          z-index: 2;
-          animation: onb-eng-float-anim 1.4s ease-out forwards;
-          text-shadow: 0 1px 4px
-            color-mix(in srgb, currentColor 25%, transparent);
+          z-index: 1;
+          animation: onb-eng-float-anim 1.8s cubic-bezier(0.16, 1, 0.3, 1)
+            forwards;
         }
         @keyframes onb-eng-float-anim {
           0% {
-            transform: translateY(0) scale(0.6);
+            transform: translateY(2px) scale(0.7);
             opacity: 0;
           }
-          10% {
-            transform: translateY(-8px) scale(1.1);
+          12% {
+            transform: translateY(-2px) scale(1.05);
             opacity: 1;
           }
-          25% {
-            transform: translateY(-12px) scale(1);
-            opacity: 1;
+          35% {
+            transform: translateY(-8px) scale(1);
+            opacity: 0.9;
           }
-          70% {
-            transform: translateY(-24px) scale(1);
-            opacity: 0.8;
+          75% {
+            transform: translateY(-18px);
+            opacity: 0.4;
           }
           100% {
-            transform: translateY(-32px) scale(0.95);
+            transform: translateY(-26px) scale(0.95);
             opacity: 0;
           }
         }
