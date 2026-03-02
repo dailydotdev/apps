@@ -164,7 +164,6 @@ function MilestoneItem({
 }: MilestoneItemProps): ReactElement {
   const helperText =
     milestone.rewards.length === 0 ? getMilestoneHelperText(milestone) : null;
-  const hasCompactRewardLayout = milestone.rewards.length <= 1;
   const sparklePositions = getMilestoneSparkles(milestone.day);
   const isSponsoredMilestone = milestone.day === SPONSORED_MILESTONE_DAY;
   const isLightTheme = useIsLightTheme();
@@ -291,12 +290,7 @@ function MilestoneItem({
         className={classNames(
           'relative z-1 flex min-w-0 flex-1 flex-col justify-start gap-0.5',
           isSponsoredMilestone && 'min-h-0 py-1',
-          !isSponsoredMilestone &&
-            hasCompactRewardLayout &&
-            'min-h-[4.5rem] pb-3',
-          !isSponsoredMilestone &&
-            !hasCompactRewardLayout &&
-            'min-h-[5.5rem] pb-5',
+          !isSponsoredMilestone && 'min-h-[4.5rem] pb-3',
         )}
       >
         <div className="flex items-center gap-2">

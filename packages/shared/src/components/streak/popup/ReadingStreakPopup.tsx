@@ -54,6 +54,7 @@ interface ReadingStreakPopupProps {
   streakOverride?: number;
   isVisible?: boolean;
   milestoneClaimResetNonce?: number;
+  showMobileDrawerActions?: boolean;
   onClose?: () => void;
 }
 
@@ -64,6 +65,7 @@ export function ReadingStreakPopup({
   streakOverride,
   isVisible = true,
   milestoneClaimResetNonce,
+  showMobileDrawerActions = false,
   onClose,
 }: ReadingStreakPopupProps): ReactElement {
   const router = useRouter();
@@ -118,12 +120,13 @@ export function ReadingStreakPopup({
   }
 
   const displayStreak = streakOverride ?? streak.current;
+  const shouldShowTopActions = !showMobileDrawerActions;
 
   return (
     <div
       className={`flex max-h-[640px] flex-col ${
         fullWidth
-          ? 'h-full max-h-none w-full max-w-none tablet:max-w-none'
+          ? 'h-full min-h-0 max-h-none w-full max-w-none tablet:max-w-none'
           : 'w-full max-w-[320px]'
       }`}
     >
@@ -136,19 +139,21 @@ export function ReadingStreakPopup({
             label={`${streak.max} Longest · ${streak.total} Total`}
             isPrimary
           />
-          <div className="flex flex-col items-center gap-1">
-            {onClose && (
-              <CloseButton size={ButtonSize.Small} onClick={onClose} />
-            )}
-            <Link href={`${webappUrl}account/customization/streaks`} passHref>
-              <Button
-                tag="a"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.XSmall}
-                icon={<SettingsIcon />}
-              />
-            </Link>
-          </div>
+          {shouldShowTopActions && (
+            <div className="flex flex-col items-center gap-1">
+              {onClose && (
+                <CloseButton size={ButtonSize.Small} onClick={onClose} />
+              )}
+              <Link href={`${webappUrl}account/customization/streaks`} passHref>
+                <Button
+                  tag="a"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.XSmall}
+                  icon={<SettingsIcon />}
+                />
+              </Link>
+            </div>
+          )}
         </div>
         <div className="mt-2">
           <StreakMonthCalendar
@@ -257,6 +262,29 @@ export function ReadingStreakPopup({
           isVisible={isVisible}
           claimResetNonce={milestoneClaimResetNonce}
         />
+      )}
+
+      {showMobileDrawerActions && onClose && (
+        <div className="sticky -bottom-3 z-2 bg-background-default pb-3 pt-2">
+          <div className="flex w-full flex-col gap-2">
+            <Link href={`${webappUrl}account/customization/streaks`} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Float}
+                className="w-full"
+              >
+                Settings
+              </Button>
+            </Link>
+            <Button
+              variant={ButtonVariant.Float}
+              className="w-full"
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
       )}
 
       {showAlert && (

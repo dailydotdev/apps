@@ -120,6 +120,8 @@ export function FeedGreetingHero(): ReactElement | null {
   const greeting = greetingByMoment[greetingMoment];
   const isEvening = greetingMoment === 'evening';
   const isMorning = greetingMoment === 'morning';
+  const isDarkModeTheme =
+    themeMode === ThemeMode.Dark || (themeMode === ThemeMode.Auto && isSystemDark);
 
   const effectiveStreak = debugStreakOverride ?? streak?.current ?? 0;
   const hasReadToday =
@@ -129,6 +131,16 @@ export function FeedGreetingHero(): ReactElement | null {
       new Date(),
       user?.timezone,
     );
+  const hasReadTodayFromHistory = useMemo(
+    () =>
+      !!history?.some(
+        (day) =>
+          day.reads > 0 &&
+          isSameDayInTimezone(new Date(day.date), new Date(), user?.timezone),
+      ),
+    [history, user?.timezone],
+  );
+  const hasReadTodayFinal = hasReadToday || hasReadTodayFromHistory;
   const completedBeforeToday = hasReadToday
     ? Math.max(effectiveStreak - 1, 0)
     : effectiveStreak;
@@ -194,7 +206,7 @@ export function FeedGreetingHero(): ReactElement | null {
     !isStreaksEnabled ||
     !streak ||
     (isDebugMode && !isFeedHeroVisible) ||
-    (!isDebugMode && hasReadToday && effectiveStreak > 0)
+    (!isDebugMode && hasReadTodayFinal && effectiveStreak > 0)
   ) {
     return null;
   }
@@ -202,21 +214,24 @@ export function FeedGreetingHero(): ReactElement | null {
   return (
     <section
       className={classNames(
-        'relative mb-4 w-full overflow-hidden rounded-24 bg-background-default',
+        'relative mb-4 w-full overflow-hidden rounded-24',
+        isDarkModeTheme ? 'bg-background-default' : 'bg-transparent',
         'p-5 tablet:p-6',
         'transition-all duration-500 ease-out motion-reduce:transition-none',
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
       )}
     >
-      <div className="from-accent-bacon-default/15 to-accent-onion-default/20 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent" />
-      <div
-        className={classNames(
-          'pointer-events-none absolute inset-0 z-0',
-          isEvening
-            ? 'bg-[#02040a]'
-            : 'from-[#1b2134]/35 via-[#1b2134]/15 bg-gradient-to-b to-transparent',
-        )}
-      />
+      {isDarkModeTheme && (
+        <>
+          <div className="from-accent-bacon-default/15 to-accent-onion-default/20 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent" />
+          <div
+            className={classNames(
+              'pointer-events-none absolute inset-0 z-0',
+              isEvening
+                ? 'bg-[#02040a]'
+                : 'from-[#1b2134]/35 via-[#1b2134]/15 bg-gradient-to-b to-transparent',
+            )}
+          />
 
       <style>{`
             @keyframes butterfly-flutter {
@@ -264,7 +279,7 @@ export function FeedGreetingHero(): ReactElement | null {
         .animate-anime-ray-4 { animation: anime-ray-pulse 9s ease-in-out infinite 1.5s; }
       `}</style>
 
-      {!isEvening && (
+          {!isEvening && (
         <div className="pointer-events-none absolute inset-0 z-[2] overflow-hidden">
           {/* Sunrise anime sky wash (blue -> pink -> gold) */}
           <div className="from-[#ffd99e]/90 via-[#e098a3]/80 to-[#7f90b8]/90 absolute inset-0 bg-gradient-to-br" />
@@ -305,7 +320,7 @@ export function FeedGreetingHero(): ReactElement | null {
           <div className="bg-[#ffea9e]/60 absolute -left-32 -top-32 h-[35rem] w-[35rem] rounded-full blur-[100px]" />
         </div>
       )}
-      {isEvening && (
+          {isEvening && (
         <>
           <style>{`
             @keyframes shooting-star {
@@ -378,9 +393,9 @@ export function FeedGreetingHero(): ReactElement | null {
           </div>
         </>
       )}
-      <div className="pointer-events-none absolute inset-0 z-1">
+          <div className="pointer-events-none absolute inset-0 z-1">
         {isEvening && (
-          <div className="opacity-60 absolute left-[10%] top-[15%] h-40 w-40 rotate-[18deg]">
+          <div className="absolute left-[10%] top-[15%] hidden h-40 w-40 rotate-[18deg] opacity-60 laptop:block">
             <svg
               viewBox="0 0 370 216"
               fill="none"
@@ -674,7 +689,7 @@ export function FeedGreetingHero(): ReactElement | null {
           />
         ))}
       </div>
-      {isEvening && (
+          {isEvening && (
         <div className="pointer-events-none absolute inset-0 z-2 overflow-hidden">
           <div
             className="animate-starlink absolute flex items-center gap-1 opacity-0"
@@ -699,9 +714,11 @@ export function FeedGreetingHero(): ReactElement | null {
         </div>
       )}
 
-      {/* Ground fog / atmosphere */}
-      <div className="via-background-default/80 pointer-events-none absolute -bottom-12 left-0 right-0 z-0 h-48 bg-gradient-to-t from-background-default to-transparent blur-xl" />
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-0 h-24 bg-gradient-to-t from-background-default to-transparent" />
+          {/* Ground fog / atmosphere */}
+          <div className="via-background-default/80 pointer-events-none absolute -bottom-12 left-0 right-0 z-0 h-48 bg-gradient-to-t from-background-default to-transparent blur-xl" />
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-0 h-24 bg-gradient-to-t from-background-default to-transparent" />
+        </>
+      )}
 
       <div className="z-10 relative mt-12 flex flex-col items-center text-center">
         <p

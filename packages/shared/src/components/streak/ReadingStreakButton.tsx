@@ -317,7 +317,10 @@ export function ReadingStreakButton({
             position={isMobile ? DrawerPosition.Bottom : DrawerPosition.Right}
             className={
               isMobile
-                ? undefined
+                ? {
+                    wrapper:
+                      'h-[calc(100%-5rem)] !max-h-[calc(100%-5rem)] !overflow-hidden',
+                  }
                 : {
                     wrapper:
                       'h-full !max-h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary !px-0',
@@ -331,6 +334,7 @@ export function ReadingStreakButton({
               streakOverride={debug.debugStreakOverride ?? undefined}
               isVisible={shouldShowStreaks}
               milestoneClaimResetNonce={milestoneClaimResetNonce}
+              showMobileDrawerActions={isMobile}
               onClose={handleCloseDrawer}
             />
           </Drawer>
