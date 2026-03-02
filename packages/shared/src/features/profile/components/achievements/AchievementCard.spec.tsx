@@ -26,7 +26,9 @@ const createLockedAchievement = (
   ...overrides,
 });
 
-const renderCard = (props: Partial<React.ComponentProps<typeof AchievementCard>> = {}) => {
+const renderCard = (
+  props: Partial<React.ComponentProps<typeof AchievementCard>> = {},
+) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -48,13 +50,19 @@ describe('AchievementCard — stop tracking', () => {
   it('renders "Track" button when the achievement is not tracked', () => {
     renderCard({ isTracked: false });
     expect(screen.getByRole('button', { name: /track/i })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /stop tracking/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /stop tracking/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('renders "Stop tracking" button when the achievement is tracked', () => {
     renderCard({ isTracked: true });
-    expect(screen.getByRole('button', { name: /stop tracking/i })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /^track$/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /stop tracking/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^track$/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('calls onUntrack when "Stop tracking" is clicked', () => {
@@ -78,7 +86,9 @@ describe('AchievementCard — stop tracking', () => {
   it('disables "Stop tracking" button while untrack is pending', () => {
     renderCard({ isTracked: true, isUntrackPending: true });
 
-    expect(screen.getByRole('button', { name: /stop tracking/i })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: /stop tracking/i }),
+    ).toBeDisabled();
   });
 
   it('disables "Track" button while track is pending', () => {
@@ -90,13 +100,17 @@ describe('AchievementCard — stop tracking', () => {
   it('does not render tracking buttons when isOwner is false', () => {
     renderCard({ isOwner: false });
 
-    expect(screen.queryByRole('button', { name: /track/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /track/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('does not render tracking buttons when onTrack is not provided', () => {
     renderCard({ onTrack: undefined });
 
-    expect(screen.queryByRole('button', { name: /track/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /track/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('does not render tracking buttons for unlocked achievements', () => {
@@ -106,7 +120,11 @@ describe('AchievementCard — stop tracking', () => {
     });
     renderCard({ userAchievement: unlockedAchievement, isTracked: true });
 
-    expect(screen.queryByRole('button', { name: /stop tracking/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /^track$/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /stop tracking/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^track$/i }),
+    ).not.toBeInTheDocument();
   });
 });

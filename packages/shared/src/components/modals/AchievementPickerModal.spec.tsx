@@ -1,5 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { UserAchievement } from '../../graphql/user/achievements';
 import { AchievementType } from '../../graphql/user/achievements';
@@ -10,7 +16,10 @@ import { AchievementPickerModal } from './AchievementPickerModal';
 const LogContext = getLogContextStatic();
 const mockLogEvent = jest.fn();
 
-const createLockedAchievement = (id: string, progress = 0): UserAchievement => ({
+const createLockedAchievement = (
+  id: string,
+  progress = 0,
+): UserAchievement => ({
   achievement: {
     id,
     name: `Achievement ${id}`,
@@ -28,14 +37,16 @@ const createLockedAchievement = (id: string, progress = 0): UserAchievement => (
   updatedAt: null,
 });
 
-const renderModal = (props: Partial<React.ComponentProps<typeof AchievementPickerModal>> = {}) => {
+const renderModal = (
+  props: Partial<React.ComponentProps<typeof AchievementPickerModal>> = {},
+) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
 
   const achievements = props.achievements ?? [
-    createLockedAchievement('ach1', 3),
-    createLockedAchievement('ach2', 7),
+    createLockedAchievement('ach1', 7),
+    createLockedAchievement('ach2', 3),
   ];
 
   return render(
@@ -78,7 +89,9 @@ describe('AchievementPickerModal — stop tracking', () => {
   it('renders "Stop tracking" button for the currently tracked achievement', () => {
     renderModal({ trackedAchievementId: 'ach1' });
 
-    expect(screen.getByRole('button', { name: 'Stop tracking' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Stop tracking' }),
+    ).toBeInTheDocument();
   });
 
   it('still renders "Track" for non-tracked achievements when one is tracked', () => {
@@ -113,16 +126,16 @@ describe('AchievementPickerModal — stop tracking', () => {
     const onTrack = jest.fn().mockResolvedValue(undefined);
     renderModal({ trackedAchievementId: null, onTrack });
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Track' })[0]);
+    await act(async () => {
+      fireEvent.click(screen.getAllByRole('button', { name: 'Track' })[0]);
+    });
 
-    await waitFor(() =>
-      expect(mockLogEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          event_name: LogEvent.TrackAchievement,
-          target_id: 'ach1',
-          extra: JSON.stringify({ origin: 'picker_modal' }),
-        }),
-      ),
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.TrackAchievement,
+        target_id: 'ach1',
+        extra: JSON.stringify({ origin: 'picker_modal' }),
+      }),
     );
   });
 
@@ -130,23 +143,26 @@ describe('AchievementPickerModal — stop tracking', () => {
     const onUntrack = jest.fn().mockResolvedValue(undefined);
     renderModal({ trackedAchievementId: 'ach2', onUntrack });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Stop tracking' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Stop tracking' }));
+    });
 
-    await waitFor(() =>
-      expect(mockLogEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          event_name: LogEvent.UntrackAchievement,
-          target_id: 'ach2',
-          extra: JSON.stringify({ origin: 'picker_modal' }),
-        }),
-      ),
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.UntrackAchievement,
+        target_id: 'ach2',
+        extra: JSON.stringify({ origin: 'picker_modal' }),
+      }),
     );
   });
 
   it('disables all action buttons while tracking is in progress', async () => {
-    let resolveTrack: () => void;
+    let resolveTrack: (() => void) | undefined;
     const onTrack = jest.fn(
-      () => new Promise<void>((resolve) => { resolveTrack = resolve; }),
+      () =>
+        new Promise<void>((resolve) => {
+          resolveTrack = resolve;
+        }),
     );
     renderModal({ trackedAchievementId: null, onTrack });
 
@@ -154,16 +170,23 @@ describe('AchievementPickerModal — stop tracking', () => {
     fireEvent.click(trackButtons[0]);
 
     await waitFor(() =>
-      expect(screen.getAllByRole('button', { name: 'Track' })[0]).toBeDisabled(),
+      expect(
+        screen.getAllByRole('button', { name: 'Track' })[0],
+      ).toBeDisabled(),
     );
 
-    resolveTrack!();
+    await act(async () => {
+      resolveTrack?.();
+    });
   });
 
   it('disables all action buttons while untracking is in progress', async () => {
-    let resolveUntrack: () => void;
+    let resolveUntrack: (() => void) | undefined;
     const onUntrack = jest.fn(
-      () => new Promise<void>((resolve) => { resolveUntrack = resolve; }),
+      () =>
+        new Promise<void>((resolve) => {
+          resolveUntrack = resolve;
+        }),
     );
     renderModal({ trackedAchievementId: 'ach1', onUntrack });
 
@@ -173,7 +196,9 @@ describe('AchievementPickerModal — stop tracking', () => {
       expect(screen.getByRole('button', { name: 'Track' })).toBeDisabled(),
     );
 
-    resolveUntrack!();
+    await act(async () => {
+      resolveUntrack?.();
+    });
   });
 
   it('shows empty state message when all achievements are unlocked', () => {
