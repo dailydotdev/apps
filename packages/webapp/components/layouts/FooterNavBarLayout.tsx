@@ -23,11 +23,11 @@ export default function FooterNavBarLayout({
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const showNav = windowLoaded && isMobile;
+  const contentPaddingClassName = showNav ? (post ? 'pb-40' : 'pb-16') : '';
 
   return (
     <>
-      {children}
-      {showNav && <div className={post ? 'h-40' : 'h-16'} />}
+      <div className={contentPaddingClassName}>{children}</div>
       <FooterWrapper showNav={showNav} post={post} />
     </>
   );

@@ -32,7 +32,7 @@ export default function InteractionCounter({
   }, [value]);
 
   const elementClassName = classNames(
-    'flex h-5 min-w-[1ch] flex-col overflow-hidden',
+    'flex h-5 min-w-[2ch] flex-col items-start overflow-hidden text-left !leading-5',
     className,
   );
 
@@ -49,27 +49,21 @@ export default function InteractionCounter({
     setShownValue(value);
   };
 
-  const childClassName =
-    'h-5 inline-block transition-[opacity,transform] ease-in-out duration-300 will-change-[opacity,transform]';
+  const animationContainerClassName =
+    'flex flex-col items-start transition-transform duration-300 ease-in-out will-change-transform';
+  const rowClassName = 'inline-block h-5 shrink-0 !leading-5';
 
   return (
     <span className={elementClassName} {...props}>
       <span
         className={classNames(
-          childClassName,
-          animate ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100',
-        )}
-      >
-        {largeNumberFormat(shownValue)}
-      </span>
-      <span
-        className={classNames(
-          childClassName,
-          animate ? '-translate-y-full opacity-100' : 'translate-y-0 opacity-0',
+          animationContainerClassName,
+          animate ? '-translate-y-5' : 'translate-y-0',
         )}
         onTransitionEnd={updateShownValue}
       >
-        {largeNumberFormat(value)}
+        <span className={rowClassName}>{largeNumberFormat(shownValue)}</span>
+        <span className={rowClassName}>{largeNumberFormat(value)}</span>
       </span>
     </span>
   );

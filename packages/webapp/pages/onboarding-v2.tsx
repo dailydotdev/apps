@@ -213,14 +213,6 @@ type ConfettiParticle = {
   speed: number;
 };
 
-type LiveFloater = {
-  id: number;
-  text: string;
-  color: string;
-  x: number;
-  y: number;
-};
-
 function buildConfettiParticles(): ConfettiParticle[] {
   const particles: ConfettiParticle[] = [];
   const SIZES = ['sm', 'md', 'lg', 'xl'] as const;
@@ -273,8 +265,6 @@ const OnboardingV2Page = (): ReactElement => {
   const [signupContext, setSignupContext] = useState<
     'topics' | 'github' | 'ai' | 'manual' | null
   >(null);
-  const [liveFloaters, setLiveFloaters] = useState<LiveFloater[]>([]);
-  const floaterIdRef = useRef(0);
   const prevBodyOverflowRef = useRef('');
   const pageRef = useRef<HTMLDivElement>(null);
   const panelSentinelRef = useRef<HTMLDivElement>(null);
@@ -726,6 +716,7 @@ const OnboardingV2Page = (): ReactElement => {
     const shouldRun =
       feedVisible &&
       !feedReadyState &&
+      !panelVisible &&
       !showSignupChooser &&
       !showSignupPrompt &&
       !showGithubImportFlow &&
@@ -743,6 +734,7 @@ const OnboardingV2Page = (): ReactElement => {
     }
 
     const timeouts = new Set<number>();
+    const activeFloaters = new Set<HTMLElement>();
     const addTimeout = (fn: () => void, delay: number) => {
       const id = window.setTimeout(() => {
         timeouts.delete(id);
@@ -752,13 +744,16 @@ const OnboardingV2Page = (): ReactElement => {
     };
 
     const getVisibleArticles = () => {
+      const feedStage = document.querySelector('.onb-feed-stage > main');
+      if (!feedStage) return [];
+      
       return Array.from(
-        document.querySelectorAll<HTMLElement>(
-          '.onb-feed-stage article.onb-revealed:not([data-eng-active="true"])',
+        feedStage.querySelectorAll<HTMLElement>(
+          'article.onb-revealed:not([data-eng-active="true"])',
         ),
       ).filter((article) => {
         const rect = article.getBoundingClientRect();
-        return rect.top > 100 && rect.bottom < window.innerHeight - 100;
+        return rect.top > 80 && rect.bottom < window.innerHeight * 0.6;
       });
     };
 
@@ -856,7 +851,7 @@ const OnboardingV2Page = (): ReactElement => {
 
       wrapperEl.classList.add(activeClass);
 
-      const numIncrements = 2 + Math.floor(Math.random() * 5); // 2 to 6 increments
+      const numIncrements = 1 + Math.floor(Math.random() * 3); // 1 to 3 increments
       const increments: number[] = [];
       for (let i = 0; i < numIncrements; i += 1) {
         const r = Math.random();
@@ -889,36 +884,31 @@ const OnboardingV2Page = (): ReactElement => {
           const currentVal = parseCount(counter.textContent || '') || 0;
           counter.textContent = formatCount(currentVal + inc);
 
-          // Translate viewport coordinates to .onb-page coordinates so
-          // floaters stay aligned to cards while the document scrolls.
+          const activeInArticle =
+            article.querySelectorAll('.onb-eng-floater').length;
+          const laneOffset = Math.min(activeInArticle, 3) * 1.1;
+
           const counterRect = counter.getBoundingClientRect();
-          const pageRect = pageRef.current?.getBoundingClientRect();
-          const pageOffsetX = (pageRect?.left ?? 0) + window.scrollX;
-          const pageOffsetY = (pageRect?.top ?? 0) + window.scrollY;
-          floaterIdRef.current += 1;
-          const newFloaterId = floaterIdRef.current;
-          setLiveFloaters((prev) => [
-            ...prev,
-            {
-              id: newFloaterId,
-              text: `+${inc}`,
-              color,
-              x:
-                counterRect.left +
-                counterRect.width / 2 +
-                window.scrollX -
-                pageOffsetX,
-              y: counterRect.top + window.scrollY - pageOffsetY,
-            },
-          ]);
+          const articleRect = article.getBoundingClientRect();
+          const bottomOffset = articleRect.bottom - counterRect.top + 8;
+          const leftOffset = counterRect.left - articleRect.left;
+
+          const floater = document.createElement('span');
+          floater.className = 'onb-eng-floater';
+          floater.style.color = color;
+          floater.style.left = `${leftOffset}px`;
+          floater.style.bottom = `${bottomOffset + laneOffset * 16}px`;
+          floater.textContent = `+${inc}`;
+          article.appendChild(floater);
+          activeFloaters.add(floater);
+
           addTimeout(() => {
-            setLiveFloaters((prev) =>
-              prev.filter((f) => f.id !== newFloaterId),
-            );
-          }, 2500);
+            floater.remove();
+            activeFloaters.delete(floater);
+          }, 5500);
         }, delayAcc);
 
-        delayAcc += 350 + Math.random() * 650; // 0.35s to 1.0s between pops
+        delayAcc += 1800 + Math.random() * 2200;
       });
 
       addTimeout(() => {
@@ -926,26 +916,22 @@ const OnboardingV2Page = (): ReactElement => {
         article.removeAttribute('data-eng-active');
       }, delayAcc + 600);
 
-      // Schedule next stream on this "thread"
-      addTimeout(runStream, delayAcc + 1000 + Math.random() * 1500);
+      addTimeout(runStream, delayAcc + 3000 + Math.random() * 3000);
     };
 
-    // Start 4 concurrent streams for higher density
-    addTimeout(runStream, 200);
     addTimeout(runStream, 800);
-    addTimeout(runStream, 1500);
-    addTimeout(runStream, 2200);
+    addTimeout(runStream, 3500);
 
     return () => {
       timeouts.forEach(clearTimeout);
       timeouts.clear();
-      // Clear any floaters that didn't finish their cleanup timer — they'd
-      // persist indefinitely because their cleanup timeouts were just cancelled.
-      setLiveFloaters([]);
+      activeFloaters.forEach((floater) => floater.remove());
+      activeFloaters.clear();
     };
   }, [
     feedVisible,
     feedReadyState,
+    panelVisible,
     showExtensionPromo,
     showGithubImportFlow,
     showSignupChooser,
@@ -1115,27 +1101,6 @@ const OnboardingV2Page = (): ReactElement => {
 
   return (
     <div ref={pageRef} className="onb-page relative" role="presentation">
-      {/* ── Engagement floaters overlay (React-controlled, page-relative) ── */}
-      {liveFloaters.length > 0 && (
-        <div
-          className="pointer-events-none absolute inset-0 z-2"
-          aria-hidden="true"
-        >
-          {liveFloaters.map((floater) => (
-            <span
-              key={floater.id}
-              className="onb-eng-floater"
-              style={{
-                color: floater.color,
-                left: floater.x,
-                top: floater.y,
-              }}
-            >
-              {floater.text}
-            </span>
-          ))}
-        </div>
-      )}
       {/* ── Hero ── */}
       <section
         ref={heroRef}
@@ -1619,7 +1584,7 @@ const OnboardingV2Page = (): ReactElement => {
       {/* ── Feed ── */}
       <div
         className={classNames(
-          'onb-feed-stage min-h-[50vh] transition-[opacity,transform] duration-500 ease-out laptop:px-10',
+          'onb-feed-stage relative min-h-[50vh] transition-[opacity,transform] duration-500 ease-out laptop:px-10',
           // eslint-disable-next-line no-nested-ternary
           feedReadyState
             ? 'onb-feed-unlocked translate-y-0 opacity-100'
@@ -1637,14 +1602,14 @@ const OnboardingV2Page = (): ReactElement => {
             <div
               ref={panelStageRef}
               className={classNames(
-                'relative left-1/2 h-[42vh] w-screen -translate-x-1/2',
+                'relative z-50 left-1/2 h-[42vh] w-screen -translate-x-1/2',
                 feedReadyState && 'hidden',
               )}
             >
               <div className="sticky top-[50vh] -translate-y-1/2">
                 {/* Dark gradient overlay — fades feed out progressively */}
                 <div
-                  className="onb-panel-fade from-background-default/0 pointer-events-none absolute inset-x-0 -top-[18rem] h-[40rem] bg-gradient-to-b via-background-default to-background-default transition-opacity duration-300"
+                  className="onb-panel-fade from-background-default/0 pointer-events-none absolute inset-x-0 -top-[18rem] h-[40rem] bg-gradient-to-b via-background-default via-[30%] to-background-default transition-opacity duration-300"
                   style={{ opacity: panelVisible ? 1 : 0 }}
                 />
                 <div
@@ -2073,7 +2038,7 @@ const OnboardingV2Page = (): ReactElement => {
 
             {/* Footer links for SEO — placed at the bottom of the page */}
             {!feedReadyState && (
-              <div className="relative z-1 mx-auto mt-28 flex w-full max-w-[48rem] justify-center px-5 pb-24 mobileL:px-6 tablet:mt-14 tablet:pb-8">
+              <div className="relative z-1 mx-auto mt-44 flex w-full max-w-[48rem] justify-center px-5 pb-48 mobileL:mt-48 mobileL:px-6 mobileL:pb-52 tablet:mt-14 tablet:pb-8">
                 <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
               </div>
             )}
@@ -2249,6 +2214,7 @@ const OnboardingV2Page = (): ReactElement => {
         .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed {
           opacity: 1 !important;
           transform: translateY(0) scale(1) !important;
+          overflow: hidden;
         }
         .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed:hover {
           transform: translateY(0) scale(1) !important;
@@ -2803,16 +2769,16 @@ const OnboardingV2Page = (): ReactElement => {
           mask-image: linear-gradient(
             to bottom,
             transparent 0%,
-            rgba(0, 0, 0, 0.35) 15%,
-            rgba(0, 0, 0, 0.82) 35%,
-            black 55%
+            rgba(0, 0, 0, 0.55) 10%,
+            rgba(0, 0, 0, 0.9) 25%,
+            black 40%
           );
           -webkit-mask-image: linear-gradient(
             to bottom,
             transparent 0%,
-            rgba(0, 0, 0, 0.35) 15%,
-            rgba(0, 0, 0, 0.82) 35%,
-            black 55%
+            rgba(0, 0, 0, 0.55) 10%,
+            rgba(0, 0, 0, 0.9) 25%,
+            black 40%
           );
         }
         .onb-feed-stage {
@@ -2896,38 +2862,40 @@ const OnboardingV2Page = (): ReactElement => {
           }
         }
 
-        /* position and bottom are now handled via inline styles in the React
-           fixed overlay; only the visual/animation properties live here. */
         .onb-eng-pos-relative {
           position: relative;
         }
         .onb-eng-floater {
           position: absolute;
-          font-size: 0.875rem;
+          font-size: 0.8125rem;
           font-weight: 800;
           font-variant-numeric: tabular-nums;
           white-space: nowrap;
           pointer-events: none;
-          z-index: 20;
-          animation: onb-eng-float-anim 2.5s ease-out forwards;
-          text-shadow: 0 2px 10px
-            color-mix(in srgb, currentColor 40%, transparent);
+          z-index: 2;
+          animation: onb-eng-float-anim 5s ease-out forwards;
+          text-shadow: 0 1px 8px
+            color-mix(in srgb, currentColor 35%, transparent);
         }
         @keyframes onb-eng-float-anim {
           0% {
-            transform: translateX(-50%) translateY(10px) scale(0.5);
+            transform: translateY(0) scale(0.7);
             opacity: 0;
           }
-          10% {
-            transform: translateX(-50%) translateY(-2px) scale(1.2);
+          8% {
+            transform: translateY(-4px) scale(1.05);
             opacity: 1;
           }
-          80% {
-            transform: translateX(-50%) translateY(-28px) scale(1);
+          25% {
+            transform: translateY(-18px) scale(1);
             opacity: 0.9;
           }
+          70% {
+            transform: translateY(-50px) scale(0.95);
+            opacity: 0.4;
+          }
           100% {
-            transform: translateX(-50%) translateY(-36px) scale(0.8);
+            transform: translateY(-70px) scale(0.85);
             opacity: 0;
           }
         }
