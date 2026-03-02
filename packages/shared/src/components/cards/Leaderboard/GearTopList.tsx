@@ -39,7 +39,7 @@ const runSparkAnimation = (
 
     style.animation = 'none';
     forceReflow(el);
-    style.animation = `gear-medal-spark 0.7s ease-out ${(
+    style.animation = `leaderboard-medal-spark 0.7s ease-out ${(
       Math.random() * 0.06
     ).toFixed(2)}s forwards`;
   });
