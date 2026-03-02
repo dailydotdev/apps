@@ -59,7 +59,7 @@ export interface MainLayoutProps
   customBanner?: ReactNode;
   showSidebar?: boolean;
   onNavTabClick?: (tab: string) => void;
-  canGoBack?: string;
+  canGoBack?: boolean;
   hideBackButton?: boolean;
 }
 
