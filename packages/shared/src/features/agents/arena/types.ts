@@ -69,6 +69,19 @@ export interface RankedTool {
   isEmerging: boolean;
 }
 
+export type ArenaComparisonMetric =
+  | 'd-index'
+  | 'volume'
+  | 'sentiment'
+  | 'momentum'
+  | 'controversy';
+
+export interface ArenaComparisonSeries {
+  entity: ArenaEntity;
+  values: number[];
+  latestValue: number;
+}
+
 export interface SentimentHighlightAuthor {
   id?: string;
   name?: string;
