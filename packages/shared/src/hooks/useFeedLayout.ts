@@ -77,6 +77,8 @@ export const UserProfileFeedPages = new Set([
   OtherFeedPage.UserPosts,
 ]);
 
+export const PostFeedPages = new Set([OtherFeedPage.Post]);
+
 interface GetFeedPageLayoutComponentProps
   extends Pick<
     UseFeedLayoutReturn,
@@ -116,6 +118,8 @@ export const useFeedLayout = ({
   const { insaneMode } = useContext(SettingsContext);
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
+  const isPostFeedPage = PostFeedPages.has(feedName as OtherFeedPage);
+
   const isListMode = isSearchPageLaptop || insaneMode;
 
   const shouldUseListFeedLayoutOnProfilePages = UserProfileFeedPages.has(
@@ -128,7 +132,7 @@ export const useFeedLayout = ({
     !isLaptop && isFeedIncludedInListLayout;
 
   const shouldUseListMode =
-    isListMode && isLaptop && isFeedIncludedInListLayout;
+    (isListMode && isLaptop && isFeedIncludedInListLayout) || isPostFeedPage;
 
   const shouldUseListFeedLayout = feedRelated
     ? shouldUseListFeedLayoutOnMobileTablet ||
