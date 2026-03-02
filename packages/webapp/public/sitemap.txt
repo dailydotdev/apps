@@ -1,4 +1,4 @@
-https://app.daily.dev/
+https://app.daily.dev/onboarding
 https://app.daily.dev/sources
 https://app.daily.dev/squads
 https://app.daily.dev/squads/discover

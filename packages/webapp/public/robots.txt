@@ -64,7 +64,6 @@ Disallow: /error
 Disallow: /callback
 Disallow: /helloworld
 Disallow: /helloworld/
-Disallow: /onboarding
 Disallow: /welcome
 Disallow: /api/
 
