@@ -895,15 +895,11 @@ const OnboardingV2Page = (): ReactElement => {
               : wrapperEl;
           floaterAnchor.classList.add('onb-eng-floater-anchor');
 
-          const activeInAnchor =
-            floaterAnchor.querySelectorAll('.onb-eng-floater').length;
-          const laneOffset = Math.min(activeInAnchor, 3) * 1.1;
-
           const floater = document.createElement('span');
           floater.className = 'onb-eng-floater';
           floater.style.color = color;
           floater.style.left = '0';
-          floater.style.bottom = `calc(100% + 5px + ${laneOffset}rem)`;
+          floater.style.bottom = 'calc(100% + 2px)';
           floater.textContent = `+${inc}`;
           floaterAnchor.appendChild(floater);
           activeFloaters.add(floater);
@@ -911,10 +907,10 @@ const OnboardingV2Page = (): ReactElement => {
           addTimeout(() => {
             floater.remove();
             activeFloaters.delete(floater);
-          }, 3500);
+          }, 1800);
         }, delayAcc);
 
-        delayAcc += 800 + Math.random() * 1200;
+        delayAcc += 500 + Math.random() * 700;
       });
 
       addTimeout(() => {
@@ -922,11 +918,11 @@ const OnboardingV2Page = (): ReactElement => {
         article.removeAttribute('data-eng-active');
       }, delayAcc + 600);
 
-      addTimeout(runStream, delayAcc + 1500 + Math.random() * 2000);
+      addTimeout(runStream, delayAcc + 800 + Math.random() * 1200);
     };
 
-    addTimeout(runStream, 800);
-    addTimeout(runStream, 3500);
+    addTimeout(runStream, 300);
+    addTimeout(runStream, 1200);
 
     return () => {
       timeouts.forEach(clearTimeout);
@@ -2881,29 +2877,25 @@ const OnboardingV2Page = (): ReactElement => {
           white-space: nowrap;
           pointer-events: none;
           z-index: 2;
-          animation: onb-eng-float-anim 3s ease-out forwards;
-          text-shadow: 0 1px 8px
-            color-mix(in srgb, currentColor 35%, transparent);
+          animation: onb-eng-float-anim 1.5s ease-out forwards;
+          text-shadow: 0 1px 6px
+            color-mix(in srgb, currentColor 30%, transparent);
         }
         @keyframes onb-eng-float-anim {
           0% {
-            transform: translateY(0) scale(0.7);
+            transform: translateY(0) scale(0.8);
             opacity: 0;
           }
-          12% {
-            transform: translateY(-3px) scale(1.1);
+          15% {
+            transform: translateY(-2px) scale(1.05);
             opacity: 1;
           }
-          35% {
-            transform: translateY(-14px) scale(1);
-            opacity: 0.85;
-          }
-          75% {
-            transform: translateY(-32px) scale(0.95);
-            opacity: 0.3;
+          50% {
+            transform: translateY(-10px) scale(1);
+            opacity: 0.7;
           }
           100% {
-            transform: translateY(-44px) scale(0.9);
+            transform: translateY(-20px) scale(0.95);
             opacity: 0;
           }
         }
