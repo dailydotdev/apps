@@ -39,6 +39,9 @@ import { cloudinaryOnboardingExtension } from '@dailydotdev/shared/src/lib/image
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
+import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import type { AuthProps } from '@dailydotdev/shared/src/components/auth/common';
+import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
 import { useRouter } from 'next/router';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -248,6 +251,10 @@ const OnboardingV2Page = (): ReactElement => {
   const [aiPrompt, setAiPrompt] = useState('');
   const [feedReadyState, setFeedReadyState] = useState(false);
   const [showExtensionPromo, setShowExtensionPromo] = useState(false);
+  const [showAuthSignup, setShowAuthSignup] = useState(false);
+  const [authDisplay, setAuthDisplay] = useState(
+    AuthDisplay.OnboardingSignup,
+  );
   const [showSignupChooser, setShowSignupChooser] = useState(false);
   const [showGithubImportFlow, setShowGithubImportFlow] = useState(false);
   const [importFlowSource, setImportFlowSource] =
@@ -275,6 +282,7 @@ const OnboardingV2Page = (): ReactElement => {
   const githubImportTimerRef = useRef<number | null>(null);
   const githubResumeTimeoutRef = useRef<number | null>(null);
   const githubImportBodyContentRef = useRef<HTMLDivElement>(null);
+  const authFormRef = useRef<HTMLFormElement>(null);
 
   const popularFeedNameValue = useMemo(
     () => ({ feedName: SharedFeedPage.Popular as const }),
@@ -411,6 +419,7 @@ const OnboardingV2Page = (): ReactElement => {
       showSignupChooser ||
       showSignupPrompt ||
       showGithubImportFlow ||
+      showAuthSignup ||
       showExtensionPromo ||
       githubImportExiting;
 
@@ -429,6 +438,7 @@ const OnboardingV2Page = (): ReactElement => {
     showSignupChooser,
     showSignupPrompt,
     showGithubImportFlow,
+    showAuthSignup,
     showExtensionPromo,
     githubImportExiting,
   ]);
@@ -587,7 +597,7 @@ const OnboardingV2Page = (): ReactElement => {
             setTimeout(() => {
               setShowGithubImportFlow(false);
               setGithubImportExiting(false);
-              setShowExtensionPromo(true);
+              setShowAuthSignup(true);
             }, 350);
           }, 600);
           return 100;
@@ -722,6 +732,7 @@ const OnboardingV2Page = (): ReactElement => {
       !showSignupChooser &&
       !showSignupPrompt &&
       !showGithubImportFlow &&
+      !showAuthSignup &&
       !showExtensionPromo &&
       !githubImportExiting;
     if (!shouldRun) {
@@ -944,6 +955,7 @@ const OnboardingV2Page = (): ReactElement => {
   }, [
     feedVisible,
     feedReadyState,
+    showAuthSignup,
     showExtensionPromo,
     showGithubImportFlow,
     showSignupChooser,
@@ -1023,6 +1035,12 @@ const OnboardingV2Page = (): ReactElement => {
       options: { isLogin: true },
     });
   }, [showLogin]);
+  const openSignupAuth = useCallback(() => {
+    setShowSignupPrompt(false);
+    setShowSignupChooser(false);
+    setAuthDisplay(AuthDisplay.OnboardingSignup);
+    setShowAuthSignup(true);
+  }, []);
   const isAiSetupContext = signupContext === 'ai' || signupContext === 'manual';
   const canStartAiFlow = aiPrompt.trim().length > 0 || selectedTopics.size > 0;
   const startGithubFlowFromChooser = useCallback(() => {
@@ -3587,6 +3605,53 @@ const OnboardingV2Page = (): ReactElement => {
         />
       )}
 
+      {/* ── Auth Signup Overlay (providers: Google, GitHub, email) ── */}
+      {showAuthSignup && (
+        <div
+          className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Create your account"
+        >
+          <div
+            className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
+            role="presentation"
+          />
+          <div className="onb-modal-enter onb-glass relative z-1 flex max-h-[100dvh] w-full flex-col overflow-y-auto rounded-t-24 border border-white/[0.08] bg-background-default shadow-[0_32px_90px_rgba(0,0,0,0.58)] tablet:max-w-md tablet:rounded-24">
+            <div className="flex w-full flex-col items-center px-5 pb-6 pt-7 tablet:px-6">
+              <h2 className="mb-2 text-center font-bold text-text-primary typo-title2">
+                Create your account
+              </h2>
+              <p className="mb-6 text-center text-text-tertiary typo-callout">
+                Sign up to save your personalized feed.
+              </p>
+              <AuthOptions
+                trigger={AuthTriggers.Onboarding}
+                formRef={authFormRef}
+                defaultDisplay={authDisplay}
+                forceDefaultDisplay
+                simplified
+                onAuthStateUpdate={(props: Partial<AuthProps>) => {
+                  if (props.defaultDisplay) {
+                    setAuthDisplay(props.defaultDisplay);
+                  }
+                }}
+                onSuccessfulRegistration={() => {
+                  setShowAuthSignup(false);
+                  setAuthDisplay(AuthDisplay.OnboardingSignup);
+                  setShowExtensionPromo(true);
+                }}
+                onSuccessfulLogin={() => {
+                  setShowAuthSignup(false);
+                  setAuthDisplay(AuthDisplay.OnboardingSignup);
+                  setShowExtensionPromo(true);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Extension Promotion Overlay ── */}
       {showExtensionPromo && (
         <div
@@ -4458,7 +4523,7 @@ const OnboardingV2Page = (): ReactElement => {
                   <button
                     type="button"
                     className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
-                    onClick={() => setShowSignupPrompt(false)}
+                    onClick={openSignupAuth}
                   >
                     <svg
                       width="20"
@@ -4518,7 +4583,7 @@ const OnboardingV2Page = (): ReactElement => {
                   <button
                     type="button"
                     className="onb-btn-shine group relative w-full overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
-                    onClick={() => setShowSignupPrompt(false)}
+                    onClick={openSignupAuth}
                   >
                     Create free account
                   </button>
