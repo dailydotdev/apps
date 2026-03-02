@@ -20,20 +20,24 @@ export const BriefPostHeaderActions = ({
   notificationClassName,
   isFixedNavigation,
   origin,
+  showShareButton = false,
   ...props
 }: PostHeaderActionsProps & {
   origin: Origin;
+  showShareButton?: boolean;
 }): ReactElement => {
   const { copyLink } = useSharePost(origin);
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       <div className="hidden laptop:block">
-        <Button
-          icon={<LinkIcon />}
-          size={ButtonSize.Medium}
-          onClick={() => copyLink({ post })}
-        />
+        {showShareButton && (
+          <Button
+            icon={<LinkIcon />}
+            size={ButtonSize.Medium}
+            onClick={() => copyLink({ post })}
+          />
+        )}
         <Link passHref href={`${settingsUrl}/notifications`}>
           <Button icon={<SettingsIcon />} tag="a" size={ButtonSize.Medium} />
         </Link>

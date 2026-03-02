@@ -162,14 +162,16 @@
   opacity: 0;
 }
 
-@keyframes gear-medal-spark {
+@keyframes leaderboard-medal-spark {
   0% {
     transform: translate(-50%, -50%) scale(1);
     opacity: 0;
   }
+
   15% {
     opacity: 0.9;
   }
+
   100% {
     transform: translate(
         calc(-50% + var(--spark-fx, 0px)),
@@ -180,11 +182,11 @@
   }
 }
 
-.gear-medal-spark {
+.leaderboard-medal-spark {
   opacity: 0;
 }
 
-.gear-rank-gold:hover {
+.leaderboard-rank-gold:hover {
   box-shadow: 0 0 24px
     color-mix(
       in srgb,
@@ -193,12 +195,12 @@
     );
 }
 
-.gear-rank-silver:hover {
+.leaderboard-rank-silver:hover {
   box-shadow: 0 0 24px
     color-mix(in srgb, var(--theme-text-tertiary) 14%, transparent);
 }
 
-.gear-rank-bronze:hover {
+.leaderboard-rank-bronze:hover {
   box-shadow: 0 0 24px
     color-mix(
       in srgb,

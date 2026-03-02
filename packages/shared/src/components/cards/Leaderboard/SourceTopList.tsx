@@ -13,7 +13,11 @@ export function SourceTopList({
   return (
     <LeaderboardList {...props}>
       {items?.map((item, i) => (
-        <LeaderboardListItem key={item.id} index={i + 1} href={item.permalink}>
+        <LeaderboardListItem
+          key={item.id}
+          index={i + 1}
+          className="flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler"
+        >
           <UserHighlight
             {...item}
             userType={UserType.Source}

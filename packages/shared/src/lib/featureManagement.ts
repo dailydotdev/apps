@@ -69,6 +69,10 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
+export const featureReadingReminderMobile = new Feature(
+  'reading_reminder_mobile',
+  false,
+);
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
@@ -140,3 +144,13 @@ export const installExtensionFeedMenuFeature = new Feature(
   'install_extension_feed_menu',
   false,
 );
+
+export type AgentsLeaderboardEntrypointFeature = {
+  groupId: string;
+  showLabel?: boolean;
+};
+
+export const agentsLeaderboardEntrypointFeature =
+  new Feature<AgentsLeaderboardEntrypointFeature>(
+    'agents_leaderboard_entrypoint',
+  );

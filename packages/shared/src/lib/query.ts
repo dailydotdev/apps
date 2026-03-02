@@ -64,6 +64,7 @@ export enum OtherFeedPage {
   Welcome = 'welcome',
   Discussed = 'discussed',
   Following = 'following',
+  Post = 'posts[id]',
 }
 
 const ONE_MINUTE = 60 * 1000;
@@ -252,6 +253,7 @@ export enum RequestKey {
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
   Arena = 'arena',
+  TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
 }
 

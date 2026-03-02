@@ -83,6 +83,7 @@ export type FeedItemComponentProps = {
     isAd?: boolean,
   ) => unknown;
   virtualizedNumCards: number;
+  disableAdRefresh?: boolean;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -108,6 +109,7 @@ const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Brief]: BriefCard,
   [PostType.Poll]: PollGrid,
   [PostType.SocialTwitter]: SocialTwitterGrid,
+  [PostType.Digest]: ArticleGrid,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,6 +123,7 @@ const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
   [PostType.Brief]: BriefCard,
   [PostType.Poll]: PollList,
   [PostType.SocialTwitter]: SocialTwitterList,
+  [PostType.Digest]: ArticleList,
 };
 
 const getPostTypeForCard = (post?: Post): PostType => {
@@ -234,6 +237,7 @@ function FeedItemComponent({
   onCommentClick,
   onReadArticleClick,
   virtualizedNumCards,
+  disableAdRefresh,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression(
@@ -379,7 +383,11 @@ function FeedItemComponent({
           index={item.index}
           feedIndex={index}
           onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
-          onRefresh={(ad: Ad) => onAdAction(AdActions.Refresh, ad)}
+          onRefresh={
+            disableAdRefresh
+              ? undefined
+              : (ad: Ad) => onAdAction(AdActions.Refresh, ad)
+          }
         />
       );
     case FeedItemType.UserAcquisition:

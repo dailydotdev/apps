@@ -51,23 +51,14 @@ export const useUseSearchSuggestionsContentPreferenceMutationSubscription = ({
             ...data,
             hits: data.hits?.map((hit) => {
               if (hit.id === entityId) {
-                if (!nextStatus) {
-                  return {
-                    ...hit,
-                    contentPreference: undefined,
-                  };
-                }
-
-                if (!hit.contentPreference) {
-                  return hit;
-                }
-
                 return {
                   ...hit,
-                  contentPreference: {
-                    ...hit.contentPreference,
-                    status: nextStatus,
-                  },
+                  contentPreference: nextStatus
+                    ? {
+                        ...hit.contentPreference,
+                        status: nextStatus,
+                      }
+                    : undefined,
                 };
               }
 
