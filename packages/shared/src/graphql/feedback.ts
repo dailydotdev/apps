@@ -16,6 +16,7 @@ export interface FeedbackInput {
   description: string;
   pageUrl?: string;
   userAgent?: string;
+  clientInfo?: Record<string, string | number | undefined>;
   screenshotUrl?: string;
 }
 
