@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { GetStaticPropsResult } from 'next';
+import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
 
 import {
@@ -39,6 +40,34 @@ interface SourcesPageProps {
   topVideoSources: Source[];
 }
 
+const getSourcesSchemas = (sources: Source[]): string =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': 'https://app.daily.dev/sources#collection',
+        url: 'https://app.daily.dev/sources',
+        name: 'Top sources for developer content',
+        description:
+          'Explore the top sources for developer content on daily.dev.',
+      },
+      {
+        '@type': 'ItemList',
+        '@id': 'https://app.daily.dev/sources#items',
+        itemListElement: sources.map((source, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          item: {
+            '@type': 'Thing',
+            name: source.name,
+            url: source.permalink,
+          },
+        })),
+      },
+    ],
+  });
+
 const SourcesPage = ({
   mostRecentSources,
   trendingSources,
@@ -53,8 +82,26 @@ const SourcesPage = ({
     return <></>;
   }
 
+  const allSources = [
+    ...trendingSources,
+    ...popularSources,
+    ...mostRecentSources,
+    ...topVideoSources,
+  ];
+  const uniqueSources = Array.from(
+    new Map(allSources.map((source) => [source.id, source])).values(),
+  ).slice(0, 100);
+
   return (
     <PageWrapperLayout className="py-6">
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: getSourcesSchemas(uniqueSources),
+          }}
+        />
+      </Head>
       <div className="flex justify-between">
         <BreadCrumbs>
           <SitesIcon size={IconSize.XSmall} secondary /> Sources

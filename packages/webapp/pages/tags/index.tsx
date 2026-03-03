@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { GetStaticPropsResult } from 'next';
+import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
@@ -32,6 +33,33 @@ interface TagsPageProps {
   trendingTags: Keyword[];
   popularTags: Keyword[];
 }
+
+const getTagsSchemas = (tags: Keyword[]): string =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': 'https://app.daily.dev/tags#collection',
+        url: 'https://app.daily.dev/tags',
+        name: 'Explore trending tags for developers',
+        description: 'Discover trending, popular, and new tags on daily.dev.',
+      },
+      {
+        '@type': 'ItemList',
+        '@id': 'https://app.daily.dev/tags#items',
+        itemListElement: tags.map((tag, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          item: {
+            '@type': 'Thing',
+            name: tag.value,
+            url: `https://app.daily.dev/tags/${encodeURIComponent(tag.value)}`,
+          },
+        })),
+      },
+    ],
+  });
 
 const TagsPage = ({
   tags,
@@ -85,8 +113,18 @@ const TagsPage = ({
     return <></>;
   }
 
+  const topTagsForSchema = tags.slice(0, 50);
+
   return (
     <PageWrapperLayout className="flex flex-col gap-4">
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: getTagsSchemas(topTagsForSchema),
+          }}
+        />
+      </Head>
       <BreadCrumbs className="mb-2">
         <HashtagIcon size={IconSize.XSmall} secondary /> Tags
       </BreadCrumbs>

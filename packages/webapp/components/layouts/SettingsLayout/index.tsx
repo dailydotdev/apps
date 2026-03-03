@@ -150,6 +150,7 @@ export default function SettingsLayout({
         </button>
       )}
       <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
+        <h1 className="sr-only">Settings</h1>
         {isMobile ? (
           <ProfileSettingsMenuMobile
             shouldKeepOpen
