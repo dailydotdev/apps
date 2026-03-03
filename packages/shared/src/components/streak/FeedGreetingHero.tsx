@@ -10,8 +10,15 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { ReadingDay } from '../../graphql/users';
 import { getReadingStreak30Days } from '../../graphql/users';
 import { isWeekend as isWeekendDay } from '../../lib/date';
+import { apiUrl } from '../../lib/config';
 import { useStreakDebug } from '../../hooks/streaks/useStreakDebug';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
+import {
+  hasShownStreakHeroToday,
+  markStreakHeroShown,
+} from '../../lib/streakHeroSession';
+import { MenuIcon } from '../icons';
+import { IconSize } from '../Icon';
 
 const previewDays = 7;
 
@@ -36,6 +43,19 @@ const greetingByMoment: Record<GreetingMoment, string> = {
   afternoon: 'Good afternoon',
   evening: 'Good evening',
 };
+
+const debugShortcutLinks = [
+  'https://linkedin.com',
+  'https://mail.google.com',
+  'https://youtube.com',
+  'https://x.com',
+  'https://chatgpt.com',
+];
+
+const getShortcutHostname = (url: string): string =>
+  url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
+const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
+const iconSize = Math.round(24 * pixelRatio);
 
 const generateDummyReadDays = (
   streakCount: number,
@@ -75,6 +95,7 @@ export function FeedGreetingHero(): ReactElement | null {
     enabled: !!user?.id && isStreaksEnabled,
   });
   const [isVisible, setIsVisible] = useState(false);
+  const [shouldShowHeroForToday, setShouldShowHeroForToday] = useState(false);
   const [isSystemDark, setIsSystemDark] = useState(() => {
     if (typeof window === 'undefined') {
       return true;
@@ -105,6 +126,15 @@ export function FeedGreetingHero(): ReactElement | null {
     const animationFrame = requestAnimationFrame(() => setIsVisible(true));
     return () => cancelAnimationFrame(animationFrame);
   }, []);
+
+  useEffect(() => {
+    if (isDebugMode) {
+      setShouldShowHeroForToday(true);
+      return;
+    }
+
+    setShouldShowHeroForToday(!hasShownStreakHeroToday(user?.timezone));
+  }, [isDebugMode, user?.timezone]);
 
   const greetingMoment = useMemo(() => {
     if (isDebugMode && feedHeroVariantOverride === 'night') {
@@ -141,6 +171,13 @@ export function FeedGreetingHero(): ReactElement | null {
     [history, user?.timezone],
   );
   const hasReadTodayFinal = hasReadToday || hasReadTodayFromHistory;
+  const shouldHideForCompletedStreak =
+    !isDebugMode && hasReadTodayFinal && effectiveStreak > 0;
+  const shouldHideForEveningTheme =
+    !isDebugMode &&
+    isEvening &&
+    (themeMode === ThemeMode.Light ||
+      (themeMode === ThemeMode.Auto && !isSystemDark));
   const completedBeforeToday = hasReadToday
     ? Math.max(effectiveStreak - 1, 0)
     : effectiveStreak;
@@ -195,19 +232,25 @@ export function FeedGreetingHero(): ReactElement | null {
   );
   const dayLabel = effectiveStreak === 1 ? 'day' : 'days';
 
-  if (
-    !user ||
-    isLoading ||
-    (!isDebugMode && isEvening && themeMode === ThemeMode.Light) ||
-    (!isDebugMode &&
-      isEvening &&
-      themeMode === ThemeMode.Auto &&
-      !isSystemDark) ||
-    !isStreaksEnabled ||
-    !streak ||
-    (isDebugMode && !isFeedHeroVisible) ||
-    (!isDebugMode && hasReadTodayFinal && effectiveStreak > 0)
-  ) {
+  const canRenderHero =
+    !!user &&
+    !isLoading &&
+    !!isStreaksEnabled &&
+    !!streak &&
+    (isDebugMode || shouldShowHeroForToday) &&
+    (!isDebugMode || isFeedHeroVisible) &&
+    !shouldHideForCompletedStreak &&
+    !shouldHideForEveningTheme;
+
+  useEffect(() => {
+    if (!canRenderHero || isDebugMode) {
+      return;
+    }
+
+    markStreakHeroShown(user?.timezone);
+  }, [canRenderHero, isDebugMode, user?.timezone]);
+
+  if (!canRenderHero) {
     return null;
   }
 
@@ -720,65 +763,67 @@ export function FeedGreetingHero(): ReactElement | null {
         </>
       )}
 
-      <div className="z-10 relative mt-12 flex flex-col items-center text-center">
-        <p
-          className={classNames(
-            'relative inline-block font-bold text-text-primary typo-giga3 [font-family:Pacifico,cursive] tablet:typo-giga2',
-            'transition-opacity duration-[2000ms] ease-in-out',
-            isVisible ? 'opacity-100' : 'opacity-0',
-          )}
-        >
-          {isMorning && (
-            <>
-              {/* Butterfly 1 (Top Right) */}
-              <span className="z-10 animate-butterfly-1 absolute -right-12 -top-6 h-6 w-6 text-[#c084fc] opacity-0 blur-[0.5px] drop-shadow-[0_0_12px_rgba(192,132,252,0.9)]">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="animate-butterfly-wing h-full w-full origin-center"
-                >
-                  <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
-                </svg>
-              </span>
-              {/* Butterfly 2 (Bottom Left) */}
-              <span className="z-10 animate-butterfly-2 absolute -bottom-4 -left-10 h-5 w-5 text-[#a855f7] opacity-0 blur-[0.5px] drop-shadow-[0_0_10px_rgba(168,85,247,0.9)]">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="animate-butterfly-wing h-full w-full origin-center"
-                  style={{ animationDelay: '0.05s' }}
-                >
-                  <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
-                </svg>
-              </span>
-              {/* Butterfly 3 (Top Left) */}
-              <span className="z-10 animate-butterfly-3 absolute -left-4 -top-8 h-4 w-4 text-[#d8b4fe] opacity-0 blur-[0.5px] drop-shadow-[0_0_8px_rgba(216,180,254,0.9)]">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="animate-butterfly-wing h-full w-full origin-center"
-                  style={{ animationDelay: '0.1s' }}
-                >
-                  <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
-                </svg>
-              </span>
-            </>
-          )}
-          {greeting}
-        </p>
-        <p
-          className={classNames(
-            'mt-4 max-w-[36rem] text-text-tertiary typo-callout',
-            'transition-opacity delay-500 duration-[2000ms] ease-in-out',
-            isVisible ? 'opacity-100' : 'opacity-0',
-          )}
-        >
-          {effectiveStreak}-{dayLabel} streak. Keep it going today.
-        </p>
-      </div>
+      <div className="relative z-10 flex min-h-[12rem] flex-col items-center justify-center text-center">
+        <div className="flex flex-col items-center">
+          <p
+            className={classNames(
+              'relative inline-block font-bold text-text-primary typo-giga3 [font-family:Pacifico,cursive] tablet:typo-giga2',
+              'transition-opacity duration-[2000ms] ease-in-out',
+              isVisible ? 'opacity-100' : 'opacity-0',
+            )}
+          >
+            {isMorning && (
+              <>
+                {/* Butterfly 1 (Top Right) */}
+                <span className="z-10 animate-butterfly-1 absolute -right-12 -top-6 h-6 w-6 text-[#c084fc] opacity-0 blur-[0.5px] drop-shadow-[0_0_12px_rgba(192,132,252,0.9)]">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="animate-butterfly-wing h-full w-full origin-center"
+                  >
+                    <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
+                  </svg>
+                </span>
+                {/* Butterfly 2 (Bottom Left) */}
+                <span className="z-10 animate-butterfly-2 absolute -bottom-4 -left-10 h-5 w-5 text-[#a855f7] opacity-0 blur-[0.5px] drop-shadow-[0_0_10px_rgba(168,85,247,0.9)]">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="animate-butterfly-wing h-full w-full origin-center"
+                    style={{ animationDelay: '0.05s' }}
+                  >
+                    <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
+                  </svg>
+                </span>
+                {/* Butterfly 3 (Top Left) */}
+                <span className="z-10 animate-butterfly-3 absolute -left-4 -top-8 h-4 w-4 text-[#d8b4fe] opacity-0 blur-[0.5px] drop-shadow-[0_0_8px_rgba(216,180,254,0.9)]">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="animate-butterfly-wing h-full w-full origin-center"
+                    style={{ animationDelay: '0.1s' }}
+                  >
+                    <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
+                  </svg>
+                </span>
+              </>
+            )}
+            {greeting}
+          </p>
+          <p
+            className={classNames(
+              'mt-4 max-w-[36rem] text-text-tertiary typo-callout',
+              'transition-opacity delay-500 duration-[2000ms] ease-in-out',
+              isVisible ? 'opacity-100' : 'opacity-0',
+            )}
+          >
+            {effectiveStreak}-{dayLabel} streak. Keep it going today.
+          </p>
 
-      <div className="z-10 relative mt-6">
-        <div className="flex items-end justify-center gap-2">
+        </div>
+
+        <div className="mt-4">
+          <div className="flex items-end justify-center gap-2">
           {Array.from({ length: previewDays }).map((_, index) => {
             const day = previewDaysDates[index];
             const isToday = index === Math.floor(previewDays / 2);
@@ -825,7 +870,42 @@ export function FeedGreetingHero(): ReactElement | null {
               </span>
             );
           })}
+          </div>
         </div>
+
+        {isDebugMode && (
+          <div className="mt-4 flex max-w-[46rem] flex-wrap items-center justify-center gap-2 px-2">
+            {debugShortcutLinks.map((shortcutUrl) => (
+              <a
+                key={shortcutUrl}
+                href={shortcutUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative mr-4 flex cursor-grab flex-col items-center active:cursor-grabbing"
+              >
+                <div className="relative mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
+                  <img
+                    src={`${apiUrl}/icon?url=${encodeURIComponent(
+                      shortcutUrl,
+                    )}&size=${iconSize}`}
+                    alt={shortcutUrl}
+                    className="size-6"
+                  />
+                  <div className="rounded shadow-1 absolute -bottom-1 left-1/2 flex -translate-x-1/2 items-center justify-center bg-surface-primary opacity-0 transition-opacity group-hover:opacity-100">
+                    <MenuIcon
+                      size={IconSize.XSmall}
+                      className="rotate-90 text-text-quaternary"
+                    />
+                  </div>
+                </div>
+                <span className="max-w-12 truncate text-text-tertiary typo-caption2">
+                  {getShortcutHostname(shortcutUrl)}
+                </span>
+              </a>
+            ))}
+          </div>
+        )}
+
       </div>
     </section>
   );

@@ -6,6 +6,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { LockIcon } from '../icons';
+import { IconSize } from '../Icon';
 import { getCurrentTier, getNextMilestone } from '../../lib/streakMilestones';
 import { MILESTONE_ICON_URLS } from './popup/icons/milestoneIcons';
 
@@ -68,21 +70,30 @@ export function StreakReminderPopover({
         color={TypographyColor.Tertiary}
         className="mb-2"
       >
-        Read today to keep your {currentStreak}-day streak alive.
+        Read today to keep your streak alive.
       </Typography>
 
       {activeMilestone && (
         <div className="mt-2 rounded-12 bg-accent-pepper-subtlest px-2 py-1.5">
-          <div className="flex items-center gap-2">
-            <img
-              src={MILESTONE_ICON_URLS[activeMilestone.tier]}
-              alt={activeMilestone.label}
-              className={classNames(
-                'size-8 object-contain',
-                hasNextMilestone && 'grayscale',
-              )}
-            />
-            <Typography type={TypographyType.Subhead}>
+          <div className="flex min-w-0 items-center gap-2">
+            {hasNextMilestone ? (
+              <div className="flex size-8 items-center justify-center rounded-full bg-surface-float">
+                <LockIcon
+                  size={IconSize.XSmall}
+                  className="text-text-quaternary"
+                />
+              </div>
+            ) : (
+              <img
+                src={MILESTONE_ICON_URLS[activeMilestone.tier]}
+                alt={activeMilestone.label}
+                className="size-8 object-contain"
+              />
+            )}
+            <Typography
+              type={TypographyType.Subhead}
+              className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap"
+            >
               {hasNextMilestone
                 ? `${activeMilestone.label} · ${
                     daysAway === 1 ? '1 day away' : `${daysAway} days away`

@@ -193,9 +193,7 @@ function MilestoneItem({
     helperText,
     isSponsoredMilestone,
   });
-  const shouldShowLockedIcon = !isUnlocked && !isNext;
-  const milestoneIconStyle =
-    isNext && !isSponsoredMilestone ? { filter: 'grayscale(100%)' } : undefined;
+  const shouldShowLockedIcon = !isUnlocked;
   let milestoneIcon: ReactElement;
   if (isSponsoredMilestone) {
     milestoneIcon = (
@@ -218,7 +216,6 @@ function MilestoneItem({
         src={MILESTONE_ICON_URLS[milestone.tier]}
         alt={milestone.label}
         className="relative z-1 size-full object-contain transition-transform duration-300 hover:scale-150 hover:delay-500"
-        style={milestoneIconStyle}
       />
     );
   }
@@ -295,19 +292,6 @@ function MilestoneItem({
       >
         <div className="flex items-center gap-2">
           <Typography
-            type={TypographyType.Footnote}
-            color={
-              isNext ? TypographyColor.Secondary : TypographyColor.Quaternary
-            }
-            className={classNames(
-              'rounded-6 px-1.5 py-0.5',
-              isNext && 'bg-accent-bacon-default font-bold text-white',
-              (isUnlocked || (!isUnlocked && !isNext)) && 'bg-surface-float',
-            )}
-          >
-            {`${milestone.day}d`}
-          </Typography>
-          <Typography
             bold
             type={TypographyType.Subhead}
             color={
@@ -332,6 +316,19 @@ function MilestoneItem({
           )}
         </div>
         <div className="flex min-w-0 items-center gap-1">
+          <Typography
+            type={TypographyType.Footnote}
+            color={
+              isNext ? TypographyColor.Secondary : TypographyColor.Quaternary
+            }
+            className={classNames(
+              'shrink-0 rounded-6 px-1.5 py-0.5',
+              isNext && 'bg-accent-bacon-default font-bold text-white',
+              (isUnlocked || (!isUnlocked && !isNext)) && 'bg-surface-float',
+            )}
+          >
+            {`${milestone.day}d`}
+          </Typography>
           <Typography
             type={TypographyType.Subhead}
             color={milestoneDescriptionColor}

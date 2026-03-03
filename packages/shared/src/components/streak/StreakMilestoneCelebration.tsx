@@ -11,15 +11,32 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { IconSize } from '../Icon';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonSize } from '../buttons/Button';
 import { MilestoneShareActions } from './MilestoneShareActions';
+import CloseButton from '../CloseButton';
 
-type CelebrationPhase = 'enter' | 'reveal' | 'rewards';
+type CelebrationPhase =
+  | 'enter'
+  | 'showcase'
+  | 'shrink'
+  | 'popover';
 
 interface StreakMilestoneCelebrationProps {
   milestone: StreakMilestone;
   streakDay: number;
   onComplete: () => void;
+}
+
+interface CelebrationLayout {
+  badgeStartX: number;
+  badgeStartY: number;
+  badgeStartSize: number;
+  badgeEndX: number;
+  badgeEndY: number;
+  badgeEndSize: number;
+  popoverLeft: number;
+  popoverTop: number;
+  popoverWidth: number;
 }
 
 const rewardIcon: Record<RewardType, string> = {
@@ -57,6 +74,36 @@ const generateParticles = (count: number): Particle[] =>
     color: PARTICLE_COLORS[i % PARTICLE_COLORS.length],
   }));
 
+const POPOVER_MAX_WIDTH = 420;
+const VIEWPORT_PADDING = 16;
+const POPOVER_ICON_CENTER_OFFSET_Y = 76;
+
+const getCelebrationLayout = (): CelebrationLayout => {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const badgeStartSize = Math.min(224, Math.max(viewportWidth - 64, 120));
+  const badgeStartX = viewportWidth / 2;
+  const badgeStartY = viewportHeight / 2;
+  const popoverWidth = Math.min(
+    POPOVER_MAX_WIDTH,
+    Math.max(viewportWidth - VIEWPORT_PADDING * 2, 280),
+  );
+  const popoverLeft = Math.max((viewportWidth - popoverWidth) / 2, VIEWPORT_PADDING);
+  const popoverTop = Math.max((viewportHeight - 560) / 2, VIEWPORT_PADDING);
+
+  return {
+    badgeStartX,
+    badgeStartY,
+    badgeStartSize,
+    badgeEndX: popoverLeft + popoverWidth / 2,
+    badgeEndY: popoverTop + POPOVER_ICON_CENTER_OFFSET_Y,
+    badgeEndSize: 120,
+    popoverLeft,
+    popoverTop,
+    popoverWidth,
+  };
+};
+
 export function StreakMilestoneCelebration({
   milestone,
   streakDay,
@@ -64,23 +111,45 @@ export function StreakMilestoneCelebration({
 }: StreakMilestoneCelebrationProps): ReactElement | null {
   const [phase, setPhase] = useState<CelebrationPhase>('enter');
   const particles = useMemo(() => generateParticles(20), []);
+  const [layout, setLayout] = useState<CelebrationLayout | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const updateLayout = () => {
+      setLayout(getCelebrationLayout());
+    };
+
+    updateLayout();
+    window.addEventListener('resize', updateLayout);
+
+    return () => {
+      window.removeEventListener('resize', updateLayout);
+    };
+  }, []);
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase('reveal'), 100),
-      setTimeout(() => setPhase('rewards'), 800),
+      setTimeout(() => setPhase('showcase'), 80),
+      setTimeout(() => setPhase('shrink'), 900),
+      setTimeout(() => setPhase('popover'), 1340),
     ];
 
     return () => timers.forEach(clearTimeout);
   }, []);
 
   const isVisible = phase !== 'enter';
-  const showRewards = phase === 'rewards';
+  const showTravelBadge =
+    phase === 'showcase' || phase === 'shrink' || phase === 'popover';
+  const showPopover = phase === 'popover';
+  const showRewards = showPopover;
 
   return (
     <RootPortal>
       <div
-        className="fixed inset-0 z-max flex items-center justify-center"
+        className="fixed inset-0 z-max p-4"
         style={{
           opacity: 1,
           transition: 'opacity 0.6s ease-out',
@@ -95,116 +164,138 @@ export function StreakMilestoneCelebration({
           }}
         />
 
-        {isVisible &&
-          particles.map((p) => (
-            <div
-              key={p.id}
-              className="absolute rounded-full"
-              style={{
-                left: `${p.x}%`,
-                top: `${p.y}%`,
-                width: p.size,
-                height: p.size,
-                background: p.color,
-                opacity: 0,
-                animation: `streak-particle ${p.duration}s ease-out ${p.delay}s forwards`,
-              }}
-            />
-          ))}
-
-        <div
-          className="relative z-1 flex w-full max-w-[320px] flex-col items-center gap-4 px-4"
-          style={{
-            transform: isVisible ? 'scale(1)' : 'scale(0.5)',
-            opacity: isVisible ? 1 : 0,
-            transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-          }}
-        >
+        {showTravelBadge && layout && (
           <div
-            className="flex items-center justify-center"
+            className="pointer-events-none absolute z-2 flex items-center justify-center"
             style={{
-              width: 120,
-              height: 120,
-              filter: 'drop-shadow(0 0 30px rgba(255, 149, 0, 0.5))',
+              left: phase === 'showcase' ? layout.badgeStartX : layout.badgeEndX,
+              top: phase === 'showcase' ? layout.badgeStartY : layout.badgeEndY,
+              width:
+                phase === 'showcase'
+                  ? layout.badgeStartSize
+                  : layout.badgeEndSize,
+              height:
+                phase === 'showcase'
+                  ? layout.badgeStartSize
+                  : layout.badgeEndSize,
+              opacity: 1,
+              transform: 'translate(-50%, -50%)',
+              transition:
+                'left 0.38s cubic-bezier(0.4, 0, 0.2, 1), top 0.38s cubic-bezier(0.4, 0, 0.2, 1), width 0.38s cubic-bezier(0.4, 0, 0.2, 1), height 0.38s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease-out',
+              filter: 'drop-shadow(0 0 42px rgba(255, 149, 0, 0.58))',
             }}
           >
+            {particles.map((p) => (
+              <div
+                key={p.id}
+                className="pointer-events-none absolute rounded-full"
+                style={{
+                  left: `${p.x}%`,
+                  top: `${p.y}%`,
+                  width: p.size,
+                  height: p.size,
+                  background: p.color,
+                  opacity: 0,
+                  animation: `streak-particle ${p.duration}s ease-out ${p.delay}s forwards`,
+                }}
+              />
+            ))}
             <img
               src={MILESTONE_ICON_URLS[milestone.tier]}
               alt={milestone.label}
-              className="size-full object-contain transition-transform duration-300 hover:scale-150"
+              className="relative z-1 size-full object-contain"
             />
           </div>
+        )}
 
-          <div className="flex flex-col items-center gap-1">
-            <Typography
-              bold
-              type={TypographyType.LargeTitle}
-              className="text-accent-bacon-default"
-            >
-              {milestone.label}
-            </Typography>
-            <Typography
-              type={TypographyType.Body}
-              color={TypographyColor.Primary}
-              bold
-            >
-              Day {streakDay} Milestone!
-            </Typography>
-          </div>
-
-          {showRewards && milestone.rewards.length > 0 && (
-            <div
-              className="bg-background-default/80 flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-3"
-              style={{
-                opacity: showRewards ? 1 : 0,
-                transform: showRewards ? 'translateY(0)' : 'translateY(8px)',
-                transition: 'all 0.4s ease-out',
-              }}
-            >
-              <Typography
-                bold
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-                className="uppercase tracking-wider"
+        {showPopover && layout && (
+          <div
+            className="absolute z-1 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2"
+            style={{
+              left: layout.popoverLeft,
+              top: layout.popoverTop,
+              width: layout.popoverWidth,
+              transform: showPopover ? 'scale(1)' : 'scale(0.9)',
+              opacity: showPopover ? 1 : 0,
+              transition: 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            }}
+          >
+            <CloseButton
+              size={ButtonSize.Small}
+              className="absolute right-2 top-2 z-2"
+              onClick={onComplete}
+            />
+            <div className="relative z-1 flex flex-col items-center gap-4">
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  width: 120,
+                  height: 120,
+                }}
               >
-                Rewards Unlocked
-              </Typography>
-              {milestone.rewards.map((reward) => (
-                <div
-                  key={reward.description}
-                  className="flex items-center gap-2"
+                {/* Keep layout space while the traveling badge remains visible */}
+                <span className="size-full" aria-hidden />
+              </div>
+
+              <div className="flex flex-col items-center gap-1">
+                <Typography
+                  bold
+                  type={TypographyType.LargeTitle}
+                  className="text-accent-bacon-default"
                 >
-                  {reward.type === RewardType.Cores ? (
-                    <CoreIcon size={IconSize.XSmall} />
-                  ) : (
-                    <span>{rewardIcon[reward.type]}</span>
-                  )}
+                  {milestone.label}
+                </Typography>
+                <Typography
+                  type={TypographyType.Body}
+                  color={TypographyColor.Primary}
+                  bold
+                >
+                  Day {streakDay} Milestone!
+                </Typography>
+              </div>
+
+              {showRewards && milestone.rewards.length > 0 && (
+                <div
+                  className="bg-background-default/80 flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-3"
+                >
                   <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Primary}
+                    bold
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                    className="uppercase tracking-wider"
                   >
-                    {reward.description}
+                    Rewards Unlocked
                   </Typography>
+                  {milestone.rewards.map((reward) => (
+                    <div
+                      key={reward.description}
+                      className="flex items-center gap-2"
+                    >
+                      {reward.type === RewardType.Cores ? (
+                        <CoreIcon size={IconSize.XSmall} />
+                      ) : (
+                        <span>{rewardIcon[reward.type]}</span>
+                      )}
+                      <Typography
+                        type={TypographyType.Callout}
+                        color={TypographyColor.Primary}
+                      >
+                        {reward.description}
+                      </Typography>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
+              {showRewards && (
+                <div className="mt-3 flex w-full flex-col items-center">
+                  <MilestoneShareActions
+                    message={`I just reached ${milestone.label} (${streakDay} day streak) on daily.dev`}
+                  />
+                </div>
+              )}
             </div>
-          )}
-          {showRewards && (
-            <div className="mt-3 flex w-full flex-col items-center gap-8">
-              <MilestoneShareActions
-                message={`I just reached ${milestone.label} (${streakDay} day streak) on daily.dev`}
-              />
-              <Button
-                className="w-full max-w-[320px] text-white"
-                onClick={onComplete}
-                size={ButtonSize.Medium}
-                variant={ButtonVariant.Float}
-              >
-                Close
-              </Button>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <style>{`

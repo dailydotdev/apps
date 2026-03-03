@@ -27,13 +27,18 @@ import {
 } from '../../hooks/streaks/useStreakUrgency';
 import { useStreakDebug } from '../../hooks/streaks/useStreakDebug';
 import { getCurrentTier, getMilestoneAtDay } from '../../lib/streakMilestones';
-import { StreakIncrementPopover } from './StreakIncrementPopover';
+import {
+  hasShownStreakHeroInSession,
+  hasShownStreakHeroToday,
+} from '../../lib/streakHeroSession';
 import { StreakBrokenPopover } from './StreakBrokenPopover';
-import { StreakReminderPopover } from './StreakReminderPopover';
 import { StreakMilestoneCelebration } from './StreakMilestoneCelebration';
+import { StreakIncrementToastMessage } from './StreakIncrementToastMessage';
+import { StreakReminderToastMessage } from './StreakReminderToastMessage';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Switch } from '../fields/Switch';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -110,6 +115,7 @@ export function ReadingStreakButton({
   className,
 }: ReadingStreakButtonProps): ReactElement {
   const { openModal } = useLazyModal();
+  const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -117,7 +123,6 @@ export function ReadingStreakButton({
   const isTablet = useViewSize(ViewSize.Tablet);
   const debug = useStreakDebug();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
-  const [showStreakAsDrawer, setShowStreakAsDrawer] = useState(false);
   const [debugPos, setDebugPos] = useState({ x: 16, y: 16 });
   const [milestoneClaimResetNonce, setMilestoneClaimResetNonce] = useState(0);
   const dragRef = useRef<{
@@ -140,8 +145,8 @@ export function ReadingStreakButton({
   const { animationState, previousStreak } = useStreakIncrement(
     streak?.current,
   );
+  const shownIncrementToastKeyRef = useRef<string | null>(null);
   const [showBrokenPopover, setShowBrokenPopover] = useState(false);
-  const [showReminderPopover, setShowReminderPopover] = useState(false);
   const isStreaksEnabled = !!streak && !isDebugStreakInactive;
   const urgency = useStreakUrgency(
     !!hasReadToday,
@@ -180,7 +185,21 @@ export function ReadingStreakButton({
   const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
 
   useEffect(() => {
-    if (isTesting || isLoading || !streak || !user?.id || hasReadToday) {
+    if (
+      isTesting ||
+      isLoading ||
+      !streak ||
+      !user?.id ||
+      hasReadToday ||
+      (urgency !== UrgencyLevel.Medium && urgency !== UrgencyLevel.High)
+    ) {
+      return;
+    }
+
+    const wasHeroShownToday = hasShownStreakHeroToday(user?.timezone);
+    const wasHeroShownInSession = hasShownStreakHeroInSession();
+
+    if (!wasHeroShownToday || wasHeroShownInSession) {
       return;
     }
 
@@ -196,8 +215,47 @@ export function ReadingStreakButton({
       // Fallback for environments where sessionStorage is unavailable.
     }
 
-    requestAnimationFrame(() => setShowReminderPopover(true));
-  }, [hasReadToday, isLoading, streak, user?.id]);
+    requestAnimationFrame(() =>
+      displayToast(
+        <StreakReminderToastMessage currentStreak={effectiveStreak ?? 0} />,
+        { timer: 5000 },
+      ),
+    );
+  }, [
+    displayToast,
+    effectiveStreak,
+    hasReadToday,
+    isLoading,
+    streak,
+    urgency,
+    user?.id,
+    user?.timezone,
+  ]);
+
+  const showIncrementAnimation =
+    debug.features.animatedCounter && effectiveAnimation === 'incrementing';
+  const isDebugIncrement = debug.debugAnimationOverride === 'incrementing';
+  const shouldShowIncrementToast =
+    showIncrementAnimation && (isDebugIncrement || !hitMilestone);
+
+  useEffect(() => {
+    if (!shouldShowIncrementToast) {
+      shownIncrementToastKeyRef.current = null;
+      return;
+    }
+
+    const day = effectiveStreak ?? 1;
+    const toastKey = `${day.toString()}-${isDebugIncrement ? 'debug' : 'live'}`;
+
+    if (shownIncrementToastKeyRef.current === toastKey) {
+      return;
+    }
+
+    shownIncrementToastKeyRef.current = toastKey;
+    displayToast(<StreakIncrementToastMessage currentStreak={day} />, {
+      timer: 5000,
+    });
+  }, [displayToast, effectiveStreak, isDebugIncrement, shouldShowIncrementToast]);
 
   if (isLoading) {
     return <div className="h-8 w-14 rounded-12 bg-surface-float" />;
@@ -210,14 +268,9 @@ export function ReadingStreakButton({
   const urgencyMessage = debug.features.urgencyNudges
     ? urgencyTooltipMessages[effectiveUrgency]
     : undefined;
-  const showIncrementAnimation =
-    debug.features.animatedCounter && effectiveAnimation === 'incrementing';
-  const isDebugIncrement = debug.debugAnimationOverride === 'incrementing';
   const showStreakBroken = showBrokenPopover || effectiveAnimation === 'broken';
   const showUrgencyAnimation = debug.features.urgencyNudges;
-  const isTabletOnly = isTablet && !isLaptop;
-  const shouldOpenInDrawer =
-    isMobile || isTabletOnly || (debug.isDebugMode && showStreakAsDrawer);
+  const shouldOpenInDrawer = true;
   const debugActionButtonClassName =
     'inline-flex items-center justify-center gap-2 rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover';
   const debugIconClassName =
@@ -292,19 +345,10 @@ export function ReadingStreakButton({
             )}
             {!compact && ' reading days'}
           </Button>
-          {showIncrementAnimation && (isDebugIncrement || !hitMilestone) && (
-            <StreakIncrementPopover
-              fromStreak={Math.max((effectiveStreak ?? 1) - 1, 0)}
-              toStreak={effectiveStreak ?? 1}
-            />
-          )}
           {showStreakBroken && (
             <StreakBrokenPopover
               previousStreak={previousStreak ?? effectiveStreak ?? 0}
             />
-          )}
-          {showReminderPopover && (
-            <StreakReminderPopover currentStreak={effectiveStreak ?? 0} />
           )}
         </div>
       </ConditionalWrapper>
@@ -432,23 +476,22 @@ export function ReadingStreakButton({
           <button
             type="button"
             onClick={() => {
-              setShowReminderPopover(false);
-              requestAnimationFrame(() => setShowReminderPopover(true));
+              requestAnimationFrame(() =>
+                displayToast(
+                  <StreakReminderToastMessage
+                    currentStreak={effectiveStreak ?? 0}
+                  />,
+                  {
+                    timer: 5000,
+                  },
+                ),
+              );
             }}
             className={debugActionButtonClassName}
           >
             <span>Play Reminder</span>
             <span className={debugIconClassName}>🔔</span>
           </button>
-          <Switch
-            inputId="streak-debug-drawer-mode"
-            name="streak-debug-drawer-mode"
-            checked={showStreakAsDrawer}
-            onToggle={() => setShowStreakAsDrawer((value) => !value)}
-            className="rounded-8 bg-surface-float px-3 py-2 hover:bg-surface-hover"
-          >
-            Open as right drawer
-          </Switch>
           <Switch
             inputId="streak-debug-feed-hero"
             name="streak-debug-feed-hero"

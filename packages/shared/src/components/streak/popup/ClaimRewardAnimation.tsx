@@ -259,15 +259,14 @@ export function ClaimRewardAnimation({
                     : 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
               }}
             >
-              <div style={{ width: 160, height: 160 }}>
-                <CoreIcon className="h-full w-full" />
+              <div className="flex items-center gap-2">
+                <div style={{ width: 160, height: 160 }}>
+                  <CoreIcon className="h-full w-full" />
+                </div>
+                <span className="whitespace-nowrap font-bold text-white typo-giga1">
+                  +{reward.amount}
+                </span>
               </div>
-              <span
-                className="absolute whitespace-nowrap font-bold text-text-primary typo-giga1"
-                style={{ top: 0, right: -16, transform: 'translate(100%, 0)' }}
-              >
-                +{reward.amount}
-              </span>
             </div>
           </>
         )}
