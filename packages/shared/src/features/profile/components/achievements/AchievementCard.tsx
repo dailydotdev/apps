@@ -36,6 +36,8 @@ interface AchievementCardProps {
   isTracked?: boolean;
   isTrackPending?: boolean;
   onTrack?: (achievementId: string) => Promise<void>;
+  onUntrack?: () => Promise<void>;
+  isUntrackPending?: boolean;
 }
 
 export function AchievementCard({
@@ -44,6 +46,8 @@ export function AchievementCard({
   isTracked = false,
   isTrackPending = false,
   onTrack,
+  onUntrack,
+  isUntrackPending = false,
 }: AchievementCardProps): ReactElement {
   const { achievement, progress, unlockedAt } = userAchievement;
   const targetCount = getTargetCount(achievement);
@@ -58,9 +62,6 @@ export function AchievementCard({
     rarityTier === AchievementRarityTier.Emerald
       ? '<1%'
       : `${Math.round(achievement.rarity ?? 0)}%`;
-  const statusPillClassName =
-    'inline-flex h-8 items-center gap-1 rounded-10 border border-border-subtlest-primary bg-surface-hover px-3';
-
   return (
     <div
       className={classNames(
@@ -163,16 +164,16 @@ export function AchievementCard({
       {!isUnlocked && isOwner && onTrack && (
         <div className="mt-3 flex min-h-8 items-center">
           {isTracked ? (
-            <div className={statusPillClassName}>
-              <PinIcon className="size-4 text-text-secondary" />
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
-                bold
-              >
-                Tracking
-              </Typography>
-            </div>
+            <Button
+              className="self-start"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Subtle}
+              icon={<PinIcon />}
+              disabled={isUntrackPending}
+              onClick={() => onUntrack?.()}
+            >
+              Stop tracking
+            </Button>
           ) : (
             <Button
               className="self-start"

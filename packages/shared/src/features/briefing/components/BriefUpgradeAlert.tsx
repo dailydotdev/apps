@@ -10,8 +10,11 @@ import { BriefPlusUpgradeCTA } from './BriefPlusUpgradeCTA';
 
 export const BriefUpgradeAlert = ({
   className,
+  text = 'Get unlimited access to every past and future presidential briefing with daily.dev Plus.',
   ...attrs
-}: ComponentProps<'div'>) => {
+}: ComponentProps<'div'> & {
+  text?: string;
+}) => {
   return (
     <div
       style={{
@@ -27,8 +30,7 @@ export const BriefUpgradeAlert = ({
         type={TypographyType.Callout}
         className="w-full flex-1 tablet:w-auto"
       >
-        Get unlimited access to every past and future presidential briefing with
-        daily.dev Plus.
+        {text}
       </Typography>
       <BriefPlusUpgradeCTA />
     </div>

@@ -78,6 +78,7 @@ export enum AuthTriggers {
   Opportunity = 'opportunity',
   RecruiterSelfServe = 'recruiter self serve',
   AiFluencyQuiz = 'ai fluency quiz',
+  Gear = 'gear',
 }
 
 export type AuthTriggersType =

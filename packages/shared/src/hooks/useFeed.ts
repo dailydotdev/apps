@@ -101,6 +101,7 @@ type UseFeedSettingParams = {
   marketingCta?: MarketingCta;
   plusEntry?: MarketingCta;
   feedName?: string;
+  staticAd?: { ad: Ad; index: number };
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -390,6 +391,18 @@ export default function useFeed<T>(
         }),
       );
     }
+
+    if (settings?.staticAd && feedQuery.data && newItems.length > 0) {
+      const insertAt = Math.min(settings.staticAd.index, newItems.length);
+      newItems.splice(insertAt, 0, {
+        type: FeedItemType.Ad,
+        ad: settings.staticAd.ad,
+        index: 0,
+        updatedAt: Date.now(),
+        dataUpdatedAt: Date.now(),
+      } as AdItem);
+    }
+
     return newItems;
   }, [
     feedQuery.data,
@@ -400,6 +413,7 @@ export default function useFeed<T>(
     placeholdersPerPage,
     getAd,
     settings.plusEntry,
+    settings.staticAd,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

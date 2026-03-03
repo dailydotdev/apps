@@ -2,16 +2,13 @@ import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { EmptyResponse } from './emptyResponse';
 
-/**
- * @generated from enum dailydotdev.bragi.pipelines.FeedbackCategory
- */
 export enum FeedbackCategory {
   Unspecified = 0,
   BugReport = 1,
   FeatureRequest = 2,
-  UxIssue = 3,
-  PerformanceComplaint = 4,
-  ContentQuality = 5,
+  UxIssue = 5,
+  PerformanceComplaint = 6,
+  ContentQuality = 7,
 }
 
 export interface FeedbackInput {
@@ -19,6 +16,7 @@ export interface FeedbackInput {
   description: string;
   pageUrl?: string;
   userAgent?: string;
+  clientInfo?: Record<string, string | number | undefined>;
   screenshotUrl?: string;
 }
 

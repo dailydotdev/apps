@@ -1,15 +1,28 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { ArenaIcon } from '../../../components/icons/Arena';
 import { IconSize } from '../../../components/Icon';
+import {
+  Button,
+  ButtonGroup,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { Dropdown } from '../../../components/fields/Dropdown';
 import type { ArenaTab } from './types';
 import { ARENA_TABS } from './config';
-import { computeRankings, computeCrowns } from './arenaMetrics';
+import {
+  COMPARISON_METRIC_OPTIONS,
+  computeComparisonSeries,
+  computeRankings,
+  computeCrowns,
+} from './arenaMetrics';
 import { ArenaCrownCards } from './ArenaCrownCards';
 import { ArenaRankings } from './ArenaRankings';
 import { ArenaHighlightsFeed } from './ArenaHighlightsFeed';
+import { ArenaComparisonChart } from './ArenaComparisonChart';
 import { arenaOptions } from './queries';
 
 interface ArenaPageProps {
@@ -31,6 +44,11 @@ export const ArenaPage = ({
   headerAside,
 }: ArenaPageProps): ReactElement => {
   const { data, isFetching } = useQuery(arenaOptions({ groupId: activeTab }));
+  const [rankingsView, setRankingsView] = useState<'table' | 'comparison'>(
+    'table',
+  );
+  const [comparisonMetric, setComparisonMetric] =
+    useState<(typeof COMPARISON_METRIC_OPTIONS)[number]['value']>('d-index');
 
   const rankings = useMemo(
     () =>
@@ -46,6 +64,18 @@ export const ArenaPage = ({
 
   const crowns = useMemo(() => computeCrowns(rankings), [rankings]);
   const loading = isFetching && !data;
+  const comparisonSeries = useMemo(() => {
+    if (!data?.sentimentTimeSeries) {
+      return [];
+    }
+
+    return computeComparisonSeries({
+      nodes: data.sentimentTimeSeries.entities.nodes,
+      rankings,
+      metric: comparisonMetric,
+      resolutionSeconds: data.sentimentTimeSeries.resolutionSeconds,
+    });
+  }, [comparisonMetric, data?.sentimentTimeSeries, rankings]);
 
   return (
     <div className="relative mx-auto flex w-full max-w-6xl flex-col">
@@ -96,20 +126,82 @@ export const ArenaPage = ({
         </div>
       </nav>
 
-      <div className="flex flex-col gap-6 px-4 py-6 laptop:px-6 laptopL:px-0">
+      <div className="flex flex-col gap-4 px-4 py-6 laptop:px-6 laptopL:px-0">
         <section>
-          <ArenaCrownCards crowns={crowns} loading={loading} />
+          <ArenaCrownCards crowns={crowns} tab={activeTab} loading={loading} />
+        </section>
+
+        <section className="-my-1 flex items-center justify-start">
+          <ButtonGroup>
+            <Button
+              type="button"
+              variant={
+                rankingsView === 'table'
+                  ? ButtonVariant.Float
+                  : ButtonVariant.Tertiary
+              }
+              size={ButtonSize.Small}
+              onClick={() => setRankingsView('table')}
+            >
+              Table
+            </Button>
+            <Button
+              type="button"
+              variant={
+                rankingsView === 'comparison'
+                  ? ButtonVariant.Float
+                  : ButtonVariant.Tertiary
+              }
+              size={ButtonSize.Small}
+              onClick={() => setRankingsView('comparison')}
+            >
+              Comparison
+            </Button>
+          </ButtonGroup>
         </section>
 
         <div className="flex flex-col gap-6 laptopL:grid laptopL:grid-cols-[3fr_2fr]">
           <section className="min-w-0">
-            <ArenaRankings tools={rankings} loading={loading} />
+            {rankingsView === 'comparison' ? (
+              <ArenaComparisonChart
+                series={comparisonSeries}
+                metric={comparisonMetric}
+                tab={activeTab}
+                loading={loading}
+                metricControl={
+                  <div className="w-full tablet:w-[10rem]">
+                    <Dropdown
+                      selectedIndex={COMPARISON_METRIC_OPTIONS.findIndex(
+                        (option) => option.value === comparisonMetric,
+                      )}
+                      options={COMPARISON_METRIC_OPTIONS.map(
+                        (option) => option.label,
+                      )}
+                      onChange={(_, index) =>
+                        setComparisonMetric(
+                          COMPARISON_METRIC_OPTIONS[index].value,
+                        )
+                      }
+                      buttonSize={ButtonSize.Small}
+                      placeholder="Metric"
+                    />
+                  </div>
+                }
+              />
+            ) : (
+              <ArenaRankings
+                tools={rankings}
+                tab={activeTab}
+                loading={loading}
+              />
+            )}
           </section>
           <aside className="relative">
             <div className="laptopL:absolute laptopL:inset-0">
               <ArenaHighlightsFeed
                 key={activeTab}
                 items={data?.sentimentHighlights?.items ?? []}
+                tab={activeTab}
                 loading={loading}
               />
             </div>

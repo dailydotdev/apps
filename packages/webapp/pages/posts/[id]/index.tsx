@@ -108,6 +108,12 @@ const SocialTwitterPostContent = dynamic(() =>
   ).then((module) => module.SocialTwitterPostContent),
 );
 
+const DigestPostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazyDigestPostContent" */ '@dailydotdev/shared/src/components/post/digest/DigestPostContent'
+  ).then((module) => module.DigestPostContent),
+);
+
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
@@ -125,6 +131,7 @@ const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   [PostType.Brief]: BriefPostContent,
   [PostType.Poll]: PollPostContent,
   [PostType.SocialTwitter]: SocialTwitterPostContent,
+  [PostType.Digest]: DigestPostContent,
 };
 
 export interface PostParams extends ParsedUrlQuery {

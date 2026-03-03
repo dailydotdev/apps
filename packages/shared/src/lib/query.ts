@@ -64,6 +64,7 @@ export enum OtherFeedPage {
   Welcome = 'welcome',
   Discussed = 'discussed',
   Following = 'following',
+  Post = 'posts[id]',
 }
 
 const ONE_MINUTE = 60 * 1000;
@@ -245,11 +246,14 @@ export enum RequestKey {
   UserWorkspacePhotos = 'user_workspace_photos',
   Gear = 'gear',
   GearSearch = 'gear_search',
+  PopularGear = 'popular_gear',
+  GearCategories = 'gear_categories',
   PersonalAccessTokens = 'personal_access_tokens',
   UserAchievements = 'user_achievements',
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
   Arena = 'arena',
+  TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
 }
 

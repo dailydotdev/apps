@@ -18,6 +18,7 @@ import { HourDropdown } from '../fields/HourDropdown';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
 import { isMutingDigestCompletely, NotificationType } from './utils';
+import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { LazyModal } from '../modals/common/types';
 import { getPathnameWithQuery, labels } from '../../lib';
 import { OpenLinkIcon } from '../icons';
@@ -33,7 +34,11 @@ const briefingCopy = `Your AI agent scans the entire dev landscape (posts,
                     control when and how often you get them.`;
 
 const PresidentialBriefingNotification = () => {
-  const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
+  const {
+    notificationSettings: ns,
+    toggleSetting,
+    setNotificationStatus,
+  } = useNotificationSettings();
   const router = useRouter();
   const { isPlus } = usePlusSubscription();
   const { isPushSupported } = usePushNotificationContext();
@@ -113,6 +118,11 @@ const PresidentialBriefingNotification = () => {
       unsubscribePersonalizedDigest({
         type: UserPersonalizedDigestType.Digest,
       });
+      setNotificationStatus(
+        NotificationType.DigestReady,
+        'inApp',
+        NotificationPreferenceStatus.Muted,
+      );
       subscribePersonalizedDigest({
         type: UserPersonalizedDigestType.Brief,
         sendType: SendType.Daily,

@@ -162,6 +162,53 @@
   opacity: 0;
 }
 
+@keyframes leaderboard-medal-spark {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: translate(
+        calc(-50% + var(--spark-fx, 0px)),
+        calc(-50% + var(--spark-fy, 0px))
+      )
+      scale(0);
+    opacity: 0;
+  }
+}
+
+.leaderboard-medal-spark {
+  opacity: 0;
+}
+
+.leaderboard-rank-gold:hover {
+  box-shadow: 0 0 24px
+    color-mix(
+      in srgb,
+      var(--theme-accent-cheese-default) 18%,
+      transparent
+    );
+}
+
+.leaderboard-rank-silver:hover {
+  box-shadow: 0 0 24px
+    color-mix(in srgb, var(--theme-text-tertiary) 14%, transparent);
+}
+
+.leaderboard-rank-bronze:hover {
+  box-shadow: 0 0 24px
+    color-mix(
+      in srgb,
+      var(--theme-accent-bacon-default) 18%,
+      transparent
+    );
+}
+
 @keyframes crown-icon-bloom-pulse {
   0%,
   60%,
@@ -555,4 +602,26 @@
       1px
       0
       color-mix(in srgb, var(--theme-accent-avocado-default) 30%, transparent) !important;
+}
+
+@keyframes agent-live-radar-sweep {
+  0% {
+    transform: rotate(0deg);
+    opacity: 0.65;
+  }
+
+  16.7% {
+    transform: rotate(360deg);
+    opacity: 0.65;
+  }
+
+  20.8%,
+  100% {
+    transform: rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.agent-live-radar-sweep {
+  animation: agent-live-radar-sweep 20s linear infinite;
 }

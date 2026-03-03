@@ -354,6 +354,7 @@ const BriefPostContentRaw = ({
                 onClose={onClose}
                 origin={origin}
                 contextMenuId="post-widgets-context"
+                showShareButton
               />
             </BriefPostHeader>
             <div className="-mt-3 flex flex-wrap items-center gap-3 mobileXL:flex-nowrap">

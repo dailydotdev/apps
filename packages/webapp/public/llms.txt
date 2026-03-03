@@ -64,10 +64,8 @@ Markdown versions of key pages for AI agents:
 
 ## Sitemaps
 
+- [Sitemap Index](/sitemap.xml): XML sitemap index for all webapp sitemaps
 - [Static Sitemap](/sitemap.txt): Core navigation pages
 - Dynamic Sitemaps (from API):
-  - [Posts](/api/sitemaps/posts): All published articles and discussions
-  - [Sources](/api/sitemaps/sources): Content sources and publications
-  - [Squads](/api/sitemaps/squads): Public developer communities
-  - [Tags](/api/sitemaps/tags): Topic tag pages
-  - [Users](/api/sitemaps/users): Developer profiles
+  - [Posts](/api/sitemaps/posts.xml): All published articles and discussions
+  - [Tags](/api/sitemaps/tags.xml): Topic tag pages

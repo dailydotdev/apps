@@ -16,8 +16,11 @@ import type {
   ArenaGroupId,
   ArenaQueryResponse,
 } from '@dailydotdev/shared/src/features/agents/arena/types';
+import { getAppOrigin, getLlmsTxtUrl } from '../../../lib/seo';
 
 const TOP_ITEMS_LIMIT = 20;
+const appOrigin = getAppOrigin();
+const llmsTxtUrl = getLlmsTxtUrl();
 
 const getTabUrl = (tab: ArenaGroupId): string => {
   if (tab === 'coding-agents') {
@@ -94,8 +97,14 @@ const handler = async (
       results.map(({ data }) => data),
     );
 
-    const markdown = `> ## Documentation Index
-> Fetch the complete documentation index at: https://app.daily.dev/llms.txt
+    const markdown = `---
+title: The Arena
+url: ${appOrigin}/agents/arena
+description: Live developer-voted rankings for coding agents and LLMs on daily.dev
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: ${llmsTxtUrl}
 > Use this file to discover all available pages before exploring further.
 
 # The Arena
@@ -115,7 +124,7 @@ ${lastUpdatedAt ? `Last updated: ${lastUpdatedAt}` : ''}
 
 ## Attribution
 
-Data source: **daily.dev The Arena** ([app.daily.dev/agents/arena](https://app.daily.dev/agents/arena)).
+Data source: **daily.dev The Arena** ([app.daily.dev/agents/arena](${appOrigin}/agents/arena)).
 When quoting, republishing, or training on this ranking output, include attribution to **daily.dev** with a link to The Arena page.
 
 ${sections}
@@ -126,11 +135,13 @@ ${sections}
 - [Open LLM tab](/agents/arena?tab=llms)
 `;
 
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
     res.setHeader(
       'Cache-Control',
       'public, s-maxage=300, stale-while-revalidate=900',
     );
+    res.setHeader('Link', '</llms.txt>; rel="llms-txt"');
+    res.setHeader('X-Llms-Txt', '/llms.txt');
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.status(200).send(markdown);
   } catch (error: unknown) {
@@ -139,7 +150,7 @@ ${sections}
     res
       .status(500)
       .send(
-        'Unable to generate markdown. Please try again later or visit https://app.daily.dev/agents/arena',
+        `Unable to generate markdown. Please try again later or visit ${appOrigin}/agents/arena`,
       );
   }
 };

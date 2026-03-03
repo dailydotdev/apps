@@ -18,6 +18,8 @@ import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { AdRefresh } from './common/AdRefresh';
+import { Button } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import AdAttribution from './common/AdAttribution';
 import { AdFavicon } from './common/AdFavicon';
 import PostTags from '../common/PostTags';
@@ -83,8 +85,25 @@ export const AdList = forwardRef(function AdCard(
       </CardContent>
 
       <div className="z-1 flex items-center pt-2">
-        <AdRefresh onClick={onRefreshClick} loading={isRefetching} />
-        {!isPlus && <RemoveAd />}
+        {!!ad.callToAction && (
+          <Button
+            tag="a"
+            href={ad.link}
+            target="_blank"
+            rel="noopener"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            {...combinedClicks(() => onLinkClick?.(ad))}
+          >
+            {ad.callToAction}
+          </Button>
+        )}
+        <div className="ml-auto flex items-center gap-2">
+          {!!onRefresh && (
+            <AdRefresh onClick={onRefreshClick} loading={isRefetching} />
+          )}
+          {!isPlus && <RemoveAd />}
+        </div>
       </div>
       <AdPixel pixel={ad.pixel} />
     </FeedItemContainer>

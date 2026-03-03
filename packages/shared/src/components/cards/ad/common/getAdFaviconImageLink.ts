@@ -14,7 +14,7 @@ export const getAdFaviconImageLink = ({
   size = 24,
 }: GetAdFaviconImageLinkParams): string => {
   if (!adImprovementsV3 || !ad?.adDomain) {
-    return adFaviconPlaceholder;
+    return ad?.companyLogo || adFaviconPlaceholder;
   }
 
   const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;

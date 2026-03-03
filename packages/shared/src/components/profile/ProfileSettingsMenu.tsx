@@ -106,10 +106,8 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
     totalCount,
   });
 
-  const { trackedAchievement, trackAchievement } = useTrackedAchievement(
-    undefined,
-    showAchievementTracker,
-  );
+  const { trackedAchievement, trackAchievement, untrackAchievement } =
+    useTrackedAchievement(undefined, showAchievementTracker);
 
   const items = useMemo(
     () =>
@@ -192,6 +190,10 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
                     trackedAchievementId: trackedAchievement?.achievement.id,
                     onTrack: async (achievementId: string) => {
                       await trackAchievement(achievementId);
+                      closeModal();
+                    },
+                    onUntrack: async () => {
+                      await untrackAchievement();
                       closeModal();
                     },
                   },
@@ -379,6 +381,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
       onClose,
       openModal,
       trackAchievement,
+      untrackAchievement,
       trackedAchievement?.achievement.id,
       user?.username,
     ],

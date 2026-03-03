@@ -42,6 +42,25 @@ const getInternalFeedName = (
   return path.replace(/^\/+/, '');
 };
 
+const getFeedHeading = (feedName: string): string => {
+  if (feedName === 'default') {
+    return 'Developer Feed';
+  }
+
+  if (feedName === 'my-feed') {
+    return 'My Feed';
+  }
+
+  if (feedName === 'search') {
+    return 'Search Results';
+  }
+
+  return feedName
+    .split('-')
+    .map((word) => `${word[0]?.toUpperCase() || ''}${word.slice(1)}`)
+    .join(' ');
+};
+
 export default function MainFeedPage({
   children,
   isFinder,
@@ -91,6 +110,7 @@ export default function MainFeedPage({
       isFinder={isFinder}
       searchChildren={searchChildren}
     >
+      <h1 className="sr-only">{getFeedHeading(feedName)}</h1>
       {children}
     </MainFeedLayout>
   );
