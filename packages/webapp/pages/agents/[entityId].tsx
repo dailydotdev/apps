@@ -1,7 +1,6 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { ReactElement } from 'react';
 import React from 'react';
-import { NextSeo } from 'next-seo';
 import type { DehydratedState } from '@tanstack/react-query';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { ArenaEntityPage } from '@dailydotdev/shared/src/features/agents/arena/ArenaEntityPage';
@@ -18,6 +17,7 @@ interface AgentEntityPageProps {
   entityId: string;
   entityName: string;
   tab: ArenaTab;
+  seo: ReturnType<typeof getEntitySeo>;
   dehydratedState: DehydratedState;
 }
 
@@ -28,14 +28,12 @@ const getEntitySeo = ({
   entityId: string;
   entityName: string;
 }) => ({
-  title: `${entityName} | Agent profile | daily.dev`,
-  description:
-    'Developer sentiment, momentum, highlights, and rank for AI agents and LLMs in The Arena.',
+  title: `${entityName} live developer ranking | daily.dev`,
+  description: `See ${entityName}'s current rank, sentiment, and momentum from real developer conversations.`,
   canonical: `https://app.daily.dev/agents/${encodeURIComponent(entityId)}`,
   openGraph: {
-    title: `${entityName} | Agent profile | daily.dev`,
-    description:
-      'Developer sentiment, momentum, highlights, and rank for AI agents and LLMs in The Arena.',
+    title: `${entityName} live developer ranking | daily.dev`,
+    description: `See ${entityName}'s current rank, sentiment, and momentum from real developer conversations.`,
     url: `https://app.daily.dev/agents/${encodeURIComponent(entityId)}`,
     type: 'website',
   },
@@ -43,15 +41,9 @@ const getEntitySeo = ({
 
 const AgentEntityRoute = ({
   entityId,
-  entityName,
   tab,
 }: AgentEntityPageProps): ReactElement => {
-  return (
-    <>
-      <NextSeo {...getEntitySeo({ entityId, entityName })} />
-      <ArenaEntityPage entityId={entityId} tab={tab} />
-    </>
-  );
+  return <ArenaEntityPage entityId={entityId} tab={tab} />;
 };
 
 export async function getServerSideProps({
@@ -126,6 +118,7 @@ export async function getServerSideProps({
       entityId,
       entityName,
       tab,
+      seo: getEntitySeo({ entityId, entityName }),
       dehydratedState: dehydrate(queryClient),
     },
   };
@@ -137,19 +130,6 @@ const getAgentEntityLayout: typeof getLayout = (...props) =>
 AgentEntityRoute.getLayout = getAgentEntityLayout;
 AgentEntityRoute.layoutProps = {
   screenCentered: false,
-  seo: {
-    title: 'Agent profile | daily.dev',
-    description:
-      'Developer sentiment, momentum, highlights, and rank for AI agents and LLMs in The Arena.',
-    canonical: 'https://app.daily.dev/agents',
-    openGraph: {
-      title: 'Agent profile | daily.dev',
-      description:
-        'Developer sentiment, momentum, highlights, and rank for AI agents and LLMs in The Arena.',
-      url: 'https://app.daily.dev/agents',
-      type: 'website',
-    },
-  },
 };
 
 export default AgentEntityRoute;
