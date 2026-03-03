@@ -19,6 +19,7 @@ import {
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
+import { DigestUpsellBanner } from '@dailydotdev/shared/src/components/notifications/DigestUpsellBanner';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import InfiniteScrolling, {
   checkFetchMore,
@@ -108,6 +109,7 @@ const Notifications = (): ReactElement => {
         className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
         <EnableNotification />
+        <DigestUpsellBanner />
         <h2
           className="p-6 font-bold typo-body"
           data-testid="notification_page-title"

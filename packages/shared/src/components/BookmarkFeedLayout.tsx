@@ -21,6 +21,7 @@ import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
+import { DigestBookmarkBanner } from './notifications/DigestBookmarkBanner';
 import {
   Typography,
   TypographyTag,
@@ -245,6 +246,7 @@ export default function BookmarkFeedLayout({
           />
         )}
       </div>
+      {!plusEntryBookmark && <DigestBookmarkBanner />}
       {tokenRefreshed && (isSearchResults || loadedSort) && (
         <Feed {...feedProps} />
       )}
