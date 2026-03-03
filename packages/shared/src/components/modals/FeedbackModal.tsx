@@ -26,6 +26,7 @@ import {
   isValidFileSize,
   MAX_SCREENSHOT_SIZE,
 } from '../../lib/screenshot';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 const FEEDBACK_MAX_LENGTH = 2000;
 
@@ -42,6 +43,7 @@ const FeedbackModal = ({
   ...props
 }: ModalProps): ReactElement => {
   const { displayToast } = useToastNotification();
+  const { themeMode } = useSettingsContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const hasSubmitted = useRef(false);
 
@@ -198,9 +200,27 @@ const FeedbackModal = ({
       pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
       userAgent:
         typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+      clientInfo:
+        typeof window !== 'undefined'
+          ? {
+              viewport: `${window.innerWidth}x${window.innerHeight}`,
+              screen: `${window.screen?.width}x${window.screen?.height}`,
+              timezone: Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone,
+              language: navigator?.language,
+              platform: navigator?.platform,
+              theme: themeMode,
+            }
+          : undefined,
       screenshotUrl,
     });
-  }, [category, description, screenshot, submitMutation, displayToast]);
+  }, [
+    category,
+    description,
+    screenshot,
+    submitMutation,
+    displayToast,
+    themeMode,
+  ]);
 
   const isOperationInProgress = isPending || isCapturing || isUploading;
   const isSubmitDisabled = !description.trim() || isOperationInProgress;
