@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>daily.dev — App Store CPP Preview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg-default: #0E1217;
+    --bg-subtle: #1C1F26;
+    --bg-float: #22262D;
+    --border-subtle: #2D313A;
+    --text-primary: #FFFFFF;
+    --text-secondary: #C1C9D6;
+    --text-tertiary: #A8B3CF;
+    --text-quaternary: #6C7A96;
+    --accent-avocado: #1DDC6F;
+    --accent-blueCheese: #2CDCE6;
+    --accent-cabbage: #CE3DF3;
+    --accent-ketchup: #FF5454;
+    --accent-cheese: #FFDF00;
+    --accent-bun: #FF7A2B;
+    --accent-water: #3169F5;
+    --accent-onion: #5F37E9;
+    --accent-lettuce: #92F21D;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a0a2e;
+    color: white;
+    font-family: 'Inter', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .top-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(26,10,46,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(206,61,243,0.15);
+    padding: 12px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .top-bar h1 {
+    font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 800;
+    background: linear-gradient(135deg, #F8A0FF, #CE3DF3);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .top-bar .controls { display: flex; gap: 4px; }
+  .top-bar button {
+    background: rgba(206,61,243,0.08); color: white;
+    border: 1px solid rgba(206,61,243,0.25);
+    padding: 7px 14px; border-radius: 8px; font-size: 12px;
+    font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .top-bar button:hover { border-color: var(--accent-cabbage); }
+  .top-bar button.active { background: var(--accent-cabbage); border-color: var(--accent-cabbage); }
+
+  .tabs {
+    display: flex; gap: 4px; padding: 12px 28px;
+    overflow-x: auto; background: rgba(26,10,46,0.7);
+    border-bottom: 1px solid rgba(206,61,243,0.12);
+  }
+  .tab {
+    padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 700;
+    cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    border: 1px solid transparent; color: var(--text-tertiary);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tab .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .tab:hover { background: rgba(206,61,243,0.08); }
+  .tab.active { border-color: rgba(206,61,243,0.3); background: rgba(206,61,243,0.12); color: white; }
+
+  .cpp-section { display: none; padding: 28px; }
+  .cpp-section.active { display: block; }
+  .cpp-header { text-align: center; margin-bottom: 24px; }
+  .cpp-header h2 { font-family:'Poppins',sans-serif; font-size: 24px; font-weight: 800; }
+  .cpp-header .subtitle { font-size: 13px; color: var(--text-tertiary); margin-top: 2px; }
+
+  .screenshots-row {
+    display: flex; gap: 24px; overflow-x: auto;
+    padding: 8px 0 32px; scroll-snap-type: x mandatory;
+  }
+  .screenshot-slot { flex: 0 0 auto; scroll-snap-align: start; text-align: center; }
+  .screenshot-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--text-quaternary); margin-bottom: 10px;
+  }
+
+  /* ===== APP STORE SCREENSHOT CANVAS ===== */
+  .ss-canvas {
+    width: 280px; height: 607px; border-radius: 12px;
+    position: relative; overflow: hidden;
+  }
+  .ss-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(157,112,248,1) 0%, rgba(157,112,248,0) 55%),
+      radial-gradient(ellipse at 50% 0%, rgba(254,122,182,1) 0%, rgba(254,122,182,0) 55%),
+      linear-gradient(180deg, #BF29F0 0%, #BF29F0 100%);
+  }
+  .ss-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; }
+
+  /* Headline zone */
+  .ss-headline {
+    padding: 28px 20px 6px; text-align: left;
+  }
+  .ss-headline h3 {
+    font-family: 'Poppins', sans-serif; font-weight: 800;
+    font-size: 30px; color: white; line-height: 1.0; letter-spacing: -0.3px;
+  }
+  .ss-headline .sub {
+    font-family: 'Poppins', sans-serif; font-weight: 700;
+    font-size: 17px; color: rgba(255,255,255,0.64); margin-top: 3px; line-height: 1.1;
+  }
+
+  /* Headline BOTTOM variant (text at bottom like Tab 2, Tab 4) */
+  .ss-headline-bottom {
+    padding: 0 20px 12px; text-align: center; margin-top: auto;
+  }
+  .ss-headline-bottom h3 {
+    font-family: 'Poppins', sans-serif; font-weight: 800;
+    font-size: 30px; color: white; line-height: 1.05;
+  }
+  .ss-headline-bottom .sub {
+    font-family: 'Poppins', sans-serif; font-weight: 700;
+    font-size: 17px; color: rgba(255,255,255,0.64); margin-top: 2px;
+  }
+
+  /* Social proof */
+  .ss-social {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 4px 16px 10px;
+  }
+  .ss-stars { font-size: 20px; letter-spacing: 2px; }
+  .ss-quote { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 500; color: white; text-align: center; }
+  .ss-quote .author { color: rgba(255,255,255,0.5); font-weight: 400; }
+
+  /* ===== PHONE MOCKUP ===== */
+  .phone-zone {
+    flex: 1; display: flex; justify-content: center; align-items: flex-start;
+    padding: 4px 20px 0; position: relative;
+  }
+  .phone {
+    width: 200px; height: 100%; position: relative;
+    border: 6px solid #000; border-bottom: none; border-radius: 24px 24px 0 0;
+    box-shadow: 0px -0.5px 0px 8px rgba(255,255,255,0.64), 0 8px 32px rgba(0,0,0,0.4);
+    overflow: hidden; background: var(--bg-default);
+  }
+  .phone-notch {
+    position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+    width: 40px; height: 12px; background: #000; border-radius: 8px; z-index: 20;
+  }
+
+  /* ===== REAL APP UI INSIDE PHONE ===== */
+  .app {
+    position: absolute; inset: 0; overflow: hidden; font-family: 'Inter', -apple-system, sans-serif;
+    display: flex; flex-direction: column; background: var(--bg-default);
+  }
+
+  /* App header — matches MobileFeedActions */
+  .app-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 8px 4px; gap: 4px;
+  }
+  .app-logo {
+    display: flex; align-items: center; gap: 3px;
+  }
+  .app-logo svg { width: 14px; height: 8px; }
+  .app-logo .logo-text {
+    font-size: 8px; font-weight: 800; color: white;
+    font-family: 'Inter', sans-serif; letter-spacing: -0.2px;
+  }
+  .app-hdr-right {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .streak-btn {
+    display: flex; align-items: center; gap: 2px;
+    font-size: 6px; font-weight: 700; color: #FF7A2B;
+  }
+  .streak-btn svg { width: 10px; height: 10px; fill: #FF7A2B; }
+  .streak-num { font-variant-numeric: tabular-nums; }
+  .hdr-divider {
+    width: 1px; height: 10px; background: rgba(168,179,207,0.14);
+  }
+  .hdr-icon-btn {
+    width: 14px; height: 14px; display: flex; align-items: center; justify-content: center;
+    color: var(--text-tertiary);
+  }
+  .hdr-icon-btn svg { width: 10px; height: 10px; fill: var(--text-tertiary); }
+  .hdr-avatar {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: linear-gradient(135deg, #6C5CE7, #A855F7);
+  }
+
+  /* Tab nav — matches FeedNav tabs */
+  .app-tabs {
+    display: flex; gap: 0; padding: 2px 6px;
+    border-bottom: 1px solid rgba(168,179,207,0.14);
+    overflow-x: hidden;
+  }
+  .app-tab {
+    font-size: 6.5px; font-weight: 600; padding: 4px 6px;
+    color: var(--text-tertiary); white-space: nowrap;
+    position: relative;
+  }
+  .app-tab.on {
+    color: white; font-weight: 700;
+  }
+  .app-tab.on::after {
+    content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%);
+    width: 16px; height: 2px; background: white; border-radius: 1px;
+  }
+
+  /* Post card — matches ArticleList layout */
+  .post-card {
+    padding: 8px 8px 4px; border-top: 1px solid rgba(168,179,207,0.14);
+  }
+  .post-hdr {
+    display: flex; align-items: center; gap: 4px; margin-bottom: 4px;
+  }
+  .post-src-icon {
+    width: 14px; height: 14px; border-radius: 50%;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 6px; font-weight: 800; color: white;
+  }
+  .post-meta {
+    flex: 1; display: flex; flex-direction: column; gap: 1px;
+  }
+  .post-meta .src-name { font-size: 6px; font-weight: 700; color: var(--text-secondary); }
+  .post-meta .post-date { font-size: 5px; color: var(--text-quaternary); }
+  .post-more {
+    font-size: 8px; color: var(--text-tertiary); letter-spacing: 1px; cursor: pointer;
+  }
+  .post-body {
+    display: flex; gap: 6px; align-items: flex-start; margin-bottom: 3px;
+  }
+  .post-title {
+    font-size: 7.5px; font-weight: 700; color: white; line-height: 1.3;
+    flex: 1; display: -webkit-box; -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .post-thumb {
+    width: 50px; height: 36px; border-radius: 8px; flex-shrink: 0;
+    object-fit: cover; display: block;
+  }
+  .post-tags {
+    display: flex; gap: 3px; padding: 0 0 2px;
+  }
+  .post-tag {
+    font-size: 5px; color: var(--text-quaternary); font-weight: 500;
+  }
+  .post-actions {
+    display: flex; align-items: center; gap: 0; padding: 3px 0 2px;
+    border-top: 1px solid rgba(168,179,207,0.08);
+  }
+  .post-action {
+    display: flex; align-items: center; gap: 2px;
+    font-size: 5.5px; color: var(--text-tertiary);
+    padding: 2px 0;
+    flex: 1;
+  }
+  .post-action.upvote { color: var(--accent-avocado); flex: 1.2; }
+  .post-action.downvote { color: var(--accent-ketchup); flex: 0.5; }
+  .post-action.comment { color: var(--accent-blueCheese); flex: 1.2; }
+  .post-action.bookmark { color: var(--accent-bun); flex: 0.5; }
+  .post-action.link { color: var(--text-tertiary); flex: 0.5; }
+  .post-action svg { width: 8px; height: 8px; }
+  .post-action span { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* Tags onboarding — matches EditTag */
+  .tags-header {
+    padding: 20px 10px 4px; text-align: center;
+  }
+  .tags-title {
+    font-size: 11px; font-weight: 800; color: white; line-height: 1.2;
+  }
+  .tags-sub {
+    font-size: 6px; color: var(--text-tertiary); margin-top: 3px; line-height: 1.3;
+  }
+  .tag-grid {
+    padding: 6px 8px; display: flex; flex-wrap: wrap; gap: 4px;
+    justify-content: center;
+  }
+  .tag-pill {
+    font-size: 6px; font-weight: 600; padding: 4px 8px;
+    border-radius: 10px; background: transparent;
+    border: 1px solid rgba(168,179,207,0.24); color: var(--text-tertiary);
+    transition: all 0.15s;
+  }
+  .tag-pill.on {
+    border-color: var(--accent-cabbage); color: white;
+    background: rgba(206,61,243,0.12);
+  }
+  .tag-check {
+    font-size: 5px; margin-right: 2px; color: var(--accent-cabbage);
+  }
+
+  /* Search bar — matches SearchPanelInput */
+  .app-search-bar {
+    margin: 4px 8px; padding: 5px 8px; border-radius: 10px;
+    background: var(--bg-subtle); border: 1px solid rgba(168,179,207,0.14);
+    font-size: 6px; color: var(--text-tertiary);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .app-search-bar svg { width: 10px; height: 10px; fill: var(--text-tertiary); opacity: 0.6; }
+  .app-search-bar.active { border-color: var(--accent-cabbage); }
+  .search-placeholder { color: var(--text-quaternary); }
+  .search-query { color: white; font-weight: 600; }
+
+  /* AI answer */
+  .ai-answer {
+    margin: 4px 8px; padding: 8px; border-radius: 10px;
+    background: var(--bg-subtle);
+    border: 1px solid rgba(168,179,207,0.14);
+  }
+  .ai-label {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 6px; font-weight: 700; color: var(--accent-cabbage);
+    margin-bottom: 4px;
+  }
+  .ai-label svg { width: 8px; height: 8px; fill: var(--accent-cabbage); }
+  .ai-answer p { font-size: 5.5px; color: var(--text-secondary); line-height: 1.6; }
+  .ai-sources {
+    display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px;
+  }
+  .ai-answer .src-tag {
+    font-size: 5px; padding: 2px 5px; border-radius: 6px;
+    background: var(--bg-float); color: var(--accent-blueCheese);
+    border: 1px solid rgba(44,220,230,0.2);
+  }
+
+  /* Squad list — matches SquadList rows */
+  .squad-row {
+    margin: 0 8px; padding: 8px 0;
+    display: flex; gap: 6px; align-items: center;
+    border-bottom: 1px solid rgba(168,179,207,0.08);
+  }
+  .squad-av {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; flex-shrink: 0;
+  }
+  .squad-info { flex: 1; }
+  .squad-info .squad-name { font-size: 7px; font-weight: 700; color: white; }
+  .squad-info .squad-handle { font-size: 5px; color: var(--text-quaternary); }
+  .squad-info .squad-members { font-size: 5px; color: var(--text-tertiary); margin-top: 1px; }
+  .squad-join {
+    font-size: 5.5px; font-weight: 700; color: white;
+    padding: 3px 8px; border-radius: 8px;
+    background: var(--accent-cabbage);
+  }
+  .squads-section-title {
+    padding: 6px 8px 2px; font-size: 7px; font-weight: 700; color: white;
+  }
+
+  /* Bookmark folder */
+  .bm-folder {
+    margin: 0 8px; padding: 8px 0;
+    display: flex; align-items: center; gap: 6px;
+    border-bottom: 1px solid rgba(168,179,207,0.08);
+  }
+  .bm-emoji { font-size: 10px; }
+  .bm-info { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+  .bm-name { font-size: 7px; font-weight: 600; color: white; }
+  .bm-ct { font-size: 5px; color: var(--text-tertiary); }
+  .bm-section-title {
+    padding: 6px 8px 2px; font-size: 7px; font-weight: 700; color: white;
+  }
+
+  /* DevCard — matches real DevCard component */
+  .devcard {
+    margin: 16px auto 6px; width: 155px;
+    border-radius: 16px; overflow: hidden;
+    background: linear-gradient(152.83deg, #525866 0%, #0E1217 20%, #525866 47.5%, #2C303A 67%, #0E1217 83%, #525866 100%);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  .devcard-cover {
+    height: 50px; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .devcard-avatar-wrap {
+    position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
+    width: 28px; height: 28px; border-radius: 12px;
+    border: 2px solid var(--bg-default);
+    overflow: hidden;
+  }
+  .devcard-avatar-img {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #6C5CE7, #A855F7);
+    border-radius: 10px;
+  }
+  .devcard-body {
+    padding: 16px 8px 6px; text-align: center;
+  }
+  .devcard-name { font-size: 9px; font-weight: 800; color: white; }
+  .devcard-handle { font-size: 5px; color: var(--text-tertiary); margin-top: 1px; }
+  .devcard-stats {
+    display: flex; gap: 2px; justify-content: center;
+    margin: 6px 0 4px; padding: 4px 6px;
+    background: rgba(14,18,23,0.8); border-radius: 10px;
+  }
+  .devcard-stat {
+    flex: 1; text-align: center; padding: 2px 0;
+  }
+  .stat-icon { font-size: 7px; }
+  .stat-val { font-size: 7px; font-weight: 800; color: white; }
+  .stat-label { font-size: 4px; color: var(--text-quaternary); }
+  .devcard-bio {
+    font-size: 5px; color: var(--text-secondary); line-height: 1.4;
+    padding: 2px 4px; margin-top: 2px;
+  }
+  .devcard-tags {
+    display: flex; flex-wrap: wrap; gap: 2px; justify-content: center;
+    margin-top: 4px; padding: 0 4px;
+  }
+  .devcard-tag {
+    font-size: 4.5px; padding: 2px 4px; border-radius: 4px;
+    background: var(--bg-float); color: var(--text-tertiary);
+    border: 1px solid rgba(168,179,207,0.14);
+  }
+  .devcard-sources {
+    display: flex; gap: 3px; justify-content: center;
+    margin-top: 4px;
+  }
+  .devcard-src-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .devcard-footer {
+    display: flex; align-items: center; justify-content: center; gap: 3px;
+    padding: 4px 0 6px;
+    font-size: 5px; font-weight: 700; color: var(--text-quaternary);
+  }
+  .devcard-footer svg { width: 8px; height: 5px; fill: var(--text-quaternary); }
+
+  /* Article/Post detail page — matches PostContent */
+  .article-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 8px 6px;
+    border-bottom: 1px solid rgba(168,179,207,0.14);
+  }
+  .article-back {
+    width: 14px; height: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .article-back svg { width: 12px; height: 12px; fill: white; }
+  .article-hdr-actions { display: flex; gap: 6px; }
+  .article-content { padding: 8px 10px; flex: 1; overflow: hidden; }
+  .article-source {
+    display: flex; align-items: center; gap: 4px; margin-bottom: 6px;
+  }
+  .article-source-name { font-size: 6px; font-weight: 600; color: var(--text-secondary); }
+  .article-follow {
+    font-size: 5px; font-weight: 700; color: white;
+    padding: 2px 6px; border-radius: 6px;
+    background: var(--accent-cabbage); margin-left: auto;
+  }
+  .article-title {
+    font-size: 11px; font-weight: 800; color: white; line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  .article-cover {
+    width: 100%; height: 70px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 6px; overflow: hidden;
+  }
+  .article-cover-text {
+    font-size: 14px; opacity: 0.3;
+  }
+  .article-meta {
+    font-size: 5px; color: var(--text-quaternary); margin-bottom: 6px;
+  }
+  .article-tldr {
+    padding: 6px; border-radius: 8px;
+    background: var(--bg-subtle); margin-bottom: 6px;
+  }
+  .tldr-label {
+    font-size: 5.5px; font-weight: 700; color: var(--accent-cabbage);
+    margin-bottom: 3px;
+  }
+  .tldr-text {
+    font-size: 5.5px; color: var(--text-secondary); line-height: 1.5;
+  }
+  .article-tags {
+    display: flex; gap: 3px; margin-bottom: 4px;
+  }
+  .article-tag {
+    font-size: 5px; padding: 2px 5px; border-radius: 6px;
+    background: rgba(206,61,243,0.12); color: var(--accent-cabbage);
+    border: 1px solid rgba(206,61,243,0.2);
+  }
+  .article-actions {
+    display: flex; align-items: center; gap: 0;
+    padding: 4px 8px; margin: 0 8px;
+    border: 1px solid rgba(168,179,207,0.14); border-radius: 10px;
+  }
+  .article-actions .post-action { flex: 1; justify-content: center; }
+
+  /* Bottom nav — matches MobileFooterNavbar */
+  .app-bottom-nav {
+    margin-top: auto; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+    padding: 4px 4px 6px; border-top: 1px solid rgba(168,179,207,0.14);
+    background: rgba(14,18,23,0.92); backdrop-filter: blur(2.5rem);
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    padding: 2px 0;
+  }
+  .nav-item svg { width: 11px; height: 11px; fill: var(--text-tertiary); }
+  .nav-item.on svg { fill: white; }
+  .nav-item span { font-size: 4.5px; color: var(--text-tertiary); font-weight: 500; }
+  .nav-item.on span { color: white; font-weight: 600; }
+
+  /* ===== FIGMA-MATCHED BADGES & 3D ICONS ===== */
+  .figma-badge {
+    position: absolute; z-index: 5; display: inline-block;
+  }
+  .figma-badge-glow {
+    position: absolute; inset: -3px; filter: blur(8px); border-radius: 10px; opacity: 0.85;
+  }
+  .figma-badge-pill {
+    position: relative; background: #0e1217; padding: 7px 12px; border-radius: 11px;
+    transform: rotate(-4.53deg); display: flex; align-items: center; gap: 4px;
+    white-space: nowrap;
+  }
+  .figma-badge-emoji { font-size: 13px; line-height: 1; }
+  .figma-badge-text {
+    font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 13px; color: white;
+  }
+  .figma-3d-icon {
+    position: absolute; z-index: 4; pointer-events: none;
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.35));
+  }
+
+  /* ===== FLOATING BADGES ===== */
+  .floating-badges { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+  .fbadge {
+    position: absolute; display: flex; align-items: center; gap: 5px;
+    background: var(--bg-default); padding: 6px 12px; border-radius: 14px;
+    font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 11px;
+    color: white; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  /* Plus icon prefix for feature list */
+  .plus-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 10px;
+    background: rgba(255,255,255,0.24); margin-right: 6px;
+    font-size: 18px; font-weight: 300; vertical-align: middle;
+    flex-shrink: 0;
+  }
+  .fbadge .be { font-size: 13px; }
+
+  /* ===== FLOATING 3D ICONS ===== */
+  .float3d {
+    position: absolute; z-index: 1; pointer-events: none;
+    filter: drop-shadow(0 6px 16px rgba(0,0,0,0.4));
+  }
+  .float3d-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  /* ===== BRAND LOGO BUBBLES ===== */
+  .brand-bubble {
+    position: absolute; z-index: 3; pointer-events: none;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+  .brand-bubble.square { border-radius: 16px; }
+
+  .ss-headline-center {
+    padding: 20px 16px 2px; text-align: center;
+  }
+  .ss-headline-center h3 {
+    font-family: 'Poppins', sans-serif; font-weight: 800;
+    font-size: 32px; color: white; line-height: 1.05; letter-spacing: -0.3px;
+  }
+  .ss-headline-center .sub {
+    font-family: 'Poppins', sans-serif; font-weight: 700;
+    font-size: 20px; color: rgba(255,255,255,0.64); margin-top: 2px;
+  }
+  .big-stars {
+    display: flex; gap: 4px; justify-content: center; padding: 4px 0;
+  }
+  .big-stars .star {
+    width: 28px; height: 28px;
+    filter: drop-shadow(0 2px 6px rgba(255,200,0,0.4));
+  }
+
+  /* ===== FLOATING TAG PILLS ===== */
+  .ftag {
+    position: absolute; z-index: 3; pointer-events: none;
+    background: var(--bg-default); padding: 5px 10px; border-radius: 12px;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 10px;
+    color: white; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  }
+
+  /* ===== HERO SOCIAL PROOF LAYOUT ===== */
+  .hero-logo {
+    display: flex; align-items: center; gap: 6px;
+    padding: 24px 20px 8px;
+    font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 14px; color: white;
+  }
+  .hero-logo svg { width: 18px; height: 18px; fill: white; }
+  .hero-badges {
+    display: flex; gap: 10px; justify-content: center; padding: 8px 16px;
+  }
+  .hero-badge {
+    width: 90px; padding: 10px 8px; border-radius: 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-family: 'Poppins', sans-serif; text-align: center;
+  }
+  .hero-badge .badge-icon { font-size: 20px; }
+  .hero-badge .badge-num { font-size: 11px; font-weight: 800; color: white; }
+  .hero-badge .badge-label { font-size: 7px; font-weight: 600; color: rgba(255,255,255,0.8); line-height: 1.2; }
+  .hero-reviews {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 12px 16px;
+  }
+  .hero-reviews .stars { font-size: 28px; letter-spacing: 4px; }
+  .hero-reviews .count {
+    font-family: 'Poppins', sans-serif; font-weight: 800;
+    font-size: 22px; color: white;
+  }
+  .hero-laurel {
+    position: absolute; z-index: 1; pointer-events: none;
+    font-size: 80px; opacity: 0.7;
+  }
+  .hero-laurel.left { top: 8%; left: -12px; transform: scaleX(-1) rotate(-15deg); }
+  .hero-laurel.right { top: 8%; right: -12px; transform: rotate(-15deg); }
+  .hero-laurel.bottom { bottom: -5%; left: 50%; transform: translateX(-50%); font-size: 120px; }
+
+  /* ===== LOGO WATERMARK ===== */
+  .dd-wm {
+    position: absolute; bottom: 10px; right: 12px; z-index: 5;
+    display: flex; align-items: center; gap: 3px;
+    font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.4);
+  }
+  .dd-wm svg { width: 12px; height: 12px; fill: rgba(255,255,255,0.4); }
+
+  /* Dim badge */
+  .dim { font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 6px; font-family: monospace; }
+
+  /* ===== OVERVIEW GRID ===== */
+  .ov-grid {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px;
+    padding: 20px 28px 32px;
+  }
+  .ov-card { text-align: center; }
+  .ov-frame {
+    width: 100%; aspect-ratio: 9/19.5; border-radius: 12px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.5); margin-bottom: 6px;
+  }
+  .ov-frame .ov-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(157,112,248,1) 0%, rgba(157,112,248,0) 55%),
+      radial-gradient(ellipse at 50% 0%, rgba(254,122,182,1) 0%, rgba(254,122,182,0) 55%),
+      #BF29F0;
+  }
+  .ov-frame .ov-hl {
+    position: absolute; top: 10%; left: 8%; right: 8%; z-index: 2;
+  }
+  .ov-frame .ov-hl h4 {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 800;
+    color: white; line-height: 1.05;
+  }
+  .ov-frame .ov-hl p {
+    font-family: 'Poppins', sans-serif; font-size: 7px;
+    color: rgba(255,255,255,0.64); font-weight: 700; margin-top: 2px;
+  }
+  .ov-frame .ov-phone {
+    position: absolute; bottom: -10%; left: 50%; transform: translateX(-50%);
+    width: 58%; height: 55%; border-radius: 10px;
+    border: 2px solid #000; z-index: 1; overflow: hidden;
+    box-shadow: 0px -0.3px 0px 4px rgba(255,255,255,0.5);
+    background: var(--bg-default);
+  }
+  .ov-phone-inner { padding: 8px 4px; }
+  .ov-phone-inner .mini-card {
+    height: 8px; border-radius: 3px; background: var(--bg-subtle);
+    margin: 2px 0;
+  }
+  .ov-label { font-size: 10px; font-weight: 700; }
+
+  .info-box {
+    margin: 0 28px 28px; padding: 16px;
+    background: rgba(206,61,243,0.05);
+    border: 1px solid rgba(206,61,243,0.15); border-radius: 10px;
+  }
+  .info-box h3 {
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700;
+    margin-bottom: 6px; color: #E05CF8;
+  }
+  .info-box p { font-size: 12px; color: var(--text-tertiary); line-height: 1.7; }
+  .info-box code {
+    background: rgba(206,61,243,0.12); padding: 1px 5px; border-radius: 3px;
+    font-size: 11px; color: #F8A0FF;
+  }
+
+  @media (max-width: 900px) { .ov-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 500px) { .ov-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>daily.dev — CPP Preview</h1>
+  <div class="controls">
+    <button id="btn-ov" class="active" onclick="showView('ov')">Overview</button>
+    <button id="btn-dt" onclick="showView('dt')">Detailed View</button>
+  </div>
+</div>
+
+<div id="view-ov">
+  <div style="padding:20px 28px 6px">
+    <h2 style="font-family:Poppins,sans-serif;font-size:18px;font-weight:800">Hero Screenshots — Master + 6 CPPs</h2>
+    <p style="font-size:12px;color:var(--text-tertiary)">iPhone (1320×2868). Poppins ExtraBold headlines, real app UI, 3D floating icons. Master tab shows Figma reference screenshots.</p>
+  </div>
+  <div class="ov-grid" id="ov-grid"></div>
+  <div class="info-box">
+    <h3>Design System (from Figma)</h3>
+    <p>
+      <strong>Font:</strong> <code>Poppins ExtraBold</code> (headlines), <code>Poppins Bold</code> (sub at 64% opacity)<br>
+      <strong>Background:</strong> Layered radial gradients — <code>#BF29F0</code> base + <code>rgba(254,122,182)</code> top + <code>rgba(157,112,248)</code> bottom<br>
+      <strong>Phone:</strong> <code>border: 5px solid #000</code> + <code>box-shadow: 0 -0.5px 0 8px rgba(255,255,255,0.55)</code><br>
+      <strong>Badges:</strong> <code>bg: #0E1217, rounded-14, Roboto Bold</code> — slight rotation (-4.53deg)<br>
+      <strong>Inside phone:</strong> Real app screenshots — dark theme, feed cards, source icons, action buttons<br>
+      <strong>Resolutions:</strong> iPhone = <code>1320 × 2868 px</code> &nbsp;|&nbsp; iPad = <code>2752 × 2064 px</code>
+    </p>
+  </div>
+</div>
+
+<div id="view-dt" style="display:none">
+  <div class="tabs" id="cpp-tabs"></div>
+  <div id="cpp-sections"></div>
+</div>
+
+<script>
+const SVG_LOGO = '<svg viewBox="0 0 35 20" fill="none" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor" fill-rule="nonzero"><path d="M29.5925 9.99823L25.7884 6.1862L27.6895 2.37549L33.8703 8.5693C34.6579 9.35848 34.6579 10.638 33.8703 11.4272L26.2629 19.0506C25.4753 19.8398 24.1985 19.8398 23.411 19.0506C22.6234 18.2614 22.6234 16.9819 23.411 16.1927L29.5925 9.99823Z" fill-opacity="0.64"/><path d="M23.4118 0.947675C24.1993 0.158497 25.4765 0.158828 26.264 0.948006L27.6903 2.37727L11.05 19.0524C10.2625 19.8415 8.98533 19.8412 8.1978 19.052L6.77152 17.6228L23.4118 0.947675ZM16.28 6.18864L13.4275 9.04718L9.62342 5.23514L4.86849 10L8.67256 13.8121L6.77152 17.6228L0.590647 11.429C-0.196882 10.6398 -0.196882 9.36026 0.590647 8.57108L8.1978 0.948006C8.98533 0.158828 10.2625 0.158497 11.05 0.947675L16.28 6.18864Z"/></g></svg>';
+const SVG_HOME = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L4 9v12h5v-7h6v7h5V9l-8-6z"/></svg>';
+const SVG_EXPLORE = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 17.93A8 8 0 017.07 13H4.07A8 8 0 0113 4.07v15.86zM15 12l-4 2V8l4 4z"/></svg>';
+const SVG_BELL = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>';
+const SVG_SQUADS = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05C16.19 13.89 17 15 17 16.5V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>';
+const SVG_JOBS = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 0h-4V4h4v2z"/></svg>';
+const SVG_UP = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.0001 3.80388L20.197 12.0008L17.6263 12.0008L12.0001 6.37469L6.37393 12.0008L3.80326 12.0008L12.0001 3.80388ZM12.0001 9.48088L17.519 14.9997L15.0001 14.9997L15.0001 20.1958L9.00007 20.1958L9.00007 14.9997L6.48124 14.9997L12.0001 9.48088Z"/></svg>';
+const SVG_DOWN = '<svg viewBox="0 0 24 24" fill="currentColor" style="transform:rotate(180deg)"><path d="M12.0001 3.80388L20.197 12.0008L17.6263 12.0008L12.0001 6.37469L6.37393 12.0008L3.80326 12.0008L12.0001 3.80388ZM12.0001 9.48088L17.519 14.9997L15.0001 14.9997L15.0001 20.1958L9.00007 20.1958L9.00007 14.9997L6.48124 14.9997L12.0001 9.48088Z"/></svg>';
+const SVG_COMMENT = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3.25l.34.04c1.1.12 1.78.35 2.36.66.6.32 1.08.76 1.53 1.41.36.52.6 1.12.72 1.87l.04.3.04.58.01.62v4.93c0 .6-.04 1.1-.12 1.56a4.36 4.36 0 01-.77 1.79c-.44.58-.96 1-1.58 1.29-.53.25-1.09.38-1.78.43l-.45.02-.38.01H14l-3.15 3.15a.75.75 0 01-1.28-.53v-2.62H8.5c-.6 0-1.1-.04-1.56-.12a4.36 4.36 0 01-1.79-.77 4.1 4.1 0 01-1.29-1.58A4.56 4.56 0 013.5 14V9.87c0-.6.04-1.1.12-1.56.12-.64.36-1.2.77-1.79.32-.48.76-.92 1.29-1.22A4.56 4.56 0 018 4.5l.5-.01h7z"/></svg>';
+const SVG_BM = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.87 3H8.13c-1.77 0-3.24 1.38-3.35 3.15L4 18.92c-.02.46.1.84.38 1.21l.1.13c.67.76 1.82.89 2.65.23L12 17.02l4.87 3.6c.71.53 1.69.51 2.38-.07a1.7 1.7 0 00.72-1.44l-.1-1.2-.77-12.76A3.38 3.38 0 0015.87 3z"/></svg>';
+const SVG_LINK = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.2 4.1c1.41-1.41 3.68-1.46 5.15-.1l.14.13 1.41 1.41c1.42 1.42 1.46 3.7.1 5.16l-.14.14-2.12 2.12a.75.75 0 01-1.06-1.06l2.12-2.12a2.25 2.25 0 00-3.04-3.32l-.14.14-2.12 2.12a.75.75 0 01-1.06-1.06l2.12-2.12.63-.44zm-2.4 15.8c-1.41 1.41-3.68 1.46-5.15.1l-.14-.14-1.41-1.41c-1.42-1.42-1.46-3.7-.1-5.16l.14-.14 2.12-2.12a.75.75 0 011.06 1.06L5.2 14.21a2.25 2.25 0 003.04 3.32l.14-.14 2.12-2.12a.75.75 0 011.06 1.06L9.44 18.45l-.63.44zM15 9a.75.75 0 010 1.06l-4.94 4.94A.75.75 0 019 13.94L13.94 9A.75.75 0 0115 9z"/></svg>';
+const SVG_BACK = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>';
+const SVG_AI = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.06-7.44 7-7.93v15.86zm2 0V4.07c3.94.49 7 3.85 7 7.93s-3.06 7.44-7 7.93z"/></svg>';
+
+const SVG_BELL_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path d="M12,3 C13.2771585,3 14.3125,4.03534152 14.3125,5.3125 C14.3125,5.49643082 14.2910265,5.67534624 14.2504497,5.84687602 C16.5079037,6.69920465 18.1605348,8.80233716 18.3563578,11.3382944 L18.3713837,11.6021452 L18.375,11.8125 L18.375,14.038 L18.4470622,14.0601348 C19.250003,14.3392411 19.8516627,15.0484739 19.9762007,15.9119929 L19.994665,16.0866721 L20,16.245 C20,17.4689435 19.0491395,18.4708017 17.8458279,18.552165 L17.6875,18.5575 L15.641,18.557 L15.6280717,18.5901527 C15.0812709,19.8829351 13.8636706,20.8229115 12.4116085,20.9737444 L12.2026232,20.9898765 L12,20.995 C10.4532503,20.995 9.10770138,20.1008895 8.46394265,18.7757579 L8.38055433,18.59243 L8.366,18.557 L6.3125,18.5575 C5.14177139,18.5575 4.1742362,17.6875255 4.0211104,16.5587926 L4.005335,16.4033279 L4,16.245 C4,15.3421308 4.51957588,14.5522546 5.32498905,14.1689562 L5.4898136,14.0978046 L5.625,14.05 L5.625,11.8125 C5.625,9.08370177 7.33950378,6.75534735 9.75005276,5.84589532 C9.7088902,5.6746514 9.6875,5.49607367 9.6875,5.3125 C9.6875,4.03534152 10.7228415,3 12,3 Z M12,6.9375 C11.5633965,6.9375 11.1401984,6.9948952 10.7375391,7.10255211 L10.5898087,7.14540628 C8.65399518,7.72876044 7.22632808,9.48371482 7.13017008,11.5859673 L7.125,11.8125 L7.125,14.62 C7.125,15.0342136 6.81504329,15.3760329 6.41441827,15.4261695 L6.21774534,15.4379663 C5.81365765,15.4849004 5.5,15.8283209 5.5,16.245 C5.5,16.6592136 5.80995671,17.0010329 6.21058173,17.0511695 L6.3125,17.0575 L9.5625,17.0575 L9.56663781,17.2007216 C9.63768646,18.4269387 10.615172,19.409978 11.8390242,19.4897691 L12,19.495 L12.1602663,19.4898153 C13.3764705,19.4108759 14.3495414,18.4399548 14.4318571,17.2246739 L14.4375,17.0575 L17.6875,17.0575 L17.7894183,17.0511695 C18.1900433,17.0010329 18.5,16.6592136 18.5,16.245 C18.5,15.8307864 18.1900433,15.4889671 17.7894183,15.4388305 L17.5927453,15.4270337 C17.2223316,15.3840107 16.9279043,15.0918569 16.8814054,14.7225144 L16.875,14.62 L16.875,11.8125 L16.8716375,11.629738 C16.7934448,9.50818226 15.3595404,7.73291698 13.4107132,7.14473151 L13.2677979,7.10398235 C12.8635417,6.99540361 12.4385329,6.9375 12,6.9375 Z M12,4.5 C11.5512686,4.5 11.1875,4.86376864 11.1875,5.3125 C11.1875,5.36075447 11.1917066,5.40802645 11.199773,5.45396922 C11.2667185,5.83526075 11.5995231,6.125 12,6.125 C12.3796958,6.125 12.6985602,5.86455026 12.7876855,5.5125587 L12.8061695,5.41441827 L12.8125,5.3125 C12.8125,4.86376864 12.4487314,4.5 12,4.5 Z" fill="currentColor"/></svg>';
+const SVG_FILTER_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path d="M16.5,12 C18.1568542,12 19.5,13.3431458 19.5,15 L19.5,16.5 C19.5,18.1568542 18.1568542,19.5 16.5,19.5 L15,19.5 C13.3431458,19.5 12,18.1568542 12,16.5 L5.25,16.5 C4.83578644,16.5 4.5,16.1642136 4.5,15.75 C4.5,15.3357864 4.83578644,15 5.25,15 L12,15 C12,13.3431458 13.3431458,12 15,12 L16.5,12 Z M16.5,13.5 L15,13.5 C14.2203039,13.5 13.5795513,14.0948881 13.5068666,14.85554 L13.5,15 L13.5,16.5 C13.5,17.2796961 14.0948881,17.9204487 14.85554,17.9931334 L15,18 L16.5,18 C17.2796961,18 17.9204487,17.4051119 17.9931334,16.64446 L18,16.5 L18,15 C18,14.2203039 17.4051119,13.5795513 16.64446,13.5068666 L16.5,13.5 Z M9,4.5 C10.6568542,4.5 12,5.84314575 12,7.5 L18.75,7.5 C19.1642136,7.5 19.5,7.83578644 19.5,8.25 C19.5,8.66421356 19.1642136,9 18.75,9 L12,9 C12,10.6568542 10.6568542,12 9,12 L7.5,12 C5.84314575,12 4.5,10.6568542 4.5,9 L4.5,7.5 C4.5,5.84314575 5.84314575,4.5 7.5,4.5 L9,4.5 Z M7.5,6 C6.72030388,6 6.07955132,6.59488808 6.00686658,7.35553999 L6,7.5 L6,9 C6,9.77969612 6.59488808,10.4204487 7.35553999,10.4931334 L7.5,10.5 L9,10.5 C9.77969612,10.5 10.4204487,9.90511192 10.4931334,9.14446001 L10.5,9 L10.5,7.5 C10.5,6.72030388 9.90511192,6.07955132 9.14446001,6.00686658 L9,6 L7.5,6 Z" fill="currentColor"/></svg>';
+const SVG_SORT_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path d="M7.752 6C8.132 6 8.446 6.282 8.496 6.648L8.503 6.75V15.44L10.224 13.722C10.49 13.456 10.907 13.432 11.201 13.649L11.285 13.722C11.551 13.988 11.576 14.405 11.358 14.698L11.285 14.782L8.283 17.78C8.246 17.817 8.206 17.85 8.164 17.877L8.074 17.928L7.971 17.968C7.902 17.989 7.829 18 7.752 18L7.695 17.998L7.604 17.985L7.567 17.977L7.461 17.942L7.392 17.908L7.306 17.853C7.273 17.828 7.246 17.805 7.222 17.78L4.22 14.782C3.927 14.489 3.927 14.015 4.22 13.722C4.486 13.456 4.903 13.432 5.197 13.649L5.281 13.722L7.002 15.44V6.75C7.002 6.336 7.338 6 7.752 6ZM16.253 6L16.349 6.007L16.433 6.023L16.539 6.058L16.608 6.092L16.706 6.156L16.778 6.22L19.78 9.218C20.073 9.511 20.073 9.985 19.78 10.278C19.514 10.544 19.097 10.568 18.803 10.351L18.719 10.278L16.998 8.56V17.25C16.998 17.664 16.662 18 16.253 18C15.874 18 15.56 17.718 15.51 17.352L15.503 17.25V8.56L13.776 10.278C13.51 10.544 13.093 10.568 12.799 10.351L12.715 10.278C12.449 10.012 12.424 9.595 12.642 9.302L12.715 9.218L15.717 6.22C15.754 6.182 15.794 6.15 15.836 6.122L15.926 6.072L16.029 6.032C16.075 6.018 16.123 6.009 16.172 6.004L16.253 6Z" fill="currentColor"/></svg>';
+const SVG_LINK_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path d="M7.75109011,7 C8.16341303,7 8.4976668,7.33425408 8.4976668,7.746577 C8.4976668,8.12158527 8.21899623,8.43150668 7.85744002,8.480556 L7.7527184,8.4873 L6.98434203,8.487817 L6.87594014,8.490999 L6.7476668,8.5 C6.10166616,8.5 5.57033457,8.99095643 5.50644156,9.6201 L5.5,9.747667 L5.5,17.25 C5.5,17.8972087 5.99187466,18.4295339 6.62219476,18.4935464 L6.75,18.5 L14.247667,18.5 C14.8948757,18.5 15.4272005,18.0081253 15.491213,17.3778052 L15.497667,16.249974 C15.497693,15.8357748 15.8334678,15.5 16.247667,15.5 C16.6618806,15.5 16.997667,15.8357864 16.997667,16.25 L16.997667,17.25 C16.997667,18.7125318 15.8559621,19.9084043 14.415189,19.9949812 L14.247667,20 L6.75,20 C5.28746816,20 4.09159572,18.8582954 4.00501879,17.4175223 L4,17.25 L4,9.747667 C4,8.23017253 5.23017233,7 6.7476668,7 L7.75109011,7 Z M19.2476668,4 C19.6618804,4 19.9976668,4.33578644 19.9976668,4.75 L19.9976668,11.75 C19.9976668,12.1642136 19.6618804,12.5 19.2476668,12.5 C18.8334532,12.5 18.4976668,12.1642136 18.4976668,11.75 L18.4976668,6.55901582 L11.9997552,13.0585718 C11.7069291,13.3513979 11.2320553,13.3513979 10.9391621,13.0585047 C10.6462689,12.7656115 10.6462689,12.2907377 10.9391621,11.9978445 L17.4361602,5.5 L12.2476668,5.5 C11.8334532,5.5 11.4976668,5.16421356 11.4976668,4.75 C11.4976668,4.33578644 11.8334532,4 12.2476668,4 L19.2476668,4 Z" fill="currentColor"/></svg>';
+const SVG_MENU_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path d="M12,17 C12.8284271,17 13.5,17.6715729 13.5,18.5 C13.5,19.3284271 12.8284271,20 12,20 C11.1715729,20 10.5,19.3284271 10.5,18.5 C10.5,17.6715729 11.1715729,17 12,17 Z M12,10.5 C12.8284271,10.5 13.5,11.1715729 13.5,12 C13.5,12.8284271 12.8284271,13.5 12,13.5 C11.1715729,13.5 10.5,12.8284271 10.5,12 C10.5,11.1715729 11.1715729,10.5 12,10.5 Z M12,4 C12.8284271,4 13.5,4.67157288 13.5,5.5 C13.5,6.32842712 12.8284271,7 12,7 C11.1715729,7 10.5,6.32842712 10.5,5.5 C10.5,4.67157288 11.1715729,4 12,4 Z" fill="currentColor"/></svg>';
+const SVG_UPVOTE_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path d="M9.45638472,4.21552972 L3.47082784,12.0670128 C3.01464353,12.7044248 2.88783097,13.4688462 3.09967186,14.1749825 L3.15183557,14.3297234 C3.5885853,15.4936829 4.85938703,16.1357432 6.0678167,15.7732143 L8.94413921779 C13.3923358,20.9176092 14.316002,20.0718781 14.4761387,18.9509211 L15.0531354,14.9091165 L17.9302696,15.7731777 C18.636528,15.9850552 19.4009494,15.8582427 20.0008565,15.4297376 C21.0721296,14.6645425 21.3202549,13.1757908 20.5550598,12.1045177 L14.630248,4.33102693 C14.4483549,4.07513058 14.1916647,3.8184402 13.8982635,3.60886791 C12.4822799,2.59745106 10.5341907,2.8775823 9.45638472,4.21552972 Z M13.0264062,4.82946812 C13.1851142,4.94283094 13.3239642,5.08168117 13.437327,5.24038912 L19.3344596,12.976375 C19.6181412,13.3735292 19.5261535,13.9254558 19.1289992,14.2091374 C18.906595,14.3679975 18.6232002,14.4150109 18.3614135,14.3364749 L14.7981318,13.2671604 C14.3306629,13.1268764 13.8379819,13.3921122 13.6976979,13.8595811 C13.6850126,13.9018524 13.6755117,13.9450146 13.669275,13.9887054 L12.9912145,18.738789 C12.9290198,19.1741519 12.5561606,19.497531 12.1163777,19.497531 L11.8818307,19.497531 C11.4420478,19.497531 11.0691886,19.1741519 11.0069939,18.738789 L10.328443,13.9886256 C10.2594246,13.505466 9.81179593,13.1697382 9.32863629,13.2387565 C9.28496471,13.2449949 9.24182155,13.2544946 9.19956866,13.267176 L5.63679488,14.3364749 C5.16931405,14.4767191 4.67665554,14.2114415 4.53641129,13.7439607 C4.45787528,13.482174 4.50488865,13.1987792 4.66374879,12.976375 L10.5608814,5.24038912 C11.1282446,4.44608059 12.2320977,4.26210488 13.0264062,4.82946812 Z" fill="currentColor"/></svg>';
+const SVG_DOWNVOTE_OUTLINE = '<svg viewBox="0 0 24 24" fill="none" style="transform:rotate(180deg)"><path d="M9.45638472,4.21552972 L3.47082784,12.0670128 C3.01464353,12.7044248 2.88783097,13.4688462 3.09967186,14.1749825 L3.15183557,14.3297234 C3.5885853,15.4936829 4.85938703,16.1357432 6.0678167,15.7732143 L8.94413921779 C13.3923358,20.9176092 14.316002,20.0718781 14.4761387,18.9509211 L15.0531354,14.9091165 L17.9302696,15.7731777 C18.636528,15.9850552 19.4009494,15.8582427 20.0008565,15.4297376 C21.0721296,14.6645425 21.3202549,13.1757908 20.5550598,12.1045177 L14.630248,4.33102693 C14.4483549,4.07513058 14.1916647,3.8184402 13.8982635,3.60886791 C12.4822799,2.59745106 10.5341907,2.8775823 9.45638472,4.21552972 Z M13.0264062,4.82946812 C13.1851142,4.94283094 13.3239642,5.08168117 13.437327,5.24038912 L19.3344596,12.976375 C19.6181412,13.3735292 19.5261535,13.9254558 19.1289992,14.2091374 C18.906595,14.3679975 18.6232002,14.4150109 18.3614135,14.3364749 L14.7981318,13.2671604 C14.3306629,13.1268764 13.8379819,13.3921122 13.6976979,13.8595811 C13.6850126,13.9018524 13.6755117,13.9450146 13.669275,13.9887054 L12.9912145,18.738789 C12.9290198,19.1741519 12.5561606,19.497531 12.1163777,19.497531 L11.8818307,19.497531 C11.4420478,19.497531 11.0691886,19.1741519 11.0069939,18.738789 L10.328443,13.9886256 C10.2594246,13.505466 9.81179593,13.1697382 9.32863629,13.2387565 C9.28496471,13.2449949 9.24182155,13.2544946 9.19956866,13.267176 L5.63679488,14.3364749 C5.16931405,14.4767191 4.67665554,14.2114415 4.53641129,13.7439607 C4.45787528,13.482174 4.50488865,13.1987792 4.66374879,12.976375 L10.5608814,5.24038912 C11.1282446,4.44608059 12.2320977,4.26210488 13.0264062,4.82946812 Z" fill="currentColor"/></svg>';
+const SVG_DISCUSS_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path d="M8.08435271,3.21693186 C10.4265343,2.95661363 12.7881742,2.93058181 15.1342475,3.13883639 L15.9156473,3.21693186 L16.1949414,3.24797358 C17.2835827,3.36896897 18.080004,3.6200694 18.8014114,4.07630994 C19.5253659,4.53416137 20.0898351,5.16500681 20.4648062,5.93530432 C20.8010929,6.62613292 20.9655705,7.35901899 20.9951032,8.29742397 L21,8.61806167 L21,12.5926708 C21,14.7182541 19.5132849,16.542341 17.4552135,16.9849329 L17.2475358,17.0245471 L15.159,17.3711861 L12.2986908,20.3634831 L12.1518236,20.4979361 C11.1658089,21.2869777 9.75307765,21.1214462 8.94661065,20.1736775 C8.41508677,19.549025 8.33063861,18.8343405 8.43787093,17.883357 L8.46590321,17.659638 L8.50442085,17.4057459 L8.537,17.2191419 L7.20453463,17.0300386 C6.60729884,16.9446944 6.04128653,16.7583164 5.52766417,16.4807106 L5.27531681,16.3343509 L5.03228907,16.1730589 C4.40312257,15.7274991 3.89289325,15.1390283 3.54091765,14.4529921 C3.2300222,13.8470253 3.04905371,13.1778678 3.00866933,12.4810051 L3,12.1807569 L3,8.61806167 C3,7.52240179 3.16154192,6.70289166 3.53519377,5.93530432 C3.91016491,5.16500681 4.4746341,4.53416137 5.19858863,4.07630994 C5.84785529,3.66569345 6.55788315,3.42124046 7.48701558,3.28825038 L7.80505858,3.24797358 L8.08435271,3.21693186 Z M15.75,4.70819184 C13.5069019,4.4588861 11.2451687,4.43395553 8.99834354,4.63340012 L8.25,4.70819184 L7.97070587,4.73923357 C7.05542225,4.84096138 6.48855723,5.03566738 6.00018348,5.34453018 C5.51180973,5.65339297 5.13676386,6.07254069 4.88381142,6.59217704 C4.65615424,7.05984975 4.52739273,7.58051867 4.503917,8.35151924 L4.5,8.61806167 L4.5,12.1807569 C4.5,12.7578304 4.633705,13.2967542 4.87543469,13.7679099 C5.11716438,14.2390656 5.46691876,14.6424533 5.89901753,14.9484547 C6.2693879,15.2107416 6.70025618,15.4014794 7.17545053,15.5020163 L7.41666667,15.5446817 L9.3972793,15.8277088 C9.73556559,15.8760495 9.85414629,15.9244523 9.97236525,16.0026669 C10.0905842,16.0808815 10.2344788,16.1901466 10.2417243,16.3890709 L10.2404816,16.4134654 L10.2404816,16.4134654 L10.2274363,16.4930518 L10.0629244,17.2340564 L9.99864212,17.5671271 C9.88786729,18.1963229 9.83169218,18.8989198 10.088866,19.2011532 C10.3516852,19.5100212 10.7884693,19.5900749 11.1255327,19.3883373 L11.214781,19.3262916 L14.2132471,16.1909389 L14.3427214,16.0897456 L14.4351178,16.0272477 L14.5115492,15.9873431 L14.5115492,15.9873431 L14.5922737,15.9570561 L14.6266899,15.9470147 L14.7138064,15.9273142 L17,15.5446817 C18.3825283,15.3141932 19.4112176,14.1579292 19.4945415,12.774367 L19.5,12.5926708 L19.5,8.61806167 C19.5,7.69687715 19.369141,7.11181338 19.1161886,6.59217704 C18.8632361,6.07254069 18.4881903,5.65339297 17.9998165,5.34453018 C17.5602801,5.06655366 17.0571658,4.88104415 16.2936966,4.77256243 L16.0292941,4.73923357 L15.75,4.70819184 Z M15.2,11.002331 L15.2932969,11.0073782 C15.6911678,11.0507147 16,11.3678106 16,11.7525495 C16,12.1323559 15.6990359,12.4462425 15.3085553,12.4959194 L15.2,12.502768 L8.8,12.502768 L8.7067031,12.4977208 C8.30883215,12.4543843 8,12.1372885 8,11.7525495 C8,11.3727431 8.30096414,11.0588565 8.69144474,11.0091796 L8.8,11.002331 L15.2,11.002331 Z M15.2,7.50131117 L15.2932969,7.50635844 C15.6911678,7.5496949 16,7.86679075 16,8.2515297 C16,8.6313361 15.6990359,8.94522273 15.3085553,8.99489962 L15.2,9.00174823 L8.8,9.00174823 L8.7067031,8.99670096 C8.30883215,8.95336451 8,8.63626865 8,8.2515297 C8,7.8717233 8.30096414,7.55783668 8.69144474,7.50815978 L8.8,7.50131117 L15.2,7.50131117 Z" fill="currentColor"/></svg>';
+const SVG_BOOKMARK_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path d="M15.8737158,3 L8.12636936,3 C6.35174484,3 4.88362079,4.38111129 4.77533041,6.15242863 L4.00364733,18.9216025 C3.97556059,19.3810142 4.11036877,19.8366919 4.3845078,20.2077215 L4.4854818,20.3334255 C5.15129134,21.0966554 6.30276532,21.2327356 7.13167466,20.6202875 L12.0000499,17.023 L16.8684105,20.6202875 C17.2394401,20.8944266 17.6951178,21.0292347 18.1555771,21.0010843 C19.2384215,20.9348841 20.0625744,20.0033993 19.9963742,18.9205549 L19.2248184,6.1534762 C19.1164644,4.38111129 17.6483403,3 15.8737158,3 Z M15.8737158,4.5 C16.855459,4.5 17.6676426,5.26404733 17.7275501,6.243961 L18.4991695,19.0120873 C18.5148178,19.2680484 18.3200058,19.4882313 18.0640447,19.5038797 C17.955202,19.5105338 17.8474897,19.4786681 17.7597862,19.4138675 L12.5518919,15.5659618 C12.2239004,15.3236219 11.7761847,15.3236219 11.4481932,15.5659618 L6.24029893,19.4138675 C6.03405017,19.5662565 5.74331683,19.5225945 5.59092784,19.3163458 C5.52612728,19.2286423 5.49426152,19.12093 5.50091568,19.0120873 L6.27253508,6.243961 C6.3324426,5.26404733 7.14462616,4.5 8.12636936,4.5 L15.8737158,4.5 Z" fill="currentColor"/></svg>';
+const SVG_SHARE_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.3019 3.80546C13.228 2.73151 11.4868 2.73151 10.4128 3.80546C9.33888 4.8794 9.33888 6.6206 10.4128 7.69454L11.4992 8.78096H10.3567C7.07508 8.78096 4.18911 10.9516 3.27882 14.1044L2.04581 18.375C1.73117 19.4648 3.11351 20.2239 3.86425 19.3736L6.15083 16.7837C7.14741 15.655 8.58066 15.0085 10.0864 15.0085H11.5079L10.4128 16.1036C9.33888 17.1775 9.33888 18.9187 10.4128 19.9926C11.4868 21.0666 13.228 21.0666 14.3019 19.9926L20.451 13.8436C21.5249 12.7696 21.5249 11.0284 20.451 9.9545L14.3019 3.80546ZM13.8287 13.7242C13.8328 13.7281 13.8369 13.7321 13.8409 13.7361C14.1338 14.029 14.1338 14.5039 13.8409 14.7968L11.4735 17.1642C10.9853 17.6524 10.9853 18.4438 11.4735 18.932C11.9616 19.4201 12.7531 19.4201 13.2412 18.932L19.3903 12.7829C19.8784 12.2948 19.8784 11.5033 19.3903 11.0152L13.2412 4.86612C12.7531 4.37796 11.9616 4.37796 11.4735 4.86612C10.9853 5.35427 10.9853 6.14573 11.4735 6.63388L13.7404 8.90082C13.9469 9.03442 14.0835 9.26673 14.0835 9.53096C14.0835 9.94162 13.7535 10.2752 13.3442 10.2809C13.3223 10.2819 13.3005 10.2819 13.2787 10.281H10.3567C7.74326 10.281 5.4449 12.0096 4.71995 14.5205L4.02602 16.924L5.02638 15.7909C6.3077 14.3397 8.15045 13.5085 10.0864 13.5085H13.3023C13.5074 13.5085 13.6933 13.5908 13.8287 13.7242Z" fill="currentColor"/></svg>';
+
+const SVG_STREAK = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 24c6.63 0 12-5.37 12-12S18.63 0 12 0 0 5.37 0 12s5.37 12 12 12zm1.09-18.67l-.6-.77c-.56.6-.94 1.37-1.1 2.26-.26 1.44.14 2.81 1 3.86l.2.23-.06.08c-.24.28-.57.5-.94.6-.15-.54-.46-1.03-.9-1.39a2.88 2.88 0 00-3.2-.27c-.83.47-1.31 1.33-1.34 2.24-.04 1.08.42 2.07 1.17 2.83C8.63 16.3 10.2 17 12 17c3.04 0 5.5-2.46 5.5-5.5 0-2.67-2.05-5.24-4.41-6.17z"/></svg>';
+
+function appHeader(opts = {}) {
+  const streakCount = opts.streak || 12;
+  return `<div class="app-hdr">
+    <div class="app-logo">${SVG_LOGO}<span class="logo-text">daily.dev</span></div>
+    <div class="app-hdr-right">
+      <div class="streak-btn">${SVG_STREAK}<span class="streak-num">${streakCount}</span></div>
+      <div class="hdr-divider"></div>
+      <div class="hdr-icon-btn"><svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.69-1.62-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.25-1.13.56-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.69 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.25 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg></div>
+      <div class="hdr-avatar"></div>
+    </div>
+  </div>`;
+}
+
+function appTabs(tabs, activeIdx) {
+  return `<div class="app-tabs">${tabs.map((t,i) => `<div class="app-tab ${i===activeIdx?'on':''}">${t}</div>`).join('')}</div>`;
+}
+
+function postCard(p) {
+  const srcColor = p.srcColor || '#6C5CE7';
+  const thumb = p.thumb ? `<div class="post-thumb" style="background:${p.thumb}"></div>` : '';
+  return `<div class="post-card">
+    <div class="post-hdr">
+      <div class="post-src-icon" style="background:${srcColor}">${p.srcLetter||p.src.charAt(0)}</div>
+      <div class="post-meta">
+        <span class="src-name">${p.src}</span>
+        <span class="post-date">${p.readTime||'5m'} read · ${p.date||'2h ago'}</span>
+      </div>
+      <div class="post-more">···</div>
+    </div>
+    <div class="post-body">
+      <div class="post-title">${p.title}</div>
+      ${thumb}
+    </div>
+    <div class="post-tags">${(p.tags||[]).map(t=>`<span class="post-tag">#${t}</span>`).join('')}</div>
+    <div class="post-actions">
+      <div class="post-action upvote">${SVG_UP}<span>${p.upvotes||'1.2K'}</span></div>
+      <div class="post-action downvote">${SVG_DOWN}</div>
+      <div class="post-action comment">${SVG_COMMENT}<span>${p.comments||'45'}</span></div>
+      <div class="post-action bookmark">${SVG_BM}</div>
+      <div class="post-action link">${SVG_LINK}</div>
+    </div>
+  </div>`;
+}
+
+function bottomNav(active) {
+  const items = [
+    {icon:SVG_HOME, label:'Home'},
+    {icon:SVG_EXPLORE, label:'Explore'},
+    {icon:SVG_BELL, label:'Activity'},
+    {icon:SVG_SQUADS, label:'Squads'},
+    {icon:SVG_JOBS, label:'Jobs'}
+  ];
+  return `<div class="app-bottom-nav">${items.map((it,i) => `<div class="nav-item ${i===active?'on':''}">${it.icon}<span>${it.label}</span></div>`).join('')}</div>`;
+}
+
+function mkFeedUI(data) {
+  const posts = (data.posts||[]).map(p => postCard(p)).join('');
+  return `<div class="app">${appHeader({streak: data.streak||12})}${appTabs(['For you','Popular','Explore','Bookmarks'],0)}${posts}${bottomNav(0)}</div>`;
+}
+
+function mkTagsUI(data) {
+  const onTags = (data.on||[]).map(t => `<div class="tag-pill on"><span class="tag-check">✓</span>${t}</div>`);
+  const offTags = (data.off||[]).map(t => `<div class="tag-pill">${t}</div>`);
+  const tags = [...onTags, ...offTags].join('');
+  return `<div class="app"><div class="tags-header">
+    <div class="tags-title">Pick tags you want to follow</div>
+    <div class="tags-sub">Content you'll see on your feed will be based on your tag selection</div>
+  </div><div class="app-search-bar">${SVG_AI}<span class="search-placeholder">javascript, react, python...</span></div><div class="tag-grid">${tags}</div></div>`;
+}
+
+function mkSearchUI(data) {
+  const srcs = (data.srcs||[]).map(s => `<span class="src-tag">${s}</span>`).join('');
+  return `<div class="app">${appHeader({streak: data.streak||8})}<div class="app-search-bar active">${SVG_AI}<span class="search-query">${data.query||'Search...'}</span></div><div class="ai-answer"><div class="ai-label">${SVG_AI} AI Answer</div><p>${data.answer||''}</p><div class="ai-sources">${srcs}</div></div>${data.posts ? data.posts.slice(0,2).map(p => postCard(p)).join('') : ''}${bottomNav(1)}</div>`;
+}
+
+function mkSquadsUI(data) {
+  const sqs = (data.squads||[]).map(s => `<div class="squad-row">
+    <div class="squad-av" style="background:${s.color||'linear-gradient(135deg,#6C5CE7,#A855F7)'}">${s.e}</div>
+    <div class="squad-info">
+      <div class="squad-name">${s.n}</div>
+      <div class="squad-handle">@${s.handle||s.n.toLowerCase().replace(/\s/g,'')}</div>
+      <div class="squad-members">${s.m} members</div>
+    </div>
+    <div class="squad-join">Join</div>
+  </div>`).join('');
+  return `<div class="app">${appHeader()}${appTabs(['Your Squads','Discover'],1)}<div class="squads-section-title">Discover Squads</div>${sqs}${bottomNav(3)}</div>`;
+}
+
+function mkBookmarksUI(data) {
+  const folds = (data.folders||[]).map(f => `<div class="bm-folder"><span class="bm-emoji">${f.e}</span><div class="bm-info"><span class="bm-name">${f.n}</span><span class="bm-ct">${f.c} saved</span></div></div>`).join('');
+  return `<div class="app">${appHeader()}${appTabs(['All','Folders'],1)}<div class="bm-section-title">Bookmark Folders</div>${folds}${bottomNav(0)}</div>`;
+}
+
+function mkProfileUI(data) {
+  return `<div class="app"><div class="devcard">
+    <div class="devcard-cover" style="background:linear-gradient(135deg,${data.accent||'#CE3DF3'},#5F37E9)">
+      <div class="devcard-avatar-wrap"><div class="devcard-avatar-img"></div></div>
+    </div>
+    <div class="devcard-body">
+      <div class="devcard-name">Sarah Chen</div>
+      <div class="devcard-handle">@sarahchen · Sep 2020</div>
+      <div class="devcard-stats">
+        <div class="devcard-stat"><div class="stat-icon">⭐</div><div class="stat-val">17K</div><div class="stat-label">Reputation</div></div>
+        <div class="devcard-stat"><div class="stat-icon">🔥</div><div class="stat-val">365</div><div class="stat-label">Streak</div></div>
+        <div class="devcard-stat"><div class="stat-icon">📖</div><div class="stat-val">3.8K</div><div class="stat-label">Posts read</div></div>
+      </div>
+      <div class="devcard-bio">Dev Team Lead | Senior Full-Stack Engineer | OSS Contributor</div>
+      <div class="devcard-tags">
+        ${(data.profileTags||['TypeScript','React','Node.js','AI','System Design']).map(t=>`<span class="devcard-tag">#${t}</span>`).join('')}
+      </div>
+      <div class="devcard-sources">
+        <div class="devcard-src-dot" style="background:#1DDC6F"></div>
+        <div class="devcard-src-dot" style="background:#CE3DF3"></div>
+        <div class="devcard-src-dot" style="background:#FF7A2B"></div>
+        <div class="devcard-src-dot" style="background:#2CDCE6"></div>
+        <div class="devcard-src-dot" style="background:#FC538D"></div>
+      </div>
+    </div>
+    <div class="devcard-footer">${SVG_LOGO}<span>daily.dev</span></div>
+  </div>${bottomNav(0)}</div>`;
+}
+
+function mkDiscussUI(data) {
+  return `<div class="app">
+    <div class="article-header">
+      <div class="article-back">${SVG_BACK}</div>
+      <div class="article-hdr-actions">
+        <div class="hdr-icon-btn">${SVG_BM}</div>
+        <div class="hdr-icon-btn">${SVG_LINK}</div>
+      </div>
+    </div>
+    <div class="article-content">
+      <div class="article-source">
+        <div class="post-src-icon" style="background:#E74C3C;width:16px;height:16px;font-size:6px">T</div>
+        <span class="article-source-name">${data.articleSource||'TechCrunch'}</span>
+        <span class="article-follow">Follow</span>
+      </div>
+      <div class="article-title">${data.articleTitle||'The Future of AI-Powered Development Tools'}</div>
+      <div class="article-cover" style="background:${data.coverColor||'linear-gradient(135deg,#1a1a2e,#16213e)'}">
+        <div class="article-cover-text">${data.coverText||'🤖 AI Dev Tools'}</div>
+      </div>
+      <div class="article-meta">${data.date||'Feb 26'} · ${data.readTime||'4m'} read time</div>
+      <div class="article-tldr">
+        <div class="tldr-label">TLDR</div>
+        <div class="tldr-text">${data.tldr||'AI-powered development tools are reshaping how developers write, debug, and deploy code.'}</div>
+      </div>
+      <div class="article-tags">${(data.tags||['ai','coding','devtools']).map(t=>`<span class="article-tag">#${t}</span>`).join('')}</div>
+    </div>
+    <div class="article-actions">
+      <div class="post-action upvote">${SVG_UP}<span>${data.upvotes||'2.1K'}</span></div>
+      <div class="post-action downvote">${SVG_DOWN}</div>
+      <div class="post-action comment">${SVG_COMMENT}<span>${data.comments||'187'}</span></div>
+      <div class="post-action bookmark">${SVG_BM}</div>
+      <div class="post-action link">${SVG_LINK}</div>
+    </div>
+  ${bottomNav(0)}</div>`;
+}
+
+
+function mkExactFeedUI() {
+  return `<div class="app" style="background:#0E1217; height:100%; display:flex; flex-direction:column; font-family:'Inter',sans-serif;">
+    <div style="display:flex; justify-content:center; align-items:center; padding: 18px 0 14px;">
+      <div class="app-logo">${SVG_LOGO}<span class="logo-text" style="font-size:9.5px; margin-left:3px; font-weight:800; letter-spacing:-0.2px;">daily.dev</span></div>
+    </div>
+    
+    <div style="display:flex; padding: 0 16px; margin-bottom: 8px; align-items:center;">
+      <div style="background:#22262D; color:white; padding: 6px 12px; border-radius:12px; font-size:9px; font-weight:700;">For you</div>
+      <div style="color:var(--text-tertiary); margin-left:14px; font-size:9px; font-weight:600;">Popular</div>
+      <div style="color:var(--text-tertiary); margin-left:14px; font-size:9px; font-weight:600;">Bookmarks</div>
+      <div style="color:var(--text-tertiary); margin-left:14px; font-size:9px; font-weight:600;">History</div>
+      <div style="color:var(--text-tertiary); margin-left:auto; width:14px; height:14px;">${SVG_BELL_OUTLINE}</div>
+    </div>
+
+    <div style="display:flex; padding: 10px 16px; align-items:center;">
+      <div style="color:#FC538D; width:12px; height:12px; margin-right:6px;">${SVG_STREAK}</div>
+      <span style="color:var(--text-tertiary); font-size:9px; font-weight:500;">12 reading days</span>
+      <div style="margin-left:auto; display:flex; gap:12px; color:var(--text-tertiary);">
+        <div style="width:14px; height:14px;">${SVG_SORT_OUTLINE}</div>
+        <div style="width:14px; height:14px;">${SVG_FILTER_OUTLINE}</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 4px; border-top: 1px solid rgba(168,179,207,0.08); padding: 12px 16px 0;">
+      <div style="display:flex; align-items:center; margin-bottom: 12px;">
+        <div style="width:24px; height:24px; border-radius:50%; background:white; color:black; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; letter-spacing:-1px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 8l8 8M16 8l-8 8"/></svg>
+        </div>
+        <div style="margin-left:8px; display:flex; flex-direction:column;">
+          <span style="color:white; font-size:9px; font-weight:700;">ITNEXT</span>
+          <span style="color:var(--text-quaternary); font-size:7px; font-weight:500; margin-top:1px;">5m read time • Today</span>
+        </div>
+        <div style="margin-left:auto; display:flex; gap:10px; color:var(--text-tertiary);">
+          <div style="width:12px; height:12px;">${SVG_LINK_OUTLINE}</div>
+          <div style="width:12px; height:12px;">${SVG_MENU_OUTLINE}</div>
+        </div>
+      </div>
+
+      <div style="color:white; font-size:12.5px; font-weight:800; line-height:1.4; margin-bottom: 12px;">
+        Angular is getting New Template<br>Syntax
+      </div>
+
+      <div style="width:100%; aspect-ratio: 1.8; border-radius: 12px; background: linear-gradient(180deg, #111 0%, #2a1010 100%); position:relative; overflow:hidden; margin-bottom:12px; display:flex; justify-content:center; align-items:center;">
+        <div style="position:absolute; top:20%; font-family:monospace; color:#FFD700; font-size:10px; font-weight:bold; background:rgba(0,0,0,0.6); padding:2px 6px;">&lt;div *ngIf=""&gt;&lt;/div&gt;</div>
+        <div style="width:40px; height:45px; background:#DD0031; position:absolute; bottom:15%; clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display:flex; justify-content:center; align-items:center;"><span style="color:white; font-size:24px; font-weight:bold; font-family:sans-serif;">A</span></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom: 12px;">
+        <div style="display:flex; gap:8px;">
+          <div style="display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:var(--bg-subtle); color:var(--text-tertiary);">
+            <div style="width:14px; height:14px;">${SVG_UPVOTE_OUTLINE}</div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:var(--bg-subtle); color:var(--text-tertiary);">
+            <div style="width:14px; height:14px;">${SVG_DOWNVOTE_OUTLINE}</div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:center; padding: 0 10px; height:28px; border-radius:8px; background:var(--bg-subtle); color:var(--text-tertiary); gap:4px;">
+            <div style="width:12px; height:12px;">${SVG_DISCUSS_OUTLINE}</div>
+            <span style="font-size:9px; font-weight:600; color:white;">12</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <div style="display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:var(--bg-subtle); color:var(--text-tertiary);">
+            <div style="width:14px; height:14px;">${SVG_BOOKMARK_OUTLINE}</div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:var(--bg-subtle); color:var(--text-tertiary);">
+            <div style="width:14px; height:14px;">${SVG_SHARE_OUTLINE}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="border-top: 1px solid rgba(168,179,207,0.08); padding: 12px 16px 0;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="color:#CE3DF3; font-size:9px; font-weight:700;">Collection</span>
+        <span style="color:white; font-size:7px; font-weight:800; background:#FF5454; padding:2px 6px; border-radius:4px;">HOT</span>
+      </div>
+      <div style="display:flex; align-items:center;">
+        <div style="display:flex; margin-right:8px;">
+          <div style="width:20px; height:20px; border-radius:50%; background:white; border:2px solid var(--bg-default); display:flex; align-items:center; justify-content:center; z-index:2;"><svg width="10" height="10" viewBox="0 0 24 24" fill="blue"><path d="M4 4l16 8-16 8V4z"/></svg></div>
+          <div style="width:20px; height:20px; border-radius:50%; background:white; border:2px solid var(--bg-default); display:flex; align-items:center; justify-content:center; margin-left:-8px; z-index:1;"><svg width="12" height="12" viewBox="0 0 24 24" fill="orange"><circle cx="12" cy="12" r="10"/></svg></div>
+        </div>
+        <span style="color:white; font-size:9px; font-weight:700;">+32</span>
+        <span style="color:var(--text-quaternary); font-size:8px; margin-left:6px;">Today</span>
+        <div style="margin-left:auto; width:12px; height:12px; color:var(--text-tertiary);">${SVG_MENU_OUTLINE}</div>
+      </div>
+    </div>
+
+  </div>`;
+}
+
+function mkUI(scr, accent) {
+  switch(scr.uiType) {
+    case 'feed': return mkExactFeedUI(scr);
+    case 'tags': return mkTagsUI(scr);
+    case 'search': return mkSearchUI(scr);
+    case 'squads': return mkSquadsUI(scr);
+    case 'bookmarks': return mkBookmarksUI(scr);
+    case 'profile': return mkProfileUI({...scr, accent});
+    case 'discuss': return mkDiscussUI(scr);
+    default: return mkFeedUI(scr);
+  }
+}
+
+function mkBadges(badges) {
+  return (badges||[]).map(b => {
+    const style = `top:${b.top};${b.left?'left:'+b.left:'right:'+b.right};transform:rotate(${b.rot||'0deg'})`;
+    return `<div class="fbadge" style="${style}"><span class="be">${b.emoji}</span>${b.text}</div>`;
+  }).join('');
+}
+
+function mkFloats(floats) {
+  return (floats||[]).map(f => {
+    const style = `top:${f.top};${f.left?'left:'+f.left:'right:'+f.right};transform:rotate(${f.rot||'0deg'})`;
+    const bg = f.bg || 'linear-gradient(135deg, #FF7A2B, #FF5454)';
+    return `<div class="float3d" style="${style}"><div class="float3d-icon" style="background:${bg}">${f.icon}</div></div>`;
+  }).join('');
+}
+
+function mkTags(tags) {
+  return (tags||[]).map(t => {
+    const style = `top:${t.top};${t.left?'left:'+t.left:'right:'+t.right};transform:rotate(${t.rot||'-4.5deg'})`;
+    return `<div class="ftag" style="${style}">#${t.text}</div>`;
+  }).join('');
+}
+
+function mkMasterFeedScreen(cpp, scr, idx) {
+  const phoneImg = 'cpp-assets/phone-feed-v2.png';
+  const rssImg = 'cpp-assets/3d-rss-v2.png';
+  const hashImg = 'cpp-assets/3d-hashtag-v2.png';
+
+  return `<div class="screenshot-slot">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas">
+      <div class="ss-bg"></div>
+      <div class="ss-content">
+        <div style="padding:22px 0 0; text-align:center;">
+          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:34px; color:white; line-height:0.96; letter-spacing:-0.5px;">Learn new<br>things</h3>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; color:rgba(255,255,255,0.64); margin-top:4px;">anywhere</div>
+        </div>
+
+        <img class="figma-3d-icon" src="${rssImg}" style="left:-35px; top:107px; width:109px; height:109px; z-index:2;" alt="" />
+        <img class="figma-3d-icon" src="${hashImg}" style="right:-42px; top:100px; width:125px; height:125px; z-index:2;" alt="" />
+
+        <div class="phone-zone" style="padding:0 10px; margin-top:72px; z-index:3;">
+          <div class="phone" style="width:234px; border-width:6px 6px 0; border-radius:30px 30px 0 0; box-shadow:0px -0.5px 0px 7.5px rgba(255,255,255,0.64), 0 8px 32px rgba(0,0,0,0.4);">
+            <div class="phone-notch"></div>
+            <div class="app" style="border-radius:24px 24px 0 0;">
+              <img src="${phoneImg}" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">1320×2868</div>
+  </div>`;
+}
+
+function mkHeroScreen(cpp, scr, idx) {
+  const S = 280/720;
+  const laurelImg = 'cpp-assets/hero/laurel.png';
+  const ghLogoSvg = 'cpp-assets/hero/github-logo.svg';
+  const phIconSvg = 'cpp-assets/hero/ph-icon.svg';
+  const starSvg = `<svg viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M36.47 2.1C36.71 1.7 37.3 1.7 37.54 2.1L48.38 20.11C48.64 20.54 49.07 20.86 49.56 20.97L70.04 25.71C70.5 25.82 70.68 26.37 70.37 26.73L56.59 42.6C56.26 42.99 56.1 43.49 56.14 43.99L57.96 64.93C58 65.4 57.52 65.74 57.09 65.56L37.74 57.36C37.27 57.16 36.74 57.16 36.28 57.36L16.92 65.56C16.49 65.74 16.02 65.4 16.06 64.93L17.87 43.99C17.92 43.49 17.75 42.99 17.42 42.6L3.64 26.73C3.34 26.37 3.52 25.82 3.98 25.71L24.45 20.97C24.95 20.86 25.37 20.54 25.63 20.11L36.47 2.1Z" fill="url(#sg)" stroke="url(#sr)" stroke-width="1.25"/><defs><linearGradient id="sg" x1="37" y1="0" x2="37" y2="74" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8E3B"/><stop offset="1" stop-color="#FFDF00"/></linearGradient><radialGradient id="sr" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(47 17) rotate(87) scale(32)"><stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></radialGradient></defs></svg>`;
+  const starSize = Math.round(74*S);
+
+  return `<div class="screenshot-slot">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas">
+      <div class="ss-bg"></div>
+      <div class="ss-content" style="position:relative; overflow:hidden; text-align:left;">
+
+        <!-- Top-right laurel wreath -->
+        <div style="position:absolute; left:${Math.round(168*S)}px; top:${Math.round(-133*S)}px; width:${Math.round(595*S)}px; height:${Math.round(595*S)}px; z-index:1; transform:rotate(-36.08deg);">
+          <img src="${laurelImg}" style="width:100%;height:100%;object-fit:contain;" alt="" />
+        </div>
+
+        <!-- Bottom laurel wreath -->
+        <div style="position:absolute; left:50%; top:${Math.round(754*S)}px; width:${Math.round(1179*S)}px; height:${Math.round(939*S)}px; transform:translateX(-50%); z-index:1; display:flex; align-items:center; justify-content:center;">
+          <div style="width:${Math.round(878*S)}px; height:${Math.round(683*S)}px; transform:rotate(154.76deg) scaleY(-1) skewX(9.03deg);">
+            <img src="${laurelImg}" style="width:100%;height:100%;object-fit:contain;" alt="" />
+          </div>
+        </div>
+
+        <!-- daily.dev logo (original from Figma) -->
+        <div style="position:absolute; left:${Math.round(64*S)}px; top:${Math.round(104*S)}px; width:${Math.round(319*S)}px; height:${Math.round(56*S)}px; z-index:5;">
+          <img src="cpp-assets/hero/dd-logo-icon.svg" style="position:absolute; left:0; top:0; width:${Math.round(100*S)}px; height:${Math.round(56*S)}px;" alt="" />
+          <img src="cpp-assets/hero/dd-logo-text.svg" style="position:absolute; left:${Math.round(119*S)}px; top:${Math.round(3*S)}px; width:${Math.round(200*S)}px; height:${Math.round(50*S)}px;" alt="" />
+        </div>
+
+        <!-- Title: "The world's best dev app for" -->
+        <div style="position:absolute; left:${Math.round(64*S)}px; top:${Math.round(224*S)}px; z-index:5; text-align:left;">
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(56*S)}px; color:rgba(255,255,255,0.64); line-height:1.12; width:${Math.round(513*S)}px;">${scr.hl}</div>
+        </div>
+
+        <!-- Title: "staying up to date" -->
+        <div style="position:absolute; left:${Math.round(64*S)}px; top:${Math.round(363*S)}px; z-index:5; text-align:left;">
+          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(88*S)}px; color:white; line-height:1.12; letter-spacing:-0.5px; width:${Math.round(477*S)}px;">${scr.sub||''}</h3>
+        </div>
+
+        <!-- Badges row -->
+        <div style="position:absolute; left:${Math.round(67*S)}px; top:${Math.round(664*S)}px; display:flex; gap:${Math.round(55*S)}px; z-index:5;">
+
+          <!-- GitHub Stars Badge -->
+          <div style="position:relative; width:${Math.round(266*S)}px; height:${Math.round(266*S)}px;">
+            <div style="position:absolute; left:50%; top:50%; width:${Math.round(186*S)}px; height:${Math.round(186*S)}px; transform:translate(-50%,-50%) rotate(-6.51deg); background:#6f1978; filter:blur(${Math.round(22*S)}px); border-radius:${Math.round(20*S)}px;"></div>
+            <div style="position:absolute; left:50%; top:50%; width:${Math.round(240*S)}px; height:${Math.round(240*S)}px; transform:translate(-50%,-50%) rotate(-6.51deg); background:black; border-radius:${Math.round(44*S)}px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:${Math.round(6*S)}px; padding:${Math.round(16*S)}px; text-align:center;">
+              <div style="width:${Math.round(85*S)}px; height:${Math.round(85*S)}px; display:flex; align-items:center; justify-content:center;">
+                <img src="${ghLogoSvg}" style="width:${Math.round(55*S)}px; height:${Math.round(60*S)}px;" alt="" />
+              </div>
+              <div style="color:white;">
+                <div style="display:flex; align-items:center; justify-content:center; gap:${Math.round(4*S)}px;">
+                  <span style="font-family:'Roboto',sans-serif; font-weight:700; font-size:${Math.round(28*S)}px; line-height:1.2;">19K+</span>
+                  <span style="font-family:'Roboto',sans-serif; font-weight:400; font-size:${Math.round(20*S)}px; line-height:1.3;">GitHub Stars</span>
+                </div>
+                <div style="font-family:'Roboto',sans-serif; font-weight:400; font-size:${Math.round(20*S)}px; color:rgba(168,179,207,1); margin-top:${Math.round(4*S)}px;">dailydotdev/daily</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product of the Year Badge -->
+          <div style="position:relative; width:${Math.round(266*S)}px; height:${Math.round(266*S)}px;">
+            <div style="position:absolute; left:50%; top:50%; width:${Math.round(186*S)}px; height:${Math.round(186*S)}px; transform:translate(-50%,-50%) rotate(6deg); background:#7b2aa4; filter:blur(${Math.round(22*S)}px); border-radius:${Math.round(20*S)}px;"></div>
+            <div style="position:absolute; left:50%; top:50%; width:${Math.round(240*S)}px; height:${Math.round(240*S)}px; transform:translate(-50%,-50%) rotate(6deg); border:1px solid white; border-radius:${Math.round(44*S)}px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:${Math.round(6*S)}px; padding:${Math.round(16*S)}px; text-align:center; background:radial-gradient(circle at center, #FFDF00 0%, #FFCB0F 25%, #FFB61E 50%, #FF8E3B 100%);">
+              <div style="width:${Math.round(60*S)}px; height:${Math.round(60*S)}px;">
+                <img src="${phIconSvg}" style="width:100%; height:100%;" alt="" />
+              </div>
+              <div style="color:black;">
+                <div style="font-family:'Roboto',sans-serif; font-weight:700; font-size:${Math.round(28*S)}px; line-height:1.1;">Product of<br>the Year</div>
+                <div style="font-family:'Roboto',sans-serif; font-weight:500; font-size:${Math.round(20*S)}px; margin-top:${Math.round(4*S)}px;">Community &amp; Social</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Gold Stars -->
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:${Math.round(992*S)}px; z-index:5;">
+          <div style="position:relative; width:${Math.round(415*S)}px; height:${Math.round(110*S)}px;">
+            <div style="position:absolute; left:0; top:${Math.round(36*S)}px; width:${starSize}px; height:${starSize}px;">${starSvg}</div>
+            <div style="position:absolute; left:${Math.round(85*S)}px; top:${Math.round(12*S)}px; width:${starSize}px; height:${starSize}px;">${starSvg}</div>
+            <div style="position:absolute; left:${Math.round(170*S)}px; top:0; width:${starSize}px; height:${starSize}px;">${starSvg}</div>
+            <div style="position:absolute; left:${Math.round(255*S)}px; top:${Math.round(12*S)}px; width:${starSize}px; height:${starSize}px;">${starSvg}</div>
+            <div style="position:absolute; left:${Math.round(340*S)}px; top:${Math.round(36*S)}px; width:${starSize}px; height:${starSize}px;">${starSvg}</div>
+          </div>
+        </div>
+
+        <!-- 2,500+ Reviews -->
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:${Math.round(1126*S)}px; z-index:5; white-space:nowrap; text-align:center;">
+          <span style="font-family:'Inter','Roboto',sans-serif; font-weight:700; font-size:${Math.round(52*S)}px; color:white;">2,500+ Reviews</span>
+        </div>
+
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">1320×2868</div>
+  </div>`;
+}
+
+function mkPersonalizedScreen(cpp, scr, idx) {
+  const A = {
+    group7671: 'https://www.figma.com/api/mcp/asset/b0491ed8-49be-4b49-a7cf-14c94ffa38b9',
+    ellipse28: 'https://www.figma.com/api/mcp/asset/4f5178bd-c616-41ad-a236-4a4ad1cd3587',
+    frame64: 'https://www.figma.com/api/mcp/asset/988691ba-1923-416d-a629-9e7b4b1844fe',
+    frame65: 'https://www.figma.com/api/mcp/asset/43d63eeb-0e67-48d6-ae6e-dc668a8c98a5',
+    image2: 'https://www.figma.com/api/mcp/asset/1f5c599c-6bcd-4c31-b052-760125d3a752',
+    group43: 'https://www.figma.com/api/mcp/asset/af0d6e28-d4c8-4b9a-9b13-7eb77a5f876f',
+    ellipse29: 'https://www.figma.com/api/mcp/asset/b88e8fe5-aa6f-4551-8f86-394b0333aa0a',
+    frame34: 'https://www.figma.com/api/mcp/asset/e3ced7af-4716-4f43-841e-01799c03d392',
+    ellipse3: 'https://www.figma.com/api/mcp/asset/2ebf60ad-ab79-4a3e-a8e7-00ea85f3895b',
+    ellipse23: 'https://www.figma.com/api/mcp/asset/657c1c78-404a-465f-a195-fbbfd7ca73c8',
+    frame35: 'https://www.figma.com/api/mcp/asset/a9b883a2-6bcb-4621-9107-f1c9b08890ef',
+    phone: 'https://www.figma.com/api/mcp/asset/b2d5842b-d785-424b-bc03-d8fe89a46872',
+    stars: 'https://www.figma.com/api/mcp/asset/07045398-fe66-4cd1-a1e3-76b9f1517dcf',
+    starDeco: 'https://www.figma.com/api/mcp/asset/e278eeb5-b59d-41d4-b70e-a71d63453c9e',
+  };
+  const sc = v => Math.round(v * 280 / 720);
+  const starSvg = '<svg viewBox="0 0 80 80"><defs><linearGradient id="sg" x1="40" y1="0" x2="40" y2="80" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#FFE34D"/><stop offset="50%" stop-color="#FFD700"/><stop offset="100%" stop-color="#E5A800"/></linearGradient></defs><polygon points="40,2 50.8,27 79,27 56,45 64,74 40,56 16,74 24,45 1,27 29.2,27" fill="url(#sg)" stroke="#D4960A" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+
+  return `<div class="screenshot-slot">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas" style="position:relative; overflow:hidden;">
+      <div class="ss-bg"></div>
+
+      <!-- Headline: "Personalized" + "for you" -->
+      <div style="position:absolute; left:${sc(48)}px; top:${sc(104)}px; z-index:10;">
+        <div style="position:relative; width:${sc(625)}px; text-align:center;">
+          <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${sc(88)}px; color:white; line-height:1.12;">Personalized</div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${sc(56)}px; color:rgba(255,255,255,0.64); line-height:1; position:absolute; left:${sc(109)}px; top:${sc(99)}px; width:${sc(406)}px; text-align:center;">for you</div>
+        </div>
+      </div>
+
+      <!-- Stars — 5 gold gradient stars matching Figma -->
+      <div style="position:absolute; left:${sc(144.5)}px; top:${sc(303)}px; z-index:10; width:${sc(432)}px; height:${sc(81)}px;">
+        <img src="${A.stars}" width="${sc(432)}" height="${sc(81)}" style="display:block; width:${sc(432)}px; height:${sc(81)}px; object-fit:contain;" alt=""
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div style="display:none; gap:${sc(8)}px; align-items:center; justify-content:center; width:100%; height:100%;">
+          ${Array(5).fill('<div style="width:'+sc(80)+'px; height:'+sc(80)+'px;">'+starSvg+'</div>').join('')}
+        </div>
+      </div>
+
+      <!-- Quote -->
+      <div style="position:absolute; top:${sc(399)}px; left:0; right:0; z-index:10; text-align:center; font-family:'Poppins',sans-serif;">
+        <span style="font-size:${sc(32)}px; font-weight:500; color:white; line-height:1.15;">&ldquo;Must have app for devs&rdquo; </span>
+        <span style="font-size:${sc(24)}px; font-weight:500; color:rgba(255,255,255,0.64);">James Barish</span>
+      </div>
+
+      <!-- Blur shadows behind floating logos -->
+      <div style="position:absolute; left:${sc(398)}px; top:${sc(844)}px; width:${sc(144)}px; height:${sc(134)}px; background:rgba(0,0,0,0.2); filter:blur(${sc(27.5)}px); border-radius:${sc(104)}px; z-index:1;"></div>
+      <div style="position:absolute; left:${sc(346)}px; top:${sc(932)}px; width:${sc(222)}px; height:${sc(207)}px; background:rgba(0,0,0,0.2); filter:blur(${sc(27.5)}px); border-radius:${sc(104)}px; z-index:1;"></div>
+      <div style="position:absolute; left:${sc(163)}px; top:${sc(915)}px; width:${sc(138)}px; height:${sc(129)}px; background:rgba(0,0,0,0.2); filter:blur(${sc(27.5)}px); border-radius:${sc(104)}px; z-index:1;"></div>
+      <div style="position:absolute; left:${sc(514)}px; top:${sc(1418)}px; width:${sc(121)}px; height:${sc(88)}px; background:#852476; filter:blur(${sc(27.5)}px); border-radius:${sc(25)}px; opacity:0.9; z-index:1;"></div>
+
+      <!-- Floating logo: Ellipse 29 — JS logo, top-left -->
+      <div style="position:absolute; left:${sc(-90)}px; top:${sc(470)}px; width:${sc(209)}px; height:${sc(209)}px; z-index:2; display:flex; align-items:center; justify-content:center;">
+        <img src="${A.ellipse29}" width="${sc(181)}" height="${sc(181)}" style="width:${sc(181)}px; height:${sc(181)}px; transform:rotate(10.01deg);" alt="" />
+      </div>
+
+      <!-- Floating logo: Group 43 — chat icon, left mid -->
+      <div style="position:absolute; left:${sc(3)}px; top:${sc(745)}px; width:${sc(147)}px; height:${sc(148)}px; z-index:2; display:flex; align-items:center; justify-content:center;">
+        <img src="${A.group43}" width="${sc(128)}" height="${sc(129)}" style="width:${sc(128)}px; height:${sc(129)}px; border-radius:${sc(163)}px; transform:rotate(-9.63deg); object-fit:cover;" alt="" />
+      </div>
+
+      <!-- Floating logo: Group 767 — small circle, left lower -->
+      <div style="position:absolute; left:${sc(-16)}px; top:${sc(970)}px; width:${sc(115)}px; height:${sc(116)}px; z-index:2; display:flex; align-items:center; justify-content:center;">
+        <img src="${A.group7671}" width="${sc(85)}" height="${sc(85)}" style="width:${sc(85)}px; height:${sc(85)}px; border-radius:50%; transform:rotate(-29.36deg); object-fit:cover;" alt="" />
+      </div>
+
+      <!-- Floating logo: Ellipse 23 — diamond pattern, right -->
+      <div style="position:absolute; left:${sc(613)}px; top:${sc(611)}px; width:${sc(154)}px; height:${sc(155)}px; z-index:2;">
+        <img src="${A.ellipse23}" width="${sc(154)}" height="${sc(155)}" style="width:${sc(154)}px; height:${sc(155)}px;" alt="" />
+      </div>
+
+      <!-- Floating logo: Frame 65 — DEV circle, right upper -->
+      <div style="position:absolute; left:${sc(585)}px; top:${sc(834)}px; width:${sc(106)}px; height:${sc(106)}px; z-index:2; display:flex; align-items:center; justify-content:center;">
+        <img src="${A.frame65}" width="${sc(90)}" height="${sc(90)}" style="width:${sc(90)}px; height:${sc(90)}px; border-radius:50%; transform:rotate(10.89deg); object-fit:cover; box-shadow:0 ${sc(30)}px ${sc(50)}px rgba(0,0,0,0.4);" alt="" />
+      </div>
+
+      <!-- Floating logo: white circle + Image 2, right middle -->
+      <div style="position:absolute; left:${sc(535)}px; top:${sc(1093)}px; width:${sc(156)}px; height:${sc(157)}px; z-index:2;">
+        <div style="width:${sc(128)}px; height:${sc(128)}px; border-radius:50%; background:white; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-15deg);"></div>
+        <img src="${A.image2}" width="${sc(81)}" height="${sc(81)}" style="width:${sc(81)}px; height:${sc(81)}px; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-16.41deg); object-fit:cover;" alt="" />
+      </div>
+
+      <!-- Floating logo: Frame 34 + Ellipse 3 — left lower -->
+      <div style="position:absolute; left:${sc(41)}px; top:${sc(1151)}px; z-index:2;">
+        <div style="width:${sc(174)}px; height:${sc(173)}px; border-radius:50%; background:white; overflow:hidden; position:relative;">
+          <img src="${A.ellipse3}" width="${sc(144)}" height="${sc(145)}" style="position:absolute; left:${sc(15)}px; top:${sc(13)}px; width:${sc(144)}px; height:${sc(145)}px;" alt="" />
+        </div>
+      </div>
+
+      <!-- Floating logo: Ellipse 28 + Frame 64 — bottom-left -->
+      <div style="position:absolute; left:${sc(15)}px; top:${sc(1385)}px; width:${sc(171)}px; height:${sc(171)}px; z-index:2; display:flex; align-items:center; justify-content:center;">
+        <div style="position:relative; transform:rotate(-22.37deg);">
+          <img src="${A.ellipse28}" width="${sc(131)}" height="${sc(131)}" style="position:absolute; width:${sc(131)}px; height:${sc(131)}px; top:50%; left:50%; transform:translate(-50%,-50%);" alt="" />
+          <img src="${A.frame64}" width="${sc(121)}" height="${sc(121)}" style="width:${sc(121)}px; height:${sc(121)}px; border-radius:50%; object-fit:cover; box-shadow:0 ${sc(30)}px ${sc(50)}px rgba(0,0,0,0.4); position:relative; z-index:1;" alt="" />
+        </div>
+      </div>
+
+      <!-- Floating logo: Frame 35 — megaphone, bottom right -->
+      <div style="position:absolute; left:${sc(504)}px; top:${sc(1324)}px; width:${sc(188)}px; height:${sc(188)}px; z-index:2; display:flex; align-items:center; justify-content:center;">
+        <img src="${A.frame35}" width="${sc(153)}" height="${sc(153)}" style="width:${sc(153)}px; height:${sc(153)}px; transform:rotate(-165.23deg) scaleY(-1); object-fit:cover;" alt="" />
+      </div>
+
+      <!-- Phone mockup -->
+      <div style="position:absolute; left:50%; top:${sc(526)}px; transform:translateX(-50%); width:${sc(436)}px; height:${sc(936)}px; border:${Math.max(3, sc(10.4))}px solid black; border-radius:${sc(69)}px; box-shadow:0px ${sc(-0.87)}px 0px ${sc(14)}px rgba(255,255,255,0.64); overflow:hidden; z-index:5;">
+        <img src="${A.phone}" style="width:100%; height:100%; object-fit:cover; display:block;" alt="" />
+      </div>
+
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">1320×2868</div>
+  </div>`;
+}
+
+function mkMasterDiscussScreen(cpp, scr, idx) {
+  const phoneImg = 'cpp-assets/tab3/phone.png';
+  const chatImg = 'cpp-assets/tab3/3d-chat.png';
+  const upvoteImg = 'cpp-assets/tab3/3d-upvote.png';
+  const girlImg = 'cpp-assets/tab3/3d-share.png';
+  const avatarFrame1 = 'cpp-assets/tab3/avatar-frame-1.png';
+  const avatarFrame3 = 'cpp-assets/tab3/avatar-frame-3.png';
+
+  return `<div class="screenshot-slot">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas">
+      <div class="ss-bg"></div>
+      <div class="ss-content" style="position:relative; overflow:hidden;">
+        <div style="padding:20px 0 0 16px; text-align:left; position:relative; z-index:7;">
+          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:38px; color:white; line-height:1.0; letter-spacing:-0.5px;">Discuss</h3>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; color:rgba(255,255,255,0.64); margin-top:6px; width:150px; line-height:1.18;">with a global<br>dev community</div>
+        </div>
+
+        <!-- Top-right: girl avatar with chat bubble -->
+        <img class="figma-3d-icon" src="${avatarFrame1}" style="right:10px; top:18px; width:76px; height:76px; border-radius:50%; object-fit:cover; z-index:5; transform:rotate(-8.9deg);" alt="" />
+        <img class="figma-3d-icon" src="${chatImg}" style="right:56px; top:4px; width:42px; height:42px; z-index:6; transform:rotate(-16.2deg);" alt="" />
+
+        <!-- Left floating: upvote arrow -->
+        <div style="position:absolute; left:4px; top:198px; width:48px; height:52px; background:#3cb34a; opacity:0.5; filter:blur(8px); border-radius:10px; z-index:1;"></div>
+        <img class="figma-3d-icon" src="${upvoteImg}" style="left:-8px; top:182px; width:68px; height:68px; z-index:6; transform:rotate(7.8deg);" alt="" />
+
+        <!-- Left floating: girl with share arrow -->
+        <div style="position:absolute; left:8px; top:310px; width:46px; height:54px; background:#8f3776; opacity:0.5; filter:blur(8px); border-radius:10px; z-index:1;"></div>
+        <img class="figma-3d-icon" src="${girlImg}" style="left:-18px; top:274px; width:80px; height:80px; z-index:2;" alt="" />
+        <img class="figma-3d-icon" src="${avatarFrame3}" style="left:4px; top:310px; width:52px; height:52px; z-index:3; border-radius:16px; object-fit:cover;" alt="" />
+
+        <!-- Phone offset to right, extending beyond bottom -->
+        <div style="position:absolute; right:-20px; top:155px; width:244px; bottom:-20px; z-index:4;">
+          <div style="width:100%; height:100%; border:5.6px solid black; border-radius:28px 28px 0 0; border-bottom:none; box-shadow:0px -0.5px 0px 7.5px rgba(255,255,255,0.64), 0 8px 32px rgba(0,0,0,0.4); overflow:hidden; position:relative;">
+            <div style="position:absolute; top:-18px; left:0; right:0; bottom:0;">
+              <img src="${phoneImg}" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">1320×2868</div>
+  </div>`;
+}
+
+function mkMasterSearchScreen(cpp, scr, idx) {
+  const phoneImg = 'cpp-assets/tab4/phone.png';
+  const leftImg = 'cpp-assets/tab4/3d-search-left.png';
+  const rightImg = 'cpp-assets/tab4/3d-search-right.png';
+  const searchIcon = 'cpp-assets/tab4/search-icon.svg';
+  const S = 280/720;
+
+  return `<div class="screenshot-slot">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas">
+      <div class="ss-bg"></div>
+      <div class="ss-content" style="position:relative; overflow:hidden;">
+
+        <!-- Headline: "Explore a world of" + "developer resources" -->
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:${Math.round(104*S)}px; width:${Math.round(626*S)}px; text-align:center; z-index:7;">
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(56*S)}px; color:rgba(255,255,255,0.64); line-height:1.12;">Explore a world of</div>
+        </div>
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:${Math.round(172*S)}px; width:${Math.round(520*S)}px; text-align:center; z-index:7;">
+          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(88*S)}px; color:white; line-height:1.12; letter-spacing:-0.5px;">developer<br>resources</h3>
+        </div>
+
+        <!-- Left 3D icon: shadow + image -->
+        <div style="position:absolute; left:${Math.round(-83*S)}px; top:${Math.round(387*S)}px; width:${Math.round(137*S)}px; height:${Math.round(125*S)}px; background:#852476; opacity:0.6; filter:blur(${Math.round(22*S)}px); border-radius:${Math.round(30*S)}px; z-index:1;"></div>
+        <img class="figma-3d-icon" src="${leftImg}" style="left:${Math.round(-96*S)}px; top:${Math.round(309*S)}px; width:${Math.round(255*S)}px; height:${Math.round(255*S)}px; z-index:2; transform:rotate(-11.25deg);" alt="" />
+
+        <!-- Right 3D icon: shadow + image -->
+        <div style="position:absolute; left:${Math.round(651*S)}px; top:${Math.round(422*S)}px; width:${Math.round(138*S)}px; height:${Math.round(126*S)}px; background:#852476; opacity:0.6; filter:blur(${Math.round(22*S)}px); border-radius:${Math.round(20*S)}px; z-index:1;"></div>
+        <img class="figma-3d-icon" src="${rightImg}" style="left:${Math.round(561*S)}px; top:${Math.round(309*S)}px; width:${Math.round(261*S)}px; height:${Math.round(261*S)}px; z-index:2; transform:rotate(18.85deg);" alt="" />
+
+        <!-- Search bar (pill-shaped, dark bg, light border) -->
+        <div style="position:absolute; left:50%; transform:translate(-50%,-50%); top:${Math.round(509*S)}px; width:${Math.round(460*S)}px; height:${Math.round(81*S)}px; background:#0e1217; border:${Math.round(9.6*S)}px solid rgba(255,255,255,0.64); border-radius:${Math.round(81*S/2)}px; display:flex; align-items:center; padding:0 ${Math.round(23*S)}px; gap:${Math.round(6*S)}px; z-index:6; backdrop-filter:blur(${Math.round(47*S)}px);">
+          <svg viewBox="0 0 35 35" fill="white" style="width:${Math.round(35*S)}px; height:${Math.round(35*S)}px; flex-shrink:0;"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.44 0.666C15.625 0.666 17.688 1.178 19.512 2.085C19.024 2.972 18.093 3.552 17.049 3.596L15.381 3.665C14.752 3.551 14.103 3.491 13.44 3.491C7.608 3.491 2.88 8.127 2.88 13.847C2.88 19.427 7.38 23.977 13.015 24.195L13.44 24.204L13.865 24.195C19.5 23.977 24 19.427 24 13.847L23.994 13.597L24.152 13.184C24.535 12.179 25.45 11.47 26.52 11.328L26.633 11.318C26.795 12.137 26.88 12.982 26.88 13.847C26.88 16.242 26.229 18.488 25.09 20.423C26.497 20.306 27.941 20.727 29.077 21.685L29.379 21.96L32.972 25.484C35.089 27.56 35.089 30.927 32.972 33.003C30.943 34.993 27.707 35.076 25.577 33.252L25.306 33.003L21.712 29.479C20.538 28.327 20.015 26.777 20.144 25.272C18.172 26.389 15.882 27.028 13.44 27.028C6.017 27.028 0 21.127 0 13.847C0 6.567 6.017 0.666 13.44 0.666ZM23.749 23.957C22.823 24.866 22.761 26.301 23.564 27.279L23.749 27.481L27.342 31.006C27.805 31.46 28.403 31.702 29.009 31.732H29.269L29.528 31.706C30.043 31.629 30.539 31.395 30.936 31.006C31.862 30.097 31.924 28.662 31.121 27.684L30.936 27.481L27.342 23.957C26.35 22.984 24.741 22.984 23.749 23.957ZM23.846 0.808L23.932 2.754C24.016 4.672 25.262 6.354 27.096 7.025L28.957 7.706C29.835 8.028 29.63 9.3 28.693 9.339L26.708 9.423C26.512 9.431 26.317 9.451 26.126 9.482L26.029 9.499C25.876 9.526 25.725 9.561 25.576 9.603L25.294 9.691L24.948 9.826L24.625 9.981L24.409 10.101L24.138 10.273L23.823 10.506L23.762 10.557C23.141 11.074 22.65 11.746 22.353 12.526L21.659 14.351C21.528 14.696 21.242 14.87 20.943 14.897L20.793 14.898L20.645 14.875C20.305 14.794 20.013 14.521 19.994 14.093L19.908 12.146C19.824 10.229 18.578 8.546 16.744 7.875L14.883 7.194C14.005 6.873 14.21 5.601 15.147 5.561L17.132 5.478C17.707 5.453 18.261 5.33 18.775 5.123L18.983 5.03C19.319 4.878 19.635 4.688 19.926 4.465L20.208 4.232L20.437 4.013L20.7 3.721L20.786 3.614L20.935 3.414L21.042 3.255L20.983 3.344C21.185 3.045 21.355 2.72 21.487 2.374L22.181 0.549C22.509 -0.312 23.806 -0.111 23.846 0.808Z"/></svg>
+          <span style="font-family:'Roboto',sans-serif; font-size:${Math.round(32*S)}px; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1;">How to be a great developer?</span>
+        </div>
+
+        <!-- Phone (rounded top only, extends to bottom) -->
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:${Math.round(544*S)}px; width:${Math.round(602*S)}px; bottom:0; z-index:4;">
+          <div style="width:100%; height:100%; border:${Math.round(14.4*S)}px solid black; border-radius:${Math.round(64*S)}px ${Math.round(64*S)}px 0 0; border-bottom:none; box-shadow:0px ${Math.round(-1.2*S)}px 0px ${Math.round(19.2*S)}px rgba(255,255,255,0.64); overflow:hidden; position:relative;">
+            <div style="position:absolute; top:-12px; left:0; right:0; bottom:0;">
+              <img src="${phoneImg}" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">1320×2868</div>
+  </div>`;
+}
+
+function mkMasterFeaturesScreen(cpp, scr, idx) {
+  const phoneImg = 'cpp-assets/tab5/phone.png';
+  const atomImg = 'cpp-assets/tab5/3d-atom.png';
+  const bookmarkImg = 'cpp-assets/tab5/3d-bookmark.png';
+  const S = 280/720;
+  const plusSvg = '<svg viewBox="0 0 24 24" fill="white" width="'+Math.round(24*S)+'" height="'+Math.round(24*S)+'"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>';
+
+  return `<div class="screenshot-slot">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas">
+      <div class="ss-bg"></div>
+      <div class="ss-content" style="position:relative; overflow:hidden;">
+
+        <!-- Headline: + Bookmarks / + Squads / + DevCards / and much more -->
+        <div style="position:absolute; left:${Math.round(104*S)}px; top:${Math.round(104*S)}px; display:flex; flex-direction:column; gap:${Math.round(24*S)}px; z-index:7;">
+          <div style="display:flex; flex-direction:column; gap:${Math.round(12*S)}px;">
+            <div style="display:flex; align-items:center; gap:0;">
+              <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${plusSvg}</div>
+              <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">Bookmarks</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0;">
+              <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${plusSvg}</div>
+              <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">Squads</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0;">
+              <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${plusSvg}</div>
+              <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">DevCards</span>
+            </div>
+          </div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(40*S)}px; color:rgba(255,255,255,0.64); line-height:1;">and much more.</div>
+        </div>
+
+        <!-- Left 3D atom -->
+        <img class="figma-3d-icon" src="${atomImg}" style="left:${Math.round(-90*S)}px; top:${Math.round(386*S)}px; width:${Math.round(296*S)}px; height:${Math.round(296*S)}px; z-index:6; transform:rotate(-173deg) scaleY(-1);" alt="" />
+
+        <!-- Bottom-right 3D bookmark -->
+        <div style="position:absolute; left:${Math.round(672.5*S)}px; top:${Math.round(1182*S)}px; width:${Math.round(257*S)}px; height:${Math.round(257*S)}px; z-index:6; transform:translateX(-50%);">
+          <img src="${bookmarkImg}" style="width:100%;height:100%;object-fit:contain;" alt="" />
+        </div>
+
+        <!-- Phone (ALL corners rounded, contained rectangle) -->
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:${Math.round(561*S)}px; width:${Math.round(602*S)}px; height:${Math.round(770*S)}px; z-index:4;">
+          <div style="width:100%; height:100%; border:${Math.round(14.4*S)}px solid black; border-radius:${Math.round(64*S)}px; box-shadow:0px ${Math.round(-1.2*S)}px 0px ${Math.round(19.2*S)}px rgba(255,255,255,0.64); overflow:hidden; background:#0e1217;">
+            <img src="${phoneImg}" style="width:100%;height:100%;object-fit:cover;display:block;" alt="" />
+          </div>
+        </div>
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">1320×2868</div>
+  </div>`;
+}
+
+function mkScreen(cpp, scr, idx) {
+  if (scr.uiType === 'hero') return mkHeroScreen(cpp, scr, idx);
+  if (cpp.id === 'master' && scr.uiType === 'feed') return mkMasterFeedScreen(cpp, scr, idx);
+  if (cpp.id === 'master' && scr.label === 'Personalized') return mkPersonalizedScreen(cpp, scr, idx);
+  if (cpp.id === 'master' && scr.label === 'Discuss') return mkMasterDiscussScreen(cpp, scr, idx);
+  if (cpp.id === 'master' && scr.label === 'Search') return mkMasterSearchScreen(cpp, scr, idx);
+  if (cpp.id === 'master' && scr.label === 'Features') return mkMasterFeaturesScreen(cpp, scr, idx);
+  const ui = mkUI(scr, cpp.accent);
+  const hlPos = scr.hlPos || 'top';
+  const bgStyle = '';
+
+  const hlHTML = hlPos === 'top'
+    ? `<div class="ss-headline"><h3>${scr.hl}</h3><div class="sub">${scr.sub||''}</div></div>`
+    : '';
+  const hlBottomHTML = hlPos === 'bottom'
+    ? `<div class="ss-headline-bottom"><h3>${scr.hl}</h3><div class="sub">${scr.sub||''}</div></div>`
+    : '';
+  const socialHTML = scr.stars ? `<div class="ss-social"><div class="ss-stars">⭐⭐⭐⭐⭐</div><div class="ss-quote">${scr.quote||''}</div></div>` : '';
+  const badgesHTML = mkBadges(scr.badges);
+  const floatsHTML = mkFloats(scr.floats);
+  const tagsHTML = mkTags(scr.tags);
+
+  const socialPos = scr.socialPos || 'middle';
+  const socialTop = socialPos === 'bottom' ? socialHTML : '';
+  const socialMid = socialPos === 'middle' && scr.stars ? socialHTML : '';
+
+  return `<div class="screenshot-slot"><div class="screenshot-label">${idx+1}. ${scr.label}</div><div class="ss-canvas"><div class="ss-bg" ${bgStyle}></div><div class="ss-content">${hlHTML}${socialMid}<div class="phone-zone"><div class="phone"><div class="phone-notch"></div>${ui}</div>${floatsHTML}${tagsHTML}${badgesHTML}</div>${hlBottomHTML}${socialTop}</div><div class="dd-wm">${SVG_LOGO} daily.dev</div></div><div class="dim">1320×2868</div></div>`;
+}
+
+const CPP = [
+  {
+    id: 'master', name: 'Master (Default)', accent: '#CE3DF3', dot: '#CE3DF3',
+    screens: [
+      { label:'Hero', uiType:'hero', hl:'The world\u2019s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Feed', hlPos:'top', hl:'Learn new<br>things', sub:'<span style="color:rgba(255,255,255,0.7)">anywhere</span>', uiType:'feed',
+        floats:[
+          {icon:'<svg viewBox="0 0 24 24" fill="none" width="28" height="28" style="transform:translateY(3px)"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16M4 19a1 1 0 1 1 2 0 1 1 0 0 1-2 0" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>', top:'26%', left:'-18px', bg:'linear-gradient(135deg, #FF9A44, #FF5A00)', rot:'8deg'},
+          {icon:'<svg viewBox="0 0 24 24" fill="none" width="28" height="28" style="transform:translateY(2px)"><path d="M10 3L8 21M16 3L14 21M4 9h16M3 15h16" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>', top:'42%', right:'-16px', bg:'linear-gradient(135deg, #FF5E7E, #FF2E56)', rot:'-8deg'}
+        ]
+      },
+      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
+        quote:'"Must have app for devs" <span class="author">James Barish</span>',
+        on:['javascript','php','git','agile','aws'], off:['ab testing','accessibility','adobe','alexa','alibaba'],
+        tags:[{text:'devops',top:'36%',right:'-4px',rot:'-4.5deg'},{text:'ai',top:'42%',left:'4px',rot:'0.5deg'},{text:'cloud',top:'50%',left:'-10px',rot:'-13deg'},{text:'javascript',top:'44%',right:'-8px',rot:'-4.5deg'},{text:'webdev',top:'82%',left:'-8px',rot:'-4.5deg'}],
+        floats:[{icon:'🟡',top:'52%',left:'30%',bg:'linear-gradient(135deg,#FFE600,#FFA500)',rot:'10deg'},{icon:'🐹',top:'58%',right:'14px',bg:'linear-gradient(135deg,#2CDCE6,#0a7a8a)',rot:'-15deg'}]
+      },
+      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
+        articleTitle:'NVIDIA CEO Shouldn\'t Learn to Code, AI Can Do It',
+        tldr:'Development is not about code. It\'s about converting an idea into something that works. It\'s a process. CODING is about tools and syntax.',
+        floats:[{icon:'💬',top:'30%',right:'10px',bg:'linear-gradient(135deg,#2CDCE6,#0a6a7a)',rot:'8deg'},{icon:'⬆️',top:'60%',right:'-6px',bg:'linear-gradient(135deg,#1DDC6F,#0a8a4a)',rot:'8deg'}]
+      },
+      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer<br>resources', uiType:'search',
+        query:'How to be a great developer?',
+        answer:'To be a great developer, here are 20 practical tips from senior programmers:\n1. Write code regularly to develop your skills\n2. Learn something from every project, even the boring ones...',
+        srcs:['senior-dev-tips.com'],
+        posts:[{title:'Great code isn\'t enough. Developers need to brag about it (Ep. 571)',src:'daily.dev',srcLetter:'D',srcColor:'#CE3DF3',readTime:'1m',upvotes:'571',comments:'89',thumb:'linear-gradient(135deg,#3a1a4a,#1a0a2a)'}],
+        floats:[{icon:'✨',top:'22%',right:'-6px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'15deg'},{icon:'🔍',top:'50%',left:'-4px',bg:'linear-gradient(135deg,#4BA6FF,#2CDCE6)',rot:'-12deg'}]
+      },
+      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'profile',
+        floats:[{icon:'📑',top:'32%',left:'-10px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-5deg'},{icon:'⚛',top:'78%',right:'-10px',bg:'linear-gradient(135deg,#CE3DF3,#8B2252)',rot:'8deg'}]
+      }
+    ]
+  },
+  {
+    id: 'ai-ml', name: 'AI / ML Developers', accent: '#2CDCE6', dot: '#2CDCE6',
+    screens: [
+      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Personalization', hlPos:'top', hl:'Cut through<br>the noise', sub:'Only the AI topics that matter', uiType:'tags',
+        on:['AI','Machine Learning','LLM','GPT','Agents','Prompt Engineering','NLP'],
+        off:['React','CSS','DevOps','Docker']
+      },
+      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
+        quote:'"Must have app for AI devs" <span class="author">ML Weekly</span>',
+        on:['AI','Machine Learning','LLM','GPT','Agents','Prompt Eng'], off:['React','CSS','DevOps','Docker'],
+        tags:[{text:'ai',top:'48%',left:'12px',rot:'-1deg'},{text:'machinelearning',top:'40%',right:'-8px',rot:'3deg'},{text:'LLM',top:'56%',left:'-4px',rot:'-13deg'}],
+        floats:[{icon:'🤖',top:'55%',left:'-16px',bg:'linear-gradient(135deg,#2CDCE6,#0a8a9a)',rot:'-10deg'},{icon:'🧠',top:'60%',right:'-14px',bg:'linear-gradient(135deg,#9D70F8,#5F37E9)',rot:'12deg'}]
+      },
+      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
+        articleTitle:'NVIDIA CEO Says Developers Shouldn\'t Learn to Code Anymore',
+        tldr:'NVIDIA CEO believes with AI advancements, traditional coding may become obsolete and humans should focus on practical areas.',
+        floats:[{icon:'💬',top:'32%',right:'-10px',bg:'linear-gradient(135deg,#2CDCE6,#0a6a7a)',rot:'8deg'}]
+      },
+      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
+        query:'How do transformers scale?',
+        answer:'Transformer attention scales quadratically O(n²) with sequence length. Flash Attention reduces memory to O(n)...',
+        srcs:['arXiv','Illustrated Transformer'],
+        posts:[{title:'Great code isn\'t enough. Developers need to brag about it',src:'daily.dev',srcLetter:'D',srcColor:'#CE3DF3',readTime:'1m',upvotes:'571',comments:'89',thumb:'linear-gradient(135deg,#3a1a4a,#1a0a2a)'}],
+        floats:[{icon:'✨',top:'26%',right:'-6px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'15deg'},{icon:'💡',top:'55%',left:'-12px',bg:'linear-gradient(135deg,#4BA6FF,#2CDCE6)',rot:'-12deg'}]
+      },
+      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'squads',
+        squads:[{n:'LLM Builders',m:'12.4K',e:'🤖'},{n:'ML Paper Club',m:'8.7K',e:'📄'},{n:'AI Agents',m:'6.2K',e:'🧠'},{n:'Computer Vision',m:'5.1K',e:'👁'}],
+        floats:[{icon:'📑',top:'28%',left:'-10px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-5deg'},{icon:'⚛',top:'70%',right:'-10px',bg:'linear-gradient(135deg,#CE3DF3,#8B2252)',rot:'8deg'}]
+      },
+      { label:'Profile', hlPos:'top', hl:'Your AI<br>Identity', sub:'trusted by 1M+ devs', uiType:'profile',
+        floats:[{icon:'🏆',top:'60%',right:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'10deg'}]
+      },
+    ]
+  },
+  {
+    id: 'frontend', name: 'Frontend / React', accent: '#3169F5', dot: '#3169F5',
+    screens: [
+      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Personalization', hlPos:'top', hl:'Matched to<br>your stack', sub:'React, TS, CSS and more', uiType:'tags',
+        on:['React','JavaScript','TypeScript','CSS','Next.js','Tailwind CSS','Vue','Svelte'],
+        off:['Python','Go','Rust','DevOps']
+      },
+      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
+        quote:'"Best frontend resource ever" <span class="author">Dev Weekly</span>',
+        on:['React','JavaScript','TypeScript','CSS','Next.js','Tailwind'], off:['Python','Go','Rust','DevOps'],
+        tags:[{text:'javascript',top:'42%',right:'-4px',rot:'3deg'},{text:'react',top:'50%',left:'4px',rot:'-5deg'},{text:'css',top:'46%',left:'30%',rot:'2deg'}],
+        floats:[{icon:'💙',top:'58%',right:'-12px',bg:'linear-gradient(135deg,#3169F5,#1a3aA5)',rot:'12deg'}]
+      },
+      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
+        articleTitle:'Why Server Components Change Everything for React Developers',
+        tldr:'Server Components enable seamless server-client integration, reducing bundle sizes by up to 50%.',
+        floats:[{icon:'💬',top:'30%',right:'-8px',bg:'linear-gradient(135deg,#2CDCE6,#0a6a7a)',rot:'6deg'}]
+      },
+      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
+        query:'React vs Vue performance 2026',
+        answer:'React 20 with Server Components shows 40% faster TTI. Vue 4 with Vapor mode competitive on small apps...',
+        srcs:['React Blog','Web.dev'],
+        posts:[{title:'Building Accessible React Components the Right Way',src:'Smashing Mag',srcLetter:'S',srcColor:'#FF5454',readTime:'8m',upvotes:'892',comments:'67'}],
+        floats:[{icon:'✨',top:'26%',right:'-4px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'12deg'}]
+      },
+      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'squads',
+        squads:[{n:'React Devs',m:'24.1K',e:'⚛️'},{n:'CSS Wizards',m:'11.3K',e:'🎨'},{n:'TypeScript Community',m:'15.7K',e:'💙'},{n:'Next.js Users',m:'9.4K',e:'▲'}],
+        floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-8deg'}]
+      },
+      { label:'Profile', hlPos:'top', hl:'Your Frontend<br>Identity', sub:'standout', uiType:'profile' },
+    ]
+  },
+  {
+    id: 'career', name: 'Career Growth', accent: '#92F21D', dot: '#92F21D',
+    screens: [
+      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Personalization', hlPos:'top', hl:'Shape your<br>growth feed', sub:'Follow the career signals you need', uiType:'tags',
+        on:['Career','Interview','Leadership','Growth','Salary','Resume'],
+        off:['React','Python','Docker','Linux']
+      },
+      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
+        quote:'"Changed my trajectory" <span class="author">Senior Eng</span>',
+        on:['Career','Interview','Leadership','Growth','Salary','Resume'], off:['React','Python','Docker','Linux'],
+        tags:[{text:'career',top:'44%',left:'10px',rot:'-3deg'},{text:'growth',top:'50%',right:'-4px',rot:'4deg'}]
+      },
+      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
+        articleTitle:'Should I Leave FAANG for a Startup? Here\'s What I Learned',
+        tldr:'After 4 years at Google, switching to a Series A startup doubled my growth rate and equity upside.',
+        floats:[{icon:'💬',top:'32%',right:'-8px',bg:'linear-gradient(135deg,#92F21D,#1DDC6F)',rot:'6deg'}]
+      },
+      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
+        query:'How to negotiate a tech salary?',
+        answer:'Research market rates on Levels.fyi. Always negotiate — 87% of hiring managers expect it. Start 15-20% above target...',
+        srcs:['Levels.fyi','Hacker News'],
+        floats:[{icon:'✨',top:'26%',right:'-4px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'12deg'}]
+      },
+      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'bookmarks',
+        folders:[{n:'Interview Prep',c:42,e:'🎯'},{n:'Salary Negotiation',c:18,e:'💰'},{n:'Resume Tips',c:15,e:'📝'},{n:'Side Projects',c:23,e:'🚀'}],
+        floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
+      },
+      { label:'Profile', hlPos:'top', hl:'Stand out to<br>recruiters', sub:'shine', uiType:'profile' },
+    ]
+  },
+  {
+    id: 'architecture', name: 'Software Architecture', accent: '#9D70F8', dot: '#9D70F8',
+    screens: [
+      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Personalization', hlPos:'top', hl:'Filter for<br>architecture depth', sub:'Only senior-level architecture topics', uiType:'tags',
+        on:['Architecture','System Design','Scalability','Microservices','Cloud','AWS'],
+        off:['React','CSS','Career']
+      },
+      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
+        quote:'"My go-to for system design" <span class="author">Staff Eng</span>',
+        on:['Architecture','System Design','Scalability','Microservices','Cloud','AWS'], off:['React','CSS','Career'],
+        tags:[{text:'architecture',top:'42%',right:'-4px',rot:'4deg'},{text:'systemdesign',top:'50%',left:'4px',rot:'-6deg'}]
+      },
+      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
+        articleTitle:'Our Team Regrets Going Serverless — Here\'s Why',
+        tldr:'Cold starts, vendor lock-in, and hidden costs made our team migrate back to containers after 18 months.',
+        floats:[{icon:'💬',top:'30%',right:'-8px',bg:'linear-gradient(135deg,#9D70F8,#5F37E9)',rot:'6deg'}]
+      },
+      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
+        query:'event-driven vs saga pattern',
+        answer:'Event-driven uses async events for service communication. Saga coordinates distributed transactions across services via choreography or orchestration...',
+        srcs:['Martin Fowler','Microservices.io'],
+        floats:[{icon:'✨',top:'26%',right:'-4px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'12deg'}]
+      },
+      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'squads',
+        squads:[{n:'Netflix Tech',m:'890K',e:'🎬'},{n:'Martin Fowler',m:'1.2M',e:'📖'},{n:'InfoQ',m:'750K',e:'📰'},{n:'Uber Eng',m:'620K',e:'🚗'}],
+        floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
+      },
+      { label:'Profile', hlPos:'top', hl:'Your Eng<br>Identity', sub:'depth', uiType:'profile' },
+    ]
+  },
+  {
+    id: 'devtools', name: 'DevTools & Productivity', accent: '#FF7A2B', dot: '#FF7A2B',
+    screens: [
+      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Personalization', hlPos:'top', hl:'Filter the<br>signal', sub:'Pick tools and workflows you use', uiType:'tags',
+        on:['Developer Tools','Productivity','CLI','IDE','Git','Docker','CI/CD'],
+        off:['AI','React','Career','Linux']
+      },
+      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
+        quote:'"Discover gems every week" <span class="author">10x Dev</span>',
+        on:['Developer Tools','Productivity','CLI','IDE','Git','Docker'], off:['AI','React','Career','Linux'],
+        tags:[{text:'devtools',top:'42%',right:'-4px',rot:'3deg'},{text:'productivity',top:'50%',left:'4px',rot:'-5deg'}]
+      },
+      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
+        articleTitle:'Cursor vs GitHub Copilot: The 2026 AI Coding Tool Comparison',
+        tldr:'Cursor excels at multi-file edits and agentic workflows. Copilot remains stronger for inline completions.',
+        floats:[{icon:'💬',top:'30%',right:'-8px',bg:'linear-gradient(135deg,#FF7A2B,#FF5454)',rot:'6deg'}]
+      },
+      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
+        query:'Docker vs Podman for local dev',
+        answer:'Docker remains most popular. Podman is daemonless and rootless by default, more secure. Both support Compose now...',
+        srcs:['Docker Docs','Red Hat Blog'],
+        floats:[{icon:'✨',top:'26%',right:'-4px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'12deg'}]
+      },
+      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'squads',
+        squads:[{n:'Terminal Fans',m:'8.9K',e:'💻'},{n:'VS Code Power Users',m:'22.1K',e:'🔮'},{n:'DevOps Tools',m:'15.4K',e:'🛠'},{n:'AI Coding',m:'11.7K',e:'🤖'}],
+        floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
+      },
+      { label:'Profile', hlPos:'top', hl:'Stay ahead<br>daily', sub:'5 min a day', uiType:'profile' },
+    ]
+  },
+  {
+    id: 'opensource', name: 'Open Source & Linux', accent: '#1DDC6F', dot: '#1DDC6F',
+    screens: [
+      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Personalization', hlPos:'top', hl:'Tune your OSS<br>feed', sub:'Follow repos, Linux, and OSS topics', uiType:'tags',
+        on:['Open Source','GitHub','Linux','Rust','Go','Kubernetes'],
+        off:['React','CSS','Career','AI']
+      },
+      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
+        quote:'"Best OSS discovery tool" <span class="author">Maintainer</span>',
+        on:['Open Source','GitHub','Linux','Rust','Go','Kubernetes'], off:['React','CSS','Career','AI'],
+        tags:[{text:'opensource',top:'42%',right:'-4px',rot:'3deg'},{text:'linux',top:'50%',left:'4px',rot:'-6deg'},{text:'github',top:'46%',left:'35%',rot:'2deg'}]
+      },
+      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
+        articleTitle:'Open Source Funding Crisis: What Can We Do About It?',
+        tldr:'Core maintainers of critical infrastructure earn below market rates. New models like Polar.sh and GitHub Sponsors evolving.',
+        floats:[{icon:'💬',top:'30%',right:'-8px',bg:'linear-gradient(135deg,#1DDC6F,#0a8a4a)',rot:'6deg'}]
+      },
+      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
+        query:'Best Linux distros for devs 2026',
+        answer:'Fedora 42 leads for cutting-edge. Ubuntu 26.04 LTS best for stability. Arch for customization. NixOS gaining momentum...',
+        srcs:['It\'s FOSS','DistroWatch'],
+        floats:[{icon:'✨',top:'26%',right:'-4px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'12deg'}]
+      },
+      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'squads',
+        squads:[{n:'OSS Contributors',m:'19.8K',e:'💚'},{n:'Linux Users',m:'16.3K',e:'🐧'},{n:'Rust Community',m:'12.1K',e:'🦀'},{n:'Go Developers',m:'10.7K',e:'🐹'}],
+        floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
+      },
+      { label:'Profile', hlPos:'top', hl:'Your OSS<br>identity', sub:'passion', uiType:'profile' },
+    ]
+  }
+];
+
+function renderOV() {
+  document.getElementById('ov-grid').innerHTML = CPP.map(c => {
+    const s = c.screens[1] || c.screens[0];
+    return `<div class="ov-card"><div class="ov-frame"><div class="ov-bg"></div><div class="ov-hl"><h4>${s.hl}</h4><p>${s.sub||''}</p></div><div class="ov-phone"><div class="ov-phone-inner"><div class="mini-card" style="height:6px;background:var(--bg-float)"></div><div class="mini-card"></div><div class="mini-card" style="height:14px"></div><div class="mini-card"></div><div class="mini-card" style="height:14px"></div></div></div></div><div class="ov-label" style="color:${c.accent}">${c.name}</div></div>`;
+  }).join('');
+}
+
+function renderDT() {
+  document.getElementById('cpp-tabs').innerHTML = CPP.map((c,i) =>
+    `<div class="tab ${i===0?'active':''}" data-id="${c.id}" onclick="switchCPP('${c.id}')"><span class="dot" style="background:${c.dot}"></span>${c.name}</div>`
+  ).join('');
+  document.getElementById('cpp-sections').innerHTML = CPP.map((c,i) => {
+    const screens = c.screens.map((s,j) => mkScreen(c,s,j)).join('');
+    return `<div class="cpp-section ${i===0?'active':''}" id="cpp-${c.id}"><div class="cpp-header"><h2>${c.name}</h2><div class="subtitle">${c.screens.length} screenshots · iPhone 1320×2868</div></div><div class="screenshots-row">${screens}</div></div>`;
+  }).join('');
+}
+
+function switchCPP(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.id===id));
+  document.querySelectorAll('.cpp-section').forEach(s => s.classList.toggle('active', s.id==='cpp-'+id));
+}
+function showView(v) {
+  document.getElementById('view-ov').style.display = v==='ov'?'block':'none';
+  document.getElementById('view-dt').style.display = v==='dt'?'block':'none';
+  document.getElementById('btn-ov').classList.toggle('active', v==='ov');
+  document.getElementById('btn-dt').classList.toggle('active', v==='dt');
+}
+
+renderOV();
+renderDT();
+</script>
+</body>
+</html>
