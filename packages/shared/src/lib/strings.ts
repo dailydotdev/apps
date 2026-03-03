@@ -111,7 +111,25 @@ export const stripHtmlTags = (html: string): string => {
  * @returns The escaped text safe for use in markdown
  */
 export const escapeMarkdown = (text: string): string => {
-  return text.replace(/[\\`*_{}[\]()#+\-.!|]/g, '\\$&');
+  return text.replace(/[\\`*_{}[\]()#+!|]/g, '\\$&');
+};
+
+/**
+ * Truncates text by max length while preserving whole words when possible.
+ * Appends an ellipsis when truncation occurs.
+ */
+export const truncateAtWordBoundary = (
+  text: string,
+  maxLength: number,
+): string => {
+  if (!text || text.length <= maxLength) {
+    return text || '';
+  }
+
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+
+  return `${lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated}...`;
 };
 
 /**

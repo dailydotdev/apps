@@ -3,13 +3,16 @@ import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { escapeMarkdown } from '@dailydotdev/shared/src/lib/strings';
-import { absoluteWebappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { getAppOrigin, getLlmsTxtUrl } from '../../../lib/seo';
 
 interface TagDirectoryData {
   tags: Keyword[];
   trendingTags: Array<{ value: string }>;
   popularTags: Array<{ value: string }>;
 }
+
+const appOrigin = getAppOrigin();
+const llmsTxtUrl = getLlmsTxtUrl();
 
 const formatTag = (tag: { value: string }): string => {
   const escaped = escapeMarkdown(tag.value);
@@ -63,8 +66,14 @@ const handler = async (
       })
       .join('\n\n');
 
-    const markdown = `> ## Documentation Index
-> Fetch the complete documentation index at: ${absoluteWebappUrl}/llms.txt
+    const markdown = `---
+title: Tags Directory
+url: ${appOrigin}/tags
+description: Discover topics that matter to developers on daily.dev
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: ${llmsTxtUrl}
 > Use this file to discover all available pages before exploring further.
 
 # Tags Directory
@@ -90,11 +99,13 @@ ${allTagsMarkdown}
 [View all tags on daily.dev](/tags)
 `;
 
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
     res.setHeader(
       'Cache-Control',
       'public, s-maxage=86400, stale-while-revalidate=604800',
     );
+    res.setHeader('Link', '</llms.txt>; rel="llms-txt"');
+    res.setHeader('X-Llms-Txt', '/llms.txt');
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.status(200).send(markdown);
   } catch (error: unknown) {
@@ -103,7 +114,7 @@ ${allTagsMarkdown}
     res
       .status(500)
       .send(
-        `Unable to generate markdown. Please try again later or visit ${absoluteWebappUrl}/tags`,
+        `Unable to generate markdown. Please try again later or visit ${appOrigin}/tags`,
       );
   }
 };
