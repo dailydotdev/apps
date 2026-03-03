@@ -224,9 +224,13 @@ export default function Feed<T>({
     isLoading: isProfileCompletionCardLoading,
   } = useProfileCompletionCard({ isMyFeed });
 
+  const hasDismissedBriefCard =
+    isActionsFetched && checkHasCompleted(ActionType.DismissBriefCard);
+
   const shouldEvaluateBriefCard =
     isMyFeed &&
     hasNoBriefAction &&
+    !hasDismissedBriefCard &&
     !showProfileCompletionCard &&
     !isProfileCompletionCardLoading;
   const { value: briefCardFeatureValue } = useConditionalFeature({

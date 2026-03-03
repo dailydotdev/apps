@@ -455,6 +455,7 @@ export enum TargetType {
   OpportunityInterestButton = 'opportunity interest button',
   AchievementTracker = 'achievement tracker',
   AchievementCard = 'achievement card',
+  BriefCard = 'brief card',
 }
 
 export enum TargetId {
