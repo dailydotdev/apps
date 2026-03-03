@@ -59,6 +59,7 @@ export enum ActionType {
   AchievementSyncPrompt = 'achievement_sync_prompt',
   DisableAchievementCompletion = 'disable_achievement_completion',
   DismissInstallExtension = 'dismiss_install_extension',
+  DigestUpsell = 'digest_upsell',
 }
 
 export const cvActions = [

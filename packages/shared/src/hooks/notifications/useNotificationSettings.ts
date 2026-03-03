@@ -160,6 +160,23 @@ const useNotificationSettings = () => {
     mutate(updatedSettings);
   };
 
+  const setNotificationStatusBulk = (
+    entries: Array<{
+      type: NotificationType;
+      channel: NotificationChannel;
+      status: NotificationPreferenceStatus;
+    }>,
+  ) => {
+    const updatedSettings: NotificationSettings = { ...settings };
+    entries.forEach(({ type, channel, status }) => {
+      updatedSettings[type] = {
+        ...updatedSettings[type],
+        [channel]: status,
+      };
+    });
+    mutate(updatedSettings);
+  };
+
   const unsubscribeAllEmail = () => {
     const updatedSettings: NotificationSettings = Object.keys(
       settings,
@@ -201,6 +218,7 @@ const useNotificationSettings = () => {
     toggleGroup,
     getGroupStatus,
     setNotificationStatus,
+    setNotificationStatusBulk,
     unsubscribeAllEmail,
     emailsDisabled,
     notificationSettings,
