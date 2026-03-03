@@ -14,19 +14,29 @@ export interface ChartLayout {
   padding: ChartPadding;
 }
 
-export const getChartLayout = (isTablet: boolean): ChartLayout => ({
-  width: isTablet ? 760 : 420,
-  height: isTablet ? 340 : 300,
-  yAxisLabelX: isTablet ? 14 : 18,
-  yTickCount: isTablet ? 4 : 3,
-  xTickStep: isTablet ? 1 : 2,
-  padding: {
-    top: isTablet ? 20 : 16,
-    right: 20,
-    bottom: isTablet ? 52 : 56,
-    left: isTablet ? 52 : 58,
-  },
-});
+export const getChartLayout = (
+  isTablet: boolean,
+  tall?: boolean,
+): ChartLayout => {
+  let height = 300;
+  if (isTablet) {
+    height = tall ? 360 : 340;
+  }
+
+  return {
+    width: isTablet ? 760 : 420,
+    height,
+    yAxisLabelX: isTablet ? 14 : 18,
+    yTickCount: isTablet ? 4 : 3,
+    xTickStep: isTablet ? 1 : 2,
+    padding: {
+      top: isTablet ? 20 : 16,
+      right: 20,
+      bottom: isTablet ? 52 : 56,
+      left: isTablet ? 52 : 58,
+    },
+  };
+};
 
 export const getXAxisTickLabel = (
   index: number,
