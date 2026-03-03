@@ -6,13 +6,16 @@ import { ArenaSparkline } from './ArenaSparkline';
 import { ArenaSentimentBar } from './ArenaSentimentBar';
 import { ArenaAnimatedCounter } from './ArenaAnimatedCounter';
 import { formatDIndex, formatVolume } from './arenaMetrics';
+import Link from '../../../components/utilities/Link';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { InfoIcon } from '../../../components/icons/Info';
 import { IconSize } from '../../../components/Icon';
 import { RankBadge } from '../../../components/cards/Leaderboard/RankBadge';
+import { getAgentEntityPath } from './links';
 
 interface ArenaRankingsProps {
   tools: RankedTool[];
+  tab: 'coding-agents' | 'llms';
   loading?: boolean;
 }
 
@@ -73,12 +76,14 @@ const ChevronIcon = ({ expanded }: { expanded: boolean }): ReactElement => (
 const RankingRow = ({
   tool,
   rank,
+  tab,
   loading,
   expanded,
   onToggle,
 }: {
   tool: RankedTool;
   rank: number;
+  tab: 'coding-agents' | 'llms';
   loading?: boolean;
   expanded: boolean;
   onToggle: () => void;
@@ -96,12 +101,7 @@ const RankingRow = ({
         transition: 'transform 0.5s ease, background-color 0.3s ease',
       }}
     >
-      {/* Main row — clickable on mobile to expand */}
-      <button
-        type="button"
-        className="flex min-h-[52px] w-full items-center gap-3 py-3 pl-2 pr-4 text-left laptop:cursor-default"
-        onClick={onToggle}
-      >
+      <div className="flex min-h-[52px] w-full items-center gap-3 py-3 pl-2 pr-4 text-left">
         {/* Rank */}
         <RankBadge
           rank={rank}
@@ -116,16 +116,18 @@ const RankingRow = ({
               <Placeholder className="h-4 w-20" />
             </>
           ) : (
-            <>
-              <img
-                src={tool.entity.logo}
-                alt={tool.entity.name}
-                className="h-7 w-7 shrink-0 rounded-8 bg-surface-float object-cover"
-              />
-              <span className="truncate font-bold text-text-primary typo-callout">
-                {tool.entity.name}
-              </span>
-            </>
+            <Link href={getAgentEntityPath(tool.entity.entity, tab)}>
+              <a className="flex min-w-0 items-center gap-2.5">
+                <img
+                  src={tool.entity.logo}
+                  alt={tool.entity.name}
+                  className="h-7 w-7 shrink-0 rounded-8 bg-surface-float object-cover"
+                />
+                <span className="truncate font-bold text-text-primary typo-callout hover:text-text-link">
+                  {tool.entity.name}
+                </span>
+              </a>
+            </Link>
           )}
         </div>
 
@@ -185,8 +187,21 @@ const RankingRow = ({
         </div>
 
         {/* Expand chevron — mobile/tablet only */}
-        {!loading && <ChevronIcon expanded={expanded} />}
-      </button>
+        {!loading && (
+          <button
+            type="button"
+            aria-label={
+              expanded
+                ? `Collapse ${tool.entity.name} details`
+                : `Expand ${tool.entity.name} details`
+            }
+            className="ml-auto h-8 w-8 shrink-0 rounded-full hover:bg-surface-hover laptop:hidden"
+            onClick={onToggle}
+          >
+            <ChevronIcon expanded={expanded} />
+          </button>
+        )}
+      </div>
 
       {/* Expanded detail panel — mobile/tablet only */}
       {expanded && !loading && (
@@ -240,9 +255,11 @@ const RankingRow = ({
 
 const EmergingRow = ({
   tool,
+  tab,
   loading,
 }: {
   tool: RankedTool;
+  tab: 'coding-agents' | 'llms';
   loading?: boolean;
 }): ReactElement => (
   <div className="flex items-center gap-2.5 px-4 py-2.5 opacity-50">
@@ -252,16 +269,18 @@ const EmergingRow = ({
         <Placeholder className="h-4 w-20" />
       </>
     ) : (
-      <>
-        <img
-          src={tool.entity.logo}
-          alt={tool.entity.name}
-          className="opacity-60 h-6 w-6 rounded-8 bg-surface-float object-cover"
-        />
-        <span className="text-text-tertiary typo-callout">
-          {tool.entity.name}
-        </span>
-      </>
+      <Link href={getAgentEntityPath(tool.entity.entity, tab)}>
+        <a className="flex min-w-0 items-center gap-2.5">
+          <img
+            src={tool.entity.logo}
+            alt={tool.entity.name}
+            className="opacity-60 h-6 w-6 rounded-8 bg-surface-float object-cover"
+          />
+          <span className="text-text-tertiary typo-callout">
+            {tool.entity.name}
+          </span>
+        </a>
+      </Link>
     )}
     {!loading && (
       <span className="ml-auto text-text-tertiary typo-caption2">
@@ -323,6 +342,7 @@ const PlaceholderRow = ({ rank }: { rank: number }): ReactElement => (
 
 export const ArenaRankings = ({
   tools,
+  tab,
   loading,
 }: ArenaRankingsProps): ReactElement => {
   const [expandedEntity, setExpandedEntity] = useState<string | null>(null);
@@ -383,6 +403,7 @@ export const ArenaRankings = ({
                 key={tool.entity.entity}
                 tool={tool}
                 rank={idx + 1}
+                tab={tab}
                 loading={loading}
                 expanded={expandedEntity === tool.entity.entity}
                 onToggle={() =>
@@ -406,6 +427,7 @@ export const ArenaRankings = ({
             <EmergingRow
               key={tool.entity.entity}
               tool={tool}
+              tab={tab}
               loading={loading}
             />
           ))}

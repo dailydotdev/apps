@@ -3,15 +3,22 @@ import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../../../components/Icon';
 import type { CrownData } from './types';
+import Link from '../../../components/utilities/Link';
 import {
   CROWN_SPARK_COUNT,
   crownHoverAnimations,
   runCrownMouseEnterAnimation,
 } from './ArenaCrownAnimations';
+import { getAgentEntityPath } from './links';
 
 interface ArenaCrownCardsProps {
   crowns: CrownData[];
+  tab?: 'coding-agents' | 'llms';
   loading?: boolean;
+  animated?: boolean;
+  forceGrid?: boolean;
+  compact?: boolean;
+  hideEntityName?: boolean;
 }
 
 const Placeholder = ({ className }: { className?: string }): ReactElement => (
@@ -25,40 +32,64 @@ const Placeholder = ({ className }: { className?: string }): ReactElement => (
 
 const CrownCard = ({
   crown,
+  tab,
   loading,
+  animated = true,
+  compact = false,
+  hideEntityName = false,
 }: {
   crown: CrownData;
+  tab?: 'coding-agents' | 'llms';
   loading?: boolean;
+  animated?: boolean;
+  compact?: boolean;
+  hideEntityName?: boolean;
 }): ReactElement => {
   const hasEntity = !loading && !!crown.entity;
-  const hoverClass = hasEntity ? crownHoverAnimations[crown.type] : undefined;
+  const hoverClass =
+    hasEntity && animated ? crownHoverAnimations[crown.type] : undefined;
+  let rowClassName = 'h-7 tablet:h-8 tablet:gap-2';
+  if (compact) {
+    rowClassName = 'h-6';
+  }
 
   const handleMouseEnter = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!hasEntity) {
+      if (!hasEntity || !animated) {
         return;
       }
 
       runCrownMouseEnterAnimation(e.currentTarget, crown.type, crown.glowColor);
     },
-    [hasEntity, crown.glowColor, crown.type],
+    [animated, hasEntity, crown.glowColor, crown.type],
   );
 
   return (
     <div
       className={classNames(
-        'group relative flex min-w-[170px] flex-1 flex-col items-center gap-2 overflow-hidden rounded-16 border p-3 tablet:min-w-0 tablet:gap-3 tablet:p-5',
+        'group relative flex flex-1 flex-col items-center overflow-hidden rounded-16 border',
+        compact
+          ? 'min-w-[122px] gap-1.5 px-1.5 py-2 tablet:min-w-0 tablet:gap-2 tablet:px-2 tablet:py-2.5'
+          : 'min-w-[170px] gap-2 p-3 tablet:min-w-0 tablet:gap-3 tablet:p-5',
         'border-border-subtlest-tertiary transition-shadow duration-300',
         hoverClass,
       )}
       onMouseEnter={handleMouseEnter}
     >
+      {hasEntity && tab && (
+        <Link href={getAgentEntityPath(crown.entity.entity, tab)}>
+          <a
+            className="z-20 absolute inset-0 rounded-16"
+            aria-label={`Open ${crown.entity.name} page`}
+          />
+        </Link>
+      )}
       {hasEntity && (
         <div
           className="group-hover:!opacity-30 pointer-events-none absolute -top-10 left-1/2 h-28 w-28 -translate-x-1/2 rounded-full blur-2xl transition-opacity duration-300"
           style={{
             backgroundColor: crown.glowColor,
-            animation: 'pulse 3s ease-in-out infinite',
+            animation: animated ? 'pulse 3s ease-in-out infinite' : undefined,
             opacity: 0.15,
           }}
         />
@@ -67,7 +98,7 @@ const CrownCard = ({
       <div className="flex flex-col items-center gap-1">
         <div className="crown-icon-wrapper relative transition-transform duration-300">
           <crown.icon
-            size={IconSize.Large}
+            size={compact ? IconSize.Medium : IconSize.Large}
             secondary={hasEntity}
             className={classNames(
               hasEntity ? crown.iconColor : 'text-text-quaternary',
@@ -189,38 +220,71 @@ const CrownCard = ({
         </div>
 
         <span
-          className="text-center tracking-wider typo-caption2 tablet:typo-caption1"
+          className={classNames(
+            'text-center tracking-wider',
+            compact ? 'typo-caption2' : 'typo-caption2 tablet:typo-caption1',
+          )}
           style={hasEntity ? { color: crown.glowColor } : undefined}
         >
           {crown.label}
         </span>
       </div>
 
-      <div className="flex h-7 items-center gap-1.5 tablet:h-8 tablet:gap-2">
-        {loading ? (
-          <>
-            <Placeholder className="h-6 w-6 shrink-0 rounded-8 tablet:h-8 tablet:w-8" />
-            <Placeholder className="h-4 w-16 tablet:h-5 tablet:w-20" />
-          </>
-        ) : (
-          <>
-            <img
-              src={crown.entity?.logo}
-              alt={crown.entity?.name}
-              className="h-6 w-6 shrink-0 rounded-8 bg-surface-float object-cover tablet:h-8 tablet:w-8"
-            />
-            <span className="truncate font-bold text-text-primary typo-callout">
-              {crown.entity?.name}
-            </span>
-          </>
-        )}
-      </div>
+      {!hideEntityName && (
+        <div className={classNames('flex items-center gap-1.5', rowClassName)}>
+          {loading ? (
+            <>
+              <Placeholder
+                className={classNames(
+                  'shrink-0 rounded-8',
+                  compact ? 'h-5 w-5' : 'h-6 w-6 tablet:h-8 tablet:w-8',
+                )}
+              />
+              <Placeholder
+                className={classNames(
+                  compact ? 'h-3 w-12' : 'h-4 w-16 tablet:h-5 tablet:w-20',
+                )}
+              />
+            </>
+          ) : (
+            <>
+              <img
+                src={crown.entity?.logo}
+                alt={crown.entity?.name}
+                className={classNames(
+                  'shrink-0 rounded-8 bg-surface-float object-cover',
+                  compact ? 'h-5 w-5' : 'h-6 w-6 tablet:h-8 tablet:w-8',
+                )}
+              />
+              <span
+                className={classNames(
+                  'font-bold text-text-primary',
+                  compact
+                    ? 'max-w-full whitespace-nowrap text-center typo-footnote'
+                    : 'truncate typo-callout',
+                )}
+              >
+                {crown.entity?.name}
+              </span>
+            </>
+          )}
+        </div>
+      )}
 
-      <div className="flex h-5 items-center">
+      <div className={classNames('flex items-center', compact ? 'h-4' : 'h-5')}>
         {loading ? (
-          <Placeholder className="h-4 w-16" />
+          <Placeholder
+            className={classNames(compact ? 'h-3 w-12' : 'h-4 w-16')}
+          />
         ) : (
-          <span className="text-text-tertiary typo-caption1">{crown.stat}</span>
+          <span
+            className={classNames(
+              'text-text-tertiary',
+              compact ? 'typo-caption2' : 'typo-caption1',
+            )}
+          >
+            {crown.stat}
+          </span>
         )}
       </div>
     </div>
@@ -229,12 +293,38 @@ const CrownCard = ({
 
 export const ArenaCrownCards = ({
   crowns,
+  tab,
   loading,
+  animated = true,
+  forceGrid = false,
+  compact = false,
+  hideEntityName = false,
 }: ArenaCrownCardsProps): ReactElement => {
+  let layoutClassName =
+    'flex gap-3 overflow-x-auto tablet:grid tablet:grid-cols-5 tablet:overflow-visible';
+  if (forceGrid) {
+    layoutClassName = compact
+      ? 'grid grid-cols-5 gap-2 overflow-visible'
+      : 'grid grid-cols-5 gap-3 overflow-visible';
+  }
+
   return (
-    <div className="flex gap-3 overflow-x-auto tablet:grid tablet:grid-cols-5 tablet:overflow-visible">
+    <div
+      className={classNames(
+        layoutClassName,
+        !animated && '[&_*]:transition-none [&_*]:[animation:none!important]',
+      )}
+    >
       {crowns.map((crown) => (
-        <CrownCard key={crown.type} crown={crown} loading={loading} />
+        <CrownCard
+          key={crown.type}
+          crown={crown}
+          tab={tab}
+          loading={loading}
+          animated={animated}
+          compact={compact}
+          hideEntityName={hideEntityName}
+        />
       ))}
     </div>
   );

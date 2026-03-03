@@ -3,8 +3,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { getLastActivityDateFormat } from '../../../lib/dateFormat';
+import Link from '../../../components/utilities/Link';
 import type { SentimentAnnotation, SentimentHighlightItem } from './types';
 import { stripTcoLinks } from './ArenaHighlightUtils';
+import { getAgentEntityPath } from './links';
 
 const decodeHtmlEntities = (text: string): string => {
   const textarea =
@@ -43,11 +45,13 @@ const Placeholder = ({ className }: { className?: string }): ReactElement => (
 
 const SentimentPill = ({
   sentiment,
+  tab,
 }: {
   sentiment: SentimentAnnotation;
+  tab?: 'coding-agents' | 'llms';
 }): ReactElement => {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-2 py-0.5 leading-none text-text-secondary typo-caption2">
+  const content = (
+    <>
       <span
         className={classNames(
           'inline-block h-1.5 w-1.5 shrink-0 rounded-full',
@@ -55,7 +59,23 @@ const SentimentPill = ({
         )}
       />
       <span className="capitalize">{sentiment.entity.replace(/_/g, ' ')}</span>
-    </span>
+    </>
+  );
+
+  if (!tab) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-2 py-0.5 leading-none text-text-secondary typo-caption2">
+        {content}
+      </span>
+    );
+  }
+
+  return (
+    <Link href={getAgentEntityPath(sentiment.entity, tab)}>
+      <a className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-2 py-0.5 leading-none text-text-secondary typo-caption2 hover:text-text-link">
+        {content}
+      </a>
+    </Link>
   );
 };
 
@@ -90,8 +110,10 @@ const AuthorAvatar = ({
 
 const HighlightCard = ({
   item,
+  tab,
 }: {
   item: SentimentHighlightItem;
+  tab?: 'coding-agents' | 'llms';
 }): ReactElement => {
   const cleanText = decodeHtmlEntities(stripTcoLinks(item.text));
 
@@ -122,7 +144,11 @@ const HighlightCard = ({
         {item.sentiments.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {item.sentiments.map((sentiment) => (
-              <SentimentPill key={sentiment.entity} sentiment={sentiment} />
+              <SentimentPill
+                key={sentiment.entity}
+                sentiment={sentiment}
+                tab={tab}
+              />
             ))}
           </div>
         )}
@@ -153,12 +179,16 @@ const MAX_HIGHLIGHTS = 100;
 
 interface ArenaHighlightsFeedProps {
   items: SentimentHighlightItem[];
+  tab?: 'coding-agents' | 'llms';
   loading?: boolean;
+  responsiveLimit?: boolean;
 }
 
 export const ArenaHighlightsFeed = ({
   items,
+  tab,
   loading,
+  responsiveLimit = true,
 }: ArenaHighlightsFeedProps): ReactElement => {
   const [visibleItems, setVisibleItems] = useState<SentimentHighlightItem[]>(
     [],
@@ -212,12 +242,15 @@ export const ArenaHighlightsFeed = ({
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const displayItems =
-    isLaptop || mobileExpanded
-      ? visibleItems
-      : visibleItems.slice(0, MOBILE_FEED_LIMIT);
-  const hasMoreOnMobile =
-    !isLaptop && !mobileExpanded && visibleItems.length > MOBILE_FEED_LIMIT;
+  let displayItems = visibleItems;
+  let hasMoreOnMobile = false;
+  if (responsiveLimit) {
+    if (!isLaptop && !mobileExpanded) {
+      displayItems = visibleItems.slice(0, MOBILE_FEED_LIMIT);
+    }
+    hasMoreOnMobile =
+      !isLaptop && !mobileExpanded && visibleItems.length > MOBILE_FEED_LIMIT;
+  }
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle">
@@ -244,14 +277,27 @@ export const ArenaHighlightsFeed = ({
         ref={scrollRef}
         className="slim-scrollbar flex min-h-0 flex-1 flex-col divide-y divide-border-subtlest-tertiary overflow-y-auto"
       >
-        {loading
-          ? Array.from({ length: 4 }).map((_, i) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <PlaceholderCard key={i} />
-            ))
-          : displayItems.map((item) => (
-              <HighlightCard key={item.externalItemId} item={item} />
-            ))}
+        {loading &&
+          Array.from({ length: 4 }).map((_, i) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <PlaceholderCard key={i} />
+          ))}
+        {!loading && displayItems.length === 0 && (
+          <div className="flex min-h-[220px] items-center justify-center px-6 py-8 text-center">
+            <div>
+              <p className="font-bold text-text-primary typo-callout">
+                No live highlights yet
+              </p>
+              <p className="mt-1 text-text-tertiary typo-footnote">
+                Check back soon as new developer mentions come in.
+              </p>
+            </div>
+          </div>
+        )}
+        {!loading &&
+          displayItems.map((item) => (
+            <HighlightCard key={item.externalItemId} item={item} tab={tab} />
+          ))}
       </div>
 
       {!loading && hasMoreOnMobile && (

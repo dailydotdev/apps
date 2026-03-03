@@ -17,6 +17,7 @@ interface ArenaComparisonChartCanvasProps {
   series: ArenaComparisonSeries[];
   metric: ArenaComparisonMetric;
   isTablet: boolean;
+  tall?: boolean;
   hoveredIndex: number | null;
   onHover: (payload: {
     index: number;
@@ -29,12 +30,13 @@ export const ArenaComparisonChartCanvas = ({
   series,
   metric,
   isTablet,
+  tall,
   hoveredIndex,
   onHover,
   onLeave,
 }: ArenaComparisonChartCanvasProps): ReactElement => {
   const { width, height, yAxisLabelX, yTickCount, xTickStep, padding } =
-    getChartLayout(isTablet);
+    getChartLayout(isTablet, tall);
   const pointCount = Math.max(...series.map((line) => line.values.length), 1);
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;

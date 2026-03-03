@@ -128,7 +128,7 @@ export const ArenaPage = ({
 
       <div className="flex flex-col gap-4 px-4 py-6 laptop:px-6 laptopL:px-0">
         <section>
-          <ArenaCrownCards crowns={crowns} loading={loading} />
+          <ArenaCrownCards crowns={crowns} tab={activeTab} loading={loading} />
         </section>
 
         <section className="-my-1 flex items-center justify-start">
@@ -166,6 +166,7 @@ export const ArenaPage = ({
               <ArenaComparisonChart
                 series={comparisonSeries}
                 metric={comparisonMetric}
+                tab={activeTab}
                 loading={loading}
                 metricControl={
                   <div className="w-full tablet:w-[10rem]">
@@ -188,7 +189,11 @@ export const ArenaPage = ({
                 }
               />
             ) : (
-              <ArenaRankings tools={rankings} loading={loading} />
+              <ArenaRankings
+                tools={rankings}
+                tab={activeTab}
+                loading={loading}
+              />
             )}
           </section>
           <aside className="relative">
@@ -196,6 +201,7 @@ export const ArenaPage = ({
               <ArenaHighlightsFeed
                 key={activeTab}
                 items={data?.sentimentHighlights?.items ?? []}
+                tab={activeTab}
                 loading={loading}
               />
             </div>
