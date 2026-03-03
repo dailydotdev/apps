@@ -640,13 +640,8 @@
   .hero-laurel.right { top: 8%; right: -12px; transform: rotate(-15deg); }
   .hero-laurel.bottom { bottom: -5%; left: 50%; transform: translateX(-50%); font-size: 120px; }
 
-  /* ===== LOGO WATERMARK ===== */
-  .dd-wm {
-    position: absolute; bottom: 10px; right: 12px; z-index: 5;
-    display: flex; align-items: center; gap: 3px;
-    font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.4);
-  }
-  .dd-wm svg { width: 12px; height: 12px; fill: rgba(255,255,255,0.4); }
+  /* ===== LOGO WATERMARK (hidden) ===== */
+  .dd-wm { display: none; }
 
   /* Dim badge */
   .dim { font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 6px; font-family: monospace; }
@@ -1071,7 +1066,7 @@ function mkMasterFeedScreen(cpp, scr, idx) {
       <div class="ss-content">
         <div style="padding:22px 0 0; text-align:center;">
           <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:34px; color:white; line-height:0.96; letter-spacing:-0.5px;">Learn new<br>things</h3>
-          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; color:rgba(255,255,255,0.64); margin-top:4px;">anywhere</div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; color:rgba(255,255,255,0.64); margin-top:11px;">anywhere</div>
         </div>
 
         <img class="figma-3d-icon" src="${rssImg}" style="left:-35px; top:107px; width:109px; height:109px; z-index:2;" alt="" />
@@ -1097,7 +1092,8 @@ function mkHeroScreen(cpp, scr, idx) {
   const laurelImg = 'cpp-assets/hero/laurel.png';
   const ghLogoSvg = 'cpp-assets/hero/github-logo.svg';
   const phIconSvg = 'cpp-assets/hero/ph-icon.svg';
-  const starSvg = `<svg viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M36.47 2.1C36.71 1.7 37.3 1.7 37.54 2.1L48.38 20.11C48.64 20.54 49.07 20.86 49.56 20.97L70.04 25.71C70.5 25.82 70.68 26.37 70.37 26.73L56.59 42.6C56.26 42.99 56.1 43.49 56.14 43.99L57.96 64.93C58 65.4 57.52 65.74 57.09 65.56L37.74 57.36C37.27 57.16 36.74 57.16 36.28 57.36L16.92 65.56C16.49 65.74 16.02 65.4 16.06 64.93L17.87 43.99C17.92 43.49 17.75 42.99 17.42 42.6L3.64 26.73C3.34 26.37 3.52 25.82 3.98 25.71L24.45 20.97C24.95 20.86 25.37 20.54 25.63 20.11L36.47 2.1Z" fill="url(#sg)" stroke="url(#sr)" stroke-width="1.25"/><defs><linearGradient id="sg" x1="37" y1="0" x2="37" y2="74" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8E3B"/><stop offset="1" stop-color="#FFDF00"/></linearGradient><radialGradient id="sr" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(47 17) rotate(87) scale(32)"><stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></radialGradient></defs></svg>`;
+  const uid = cpp.id || 'default';
+  const starSvg = `<svg viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M36.47 2.1C36.71 1.7 37.3 1.7 37.54 2.1L48.38 20.11C48.64 20.54 49.07 20.86 49.56 20.97L70.04 25.71C70.5 25.82 70.68 26.37 70.37 26.73L56.59 42.6C56.26 42.99 56.1 43.49 56.14 43.99L57.96 64.93C58 65.4 57.52 65.74 57.09 65.56L37.74 57.36C37.27 57.16 36.74 57.16 36.28 57.36L16.92 65.56C16.49 65.74 16.02 65.4 16.06 64.93L17.87 43.99C17.92 43.49 17.75 42.99 17.42 42.6L3.64 26.73C3.34 26.37 3.52 25.82 3.98 25.71L24.45 20.97C24.95 20.86 25.37 20.54 25.63 20.11L36.47 2.1Z" fill="url(#sg-${uid})" stroke="url(#sr-${uid})" stroke-width="1.25"/><defs><linearGradient id="sg-${uid}" x1="37" y1="0" x2="37" y2="74" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8E3B"/><stop offset="1" stop-color="#FFDF00"/></linearGradient><radialGradient id="sr-${uid}" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(47 17) rotate(87) scale(32)"><stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></radialGradient></defs></svg>`;
   const starSize = Math.round(74*S);
 
   return `<div class="screenshot-slot">
@@ -1107,13 +1103,15 @@ function mkHeroScreen(cpp, scr, idx) {
       <div class="ss-content" style="position:relative; overflow:hidden; text-align:left;">
 
         <!-- Top-right laurel wreath -->
-        <div style="position:absolute; left:${Math.round(168*S)}px; top:${Math.round(-133*S)}px; width:${Math.round(595*S)}px; height:${Math.round(595*S)}px; z-index:1; transform:rotate(-36.08deg);">
-          <img src="${laurelImg}" style="width:100%;height:100%;object-fit:contain;" alt="" />
+        <div style="position:absolute; left:${Math.round(168*S)}px; top:${Math.round(-133*S)}px; width:${Math.round(831*S)}px; height:${Math.round(831*S)}px; z-index:1; display:flex; align-items:center; justify-content:center;">
+          <div style="width:${Math.round(595*S)}px; height:${Math.round(595*S)}px; flex-shrink:0; transform:rotate(-36.08deg);">
+            <img src="${laurelImg}" style="width:100%;height:100%;object-fit:contain;" alt="" />
+          </div>
         </div>
 
         <!-- Bottom laurel wreath -->
-        <div style="position:absolute; left:50%; top:${Math.round(754*S)}px; width:${Math.round(1179*S)}px; height:${Math.round(939*S)}px; transform:translateX(-50%); z-index:1; display:flex; align-items:center; justify-content:center;">
-          <div style="width:${Math.round(878*S)}px; height:${Math.round(683*S)}px; transform:rotate(154.76deg) scaleY(-1) skewX(9.03deg);">
+        <div style="position:absolute; left:${Math.round(-389*S)}px; top:${Math.round(754*S)}px; width:${Math.round(1179*S)}px; height:${Math.round(939*S)}px; z-index:1; display:flex; align-items:center; justify-content:center;">
+          <div style="width:${Math.round(878*S)}px; height:${Math.round(683*S)}px; flex-shrink:0; transform:rotate(154.76deg) scaleY(-1) skewX(9.03deg);">
             <img src="${laurelImg}" style="width:100%;height:100%;object-fit:contain;" alt="" />
           </div>
         </div>
@@ -1321,28 +1319,32 @@ function mkMasterDiscussScreen(cpp, scr, idx) {
     <div class="ss-canvas">
       <div class="ss-bg"></div>
       <div class="ss-content" style="position:relative; overflow:hidden;">
-        <div style="padding:20px 0 0 16px; text-align:left; position:relative; z-index:7;">
-          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:38px; color:white; line-height:1.0; letter-spacing:-0.5px;">Discuss</h3>
-          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; color:rgba(255,255,255,0.64); margin-top:6px; width:150px; line-height:1.18;">with a global<br>dev community</div>
+        <div style="padding:40px 0 0 25px; text-align:left; position:relative; z-index:7;">
+          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:34px; color:white; line-height:1.12; letter-spacing:-0.5px;">Discuss</h3>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; color:rgba(255,255,255,0.64); margin-top:10px; width:180px; line-height:1.12;">with a global<br>dev community</div>
         </div>
 
-        <!-- Top-right: girl avatar with chat bubble -->
-        <img class="figma-3d-icon" src="${avatarFrame1}" style="right:10px; top:18px; width:76px; height:76px; border-radius:50%; object-fit:cover; z-index:5; transform:rotate(-8.9deg);" alt="" />
-        <img class="figma-3d-icon" src="${chatImg}" style="right:56px; top:4px; width:42px; height:42px; z-index:6; transform:rotate(-16.2deg);" alt="" />
+        <!-- Top-right: girl avatar -->
+        <div style="position:absolute; right:10px; top:22px; width:69px; height:69px; z-index:5; display:flex; align-items:center; justify-content:center;">
+          <img src="${avatarFrame1}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; transform:rotate(-8.9deg);" alt="" />
+        </div>
+        <!-- Top-right: chat bubble above avatar -->
+        <div style="position:absolute; right:0; top:0; width:47px; height:47px; z-index:6; display:flex; align-items:center; justify-content:center;">
+          <img src="${chatImg}" style="width:38px; height:38px; transform:rotate(-16.2deg);" alt="" />
+        </div>
 
         <!-- Left floating: upvote arrow -->
-        <div style="position:absolute; left:4px; top:198px; width:48px; height:52px; background:#3cb34a; opacity:0.5; filter:blur(8px); border-radius:10px; z-index:1;"></div>
-        <img class="figma-3d-icon" src="${upvoteImg}" style="left:-8px; top:182px; width:68px; height:68px; z-index:6; transform:rotate(7.8deg);" alt="" />
+        <img class="figma-3d-icon" src="${upvoteImg}" style="left:-10px; top:370px; width:68px; height:68px; z-index:6; transform:rotate(7.8deg);" alt="" />
 
         <!-- Left floating: girl with share arrow -->
-        <div style="position:absolute; left:8px; top:310px; width:46px; height:54px; background:#8f3776; opacity:0.5; filter:blur(8px); border-radius:10px; z-index:1;"></div>
-        <img class="figma-3d-icon" src="${girlImg}" style="left:-18px; top:274px; width:80px; height:80px; z-index:2;" alt="" />
-        <img class="figma-3d-icon" src="${avatarFrame3}" style="left:4px; top:310px; width:52px; height:52px; z-index:3; border-radius:16px; object-fit:cover;" alt="" />
+        <div style="position:absolute; left:18px; top:478px; width:46px; height:50px; background:#8f3776; opacity:0.5; filter:blur(8px); border-radius:10px; z-index:1;"></div>
+        <img class="figma-3d-icon" src="${girlImg}" style="left:0px; top:442px; width:68px; height:68px; z-index:2;" alt="" />
+        <img class="figma-3d-icon" src="${avatarFrame3}" style="left:-10px; top:478px; width:47px; height:47px; z-index:3; border-radius:14px; object-fit:cover;" alt="" />
 
         <!-- Phone offset to right, extending beyond bottom -->
-        <div style="position:absolute; right:-20px; top:155px; width:244px; bottom:-20px; z-index:4;">
-          <div style="width:100%; height:100%; border:5.6px solid black; border-radius:28px 28px 0 0; border-bottom:none; box-shadow:0px -0.5px 0px 7.5px rgba(255,255,255,0.64), 0 8px 32px rgba(0,0,0,0.4); overflow:hidden; position:relative;">
-            <div style="position:absolute; top:-18px; left:0; right:0; bottom:0;">
+        <div style="position:absolute; right:-30px; top:170px; width:234px; bottom:-20px; z-index:4;">
+          <div style="width:100%; height:100%; border:5.6px solid black; border-radius:25px 25px 0 0; border-bottom:none; box-shadow:0px -0.5px 0px 7.5px rgba(255,255,255,0.64), 0 8px 32px rgba(0,0,0,0.4); overflow:hidden; position:relative;">
+            <div style="position:absolute; top:-30px; left:0; right:0; bottom:0;">
               <img src="${phoneImg}" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;" alt="" />
             </div>
           </div>
@@ -1384,9 +1386,9 @@ function mkMasterSearchScreen(cpp, scr, idx) {
         <img class="figma-3d-icon" src="${rightImg}" style="left:${Math.round(561*S)}px; top:${Math.round(309*S)}px; width:${Math.round(261*S)}px; height:${Math.round(261*S)}px; z-index:2; transform:rotate(18.85deg);" alt="" />
 
         <!-- Search bar (pill-shaped, dark bg, light border) -->
-        <div style="position:absolute; left:50%; transform:translate(-50%,-50%); top:${Math.round(509*S)}px; width:${Math.round(460*S)}px; height:${Math.round(81*S)}px; background:#0e1217; border:${Math.round(9.6*S)}px solid rgba(255,255,255,0.64); border-radius:${Math.round(81*S/2)}px; display:flex; align-items:center; padding:0 ${Math.round(23*S)}px; gap:${Math.round(6*S)}px; z-index:6; backdrop-filter:blur(${Math.round(47*S)}px);">
-          <svg viewBox="0 0 35 35" fill="white" style="width:${Math.round(35*S)}px; height:${Math.round(35*S)}px; flex-shrink:0;"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.44 0.666C15.625 0.666 17.688 1.178 19.512 2.085C19.024 2.972 18.093 3.552 17.049 3.596L15.381 3.665C14.752 3.551 14.103 3.491 13.44 3.491C7.608 3.491 2.88 8.127 2.88 13.847C2.88 19.427 7.38 23.977 13.015 24.195L13.44 24.204L13.865 24.195C19.5 23.977 24 19.427 24 13.847L23.994 13.597L24.152 13.184C24.535 12.179 25.45 11.47 26.52 11.328L26.633 11.318C26.795 12.137 26.88 12.982 26.88 13.847C26.88 16.242 26.229 18.488 25.09 20.423C26.497 20.306 27.941 20.727 29.077 21.685L29.379 21.96L32.972 25.484C35.089 27.56 35.089 30.927 32.972 33.003C30.943 34.993 27.707 35.076 25.577 33.252L25.306 33.003L21.712 29.479C20.538 28.327 20.015 26.777 20.144 25.272C18.172 26.389 15.882 27.028 13.44 27.028C6.017 27.028 0 21.127 0 13.847C0 6.567 6.017 0.666 13.44 0.666ZM23.749 23.957C22.823 24.866 22.761 26.301 23.564 27.279L23.749 27.481L27.342 31.006C27.805 31.46 28.403 31.702 29.009 31.732H29.269L29.528 31.706C30.043 31.629 30.539 31.395 30.936 31.006C31.862 30.097 31.924 28.662 31.121 27.684L30.936 27.481L27.342 23.957C26.35 22.984 24.741 22.984 23.749 23.957ZM23.846 0.808L23.932 2.754C24.016 4.672 25.262 6.354 27.096 7.025L28.957 7.706C29.835 8.028 29.63 9.3 28.693 9.339L26.708 9.423C26.512 9.431 26.317 9.451 26.126 9.482L26.029 9.499C25.876 9.526 25.725 9.561 25.576 9.603L25.294 9.691L24.948 9.826L24.625 9.981L24.409 10.101L24.138 10.273L23.823 10.506L23.762 10.557C23.141 11.074 22.65 11.746 22.353 12.526L21.659 14.351C21.528 14.696 21.242 14.87 20.943 14.897L20.793 14.898L20.645 14.875C20.305 14.794 20.013 14.521 19.994 14.093L19.908 12.146C19.824 10.229 18.578 8.546 16.744 7.875L14.883 7.194C14.005 6.873 14.21 5.601 15.147 5.561L17.132 5.478C17.707 5.453 18.261 5.33 18.775 5.123L18.983 5.03C19.319 4.878 19.635 4.688 19.926 4.465L20.208 4.232L20.437 4.013L20.7 3.721L20.786 3.614L20.935 3.414L21.042 3.255L20.983 3.344C21.185 3.045 21.355 2.72 21.487 2.374L22.181 0.549C22.509 -0.312 23.806 -0.111 23.846 0.808Z"/></svg>
-          <span style="font-family:'Roboto',sans-serif; font-size:${Math.round(32*S)}px; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1;">How to be a great developer?</span>
+        <div style="position:absolute; left:50%; transform:translate(-50%,-50%); top:${Math.round(509*S)}px; width:${Math.round(500*S)}px; height:${Math.round(110*S)}px; background:#0e1217; border:${Math.round(10*S)}px solid rgba(255,255,255,0.64); border-radius:${Math.round(55*S)}px; display:flex; align-items:center; padding:0 ${Math.round(28*S)}px; gap:${Math.round(8*S)}px; z-index:6; backdrop-filter:blur(${Math.round(47*S)}px);">
+          <svg viewBox="0 0 35 35" fill="white" style="width:${Math.round(46*S)}px; height:${Math.round(46*S)}px; flex-shrink:0;"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.44 0.666C15.625 0.666 17.688 1.178 19.512 2.085C19.024 2.972 18.093 3.552 17.049 3.596L15.381 3.665C14.752 3.551 14.103 3.491 13.44 3.491C7.608 3.491 2.88 8.127 2.88 13.847C2.88 19.427 7.38 23.977 13.015 24.195L13.44 24.204L13.865 24.195C19.5 23.977 24 19.427 24 13.847L23.994 13.597L24.152 13.184C24.535 12.179 25.45 11.47 26.52 11.328L26.633 11.318C26.795 12.137 26.88 12.982 26.88 13.847C26.88 16.242 26.229 18.488 25.09 20.423C26.497 20.306 27.941 20.727 29.077 21.685L29.379 21.96L32.972 25.484C35.089 27.56 35.089 30.927 32.972 33.003C30.943 34.993 27.707 35.076 25.577 33.252L25.306 33.003L21.712 29.479C20.538 28.327 20.015 26.777 20.144 25.272C18.172 26.389 15.882 27.028 13.44 27.028C6.017 27.028 0 21.127 0 13.847C0 6.567 6.017 0.666 13.44 0.666ZM23.749 23.957C22.823 24.866 22.761 26.301 23.564 27.279L23.749 27.481L27.342 31.006C27.805 31.46 28.403 31.702 29.009 31.732H29.269L29.528 31.706C30.043 31.629 30.539 31.395 30.936 31.006C31.862 30.097 31.924 28.662 31.121 27.684L30.936 27.481L27.342 23.957C26.35 22.984 24.741 22.984 23.749 23.957ZM23.846 0.808L23.932 2.754C24.016 4.672 25.262 6.354 27.096 7.025L28.957 7.706C29.835 8.028 29.63 9.3 28.693 9.339L26.708 9.423C26.512 9.431 26.317 9.451 26.126 9.482L26.029 9.499C25.876 9.526 25.725 9.561 25.576 9.603L25.294 9.691L24.948 9.826L24.625 9.981L24.409 10.101L24.138 10.273L23.823 10.506L23.762 10.557C23.141 11.074 22.65 11.746 22.353 12.526L21.659 14.351C21.528 14.696 21.242 14.87 20.943 14.897L20.793 14.898L20.645 14.875C20.305 14.794 20.013 14.521 19.994 14.093L19.908 12.146C19.824 10.229 18.578 8.546 16.744 7.875L14.883 7.194C14.005 6.873 14.21 5.601 15.147 5.561L17.132 5.478C17.707 5.453 18.261 5.33 18.775 5.123L18.983 5.03C19.319 4.878 19.635 4.688 19.926 4.465L20.208 4.232L20.437 4.013L20.7 3.721L20.786 3.614L20.935 3.414L21.042 3.255L20.983 3.344C21.185 3.045 21.355 2.72 21.487 2.374L22.181 0.549C22.509 -0.312 23.806 -0.111 23.846 0.808Z"/></svg>
+          <span style="font-family:'Roboto',sans-serif; font-size:${Math.round(40*S)}px; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1;">How to be a great developer?</span>
         </div>
 
         <!-- Phone (rounded top only, extends to bottom) -->
@@ -1409,7 +1411,7 @@ function mkMasterFeaturesScreen(cpp, scr, idx) {
   const atomImg = 'cpp-assets/tab5/3d-atom.png';
   const bookmarkImg = 'cpp-assets/tab5/3d-bookmark.png';
   const S = 280/720;
-  const plusSvg = '<svg viewBox="0 0 24 24" fill="white" width="'+Math.round(24*S)+'" height="'+Math.round(24*S)+'"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>';
+  const plusIcon = `<img src="cpp-assets/tab5/plus-icon.svg" style="width:${Math.round(24*S)}px; height:${Math.round(24*S)}px;" alt="+" />`;
 
   return `<div class="screenshot-slot">
     <div class="screenshot-label">${idx+1}. ${scr.label}</div>
@@ -1420,20 +1422,20 @@ function mkMasterFeaturesScreen(cpp, scr, idx) {
         <!-- Headline: + Bookmarks / + Squads / + DevCards / and much more -->
         <div style="position:absolute; left:${Math.round(104*S)}px; top:${Math.round(104*S)}px; display:flex; flex-direction:column; gap:${Math.round(24*S)}px; z-index:7;">
           <div style="display:flex; flex-direction:column; gap:${Math.round(12*S)}px;">
-            <div style="display:flex; align-items:center; gap:0;">
-              <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${plusSvg}</div>
+            <div style="display:flex; align-items:flex-start; gap:0;">
+              <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:${Math.round(4*S)}px;">${plusIcon}</div>
               <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">Bookmarks</span>
             </div>
-            <div style="display:flex; align-items:center; gap:0;">
-              <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${plusSvg}</div>
+            <div style="display:flex; align-items:flex-start; gap:0;">
+              <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:${Math.round(4*S)}px;">${plusIcon}</div>
               <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">Squads</span>
             </div>
-            <div style="display:flex; align-items:center; gap:0;">
-              <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${plusSvg}</div>
+            <div style="display:flex; align-items:flex-start; gap:0;">
+              <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:${Math.round(4*S)}px;">${plusIcon}</div>
               <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">DevCards</span>
             </div>
           </div>
-          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(40*S)}px; color:rgba(255,255,255,0.64); line-height:1;">and much more.</div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(40*S)}px; color:rgba(255,255,255,0.64); line-height:1; margin-left:${Math.round(88*S)}px;">and much more.</div>
         </div>
 
         <!-- Left 3D atom -->
@@ -1459,11 +1461,13 @@ function mkMasterFeaturesScreen(cpp, scr, idx) {
 
 function mkScreen(cpp, scr, idx) {
   if (scr.uiType === 'hero') return mkHeroScreen(cpp, scr, idx);
-  if (cpp.id === 'master' && scr.uiType === 'feed') return mkMasterFeedScreen(cpp, scr, idx);
-  if (cpp.id === 'master' && scr.label === 'Personalized') return mkPersonalizedScreen(cpp, scr, idx);
-  if (cpp.id === 'master' && scr.label === 'Discuss') return mkMasterDiscussScreen(cpp, scr, idx);
-  if (cpp.id === 'master' && scr.label === 'Search') return mkMasterSearchScreen(cpp, scr, idx);
-  if (cpp.id === 'master' && scr.label === 'Features') return mkMasterFeaturesScreen(cpp, scr, idx);
+  if (scr.uiType === 'feed' || scr.label === 'Personalization') return mkMasterFeedScreen(cpp, scr, idx);
+  if (scr.label === 'Personalized') return mkPersonalizedScreen(cpp, scr, idx);
+  if (scr.label === 'Discuss') return mkMasterDiscussScreen(cpp, scr, idx);
+  if (scr.label === 'Search') return mkMasterSearchScreen(cpp, scr, idx);
+  if (scr.label === 'Features') return mkMasterFeaturesScreen(cpp, scr, idx);
+  if (scr.label === 'Profile' || scr.uiType === 'profile') return mkMasterFeaturesScreen(cpp, scr, idx);
+
   const ui = mkUI(scr, cpp.accent);
   const hlPos = scr.hlPos || 'top';
   const bgStyle = '';
@@ -1550,9 +1554,6 @@ const CPP = [
         squads:[{n:'LLM Builders',m:'12.4K',e:'🤖'},{n:'ML Paper Club',m:'8.7K',e:'📄'},{n:'AI Agents',m:'6.2K',e:'🧠'},{n:'Computer Vision',m:'5.1K',e:'👁'}],
         floats:[{icon:'📑',top:'28%',left:'-10px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-5deg'},{icon:'⚛',top:'70%',right:'-10px',bg:'linear-gradient(135deg,#CE3DF3,#8B2252)',rot:'8deg'}]
       },
-      { label:'Profile', hlPos:'top', hl:'Your AI<br>Identity', sub:'trusted by 1M+ devs', uiType:'profile',
-        floats:[{icon:'🏆',top:'60%',right:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'10deg'}]
-      },
     ]
   },
   {
@@ -1585,7 +1586,6 @@ const CPP = [
         squads:[{n:'React Devs',m:'24.1K',e:'⚛️'},{n:'CSS Wizards',m:'11.3K',e:'🎨'},{n:'TypeScript Community',m:'15.7K',e:'💙'},{n:'Next.js Users',m:'9.4K',e:'▲'}],
         floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-8deg'}]
       },
-      { label:'Profile', hlPos:'top', hl:'Your Frontend<br>Identity', sub:'standout', uiType:'profile' },
     ]
   },
   {
@@ -1616,7 +1616,6 @@ const CPP = [
         folders:[{n:'Interview Prep',c:42,e:'🎯'},{n:'Salary Negotiation',c:18,e:'💰'},{n:'Resume Tips',c:15,e:'📝'},{n:'Side Projects',c:23,e:'🚀'}],
         floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
       },
-      { label:'Profile', hlPos:'top', hl:'Stand out to<br>recruiters', sub:'shine', uiType:'profile' },
     ]
   },
   {
@@ -1647,7 +1646,6 @@ const CPP = [
         squads:[{n:'Netflix Tech',m:'890K',e:'🎬'},{n:'Martin Fowler',m:'1.2M',e:'📖'},{n:'InfoQ',m:'750K',e:'📰'},{n:'Uber Eng',m:'620K',e:'🚗'}],
         floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
       },
-      { label:'Profile', hlPos:'top', hl:'Your Eng<br>Identity', sub:'depth', uiType:'profile' },
     ]
   },
   {
@@ -1678,7 +1676,6 @@ const CPP = [
         squads:[{n:'Terminal Fans',m:'8.9K',e:'💻'},{n:'VS Code Power Users',m:'22.1K',e:'🔮'},{n:'DevOps Tools',m:'15.4K',e:'🛠'},{n:'AI Coding',m:'11.7K',e:'🤖'}],
         floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
       },
-      { label:'Profile', hlPos:'top', hl:'Stay ahead<br>daily', sub:'5 min a day', uiType:'profile' },
     ]
   },
   {
@@ -1709,7 +1706,6 @@ const CPP = [
         squads:[{n:'OSS Contributors',m:'19.8K',e:'💚'},{n:'Linux Users',m:'16.3K',e:'🐧'},{n:'Rust Community',m:'12.1K',e:'🦀'},{n:'Go Developers',m:'10.7K',e:'🐹'}],
         floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
       },
-      { label:'Profile', hlPos:'top', hl:'Your OSS<br>identity', sub:'passion', uiType:'profile' },
     ]
   }
 ];
