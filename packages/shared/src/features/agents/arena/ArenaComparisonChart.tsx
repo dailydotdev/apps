@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
+import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import type { ArenaComparisonMetric, ArenaComparisonSeries } from './types';
 import { getComparisonMetricLabel } from './arenaMetrics';
 import { ArenaComparisonChartTooltip } from './ArenaComparisonChartTooltip';
@@ -13,6 +13,10 @@ interface ArenaComparisonChartProps {
   metric: ArenaComparisonMetric;
   loading?: boolean;
   metricControl?: ReactElement;
+  title?: string;
+  tab?: 'coding-agents' | 'llms';
+  tall?: boolean;
+  fixedTabletLayout?: boolean;
 }
 
 const Placeholder = ({ className }: { className?: string }): ReactElement => (
@@ -29,8 +33,13 @@ export const ArenaComparisonChart = ({
   metric,
   loading,
   metricControl,
+  title,
+  tab,
+  tall,
+  fixedTabletLayout,
 }: ArenaComparisonChartProps): ReactElement => {
-  const isTablet = useViewSize(ViewSize.Tablet);
+  const responsiveIsTablet = useViewSizeClient(ViewSize.Tablet);
+  const isTablet = fixedTabletLayout ? true : responsiveIsTablet;
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{
     x: number;
@@ -67,7 +76,7 @@ export const ArenaComparisonChart = ({
       <div className="mb-3 flex flex-wrap items-start justify-between gap-2 tablet:items-center">
         <div>
           <h3 className="font-bold text-text-primary typo-callout">
-            Last 7 days, ranked by {metricLabel}
+            {title ?? `Last 7 days, ranked by ${metricLabel}`}
           </h3>
         </div>
         <div className="w-full tablet:w-auto">
@@ -92,6 +101,7 @@ export const ArenaComparisonChart = ({
           series={series}
           metric={metric}
           isTablet={isTablet}
+          tall={tall}
           hoveredIndex={hoveredIndex}
           onHover={({ index, position }) => {
             setHoveredIndex(index);
@@ -104,7 +114,9 @@ export const ArenaComparisonChart = ({
         />
       </div>
 
-      <ArenaComparisonChartLegend series={series} />
+      {series.length > 1 && (
+        <ArenaComparisonChartLegend series={series} tab={tab} />
+      )}
     </div>
   );
 };
