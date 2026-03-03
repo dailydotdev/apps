@@ -6,23 +6,11 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import type { WithClassNameProps } from '../utilities';
 import { isDevelopment } from '../../lib/constants';
+import { checkSameSite } from '../../lib/links';
 import Logo, { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useViewSize, ViewSize } from '../../hooks';
-
-const checkSameSite = () => {
-  const referrer = globalThis?.document?.referrer;
-  const origin = globalThis?.window?.location.origin;
-
-  if (!referrer) {
-    return true; // empty referrer means you are from the same site or from blank tab or no-referrer header was used :/
-  }
-
-  return (
-    referrer === origin || origin === referrer.substring(0, referrer.length - 1) // remove trailing slash
-  );
-};
 
 export const GoBackButton = ({
   className,

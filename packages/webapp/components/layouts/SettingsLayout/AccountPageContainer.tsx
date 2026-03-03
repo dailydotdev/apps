@@ -9,6 +9,9 @@ import {
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { checkSameSite } from '@dailydotdev/shared/src/lib/links';
+import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
+import { useRouter } from 'next/router';
 import {
   AccountPageContent,
   AccountPageHeading,
@@ -38,10 +41,28 @@ export const AccountPageContainer = ({
   onBack,
 }: AccountPageContainerProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
+  const router = useRouter();
   const [, setIsOpen] = useQueryState({
     key: navigationKey,
     defaultValue: false,
   });
+
+  const handleBack = () => {
+    const referrer = globalThis?.document?.referrer;
+    const canGoBack =
+      globalThis?.history?.length > 1 && (checkSameSite() || isDevelopment);
+    const cameFromOutside =
+      canGoBack &&
+      referrer &&
+      !new URL(referrer).pathname.startsWith('/settings');
+
+    if (cameFromOutside) {
+      router.back();
+      return;
+    }
+
+    setIsOpen(true);
+  };
 
   return (
     <AccountPageContent className={classNames('relative', className.container)}>
@@ -51,7 +72,7 @@ export const AccountPageContainer = ({
           icon={<ArrowIcon className="-rotate-90" />}
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.XSmall}
-          onClick={() => setIsOpen(true)}
+          onClick={handleBack}
         />
         {onBack && (
           <Button

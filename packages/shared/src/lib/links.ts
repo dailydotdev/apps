@@ -105,6 +105,19 @@ export const fromCDN = (path: string): string => {
   return `${cdnPrefix}${path}`;
 };
 
+export const checkSameSite = (): boolean => {
+  const referrer = globalThis?.document?.referrer;
+  const origin = globalThis?.window?.location.origin;
+
+  if (!referrer) {
+    return true; // empty referrer means you are from the same site or from blank tab or no-referrer header was used :/
+  }
+
+  return (
+    referrer === origin || origin === referrer.substring(0, referrer.length - 1) // remove trailing slash
+  );
+};
+
 export const getRedirectNextPath = (params: URLSearchParams): string => {
   const next = params.get('next');
 
