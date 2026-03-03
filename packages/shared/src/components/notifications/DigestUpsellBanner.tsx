@@ -1,6 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
-import { Button, ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import { MailIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
