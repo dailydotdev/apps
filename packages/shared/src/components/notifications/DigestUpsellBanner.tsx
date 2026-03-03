@@ -85,6 +85,11 @@ export function DigestUpsellBanner(): ReactElement | null {
   };
 
   const onDismiss = () => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_id: TargetId.DigestUpsell,
+      extra: JSON.stringify({ action: 'dismiss' }),
+    });
     completeAction(ActionType.DigestUpsell);
   };
 

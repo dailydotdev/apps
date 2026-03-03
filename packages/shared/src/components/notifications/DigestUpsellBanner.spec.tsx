@@ -164,12 +164,17 @@ describe('DigestUpsellBanner', () => {
     });
   });
 
-  it('should complete action on dismiss', () => {
+  it('should log dismiss and complete action on dismiss', () => {
     renderComponent();
 
     const closeButton = screen.getByRole('button', { name: 'Close' });
     fireEvent.click(closeButton);
 
+    expect(mockLogEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Click,
+      target_id: TargetId.DigestUpsell,
+      extra: JSON.stringify({ action: 'dismiss' }),
+    });
     expect(mockCompleteAction).toHaveBeenCalledWith(ActionType.DigestUpsell);
   });
 });

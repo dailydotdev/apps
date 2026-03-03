@@ -85,6 +85,11 @@ export function DigestBookmarkBanner(): ReactElement | null {
   };
 
   const onDismiss = () => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_id: TargetId.DigestUpsellBookmarks,
+      extra: JSON.stringify({ action: 'dismiss' }),
+    });
     completeAction(ActionType.DigestUpsell);
   };
 
