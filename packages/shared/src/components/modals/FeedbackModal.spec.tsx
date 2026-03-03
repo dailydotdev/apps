@@ -19,6 +19,10 @@ jest.mock('../../hooks/useToastNotification', () => ({
   }),
 }));
 
+jest.mock('../../contexts/SettingsContext', () => ({
+  useSettingsContext: () => ({ themeMode: 'dark' }),
+}));
+
 const renderComponent = () => {
   const client = new QueryClient({
     defaultOptions: {
@@ -83,6 +87,30 @@ describe('FeedbackModal', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => expect(mockSubmitFeedback).toHaveBeenCalledTimes(2));
+  });
+
+  it('includes clientInfo in the mutation payload on submit', async () => {
+    mockSubmitFeedback.mockResolvedValue({ _: true });
+
+    renderComponent();
+
+    fireEvent.input(screen.getByPlaceholderText('Your feedback'), {
+      target: { value: 'Testing client info capture' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit Feedback' }));
+
+    await waitFor(() =>
+      expect(mockSubmitFeedback).toHaveBeenCalledWith(
+        expect.objectContaining({
+          clientInfo: expect.objectContaining({
+            viewport: expect.any(String),
+            screen: expect.any(String),
+            theme: 'dark',
+          }),
+        }),
+      ),
+    );
   });
 
   it('renders all categories and submits content quality with updated enum value', async () => {
