@@ -71,3 +71,76 @@ export const ARENA_QUERY = gql`
     }
   }
 `;
+
+export const ARENA_ENTITY_QUERY = gql`
+  query ArenaEntityData(
+    $groupId: ID!
+    $entity: String!
+    $lookback: String!
+    $resolution: SentimentResolution!
+    $highlightsFirst: Int
+    $highlightsOrderBy: SentimentHighlightsOrderBy
+  ) {
+    sentimentGroup(id: $groupId) {
+      id
+      name
+      entities {
+        entity
+        name
+        logo
+      }
+    }
+    sentimentTimeSeries(
+      resolution: $resolution
+      groupId: $groupId
+      lookback: $lookback
+    ) {
+      start
+      resolutionSeconds
+      entities {
+        nodes {
+          entity
+          timestamps
+          scores
+          volume
+          scoreVariance
+          dIndex
+        }
+      }
+    }
+    sentimentHighlights(
+      entity: $entity
+      first: $highlightsFirst
+      orderBy: $highlightsOrderBy
+    ) {
+      items {
+        provider
+        externalItemId
+        url
+        text
+        author {
+          ... on SentimentAuthorX {
+            id
+            name
+            handle
+            avatarUrl
+          }
+        }
+        metrics {
+          ... on SentimentMetricsX {
+            likeCount
+            replyCount
+            retweetCount
+          }
+        }
+        createdAt
+        sentiments {
+          entity
+          score
+          highlightScore
+        }
+      }
+      cursor
+    }
+  }
+`;

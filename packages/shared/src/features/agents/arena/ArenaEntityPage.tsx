@@ -12,7 +12,7 @@ import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { ArenaCrownCards } from './ArenaCrownCards';
 import { ArenaHighlightsFeed } from './ArenaHighlightsFeed';
 import { ArenaComparisonChart } from './ArenaComparisonChart';
-import { arenaOptions } from './queries';
+import { arenaEntityOptions } from './queries';
 import type { ArenaComparisonMetric, ArenaTab } from './types';
 import {
   COMPARISON_METRIC_OPTIONS,
@@ -75,7 +75,9 @@ export const ArenaEntityPage = ({
   const [comparisonMetric, setComparisonMetric] =
     useState<ArenaComparisonMetric>('d-index');
 
-  const { data, isFetching } = useQuery(arenaOptions({ groupId: tab }));
+  const { data, isFetching } = useQuery(
+    arenaEntityOptions({ groupId: tab, entityId }),
+  );
   const rankings = useMemo(
     () =>
       data?.sentimentTimeSeries && data.sentimentGroup
@@ -98,10 +100,7 @@ export const ArenaEntityPage = ({
   const crowns = computeCrowns(rankings).filter(
     (crown) => crown.entity?.entity === entityId,
   );
-  const highlights =
-    data?.sentimentHighlights.items.filter((item) =>
-      item.sentiments.some((sentiment) => sentiment.entity === entityId),
-    ) ?? [];
+  const highlights = data?.sentimentHighlights.items ?? [];
   const selectedNode = data?.sentimentTimeSeries.entities.nodes.find(
     (node) => node.entity === entityId,
   );
