@@ -12,9 +12,15 @@ const mockSubscribePersonalizedDigest = jest.fn().mockResolvedValue({});
 const mockCompleteAction = jest.fn().mockResolvedValue(undefined);
 const mockCheckHasCompleted = jest.fn();
 const mockUsePlusSubscription = jest.fn();
+const mockSetNotificationStatuses = jest.fn();
+const mockDisplayToast = jest.fn();
 
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
+}));
+
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuthContext: () => ({ isAuthReady: true }),
 }));
 
 jest.mock('../../hooks/usePlusSubscription', () => ({
@@ -34,6 +40,19 @@ jest.mock('../../hooks/useActions', () => ({
     checkHasCompleted: mockCheckHasCompleted,
     completeAction: mockCompleteAction,
     isActionsFetched: true,
+  }),
+}));
+
+jest.mock('../../hooks/notifications/useNotificationSettings', () => ({
+  __esModule: true,
+  default: () => ({
+    setNotificationStatusBulk: mockSetNotificationStatuses,
+  }),
+}));
+
+jest.mock('../../hooks/useToastNotification', () => ({
+  useToastNotification: () => ({
+    displayToast: mockDisplayToast,
   }),
 }));
 
@@ -58,7 +77,7 @@ describe('DigestUpsellBanner', () => {
     renderComponent();
 
     expect(
-      screen.getByText('Get your personalized digest'),
+      screen.getByText('Get the must-read posts delivered daily'),
     ).toBeInTheDocument();
     expect(screen.getByText('Enable digest')).toBeInTheDocument();
   });
@@ -69,7 +88,7 @@ describe('DigestUpsellBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Get your personalized digest'),
+      screen.queryByText('Get the must-read posts delivered daily'),
     ).not.toBeInTheDocument();
   });
 
@@ -88,7 +107,7 @@ describe('DigestUpsellBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Get your personalized digest'),
+      screen.queryByText('Get the must-read posts delivered daily'),
     ).not.toBeInTheDocument();
   });
 
@@ -98,7 +117,7 @@ describe('DigestUpsellBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Get your personalized digest'),
+      screen.queryByText('Get the must-read posts delivered daily'),
     ).not.toBeInTheDocument();
   });
 
@@ -131,8 +150,16 @@ describe('DigestUpsellBanner', () => {
     });
 
     await waitFor(() => {
-      expect(mockCompleteAction).toHaveBeenCalledWith(
-        ActionType.DismissDigestUpsell,
+      expect(mockSetNotificationStatuses).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(mockCompleteAction).toHaveBeenCalledWith(ActionType.DigestUpsell);
+    });
+
+    await waitFor(() => {
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'Digest enabled! Check your inbox tomorrow.',
       );
     });
   });
@@ -143,8 +170,6 @@ describe('DigestUpsellBanner', () => {
     const closeButton = screen.getByRole('button', { name: 'Close' });
     fireEvent.click(closeButton);
 
-    expect(mockCompleteAction).toHaveBeenCalledWith(
-      ActionType.DismissDigestUpsell,
-    );
+    expect(mockCompleteAction).toHaveBeenCalledWith(ActionType.DigestUpsell);
   });
 });

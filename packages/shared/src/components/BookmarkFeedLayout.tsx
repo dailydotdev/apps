@@ -1,5 +1,11 @@
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import {
@@ -118,6 +124,8 @@ export default function BookmarkFeedLayout({
     ],
   );
   const { plusEntryBookmark } = usePlusEntry();
+  const [isEmptyFeed, setIsEmptyFeed] = useState(false);
+  const onEmptyFeed = useCallback(() => setIsEmptyFeed(true), []);
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchResults) {
       return {
@@ -246,9 +254,9 @@ export default function BookmarkFeedLayout({
           />
         )}
       </div>
-      {!plusEntryBookmark && <DigestBookmarkBanner />}
+      {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
       {tokenRefreshed && (isSearchResults || loadedSort) && (
-        <Feed {...feedProps} />
+        <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
       )}
     </FeedPageLayoutComponent>
   );

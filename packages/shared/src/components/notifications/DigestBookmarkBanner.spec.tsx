@@ -12,9 +12,15 @@ const mockSubscribePersonalizedDigest = jest.fn().mockResolvedValue({});
 const mockCompleteAction = jest.fn().mockResolvedValue(undefined);
 const mockCheckHasCompleted = jest.fn();
 const mockUsePlusSubscription = jest.fn();
+const mockSetNotificationStatuses = jest.fn();
+const mockDisplayToast = jest.fn();
 
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
+}));
+
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuthContext: () => ({ isAuthReady: true }),
 }));
 
 jest.mock('../../hooks/usePlusSubscription', () => ({
@@ -34,6 +40,19 @@ jest.mock('../../hooks/useActions', () => ({
     checkHasCompleted: mockCheckHasCompleted,
     completeAction: mockCompleteAction,
     isActionsFetched: true,
+  }),
+}));
+
+jest.mock('../../hooks/notifications/useNotificationSettings', () => ({
+  __esModule: true,
+  default: () => ({
+    setNotificationStatusBulk: mockSetNotificationStatuses,
+  }),
+}));
+
+jest.mock('../../hooks/useToastNotification', () => ({
+  useToastNotification: () => ({
+    displayToast: mockDisplayToast,
   }),
 }));
 
@@ -57,7 +76,9 @@ describe('DigestBookmarkBanner', () => {
   it('should render banner for non-Plus user without digest', () => {
     renderComponent();
 
-    expect(screen.getByText('Never miss the best posts')).toBeInTheDocument();
+    expect(
+      screen.getByText('Not sure what to read? Let us pick for you'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Enable digest')).toBeInTheDocument();
   });
 
@@ -67,7 +88,7 @@ describe('DigestBookmarkBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Never miss the best posts'),
+      screen.queryByText('Not sure what to read? Let us pick for you'),
     ).not.toBeInTheDocument();
   });
 
@@ -86,7 +107,7 @@ describe('DigestBookmarkBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Never miss the best posts'),
+      screen.queryByText('Not sure what to read? Let us pick for you'),
     ).not.toBeInTheDocument();
   });
 
@@ -96,7 +117,7 @@ describe('DigestBookmarkBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Never miss the best posts'),
+      screen.queryByText('Not sure what to read? Let us pick for you'),
     ).not.toBeInTheDocument();
   });
 
@@ -129,8 +150,16 @@ describe('DigestBookmarkBanner', () => {
     });
 
     await waitFor(() => {
-      expect(mockCompleteAction).toHaveBeenCalledWith(
-        ActionType.DismissDigestBookmarkUpsell,
+      expect(mockSetNotificationStatuses).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(mockCompleteAction).toHaveBeenCalledWith(ActionType.DigestUpsell);
+    });
+
+    await waitFor(() => {
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'Digest enabled! Check your inbox tomorrow.',
       );
     });
   });
@@ -141,8 +170,6 @@ describe('DigestBookmarkBanner', () => {
     const closeButton = screen.getByRole('button', { name: 'Close' });
     fireEvent.click(closeButton);
 
-    expect(mockCompleteAction).toHaveBeenCalledWith(
-      ActionType.DismissDigestBookmarkUpsell,
-    );
+    expect(mockCompleteAction).toHaveBeenCalledWith(ActionType.DigestUpsell);
   });
 });

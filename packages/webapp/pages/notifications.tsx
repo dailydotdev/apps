@@ -25,11 +25,16 @@ import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import {
+  LogEvent,
+  NotificationPromptSource,
+  Origin,
+} from '@dailydotdev/shared/src/lib/log';
 import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { useTopReaderModal } from '@dailydotdev/shared/src/hooks/modals/useTopReaderModal';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { useEnableNotification } from '@dailydotdev/shared/src/hooks/notifications/useEnableNotification';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
 import { getNextPageParam } from '@dailydotdev/shared/src/lib/query';
@@ -53,6 +58,9 @@ const Notifications = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { clearUnreadCount } = useNotificationContext();
   const { isSubscribed } = usePushNotificationContext();
+  const { shouldShowCta: showPushBanner } = useEnableNotification({
+    source: NotificationPromptSource.NotificationsPage,
+  });
 
   const { mutateAsync: readNotifications } = useMutation({
     mutationFn: () => gqlClient.request(READ_NOTIFICATIONS_MUTATION),
@@ -109,7 +117,7 @@ const Notifications = (): ReactElement => {
         className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
         <EnableNotification />
-        {isSubscribed && <DigestUpsellBanner />}
+        {!showPushBanner && <DigestUpsellBanner />}
         <h2
           className="p-6 font-bold typo-body"
           data-testid="notification_page-title"

@@ -8,9 +8,9 @@ import {
 } from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import { MailIcon } from '../icons';
-import { webappUrl } from '../../lib/constants';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import {
   usePersonalizedDigest,
@@ -19,18 +19,26 @@ import {
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
+import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
+import { NotificationType } from './utils';
+import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 export function DigestUpsellBanner(): ReactElement | null {
   const { logEvent } = useLogContext();
+  const { isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { getPersonalizedDigest, subscribePersonalizedDigest } =
     usePersonalizedDigest();
   const hasDigest = !!getPersonalizedDigest(UserPersonalizedDigestType.Digest);
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
-  const dismissed = checkHasCompleted(ActionType.DismissDigestUpsell);
+  const { setNotificationStatusBulk } = useNotificationSettings();
+  const { displayToast } = useToastNotification();
+  const dismissed = checkHasCompleted(ActionType.DigestUpsell);
   const impressionLogged = useRef(false);
 
-  const showBanner = !isPlus && !hasDigest && !dismissed && isActionsFetched;
+  const showBanner =
+    isAuthReady && !isPlus && !hasDigest && !dismissed && isActionsFetched;
 
   useEffect(() => {
     if (showBanner && !impressionLogged.current) {
@@ -58,27 +66,39 @@ export function DigestUpsellBanner(): ReactElement | null {
       type: UserPersonalizedDigestType.Digest,
     });
 
-    await completeAction(ActionType.DismissDigestUpsell);
+    setNotificationStatusBulk([
+      {
+        type: NotificationType.BriefingReady,
+        channel: 'email',
+        status: NotificationPreferenceStatus.Subscribed,
+      },
+      {
+        type: NotificationType.DigestReady,
+        channel: 'inApp',
+        status: NotificationPreferenceStatus.Subscribed,
+      },
+    ]);
 
-    window.location.href = `${webappUrl}account/notifications`;
+    await completeAction(ActionType.DigestUpsell);
+
+    displayToast('Digest enabled! Check your inbox tomorrow.');
   };
 
   const onDismiss = () => {
-    completeAction(ActionType.DismissDigestUpsell);
+    completeAction(ActionType.DigestUpsell);
   };
 
   return (
     <div className="relative w-full overflow-hidden border-l border-accent-cabbage-default bg-surface-float px-6 py-4 typo-callout">
       <span className="flex flex-row items-center font-bold">
         <MailIcon className="mr-2" />
-        Get your personalized digest
+        Get the must-read posts delivered daily
       </span>
-      <p className="mt-2 w-full text-text-tertiary tablet:w-3/5">
-        Our recommendation system scans everything on daily.dev and sends you a
-        tailored summary with just the must-read posts. Choose daily, workdays,
-        or weekly delivery.
+      <p className="mt-2 text-text-tertiary">
+        A personalized digest with top posts from your favorite topics, straight
+        to your inbox.
       </p>
-      <div className="mt-4 flex items-center">
+      <div className="mt-3 flex items-center">
         <Button
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}

@@ -8,9 +8,9 @@ import {
 } from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import { MailIcon } from '../icons';
-import { webappUrl } from '../../lib/constants';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import {
   usePersonalizedDigest,
@@ -19,18 +19,26 @@ import {
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
+import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
+import { NotificationType } from './utils';
+import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import { useToastNotification } from '../../hooks/useToastNotification';
 
 export function DigestBookmarkBanner(): ReactElement | null {
   const { logEvent } = useLogContext();
+  const { isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { getPersonalizedDigest, subscribePersonalizedDigest } =
     usePersonalizedDigest();
   const hasDigest = !!getPersonalizedDigest(UserPersonalizedDigestType.Digest);
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
-  const dismissed = checkHasCompleted(ActionType.DismissDigestBookmarkUpsell);
+  const { setNotificationStatusBulk } = useNotificationSettings();
+  const { displayToast } = useToastNotification();
+  const dismissed = checkHasCompleted(ActionType.DigestUpsell);
   const impressionLogged = useRef(false);
 
-  const showBanner = !isPlus && !hasDigest && !dismissed && isActionsFetched;
+  const showBanner =
+    isAuthReady && !isPlus && !hasDigest && !dismissed && isActionsFetched;
 
   useEffect(() => {
     if (showBanner && !impressionLogged.current) {
@@ -58,26 +66,39 @@ export function DigestBookmarkBanner(): ReactElement | null {
       type: UserPersonalizedDigestType.Digest,
     });
 
-    await completeAction(ActionType.DismissDigestBookmarkUpsell);
+    setNotificationStatusBulk([
+      {
+        type: NotificationType.BriefingReady,
+        channel: 'email',
+        status: NotificationPreferenceStatus.Subscribed,
+      },
+      {
+        type: NotificationType.DigestReady,
+        channel: 'inApp',
+        status: NotificationPreferenceStatus.Subscribed,
+      },
+    ]);
 
-    window.location.href = `${webappUrl}account/notifications`;
+    await completeAction(ActionType.DigestUpsell);
+
+    displayToast('Digest enabled! Check your inbox tomorrow.');
   };
 
   const onDismiss = () => {
-    completeAction(ActionType.DismissDigestBookmarkUpsell);
+    completeAction(ActionType.DigestUpsell);
   };
 
   return (
-    <div className="relative mx-4 mb-4 overflow-hidden rounded-16 border border-accent-cabbage-default bg-surface-float px-6 py-4 typo-callout">
+    <div className="relative mx-4 mb-4 overflow-hidden rounded-16 border border-accent-cabbage-default bg-surface-float px-6 py-4 typo-callout laptop:mx-auto laptop:max-w-[40rem]">
       <span className="flex flex-row items-center font-bold">
         <MailIcon className="mr-2" />
-        Never miss the best posts
+        Not sure what to read? Let us pick for you
       </span>
-      <p className="mt-2 w-full text-text-tertiary tablet:w-3/5">
-        Get a personalized digest of top posts from your favorite topics —
-        delivered to your inbox daily.
+      <p className="mt-2 text-text-tertiary">
+        Get a daily digest with the best posts from your favorite topics,
+        straight to your inbox.
       </p>
-      <div className="mt-4 flex items-center">
+      <div className="mt-3 flex items-center">
         <Button
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
