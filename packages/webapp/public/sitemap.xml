@@ -9,4 +9,7 @@
   <sitemap>
     <loc>https://app.daily.dev/api/sitemaps/tags.xml</loc>
   </sitemap>
+  <sitemap>
+    <loc>https://app.daily.dev/api/sitemaps/agents.xml</loc>
+  </sitemap>
 </sitemapindex>
