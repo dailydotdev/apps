@@ -109,7 +109,7 @@ const Notifications = (): ReactElement => {
         className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
         <EnableNotification />
-        <DigestUpsellBanner />
+        {isSubscribed && <DigestUpsellBanner />}
         <h2
           className="p-6 font-bold typo-body"
           data-testid="notification_page-title"
