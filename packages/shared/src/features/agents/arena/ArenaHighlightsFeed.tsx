@@ -286,11 +286,10 @@ export const ArenaHighlightsFeed = ({
           <div className="flex min-h-[220px] items-center justify-center px-6 py-8 text-center">
             <div>
               <p className="font-bold text-text-primary typo-callout">
-                Low signal recently
+                No live highlights yet
               </p>
               <p className="mt-1 text-text-tertiary typo-footnote">
-                Recent discussion exists, but nothing strong enough to
-                highlight.
+                Check back soon as new developer mentions come in.
               </p>
             </div>
           </div>

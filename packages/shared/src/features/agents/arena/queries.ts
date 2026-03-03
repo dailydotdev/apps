@@ -1,7 +1,7 @@
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { gqlClient } from '../../../graphql/common';
 import type { ArenaGroupId, ArenaQueryResponse } from './types';
-import { ARENA_ENTITY_QUERY, ARENA_QUERY } from './graphql';
+import { ARENA_QUERY } from './graphql';
 import { ARENA_GROUP_IDS } from './config';
 
 const ARENA_REFETCH_INTERVAL = 60_000;
@@ -16,38 +16,6 @@ export const arenaOptions = ({ groupId }: { groupId: ArenaGroupId }) => ({
       highlightsFirst: 50,
       highlightsOrderBy: 'RECENCY',
     });
-
-    if (!res.sentimentGroup) {
-      throw new Error(`Arena sentiment group not found for tab "${groupId}"`);
-    }
-
-    return res;
-  },
-  staleTime: StaleTime.Base,
-  refetchInterval: ARENA_REFETCH_INTERVAL,
-  refetchIntervalInBackground: false,
-});
-
-export const arenaEntityOptions = ({
-  groupId,
-  entityId,
-}: {
-  groupId: ArenaGroupId;
-  entityId: string;
-}) => ({
-  queryKey: generateQueryKey(RequestKey.Arena, undefined, groupId, entityId),
-  queryFn: async () => {
-    const res = await gqlClient.request<ArenaQueryResponse>(
-      ARENA_ENTITY_QUERY,
-      {
-        groupId: ARENA_GROUP_IDS[groupId],
-        entity: entityId,
-        lookback: '7d',
-        resolution: 'HOUR',
-        highlightsFirst: 50,
-        highlightsOrderBy: 'RECENCY',
-      },
-    );
 
     if (!res.sentimentGroup) {
       throw new Error(`Arena sentiment group not found for tab "${groupId}"`);
