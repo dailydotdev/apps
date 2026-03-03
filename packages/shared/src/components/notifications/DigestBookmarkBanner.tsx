@@ -17,9 +17,8 @@ import {
   SendType,
 } from '../../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../../graphql/users';
-import usePersistentContext, {
-  PersistentContextKeys,
-} from '../../hooks/usePersistentContext';
+import { useActions } from '../../hooks/useActions';
+import { ActionType } from '../../graphql/actions';
 
 export function DigestBookmarkBanner(): ReactElement | null {
   const { logEvent } = useLogContext();
@@ -27,13 +26,11 @@ export function DigestBookmarkBanner(): ReactElement | null {
   const { getPersonalizedDigest, subscribePersonalizedDigest } =
     usePersonalizedDigest();
   const hasDigest = !!getPersonalizedDigest(UserPersonalizedDigestType.Digest);
-  const [dismissed, setDismissed, isFetched] = usePersistentContext<boolean>(
-    PersistentContextKeys.DigestBookmarkUpsellDismissed,
-    false,
-  );
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const dismissed = checkHasCompleted(ActionType.DismissDigestBookmarkUpsell);
   const impressionLogged = useRef(false);
 
-  const showBanner = !isPlus && !hasDigest && !dismissed && isFetched;
+  const showBanner = !isPlus && !hasDigest && !dismissed && isActionsFetched;
 
   useEffect(() => {
     if (showBanner && !impressionLogged.current) {
@@ -61,11 +58,13 @@ export function DigestBookmarkBanner(): ReactElement | null {
       type: UserPersonalizedDigestType.Digest,
     });
 
+    await completeAction(ActionType.DismissDigestBookmarkUpsell);
+
     window.location.href = `${webappUrl}account/notifications`;
   };
 
   const onDismiss = () => {
-    setDismissed(true);
+    completeAction(ActionType.DismissDigestBookmarkUpsell);
   };
 
   return (

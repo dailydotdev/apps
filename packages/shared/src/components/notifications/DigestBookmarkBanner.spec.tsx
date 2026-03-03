@@ -4,13 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DigestBookmarkBanner } from './DigestBookmarkBanner';
 import { LogEvent, TargetId } from '../../lib/log';
 import { UserPersonalizedDigestType } from '../../graphql/users';
+import { ActionType } from '../../graphql/actions';
 
 const mockLogEvent = jest.fn();
 const mockGetPersonalizedDigest = jest.fn();
 const mockSubscribePersonalizedDigest = jest.fn().mockResolvedValue({});
-const mockSetDismissed = jest.fn().mockResolvedValue(undefined);
+const mockCompleteAction = jest.fn().mockResolvedValue(undefined);
+const mockCheckHasCompleted = jest.fn();
 const mockUsePlusSubscription = jest.fn();
-const mockPersistentContext = jest.fn();
 
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
@@ -28,12 +29,12 @@ jest.mock('../../hooks/usePersonalizedDigest', () => ({
   SendType: { Workdays: 'workdays', Daily: 'daily', Weekly: 'weekly' },
 }));
 
-jest.mock('../../hooks/usePersistentContext', () => ({
-  __esModule: true,
-  PersistentContextKeys: {
-    DigestBookmarkUpsellDismissed: 'digest_bookmark_upsell_dismissed',
-  },
-  default: (...args: unknown[]) => mockPersistentContext(...args),
+jest.mock('../../hooks/useActions', () => ({
+  useActions: () => ({
+    checkHasCompleted: mockCheckHasCompleted,
+    completeAction: mockCompleteAction,
+    isActionsFetched: true,
+  }),
 }));
 
 const client = new QueryClient();
@@ -50,7 +51,7 @@ describe('DigestBookmarkBanner', () => {
     jest.clearAllMocks();
     mockUsePlusSubscription.mockReturnValue({ isPlus: false });
     mockGetPersonalizedDigest.mockReturnValue(null);
-    mockPersistentContext.mockReturnValue([false, mockSetDismissed, true]);
+    mockCheckHasCompleted.mockReturnValue(false);
   });
 
   it('should render banner for non-Plus user without digest', () => {
@@ -89,18 +90,8 @@ describe('DigestBookmarkBanner', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should not render when dismissed', () => {
-    mockPersistentContext.mockReturnValue([true, mockSetDismissed, true]);
-
-    renderComponent();
-
-    expect(
-      screen.queryByText('Never miss the best posts'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('should not render while persistent context is loading', () => {
-    mockPersistentContext.mockReturnValue([false, mockSetDismissed, false]);
+  it('should not render when dismissed via action', () => {
+    mockCheckHasCompleted.mockReturnValue(true);
 
     renderComponent();
 
@@ -118,7 +109,7 @@ describe('DigestBookmarkBanner', () => {
     });
   });
 
-  it('should subscribe and log click on CTA', async () => {
+  it('should subscribe, complete action, and log click on CTA', async () => {
     renderComponent();
 
     const ctaButton = screen.getByText('Enable digest');
@@ -136,14 +127,22 @@ describe('DigestBookmarkBanner', () => {
         type: UserPersonalizedDigestType.Digest,
       });
     });
+
+    await waitFor(() => {
+      expect(mockCompleteAction).toHaveBeenCalledWith(
+        ActionType.DismissDigestBookmarkUpsell,
+      );
+    });
   });
 
-  it('should dismiss banner on close button click', () => {
+  it('should complete action on dismiss', () => {
     renderComponent();
 
     const closeButton = screen.getByRole('button', { name: 'Close' });
     fireEvent.click(closeButton);
 
-    expect(mockSetDismissed).toHaveBeenCalledWith(true);
+    expect(mockCompleteAction).toHaveBeenCalledWith(
+      ActionType.DismissDigestBookmarkUpsell,
+    );
   });
 });
