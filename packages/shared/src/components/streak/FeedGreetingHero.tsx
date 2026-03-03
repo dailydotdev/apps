@@ -44,6 +44,27 @@ const greetingByMoment: Record<GreetingMoment, string> = {
   evening: 'Good evening',
 };
 
+const motivationByMoment: Record<GreetingMoment, string[]> = {
+  morning: [
+    'Start strong today.',
+    'A fresh day for one more win.',
+    'Make this morning count.',
+    'Keep the momentum alive.',
+  ],
+  afternoon: [
+    'Keep your streak on track.',
+    'A quick read keeps it alive.',
+    'You are in the zone today.',
+    'One more read, one more win.',
+  ],
+  evening: [
+    'Finish the day with a win.',
+    'Lock in your streak before midnight.',
+    'You are one read away from progress.',
+    'Close the day strong.',
+  ],
+};
+
 const debugShortcutLinks = [
   'https://linkedin.com',
   'https://mail.google.com',
@@ -148,12 +169,26 @@ export function FeedGreetingHero(): ReactElement | null {
     return getGreetingMoment(new Date());
   }, [feedHeroVariantOverride, isDebugMode]);
   const greeting = greetingByMoment[greetingMoment];
+  const greetingName = useMemo(() => {
+    const rawName = user?.name?.trim() || user?.username?.trim();
+    if (!rawName) {
+      return '';
+    }
+
+    return rawName.split(/\s+/)[0];
+  }, [user?.name, user?.username]);
+  const effectiveStreak = debugStreakOverride ?? streak?.current ?? 0;
+  const motivationText = useMemo(() => {
+    const options = motivationByMoment[greetingMoment];
+    const dayOfMonth = new Date().getDate();
+    const index = (dayOfMonth + effectiveStreak) % options.length;
+    return options[index];
+  }, [effectiveStreak, greetingMoment]);
   const isEvening = greetingMoment === 'evening';
   const isMorning = greetingMoment === 'morning';
-  const isDarkModeTheme =
-    themeMode === ThemeMode.Dark || (themeMode === ThemeMode.Auto && isSystemDark);
+  const isLightModeTheme =
+    themeMode === ThemeMode.Light || (themeMode === ThemeMode.Auto && !isSystemDark);
 
-  const effectiveStreak = debugStreakOverride ?? streak?.current ?? 0;
   const hasReadToday =
     !!streak?.lastViewAt &&
     isSameDayInTimezone(
@@ -255,24 +290,64 @@ export function FeedGreetingHero(): ReactElement | null {
   }
 
   return (
-    <section
-      className={classNames(
-        'relative mb-4 w-full overflow-hidden rounded-24',
-        isDarkModeTheme ? 'bg-background-default' : 'bg-transparent',
-        'p-5 tablet:p-6',
-        'transition-all duration-500 ease-out motion-reduce:transition-none',
-        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
+    <>
+      {isDebugMode && (
+        <div className="mb-4 hidden w-full justify-center tablet:flex">
+          <div className="mx-auto flex w-full max-w-[46rem] flex-wrap items-center justify-center gap-2 px-2">
+            {debugShortcutLinks.map((shortcutUrl) => (
+              <a
+                key={shortcutUrl}
+                href={shortcutUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative mr-4 flex cursor-grab flex-col items-center active:cursor-grabbing"
+              >
+                <div className="relative mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
+                  <img
+                    src={`${apiUrl}/icon?url=${encodeURIComponent(
+                      shortcutUrl,
+                    )}&size=${iconSize}`}
+                    alt={shortcutUrl}
+                    className="size-6"
+                  />
+                  <div className="rounded shadow-1 absolute -bottom-1 left-1/2 flex -translate-x-1/2 items-center justify-center bg-surface-primary opacity-0 transition-opacity group-hover:opacity-100">
+                    <MenuIcon
+                      size={IconSize.XSmall}
+                      className="rotate-90 text-text-quaternary"
+                    />
+                  </div>
+                </div>
+                <span className="max-w-12 truncate text-text-tertiary typo-caption2">
+                  {getShortcutHostname(shortcutUrl)}
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
       )}
-    >
-      {isDarkModeTheme && (
+
+      <section
+        className={classNames(
+          'relative isolate mb-4 w-full overflow-hidden rounded-24',
+          'bg-background-default',
+          'p-5 tablet:p-6',
+          'transition-all duration-500 ease-out motion-reduce:transition-none',
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
+        )}
+      >
+      {(
         <>
           <div className="from-accent-bacon-default/15 to-accent-onion-default/20 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent" />
           <div
             className={classNames(
               'pointer-events-none absolute inset-0 z-0',
               isEvening
-                ? 'bg-[#02040a]'
-                : 'from-[#1b2134]/35 via-[#1b2134]/15 bg-gradient-to-b to-transparent',
+                ? isLightModeTheme
+                  ? 'bg-background-default/85'
+                  : 'bg-[#02040a]'
+                : isLightModeTheme
+                  ? 'from-[#1b2134]/35 via-[#1b2134]/15 bg-gradient-to-b to-transparent'
+                  : 'bg-transparent',
             )}
           />
 
@@ -312,6 +387,18 @@ export function FeedGreetingHero(): ReactElement | null {
           80% { opacity: 1; }
           100% { transform: translate(25px, -40px) scale(1.2); opacity: 0; }
         }
+        @keyframes morning-ray-drift-1 {
+          0%, 100% { transform: translateX(0); opacity: 0.26; }
+          50% { transform: translateX(10px); opacity: 0.44; }
+        }
+        @keyframes morning-ray-drift-2 {
+          0%, 100% { transform: translateX(0); opacity: 0.22; }
+          50% { transform: translateX(-12px); opacity: 0.4; }
+        }
+        @keyframes morning-ray-drift-3 {
+          0%, 100% { transform: translateX(0); opacity: 0.18; }
+          50% { transform: translateX(8px); opacity: 0.33; }
+        }
         .animate-butterfly-1 { animation: butterfly-float-1 6s ease-in-out infinite; }
         .animate-butterfly-2 { animation: butterfly-float-2 8s ease-in-out infinite; animation-delay: 2s; }
         .animate-butterfly-3 { animation: butterfly-float-3 7s ease-in-out infinite; animation-delay: 4s; }
@@ -320,26 +407,64 @@ export function FeedGreetingHero(): ReactElement | null {
         .animate-anime-ray-2 { animation: anime-ray-pulse 8s ease-in-out infinite 1s; }
         .animate-anime-ray-3 { animation: anime-ray-pulse 7s ease-in-out infinite 2s; }
         .animate-anime-ray-4 { animation: anime-ray-pulse 9s ease-in-out infinite 1.5s; }
+        .animate-morning-ray-drift-1 { animation: morning-ray-drift-1 10s ease-in-out infinite; }
+        .animate-morning-ray-drift-2 { animation: morning-ray-drift-2 12s ease-in-out infinite; }
+        .animate-morning-ray-drift-3 { animation: morning-ray-drift-3 11s ease-in-out infinite; }
       `}</style>
 
           {!isEvening && (
-        <div className="pointer-events-none absolute inset-0 z-[2] overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           {/* Sunrise anime sky wash (blue -> pink -> gold) */}
-          <div className="from-[#ffd99e]/90 via-[#e098a3]/80 to-[#7f90b8]/90 absolute inset-0 bg-gradient-to-br" />
+          <div className="from-[#ffd99e]/88 via-[#d4a187]/74 to-[#3f5a4d]/80 absolute inset-0 bg-gradient-to-br" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#ffe6b8]/32 via-[#6f8d7f]/16 to-[#ffb27a]/16" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#ffe7ae]/34 via-[#ffb86d]/16 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(255,214,132,0.58),rgba(255,214,132,0.24)_30%,rgba(255,162,95,0.14)_52%,transparent_72%)]" />
+
+          {/* Vertical shafts, inspired by Lumina's book-a-call section (warm sunrise palette) */}
+          <div className="absolute inset-0 z-0 overflow-hidden">
+            <div className="from-[#fff7de]/52 via-[#ffd9a6]/22 animate-morning-ray-drift-3 absolute -top-[24%] left-[1%] h-[152%] w-14 bg-gradient-to-b to-transparent blur-lg" />
+            <div className="from-[#fff3d0]/65 via-[#ffd596]/30 animate-morning-ray-drift-1 absolute -top-[20%] left-[8%] h-[150%] w-28 bg-gradient-to-b to-transparent blur-xl" />
+            <div className="from-[#fff6dc]/50 via-[#ffd9a3]/18 animate-morning-ray-drift-1 absolute -top-[21%] left-[13%] h-[148%] w-12 bg-gradient-to-b to-transparent blur-lg" />
+            <div className="from-[#fff4d6]/58 via-[#ffd39c]/24 animate-morning-ray-drift-2 absolute -top-[20%] left-[18%] h-[148%] w-16 bg-gradient-to-b to-transparent blur-lg" />
+            <div className="from-[#ffedc4]/58 via-[#ffc98a]/24 animate-morning-ray-drift-2 absolute -top-[18%] left-[28%] h-[145%] w-20 bg-gradient-to-b to-transparent blur-lg" />
+            <div className="from-[#fff5d8]/48 via-[#ffd29a]/16 animate-morning-ray-drift-3 absolute -top-[19%] left-[33%] h-[149%] w-12 bg-gradient-to-b to-transparent blur-md" />
+            <div className="from-[#fff2cf]/54 via-[#ffcf96]/22 animate-morning-ray-drift-1 absolute -top-[22%] left-[37%] h-[150%] w-18 bg-gradient-to-b to-transparent blur-lg" />
+            <div className="from-[#fff8de]/50 via-[#ffd9a8]/20 animate-morning-ray-drift-3 absolute -top-[22%] left-[46%] h-[155%] w-36 bg-gradient-to-b to-transparent blur-2xl" />
+            <div className="from-[#fff4d5]/46 via-[#ffd19a]/15 animate-morning-ray-drift-2 absolute -top-[21%] left-[52%] h-[147%] w-10 bg-gradient-to-b to-transparent blur-md" />
+            <div className="from-[#fff1ce]/52 via-[#ffcc8f]/20 animate-morning-ray-drift-2 absolute -top-[18%] left-[57%] h-[147%] w-16 bg-gradient-to-b to-transparent blur-lg" />
+            <div className="from-[#ffeec9]/54 via-[#ffcb8c]/22 animate-morning-ray-drift-1 absolute -top-[16%] left-[64%] h-[150%] w-24 bg-gradient-to-b to-transparent blur-xl" />
+            <div className="from-[#fff5d9]/44 via-[#ffcf92]/14 animate-morning-ray-drift-3 absolute -top-[20%] left-[69%] h-[146%] w-10 bg-gradient-to-b to-transparent blur-md" />
+            <div className="from-[#fff3d5]/50 via-[#ffc98c]/18 animate-morning-ray-drift-3 absolute -top-[20%] left-[73%] h-[149%] w-14 bg-gradient-to-b to-transparent blur-lg" />
+            <div className="from-[#fff3d8]/46 via-[#ffc88d]/18 animate-morning-ray-drift-2 absolute -top-[18%] left-[80%] h-[145%] w-16 bg-gradient-to-b to-transparent blur-lg" />
+            <div className="from-[#fff6dd]/42 via-[#ffd2a0]/14 animate-morning-ray-drift-1 absolute -top-[19%] left-[84%] h-[148%] w-12 bg-gradient-to-b to-transparent blur-lg" />
+            <div className="from-[#fff7e2]/44 via-[#ffd4a3]/16 animate-morning-ray-drift-1 absolute -top-[22%] left-[88%] h-[150%] w-20 bg-gradient-to-b to-transparent blur-xl" />
+            <div className="from-[#fff8e8]/38 via-[#ffd8ad]/12 animate-morning-ray-drift-2 absolute -top-[23%] left-[94%] h-[152%] w-10 bg-gradient-to-b to-transparent blur-lg" />
+
+            {/* Extra short shafts for top texture */}
+            <div className="from-[#fff9ea]/36 via-[#ffdcb3]/12 animate-morning-ray-drift-2 absolute -top-[8%] left-[5%] h-[95%] w-10 bg-gradient-to-b to-transparent blur-md" />
+            <div className="from-[#fff8e5]/34 via-[#ffd9ad]/10 animate-morning-ray-drift-3 absolute -top-[10%] left-[16%] h-[92%] w-8 bg-gradient-to-b to-transparent blur-sm" />
+            <div className="from-[#fff6df]/35 via-[#ffd7aa]/11 animate-morning-ray-drift-1 absolute -top-[7%] left-[26%] h-[96%] w-11 bg-gradient-to-b to-transparent blur-md" />
+            <div className="from-[#fff9ec]/33 via-[#ffddb7]/10 animate-morning-ray-drift-2 absolute -top-[9%] left-[39%] h-[90%] w-9 bg-gradient-to-b to-transparent blur-sm" />
+            <div className="from-[#fff7e2]/34 via-[#ffd8ac]/10 animate-morning-ray-drift-1 absolute -top-[8%] left-[51%] h-[94%] w-10 bg-gradient-to-b to-transparent blur-md" />
+            <div className="from-[#fff8e6]/32 via-[#ffdbb2]/9 animate-morning-ray-drift-3 absolute -top-[9%] left-[63%] h-[91%] w-8 bg-gradient-to-b to-transparent blur-sm" />
+            <div className="from-[#fff6df]/34 via-[#ffd7a8]/10 animate-morning-ray-drift-2 absolute -top-[7%] left-[74%] h-[93%] w-9 bg-gradient-to-b to-transparent blur-md" />
+            <div className="from-[#fff9ec]/31 via-[#ffddb8]/9 animate-morning-ray-drift-1 absolute -top-[10%] left-[85%] h-[90%] w-8 bg-gradient-to-b to-transparent blur-sm" />
+          </div>
 
           {/* Additional bottom purple/blue cloud glow */}
           <div className="bg-[#706b96]/60 absolute -bottom-20 -left-10 h-64 w-96 rounded-full blur-[80px]" />
+          <div className="bg-[#3f624d]/45 absolute -bottom-24 right-[-6%] h-72 w-[26rem] rounded-full blur-[90px]" />
 
           {/* Strong fallback beam so rays are always visible */}
-          <div className="from-[#ffe7a0]/90 absolute -left-[10%] -top-[30%] h-[200%] w-[50%] rotate-[35deg] bg-gradient-to-b via-[#ffb973]/50 to-transparent blur-3xl" />
+          <div className="from-[#fff1c6]/95 absolute -left-[12%] -top-[32%] z-0 h-[205%] w-[56%] rotate-[35deg] bg-gradient-to-b via-[#ffbf78]/70 to-transparent blur-2xl" />
 
           {/* Strong parallel window rays from top-left */}
-          <div className="absolute -left-[20%] -top-[55%] h-[240%] w-[180%] rotate-[35deg] transform-gpu">
-            <div className="from-[#fff3cd]/95 via-[#ffc677]/60 animate-anime-ray-1 absolute left-[12%] top-0 h-full w-24 bg-gradient-to-b to-transparent blur-xl" />
-            <div className="from-white/90 animate-anime-ray-2 absolute left-[24%] top-0 h-full w-16 bg-gradient-to-b via-[#ffba6b]/50 to-transparent blur-lg" />
-            <div className="from-[#ffedba]/85 via-[#ffa75e]/45 animate-anime-ray-3 absolute left-[33%] top-0 h-full w-32 bg-gradient-to-b to-transparent blur-2xl" />
-            <div className="from-white/85 animate-anime-ray-4 absolute left-[45%] top-0 h-full w-14 bg-gradient-to-b via-[#ffcf85]/40 to-transparent blur-md" />
-            <div className="from-[#ffe094]/80 via-[#ff9c54]/30 animate-anime-ray-2 absolute left-[52%] top-0 h-full w-40 bg-gradient-to-b to-transparent blur-[32px]" />
+          <div className="absolute -left-[20%] -top-[55%] z-0 h-[240%] w-[180%] rotate-[35deg] transform-gpu">
+            <div className="from-[#fff7dc]/95 via-[#ffd089]/78 animate-anime-ray-1 absolute left-[10%] top-0 h-full w-28 bg-gradient-to-b to-transparent blur-lg" />
+            <div className="from-white/95 animate-anime-ray-2 absolute left-[22%] top-0 h-full w-20 bg-gradient-to-b via-[#ffc47b]/72 to-transparent blur-md" />
+            <div className="from-[#fff0c8]/92 via-[#ffb469]/70 animate-anime-ray-3 absolute left-[31%] top-0 h-full w-40 bg-gradient-to-b to-transparent blur-xl" />
+            <div className="from-white/90 animate-anime-ray-4 absolute left-[45%] top-0 h-full w-18 bg-gradient-to-b via-[#ffd596]/60 to-transparent blur-sm" />
+            <div className="from-[#ffe5ac]/90 via-[#ffa85d]/58 animate-anime-ray-2 absolute left-[53%] top-0 h-full w-48 bg-gradient-to-b to-transparent blur-2xl" />
           </div>
 
           {/* Floating light particles in the rays */}
@@ -360,11 +485,12 @@ export function FeedGreetingHero(): ReactElement | null {
           ))}
 
           {/* Warm source glow */}
-          <div className="bg-[#ffea9e]/60 absolute -left-32 -top-32 h-[35rem] w-[35rem] rounded-full blur-[100px]" />
+          <div className="bg-[#ffea9e]/55 absolute -left-32 -top-32 h-[35rem] w-[35rem] rounded-full blur-[100px]" />
+          <div className="bg-[#547862]/35 absolute right-[-10rem] top-[-8rem] h-[28rem] w-[28rem] rounded-full blur-[110px]" />
         </div>
       )}
           {isEvening && (
-        <>
+        <div className={classNames(isLightModeTheme ? 'opacity-60' : 'opacity-100')}>
           <style>{`
             @keyframes shooting-star {
               0% {
@@ -434,9 +560,9 @@ export function FeedGreetingHero(): ReactElement | null {
           <div className="animate-shooting-star-green absolute -top-10 right-[40%] z-0 h-[1.5px] w-48 bg-gradient-to-r from-[#4ade80] to-transparent opacity-0">
             <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#4ade80] shadow-[0_0_12px_4px_rgba(74,222,128,0.8)]" />
           </div>
-        </>
+        </div>
       )}
-          <div className="pointer-events-none absolute inset-0 z-1">
+          <div className="pointer-events-none absolute inset-0 z-0">
         {isEvening && (
           <div className="absolute left-[10%] top-[15%] hidden h-40 w-40 rotate-[18deg] opacity-60 laptop:block">
             <svg
@@ -763,7 +889,7 @@ export function FeedGreetingHero(): ReactElement | null {
         </>
       )}
 
-      <div className="relative z-10 flex min-h-[12rem] flex-col items-center justify-center text-center">
+      <div className="relative z-20 flex min-h-[12rem] flex-col items-center justify-center text-center">
         <div className="flex flex-col items-center">
           <p
             className={classNames(
@@ -809,6 +935,7 @@ export function FeedGreetingHero(): ReactElement | null {
               </>
             )}
             {greeting}
+            {greetingName ? `, ${greetingName}` : ''}
           </p>
           <p
             className={classNames(
@@ -817,7 +944,7 @@ export function FeedGreetingHero(): ReactElement | null {
               isVisible ? 'opacity-100' : 'opacity-0',
             )}
           >
-            {effectiveStreak}-{dayLabel} streak. Keep it going today.
+            {effectiveStreak}-{dayLabel} streak. {motivationText}
           </p>
 
         </div>
@@ -873,40 +1000,8 @@ export function FeedGreetingHero(): ReactElement | null {
           </div>
         </div>
 
-        {isDebugMode && (
-          <div className="mt-4 flex max-w-[46rem] flex-wrap items-center justify-center gap-2 px-2">
-            {debugShortcutLinks.map((shortcutUrl) => (
-              <a
-                key={shortcutUrl}
-                href={shortcutUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative mr-4 flex cursor-grab flex-col items-center active:cursor-grabbing"
-              >
-                <div className="relative mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
-                  <img
-                    src={`${apiUrl}/icon?url=${encodeURIComponent(
-                      shortcutUrl,
-                    )}&size=${iconSize}`}
-                    alt={shortcutUrl}
-                    className="size-6"
-                  />
-                  <div className="rounded shadow-1 absolute -bottom-1 left-1/2 flex -translate-x-1/2 items-center justify-center bg-surface-primary opacity-0 transition-opacity group-hover:opacity-100">
-                    <MenuIcon
-                      size={IconSize.XSmall}
-                      className="rotate-90 text-text-quaternary"
-                    />
-                  </div>
-                </div>
-                <span className="max-w-12 truncate text-text-tertiary typo-caption2">
-                  {getShortcutHostname(shortcutUrl)}
-                </span>
-              </a>
-            ))}
-          </div>
-        )}
-
       </div>
-    </section>
+      </section>
+    </>
   );
 }
