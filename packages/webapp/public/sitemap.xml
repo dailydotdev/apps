@@ -4,7 +4,7 @@
     <loc>https://app.daily.dev/sitemap.txt</loc>
   </sitemap>
   <sitemap>
-    <loc>https://app.daily.dev/api/sitemaps/posts.txt</loc>
+    <loc>https://app.daily.dev/api/sitemaps/posts.xml</loc>
   </sitemap>
   <sitemap>
     <loc>https://app.daily.dev/api/sitemaps/sources.txt</loc>
@@ -13,7 +13,7 @@
     <loc>https://app.daily.dev/api/sitemaps/squads.txt</loc>
   </sitemap>
   <sitemap>
-    <loc>https://app.daily.dev/api/sitemaps/tags.txt</loc>
+    <loc>https://app.daily.dev/api/sitemaps/tags.xml</loc>
   </sitemap>
   <sitemap>
     <loc>https://app.daily.dev/api/sitemaps/users.txt</loc>
