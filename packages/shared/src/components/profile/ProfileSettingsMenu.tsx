@@ -45,6 +45,7 @@ import {
   walletUrl,
   webappUrl,
 } from '../../lib/constants';
+import { addSettingsBackPath, resolveSettingsBackPath } from '../../lib/links';
 
 import type {
   ProfileSectionItemProps,
@@ -403,6 +404,7 @@ export const InnerProfileSettingsMenu = ({
   onClose,
 }: WithClassNameProps & { onClose?: () => void }) => {
   const { asPath } = useRouter();
+  const settingsBackPath = resolveSettingsBackPath(asPath);
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
   const { items: accountPageItems, showAchievementTracker } =
@@ -434,8 +436,13 @@ export const InnerProfileSettingsMenu = ({
                 return true;
               })
               .map(([, item]: [string, ProfileSectionItemProps]) => {
+                const href = item.href
+                  ? addSettingsBackPath(item.href, settingsBackPath)
+                  : undefined;
+
                 return {
                   ...item,
+                  href,
                   isActive: asPath === item.href,
                   ...(isMobile && {
                     typography: {

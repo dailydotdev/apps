@@ -1,6 +1,39 @@
 import { webappUrl } from './constants';
 import { checkIsExtension, isExtension } from './func';
 
+export const settingsBackPathQueryParam = 'settingsBackPath';
+
+const ensureTrailingSlash = (url: string): string =>
+  url.endsWith('/') ? url : `${url}/`;
+
+const getAppUrlBase = (): string => {
+  if (!webappUrl) {
+    return 'http://localhost/';
+  }
+
+  if (webappUrl.startsWith('http://') || webappUrl.startsWith('https://')) {
+    return ensureTrailingSlash(webappUrl);
+  }
+
+  if (webappUrl.startsWith('/')) {
+    return ensureTrailingSlash(`http://localhost${webappUrl}`);
+  }
+
+  return ensureTrailingSlash(`http://${webappUrl}`);
+};
+
+const appUrlBase = getAppUrlBase();
+const appOrigin = new URL(appUrlBase).origin;
+
+const isSettingsPath = (pathname: string): boolean =>
+  pathname === '/settings' || pathname.startsWith('/settings/');
+
+const isValidSettingsBackPath = (path?: string): path is string =>
+  !!path &&
+  path.startsWith('/') &&
+  !path.startsWith('//') &&
+  !isSettingsPath(path);
+
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;
 
@@ -116,6 +149,46 @@ export const checkSameSite = (): boolean => {
   return (
     referrer === origin || origin === referrer.substring(0, referrer.length - 1) // remove trailing slash
   );
+};
+
+export const resolveSettingsBackPath = (
+  value?: string | string[],
+): string | undefined => {
+  const path = Array.isArray(value) ? value[0] : value;
+
+  if (!isValidSettingsBackPath(path)) {
+    return undefined;
+  }
+
+  return path;
+};
+
+export const addSettingsBackPath = (
+  href: string,
+  value?: string | string[],
+): string => {
+  const backPath = resolveSettingsBackPath(value);
+
+  if (!backPath) {
+    return href;
+  }
+
+  try {
+    const url = new URL(href, appUrlBase);
+    const isAbsoluteHref = /^[a-z][a-z\d+\-.]*:\/\//i.test(href);
+
+    if (url.origin !== appOrigin || !isSettingsPath(url.pathname)) {
+      return href;
+    }
+
+    url.searchParams.set(settingsBackPathQueryParam, backPath);
+
+    return isAbsoluteHref
+      ? url.toString()
+      : `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return href;
+  }
 };
 
 export const getRedirectNextPath = (params: URLSearchParams): string => {
