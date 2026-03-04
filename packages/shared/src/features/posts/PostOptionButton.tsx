@@ -388,10 +388,31 @@ const PostOptionButtonContent = ({
     }
 
     const isTagFollowed = feedSettings?.includeTags?.indexOf(tag) !== -1;
-    const undoAction = isTagFollowed ? onFollowTags : onUnblockTags;
-    await showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex, () =>
-      undoAction({ tags: [tag], requireLogin: true }),
+    await showMessageAndRemovePost(
+      `⛔️ #${tag} blocked`,
+      postIndex,
+      async () => {
+        await onUnblockTags({ tags: [tag], requireLogin: true });
+        if (isTagFollowed) {
+          await onFollowTags({ tags: [tag], requireLogin: true });
+        }
+      },
     );
+  };
+
+  const onUnblockTag = async (tag: string): Promise<void> => {
+    const { successful } = await onUnblockTags({
+      tags: [tag],
+      requireLogin: true,
+    });
+
+    if (!successful) {
+      return;
+    }
+
+    displayToast(`#${tag} unblocked`, {
+      subject: ToastSubject.Feed,
+    });
   };
 
   const contentTypeItem = useFeedContentTypeAction({
@@ -752,8 +773,8 @@ const PostOptionButtonContent = ({
         }
         postOptions.push({
           icon: <MenuIcon Icon={isBlocked ? PlusIcon : BlockIcon} />,
-          label: isBlocked ? `Follow #${tag}` : `Not interested in #${tag}`,
-          action: () => onBlockTag(tag),
+          label: isBlocked ? `Unblock #${tag}` : `Block #${tag}`,
+          action: () => (isBlocked ? onUnblockTag(tag) : onBlockTag(tag)),
         });
       }
     });
