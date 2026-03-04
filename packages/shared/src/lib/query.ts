@@ -211,6 +211,7 @@ export enum RequestKey {
   Organizations = 'organizations',
   LottieAnimations = 'lottie_animations',
   NotificationSettings = 'notification_settings',
+  UserFeedback = 'user_feedback',
   PostAnalytics = 'post_analytics',
   PostAnalyticsHistory = 'post_analytics_history',
   ProfileAnalytics = 'profile_analytics',
