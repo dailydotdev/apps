@@ -68,5 +68,7 @@ Markdown versions of key pages for AI agents:
 - [Static Sitemap](/sitemap.txt): Core navigation pages
 - Dynamic Sitemaps (from API):
   - [Posts](/api/sitemaps/posts.xml): All published articles and discussions
+  - [Evergreen](/api/sitemaps/evergreen.xml): High-value evergreen posts
   - [Tags](/api/sitemaps/tags.xml): Topic tag pages
+  - [Agents](/api/sitemaps/agents.xml): AI agents pages
   - [Agents Digest](/api/sitemaps/agents-digest.xml): AI agents digest posts
