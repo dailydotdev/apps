@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
-import dynamic from 'next/dynamic';
 import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';
 import AuthContext from '../../contexts/AuthContext';
@@ -12,18 +11,10 @@ import { isSourcePublicSquad } from '../../graphql/squads';
 import type { PostWidgetsProps } from './PostWidgets';
 import { FooterLinks } from '../footer';
 import SquadEntityCard from '../cards/entity/SquadEntityCard';
-import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
+import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import type { UserShortProfile } from '../../lib/user';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
-
-const SourceEntityCard = dynamic(
-  /* webpackChunkName: "sourceEntityCard" */ () =>
-    import('../cards/entity/SourceEntityCard'),
-  {
-    loading: () => <EntityCardSkeleton />,
-  },
-);
 
 export function SquadPostWidgets({
   onCopyPostLink,
@@ -34,9 +25,7 @@ export function SquadPostWidgets({
   const { tokenRefreshed } = useContext(AuthContext);
   const isUserSource = isSourceUserSource(post.source);
   const isSquadSource = post.source.type === SourceType.Squad;
-  const isPublicSquad = isSquadSource
-    ? isSourcePublicSquad(post.source as Squad)
-    : true;
+  const canShare = !isSquadSource || isSourcePublicSquad(post.source as Squad);
 
   const cardClasses = 'w-full bg-transparent';
 
@@ -71,7 +60,7 @@ export function SquadPostWidgets({
         postId={post.id}
         className={{ container: cardClasses }}
       />
-      {isPublicSquad && (
+      {canShare && (
         <>
           <ShareBar post={post} />
           <ShareMobile
