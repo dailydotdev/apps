@@ -15,10 +15,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import {
-  FeedbackStatus,
-  useUserFeedback,
-} from '@dailydotdev/shared/src/graphql/feedback';
+import { useUserFeedback } from '@dailydotdev/shared/src/graphql/feedback';
 import type { FeedbackItem } from '@dailydotdev/shared/src/graphql/feedback';
 import {
   getFeedbackCategoryLabel,
@@ -209,23 +206,7 @@ const AccountFeedbackPage = (): ReactElement => {
   }
 
   return (
-    <AccountPageContainer title="Your Feedback">
-      {content}
-
-      {!query.isLoading &&
-        feedbackItems.length > 0 &&
-        feedbackItems.every(
-          (item) => item.status === FeedbackStatus.Pending,
-        ) && (
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-            className="mt-4"
-          >
-            We review every message and will email you when the team replies.
-          </Typography>
-        )}
-    </AccountPageContainer>
+    <AccountPageContainer title="Your Feedback">{content}</AccountPageContainer>
   );
 };
 
