@@ -405,6 +405,7 @@ const TagPage = ({
             copy: 'Top posts',
             icon: <HashtagIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className="laptop:!mx-4"
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -424,6 +425,7 @@ const TagPage = ({
             copy: 'Most upvoted posts',
             icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className="laptop:!mx-4"
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -443,10 +445,11 @@ const TagPage = ({
             copy: 'Best discussed posts',
             icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className="laptop:!mx-4"
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
-      <div className="mx-4 mb-5 flex w-auto items-center laptop:mx-0 laptop:w-full">
+      <div className="mx-4 mb-5 flex w-auto items-center">
         <p className="flex items-center font-bold typo-body">
           All posts about {tag}
         </p>
@@ -460,6 +463,7 @@ const TagPage = ({
         ]}
         query={TAG_FEED_QUERY}
         variables={queryVariables}
+        className="mx-4 !w-auto"
       />
     </FeedPageLayoutComponent>
   );
