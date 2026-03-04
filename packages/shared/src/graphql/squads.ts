@@ -293,6 +293,8 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       type
       permalink
       moderationRequired
+      membersCount
+      createdAt
     }
   }
 `;
@@ -308,7 +310,9 @@ export type SquadStaticData = Pick<
   | 'type'
   | 'moderationRequired'
   | 'permalink'
->;
+  | 'membersCount'
+> &
+  Pick<Source, 'createdAt'>;
 
 export const getSquadStaticFields = async (
   handle: string,
