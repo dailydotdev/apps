@@ -255,6 +255,7 @@ export enum RequestKey {
   Arena = 'arena',
   TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
+  UserGithubRepos = 'user_github_repos',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
