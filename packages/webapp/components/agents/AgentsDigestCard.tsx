@@ -203,7 +203,7 @@ export const AgentsDigestCard = ({
         </div>
       </div>
       {!!digestTldr && (
-        <div className="text-text-secondary typo-callout">{digestTldr}</div>
+        <div className="text-text-secondary typo-markdown">{digestTldr}</div>
       )}
     </section>
   );
