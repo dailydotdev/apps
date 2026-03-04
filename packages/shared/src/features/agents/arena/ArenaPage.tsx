@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { ArenaIcon } from '../../../components/icons/Arena';
+import { HomeIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import {
   Button,
@@ -24,6 +25,7 @@ import { ArenaRankings } from './ArenaRankings';
 import { ArenaHighlightsFeed } from './ArenaHighlightsFeed';
 import { ArenaComparisonChart } from './ArenaComparisonChart';
 import { arenaOptions } from './queries';
+import Link from '../../../components/utilities/Link';
 
 interface ArenaPageProps {
   activeTab: ArenaTab;
@@ -86,6 +88,37 @@ export const ArenaPage = ({
       </div>
 
       <header className="px-4 pt-6 laptop:px-6 laptop:pt-10 laptopL:px-0">
+        <nav
+          aria-label="breadcrumbs"
+          className="hidden h-10 items-center gap-0.5 laptop:flex"
+        >
+          <ol className="flex items-center gap-0.5">
+            <li className="flex items-center gap-0.5">
+              <Button
+                variant={ButtonVariant.Tertiary}
+                icon={<HomeIcon secondary />}
+                tag="a"
+                href={process.env.NEXT_PUBLIC_WEBAPP_URL}
+                size={ButtonSize.XSmall}
+              />
+              <span aria-hidden>/</span>
+            </li>
+            <li className="flex items-center gap-0.5">
+              <Link href="/agents">
+                <a className="rounded-8 px-2 py-1.5 text-text-secondary transition-colors typo-callout hover:text-text-primary">
+                  Agentic Hub
+                </a>
+              </Link>
+              <span aria-hidden>/</span>
+            </li>
+            <li
+              className="flex items-center gap-1 px-2 font-bold text-text-primary typo-callout"
+              aria-current="page"
+            >
+              The Arena
+            </li>
+          </ol>
+        </nav>
         <div className="flex flex-col gap-3 laptop:flex-row laptop:items-start">
           <div className="flex items-center gap-3">
             <ArenaIcon size={IconSize.XXLarge} className="text-text-primary" />
