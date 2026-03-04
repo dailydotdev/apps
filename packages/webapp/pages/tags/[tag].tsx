@@ -130,7 +130,6 @@ const TagRecommendedTags = ({
 };
 
 const TagTopSources = ({ tag }: { tag: string }) => {
-  const { shouldUseListFeedLayout } = useFeedLayout();
   const { data: topSources, isPending } = useQuery({
     queryKey: [RequestKey.SourceByTag, null, tag],
 
@@ -157,7 +156,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
       isLoading={isPending}
       sources={sources}
       title="🔔 Top sources covering it"
-      className={shouldUseListFeedLayout && 'mx-4'}
+      className="mx-4 laptop:mx-0"
     />
   );
 };
@@ -280,7 +279,7 @@ const TagPage = ({
 
   return (
     <FeedPageLayoutComponent>
-      <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
+      <PageInfoHeader className="mx-4 !w-auto laptop:mx-0 laptop:!w-full">
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 w-fit typo-title2">{title}</h1>
