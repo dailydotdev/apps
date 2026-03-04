@@ -12,4 +12,7 @@
   <sitemap>
     <loc>https://app.daily.dev/api/sitemaps/agents.xml</loc>
   </sitemap>
+  <sitemap>
+    <loc>https://app.daily.dev/api/sitemaps/agents-digest.xml</loc>
+  </sitemap>
 </sitemapindex>
