@@ -68,6 +68,7 @@ export const getProfileSeoDefaults = (
   return {
     title: getTemplatedTitle(`${user.name} (@${user.username})`),
     description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
+    canonical: `https://app.daily.dev/${user.username}`,
     openGraph: {
       images: [{ url: getOGImageUrl(user.id) }],
     },
