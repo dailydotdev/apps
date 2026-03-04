@@ -69,3 +69,4 @@ Markdown versions of key pages for AI agents:
 - Dynamic Sitemaps (from API):
   - [Posts](/api/sitemaps/posts.xml): All published articles and discussions
   - [Tags](/api/sitemaps/tags.xml): Topic tag pages
+  - [Agents Digest](/api/sitemaps/agents-digest.xml): AI agents digest posts
