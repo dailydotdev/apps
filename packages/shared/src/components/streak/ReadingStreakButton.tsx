@@ -34,7 +34,7 @@ import {
 import { StreakBrokenPopover } from './StreakBrokenPopover';
 import { StreakMilestoneCelebration } from './StreakMilestoneCelebration';
 import { StreakIncrementToastMessage } from './StreakIncrementToastMessage';
-import { StreakReminderToastMessage } from './StreakReminderToastMessage';
+import { StreakReminderPopover } from './StreakReminderPopover';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Switch } from '../fields/Switch';
@@ -147,6 +147,7 @@ export function ReadingStreakButton({
   );
   const shownIncrementToastKeyRef = useRef<string | null>(null);
   const [showBrokenPopover, setShowBrokenPopover] = useState(false);
+  const [reminderPopoverNonce, setReminderPopoverNonce] = useState(0);
   const isStreaksEnabled = !!streak && !isDebugStreakInactive;
   const urgency = useStreakUrgency(
     !!hasReadToday,
@@ -215,14 +216,8 @@ export function ReadingStreakButton({
       // Fallback for environments where sessionStorage is unavailable.
     }
 
-    requestAnimationFrame(() =>
-      displayToast(
-        <StreakReminderToastMessage currentStreak={effectiveStreak ?? 0} />,
-        { timer: 5000 },
-      ),
-    );
+    requestAnimationFrame(() => setReminderPopoverNonce((value) => value + 1));
   }, [
-    displayToast,
     effectiveStreak,
     hasReadToday,
     isLoading,
@@ -348,6 +343,12 @@ export function ReadingStreakButton({
           {showStreakBroken && (
             <StreakBrokenPopover
               previousStreak={previousStreak ?? effectiveStreak ?? 0}
+            />
+          )}
+          {reminderPopoverNonce > 0 && (
+            <StreakReminderPopover
+              key={`streak-reminder-${reminderPopoverNonce.toString()}`}
+              currentStreak={effectiveStreak ?? 0}
             />
           )}
         </div>
@@ -477,14 +478,7 @@ export function ReadingStreakButton({
             type="button"
             onClick={() => {
               requestAnimationFrame(() =>
-                displayToast(
-                  <StreakReminderToastMessage
-                    currentStreak={effectiveStreak ?? 0}
-                  />,
-                  {
-                    timer: 5000,
-                  },
-                ),
+                setReminderPopoverNonce((value) => value + 1),
               );
             }}
             className={debugActionButtonClassName}

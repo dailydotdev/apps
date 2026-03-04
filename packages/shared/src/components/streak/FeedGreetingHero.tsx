@@ -188,6 +188,8 @@ export function FeedGreetingHero(): ReactElement | null {
   const isMorning = greetingMoment === 'morning';
   const isLightModeTheme =
     themeMode === ThemeMode.Light || (themeMode === ThemeMode.Auto && !isSystemDark);
+  const hasNightBackground = isEvening && !isLightModeTheme;
+  const hasMorningDarkCinematic = isMorning && !isLightModeTheme;
 
   const hasReadToday =
     !!streak?.lastViewAt &&
@@ -254,18 +256,18 @@ export function FeedGreetingHero(): ReactElement | null {
       user?.timezone,
     );
   }, [debugStreakOverride, streak?.weekStart, user?.timezone]);
-  const morningDustParticles = useMemo(
-    () =>
-      Array.from({ length: 18 }, (_, index) => ({
-        left: 10 + ((index * 17) % 75),
-        top: 8 + ((index * 23) % 80),
-        size: 2 + ((index * 7) % 3),
-        duration: 4 + ((index * 5) % 5),
-        delay: (index * 0.22) % 4,
-      })),
-    [],
-  );
   const dayLabel = effectiveStreak === 1 ? 'day' : 'days';
+  const getRayOpacity = (index: number, base: number): number => {
+    const seeded = Math.sin((index + 1) * 12.9898) * 43758.5453;
+    const random = seeded - Math.floor(seeded);
+    const smoothedRandom = random * random * (3 - 2 * random); // smoothstep
+    const variance = 0.18;
+    const minOpacity = Math.max(0.08, base * (1 - variance));
+    const maxOpacity = Math.min(1, base * (1 + variance));
+    const opacity =
+      minOpacity + (maxOpacity - minOpacity) * smoothedRandom;
+    return Number(opacity.toFixed(2));
+  };
 
   const canRenderHero =
     !!user &&
@@ -341,10 +343,8 @@ export function FeedGreetingHero(): ReactElement | null {
           <div
             className={classNames(
               'pointer-events-none absolute inset-0 z-0',
-              isEvening
-                ? isLightModeTheme
-                  ? 'bg-background-default/85'
-                  : 'bg-[#02040a]'
+              hasNightBackground
+                ? 'bg-[#02040a]'
                 : isLightModeTheme
                   ? 'from-[#1b2134]/35 via-[#1b2134]/15 bg-gradient-to-b to-transparent'
                   : 'bg-transparent',
@@ -352,6 +352,18 @@ export function FeedGreetingHero(): ReactElement | null {
           />
 
       <style>{`
+        @keyframes lumina-source-breath {
+          0%, 100% { opacity: 0.58; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        @keyframes morning-aurora-drift {
+          0%, 100% { transform: translateX(0) scale(1); opacity: 0.45; }
+          50% { transform: translateX(-2%) scale(1.04); opacity: 0.65; }
+        }
+        @keyframes morning-light-sweep {
+          0%, 100% { transform: translateX(-4%) translateY(0); opacity: 0.16; }
+          50% { transform: translateX(3%) translateY(-1%); opacity: 0.28; }
+        }
             @keyframes butterfly-flutter {
               0%, 100% { transform: scaleX(1) translateY(0); }
               50% { transform: scaleX(0.2) translateY(-2px); }
@@ -381,116 +393,203 @@ export function FeedGreetingHero(): ReactElement | null {
           0%, 100% { opacity: 0.85; }
           50% { opacity: 1; }
         }
-        @keyframes anime-dust-float {
-          0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-          20% { opacity: 1; }
-          80% { opacity: 1; }
-          100% { transform: translate(25px, -40px) scale(1.2); opacity: 0; }
-        }
-        @keyframes morning-ray-drift-1 {
-          0%, 100% { transform: translateX(0); opacity: 0.26; }
-          50% { transform: translateX(10px); opacity: 0.44; }
-        }
-        @keyframes morning-ray-drift-2 {
-          0%, 100% { transform: translateX(0); opacity: 0.22; }
-          50% { transform: translateX(-12px); opacity: 0.4; }
-        }
-        @keyframes morning-ray-drift-3 {
-          0%, 100% { transform: translateX(0); opacity: 0.18; }
-          50% { transform: translateX(8px); opacity: 0.33; }
-        }
         .animate-butterfly-1 { animation: butterfly-float-1 6s ease-in-out infinite; }
         .animate-butterfly-2 { animation: butterfly-float-2 8s ease-in-out infinite; animation-delay: 2s; }
         .animate-butterfly-3 { animation: butterfly-float-3 7s ease-in-out infinite; animation-delay: 4s; }
         .animate-butterfly-wing { animation: butterfly-flutter 0.15s ease-in-out infinite; }
-        .animate-anime-ray-1 { animation: anime-ray-pulse 6s ease-in-out infinite; }
-        .animate-anime-ray-2 { animation: anime-ray-pulse 8s ease-in-out infinite 1s; }
-        .animate-anime-ray-3 { animation: anime-ray-pulse 7s ease-in-out infinite 2s; }
-        .animate-anime-ray-4 { animation: anime-ray-pulse 9s ease-in-out infinite 1.5s; }
-        .animate-morning-ray-drift-1 { animation: morning-ray-drift-1 10s ease-in-out infinite; }
-        .animate-morning-ray-drift-2 { animation: morning-ray-drift-2 12s ease-in-out infinite; }
-        .animate-morning-ray-drift-3 { animation: morning-ray-drift-3 11s ease-in-out infinite; }
       `}</style>
 
           {!isEvening && (
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          {/* Sunrise anime sky wash (blue -> pink -> gold) */}
-          <div className="from-[#ffd99e]/88 via-[#d4a187]/74 to-[#3f5a4d]/80 absolute inset-0 bg-gradient-to-br" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#ffe6b8]/32 via-[#6f8d7f]/16 to-[#ffb27a]/16" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#ffe7ae]/34 via-[#ffb86d]/16 to-transparent" />
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(255,214,132,0.58),rgba(255,214,132,0.24)_30%,rgba(255,162,95,0.14)_52%,transparent_72%)]" />
-
-          {/* Vertical shafts, inspired by Lumina's book-a-call section (warm sunrise palette) */}
-          <div className="absolute inset-0 z-0 overflow-hidden">
-            <div className="from-[#fff7de]/52 via-[#ffd9a6]/22 animate-morning-ray-drift-3 absolute -top-[24%] left-[1%] h-[152%] w-14 bg-gradient-to-b to-transparent blur-lg" />
-            <div className="from-[#fff3d0]/65 via-[#ffd596]/30 animate-morning-ray-drift-1 absolute -top-[20%] left-[8%] h-[150%] w-28 bg-gradient-to-b to-transparent blur-xl" />
-            <div className="from-[#fff6dc]/50 via-[#ffd9a3]/18 animate-morning-ray-drift-1 absolute -top-[21%] left-[13%] h-[148%] w-12 bg-gradient-to-b to-transparent blur-lg" />
-            <div className="from-[#fff4d6]/58 via-[#ffd39c]/24 animate-morning-ray-drift-2 absolute -top-[20%] left-[18%] h-[148%] w-16 bg-gradient-to-b to-transparent blur-lg" />
-            <div className="from-[#ffedc4]/58 via-[#ffc98a]/24 animate-morning-ray-drift-2 absolute -top-[18%] left-[28%] h-[145%] w-20 bg-gradient-to-b to-transparent blur-lg" />
-            <div className="from-[#fff5d8]/48 via-[#ffd29a]/16 animate-morning-ray-drift-3 absolute -top-[19%] left-[33%] h-[149%] w-12 bg-gradient-to-b to-transparent blur-md" />
-            <div className="from-[#fff2cf]/54 via-[#ffcf96]/22 animate-morning-ray-drift-1 absolute -top-[22%] left-[37%] h-[150%] w-18 bg-gradient-to-b to-transparent blur-lg" />
-            <div className="from-[#fff8de]/50 via-[#ffd9a8]/20 animate-morning-ray-drift-3 absolute -top-[22%] left-[46%] h-[155%] w-36 bg-gradient-to-b to-transparent blur-2xl" />
-            <div className="from-[#fff4d5]/46 via-[#ffd19a]/15 animate-morning-ray-drift-2 absolute -top-[21%] left-[52%] h-[147%] w-10 bg-gradient-to-b to-transparent blur-md" />
-            <div className="from-[#fff1ce]/52 via-[#ffcc8f]/20 animate-morning-ray-drift-2 absolute -top-[18%] left-[57%] h-[147%] w-16 bg-gradient-to-b to-transparent blur-lg" />
-            <div className="from-[#ffeec9]/54 via-[#ffcb8c]/22 animate-morning-ray-drift-1 absolute -top-[16%] left-[64%] h-[150%] w-24 bg-gradient-to-b to-transparent blur-xl" />
-            <div className="from-[#fff5d9]/44 via-[#ffcf92]/14 animate-morning-ray-drift-3 absolute -top-[20%] left-[69%] h-[146%] w-10 bg-gradient-to-b to-transparent blur-md" />
-            <div className="from-[#fff3d5]/50 via-[#ffc98c]/18 animate-morning-ray-drift-3 absolute -top-[20%] left-[73%] h-[149%] w-14 bg-gradient-to-b to-transparent blur-lg" />
-            <div className="from-[#fff3d8]/46 via-[#ffc88d]/18 animate-morning-ray-drift-2 absolute -top-[18%] left-[80%] h-[145%] w-16 bg-gradient-to-b to-transparent blur-lg" />
-            <div className="from-[#fff6dd]/42 via-[#ffd2a0]/14 animate-morning-ray-drift-1 absolute -top-[19%] left-[84%] h-[148%] w-12 bg-gradient-to-b to-transparent blur-lg" />
-            <div className="from-[#fff7e2]/44 via-[#ffd4a3]/16 animate-morning-ray-drift-1 absolute -top-[22%] left-[88%] h-[150%] w-20 bg-gradient-to-b to-transparent blur-xl" />
-            <div className="from-[#fff8e8]/38 via-[#ffd8ad]/12 animate-morning-ray-drift-2 absolute -top-[23%] left-[94%] h-[152%] w-10 bg-gradient-to-b to-transparent blur-lg" />
-
-            {/* Extra short shafts for top texture */}
-            <div className="from-[#fff9ea]/36 via-[#ffdcb3]/12 animate-morning-ray-drift-2 absolute -top-[8%] left-[5%] h-[95%] w-10 bg-gradient-to-b to-transparent blur-md" />
-            <div className="from-[#fff8e5]/34 via-[#ffd9ad]/10 animate-morning-ray-drift-3 absolute -top-[10%] left-[16%] h-[92%] w-8 bg-gradient-to-b to-transparent blur-sm" />
-            <div className="from-[#fff6df]/35 via-[#ffd7aa]/11 animate-morning-ray-drift-1 absolute -top-[7%] left-[26%] h-[96%] w-11 bg-gradient-to-b to-transparent blur-md" />
-            <div className="from-[#fff9ec]/33 via-[#ffddb7]/10 animate-morning-ray-drift-2 absolute -top-[9%] left-[39%] h-[90%] w-9 bg-gradient-to-b to-transparent blur-sm" />
-            <div className="from-[#fff7e2]/34 via-[#ffd8ac]/10 animate-morning-ray-drift-1 absolute -top-[8%] left-[51%] h-[94%] w-10 bg-gradient-to-b to-transparent blur-md" />
-            <div className="from-[#fff8e6]/32 via-[#ffdbb2]/9 animate-morning-ray-drift-3 absolute -top-[9%] left-[63%] h-[91%] w-8 bg-gradient-to-b to-transparent blur-sm" />
-            <div className="from-[#fff6df]/34 via-[#ffd7a8]/10 animate-morning-ray-drift-2 absolute -top-[7%] left-[74%] h-[93%] w-9 bg-gradient-to-b to-transparent blur-md" />
-            <div className="from-[#fff9ec]/31 via-[#ffddb8]/9 animate-morning-ray-drift-1 absolute -top-[10%] left-[85%] h-[90%] w-8 bg-gradient-to-b to-transparent blur-sm" />
-          </div>
-
-          {/* Additional bottom purple/blue cloud glow */}
-          <div className="bg-[#706b96]/60 absolute -bottom-20 -left-10 h-64 w-96 rounded-full blur-[80px]" />
-          <div className="bg-[#3f624d]/45 absolute -bottom-24 right-[-6%] h-72 w-[26rem] rounded-full blur-[90px]" />
-
-          {/* Strong fallback beam so rays are always visible */}
-          <div className="from-[#fff1c6]/95 absolute -left-[12%] -top-[32%] z-0 h-[205%] w-[56%] rotate-[35deg] bg-gradient-to-b via-[#ffbf78]/70 to-transparent blur-2xl" />
-
-          {/* Strong parallel window rays from top-left */}
-          <div className="absolute -left-[20%] -top-[55%] z-0 h-[240%] w-[180%] rotate-[35deg] transform-gpu">
-            <div className="from-[#fff7dc]/95 via-[#ffd089]/78 animate-anime-ray-1 absolute left-[10%] top-0 h-full w-28 bg-gradient-to-b to-transparent blur-lg" />
-            <div className="from-white/95 animate-anime-ray-2 absolute left-[22%] top-0 h-full w-20 bg-gradient-to-b via-[#ffc47b]/72 to-transparent blur-md" />
-            <div className="from-[#fff0c8]/92 via-[#ffb469]/70 animate-anime-ray-3 absolute left-[31%] top-0 h-full w-40 bg-gradient-to-b to-transparent blur-xl" />
-            <div className="from-white/90 animate-anime-ray-4 absolute left-[45%] top-0 h-full w-18 bg-gradient-to-b via-[#ffd596]/60 to-transparent blur-sm" />
-            <div className="from-[#ffe5ac]/90 via-[#ffa85d]/58 animate-anime-ray-2 absolute left-[53%] top-0 h-full w-48 bg-gradient-to-b to-transparent blur-2xl" />
-          </div>
-
-          {/* Floating light particles in the rays */}
-          {morningDustParticles.map((particle) => (
+          {/* Rays only: inherit primary background from section */}
+          <div
+            className="pointer-events-none absolute z-[2] overflow-hidden"
+            style={{
+              filter: 'blur(14px)',
+              opacity: 1,
+              width: '100%',
+              height: '179vh',
+              top: '-50%',
+              left: 0,
+              mixBlendMode: 'screen',
+              mask: 'radial-gradient(50% 109%, #000 0%, #000000f6 0%, transparent 96%)',
+              WebkitMask: 'radial-gradient(50% 109%, #000 0%, #000000f6 0%, transparent 96%)',
+            }}
+          >
+            {/* Ray 1: w=40px, opacity=0.27, no rotation */}
             <div
-              key={`dust-${particle.left}-${particle.top}`}
-              className="absolute rounded-full bg-[#fffcf2] blur-[0.5px]"
+              className="absolute"
               style={{
-                left: `${particle.left}%`,
-                top: `${particle.top}%`,
-                width: `${particle.size}px`,
-                height: `${particle.size}px`,
-                boxShadow: '0 0 10px 1px rgba(255, 240, 180, 0.9)',
-                animation: `anime-dust-float ${particle.duration}s ease-in-out infinite`,
-                animationDelay: `${particle.delay}s`,
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(0, 0.27), width: '2.5rem', height: '130rem',
+                top: '-22rem', left: 'calc(50% - 1.25rem)',
+                transformOrigin: '100% 0% 0',
               }}
             />
-          ))}
-
-          {/* Warm source glow */}
-          <div className="bg-[#ffea9e]/55 absolute -left-32 -top-32 h-[35rem] w-[35rem] rounded-full blur-[100px]" />
-          <div className="bg-[#547862]/35 absolute right-[-10rem] top-[-8rem] h-[28rem] w-[28rem] rounded-full blur-[110px]" />
+            {/* Ray 2: w=35px, opacity=0.28, rotate(25deg) */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(1, 0.28), width: '2.2rem', height: '130rem',
+                top: '-22rem', left: 'calc(50% - 1.1rem)',
+                transform: 'rotate(25deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 3: w=35px, opacity=0.57, rotate(11deg) */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(2, 0.57), width: '2.2rem', height: '130rem',
+                top: '-22rem', left: 'calc(50% - 1.1rem)',
+                transform: 'rotate(11deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 4: w=35px, opacity=0.42, rotate(-12deg) */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(3, 0.42), width: '2.2rem', height: '130rem',
+                top: '-22rem', left: 'calc(50% - 1.1rem)',
+                transform: 'rotate(-12deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 5: w=35px, opacity=0.32, rotate(-24deg) */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(4, 0.32), width: '2.2rem', height: '130rem',
+                top: '-22rem', left: 'calc(50% - 1.1rem)',
+                transform: 'rotate(-24deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 6: w=50px, opacity=0.3, rotate(-18deg) */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(5, 0.3), width: '3.125rem', height: '130rem',
+                top: '-22rem', left: 'calc(50% - 1.56rem)',
+                transform: 'rotate(-18deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 7: w=50px, opacity=0.3, rotate(-18deg), offset right */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(6, 0.3), width: '3.125rem', height: '169rem',
+                top: '-21.4rem', right: '38%',
+                transform: 'rotate(-18deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 8: w=50px, opacity=0.3, rotate(-18deg), offset at 69% */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(7, 0.3), width: '3.125rem', height: '130rem',
+                top: '-22.6rem', left: 'calc(69.26% - 1.56rem)',
+                transform: 'rotate(-18deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 9: w=20px, opacity=0.3, rotate(-5deg) */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(8, 0.3), width: '1.25rem', height: '130rem',
+                top: '-22rem', left: 'calc(50% - 0.625rem)',
+                transform: 'rotate(-5deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 10: w=20px, opacity=0.3, rotate(-5deg), offset at 69% */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(9, 0.3), width: '1.25rem', height: '130rem',
+                top: '-22.6rem', left: 'calc(69.26% - 0.625rem)',
+                transform: 'rotate(-5deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 11: wider, opacity=1, rotate(-5deg), bright center ray */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(10, 1), width: '1.25rem', height: '169rem',
+                top: '-22rem', left: '76%', right: '20%',
+                transform: 'rotate(-5deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 12: w=15px, opacity=0.5, rotate(-3deg) */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(11, 0.5), width: '0.94rem', height: '130rem',
+                top: '-22rem', left: 'calc(50% - 0.47rem)',
+                transform: 'rotate(-3deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 13: w=20px, opacity=0.6, rotate(18deg) */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(12, 0.6), width: '1.25rem', height: '130rem',
+                top: '-22rem', left: 'calc(50% - 0.625rem)',
+                transform: 'rotate(18deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Ray 14: w=20px, opacity=0.18, rotate(6deg) */}
+            <div
+              className="absolute"
+              style={{
+                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                opacity: getRayOpacity(13, 0.18), width: '1.25rem', height: '130rem',
+                top: '-22rem', left: 'calc(50% - 0.625rem)',
+                transform: 'rotate(6deg)', transformOrigin: '100% 0% 0',
+              }}
+            />
+            {/* Focus glints to make center rays more distinguishable */}
+            <div
+              className="absolute"
+              style={{
+                background:
+                  'radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.12) 58%, transparent 100%)',
+                opacity: getRayOpacity(14, 0.72),
+                width: '0.75rem',
+                height: '120rem',
+                top: '-20rem',
+                left: 'calc(50% - 0.375rem)',
+                transform: 'rotate(2deg)',
+                transformOrigin: '100% 0% 0',
+              }}
+            />
+            <div
+              className="absolute"
+              style={{
+                background:
+                  'radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.1) 52%, transparent 100%)',
+                opacity: getRayOpacity(15, 0.66),
+                width: '0.625rem',
+                height: '118rem',
+                top: '-19rem',
+                left: 'calc(50% - 0.3125rem)',
+                transform: 'rotate(-4deg)',
+                transformOrigin: '100% 0% 0',
+              }}
+            />
+          </div>
         </div>
       )}
-          {isEvening && (
-        <div className={classNames(isLightModeTheme ? 'opacity-60' : 'opacity-100')}>
+          {hasNightBackground && (
+        <div className="opacity-100">
           <style>{`
             @keyframes shooting-star {
               0% {
@@ -562,8 +661,39 @@ export function FeedGreetingHero(): ReactElement | null {
           </div>
         </div>
       )}
+          {hasMorningDarkCinematic && (
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+          <div
+            className="absolute -left-[8%] -top-[40%] h-[125%] w-[60%] rounded-full blur-[4.5rem]"
+            style={{
+              background:
+                'radial-gradient(ellipse at center, rgba(84,120,255,0.35) 0%, rgba(84,120,255,0.16) 40%, transparent 74%)',
+              animation: 'morning-aurora-drift 20s ease-in-out infinite',
+            }}
+          />
+          <div
+            className="absolute -right-[10%] -top-[22%] h-[95%] w-[58%] rounded-full blur-[4rem]"
+            style={{
+              background:
+                'radial-gradient(ellipse at center, rgba(168,85,247,0.3) 0%, rgba(168,85,247,0.14) 44%, transparent 74%)',
+              animation: 'morning-aurora-drift 22s ease-in-out infinite 2.5s',
+            }}
+          />
+          <div
+            className="absolute inset-y-0 -left-[8%] w-[55%]"
+            style={{
+              background:
+                'linear-gradient(108deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.12) 25%, transparent 58%)',
+              filter: 'blur(2rem)',
+              mixBlendMode: 'screen',
+              animation: 'morning-light-sweep 14s ease-in-out infinite',
+            }}
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(80%_75%_at_50%_45%,transparent_58%,rgba(0,0,0,0.33)_100%)]" />
+        </div>
+      )}
           <div className="pointer-events-none absolute inset-0 z-0">
-        {isEvening && (
+        {hasNightBackground && (
           <div className="absolute left-[10%] top-[15%] hidden h-40 w-40 rotate-[18deg] opacity-60 laptop:block">
             <svg
               viewBox="0 0 370 216"
@@ -639,7 +769,7 @@ export function FeedGreetingHero(): ReactElement | null {
             </svg>
           </div>
         )}
-        {[
+        {(!isEvening || hasNightBackground) && [
           // Dense Milky Way band stars
           {
             left: '15%',
@@ -839,7 +969,7 @@ export function FeedGreetingHero(): ReactElement | null {
             key={`${star.left}-${star.top}`}
             className={classNames(
               'absolute rounded-full',
-              isEvening
+              hasNightBackground
                 ? `bg-white ${star.opacity} animate-streak-star-twinkle`
                 : 'bg-white/65 drop-shadow-[0_0_4px_rgba(255,255,255,0.45)]',
             )}
@@ -851,14 +981,14 @@ export function FeedGreetingHero(): ReactElement | null {
               animationDelay: star.delay,
               animationDuration: `${(3 + Math.random() * 4).toFixed(1)}s`,
               boxShadow:
-                isEvening && star.size > 1.5
+                hasNightBackground && star.size > 1.5
                   ? '0 0 8px 1px rgba(255,255,255,0.8)'
                   : 'none',
             }}
           />
         ))}
       </div>
-          {isEvening && (
+          {hasNightBackground && (
         <div className="pointer-events-none absolute inset-0 z-2 overflow-hidden">
           <div
             className="animate-starlink absolute flex items-center gap-1 opacity-0"

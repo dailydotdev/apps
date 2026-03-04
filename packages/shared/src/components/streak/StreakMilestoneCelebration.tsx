@@ -12,6 +12,7 @@ import {
 } from '../typography/Typography';
 import { IconSize } from '../Icon';
 import { ButtonSize } from '../buttons/Button';
+import { Drawer, DrawerPosition } from '../drawers';
 import { MilestoneShareActions } from './MilestoneShareActions';
 import CloseButton from '../CloseButton';
 
@@ -28,6 +29,7 @@ interface StreakMilestoneCelebrationProps {
 }
 
 interface CelebrationLayout {
+  isMobile: boolean;
   badgeStartX: number;
   badgeStartY: number;
   badgeStartSize: number;
@@ -74,6 +76,7 @@ const generateParticles = (count: number): Particle[] =>
     color: PARTICLE_COLORS[i % PARTICLE_COLORS.length],
   }));
 
+const MILESTONE_DRAWER_CLASS = 'streak-milestone-drawer';
 const POPOVER_MAX_WIDTH = 420;
 const VIEWPORT_PADDING = 16;
 const POPOVER_ICON_CENTER_OFFSET_Y = 76;
@@ -81,6 +84,7 @@ const POPOVER_ICON_CENTER_OFFSET_Y = 76;
 const getCelebrationLayout = (): CelebrationLayout => {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
+  const isMobile = viewportWidth < 768;
   const badgeStartSize = Math.min(224, Math.max(viewportWidth - 64, 120));
   const badgeStartX = viewportWidth / 2;
   const badgeStartY = viewportHeight / 2;
@@ -90,13 +94,17 @@ const getCelebrationLayout = (): CelebrationLayout => {
   );
   const popoverLeft = Math.max((viewportWidth - popoverWidth) / 2, VIEWPORT_PADDING);
   const popoverTop = Math.max((viewportHeight - 560) / 2, VIEWPORT_PADDING);
+  const panelWidth = isMobile ? viewportWidth : popoverWidth;
+  const panelLeft = isMobile ? 0 : popoverLeft;
+  const panelTop = isMobile ? 0 : popoverTop;
 
   return {
+    isMobile,
     badgeStartX,
     badgeStartY,
     badgeStartSize,
-    badgeEndX: popoverLeft + popoverWidth / 2,
-    badgeEndY: popoverTop + POPOVER_ICON_CENTER_OFFSET_Y,
+    badgeEndX: panelLeft + panelWidth / 2,
+    badgeEndY: panelTop + POPOVER_ICON_CENTER_OFFSET_Y,
     badgeEndSize: 120,
     popoverLeft,
     popoverTop,
@@ -141,91 +149,186 @@ export function StreakMilestoneCelebration({
   }, []);
 
   const isVisible = phase !== 'enter';
-  const showTravelBadge =
-    phase === 'showcase' || phase === 'shrink' || phase === 'popover';
+  const isMobile = !!layout?.isMobile;
+  const showTravelBadge = isMobile
+    ? phase === 'showcase' || phase === 'shrink'
+    : phase === 'showcase' || phase === 'shrink' || phase === 'popover';
   const showPopover = phase === 'popover';
   const showRewards = showPopover;
+  const drawerPosition = DrawerPosition.Bottom;
+  const drawerClassName = isMobile
+    ? {
+        wrapper: `${MILESTONE_DRAWER_CLASS} !h-auto !max-h-[calc(100%-5rem)] !overflow-hidden`,
+      }
+    : {
+        wrapper:
+          `${MILESTONE_DRAWER_CLASS} h-full !max-h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary !px-0`,
+      };
 
   return (
-    <RootPortal>
-      <div
-        className="fixed inset-0 z-max p-4"
-        style={{
-          opacity: 1,
-          transition: 'opacity 0.6s ease-out',
-        }}
-      >
-        <div
-          className="absolute inset-0 backdrop-blur-sm"
-          style={{
-            background: 'rgba(0, 0, 0, 0.65)',
-            opacity: isVisible ? 1 : 0,
-            transition: 'opacity 0.3s ease-out',
-          }}
-        />
-
-        {showTravelBadge && layout && (
+    <>
+      <RootPortal>
+        <div className="fixed inset-0 z-max pointer-events-none">
           <div
-            className="pointer-events-none absolute z-2 flex items-center justify-center"
+            className="absolute inset-0 backdrop-blur-sm"
             style={{
-              left: phase === 'showcase' ? layout.badgeStartX : layout.badgeEndX,
-              top: phase === 'showcase' ? layout.badgeStartY : layout.badgeEndY,
-              width:
-                phase === 'showcase'
-                  ? layout.badgeStartSize
-                  : layout.badgeEndSize,
-              height:
-                phase === 'showcase'
-                  ? layout.badgeStartSize
-                  : layout.badgeEndSize,
-              opacity: 1,
-              transform: 'translate(-50%, -50%)',
-              transition:
-                'left 0.38s cubic-bezier(0.4, 0, 0.2, 1), top 0.38s cubic-bezier(0.4, 0, 0.2, 1), width 0.38s cubic-bezier(0.4, 0, 0.2, 1), height 0.38s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease-out',
-              filter: 'drop-shadow(0 0 42px rgba(255, 149, 0, 0.58))',
+              background: 'rgba(0, 0, 0, 0.65)',
+              opacity: isVisible && (!isMobile || !showPopover) ? 1 : 0,
+              transition: 'opacity 0.3s ease-out',
+              pointerEvents: 'none',
             }}
-          >
-            {particles.map((p) => (
-              <div
-                key={p.id}
-                className="pointer-events-none absolute rounded-full"
-                style={{
-                  left: `${p.x}%`,
-                  top: `${p.y}%`,
-                  width: p.size,
-                  height: p.size,
-                  background: p.color,
-                  opacity: 0,
-                  animation: `streak-particle ${p.duration}s ease-out ${p.delay}s forwards`,
-                }}
+          />
+
+          {showTravelBadge && layout && (
+            <div
+              className="pointer-events-none absolute z-max flex items-center justify-center"
+              style={{
+                left:
+                  isMobile || phase === 'showcase'
+                    ? layout.badgeStartX
+                    : layout.badgeEndX,
+                top:
+                  isMobile || phase === 'showcase'
+                    ? layout.badgeStartY
+                    : layout.badgeEndY,
+                width:
+                  phase === 'showcase'
+                    ? layout.badgeStartSize
+                    : layout.badgeEndSize,
+                height:
+                  phase === 'showcase'
+                    ? layout.badgeStartSize
+                    : layout.badgeEndSize,
+                opacity: isMobile && phase === 'shrink' ? 0 : 1,
+                transform: 'translate(-50%, -50%)',
+                transition: isMobile
+                  ? 'width 0.36s cubic-bezier(0.4, 0, 0.2, 1), height 0.36s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.24s ease-out'
+                  : 'left 0.38s cubic-bezier(0.4, 0, 0.2, 1), top 0.38s cubic-bezier(0.4, 0, 0.2, 1), width 0.38s cubic-bezier(0.4, 0, 0.2, 1), height 0.38s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease-out',
+                filter: 'drop-shadow(0 0 42px rgba(255, 149, 0, 0.58))',
+              }}
+            >
+              {particles.map((p) => (
+                <div
+                  key={p.id}
+                  className="pointer-events-none absolute rounded-full"
+                  style={{
+                    left: `${p.x}%`,
+                    top: `${p.y}%`,
+                    width: p.size,
+                    height: p.size,
+                    background: p.color,
+                    opacity: 0,
+                    animation: `streak-particle ${p.duration}s ease-out ${p.delay}s forwards`,
+                  }}
+                />
+              ))}
+              <img
+                src={MILESTONE_ICON_URLS[milestone.tier]}
+                alt={milestone.label}
+                className="relative z-1 size-full object-contain"
               />
-            ))}
-            <img
-              src={MILESTONE_ICON_URLS[milestone.tier]}
-              alt={milestone.label}
-              className="relative z-1 size-full object-contain"
-            />
-          </div>
-        )}
+            </div>
+          )}
 
-        {showPopover && layout && (
-          <div
-            className="absolute z-1 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2"
-            style={{
-              left: layout.popoverLeft,
-              top: layout.popoverTop,
-              width: layout.popoverWidth,
-              transform: showPopover ? 'scale(1)' : 'scale(0.9)',
-              opacity: showPopover ? 1 : 0,
-              transition: 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            }}
-          >
-            <CloseButton
-              size={ButtonSize.Small}
-              className="absolute right-2 top-2 z-2"
-              onClick={onComplete}
-            />
-            <div className="relative z-1 flex flex-col items-center gap-4">
+          {showPopover && layout && !isMobile && (
+            <div
+              className="absolute z-1 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2 pointer-events-auto"
+              style={{
+                left: layout.popoverLeft,
+                top: layout.popoverTop,
+                width: layout.popoverWidth,
+              }}
+            >
+              <CloseButton
+                size={ButtonSize.Small}
+                className="absolute right-2 top-2 z-2"
+                onClick={onComplete}
+              />
+              <div className="relative z-1 flex flex-col items-center gap-4">
+                <div
+                  className="flex items-center justify-center"
+                  style={{
+                    width: 120,
+                    height: 120,
+                  }}
+                >
+                  {/* Keep layout space while the traveling badge remains visible */}
+                  <span className="size-full" aria-hidden />
+                </div>
+
+                <div className="flex flex-col items-center gap-1">
+                  <Typography
+                    bold
+                    type={TypographyType.LargeTitle}
+                    className="text-accent-bacon-default"
+                  >
+                    {milestone.label}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Body}
+                    color={TypographyColor.Primary}
+                    bold
+                  >
+                    Day {streakDay} Milestone!
+                  </Typography>
+                </div>
+
+                {showRewards && milestone.rewards.length > 0 && (
+                  <div
+                    className="bg-background-default/80 flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-3"
+                  >
+                    <Typography
+                      bold
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
+                      className="uppercase tracking-wider"
+                    >
+                      Rewards Unlocked
+                    </Typography>
+                    {milestone.rewards.map((reward) => (
+                      <div
+                        key={reward.description}
+                        className="flex items-center gap-2"
+                      >
+                        {reward.type === RewardType.Cores ? (
+                          <CoreIcon size={IconSize.XSmall} />
+                        ) : (
+                          <span>{rewardIcon[reward.type]}</span>
+                        )}
+                        <Typography
+                          type={TypographyType.Callout}
+                          color={TypographyColor.Primary}
+                        >
+                          {reward.description}
+                        </Typography>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {showRewards && (
+                  <div className="mt-3 flex w-full flex-col items-center">
+                    <MilestoneShareActions
+                      message={`I just reached ${milestone.label} (${streakDay} day streak) on daily.dev`}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </RootPortal>
+
+      {showPopover && layout && isMobile && (
+        <Drawer
+          isOpen
+          onClose={onComplete}
+          position={drawerPosition}
+          className={drawerClassName}
+          displayCloseButton
+          appendOnRoot
+          instantOpen
+        >
+          <div className="relative z-1 flex flex-col items-center gap-4 overflow-y-auto pb-2">
               <div
                 className="flex items-center justify-center"
                 style={{
@@ -233,8 +336,11 @@ export function StreakMilestoneCelebration({
                   height: 120,
                 }}
               >
-                {/* Keep layout space while the traveling badge remains visible */}
-                <span className="size-full" aria-hidden />
+                <img
+                  src={MILESTONE_ICON_URLS[milestone.tier]}
+                  alt={milestone.label}
+                  className="size-full object-contain"
+                />
               </div>
 
               <div className="flex flex-col items-center gap-1">
@@ -293,11 +399,9 @@ export function StreakMilestoneCelebration({
                   />
                 </div>
               )}
-            </div>
           </div>
-        )}
-      </div>
-
+        </Drawer>
+      )}
       <style>{`
         @keyframes streak-particle {
           0% {
@@ -314,6 +418,6 @@ export function StreakMilestoneCelebration({
           }
         }
       `}</style>
-    </RootPortal>
+    </>
   );
 }
