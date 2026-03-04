@@ -956,8 +956,8 @@
     .editor-actions-right { width: 100%; flex-wrap: wrap; }
   }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<script src="cpp-data.js"></script>
 </head>
 <body>
 
@@ -1121,6 +1121,79 @@ function updateEditorPreviewMeta() {
 
 const TABLET_CANVAS_WIDTH = 384;
 const TABLET_CANVAS_HEIGHT = 288;
+const EXPORT_LIB_SOURCES = {
+  htmlToImage: 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js',
+  jsZip: 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
+};
+let exportLibsPromise = null;
+const renderedSectionIds = new Set();
+
+function loadExternalScript(src) {
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[data-src="${src}"]`);
+    if (existing) {
+      if (existing.dataset.loaded === 'true') {
+        resolve();
+        return;
+      }
+      existing.addEventListener('load', () => resolve(), { once: true });
+      existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.dataset.src = src;
+    script.addEventListener('load', () => {
+      script.dataset.loaded = 'true';
+      resolve();
+    }, { once: true });
+    script.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureExportLibsLoaded() {
+  if (window.htmlToImage && window.JSZip) return;
+  if (!exportLibsPromise) {
+    exportLibsPromise = Promise.all([
+      loadExternalScript(EXPORT_LIB_SOURCES.htmlToImage),
+      loadExternalScript(EXPORT_LIB_SOURCES.jsZip),
+    ]);
+  }
+  await exportLibsPromise;
+  if (!window.htmlToImage || !window.JSZip) {
+    throw new Error('Export libraries did not initialize correctly');
+  }
+}
+
+function optimizeImages(root) {
+  const images = root.querySelectorAll('img');
+  images.forEach((img, index) => {
+    if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+    if (!img.hasAttribute('loading')) {
+      img.setAttribute('loading', index < 6 ? 'eager' : 'lazy');
+    }
+    if (!img.hasAttribute('fetchpriority')) {
+      img.setAttribute('fetchpriority', index < 6 ? 'high' : 'low');
+    }
+  });
+}
+
+function ensureSectionRendered(cppId) {
+  if (renderedSectionIds.has(cppId)) return;
+  const section = document.getElementById(`cpp-${cppId}`);
+  if (!section) return;
+  const topic = CPP.find((cpp) => cpp.id === cppId);
+  if (!topic) return;
+  const row = section.querySelector('.screenshots-row');
+  if (!row) return;
+  row.innerHTML = topic.screens.map((screen, index) => mkScreen(topic, screen, index)).join('');
+  optimizeImages(row);
+  section.dataset.rendered = 'true';
+  renderedSectionIds.add(cppId);
+}
 
 async function renderCanvasToPreset(canvas, preset) {
   const isTablet = canvas.classList.contains('ss-canvas-tablet');
@@ -2187,275 +2260,35 @@ function mkScreen(cpp, scr, idx) {
   return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})"><div class="screenshot-label">${idx+1}. ${scr.label}</div><div class="ss-canvas"><div class="ss-bg" ${bgStyle}></div><div class="ss-content">${hlHTML}${socialMid}<div class="phone-zone"><div class="phone"><div class="phone-notch"></div>${ui}</div>${floatsHTML}${tagsHTML}${badgesHTML}</div>${hlBottomHTML}${socialTop}</div><div class="dd-wm">${SVG_LOGO} daily.dev</div></div><div class="dim">${getDimWatermarkLabel()}</div></div>`;
 }
 
-const CPP = [
-  {
-    id: 'master', name: 'Master (Default)', accent: '#CE3DF3', dot: '#CE3DF3',
-    screens: [
-      { label:'Hero', uiType:'hero', hl:'The world\u2019s best<br>dev app for', sub:'staying<br>up to date' },
-      { label:'Feed', hlPos:'top', hl:'Learn new<br>things', sub:'<span style="color:rgba(255,255,255,0.7)">anywhere</span>', uiType:'feed',
-        floats:[
-          {icon:'<svg viewBox="0 0 24 24" fill="none" width="28" height="28" style="transform:translateY(3px)"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16M4 19a1 1 0 1 1 2 0 1 1 0 0 1-2 0" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>', top:'26%', left:'-18px', bg:'linear-gradient(135deg, #FF9A44, #FF5A00)', rot:'8deg'},
-          {icon:'<svg viewBox="0 0 24 24" fill="none" width="28" height="28" style="transform:translateY(2px)"><path d="M10 3L8 21M16 3L14 21M4 9h16M3 15h16" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>', top:'42%', right:'-16px', bg:'linear-gradient(135deg, #FF5E7E, #FF2E56)', rot:'-8deg'}
-        ]
-      },
-      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
-        quote:'"Must have app for devs" <span class="author">James Barish</span>',
-        on:['javascript','php','git','agile','aws'], off:['ab testing','accessibility','adobe','alexa','alibaba'],
-        tags:[{text:'devops',top:'36%',right:'-4px',rot:'-4.5deg'},{text:'ai',top:'42%',left:'4px',rot:'0.5deg'},{text:'cloud',top:'50%',left:'-10px',rot:'-13deg'},{text:'javascript',top:'44%',right:'-8px',rot:'-4.5deg'},{text:'webdev',top:'82%',left:'-8px',rot:'-4.5deg'}],
-        floats:[{icon:'🟡',top:'52%',left:'30%',bg:'linear-gradient(135deg,#FFE600,#FFA500)',rot:'10deg'},{icon:'🐹',top:'58%',right:'14px',bg:'linear-gradient(135deg,#2CDCE6,#0a7a8a)',rot:'-15deg'}]
-      },
-      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
-        articleTitle:'NVIDIA CEO Shouldn\'t Learn to Code, AI Can Do It',
-        tldr:'Development is not about code. It\'s about converting an idea into something that works. It\'s a process. CODING is about tools and syntax.',
-        floats:[{icon:'💬',top:'30%',right:'10px',bg:'linear-gradient(135deg,#2CDCE6,#0a6a7a)',rot:'8deg'},{icon:'⬆️',top:'60%',right:'-6px',bg:'linear-gradient(135deg,#1DDC6F,#0a8a4a)',rot:'8deg'}]
-      },
-      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer<br>resources', uiType:'search',
-        query:'How to be a great developer?',
-        answer:'To be a great developer, here are 20 practical tips from senior programmers:\n1. Write code regularly to develop your skills\n2. Learn something from every project, even the boring ones...',
-        srcs:['senior-dev-tips.com'],
-        posts:[{title:'Great code isn\'t enough. Developers need to brag about it (Ep. 571)',src:'daily.dev',srcLetter:'D',srcColor:'#CE3DF3',readTime:'1m',upvotes:'571',comments:'89',thumb:'linear-gradient(135deg,#3a1a4a,#1a0a2a)'}],
-        floats:[{icon:'✨',top:'22%',right:'-6px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'15deg'},{icon:'🔍',top:'50%',left:'-4px',bg:'linear-gradient(135deg,#4BA6FF,#2CDCE6)',rot:'-12deg'}]
-      },
-      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'profile',
-        floats:[{icon:'📑',top:'32%',left:'-10px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-5deg'},{icon:'⚛',top:'78%',right:'-10px',bg:'linear-gradient(135deg,#CE3DF3,#8B2252)',rot:'8deg'}]
-      }
-    ]
-  },
-  {
-    id: 'ai-ml', name: 'AI / ML Developers', accent: '#2CDCE6', dot: '#2CDCE6',
-    angle: 'Your personalized AI news feed: LLMs, agents, prompts, and ML papers from 500+ sources, updated in real time.',
-    screens: [
-      { label:'Hero', uiType:'hero', hl:'Your personalized<br>news feed for', sub:'AI & ML<br>developers', heroFloats: [{icon:'🤖', top:'55%', left:'5%', rot:'-15deg', size: 100}, {icon:'🧠', top:'60%', right:'5%', rot:'10deg', size: 90}],
-        badge1: { iconHtml: '<div style="font-size:50px;">🤖</div>', val: '500+', label: 'Sources', sub: 'Real-time AI news' },
-        badge2: { iconHtml: '<div style="font-size:45px;">🔥</div>', val: '589K+', sub: 'AI Engagements' },
-        reviewsText: 'Top Choice for AI Devs'
-      },
-      { label:'Personalization', hlPos:'top', hl:'Cut through<br>the noise', sub:'Only the AI topics that matter', uiType:'tags',
 
-        on:['AI','Machine Learning','LLM','GPT','Agents','Prompt Engineering','NLP'],
-        off:['React','CSS','DevOps','Docker']
-      },
-      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
-        quote:'"Must have app for AI devs" <span class="author">ML Weekly</span>',
-        on:['AI','Machine Learning','LLM','GPT','Agents','Prompt Eng'], off:['React','CSS','DevOps','Docker'],
-        tags:[{text:'ai',top:'48%',left:'12px',rot:'-1deg'},{text:'machinelearning',top:'40%',right:'-8px',rot:'3deg'},{text:'LLM',top:'56%',left:'-4px',rot:'-13deg'}],
-        floats:[{icon:'🤖',top:'55%',left:'-16px',bg:'linear-gradient(135deg,#2CDCE6,#0a8a9a)',rot:'-10deg'},{icon:'🧠',top:'60%',right:'-14px',bg:'linear-gradient(135deg,#9D70F8,#5F37E9)',rot:'12deg'}]
-      },
-      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
-        articleTitle:'NVIDIA CEO Says Developers Shouldn\'t Learn to Code Anymore',
-        tldr:'NVIDIA CEO believes with AI advancements, traditional coding may become obsolete and humans should focus on practical areas.',
-        floats:[{icon:'💬',top:'32%',right:'-10px',bg:'linear-gradient(135deg,#2CDCE6,#0a6a7a)',rot:'8deg'}]
-      },
-      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
-        query:'How do transformers scale?',
-        answer:'Transformer attention scales quadratically O(n²) with sequence length. Flash Attention reduces memory to O(n)...',
-        srcs:['arXiv','Illustrated Transformer'],
-        posts:[{title:'Great code isn\'t enough. Developers need to brag about it',src:'daily.dev',srcLetter:'D',srcColor:'#CE3DF3',readTime:'1m',upvotes:'571',comments:'89',thumb:'linear-gradient(135deg,#3a1a4a,#1a0a2a)'}],
-        floats:[{icon:'✨',top:'26%',right:'-6px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'15deg'},{icon:'💡',top:'55%',left:'-12px',bg:'linear-gradient(135deg,#4BA6FF,#2CDCE6)',rot:'-12deg'}]
-      },
-      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'squads',
-        squads:[{n:'LLM Builders',m:'12.4K',e:'🤖'},{n:'ML Paper Club',m:'8.7K',e:'📄'},{n:'AI Agents',m:'6.2K',e:'🧠'},{n:'Computer Vision',m:'5.1K',e:'👁'}],
-        floats:[{icon:'📑',top:'28%',left:'-10px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-5deg'},{icon:'⚛',top:'70%',right:'-10px',bg:'linear-gradient(135deg,#CE3DF3,#8B2252)',rot:'8deg'}]
-      },
-    ]
-  },
-  {
-    id: 'frontend', name: 'Frontend / React', accent: '#3169F5', dot: '#3169F5',
-    angle: 'React, JavaScript, TypeScript, and CSS articles curated for frontend engineers who want to stay sharp.',
-    screens: [
-      { label:'Hero', uiType:'hero', hl:'The smartest<br>news feed for', sub:'frontend<br>developers', heroFloats: [{icon:'⚛️', top:'58%', left:'6%', rot:'-10deg', size: 100}, {icon:'🎨', top:'52%', right:'8%', rot:'15deg', size: 90}],
-        badge1: { iconHtml: '<div style="font-size:50px;">⚛️</div>', val: '100+', label: 'Sources', sub: 'Always up-to-date' },
-        badge2: { iconHtml: '<div style="font-size:45px;">🎨</div>', val: 'UI / UX', sub: 'Top Curated Articles' },
-        reviewsText: 'Stay sharp on the Frontend'
-      },
-      { label:'Personalization', hlPos:'top', hl:'Matched to<br>your stack', sub:'React, TS, CSS and more', uiType:'tags',
-        on:['React','JavaScript','TypeScript','CSS','Next.js','Tailwind CSS','Vue','Svelte'],
-        off:['Python','Go','Rust','DevOps']
-      },
-      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
-        quote:'"Best frontend resource ever" <span class="author">Dev Weekly</span>',
-        on:['React','JavaScript','TypeScript','CSS','Next.js','Tailwind'], off:['Python','Go','Rust','DevOps'],
-        tags:[{text:'javascript',top:'42%',right:'-4px',rot:'3deg'},{text:'react',top:'50%',left:'4px',rot:'-5deg'},{text:'css',top:'46%',left:'30%',rot:'2deg'}],
-        floats:[{icon:'💙',top:'58%',right:'-12px',bg:'linear-gradient(135deg,#3169F5,#1a3aA5)',rot:'12deg'}]
-      },
-      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
-        articleTitle:'Why Server Components Change Everything for React Developers',
-        tldr:'Server Components enable seamless server-client integration, reducing bundle sizes by up to 50%.',
-        floats:[{icon:'💬',top:'30%',right:'-8px',bg:'linear-gradient(135deg,#2CDCE6,#0a6a7a)',rot:'6deg'}]
-      },
-      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
-        query:'React vs Vue performance 2026',
-        answer:'React 20 with Server Components shows 40% faster TTI. Vue 4 with Vapor mode competitive on small apps...',
-        srcs:['React Blog','Web.dev'],
-        posts:[{title:'Building Accessible React Components the Right Way',src:'Smashing Mag',srcLetter:'S',srcColor:'#FF5454',readTime:'8m',upvotes:'892',comments:'67'}],
-        floats:[{icon:'✨',top:'26%',right:'-4px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'12deg'}]
-      },
-      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'squads',
-        squads:[{n:'React Devs',m:'24.1K',e:'⚛️'},{n:'CSS Wizards',m:'11.3K',e:'🎨'},{n:'TypeScript Community',m:'15.7K',e:'💙'},{n:'Next.js Users',m:'9.4K',e:'▲'}],
-        floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-8deg'}]
-      },
-    ]
-  },
-  {
-    id: 'career', name: 'Career Growth', accent: '#92F21D', dot: '#92F21D',
-    angle: 'Level up your dev career: salary insights, interview prep, and career advice bookmarked by thousands of developers.',
-    screens: [
-      { label:'Hero', uiType:'hero', hl:'Unlock your<br>potential in', sub:'career<br>growth', heroFloats: [{icon:'🚀', top:'56%', left:'8%', rot:'-15deg', size: 95}, {icon:'🎯', top:'53%', right:'6%', rot:'12deg', size: 95}],
-        badge1: { iconHtml: '<div style="font-size:50px;">📈</div>', val: '8.4%', label: 'Rate', sub: 'Highest bookmark rate' },
-        badge2: { iconHtml: '<div style="font-size:45px;">💼</div>', val: 'Salary', sub: 'Insights & Interview Prep' },
-        reviewsText: 'Level up your dev career'
-      },
-      { label:'Personalization', hlPos:'top', hl:'Shape your<br>growth feed', sub:'Follow the career signals you need', uiType:'tags',
-        on:['Career','Interview','Leadership','Growth','Salary','Resume'],
-        off:['React','Python','Docker','Linux']
-      },
-      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
-        quote:'"Changed my trajectory" <span class="author">Senior Eng</span>',
-        on:['Career','Interview','Leadership','Growth','Salary','Resume'], off:['React','Python','Docker','Linux'],
-        tags:[{text:'career',top:'44%',left:'10px',rot:'-3deg'},{text:'growth',top:'50%',right:'-4px',rot:'4deg'}]
-      },
-      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
-        articleTitle:'Should I Leave FAANG for a Startup? Here\'s What I Learned',
-        tldr:'After 4 years at Google, switching to a Series A startup doubled my growth rate and equity upside.',
-        floats:[{icon:'💬',top:'32%',right:'-8px',bg:'linear-gradient(135deg,#92F21D,#1DDC6F)',rot:'6deg'}]
-      },
-      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
-        query:'How to negotiate a tech salary?',
-        answer:'Research market rates on Levels.fyi. Always negotiate — 87% of hiring managers expect it. Start 15-20% above target...',
-        srcs:['Levels.fyi','Hacker News'],
-        floats:[{icon:'✨',top:'26%',right:'-4px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'12deg'}]
-      },
-      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'bookmarks',
-        folders:[{n:'Interview Prep',c:42,e:'🎯'},{n:'Salary Negotiation',c:18,e:'💰'},{n:'Resume Tips',c:15,e:'📝'},{n:'Side Projects',c:23,e:'🚀'}],
-        floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
-      },
-    ]
-  },
-  {
-    id: 'architecture', name: 'Software Architecture', accent: '#9D70F8', dot: '#9D70F8',
-    angle: 'System design, architecture patterns, and scalability deep-dives saved and discussed by senior engineers.',
-    screens: [
-      { label:'Hero', uiType:'hero', hl:'Deep dives on<br>scalability &', sub:'software<br>architecture', heroFloats: [{icon:'🏗️', top:'55%', left:'5%', rot:'-8deg', size: 95}, {icon:'🌩️', top:'58%', right:'7%', rot:'10deg', size: 90}],
-        badge1: { iconHtml: '<div style="font-size:50px;">🏗️</div>', val: 'Deep', label: 'Dives', sub: 'Architecture patterns' },
-        badge2: { iconHtml: '<div style="font-size:45px;">🌩️</div>', val: 'Scale', sub: 'Discussions by senior devs' },
-        reviewsText: 'Design systems that scale'
-      },
-      { label:'Personalization', hlPos:'top', hl:'Filter for<br>architecture depth', sub:'Only senior-level architecture topics', uiType:'tags',
-        on:['Architecture','System Design','Scalability','Microservices','Cloud','AWS'],
-        off:['React','CSS','Career']
-      },
-      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
-        quote:'"My go-to for system design" <span class="author">Staff Eng</span>',
-        on:['Architecture','System Design','Scalability','Microservices','Cloud','AWS'], off:['React','CSS','Career'],
-        tags:[{text:'architecture',top:'42%',right:'-4px',rot:'4deg'},{text:'systemdesign',top:'50%',left:'4px',rot:'-6deg'}]
-      },
-      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
-        articleTitle:'Our Team Regrets Going Serverless — Here\'s Why',
-        tldr:'Cold starts, vendor lock-in, and hidden costs made our team migrate back to containers after 18 months.',
-        floats:[{icon:'💬',top:'30%',right:'-8px',bg:'linear-gradient(135deg,#9D70F8,#5F37E9)',rot:'6deg'}]
-      },
-      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
-        query:'event-driven vs saga pattern',
-        answer:'Event-driven uses async events for service communication. Saga coordinates distributed transactions across services via choreography or orchestration...',
-        srcs:['Martin Fowler','Microservices.io'],
-        floats:[{icon:'✨',top:'26%',right:'-4px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'12deg'}]
-      },
-      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'squads',
-        squads:[{n:'Netflix Tech',m:'890K',e:'🎬'},{n:'Martin Fowler',m:'1.2M',e:'📖'},{n:'InfoQ',m:'750K',e:'📰'},{n:'Uber Eng',m:'620K',e:'🚗'}],
-        floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
-      },
-    ]
-  },
-  {
-    id: 'devtools', name: 'DevTools & Productivity', accent: '#FF7A2B', dot: '#FF7A2B',
-    angle: 'Discover the tools, workflows, and productivity hacks that top developers actually use.',
-    screens: [
-      { label:'Hero', uiType:'hero', hl:'Stay ahead<br>with the latest', sub:'devtools &<br>productivity', heroFloats: [{icon:'🛠️', top:'54%', left:'7%', rot:'-12deg', size: 90}, {icon:'⚡', top:'58%', right:'5%', rot:'15deg', size: 90}],
-        badge1: { iconHtml: '<div style="font-size:50px;">🛠️</div>', val: 'Top 10', label: 'Tools', sub: 'Productivity hacks' },
-        badge2: { iconHtml: '<div style="font-size:45px;">⚡</div>', val: 'Faster', sub: 'Workflows top devs use' },
-        reviewsText: 'Optimize your dev setup'
-      },
-      { label:'Personalization', hlPos:'top', hl:'Filter the<br>signal', sub:'Pick tools and workflows you use', uiType:'tags',
-        on:['Developer Tools','Productivity','CLI','IDE','Git','Docker','CI/CD'],
-        off:['AI','React','Career','Linux']
-      },
-      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
-        quote:'"Discover gems every week" <span class="author">10x Dev</span>',
-        on:['Developer Tools','Productivity','CLI','IDE','Git','Docker'], off:['AI','React','Career','Linux'],
-        tags:[{text:'devtools',top:'42%',right:'-4px',rot:'3deg'},{text:'productivity',top:'50%',left:'4px',rot:'-5deg'}]
-      },
-      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
-        articleTitle:'Cursor vs GitHub Copilot: The 2026 AI Coding Tool Comparison',
-        tldr:'Cursor excels at multi-file edits and agentic workflows. Copilot remains stronger for inline completions.',
-        floats:[{icon:'💬',top:'30%',right:'-8px',bg:'linear-gradient(135deg,#FF7A2B,#FF5454)',rot:'6deg'}]
-      },
-      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
-        query:'Docker vs Podman for local dev',
-        answer:'Docker remains most popular. Podman is daemonless and rootless by default, more secure. Both support Compose now...',
-        srcs:['Docker Docs','Red Hat Blog'],
-        floats:[{icon:'✨',top:'26%',right:'-4px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'12deg'}]
-      },
-      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'squads',
-        squads:[{n:'Terminal Fans',m:'8.9K',e:'💻'},{n:'VS Code Power Users',m:'22.1K',e:'🔮'},{n:'DevOps Tools',m:'15.4K',e:'🛠'},{n:'AI Coding',m:'11.7K',e:'🤖'}],
-        floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
-      },
-    ]
-  },
-  {
-    id: 'opensource', name: 'Open Source & Linux', accent: '#1DDC6F', dot: '#1DDC6F',
-    angle: 'Track trending open source projects, GitHub repos, and Linux updates in one developer feed.',
-    screens: [
-      { label:'Hero', uiType:'hero', hl:'Track trending<br>projects in', sub:'open source<br>& Linux', heroFloats: [{icon:'🐧', top:'58%', left:'8%', rot:'-10deg', size: 100}, {icon:'💚', top:'53%', right:'6%', rot:'15deg', size: 90}],
-        badge1: { iconHtml: '<div style="font-size:50px;">🐧</div>', val: 'Linux', label: 'Updates', sub: 'Trending distros' },
-        badge2: { iconHtml: '<div style="font-size:45px;">🐙</div>', val: 'GitHub', sub: 'Open source feeds' },
-        reviewsText: 'Track the OSS ecosystem'
-      },
-      { label:'Personalization', hlPos:'top', hl:'Tune your OSS<br>feed', sub:'Follow repos, Linux, and OSS topics', uiType:'tags',
-        on:['Open Source','GitHub','Linux','Rust','Go','Kubernetes'],
-        off:['React','CSS','Career','AI']
-      },
-      { label:'Personalized', hlPos:'top', hl:'Personalized', sub:'for you', uiType:'tags', stars:true, socialPos:'middle',
-        quote:'"Best OSS discovery tool" <span class="author">Maintainer</span>',
-        on:['Open Source','GitHub','Linux','Rust','Go','Kubernetes'], off:['React','CSS','Career','AI'],
-        tags:[{text:'opensource',top:'42%',right:'-4px',rot:'3deg'},{text:'linux',top:'50%',left:'4px',rot:'-6deg'},{text:'github',top:'46%',left:'35%',rot:'2deg'}]
-      },
-      { label:'Discuss', hlPos:'top', hl:'Discuss', sub:'with a global<br>dev community', uiType:'discuss',
-        articleTitle:'Open Source Funding Crisis: What Can We Do About It?',
-        tldr:'Core maintainers of critical infrastructure earn below market rates. New models like Polar.sh and GitHub Sponsors evolving.',
-        floats:[{icon:'💬',top:'30%',right:'-8px',bg:'linear-gradient(135deg,#1DDC6F,#0a8a4a)',rot:'6deg'}]
-      },
-      { label:'Search', hlPos:'top', hl:'Explore a world of', sub:'developer resources', uiType:'search',
-        query:'Best Linux distros for devs 2026',
-        answer:'Fedora 42 leads for cutting-edge. Ubuntu 26.04 LTS best for stability. Arch for customization. NixOS gaining momentum...',
-        srcs:['It\'s FOSS','DistroWatch'],
-        floats:[{icon:'✨',top:'26%',right:'-4px',bg:'linear-gradient(135deg,#C9B0FF,#9D70F8)',rot:'12deg'}]
-      },
-      { label:'Features', hlPos:'top', hl:'<span class="plus-icon">+</span> Bookmarks<br><span class="plus-icon">+</span> Squads<br><span class="plus-icon">+</span> DevCards', sub:'and much more.', uiType:'squads',
-        squads:[{n:'OSS Contributors',m:'19.8K',e:'💚'},{n:'Linux Users',m:'16.3K',e:'🐧'},{n:'Rust Community',m:'12.1K',e:'🦀'},{n:'Go Developers',m:'10.7K',e:'🐹'}],
-        floats:[{icon:'📑',top:'28%',left:'-8px',bg:'linear-gradient(135deg,#FFD700,#FF7A2B)',rot:'-6deg'}]
-      },
-    ]
-  }
-];
+// Content data is loaded from cpp-data.js (edit that file to change content).
+// See CPP-EDITING-GUIDE.md for full instructions on editing topics and screens.
+const CPP = window.CPP_DATA;
+if (!CPP || !Array.isArray(CPP)) {
+  document.body.innerHTML = '<div style="color:red;padding:40px;font-size:18px;font-family:sans-serif"><h2>Error: cpp-data.js not loaded</h2><p>Make sure <code>cpp-data.js</code> is in the same directory as this HTML file.</p><p>If running locally, use a web server:<br><code>npx serve</code> or <code>python3 -m http.server</code></p></div>';
+  throw new Error('CPP_DATA not found — cpp-data.js must be loaded before this script');
+}
+
 
 function renderDT() {
-  const exportLabel = getExportDimensionLabel();
   document.getElementById('cpp-tabs').innerHTML = CPP.map((c,i) =>
     `<div class="tab ${i===0?'active':''}" data-id="${c.id}" onclick="switchCPP('${c.id}')"><span class="dot" style="background:${c.dot}"></span>${c.name}</div>`
   ).join('');
+  renderedSectionIds.clear();
   document.getElementById('cpp-sections').innerHTML = CPP.map((c,i) => {
-    const screens = c.screens.map((s,j) => mkScreen(c,s,j)).join('');
     const angle = c.angle ? `<div class="topic-angle">${c.angle}</div>` : '';
     const resSelect = `<select class="section-export-select" onchange="onSectionExportChange(event)"><option value="iphone"${selectedExportMode==='iphone'?' selected':''}>iPhone 1320×2868</option><option value="tablet"${selectedExportMode==='tablet'?' selected':''}>Tablet 2752×2064</option></select>`;
-    return `<div class="cpp-section ${i===0?'active':''}" id="cpp-${c.id}"><div class="cpp-header"><div class="cpp-header-left"><h2>${c.name}</h2><div class="subtitle">${c.screens.length} screens</div></div><div class="cpp-header-controls">${resSelect}<button type="button" class="dl-btn" onclick="downloadPack('${c.id}', { triggerButton: this })">Download</button></div>${angle}</div><div class="screenshots-row">${screens}</div></div>`;
+    return `<div class="cpp-section ${i===0?'active':''}" id="cpp-${c.id}" data-rendered="false"><div class="cpp-header"><div class="cpp-header-left"><h2>${c.name}</h2><div class="subtitle">${c.screens.length} screens</div></div><div class="cpp-header-controls">${resSelect}<button type="button" class="dl-btn" onclick="downloadPack('${c.id}', { triggerButton: this })">Download</button></div>${angle}</div><div class="screenshots-row"></div></div>`;
   }).join('');
+  if (CPP[0]?.id) {
+    ensureSectionRendered(CPP[0].id);
+  }
 }
 
 async function downloadPack(cppId, options = {}) {
   const preset = getExportPreset();
   const section = document.getElementById(`cpp-${cppId}`);
   if (!section) return;
-  const canvases = section.querySelectorAll('.ss-canvas');
   const btn = options.triggerButton || section.querySelector('.cpp-header-controls .dl-btn');
   if (!btn) return;
   const originalText = btn.innerHTML;
@@ -2464,12 +2297,16 @@ async function downloadPack(cppId, options = {}) {
   btn.style.opacity = '0.7';
 
   try {
+    btn.innerHTML = 'Loading export tools...';
+    await ensureExportLibsLoaded();
+    ensureSectionRendered(cppId);
     const zip = new JSZip();
+    const exportCanvases = section.querySelectorAll(selectedExportMode === 'tablet' ? '.ss-canvas-tablet' : '.ss-canvas');
 
-    for (let i = 0; i < canvases.length; i++) {
-      const canvas = canvases[i];
+    for (let i = 0; i < exportCanvases.length; i++) {
+      const canvas = exportCanvases[i];
 
-      btn.innerHTML = `Rendering ${i + 1}/${canvases.length}...`;
+      btn.innerHTML = `Rendering ${i + 1}/${exportCanvases.length}...`;
 
       const dataUrl = await renderCanvasToPreset(canvas, preset);
 
@@ -2512,14 +2349,18 @@ async function downloadAllPacks() {
   btn.disabled = true;
 
   const preset = getExportPreset();
-  const zip = new JSZip();
 
   try {
+    btn.textContent = 'Loading export tools...';
+    await ensureExportLibsLoaded();
+    const zip = new JSZip();
+
     for (let topicIndex = 0; topicIndex < CPP.length; topicIndex++) {
       const topic = CPP[topicIndex];
+      ensureSectionRendered(topic.id);
       const section = document.getElementById(`cpp-${topic.id}`);
       if (!section) continue;
-      const canvases = section.querySelectorAll('.ss-canvas');
+      const canvases = section.querySelectorAll(selectedExportMode === 'tablet' ? '.ss-canvas-tablet' : '.ss-canvas');
 
       for (let screenIndex = 0; screenIndex < canvases.length; screenIndex++) {
         btn.textContent = `Rendering ${topicIndex + 1}/${CPP.length} · ${screenIndex + 1}/${canvases.length}`;
@@ -2550,6 +2391,7 @@ async function downloadAllPacks() {
 function switchCPP(id) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.id===id));
   document.querySelectorAll('.cpp-section').forEach(s => s.classList.toggle('active', s.id==='cpp-'+id));
+  ensureSectionRendered(id);
 }
 const editorState = {
   cppId: null,
@@ -3100,6 +2942,7 @@ async function downloadCurrentEditorImage() {
   setEditorStatus('Preparing download...', 'downloading');
 
   try {
+    await ensureExportLibsLoaded();
     const preset = getExportPreset();
     const dataUrl = await renderCanvasToPreset(previewCanvas, preset);
 
