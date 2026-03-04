@@ -47,6 +47,7 @@ import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
 import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
+import { isSourceSquadOrMachine } from '../graphql/sources';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -308,9 +309,7 @@ function FeedItemComponent({
       <ActivePostContextProvider post={itemPost}>
         <PostTag
           enableSourceHeader={
-            feedName !== 'squad' &&
-            (itemPost.source?.type === 'squad' ||
-              itemPost.source?.type === 'machine')
+            feedName !== 'squad' && isSourceSquadOrMachine(itemPost.source)
           }
           ref={inViewRef}
           post={{ ...itemPost }}

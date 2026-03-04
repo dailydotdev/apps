@@ -16,6 +16,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import CardOverlay from '../common/CardOverlay';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { usePollVote } from '../../../hooks/post/usePollVote';
+import { isSourceSquadOrMachine } from '../../../graphql/sources';
 
 const PollGrid = forwardRef(function PollCard(
   {
@@ -55,9 +56,7 @@ const PollGrid = forwardRef(function PollCard(
       <CardTextContainer>
         <SquadPostCardHeader
           post={post}
-          enableSourceHeader={
-            source.type === 'squad' || source.type === 'machine'
-          }
+          enableSourceHeader={isSourceSquadOrMachine(source)}
         />
         <CardTitle>{title}</CardTitle>
       </CardTextContainer>
