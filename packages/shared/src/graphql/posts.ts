@@ -9,7 +9,6 @@ import {
   POST_CODE_SNIPPET_FRAGMENT,
   RELATED_POST_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
-  SOURCE_SHORT_INFO_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
 } from './fragments';
 import type { Bookmark, BookmarkFolder } from './bookmarks';
@@ -391,70 +390,24 @@ export const POST_REPOSTS_BY_ID_QUERY = gql`
 export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
-      id
-      title
-      permalink
-      image
-      createdAt
-      readTime
-      tags
-      private
-      commentsPermalink
-      numUpvotes
-      numComments
-      numAwards
-      numReposts
-      source {
-        ...SourceShortInfo
-      }
+      ...SharedPostInfo
       contentHtml
       description
-      summary
       toc {
         text
         id
       }
-      type
       updatedAt
       numCollectionSources
       collectionSources {
         handle
         image
       }
-      flags {
-        promoteToPublic
-        coverVideo
-        campaignId
-        posts
-        sources
-        savedTime
-        generatedAt
-      }
-      slug
-      domain
-      author {
-        ...UserAuthor
-      }
       sharedPost {
         ...SharedPostInfo
       }
-      clickbaitTitleDetected
-      featuredAward {
-        award {
-          ...FeaturedAwardFragment
-        }
-      }
-      numPollVotes
-      pollOptions {
-        id
-        text
-        order
-        numVotes
-      }
-      endsAt
     }
   }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
   ${SHARED_POST_INFO_FRAGMENT}
 `;
 
