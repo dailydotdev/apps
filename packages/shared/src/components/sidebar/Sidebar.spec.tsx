@@ -131,9 +131,9 @@ it('should show the For You items if the user has filters', async () => {
   expect(section).toBeInTheDocument();
 });
 
-it('should render Agents item linking to agents hub', async () => {
+it('should render Agentic Hub item linking to agents hub', async () => {
   renderComponent();
-  const item = await screen.findByText('Agents');
+  const item = await screen.findByText('Agentic Hub');
   expect(item).toBeInTheDocument();
   // eslint-disable-next-line testing-library/no-node-access
   expect(item.closest('a')).toHaveAttribute(
