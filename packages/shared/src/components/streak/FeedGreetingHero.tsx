@@ -10,15 +10,12 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { ReadingDay } from '../../graphql/users';
 import { getReadingStreak30Days } from '../../graphql/users';
 import { isWeekend as isWeekendDay } from '../../lib/date';
-import { apiUrl } from '../../lib/config';
 import { useStreakDebug } from '../../hooks/streaks/useStreakDebug';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import {
   hasShownStreakHeroToday,
   markStreakHeroShown,
 } from '../../lib/streakHeroSession';
-import { MenuIcon } from '../icons';
-import { IconSize } from '../Icon';
 
 const previewDays = 7;
 
@@ -64,19 +61,6 @@ const motivationByMoment: Record<GreetingMoment, string[]> = {
     'Close the day strong.',
   ],
 };
-
-const debugShortcutLinks = [
-  'https://linkedin.com',
-  'https://mail.google.com',
-  'https://youtube.com',
-  'https://x.com',
-  'https://chatgpt.com',
-];
-
-const getShortcutHostname = (url: string): string =>
-  url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
-const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
-const iconSize = Math.round(24 * pixelRatio);
 
 const generateDummyReadDays = (
   streakCount: number,
@@ -292,41 +276,6 @@ export function FeedGreetingHero(): ReactElement | null {
 
   return (
     <>
-      {isDebugMode && (
-        <div className="mb-4 hidden w-full justify-center tablet:flex">
-          <div className="mx-auto flex w-full max-w-[46rem] flex-wrap items-center justify-center gap-2 px-2">
-            {debugShortcutLinks.map((shortcutUrl) => (
-              <a
-                key={shortcutUrl}
-                href={shortcutUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative mr-4 flex cursor-grab flex-col items-center active:cursor-grabbing"
-              >
-                <div className="relative mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
-                  <img
-                    src={`${apiUrl}/icon?url=${encodeURIComponent(
-                      shortcutUrl,
-                    )}&size=${iconSize}`}
-                    alt={shortcutUrl}
-                    className="size-6"
-                  />
-                  <div className="rounded shadow-1 absolute -bottom-1 left-1/2 flex -translate-x-1/2 items-center justify-center bg-surface-primary opacity-0 transition-opacity group-hover:opacity-100">
-                    <MenuIcon
-                      size={IconSize.XSmall}
-                      className="rotate-90 text-text-quaternary"
-                    />
-                  </div>
-                </div>
-                <span className="max-w-12 truncate text-text-tertiary typo-caption2">
-                  {getShortcutHostname(shortcutUrl)}
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-
       <section
         className={classNames(
           'relative isolate mb-4 w-full overflow-hidden rounded-24',
