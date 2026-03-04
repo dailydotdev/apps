@@ -21,17 +21,20 @@ export const AgentsLeaderboardSection = ({
   loading,
 }: AgentsLeaderboardSectionProps): ReactElement => (
   <section className="w-full">
-    <div className="mb-2 flex items-center gap-3">
-      <h1 className="font-bold tracking-wide text-text-tertiary typo-caption1">
-        Leaderboard
-      </h1>
-      <div className="ml-auto flex items-center gap-3">
+    <div className="mb-1.5 flex items-center gap-2 px-3 laptop:px-4">
+      <h2 className="font-bold text-text-primary typo-callout">Leaderboard</h2>
+      <div className="ml-auto flex items-center gap-2">
         <LiveIndicator />
         <Link href="/agents/arena">
-          <a className="text-text-link typo-callout">View all</a>
+          <a className="text-text-link typo-caption1">View all</a>
         </Link>
       </div>
     </div>
-    <ArenaRankings tools={tools} tab="coding-agents" loading={loading} />
+    <ArenaRankings
+      tools={tools}
+      tab="coding-agents"
+      loading={loading}
+      compact
+    />
   </section>
 );

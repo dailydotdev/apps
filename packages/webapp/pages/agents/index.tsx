@@ -26,15 +26,22 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { sourceQueryOptions } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { KeyIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { AgentsLeaderboardSection } from '../../components/agents/AgentsLeaderboardSection';
 import { AgentsDigestCard } from '../../components/agents/AgentsDigestCard';
 import { AgentsDoomScrollingSection } from '../../components/agents/AgentsDoomScrollingSection';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 
-const AGENTS_TITLE = 'Agents Hub - Arena, Digest & Vibes | daily.dev';
+const AGENTS_TITLE = 'Agentic Hub | daily.dev';
 const AGENTS_DESCRIPTION =
-  'Track the top coding agents live, catch the latest Agents Digest, and follow the Vibes channel feed on daily.dev.';
+  'Stay on top of AI coding with live rankings, momentum shifts, developer sentiment, and the latest news and content to make smarter tool decisions.';
 const AGENTS_DIGEST_QUERY_KEY = generateQueryKey(
   RequestKey.SourceFeed,
   undefined,
@@ -98,26 +105,70 @@ const AgentsHomePage = (): ReactElement => {
   }, [queryClient, user?.id]);
 
   return (
-    <div className="mx-auto flex w-full flex-col gap-6 px-4 pb-8 pt-6 laptop:max-w-[42.5rem] laptop:px-0 laptop:pt-10">
-      <AgentsLeaderboardSection
-        tools={topFiveRankings}
-        loading={isArenaLoading}
-      />
-      <AgentsDigestCard
-        post={digestPost}
-        source={digestSource}
-        onCopyLink={() => {
-          if (!digestPost) {
-            return;
-          }
+    <div className="mx-auto flex w-full max-w-4xl flex-col pb-8 laptop:border-x laptop:border-border-subtlest-tertiary">
+      <header className="w-full border-b border-border-subtlest-tertiary px-3 py-3 laptop:px-4 laptop:py-3">
+        <div className="flex items-start gap-2">
+          <div className="flex min-w-0 flex-1 flex-col">
+            <h1 className="font-bold text-text-primary typo-title3 laptop:typo-title2">
+              Agentic Hub
+            </h1>
+            <p className="text-text-tertiary typo-caption1">
+              Stay on top of AI coding with live rankings, momentum shifts,
+              developer sentiment, and the latest news and content.
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center">
+            <Button
+              tag="a"
+              href="/settings/api"
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              className="laptop:hidden"
+              aria-label="Connect your agent"
+              icon={<KeyIcon size={IconSize.Small} />}
+            />
+            <Button
+              tag="a"
+              href="/settings/api"
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              className="hidden laptop:inline-flex"
+              icon={<KeyIcon size={IconSize.Small} />}
+            >
+              Connect
+            </Button>
+          </div>
+        </div>
+      </header>
+      <div>
+        <section className="pt-3">
+          <AgentsLeaderboardSection
+            tools={topFiveRankings}
+            loading={isArenaLoading}
+          />
+        </section>
+        <section className="px-3 py-3 laptop:px-4">
+          <AgentsDigestCard
+            post={digestPost}
+            source={digestSource}
+            onCopyLink={() => {
+              if (!digestPost) {
+                return;
+              }
 
-          copyLink({ post: digestPost });
-        }}
-      />
-      <AgentsDoomScrollingSection
-        userId={user?.id}
-        tokenRefreshed={tokenRefreshed}
-      />
+              copyLink({ post: digestPost });
+            }}
+          />
+        </section>
+        <section className="border-t border-border-subtlest-tertiary py-3">
+          <AgentsDoomScrollingSection
+            userId={user?.id}
+            tokenRefreshed={tokenRefreshed}
+          />
+        </section>
+      </div>
     </div>
   );
 };

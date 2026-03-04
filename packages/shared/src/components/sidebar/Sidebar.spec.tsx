@@ -131,14 +131,14 @@ it('should show the For You items if the user has filters', async () => {
   expect(section).toBeInTheDocument();
 });
 
-it('should render Agents item linking to settings api', async () => {
+it('should render Agents item linking to agents hub', async () => {
   renderComponent();
   const item = await screen.findByText('Agents');
   expect(item).toBeInTheDocument();
   // eslint-disable-next-line testing-library/no-node-access
   expect(item.closest('a')).toHaveAttribute(
     'href',
-    expect.stringContaining('/settings/api'),
+    expect.stringContaining('/agents'),
   );
 });
 

@@ -173,19 +173,19 @@ export const AgentsDigestCard = ({
   }
 
   return (
-    <section className="w-full rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 laptop:p-6">
-      <div className="mb-4 flex items-start gap-2">
+    <section className="w-full">
+      <div className="mb-2 flex items-start gap-2">
         <div className="flex flex-col">
-          <h2 className="font-bold text-text-primary typo-title3">
-            What&apos;s new?
+          <h2 className="font-bold text-text-primary typo-callout">
+            Today&apos;s Digest
           </h2>
           {digestUpdatedLabel && (
-            <span className="text-text-tertiary typo-footnote">
+            <span className="text-text-tertiary typo-caption1">
               Last updated {digestUpdatedLabel}
             </span>
           )}
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1.5">
           {!!source?.id && <DigestSubscribeButton source={source} />}
           <Tooltip content="Copy link">
             <Button
@@ -198,12 +198,12 @@ export const AgentsDigestCard = ({
             />
           </Tooltip>
           <Link href={post.commentsPermalink}>
-            <a className="text-text-link typo-callout">Read more</a>
+            <a className="text-text-link typo-caption1">Read more</a>
           </Link>
         </div>
       </div>
       {!!digestTldr && (
-        <div className="text-text-secondary typo-body">{digestTldr}</div>
+        <div className="text-text-secondary typo-callout">{digestTldr}</div>
       )}
     </section>
   );

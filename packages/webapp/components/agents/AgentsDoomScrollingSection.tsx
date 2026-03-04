@@ -42,8 +42,8 @@ export const AgentsDoomScrollingSection = ({
   tokenRefreshed,
 }: AgentsDoomScrollingSectionProps): ReactElement => (
   <section className="w-full">
-    <div className="mb-4 flex items-center">
-      <h2 className="font-bold text-text-primary typo-title3">
+    <div className="mb-4 px-3 pb-0 laptop:px-4">
+      <h2 className="font-bold text-text-primary typo-callout">
         Doom scrolling
       </h2>
     </div>
@@ -61,9 +61,15 @@ export const AgentsDoomScrollingSection = ({
           ]}
           query={CHANNEL_FEED_QUERY}
           variables={vibesVariables}
+          disableListFrame
+          disableListWidthConstraint
         />
       ) : (
-        <FeedContainer showSearch={false}>
+        <FeedContainer
+          showSearch={false}
+          disableListFrame
+          disableListWidthConstraint
+        >
           <DoomScrollingSkeleton />
         </FeedContainer>
       )}
