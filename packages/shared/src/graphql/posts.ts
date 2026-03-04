@@ -407,6 +407,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       source {
         ...SourceShortInfo
       }
+      contentHtml
       description
       summary
       toc {
@@ -416,6 +417,19 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       type
       updatedAt
       numCollectionSources
+      collectionSources {
+        handle
+        image
+      }
+      flags {
+        promoteToPublic
+        coverVideo
+        campaignId
+        posts
+        sources
+        savedTime
+        generatedAt
+      }
       slug
       domain
       author {
