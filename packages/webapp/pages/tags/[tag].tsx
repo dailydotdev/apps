@@ -156,7 +156,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
       isLoading={isPending}
       sources={sources}
       title="🔔 Top sources covering it"
-      className="mx-4 laptop:mx-0"
+      className="mx-4"
     />
   );
 };
@@ -235,7 +235,7 @@ const TagPage = ({
     const fallbackTag = typeof query.tag === 'string' ? query.tag : tag;
     return (
       <FeedPageLayoutComponent>
-        <PageInfoHeader className="mx-4 !w-auto laptop:mx-0 laptop:!w-full">
+        <PageInfoHeader className="mx-4 !w-auto">
           <div className="flex items-center font-bold">
             <HashtagIcon size={IconSize.XXLarge} />
             <h1 className="ml-2 w-fit typo-title2">{fallbackTag}</h1>
@@ -279,7 +279,7 @@ const TagPage = ({
 
   return (
     <FeedPageLayoutComponent>
-      <PageInfoHeader className="mx-4 !w-auto laptop:mx-0 laptop:!w-full">
+      <PageInfoHeader className="mx-4 !w-auto">
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 w-fit typo-title2">{title}</h1>
