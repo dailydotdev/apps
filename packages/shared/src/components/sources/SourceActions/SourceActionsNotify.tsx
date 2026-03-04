@@ -27,7 +27,6 @@ const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
         icon={icon}
         onClick={onClick}
         size={ButtonSize.Small}
-        title={label}
         variant={variant}
         disabled={disabled}
       />

@@ -65,6 +65,7 @@ export enum OtherFeedPage {
   Discussed = 'discussed',
   Following = 'following',
   Post = 'posts[id]',
+  AgentsVibes = 'agents-vibes',
 }
 
 const ONE_MINUTE = 60 * 1000;

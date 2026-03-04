@@ -49,8 +49,7 @@ import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
 import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
 import { SignalList } from './cards/common/list/SignalList';
-
-export type FeedListVariant = 'default' | 'signal';
+import { OtherFeedPage } from '../lib/query';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -88,7 +87,6 @@ export type FeedItemComponentProps = {
   ) => unknown;
   virtualizedNumCards: number;
   disableAdRefresh?: boolean;
-  listVariant?: FeedListVariant;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -143,20 +141,21 @@ type GetTagsProps = {
   isListFeedLayout: boolean;
   shouldUseListMode: boolean;
   postType: PostType;
-  listVariant: FeedListVariant;
+  feedName: string;
 };
 
 const getTags = ({
   isListFeedLayout,
   shouldUseListMode,
   postType,
-  listVariant,
+  feedName,
 }: GetTagsProps) => {
   const useListCards = isListFeedLayout || shouldUseListMode;
-  const listPostTag =
-    listVariant === 'signal' ? SignalList : PostTypeToTagList[postType];
-  const listPlaceholderTag =
-    listVariant === 'signal' ? SignalPlaceholderList : PlaceholderList;
+  const isSignalFeed = feedName === OtherFeedPage.AgentsVibes;
+  const listPostTag = isSignalFeed ? SignalList : PostTypeToTagList[postType];
+  const listPlaceholderTag = isSignalFeed
+    ? SignalPlaceholderList
+    : PlaceholderList;
 
   return {
     PostTag: useListCards
@@ -250,7 +249,6 @@ function FeedItemComponent({
   onReadArticleClick,
   virtualizedNumCards,
   disableAdRefresh,
-  listVariant = 'default',
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression(
@@ -279,7 +277,7 @@ function FeedItemComponent({
     postType: getPostTypeForCard(
       isBoostedPostAd(item) ? item.ad.data?.post : (item as PostItem).post,
     ),
-    listVariant,
+    feedName,
   });
 
   const onAdAction = (action: AdActions, ad: Ad) => {

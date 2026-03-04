@@ -33,14 +33,8 @@ export const SignalList = forwardRef(function SignalList(
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const summary = useMemo(() => {
-    const translatedSummary =
-      typeof post.translation?.summary === 'string'
-        ? post.translation.summary
-        : undefined;
-    const value = translatedSummary || post.summary || post.description;
-
-    return value?.trim() || '';
-  }, [post.description, post.summary, post.translation?.summary]);
+    return post.summary?.trim() || post.sharedPost?.summary?.trim() || '';
+  }, [post.sharedPost?.summary, post.summary]);
   const typeLabel = useMemo(() => {
     if (isVideoPost(post)) {
       return 'Video';

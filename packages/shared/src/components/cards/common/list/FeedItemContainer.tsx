@@ -80,7 +80,7 @@ function FeedItemContainer(
         </Link>
       )}
       {(showTypeLabel || showFlag) && (
-        <fieldset className="pointer-events-none absolute inset-0 m-0 min-w-0 border-0 p-0">
+        <fieldset>
           {showTypeLabel && (
             <TypeLabel
               focus={focus}
