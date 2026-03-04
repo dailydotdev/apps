@@ -388,7 +388,9 @@ export async function getServerSideProps({
         handle,
         initialData: squad as Squad,
         referringUser: referringUser || null,
-        ...(squad.public && { jsonLd: getSquadPageJsonLd(squad) }),
+        ...(squad.public && {
+          jsonLd: getSquadPageJsonLd(squad as SquadStaticData),
+        }),
       },
     };
   } catch (err) {
