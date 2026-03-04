@@ -17,6 +17,7 @@ interface ArenaRankingsProps {
   tools: RankedTool[];
   tab: 'coding-agents' | 'llms';
   loading?: boolean;
+  compact?: boolean;
 }
 
 const Placeholder = ({ className }: { className?: string }): ReactElement => (
@@ -80,6 +81,7 @@ const RankingRow = ({
   loading,
   expanded,
   onToggle,
+  compact,
 }: {
   tool: RankedTool;
   rank: number;
@@ -87,6 +89,7 @@ const RankingRow = ({
   loading?: boolean;
   expanded: boolean;
   onToggle: () => void;
+  compact: boolean;
 }): ReactElement => {
   const momentum = getMomentumDisplay(tool.momentum);
 
@@ -94,22 +97,39 @@ const RankingRow = ({
     <div
       className={classNames(
         'group relative border-b border-border-subtlest-tertiary transition-all duration-500 hover:bg-surface-hover',
-        rank <= 3 && 'bg-surface-float',
+        rank <= 3 && !compact && 'bg-surface-float',
       )}
       style={{
         order: rank,
         transition: 'transform 0.5s ease, background-color 0.3s ease',
       }}
     >
-      <div className="flex min-h-[52px] w-full items-center gap-3 py-3 pl-2 pr-4 text-left">
+      <div
+        className={classNames(
+          'flex w-full items-center text-left',
+          compact
+            ? 'min-h-[2.75rem] gap-2 py-2 pl-2 pr-3'
+            : 'min-h-[3.25rem] gap-3 py-3 pl-2 pr-4',
+        )}
+      >
         {/* Rank */}
         <RankBadge
           rank={rank}
-          className="relative flex w-8 shrink-0 items-center justify-center laptop:w-10"
+          className={classNames(
+            'relative flex shrink-0 items-center justify-center',
+            compact ? 'w-7 laptop:w-8' : 'w-8 laptop:w-10',
+          )}
         />
 
         {/* Tool info */}
-        <div className="flex min-w-0 flex-1 items-center gap-2.5 laptop:w-[140px] laptop:flex-none laptop:shrink-0">
+        <div
+          className={classNames(
+            'flex min-w-0 items-center gap-2',
+            compact
+              ? 'flex-1'
+              : 'flex-1 laptop:w-[8.75rem] laptop:flex-none laptop:shrink-0',
+          )}
+        >
           {loading ? (
             <>
               <Placeholder className="h-7 w-7 shrink-0 rounded-8" />
@@ -121,7 +141,10 @@ const RankingRow = ({
                 <img
                   src={tool.entity.logo}
                   alt={tool.entity.name}
-                  className="h-7 w-7 shrink-0 rounded-8 bg-surface-float object-cover"
+                  className={classNames(
+                    'shrink-0 rounded-8 bg-surface-float object-cover',
+                    compact ? 'h-6 w-6' : 'h-7 w-7',
+                  )}
                 />
                 <span className="truncate font-bold text-text-primary typo-callout hover:text-text-link">
                   {tool.entity.name}
@@ -132,7 +155,12 @@ const RankingRow = ({
         </div>
 
         {/* D-Index */}
-        <div className="flex shrink-0 items-center laptop:min-w-[80px]">
+        <div
+          className={classNames(
+            'flex shrink-0 items-center',
+            compact ? 'laptop:min-w-[4.5rem]' : 'laptop:min-w-[5rem]',
+          )}
+        >
           {loading ? (
             <Placeholder className="h-5 w-12" />
           ) : (
@@ -145,7 +173,12 @@ const RankingRow = ({
         </div>
 
         {/* Volume — laptop+ inline */}
-        <div className="hidden min-w-[60px] shrink-0 items-center laptop:flex">
+        <div
+          className={classNames(
+            'hidden shrink-0 items-center laptop:flex',
+            compact ? 'min-w-[3.25rem]' : 'min-w-[3.75rem]',
+          )}
+        >
           {loading ? (
             <Placeholder className="h-4 w-10" />
           ) : (
@@ -156,7 +189,12 @@ const RankingRow = ({
         </div>
 
         {/* Sentiment — tablet+ inline */}
-        <div className="hidden min-w-[100px] shrink-0 items-center tablet:flex laptop:flex">
+        <div
+          className={classNames(
+            'hidden shrink-0 items-center tablet:flex laptop:flex',
+            compact ? 'min-w-[5.25rem]' : 'min-w-[6.25rem]',
+          )}
+        >
           {loading ? (
             <Placeholder className="h-4 w-20" />
           ) : (
@@ -165,7 +203,12 @@ const RankingRow = ({
         </div>
 
         {/* Momentum — laptop+ inline */}
-        <div className="hidden min-w-[80px] shrink-0 items-center laptop:flex">
+        <div
+          className={classNames(
+            'hidden shrink-0 items-center laptop:flex',
+            compact ? 'min-w-[4.5rem]' : 'min-w-[5rem]',
+          )}
+        >
           {loading ? (
             <Placeholder className="h-4 w-14" />
           ) : (
@@ -178,7 +221,12 @@ const RankingRow = ({
         </div>
 
         {/* Sparkline — laptop+ inline */}
-        <div className="ml-auto hidden items-center laptop:flex">
+        <div
+          className={classNames(
+            'hidden items-center laptop:flex',
+            compact ? 'min-w-[4rem] justify-end' : 'ml-auto',
+          )}
+        >
           {loading ? (
             <Placeholder className="h-6 w-16" />
           ) : (
@@ -257,12 +305,19 @@ const EmergingRow = ({
   tool,
   tab,
   loading,
+  compact,
 }: {
   tool: RankedTool;
   tab: 'coding-agents' | 'llms';
   loading?: boolean;
+  compact: boolean;
 }): ReactElement => (
-  <div className="flex items-center gap-2.5 px-4 py-2.5 opacity-50">
+  <div
+    className={classNames(
+      'flex items-center gap-2.5 opacity-50',
+      compact ? 'px-3 py-2' : 'px-4 py-2.5',
+    )}
+  >
     {loading ? (
       <>
         <Placeholder className="h-6 w-6 rounded-8" />
@@ -307,33 +362,84 @@ const HeaderWithTooltip = ({
 
 const PLACEHOLDER_ROW_COUNT = 6;
 
-const PlaceholderRow = ({ rank }: { rank: number }): ReactElement => (
+const PlaceholderRow = ({
+  rank,
+  compact,
+}: {
+  rank: number;
+  compact: boolean;
+}): ReactElement => (
   <div
     className={classNames(
-      'flex min-h-[52px] items-center gap-3 border-b border-border-subtlest-tertiary py-3 pl-2 pr-4',
-      rank <= 3 && 'bg-surface-float',
+      'flex items-center border-b border-border-subtlest-tertiary',
+      compact
+        ? 'min-h-[2.75rem] gap-2 py-2 pl-2 pr-3'
+        : 'min-h-[3.25rem] gap-3 py-3 pl-2 pr-4',
+      rank <= 3 && !compact && 'bg-surface-float',
     )}
   >
-    <div className="flex w-8 shrink-0 items-center justify-center laptop:w-10">
+    <div
+      className={classNames(
+        'flex shrink-0 items-center justify-center',
+        compact ? 'w-7 laptop:w-8' : 'w-8 laptop:w-10',
+      )}
+    >
       <Placeholder className="h-5 w-5" />
     </div>
-    <div className="flex min-w-0 flex-1 items-center gap-2.5 laptop:w-[140px] laptop:flex-none laptop:shrink-0">
-      <Placeholder className="h-7 w-7 shrink-0 rounded-8" />
+    <div
+      className={classNames(
+        'flex min-w-0 items-center gap-2',
+        compact
+          ? 'flex-1'
+          : 'flex-1 laptop:w-[8.75rem] laptop:flex-none laptop:shrink-0',
+      )}
+    >
+      <Placeholder
+        className={classNames(
+          'shrink-0 rounded-8',
+          compact ? 'h-6 w-6' : 'h-7 w-7',
+        )}
+      />
       <Placeholder className="h-4 w-20" />
     </div>
-    <div className="shrink-0 laptop:min-w-[80px]">
+    <div
+      className={classNames(
+        'shrink-0',
+        compact ? 'laptop:min-w-[4.5rem]' : 'laptop:min-w-[5rem]',
+      )}
+    >
       <Placeholder className="h-5 w-12" />
     </div>
-    <div className="hidden min-w-[60px] shrink-0 laptop:block">
+    <div
+      className={classNames(
+        'hidden shrink-0 laptop:block',
+        compact ? 'min-w-[3.25rem]' : 'min-w-[3.75rem]',
+      )}
+    >
       <Placeholder className="h-4 w-10" />
     </div>
-    <div className="hidden min-w-[100px] shrink-0 tablet:block">
+    <div
+      className={classNames(
+        'hidden shrink-0 tablet:block',
+        compact ? 'min-w-[5.25rem]' : 'min-w-[6.25rem]',
+      )}
+    >
       <Placeholder className="h-4 w-20" />
     </div>
-    <div className="hidden min-w-[80px] shrink-0 laptop:block">
+    <div
+      className={classNames(
+        'hidden shrink-0 laptop:block',
+        compact ? 'min-w-[4.5rem]' : 'min-w-[5rem]',
+      )}
+    >
       <Placeholder className="h-4 w-14" />
     </div>
-    <div className="ml-auto hidden laptop:block">
+    <div
+      className={classNames(
+        'hidden laptop:block',
+        compact ? 'min-w-[4rem] text-right' : 'ml-auto',
+      )}
+    >
       <Placeholder className="h-6 w-16" />
     </div>
     <div className="w-4 shrink-0 laptop:hidden" />
@@ -344,6 +450,7 @@ export const ArenaRankings = ({
   tools,
   tab,
   loading,
+  compact = false,
 }: ArenaRankingsProps): ReactElement => {
   const [expandedEntity, setExpandedEntity] = useState<string | null>(null);
   const established = tools.filter((t) => !t.isEmerging);
@@ -351,40 +458,96 @@ export const ArenaRankings = ({
   const showPlaceholderRows = loading && established.length === 0;
 
   return (
-    <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle">
+    <div
+      className={classNames(
+        'overflow-hidden',
+        compact
+          ? 'bg-background-default'
+          : 'rounded-16 border border-border-subtlest-tertiary bg-background-subtle',
+      )}
+    >
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-border-subtlest-tertiary py-2.5 pl-2 pr-4">
-        <span className="w-8 shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:w-10">
+      <div
+        className={classNames(
+          'flex items-center border-b border-border-subtlest-tertiary',
+          compact ? 'gap-2 py-2 pl-2 pr-3' : 'gap-3 py-2.5 pl-2 pr-4',
+        )}
+      >
+        <span
+          className={classNames(
+            'shrink-0 font-bold uppercase tracking-wider typo-caption2',
+            compact ? 'text-text-tertiary' : 'text-text-disabled',
+            compact ? 'w-7 laptop:w-8' : 'w-8 laptop:w-10',
+          )}
+        >
           &nbsp;
         </span>
-        <span className="flex-1 font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:w-[140px] laptop:flex-none laptop:shrink-0">
+        <span
+          className={classNames(
+            'font-bold uppercase tracking-wider typo-caption2',
+            compact
+              ? 'flex-1 text-text-tertiary'
+              : 'flex-1 text-text-disabled laptop:w-[8.75rem] laptop:flex-none laptop:shrink-0',
+          )}
+        >
           Tool
         </span>
-        <span className="shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:min-w-[80px]">
+        <span
+          className={classNames(
+            'shrink-0 font-bold uppercase tracking-wider typo-caption2',
+            compact ? 'text-text-tertiary' : 'text-text-disabled',
+            compact ? 'laptop:min-w-[4.5rem]' : 'laptop:min-w-[5rem]',
+          )}
+        >
           <HeaderWithTooltip
             label="D-Index"
             tooltip="Developer sentiment score combining mention volume and sentiment strength"
           />
         </span>
-        <span className="hidden min-w-[60px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:block">
+        <span
+          className={classNames(
+            'hidden shrink-0 font-bold uppercase tracking-wider typo-caption2 laptop:block',
+            compact ? 'text-text-tertiary' : 'text-text-disabled',
+            compact ? 'min-w-[3.25rem]' : 'min-w-[3.75rem]',
+          )}
+        >
           <HeaderWithTooltip
             label="24h Vol"
             tooltip="Total developer mentions in the last 24 hours"
           />
         </span>
-        <span className="hidden min-w-[100px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 tablet:block">
+        <span
+          className={classNames(
+            'hidden shrink-0 font-bold uppercase tracking-wider typo-caption2 tablet:block',
+            compact ? 'text-text-tertiary' : 'text-text-disabled',
+            compact ? 'min-w-[5.25rem]' : 'min-w-[6.25rem]',
+          )}
+        >
           <HeaderWithTooltip
             label="Sentiment"
             tooltip="How positively developers talk about this tool (0–100)"
           />
         </span>
-        <span className="hidden min-w-[80px] shrink-0 font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:block">
+        <span
+          className={classNames(
+            'hidden shrink-0 font-bold uppercase tracking-wider typo-caption2 laptop:block',
+            compact ? 'text-text-tertiary' : 'text-text-disabled',
+            compact ? 'min-w-[4.5rem]' : 'min-w-[5rem]',
+          )}
+        >
           <HeaderWithTooltip
             label="Momentum"
             tooltip="D-Index change compared to the previous 24-hour window"
           />
         </span>
-        <span className="ml-auto hidden font-bold uppercase tracking-wider text-text-disabled typo-caption2 laptop:block">
+        <span
+          className={classNames(
+            'hidden font-bold uppercase tracking-wider typo-caption2 laptop:block',
+            compact
+              ? 'min-w-[4rem] text-right text-text-tertiary'
+              : 'ml-auto text-text-disabled',
+          )}
+        >
           7d Trend
         </span>
         {/* Spacer for chevron column on mobile */}
@@ -396,7 +559,7 @@ export const ArenaRankings = ({
         {showPlaceholderRows
           ? Array.from({ length: PLACEHOLDER_ROW_COUNT }).map((_, i) => (
               // eslint-disable-next-line react/no-array-index-key
-              <PlaceholderRow key={i} rank={i + 1} />
+              <PlaceholderRow key={i} rank={i + 1} compact={compact} />
             ))
           : established.map((tool, idx) => (
               <RankingRow
@@ -406,6 +569,7 @@ export const ArenaRankings = ({
                 tab={tab}
                 loading={loading}
                 expanded={expandedEntity === tool.entity.entity}
+                compact={compact}
                 onToggle={() =>
                   setExpandedEntity((prev) =>
                     prev === tool.entity.entity ? null : tool.entity.entity,
@@ -429,6 +593,7 @@ export const ArenaRankings = ({
               tool={tool}
               tab={tab}
               loading={loading}
+              compact={compact}
             />
           ))}
         </>
