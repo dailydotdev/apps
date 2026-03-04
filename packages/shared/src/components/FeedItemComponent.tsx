@@ -4,6 +4,7 @@ import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
+import { SignalPlaceholderList } from './cards/placeholder/SignalPlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
@@ -47,6 +48,9 @@ import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
 import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
+import { SignalList } from './cards/common/list/SignalList';
+
+export type FeedListVariant = 'default' | 'signal';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -84,6 +88,7 @@ export type FeedItemComponentProps = {
   ) => unknown;
   virtualizedNumCards: number;
   disableAdRefresh?: boolean;
+  listVariant?: FeedListVariant;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -138,21 +143,28 @@ type GetTagsProps = {
   isListFeedLayout: boolean;
   shouldUseListMode: boolean;
   postType: PostType;
+  listVariant: FeedListVariant;
 };
 
 const getTags = ({
   isListFeedLayout,
   shouldUseListMode,
   postType,
+  listVariant,
 }: GetTagsProps) => {
   const useListCards = isListFeedLayout || shouldUseListMode;
+  const listPostTag =
+    listVariant === 'signal' ? SignalList : PostTypeToTagList[postType];
+  const listPlaceholderTag =
+    listVariant === 'signal' ? SignalPlaceholderList : PlaceholderList;
+
   return {
     PostTag: useListCards
-      ? PostTypeToTagList[postType] ?? ArticleList
+      ? listPostTag ?? ArticleList
       : PostTypeToTagCard[postType] ?? ArticleGrid,
     AdTag: useListCards ? AdList : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
-    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
+    PlaceholderTag: useListCards ? listPlaceholderTag : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
     PlusGridTag: PlusGrid,
     AcquisitionFormTag: useListCards
@@ -238,6 +250,7 @@ function FeedItemComponent({
   onReadArticleClick,
   virtualizedNumCards,
   disableAdRefresh,
+  listVariant = 'default',
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression(
@@ -266,6 +279,7 @@ function FeedItemComponent({
     postType: getPostTypeForCard(
       isBoostedPostAd(item) ? item.ad.data?.post : (item as PostItem).post,
     ),
+    listVariant,
   });
 
   const onAdAction = (action: AdActions, ad: Ad) => {

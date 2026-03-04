@@ -24,6 +24,7 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
+import type { FeedListVariant } from './FeedItemComponent';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
@@ -92,6 +93,7 @@ export interface FeedProps<T>
   pageSize?: number;
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
+  listVariant?: FeedListVariant;
 }
 
 interface RankVariables {
@@ -186,6 +188,7 @@ export default function Feed<T>({
   pageSize,
   isHorizontal = false,
   feedContainerRef,
+  listVariant = 'default',
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -631,6 +634,7 @@ export default function Feed<T>({
                   onReadArticleClick={onReadArticleClick}
                   virtualizedNumCards={virtualizedNumCards}
                   disableAdRefresh={disableAdRefresh}
+                  listVariant={listVariant}
                 />
               </FeedCardContext.Provider>
             ))}

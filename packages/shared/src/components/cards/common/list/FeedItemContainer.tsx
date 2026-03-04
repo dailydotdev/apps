@@ -23,7 +23,9 @@ interface FeedItemContainerProps {
   bookmarked?: boolean;
 }
 
-interface FlagProps extends Pick<Post, 'pinnedAt' | 'trending' | 'type'> {
+interface FlagProps
+  extends Omit<Pick<Post, 'pinnedAt' | 'trending' | 'type'>, 'type'> {
+  type?: Post['type'] | ReactElement | string;
   adAttribution?: ReactElement | string;
 }
 
@@ -78,7 +80,7 @@ function FeedItemContainer(
         </Link>
       )}
       {(showTypeLabel || showFlag) && (
-        <fieldset>
+        <fieldset className="pointer-events-none absolute inset-0 m-0 min-w-0 border-0 p-0">
           {showTypeLabel && (
             <TypeLabel
               focus={focus}
