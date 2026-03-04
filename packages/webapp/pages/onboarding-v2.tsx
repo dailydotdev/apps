@@ -2178,9 +2178,11 @@ const OnboardingV2Page = (): ReactElement => {
         }
         .onb-rising-tag {
           opacity: 0;
-          animation: onb-tag-rise var(--tag-duration, 14s) ease-out infinite;
+          animation: onb-tag-rise var(--tag-duration, 14s) linear infinite;
           animation-delay: var(--tag-delay, 0s);
           contain: layout style;
+          will-change: transform, opacity;
+          transform: translateZ(0);
         }
 
         /* ─── SHIMMER ─── */
@@ -2914,8 +2916,9 @@ const OnboardingV2Page = (): ReactElement => {
           white-space: nowrap;
           pointer-events: none;
           z-index: 1;
-          animation: onb-eng-float-anim 1.8s cubic-bezier(0.16, 1, 0.3, 1)
-            forwards;
+          animation: onb-eng-float-anim 1.8s linear forwards;
+          will-change: transform, opacity;
+          transform: translateZ(0);
         }
         @keyframes onb-eng-float-anim {
           0% {
