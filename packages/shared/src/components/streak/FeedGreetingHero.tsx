@@ -893,7 +893,7 @@ export function FeedGreetingHero(): ReactElement | null {
         <div className="flex flex-col items-center">
           <p
             className={classNames(
-              'relative inline-block font-bold text-text-primary typo-giga3 [font-family:Pacifico,cursive] tablet:typo-giga2',
+              'relative inline-block font-bold text-text-primary typo-mega2 [font-family:Pacifico,cursive] tablet:typo-mega2',
               'transition-opacity duration-[2000ms] ease-in-out',
               isVisible ? 'opacity-100' : 'opacity-0',
             )}
