@@ -32,7 +32,7 @@ export function FeedbackWidget({
       variant={ButtonVariant.Primary}
       size={ButtonSize.Medium}
       icon={<FeedbackIcon />}
-      className={classNames('fixed bottom-4 right-4 z-3 shadow-2', className)}
+      className={classNames('fixed bottom-4 right-4 z-max shadow-2', className)}
       onClick={() => openModal({ type: LazyModal.Feedback })}
       aria-label="Send feedback"
     >
