@@ -69,6 +69,8 @@ const ProfileUpvotedPage = ({
         title: getTemplatedTitle(
           `Posts upvoted by ${user.name} (@${user.username})`,
         ),
+        noindex: true,
+        nofollow: true,
       },
       noindex,
     ),
