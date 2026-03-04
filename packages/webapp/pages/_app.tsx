@@ -54,6 +54,7 @@ import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 import { PixelsProvider } from '../context/PixelsContext';
+import AiVibeEasterEgg from '../components/ai-vibe/AiVibeEasterEgg';
 
 structuredCloneJsonPolyfill();
 
@@ -365,6 +366,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           }}
         />
       )}
+      <AiVibeEasterEgg />
       <div className="award-easter-egg-container" />
     </>
   );
