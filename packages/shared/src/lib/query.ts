@@ -54,6 +54,7 @@ export enum OtherFeedPage {
   SourcePage = 'sources[source]',
   SourceMostUpvoted = 'sources[source]/most-upvoted',
   SourceBestDiscussed = 'sources[source]/best-discussed',
+  TagsTopPosts = 'tags[tag]/top-posts',
   TagsMostUpvoted = 'tags[tag]/most-upvoted',
   TagsBestDiscussed = 'tags[tag]/best-discussed',
   Explore = 'posts',
