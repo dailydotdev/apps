@@ -69,6 +69,8 @@ const ProfilePostsPage = ({
         title: getTemplatedTitle(
           `Recent posts by ${user.name} (@${user.username})`,
         ),
+        noindex: true,
+        nofollow: true,
       },
       noindex,
     ),

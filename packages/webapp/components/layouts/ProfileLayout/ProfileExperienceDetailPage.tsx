@@ -37,6 +37,8 @@ export function ProfileExperienceDetailPage({
       user,
       {
         title: getTemplatedTitle(seoTitle),
+        noindex: true,
+        nofollow: true,
       },
       noindex,
     ),
