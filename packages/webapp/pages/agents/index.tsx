@@ -105,7 +105,7 @@ const AgentsHomePage = (): ReactElement => {
   }, [queryClient, user?.id]);
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col pb-8 laptop:border-x laptop:border-border-subtlest-tertiary">
+    <div className="mx-auto flex w-full max-w-2xl flex-col pb-8 laptop:border-x laptop:border-border-subtlest-tertiary">
       <header className="w-full border-b border-border-subtlest-tertiary px-3 py-3 laptop:px-4 laptop:py-3">
         <div className="flex items-start gap-2">
           <div className="flex min-w-0 flex-1 flex-col">
