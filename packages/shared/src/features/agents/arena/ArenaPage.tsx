@@ -87,10 +87,10 @@ export const ArenaPage = ({
         <div className="animate-float-slow-delayed bg-accent-water-default/[0.06] absolute -bottom-20 left-1/3 h-48 w-48 rounded-full blur-3xl" />
       </div>
 
-      <header className="px-4 pt-6 laptop:px-6 laptop:pt-10 laptopL:px-0">
+      <header className="px-4 pt-3 laptop:px-6 laptopL:px-0">
         <nav
           aria-label="breadcrumbs"
-          className="hidden h-10 items-center gap-0.5 laptop:flex"
+          className="flex h-10 items-center gap-0.5"
         >
           <ol className="flex items-center gap-0.5">
             <li className="flex items-center gap-0.5">
