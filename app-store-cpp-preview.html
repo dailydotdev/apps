@@ -32,40 +32,49 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: #1a0a2e;
-    color: white;
+    background:
+      radial-gradient(900px 420px at -10% -10%, rgba(95,55,233,0.22) 0%, rgba(95,55,233,0) 60%),
+      radial-gradient(860px 360px at 110% 0%, rgba(28,220,230,0.16) 0%, rgba(28,220,230,0) 58%),
+      linear-gradient(180deg, #0B0F14 0%, #0E1217 40%, #0E1217 100%);
+    color: var(--text-primary);
     font-family: 'Inter', -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
   }
 
   .top-bar {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(26,10,46,0.92);
+    background: rgba(14,18,23,0.86);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(206,61,243,0.15);
+    border-bottom: 1px solid rgba(193,201,214,0.16);
     padding: 12px 28px;
     display: flex; align-items: center; justify-content: space-between;
   }
   .top-bar h1 {
     font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 800;
-    background: linear-gradient(135deg, #F8A0FF, #CE3DF3);
+    background: linear-gradient(135deg, #FFFFFF 0%, #C1C9D6 55%, #2CDCE6 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
   .top-bar .controls { display: flex; gap: 4px; }
   .top-bar button {
-    background: rgba(206,61,243,0.08); color: white;
-    border: 1px solid rgba(206,61,243,0.25);
+    background: rgba(255,255,255,0.03); color: var(--text-secondary);
+    border: 1px solid rgba(193,201,214,0.2);
     padding: 7px 14px; border-radius: 8px; font-size: 12px;
     font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer;
     transition: all 0.2s;
   }
-  .top-bar button:hover { border-color: var(--accent-cabbage); }
-  .top-bar button.active { background: var(--accent-cabbage); border-color: var(--accent-cabbage); }
+  .top-bar button:hover { border-color: rgba(193,201,214,0.38); color: white; background: rgba(255,255,255,0.08); }
+  .top-bar button.active {
+    color: white;
+    border-color: rgba(95,55,233,0.5);
+    background: linear-gradient(135deg, rgba(95,55,233,0.55), rgba(49,105,245,0.5));
+  }
 
   .tabs {
     display: flex; gap: 4px; padding: 12px 28px;
-    overflow-x: auto; background: rgba(26,10,46,0.7);
-    border-bottom: 1px solid rgba(206,61,243,0.12);
+    overflow-x: auto; background: rgba(14,18,23,0.75);
+    border-bottom: 1px solid rgba(193,201,214,0.12);
+    backdrop-filter: blur(14px);
   }
   .tab {
     padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 700;
@@ -74,13 +83,28 @@
     display: flex; align-items: center; gap: 6px;
   }
   .tab .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .tab:hover { background: rgba(206,61,243,0.08); }
-  .tab.active { border-color: rgba(206,61,243,0.3); background: rgba(206,61,243,0.12); color: white; }
+  .tab:hover { background: rgba(255,255,255,0.06); color: var(--text-secondary); }
+  .tab.active {
+    border-color: rgba(95,55,233,0.45);
+    background: linear-gradient(135deg, rgba(95,55,233,0.22), rgba(49,105,245,0.18));
+    color: white;
+  }
 
   .cpp-section { display: none; padding: 28px; }
-  .cpp-section.active { display: block; }
+  .cpp-section.active {
+    display: block;
+    max-width: 1700px;
+    margin: 0 auto;
+  }
   .cpp-header { text-align: center; margin-bottom: 24px; }
   .cpp-header h2 { font-family:'Poppins',sans-serif; font-size: 24px; font-weight: 800; }
+  .cpp-header .topic-angle {
+    max-width: 920px;
+    margin: 10px auto 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
   .cpp-header .subtitle { font-size: 13px; color: var(--text-tertiary); margin-top: 2px; }
 
   .screenshots-row {
@@ -88,6 +112,16 @@
     padding: 8px 0 32px; scroll-snap-type: x mandatory;
   }
   .screenshot-slot { flex: 0 0 auto; scroll-snap-align: start; text-align: center; }
+  .screenshot-slot.clickable-screen {
+    cursor: pointer;
+  }
+  .screenshot-slot.clickable-screen .ss-canvas {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .screenshot-slot.clickable-screen:hover .ss-canvas {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  }
   .screenshot-label {
     font-size: 9px; font-weight: 700; text-transform: uppercase;
     letter-spacing: 1.2px; color: var(--text-quaternary); margin-bottom: 10px;
@@ -95,8 +129,10 @@
 
   /* ===== APP STORE SCREENSHOT CANVAS ===== */
   .ss-canvas {
-    width: 280px; height: 607px; border-radius: 12px;
+    width: 280px; height: 607px; border-radius: 0;
     position: relative; overflow: hidden;
+    border: 1px solid rgba(193,201,214,0.18);
+    box-shadow: 0 10px 32px rgba(0,0,0,0.45);
   }
   .ss-bg {
     position: absolute; inset: 0; z-index: 0;
@@ -652,8 +688,20 @@
     padding: 20px 28px 32px;
   }
   .ov-card { text-align: center; }
+  .ov-card {
+    background: rgba(28,31,38,0.45);
+    border: 1px solid rgba(193,201,214,0.12);
+    border-radius: 14px;
+    padding: 10px;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .ov-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(193,201,214,0.28);
+    background: rgba(34,38,45,0.62);
+  }
   .ov-frame {
-    width: 100%; aspect-ratio: 9/19.5; border-radius: 12px;
+    width: 100%; aspect-ratio: 9/19.5; border-radius: 0;
     position: relative; overflow: hidden;
     box-shadow: 0 6px 24px rgba(0,0,0,0.5); margin-bottom: 6px;
   }
@@ -691,22 +739,260 @@
 
   .info-box {
     margin: 0 28px 28px; padding: 16px;
-    background: rgba(206,61,243,0.05);
-    border: 1px solid rgba(206,61,243,0.15); border-radius: 10px;
+    background: rgba(28,31,38,0.68);
+    border: 1px solid rgba(193,201,214,0.16); border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
   }
   .info-box h3 {
     font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700;
-    margin-bottom: 6px; color: #E05CF8;
+    margin-bottom: 6px; color: var(--text-secondary);
   }
   .info-box p { font-size: 12px; color: var(--text-tertiary); line-height: 1.7; }
   .info-box code {
-    background: rgba(206,61,243,0.12); padding: 1px 5px; border-radius: 3px;
-    font-size: 11px; color: #F8A0FF;
+    background: rgba(49,105,245,0.12); padding: 1px 5px; border-radius: 4px;
+    font-size: 11px; color: #9EBEFF;
   }
 
   @media (max-width: 900px) { .ov-grid { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 500px) { .ov-grid { grid-template-columns: repeat(2, 1fr); } }
+  
+  .download-btn {
+    margin-top: 12px;
+    background: rgba(255,255,255,0.04); color: var(--text-primary);
+    border: 1px solid rgba(193,201,214,0.2);
+    padding: 8px 16px; border-radius: 8px; font-size: 13px;
+    font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .download-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(193,201,214,0.4);
+  }
+  .download-btn svg { width: 14px; height: 14px; }
+
+  .editor-shell { padding: 18px 24px 24px; }
+  .editor-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .editor-top-left { display: flex; align-items: center; gap: 10px; }
+  .editor-top h2 { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.1px; }
+  .editor-top-subtitle { font-size: 11px; color: var(--text-quaternary); }
+  .editor-top-right { display: flex; align-items: center; gap: 8px; }
+  .editor-status {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    min-width: 130px;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .editor-status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6C7A96;
+  }
+  .editor-status.saved::before { background: var(--accent-avocado); }
+  .editor-status.dirty::before { background: var(--accent-cheese); }
+  .editor-status.downloading::before { background: var(--accent-blueCheese); }
+
+  .editor-back-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid rgba(255,255,255,0.16);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .editor-back-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.28); }
+
+  .editor-btn {
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .editor-btn-primary {
+    background: var(--accent-cabbage);
+    color: white;
+    border-color: rgba(255,255,255,0.2);
+  }
+  .editor-btn-primary:hover { filter: brightness(1.06); }
+  .editor-btn-secondary {
+    background: transparent;
+    color: white;
+    border-color: rgba(255,255,255,0.2);
+  }
+  .editor-btn-secondary:hover { background: rgba(255,255,255,0.08); }
+  .editor-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: none;
+  }
+
+  .editor-layout {
+    display: grid;
+    grid-template-columns: minmax(360px, 430px) minmax(340px, 1fr);
+    gap: 22px;
+    align-items: start;
+  }
+
+  .editor-form-card,
+  .editor-preview-card {
+    background: rgba(28,31,38,0.78);
+    border: 1px solid rgba(193,201,214,0.14);
+    border-radius: 12px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+  }
+  .editor-form-card { padding: 14px 16px 0; }
+  .editor-form-card h3 { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 2px; }
+  .editor-form-description { font-size: 11px; color: var(--text-quaternary); margin-bottom: 12px; }
+  .editor-fields-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .editor-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .editor-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .editor-field label { font-size: 11px; color: var(--text-tertiary); font-weight: 600; }
+  .editor-count {
+    font-size: 10px;
+    color: var(--text-quaternary);
+    font-variant-numeric: tabular-nums;
+  }
+  .editor-field input,
+  .editor-field textarea {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 8px;
+    background: rgba(7,8,11,0.35);
+    color: white;
+    padding: 9px 11px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .editor-field textarea {
+    min-height: 68px;
+    resize: vertical;
+    line-height: 1.35;
+  }
+  .editor-field input:hover,
+  .editor-field textarea:hover { border-color: rgba(255,255,255,0.28); }
+  .editor-field input:focus,
+  .editor-field textarea:focus {
+    outline: none;
+    border-color: var(--accent-cabbage);
+    box-shadow: 0 0 0 2px rgba(206, 61, 243, 0.2);
+    background: rgba(7,8,11,0.55);
+  }
+  .editor-field small {
+    color: var(--text-quaternary);
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .editor-actions {
+    position: sticky;
+    bottom: 0;
+    margin: 0 -16px;
+    padding: 10px 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    background: rgba(22,26,33,0.92);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .editor-actions-left { display: flex; align-items: center; gap: 8px; }
+  .editor-actions-right { display: flex; align-items: center; gap: 8px; }
+  .editor-hint {
+    font-size: 10px;
+    color: var(--text-quaternary);
+  }
+
+  .editor-preview-card {
+    position: sticky;
+    top: 76px;
+    padding: 12px;
+  }
+  .editor-preview-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .editor-preview-meta { font-size: 11px; color: var(--text-quaternary); }
+  .editor-zoom-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .editor-zoom-control input[type="range"] { width: 96px; }
+  .editor-zoom-value { min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
+  .editor-preview-stage {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 660px;
+    padding: 6px 0 10px;
+    overflow: auto;
+  }
+  .editor-preview-scale {
+    transform-origin: top center;
+    transition: transform 0.2s ease;
+  }
+  .editor-preview-card .screenshot-slot { pointer-events: none; }
+  .editor-preview-card .screenshot-label { color: var(--text-tertiary); }
+
+  @media (max-width: 1120px) {
+    .editor-layout { grid-template-columns: 1fr; }
+    .editor-preview-card { position: static; order: -1; }
+    .editor-preview-stage { min-height: 0; }
+  }
+
+  @media (max-width: 720px) {
+    .editor-shell { padding: 14px 14px 18px; }
+    .editor-top { flex-direction: column; align-items: flex-start; }
+    .editor-top-right { width: 100%; flex-wrap: wrap; }
+    .editor-status { justify-content: flex-start; text-align: left; }
+    .editor-actions { flex-direction: column; align-items: flex-start; }
+    .editor-actions-right { width: 100%; flex-wrap: wrap; }
+  }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -740,6 +1026,55 @@
 <div id="view-dt" style="display:none">
   <div class="tabs" id="cpp-tabs"></div>
   <div id="cpp-sections"></div>
+</div>
+
+<div id="view-editor" style="display:none">
+  <div class="editor-shell">
+    <div class="editor-top">
+      <div class="editor-top-left">
+        <button class="editor-back-btn" onclick="backFromEditor()">← Back to Detailed View</button>
+        <div>
+          <h2 id="editor-page-title">Edit screenshot</h2>
+          <div class="editor-top-subtitle" id="editor-top-subtitle">Screenshot content editor · live preview and fast controls</div>
+        </div>
+      </div>
+      <div class="editor-top-right">
+        <div class="editor-status dirty" id="editor-status">Unsaved changes</div>
+      </div>
+    </div>
+    <div class="editor-layout">
+      <div class="editor-form-card">
+        <h3 id="editor-fields-title">Editable fields</h3>
+        <div class="editor-form-description" id="editor-form-description">Editing updates the preview instantly. Autosave runs after a short pause.</div>
+        <div class="editor-fields-grid" id="editor-fields-grid"></div>
+        <div class="editor-actions">
+          <div class="editor-actions-left">
+            <span class="editor-hint">Tip: press Cmd/Ctrl + S to save</span>
+          </div>
+          <div class="editor-actions-right">
+            <button class="editor-btn editor-btn-secondary" id="editor-reset-btn" onclick="resetCurrentEditorFields()">Reset</button>
+            <button class="editor-btn editor-btn-secondary" id="editor-download-btn" onclick="downloadCurrentEditorImage()">Download</button>
+            <button class="editor-btn editor-btn-primary" id="editor-save-btn" onclick="saveEditorChanges()">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="editor-preview-card">
+        <div class="editor-preview-toolbar">
+          <div class="editor-preview-meta">Preview · 1320×2868 export</div>
+          <div class="editor-zoom-control">
+            <span>Zoom</span>
+            <input id="editor-zoom" type="range" min="70" max="140" step="5" value="100" />
+            <span class="editor-zoom-value" id="editor-zoom-value">100%</span>
+          </div>
+        </div>
+        <div class="editor-preview-stage">
+          <div class="editor-preview-scale" id="editor-preview-scale">
+            <div id="editor-preview"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1055,18 +1390,21 @@ function mkTags(tags) {
 }
 
 function mkMasterFeedScreen(cpp, scr, idx) {
-  const phoneImg = 'cpp-assets/phone-feed-v2.png';
-  const rssImg = 'cpp-assets/3d-rss-v2.png';
-  const hashImg = 'cpp-assets/3d-hashtag-v2.png';
+  const assets = getScreenEditorValues(scr);
+  const titleHtml = assets.feedTitleHtml || 'Learn new<br>things';
+  const subtitleHtml = assets.feedSubtitleHtml || 'anywhere';
+  const phoneImg = assets.feedPhone || 'cpp-assets/phone-feed-v2.png';
+  const rssImg = assets.feedLeftIcon || 'cpp-assets/3d-rss-v2.png';
+  const hashImg = assets.feedRightIcon || 'cpp-assets/3d-hashtag-v2.png';
 
-  return `<div class="screenshot-slot">
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
     <div class="screenshot-label">${idx+1}. ${scr.label}</div>
     <div class="ss-canvas">
       <div class="ss-bg"></div>
       <div class="ss-content">
         <div style="padding:22px 0 0; text-align:center;">
-          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:34px; color:white; line-height:0.96; letter-spacing:-0.5px;">Learn new<br>things</h3>
-          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; color:rgba(255,255,255,0.64); margin-top:11px;">anywhere</div>
+          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:34px; color:white; line-height:0.96; letter-spacing:-0.5px;">${titleHtml}</h3>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; color:rgba(255,255,255,0.64); margin-top:11px;">${subtitleHtml}</div>
         </div>
 
         <img class="figma-3d-icon" src="${rssImg}" style="left:-35px; top:107px; width:109px; height:109px; z-index:2;" alt="" />
@@ -1089,79 +1427,108 @@ function mkMasterFeedScreen(cpp, scr, idx) {
 
 function mkHeroScreen(cpp, scr, idx) {
   const S = 280/720;
-  const laurelImg = 'cpp-assets/hero/laurel.png';
-  const ghLogoSvg = 'cpp-assets/hero/github-logo.svg';
-  const phIconSvg = 'cpp-assets/hero/ph-icon.svg';
+  const assets = getScreenEditorValues(scr);
+  const titleTop = assets.heroTitleTop || '';
+  const titleBold = assets.heroTitleBold || '';
+  const laurelImg = assets.heroLaurel || 'cpp-assets/hero/laurel.png';
+  const ghLogoSvg = assets.heroGithubLogo || 'cpp-assets/hero/github-logo.svg';
+  const phIconSvg = assets.heroProductHuntIcon || 'cpp-assets/hero/ph-icon.svg';
+  const ddLogoIcon = assets.heroDailyLogoIcon || 'cpp-assets/hero/dd-logo-icon.svg';
+  const ddLogoText = assets.heroDailyLogoText || 'cpp-assets/hero/dd-logo-text.svg';
   const uid = cpp.id || 'default';
   const starSvg = `<svg viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M36.47 2.1C36.71 1.7 37.3 1.7 37.54 2.1L48.38 20.11C48.64 20.54 49.07 20.86 49.56 20.97L70.04 25.71C70.5 25.82 70.68 26.37 70.37 26.73L56.59 42.6C56.26 42.99 56.1 43.49 56.14 43.99L57.96 64.93C58 65.4 57.52 65.74 57.09 65.56L37.74 57.36C37.27 57.16 36.74 57.16 36.28 57.36L16.92 65.56C16.49 65.74 16.02 65.4 16.06 64.93L17.87 43.99C17.92 43.49 17.75 42.99 17.42 42.6L3.64 26.73C3.34 26.37 3.52 25.82 3.98 25.71L24.45 20.97C24.95 20.86 25.37 20.54 25.63 20.11L36.47 2.1Z" fill="url(#sg-${uid})" stroke="url(#sr-${uid})" stroke-width="1.25"/><defs><linearGradient id="sg-${uid}" x1="37" y1="0" x2="37" y2="74" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8E3B"/><stop offset="1" stop-color="#FFDF00"/></linearGradient><radialGradient id="sr-${uid}" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(47 17) rotate(87) scale(32)"><stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></radialGradient></defs></svg>`;
   const starSize = Math.round(74*S);
+  
+  const accent = cpp.accent || '#CE3DF3';
+  const glow = cpp.id !== 'master' ? `<div style="position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); width:200%; height:100%; background:radial-gradient(ellipse at center, ${accent}40 0%, transparent 60%); z-index:0; mix-blend-mode:screen; pointer-events:none;"></div>` : '';
+  const floats = (scr.heroFloats || []).map(f => `<div style="position:absolute; top:${f.top}; left:${f.left||'auto'}; right:${f.right||'auto'}; font-size:${Math.round((f.size||80)*S)}px; transform:rotate(${f.rot||'0deg'}); z-index:2; filter:drop-shadow(0 ${Math.round(20*S)}px ${Math.round(20*S)}px rgba(0,0,0,0.5));">${f.icon}</div>`).join('');
 
-  return `<div class="screenshot-slot">
+  const defaultB1Icon = `<img src="${ghLogoSvg}" style="width:${Math.round(55*S)}px; height:${Math.round(60*S)}px;" alt="" />`;
+  const customHeroImageUrl = assets.heroBadge1Icon || scr.heroImageUrl || '';
+  const customHeroImage = customHeroImageUrl.trim()
+    ? `<img src="${customHeroImageUrl.trim()}" style="width:${Math.round(85*S)}px; height:${Math.round(85*S)}px; object-fit:contain;" alt="" />`
+    : null;
+  const b1 = {
+    iconHtml: defaultB1Icon,
+    val: assets.heroBadge1Value || '19K+',
+    label: assets.heroBadge1Label || 'GitHub Stars',
+    sub: assets.heroBadge1Sub || 'dailydotdev/daily',
+  };
+  const b1IconHtml = customHeroImage || b1.iconHtml || defaultB1Icon;
+  const b2 = {
+    iconHtml: `<img src="${phIconSvg}" style="width:100%; height:100%;" alt="" />`,
+    val: assets.heroBadge2Value || 'Product of<br>the Year',
+    sub: assets.heroBadge2Sub || 'Community & Social',
+  };
+  const reviewsText = assets.heroReviewsText || '2,500+ Reviews';
+
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
     <div class="screenshot-label">${idx+1}. ${scr.label}</div>
     <div class="ss-canvas">
       <div class="ss-bg"></div>
+      ${glow}
       <div class="ss-content" style="position:relative; overflow:hidden; text-align:left;">
 
+        ${floats}
+
         <!-- Top-right laurel wreath -->
-        <div style="position:absolute; left:${Math.round(168*S)}px; top:${Math.round(-133*S)}px; width:${Math.round(831*S)}px; height:${Math.round(831*S)}px; z-index:1; display:flex; align-items:center; justify-content:center;">
+        <div style="position:absolute; left:${Math.round(168*S)}px; top:${Math.round(-133*S)}px; width:${Math.round(831*S)}px; height:${Math.round(831*S)}px; z-index:1; display:flex; align-items:center; justify-content:center; opacity:0.8;">
           <div style="width:${Math.round(595*S)}px; height:${Math.round(595*S)}px; flex-shrink:0; transform:rotate(-36.08deg);">
-            <img src="${laurelImg}" style="width:100%;height:100%;object-fit:contain;" alt="" />
+            <img src="${laurelImg}" style="width:100%;height:100%;object-fit:contain; filter:${cpp.id!=='master' ? `drop-shadow(0 0 20px ${accent}40)` : 'none'};" alt="" />
           </div>
         </div>
 
         <!-- Bottom laurel wreath -->
-        <div style="position:absolute; left:${Math.round(-389*S)}px; top:${Math.round(754*S)}px; width:${Math.round(1179*S)}px; height:${Math.round(939*S)}px; z-index:1; display:flex; align-items:center; justify-content:center;">
+        <div style="position:absolute; left:${Math.round(-389*S)}px; top:${Math.round(754*S)}px; width:${Math.round(1179*S)}px; height:${Math.round(939*S)}px; z-index:1; display:flex; align-items:center; justify-content:center; opacity:0.8;">
           <div style="width:${Math.round(878*S)}px; height:${Math.round(683*S)}px; flex-shrink:0; transform:rotate(154.76deg) scaleY(-1) skewX(9.03deg);">
-            <img src="${laurelImg}" style="width:100%;height:100%;object-fit:contain;" alt="" />
+            <img src="${laurelImg}" style="width:100%;height:100%;object-fit:contain; filter:${cpp.id!=='master' ? `drop-shadow(0 0 20px ${accent}40)` : 'none'};" alt="" />
           </div>
         </div>
 
         <!-- daily.dev logo (original from Figma) -->
         <div style="position:absolute; left:${Math.round(64*S)}px; top:${Math.round(104*S)}px; width:${Math.round(319*S)}px; height:${Math.round(56*S)}px; z-index:5;">
-          <img src="cpp-assets/hero/dd-logo-icon.svg" style="position:absolute; left:0; top:0; width:${Math.round(100*S)}px; height:${Math.round(56*S)}px;" alt="" />
-          <img src="cpp-assets/hero/dd-logo-text.svg" style="position:absolute; left:${Math.round(119*S)}px; top:${Math.round(3*S)}px; width:${Math.round(200*S)}px; height:${Math.round(50*S)}px;" alt="" />
+          <img src="${ddLogoIcon}" style="position:absolute; left:0; top:0; width:${Math.round(100*S)}px; height:${Math.round(56*S)}px;" alt="" />
+          <img src="${ddLogoText}" style="position:absolute; left:${Math.round(119*S)}px; top:${Math.round(3*S)}px; width:${Math.round(200*S)}px; height:${Math.round(50*S)}px;" alt="" />
         </div>
 
-        <!-- Title: "The world's best dev app for" -->
+        <!-- Title -->
         <div style="position:absolute; left:${Math.round(64*S)}px; top:${Math.round(224*S)}px; z-index:5; text-align:left;">
-          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(56*S)}px; color:rgba(255,255,255,0.64); line-height:1.12; width:${Math.round(513*S)}px;">${scr.hl}</div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(56*S)}px; color:rgba(255,255,255,0.75); line-height:1.12; width:${Math.round(580*S)}px;">${titleTop}</div>
         </div>
-
-        <!-- Title: "staying up to date" -->
-        <div style="position:absolute; left:${Math.round(64*S)}px; top:${Math.round(363*S)}px; z-index:5; text-align:left;">
-          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(88*S)}px; color:white; line-height:1.12; letter-spacing:-0.5px; width:${Math.round(477*S)}px;">${scr.sub||''}</h3>
+        <div style="position:absolute; left:${Math.round(64*S)}px; top:${Math.round(340*S)}px; z-index:5; text-align:left;">
+          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(80*S)}px; color:white; line-height:1.05; letter-spacing:-0.5px; width:${Math.round(580*S)}px;">${titleBold}</h3>
         </div>
 
         <!-- Badges row -->
         <div style="position:absolute; left:${Math.round(67*S)}px; top:${Math.round(664*S)}px; display:flex; gap:${Math.round(55*S)}px; z-index:5;">
 
-          <!-- GitHub Stars Badge -->
+          <!-- Badge 1 -->
           <div style="position:relative; width:${Math.round(266*S)}px; height:${Math.round(266*S)}px;">
-            <div style="position:absolute; left:50%; top:50%; width:${Math.round(186*S)}px; height:${Math.round(186*S)}px; transform:translate(-50%,-50%) rotate(-6.51deg); background:#6f1978; filter:blur(${Math.round(22*S)}px); border-radius:${Math.round(20*S)}px;"></div>
-            <div style="position:absolute; left:50%; top:50%; width:${Math.round(240*S)}px; height:${Math.round(240*S)}px; transform:translate(-50%,-50%) rotate(-6.51deg); background:black; border-radius:${Math.round(44*S)}px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:${Math.round(6*S)}px; padding:${Math.round(16*S)}px; text-align:center;">
+            <div style="position:absolute; left:50%; top:50%; width:${Math.round(186*S)}px; height:${Math.round(186*S)}px; transform:translate(-50%,-50%) rotate(-6.51deg); background:${cpp.id==='master'?'#6f1978':accent}; filter:blur(${Math.round(22*S)}px); border-radius:${Math.round(20*S)}px; opacity:0.8;"></div>
+            <div style="position:absolute; left:50%; top:50%; width:${Math.round(240*S)}px; height:${Math.round(240*S)}px; transform:translate(-50%,-50%) rotate(-6.51deg); background:black; border-radius:${Math.round(44*S)}px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:${Math.round(6*S)}px; padding:${Math.round(16*S)}px; text-align:center; border:2px solid rgba(255,255,255,0.1);">
               <div style="width:${Math.round(85*S)}px; height:${Math.round(85*S)}px; display:flex; align-items:center; justify-content:center;">
-                <img src="${ghLogoSvg}" style="width:${Math.round(55*S)}px; height:${Math.round(60*S)}px;" alt="" />
+                ${b1IconHtml}
               </div>
               <div style="color:white;">
                 <div style="display:flex; align-items:center; justify-content:center; gap:${Math.round(4*S)}px;">
-                  <span style="font-family:'Roboto',sans-serif; font-weight:700; font-size:${Math.round(28*S)}px; line-height:1.2;">19K+</span>
-                  <span style="font-family:'Roboto',sans-serif; font-weight:400; font-size:${Math.round(20*S)}px; line-height:1.3;">GitHub Stars</span>
+                  <span style="font-family:'Roboto',sans-serif; font-weight:700; font-size:${Math.round(28*S)}px; line-height:1.2;">${b1.val}</span>
+                  ${b1.label ? `<span style="font-family:'Roboto',sans-serif; font-weight:400; font-size:${Math.round(20*S)}px; line-height:1.3; white-space:nowrap;">${b1.label}</span>` : ''}
                 </div>
-                <div style="font-family:'Roboto',sans-serif; font-weight:400; font-size:${Math.round(20*S)}px; color:rgba(168,179,207,1); margin-top:${Math.round(4*S)}px;">dailydotdev/daily</div>
+                <div style="font-family:'Roboto',sans-serif; font-weight:400; font-size:${Math.round(20*S)}px; color:rgba(168,179,207,1); margin-top:${Math.round(4*S)}px; white-space:nowrap;">${b1.sub}</div>
               </div>
             </div>
           </div>
 
-          <!-- Product of the Year Badge -->
+          <!-- Badge 2 -->
           <div style="position:relative; width:${Math.round(266*S)}px; height:${Math.round(266*S)}px;">
-            <div style="position:absolute; left:50%; top:50%; width:${Math.round(186*S)}px; height:${Math.round(186*S)}px; transform:translate(-50%,-50%) rotate(6deg); background:#7b2aa4; filter:blur(${Math.round(22*S)}px); border-radius:${Math.round(20*S)}px;"></div>
-            <div style="position:absolute; left:50%; top:50%; width:${Math.round(240*S)}px; height:${Math.round(240*S)}px; transform:translate(-50%,-50%) rotate(6deg); border:1px solid white; border-radius:${Math.round(44*S)}px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:${Math.round(6*S)}px; padding:${Math.round(16*S)}px; text-align:center; background:radial-gradient(circle at center, #FFDF00 0%, #FFCB0F 25%, #FFB61E 50%, #FF8E3B 100%);">
-              <div style="width:${Math.round(60*S)}px; height:${Math.round(60*S)}px;">
-                <img src="${phIconSvg}" style="width:100%; height:100%;" alt="" />
+            <div style="position:absolute; left:50%; top:50%; width:${Math.round(186*S)}px; height:${Math.round(186*S)}px; transform:translate(-50%,-50%) rotate(6deg); background:${cpp.id==='master'?'#7b2aa4':accent}; filter:blur(${Math.round(22*S)}px); border-radius:${Math.round(20*S)}px; opacity:0.8;"></div>
+            <div style="position:absolute; left:50%; top:50%; width:${Math.round(240*S)}px; height:${Math.round(240*S)}px; transform:translate(-50%,-50%) rotate(6deg); border:1px solid rgba(255,255,255,0.8); border-radius:${Math.round(44*S)}px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:${Math.round(6*S)}px; padding:${Math.round(16*S)}px; text-align:center; background:radial-gradient(circle at center, #FFDF00 0%, #FFCB0F 25%, #FFB61E 50%, #FF8E3B 100%);">
+              <div style="width:${Math.round(60*S)}px; height:${Math.round(60*S)}px; display:flex; align-items:center; justify-content:center;">
+                ${b2.iconHtml}
               </div>
               <div style="color:black;">
-                <div style="font-family:'Roboto',sans-serif; font-weight:700; font-size:${Math.round(28*S)}px; line-height:1.1;">Product of<br>the Year</div>
-                <div style="font-family:'Roboto',sans-serif; font-weight:500; font-size:${Math.round(20*S)}px; margin-top:${Math.round(4*S)}px;">Community &amp; Social</div>
+                <div style="font-family:'Roboto',sans-serif; font-weight:800; font-size:${Math.round(28*S)}px; line-height:1.1;">${b2.val}</div>
+                <div style="font-family:'Roboto',sans-serif; font-weight:600; font-size:${Math.round(18*S)}px; margin-top:${Math.round(4*S)}px; color:rgba(0,0,0,0.7);">${b2.sub}</div>
               </div>
             </div>
           </div>
@@ -1178,9 +1545,9 @@ function mkHeroScreen(cpp, scr, idx) {
           </div>
         </div>
 
-        <!-- 2,500+ Reviews -->
+        <!-- Reviews Text -->
         <div style="position:absolute; left:50%; transform:translateX(-50%); top:${Math.round(1126*S)}px; z-index:5; white-space:nowrap; text-align:center;">
-          <span style="font-family:'Inter','Roboto',sans-serif; font-weight:700; font-size:${Math.round(52*S)}px; color:white;">2,500+ Reviews</span>
+          <span style="font-family:'Inter','Roboto',sans-serif; font-weight:700; font-size:${Math.round(52*S)}px; color:white;">${reviewsText}</span>
         </div>
 
       </div>
@@ -1191,26 +1558,30 @@ function mkHeroScreen(cpp, scr, idx) {
 }
 
 function mkPersonalizedScreen(cpp, scr, idx) {
+  const assets = getScreenEditorValues(scr);
+  const titleHtml = assets.personalizedTitleHtml || 'Personalized';
+  const subtitleHtml = assets.personalizedSubtitleHtml || 'for you';
+  const quoteHtml = assets.personalizedQuoteHtml || '"Must have app for devs" <span style="color:rgba(255,255,255,0.64);">James Barish</span>';
   const A = {
-    group7671: 'https://www.figma.com/api/mcp/asset/b0491ed8-49be-4b49-a7cf-14c94ffa38b9',
-    ellipse28: 'https://www.figma.com/api/mcp/asset/4f5178bd-c616-41ad-a236-4a4ad1cd3587',
-    frame64: 'https://www.figma.com/api/mcp/asset/988691ba-1923-416d-a629-9e7b4b1844fe',
-    frame65: 'https://www.figma.com/api/mcp/asset/43d63eeb-0e67-48d6-ae6e-dc668a8c98a5',
-    image2: 'https://www.figma.com/api/mcp/asset/1f5c599c-6bcd-4c31-b052-760125d3a752',
-    group43: 'https://www.figma.com/api/mcp/asset/af0d6e28-d4c8-4b9a-9b13-7eb77a5f876f',
-    ellipse29: 'https://www.figma.com/api/mcp/asset/b88e8fe5-aa6f-4551-8f86-394b0333aa0a',
+    group7671: assets.personalizedGroup7671 || 'https://www.figma.com/api/mcp/asset/b0491ed8-49be-4b49-a7cf-14c94ffa38b9',
+    ellipse28: assets.personalizedEllipse28 || 'https://www.figma.com/api/mcp/asset/4f5178bd-c616-41ad-a236-4a4ad1cd3587',
+    frame64: assets.personalizedFrame64 || 'https://www.figma.com/api/mcp/asset/988691ba-1923-416d-a629-9e7b4b1844fe',
+    frame65: assets.personalizedFrame65 || 'https://www.figma.com/api/mcp/asset/43d63eeb-0e67-48d6-ae6e-dc668a8c98a5',
+    image2: assets.personalizedImage2 || 'https://www.figma.com/api/mcp/asset/1f5c599c-6bcd-4c31-b052-760125d3a752',
+    group43: assets.personalizedGroup43 || 'https://www.figma.com/api/mcp/asset/af0d6e28-d4c8-4b9a-9b13-7eb77a5f876f',
+    ellipse29: assets.personalizedEllipse29 || 'https://www.figma.com/api/mcp/asset/b88e8fe5-aa6f-4551-8f86-394b0333aa0a',
     frame34: 'https://www.figma.com/api/mcp/asset/e3ced7af-4716-4f43-841e-01799c03d392',
-    ellipse3: 'https://www.figma.com/api/mcp/asset/2ebf60ad-ab79-4a3e-a8e7-00ea85f3895b',
-    ellipse23: 'https://www.figma.com/api/mcp/asset/657c1c78-404a-465f-a195-fbbfd7ca73c8',
-    frame35: 'https://www.figma.com/api/mcp/asset/a9b883a2-6bcb-4621-9107-f1c9b08890ef',
-    phone: 'https://www.figma.com/api/mcp/asset/b2d5842b-d785-424b-bc03-d8fe89a46872',
-    stars: 'https://www.figma.com/api/mcp/asset/07045398-fe66-4cd1-a1e3-76b9f1517dcf',
+    ellipse3: assets.personalizedEllipse3 || 'https://www.figma.com/api/mcp/asset/2ebf60ad-ab79-4a3e-a8e7-00ea85f3895b',
+    ellipse23: assets.personalizedEllipse23 || 'https://www.figma.com/api/mcp/asset/657c1c78-404a-465f-a195-fbbfd7ca73c8',
+    frame35: assets.personalizedFrame35 || 'https://www.figma.com/api/mcp/asset/a9b883a2-6bcb-4621-9107-f1c9b08890ef',
+    phone: assets.personalizedPhone || 'https://www.figma.com/api/mcp/asset/b2d5842b-d785-424b-bc03-d8fe89a46872',
+    stars: assets.personalizedStars || 'https://www.figma.com/api/mcp/asset/07045398-fe66-4cd1-a1e3-76b9f1517dcf',
     starDeco: 'https://www.figma.com/api/mcp/asset/e278eeb5-b59d-41d4-b70e-a71d63453c9e',
   };
   const sc = v => Math.round(v * 280 / 720);
   const starSvg = '<svg viewBox="0 0 80 80"><defs><linearGradient id="sg" x1="40" y1="0" x2="40" y2="80" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#FFE34D"/><stop offset="50%" stop-color="#FFD700"/><stop offset="100%" stop-color="#E5A800"/></linearGradient></defs><polygon points="40,2 50.8,27 79,27 56,45 64,74 40,56 16,74 24,45 1,27 29.2,27" fill="url(#sg)" stroke="#D4960A" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 
-  return `<div class="screenshot-slot">
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
     <div class="screenshot-label">${idx+1}. ${scr.label}</div>
     <div class="ss-canvas" style="position:relative; overflow:hidden;">
       <div class="ss-bg"></div>
@@ -1218,8 +1589,8 @@ function mkPersonalizedScreen(cpp, scr, idx) {
       <!-- Headline: "Personalized" + "for you" -->
       <div style="position:absolute; left:${sc(48)}px; top:${sc(104)}px; z-index:10;">
         <div style="position:relative; width:${sc(625)}px; text-align:center;">
-          <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${sc(88)}px; color:white; line-height:1.12;">Personalized</div>
-          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${sc(56)}px; color:rgba(255,255,255,0.64); line-height:1; position:absolute; left:${sc(109)}px; top:${sc(99)}px; width:${sc(406)}px; text-align:center;">for you</div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${sc(88)}px; color:white; line-height:1.12;">${titleHtml}</div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${sc(56)}px; color:rgba(255,255,255,0.64); line-height:1; position:absolute; left:${sc(109)}px; top:${sc(99)}px; width:${sc(406)}px; text-align:center;">${subtitleHtml}</div>
         </div>
       </div>
 
@@ -1233,10 +1604,7 @@ function mkPersonalizedScreen(cpp, scr, idx) {
       </div>
 
       <!-- Quote -->
-      <div style="position:absolute; top:${sc(399)}px; left:0; right:0; z-index:10; text-align:center; font-family:'Poppins',sans-serif;">
-        <span style="font-size:${sc(32)}px; font-weight:500; color:white; line-height:1.15;">&ldquo;Must have app for devs&rdquo; </span>
-        <span style="font-size:${sc(24)}px; font-weight:500; color:rgba(255,255,255,0.64);">James Barish</span>
-      </div>
+      <div style="position:absolute; top:${sc(399)}px; left:0; right:0; z-index:10; text-align:center; font-family:'Poppins',sans-serif; font-size:${sc(30)}px; font-weight:500; color:white; line-height:1.2;">${quoteHtml}</div>
 
       <!-- Blur shadows behind floating logos -->
       <div style="position:absolute; left:${sc(398)}px; top:${sc(844)}px; width:${sc(144)}px; height:${sc(134)}px; background:rgba(0,0,0,0.2); filter:blur(${sc(27.5)}px); border-radius:${sc(104)}px; z-index:1;"></div>
@@ -1307,21 +1675,24 @@ function mkPersonalizedScreen(cpp, scr, idx) {
 }
 
 function mkMasterDiscussScreen(cpp, scr, idx) {
-  const phoneImg = 'cpp-assets/tab3/phone.png';
-  const chatImg = 'cpp-assets/tab3/3d-chat.png';
-  const upvoteImg = 'cpp-assets/tab3/3d-upvote.png';
-  const girlImg = 'cpp-assets/tab3/3d-share.png';
-  const avatarFrame1 = 'cpp-assets/tab3/avatar-frame-1.png';
-  const avatarFrame3 = 'cpp-assets/tab3/avatar-frame-3.png';
+  const assets = getScreenEditorValues(scr);
+  const titleHtml = assets.discussTitleHtml || 'Discuss';
+  const subtitleHtml = assets.discussSubtitleHtml || 'with a global<br>dev community';
+  const phoneImg = assets.discussPhone || 'cpp-assets/tab3/phone.png';
+  const chatImg = assets.discussChat || 'cpp-assets/tab3/3d-chat.png';
+  const upvoteImg = assets.discussUpvote || 'cpp-assets/tab3/3d-upvote.png';
+  const girlImg = assets.discussShare || 'cpp-assets/tab3/3d-share.png';
+  const avatarFrame1 = assets.discussAvatarTop || 'cpp-assets/tab3/avatar-frame-1.png';
+  const avatarFrame3 = assets.discussAvatarBottom || 'cpp-assets/tab3/avatar-frame-3.png';
 
-  return `<div class="screenshot-slot">
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
     <div class="screenshot-label">${idx+1}. ${scr.label}</div>
     <div class="ss-canvas">
       <div class="ss-bg"></div>
       <div class="ss-content" style="position:relative; overflow:hidden;">
         <div style="padding:40px 0 0 25px; text-align:left; position:relative; z-index:7;">
-          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:34px; color:white; line-height:1.12; letter-spacing:-0.5px;">Discuss</h3>
-          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; color:rgba(255,255,255,0.64); margin-top:10px; width:180px; line-height:1.12;">with a global<br>dev community</div>
+          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:34px; color:white; line-height:1.12; letter-spacing:-0.5px;">${titleHtml}</h3>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; color:rgba(255,255,255,0.64); margin-top:10px; width:180px; line-height:1.12;">${subtitleHtml}</div>
         </div>
 
         <!-- Top-right: girl avatar -->
@@ -1357,13 +1728,16 @@ function mkMasterDiscussScreen(cpp, scr, idx) {
 }
 
 function mkMasterSearchScreen(cpp, scr, idx) {
-  const phoneImg = 'cpp-assets/tab4/phone.png';
-  const leftImg = 'cpp-assets/tab4/3d-search-left.png';
-  const rightImg = 'cpp-assets/tab4/3d-search-right.png';
-  const searchIcon = 'cpp-assets/tab4/search-icon.svg';
+  const assets = getScreenEditorValues(scr);
+  const topLineHtml = assets.searchTopLineHtml || 'Explore a world of';
+  const mainTitleHtml = assets.searchMainTitleHtml || 'developer<br>resources';
+  const queryText = assets.searchQueryText || 'How to be a great developer?';
+  const phoneImg = assets.searchPhone || 'cpp-assets/tab4/phone.png';
+  const leftImg = assets.searchLeft || 'cpp-assets/tab4/3d-search-left.png';
+  const rightImg = assets.searchRight || 'cpp-assets/tab4/3d-search-right.png';
   const S = 280/720;
 
-  return `<div class="screenshot-slot">
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
     <div class="screenshot-label">${idx+1}. ${scr.label}</div>
     <div class="ss-canvas">
       <div class="ss-bg"></div>
@@ -1371,10 +1745,10 @@ function mkMasterSearchScreen(cpp, scr, idx) {
 
         <!-- Headline: "Explore a world of" + "developer resources" -->
         <div style="position:absolute; left:50%; transform:translateX(-50%); top:${Math.round(104*S)}px; width:${Math.round(626*S)}px; text-align:center; z-index:7;">
-          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(56*S)}px; color:rgba(255,255,255,0.64); line-height:1.12;">Explore a world of</div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(56*S)}px; color:rgba(255,255,255,0.64); line-height:1.12;">${topLineHtml}</div>
         </div>
         <div style="position:absolute; left:50%; transform:translateX(-50%); top:${Math.round(172*S)}px; width:${Math.round(520*S)}px; text-align:center; z-index:7;">
-          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(88*S)}px; color:white; line-height:1.12; letter-spacing:-0.5px;">developer<br>resources</h3>
+          <h3 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(88*S)}px; color:white; line-height:1.12; letter-spacing:-0.5px;">${mainTitleHtml}</h3>
         </div>
 
         <!-- Left 3D icon: shadow + image -->
@@ -1388,7 +1762,7 @@ function mkMasterSearchScreen(cpp, scr, idx) {
         <!-- Search bar (pill-shaped, dark bg, light border) -->
         <div style="position:absolute; left:50%; transform:translate(-50%,-50%); top:${Math.round(509*S)}px; width:${Math.round(500*S)}px; height:${Math.round(110*S)}px; background:#0e1217; border:${Math.round(10*S)}px solid rgba(255,255,255,0.64); border-radius:${Math.round(55*S)}px; display:flex; align-items:center; padding:0 ${Math.round(28*S)}px; gap:${Math.round(8*S)}px; z-index:6; backdrop-filter:blur(${Math.round(47*S)}px);">
           <svg viewBox="0 0 35 35" fill="white" style="width:${Math.round(46*S)}px; height:${Math.round(46*S)}px; flex-shrink:0;"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.44 0.666C15.625 0.666 17.688 1.178 19.512 2.085C19.024 2.972 18.093 3.552 17.049 3.596L15.381 3.665C14.752 3.551 14.103 3.491 13.44 3.491C7.608 3.491 2.88 8.127 2.88 13.847C2.88 19.427 7.38 23.977 13.015 24.195L13.44 24.204L13.865 24.195C19.5 23.977 24 19.427 24 13.847L23.994 13.597L24.152 13.184C24.535 12.179 25.45 11.47 26.52 11.328L26.633 11.318C26.795 12.137 26.88 12.982 26.88 13.847C26.88 16.242 26.229 18.488 25.09 20.423C26.497 20.306 27.941 20.727 29.077 21.685L29.379 21.96L32.972 25.484C35.089 27.56 35.089 30.927 32.972 33.003C30.943 34.993 27.707 35.076 25.577 33.252L25.306 33.003L21.712 29.479C20.538 28.327 20.015 26.777 20.144 25.272C18.172 26.389 15.882 27.028 13.44 27.028C6.017 27.028 0 21.127 0 13.847C0 6.567 6.017 0.666 13.44 0.666ZM23.749 23.957C22.823 24.866 22.761 26.301 23.564 27.279L23.749 27.481L27.342 31.006C27.805 31.46 28.403 31.702 29.009 31.732H29.269L29.528 31.706C30.043 31.629 30.539 31.395 30.936 31.006C31.862 30.097 31.924 28.662 31.121 27.684L30.936 27.481L27.342 23.957C26.35 22.984 24.741 22.984 23.749 23.957ZM23.846 0.808L23.932 2.754C24.016 4.672 25.262 6.354 27.096 7.025L28.957 7.706C29.835 8.028 29.63 9.3 28.693 9.339L26.708 9.423C26.512 9.431 26.317 9.451 26.126 9.482L26.029 9.499C25.876 9.526 25.725 9.561 25.576 9.603L25.294 9.691L24.948 9.826L24.625 9.981L24.409 10.101L24.138 10.273L23.823 10.506L23.762 10.557C23.141 11.074 22.65 11.746 22.353 12.526L21.659 14.351C21.528 14.696 21.242 14.87 20.943 14.897L20.793 14.898L20.645 14.875C20.305 14.794 20.013 14.521 19.994 14.093L19.908 12.146C19.824 10.229 18.578 8.546 16.744 7.875L14.883 7.194C14.005 6.873 14.21 5.601 15.147 5.561L17.132 5.478C17.707 5.453 18.261 5.33 18.775 5.123L18.983 5.03C19.319 4.878 19.635 4.688 19.926 4.465L20.208 4.232L20.437 4.013L20.7 3.721L20.786 3.614L20.935 3.414L21.042 3.255L20.983 3.344C21.185 3.045 21.355 2.72 21.487 2.374L22.181 0.549C22.509 -0.312 23.806 -0.111 23.846 0.808Z"/></svg>
-          <span style="font-family:'Roboto',sans-serif; font-size:${Math.round(40*S)}px; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1;">How to be a great developer?</span>
+          <span style="font-family:'Roboto',sans-serif; font-size:${Math.round(40*S)}px; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1;">${queryText}</span>
         </div>
 
         <!-- Phone (rounded top only, extends to bottom) -->
@@ -1407,13 +1781,18 @@ function mkMasterSearchScreen(cpp, scr, idx) {
 }
 
 function mkMasterFeaturesScreen(cpp, scr, idx) {
-  const phoneImg = 'cpp-assets/tab5/phone.png';
-  const atomImg = 'cpp-assets/tab5/3d-atom.png';
-  const bookmarkImg = 'cpp-assets/tab5/3d-bookmark.png';
+  const assets = getScreenEditorValues(scr);
+  const line1 = assets.featuresLine1 || 'Bookmarks';
+  const line2 = assets.featuresLine2 || 'Squads';
+  const line3 = assets.featuresLine3 || 'DevCards';
+  const footer = assets.featuresFooter || 'and much more.';
+  const phoneImg = assets.featuresPhone || 'cpp-assets/tab5/phone.png';
+  const atomImg = assets.featuresAtom || 'cpp-assets/tab5/3d-atom.png';
+  const bookmarkImg = assets.featuresBookmark || 'cpp-assets/tab5/3d-bookmark.png';
   const S = 280/720;
-  const plusIcon = `<img src="cpp-assets/tab5/plus-icon.svg" style="width:${Math.round(24*S)}px; height:${Math.round(24*S)}px;" alt="+" />`;
+  const plusIcon = `<img src="${assets.featuresPlusIcon || 'cpp-assets/tab5/plus-icon.svg'}" style="width:${Math.round(24*S)}px; height:${Math.round(24*S)}px;" alt="+" />`;
 
-  return `<div class="screenshot-slot">
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
     <div class="screenshot-label">${idx+1}. ${scr.label}</div>
     <div class="ss-canvas">
       <div class="ss-bg"></div>
@@ -1424,18 +1803,18 @@ function mkMasterFeaturesScreen(cpp, scr, idx) {
           <div style="display:flex; flex-direction:column; gap:${Math.round(12*S)}px;">
             <div style="display:flex; align-items:flex-start; gap:0;">
               <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:${Math.round(4*S)}px;">${plusIcon}</div>
-              <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">Bookmarks</span>
+              <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">${line1}</span>
             </div>
             <div style="display:flex; align-items:flex-start; gap:0;">
               <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:${Math.round(4*S)}px;">${plusIcon}</div>
-              <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">Squads</span>
+              <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">${line2}</span>
             </div>
             <div style="display:flex; align-items:flex-start; gap:0;">
               <div style="width:${Math.round(64*S)}px; height:${Math.round(64*S)}px; background:rgba(255,255,255,0.24); border-radius:${Math.round(24*S)}px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:${Math.round(4*S)}px;">${plusIcon}</div>
-              <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">DevCards</span>
+              <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:${Math.round(64*S)}px; color:white; line-height:1; margin-left:${Math.round(24*S)}px;">${line3}</span>
             </div>
           </div>
-          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(40*S)}px; color:rgba(255,255,255,0.64); line-height:1; margin-left:${Math.round(88*S)}px;">and much more.</div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:${Math.round(40*S)}px; color:rgba(255,255,255,0.64); line-height:1; margin-left:${Math.round(88*S)}px;">${footer}</div>
         </div>
 
         <!-- Left 3D atom -->
@@ -1487,7 +1866,7 @@ function mkScreen(cpp, scr, idx) {
   const socialTop = socialPos === 'bottom' ? socialHTML : '';
   const socialMid = socialPos === 'middle' && scr.stars ? socialHTML : '';
 
-  return `<div class="screenshot-slot"><div class="screenshot-label">${idx+1}. ${scr.label}</div><div class="ss-canvas"><div class="ss-bg" ${bgStyle}></div><div class="ss-content">${hlHTML}${socialMid}<div class="phone-zone"><div class="phone"><div class="phone-notch"></div>${ui}</div>${floatsHTML}${tagsHTML}${badgesHTML}</div>${hlBottomHTML}${socialTop}</div><div class="dd-wm">${SVG_LOGO} daily.dev</div></div><div class="dim">1320×2868</div></div>`;
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})"><div class="screenshot-label">${idx+1}. ${scr.label}</div><div class="ss-canvas"><div class="ss-bg" ${bgStyle}></div><div class="ss-content">${hlHTML}${socialMid}<div class="phone-zone"><div class="phone"><div class="phone-notch"></div>${ui}</div>${floatsHTML}${tagsHTML}${badgesHTML}</div>${hlBottomHTML}${socialTop}</div><div class="dd-wm">${SVG_LOGO} daily.dev</div></div><div class="dim">1320×2868</div></div>`;
 }
 
 const CPP = [
@@ -1526,9 +1905,15 @@ const CPP = [
   },
   {
     id: 'ai-ml', name: 'AI / ML Developers', accent: '#2CDCE6', dot: '#2CDCE6',
+    angle: 'Your personalized AI news feed: LLMs, agents, prompts, and ML papers from 500+ sources, updated in real time.',
     screens: [
-      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Hero', uiType:'hero', hl:'Your personalized<br>news feed for', sub:'AI & ML<br>developers', heroFloats: [{icon:'🤖', top:'55%', left:'5%', rot:'-15deg', size: 100}, {icon:'🧠', top:'60%', right:'5%', rot:'10deg', size: 90}],
+        badge1: { iconHtml: '<div style="font-size:50px;">🤖</div>', val: '500+', label: 'Sources', sub: 'Real-time AI news' },
+        badge2: { iconHtml: '<div style="font-size:45px;">🔥</div>', val: '589K+', sub: 'AI Engagements' },
+        reviewsText: 'Top Choice for AI Devs'
+      },
       { label:'Personalization', hlPos:'top', hl:'Cut through<br>the noise', sub:'Only the AI topics that matter', uiType:'tags',
+
         on:['AI','Machine Learning','LLM','GPT','Agents','Prompt Engineering','NLP'],
         off:['React','CSS','DevOps','Docker']
       },
@@ -1558,8 +1943,13 @@ const CPP = [
   },
   {
     id: 'frontend', name: 'Frontend / React', accent: '#3169F5', dot: '#3169F5',
+    angle: 'React, JavaScript, TypeScript, and CSS articles curated for frontend engineers who want to stay sharp.',
     screens: [
-      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Hero', uiType:'hero', hl:'The smartest<br>news feed for', sub:'frontend<br>developers', heroFloats: [{icon:'⚛️', top:'58%', left:'6%', rot:'-10deg', size: 100}, {icon:'🎨', top:'52%', right:'8%', rot:'15deg', size: 90}],
+        badge1: { iconHtml: '<div style="font-size:50px;">⚛️</div>', val: '100+', label: 'Sources', sub: 'Always up-to-date' },
+        badge2: { iconHtml: '<div style="font-size:45px;">🎨</div>', val: 'UI / UX', sub: 'Top Curated Articles' },
+        reviewsText: 'Stay sharp on the Frontend'
+      },
       { label:'Personalization', hlPos:'top', hl:'Matched to<br>your stack', sub:'React, TS, CSS and more', uiType:'tags',
         on:['React','JavaScript','TypeScript','CSS','Next.js','Tailwind CSS','Vue','Svelte'],
         off:['Python','Go','Rust','DevOps']
@@ -1590,8 +1980,13 @@ const CPP = [
   },
   {
     id: 'career', name: 'Career Growth', accent: '#92F21D', dot: '#92F21D',
+    angle: 'Level up your dev career: salary insights, interview prep, and career advice bookmarked by thousands of developers.',
     screens: [
-      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Hero', uiType:'hero', hl:'Unlock your<br>potential in', sub:'career<br>growth', heroFloats: [{icon:'🚀', top:'56%', left:'8%', rot:'-15deg', size: 95}, {icon:'🎯', top:'53%', right:'6%', rot:'12deg', size: 95}],
+        badge1: { iconHtml: '<div style="font-size:50px;">📈</div>', val: '8.4%', label: 'Rate', sub: 'Highest bookmark rate' },
+        badge2: { iconHtml: '<div style="font-size:45px;">💼</div>', val: 'Salary', sub: 'Insights & Interview Prep' },
+        reviewsText: 'Level up your dev career'
+      },
       { label:'Personalization', hlPos:'top', hl:'Shape your<br>growth feed', sub:'Follow the career signals you need', uiType:'tags',
         on:['Career','Interview','Leadership','Growth','Salary','Resume'],
         off:['React','Python','Docker','Linux']
@@ -1620,8 +2015,13 @@ const CPP = [
   },
   {
     id: 'architecture', name: 'Software Architecture', accent: '#9D70F8', dot: '#9D70F8',
+    angle: 'System design, architecture patterns, and scalability deep-dives saved and discussed by senior engineers.',
     screens: [
-      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Hero', uiType:'hero', hl:'Deep dives on<br>scalability &', sub:'software<br>architecture', heroFloats: [{icon:'🏗️', top:'55%', left:'5%', rot:'-8deg', size: 95}, {icon:'🌩️', top:'58%', right:'7%', rot:'10deg', size: 90}],
+        badge1: { iconHtml: '<div style="font-size:50px;">🏗️</div>', val: 'Deep', label: 'Dives', sub: 'Architecture patterns' },
+        badge2: { iconHtml: '<div style="font-size:45px;">🌩️</div>', val: 'Scale', sub: 'Discussions by senior devs' },
+        reviewsText: 'Design systems that scale'
+      },
       { label:'Personalization', hlPos:'top', hl:'Filter for<br>architecture depth', sub:'Only senior-level architecture topics', uiType:'tags',
         on:['Architecture','System Design','Scalability','Microservices','Cloud','AWS'],
         off:['React','CSS','Career']
@@ -1650,8 +2050,13 @@ const CPP = [
   },
   {
     id: 'devtools', name: 'DevTools & Productivity', accent: '#FF7A2B', dot: '#FF7A2B',
+    angle: 'Discover the tools, workflows, and productivity hacks that top developers actually use.',
     screens: [
-      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Hero', uiType:'hero', hl:'Stay ahead<br>with the latest', sub:'devtools &<br>productivity', heroFloats: [{icon:'🛠️', top:'54%', left:'7%', rot:'-12deg', size: 90}, {icon:'⚡', top:'58%', right:'5%', rot:'15deg', size: 90}],
+        badge1: { iconHtml: '<div style="font-size:50px;">🛠️</div>', val: 'Top 10', label: 'Tools', sub: 'Productivity hacks' },
+        badge2: { iconHtml: '<div style="font-size:45px;">⚡</div>', val: 'Faster', sub: 'Workflows top devs use' },
+        reviewsText: 'Optimize your dev setup'
+      },
       { label:'Personalization', hlPos:'top', hl:'Filter the<br>signal', sub:'Pick tools and workflows you use', uiType:'tags',
         on:['Developer Tools','Productivity','CLI','IDE','Git','Docker','CI/CD'],
         off:['AI','React','Career','Linux']
@@ -1680,8 +2085,13 @@ const CPP = [
   },
   {
     id: 'opensource', name: 'Open Source & Linux', accent: '#1DDC6F', dot: '#1DDC6F',
+    angle: 'Track trending open source projects, GitHub repos, and Linux updates in one developer feed.',
     screens: [
-      { label:'Hero', uiType:'hero', hl:'The world\'s best<br>dev app for', sub:'staying<br>up to date' },
+      { label:'Hero', uiType:'hero', hl:'Track trending<br>projects in', sub:'open source<br>& Linux', heroFloats: [{icon:'🐧', top:'58%', left:'8%', rot:'-10deg', size: 100}, {icon:'💚', top:'53%', right:'6%', rot:'15deg', size: 90}],
+        badge1: { iconHtml: '<div style="font-size:50px;">🐧</div>', val: 'Linux', label: 'Updates', sub: 'Trending distros' },
+        badge2: { iconHtml: '<div style="font-size:45px;">🐙</div>', val: 'GitHub', sub: 'Open source feeds' },
+        reviewsText: 'Track the OSS ecosystem'
+      },
       { label:'Personalization', hlPos:'top', hl:'Tune your OSS<br>feed', sub:'Follow repos, Linux, and OSS topics', uiType:'tags',
         on:['Open Source','GitHub','Linux','Rust','Go','Kubernetes'],
         off:['React','CSS','Career','AI']
@@ -1723,23 +2133,696 @@ function renderDT() {
   ).join('');
   document.getElementById('cpp-sections').innerHTML = CPP.map((c,i) => {
     const screens = c.screens.map((s,j) => mkScreen(c,s,j)).join('');
-    return `<div class="cpp-section ${i===0?'active':''}" id="cpp-${c.id}"><div class="cpp-header"><h2>${c.name}</h2><div class="subtitle">${c.screens.length} screenshots · iPhone 1320×2868</div></div><div class="screenshots-row">${screens}</div></div>`;
+    const angle = c.angle ? `<div class="topic-angle">${c.angle}</div>` : '';
+    return `<div class="cpp-section ${i===0?'active':''}" id="cpp-${c.id}"><div class="cpp-header"><h2>${c.name}</h2>${angle}<div class="subtitle">${c.screens.length} screenshots · iPhone 1320×2868</div><button class="download-btn" onclick="downloadPack('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download Pack</button></div><div class="screenshots-row">${screens}</div></div>`;
   }).join('');
+}
+
+async function downloadPack(cppId) {
+  const section = document.getElementById(`cpp-${cppId}`);
+  if (!section) return;
+  const canvases = section.querySelectorAll('.ss-canvas');
+  const btn = section.querySelector('.download-btn');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = 'Generating Zip...';
+  btn.style.pointerEvents = 'none';
+  btn.style.opacity = '0.7';
+
+  try {
+    const zip = new JSZip();
+
+    for (let i = 0; i < canvases.length; i++) {
+      const canvas = canvases[i];
+      // Use a scale factor to increase resolution for export (since it's a preview size in DOM)
+      const scale = 1320 / 280; // iPhone 1320px width / 280px DOM width = ~4.7
+      
+      btn.innerHTML = `Rendering ${i + 1}/${canvases.length}...`;
+      
+      const dataUrl = await htmlToImage.toPng(canvas, {
+        pixelRatio: scale,
+        style: {
+          transform: 'none',
+          margin: '0'
+        },
+      });
+
+      // Extract the base64 part of the data URL
+      const base64Data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
+      zip.file(`cpp-${cppId}-screen-${i + 1}.png`, base64Data, {base64: true});
+      
+      // Add a small delay between renders to allow UI to update
+      await new Promise(r => setTimeout(r, 100));
+    }
+    
+    btn.innerHTML = 'Saving Zip...';
+    
+    // Generate zip file and trigger download
+    const content = await zip.generateAsync({type: "blob"});
+    const url = URL.createObjectURL(content);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `cpp-${cppId}-screenshots.zip`;
+    link.click();
+    
+    // Cleanup
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Error exporting images:', err);
+    alert('Failed to download images: ' + (err.message || err) + '\n\nTry running via a local web server (e.g. `npx serve` or `python3 -m http.server`) if you are using file:// protocol.');
+  } finally {
+    btn.innerHTML = originalText;
+    btn.style.pointerEvents = 'auto';
+    btn.style.opacity = '1';
+  }
 }
 
 function switchCPP(id) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.id===id));
   document.querySelectorAll('.cpp-section').forEach(s => s.classList.toggle('active', s.id==='cpp-'+id));
 }
+const editorState = {
+  cppId: null,
+  screenIdx: null,
+  hasUnsavedChanges: false,
+  autoSaveTimer: null,
+  isHydrating: false,
+  currentDefaults: null,
+  fieldSchema: [],
+  fieldIds: [],
+  zoomPercent: 100,
+};
+const EDITOR_STORAGE_KEY = 'cpp-screen-image-editor-overrides-v2';
+const LEGACY_HERO_STORAGE_KEY = 'cpp-hero-editor-overrides-v1';
+const SCREEN_EDITOR_FIELDS = {
+  hero: [
+    { key: 'heroTitleTop', label: 'Hero top title (supports <br>)', inputType: 'textarea', defaultValue: (screen) => screen.hl || '' },
+    { key: 'heroTitleBold', label: 'Hero bold title (supports <br>)', inputType: 'textarea', defaultValue: (screen) => screen.sub || '' },
+    { key: 'heroReviewsText', label: 'Hero reviews text', inputType: 'text', defaultValue: (screen) => screen.reviewsText || '2,500+ Reviews' },
+    { key: 'heroBadge1Value', label: 'Hero badge #1 value', inputType: 'text', defaultValue: (screen) => screen.badge1?.val || '19K+' },
+    { key: 'heroBadge1Label', label: 'Hero badge #1 label', inputType: 'text', defaultValue: (screen) => screen.badge1?.label || 'GitHub Stars' },
+    { key: 'heroBadge1Sub', label: 'Hero badge #1 subtext', inputType: 'text', defaultValue: (screen) => screen.badge1?.sub || 'dailydotdev/daily' },
+    { key: 'heroBadge2Value', label: 'Hero badge #2 value (supports <br>)', inputType: 'textarea', defaultValue: (screen) => screen.badge2?.val || 'Product of<br>the Year' },
+    { key: 'heroBadge2Sub', label: 'Hero badge #2 subtext', inputType: 'text', defaultValue: (screen) => screen.badge2?.sub || 'Community & Social' },
+    { key: 'heroBadge1Icon', label: 'Hero badge #1 icon URL', inputType: 'url', defaultValue: '', help: 'Replaces the first hero badge icon image.' },
+    { key: 'heroLaurel', label: 'Hero laurel image URL', inputType: 'url', defaultValue: 'cpp-assets/hero/laurel.png' },
+    { key: 'heroGithubLogo', label: 'Hero GitHub badge logo URL', inputType: 'url', defaultValue: 'cpp-assets/hero/github-logo.svg' },
+    { key: 'heroProductHuntIcon', label: 'Hero Product Hunt icon URL', inputType: 'url', defaultValue: 'cpp-assets/hero/ph-icon.svg' },
+    { key: 'heroDailyLogoIcon', label: 'Hero daily.dev icon URL', inputType: 'url', defaultValue: 'cpp-assets/hero/dd-logo-icon.svg' },
+    { key: 'heroDailyLogoText', label: 'Hero daily.dev text logo URL', inputType: 'url', defaultValue: 'cpp-assets/hero/dd-logo-text.svg' },
+  ],
+  feed: [
+    { key: 'feedTitleHtml', label: 'Feed title (supports <br>)', inputType: 'textarea', defaultValue: (screen) => screen.hl || 'Learn new<br>things' },
+    { key: 'feedSubtitleHtml', label: 'Feed subtitle (supports <br>/<span>)', inputType: 'textarea', defaultValue: (screen) => screen.sub || 'anywhere' },
+    { key: 'feedPhone', label: 'Feed phone image URL', inputType: 'url', defaultValue: 'cpp-assets/phone-feed-v2.png' },
+    { key: 'feedLeftIcon', label: 'Feed left floating image URL', inputType: 'url', defaultValue: 'cpp-assets/3d-rss-v2.png' },
+    { key: 'feedRightIcon', label: 'Feed right floating image URL', inputType: 'url', defaultValue: 'cpp-assets/3d-hashtag-v2.png' },
+  ],
+  personalized: [
+    { key: 'personalizedTitleHtml', label: 'Personalized title', inputType: 'textarea', defaultValue: (screen) => screen.hl || 'Personalized' },
+    { key: 'personalizedSubtitleHtml', label: 'Personalized subtitle', inputType: 'textarea', defaultValue: (screen) => screen.sub || 'for you' },
+    { key: 'personalizedQuoteHtml', label: 'Personalized quote (supports HTML)', inputType: 'textarea', defaultValue: (screen) => screen.quote || '"Must have app for devs" <span class="author">James Barish</span>' },
+    { key: 'personalizedStars', label: 'Personalized stars image URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/07045398-fe66-4cd1-a1e3-76b9f1517dcf' },
+    { key: 'personalizedEllipse29', label: 'Personalized floating image (ellipse29) URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/b88e8fe5-aa6f-4551-8f86-394b0333aa0a' },
+    { key: 'personalizedGroup43', label: 'Personalized floating image (group43) URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/af0d6e28-d4c8-4b9a-9b13-7eb77a5f876f' },
+    { key: 'personalizedGroup7671', label: 'Personalized floating image (group7671) URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/b0491ed8-49be-4b49-a7cf-14c94ffa38b9' },
+    { key: 'personalizedEllipse23', label: 'Personalized floating image (ellipse23) URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/657c1c78-404a-465f-a195-fbbfd7ca73c8' },
+    { key: 'personalizedFrame65', label: 'Personalized floating image (frame65) URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/43d63eeb-0e67-48d6-ae6e-dc668a8c98a5' },
+    { key: 'personalizedImage2', label: 'Personalized center icon image URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/1f5c599c-6bcd-4c31-b052-760125d3a752' },
+    { key: 'personalizedEllipse3', label: 'Personalized floating image (ellipse3) URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/2ebf60ad-ab79-4a3e-a8e7-00ea85f3895b' },
+    { key: 'personalizedEllipse28', label: 'Personalized floating image (ellipse28) URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/4f5178bd-c616-41ad-a236-4a4ad1cd3587' },
+    { key: 'personalizedFrame64', label: 'Personalized floating image (frame64) URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/988691ba-1923-416d-a629-9e7b4b1844fe' },
+    { key: 'personalizedFrame35', label: 'Personalized floating image (frame35) URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/a9b883a2-6bcb-4621-9107-f1c9b08890ef' },
+    { key: 'personalizedPhone', label: 'Personalized phone image URL', inputType: 'url', defaultValue: 'https://www.figma.com/api/mcp/asset/b2d5842b-d785-424b-bc03-d8fe89a46872' },
+  ],
+  discuss: [
+    { key: 'discussTitleHtml', label: 'Discuss title', inputType: 'textarea', defaultValue: (screen) => screen.hl || 'Discuss' },
+    { key: 'discussSubtitleHtml', label: 'Discuss subtitle (supports <br>)', inputType: 'textarea', defaultValue: (screen) => screen.sub || 'with a global<br>dev community' },
+    { key: 'discussPhone', label: 'Discuss phone image URL', inputType: 'url', defaultValue: 'cpp-assets/tab3/phone.png' },
+    { key: 'discussChat', label: 'Discuss chat icon image URL', inputType: 'url', defaultValue: 'cpp-assets/tab3/3d-chat.png' },
+    { key: 'discussUpvote', label: 'Discuss upvote floating image URL', inputType: 'url', defaultValue: 'cpp-assets/tab3/3d-upvote.png' },
+    { key: 'discussShare', label: 'Discuss share floating image URL', inputType: 'url', defaultValue: 'cpp-assets/tab3/3d-share.png' },
+    { key: 'discussAvatarTop', label: 'Discuss top avatar image URL', inputType: 'url', defaultValue: 'cpp-assets/tab3/avatar-frame-1.png' },
+    { key: 'discussAvatarBottom', label: 'Discuss lower avatar image URL', inputType: 'url', defaultValue: 'cpp-assets/tab3/avatar-frame-3.png' },
+  ],
+  search: [
+    { key: 'searchTopLineHtml', label: 'Search top line', inputType: 'textarea', defaultValue: (screen) => screen.hl || 'Explore a world of' },
+    { key: 'searchMainTitleHtml', label: 'Search main title (supports <br>)', inputType: 'textarea', defaultValue: (screen) => screen.sub || 'developer<br>resources' },
+    { key: 'searchQueryText', label: 'Search query text', inputType: 'text', defaultValue: 'How to be a great developer?' },
+    { key: 'searchPhone', label: 'Search phone image URL', inputType: 'url', defaultValue: 'cpp-assets/tab4/phone.png' },
+    { key: 'searchLeft', label: 'Search left floating image URL', inputType: 'url', defaultValue: 'cpp-assets/tab4/3d-search-left.png' },
+    { key: 'searchRight', label: 'Search right floating image URL', inputType: 'url', defaultValue: 'cpp-assets/tab4/3d-search-right.png' },
+  ],
+  features: [
+    { key: 'featuresLine1', label: 'Features line #1', inputType: 'text', defaultValue: 'Bookmarks' },
+    { key: 'featuresLine2', label: 'Features line #2', inputType: 'text', defaultValue: 'Squads' },
+    { key: 'featuresLine3', label: 'Features line #3', inputType: 'text', defaultValue: 'DevCards' },
+    { key: 'featuresFooter', label: 'Features footer line', inputType: 'text', defaultValue: 'and much more.' },
+    { key: 'featuresPhone', label: 'Features phone image URL', inputType: 'url', defaultValue: 'cpp-assets/tab5/phone.png' },
+    { key: 'featuresAtom', label: 'Features atom image URL', inputType: 'url', defaultValue: 'cpp-assets/tab5/3d-atom.png' },
+    { key: 'featuresBookmark', label: 'Features bookmark image URL', inputType: 'url', defaultValue: 'cpp-assets/tab5/3d-bookmark.png' },
+    { key: 'featuresPlusIcon', label: 'Features plus icon URL', inputType: 'url', defaultValue: 'cpp-assets/tab5/plus-icon.svg' },
+  ],
+};
+
+function getCpp(cppId) {
+  return CPP.find((topic) => topic.id === cppId);
+}
+
+function getScreen(cppId, screenIdx) {
+  const cpp = getCpp(cppId);
+  if (!cpp) return null;
+  return cpp.screens[screenIdx] || null;
+}
+
+function getScreenEditorKind(screen) {
+  if (!screen) return null;
+  if (screen.uiType === 'hero') return 'hero';
+  if (screen.uiType === 'feed' || screen.label === 'Feed' || screen.label === 'Personalization') return 'feed';
+  if (screen.label === 'Personalized') return 'personalized';
+  if (screen.label === 'Discuss') return 'discuss';
+  if (screen.label === 'Search') return 'search';
+  if (screen.label === 'Features' || screen.label === 'Profile' || screen.uiType === 'profile') return 'features';
+  return null;
+}
+
+function getScreenEditorFieldSchema(screen) {
+  const kind = getScreenEditorKind(screen);
+  const schema = SCREEN_EDITOR_FIELDS[kind] || [];
+  return schema.map((field) => ({
+    ...field,
+    id: `editor-field-${field.key}`,
+  }));
+}
+
+function getFieldDefaultValue(field, screen) {
+  if (typeof field.defaultValue === 'function') {
+    return field.defaultValue(screen) || '';
+  }
+  return field.defaultValue || '';
+}
+
+function getLegacyFieldValue(screen, key) {
+  const imageValue = screen?.imageAssets?.[key];
+  if (typeof imageValue === 'string') return imageValue;
+
+  switch (key) {
+    case 'heroTitleTop':
+    case 'feedTitleHtml':
+    case 'personalizedTitleHtml':
+    case 'discussTitleHtml':
+    case 'searchTopLineHtml':
+      return screen?.hl || '';
+    case 'heroTitleBold':
+    case 'feedSubtitleHtml':
+    case 'personalizedSubtitleHtml':
+    case 'discussSubtitleHtml':
+    case 'searchMainTitleHtml':
+      return screen?.sub || '';
+    case 'heroReviewsText':
+      return screen?.reviewsText || '';
+    case 'heroBadge1Value':
+      return screen?.badge1?.val || '';
+    case 'heroBadge1Label':
+      return screen?.badge1?.label || '';
+    case 'heroBadge1Sub':
+      return screen?.badge1?.sub || '';
+    case 'heroBadge2Value':
+      return screen?.badge2?.val || '';
+    case 'heroBadge2Sub':
+      return screen?.badge2?.sub || '';
+    case 'heroBadge1Icon':
+      return screen?.heroImageUrl || '';
+    case 'personalizedQuoteHtml':
+      return screen?.quote || '';
+    default:
+      return undefined;
+  }
+}
+
+function getScreenEditorValues(screen) {
+  const schema = getScreenEditorFieldSchema(screen);
+  const values = {};
+  schema.forEach((field) => {
+    const stored = screen?.editorFields?.[field.key];
+    const legacy = getLegacyFieldValue(screen, field.key);
+    const value = typeof stored === 'string' ? stored : (typeof legacy === 'string' ? legacy : getFieldDefaultValue(field, screen));
+    values[field.key] = value || '';
+  });
+  return values;
+}
+
+function applyScreenEditorValues(cppId, screenIdx, values) {
+  const screen = getScreen(cppId, screenIdx);
+  if (!screen || !values || typeof values !== 'object') return;
+  screen.editorFields = { ...(screen.editorFields || {}) };
+  screen.imageAssets = { ...(screen.imageAssets || {}) };
+
+  Object.entries(values).forEach(([key, value]) => {
+    if (typeof value !== 'string') return;
+    screen.editorFields[key] = value;
+    screen.imageAssets[key] = value;
+
+    switch (key) {
+      case 'heroTitleTop':
+        screen.hl = value;
+        break;
+      case 'heroTitleBold':
+        screen.sub = value;
+        break;
+      case 'heroReviewsText':
+        screen.reviewsText = value;
+        break;
+      case 'heroBadge1Value':
+        screen.badge1 = { ...(screen.badge1 || {}), val: value };
+        break;
+      case 'heroBadge1Label':
+        screen.badge1 = { ...(screen.badge1 || {}), label: value };
+        break;
+      case 'heroBadge1Sub':
+        screen.badge1 = { ...(screen.badge1 || {}), sub: value };
+        break;
+      case 'heroBadge2Value':
+        screen.badge2 = { ...(screen.badge2 || {}), val: value };
+        break;
+      case 'heroBadge2Sub':
+        screen.badge2 = { ...(screen.badge2 || {}), sub: value };
+        break;
+      case 'heroBadge1Icon':
+        screen.heroImageUrl = value;
+        break;
+      case 'feedTitleHtml':
+      case 'personalizedTitleHtml':
+      case 'discussTitleHtml':
+      case 'searchTopLineHtml':
+        screen.hl = value;
+        break;
+      case 'feedSubtitleHtml':
+      case 'personalizedSubtitleHtml':
+      case 'discussSubtitleHtml':
+      case 'searchMainTitleHtml':
+        screen.sub = value;
+        break;
+      case 'personalizedQuoteHtml':
+        screen.quote = value;
+        break;
+      default:
+        break;
+    }
+  });
+}
+
+function renderEditorFields(schema) {
+  const grid = document.getElementById('editor-fields-grid');
+  if (!grid) return;
+  grid.innerHTML = schema.map((field) => `
+    <div class="editor-field">
+      <div class="editor-label-row">
+        <label for="${field.id}">${field.label}</label>
+        <span class="editor-count" id="count-${field.id}">0 chars</span>
+      </div>
+      ${field.inputType === 'textarea'
+        ? `<textarea id="${field.id}" placeholder="${field.placeholder || 'Enter value...'}"></textarea>`
+        : `<input id="${field.id}" type="${field.inputType || 'text'}" placeholder="${field.placeholder || (field.inputType === 'url' ? 'https://... or local/path.png' : 'Enter value...')}" />`
+      }
+      ${field.help ? `<small>${field.help}</small>` : ''}
+    </div>
+  `).join('');
+
+  schema.forEach((field) => {
+    const input = document.getElementById(field.id);
+    if (!input) return;
+    input.addEventListener('input', applyEditorChanges);
+    input.addEventListener('input', () => updateFieldCount(field.id));
+  });
+}
+
+function getEditorInputValues() {
+  const values = {};
+  editorState.fieldSchema.forEach((field) => {
+    const input = document.getElementById(field.id);
+    if (!input) return;
+    values[field.key] = field.inputType === 'url' ? input.value.trim() : input.value;
+  });
+  return values;
+}
+
+function updateUrlForState() {
+  const url = new URL(window.location.href);
+  if (editorState.cppId) {
+    url.searchParams.set('cpp', editorState.cppId);
+    url.searchParams.set('editCpp', editorState.cppId);
+    url.searchParams.set('screen', String(editorState.screenIdx));
+  } else {
+    url.searchParams.delete('editCpp');
+    url.searchParams.delete('screen');
+  }
+  window.history.replaceState({}, '', url.toString());
+}
+
+function setEditorStatus(text, stateClass = 'dirty') {
+  const status = document.getElementById('editor-status');
+  if (!status) return;
+  status.textContent = text;
+  status.classList.remove('saved', 'dirty', 'downloading');
+  status.classList.add(stateClass);
+}
+
+function updateFieldCount(id) {
+  const input = document.getElementById(id);
+  const count = document.getElementById(`count-${id}`);
+  if (!input || !count) return;
+  count.textContent = `${input.value.length} chars`;
+}
+
+function updateAllFieldCounts() {
+  editorState.fieldIds.forEach(updateFieldCount);
+}
+
+function setPreviewZoom(percent) {
+  editorState.zoomPercent = percent;
+  const scaleEl = document.getElementById('editor-preview-scale');
+  const zoomValue = document.getElementById('editor-zoom-value');
+  if (scaleEl) {
+    scaleEl.style.transform = `scale(${percent / 100})`;
+  }
+  if (zoomValue) {
+    zoomValue.textContent = `${percent}%`;
+  }
+}
+
+function syncEditorActionButtons() {
+  const saveBtn = document.getElementById('editor-save-btn');
+  const resetBtn = document.getElementById('editor-reset-btn');
+  if (saveBtn) saveBtn.disabled = !editorState.hasUnsavedChanges;
+  if (resetBtn) resetBtn.disabled = !editorState.cppId;
+}
+
+function markEditorDirty() {
+  if (editorState.isHydrating) return;
+  editorState.hasUnsavedChanges = true;
+  setEditorStatus('Unsaved changes', 'dirty');
+  syncEditorActionButtons();
+
+  if (editorState.autoSaveTimer) {
+    clearTimeout(editorState.autoSaveTimer);
+  }
+  editorState.autoSaveTimer = setTimeout(() => {
+    if (!editorState.hasUnsavedChanges) return;
+    saveEditorChanges({ silent: true });
+  }, 750);
+}
+
+function markEditorSaved() {
+  editorState.hasUnsavedChanges = false;
+  if (editorState.autoSaveTimer) {
+    clearTimeout(editorState.autoSaveTimer);
+    editorState.autoSaveTimer = null;
+  }
+  setEditorStatus('Saved', 'saved');
+  syncEditorActionButtons();
+}
+
+function getStoredOverrides() {
+  try {
+    const raw = localStorage.getItem(EDITOR_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object') return parsed;
+    return {};
+  } catch {
+    return {};
+  }
+}
+
+function setStoredOverrides(overrides) {
+  localStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(overrides));
+}
+
+function getOverrideKey(cppId, screenIdx) {
+  return `${cppId}::${screenIdx}`;
+}
+
+function getScreenOverridePayload(screen) {
+  return {
+    editorFields: getScreenEditorValues(screen),
+  };
+}
+
+function applyLegacyHeroPayload(screen, payload) {
+  if (!screen || screen.uiType !== 'hero' || !payload || typeof payload !== 'object') return;
+  if (typeof payload.hl === 'string') screen.hl = payload.hl;
+  if (typeof payload.sub === 'string') screen.sub = payload.sub;
+  if (typeof payload.reviewsText === 'string') screen.reviewsText = payload.reviewsText;
+  screen.badge1 = {
+    ...(screen.badge1 || {}),
+    ...(payload.badge1 || {}),
+  };
+  if (typeof payload.heroImageUrl === 'string') {
+    screen.heroImageUrl = payload.heroImageUrl;
+    screen.imageAssets = {
+      ...(screen.imageAssets || {}),
+      heroBadge1Icon: payload.heroImageUrl,
+    };
+  }
+}
+
+function applyScreenOverride(cppId, screenIdx, payload) {
+  const screen = getScreen(cppId, screenIdx);
+  if (!screen) return;
+  if (payload?.editorFields && typeof payload.editorFields === 'object') {
+    applyScreenEditorValues(cppId, screenIdx, payload.editorFields);
+    return;
+  }
+  if (payload?.imageAssets && typeof payload.imageAssets === 'object') {
+    applyScreenEditorValues(cppId, screenIdx, payload.imageAssets);
+    return;
+  }
+  applyLegacyHeroPayload(screen, payload);
+}
+
+function hydrateSavedScreenOverrides() {
+  const nextOverrides = getStoredOverrides();
+  Object.entries(nextOverrides).forEach(([key, payload]) => {
+    const [cppId, rawIdx] = key.split('::');
+    const idx = Number(rawIdx);
+    if (!cppId || Number.isNaN(idx)) return;
+    applyScreenOverride(cppId, idx, payload);
+  });
+
+  try {
+    const legacyRaw = localStorage.getItem(LEGACY_HERO_STORAGE_KEY);
+    if (!legacyRaw) return;
+    const legacyOverrides = JSON.parse(legacyRaw);
+    if (!legacyOverrides || typeof legacyOverrides !== 'object') return;
+    Object.entries(legacyOverrides).forEach(([key, payload]) => {
+      const [cppId, rawIdx] = key.split('::');
+      const idx = Number(rawIdx);
+      if (!cppId || Number.isNaN(idx)) return;
+      applyScreenOverride(cppId, idx, payload);
+    });
+  } catch {
+    // no-op
+  }
+}
+
+function renderEditorPreview() {
+  const cpp = getCpp(editorState.cppId);
+  if (!cpp) return;
+  const screen = cpp.screens[editorState.screenIdx];
+  if (!screen) return;
+  const preview = mkScreen(cpp, screen, editorState.screenIdx);
+  document.getElementById('editor-preview').innerHTML = preview;
+  setPreviewZoom(editorState.zoomPercent);
+}
+
+function applyEditorChanges() {
+  const screen = getScreen(editorState.cppId, editorState.screenIdx);
+  if (!screen) return;
+  applyScreenEditorValues(editorState.cppId, editorState.screenIdx, getEditorInputValues());
+
+  renderEditorPreview();
+  renderDT();
+  switchCPP(editorState.cppId);
+  markEditorDirty();
+}
+
+function openScreenEditor(cppId, screenIdx) {
+  const screen = getScreen(cppId, screenIdx);
+  if (!screen) return;
+  const schema = getScreenEditorFieldSchema(screen);
+  if (!schema.length) {
+    alert('No editable fields found for this screenshot.');
+    return;
+  }
+
+  editorState.cppId = cppId;
+  editorState.screenIdx = screenIdx;
+  editorState.fieldSchema = schema;
+  editorState.fieldIds = schema.map((field) => field.id);
+
+  const cpp = getCpp(cppId);
+  const defaults = getScreenEditorValues(screen);
+  editorState.currentDefaults = defaults;
+  const title = `${cpp?.name || 'CPP'} — ${screen.label} editor`;
+  document.getElementById('editor-page-title').textContent = title;
+  document.getElementById('editor-top-subtitle').textContent = `${screen.label} content editor · live preview and fast controls`;
+  document.getElementById('editor-fields-title').textContent = `${screen.label} editable fields`;
+  document.getElementById('editor-form-description').textContent = `Editing ${schema.length} field${schema.length > 1 ? 's' : ''} (text + images). Autosave runs after a short pause.`;
+  renderEditorFields(schema);
+
+  editorState.isHydrating = true;
+  schema.forEach((field) => {
+    const input = document.getElementById(field.id);
+    if (!input) return;
+    input.value = defaults[field.key] || '';
+  });
+  updateAllFieldCounts();
+  editorState.isHydrating = false;
+
+  renderEditorPreview();
+  showView('editor');
+  updateUrlForState();
+  markEditorSaved();
+}
+
+function backFromEditor() {
+  if (editorState.hasUnsavedChanges) {
+    const shouldLeave = window.confirm('You have unsaved changes. Leave this editor anyway?');
+    if (!shouldLeave) return;
+    editorState.hasUnsavedChanges = false;
+    setEditorStatus('Changes discarded', 'saved');
+  }
+  if (!editorState.cppId) {
+    showView('dt');
+    return;
+  }
+  showView('dt');
+  switchCPP(editorState.cppId);
+  editorState.cppId = null;
+  editorState.screenIdx = null;
+  editorState.currentDefaults = null;
+  editorState.fieldSchema = [];
+  editorState.fieldIds = [];
+  updateUrlForState();
+  syncEditorActionButtons();
+}
+
+function saveEditorChanges(options = {}) {
+  const { silent = false } = options;
+  const screen = getScreen(editorState.cppId, editorState.screenIdx);
+  if (!screen) return;
+
+  const overrides = getStoredOverrides();
+  overrides[getOverrideKey(editorState.cppId, editorState.screenIdx)] = getScreenOverridePayload(screen);
+  setStoredOverrides(overrides);
+  markEditorSaved(silent);
+  if (!silent) {
+    setEditorStatus('Saved to browser', 'saved');
+  }
+}
+
+function resetCurrentEditorFields() {
+  const screen = getScreen(editorState.cppId, editorState.screenIdx);
+  if (!screen || !editorState.currentDefaults) return;
+
+  const shouldReset = window.confirm('Reset all editable fields back to defaults for this screenshot?');
+  if (!shouldReset) return;
+
+  applyScreenEditorValues(editorState.cppId, editorState.screenIdx, editorState.currentDefaults);
+
+  openScreenEditor(editorState.cppId, editorState.screenIdx);
+  markEditorDirty();
+}
+
+async function downloadCurrentEditorImage() {
+  const screen = getScreen(editorState.cppId, editorState.screenIdx);
+  if (!screen) return;
+  const previewCanvas = document.querySelector('#editor-preview .ss-canvas');
+  if (!previewCanvas) return;
+
+  const btn = document.getElementById('editor-download-btn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Preparing...';
+  btn.disabled = true;
+  setEditorStatus('Preparing download...', 'downloading');
+
+  try {
+    const scale = 1320 / 280;
+    const dataUrl = await htmlToImage.toPng(previewCanvas, {
+      pixelRatio: scale,
+      style: {
+        transform: 'none',
+        margin: '0',
+      },
+    });
+
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `cpp-${editorState.cppId}-${screen.label.toLowerCase()}-${editorState.screenIdx + 1}.png`;
+    link.click();
+    setEditorStatus('Downloaded', 'saved');
+  } catch (err) {
+    console.error('Error downloading image:', err);
+    alert('Failed to download image: ' + (err.message || err));
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+
 function showView(v) {
+  const isEditorVisible = document.getElementById('view-editor').style.display === 'block';
+  if (isEditorVisible && v !== 'editor' && editorState.hasUnsavedChanges) {
+    const shouldLeave = window.confirm('You have unsaved changes. Leave this editor anyway?');
+    if (!shouldLeave) return;
+    editorState.hasUnsavedChanges = false;
+    setEditorStatus('Changes discarded', 'saved');
+    syncEditorActionButtons();
+  }
   document.getElementById('view-ov').style.display = v==='ov'?'block':'none';
   document.getElementById('view-dt').style.display = v==='dt'?'block':'none';
+  document.getElementById('view-editor').style.display = v==='editor'?'block':'none';
   document.getElementById('btn-ov').classList.toggle('active', v==='ov');
   document.getElementById('btn-dt').classList.toggle('active', v==='dt');
 }
 
+hydrateSavedScreenOverrides();
 renderOV();
 renderDT();
+
+document.getElementById('editor-zoom').addEventListener('input', (event) => {
+  const value = Number(event.target.value);
+  if (Number.isNaN(value)) return;
+  setPreviewZoom(value);
+});
+
+window.addEventListener('keydown', (event) => {
+  const saveHotkey = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's';
+  if (!saveHotkey) return;
+  if (document.getElementById('view-editor').style.display !== 'block') return;
+  event.preventDefault();
+  saveEditorChanges();
+});
+
+window.addEventListener('beforeunload', (event) => {
+  if (!editorState.hasUnsavedChanges) return;
+  event.preventDefault();
+  event.returnValue = '';
+});
+syncEditorActionButtons();
+
+const initialCPP = new URLSearchParams(window.location.search).get('cpp');
+if (initialCPP && CPP.some((topic) => topic.id === initialCPP)) {
+  showView('dt');
+  switchCPP(initialCPP);
+}
+
+const initialEditCPP = new URLSearchParams(window.location.search).get('editCpp');
+const initialScreenIdx = Number(new URLSearchParams(window.location.search).get('screen'));
+if (initialEditCPP && Number.isInteger(initialScreenIdx) && initialScreenIdx >= 0) {
+  openScreenEditor(initialEditCPP, initialScreenIdx);
+}
 </script>
 </body>
 </html>
