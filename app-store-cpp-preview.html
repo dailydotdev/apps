@@ -47,28 +47,27 @@
     background: rgba(14,18,23,0.86);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(193,201,214,0.16);
-    padding: 12px 28px;
-    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 24px;
+    display: flex; align-items: center; gap: 16px;
   }
-  .top-bar h1 {
-    font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 800;
+  .top-bar .brand { flex-shrink: 0; }
+  .top-bar .brand h1 {
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 800;
     background: linear-gradient(135deg, #FFFFFF 0%, #C1C9D6 55%, #2CDCE6 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    line-height: 1.2;
   }
-  .top-bar .controls { display: flex; gap: 4px; }
-  .top-bar button {
-    background: rgba(255,255,255,0.03); color: var(--text-secondary);
-    border: 1px solid rgba(193,201,214,0.2);
-    padding: 7px 14px; border-radius: 8px; font-size: 12px;
-    font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer;
-    transition: all 0.2s;
+  .top-bar .brand .sub { font-size: 10px; color: var(--text-quaternary); font-weight: 500; }
+  .top-bar .spacer { flex: 1; }
+  .dl-all-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,0.04); color: var(--text-secondary);
+    border: 1px solid rgba(193,201,214,0.14);
+    padding: 5px 12px; border-radius: 7px; font-size: 11px;
+    font-family: 'Inter', sans-serif; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
-  .top-bar button:hover { border-color: rgba(193,201,214,0.38); color: white; background: rgba(255,255,255,0.08); }
-  .top-bar button.active {
-    color: white;
-    border-color: rgba(95,55,233,0.5);
-    background: linear-gradient(135deg, rgba(95,55,233,0.55), rgba(49,105,245,0.5));
-  }
+  .dl-all-link:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
 
   .tabs {
     display: flex; gap: 4px; padding: 12px 28px;
@@ -96,16 +95,48 @@
     max-width: 1700px;
     margin: 0 auto;
   }
-  .cpp-header { text-align: center; margin-bottom: 24px; }
-  .cpp-header h2 { font-family:'Poppins',sans-serif; font-size: 24px; font-weight: 800; }
-  .cpp-header .topic-angle {
-    max-width: 920px;
-    margin: 10px auto 6px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.45;
+  .cpp-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px; flex-wrap: wrap;
   }
-  .cpp-header .subtitle { font-size: 13px; color: var(--text-tertiary); margin-top: 2px; }
+  .cpp-header-left {
+    display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;
+  }
+  .cpp-header h2 {
+    font-family:'Poppins',sans-serif; font-size: 17px; font-weight: 800;
+    white-space: nowrap; margin: 0;
+  }
+  .cpp-header .subtitle {
+    font-size: 11px; color: var(--text-tertiary);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .cpp-header .topic-angle {
+    width: 100%; order: 10;
+    font-size: 12px; color: var(--text-secondary);
+    line-height: 1.45; margin: -4px 0 0;
+  }
+  .cpp-header-controls {
+    display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(193,201,214,0.14);
+    border-radius: 8px; padding: 3px 4px;
+  }
+  .cpp-header-controls select {
+    background: transparent; color: var(--text-primary);
+    border: none; padding: 4px 6px; border-radius: 5px;
+    font-size: 10px; font-family: 'Inter', sans-serif;
+    font-weight: 600; cursor: pointer; outline: none;
+  }
+  .cpp-header-controls select:hover { background: rgba(255,255,255,0.06); }
+  .cpp-header-controls .dl-btn {
+    padding: 4px 10px; border-radius: 5px; font-size: 10px;
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    cursor: pointer; border: none; white-space: nowrap;
+    color: white;
+    background: linear-gradient(135deg, rgba(95,55,233,0.8), rgba(49,105,245,0.75));
+    transition: all 0.15s;
+  }
+  .cpp-header-controls .dl-btn:hover { filter: brightness(1.15); }
 
   .screenshots-row {
     display: flex; gap: 24px; overflow-x: auto;
@@ -130,6 +161,12 @@
   /* ===== APP STORE SCREENSHOT CANVAS ===== */
   .ss-canvas {
     width: 280px; height: 607px; border-radius: 0;
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(193,201,214,0.18);
+    box-shadow: 0 10px 32px rgba(0,0,0,0.45);
+  }
+  .ss-canvas-tablet {
+    width: 384px; height: 288px; border-radius: 0;
     position: relative; overflow: hidden;
     border: 1px solid rgba(193,201,214,0.18);
     box-shadow: 0 10px 32px rgba(0,0,0,0.45);
@@ -683,92 +720,7 @@
   .dim { font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 6px; font-family: monospace; }
 
   /* ===== OVERVIEW GRID ===== */
-  .ov-grid {
-    display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px;
-    padding: 20px 28px 32px;
-  }
-  .ov-card { text-align: center; }
-  .ov-card {
-    background: rgba(28,31,38,0.45);
-    border: 1px solid rgba(193,201,214,0.12);
-    border-radius: 14px;
-    padding: 10px;
-    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-  }
-  .ov-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(193,201,214,0.28);
-    background: rgba(34,38,45,0.62);
-  }
-  .ov-frame {
-    width: 100%; aspect-ratio: 9/19.5; border-radius: 0;
-    position: relative; overflow: hidden;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.5); margin-bottom: 6px;
-  }
-  .ov-frame .ov-bg {
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse at 50% 100%, rgba(157,112,248,1) 0%, rgba(157,112,248,0) 55%),
-      radial-gradient(ellipse at 50% 0%, rgba(254,122,182,1) 0%, rgba(254,122,182,0) 55%),
-      #BF29F0;
-  }
-  .ov-frame .ov-hl {
-    position: absolute; top: 10%; left: 8%; right: 8%; z-index: 2;
-  }
-  .ov-frame .ov-hl h4 {
-    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 800;
-    color: white; line-height: 1.05;
-  }
-  .ov-frame .ov-hl p {
-    font-family: 'Poppins', sans-serif; font-size: 7px;
-    color: rgba(255,255,255,0.64); font-weight: 700; margin-top: 2px;
-  }
-  .ov-frame .ov-phone {
-    position: absolute; bottom: -10%; left: 50%; transform: translateX(-50%);
-    width: 58%; height: 55%; border-radius: 10px;
-    border: 2px solid #000; z-index: 1; overflow: hidden;
-    box-shadow: 0px -0.3px 0px 4px rgba(255,255,255,0.5);
-    background: var(--bg-default);
-  }
-  .ov-phone-inner { padding: 8px 4px; }
-  .ov-phone-inner .mini-card {
-    height: 8px; border-radius: 3px; background: var(--bg-subtle);
-    margin: 2px 0;
-  }
-  .ov-label { font-size: 10px; font-weight: 700; }
-
-  .info-box {
-    margin: 0 28px 28px; padding: 16px;
-    background: rgba(28,31,38,0.68);
-    border: 1px solid rgba(193,201,214,0.16); border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-  }
-  .info-box h3 {
-    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700;
-    margin-bottom: 6px; color: var(--text-secondary);
-  }
-  .info-box p { font-size: 12px; color: var(--text-tertiary); line-height: 1.7; }
-  .info-box code {
-    background: rgba(49,105,245,0.12); padding: 1px 5px; border-radius: 4px;
-    font-size: 11px; color: #9EBEFF;
-  }
-
-  @media (max-width: 900px) { .ov-grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 500px) { .ov-grid { grid-template-columns: repeat(2, 1fr); } }
-  
-  .download-btn {
-    margin-top: 12px;
-    background: rgba(255,255,255,0.04); color: var(--text-primary);
-    border: 1px solid rgba(193,201,214,0.2);
-    padding: 8px 16px; border-radius: 8px; font-size: 13px;
-    font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer;
-    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
-  }
-  .download-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(193,201,214,0.4);
-  }
-  .download-btn svg { width: 14px; height: 14px; }
+  .download-btn { display: none; }
 
   .editor-shell { padding: 18px 24px 24px; }
   .editor-top {
@@ -951,6 +903,19 @@
     margin-bottom: 10px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
   }
+  .editor-res-toggle {
+    display: flex; align-items: center;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(193,201,214,0.14);
+    border-radius: 7px; padding: 2px 3px;
+  }
+  .editor-res-toggle select {
+    background: transparent; color: var(--text-primary);
+    border: none; padding: 4px 8px; border-radius: 5px;
+    font-size: 11px; font-family: 'Inter', sans-serif;
+    font-weight: 600; cursor: pointer; outline: none;
+  }
+  .editor-res-toggle select:hover { background: rgba(255,255,255,0.06); }
   .editor-preview-meta { font-size: 11px; color: var(--text-quaternary); }
   .editor-zoom-control {
     display: flex;
@@ -997,33 +962,18 @@
 <body>
 
 <div class="top-bar">
-  <h1>daily.dev — CPP Preview</h1>
-  <div class="controls">
-    <button id="btn-ov" class="active" onclick="showView('ov')">Overview</button>
-    <button id="btn-dt" onclick="showView('dt')">Detailed View</button>
+  <div class="brand">
+    <h1>daily.dev CPP</h1>
+    <span class="sub">App Store Screenshots</span>
   </div>
+  <div class="spacer"></div>
+  <button type="button" id="download-all-btn" class="dl-all-link" onclick="downloadAllPacks()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download All .zip
+  </button>
 </div>
 
-<div id="view-ov">
-  <div style="padding:20px 28px 6px">
-    <h2 style="font-family:Poppins,sans-serif;font-size:18px;font-weight:800">Hero Screenshots — Master + 6 CPPs</h2>
-    <p style="font-size:12px;color:var(--text-tertiary)">iPhone (1320×2868). Poppins ExtraBold headlines, real app UI, 3D floating icons. Master tab shows Figma reference screenshots.</p>
-  </div>
-  <div class="ov-grid" id="ov-grid"></div>
-  <div class="info-box">
-    <h3>Design System (from Figma)</h3>
-    <p>
-      <strong>Font:</strong> <code>Poppins ExtraBold</code> (headlines), <code>Poppins Bold</code> (sub at 64% opacity)<br>
-      <strong>Background:</strong> Layered radial gradients — <code>#BF29F0</code> base + <code>rgba(254,122,182)</code> top + <code>rgba(157,112,248)</code> bottom<br>
-      <strong>Phone:</strong> <code>border: 5px solid #000</code> + <code>box-shadow: 0 -0.5px 0 8px rgba(255,255,255,0.55)</code><br>
-      <strong>Badges:</strong> <code>bg: #0E1217, rounded-14, Roboto Bold</code> — slight rotation (-4.53deg)<br>
-      <strong>Inside phone:</strong> Real app screenshots — dark theme, feed cards, source icons, action buttons<br>
-      <strong>Resolutions:</strong> iPhone = <code>1320 × 2868 px</code> &nbsp;|&nbsp; iPad = <code>2752 × 2064 px</code>
-    </p>
-  </div>
-</div>
-
-<div id="view-dt" style="display:none">
+<div id="view-dt">
   <div class="tabs" id="cpp-tabs"></div>
   <div id="cpp-sections"></div>
 </div>
@@ -1032,13 +982,19 @@
   <div class="editor-shell">
     <div class="editor-top">
       <div class="editor-top-left">
-        <button class="editor-back-btn" onclick="backFromEditor()">← Back to Detailed View</button>
+        <button class="editor-back-btn" onclick="backFromEditor()">← Back</button>
         <div>
           <h2 id="editor-page-title">Edit screenshot</h2>
           <div class="editor-top-subtitle" id="editor-top-subtitle">Screenshot content editor · live preview and fast controls</div>
         </div>
       </div>
       <div class="editor-top-right">
+        <div class="editor-res-toggle" id="editor-res-toggle">
+          <select class="section-export-select" id="editor-export-select" onchange="onSectionExportChange(event)">
+            <option value="iphone">iPhone 1320×2868</option>
+            <option value="tablet">Tablet 2752×2064</option>
+          </select>
+        </div>
         <div class="editor-status dirty" id="editor-status">Unsaved changes</div>
       </div>
     </div>
@@ -1104,6 +1060,87 @@ const SVG_BOOKMARK_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path d="M15.
 const SVG_SHARE_OUTLINE = '<svg viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.3019 3.80546C13.228 2.73151 11.4868 2.73151 10.4128 3.80546C9.33888 4.8794 9.33888 6.6206 10.4128 7.69454L11.4992 8.78096H10.3567C7.07508 8.78096 4.18911 10.9516 3.27882 14.1044L2.04581 18.375C1.73117 19.4648 3.11351 20.2239 3.86425 19.3736L6.15083 16.7837C7.14741 15.655 8.58066 15.0085 10.0864 15.0085H11.5079L10.4128 16.1036C9.33888 17.1775 9.33888 18.9187 10.4128 19.9926C11.4868 21.0666 13.228 21.0666 14.3019 19.9926L20.451 13.8436C21.5249 12.7696 21.5249 11.0284 20.451 9.9545L14.3019 3.80546ZM13.8287 13.7242C13.8328 13.7281 13.8369 13.7321 13.8409 13.7361C14.1338 14.029 14.1338 14.5039 13.8409 14.7968L11.4735 17.1642C10.9853 17.6524 10.9853 18.4438 11.4735 18.932C11.9616 19.4201 12.7531 19.4201 13.2412 18.932L19.3903 12.7829C19.8784 12.2948 19.8784 11.5033 19.3903 11.0152L13.2412 4.86612C12.7531 4.37796 11.9616 4.37796 11.4735 4.86612C10.9853 5.35427 10.9853 6.14573 11.4735 6.63388L13.7404 8.90082C13.9469 9.03442 14.0835 9.26673 14.0835 9.53096C14.0835 9.94162 13.7535 10.2752 13.3442 10.2809C13.3223 10.2819 13.3005 10.2819 13.2787 10.281H10.3567C7.74326 10.281 5.4449 12.0096 4.71995 14.5205L4.02602 16.924L5.02638 15.7909C6.3077 14.3397 8.15045 13.5085 10.0864 13.5085H13.3023C13.5074 13.5085 13.6933 13.5908 13.8287 13.7242Z" fill="currentColor"/></svg>';
 
 const SVG_STREAK = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 24c6.63 0 12-5.37 12-12S18.63 0 12 0 0 5.37 0 12s5.37 12 12 12zm1.09-18.67l-.6-.77c-.56.6-.94 1.37-1.1 2.26-.26 1.44.14 2.81 1 3.86l.2.23-.06.08c-.24.28-.57.5-.94.6-.15-.54-.46-1.03-.9-1.39a2.88 2.88 0 00-3.2-.27c-.83.47-1.31 1.33-1.34 2.24-.04 1.08.42 2.07 1.17 2.83C8.63 16.3 10.2 17 12 17c3.04 0 5.5-2.46 5.5-5.5 0-2.67-2.05-5.24-4.41-6.17z"/></svg>';
+
+const PREVIEW_CANVAS_WIDTH = 280;
+const PREVIEW_CANVAS_HEIGHT = 607;
+const EXPORT_PRESETS = {
+  iphone: { id: 'iphone', label: 'iPhone', width: 1320, height: 2868 },
+  tablet: { id: 'tablet', label: 'Tablet', width: 2752, height: 2064 },
+};
+let selectedExportMode = 'iphone';
+
+function getExportPreset(mode = selectedExportMode) {
+  return EXPORT_PRESETS[mode] || EXPORT_PRESETS.iphone;
+}
+
+function getExportDimensionLabel(mode = selectedExportMode) {
+  const preset = getExportPreset(mode);
+  return `${preset.label} ${preset.width}×${preset.height}`;
+}
+
+function getDimWatermarkLabel() {
+  const preset = getExportPreset();
+  return `${preset.width}×${preset.height}`;
+}
+
+function onExportModeChange(event) {
+  setExportMode(event?.target?.value || 'iphone');
+}
+
+function onSectionExportChange(event) {
+  setExportMode(event?.target?.value || 'iphone');
+}
+
+function setExportMode(mode) {
+  if (!EXPORT_PRESETS[mode]) return;
+  selectedExportMode = mode;
+  document.querySelectorAll('.section-export-select').forEach(sel => {
+    if (sel.value !== mode) sel.value = mode;
+  });
+  const editorSel = document.getElementById('editor-export-select');
+  if (editorSel && editorSel.value !== mode) editorSel.value = mode;
+  renderDT();
+  updateDownloadAllButton();
+  updateEditorPreviewMeta();
+  if (document.getElementById('view-editor').style.display === 'block') {
+    renderEditorPreview();
+  }
+}
+
+function updateDownloadAllButton() {
+  const btn = document.getElementById('download-all-btn');
+  if (!btn) return;
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download All .zip';
+}
+
+function updateEditorPreviewMeta() {
+  const meta = document.querySelector('.editor-preview-meta');
+  if (!meta) return;
+  meta.textContent = `Preview · ${getExportDimensionLabel()} export`;
+}
+
+const TABLET_CANVAS_WIDTH = 384;
+const TABLET_CANVAS_HEIGHT = 288;
+
+async function renderCanvasToPreset(canvas, preset) {
+  const isTablet = canvas.classList.contains('ss-canvas-tablet');
+  const domWidth = isTablet ? TABLET_CANVAS_WIDTH : PREVIEW_CANVAS_WIDTH;
+  return htmlToImage.toPng(canvas, {
+    pixelRatio: preset.width / domWidth,
+    style: {
+      transform: 'none',
+      margin: '0',
+    },
+  });
+}
+
+function getPackFilename(cppId, screenIndex, preset) {
+  if (preset.id === 'tablet') {
+    const padded = String(screenIndex + 1).padStart(2, '0');
+    return `cpp-${cppId}-tablet-screen-${padded}.png`;
+  }
+  return `cpp-${cppId}-screen-${screenIndex + 1}.png`;
+}
 
 function appHeader(opts = {}) {
   const streakCount = opts.streak || 12;
@@ -1421,7 +1458,7 @@ function mkMasterFeedScreen(cpp, scr, idx) {
       </div>
       <div class="dd-wm">${SVG_LOGO} daily.dev</div>
     </div>
-    <div class="dim">1320×2868</div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
   </div>`;
 }
 
@@ -1553,7 +1590,7 @@ function mkHeroScreen(cpp, scr, idx) {
       </div>
       <div class="dd-wm">${SVG_LOGO} daily.dev</div>
     </div>
-    <div class="dim">1320×2868</div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
   </div>`;
 }
 
@@ -1670,7 +1707,7 @@ function mkPersonalizedScreen(cpp, scr, idx) {
 
       <div class="dd-wm">${SVG_LOGO} daily.dev</div>
     </div>
-    <div class="dim">1320×2868</div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
   </div>`;
 }
 
@@ -1723,7 +1760,7 @@ function mkMasterDiscussScreen(cpp, scr, idx) {
       </div>
       <div class="dd-wm">${SVG_LOGO} daily.dev</div>
     </div>
-    <div class="dim">1320×2868</div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
   </div>`;
 }
 
@@ -1776,7 +1813,7 @@ function mkMasterSearchScreen(cpp, scr, idx) {
       </div>
       <div class="dd-wm">${SVG_LOGO} daily.dev</div>
     </div>
-    <div class="dim">1320×2868</div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
   </div>`;
 }
 
@@ -1834,11 +1871,292 @@ function mkMasterFeaturesScreen(cpp, scr, idx) {
       </div>
       <div class="dd-wm">${SVG_LOGO} daily.dev</div>
     </div>
-    <div class="dim">1320×2868</div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
+  </div>`;
+}
+
+// ===== TABLET RENDERERS (landscape 2752×2064) =====
+const t = (v) => Math.round(v * 384 / 1280);
+
+function stripBr(s) { return (s || '').replace(/<br\s*\/?>/gi, ' ').replace(/\s+/g, ' ').trim(); }
+
+function mkHeroTablet(cpp, scr, idx) {
+  const assets = getScreenEditorValues(scr);
+  const titleTop = stripBr(assets.heroTitleTop || scr.hl || '');
+  const titleBold = stripBr(assets.heroTitleBold || scr.sub || '');
+  const reviewsText = assets.heroReviewsText || '2,000+ Reviews';
+  const accent = cpp.accent || '#CE3DF3';
+  const b1 = { val: assets.heroBadge1Value || '15K+', label: assets.heroBadge1Label || 'GitHub Stars', sub: assets.heroBadge1Sub || 'dailydotdev/daily' };
+  const b2 = { val: stripBr(assets.heroBadge2Value || 'Product of the Year'), sub: assets.heroBadge2Sub || 'Community & Social' };
+  const glow = `<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200%;height:100%;background:radial-gradient(ellipse at center,${accent}30 0%,transparent 60%);z-index:0;mix-blend-mode:screen;pointer-events:none;"></div>`;
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas-tablet">
+      <div class="ss-bg"></div>
+      ${glow}
+      <div style="position:absolute;inset:0;z-index:2;overflow:hidden;">
+        <!-- Laurels -->
+        <img src="cpp-assets/tablet/laurel.png" style="position:absolute;left:${t(-166)}px;top:${t(202)}px;width:${t(742)}px;height:${t(742)}px;transform:scaleX(-1);object-fit:contain;" alt="" />
+        <img src="cpp-assets/tablet/laurel.png" style="position:absolute;left:${t(704)}px;top:${t(202)}px;width:${t(742)}px;height:${t(742)}px;object-fit:contain;" alt="" />
+        <!-- Title -->
+        <div style="position:absolute;left:50%;transform:translateX(-50%);top:${t(100)}px;text-align:center;z-index:5;width:${t(1100)}px;">
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:${t(56)}px;color:rgba(255,255,255,0.64);line-height:1.15;">${titleTop}</div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:${t(88)}px;color:white;line-height:1.05;margin-top:${t(4)}px;">${titleBold}</div>
+        </div>
+        <!-- Center dd logo -->
+        <img src="cpp-assets/tablet/dd-circle.png" style="position:absolute;left:50%;top:${t(460)}px;transform:translate(-50%,-50%);width:${t(120)}px;height:${t(120)}px;z-index:6;object-fit:contain;" alt="" />
+        <!-- Left badge (GitHub) -->
+        <div style="position:absolute;left:${t(220)}px;top:${t(390)}px;width:${t(250)}px;height:${t(250)}px;background:black;border-radius:${t(44)}px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:${t(6)}px;padding:${t(10)}px;text-align:center;z-index:5;transform:rotate(-6.51deg);">
+          <img src="cpp-assets/tablet/gh-shape.png" style="width:${t(60)}px;height:${t(65)}px;object-fit:contain;" alt="" />
+          <div style="color:white;font-family:'Poppins',sans-serif;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:${t(3)}px;">
+              <span style="font-weight:800;font-size:${t(28)}px;line-height:1.2;">${b1.val}</span>
+              <span style="font-weight:500;font-size:${t(20)}px;">${b1.label}</span>
+            </div>
+            <div style="font-weight:500;font-size:${t(18)}px;color:#a8b3cf;margin-top:${t(4)}px;">${b1.sub}</div>
+          </div>
+        </div>
+        <!-- Right badge (PH) -->
+        <div style="position:absolute;left:${t(790)}px;top:${t(390)}px;width:${t(250)}px;height:${t(250)}px;border-radius:${t(44)}px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:${t(6)}px;padding:${t(10)}px;text-align:center;z-index:5;transform:rotate(5.93deg);border:1px solid rgba(255,255,255,0.7);background:radial-gradient(circle at center,#FFDF00 0%,#FFCB0F 25%,#FFB61E 50%,#FF8E3B 100%);">
+          <img src="cpp-assets/tablet/ph-icon-tablet.png" style="width:${t(55)}px;height:${t(55)}px;object-fit:contain;" alt="" />
+          <div style="color:black;font-family:'Poppins',sans-serif;">
+            <div style="font-weight:800;font-size:${t(28)}px;line-height:1.1;">${b2.val}</div>
+            <div style="font-weight:600;font-size:${t(18)}px;margin-top:${t(3)}px;color:rgba(0,0,0,0.7);">${b2.sub}</div>
+          </div>
+        </div>
+        <!-- Stars -->
+        <div style="position:absolute;left:50%;transform:translateX(-50%);top:${t(680)}px;display:flex;gap:${t(12)}px;z-index:5;">
+          ${Array(5).fill(`<img src="cpp-assets/tablet/star.png" style="width:${t(60)}px;height:${t(60)}px;" alt="" />`).join('')}
+        </div>
+        <!-- Reviews text -->
+        <div style="position:absolute;left:50%;transform:translateX(-50%);top:${t(780)}px;z-index:5;white-space:nowrap;text-align:center;">
+          <span style="font-family:'Poppins',sans-serif;font-weight:700;font-size:${t(66)}px;color:white;">${reviewsText}</span>
+        </div>
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
+  </div>`;
+}
+
+function mkFeedTablet(cpp, scr, idx) {
+  const assets = getScreenEditorValues(scr);
+  const titleHtml = assets.feedTitleHtml || scr.hl || 'Learn new<br>things';
+  const sub = scr.sub || 'anywhere';
+  const subtitleText = stripBr(sub.replace(/<span[^>]*>/g, '').replace(/<\/span>/g, ''));
+  const accent = cpp.accent || '#CE3DF3';
+  const glow = `<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200%;height:100%;background:radial-gradient(ellipse at center,${accent}30 0%,transparent 60%);z-index:0;mix-blend-mode:screen;pointer-events:none;"></div>`;
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas-tablet">
+      <div class="ss-bg"></div>
+      ${glow}
+      <div style="position:absolute;inset:0;z-index:2;overflow:hidden;">
+        <!-- Headline top-left -->
+        <div style="position:absolute;left:${t(104)}px;top:${t(80)}px;z-index:7;text-align:left;">
+          <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:${t(88)}px;color:white;line-height:1.05;">${titleHtml}</div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:${t(56)}px;color:rgba(255,255,255,0.64);line-height:1.15;margin-top:${t(10)}px;">${subtitleText}</div>
+        </div>
+        <!-- 3D icons -->
+        <img src="cpp-assets/tablet/feed-rss-3d.png" style="position:absolute;left:${t(-5)}px;top:${t(720)}px;width:${t(242)}px;height:${t(242)}px;z-index:6;" alt="" />
+        <img src="cpp-assets/tablet/feed-hashtag-3d.png" style="position:absolute;left:${t(936)}px;top:${t(78)}px;width:${t(320)}px;height:${t(320)}px;z-index:6;" alt="" />
+        <!-- Desktop app screenshot -->
+        <div style="position:absolute;left:${t(162)}px;top:${t(360)}px;width:${t(983)}px;height:${t(489)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:4;">
+          <img src="cpp-assets/tablet/feed-desktop.png" style="width:100%;height:100%;object-fit:cover;display:block;" alt="" />
+        </div>
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
+  </div>`;
+}
+
+function mkPersonalizedTablet(cpp, scr, idx) {
+  const assets = getScreenEditorValues(scr);
+  const titleHtml = stripBr(assets.personalizedTitleHtml || scr.hl || 'Personalized');
+  const subtitleHtml = stripBr(assets.personalizedSubtitleHtml || scr.sub || 'for you');
+  const rawQuote = scr.quote || '"Best extension for devs" <span class="author">Filippo Argenti</span>';
+  const authorMatch = rawQuote.match(/<span[^>]*class="author"[^>]*>([^<]+)<\/span>/);
+  const authorName = authorMatch ? authorMatch[1] : '';
+  const quoteText = rawQuote.replace(/<span[^>]*class="author"[^>]*>[^<]*<\/span>/, '').replace(/<[^>]+>/g, '').trim();
+  const accent = cpp.accent || '#CE3DF3';
+  const glow = `<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200%;height:100%;background:radial-gradient(ellipse at center,${accent}30 0%,transparent 60%);z-index:0;mix-blend-mode:screen;pointer-events:none;"></div>`;
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas-tablet">
+      <div class="ss-bg"></div>
+      ${glow}
+      <div style="position:absolute;inset:0;z-index:2;overflow:hidden;">
+        <!-- Tag picker screenshot -->
+        <div style="position:absolute;left:${t(176)}px;top:${t(77)}px;width:${t(944)}px;height:${t(567)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:4;">
+          <img src="cpp-assets/tablet/personalized-tags.png" style="width:125%;height:130%;object-fit:cover;object-position:center top;display:block;margin-left:-12.5%;" alt="" />
+        </div>
+        <!-- Floating logos -->
+        <img src="cpp-assets/tablet/pers-ellipse29.png" style="position:absolute;left:${t(-59)}px;top:${t(230)}px;width:${t(159)}px;height:${t(159)}px;z-index:3;transform:rotate(10deg);" alt="" />
+        <img src="cpp-assets/tablet/pers-group43.png" style="position:absolute;left:${t(64)}px;top:${t(134)}px;width:${t(113)}px;height:${t(113)}px;z-index:3;border-radius:50%;transform:rotate(-9.6deg);" alt="" />
+        <img src="cpp-assets/tablet/pers-group7671.png" style="position:absolute;left:${t(17)}px;top:${t(32)}px;width:${t(75)}px;height:${t(75)}px;z-index:3;border-radius:50%;transform:rotate(-29deg);" alt="" />
+        <img src="cpp-assets/tablet/pers-ellipse23.png" style="position:absolute;left:${t(1160)}px;top:${t(193)}px;width:${t(108)}px;height:${t(108)}px;z-index:3;" alt="" />
+        <img src="cpp-assets/tablet/pers-frame65.png" style="position:absolute;left:${t(49)}px;top:${t(425)}px;width:${t(79)}px;height:${t(79)}px;z-index:3;border-radius:50%;transform:rotate(10.9deg);box-shadow:0 ${t(26)}px ${t(44)}px rgba(0,0,0,0.4);" alt="" />
+        <div style="position:absolute;left:${t(1082)}px;top:${t(17)}px;width:${t(118)}px;height:${t(117)}px;border-radius:50%;background:white;overflow:hidden;z-index:3;">
+          <img src="cpp-assets/tablet/pers-ellipse3.png" style="width:82%;height:84%;object-fit:cover;position:absolute;left:13%;top:11%;" alt="" />
+        </div>
+        <div style="position:absolute;left:${t(1182)}px;top:${t(360)}px;width:${t(110)}px;height:${t(110)}px;border-radius:50%;background:white;overflow:hidden;z-index:3;transform:rotate(-15deg);">
+          <img src="cpp-assets/tablet/pers-image2.png" style="width:65%;height:65%;object-fit:cover;position:absolute;top:17%;left:17%;" alt="" />
+        </div>
+        <img src="cpp-assets/tablet/pers-frame35.png" style="position:absolute;left:${t(1067)}px;top:${t(522)}px;width:${t(151)}px;height:${t(151)}px;z-index:3;transform:rotate(-165deg) scaleY(-1);" alt="" />
+        <div style="position:absolute;left:${t(17)}px;top:${t(566)}px;width:${t(104)}px;height:${t(104)}px;z-index:3;transform:rotate(-20deg);">
+          <img src="cpp-assets/tablet/pers-ellipse28.png" style="width:100%;height:100%;" alt="" />
+          <img src="cpp-assets/tablet/pers-frame64.png" style="position:absolute;top:8%;left:8%;width:84%;height:84%;border-radius:50%;object-fit:cover;" alt="" />
+        </div>
+        <!-- "Personalized for you" text -->
+        <div style="position:absolute;left:50%;transform:translateX(-50%);top:${t(700)}px;text-align:center;z-index:5;white-space:nowrap;">
+          <span style="font-family:'Poppins',sans-serif;font-weight:800;font-size:${t(88)}px;color:white;line-height:1.05;">${titleHtml}</span>
+          <span style="font-family:'Poppins',sans-serif;font-weight:700;font-size:${t(56)}px;color:rgba(255,255,255,0.64);line-height:1.15;margin-left:${t(8)}px;">${subtitleHtml}</span>
+        </div>
+        <!-- Stars + quote -->
+        <div style="position:absolute;left:50%;transform:translateX(-50%);top:${t(800)}px;display:flex;align-items:center;gap:${t(10)}px;z-index:5;white-space:nowrap;">
+          <div style="display:flex;gap:${t(3)}px;">${Array(5).fill(`<img src="cpp-assets/tablet/star.png" style="width:${t(40)}px;height:${t(40)}px;" alt="" />`).join('')}</div>
+          <span style="font-family:'Poppins',sans-serif;font-size:${t(40)}px;font-weight:500;color:white;">${quoteText.replace(/<[^>]+>/g,'')}</span>
+          <span style="font-family:'Poppins',sans-serif;font-size:${t(30)}px;font-weight:500;color:rgba(255,255,255,0.64);">${authorName}</span>
+        </div>
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
+  </div>`;
+}
+
+function mkDiscussTablet(cpp, scr, idx) {
+  const assets = getScreenEditorValues(scr);
+  const titleHtml = stripBr(assets.discussTitleHtml || scr.hl || 'Discuss');
+  const subtitleHtml = assets.discussSubtitleHtml || scr.sub || 'with a global<br>dev community';
+  const accent = cpp.accent || '#CE3DF3';
+  const glow = `<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200%;height:100%;background:radial-gradient(ellipse at center,${accent}30 0%,transparent 60%);z-index:0;mix-blend-mode:screen;pointer-events:none;"></div>`;
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas-tablet">
+      <div class="ss-bg"></div>
+      ${glow}
+      <div style="position:absolute;inset:0;z-index:2;overflow:hidden;">
+        <div style="position:absolute;left:${t(104)}px;top:${t(104)}px;z-index:7;">
+          <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:${t(88)}px;color:white;line-height:1.05;">${titleHtml}</div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:${t(56)}px;color:rgba(255,255,255,0.64);line-height:1.15;margin-top:${t(10)}px;width:${t(477)}px;">${subtitleHtml}</div>
+        </div>
+        <div style="position:absolute;left:${t(757)}px;top:${t(98)}px;width:${t(672)}px;height:${t(719)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:4;">
+          <img src="cpp-assets/tablet/discuss-post.png" style="width:100%;height:107%;object-fit:cover;object-position:top;display:block;" alt="" />
+        </div>
+        <img src="cpp-assets/tablet/discuss-share-3d.png" style="position:absolute;left:${t(36)}px;top:${t(515)}px;width:${t(154)}px;height:${t(154)}px;z-index:3;" alt="" />
+        <img src="cpp-assets/tablet/discuss-chat-3d.png" style="position:absolute;left:${t(457)}px;top:${t(375)}px;width:${t(134)}px;height:${t(134)}px;z-index:3;transform:rotate(-16.2deg);" alt="" />
+        <div style="position:absolute;left:${t(347)}px;top:${t(459)}px;width:${t(213)}px;height:${t(213)}px;z-index:3;transform:rotate(-8.9deg);">
+          <img src="cpp-assets/tablet/discuss-avatar1.png" style="width:100%;height:100%;object-fit:cover;" alt="" />
+        </div>
+        <div style="position:absolute;left:${t(83)}px;top:${t(585)}px;width:${t(214)}px;height:${t(214)}px;z-index:3;transform:rotate(7.8deg);">
+          <img src="cpp-assets/tablet/discuss-upvote.png" style="width:100%;height:100%;object-fit:cover;" alt="" />
+        </div>
+        <img src="cpp-assets/tablet/discuss-girl2.png" style="position:absolute;left:${t(457)}px;top:${t(734)}px;width:${t(132)}px;height:${t(132)}px;z-index:3;" alt="" />
+        <div style="position:absolute;left:${t(382)}px;top:${t(800)}px;width:${t(132)}px;height:${t(132)}px;z-index:3;border-radius:${t(40)}px;overflow:hidden;">
+          <img src="cpp-assets/tablet/discuss-avatar3.png" style="width:100%;height:100%;object-fit:cover;" alt="" />
+        </div>
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
+  </div>`;
+}
+
+function mkSearchTablet(cpp, scr, idx) {
+  const assets = getScreenEditorValues(scr);
+  const topLineHtml = stripBr(assets.searchTopLineHtml || scr.hl || 'Explore a world of');
+  const mainTitleHtml = stripBr(assets.searchMainTitleHtml || scr.sub || 'developer resources');
+  const queryText = assets.searchQueryText || scr.query || 'How to be a great developer?';
+  const accent = cpp.accent || '#CE3DF3';
+  const glow = `<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200%;height:100%;background:radial-gradient(ellipse at center,${accent}30 0%,transparent 60%);z-index:0;mix-blend-mode:screen;pointer-events:none;"></div>`;
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas-tablet">
+      <div class="ss-bg"></div>
+      ${glow}
+      <div style="position:absolute;inset:0;z-index:2;overflow:hidden;">
+        <div style="position:absolute;left:50%;transform:translateX(-50%);top:${t(100)}px;text-align:center;z-index:5;width:${t(1085)}px;">
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:${t(56)}px;color:rgba(255,255,255,0.64);line-height:1.15;">${topLineHtml}</div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:${t(88)}px;color:white;line-height:1.05;margin-top:${t(6)}px;">${mainTitleHtml}</div>
+        </div>
+        <div style="position:absolute;left:50%;transform:translateX(-50%);top:${t(380)}px;width:${t(670)}px;height:${t(90)}px;background:#1b1f26;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(27)}px;display:flex;align-items:center;padding:0 ${t(24)}px;gap:${t(8)}px;z-index:6;">
+          <img src="cpp-assets/tablet/search-icon.png" style="width:${t(50)}px;height:${t(50)}px;" alt="" />
+          <span style="font-family:'Poppins',sans-serif;font-weight:500;font-size:${t(40)}px;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${queryText}</span>
+        </div>
+        <div style="position:absolute;left:${t(103)}px;top:${t(531)}px;width:${t(669)}px;height:${t(400)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:4;">
+          <img src="cpp-assets/tablet/search-results.png" style="width:100%;height:100%;object-fit:cover;object-position:top left;display:block;" alt="" />
+        </div>
+        <div style="position:absolute;left:${t(798)}px;top:${t(534)}px;width:${t(319)}px;height:${t(391)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:4;">
+          <img src="cpp-assets/tablet/search-podcast.png" style="width:110%;height:110%;object-fit:cover;object-position:center;display:block;margin:-5%;" alt="" />
+        </div>
+        <img src="cpp-assets/tablet/search-star-3d.png" style="position:absolute;left:${t(6)}px;top:${t(428)}px;width:${t(163)}px;height:${t(163)}px;z-index:3;transform:rotate(161deg) scaleY(-1);" alt="" />
+        <img src="cpp-assets/tablet/search-chat-3d.png" style="position:absolute;left:${t(1028)}px;top:${t(432)}px;width:${t(168)}px;height:${t(168)}px;z-index:3;transform:rotate(-169deg) scaleY(-1);" alt="" />
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
+  </div>`;
+}
+
+function mkFeaturesTablet(cpp, scr, idx) {
+  const assets = getScreenEditorValues(scr);
+  const accent = cpp.accent || '#CE3DF3';
+  const glow = `<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200%;height:100%;background:radial-gradient(ellipse at center,${accent}30 0%,transparent 60%);z-index:0;mix-blend-mode:screen;pointer-events:none;"></div>`;
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
+    <div class="screenshot-label">${idx+1}. ${scr.label}</div>
+    <div class="ss-canvas-tablet">
+      <div class="ss-bg"></div>
+      ${glow}
+      <div style="position:absolute;inset:0;z-index:2;overflow:hidden;">
+        <div style="position:absolute;left:${t(104)}px;top:${t(104)}px;z-index:5;">
+          <div style="display:flex;align-items:center;gap:${t(12)}px;margin-bottom:${t(12)}px;">
+            <div style="width:${t(72)}px;height:${t(72)}px;background:rgba(255,255,255,0.24);border-radius:${t(24)}px;display:flex;align-items:center;justify-content:center;">
+              <img src="cpp-assets/tablet/plus-shape.png" style="width:${t(42)}px;height:${t(42)}px;" alt="" />
+            </div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:800;font-size:${t(88)}px;color:white;line-height:1.05;">Bookmarks</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:${t(12)}px;margin-bottom:${t(12)}px;">
+            <div style="width:${t(72)}px;height:${t(72)}px;background:rgba(255,255,255,0.24);border-radius:${t(24)}px;display:flex;align-items:center;justify-content:center;">
+              <img src="cpp-assets/tablet/plus-shape.png" style="width:${t(42)}px;height:${t(42)}px;" alt="" />
+            </div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:800;font-size:${t(88)}px;color:white;line-height:1.05;">Squads</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:${t(12)}px;margin-bottom:${t(12)}px;">
+            <div style="width:${t(72)}px;height:${t(72)}px;background:rgba(255,255,255,0.24);border-radius:${t(24)}px;display:flex;align-items:center;justify-content:center;">
+              <img src="cpp-assets/tablet/plus-shape.png" style="width:${t(42)}px;height:${t(42)}px;" alt="" />
+            </div>
+            <span style="font-family:'Poppins',sans-serif;font-weight:800;font-size:${t(88)}px;color:white;line-height:1.05;">DevCards</span>
+          </div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:${t(56)}px;color:rgba(255,255,255,0.64);line-height:1.15;margin-left:${t(84)}px;">and much more.</div>
+        </div>
+        <div style="position:absolute;left:50%;transform:translateX(${t(78)}px);top:${t(412)}px;width:${t(524)}px;height:${t(540)}px;border:${t(16)}px solid black;border-radius:${t(24)}px;box-shadow:0px ${t(-1)}px 0px ${t(19)}px rgba(255,255,255,0.64);overflow:hidden;z-index:4;">
+          <img src="cpp-assets/tablet/squads-page.png" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.88;" alt="" />
+        </div>
+        <img src="cpp-assets/tablet/bookmark-3d.png" style="position:absolute;left:50%;transform:translateX(-${t(63)}px);top:${t(577)}px;width:${t(208)}px;height:${t(208)}px;z-index:5;" alt="" />
+        <img src="cpp-assets/tablet/atom-3d.png" style="position:absolute;left:${t(948)}px;top:${t(112)}px;width:${t(266)}px;height:${t(266)}px;z-index:3;transform:rotate(-7deg);" alt="" />
+        <div style="position:absolute;left:${t(80)}px;top:${t(810)}px;display:flex;align-items:center;gap:${t(8)}px;z-index:5;">
+          <img src="cpp-assets/tablet/dd-icon-tablet.png" style="height:${t(70)}px;" alt="" />
+          <img src="cpp-assets/tablet/dd-logo-text-tablet.png" style="height:${t(62)}px;" alt="" />
+        </div>
+      </div>
+      <div class="dd-wm">${SVG_LOGO} daily.dev</div>
+    </div>
+    <div class="dim">${getDimWatermarkLabel()}</div>
   </div>`;
 }
 
 function mkScreen(cpp, scr, idx) {
+  if (selectedExportMode === 'tablet') {
+    if (scr.uiType === 'hero') return mkHeroTablet(cpp, scr, idx);
+    if (scr.uiType === 'feed' || scr.label === 'Personalization') return mkFeedTablet(cpp, scr, idx);
+    if (scr.label === 'Personalized') return mkPersonalizedTablet(cpp, scr, idx);
+    if (scr.label === 'Discuss') return mkDiscussTablet(cpp, scr, idx);
+    if (scr.label === 'Search') return mkSearchTablet(cpp, scr, idx);
+    if (scr.label === 'Features' || scr.label === 'Profile' || scr.uiType === 'profile') return mkFeaturesTablet(cpp, scr, idx);
+  }
+
   if (scr.uiType === 'hero') return mkHeroScreen(cpp, scr, idx);
   if (scr.uiType === 'feed' || scr.label === 'Personalization') return mkMasterFeedScreen(cpp, scr, idx);
   if (scr.label === 'Personalized') return mkPersonalizedScreen(cpp, scr, idx);
@@ -1866,7 +2184,7 @@ function mkScreen(cpp, scr, idx) {
   const socialTop = socialPos === 'bottom' ? socialHTML : '';
   const socialMid = socialPos === 'middle' && scr.stars ? socialHTML : '';
 
-  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})"><div class="screenshot-label">${idx+1}. ${scr.label}</div><div class="ss-canvas"><div class="ss-bg" ${bgStyle}></div><div class="ss-content">${hlHTML}${socialMid}<div class="phone-zone"><div class="phone"><div class="phone-notch"></div>${ui}</div>${floatsHTML}${tagsHTML}${badgesHTML}</div>${hlBottomHTML}${socialTop}</div><div class="dd-wm">${SVG_LOGO} daily.dev</div></div><div class="dim">1320×2868</div></div>`;
+  return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})"><div class="screenshot-label">${idx+1}. ${scr.label}</div><div class="ss-canvas"><div class="ss-bg" ${bgStyle}></div><div class="ss-content">${hlHTML}${socialMid}<div class="phone-zone"><div class="phone"><div class="phone-notch"></div>${ui}</div>${floatsHTML}${tagsHTML}${badgesHTML}</div>${hlBottomHTML}${socialTop}</div><div class="dd-wm">${SVG_LOGO} daily.dev</div></div><div class="dim">${getDimWatermarkLabel()}</div></div>`;
 }
 
 const CPP = [
@@ -2120,29 +2438,26 @@ const CPP = [
   }
 ];
 
-function renderOV() {
-  document.getElementById('ov-grid').innerHTML = CPP.map(c => {
-    const s = c.screens[1] || c.screens[0];
-    return `<div class="ov-card"><div class="ov-frame"><div class="ov-bg"></div><div class="ov-hl"><h4>${s.hl}</h4><p>${s.sub||''}</p></div><div class="ov-phone"><div class="ov-phone-inner"><div class="mini-card" style="height:6px;background:var(--bg-float)"></div><div class="mini-card"></div><div class="mini-card" style="height:14px"></div><div class="mini-card"></div><div class="mini-card" style="height:14px"></div></div></div></div><div class="ov-label" style="color:${c.accent}">${c.name}</div></div>`;
-  }).join('');
-}
-
 function renderDT() {
+  const exportLabel = getExportDimensionLabel();
   document.getElementById('cpp-tabs').innerHTML = CPP.map((c,i) =>
     `<div class="tab ${i===0?'active':''}" data-id="${c.id}" onclick="switchCPP('${c.id}')"><span class="dot" style="background:${c.dot}"></span>${c.name}</div>`
   ).join('');
   document.getElementById('cpp-sections').innerHTML = CPP.map((c,i) => {
     const screens = c.screens.map((s,j) => mkScreen(c,s,j)).join('');
     const angle = c.angle ? `<div class="topic-angle">${c.angle}</div>` : '';
-    return `<div class="cpp-section ${i===0?'active':''}" id="cpp-${c.id}"><div class="cpp-header"><h2>${c.name}</h2>${angle}<div class="subtitle">${c.screens.length} screenshots · iPhone 1320×2868</div><button class="download-btn" onclick="downloadPack('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download Pack</button></div><div class="screenshots-row">${screens}</div></div>`;
+    const resSelect = `<select class="section-export-select" onchange="onSectionExportChange(event)"><option value="iphone"${selectedExportMode==='iphone'?' selected':''}>iPhone 1320×2868</option><option value="tablet"${selectedExportMode==='tablet'?' selected':''}>Tablet 2752×2064</option></select>`;
+    return `<div class="cpp-section ${i===0?'active':''}" id="cpp-${c.id}"><div class="cpp-header"><div class="cpp-header-left"><h2>${c.name}</h2><div class="subtitle">${c.screens.length} screens</div></div><div class="cpp-header-controls">${resSelect}<button type="button" class="dl-btn" onclick="downloadPack('${c.id}', { triggerButton: this })">Download</button></div>${angle}</div><div class="screenshots-row">${screens}</div></div>`;
   }).join('');
 }
 
-async function downloadPack(cppId) {
+async function downloadPack(cppId, options = {}) {
+  const preset = getExportPreset();
   const section = document.getElementById(`cpp-${cppId}`);
   if (!section) return;
   const canvases = section.querySelectorAll('.ss-canvas');
-  const btn = section.querySelector('.download-btn');
+  const btn = options.triggerButton || section.querySelector('.cpp-header-controls .dl-btn');
+  if (!btn) return;
   const originalText = btn.innerHTML;
   btn.innerHTML = 'Generating Zip...';
   btn.style.pointerEvents = 'none';
@@ -2153,23 +2468,15 @@ async function downloadPack(cppId) {
 
     for (let i = 0; i < canvases.length; i++) {
       const canvas = canvases[i];
-      // Use a scale factor to increase resolution for export (since it's a preview size in DOM)
-      const scale = 1320 / 280; // iPhone 1320px width / 280px DOM width = ~4.7
-      
+
       btn.innerHTML = `Rendering ${i + 1}/${canvases.length}...`;
-      
-      const dataUrl = await htmlToImage.toPng(canvas, {
-        pixelRatio: scale,
-        style: {
-          transform: 'none',
-          margin: '0'
-        },
-      });
+
+      const dataUrl = await renderCanvasToPreset(canvas, preset);
 
       // Extract the base64 part of the data URL
       const base64Data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
-      zip.file(`cpp-${cppId}-screen-${i + 1}.png`, base64Data, {base64: true});
-      
+      zip.file(getPackFilename(cppId, i, preset), base64Data, {base64: true});
+
       // Add a small delay between renders to allow UI to update
       await new Promise(r => setTimeout(r, 100));
     }
@@ -2182,7 +2489,7 @@ async function downloadPack(cppId) {
     
     const link = document.createElement('a');
     link.href = url;
-    link.download = `cpp-${cppId}-screenshots.zip`;
+    link.download = `cpp-${cppId}-${preset.id}-screenshots.zip`;
     link.click();
     
     // Cleanup
@@ -2194,6 +2501,49 @@ async function downloadPack(cppId) {
     btn.innerHTML = originalText;
     btn.style.pointerEvents = 'auto';
     btn.style.opacity = '1';
+  }
+}
+
+async function downloadAllPacks() {
+  const btn = document.getElementById('download-all-btn');
+  if (!btn) return;
+  const originalHTML = btn.innerHTML;
+  btn.textContent = 'Generating...';
+  btn.disabled = true;
+
+  const preset = getExportPreset();
+  const zip = new JSZip();
+
+  try {
+    for (let topicIndex = 0; topicIndex < CPP.length; topicIndex++) {
+      const topic = CPP[topicIndex];
+      const section = document.getElementById(`cpp-${topic.id}`);
+      if (!section) continue;
+      const canvases = section.querySelectorAll('.ss-canvas');
+
+      for (let screenIndex = 0; screenIndex < canvases.length; screenIndex++) {
+        btn.textContent = `Rendering ${topicIndex + 1}/${CPP.length} · ${screenIndex + 1}/${canvases.length}`;
+        const dataUrl = await renderCanvasToPreset(canvases[screenIndex], preset);
+        const base64Data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, '');
+        zip.file(getPackFilename(topic.id, screenIndex, preset), base64Data, { base64: true });
+        await new Promise((resolve) => setTimeout(resolve, 80));
+      }
+    }
+
+    btn.textContent = 'Saving...';
+    const content = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(content);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `cpp-all-topics-${preset.id}-screenshots.zip`;
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Error exporting all packs:', err);
+    alert('Failed to download all images: ' + (err.message || err));
+  } finally {
+    btn.innerHTML = originalHTML;
+    btn.disabled = false;
   }
 }
 
@@ -2680,6 +3030,8 @@ function openScreenEditor(cppId, screenIdx) {
   updateAllFieldCounts();
   editorState.isHydrating = false;
 
+  const editorSel = document.getElementById('editor-export-select');
+  if (editorSel) editorSel.value = selectedExportMode;
   renderEditorPreview();
   showView('editor');
   updateUrlForState();
@@ -2748,18 +3100,12 @@ async function downloadCurrentEditorImage() {
   setEditorStatus('Preparing download...', 'downloading');
 
   try {
-    const scale = 1320 / 280;
-    const dataUrl = await htmlToImage.toPng(previewCanvas, {
-      pixelRatio: scale,
-      style: {
-        transform: 'none',
-        margin: '0',
-      },
-    });
+    const preset = getExportPreset();
+    const dataUrl = await renderCanvasToPreset(previewCanvas, preset);
 
     const link = document.createElement('a');
     link.href = dataUrl;
-    link.download = `cpp-${editorState.cppId}-${screen.label.toLowerCase()}-${editorState.screenIdx + 1}.png`;
+    link.download = `cpp-${editorState.cppId}-${screen.label.toLowerCase().replace(/\s+/g, '-')}-${preset.id}-${editorState.screenIdx + 1}.png`;
     link.click();
     setEditorStatus('Downloaded', 'saved');
   } catch (err) {
@@ -2780,16 +3126,14 @@ function showView(v) {
     setEditorStatus('Changes discarded', 'saved');
     syncEditorActionButtons();
   }
-  document.getElementById('view-ov').style.display = v==='ov'?'block':'none';
   document.getElementById('view-dt').style.display = v==='dt'?'block':'none';
   document.getElementById('view-editor').style.display = v==='editor'?'block':'none';
-  document.getElementById('btn-ov').classList.toggle('active', v==='ov');
-  document.getElementById('btn-dt').classList.toggle('active', v==='dt');
 }
 
 hydrateSavedScreenOverrides();
-renderOV();
 renderDT();
+updateDownloadAllButton();
+updateEditorPreviewMeta();
 
 document.getElementById('editor-zoom').addEventListener('input', (event) => {
   const value = Number(event.target.value);
@@ -2814,7 +3158,6 @@ syncEditorActionButtons();
 
 const initialCPP = new URLSearchParams(window.location.search).get('cpp');
 if (initialCPP && CPP.some((topic) => topic.id === initialCPP)) {
-  showView('dt');
   switchCPP(initialCPP);
 }
 
