@@ -252,9 +252,7 @@ const OnboardingV2Page = (): ReactElement => {
   const [feedReadyState, setFeedReadyState] = useState(false);
   const [showExtensionPromo, setShowExtensionPromo] = useState(false);
   const [showAuthSignup, setShowAuthSignup] = useState(false);
-  const [authDisplay, setAuthDisplay] = useState(
-    AuthDisplay.OnboardingSignup,
-  );
+  const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
   const [showSignupChooser, setShowSignupChooser] = useState(false);
   const [showGithubImportFlow, setShowGithubImportFlow] = useState(false);
   const [importFlowSource, setImportFlowSource] =
