@@ -4,6 +4,7 @@ import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
+import { SignalPlaceholderList } from './cards/placeholder/SignalPlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
@@ -47,6 +48,8 @@ import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
 import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
+import { SignalList } from './cards/common/list/SignalList';
+import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
 
 export type FeedItemComponentProps = {
@@ -139,21 +142,29 @@ type GetTagsProps = {
   isListFeedLayout: boolean;
   shouldUseListMode: boolean;
   postType: PostType;
+  feedName: string;
 };
 
 const getTags = ({
   isListFeedLayout,
   shouldUseListMode,
   postType,
+  feedName,
 }: GetTagsProps) => {
   const useListCards = isListFeedLayout || shouldUseListMode;
+  const isSignalFeed = feedName === OtherFeedPage.AgentsVibes;
+  const listPostTag = isSignalFeed ? SignalList : PostTypeToTagList[postType];
+  const listPlaceholderTag = isSignalFeed
+    ? SignalPlaceholderList
+    : PlaceholderList;
+
   return {
     PostTag: useListCards
-      ? PostTypeToTagList[postType] ?? ArticleList
+      ? listPostTag ?? ArticleList
       : PostTypeToTagCard[postType] ?? ArticleGrid,
     AdTag: useListCards ? AdList : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
-    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
+    PlaceholderTag: useListCards ? listPlaceholderTag : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
     PlusGridTag: PlusGrid,
     AcquisitionFormTag: useListCards
@@ -267,6 +278,7 @@ function FeedItemComponent({
     postType: getPostTypeForCard(
       isBoostedPostAd(item) ? item.ad.data?.post : (item as PostItem).post,
     ),
+    feedName,
   });
 
   const onAdAction = (action: AdActions, ad: Ad) => {

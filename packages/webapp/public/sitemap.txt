@@ -8,4 +8,5 @@ https://app.daily.dev/users
 https://app.daily.dev/search
 https://app.daily.dev/jobs
 https://app.daily.dev/plus
+https://app.daily.dev/agents
 https://app.daily.dev/agents/arena

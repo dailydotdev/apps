@@ -212,6 +212,28 @@ export const SOURCE_FEED_QUERY = gql`
   ${getFeedPostFragment('pinnedAt contentHtml')}
 `;
 
+export const CHANNEL_FEED_QUERY = gql`
+  query ChannelFeed(
+    $channel: String!
+    $contentCuration: [String!]
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $supportedTypes: [String!]
+  ) {
+    page: channelFeed(
+      channel: $channel
+      contentCuration: $contentCuration
+      first: $first
+      after: $after
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
 export const BOOKMARKS_FEED_QUERY = gql`
   query BookmarksFeed(
     $loggedIn: Boolean! = false

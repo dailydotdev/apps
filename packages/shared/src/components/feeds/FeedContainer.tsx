@@ -44,6 +44,8 @@ export interface FeedContainerProps {
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   showBriefCard?: boolean;
+  disableListFrame?: boolean;
+  disableListWidthConstraint?: boolean;
 }
 
 const listGaps = {
@@ -146,6 +148,8 @@ export const FeedContainer = ({
   isHorizontal,
   feedContainerRef,
   showBriefCard,
+  disableListFrame = false,
+  disableListWidthConstraint = false,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
@@ -174,7 +178,9 @@ export const FeedContainer = ({
     '--num-cards': isHorizontal && isListMode && numCards >= 2 ? 2 : numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
-  const cardContainerStyle = { ...getStyle(isList, spaciness) };
+  const cardContainerStyle = disableListWidthConstraint
+    ? {}
+    : { ...getStyle(isList, spaciness) };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
 
@@ -291,9 +297,11 @@ export const FeedContainer = ({
             wrapper={(child) => (
               <div
                 className={classNames(
-                  'flex flex-col rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
-                  isSearch && 'mt-6',
-                  !isLaptop && '!mt-2 border-0',
+                  'flex flex-col',
+                  !disableListFrame &&
+                    'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
+                  !disableListFrame && isSearch && 'mt-6',
+                  !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
                 <ConditionalWrapper
