@@ -15,10 +15,12 @@ interface HorizontalFeedProps<T> {
   variables: T;
   title: HorizontalScrollTitleProps;
   emptyScreen: ReactElement;
+  className?: string;
 }
 
 export default function HorizontalFeed<T>({
   title,
+  className,
   ...props
 }: HorizontalFeedProps<T>): ReactElement {
   const { ref, header } = useHorizontalScrollHeader({
@@ -34,7 +36,11 @@ export default function HorizontalFeed<T>({
       allowFetchMore={false}
       pageSize={10}
       isHorizontal
-      className={classnames('mx-4 mb-10', isListMode && 'laptop:mx-auto')}
+      className={classnames(
+        'mx-4 mb-10',
+        isListMode && 'laptop:mx-auto',
+        className,
+      )}
       feedContainerRef={ref}
     />
   );

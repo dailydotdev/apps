@@ -130,7 +130,6 @@ const TagRecommendedTags = ({
 };
 
 const TagTopSources = ({ tag }: { tag: string }) => {
-  const { shouldUseListFeedLayout } = useFeedLayout();
   const { data: topSources, isPending } = useQuery({
     queryKey: [RequestKey.SourceByTag, null, tag],
 
@@ -157,7 +156,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
       isLoading={isPending}
       sources={sources}
       title="🔔 Top sources covering it"
-      className={shouldUseListFeedLayout && 'mx-4'}
+      className="mx-4"
     />
   );
 };
@@ -204,7 +203,7 @@ const TagPage = ({
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
-  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
+  const { FeedPageLayoutComponent } = useFeedLayout();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
@@ -236,7 +235,7 @@ const TagPage = ({
     const fallbackTag = typeof query.tag === 'string' ? query.tag : tag;
     return (
       <FeedPageLayoutComponent>
-        <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
+        <PageInfoHeader className="mx-4 !w-auto">
           <div className="flex items-center font-bold">
             <HashtagIcon size={IconSize.XXLarge} />
             <h1 className="ml-2 w-fit typo-title2">{fallbackTag}</h1>
@@ -280,7 +279,7 @@ const TagPage = ({
 
   return (
     <FeedPageLayoutComponent>
-      <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
+      <PageInfoHeader className="mx-4 !w-auto">
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 w-fit typo-title2">{title}</h1>
@@ -406,6 +405,7 @@ const TagPage = ({
             copy: 'Top posts',
             icon: <HashtagIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className="laptop:!mx-4"
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -425,6 +425,7 @@ const TagPage = ({
             copy: 'Most upvoted posts',
             icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className="laptop:!mx-4"
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -444,10 +445,11 @@ const TagPage = ({
             copy: 'Best discussed posts',
             icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className="laptop:!mx-4"
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
-      <div className="mx-4 mb-5 flex w-auto items-center laptop:mx-0 laptop:w-full">
+      <div className="mx-4 mb-5 flex w-auto items-center">
         <p className="flex items-center font-bold typo-body">
           All posts about {tag}
         </p>
@@ -461,6 +463,7 @@ const TagPage = ({
         ]}
         query={TAG_FEED_QUERY}
         variables={queryVariables}
+        className="!mx-4 !w-auto"
       />
     </FeedPageLayoutComponent>
   );
