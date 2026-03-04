@@ -81,14 +81,16 @@ export const FreeformList = forwardRef(function SharePostCard(
   const metadata = useMemo(() => {
     if (isUserSource) {
       return {
-        topLabel: post.author.name,
+        topLabel: post.author?.name ?? post.source.name,
       };
     }
 
     return {
-      topLabel: enableSourceHeader ? post.source.name : post.author.name,
+      topLabel: enableSourceHeader
+        ? post.source.name
+        : post.author?.name ?? post.source.name,
       bottomLabel: enableSourceHeader
-        ? post.author.name
+        ? post.author?.name ?? `@${post.source.handle ?? 'unknown'}`
         : `@${
             post.source.handle ?? post.sharedPost?.source?.handle ?? 'unknown'
           }`,

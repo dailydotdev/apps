@@ -76,7 +76,7 @@ export const ShareList = forwardRef(function ShareList(
   const metadata = useMemo(() => {
     if (isUserSource) {
       return {
-        topLabel: post.author.name,
+        topLabel: post.author?.name ?? post.source.name,
       };
     }
 
@@ -88,16 +88,16 @@ export const ShareList = forwardRef(function ShareList(
           </a>
         </Link>
       ) : (
-        post.author.name
+        post.author?.name ?? post.source.name
       ),
       bottomLabel: enableSourceHeader
-        ? post.author.name
+        ? post.author?.name ?? post.source.name
         : `@${sharedPost?.source?.handle}`,
     };
   }, [
     enableSourceHeader,
     isUserSource,
-    post.author.name,
+    post?.author?.name,
     post.source.name,
     post.source.permalink,
     sharedPost?.source?.handle,

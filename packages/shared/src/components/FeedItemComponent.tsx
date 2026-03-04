@@ -308,7 +308,9 @@ function FeedItemComponent({
       <ActivePostContextProvider post={itemPost}>
         <PostTag
           enableSourceHeader={
-            feedName !== 'squad' && itemPost.source?.type === 'squad'
+            feedName !== 'squad' &&
+            (itemPost.source?.type === 'squad' ||
+              itemPost.source?.type === 'machine')
           }
           ref={inViewRef}
           post={{ ...itemPost }}

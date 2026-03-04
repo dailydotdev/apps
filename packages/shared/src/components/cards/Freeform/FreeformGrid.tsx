@@ -73,27 +73,25 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           {title}
         </FreeformCardTitle>
       </CardTextContainer>
-      {!!post.author && (
-        <>
-          {image && <CardSpace />}
-          <div
-            className={classNames(
-              'mx-4 mb-2 flex items-center',
-              !image && 'mt-1',
-            )}
-          >
-            {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
-          </div>
-          <PostMetadata
-            className={classNames(
-              'mx-4 line-clamp-1 break-words',
-              image ? 'mt-0' : 'mt-1',
-            )}
-            createdAt={post.createdAt}
-            readTime={post.readTime}
-          />
-        </>
-      )}
+      <>
+        {image && <CardSpace />}
+        <div
+          className={classNames(
+            'mx-4 mb-2 flex items-center',
+            !image && 'mt-1',
+          )}
+        >
+          {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
+        </div>
+        <PostMetadata
+          className={classNames(
+            'mx-4 line-clamp-1 break-words',
+            image ? 'mt-0' : 'mt-1',
+          )}
+          createdAt={post.createdAt}
+          readTime={post.readTime}
+        />
+      </>
       <Container ref={containerRef}>
         <WelcomePostCardFooter
           image={image}

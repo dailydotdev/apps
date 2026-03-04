@@ -55,7 +55,9 @@ const PollGrid = forwardRef(function PollCard(
       <CardTextContainer>
         <SquadPostCardHeader
           post={post}
-          enableSourceHeader={source.type === 'squad'}
+          enableSourceHeader={
+            source.type === 'squad' || source.type === 'machine'
+          }
         />
         <CardTitle>{title}</CardTitle>
       </CardTextContainer>
