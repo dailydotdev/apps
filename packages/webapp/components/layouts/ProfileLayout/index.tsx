@@ -18,6 +18,7 @@ import type { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
@@ -171,7 +172,7 @@ export async function getStaticProps({
     const user = await getProfile(userId);
     if (!user) {
       return {
-        props: { noindex: true },
+        notFound: true,
         revalidate: 60,
       };
     }
@@ -187,9 +188,12 @@ export async function getStaticProps({
     };
   } catch (err) {
     const clientError = err as ClientError;
-    if (clientError?.response?.errors?.[0]?.extensions?.code === 'FORBIDDEN') {
+    if (
+      clientError?.response?.errors?.[0]?.extensions?.code ===
+      ApiError.Forbidden
+    ) {
       return {
-        props: { noindex: true },
+        notFound: true,
         revalidate: 60,
       };
     }
