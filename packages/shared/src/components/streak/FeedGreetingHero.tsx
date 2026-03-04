@@ -189,7 +189,6 @@ export function FeedGreetingHero(): ReactElement | null {
   const isLightModeTheme =
     themeMode === ThemeMode.Light || (themeMode === ThemeMode.Auto && !isSystemDark);
   const hasNightBackground = isEvening && !isLightModeTheme;
-  const hasMorningDarkCinematic = isMorning && !isLightModeTheme;
 
   const hasReadToday =
     !!streak?.lastViewAt &&
@@ -344,7 +343,7 @@ export function FeedGreetingHero(): ReactElement | null {
             className={classNames(
               'pointer-events-none absolute inset-0 z-0',
               hasNightBackground
-                ? 'bg-[#02040a]'
+                ? 'bg-background-default'
                 : isLightModeTheme
                   ? 'from-[#1b2134]/35 via-[#1b2134]/15 bg-gradient-to-b to-transparent'
                   : 'bg-transparent',
@@ -355,14 +354,6 @@ export function FeedGreetingHero(): ReactElement | null {
         @keyframes lumina-source-breath {
           0%, 100% { opacity: 0.58; transform: scale(1); }
           50% { opacity: 0.8; transform: scale(1.05); }
-        }
-        @keyframes morning-aurora-drift {
-          0%, 100% { transform: translateX(0) scale(1); opacity: 0.45; }
-          50% { transform: translateX(-2%) scale(1.04); opacity: 0.65; }
-        }
-        @keyframes morning-light-sweep {
-          0%, 100% { transform: translateX(-4%) translateY(0); opacity: 0.16; }
-          50% { transform: translateX(3%) translateY(-1%); opacity: 0.28; }
         }
             @keyframes butterfly-flutter {
               0%, 100% { transform: scaleX(1) translateY(0); }
@@ -639,18 +630,16 @@ export function FeedGreetingHero(): ReactElement | null {
               animation: starlink-train 80s linear 20s infinite;
             }
           `}</style>
-          {/* Deep space background gradients */}
-          <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,rgba(15,25,60,0.8)_0%,transparent_60%)]" />
-          <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(20,10,40,0.9)_0%,transparent_50%)]" />
-
-          {/* Milky way core band */}
-          <div className="pointer-events-none absolute -inset-[20%] z-0 rotate-[15deg] bg-[radial-gradient(ellipse_at_center,rgba(60,40,110,0.25)_0%,rgba(30,40,90,0.15)_30%,transparent_65%)] blur-2xl" />
-          <div className="pointer-events-none absolute -inset-[10%] z-0 rotate-[15deg] bg-[radial-gradient(ellipse_at_center,rgba(120,70,160,0.15)_0%,rgba(50,80,140,0.1)_40%,transparent_70%)] blur-xl" />
+          {/* Keep night visuals close to app's main dark background */}
+          <div className="pointer-events-none absolute inset-0 z-0 bg-background-default" />
+          <div className="bg-accent-onion-default/8 pointer-events-none absolute -right-16 top-0 z-0 h-72 w-[24rem] rounded-full blur-[5rem]" />
+          <div className="bg-accent-bacon-default/7 pointer-events-none absolute -left-12 bottom-0 z-0 h-64 w-[22rem] rounded-full blur-[4.5rem]" />
+          <div className="bg-surface-float/35 pointer-events-none absolute inset-0 z-0" />
 
           {/* Nebula dust clouds */}
           <div className="bg-accent-onion-default/15 pointer-events-none absolute -left-10 top-10 z-0 h-64 w-96 rounded-full blur-[64px]" />
           <div className="bg-accent-bacon-default/10 pointer-events-none absolute -right-20 top-0 z-0 h-80 w-[30rem] rounded-full blur-[80px]" />
-          <div className="bg-[#2a4b8d]/20 pointer-events-none absolute bottom-0 left-1/3 z-0 h-40 w-64 rounded-full blur-[50px]" />
+          <div className="bg-accent-onion-default/10 pointer-events-none absolute bottom-0 left-1/3 z-0 h-40 w-64 rounded-full blur-[50px]" />
 
           {/* Falling stars */}
           <div className="animate-shooting-star absolute right-[20%] top-0 z-0 h-[1px] w-32 bg-gradient-to-r from-white to-transparent opacity-0">
@@ -659,37 +648,6 @@ export function FeedGreetingHero(): ReactElement | null {
           <div className="animate-shooting-star-green absolute -top-10 right-[40%] z-0 h-[1.5px] w-48 bg-gradient-to-r from-[#4ade80] to-transparent opacity-0">
             <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#4ade80] shadow-[0_0_12px_4px_rgba(74,222,128,0.8)]" />
           </div>
-        </div>
-      )}
-          {hasMorningDarkCinematic && (
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          <div
-            className="absolute -left-[8%] -top-[40%] h-[125%] w-[60%] rounded-full blur-[4.5rem]"
-            style={{
-              background:
-                'radial-gradient(ellipse at center, rgba(84,120,255,0.35) 0%, rgba(84,120,255,0.16) 40%, transparent 74%)',
-              animation: 'morning-aurora-drift 20s ease-in-out infinite',
-            }}
-          />
-          <div
-            className="absolute -right-[10%] -top-[22%] h-[95%] w-[58%] rounded-full blur-[4rem]"
-            style={{
-              background:
-                'radial-gradient(ellipse at center, rgba(168,85,247,0.3) 0%, rgba(168,85,247,0.14) 44%, transparent 74%)',
-              animation: 'morning-aurora-drift 22s ease-in-out infinite 2.5s',
-            }}
-          />
-          <div
-            className="absolute inset-y-0 -left-[8%] w-[55%]"
-            style={{
-              background:
-                'linear-gradient(108deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.12) 25%, transparent 58%)',
-              filter: 'blur(2rem)',
-              mixBlendMode: 'screen',
-              animation: 'morning-light-sweep 14s ease-in-out infinite',
-            }}
-          />
-          <div className="absolute inset-0 bg-[radial-gradient(80%_75%_at_50%_45%,transparent_58%,rgba(0,0,0,0.33)_100%)]" />
         </div>
       )}
           <div className="pointer-events-none absolute inset-0 z-0">
