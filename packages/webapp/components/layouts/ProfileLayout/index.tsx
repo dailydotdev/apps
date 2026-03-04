@@ -171,8 +171,7 @@ export async function getStaticProps({
     const user = await getProfile(userId);
     if (!user) {
       return {
-        props: { noindex: true },
-        revalidate: 60,
+        notFound: true,
       };
     }
     const data = await getProfileV2Extra(user.id);
@@ -189,8 +188,7 @@ export async function getStaticProps({
     const clientError = err as ClientError;
     if (clientError?.response?.errors?.[0]?.extensions?.code === 'FORBIDDEN') {
       return {
-        props: { noindex: true },
-        revalidate: 60,
+        notFound: true,
       };
     }
     throw err;
