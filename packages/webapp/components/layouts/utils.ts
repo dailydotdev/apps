@@ -4,10 +4,11 @@ export const getTemplatedTitle = (
 ): string => {
   const maxTitleLength = 60;
   const suffix = ` ${template}`;
+  const ellipsis = '...';
 
   if (title.length + suffix.length > maxTitleLength) {
     if (title.length > maxTitleLength) {
-      return `${title.slice(0, maxTitleLength - 3)}...`;
+      return `${title.slice(0, maxTitleLength - ellipsis.length)}${ellipsis}`;
     }
 
     return title;
