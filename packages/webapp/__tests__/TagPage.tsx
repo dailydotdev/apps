@@ -139,7 +139,12 @@ const renderComponent = (
       >
         <AlertContextProvider alerts={{}} updateAlerts={jest.fn()} loadedAlerts>
           <SettingsContext.Provider value={settingsContext}>
-            <TagPage tag="react" initialData={initialData} />
+            <TagPage
+              tag="react"
+              initialData={initialData}
+              topPosts={[]}
+              recommendedTags={[]}
+            />
           </SettingsContext.Provider>
         </AlertContextProvider>
       </AuthContext.Provider>
