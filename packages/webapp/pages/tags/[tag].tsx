@@ -183,6 +183,18 @@ const TagPage = ({
     }),
     [tag],
   );
+  const topPostsQueryVariables = useMemo(
+    () => ({
+      tag,
+      ranking: 'POPULARITY',
+      supportedTypes: [
+        PostType.Article,
+        PostType.VideoYouTube,
+        PostType.Collection,
+      ],
+    }),
+    [tag],
+  );
   const bestDiscussedQueryVariables = useMemo(
     () => ({
       tag,
@@ -329,20 +341,16 @@ const TagPage = ({
           <p className="typo-body">{initialData?.flags?.description}</p>
         )}
         {topPosts.length > 0 && (
-          <div className="flex flex-col">
-            <p className="mb-2 text-text-tertiary typo-caption1">Top posts:</p>
-            <ul className="list-inside list-disc">
-              {topPosts.map((post) => (
-                <li key={post.id} className="text-text-secondary typo-callout">
-                  <Link
-                    href={`/posts/${post.slug || post.id}`}
-                    prefetch={false}
-                  >
-                    <a>{post.title}</a>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <div className="sr-only">
+            {topPosts.map((post) => (
+              <Link
+                key={post.id}
+                href={`/posts/${post.slug || post.id}`}
+                prefetch={false}
+              >
+                <a>{post.title}</a>
+              </Link>
+            ))}
           </div>
         )}
         {tag && (
@@ -382,6 +390,25 @@ const TagPage = ({
         )}
       </PageInfoHeader>
       <TagTopSources tag={tag} />
+      <ActiveFeedNameContext.Provider
+        value={{ feedName: OtherFeedPage.TagsTopPosts }}
+      >
+        <HorizontalFeed
+          feedName={OtherFeedPage.TagsTopPosts}
+          feedQueryKey={[
+            'tagsTopPosts',
+            user?.id ?? 'anonymous',
+            Object.values(topPostsQueryVariables),
+          ]}
+          query={TAG_FEED_QUERY}
+          variables={topPostsQueryVariables}
+          title={{
+            copy: 'Top posts',
+            icon: <HashtagIcon size={IconSize.Medium} className="mr-1.5" />,
+          }}
+          emptyScreen={<></>}
+        />
+      </ActiveFeedNameContext.Provider>
       <ActiveFeedNameContext.Provider
         value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
       >
