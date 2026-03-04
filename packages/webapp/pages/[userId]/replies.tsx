@@ -66,6 +66,8 @@ const ProfileCommentsPage = ({
         title: getTemplatedTitle(
           `Posts with replies by ${user.name} (@${user.username})`,
         ),
+        noindex: true,
+        nofollow: true,
       },
       noindex,
     ),

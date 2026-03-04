@@ -38,6 +38,8 @@ const ProfileAchievementsPage = ({
         description: `View ${
           isSameUser ? 'your' : `${user.name}'s`
         } achievements on daily.dev`,
+        noindex: true,
+        nofollow: true,
       },
       noindex,
     ),
