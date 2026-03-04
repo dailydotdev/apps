@@ -7,7 +7,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePlusSubscription } from '../../hooks';
 import { PlusUser } from '../PlusUser';
@@ -17,6 +17,7 @@ import type { WithClassNameProps } from '../utilities';
 import { webappUrl } from '../../lib/constants';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { IconSize } from '../Icon';
+import { ProfilePictureWithDecoration } from '../profile/ProfilePictureWithDecoration';
 
 type Props = WithClassNameProps & {
   shouldOpenProfile?: boolean;
@@ -43,11 +44,12 @@ export const ProfileMenuHeader = ({
       <div
         className={classNames('relative flex items-center gap-2', className)}
       >
-        <ProfilePicture
+        <ProfilePictureWithDecoration
           user={user}
           nativeLazyLoading
           eager
           size={profileImageSize}
+          decoration={user.activeDecoration}
           className="!rounded-10 border-background-default"
         />
 

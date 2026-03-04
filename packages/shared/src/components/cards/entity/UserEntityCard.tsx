@@ -32,6 +32,7 @@ import EntityDescription from './EntityDescription';
 import useUserMenuProps from '../../../hooks/useUserMenuProps';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import type { MenuItemProps } from '../../dropdown/common';
+import { ProfilePictureWithDecoration } from '../../profile/ProfilePictureWithDecoration';
 
 type Props = {
   user?: UserShortProfile;
@@ -72,8 +73,7 @@ const UserEntityCard = ({ user, className }: Props) => {
     },
     [user, openModal],
   );
-  const { username, bio, name, image, isPlus, createdAt, id, permalink } =
-    user || {};
+  const { username, bio, name, isPlus, createdAt, id, permalink } = user || {};
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
@@ -124,13 +124,20 @@ const UserEntityCard = ({ user, className }: Props) => {
   return (
     <EntityCard
       permalink={permalink}
-      image={image}
       type="user"
       className={{
         image: 'size-16 rounded-20',
         container: className?.container,
       }}
       entityName={username}
+      imageNode={
+        <ProfilePictureWithDecoration
+          user={user}
+          size={ProfileImageSize.XXXLarge}
+          decoration={user?.activeDecoration}
+          nativeLazyLoading
+        />
+      }
       actionButtons={
         showActionBtns && (
           <>

@@ -92,6 +92,7 @@ export enum LazyModal {
   SlackChannelConfirmation = 'slackChannelConfirmation',
   RecruiterSeats = 'recruiterSeats',
   CandidateSignIn = 'candidateSignIn',
+  DecorationSelection = 'decorationSelection',
   Feedback = 'feedback',
   HotAndCold = 'hotAndCold',
   AchievementSyncPrompt = 'achievementSyncPrompt',

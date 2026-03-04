@@ -1,11 +1,15 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize } from '../ProfilePicture';
 import type { UserImageProps } from '../ProfilePicture';
 import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
+import { ProfilePictureWithDecoration } from './ProfilePictureWithDecoration';
+import type { Decoration } from '../../graphql/decorations';
 
 interface ProfilePictureWithIndicatorProps {
-  user: UserImageProps;
+  user: UserImageProps & {
+    activeDecoration?: Pick<Decoration, 'id' | 'media'> | null;
+  };
   size?: ProfileImageSize;
   className?: string;
   wrapperClassName?: string;
@@ -21,9 +25,10 @@ export function ProfilePictureWithIndicator({
 
   return (
     <span className={wrapperClassName}>
-      <ProfilePicture
+      <ProfilePictureWithDecoration
         user={user}
         size={size}
+        decoration={user.activeDecoration}
         nativeLazyLoading
         className={className}
       />
