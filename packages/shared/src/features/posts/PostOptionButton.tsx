@@ -377,7 +377,26 @@ const PostOptionButtonContent = ({
     });
   };
 
-  const onBlockTag = async (tag: string): Promise<void> => {
+  const onToggleTagBlock = async (
+    tag: string,
+    isBlocked: boolean,
+  ): Promise<void> => {
+    if (isBlocked) {
+      const { successful } = await onUnblockTags({
+        tags: [tag],
+        requireLogin: true,
+      });
+
+      if (!successful) {
+        return;
+      }
+
+      displayToast(`#${tag} unblocked`, {
+        subject: ToastSubject.Feed,
+      });
+      return;
+    }
+
     const { successful } = await onBlockTags({
       tags: [tag],
       requireLogin: true,
@@ -387,7 +406,7 @@ const PostOptionButtonContent = ({
       return;
     }
 
-    const isTagFollowed = feedSettings?.includeTags?.indexOf(tag) !== -1;
+    const isTagFollowed = feedSettings?.includeTags?.includes(tag) ?? false;
     await showMessageAndRemovePost(
       `⛔️ #${tag} blocked`,
       postIndex,
@@ -398,21 +417,6 @@ const PostOptionButtonContent = ({
         }
       },
     );
-  };
-
-  const onUnblockTag = async (tag: string): Promise<void> => {
-    const { successful } = await onUnblockTags({
-      tags: [tag],
-      requireLogin: true,
-    });
-
-    if (!successful) {
-      return;
-    }
-
-    displayToast(`#${tag} unblocked`, {
-      subject: ToastSubject.Feed,
-    });
   };
 
   const contentTypeItem = useFeedContentTypeAction({
@@ -774,7 +778,7 @@ const PostOptionButtonContent = ({
         postOptions.push({
           icon: <MenuIcon Icon={isBlocked ? PlusIcon : BlockIcon} />,
           label: isBlocked ? `Unblock #${tag}` : `Block #${tag}`,
-          action: () => (isBlocked ? onUnblockTag(tag) : onBlockTag(tag)),
+          action: () => onToggleTagBlock(tag, isBlocked),
         });
       }
     });
