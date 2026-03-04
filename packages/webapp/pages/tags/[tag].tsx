@@ -463,7 +463,7 @@ const TagPage = ({
         ]}
         query={TAG_FEED_QUERY}
         variables={queryVariables}
-        className="mx-4 !w-auto"
+        className="!mx-4 !w-auto"
       />
     </FeedPageLayoutComponent>
   );
