@@ -138,34 +138,33 @@ export const ArenaDailySocialCard = ({
         return {
           lineIndex,
           y: getY(lastValue) - 3,
-          labelY: 0,
         };
       })
       .sort((a, b) => a.y - b.y);
 
+    if (positioned.length === 0) {
+      return [];
+    }
+
+    const labelYs = positioned.map(() => labelTop);
     let lastLabelY = labelTop - labelGap;
-    positioned.forEach((item) => {
-      item.labelY = Math.max(item.y, lastLabelY + labelGap);
-      lastLabelY = item.labelY;
+    positioned.forEach((item, index) => {
+      labelYs[index] = Math.max(item.y, lastLabelY + labelGap);
+      lastLabelY = labelYs[index];
     });
 
     const overflow = lastLabelY - labelBottom;
-    if (overflow > 0) {
-      positioned.forEach((item) => {
-        item.labelY -= overflow;
-      });
-    }
-
-    const topUnderflow = labelTop - positioned[0].labelY;
-    if (topUnderflow > 0) {
-      positioned.forEach((item) => {
-        item.labelY += topUnderflow;
-      });
-    }
+    const adjustedForBottom = labelYs.map((labelY) =>
+      overflow > 0 ? labelY - overflow : labelY,
+    );
+    const topUnderflow = labelTop - adjustedForBottom[0];
+    const normalizedLabelYs = adjustedForBottom.map((labelY) =>
+      topUnderflow > 0 ? labelY + topUnderflow : labelY,
+    );
 
     const byIndex = new Array(safeChartTools.length).fill(labelTop);
-    positioned.forEach((item) => {
-      byIndex[item.lineIndex] = item.labelY;
+    positioned.forEach((item, index) => {
+      byIndex[item.lineIndex] = normalizedLabelYs[index];
     });
 
     return byIndex;
@@ -198,7 +197,7 @@ export const ArenaDailySocialCard = ({
       </div>
 
       <div className="relative flex h-full flex-col gap-4 p-6">
-        <header className="relative overflow-hidden rounded-18 bg-surface-float/70 p-5">
+        <header className="bg-surface-float/70 relative overflow-hidden rounded-18 p-5">
           <div className="relative flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <ArenaIcon

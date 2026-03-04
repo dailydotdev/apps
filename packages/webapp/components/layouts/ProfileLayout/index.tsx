@@ -18,6 +18,7 @@ import type { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
@@ -25,12 +26,14 @@ import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostRef
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
+import { getAppOrigin } from '../../../lib/seo';
 import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarCollapse';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
 );
+const appOrigin = getAppOrigin();
 
 export interface ProfileLayoutProps extends Partial<ProfileV2> {
   noindex: boolean;
@@ -67,6 +70,8 @@ export const getProfileSeoDefaults = (
   return {
     title: getTemplatedTitle(`${user.name} (@${user.username})`),
     description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
+    // Intentionally canonicalize profile surfaces to the main username URL.
+    canonical: `${appOrigin}/${user.username}`,
     openGraph: {
       images: [{ url: getOGImageUrl(user.id) }],
     },
@@ -171,7 +176,7 @@ export async function getStaticProps({
     const user = await getProfile(userId);
     if (!user) {
       return {
-        props: { noindex: true },
+        notFound: true,
         revalidate: 60,
       };
     }
@@ -187,9 +192,12 @@ export async function getStaticProps({
     };
   } catch (err) {
     const clientError = err as ClientError;
-    if (clientError?.response?.errors?.[0]?.extensions?.code === 'FORBIDDEN') {
+    if (
+      clientError?.response?.errors?.[0]?.extensions?.code ===
+      ApiError.Forbidden
+    ) {
       return {
-        props: { noindex: true },
+        notFound: true,
         revalidate: 60,
       };
     }

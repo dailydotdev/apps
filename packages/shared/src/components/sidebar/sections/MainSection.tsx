@@ -131,7 +131,7 @@ export const MainSection = ({
         icon: (active: boolean) => (
           <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
         ),
-        title: 'Agentic Hub',
+        title: 'Agents',
         path: `${webappUrl}agents`,
         isForcedLink: true,
         requiresLogin: true,

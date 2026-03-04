@@ -70,6 +70,9 @@ export enum SourceType {
 export const isSourceUserSource = (source?: Source): boolean =>
   source?.type === SourceType.User;
 
+export const isSourceSquadOrMachine = (source?: Source): boolean =>
+  source?.type === SourceType.Squad || source?.type === SourceType.Machine;
+
 export interface Squad extends Source {
   active: boolean;
   permalink: string;
