@@ -203,7 +203,7 @@ const TagPage = ({
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
-  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
+  const { FeedPageLayoutComponent } = useFeedLayout();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
@@ -235,7 +235,7 @@ const TagPage = ({
     const fallbackTag = typeof query.tag === 'string' ? query.tag : tag;
     return (
       <FeedPageLayoutComponent>
-        <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
+        <PageInfoHeader className="mx-4 !w-auto laptop:mx-0 laptop:!w-full">
           <div className="flex items-center font-bold">
             <HashtagIcon size={IconSize.XXLarge} />
             <h1 className="ml-2 w-fit typo-title2">{fallbackTag}</h1>
