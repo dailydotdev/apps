@@ -343,12 +343,10 @@ export async function getStaticProps({
     const errors = Object.values(ApiError);
     if (errors.includes(errorCode)) {
       // Return proper 404 for missing and forbidden posts (better for SEO/crawl budget)
-      if (
-        errorCode === ApiError.NotFound ||
-        errorCode === ApiError.Forbidden
-      ) {
+      if (errorCode === ApiError.NotFound || errorCode === ApiError.Forbidden) {
         return {
           notFound: true,
+          revalidate: 60,
         };
       }
 
