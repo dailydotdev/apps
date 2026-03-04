@@ -33,23 +33,7 @@ import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarColla
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
 );
-const defaultAppOrigin = 'https://app.daily.dev';
-
-const getProfileCanonicalOrigin = (): string => {
-  const origin = getAppOrigin();
-
-  try {
-    const url = new URL(origin);
-    if (!url.hostname) {
-      return defaultAppOrigin;
-    }
-    return origin;
-  } catch {
-    return defaultAppOrigin;
-  }
-};
-
-const appOrigin = getProfileCanonicalOrigin();
+const appOrigin = getAppOrigin();
 
 export interface ProfileLayoutProps extends Partial<ProfileV2> {
   noindex: boolean;
