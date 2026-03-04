@@ -311,8 +311,8 @@ export type SquadStaticData = Pick<
   | 'moderationRequired'
   | 'permalink'
   | 'membersCount'
-> &
-  Pick<Source, 'createdAt'>;
+  | 'createdAt'
+>;
 
 export const getSquadStaticFields = async (
   handle: string,

@@ -93,7 +93,9 @@ const getSquadPageJsonLd = (squad: SquadStaticData): string => {
         url: squadUrl,
         ...(squad.description && { description: squad.description }),
         ...(squad.image && { logo: squad.image, image: squad.image }),
-        ...(squad.createdAt && { foundingDate: squad.createdAt }),
+        ...(squad.createdAt && {
+          foundingDate: new Date(squad.createdAt).toISOString().split('T')[0],
+        }),
         ...(squad.membersCount > 0 && {
           interactionStatistic: {
             '@type': 'InteractionCounter',
@@ -106,7 +108,7 @@ const getSquadPageJsonLd = (squad: SquadStaticData): string => {
         '@type': 'CollectionPage',
         '@id': `${squadUrl}#page`,
         url: squadUrl,
-        name: `${squad.name} Squad`,
+        name: squad.name,
         about: { '@id': `${squadUrl}#organization` },
         isPartOf: { '@type': 'WebSite', url: appOrigin },
       },
