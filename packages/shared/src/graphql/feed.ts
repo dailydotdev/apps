@@ -190,6 +190,20 @@ export const TAG_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const TAG_TOP_POSTS_QUERY = gql`
+  query TagTopPosts($tag: String!, $first: Int) {
+    page: tagFeed(tag: $tag, first: $first, ranking: POPULARITY) {
+      edges {
+        node {
+          id
+          title
+          slug
+        }
+      }
+    }
+  }
+`;
+
 export const SOURCE_FEED_QUERY = gql`
   query SourceFeed(
     $source: ID!

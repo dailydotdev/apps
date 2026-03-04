@@ -23,6 +23,7 @@ import {
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   TAG_FEED_QUERY,
+  TAG_TOP_POSTS_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { ButtonProps } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -59,7 +60,6 @@ import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSource
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { gql } from 'graphql-request';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { cloudinarySourceRoadmap } from '@dailydotdev/shared/src/lib/image';
@@ -75,9 +75,9 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 interface TagPageProps extends DynamicSeoProps {
   tag: string;
-  initialData: Keyword;
+  initialData: Keyword | null;
   topPosts: TagTopPost[];
-  recommendedTags: string[];
+  recommendedTags: TagsData['tags'];
 }
 
 interface TagTopPost {
@@ -99,20 +99,6 @@ interface TagRecommendedTagsProps {
   blockedTags?: string[];
   initialTags?: TagsData['tags'];
 }
-
-const TAG_TOP_POSTS_QUERY = gql`
-  query TagTopPosts($tag: String!, $first: Int) {
-    page: tagFeed(tag: $tag, first: $first, ranking: POPULARITY) {
-      edges {
-        node {
-          id
-          title
-          slug
-        }
-      }
-    }
-  }
-`;
 
 const TagRecommendedTags = ({
   tag,
@@ -348,7 +334,12 @@ const TagPage = ({
             <ul className="list-inside list-disc">
               {topPosts.map((post) => (
                 <li key={post.id} className="text-text-secondary typo-callout">
-                  <a href={`/posts/${post.slug || post.id}`}>{post.title}</a>
+                  <Link
+                    href={`/posts/${post.slug || post.id}`}
+                    prefetch={false}
+                  >
+                    <a>{post.title}</a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -358,9 +349,7 @@ const TagPage = ({
           <TagRecommendedTags
             tag={tag}
             blockedTags={feedSettings?.blockedTags}
-            initialTags={recommendedTags.map((recommendedTag) => ({
-              name: recommendedTag,
-            }))}
+            initialTags={recommendedTags}
           />
         )}
         {showRoadmap && initialData?.flags?.roadmap && (
@@ -523,12 +512,7 @@ export async function getStaticProps({
       topPostsResult?.page?.edges
         ?.map((edge) => edge.node)
         .filter((post) => !!post.title) ?? [];
-    const recommendedTags =
-      recommendedTagsResult?.recommendedTags?.tags
-        ?.map((recommendedTag) => recommendedTag.name)
-        .filter(
-          (recommendedTag): recommendedTag is string => !!recommendedTag,
-        ) ?? [];
+    const recommendedTags = recommendedTagsResult?.recommendedTags?.tags ?? [];
     const seo = getSeoData(
       initialData.flags?.title || tag,
       initialData.flags?.description,
@@ -545,7 +529,7 @@ export async function getStaticProps({
       revalidate: 3600,
     };
   } catch (error) {
-    // keyword not found, ignoring for now
+    // Return fallback props for any request failure in getStaticProps.
     return notFoundResponse;
   }
 }
