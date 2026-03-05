@@ -32,7 +32,6 @@ import { useActions } from './useActions';
 import { bookmarkMutationKey } from './bookmark/types';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
-import type { Bookmark } from '../graphql/bookmarks';
 import { useActiveFeedContext } from '../contexts';
 
 export type ToggleBookmarkProps = {
