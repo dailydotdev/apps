@@ -198,6 +198,11 @@ ArenaPageRoute.layoutProps = {
       description: ARENA_DESCRIPTION,
       url: 'https://app.daily.dev/agents/arena',
       type: 'website',
+      images: [
+        {
+          url: 'https://og.daily.dev/api/arena?tab=coding-agents&hideLink=1',
+        },
+      ],
     },
   },
 };
