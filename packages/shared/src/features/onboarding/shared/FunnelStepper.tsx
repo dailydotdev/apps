@@ -126,15 +126,13 @@ export const FunnelStepper = ({
   useEventListener(globalThis, 'scrollend', trackOnScroll, { passive: true });
 
   const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
-  const stepRef = useRef(step);
-  stepRef.current = step;
-  const positionRef = useRef(position);
-  positionRef.current = position;
+  const currentNavigationRef = useRef({ step, position });
+  currentNavigationRef.current = { step, position };
 
   const onTransition: FunnelStepTransitionCallback = useCallback(
     ({ type, details }) => {
-      const currentStep = stepRef.current;
-      const currentPosition = positionRef.current;
+      const { step: currentStep, position: currentPosition } =
+        currentNavigationRef.current;
       const transition = currentStep.transitions.find(
         (item) => item.on === type,
       );
@@ -156,12 +154,14 @@ export const FunnelStepper = ({
 
       const isLastStep = targetStepId === COMPLETED_STEP_ID;
 
-      sendTransition({
-        fromStep: currentStep.id,
-        toStep: isLastStep ? null : targetStepId,
-        transitionEvent: type,
-        inputs: details,
-      });
+      Promise.resolve(
+        sendTransition({
+          fromStep: currentStep.id,
+          toStep: isLastStep ? null : targetStepId,
+          transitionEvent: type,
+          inputs: details,
+        }),
+      ).catch(() => undefined);
 
       if (!isLastStep) {
         navigate({

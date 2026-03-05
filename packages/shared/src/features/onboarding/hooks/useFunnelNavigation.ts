@@ -214,21 +214,20 @@ export const useFunnelNavigation = ({
     () => getFunnelStepByPosition(funnel, position),
     [funnel, position],
   );
-  const stepRef = useRef(step);
-  stepRef.current = step;
-  const stepTimerStartRef = useRef(stepTimerStart);
-  stepTimerStartRef.current = stepTimerStart;
+  const navigationStateRef = useRef({ step, stepTimerStart });
+  navigationStateRef.current = { step, stepTimerStart };
 
   const navigate: NavigateFunction = useCallback(
     ({ to, type = FunnelStepTransitionType.Complete, details }) => {
-      const currentStep = stepRef.current;
+      const { step: currentStep, stepTimerStart: currentStepTimerStart } =
+        navigationStateRef.current;
 
       if (!currentStep) {
         return;
       }
 
       const from = currentStep.id;
-      const timeDuration = Date.now() - stepTimerStartRef.current;
+      const timeDuration = Date.now() - currentStepTimerStart;
 
       if (!stepMap[to]?.position) {
         return;
